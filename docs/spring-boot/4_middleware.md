@@ -1,7 +1,7 @@
 # 中间件集成
 
 > 本章聚焦 Spring Boot 与各中间件的**集成方式**（Starter 引入 / 配置项 / 常见坑），
-> 中间件本身的原理详见对应模块：[缓存](/cache/0_redis) / [消息队列](/messaging/0_mq) / [数据库](/database/0_mysql)
+> 中间件本身的原理详见对应模块：[缓存](/cache/0_redis_base) / [消息队列](/messaging/0_mq) / [数据库](/database/0_mysql)
 
 ## 一、Redis 集成
 

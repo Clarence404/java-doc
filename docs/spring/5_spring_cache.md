@@ -46,7 +46,7 @@ spring:
 
 本地缓存（Caffeine）+ 分布式缓存（Redis）组合，兼顾性能与一致性。
 
-> 详见：[两级缓存架构](/cache/0_redis)
+> 详见：[两级缓存架构](/cache/0_redis_base)
 
 > [!warning]
 > 待补充

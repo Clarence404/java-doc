@@ -12,6 +12,8 @@
 | 集成测试 | Integration Test | Spring Test / TestContainers | 多组件协作、数据库、消息队列 |
 | 接口测试 | API Test | MockMvc / RestAssured | HTTP 接口行为验证 |
 | 端到端测试 | E2E Test | Selenium / Playwright | 完整业务流程 |
+| 契约测试 | Contract Test | Pact / Spring Cloud Contract | 服务间接口兼容性 |
+| 性能测试 | Performance Test | JMeter / k6 / Gatling | 容量、吞吐、响应时间 |
 
 ## 二、测试原则
 
@@ -31,3 +33,9 @@
 
 > [!warning]
 > 待补充
+
+## 四、后续专题
+
+- [Testcontainers](./5_testcontainers)：用真实中间件做集成测试
+- [契约测试](./6_contract_test)：降低服务间接口变更风险
+- [性能测试](./7_performance_test)：建立容量评估和瓶颈分析方法

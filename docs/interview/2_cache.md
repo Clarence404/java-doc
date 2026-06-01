@@ -789,4 +789,4 @@ Redis 服务器负载过重，甚至导致 Redis 崩溃。
 
 ## 十九、Redis 说说分布式锁？
 
-- 点击查看  <RouteLink to="/cache/0_redis#四、Redis分布式锁">Redis：Redis分布式锁</RouteLink>
+- 点击查看  <RouteLink to="/cache/0_redis_base#四、Redis分布式锁">Redis：Redis分布式锁</RouteLink>

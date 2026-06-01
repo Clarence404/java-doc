@@ -9,6 +9,8 @@
 | [数据安全](./3_data_security) | 加密算法、数据脱敏、密钥管理 |
 | [常见漏洞](./4_vulnerabilities) | OWASP Top 10、SQL 注入、XSS、CSRF |
 | [零信任架构](./5_zero_trust) | 零信任模型、mTLS、动态授权 |
+| [OAuth2、OIDC 与 JWT](./6_oauth_oidc_jwt) | 授权模式、身份认证、令牌管理、安全风险 |
+| [审计日志与密钥管理](./7_audit_secret) | 操作审计、密钥轮换、KMS、Vault |
 
 ## 安全分层模型
 

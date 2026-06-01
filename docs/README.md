@@ -55,7 +55,7 @@ highlights:
       - title: Java 特性
         icon: code
         details: Java 8 → 21 核心新特性：Stream / Lambda / Record / Sealed Class / Virtual Thread
-        link: /java/5_feature
+        link: /java/11_version
       - title: JVM
         icon: gears
         details: 内存结构 / 类加载机制 / GC 算法全解 / 参数调优 / 线上 OOM 排查实战
@@ -101,7 +101,7 @@ highlights:
       - title: 缓存
         icon: bolt
         details: Redis 核心 / Caffeine 本地缓存 / 两级缓存架构 / 缓存一致性解决方案
-        link: /cache/0_redis
+        link: /cache/0_redis_base
       - title: 消息队列
         icon: comments
         details: Kafka / RocketMQ / RabbitMQ 原理横向对比，消息可靠性 / 顺序消费 / 幂等方案
@@ -152,7 +152,11 @@ highlights:
         icon: screwdriver-wrench
         details: Git 工作流 / CI/CD 流水线 / Code Review / 团队开发规范
         link: /devops/0_devops
-      - title: 通信协议
+      - title: 可观测性
+        icon: chart-line
+        details: 日志 / 指标 / 链路追踪 / 告警治理 / OpenTelemetry，支撑线上排障与稳定性建设
+        link: /observability/0_observability
+      - title: 协议体系
         icon: tower-broadcast
         details: TCP/IP / HTTP/2 / gRPC / WebSocket / IoT 协议 / TLS 安全协议全栈体系
         link: /protocols/0_protocols_base
@@ -176,7 +180,7 @@ footer: MIT 协议 | 版权所有 © 2025-至今 Clarence
 
 <div style="display:flex; justify-content:center; gap:1.5rem; flex-wrap:wrap; padding: 2.5rem 1rem 1rem;">
   <div style="text-align:center; padding:1.25rem 2rem; border-radius:14px; border:1px solid rgba(168,85,247,0.18); background:rgba(168,85,247,0.04); min-width:120px;">
-    <div style="font-size:2rem; font-weight:800; background:linear-gradient(135deg,#ff6b9d,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2;">24</div>
+    <div style="font-size:2rem; font-weight:800; background:linear-gradient(135deg,#ff6b9d,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2;">26</div>
     <div style="font-size:0.85rem; color:var(--vp-c-text-2,#666); margin-top:0.3rem;">技术模块</div>
   </div>
   <div style="text-align:center; padding:1.25rem 2rem; border-radius:14px; border:1px solid rgba(168,85,247,0.18); background:rgba(168,85,247,0.04); min-width:120px;">
@@ -201,7 +205,7 @@ footer: MIT 协议 | 版权所有 © 2025-至今 Clarence
 数据层    数据库  →  缓存  →  消息队列
 分布式层  分布式理论  →  高并发  →  高可用  →  微服务
 架构层    系统架构  →  业务场景
-运维层    云原生  →  DevOps  →  通信协议
+运维层    云原生  →  DevOps  →  工程效率  →  可观测性  →  协议体系
 新兴层    IoT  →  AI
 面试冲刺  interview/ 各方向高频题汇总速查
 ```

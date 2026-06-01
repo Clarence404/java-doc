@@ -207,3 +207,8 @@ mysqlbinlog mysql-bin.000001
 3. **GTID（全局事务 ID）**：增强型复制方式，可以更方便地进行主从切换和容灾。
 
 ---
+
+## 十二、后续补充专题
+
+- [Elasticsearch 与 OpenSearch](./17_elasticsearch_opensearch)：搜索引擎、日志检索、聚合分析
+- [数据备份与恢复](./18_backup_recovery)：备份策略、RTO / RPO、恢复演练

@@ -11,6 +11,8 @@
 | [代码质量](./3_code_quality) | SonarQube、Checkstyle、SpotBugs、代码规范 |
 | [线上诊断](./4_diagnosis) | Arthas、JVM 监控、线程 / 内存分析 |
 | [API 文档](./5_api_doc) | Swagger / OpenAPI、接口管理规范 |
+| [依赖治理](./6_dependency_governance) | 依赖版本、漏洞扫描、License 检查、升级策略 |
+| [API 设计规范](./7_api_design_rule) | URL、状态码、错误码、分页、版本兼容 |
 
 ## 与其他模块的关系
 
