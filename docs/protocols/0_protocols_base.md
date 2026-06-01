@@ -1,6 +1,32 @@
-# 常见的开发协议
+# 协议体系总览
 
 在软件开发中，协议（Protocol）是用于定义通信标准的规则集合。根据应用场景的不同，可以将常见协议分为以下几类：
+
+---
+
+## 官方规范入口
+
+| 分类 | 原始资料 / 官方网站 |
+|------|------------------|
+| 网络通信 | [IETF RFC Editor](https://www.rfc-editor.org/) / [IETF Datatracker](https://datatracker.ietf.org/) |
+| Web 协议 | [HTTP RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html) / [WHATWG WebSocket](https://websockets.spec.whatwg.org/) |
+| IoT 与工业通信 | [MQTT](https://mqtt.org/) / [Modbus](https://www.modbus.org/) / [OPC Foundation](https://opcfoundation.org/) |
+| 远程调用与消息 | [gRPC](https://grpc.io/docs/) / [Apache Thrift](https://thrift.apache.org/) / [AMQP](https://www.amqp.org/) |
+| 安全与认证 | [TLS 1.3 RFC 8446](https://www.rfc-editor.org/rfc/rfc8446.html) / [OAuth 2.0 RFC 6749](https://www.rfc-editor.org/rfc/rfc6749.html) / [OpenID Connect](https://openid.net/developers/specs/) |
+| 数据库访问 | [JDBC](https://docs.oracle.com/javase/8/docs/api/java/sql/package-summary.html) / [ODBC](https://learn.microsoft.com/en-us/sql/odbc/reference/odbc-programmer-s-reference) / [MySQL Internals](https://dev.mysql.com/doc/dev/mysql-server/latest/PAGE_PROTOCOL.html) |
+
+## 模块导航
+
+| 模块 | 覆盖内容 |
+|------|----------|
+| [网络通信协议](./1_network_communication) | TCP、UDP、IP、HTTP、WebSocket |
+| [IoT 与工业通信协议](./2_iot_industrial_communication) | MQTT、CoAP、Modbus、OPC UA、Zigbee |
+| [数据交换与远程调用](./3_data_exchange_remote_call) | gRPC、REST、SOAP、Thrift、AMQP |
+| [安全协议](./4_security_protocols) | TLS、OAuth2、OIDC、JWT、Kerberos、SAML |
+| [文件传输协议](./5_file_transfer_protocols) | FTP、SFTP、TFTP、NFS、SMB |
+| [数据库访问协议](./6_database_access_protocols) | JDBC、ODBC、MySQL、PostgreSQL、Redis RESP |
+| [邮件通信协议](./7_email_communication_protocols) | SMTP、POP3、IMAP、MIME |
+| [分布式系统协议](./8_distributed_system_protocols) | Raft、Paxos、Gossip、ZAB |
 
 ---
 

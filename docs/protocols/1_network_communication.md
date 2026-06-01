@@ -1,6 +1,18 @@
-# 传输层和网络层协议（通信协议）
+# 网络通信协议
 
-这些协议主要用于计算机网络中的数据传输，保证数据能够可靠地在不同设备之间传递。
+覆盖传输层、网络层和常见 Web 通信协议，主要用于计算机网络中的数据传输。
+
+## 官方规范入口
+
+| 协议 | 官方 / 原始规范 |
+|------|----------------|
+| TCP | [RFC 9293](https://www.rfc-editor.org/rfc/rfc9293.html) |
+| UDP | [RFC 768](https://www.rfc-editor.org/rfc/rfc768.html) |
+| IPv4 | [RFC 791](https://www.rfc-editor.org/rfc/rfc791.html) |
+| IPv6 | [RFC 8200](https://www.rfc-editor.org/rfc/rfc8200.html) |
+| ICMP | [RFC 792](https://www.rfc-editor.org/rfc/rfc792.html) |
+| HTTP | [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html) / [HTTP/1.1 RFC 9112](https://www.rfc-editor.org/rfc/rfc9112.html) / [HTTP/2 RFC 9113](https://www.rfc-editor.org/rfc/rfc9113.html) / [HTTP/3 RFC 9114](https://www.rfc-editor.org/rfc/rfc9114.html) |
+| WebSocket | [RFC 6455](https://www.rfc-editor.org/rfc/rfc6455.html) |
 
 - **TCP（Transmission Control Protocol，传输控制协议）**：面向连接的可靠传输协议，提供数据流控制和错误检测，常用于 HTTP、FTP 等应用。
 - **UDP（User Datagram Protocol，用户数据报协议）**：无连接的传输协议，适用于对时延敏感但无需可靠传输的应用，如视频流、DNS 查询等。
