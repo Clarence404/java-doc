@@ -5,6 +5,8 @@
 > * Apache Shiro：[https://shiro.apache.org/documentation.html](https://shiro.apache.org/documentation.html)
 > * Spring Security：[https://docs.spring.io/spring-security/reference/](https://docs.spring.io/spring-security/reference/)
 
+> 本文聚焦框架选型与 API 使用。认证授权基础概念（RBAC / ABAC / OAuth2 / JWT）见 → [认证与授权](/security/1_authentication)
+
 ## 一、三大框架对比
 
 | 对比项 | Spring Security | Sa-Token | Apache Shiro |

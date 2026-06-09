@@ -5,6 +5,8 @@
 > * CAS 官网：[https://apereo.github.io/cas/](https://apereo.github.io/cas/)
 > * OAuth2 RFC：[https://datatracker.ietf.org/doc/html/rfc6749](https://datatracker.ietf.org/doc/html/rfc6749)
 
+> 本文聚焦 Spring 生态下 SSO 的落地方案。OAuth2 / OIDC 协议原理见 → [OAuth2 与 OIDC](/security/6_oauth2_oidc)　JWT 令牌详见 → [JWT](/security/7_jwt)
+
 ## 一、什么是 SSO
 
 **SSO（Single Sign-On，单点登录）**：用户只需登录一次，即可访问多个相互信任的应用系统，无需重复认证。

@@ -97,12 +97,15 @@ const navbarDropdown = [
     {
         text: '安全体系',
         children: [
-            {text: '安全体系总览', link: '/security/0_security'},
-            {text: '认证与授权', link: '/security/1_authentication'},
-            {text: 'API 安全', link: '/security/2_api_security'},
-            {text: '数据安全', link: '/security/3_data_security'},
-            {text: '常见漏洞与防护', link: '/security/4_vulnerabilities'},
-            {text: '零信任架构', link: '/security/5_zero_trust'},
+            {text: '安全体系总览',     link: '/security/0_security'},
+            {text: '认证与授权',       link: '/security/1_authentication'},
+            {text: 'API 安全',         link: '/security/2_api_security'},
+            {text: '数据安全',         link: '/security/3_data_security'},
+            {text: '常见漏洞与防护',   link: '/security/4_vulnerabilities'},
+            {text: '零信任架构',       link: '/security/5_zero_trust'},
+            {text: 'OAuth2 与 OIDC',   link: '/security/6_oauth2_oidc'},
+            {text: 'JWT',              link: '/security/7_jwt'},
+            {text: '审计日志与密钥管理', link: '/security/8_audit_secret'},
         ],
     },
     {

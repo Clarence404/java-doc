@@ -1,22 +1,20 @@
 # 认证与授权
 
+> 本文聚焦认证授权基础概念与模型。Spring 框架中 Security / Sa-Token / Shiro 的具体实现对比见 → [安全框架横向对比](/spring/10_auth_framework)
+
 ## 核心概念
 
 - **认证（Authentication）**：你是谁（Who are you）
 - **授权（Authorization）**：你能做什么（What can you do）
 - **鉴权（Access Control）**：是否有权限执行当前操作
 
-## OAuth 2.0
+## OAuth 2.0 / OIDC
 
-> [!warning] 待补充
->
-> OAuth2 四种授权模式、各场景适用场景、PKCE 扩展
+> 协议原理、四种授权模式、PKCE 扩展详见 → [OAuth2 与 OIDC](/security/6_oauth2_oidc)
 
 ## JWT
 
-> [!warning] 待补充
->
-> 结构（Header.Payload.Signature）、签名算法、失效策略、安全注意事项
+> 令牌结构、签名算法、失效策略、安全风险详见 → [JWT](/security/7_jwt)
 
 ## RBAC / ABAC
 
