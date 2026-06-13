@@ -92,7 +92,9 @@ CPU、内存、磁盘和带宽资源。
 > 以下仅收录具备中国优化线路的服务商，普通线路商家（RackNerd、Vultr、CloudCone 等）不在此列。
 
 ::: tip 综合查询工具
-[digvps.com](https://digvps.com) — 收录主流服务商信息、套餐价格与线路测评数据，选购前可在此对比参考。
+选购前可在以下平台查询服务商信息、套餐价格与线路测评数据：
+- [digvps.com](https://digvps.com)
+- [vpsknow.com](https://vpsknow.com/)
 :::
 
 ### 4.1 搬瓦工（BandwagonHost）

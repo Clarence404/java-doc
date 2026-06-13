@@ -104,7 +104,7 @@ const navbarDropdown = [
             {text: '常见漏洞与防护',   link: '/security/4_vulnerabilities'},
             {text: '零信任架构',       link: '/security/5_zero_trust'},
             {text: 'OAuth2 与 OIDC',   link: '/security/6_oauth2_oidc'},
-            {text: 'JWT',              link: '/security/7_jwt'},
+            {text: 'JWT 令牌机制',              link: '/security/7_jwt'},
             {text: '审计日志与密钥管理', link: '/security/8_audit_secret'},
         ],
     },
