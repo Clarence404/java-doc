@@ -1,4 +1,4 @@
-# Java专项- synchronized 锁升级
+# Java 专项-synchronized
 
 > 参考资料：
 > * JEP 374 — Disable and Deprecate Biased Locking：[https://openjdk.org/jeps/374](https://openjdk.org/jeps/374)
