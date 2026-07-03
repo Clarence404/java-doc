@@ -1,4 +1,4 @@
-# synchronized 锁升级机制
+# Java专项- synchronized 锁升级
 
 > 参考资料：
 > * JEP 374 — Disable and Deprecate Biased Locking：[https://openjdk.org/jeps/374](https://openjdk.org/jeps/374)
@@ -321,10 +321,32 @@
 .slk-ty{background:rgba(212,160,23,.14);color:#d4a017;}
 .slk-tr{background:rgba(232,93,4,.14);color:#e85d04;}
 .slk-tm{background:rgba(106,115,132,.14);color:#6a7384;}
-@media(max-width:660px){
-  .slk-vtl,.slk-mtype{grid-template-columns:1fr 1fr;}
+/* tablet ≤768px */
+@media(max-width:768px){
+  .slk{padding:22px 16px;}
+  .slk-vtl{grid-template-columns:1fr 1fr;}
+  .slk-mtype{grid-template-columns:1fr 1fr;}
+}
+/* mobile ≤520px */
+@media(max-width:520px){
+  .slk{padding:16px 12px;border-radius:8px;}
+  .slk-card{padding:14px;}
+  .slk-t{font-size:14px;}
+  .slk-vtl{grid-template-columns:1fr 1fr;}
+  .slk-mtype{grid-template-columns:1fr;}
   .slk-sg,.slk-two{grid-template-columns:1fr;}
   .slk-mis{grid-template-columns:1fr;}
   .slk-mis-w{border-right:none;border-bottom:1px solid #2a303d;}
+  .slk-chain{flex-direction:column;align-items:stretch;}
+  .slk-cn{min-width:unset;width:100%;}
+  .slk-cn-arr{transform:rotate(90deg);align-self:center;margin:2px 0;padding:0;}
+  .slk-pill{min-width:unset;width:100%;}
+  .slk-ia{flex-wrap:wrap;}
+}
+/* small phone ≤380px */
+@media(max-width:380px){
+  .slk-vtl{grid-template-columns:1fr;}
+  .slk-ia{flex-direction:column;gap:6px;}
+  .slk-ia-badge{align-self:flex-start;}
 }
 </style>

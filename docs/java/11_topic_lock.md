@@ -2,28 +2,13 @@
 
 ## 一、synchronized
 
-### 底层原理
+> synchronized 锁升级机制（Mark Word、偏向锁、轻量级锁、ObjectMonitor、版本差异、常见误区）详见专项文档：
+> → [synchronized 锁升级机制](/java/12_topic_synchronized)
 
-- **对象锁**：锁的是对象头中的 Mark Word，通过 `monitorenter` / `monitorexit` 字节码实现
-- **类锁**：锁的是 Class 对象，`static synchronized` 方法或 `synchronized(Xxx.class)`
-- Java 6 引入锁升级：**无锁 → 偏向锁 → 轻量级锁 → 重量级锁**（不可逆降级）
-
-### 锁升级过程
-
-```
-无锁
-  ↓ 第一个线程访问
-偏向锁（Mark Word 记录线程 ID，无竞争时 CAS 免加锁）
-  ↓ 有第二个线程竞争
-轻量级锁（CAS 自旋，适合短暂竞争）
-  ↓ 自旋超过阈值 / 线程数过多
-重量级锁（OS Mutex，线程挂起，上下文切换）
-```
-
-### 注意事项
-
+**使用注意：**
 - 锁对象不能为 `null`，不建议锁 `String` 常量（池中共享，可能死锁）
 - `synchronized` 方法和 `synchronized(this)` 等价，锁的是同一个对象
+- JVM 内置实现，异常时自动释放锁，无需手动处理
 
 ---
 
