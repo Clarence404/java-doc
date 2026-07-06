@@ -3,7 +3,7 @@ home: true
 title: 首页
 
 heroImage: /images/logo.png
-heroText: Clarence Java Doc
+heroText: Java Doc
 tagline: Java 后端技术知识体系 · 开发总结 + 工程实践参考手册
 heroFullScreen: true
 

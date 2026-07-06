@@ -151,7 +151,7 @@ export default defineUserConfig({
     base: '/java-doc/',
     lang: 'zh-CN',
     port: 1000,
-    title: 'Clarence Java Doc',
+    title: 'Java Doc',
     description: '实践是检验真理的唯一标准',
     // 处理vite 打包警告
     bundler: viteBundler({
