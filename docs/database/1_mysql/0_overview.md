@@ -70,13 +70,89 @@
 
 ## 二、MySQL 视图
 
-> [!warning] 待补充
+视图是基于 SQL 查询结果的虚拟表，**不存储数据**，每次查询时实时执行底层 SQL。
+
+```sql
+-- 创建视图
+CREATE VIEW v_active_orders AS
+SELECT o.id, o.user_id, u.name AS user_name, o.amount, o.status
+FROM orders o
+JOIN users u ON o.user_id = u.id
+WHERE o.status != 'cancelled';
+
+-- 使用视图（与普通表一致）
+SELECT * FROM v_active_orders WHERE user_id = 123;
+
+-- 更新视图定义
+CREATE OR REPLACE VIEW v_active_orders AS ...;
+
+-- 删除视图
+DROP VIEW IF EXISTS v_active_orders;
+```
+
+**视图的作用**：
+- **简化复杂查询**：封装多表 JOIN，对外暴露简单接口
+- **权限控制**：只给用户授权视图，隐藏底层表结构和敏感字段
+- **数据抽象**：业务层不感知底层表结构变化
+
+**注意事项**：
+- MySQL 视图**不缓存结果**，每次查询都执行底层 SQL（与物化视图不同）
+- 满足特定条件的简单视图支持 INSERT/UPDATE（`WITH CHECK OPTION` 可限制更新范围）
+- 复杂视图（含 GROUP BY、DISTINCT、子查询、UNION）**不可更新**
 
 ---
 
 ## 三、MySQL 存储过程
 
-> [!warning] 待补充
+存储过程是预编译的 SQL 代码块，存储在数据库中，可通过名称调用。
+
+```sql
+-- 创建存储过程：批量更新订单状态
+DELIMITER //
+CREATE PROCEDURE batch_expire_orders(IN days_ago INT, OUT affected_rows INT)
+BEGIN
+  DECLARE exit_flag INT DEFAULT 0;
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET exit_flag = 1;
+
+  START TRANSACTION;
+
+  UPDATE orders
+  SET status = 'expired'
+  WHERE status = 'pending'
+    AND created_at < DATE_SUB(NOW(), INTERVAL days_ago DAY);
+
+  IF exit_flag = 0 THEN
+    SET affected_rows = ROW_COUNT();
+    COMMIT;
+  ELSE
+    SET affected_rows = 0;
+    ROLLBACK;
+  END IF;
+END //
+DELIMITER ;
+
+-- 调用存储过程
+CALL batch_expire_orders(30, @cnt);
+SELECT @cnt AS affected;
+
+-- 查看存储过程定义
+SHOW CREATE PROCEDURE batch_expire_orders;
+
+-- 删除存储过程
+DROP PROCEDURE IF EXISTS batch_expire_orders;
+```
+
+**存储过程 vs 应用层代码**：
+
+| 维度 | 存储过程 | 应用层代码 |
+|------|---------|-----------|
+| 性能 | 预编译，减少网络往返 | 每次发送 SQL |
+| 维护性 | 难以版本管理、测试 | 代码仓库管理，易测试 |
+| 可移植性 | 与数据库强绑定 | 可切换数据库 |
+| 调试难度 | 困难 | 方便（日志、断点）|
+| 适用场景 | 数据库内批量操作、DBA 脚本 | 业务逻辑（推荐）|
+
+> **工程实践建议**：互联网业务中通常避免在存储过程中放置核心业务逻辑，逻辑放应用层，数据库只做数据存储。存储过程适合 DBA 批量数据修复、数据迁移等场景。
 
 ---
 
