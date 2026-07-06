@@ -114,12 +114,6 @@ services:
 
 创建完成后，记下 Token 方便后续使用。
 
-示例 Token（仅供参考）：
-
-```
-4TnxeZiruEm9pjlI3BIXTH8XYgIwMgr_ghy9Phj_YoXpJSABig_FhEkOVKWTaKPMeHPjAcVWx5UqviEGs1BZxg==
-```
-
 - 数据写入
 
 2.x 支持多种方式写入数据，最常见的是 `CLI` 和 `API`。

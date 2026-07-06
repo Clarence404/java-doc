@@ -4,77 +4,9 @@
 
 ## 一、索引失效雷区
 
-### 1、隐式类型转换
+索引失效的完整场景（隐式类型转换、函数运算、LIKE 前缀、OR 条件、最左前缀、范围截断、低区分度等）详见专项文档：
 
-字段类型与传入值类型不匹配时，MySQL 做隐式转换，索引失效。
-
-```sql
--- phone 字段为 varchar，传入 int → 全表扫描
-SELECT * FROM users WHERE phone = 13800138000;    -- ❌ 索引失效
-SELECT * FROM users WHERE phone = '13800138000';  -- ✅ 走索引
-```
-
-反向也会发生：数字字段与字符串比较，字符串被转成数字，索引可能失效。
-
-### 2、对索引列使用函数或运算
-
-```sql
--- 对列做函数运算，破坏索引结构
-SELECT * FROM orders WHERE YEAR(created_at) = 2024;             -- ❌
-SELECT * FROM orders WHERE DATE(created_at) = '2024-06-01';     -- ❌
-SELECT * FROM orders WHERE id + 1 = 100;                        -- ❌
-
--- 改为范围查询
-SELECT * FROM orders
-WHERE created_at >= '2024-01-01' AND created_at < '2025-01-01'; -- ✅
-SELECT * FROM orders WHERE id = 99;                              -- ✅
-```
-
-### 3、LIKE 前缀通配符
-
-```sql
-SELECT * FROM users WHERE name LIKE '%张%';  -- ❌ 前通配，全表扫描
-SELECT * FROM users WHERE name LIKE '张%';   -- ✅ 后通配，走索引
-```
-
-前缀模糊搜索需要改用全文索引或 Elasticsearch。
-
-### 4、OR 条件中有列未命中索引
-
-```sql
--- id 有索引，email 无索引，OR 导致整体失效
-SELECT * FROM users WHERE id = 1 OR email = 'a@b.com';  -- ❌
-
--- 方案1：给 email 也加索引
--- 方案2：UNION 替代 OR
-SELECT * FROM users WHERE id = 1
-UNION
-SELECT * FROM users WHERE email = 'a@b.com';             -- ✅
-```
-
-### 5、联合索引违反最左前缀
-
-```sql
--- 联合索引 (a, b, c)
-SELECT * FROM t WHERE b = 1 AND c = 2;       -- ❌ 未包含 a，索引失效
-SELECT * FROM t WHERE a = 1 AND c = 2;       -- ⚠️ 仅用到 a，c 无法利用索引
-SELECT * FROM t WHERE a = 1 AND b = 2;       -- ✅ 用到 (a, b)
-SELECT * FROM t WHERE a = 1 AND b = 2 AND c = 3; -- ✅ 全用到
-SELECT * FROM t WHERE b = 2 AND a = 1;       -- ✅ 优化器会调整顺序
-```
-
-### 6、范围查询后的列失效
-
-```sql
--- 联合索引 (status, amount, created_at)
--- amount 用了范围查询，其后的 created_at 无法使用索引
-SELECT * FROM orders
-WHERE status = 'paid' AND amount > 100 AND created_at > '2024-01-01';
--- status + amount 走索引，created_at 不走 ❌
-
--- 将区分度高的等值列放前面
-CREATE INDEX idx_opt ON orders(status, created_at, amount);
-```
+→ [MySQL 索引专项 · 索引失效的 7 种场景](./4_topic_mysql_index)
 
 ---
 

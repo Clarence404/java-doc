@@ -144,12 +144,16 @@ SELECT * FROM user WHERE age = 18;
 ### 5. NOT IN / !=
 
 ```sql
--- ❌ 大多数情况下不走索引
+-- 优化器会根据数据量和区分度决定是否走索引
+-- 当符合条件的行占比较大时，优化器倾向全表扫描（认为回表成本更高）
 SELECT * FROM user WHERE status != 1;
 SELECT * FROM user WHERE id NOT IN (1, 2, 3);
 
--- ✅ 改写为正向条件（如 status IN (0, 2)）
+-- ✅ 尽量改写为正向条件，让优化器更容易选择索引
+SELECT * FROM user WHERE status IN (0, 2);
 ```
+
+> 是否走索引以 `EXPLAIN` 为准，并非 `!=` / `NOT IN` 一定失效。
 
 ### 6. 违反最左前缀
 

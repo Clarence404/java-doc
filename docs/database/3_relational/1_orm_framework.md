@@ -4,13 +4,228 @@
 
 ### 1、Mybatis的缓存机制
 
+MyBatis 内置两级缓存机制：
+
+#### 一级缓存（SqlSession 级别）
+
+- 默认**开启**，作用域为同一个 `SqlSession`
+- 同一个 SqlSession 内，相同的查询（SQL + 参数相同）直接返回缓存，不再发 SQL
+- 以下情况一级缓存失效：执行了 INSERT/UPDATE/DELETE、调用了 `sqlSession.clearCache()`、SqlSession 关闭
+
+```java
+// 一级缓存生效示例（Spring 中每个事务共享同一 SqlSession）
+@Transactional
+public void demo() {
+    User u1 = userMapper.selectById(1);  // 查询数据库
+    User u2 = userMapper.selectById(1);  // 命中一级缓存，不发 SQL
+    // u1 == u2（同一对象引用）
+}
+```
+
+> Spring 集成 MyBatis 时，每个方法调用默认新建 SqlSession（非事务），一级缓存在方法结束后即失效，实际效果有限。**开启 `@Transactional` 后**，同一事务内共用 SqlSession，一级缓存才真正生效。
+
+#### 二级缓存（Mapper/namespace 级别）
+
+- 默认**关闭**，需手动开启
+- 跨 SqlSession 共享，同一个 namespace 下的查询可命中
+- 数据存储在 namespace 对应的 Cache 对象中，SqlSession **关闭或提交**后数据才放入二级缓存
+
+**开启方式**：
+
+```xml
+<!-- mybatis-config.xml 全局开关 -->
+<settings>
+  <setting name="cacheEnabled" value="true"/>
+</settings>
+
+<!-- 对应的 Mapper XML 中声明 -->
+<cache eviction="LRU" flushInterval="60000" size="512" readOnly="true"/>
+```
+
+或注解方式：
+
+```java
+@CacheNamespace(eviction = LruCache.class, flushInterval = 60000, size = 512, readWrite = false)
+public interface UserMapper { ... }
+```
+
+**二级缓存缺点**：
+- 多表关联查询时，某个表更新只会清空本 namespace 的缓存，关联表的缓存不会清，容易出现脏数据
+- 分布式环境下各节点缓存不一致
+
+> **工程建议**：二级缓存适用于数据几乎不变的字典表；业务表的缓存建议用 Redis 在应用层实现，不要依赖 MyBatis 二级缓存。
+
 ### 2、Mybatis分页原理
+
+#### 逻辑分页（RowBounds，不推荐）
+
+MyBatis 内置 `RowBounds` 实现分页：**先全量查询，再内存截取**。数据量大时 OOM 风险极高。
+
+```java
+// 内存分页：查出所有数据再截取，仅适合极小数据量
+List<User> users = sqlSession.selectList("selectAll", null, new RowBounds(100, 10));
+```
+
+#### 物理分页（PageHelper，推荐）
+
+PageHelper 通过 MyBatis **拦截器（Interceptor）** 拦截 `StatementHandler.prepare` 阶段，在执行前自动拼接 `LIMIT` 子句，并额外发一次 `COUNT(*)` 查询获取总数。
+
+```xml
+<dependency>
+  <groupId>com.github.pagehelper</groupId>
+  <artifactId>pagehelper-spring-boot-starter</artifactId>
+  <version>1.4.7</version>
+</dependency>
+```
+
+```java
+// PageHelper 使用（必须紧跟 startPage，中间不能有其他查询）
+PageHelper.startPage(1, 10);
+List<User> list = userMapper.selectAll();
+PageInfo<User> pageInfo = new PageInfo<>(list);
+// pageInfo.getTotal()、pageInfo.getList()、pageInfo.getPages()
+```
+
+**原理**：`startPage()` 将分页参数存入 `ThreadLocal`，拦截器在 SQL 执行前取出并拼接 `LIMIT`，执行后清空 ThreadLocal。
+
+#### MyBatis-Plus IPage
+
+```java
+Page<User> page = new Page<>(1, 10);
+IPage<User> result = userMapper.selectPage(page, 
+    new LambdaQueryWrapper<User>().eq(User::getStatus, 1));
+result.getRecords(); // 当前页数据
+result.getTotal();   // 总数
+```
 
 ### 3、Mybatis工作原理
 
+MyBatis 核心工作流程分为**初始化阶段**和**执行阶段**：
+
+#### 初始化阶段（应用启动时）
+
+```
+读取 mybatis-config.xml + Mapper XML（或注解）
+  ↓
+SqlSessionFactoryBuilder.build()
+  ↓
+XMLConfigBuilder 解析配置 → Configuration 对象（全局唯一）
+  ↓
+XMLMapperBuilder 解析 Mapper → MappedStatement（每条 SQL 对应一个）
+  ↓
+构建 SqlSessionFactory（DefaultSqlSessionFactory）
+```
+
+#### 执行阶段（每次 SQL 调用）
+
+```
+SqlSessionFactory.openSession()
+  ↓
+创建 SqlSession（DefaultSqlSession）+ 创建 Executor
+  ↓
+调用 Mapper 接口方法
+  ↓
+MapperProxy.invoke() → MapperMethod.execute()
+  ↓
+Executor.query() / update()
+  ↓
+StatementHandler 创建 PreparedStatement
+  ↓
+ParameterHandler 设置参数（调用 TypeHandler）
+  ↓
+执行 JDBC，获取 ResultSet
+  ↓
+ResultSetHandler 映射结果（调用 TypeHandler）
+  ↓
+返回 Java 对象
+```
+
+#### 核心组件职责
+
+| 组件 | 职责 |
+|------|------|
+| `SqlSessionFactory` | 工厂，创建 SqlSession（线程安全，全局单例）|
+| `SqlSession` | 执行 SQL 的门面，非线程安全（每次请求新建）|
+| `Executor` | SQL 执行器，管理缓存和事务 |
+| `StatementHandler` | 创建并操作 JDBC Statement |
+| `ParameterHandler` | 将 Java 参数绑定到 SQL 占位符 |
+| `ResultSetHandler` | 将 ResultSet 映射为 Java 对象 |
+| `TypeHandler` | Java 类型 ↔ JDBC 类型互转 |
+
 ### 4、Mapper 接口的实现原理
 
+Mapper 接口没有实现类，MyBatis 通过 **JDK 动态代理**在运行时生成代理对象：
+
+```
+getMapper(UserMapper.class)
+  ↓
+MapperRegistry.getMapper()
+  ↓
+MapperProxyFactory.newInstance()
+  ↓
+Proxy.newProxyInstance(classLoader, [UserMapper.class], mapperProxy)
+  ↓
+返回 UserMapper 的代理实例
+```
+
+**MapperProxy.invoke() 核心逻辑**：
+
+```java
+public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    // 1. Object 自带方法（toString/hashCode/equals）直接调用
+    if (Object.class.equals(method.getDeclaringClass())) {
+        return method.invoke(this, args);
+    }
+    // 2. default 方法（接口默认方法）特殊处理
+    if (method.isDefault()) {
+        return invokeDefaultMethod(proxy, method, args);
+    }
+    // 3. 普通 Mapper 方法：找到对应的 MappedStatement 并执行
+    MapperMethod mapperMethod = cachedMapperMethod(method);
+    return mapperMethod.execute(sqlSession, args);
+}
+```
+
+`MapperMethod.execute()` 根据 SQL 类型（SELECT/INSERT/UPDATE/DELETE）和返回类型分发到 SqlSession 的对应方法。
+
+**关键点**：每个 Mapper 接口方法 → 一个 `MappedStatement`（通过 namespace + methodName 唯一标识），MyBatis 初始化时已将所有 MappedStatement 注册到 `Configuration` 中。
+
 ### 5、MyBatis 执行器
+
+MyBatis 提供三种基础执行器，由 `ExecutorType` 控制：
+
+| 执行器 | 说明 | 适用场景 |
+|--------|------|---------|
+| `SimpleExecutor`（默认）| 每次执行都创建新的 `PreparedStatement` | 通用 |
+| `ReuseExecutor` | 复用已创建的 `PreparedStatement`（按 SQL 缓存）| 相同 SQL 重复执行 |
+| `BatchExecutor` | 批量提交，多条 DML 合并为 JDBC batch 执行 | 大批量写入 |
+
+```java
+// 使用 BatchExecutor 批量插入（Spring 中）
+@Autowired
+private SqlSessionFactory sqlSessionFactory;
+
+public void batchInsert(List<User> users) {
+    try (SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
+        UserMapper mapper = session.getMapper(UserMapper.class);
+        for (User user : users) {
+            mapper.insert(user);
+        }
+        session.commit();
+    }
+}
+```
+
+**CachingExecutor（装饰器）**：开启二级缓存时，MyBatis 用 `CachingExecutor` 包装上述三种执行器。每次查询前先检查二级缓存，未命中再委托给内部的实际执行器。
+
+```
+开启二级缓存后的执行链：
+CachingExecutor.query()
+  → 检查二级缓存（有则返回）
+  → 委托给 SimpleExecutor.query()
+      → 检查一级缓存（有则返回）
+      → 真正执行 JDBC
+```
 
 ### 6、自定义的 TypeHandler
 
@@ -295,8 +510,141 @@ mybatis-plus:
 
 ### 2、多数据源方案
 
-todo
+多数据源常见于：读写分离、数据库分库、访问多个业务库等场景。
+
+#### 方案 1：Spring AbstractRoutingDataSource（原生）
+
+```java
+// 1. 定义数据源上下文持有者
+public class DataSourceContextHolder {
+    private static final ThreadLocal<String> CONTEXT = new ThreadLocal<>();
+    public static void set(String ds) { CONTEXT.set(ds); }
+    public static String get() { return CONTEXT.get(); }
+    public static void clear() { CONTEXT.remove(); }
+}
+
+// 2. 继承 AbstractRoutingDataSource
+public class RoutingDataSource extends AbstractRoutingDataSource {
+    @Override
+    protected Object determineCurrentLookupKey() {
+        return DataSourceContextHolder.get();
+    }
+}
+
+// 3. 注册多个数据源
+@Bean
+public DataSource dataSource(DataSource master, DataSource slave) {
+    RoutingDataSource routing = new RoutingDataSource();
+    Map<Object, Object> map = new HashMap<>();
+    map.put("master", master);
+    map.put("slave", slave);
+    routing.setTargetDataSources(map);
+    routing.setDefaultTargetDataSource(master);
+    return routing;
+}
+
+// 4. AOP 切换（或手动切换）
+DataSourceContextHolder.set("slave");
+List<User> users = userMapper.selectAll();
+DataSourceContextHolder.clear();
+```
+
+#### 方案 2：dynamic-datasource-spring-boot-starter（推荐）
+
+MyBatis-Plus 官方出品，注解驱动，开箱即用：
+
+```xml
+<dependency>
+  <groupId>com.baomidou</groupId>
+  <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
+  <version>4.3.1</version>
+</dependency>
+```
+
+```yaml
+spring:
+  datasource:
+    dynamic:
+      primary: master
+      datasource:
+        master:
+          url: jdbc:mysql://db-master:3306/mydb
+          username: root
+          password: xxx
+        slave:
+          url: jdbc:mysql://db-slave:3306/mydb
+          username: root
+          password: xxx
+```
+
+```java
+// @DS 注解指定数据源（方法级 > 类级）
+@Service
+public class UserService {
+    @DS("slave")
+    public List<User> listUsers() { ... }  // 走从库
+
+    @DS("master")
+    public void createUser(User user) { ... }  // 走主库
+}
+```
 
 ## 三、Hibernate
 
-详细配置见：[Hibernate-官网](https://hibernate.org/)，此处不做赘述；
+- 官网：[hibernate.org](https://hibernate.org/)
+- Java 最早的 ORM 框架，JPA 规范的参考实现
+- Spring Data JPA 底层默认使用 Hibernate
+
+### 1、核心概念
+
+| 概念 | 说明 |
+|------|------|
+| `SessionFactory` | 线程安全，全局单例，类比 SqlSessionFactory |
+| `Session` | 非线程安全，类比 SqlSession；Spring 中由 `EntityManager` 替代 |
+| 实体状态 | Transient（临时）/ Persistent（持久）/ Detached（游离）/ Removed（删除）|
+| 懒加载 | 关联对象默认懒加载，Session 关闭后访问触发 `LazyInitializationException` |
+
+### 2、HQL 查询
+
+```java
+// JPQL（Hibernate 实现）
+TypedQuery<User> query = em.createQuery(
+    "SELECT u FROM User u WHERE u.status = :status ORDER BY u.createdAt DESC",
+    User.class);
+query.setParameter("status", 1);
+List<User> users = query.setMaxResults(10).getResultList();
+
+// Criteria API（类型安全）
+CriteriaBuilder cb = em.getCriteriaBuilder();
+CriteriaQuery<User> cq = cb.createQuery(User.class);
+Root<User> root = cq.from(User.class);
+cq.where(cb.equal(root.get("status"), 1));
+List<User> users = em.createQuery(cq).getResultList();
+```
+
+### 3、N+1 问题
+
+```java
+// 查询 100 个订单，每个订单又懒加载 user → 发出 1 + 100 条 SQL
+List<Order> orders = orderRepo.findAll();
+orders.forEach(o -> System.out.println(o.getUser().getName())); // N+1
+
+// 解决：JPQL 用 JOIN FETCH 提前加载
+@Query("SELECT o FROM Order o JOIN FETCH o.user WHERE o.status = 'paid'")
+List<Order> findPaidOrdersWithUser();
+
+// 或 @EntityGraph
+@EntityGraph(attributePaths = {"user"})
+List<Order> findByStatus(String status);
+```
+
+### 4、Hibernate vs MyBatis 选型
+
+| 维度 | Hibernate / JPA | MyBatis |
+|------|:---------------:|:-------:|
+| SQL 控制 | ORM 自动生成，灵活度低 | 手写 SQL，完全可控 |
+| 复杂查询 | HQL/Criteria 复杂 | 直接写 SQL，简单直观 |
+| 数据库移植 | 切换方言即可 | SQL 可能需要重写 |
+| 学习曲线 | 陡（实体状态、级联、懒加载）| 平缓 |
+| 国内生态 | Spring Data JPA 普及 | MyBatis-Plus 更流行 |
+| 适用场景 | 领域模型清晰、CRUD 为主 | 复杂 SQL、报表、存储过程 |
