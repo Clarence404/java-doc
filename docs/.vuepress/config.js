@@ -148,7 +148,7 @@ export default defineUserConfig({
     head: [
         ['link', {rel: 'icon', href: 'images/logo.png'}]
     ],
-    base: '/clarence-java-doc/',
+    base: '/java-doc/',
     lang: 'zh-CN',
     port: 1000,
     title: 'Clarence Java Doc',

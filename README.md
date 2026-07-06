@@ -4,7 +4,7 @@
 
 A personal technical documentation site built with [VuePress](https://vuepress.vuejs.org/) + [vuepress-theme-hope](https://theme-hope.vuejs.press/), systematically covering backend development, distributed systems, cloud-native, and emerging technologies.
 
-🌐 **Live Site**: [clarence-java-doc on GitHub Pages](https://clarence404.github.io/clarence-java-doc/)
+🌐 **Live Site**: [java-doc on GitHub Pages](https://clarence404.github.io/java-doc/)
 
 ---
 
@@ -26,7 +26,7 @@ A personal technical documentation site built with [VuePress](https://vuepress.v
 ## Project Structure
 
 ```
-clarence-java-doc/
+java-doc/
 ├── docs/
 │   ├── .vuepress/          # VuePress config, theme, SCSS styles
 │   │   ├── config.js       # Navbar, sidebar, plugins
@@ -76,7 +76,7 @@ npm install --legacy-peer-deps
 npm run docs:dev
 ```
 
-Visit [http://localhost:1000/clarence-java-doc/](http://localhost:1000/clarence-java-doc/)
+Visit [http://localhost:1000/java-doc/](http://localhost:1000/java-doc/)
 
 ---
 
