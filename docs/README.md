@@ -97,7 +97,7 @@ highlights:
       - title: 数据库
         icon: database
         details: MySQL 索引 / 事务隔离 / MVCC / 分库分表，列式 / 时序 / 搜索引擎 / 文档库选型
-        link: /database/1_mysql_feature
+        link: /database/1_mysql/1_mysql_feature
       - title: 缓存
         icon: bolt
         details: Redis 核心 / Caffeine 本地缓存 / 两级缓存架构 / 缓存一致性解决方案

@@ -526,6 +526,6 @@ public class BinlogListenerConfig {
 
 ### 2、代码时序图
 
-![img.png](../assets/database/mbcj_usage.png)
+![img.png](../../assets/database/mbcj_usage.png)
 
 ## 未完待续...

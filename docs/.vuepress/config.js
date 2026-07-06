@@ -21,7 +21,7 @@ const navbarFlat = [
     {text: 'Spring Boot', link: '/spring-boot/0_spring_boot'},
     {text: 'Netty',   link: '/netty/0_stick_split'},
     {text: '测试体系', link: '/testing/0_testing_intro'},
-    {text: '数据库',  link: '/database/0_mysql'},
+    {text: '数据库',  link: '/database/1_mysql/0_overview'},
     {text: '缓存',    link: '/cache/0_redis_base'},
     {text: '消息队列', link: '/messaging/0_mq'},
     {text: '分布式',  link: '/distributed/0_distributed'},
@@ -63,7 +63,7 @@ const navbarDropdown = [
     {
         text: '数据存储',
         children: [
-            {text: '数据库',   link: '/database/0_mysql'},
+            {text: '数据库',   link: '/database/1_mysql/0_overview'},
             {text: '缓存',     link: '/cache/0_redis_base'},
             {text: '消息队列', link: '/messaging/0_mq'},
         ],
@@ -144,6 +144,70 @@ function getSidebarFromDir(dirPath) {
     });
 }
 
+const databaseSidebar = [
+    {
+        text: 'MySQL',
+        collapsible: true,
+        children: [
+            {text: 'MySQL 基础',    link: '/database/1_mysql/0_overview'},
+            {text: '5.7+ 特性',     link: '/database/1_mysql/1_mysql_feature'},
+            {text: 'MariaDB',       link: '/database/1_mysql/2_mysql_maria_db'},
+            {text: '雷区标识',       link: '/database/1_mysql/3_mysql_fallible_point'},
+            {text: '索引类型',           link: '/database/1_mysql/4_topic_mysql_index'},
+            {text: '事务/MVCC/锁',   link: '/database/1_mysql/5_topic_mysql_transaction'},
+        ],
+    },
+    {
+        text: 'PostgreSQL',
+        collapsible: true,
+        children: [
+            {text: 'PG 基础',        link: '/database/2_postgresql/0_overview'},
+            {text: '9.6+ 特性',      link: '/database/2_postgresql/1_postgres_feature'},
+            {text: 'MVCC & VACUUM',  link: '/database/2_postgresql/2_topic_pg_mvcc'},
+            {text: '索引类型',        link: '/database/2_postgresql/3_topic_pg_index'},
+            {text: '高级 SQL',        link: '/database/2_postgresql/4_topic_pg_advanced_sql'},
+        ],
+    },
+    {
+        text: '关系型 & ORM',
+        collapsible: true,
+        children: [
+            {text: 'Other RDBMS',  link: '/database/3_relational/0_other_rdbms'},
+            {text: 'ORM 框架',     link: '/database/3_relational/1_orm_framework'},
+        ],
+    },
+    {
+        text: 'NoSQL',
+        collapsible: true,
+        children: [
+            {text: '列式 DB',          link: '/database/4_nosql/0_column_db'},
+            {text: '分布式 DB',        link: '/database/4_nosql/1_distributed_db'},
+            {text: '时序 DB',          link: '/database/4_nosql/2_time_series_db'},
+            {text: '文档 DB',          link: '/database/4_nosql/3_document_db'},
+            {text: 'ES & OpenSearch',  link: '/database/4_nosql/4_elasticsearch_opensearch'},
+            {text: '搜索引擎',          link: '/database/4_nosql/5_search_db'},
+        ],
+    },
+    {
+        text: '架构与运维',
+        collapsible: true,
+        children: [
+            {text: 'CDC 工具',    link: '/database/5_ops/0_cdc_tools'},
+            {text: '备份与恢复',  link: '/database/5_ops/1_backup_recovery'},
+            {text: '分库分表',    link: '/database/5_ops/2_sharding'},
+        ],
+    },
+    {
+        text: '选型与源码',
+        collapsible: true,
+        children: [
+            {text: 'MBCJ 源码',  link: '/database/6_misc/0_mbcj_source_code'},
+            {text: '数据库选型',  link: '/database/6_misc/1_db_ranking_selection'},
+        ],
+    },
+    {text: '面试速查', link: '/database/99_interview'},
+];
+
 export default defineUserConfig({
     head: [
         ['link', {rel: 'icon', href: 'images/logo.png'}]
@@ -173,7 +237,7 @@ export default defineUserConfig({
         sidebar: {
             '/interview/': getSidebarFromDir(path.resolve(__dirname, '../interview')),
             '/java/': getSidebarFromDir(path.resolve(__dirname, '../java')),
-            '/database/': getSidebarFromDir(path.resolve(__dirname, '../database')),
+            '/database/': databaseSidebar,
             '/cache/': getSidebarFromDir(path.resolve(__dirname, '../cache')),
             '/jvm/': getSidebarFromDir(path.resolve(__dirname, '../jvm')),
             '/spring/': getSidebarFromDir(path.resolve(__dirname, '../spring')),

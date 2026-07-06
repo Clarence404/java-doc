@@ -24,7 +24,7 @@
 - **间隙锁如何防止幻读？**
 - **什么情况下行锁会升级为表锁？**
 - **高并发下如何安全地修改同一行数据？**  
-  → 详见 <RouteLink to="/database/0_mysql">MySQL 核心</RouteLink>
+  → 详见 <RouteLink to="/database/1_mysql/0_overview">MySQL 核心</RouteLink>
 
 ## 四、存储引擎
 

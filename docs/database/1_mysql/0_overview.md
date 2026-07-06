@@ -66,84 +66,77 @@
 **`班级表`**：班级ID -> 班级名称。
 :::
 
+---
+
 ## 二、MySQL 视图
+
+> [!warning] 待补充
+
+---
 
 ## 三、MySQL 存储过程
 
-## 四、MySQL 索引的分类和优化
+> [!warning] 待补充
 
-## 五、MySQL 事务
+---
 
-## 六、MySQL 一致性视图（MVCC）
+## 四、MySQL 索引
 
-## 七、MySQL 锁
+B+ 树原理、聚簇索引与二级索引、回表、覆盖索引、最左前缀原则、索引失效场景、ICP 索引下推、深度分页优化详见专项文档：
 
-### 1、读写锁（共享锁 vs 排他锁）
+→ [MySQL 索引专项](./4_topic_mysql_index)
 
-### 2、表锁 vs 行锁 vs 页面锁
+---
 
-### 3、意向锁（Intention Lock）
+## 五、MySQL 事务 / MVCC / 锁
 
-### 4、间隙锁（Gap Lock）和 Next-Key Lock
+ACID、隔离级别与并发问题（脏读/幻读）、undo log / redo log、MVCC 版本链与 Read View、行锁三种形态（Record / Gap / Next-Key Lock）、死锁检测详见专项文档：
 
-### 5、死锁检测和解决方案
+→ [MySQL 事务、MVCC 与锁专项](./5_topic_mysql_transaction)
 
-### 6、锁的优化建议
+---
 
-Todo：完成自己的理解书写
+## 六、MySQL 性能优化
 
-[什么是MySQL锁？有哪些锁类型？](https://mp.weixin.qq.com/s/gAJFm3q5510PfRBe4F11PQ)
-
-[MySQL锁机制详解：从原理到实战，Java开发者必知的高并发基石](https://mp.weixin.qq.com/s/A-aVFJLpCnNtAg8ZZN6-YQ)
-
-## 八、Mysql性能优化-高级篇
-
-- **查询优化**
-    - EXPLAIN 详解（每个字段的意义）
-    - 慢查询日志分析
+- **查询分析**
+  - `EXPLAIN` 详解（type / key / rows / Extra 字段含义）
+  - 慢查询日志（`slow_query_log`）+ `pt-query-digest` 分析
+  - Performance Schema（替代已废弃的 `SHOW PROFILE`）
 - **索引优化**
-    - B+ 树索引 vs 哈希索引
-    - 如何选择合适的索引
-- **SQL 语句优化**
-    - 避免 SELECT *
-    - 避免 NOT IN / NOT EXISTS 导致的全表扫描
-    - 分析执行计划（EXPLAIN / PROFILE）
+  - 覆盖索引减少回表
+  - 区分度低的字段不建单列索引，考虑联合索引
+- **SQL 优化**
+  - 避免 `SELECT *`，只查需要的列
+  - 避免在 WHERE 中对列做函数运算
+  - 大批量操作用分批次 + 事务控制
 
-## 九、深度分页及优化
+---
 
-- LIMIT offset 大时的优化策略（比如 `ORDER BY id LIMIT 100000, 10` 的优化）
-- **优化方法**：
-    - 覆盖索引
-    - 子查询优化
-    - 使用延迟关联（先查主键，再关联其他字段）
-
-## 十、数据库安全问题
+## 七、数据库安全
 
 - **SQL 注入防范**
-    - 预编译 SQL 语句（PreparedStatement）
-    - 使用 ORM 框架（如 MyBatis）
-- **XSS 防范**
-    - HTML 转义
-    - 输入过滤
-- **数据库访问控制**
-    - 权限管理（GRANT, REVOKE）
-    - 最小权限原则
-    - MySQL 用户管理和加密传输
+  - 使用预编译语句（`PreparedStatement`）
+  - ORM 框架（MyBatis / JPA）默认参数绑定
+  - 避免拼接 SQL 字符串
+- **访问控制**
+  - 最小权限原则（`GRANT` / `REVOKE`）
+  - 生产库禁止 root 远程登录
+  - 加密传输（`require_ssl`）
+- **数据安全**
+  - 敏感字段脱敏存储（手机号、身份证加密）
+  - 定期备份 + 恢复演练
 
-## 十一、MySQL 运维
+---
+
+## 八、MySQL 运维
 
 - **主从复制**（主从同步延迟、半同步复制、GTID 复制）
 - **读写分离**
-- **高可用方案**
-    - MHA、MySQL Router、ProxySQL
-- **分库分表**
-    - 垂直拆分 vs 水平拆分
-    - 数据一致性问题
-- **MySQL 配置优化**
-    - my.cnf 配置优化
-    - 常见参数（innodb_buffer_pool_size, query_cache_size, max_connections）
+- **高可用方案**：MHA、MySQL Router、ProxySQL
+- **分库分表**：垂直拆分 vs 水平拆分，数据一致性问题
+- **配置优化**：`innodb_buffer_pool_size`、`max_connections`、`sync_binlog`
 
-### 1、MySQL Binlog
+### MySQL Binlog
 
 **概念**
 
@@ -172,9 +165,7 @@ Todo：完成自己的理解书写
 * Binlog 文件位于 MySQL 数据目录下，文件名通常形如：`mysql-bin.000001`。
 * 对应的索引文件：`mysql-bin.index`，记录所有 binlog 文件列表。
 
-**使用与管理**
-
-* **开启 Binlog**：
+**开启与管理**
 
 ```ini
 [mysqld]
@@ -184,31 +175,25 @@ binlog_format = ROW   # 或 STATEMENT / MIXED
 expire_logs_days = 7  # 自动清理过期 binlog
 ```
 
-* **查看 Binlog 文件**：
-
 ```sql
+-- 查看所有 binlog 文件
 SHOW BINARY LOGS;
 ```
 
-* **mysqlbinlog 下载**：
-
-* **查看 Binlog 内容**：
-
 ```bash
+# 查看 binlog 内容
 mysqlbinlog mysql-bin.000001
 ```
-
-* **主从复制使用**：从库通过 `CHANGE MASTER TO` 语句指定主库和位置，读取 Binlog 更新数据。
 
 **注意事项**
 
 1. **日志轮转与清理**：长期不清理会占用大量磁盘空间。
 2. **性能考虑**：Binlog 开启后会略微增加写操作的开销。
-3. **GTID（全局事务 ID）**：增强型复制方式，可以更方便地进行主从切换和容灾。
+3. **GTID**：增强型复制方式，更方便进行主从切换和容灾。
 
 ---
 
-## 十二、后续补充专题
+## 九、后续补充专题
 
-- [Elasticsearch 与 OpenSearch](./17_elasticsearch_opensearch)：搜索引擎、日志检索、聚合分析
-- [数据备份与恢复](./18_backup_recovery)：备份策略、RTO / RPO、恢复演练
+- [Elasticsearch 与 OpenSearch](../4_nosql/4_elasticsearch_opensearch)：搜索引擎、日志检索、聚合分析
+- [数据备份与恢复](../5_ops/1_backup_recovery)：备份策略、RTO / RPO、恢复演练
