@@ -4,9 +4,9 @@
 > * OAuth2 RFC 6749：[https://datatracker.ietf.org/doc/html/rfc6749](https://datatracker.ietf.org/doc/html/rfc6749)
 > * OIDC 规范：[https://openid.net/specs/openid-connect-core-1_0.html](https://openid.net/specs/openid-connect-core-1_0.html)
 
-> 本文聚焦 OAuth2 / OIDC 协议原理。Spring 框架的 SSO 落地实现见 → [SSO 单点登录](/spring/11_single_sign_on)
+> 本文聚焦 OAuth2 / OIDC 协议原理。SSO 落地实现见 → [单点登录](/security/3_sso)
 >
-> JWT 令牌格式详见 → [JWT](/security/7_jwt)
+> JWT 令牌格式详见 → [JWT](/security/2_jwt)
 
 ---
 
