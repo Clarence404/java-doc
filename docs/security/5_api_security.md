@@ -15,14 +15,12 @@
 
 ```java
 public String generateSign(Map<String, String> params, String appSecret) throws Exception {
-    // 1. 排序 + 拼接（排除 sign 自身）
     String paramStr = params.entrySet().stream()
         .filter(e -> !"sign".equals(e.getKey()))
         .sorted(Map.Entry.comparingByKey())
         .map(e -> e.getKey() + "=" + e.getValue())
         .collect(Collectors.joining("&"));
 
-    // 2. HMAC-SHA256
     Mac mac = Mac.getInstance("HmacSHA256");
     mac.init(new SecretKeySpec(appSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
     byte[] hash = mac.doFinal(paramStr.getBytes(StandardCharsets.UTF_8));
@@ -30,12 +28,11 @@ public String generateSign(Map<String, String> params, String appSecret) throws 
 }
 ```
 
-**服务端验证过滤器：**
+**服务端验证：**
 
 ```java
 @Component
 public class SignVerifyFilter extends OncePerRequestFilter {
-
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res,
                                     FilterChain chain) throws ... {
@@ -43,23 +40,19 @@ public class SignVerifyFilter extends OncePerRequestFilter {
         String timestamp = req.getHeader("X-Timestamp");
         String nonce     = req.getHeader("X-Nonce");
 
-        // 1. 时间窗口（5 分钟内有效，防重放初步过滤）
         long ts = Long.parseLong(timestamp);
         if (Math.abs(Instant.now().getEpochSecond() - ts) > 300) {
             res.sendError(401, "Request expired");
             return;
         }
 
-        // 2. 重新计算并比对签名
         Map<String, String> params = extractParams(req);
         params.put("timestamp", timestamp);
         params.put("nonce", nonce);
-        String expected = generateSign(params, getAppSecret(req));
-        if (!expected.equalsIgnoreCase(sign)) {
+        if (!generateSign(params, getAppSecret(req)).equalsIgnoreCase(sign)) {
             res.sendError(401, "Invalid signature");
             return;
         }
-
         chain.doFilter(req, res);
     }
 }
@@ -69,28 +62,18 @@ public class SignVerifyFilter extends OncePerRequestFilter {
 
 ## 二、防重放攻击
 
-仅有签名不够——合法的已签名请求仍可被重复提交。需要 nonce + timestamp 双重保障。
-
-```
-请求 = { 业务参数, timestamp（Unix 秒）, nonce（UUID）, sign }
-```
-
-**nonce + Redis 去重：**
+仅有签名不够——合法的已签名请求仍可被重复提交，需要 nonce + timestamp 双重保障。
 
 ```java
 @Service
 public class ReplayProtectionService {
 
-    private final RedisTemplate<String, String> redis;
-
     public void validate(String nonce, String timestamp) {
-        // 1. 时间窗口
         long ts = Long.parseLong(timestamp);
         if (Math.abs(Instant.now().getEpochSecond() - ts) > 300) {
             throw new SecurityException("Request expired");
         }
-
-        // 2. nonce 去重：setIfAbsent = 不存在才写入（等效 SET NX EX）
+        // SET NX EX：不存在才写入，窗口内唯一
         String key = "api:nonce:" + nonce;
         Boolean isNew = redis.opsForValue().setIfAbsent(key, "1", Duration.ofMinutes(5));
         if (Boolean.FALSE.equals(isNew)) {
@@ -102,17 +85,270 @@ public class ReplayProtectionService {
 
 | 参数 | 作用 |
 |------|------|
-| `timestamp` | 限制请求时效（5 分钟窗口），超时直接拒绝 |
-| `nonce` | 在时间窗口内全局唯一，Redis 去重 |
+| `timestamp` | 限制请求时效，超时直接拒绝 |
+| `nonce` | 时间窗口内全局唯一，Redis 去重 |
 | `sign` | 防参数篡改，两者缺一不可 |
 
 ---
 
-## 三、HTTPS / TLS
+## 三、API Key 管理
+
+对外开放接口（Open API / 合作方接入）时，用 API Key 标识调用方身份。
+
+### 颁发与存储
+
+```sql
+CREATE TABLE api_key (
+  id          BIGINT PRIMARY KEY AUTO_INCREMENT,
+  app_name    VARCHAR(100) NOT NULL,
+  access_key  CHAR(32)    NOT NULL UNIQUE,   -- 公开标识，可在请求中传递
+  secret_key  VARCHAR(64) NOT NULL,          -- 私钥，仅用于签名，不在网络中传输
+  status      TINYINT     NOT NULL DEFAULT 1, -- 1=有效 0=禁用
+  expired_at  DATETIME,                      -- NULL 表示永不过期
+  created_at  DATETIME    NOT NULL
+);
+```
+
+### 透传方式
+
+```http
+# 方式一：自定义 Header（推荐，不会出现在 URL 日志中）
+GET /api/orders HTTP/1.1
+X-Access-Key: ak_abc123
+X-Sign: <HMAC签名>
+X-Timestamp: 1720000000
+X-Nonce: uuid-xxx
+
+# 方式二：Authorization Header
+Authorization: ApiKey ak_abc123:<sign>
+```
+
+### 轮换与吊销
+
+```java
+// 轮换：生成新 Key，旧 Key 保留宽限期（7 天后失效）
+public ApiKey rotateKey(Long appId) {
+    ApiKey oldKey = apiKeyRepo.findActiveByAppId(appId);
+    oldKey.setExpiredAt(LocalDateTime.now().plusDays(7));
+    apiKeyRepo.save(oldKey);
+
+    ApiKey newKey = ApiKey.generate(appId);
+    apiKeyRepo.save(newKey);
+    return newKey;
+}
+
+// 吊销：立即禁用
+public void revokeKey(String accessKey) {
+    apiKeyRepo.updateStatus(accessKey, 0);
+    redis.delete("apikey:" + accessKey);   // 同步清除缓存
+}
+```
+
+---
+
+## 四、Bearer Token 验证
+
+前后端分离 / 微服务场景，在过滤器层统一验证 JWT，业务接口无需重复鉴权。
+
+```java
+@Component
+public class JwtAuthFilter extends OncePerRequestFilter {
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res,
+                                    FilterChain chain) throws ... {
+        String header = req.getHeader(HttpHeaders.AUTHORIZATION);
+        if (header == null || !header.startsWith("Bearer ")) {
+            chain.doFilter(req, res);
+            return;
+        }
+
+        String token = header.substring(7);
+        try {
+            Claims claims = jwtService.parseToken(token);
+
+            UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(
+                    claims.getSubject(),
+                    null,
+                    buildAuthorities(claims.get("roles", List.class))
+                );
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+        } catch (ExpiredJwtException e) {
+            res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
+            return;
+        } catch (JwtException e) {
+            res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+            return;
+        }
+
+        chain.doFilter(req, res);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest req) {
+        // 白名单路径跳过 token 校验
+        return new AntPathMatcher().match("/public/**", req.getServletPath());
+    }
+}
+```
+
+---
+
+## 五、CORS 配置
+
+配置不当会导致非预期域名可以调用接口，或合法前端被浏览器拦截。
+
+```java
+@Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+
+    // ❌ 生产禁止 *（配合 allowCredentials=true 时浏览器直接拒绝）
+    // config.addAllowedOrigin("*");
+
+    // ✅ 明确枚举允许的域名
+    config.setAllowedOrigins(List.of(
+        "https://app.example.com",
+        "https://admin.example.com"
+    ));
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    config.setAllowedHeaders(List.of(
+        "Authorization", "Content-Type",
+        "X-Access-Key", "X-Sign", "X-Timestamp", "X-Nonce"
+    ));
+    config.setAllowCredentials(true);   // 允许携带 Cookie / Authorization Header
+    config.setMaxAge(3600L);            // 预检请求结果缓存 1 小时
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+    return source;
+}
+```
+
+```java
+// Spring Security 中注册
+http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+```
+
+---
+
+## 六、输入校验
+
+在 Controller 层统一校验，不要在 Service 内散乱处理。
+
+```java
+@Validated
+@RestController
+public class UserController {
+
+    @PostMapping("/users")
+    public UserVO create(@RequestBody @Valid CreateUserRequest req) { ... }
+
+    @GetMapping("/users")
+    public Page<UserVO> list(
+        @RequestParam @Min(1) Integer page,
+        @RequestParam @Max(100) Integer size) { ... }
+}
+
+// DTO 上声明约束
+public record CreateUserRequest(
+    @NotBlank(message = "用户名不能为空")
+    @Size(min = 2, max = 20)
+    String username,
+
+    @NotBlank
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d).{8,}$", message = "密码至少 8 位，需含字母和数字")
+    String password,
+
+    @NotBlank @Email
+    String email
+) {}
+```
+
+```java
+// 全局异常处理，统一 400 响应格式
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<Void> handleValidation(MethodArgumentNotValidException ex) {
+        String msg = ex.getBindingResult().getFieldErrors().stream()
+            .map(e -> e.getField() + ": " + e.getDefaultMessage())
+            .collect(Collectors.joining("; "));
+        return ApiResponse.fail(400, msg);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiResponse<Void> handleConstraint(ConstraintViolationException ex) {
+        String msg = ex.getConstraintViolations().stream()
+            .map(ConstraintViolation::getMessage)
+            .collect(Collectors.joining("; "));
+        return ApiResponse.fail(400, msg);
+    }
+}
+```
+
+---
+
+## 七、日志脱敏与错误响应
+
+### 日志脱敏
+
+密码、token、手机号、身份证等敏感参数不能出现在日志中：
+
+```java
+// ❌ 危险
+log.info("登录请求: {}", request);   // password 会被打印
+
+// ✅ DTO 重写 toString() 主动脱敏
+public record LoginRequest(String username, String password) {
+    @Override
+    public String toString() {
+        return "LoginRequest{username='" + username + "', password='******'}";
+    }
+}
+```
+
+```yaml
+# Actuator 端点收敛，不暴露 env 中的配置值
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    env:
+      show-values: never
+```
+
+### 错误响应不暴露内部信息
+
+```java
+// ❌ 危险：暴露堆栈、表名、内部路径
+{
+  "error": "NullPointerException at com.example.UserService:42",
+  "cause": "Table 'prod.users' doesn't exist"
+}
+
+// ✅ 只返回 traceId，完整堆栈写日志
+@ExceptionHandler(Exception.class)
+@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+public ApiResponse<Void> handleUnknown(Exception ex, HttpServletRequest req) {
+    String traceId = MDC.get("traceId");
+    log.error("[{}] {} - {}", traceId, req.getRequestURI(), ex.getMessage(), ex);
+    return ApiResponse.fail(500, "服务器内部错误，traceId: " + traceId);
+}
+```
+
+---
+
+## 八、HTTPS / TLS
 
 > TLS 握手流程、证书链校验、mTLS 双向认证详见 → [安全通信协议](/protocols/4_security_protocols)
-
-**Spring Boot 开启 HTTPS：**
 
 ```yaml
 server:
@@ -121,36 +357,14 @@ server:
     key-store: classpath:server.p12
     key-store-password: ${SSL_KEY_STORE_PASSWORD}
     key-store-type: PKCS12
-    key-alias: server
-
-# 同时强制 HTTP → HTTPS 跳转
-```
-
-```java
-// 强制 HTTP 跳转 HTTPS
-@Bean
-public TomcatServletWebServerFactory tomcatFactory() {
-    TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
-    factory.addAdditionalTomcatConnectors(httpConnector());
-    return factory;
-}
-
-private Connector httpConnector() {
-    Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
-    connector.setScheme("http");
-    connector.setPort(8080);
-    connector.setSecure(false);
-    connector.setRedirectPort(8443);
-    return connector;
-}
 ```
 
 ---
 
-## 四、幂等设计
+## 九、幂等设计
 
 → 详见 [幂等性设计](/architecture/5_idempotence)
 
-## 五、限流与熔断
+## 十、限流与熔断
 
 → 详见 [限流与降级](/high-avail/1_rate_limiting)

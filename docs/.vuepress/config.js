@@ -98,8 +98,8 @@ const navbarDropdown = [
         text: '安全体系',
         children: [
             {text: '安全体系总览',       link: '/security/0_security'},
-            {text: 'OAuth2 与 OIDC',    link: '/security/1_oauth2_oidc'},
-            {text: 'JWT 令牌机制',       link: '/security/2_jwt'},
+            {text: 'JWT 令牌机制',       link: '/security/1_jwt'},
+            {text: 'OAuth2 与 OIDC',    link: '/security/2_oauth2_oidc'},
             {text: '单点登录（SSO）',    link: '/security/3_sso'},
             {text: '认证与授权',         link: '/security/4_authentication'},
             {text: 'API 安全',           link: '/security/5_api_security'},

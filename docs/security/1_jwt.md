@@ -4,7 +4,7 @@
 > * JWT RFC 7519：[https://datatracker.ietf.org/doc/html/rfc7519](https://datatracker.ietf.org/doc/html/rfc7519)
 > * jwt.io（在线解码工具）：[https://jwt.io/](https://jwt.io/)
 
-> JWT 在 OAuth2 / OIDC 中的使用场景见 → [OAuth2 与 OIDC](/security/1_oauth2_oidc)
+> JWT 在 OAuth2 / OIDC 中的使用场景见 → [OAuth2 与 OIDC](/security/2_oauth2_oidc)
 >
 > Spring Security 中 JWT 集成实践见 → [Spring Security](/spring/9_spring_security)
 

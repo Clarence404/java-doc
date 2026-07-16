@@ -112,7 +112,7 @@ CAS Server 向所有关联的 SP 发送 back-channel logout 请求
 
 在 OAuth2 授权码流程上增加身份层，JSON-based，轻量，是当前主流 SSO 协议。
 
-协议原理详见 → [OAuth2 与 OIDC](/security/1_oauth2_oidc)
+协议原理详见 → [OAuth2 与 OIDC](/security/2_oauth2_oidc)
 
 ### SSO 流程（以 Keycloak 为例）
 

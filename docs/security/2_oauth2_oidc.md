@@ -6,7 +6,7 @@
 
 > 本文聚焦 OAuth2 / OIDC 协议原理。SSO 落地实现见 → [单点登录](/security/3_sso)
 >
-> JWT 令牌格式详见 → [JWT](/security/2_jwt)
+> JWT 令牌格式详见 → [JWT](/security/1_jwt)
 
 ---
 

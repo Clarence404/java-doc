@@ -4,8 +4,8 @@
 
 | 模块 | 覆盖内容 |
 |------|----------|
-| [OAuth2 与 OIDC](./1_oauth2_oidc) | 四种授权模式、OIDC 身份层、安全风险 |
-| [JWT 令牌机制](./2_jwt) | 令牌结构、签名算法、失效与刷新策略 |
+| [JWT 令牌机制](./1_jwt) | 令牌结构、签名算法、失效与刷新策略 |
+| [OAuth2 与 OIDC](./2_oauth2_oidc) | 四种授权模式、OIDC 身份层、安全风险 |
 | [单点登录（SSO）](./3_sso) | Session SSO、CAS、SAML、OIDC、Sa-Token、Keycloak |
 | [认证与授权](./4_authentication) | RBAC / ABAC 模型、权限数据库设计 |
 | [API 安全](./5_api_security) | 接口签名、防重放、HTTPS |

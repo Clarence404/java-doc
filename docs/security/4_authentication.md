@@ -1,6 +1,6 @@
 # 认证与授权
 
-> 本文聚焦认证授权基础概念与权限模型。OAuth2/OIDC 协议见 → [OAuth2 与 OIDC](/security/1_oauth2_oidc)；JWT 格式见 → [JWT](/security/2_jwt)；SSO 实现方案见 → [单点登录](/security/3_sso)；Spring Security / Sa-Token 框架实现见 → [认证框架](/spring/10_auth_framework)
+> 本文聚焦认证授权基础概念与权限模型。JWT 格式见 → [JWT](/security/1_jwt)；OAuth2/OIDC 协议见 → [OAuth2 与 OIDC](/security/2_oauth2_oidc)；SSO 实现方案见 → [单点登录](/security/3_sso)；Spring Security / Sa-Token 框架实现见 → [认证框架](/spring/10_auth_framework)
 
 ---
 
