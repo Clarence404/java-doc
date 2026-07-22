@@ -1,66 +1,70 @@
-# 设计模式简介
+# 设计模式总览
 
-参考链接：[菜鸟教程-设计模式](https://www.runoob.com/design-pattern/design-pattern-tutorial.html)
+GoF（Gang of Four）23 种经典设计模式，归纳自《设计模式：可复用面向对象软件的基础》，覆盖面向对象设计中反复出现的结构与行为问题。
 
-## 一、设计模式简介
+---
 
-设计模式是一套被反复使用的、为解决特定问题而总结出的面向对象设计经验。它们有助于构建更可维护、可扩展、可重用的系统结构。
-设计模式并不是直接可用的代码模板，而是解决问题的最佳实践。
+## 一、三大分类
 
-设计模式分为三大类：
+```
+创建型（Creational）          结构型（Structural）          行为型（Behavioral）
+─────────────────────        ─────────────────────        ──────────────────────────
+解决"怎么创建对象"            解决"怎么组合类与对象"         解决"对象间怎么通信与协作"
 
-* **创建型模式**：关注对象的创建（如单例、工厂、建造者等）
-* **结构型模式**：关注类或对象的组合结构（如适配器、桥接、装饰器等）
-* **行为型模式**：关注对象之间的通信与职责分配（如策略、责任链、状态等）
+单例    Singleton             适配器  Adapter               责任链  Chain of Responsibility
+工厂    Factory Method        桥接    Bridge                命令    Command
+抽象工厂 Abstract Factory      组合    Composite             迭代器  Iterator
+建造者  Builder               装饰器  Decorator             中介者  Mediator
+原型    Prototype             外观    Facade                备忘录  Memento
+                              享元    Flyweight             观察者  Observer
+                              代理    Proxy                 状态    State
+                                                           策略    Strategy
+                                                           模板方法 Template Method
+                                                           访问者  Visitor
+                                                           解释器  Interpreter
+```
 
-三大类共包含 23 种经典设计模式，如下所示：
+---
 
-| 类型      | 模式名称                                                                                                                                                                                                                                                                                                                                                               |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **创建型** | 1. 单例模式（Singleton Pattern）<br>2. 工厂模式（Factory Pattern）<br>3.建造者模式（Builder Pattern）<br>4. 原型模式（Prototype Pattern）<br>5. 抽象工厂模式（Abstract Factory Pattern）                                                                                                                                                                                                            |
-| **结构型** | 6. 适配器模式（Adapter Pattern）<br>7. 桥接模式（Bridge Pattern）<br>8. 装饰器模式（Decorator Pattern）<br>9. 组合模式（Composite Pattern）<br>10. 外观模式（Facade Pattern）<br>11. 享元模式（Flyweight Pattern）<br>12. 代理模式（Proxy Pattern）                                                                                                                                                            |
-| **行为型** | 13. 策略模式（Strategy Pattern）<br>14. 责任链模式（Chain of Responsibility Pattern）<br>15. 模板方法模式（Template Method Pattern）<br>16. 观察者模式（Observer Pattern）<br>17. 命令模式（Command Pattern）<br>18. 状态模式（State Pattern）<br>19. 访问者模式（Visitor Pattern）<br>20. 中介者模式（Mediator Pattern）<br>21. 迭代器模式（Iterator Pattern）<br>22. 备忘录模式（Memento Pattern）<br>23. 解释器模式（Interpreter Pattern） |
+## 二、23 种模式索引
 
-## 二、设计模式的关系
+| # | 模式 | 分类 | 核心意图 | Java/Spring 典型应用 |
+|---|------|------|---------|---------------------|
+| 1 | 单例（Singleton）| 创建型 | 全局唯一实例 | Spring Bean（默认）、HikariCP 连接池 |
+| 2 | 工厂方法（Factory Method）| 创建型 | 子类决定实例化哪个类 | BeanFactory、DriverManager |
+| 3 | 抽象工厂（Abstract Factory）| 创建型 | 创建一族相关对象 | JDBC 多数据库支持 |
+| 4 | 建造者（Builder）| 创建型 | 分步构建复杂对象 | Lombok @Builder、UriComponentsBuilder |
+| 5 | 原型（Prototype）| 创建型 | 克隆已有对象 | Spring scope=prototype、BeanUtils.copy |
+| 6 | 适配器（Adapter）| 结构型 | 转换不兼容接口 | Arrays.asList、InputStreamReader |
+| 7 | 桥接（Bridge）| 结构型 | 分离抽象与实现 | JDBC（Connection 抽象 + 各 DB 实现）|
+| 8 | 组合（Composite）| 结构型 | 树形结构统一处理 | 菜单树、文件系统、权限树 |
+| 9 | 装饰器（Decorator）| 结构型 | 动态增强对象功能 | Java I/O 流、HttpServletRequestWrapper |
+| 10 | 外观（Facade）| 结构型 | 简化子系统接口 | Service 层聚合、JdbcTemplate |
+| 11 | 享元（Flyweight）| 结构型 | 共享细粒度对象节省内存 | String 常量池、Integer.valueOf 缓存 |
+| 12 | 代理（Proxy）| 结构型 | 控制对象访问 | Spring AOP（JDK 动态代理 + CGLIB）|
+| 13 | 责任链（Chain of Responsibility）| 行为型 | 请求沿链处理 | Spring Security FilterChain、Netty Pipeline |
+| 14 | 命令（Command）| 行为型 | 请求封装为对象 | Spring @Async、CQRS 命令对象 |
+| 15 | 迭代器（Iterator）| 行为型 | 顺序遍历不暴露内部 | Java Iterator、Stream API |
+| 16 | 中介者（Mediator）| 行为型 | 集中管理对象通信 | Spring ApplicationEventPublisher |
+| 17 | 备忘录（Memento）| 行为型 | 保存/恢复对象状态 | 编辑器 Undo/Redo |
+| 18 | 观察者（Observer）| 行为型 | 状态变化自动通知 | Spring Events、Guava EventBus |
+| 19 | 状态（State）| 行为型 | 状态驱动行为切换 | 订单状态机、Spring StateMachine |
+| 20 | 策略（Strategy）| 行为型 | 算法族可互换 | Comparator、支付方式切换 |
+| 21 | 模板方法（Template Method）| 行为型 | 固定骨架，子类实现步骤 | JdbcTemplate、AbstractApplicationContext |
+| 22 | 访问者（Visitor）| 行为型 | 不修改类增加操作 | AST 处理、Spring BeanDefinitionVisitor |
+| 23 | 解释器（Interpreter）| 行为型 | 为语言定义语法解释器 | SpEL、SQL 解析、正则引擎 |
 
-![img.png](../assets/pattern/design-pattern.png)
+---
 
-## 三、设计模式的优点
+## 三、六大设计原则
 
-- 提供了一种共享的设计词汇和概念，使开发人员能够更好地沟通和理解彼此的设计意图。
-- 提供了经过验证的解决方案，可以提高软件的可维护性、可复用性和灵活性。
-- 促进了代码的重用，避免了重复的设计和实现。
-- 通过遵循设计模式，可以减少系统中的错误和问题，提高代码质量。
+| 原则 | 简称 | 核心含义 |
+|------|------|---------|
+| 开闭原则（Open/Closed Principle）| OCP | 对扩展开放，对修改关闭。新增功能通过扩展实现，不改原有代码 |
+| 里氏替换原则（Liskov Substitution Principle）| LSP | 子类必须能替换父类。继承要保证行为兼容，不能削弱父类契约 |
+| 依赖倒置原则（Dependency Inversion Principle）| DIP | 依赖抽象，不依赖具体实现。高层模块不依赖低层模块 |
+| 接口隔离原则（Interface Segregation Principle）| ISP | 接口尽量细化。客户端不应被迫依赖它不使用的方法 |
+| 迪米特法则（Law of Demeter）| LoD | 最少知道原则。一个类只与直接朋友通信，减少耦合 |
+| 合成复用原则（Composite Reuse Principle）| CRP | 优先用组合/聚合，而非继承。继承是强耦合，组合更灵活 |
 
-## 四、设计模式的六大原则
-
-### 1、开闭原则（Open Close Principle）
-
-开闭原则的意思是：对扩展开放，对修改关闭。在程序需要进行拓展的时候，不能去修改原有的代码，实现一个热插拔的效果。简言之，是为了使程序的
-扩展性好，易于维护和升级。想要达到这样的效果，我们需要使用接口和抽象类，后面的具体设计中我们会提到这点。
-
-### 2、里氏代换原则（Liskov Substitution Principle）
-
-里氏代换原则是面向对象设计的基本原则之一。 里氏代换原则中说，任何基类可以出现的地方，子类一定可以出现。LSP
-是继承复用的基石，只有当派生类可以替换掉基类，且软件单位的功能不受到影响时，基类才能真正被复用，而派生类也能够在基类的基础上增加新的行为。
-里氏代换原则是对开闭原则的补充。实现开闭原则的关键步骤就是抽象化，而基类与子类的继承关系就是抽象化的具体实现，所以里氏代换原则是对实现
-抽象化的具体步骤的规范。
-
-### 3、依赖倒转原则（Dependence Inversion Principle）
-
-这个原则是开闭原则的基础，具体内容：针对接口编程，依赖于抽象而不依赖于具体。
-
-### 4、接口隔离原则（Interface Segregation Principle）
-
-这个原则的意思是：使用多个隔离的接口，比使用单个接口要好。它还有另外一个意思是：降低类之间的耦合度。由此可见，其实设计模式就是从
-大型软件架构出发、便于升级和维护的软件设计思想，它强调降低依赖，降低耦合。
-
-### 5、迪米特法则 （Demeter Principle）
-
-- 又称最少知道原则
-
-最少知道原则是指：一个实体应当尽量少地与其他实体之间发生相互作用，使得系统功能模块相对独立。
-
-### 6、合成复用原则（Composite Reuse Principle）
-
-合成复用原则是指：尽量使用合成/聚合的方式，而不是使用继承。
+> **记忆口诀**：开里依接迪合（谐音"开里椅接地盒"）
