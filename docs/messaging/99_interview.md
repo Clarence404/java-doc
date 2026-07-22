@@ -20,7 +20,7 @@
 - **如何保证消息的顺序消费？**
 - **RocketMQ 如何实现顺序消息？（MessageGroup + FIFO 队列）**
 - **Kafka 如何保证分区内有序？跨分区能保证顺序吗？**  
-  → 详见 <RouteLink to="/messaging/2_kafka">Kafka</RouteLink>
+  → 详见 <RouteLink to="/messaging/1_kafka">Kafka</RouteLink>
 
 ## 四、高性能
 
@@ -33,7 +33,7 @@
 - **如何用消息队列实现分布式事务最终一致性？**
 - **RocketMQ 事务消息的原理是什么？（半消息 + 本地事务 + 回查）**
 - **本地消息表和 RocketMQ 事务消息的区别？**  
-  → 详见 <RouteLink to="/messaging/3_rocketmq">RocketMQ</RouteLink>
+  → 详见 <RouteLink to="/messaging/2_rocketmq">RocketMQ</RouteLink>
 
 ## 六、高可用
 
