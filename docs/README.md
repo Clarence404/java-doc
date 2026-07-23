@@ -117,11 +117,11 @@ highlights:
       - title: 高并发
         icon: fire
         details: JUC 全面解析 / 线程池调优实战 / 高并发系统设计 / 压测方案 / Arthas Profiler
-        link: /high-con/0_concurrent
+        link: /high-con/0_juc
       - title: 高可用
         icon: shield-halved
         details: 漏桶 / 令牌桶限流算法 / 熔断三态机制 / 降级策略，Sentinel / Resilience4j 对比
-        link: /high-avail/0_high_availability
+        link: /high-avail/0_overview
       - title: 微服务
         icon: cubes
         details: 服务拆分原则 / 注册发现 / API 网关 / 全链路追踪 / Saga 等微服务治理模式

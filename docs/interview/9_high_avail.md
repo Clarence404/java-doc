@@ -1,6 +1,6 @@
 # 开发总结-高可用
 
-> 精华提炼，细节详见 [high-avail/](../high-avail/0_high_availability)
+> 精华提炼，细节详见 [high-avail/](../high-avail/0_overview)
 
 ## 一、限流算法有哪些？令牌桶和漏桶的区别？
 

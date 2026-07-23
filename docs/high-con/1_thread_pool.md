@@ -155,13 +155,82 @@ public void execute(Runnable command) {
 
 ### 5、BlockingQueue
 
+`workQueue` 是线程池的缓冲队列，当所有核心线程都在工作时，新任务进入队列等待。
+
+| 类型 | 容量 | 特点 | 适用场景 |
+|------|------|------|---------|
+| `LinkedBlockingQueue` | 默认无界（Integer.MAX_VALUE）| 吞吐量高，存在内存溢出风险 | `Executors.newFixedThreadPool` 默认使用 |
+| `ArrayBlockingQueue` | 有界 | 有界，公平/非公平可配置 | 需要限制队列大小防止 OOM |
+| `SynchronousQueue` | 0 | 不存储任务，直接交给线程 | `Executors.newCachedThreadPool` 使用，要求有线程立即接收 |
+| `LinkedTransferQueue` | 无界 | 结合 `SynchronousQueue` 和 `LinkedBlockingQueue` 优点 | 高吞吐场景 |
+| `PriorityBlockingQueue` | 无界 | 按优先级排序（需任务实现 Comparable）| 任务有优先级区分的场景 |
+
+> **生产建议**：使用 `ArrayBlockingQueue`（有界）+ 合理的拒绝策略，避免无界队列导致 OOM。
+
+---
+
 ### 6、拒绝策略说明
+
+当线程数已达 `maximumPoolSize` 且队列已满时，触发拒绝策略：
+
+| 策略 | 说明 | 适用场景 |
+|------|------|---------|
+| `AbortPolicy`（默认）| 抛出 `RejectedExecutionException` | 需要调用方感知并处理拒绝 |
+| `CallerRunsPolicy` | 由提交任务的线程直接执行 | 不允许丢任务，可接受主线程变慢 |
+| `DiscardPolicy` | 静默丢弃，不抛异常 | 任务可接受丢失（如日志统计）|
+| `DiscardOldestPolicy` | 丢弃队列中最老的任务，重新提交新任务 | 优先保证最新任务执行 |
+| 自定义 | 实现 `RejectedExecutionHandler` | 记录日志、告警、持久化等 |
+
+```java
+// 自定义拒绝策略：记录日志 + 降级处理
+public class LoggingRejectionHandler implements RejectedExecutionHandler {
+    @Override
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+        log.error("线程池已满，任务被拒绝: {}, 队列大小: {}, 活跃线程: {}",
+            r, executor.getQueue().size(), executor.getActiveCount());
+        // 降级：同步执行或写消息队列
+        r.run();
+    }
+}
+```
+
+---
 
 ### 7、线程池最优参数
 
-- 常见的区分cpu和io密集型
+**CPU 密集型**（大量计算，几乎不阻塞）：
+```
+线程数 = CPU 核心数 + 1
+```
+多余 1 个线程是为了应对偶发的线程中断/等待，让 CPU 始终保持满载。
 
-- [计算线程池场景分析](https://zhuanlan.zhihu.com/p/116426107)
+**IO 密集型**（大量等待，如数据库、网络调用）：
+```
+线程数 = CPU 核心数 × (1 + 等待时间 / 计算时间)
+```
+若等待时间 / 计算时间 = 9（即 90% 时间在等待），则 8 核 CPU 可设 80 个线程。
+
+**实际推荐做法**：
+1. 通过压测找到系统 TPS 和响应时间的最优平衡点
+2. 参考 Little's Law：`并发数 = QPS × 平均响应时间`
+3. 使用动态线程池（如 [DynamicTP](https://dynamictp.cn/)）在不重启的情况下动态调整参数
+
+```java
+// 常见生产配置模板
+ThreadPoolExecutor executor = new ThreadPoolExecutor(
+    Runtime.getRuntime().availableProcessors() * 2,  // corePoolSize
+    Runtime.getRuntime().availableProcessors() * 4,  // maximumPoolSize
+    60L, TimeUnit.SECONDS,
+    new ArrayBlockingQueue<>(500),                    // 有界队列，防 OOM
+    new ThreadFactoryBuilder()
+        .setNameFormat("order-pool-%d")               // 线程名带业务前缀，便于 jstack 排查
+        .setDaemon(false)
+        .build(),
+    new LoggingRejectionHandler()
+);
+```
+
+参考：[计算线程池场景分析](https://zhuanlan.zhihu.com/p/116426107)
 
 ## 三、动态线程池
 

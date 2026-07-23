@@ -1,6 +1,6 @@
 # 开发总结-高并发
 
-> 精华提炼，细节详见 [high-con/](../high-con/0_concurrent)
+> 精华提炼，细节详见 [high-con/](../high-con/0_juc)
 
 ## 一、线程池的核心参数有哪些？如何合理设置？
 
