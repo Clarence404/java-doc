@@ -1,0 +1,108 @@
+<svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',system-ui,sans-serif">
+  <title>高并发系统设计方案全景</title>
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;
+          --p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;
+          --border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){
+      :root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;
+            --p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    }
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .arr{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#a);}
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect width="800" height="420" fill="var(--bg)"/>
+
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-size="17" font-weight="700" fill="var(--p)">高并发系统设计方案</text>
+
+  <!-- Layer labels (left) -->
+  <text x="22" y="82" text-anchor="middle" font-size="11" class="muted" transform="rotate(-90,22,82)">接入层</text>
+  <text x="22" y="162" text-anchor="middle" font-size="11" class="muted" transform="rotate(-90,22,162)">服务层</text>
+  <text x="22" y="242" text-anchor="middle" font-size="11" class="muted" transform="rotate(-90,22,242)">缓存/MQ</text>
+  <text x="22" y="330" text-anchor="middle" font-size="11" class="muted" transform="rotate(-90,22,330)">数据层</text>
+  <text x="22" y="400" text-anchor="middle" font-size="11" class="muted" transform="rotate(-90,22,400)">监控</text>
+
+  <!-- Row 1: LB -->
+  <rect x="260" y="46" width="280" height="44" rx="8" fill="var(--p)" opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="400" y="65" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">负载均衡 / API Gateway</text>
+  <text x="400" y="82" text-anchor="middle" font-size="11" class="muted">Nginx · 限流 · 熔断 · 鉴权</text>
+
+  <!-- Arrow down -->
+  <line x1="400" y1="90" x2="400" y2="110" class="arr"/>
+
+  <!-- Row 2: Services -->
+  <rect x="44" y="110" width="130" height="44" rx="7" class="card"/>
+  <text x="109" y="129" text-anchor="middle" font-size="12">用户服务</text>
+  <text x="109" y="146" text-anchor="middle" font-size="11" class="muted">User Service</text>
+
+  <rect x="190" y="110" width="130" height="44" rx="7" class="card"/>
+  <text x="255" y="129" text-anchor="middle" font-size="12">订单服务</text>
+  <text x="255" y="146" text-anchor="middle" font-size="11" class="muted">Order Service</text>
+
+  <rect x="336" y="110" width="130" height="44" rx="7" class="card"/>
+  <text x="401" y="129" text-anchor="middle" font-size="12">商品服务</text>
+  <text x="401" y="146" text-anchor="middle" font-size="11" class="muted">Product Service</text>
+
+  <rect x="482" y="110" width="130" height="44" rx="7" class="card"/>
+  <text x="547" y="129" text-anchor="middle" font-size="12">库存服务</text>
+  <text x="547" y="146" text-anchor="middle" font-size="11" class="muted">Stock Service</text>
+
+  <rect x="628" y="110" width="128" height="44" rx="7" class="card"/>
+  <text x="692" y="129" text-anchor="middle" font-size="12">支付服务</text>
+  <text x="692" y="146" text-anchor="middle" font-size="11" class="muted">Pay Service</text>
+
+  <!-- Arrows LB → services -->
+  <line x1="320" y1="90" x2="109" y2="110" class="arr" opacity="0.3"/>
+  <line x1="360" y1="90" x2="255" y2="110" class="arr" opacity="0.3"/>
+  <line x1="400" y1="90" x2="401" y2="110" class="arr" opacity="0.3"/>
+  <line x1="440" y1="90" x2="547" y2="110" class="arr" opacity="0.3"/>
+  <line x1="480" y1="90" x2="692" y2="110" class="arr" opacity="0.3"/>
+
+  <!-- Row 3: Cache + MQ -->
+  <rect x="44" y="196" width="360" height="52" rx="8" fill="var(--y)" opacity="0.1" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="224" y="218" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">多级缓存</text>
+  <text x="224" y="237" text-anchor="middle" font-size="11" class="muted">Caffeine（本地）→ Redis Cluster（分布式）→ CDN</text>
+
+  <rect x="420" y="196" width="336" height="52" rx="8" fill="var(--r)" opacity="0.1" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="588" y="218" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">消息队列</text>
+  <text x="588" y="237" text-anchor="middle" font-size="11" class="muted">Kafka / RocketMQ — 异步削峰解耦</text>
+
+  <!-- Services → Cache/MQ -->
+  <line x1="255" y1="154" x2="224" y2="196" class="arr" opacity="0.35"/>
+  <line x1="401" y1="154" x2="401" y2="196" class="arr" opacity="0.35"/>
+  <line x1="547" y1="154" x2="547" y2="196" class="arr" opacity="0.35"/>
+
+  <!-- Row 4: DB -->
+  <rect x="44" y="290" width="240" height="56" rx="8" fill="var(--b)" opacity="0.1" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="164" y="313" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">主库（写）</text>
+  <text x="164" y="334" text-anchor="middle" font-size="11" class="muted">分库：user / order / stock / pay</text>
+
+  <rect x="308" y="290" width="230" height="56" rx="8" fill="var(--g)" opacity="0.1" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="423" y="313" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">从库（读）</text>
+  <text x="423" y="334" text-anchor="middle" font-size="11" class="muted">主从复制 · 读压力分散</text>
+
+  <rect x="558" y="290" width="198" height="56" rx="8" fill="var(--p)" opacity="0.1" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="657" y="313" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">水平分表</text>
+  <text x="657" y="334" text-anchor="middle" font-size="11" class="muted">order_0 … order_N</text>
+
+  <!-- Replication arrow -->
+  <line x1="284" y1="318" x2="308" y2="318" stroke="var(--b)" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <text x="296" y="312" text-anchor="middle" font-size="10" class="muted">复制</text>
+
+  <!-- Cache/MQ → DB -->
+  <line x1="164" y1="248" x2="164" y2="290" class="arr" opacity="0.35"/>
+  <line x1="588" y1="248" x2="480" y2="290" class="arr" stroke-dasharray="4 3" opacity="0.3"/>
+
+  <!-- Row 5: Monitor -->
+  <rect x="44" y="382" width="712" height="30" rx="6" fill="var(--g)" opacity="0.08" stroke="var(--g)" stroke-width="1"/>
+  <text x="400" y="401" text-anchor="middle" font-size="12" class="muted">可观测性：Prometheus · Grafana · SkyWalking · ELK · AlertManager</text>
+</svg>

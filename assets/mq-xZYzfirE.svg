@@ -1,0 +1,99 @@
+<svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',system-ui,sans-serif">
+  <title>MQ 异步削峰</title>
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;
+          --p:#6366f1;--b:#0284c7;--g:#059669;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;
+          --border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--r:#f87171;}
+    @media(prefers-color-scheme:dark){
+      :root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;
+            --p:#818cf8;--b:#38bdf8;--g:#34d399;--r:#f87171;}
+    }
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7" fill="#6366f1"/>
+    </marker>
+    <marker id="b" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7" fill="#0284c7"/>
+    </marker>
+  </defs>
+  <rect width="800" height="300" fill="var(--bg)"/>
+  <text x="400" y="28" text-anchor="middle" font-size="17" font-weight="700" fill="var(--r)">MQ 异步削峰</text>
+
+  <!-- 同步 vs 异步 对比 -->
+  <!-- SYNC (top) -->
+  <text x="50" y="68" font-size="12" class="muted">同步（高峰期超时崩溃）</text>
+  <rect x="50" y="76" width="120" height="36" rx="7" fill="var(--r)" opacity="0.15" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="110" y="99" text-anchor="middle" font-size="12">用户请求</text>
+  <line x1="170" y1="94" x2="210" y2="94" stroke="var(--r)" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <rect x="210" y="76" width="120" height="36" rx="7" fill="var(--r)" opacity="0.15" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="270" y="99" text-anchor="middle" font-size="12">订单服务</text>
+  <line x1="330" y1="94" x2="370" y2="94" stroke="var(--r)" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <rect x="370" y="76" width="120" height="36" rx="7" fill="var(--r)" opacity="0.15" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="430" y="99" text-anchor="middle" font-size="12">库存扣减</text>
+  <line x1="490" y1="94" x2="530" y2="94" stroke="var(--r)" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <rect x="530" y="76" width="120" height="36" rx="7" fill="var(--r)" opacity="0.15" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="590" y="99" text-anchor="middle" font-size="12">发送通知</text>
+  <text x="710" y="94" font-size="18" fill="var(--r)">✗</text>
+  <text x="732" y="100" font-size="11" fill="var(--r)">链路长</text>
+  <text x="732" y="114" font-size="11" fill="var(--r)">易超时</text>
+
+  <!-- Divider -->
+  <line x1="40" y1="136" x2="760" y2="136" stroke="var(--border)" stroke-width="1" stroke-dasharray="6 4"/>
+
+  <!-- ASYNC (bottom) -->
+  <text x="50" y="160" font-size="12" class="muted">异步（MQ 削峰，快速响应）</text>
+
+  <!-- Producer side -->
+  <rect x="50" y="168" width="100" height="44" rx="8" fill="var(--p)" opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="100" y="187" text-anchor="middle" font-size="12">用户请求</text>
+  <text x="100" y="204" text-anchor="middle" font-size="10" class="muted">峰值 10w/s</text>
+
+  <rect x="180" y="168" width="100" height="44" rx="8" fill="var(--p)" opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="230" y="187" text-anchor="middle" font-size="12">订单服务</text>
+  <text x="230" y="204" text-anchor="middle" font-size="10" fill="var(--g)">立即返回 ✓</text>
+
+  <!-- Arrow producer → MQ -->
+  <line x1="150" y1="190" x2="180" y2="190" stroke="var(--p)" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+  <line x1="280" y1="190" x2="330" y2="190" stroke="var(--p)" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+  <text x="305" y="183" text-anchor="middle" font-size="10" fill="var(--p)">发消息</text>
+
+  <!-- MQ Queue -->
+  <rect x="330" y="155" width="160" height="70" rx="10" fill="var(--r)" opacity="0.1" stroke="var(--r)" stroke-width="2"/>
+  <text x="410" y="178" text-anchor="middle" font-size="13" font-weight="700" fill="var(--r)">消息队列</text>
+  <text x="410" y="196" text-anchor="middle" font-size="11" class="muted">Kafka / RocketMQ</text>
+  <!-- queue slots -->
+  <rect x="342" y="204" width="22" height="14" rx="2" fill="var(--r)" opacity="0.4"/>
+  <rect x="368" y="204" width="22" height="14" rx="2" fill="var(--r)" opacity="0.4"/>
+  <rect x="394" y="204" width="22" height="14" rx="2" fill="var(--r)" opacity="0.3"/>
+  <rect x="420" y="204" width="22" height="14" rx="2" fill="var(--r)" opacity="0.2"/>
+  <rect x="446" y="204" width="22" height="14" rx="2" fill="var(--r)" opacity="0.1"/>
+  <text x="410" y="226" text-anchor="middle" font-size="9" class="muted">消息积压缓冲</text>
+
+  <!-- Arrow MQ → Consumer -->
+  <line x1="490" y1="190" x2="540" y2="175" stroke="var(--b)" stroke-width="1.8" fill="none" marker-end="url(#b)"/>
+  <line x1="490" y1="190" x2="540" y2="205" stroke="var(--b)" stroke-width="1.8" fill="none" marker-end="url(#b)"/>
+  <text x="510" y="186" text-anchor="middle" font-size="10" fill="var(--b)">消费</text>
+  <text x="510" y="200" text-anchor="middle" font-size="10" fill="var(--b)">平滑</text>
+
+  <!-- Consumers -->
+  <rect x="540" y="158" width="110" height="32" rx="7" fill="var(--b)" opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="595" y="179" text-anchor="middle" font-size="11" fill="var(--b)">库存扣减</text>
+  <rect x="540" y="196" width="110" height="32" rx="7" fill="var(--b)" opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="595" y="217" text-anchor="middle" font-size="11" fill="var(--b)">发送通知</text>
+
+  <!-- Downstream -->
+  <line x1="650" y1="174" x2="690" y2="174" stroke="var(--b)" stroke-width="1.5" fill="none" marker-end="url(#b)"/>
+  <rect x="690" y="158" width="80" height="32" rx="7" class="card"/>
+  <text x="730" y="179" text-anchor="middle" font-size="11">匀速处理</text>
+  <line x1="650" y1="212" x2="690" y2="212" stroke="var(--b)" stroke-width="1.5" fill="none" marker-end="url(#b)"/>
+  <rect x="690" y="196" width="80" height="32" rx="7" class="card"/>
+  <text x="730" y="217" text-anchor="middle" font-size="11">匀速处理</text>
+
+  <!-- rate annotation -->
+  <text x="410" y="260" text-anchor="middle" font-size="11" class="muted">峰值写入 10w/s → MQ 缓冲 → 消费者 1000/s 匀速消费，不压垮下游</text>
+</svg>

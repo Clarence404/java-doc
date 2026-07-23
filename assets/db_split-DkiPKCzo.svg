@@ -1,0 +1,94 @@
+<svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',system-ui,sans-serif">
+  <title>分库 — 垂直拆分</title>
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;
+          --p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;
+          --border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){
+      :root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;
+            --p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    }
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7" fill="#6366f1"/>
+    </marker>
+  </defs>
+  <rect width="800" height="320" fill="var(--bg)"/>
+  <text x="400" y="28" text-anchor="middle" font-size="17" font-weight="700" fill="var(--b)">分库（垂直拆分）— 按业务域</text>
+
+  <!-- Monolith DB -->
+  <rect x="44" y="56" width="160" height="220" rx="12" fill="var(--r)" opacity="0.08" stroke="var(--r)" stroke-width="2"/>
+  <text x="124" y="80" text-anchor="middle" font-size="14" font-weight="700" fill="var(--r)">单一大库</text>
+  <rect x="60" y="90" width="128" height="24" rx="5" class="card"/>
+  <text x="124" y="107" text-anchor="middle" font-size="11">user 表</text>
+  <rect x="60" y="120" width="128" height="24" rx="5" class="card"/>
+  <text x="124" y="137" text-anchor="middle" font-size="11">order 表</text>
+  <rect x="60" y="150" width="128" height="24" rx="5" class="card"/>
+  <text x="124" y="167" text-anchor="middle" font-size="11">product 表</text>
+  <rect x="60" y="180" width="128" height="24" rx="5" class="card"/>
+  <text x="124" y="197" text-anchor="middle" font-size="11">stock 表</text>
+  <rect x="60" y="210" width="128" height="24" rx="5" class="card"/>
+  <text x="124" y="227" text-anchor="middle" font-size="11">pay 表</text>
+  <rect x="60" y="244" width="128" height="24" rx="5" fill="var(--r)" opacity="0.2"/>
+  <text x="124" y="261" text-anchor="middle" font-size="11" fill="var(--r)">连接数瓶颈</text>
+
+  <!-- Arrow -->
+  <line x1="204" y1="166" x2="270" y2="166" stroke="var(--p)" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+  <text x="237" y="158" text-anchor="middle" font-size="11" fill="var(--p)">垂直拆分</text>
+  <text x="237" y="178" text-anchor="middle" font-size="10" class="muted">按业务域</text>
+
+  <!-- Split DBs -->
+  <!-- user_db -->
+  <rect x="270" y="56" width="128" height="72" rx="9" fill="var(--p)" opacity="0.1" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="334" y="78" text-anchor="middle" font-size="12" font-weight="600" fill="var(--p)">user_db</text>
+  <rect x="282" y="86" width="104" height="18" rx="4" class="card"/>
+  <text x="334" y="99" text-anchor="middle" font-size="10">user · profile</text>
+  <rect x="282" y="108" width="104" height="18" rx="4" class="card"/>
+  <text x="334" y="121" text-anchor="middle" font-size="10">address · auth</text>
+
+  <!-- order_db -->
+  <rect x="416" y="56" width="128" height="72" rx="9" fill="var(--b)" opacity="0.1" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="480" y="78" text-anchor="middle" font-size="12" font-weight="600" fill="var(--b)">order_db</text>
+  <rect x="428" y="86" width="104" height="18" rx="4" class="card"/>
+  <text x="480" y="99" text-anchor="middle" font-size="10">order · order_item</text>
+  <rect x="428" y="108" width="104" height="18" rx="4" class="card"/>
+  <text x="480" y="121" text-anchor="middle" font-size="10">refund · coupon</text>
+
+  <!-- product_db -->
+  <rect x="270" y="148" width="128" height="72" rx="9" fill="var(--g)" opacity="0.1" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="334" y="170" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">product_db</text>
+  <rect x="282" y="178" width="104" height="18" rx="4" class="card"/>
+  <text x="334" y="191" text-anchor="middle" font-size="10">product · category</text>
+  <rect x="282" y="200" width="104" height="18" rx="4" class="card"/>
+  <text x="334" y="213" text-anchor="middle" font-size="10">sku · price</text>
+
+  <!-- stock_db -->
+  <rect x="416" y="148" width="128" height="72" rx="9" fill="var(--y)" opacity="0.1" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="480" y="170" text-anchor="middle" font-size="12" font-weight="600" fill="var(--y)">stock_db</text>
+  <rect x="428" y="178" width="104" height="18" rx="4" class="card"/>
+  <text x="480" y="191" text-anchor="middle" font-size="10">stock · warehouse</text>
+  <rect x="428" y="200" width="104" height="18" rx="4" class="card"/>
+  <text x="480" y="213" text-anchor="middle" font-size="10">reservation</text>
+
+  <!-- pay_db -->
+  <rect x="344" y="240" width="128" height="52" rx="9" fill="var(--r)" opacity="0.1" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="408" y="262" text-anchor="middle" font-size="12" font-weight="600" fill="var(--r)">pay_db</text>
+  <rect x="356" y="270" width="104" height="18" rx="4" class="card"/>
+  <text x="408" y="283" text-anchor="middle" font-size="10">payment · account</text>
+
+  <!-- Benefits -->
+  <rect x="570" y="56" width="206" height="236" rx="12" fill="var(--g)" opacity="0.07" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="673" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="var(--g)">拆分收益</text>
+  <text x="590" y="108" font-size="12">✓ 连接数压力分散</text>
+  <text x="590" y="132" font-size="12">✓ 各库可单独扩容</text>
+  <text x="590" y="156" font-size="12">✓ 业务隔离，互不影响</text>
+  <text x="590" y="180" font-size="12">✓ 不同库不同硬件</text>
+  <text x="590" y="216" font-size="12" fill="var(--r)">✗ 跨库事务复杂</text>
+  <text x="590" y="240" font-size="12" fill="var(--r)">✗ 跨库 JOIN 不可用</text>
+  <text x="590" y="264" font-size="12" fill="var(--r)">✗ 需引入分布式事务</text>
+</svg>

@@ -1,0 +1,72 @@
+<svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',system-ui,sans-serif">
+  <title>读写分离</title>
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;
+          --p:#6366f1;--b:#0284c7;--g:#059669;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;
+          --border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--r:#f87171;}
+    @media(prefers-color-scheme:dark){
+      :root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;
+            --p:#818cf8;--b:#38bdf8;--g:#34d399;--r:#f87171;}
+    }
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+  </style>
+  <defs>
+    <marker id="wr" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7" fill="#dc2626"/>
+    </marker>
+    <marker id="rd" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7" fill="#059669"/>
+    </marker>
+    <marker id="rep" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7" fill="#0284c7"/>
+    </marker>
+  </defs>
+  <rect width="800" height="320" fill="var(--bg)"/>
+  <text x="400" y="28" text-anchor="middle" font-size="17" font-weight="700" fill="var(--b)">读写分离</text>
+
+  <!-- Application -->
+  <rect x="290" y="50" width="220" height="52" rx="10" fill="var(--p)" opacity="0.15" stroke="var(--p)" stroke-width="2"/>
+  <text x="400" y="74" text-anchor="middle" font-size="14" font-weight="600" fill="var(--p)">应用层</text>
+  <text x="400" y="93" text-anchor="middle" font-size="11" class="muted">ShardingSphere / 手动路由</text>
+
+  <!-- Write arrow -->
+  <line x1="340" y1="102" x2="220" y2="140" stroke="var(--r)" stroke-width="2" fill="none" marker-end="url(#wr)"/>
+  <text x="256" y="122" text-anchor="middle" font-size="11" fill="var(--r)">写（INSERT / UPDATE / DELETE）</text>
+
+  <!-- Read arrows -->
+  <line x1="460" y1="102" x2="530" y2="148" stroke="var(--g)" stroke-width="2" fill="none" marker-end="url(#rd)"/>
+  <line x1="460" y1="102" x2="660" y2="148" stroke="var(--g)" stroke-width="2" fill="none" marker-end="url(#rd)"/>
+  <text x="600" y="120" text-anchor="middle" font-size="11" fill="var(--g)">读（SELECT）</text>
+
+  <!-- Master -->
+  <rect x="80" y="140" width="280" height="80" rx="12" fill="var(--r)" opacity="0.1" stroke="var(--r)" stroke-width="2"/>
+  <text x="220" y="168" text-anchor="middle" font-size="14" font-weight="700" fill="var(--r)">主库（Master）</text>
+  <text x="220" y="188" text-anchor="middle" font-size="11" class="muted">接受所有写操作</text>
+  <text x="220" y="208" text-anchor="middle" font-size="11" class="muted">binlog 日志 → 异步/半同步复制</text>
+
+  <!-- Slave 1 -->
+  <rect x="430" y="148" width="160" height="72" rx="10" fill="var(--g)" opacity="0.1" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="510" y="172" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">从库 1</text>
+  <text x="510" y="192" text-anchor="middle" font-size="11" class="muted">只读副本</text>
+  <text x="510" y="210" text-anchor="middle" font-size="10" class="muted">Read Replica</text>
+
+  <!-- Slave 2 -->
+  <rect x="606" y="148" width="160" height="72" rx="10" fill="var(--g)" opacity="0.1" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="686" y="172" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">从库 2</text>
+  <text x="686" y="192" text-anchor="middle" font-size="11" class="muted">只读副本</text>
+  <text x="686" y="210" text-anchor="middle" font-size="10" class="muted">Read Replica</text>
+
+  <!-- Replication arrows -->
+  <line x1="360" y1="180" x2="430" y2="180" stroke="var(--b)" stroke-width="2" fill="none" marker-end="url(#rep)"/>
+  <text x="395" y="170" text-anchor="middle" font-size="10" fill="var(--b)">主从复制</text>
+  <line x1="360" y1="180" x2="606" y2="184" stroke="var(--b)" stroke-width="2" fill="none" marker-end="url(#rep)" stroke-dasharray="5 3"/>
+
+  <!-- Notes -->
+  <rect x="80" y="244" width="650" height="60" rx="10" fill="var(--p)" opacity="0.06" stroke="var(--p)" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="405" y="264" text-anchor="middle" font-size="12" font-weight="600" fill="var(--p)">注意事项</text>
+  <text x="405" y="283" text-anchor="middle" font-size="11" class="muted">① 主从复制存在毫秒级延迟，写后立即读可能读到旧数据</text>
+  <text x="405" y="299" text-anchor="middle" font-size="11" class="muted">② 强一致性场景（如支付后查余额）需强制走主库读</text>
+</svg>
