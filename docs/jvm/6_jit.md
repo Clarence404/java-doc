@@ -136,7 +136,83 @@ native-image -jar app.jar  # 编译为原生可执行文件
 
 ---
 
-## 七、常见面试问题
+## 七、虚拟线程（Project Loom，JDK 21）
+
+虚拟线程是 JDK 21 正式发布的轻量级线程，由 JVM 而非 OS 调度，彻底改变了高并发 I/O 场景的编程模型。
+
+### 平台线程 vs 虚拟线程
+
+| 对比 | 平台线程（OS Thread）| 虚拟线程（Virtual Thread）|
+|------|---------------------|--------------------------|
+| 创建开销 | 高（约 1MB 栈，OS 系统调用）| 极低（初始栈几百字节，JVM 管理）|
+| 数量上限 | 千级（受 OS 限制）| 百万级 |
+| 阻塞时 | OS 线程挂起，占用资源 | 自动卸载（unmount），载体线程继续执行其他任务 |
+| 调度 | OS 调度器 | JVM ForkJoinPool（Work-Stealing）|
+| 适用 | CPU 密集型 | I/O 密集型（HTTP 调用、数据库查询）|
+
+### 挂载 / 卸载机制
+
+```
+虚拟线程 VT ─── 挂载（mount）──► 载体线程（平台线程）
+                                    │
+                   遇到阻塞 I/O     │
+                        ↓          │
+          VT 卸载（unmount）◄─────────┤  载体线程空闲，可执行其他 VT
+                        │
+          I/O 完成后重新挂载到任意载体线程
+```
+
+虚拟线程阻塞时只消耗极少堆内存（保存栈帧的连续数组），而不占用 OS 线程。
+
+### 使用方式
+
+```java
+// 1. 直接创建（类似普通线程）
+Thread vt = Thread.ofVirtual().name("vt-1").start(() -> {
+    // 阻塞 I/O 会自动挂起，无需特殊处理
+    String result = httpClient.get("https://api.example.com/data");
+    System.out.println(result);
+});
+
+// 2. ExecutorService（推荐，每任务一个虚拟线程）
+try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    List<Future<String>> futures = IntStream.range(0, 10_000)
+        .mapToObj(i -> executor.submit(() -> fetchData(i)))
+        .collect(Collectors.toList());
+    // 10000 个并发请求，实际只用少量载体线程
+}
+
+// 3. Spring Boot 3.2+ 一键启用
+// application.yaml:
+// spring.threads.virtual.enabled: true
+```
+
+### 注意事项
+
+```java
+// ❌ 虚拟线程中使用 synchronized 持有锁时阻塞 → 载体线程被"钉住"（pinned），无法卸载
+synchronized (lock) {
+    socket.read(buffer);  // 阻塞时载体线程不能释放给其他虚拟线程
+}
+
+// ✅ 改用 ReentrantLock，阻塞时可正常卸载
+ReentrantLock lock = new ReentrantLock();
+lock.lock();
+try {
+    socket.read(buffer);  // 阻塞时虚拟线程卸载，载体线程可执行其他任务
+} finally {
+    lock.unlock();
+}
+```
+
+**其他注意点：**
+- `ThreadLocal` 仍可用，但百万虚拟线程时内存占用显著；JDK 21 引入 `ScopedValue` 作为替代
+- 不适合 CPU 密集型任务（虚拟线程数量多但载体线程只有核心数个）
+- 线程池对虚拟线程无意义（虚拟线程创建成本极低，不需要复用）
+
+---
+
+## 八、常见面试问题
 
 **Q：为什么 Java 程序刚启动时慢，运行一段时间后变快？**
 启动时字节码解释执行，JIT 编译需要积累足够的运行数据（热点检测）才能触发；编译完成后直接执行机器码，性能大幅提升。这个过程叫 **JIT 预热**（Warm-up）。

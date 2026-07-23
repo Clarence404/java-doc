@@ -59,7 +59,7 @@ highlights:
       - title: JVM
         icon: gears
         details: 内存结构 / 类加载机制 / GC 算法全解 / 参数调优 / 线上 OOM 排查实战
-        link: /jvm/0_jvm_memory
+        link: /jvm/0_memory
       - title: 算法与数据结构
         icon: diagram-project
         details: 复杂度分析 + 13 种算法范式，LeetCode / 华为 OJ 分类题解与解题思路

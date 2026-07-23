@@ -112,7 +112,43 @@ HotSpot 中一个对象在堆中的存储结构：
 
 ---
 
-## 五、常见面试问题
+## 五、String 常量池
+
+### 位置变迁
+
+| JDK 版本 | String 常量池位置 | 说明 |
+|---------|-----------------|------|
+| JDK 6 及之前 | 永久代（PermGen）| 大小固定，`intern()` 滥用易 OOM |
+| **JDK 7+** | **堆（Heap）** | 随堆一起 GC，`intern()` 返回堆中已有对象的引用 |
+| JDK 8+ | 堆（Heap）| 同上，PermGen 改为 Metaspace |
+
+### String.intern()
+
+`intern()` 方法将字符串放入常量池并返回常量池中的引用：
+
+```java
+String s1 = new String("hello");   // 堆中新对象
+String s2 = s1.intern();           // 将 "hello" 放入常量池，返回常量池引用
+String s3 = "hello";               // 直接引用常量池
+
+System.out.println(s1 == s2);  // false（s1 是堆对象，s2 是常量池引用）
+System.out.println(s2 == s3);  // true（都指向常量池同一对象）
+```
+
+**使用场景**：大量重复字符串（如日志字段、枚举值），手动 `intern()` 可节省内存；但过度使用会增加常量池查找开销。
+
+### G1 字符串去重（String Deduplication）
+
+```bash
+# JDK 8u20+ G1 专属优化，自动合并堆中内容相同的 String char[] 数组
+-XX:+UseG1GC -XX:+UseStringDeduplication
+```
+
+与 `intern()` 的区别：去重只合并底层 `char[]`（或 JDK 9+ 的 `byte[]`），不影响 String 对象本身；`intern()` 合并的是 String 对象引用。
+
+---
+
+## 六、常见面试问题
 
 **Q：堆和方法区的区别？**
 堆存放对象实例（运行时数据），方法区存放类的结构信息（元数据）。两者都是线程共享区域。
