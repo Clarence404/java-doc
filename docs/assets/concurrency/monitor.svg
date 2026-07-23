@@ -1,0 +1,81 @@
+<svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',system-ui,sans-serif">
+  <title>服务监控 — 可观测性三支柱</title>
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;
+          --p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;
+          --border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){
+      :root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;
+            --p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    }
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7" fill="#9ca3af"/>
+    </marker>
+  </defs>
+  <rect width="800" height="340" fill="var(--bg)"/>
+  <text x="400" y="28" text-anchor="middle" font-size="17" font-weight="700" fill="var(--g)">服务监控（可观测性）</text>
+
+  <!-- Services row -->
+  <rect x="100" y="44" width="100" height="36" rx="7" fill="var(--p)" opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="150" y="67" text-anchor="middle" font-size="12" fill="var(--p)">用户服务</text>
+  <rect x="250" y="44" width="100" height="36" rx="7" fill="var(--p)" opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="300" y="67" text-anchor="middle" font-size="12" fill="var(--p)">订单服务</text>
+  <rect x="400" y="44" width="100" height="36" rx="7" fill="var(--p)" opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="450" y="67" text-anchor="middle" font-size="12" fill="var(--p)">商品服务</text>
+  <rect x="550" y="44" width="100" height="36" rx="7" fill="var(--p)" opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="600" y="67" text-anchor="middle" font-size="12" fill="var(--p)">库存服务</text>
+
+  <!-- Arrows down from services -->
+  <line x1="150" y1="80" x2="150" y2="108" stroke="var(--muted)" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+  <line x1="300" y1="80" x2="300" y2="108" stroke="var(--muted)" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+  <line x1="450" y1="80" x2="450" y2="108" stroke="var(--muted)" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+  <line x1="600" y1="80" x2="600" y2="108" stroke="var(--muted)" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+
+  <!-- OTel collector -->
+  <rect x="80" y="108" width="560" height="36" rx="8" fill="var(--b)" opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="360" y="123" text-anchor="middle" font-size="12" fill="var(--b)">OpenTelemetry Collector（采集 + 路由）</text>
+  <text x="360" y="137" text-anchor="middle" font-size="10" class="muted">统一采集 Metrics / Traces / Logs，按类型路由到对应后端</text>
+
+  <!-- Arrows from OTel to pillars -->
+  <line x1="200" y1="144" x2="160" y2="170" stroke="var(--muted)" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+  <line x1="360" y1="144" x2="360" y2="170" stroke="var(--muted)" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+  <line x1="520" y1="144" x2="570" y2="170" stroke="var(--muted)" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+
+  <!-- Pillar 1: Metrics -->
+  <rect x="34" y="170" width="200" height="100" rx="10" fill="var(--b)" opacity="0.1" stroke="var(--b)" stroke-width="2"/>
+  <text x="134" y="194" text-anchor="middle" font-size="13" font-weight="700" fill="var(--b)">指标（Metrics）</text>
+  <rect x="46" y="204" width="176" height="22" rx="5" class="card"/>
+  <text x="134" y="219" text-anchor="middle" font-size="11">Prometheus 采集存储</text>
+  <rect x="46" y="230" width="176" height="22" rx="5" class="card"/>
+  <text x="134" y="245" text-anchor="middle" font-size="11">Grafana 可视化 Dashboard</text>
+  <text x="134" y="264" text-anchor="middle" font-size="10" class="muted">QPS / P99 / CPU / 内存</text>
+
+  <!-- Pillar 2: Trace -->
+  <rect x="260" y="170" width="200" height="100" rx="10" fill="var(--g)" opacity="0.1" stroke="var(--g)" stroke-width="2"/>
+  <text x="360" y="194" text-anchor="middle" font-size="13" font-weight="700" fill="var(--g)">链路追踪（Trace）</text>
+  <rect x="272" y="204" width="176" height="22" rx="5" class="card"/>
+  <text x="360" y="219" text-anchor="middle" font-size="11">SkyWalking / Jaeger</text>
+  <rect x="272" y="230" width="176" height="22" rx="5" class="card"/>
+  <text x="360" y="245" text-anchor="middle" font-size="11">Span / TraceId 串联全链路</text>
+  <text x="360" y="264" text-anchor="middle" font-size="10" class="muted">发现调用瓶颈 / 异常节点</text>
+
+  <!-- Pillar 3: Log -->
+  <rect x="486" y="170" width="200" height="100" rx="10" fill="var(--y)" opacity="0.1" stroke="var(--y)" stroke-width="2"/>
+  <text x="586" y="194" text-anchor="middle" font-size="13" font-weight="700" fill="var(--y)">日志（Logging）</text>
+  <rect x="498" y="204" width="176" height="22" rx="5" class="card"/>
+  <text x="586" y="219" text-anchor="middle" font-size="11">ELK / Loki + Promtail</text>
+  <rect x="498" y="230" width="176" height="22" rx="5" class="card"/>
+  <text x="586" y="245" text-anchor="middle" font-size="11">全文检索 · 结构化日志</text>
+  <text x="586" y="264" text-anchor="middle" font-size="10" class="muted">ERROR 快速定位，关联 TraceId</text>
+
+  <!-- Alert -->
+  <rect x="34" y="290" width="652" height="40" rx="9" fill="var(--r)" opacity="0.08" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="360" y="308" text-anchor="middle" font-size="12" font-weight="600" fill="var(--r)">告警（Alerting）— AlertManager · PagerDuty</text>
+  <text x="360" y="325" text-anchor="middle" font-size="11" class="muted">阈值触发（错误率 &gt; 1%、P99 &gt; 500ms）→ 电话/钉钉/邮件通知 On-Call</text>
+</svg>

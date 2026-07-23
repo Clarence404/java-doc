@@ -4,13 +4,15 @@
 
 高并发系统设计的核心目标是：在有限的硬件资源下，支撑尽可能多的并发用户请求，同时保持合理的响应时间和系统稳定性。
 
+![高并发系统设计全景](../assets/concurrency/hc_overview.svg)
+
 ---
 
 ## 一、核心要点
 
 高并发系统同时面临两个挑战：**高性能**（单次请求响应快）和**高可用**（整体系统稳定）。
 
-![高并发系统核心](../assets/concurrency/hc_sys.png)
+![高并发系统核心](../assets/concurrency/hc_sys.svg)
 
 ---
 
@@ -18,7 +20,7 @@
 
 以下是一个典型的高并发架构设计图，涵盖从接入层到存储层的各个环节：
 
-![高并发设计方案](../assets/concurrency/hc_sys_demo.png)
+![高并发设计方案](../assets/concurrency/hc_sys_demo.svg)
 
 高并发系统的设计通常从以下几个维度入手：系统拆分、缓存加速、异步削峰、数据分离、读写分离和服务监控。
 
@@ -28,7 +30,7 @@
 
 将单体服务拆分为多个微服务，每个服务独立部署、独立扩容，避免单点瓶颈。
 
-![系统拆分](../assets/concurrency/sys_split.png)
+![系统拆分](../assets/concurrency/sys_split.svg)
 
 **拆分原则**：
 - 按业务域拆分（用户、订单、库存、支付各自独立）
@@ -41,7 +43,7 @@
 
 引入多级缓存，减少数据库压力，提升读取速度。
 
-![缓存加速](../assets/concurrency/cache.png)
+![缓存加速](../assets/concurrency/cache.svg)
 
 **典型缓存体系**：
 - **本地缓存（Caffeine）**：极低延迟（微秒级），适合热点数据，容量受限
@@ -54,7 +56,7 @@
 
 通过消息队列将同步调用解耦为异步处理，平滑流量洪峰。
 
-![MQ异步削峰](../assets/concurrency/mq.png)
+![MQ异步削峰](../assets/concurrency/mq.svg)
 
 **典型场景**：
 - 秒杀下单：接受请求后立即返回"处理中"，MQ 异步扣库存
@@ -69,11 +71,11 @@
 
 **分库**（垂直分库）：按业务域拆分，用户库、订单库、商品库各自独立。
 
-![数据分离-分库](../assets/concurrency/db_split.png)
+![数据分离-分库](../assets/concurrency/db_split.svg)
 
 **分表**（水平分表）：同一业务的大表按规则（如 userId % 16）拆成多张表。
 
-![数据分离-分表](../assets/concurrency/table_split.png)
+![数据分离-分表](../assets/concurrency/table_split.svg)
 
 ---
 
@@ -81,7 +83,7 @@
 
 主库负责写入，从库负责查询，利用主从复制将读压力分散到多个从节点。
 
-![读写分离](../assets/concurrency/read_write_split.png)
+![读写分离](../assets/concurrency/read_write_split.svg)
 
 **注意事项**：
 - 主从复制存在延迟（通常毫秒级），写后立即读可能读到旧数据
@@ -93,7 +95,7 @@
 
 完善的监控体系是高并发系统稳定运行的保障，包括指标采集、链路追踪和告警。
 
-![服务监控](../assets/concurrency/monitor.png)
+![服务监控](../assets/concurrency/monitor.svg)
 
 **监控关键指标**：
 - **QPS / TPS**：系统吞吐量

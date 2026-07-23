@@ -1,0 +1,86 @@
+<svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',system-ui,sans-serif">
+  <title>分表 — 水平拆分</title>
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;
+          --p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;
+          --border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;}
+    @media(prefers-color-scheme:dark){
+      :root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;
+            --p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;}
+    }
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7" fill="#6366f1"/>
+    </marker>
+  </defs>
+  <rect width="800" height="300" fill="var(--bg)"/>
+  <text x="400" y="28" text-anchor="middle" font-size="17" font-weight="700" fill="var(--b)">分表（水平拆分）— 按路由规则</text>
+
+  <!-- Big table -->
+  <rect x="32" y="50" width="140" height="190" rx="10" fill="var(--y)" opacity="0.1" stroke="var(--y)" stroke-width="2"/>
+  <text x="102" y="74" text-anchor="middle" font-size="13" font-weight="700" fill="var(--y)">order</text>
+  <text x="102" y="92" text-anchor="middle" font-size="10" class="muted">1 亿+ 行</text>
+  <!-- rows -->
+  <rect x="46" y="100" width="112" height="16" rx="3" fill="var(--y)" opacity="0.3"/>
+  <text x="102" y="112" text-anchor="middle" font-size="9" class="muted">id=1, userId=1001</text>
+  <rect x="46" y="120" width="112" height="16" rx="3" fill="var(--y)" opacity="0.25"/>
+  <text x="102" y="132" text-anchor="middle" font-size="9" class="muted">id=2, userId=1002</text>
+  <rect x="46" y="140" width="112" height="16" rx="3" fill="var(--y)" opacity="0.2"/>
+  <text x="102" y="152" text-anchor="middle" font-size="9" class="muted">id=3, userId=1003</text>
+  <text x="102" y="176" text-anchor="middle" font-size="18" class="muted">⋮</text>
+  <rect x="46" y="194" width="112" height="16" rx="3" fill="var(--y)" opacity="0.15"/>
+  <text x="102" y="206" text-anchor="middle" font-size="9" class="muted">id=N, userId=N</text>
+  <rect x="46" y="222" width="112" height="16" rx="3" fill="var(--y)" opacity="0.3"/>
+  <text x="102" y="234" text-anchor="middle" font-size="10" fill="var(--y)">查询超慢！</text>
+
+  <!-- Arrow + rule -->
+  <line x1="172" y1="145" x2="220" y2="145" stroke="var(--p)" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+  <text x="196" y="136" text-anchor="middle" font-size="10" fill="var(--p)">路由规则</text>
+  <text x="196" y="151" text-anchor="middle" font-size="10" fill="var(--p)">userId % N</text>
+
+  <!-- Shards -->
+  <rect x="220" y="50" width="104" height="80" rx="8" fill="var(--p)" opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="272" y="73" text-anchor="middle" font-size="12" font-weight="600" fill="var(--p)">order_0</text>
+  <text x="272" y="91" text-anchor="middle" font-size="10" class="muted">userId % 4 = 0</text>
+  <rect x="232" y="100" width="80" height="12" rx="3" fill="var(--p)" opacity="0.2"/>
+  <rect x="232" y="116" width="80" height="12" rx="3" fill="var(--p)" opacity="0.15"/>
+
+  <rect x="336" y="50" width="104" height="80" rx="8" fill="var(--b)" opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="388" y="73" text-anchor="middle" font-size="12" font-weight="600" fill="var(--b)">order_1</text>
+  <text x="388" y="91" text-anchor="middle" font-size="10" class="muted">userId % 4 = 1</text>
+  <rect x="348" y="100" width="80" height="12" rx="3" fill="var(--b)" opacity="0.2"/>
+  <rect x="348" y="116" width="80" height="12" rx="3" fill="var(--b)" opacity="0.15"/>
+
+  <rect x="452" y="50" width="104" height="80" rx="8" fill="var(--g)" opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="504" y="73" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">order_2</text>
+  <text x="504" y="91" text-anchor="middle" font-size="10" class="muted">userId % 4 = 2</text>
+  <rect x="464" y="100" width="80" height="12" rx="3" fill="var(--g)" opacity="0.2"/>
+  <rect x="464" y="116" width="80" height="12" rx="3" fill="var(--g)" opacity="0.15"/>
+
+  <rect x="568" y="50" width="104" height="80" rx="8" fill="var(--y)" opacity="0.15" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="620" y="73" text-anchor="middle" font-size="12" font-weight="600" fill="var(--y)">order_3</text>
+  <text x="620" y="91" text-anchor="middle" font-size="10" class="muted">userId % 4 = 3</text>
+  <rect x="580" y="100" width="80" height="12" rx="3" fill="var(--y)" opacity="0.2"/>
+  <rect x="580" y="116" width="80" height="12" rx="3" fill="var(--y)" opacity="0.15"/>
+
+  <!-- ShardingSphere -->
+  <rect x="220" y="152" width="452" height="40" rx="8" fill="var(--p)" opacity="0.08" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="446" y="168" text-anchor="middle" font-size="12" fill="var(--p)">ShardingSphere / MyCat</text>
+  <text x="446" y="184" text-anchor="middle" font-size="11" class="muted">透明路由层 — 应用无感知，自动分发 SQL</text>
+
+  <!-- Benefits row -->
+  <rect x="220" y="210" width="210" height="64" rx="8" fill="var(--g)" opacity="0.08" stroke="var(--g)" stroke-width="1"/>
+  <text x="325" y="230" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">收益</text>
+  <text x="232" y="250" font-size="11">✓ 单表数据量缩小 N 倍</text>
+  <text x="232" y="268" font-size="11">✓ 查询性能显著提升</text>
+
+  <rect x="462" y="210" width="210" height="64" rx="8" fill="var(--y)" opacity="0.08" stroke="var(--y)" stroke-width="1"/>
+  <text x="567" y="230" text-anchor="middle" font-size="12" font-weight="600" fill="var(--y)">代价</text>
+  <text x="474" y="250" font-size="11" class="muted">✗ 跨分片查询 / 排序复杂</text>
+  <text x="474" y="268" font-size="11" class="muted">✗ 全局唯一 ID 需雪花算法</text>
+</svg>

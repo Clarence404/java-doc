@@ -1,0 +1,61 @@
+<svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',system-ui,sans-serif">
+  <title>高并发核心挑战</title>
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+            --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540;
+            --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media(prefers-color-scheme:dark){
+      :root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;
+            --p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    }
+    text{fill:var(--fg);font-size:13px;}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .bg{fill:var(--bg);}
+  </style>
+  <rect width="800" height="320" fill="var(--bg)"/>
+
+  <!-- Title -->
+  <text x="400" y="34" text-anchor="middle" font-size="18" font-weight="700" fill="var(--p)">高并发系统核心目标</text>
+
+  <!-- Left: 高性能 -->
+  <rect x="40" y="60" width="320" height="230" rx="12" class="card"/>
+  <rect x="40" y="60" width="320" height="8" rx="4" fill="var(--b)"/>
+  <text x="200" y="92" text-anchor="middle" font-size="16" font-weight="700" fill="var(--b)">高性能（Low Latency）</text>
+  <text x="200" y="114" text-anchor="middle" font-size="12" class="muted">用户感知响应快，系统吞吐量大</text>
+
+  <rect x="64" y="128" width="272" height="32" rx="6" fill="var(--b)" opacity="0.1" stroke="var(--b)" stroke-width="1"/>
+  <text x="200" y="149" text-anchor="middle" font-size="12">缓存加速 — Caffeine / Redis</text>
+
+  <rect x="64" y="168" width="272" height="32" rx="6" fill="var(--b)" opacity="0.1" stroke="var(--b)" stroke-width="1"/>
+  <text x="200" y="189" text-anchor="middle" font-size="12">异步削峰 — MQ 解耦</text>
+
+  <rect x="64" y="208" width="272" height="32" rx="6" fill="var(--b)" opacity="0.1" stroke="var(--b)" stroke-width="1"/>
+  <text x="200" y="229" text-anchor="middle" font-size="12">JUC 并发编程 — 线程池优化</text>
+
+  <rect x="64" y="248" width="272" height="32" rx="6" fill="var(--b)" opacity="0.1" stroke="var(--b)" stroke-width="1"/>
+  <text x="200" y="269" text-anchor="middle" font-size="12">读写分离 + 分库分表</text>
+
+  <!-- Right: 高可用 -->
+  <rect x="440" y="60" width="320" height="230" rx="12" class="card"/>
+  <rect x="440" y="60" width="320" height="8" rx="4" fill="var(--g)"/>
+  <text x="600" y="92" text-anchor="middle" font-size="16" font-weight="700" fill="var(--g)">高可用（High Availability）</text>
+  <text x="600" y="114" text-anchor="middle" font-size="12" class="muted">故障时仍能持续对外服务</text>
+
+  <rect x="464" y="128" width="272" height="32" rx="6" fill="var(--g)" opacity="0.1" stroke="var(--g)" stroke-width="1"/>
+  <text x="600" y="149" text-anchor="middle" font-size="12">限流熔断 — Sentinel / Resilience4j</text>
+
+  <rect x="464" y="168" width="272" height="32" rx="6" fill="var(--g)" opacity="0.1" stroke="var(--g)" stroke-width="1"/>
+  <text x="600" y="189" text-anchor="middle" font-size="12">多副本 + 故障转移</text>
+
+  <rect x="464" y="208" width="272" height="32" rx="6" fill="var(--g)" opacity="0.1" stroke="var(--g)" stroke-width="1"/>
+  <text x="600" y="229" text-anchor="middle" font-size="12">服务降级 + 舱壁隔离</text>
+
+  <rect x="464" y="248" width="272" height="32" rx="6" fill="var(--g)" opacity="0.1" stroke="var(--g)" stroke-width="1"/>
+  <text x="600" y="269" text-anchor="middle" font-size="12">可观测性 — 快速感知故障</text>
+
+  <!-- Center VS -->
+  <circle cx="400" cy="175" r="22" fill="var(--p)"/>
+  <text x="400" y="182" text-anchor="middle" font-size="14" font-weight="700" fill="white">×</text>
+</svg>
