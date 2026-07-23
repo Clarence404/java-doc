@@ -4,120 +4,88 @@
 
 ---
 
-## 1、服务网关与路由（API Gateway）
+## 一、各层组件速查
 
-- **Spring Cloud Gateway**（Spring 官方，异步非阻塞）
-- **Kong**（国外非常流行，基于 Nginx）
-- **Traefik**（云原生友好，Kubernetes 集成好）
-- **APISIX**（国产开源，Apache 顶级项目）
-
-说明：如果是 IoT、高并发，建议用 Spring Cloud Gateway 或 Traefik。
-
----
-
-## 2、服务注册与配置管理（Service Discovery & Config）
-
-- **Nacos**（注册中心 + 配置中心）
-- **Apollo**（配置中心，特别适合复杂配置）
-- **Consul**（HashiCorp 出品，服务发现与 KV 配置）
-- **etcd**（CoreOS 出品，Kubernetes 核心组件之一）
-
-说明：大规模云原生集群，etcd/Consul 比较常见。
+| 层次 | 职责 | 国内主流 | 国际主流 |
+|------|------|---------|---------|
+| **API 网关** | 路由、鉴权、限流、灰度 | Spring Cloud Gateway、APISIX | Kong、Traefik |
+| **服务注册发现** | 动态地址管理、健康检查 | Nacos | Consul、etcd |
+| **配置中心** | 集中配置、动态刷新 | Nacos Config、Apollo | Spring Cloud Config、K8s ConfigMap |
+| **服务通信** | 服务间调用 | OpenFeign、Dubbo | gRPC |
+| **服务网格** | 非侵入式流量治理、mTLS | — | Istio + Envoy |
+| **流量控制** | 限流、熔断、降级 | Sentinel | Resilience4j |
+| **分布式事务** | 跨服务数据一致性 | Seata | Saga 模式、Outbox Pattern |
+| **消息中间件** | 异步解耦、削峰填谷 | RocketMQ | Kafka、RabbitMQ |
+| **链路追踪** | 全链路可观测 | SkyWalking | Jaeger、Zipkin、OpenTelemetry |
+| **指标监控** | 指标采集与告警 | Prometheus + Grafana | Prometheus + Grafana |
 
 ---
 
-## 3、服务通信与调用（RPC / Service Mesh）
+## 二、Spring Cloud Alibaba 技术栈
 
-- **Dubbo**（阿里出品，RPC 框架）
-- **OpenSergo**（下一代服务治理标准）
-- **gRPC**（Google 出品，Protocol Buffers 通信）
-- **Istio**（服务网格 Service Mesh，基于 Envoy）
-- **OpenFeign**（Spring Cloud 提供的声明式 HTTP 客户端，简化服务间调用）
-
-说明：如果追求更标准的跨语言通信，gRPC + Istio 是国际主流组合。
-
----
-
-## 4、流量控制与熔断限流（Resilience）
-
-- **Sentinel**（流量控制、熔断、降级）
-- **Resilience4j**（Spring 官方推荐的熔断器）
-- **Envoy**（代理级流控能力）
-
-说明：国内项目 Sentinel 多，国际项目 Resilience4j 也很火。
+```
+客户端
+    │
+    ▼
+Spring Cloud Gateway（API 网关：路由/鉴权/限流）
+    │
+    ▼
+OpenFeign（声明式 HTTP 调用）+ Spring Cloud LoadBalancer（客户端负载均衡）
+    │
+    ├── order-service ──→ Nacos（注册中心 + 配置中心）
+    ├── user-service  ──→ Sentinel（流量控制 + 熔断）
+    └── pay-service   ──→ Seata（分布式事务）
+                         RocketMQ（异步消息）
+                         SkyWalking（链路追踪）
+```
 
 ---
 
-## 5、分布式事务（Distributed Transaction）
+## 三、选型建议
 
-- **Seata**（阿里出品）
-- **Saga Pattern（架构模式）**（微服务补偿式事务）
-- **Event Sourcing**（事件驱动事务，偏云原生）
+**国内 Java 后端（推荐组合）**
 
-说明：Seata 是最实用的工具；大型复杂项目可能采用 Saga+事件溯源。
+```
+注册 + 配置：Nacos
+网关：Spring Cloud Gateway
+服务调用：OpenFeign + Spring Cloud LoadBalancer
+流控：Sentinel
+事务：Seata（简单场景）/ Saga + RocketMQ 事务消息（复杂场景）
+消息：RocketMQ（业务）/ Kafka（日志/大数据）
+监控：SkyWalking + Prometheus + Grafana
+```
 
----
+**云原生 / 多语言混合**
 
-## 6、消息中间件（Messaging / Event Bus）
+```
+注册：Consul / etcd（K8s 场景直接用 K8s Service）
+网关：Kong / APISIX
+服务调用：gRPC
+流控：Istio + Envoy（Service Mesh，非侵入）
+消息：Kafka
+监控：OpenTelemetry + Jaeger + Prometheus
+```
 
-- **RocketMQ**（阿里出品）
-- **Kafka**（全球最流行的流处理平台）
-- **RabbitMQ**（轻量消息中间件）
-- **Pulsar**（Apache Pulsar，消息+流统一）
-
-说明：数据量爆炸式增长（IoT、金融），Kafka 更适合；RocketMQ 适合中小型系统。
-
----
-
-## 7、链路追踪与监控（Observability）
-
-- **SkyWalking**（国产顶流，APM+Trace）
-- **Zipkin**（轻量级链路追踪）
-- **Jaeger**（Uber 出品，CNCF 项目）
-- **Prometheus**（指标监控，K8s 标配）
-- **Grafana**（可视化展示平台）
-
-说明：现在主流是 Prometheus + Grafana + SkyWalking/Jaeger 配合使用。
-
----
-
-## 8、超简总结表
-
-| 模块   | 国内主流                        | 国际主流                      |
-|:-----|:----------------------------|:--------------------------|
-| 网关   | Spring Cloud Gateway、APISIX | Kong、Traefik              |
-| 注册发现 | Nacos                       | Consul、etcd               |
-| 通信   | Dubbo、OpenSergo、OpenFeign   | gRPC、Istio                |
-| 流控   | Sentinel                    | Resilience4j、Envoy        |
-| 事务   | Seata                       | Saga/Event Sourcing       |
-| 消息   | RocketMQ                    | Kafka、RabbitMQ、Pulsar     |
-| 监控   | SkyWalking、Zipkin           | Jaeger、Prometheus、Grafana |
-
----
-
-::: tip 小提示
-
-- 国内偏向「**一站式集成**」（比如 Spring Cloud Alibaba）
-- 国外偏向「**组合搭积木式**」（比如 gRPC + Consul + Envoy + Jaeger）
-- 如果你做的是 IoT 项目，需要重点关注：
-    - 高并发流量控制（Sentinel / Envoy）
-    - 实时消息处理（Kafka / RocketMQ）
-    - 高可用注册中心（Nacos / Consul）
-    - 全链路监控（SkyWalking / Prometheus）
-  
+::: tip
+- 国内偏「一站式集成」（Spring Cloud Alibaba）
+- 国际偏「搭积木式」（gRPC + Consul + Envoy + Jaeger）
+- IoT / 高并发场景重点关注：Sentinel 流控 + Kafka 消息 + SkyWalking 全链路监控
 :::
 
 ---
 
-## 各组件深度章节
+## 四、各章节深度链接
 
 | 方向 | 章节 |
 |------|------|
 | 服务注册与发现 | [服务注册与发现](./3_service_registry.md) |
 | API 网关 | [API 网关](./4_api_gateway.md) |
-| 服务间通信 | [服务间通信](./5_service_communication.md) |
+| 服务间通信 | [服务间通信](./5_communication.md) |
 | 配置中心 | [配置中心](./6_config_center.md) |
 | 链路追踪 | [链路追踪](./7_tracing.md) |
-| 熔断限流 | [高可用](../high-avail/0_high_availability.md) |
+| 微服务设计模式 | [微服务设计模式](./8_patterns.md) |
+| 服务网格 | [服务网格](./9_service_mesh.md) |
+| 服务治理 | [服务治理](./10_service_governance.md) |
+| 熔断限流 | [高可用](../high-avail/) |
 | 分布式事务 | [分布式事务](../distributed/3_transaction.md) |
 | 消息中间件 | [消息队列](../messaging/0_mq.md) |

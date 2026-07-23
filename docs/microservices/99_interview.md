@@ -21,7 +21,7 @@
 - **Ribbon 和 Spring Cloud LoadBalancer 的区别？**
 - **常见负载均衡策略有哪些？（轮询、加权、最少连接、一致性哈希）**
 - **gRPC 和 OpenFeign 适合什么场景？**  
-  → 详见 <RouteLink to="/microservices/4_service_call">服务调用</RouteLink>
+  → 详见 <RouteLink to="/microservices/5_communication">服务调用</RouteLink>
 
 ## 四、网关
 

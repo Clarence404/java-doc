@@ -1,6 +1,6 @@
 # 开发总结-系统架构
 
-> 精华提炼，细节详见 [architecture/](../architecture/0_system_structure)、[microservices/](../microservices/0_base_concept)
+> 精华提炼，细节详见 [architecture/](../architecture/0_system_structure)、[microservices/](../microservices/0_overview)
 
 ## 一、微服务和单体架构各有什么优缺点？什么时候该拆分？
 

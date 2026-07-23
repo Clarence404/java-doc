@@ -125,7 +125,7 @@ highlights:
       - title: 微服务
         icon: cubes
         details: 服务拆分原则 / 注册发现 / API 网关 / 全链路追踪 / Saga 等微服务治理模式
-        link: /microservices/0_base_concept
+        link: /microservices/0_overview
 
   - header: 架构设计
     description: 系统设计方法论 · DDD · 业务场景落地
