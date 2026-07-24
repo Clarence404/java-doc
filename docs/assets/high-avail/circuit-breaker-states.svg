@@ -1,0 +1,60 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .state-box { rx:10; ry:10; stroke-width:2; fill:var(--card); }
+    .label { fill:var(--fg); font-weight:600; font-size:14px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .arrow { stroke-width:2; fill:none; marker-end:url(#arr); }
+    .edge-label { fill:var(--muted); font-size:11px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0,8 3,0 6" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- Closed state -->
+  <rect class="state-box" x="40" y="100" width="150" height="70" stroke="var(--g)"/>
+  <text class="label" x="115" y="130" text-anchor="middle" fill="var(--g)">Closed</text>
+  <text class="sub" x="115" y="150" text-anchor="middle">（正常放行请求）</text>
+
+  <!-- Open state -->
+  <rect class="state-box" x="530" y="100" width="150" height="70" stroke="var(--r)"/>
+  <text class="label" x="605" y="130" text-anchor="middle" fill="var(--r)">Open</text>
+  <text class="sub" x="605" y="150" text-anchor="middle">（直接拒绝请求）</text>
+
+  <!-- Half-Open state -->
+  <rect class="state-box" x="285" y="190" width="150" height="70" stroke="var(--y)"/>
+  <text class="label" x="360" y="220" text-anchor="middle" fill="var(--y)">Half-Open</text>
+  <text class="sub" x="360" y="240" text-anchor="middle">（探测放行中）</text>
+
+  <!-- Closed → Open (top) -->
+  <path class="arrow" d="M190,135 L530,135" stroke="var(--r)"/>
+  <text class="edge-label" x="360" y="125" text-anchor="middle">失败率 / 慢调用率超阈值</text>
+
+  <!-- Open → Half-Open (right side down) -->
+  <path class="arrow" d="M605,170 Q605,225 435,225" stroke="var(--y)"/>
+  <text class="edge-label" x="560" y="220" text-anchor="middle">等待恢复</text>
+  <text class="edge-label" x="560" y="233" text-anchor="middle">时间窗口到期</text>
+
+  <!-- Half-Open → Closed (bottom left) -->
+  <path class="arrow" d="M285,240 Q115,240 115,170" stroke="var(--g)"/>
+  <text class="edge-label" x="170" y="262" text-anchor="middle">探测成功</text>
+
+  <!-- Half-Open → Open (up right) -->
+  <path class="arrow" d="M435,200 Q435,160 530,150" stroke="var(--r)"/>
+  <text class="edge-label" x="490" y="178" text-anchor="middle">探测失败</text>
+</svg>

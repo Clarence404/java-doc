@@ -70,6 +70,7 @@
 |------|------|------|
 | 限流 | [1_rate_limiting](./1_rate_limiting) | 固定窗口 / 滑动窗口 / 令牌桶 / 漏桶，Redis+Lua，Sentinel |
 | 熔断 | [2_circuit_breaking](./2_circuit_breaking) | 三态机，Sentinel vs Resilience4j |
-| 降级 | [3_fallback](./3_fallback) | 系统级 / 业务级降级策略，静态 / 动态降级 |
-| 负载均衡 | [4_load_balancing](./4_load_balancing) | 轮询 / 权重 / 最少连接 / 一致性哈希，Nginx / K8s HPA |
+| 降级 | [3_degradation](./3_degradation) | 系统级 / 业务级降级策略，静态 / 动态降级 |
+| 负载均衡 | [4_load_balancing](./4_load_balancing) | 轮询 / 权重 / 最少连接 / 一致性哈希，Nginx / SCL / K8s HPA |
 | 隔离与重试 | [5_bulkhead_retry](./5_bulkhead_retry) | 舱壁隔离，指数退避重试，超时设计 |
+| 混沌工程 | [6_chaos_engineering](./6_chaos_engineering) | ChaosBlade / Chaos Mesh，故障注入实战 |

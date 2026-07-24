@@ -1,0 +1,68 @@
+<svg viewBox="0 0 760 220" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .step { rx:8; ry:8; stroke-width:1.5; fill:var(--card); stroke:var(--border); }
+    .title { fill:var(--fg); font-weight:600; font-size:12px; }
+    .sub { fill:var(--muted); font-size:10px; }
+    .arr { stroke-width:1.8; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- Step boxes -->
+  <!-- 1. 假设 -->
+  <rect class="step" x="20" y="70" width="110" height="80" stroke="var(--p)"/>
+  <text class="title" x="75" y="100" text-anchor="middle" fill="var(--p)">① 建立假设</text>
+  <text class="sub" x="75" y="116" text-anchor="middle">定义稳定状态</text>
+  <text class="sub" x="75" y="130" text-anchor="middle">（成功率/延迟）</text>
+
+  <!-- 2. 设计实验 -->
+  <rect class="step" x="160" y="70" width="110" height="80" stroke="var(--b)"/>
+  <text class="title" x="215" y="100" text-anchor="middle" fill="var(--b)">② 设计实验</text>
+  <text class="sub" x="215" y="116" text-anchor="middle">选择故障类型</text>
+  <text class="sub" x="215" y="130" text-anchor="middle">（网络/CPU/Pod）</text>
+
+  <!-- 3. 注入故障 -->
+  <rect class="step" x="300" y="70" width="110" height="80" stroke="var(--r)"/>
+  <text class="title" x="355" y="100" text-anchor="middle" fill="var(--r)">③ 注入故障</text>
+  <text class="sub" x="355" y="116" text-anchor="middle">ChaosBlade</text>
+  <text class="sub" x="355" y="130" text-anchor="middle">Chaos Mesh</text>
+
+  <!-- 4. 观察 -->
+  <rect class="step" x="440" y="70" width="110" height="80" stroke="var(--y)"/>
+  <text class="title" x="495" y="100" text-anchor="middle" fill="var(--y)">④ 观察指标</text>
+  <text class="sub" x="495" y="116" text-anchor="middle">监控/告警/链路</text>
+  <text class="sub" x="495" y="130" text-anchor="middle">追踪对比基线</text>
+
+  <!-- 5. 修复加固 -->
+  <rect class="step" x="580" y="70" width="130" height="80" stroke="var(--g)"/>
+  <text class="title" x="645" y="100" text-anchor="middle" fill="var(--g)">⑤ 修复 &amp; 加固</text>
+  <text class="sub" x="645" y="116" text-anchor="middle">补充限流/熔断</text>
+  <text class="sub" x="645" y="130" text-anchor="middle">增加副本/告警</text>
+
+  <!-- Arrows -->
+  <line class="arr" x1="130" y1="110" x2="158" y2="110" stroke="var(--muted)"/>
+  <line class="arr" x1="270" y1="110" x2="298" y2="110" stroke="var(--muted)"/>
+  <line class="arr" x1="410" y1="110" x2="438" y2="110" stroke="var(--muted)"/>
+  <line class="arr" x1="550" y1="110" x2="578" y2="110" stroke="var(--muted)"/>
+
+  <!-- Feedback loop -->
+  <path class="arr" d="M645,150 Q645,190 75,190 Q75,152 75,150" stroke="var(--p)" stroke-dasharray="5,3"/>
+  <text x="360" y="205" text-anchor="middle" fill="var(--muted)" font-size="10">持续迭代，提升系统韧性</text>
+</svg>

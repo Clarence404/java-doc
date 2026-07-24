@@ -138,7 +138,124 @@ public class RedisRateLimiter {
 
 ---
 
-## 四、Sentinel 限流
+## 四、单机限流（Guava RateLimiter）
+
+Guava `RateLimiter` 基于令牌桶算法，适合**单实例**场景（进程内限流），无需 Redis：
+
+```xml
+<dependency>
+    <groupId>com.google.guava</groupId>
+    <artifactId>guava</artifactId>
+    <version>33.0.0-jre</version>
+</dependency>
+```
+
+```java
+@Component
+public class LocalRateLimiter {
+
+    // 每秒最多 100 个请求
+    private final RateLimiter limiter = RateLimiter.create(100.0);
+
+    public boolean tryAcquire() {
+        return limiter.tryAcquire();               // 立即返回是否获取到令牌
+    }
+
+    public boolean tryAcquire(long timeoutMs) {
+        return limiter.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);  // 等待最多 N ms
+    }
+}
+
+// 在 Spring AOP / Filter 中使用
+@Around("@annotation(RateLimit)")
+public Object around(ProceedingJoinPoint pjp) throws Throwable {
+    if (!rateLimiter.tryAcquire()) {
+        throw new TooManyRequestsException("请求过于频繁");
+    }
+    return pjp.proceed();
+}
+```
+
+**RateLimiter 特性**：支持平滑预热（`RateLimiter.create(rate, warmupPeriod, timeUnit)`），启动时逐步增加速率而非直接满速，避免冷启动冲击 DB。
+
+**局限性**：仅单机有效。多实例部署时需配合 Redis 做分布式限流（见第三节）。
+
+---
+
+## 五、网关限流（Spring Cloud Gateway）
+
+在 API 网关集中限流，业务服务无需感知，适合统一入口场景：
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-gateway</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+</dependency>
+```
+
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 100      # 每秒向桶补充 100 个令牌
+                redis-rate-limiter.burstCapacity: 200      # 桶容量（允许的突发上限）
+                redis-rate-limiter.requestedTokens: 1      # 每次请求消耗 1 个令牌
+                key-resolver: "#{@userKeyResolver}"        # 限流维度（按用户）
+```
+
+```java
+// 限流 Key 提取策略（按用户 ID 限流）
+@Bean
+public KeyResolver userKeyResolver() {
+    return exchange -> Mono.justOrEmpty(
+        exchange.getRequest().getHeaders().getFirst("X-User-Id")
+    ).defaultIfEmpty("anonymous");
+}
+
+// 按 IP 限流
+@Bean
+public KeyResolver ipKeyResolver() {
+    return exchange -> Mono.just(
+        Objects.requireNonNull(exchange.getRequest().getRemoteAddress())
+               .getAddress().getHostAddress()
+    );
+}
+```
+
+触发限流时 Gateway 自动返回 `429 Too Many Requests`，可自定义响应体：
+
+```java
+@Component
+public class RateLimitErrorHandler implements ErrorWebExceptionHandler {
+    @Override
+    public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
+        if (exchange.getResponse().getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
+            exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+            byte[] body = "{\"code\":429,\"message\":\"请求过于频繁，请稍后重试\"}".getBytes();
+            return exchange.getResponse().writeWith(
+                Mono.just(exchange.getResponse().bufferFactory().wrap(body))
+            );
+        }
+        return Mono.error(ex);
+    }
+}
+```
+
+---
+
+## 六、Sentinel 限流
 
 ### 流控规则配置
 

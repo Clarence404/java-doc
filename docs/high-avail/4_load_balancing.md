@@ -125,7 +125,111 @@ readinessProbe:
 
 ---
 
-## 五、弹性扩缩容（K8s HPA）
+## 五、Spring Cloud LoadBalancer 自定义策略
+
+Spring Cloud LoadBalancer（SCL）是 Ribbon 的替代品，与 Spring Cloud 2020+ 原生集成：
+
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+</dependency>
+```
+
+```yaml
+# application.yml — 关闭 Ribbon（Spring Cloud 2020+ 已默认关闭）
+spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+      cache:
+        enabled: true       # 缓存实例列表，减少注册中心压力
+        ttl: 35s
+        capacity: 256
+```
+
+**内置策略**：
+| 策略类 | 说明 |
+|-------|------|
+| `RoundRobinLoadBalancer` | 轮询（默认）|
+| `RandomLoadBalancer` | 随机 |
+
+**自定义策略（按区域/版本路由）**：
+
+```java
+// 优先路由到同区域实例，减少跨区延迟
+public class ZonePreferenceLoadBalancer implements ReactorServiceInstanceLoadBalancer {
+
+    private final String localZone;
+    private final ObjectProvider<ServiceInstanceListSupplier> supplierProvider;
+
+    @Override
+    public Mono<Response<ServiceInstance>> choose(Request request) {
+        return supplierProvider.getIfAvailable().get()
+            .next()
+            .map(instances -> {
+                List<ServiceInstance> sameZone = instances.stream()
+                    .filter(i -> localZone.equals(i.getMetadata().get("zone")))
+                    .collect(Collectors.toList());
+
+                List<ServiceInstance> candidates = sameZone.isEmpty() ? instances : sameZone;
+                int idx = ThreadLocalRandom.current().nextInt(candidates.size());
+                return new DefaultResponse(candidates.get(idx));
+            });
+    }
+}
+
+// 注册自定义策略（针对特定服务）
+@Configuration
+@LoadBalancerClient(name = "order-service", configuration = OrderServiceLBConfig.class)
+public class LoadBalancerConfig {}
+
+@Configuration
+public class OrderServiceLBConfig {
+    @Bean
+    public ReactorLoadBalancer<ServiceInstance> loadBalancer(
+            Environment env,
+            LoadBalancerClientFactory factory) {
+        String name = env.getProperty(LoadBalancerClientFactory.PROPERTY_NAME);
+        return new ZonePreferenceLoadBalancer(
+            "zone-a",  // 读自配置
+            factory.getLazyProvider(name, ServiceInstanceListSupplier.class)
+        );
+    }
+}
+```
+
+**灰度路由（按 Header 版本路由）**：
+
+```java
+// 拦截请求 Header 中的版本标记，路由到对应版本实例
+public class GrayLoadBalancer implements ReactorServiceInstanceLoadBalancer {
+
+    @Override
+    public Mono<Response<ServiceInstance>> choose(Request request) {
+        HttpHeaders headers = ((RequestDataContext) request.getContext())
+            .getClientRequest().getHeaders();
+        String targetVersion = headers.getFirst("X-Version");  // 如 "gray"
+
+        return supplierProvider.getIfAvailable().get().next()
+            .map(instances -> {
+                List<ServiceInstance> matched = instances.stream()
+                    .filter(i -> targetVersion != null &&
+                                 targetVersion.equals(i.getMetadata().get("version")))
+                    .collect(Collectors.toList());
+                List<ServiceInstance> candidates = matched.isEmpty() ? instances : matched;
+                return new DefaultResponse(
+                    candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()))
+                );
+            });
+    }
+}
+```
+
+---
+
+## 六、弹性扩缩容（K8s HPA）
 
 HPA（Horizontal Pod Autoscaler）根据 CPU / 内存 / 自定义指标自动扩缩 Pod 数量：
 

@@ -206,7 +206,7 @@ const databaseSidebar = [
             {text: '数据库选型',  link: '/database/6_misc/1_db_ranking_selection'},
         ],
     },
-    {text: '面试速查', link: '/database/99_interview'},
+    {text: '面试高频题', link: '/database/99_interview'},
 ];
 
 export default defineUserConfig({

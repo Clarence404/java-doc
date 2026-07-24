@@ -12,16 +12,7 @@
 
 ## 二、熔断器三态机
 
-```
-            失败率 / 慢调用率超阈值
-Closed ────────────────────────────► Open
-（正常通过）                         （直接拒绝）
-    ▲                                    │
-    │   半开探测成功                      │ 等待恢复时间窗口
-    │                                    ▼
-    └──────────────── Half-Open ◄────────┘
-                      （探测中）
-```
+![熔断器三态机状态转换](../assets/high-avail/circuit-breaker-states.svg)
 
 | 状态 | 行为 | 触发条件 |
 |------|------|---------|
@@ -109,7 +100,78 @@ public String fallback(String param, Throwable t) {
 
 ---
 
-## 五、Sentinel vs Resilience4j
+## 五、OpenFeign + Sentinel 集成实战
+
+OpenFeign 声明式 HTTP 客户端结合 Sentinel 实现服务间调用的熔断与降级：
+
+```xml
+<!-- pom.xml -->
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+```
+
+```yaml
+# application.yml — 开启 Feign 对 Sentinel 的支持
+feign:
+  sentinel:
+    enabled: true
+```
+
+```java
+// 定义 Feign 客户端接口
+@FeignClient(
+    name = "order-service",
+    fallbackFactory = OrderFeignClientFallbackFactory.class
+)
+public interface OrderFeignClient {
+
+    @GetMapping("/api/orders/{id}")
+    Result<Order> getOrder(@PathVariable Long id);
+
+    @PostMapping("/api/orders")
+    Result<String> createOrder(@RequestBody CreateOrderRequest req);
+}
+```
+
+```java
+// fallbackFactory：可获取异常信息，比 fallback 更灵活
+@Component
+public class OrderFeignClientFallbackFactory
+        implements FallbackFactory<OrderFeignClient> {
+
+    @Override
+    public OrderFeignClient create(Throwable cause) {
+        return new OrderFeignClient() {
+            @Override
+            public Result<Order> getOrder(Long id) {
+                log.warn("[OrderFeign 熔断] getOrder id={}, cause={}", id, cause.getMessage());
+                return Result.fail(503, "订单服务不可用，请稍后重试");
+            }
+
+            @Override
+            public Result<String> createOrder(CreateOrderRequest req) {
+                // 创建操作熔断时不能静默返回成功，应抛出让上层感知
+                throw new ServiceUnavailableException("订单服务熔断中，请稍后重试");
+            }
+        };
+    }
+}
+```
+
+**注意事项**：
+- 非幂等接口（创建/更新）熔断降级时，**不应静默返回假成功**，应抛异常让调用方感知
+- `fallback` 只能返回固定降级值，无法获取异常原因；`fallbackFactory` 可拿到 `Throwable`，推荐用 factory
+- Sentinel Dashboard 中可以看到 `order-service#getOrder(Long)` 等 Feign 资源，可在控制台动态调整规则
+
+---
+
+## 六、Sentinel vs Resilience4j
 
 | 对比维度 | Sentinel | Resilience4j |
 |---------|---------|-------------|
