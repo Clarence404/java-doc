@@ -95,3 +95,25 @@ docs/
 - 待补充内容用 VuePress `warning` callout 标记：`> [!warning] 待补充`
 - 参考链接放文章顶部，便于溯源
 - 站点部署：GitHub Actions → `.github/workflows/deploy-docs.yml`
+
+## 画图规范
+
+- **禁止**在 Markdown 代码块（` ``` `）内用 ASCII 字符画流程图、时序图、架构图
+- **必须**输出 SVG 文件，保存到 `docs/assets/<模块名>/`，Markdown 用 `![描述](../assets/xxx/yyy.svg)` 引用
+- SVG 必须携带 CSS 变量，同时支持亮色/暗色主题：
+
+```css
+:root {
+  --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+  --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+}
+:root[data-theme="dark"] {
+  --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+  --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+}
+@media (prefers-color-scheme: dark) {
+  :root { /* 同 dark 值 */ }
+}
+```
+
+- 已有的旧图不强制改动，除非明确要求
