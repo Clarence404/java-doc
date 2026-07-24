@@ -1,0 +1,103 @@
+<svg viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+    .box { rx: 6; }
+    .adapter-in  { fill: var(--b);  fill-opacity: 0.15; stroke: var(--b);  stroke-width: 1.5; }
+    .adapter-out { fill: var(--g);  fill-opacity: 0.15; stroke: var(--g);  stroke-width: 1.5; }
+    .core-box    { fill: var(--p);  fill-opacity: 0.15; stroke: var(--p);  stroke-width: 2; }
+    .port-box    { fill: var(--y);  fill-opacity: 0.15; stroke: var(--y);  stroke-width: 1.5; }
+    .arrow-in  { stroke: var(--b); stroke-width: 1.5; fill: none; marker-end: url(#ai); }
+    .arrow-out { stroke: var(--g); stroke-width: 1.5; fill: none; marker-end: url(#ao); }
+    .label-in  { fill: var(--b);  font-weight: 700; font-size: 12px; }
+    .label-out { fill: var(--g);  font-weight: 700; font-size: 12px; }
+    .label-core{ fill: var(--p);  font-weight: 700; font-size: 13px; }
+    .label-port{ fill: var(--y);  font-weight: 700; font-size: 11px; }
+    .caption   { fill: var(--muted); font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="ai" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="var(--b)"/>
+    </marker>
+    <marker id="ao" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="var(--g)"/>
+    </marker>
+  </defs>
+  <rect width="640" height="360" fill="var(--bg)" rx="8"/>
+
+  <!-- 入站协议标注 -->
+  <text x="80"  y="22" text-anchor="middle" class="caption">HTTP</text>
+  <text x="220" y="22" text-anchor="middle" class="caption">MQ</text>
+  <text x="360" y="22" text-anchor="middle" class="caption">gRPC</text>
+
+  <!-- 入站 Adapters -->
+  <rect x="30"  y="30" width="100" height="52" rx="6" class="adapter-in"/>
+  <text x="80"  y="53" text-anchor="middle" class="label-in">REST</text>
+  <text x="80"  y="69" text-anchor="middle" class="label-in">Adapter</text>
+
+  <rect x="170" y="30" width="100" height="52" rx="6" class="adapter-in"/>
+  <text x="220" y="53" text-anchor="middle" class="label-in">MQ</text>
+  <text x="220" y="69" text-anchor="middle" class="label-in">Adapter</text>
+
+  <rect x="310" y="30" width="100" height="52" rx="6" class="adapter-in"/>
+  <text x="360" y="53" text-anchor="middle" class="label-in">gRPC</text>
+  <text x="360" y="69" text-anchor="middle" class="label-in">Adapter</text>
+
+  <!-- 入站 → Port 箭头 -->
+  <line x1="80"  y1="82" x2="80"  y2="130" class="arrow-in"/>
+  <line x1="220" y1="82" x2="220" y2="130" class="arrow-in"/>
+  <line x1="360" y1="82" x2="360" y2="130" class="arrow-in"/>
+  <!-- 汇聚到入站 Port -->
+  <polyline points="80,130 220,148 360,130" stroke="var(--b)" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+
+  <!-- 入站 Port -->
+  <rect x="130" y="148" width="180" height="36" rx="6" class="port-box"/>
+  <text x="220" y="171" text-anchor="middle" class="label-port">Inbound Port（接口/契约）</text>
+
+  <!-- Core -->
+  <rect x="100" y="196" width="240" height="60" rx="8" class="core-box"/>
+  <text x="220" y="222" text-anchor="middle" class="label-core">Core（业务核心）</text>
+  <text x="220" y="242" text-anchor="middle" fill="var(--muted)" font-size="11">不依赖任何框架，纯业务逻辑</text>
+
+  <!-- 出站 Port -->
+  <rect x="130" y="268" width="180" height="36" rx="6" class="port-box"/>
+  <text x="220" y="291" text-anchor="middle" class="label-port">Outbound Port（接口/契约）</text>
+
+  <!-- 出站 Port → 出站 Adapters 箭头 -->
+  <polyline points="130,286 80,304 80,312" stroke="var(--g)" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+  <polyline points="220,304 220,312" stroke="var(--g)" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+  <polyline points="310,286 360,304 360,312" stroke="var(--g)" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+
+  <!-- 出站 Adapters -->
+  <rect x="30"  y="312" width="100" height="36" rx="6" class="adapter-out"/>
+  <text x="80"  y="330" text-anchor="middle" class="label-out">MySQL</text>
+  <text x="80"  y="344" text-anchor="middle" class="label-out">Adapter</text>
+
+  <rect x="170" y="312" width="100" height="36" rx="6" class="adapter-out"/>
+  <text x="220" y="330" text-anchor="middle" class="label-out">Redis</text>
+  <text x="220" y="344" text-anchor="middle" class="label-out">Adapter</text>
+
+  <rect x="310" y="312" width="100" height="36" rx="6" class="adapter-out"/>
+  <text x="360" y="330" text-anchor="middle" class="label-out">OSS</text>
+  <text x="360" y="344" text-anchor="middle" class="label-out">Adapter</text>
+
+  <!-- 图例 -->
+  <rect x="470" y="60"  width="14" height="14" rx="2" fill="var(--b)"  fill-opacity="0.4"/>
+  <text x="490" y="72"  class="caption">入站适配器</text>
+  <rect x="470" y="82"  width="14" height="14" rx="2" fill="var(--g)"  fill-opacity="0.4"/>
+  <text x="490" y="94"  class="caption">出站适配器</text>
+  <rect x="470" y="104" width="14" height="14" rx="2" fill="var(--p)"  fill-opacity="0.4"/>
+  <text x="490" y="116" class="caption">业务核心</text>
+  <rect x="470" y="126" width="14" height="14" rx="2" fill="var(--y)"  fill-opacity="0.4"/>
+  <text x="490" y="138" class="caption">端口（契约）</text>
+</svg>
