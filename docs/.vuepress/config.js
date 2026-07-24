@@ -32,7 +32,7 @@ const navbarFlat = [
     {text: '协议体系', link: '/protocols/0_overview'},
     {text: '云原生',  link: '/cloud-native/0_linux'},
     {text: 'DevOps',  link: '/devops/0_overview'},
-    {text: '工程效率', link: '/engineering/0_engineering'},
+    {text: '工程效率', link: '/engineering/0_overview'},
     {text: '可观测性', link: '/observability/0_observability'},
     {text: '安全',    link: '/security/0_security'},
     {text: 'IoT',     link: '/iot/0_base'},
@@ -89,7 +89,7 @@ const navbarDropdown = [
         children: [
             {text: '云原生',   link: '/cloud-native/0_linux'},
             {text: 'DevOps',  link: '/devops/0_overview'},
-            {text: '工程效率', link: '/engineering/0_engineering'},
+            {text: '工程效率', link: '/engineering/0_overview'},
             {text: '可观测性', link: '/observability/0_observability'},
             {text: '协议体系', link: '/protocols/0_overview'},
         ],
