@@ -1,0 +1,48 @@
+<svg viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+  </style>
+  <rect width="480" height="480" fill="var(--bg)" rx="8"/>
+
+  <!-- Layer 4: Frameworks & Drivers (outermost) -->
+  <circle cx="240" cy="240" r="220" fill="var(--muted)" fill-opacity="0.10" stroke="var(--muted)" stroke-width="2"/>
+  <text x="240" y="42" text-anchor="middle" font-weight="700" fill="var(--muted)">Frameworks &amp; Drivers</text>
+  <text x="240" y="58" text-anchor="middle" font-size="11" fill="var(--muted)">Web、DB、外部 API</text>
+
+  <!-- Layer 3: Interface Adapters -->
+  <circle cx="240" cy="240" r="165" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="2"/>
+  <text x="240" y="98" text-anchor="middle" font-weight="700" fill="var(--b)">Interface Adapters</text>
+  <text x="240" y="114" text-anchor="middle" font-size="11" fill="var(--b)">Controller、Presenter、Gateway</text>
+
+  <!-- Layer 2: Use Cases -->
+  <circle cx="240" cy="240" r="110" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="2"/>
+  <text x="240" y="152" text-anchor="middle" font-weight="700" fill="var(--p)">Use Cases</text>
+  <text x="240" y="168" text-anchor="middle" font-size="11" fill="var(--p)">业务用例（Application Service）</text>
+
+  <!-- Layer 1: Entities (innermost) -->
+  <circle cx="240" cy="240" r="55" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="2"/>
+  <text x="240" y="233" text-anchor="middle" font-weight="700" font-size="14" fill="var(--g)">Entities</text>
+  <text x="240" y="251" text-anchor="middle" font-size="11" fill="var(--g)">核心业务实体</text>
+
+  <!-- 依赖规则说明 -->
+  <text x="240" y="430" text-anchor="middle" font-size="12" fill="var(--muted)">依赖规则：外层依赖内层，内层不依赖外层</text>
+
+  <!-- Arrows pointing inward -->
+  <defs>
+    <marker id="arri" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <line x1="240" y1="415" x2="240" y2="400" stroke="var(--muted)" stroke-width="1.5" fill="none" marker-end="url(#arri)"/>
+</svg>

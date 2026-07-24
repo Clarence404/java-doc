@@ -1,0 +1,115 @@
+<svg viewBox="0 0 760 360" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { fill: var(--fg); }
+    .muted { fill: var(--muted); }
+    .card { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+    .label { fill: var(--fg); font-weight: 600; }
+    .sub   { fill: var(--muted); font-size: 11px; }
+    .blue-box  { fill: var(--b);  fill-opacity: 0.12; stroke: var(--b);  stroke-width: 1.5; }
+    .green-box { fill: var(--g);  fill-opacity: 0.12; stroke: var(--g);  stroke-width: 1.5; }
+    .blue-text  { fill: var(--b);  font-weight: 700; }
+    .green-text { fill: var(--g);  font-weight: 700; }
+    .arrow { stroke: var(--fg); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    .arrow-blue  { stroke: var(--b); stroke-width: 2; fill: none; marker-end: url(#arrowBlue);  }
+    .arrow-green { stroke: var(--g); stroke-width: 2; fill: none; marker-end: url(#arrowGreen); }
+    .arrow-muted { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 3; fill: none; marker-end: url(#arrowMuted); }
+    .section-label { font-size: 12px; font-weight: 700; fill: var(--muted); letter-spacing: 0.05em; }
+    .divider { stroke: var(--border); stroke-width: 1; stroke-dasharray: 4 4; }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="var(--b)"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="var(--g)"/>
+    </marker>
+    <marker id="arrowMuted" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="760" height="360" fill="var(--bg)" rx="8"/>
+
+  <!-- 分割线 -->
+  <line x1="380" y1="30" x2="380" y2="340" class="divider"/>
+
+  <!-- 标题 -->
+  <text x="190" y="26" text-anchor="middle" class="section-label">切换前（蓝环境承载流量）</text>
+  <text x="570" y="26" text-anchor="middle" class="section-label">切换后（绿环境承载流量）</text>
+
+  <!-- ====== 左侧：切换前 ====== -->
+  <!-- 用户 -->
+  <rect x="140" y="42" width="100" height="36" rx="6" class="card"/>
+  <text x="190" y="65" text-anchor="middle" class="label">用户流量</text>
+
+  <!-- 负载均衡 -->
+  <rect x="115" y="118" width="150" height="40" rx="6" class="card"/>
+  <text x="190" y="143" text-anchor="middle" class="label">负载均衡 / 网关</text>
+  <line x1="190" y1="78" x2="190" y2="118" class="arrow"/>
+
+  <!-- 蓝环境（激活）-->
+  <rect x="50" y="208" width="130" height="72" rx="6" class="blue-box"/>
+  <text x="115" y="234" text-anchor="middle" class="blue-text">蓝环境</text>
+  <text x="115" y="252" text-anchor="middle" class="sub">v1.0（当前生产）</text>
+  <text x="115" y="268" text-anchor="middle" class="sub">← 100% 流量</text>
+
+  <!-- 绿环境（待机）-->
+  <rect x="200" y="208" width="130" height="72" rx="6" class="green-box"/>
+  <text x="265" y="234" text-anchor="middle" class="green-text">绿环境</text>
+  <text x="265" y="252" text-anchor="middle" class="sub">v2.0（新版本）</text>
+  <text x="265" y="268" text-anchor="middle" class="sub">0% 流量（待命）</text>
+
+  <!-- 箭头：LB → 蓝 -->
+  <path d="M160,158 L115,208" class="arrow-blue"/>
+  <!-- 箭头：LB → 绿（虚线）-->
+  <path d="M220,158 L265,208" class="arrow-muted"/>
+
+  <!-- ====== 右侧：切换后 ====== -->
+  <!-- 用户 -->
+  <rect x="520" y="42" width="100" height="36" rx="6" class="card"/>
+  <text x="570" y="65" text-anchor="middle" class="label">用户流量</text>
+
+  <!-- 负载均衡 -->
+  <rect x="495" y="118" width="150" height="40" rx="6" class="card"/>
+  <text x="570" y="143" text-anchor="middle" class="label">负载均衡 / 网关</text>
+  <line x1="570" y1="78" x2="570" y2="118" class="arrow"/>
+
+  <!-- 蓝环境（闲置）-->
+  <rect x="430" y="208" width="130" height="72" rx="6" class="blue-box"/>
+  <text x="495" y="234" text-anchor="middle" class="blue-text">蓝环境</text>
+  <text x="495" y="252" text-anchor="middle" class="sub">v1.0（旧版本）</text>
+  <text x="495" y="268" text-anchor="middle" class="sub">0% 流量（备用）</text>
+
+  <!-- 绿环境（激活）-->
+  <rect x="580" y="208" width="130" height="72" rx="6" class="green-box"/>
+  <text x="645" y="234" text-anchor="middle" class="green-text">绿环境</text>
+  <text x="645" y="252" text-anchor="middle" class="sub">v2.0（新生产）</text>
+  <text x="645" y="268" text-anchor="middle" class="sub">← 100% 流量</text>
+
+  <!-- 箭头：LB → 蓝（虚线）-->
+  <path d="M540,158 L495,208" class="arrow-muted"/>
+  <!-- 箭头：LB → 绿 -->
+  <path d="M600,158 L645,208" class="arrow-green"/>
+
+  <!-- 回滚说明 -->
+  <rect x="395" y="300" width="340" height="30" rx="4" fill="var(--y)" fill-opacity="0.1" stroke="var(--y)" stroke-width="1"/>
+  <text x="565" y="319" text-anchor="middle" font-size="12" fill="var(--y)">出问题时：切换 Service selector 回蓝环境，秒级回滚</text>
+</svg>

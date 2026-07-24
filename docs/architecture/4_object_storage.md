@@ -147,3 +147,103 @@
 
 对象存储服务（OSS）作为一种高效、可扩展的存储解决方案，已经成为云计算和大数据领域的核心组成部分。它提供了灵活的数据存储管理，支持各种大规模数据存储需求。通过
 OSS，用户能够以低成本、高安全性、全球分布的方式存储和管理数据。
+
+---
+
+## **12. Java SDK 实战（MinIO）**
+
+MinIO 兼容 S3 API，可本地部署，也可接入阿里云 OSS / AWS S3（只需替换 endpoint）。
+
+### 依赖
+
+```xml
+<dependency>
+    <groupId>io.minio</groupId>
+    <artifactId>minio</artifactId>
+    <version>8.5.7</version>
+</dependency>
+```
+
+### 配置
+
+```yaml
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: my-bucket
+```
+
+```java
+@Configuration
+public class MinioConfig {
+    @Value("${minio.endpoint}") private String endpoint;
+    @Value("${minio.access-key}") private String accessKey;
+    @Value("${minio.secret-key}") private String secretKey;
+
+    @Bean
+    public MinioClient minioClient() {
+        return MinioClient.builder()
+            .endpoint(endpoint)
+            .credentials(accessKey, secretKey)
+            .build();
+    }
+}
+```
+
+### 文件上传
+
+```java
+@Service
+public class OssService {
+    @Autowired private MinioClient minioClient;
+    @Value("${minio.bucket}") private String bucket;
+
+    public String upload(MultipartFile file) throws Exception {
+        String ext = FilenameUtils.getExtension(file.getOriginalFilename());
+        String objectName = "uploads/" + UUID.randomUUID() + "." + ext;
+
+        minioClient.putObject(PutObjectArgs.builder()
+            .bucket(bucket)
+            .object(objectName)
+            .stream(file.getInputStream(), file.getSize(), -1)
+            .contentType(file.getContentType())
+            .build());
+
+        return objectName;
+    }
+
+    // 下载
+    public InputStream download(String objectName) throws Exception {
+        return minioClient.getObject(GetObjectArgs.builder()
+            .bucket(bucket)
+            .object(objectName)
+            .build());
+    }
+
+    // 生成预签名 URL（临时访问，默认 7 天，私有文件分享）
+    public String presignedUrl(String objectName, int expireSeconds) throws Exception {
+        return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+            .bucket(bucket)
+            .object(objectName)
+            .method(Method.GET)
+            .expiry(expireSeconds, TimeUnit.SECONDS)
+            .build());
+    }
+
+    // 删除
+    public void delete(String objectName) throws Exception {
+        minioClient.removeObject(RemoveObjectArgs.builder()
+            .bucket(bucket)
+            .object(objectName)
+            .build());
+    }
+}
+```
+
+### 最佳实践
+
+- **路径设计**：`{bizType}/{yyyy}/{MM}/{dd}/{uuid}.{ext}`，便于按时间归档和生命周期管理
+- **大文件分片上传**：超过 100MB 使用 `uploadObject` 或手动分片（MinIO 支持 S3 分片协议）
+- **私有 Bucket + 预签名 URL**：文件本身不公开，通过带过期时间的 URL 分发，避免直接暴露 OSS 地址
+- **CDN 加速**：静态资源绑定 CDN，回源到 OSS，降低 OSS 带宽成本和访问延迟

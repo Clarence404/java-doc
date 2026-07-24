@@ -1,0 +1,56 @@
+<svg viewBox="0 0 560 280" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+    .arrow { stroke: var(--muted); stroke-width: 2; fill: none; marker-end: url(#darr); }
+    .layer-name { font-weight: 700; font-size: 14px; }
+    .layer-sub  { font-size: 11px; fill: var(--muted); }
+    .layer-desc { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="darr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect width="560" height="280" fill="var(--bg)" rx="8"/>
+
+  <!-- interfaces layer -->
+  <rect x="20" y="16" width="520" height="48" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="40" y="40" class="layer-name" fill="var(--b)">interfaces／接口层</text>
+  <text x="40" y="56" class="layer-sub">Controller · Consumer · RPC Endpoint</text>
+  <text x="380" y="44" class="layer-desc">DTO 转换，参数校验，调用 application</text>
+
+  <line x1="280" y1="64" x2="280" y2="80" class="arrow"/>
+
+  <!-- application layer -->
+  <rect x="20" y="80" width="520" height="48" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="40" y="104" class="layer-name" fill="var(--p)">application／应用层</text>
+  <text x="40" y="120" class="layer-sub">Use Case · App Service</text>
+  <text x="380" y="108" class="layer-desc">编排 Domain 对象，定义事务边界</text>
+
+  <line x1="280" y1="128" x2="280" y2="144" class="arrow"/>
+
+  <!-- domain layer -->
+  <rect x="20" y="144" width="520" height="48" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="40" y="168" class="layer-name" fill="var(--g)">domain／领域层</text>
+  <text x="40" y="184" class="layer-sub">Entity · Aggregate · Domain Service · Repository 接口</text>
+  <text x="380" y="172" class="layer-desc">纯业务逻辑，不依赖任何框架</text>
+
+  <line x1="280" y1="192" x2="280" y2="208" class="arrow"/>
+
+  <!-- infrastructure layer -->
+  <rect x="20" y="208" width="520" height="48" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="40" y="232" class="layer-name" fill="var(--y)">infrastructure／基础设施层</text>
+  <text x="40" y="248" class="layer-sub">Repository 实现 · MQ · 第三方 API</text>
+  <text x="380" y="236" class="layer-desc">实现 domain 定义的端口</text>
+</svg>

@@ -28,10 +28,10 @@ const navbarFlat = [
     {text: '高并发',  link: '/high-con/0_juc'},
     {text: '高可用',  link: '/high-avail/0_overview'},
     {text: '微服务',  link: '/microservices/0_overview'},
-    {text: '架构',    link: '/architecture/0_system_structure'},
+    {text: '架构',    link: '/architecture/0_overview'},
     {text: '协议体系', link: '/protocols/0_overview'},
     {text: '云原生',  link: '/cloud-native/0_linux'},
-    {text: 'DevOps',  link: '/devops/0_devops'},
+    {text: 'DevOps',  link: '/devops/0_overview'},
     {text: '工程效率', link: '/engineering/0_engineering'},
     {text: '可观测性', link: '/observability/0_observability'},
     {text: '安全',    link: '/security/0_security'},
@@ -80,7 +80,7 @@ const navbarDropdown = [
     {
         text: '架构设计',
         children: [
-            {text: '系统架构', link: '/architecture/0_system_structure'},
+            {text: '系统架构', link: '/architecture/0_overview'},
             {text: '业务场景', link: '/scenario/0_scene'},
         ],
     },
@@ -88,7 +88,7 @@ const navbarDropdown = [
         text: '工程运维',
         children: [
             {text: '云原生',   link: '/cloud-native/0_linux'},
-            {text: 'DevOps',  link: '/devops/0_devops'},
+            {text: 'DevOps',  link: '/devops/0_overview'},
             {text: '工程效率', link: '/engineering/0_engineering'},
             {text: '可观测性', link: '/observability/0_observability'},
             {text: '协议体系', link: '/protocols/0_overview'},
