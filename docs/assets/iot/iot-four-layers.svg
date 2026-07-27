@@ -1,0 +1,45 @@
+<svg viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .layer { rx:8; ry:8; stroke-width:0; opacity:0.13; }
+    .layer-border { rx:8; ry:8; fill:none; stroke-width:1.5; }
+    .tag { font-size:11px; font-weight:700; }
+    .title { font-size:14px; font-weight:700; }
+    .sub { font-size:11px; }
+  </style>
+
+  <!-- 应用层 -->
+  <rect class="layer" x="10" y="10" width="660" height="58" fill="var(--p)"/>
+  <rect class="layer-border" x="10" y="10" width="660" height="58" stroke="var(--p)"/>
+  <text class="tag" x="30" y="34" fill="var(--p)">应用层</text>
+  <text class="title" x="30" y="52" fill="var(--fg)">智慧城市 · 工业监控 · 智能家居 · 车联网 · 智慧农业</text>
+
+  <!-- 平台层 -->
+  <rect class="layer" x="10" y="78" width="660" height="58" fill="var(--b)"/>
+  <rect class="layer-border" x="10" y="78" width="660" height="58" stroke="var(--b)"/>
+  <text class="tag" x="30" y="102" fill="var(--b)">平台层</text>
+  <text class="title" x="30" y="120" fill="var(--fg)">设备管理 · 规则引擎 · 数据分析 · OTA 升级 · 数字孪生</text>
+
+  <!-- 网络层 -->
+  <rect class="layer" x="10" y="146" width="660" height="58" fill="var(--g)"/>
+  <rect class="layer-border" x="10" y="146" width="660" height="58" stroke="var(--g)"/>
+  <text class="tag" x="30" y="170" fill="var(--g)">网络层</text>
+  <text class="title" x="30" y="188" fill="var(--fg)">MQTT · CoAP · NB-IoT · LoRa · Zigbee · BLE · Wi-Fi</text>
+
+  <!-- 感知层 -->
+  <rect class="layer" x="10" y="214" width="660" height="58" fill="var(--y)"/>
+  <rect class="layer-border" x="10" y="214" width="660" height="58" stroke="var(--y)"/>
+  <text class="tag" x="30" y="238" fill="var(--y)">感知层</text>
+  <text class="title" x="30" y="256" fill="var(--fg)">传感器 · 摄像头 · RFID · 网关 · PLC · MCU / Arduino / ESP32</text>
+</svg>

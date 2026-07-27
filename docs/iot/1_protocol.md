@@ -84,15 +84,8 @@ IoT 协议按应用场景分为三类：
 | 适用场景 | 智慧农业、智慧城市、资产追踪、远程抄表 |
 
 **LoRaWAN 网络架构：**
-```
-终端设备（传感器）
-    ↓ LoRa 无线
-网关（Gateway）
-    ↓ TCP/IP（4G / 以太网）
-网络服务器（Network Server）
-    ↓ MQTT / HTTP
-应用服务器
-```
+
+![LoRaWAN 网络架构](../assets/iot/lorawan-arch.svg)
 
 ---
 
@@ -200,5 +193,95 @@ IoT 协议按应用场景分为三类：
 | 工业老旧设备接入（PLC / 仪表） | Modbus RTU / TCP |
 | 工厂设备现代化互联、工业数字化 | OPC-UA |
 
-> [!warning]
-> 待补充：MQTT 5.0 新特性详解、Modbus 实战代码、OPC-UA 节点模型与 Eclipse Milo 示例
+---
+
+## 十、MQTT 5.0 新特性
+
+MQTT 5.0（2019 年正式发布）相比 3.1.1 带来了多项工程层面的改进：
+
+### 原因码（Reason Code）
+
+所有 ACK 报文携带具体原因码，排查问题不再靠猜：
+
+| 原因码 | 含义 |
+|--------|------|
+| `0x00` | 成功 |
+| `0x87` | 未授权（ACL 拒绝）|
+| `0x97` | 超出配额（限流）|
+| `0x9B` | Topic 别名无效 |
+| `0x9E` | 不支持共享订阅 |
+
+### 共享订阅（Shared Subscription）
+
+多个消费者共享同一 Topic 的消息，实现**服务端负载均衡**，解决 3.1.1 中 fanout 模式的重复消费问题：
+
+```
+订阅 Topic：$share/{groupName}/devices/+/data
+
+# 同一 group 内的订阅者轮流收到消息（类似 Kafka 消费者组）
+$share/group-a/devices/+/data → 消费者1 / 消费者2 / 消费者3 轮询
+```
+
+```java
+// Eclipse Paho 5.0 客户端连接
+MqttConnectionOptions options = new MqttConnectionOptions();
+options.setMqttVersion(MqttConnectionOptions.MQTT_VERSION_5);
+// 共享订阅
+client.subscribe("$share/worker-group/devices/+/data", 1);
+```
+
+### 消息过期（Message Expiry Interval）
+
+发布时设置 TTL，Broker 不会将过期消息投递给订阅者：
+
+```java
+MqttProperties props = new MqttProperties();
+props.setMessageExpiryInterval(60L);   // 消息 60 秒后过期
+MqttMessage msg = new MqttMessage(payload);
+msg.setProperties(props);
+client.publish("devices/device-001/data", msg);
+```
+
+### 用户属性（User Properties）
+
+消息头携带自定义 Key-Value，类似 HTTP Header，无需修改 Payload：
+
+```java
+MqttProperties props = new MqttProperties();
+props.getUserProperties().add(new UserProperty("region", "east"));
+props.getUserProperties().add(new UserProperty("version", "1.2"));
+```
+
+### 请求/响应模式（Request-Response）
+
+5.0 原生支持同步请求响应，设备可接收平台指令并返回执行结果：
+
+```
+平台发布请求 → devices/device-001/command
+              携带 ResponseTopic: devices/device-001/response
+              携带 CorrelationData: <requestId>
+
+设备处理后发布结果 → devices/device-001/response
+                     携带相同 CorrelationData
+```
+
+### Session Expiry Interval
+
+替代 3.1.1 的 CleanSession 布尔值，精确控制会话保留时长：
+
+```java
+options.setSessionExpiryInterval(3600L);   // 会话离线后保留 1 小时
+// 设为 0 → 断开即清除（等同 CleanSession=true）
+// 设为 MAX → 永久保留
+```
+
+### MQTT 3.1.1 vs 5.0 主要差异
+
+| 特性 | 3.1.1 | 5.0 |
+|------|-------|-----|
+| 原因码 | 仅 CONNACK 有有限码 | 所有 ACK 完整原因码 |
+| 共享订阅 | 不支持（需 Broker 扩展）| 原生支持 |
+| 消息过期 | 不支持 | 支持 TTL |
+| 用户属性 | 不支持 | 支持 |
+| 请求响应 | 需自行实现 | 原生支持 |
+| Session 控制 | 布尔 CleanSession | 整数 ExpiryInterval |

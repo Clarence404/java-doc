@@ -1,0 +1,57 @@
+<svg viewBox="0 0 260 340" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:1.5; }
+    .label { fill:var(--fg); font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:10px; }
+    .arr { stroke-width:1.8; fill:none; marker-end:url(#a); }
+    .proto { fill:var(--muted); font-size:10px; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- 终端设备 -->
+  <rect class="box" x="55" y="20" width="150" height="54" stroke="var(--y)"/>
+  <text class="label" x="130" y="44" text-anchor="middle" fill="var(--y)">终端设备</text>
+  <text class="sub" x="130" y="62" text-anchor="middle">传感器 / 智能水表</text>
+
+  <!-- 箭头 + 协议 -->
+  <line class="arr" x1="130" y1="74" x2="130" y2="112" stroke="var(--muted)"/>
+  <text class="proto" x="138" y="97" fill="var(--muted)">LoRa 无线</text>
+
+  <!-- 网关 -->
+  <rect class="box" x="55" y="112" width="150" height="54" stroke="var(--g)"/>
+  <text class="label" x="130" y="136" text-anchor="middle" fill="var(--g)">网关（Gateway）</text>
+  <text class="sub" x="130" y="154" text-anchor="middle">LoRa → TCP/IP 转换</text>
+
+  <!-- 箭头 -->
+  <line class="arr" x1="130" y1="166" x2="130" y2="204" stroke="var(--muted)"/>
+  <text class="proto" x="138" y="189" fill="var(--muted)">4G / 以太网</text>
+
+  <!-- 网络服务器 -->
+  <rect class="box" x="55" y="204" width="150" height="54" stroke="var(--b)"/>
+  <text class="label" x="130" y="228" text-anchor="middle" fill="var(--b)">网络服务器</text>
+  <text class="sub" x="130" y="246" text-anchor="middle">Network Server</text>
+
+  <!-- 箭头 -->
+  <line class="arr" x1="130" y1="258" x2="130" y2="296" stroke="var(--muted)"/>
+  <text class="proto" x="138" y="281" fill="var(--muted)">MQTT / HTTP</text>
+
+  <!-- 应用服务器 -->
+  <rect class="box" x="55" y="296" width="150" height="30" stroke="var(--p)"/>
+  <text class="label" x="130" y="317" text-anchor="middle" fill="var(--p)">应用服务器</text>
+</svg>

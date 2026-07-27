@@ -78,9 +78,7 @@ IoT 数据往往需要实时计算（告警、聚合、异常检测），常用�
 
 ### Apache Flink 在 IoT 中的应用
 
-```
-设备 → MQTT Broker → Kafka → Flink → 时序数据库 / 告警系统
-```
+数据链路：设备 → MQTT Broker → Kafka → Flink → 时序数据库 / 告警系统
 
 | 场景 | Flink 处理方式 |
 |------|--------------|
@@ -111,33 +109,11 @@ stream
 - 丰富的图表类型：时序折线、仪表盘、热力图、地理地图
 - 告警规则配置，触发邮件 / 钉钉 / Webhook 通知
 
-```
-InfluxDB / TDengine
-        ↓
-    Grafana
-        ↓
-  Dashboard 看板
-  （折线图 / 仪表盘 / 告警）
-```
-
 ---
 
 ## 五、IoT 数据处理全链路
 
-```
-传感器设备
-    ↓ MQTT / Modbus
-EMQX Broker
-    ↓ 规则引擎转发
-Kafka（缓冲高并发写入）
-    ↓
-Flink（实时流处理：清洗 / 聚合 / 告警）
-    ↓                    ↓
-TDengine / InfluxDB    告警服务 → 钉钉 / 短信
-（时序存储）
-    ↓
-Grafana（可视化看板）
-```
+![IoT 数据处理全链路](../assets/iot/iot-data-pipeline.svg)
 
 > [!warning]
 > 待补充：TDengine 超表实战、Flink 复杂事件处理（CEP）、Grafana 告警规则配置

@@ -1,0 +1,55 @@
+<svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .layer { rx:10; ry:10; fill:var(--card); stroke-width:2; }
+    .tag { font-size:13px; font-weight:700; }
+    .item { font-size:11px; fill:var(--muted); }
+    .arr { stroke-width:2; marker-end:url(#a); marker-start:url(#b); fill:none; }
+    .proto { font-size:10px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    </marker>
+    <marker id="b" markerWidth="7" markerHeight="5" refX="1" refY="2.5" orient="auto">
+      <polygon points="7 0,0 2.5,7 5" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- 云端 -->
+  <rect class="layer" x="10" y="10" width="660" height="80" stroke="var(--b)"/>
+  <text class="tag" x="36" y="38" fill="var(--b)">云端（Cloud）</text>
+  <text class="item" x="36" y="57">全局数据存储 / 模型训练 / 大盘分析</text>
+  <text class="item" x="36" y="75">设备管理平台 / OTA 升级 / 告警中心</text>
+
+  <!-- 双向箭头 + 协议 -->
+  <line class="arr" x1="340" y1="90" x2="340" y2="148" stroke="var(--muted)"/>
+  <text class="proto" x="348" y="124">MQTT / HTTP / gRPC</text>
+
+  <!-- 边缘层 -->
+  <rect class="layer" x="10" y="148" width="660" height="96" stroke="var(--y)"/>
+  <text class="tag" x="36" y="176" fill="var(--y)">边缘层（Edge）</text>
+  <text class="item" x="36" y="197">协议转换（Modbus / OPC-UA → MQTT）</text>
+  <text class="item" x="36" y="215">本地规则引擎（实时告警、联动控制）</text>
+  <text class="item" x="36" y="233">数据过滤聚合 · 断网续传缓存</text>
+
+  <!-- 双向箭头 + 协议 -->
+  <line class="arr" x1="340" y1="244" x2="340" y2="282" stroke="var(--muted)"/>
+  <text class="proto" x="348" y="267">Modbus · OPC-UA · Zigbee</text>
+
+  <!-- 设备端 -->
+  <rect class="layer" x="10" y="282" width="660" height="28" stroke="var(--g)"/>
+  <text class="tag" x="36" y="302" fill="var(--g)">设备端（Device）</text>
+  <text class="item" x="180" y="302">传感器 · PLC · 摄像头 · 控制器 · 智能电表</text>
+</svg>

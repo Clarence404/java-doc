@@ -1,0 +1,71 @@
+<svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:1.5; }
+    .lbl { font-weight:600; font-size:12px; }
+    .sub { font-size:10px; fill:var(--muted); }
+    .arr { stroke-width:1.8; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- 设备 -->
+  <rect class="box" x="10" y="90" width="110" height="60" stroke="var(--y)"/>
+  <text class="lbl" x="65" y="113" text-anchor="middle" fill="var(--y)">设备</text>
+  <text class="sub" x="65" y="129" text-anchor="middle">MQTT / Modbus</text>
+  <text class="sub" x="65" y="143" text-anchor="middle">/ HTTP</text>
+
+  <line class="arr" x1="120" y1="120" x2="158" y2="120" stroke="var(--muted)"/>
+
+  <!-- 接入网关 Netty -->
+  <rect class="box" x="158" y="76" width="130" height="88" stroke="var(--b)"/>
+  <text class="lbl" x="223" y="103" text-anchor="middle" fill="var(--b)">接入网关</text>
+  <text class="sub" x="223" y="119" text-anchor="middle">（Netty）</text>
+  <text class="sub" x="223" y="137" text-anchor="middle">协议解析</text>
+  <text class="sub" x="223" y="153" text-anchor="middle">设备认证</text>
+
+  <line class="arr" x1="288" y1="120" x2="326" y2="120" stroke="var(--muted)"/>
+
+  <!-- Kafka -->
+  <rect class="box" x="326" y="90" width="100" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="376" y="116" text-anchor="middle" fill="var(--p)">Kafka</text>
+  <text class="sub" x="376" y="133" text-anchor="middle">消息分发</text>
+
+  <line class="arr" x1="426" y1="120" x2="464" y2="120" stroke="var(--muted)"/>
+
+  <!-- 消息处理服务 -->
+  <rect class="box" x="464" y="76" width="120" height="88" stroke="var(--g)"/>
+  <text class="lbl" x="524" y="103" text-anchor="middle" fill="var(--g)">消息处理服务</text>
+  <text class="sub" x="524" y="120" text-anchor="middle">写入时序 DB</text>
+  <text class="sub" x="524" y="137" text-anchor="middle">触发规则引擎</text>
+  <text class="sub" x="524" y="154" text-anchor="middle">更新设备状态</text>
+
+  <!-- → 时序DB -->
+  <line class="arr" x1="584" y1="96" x2="622" y2="56" stroke="var(--muted)"/>
+  <rect class="box" x="622" y="20" width="68" height="36" stroke="var(--b)"/>
+  <text class="lbl" x="656" y="44" text-anchor="middle" fill="var(--b)" font-size="11">时序 DB</text>
+
+  <!-- → 规则引擎 -->
+  <line class="arr" x1="584" y1="120" x2="622" y2="120" stroke="var(--muted)"/>
+  <rect class="box" x="622" y="102" width="68" height="36" stroke="var(--y)"/>
+  <text class="lbl" x="656" y="126" text-anchor="middle" fill="var(--y)" font-size="11">规则引擎</text>
+
+  <!-- → Redis -->
+  <line class="arr" x1="584" y1="148" x2="622" y2="184" stroke="var(--muted)"/>
+  <rect class="box" x="622" y="184" width="68" height="36" stroke="var(--r)"/>
+  <text class="lbl" x="656" y="208" text-anchor="middle" fill="var(--r)" font-size="11">Redis 状态</text>
+</svg>

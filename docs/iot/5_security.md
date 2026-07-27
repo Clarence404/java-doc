@@ -46,12 +46,7 @@
 - **DTLS（Datagram TLS）**：基于 UDP，保护 CoAP 通信
 - 作用：防止中间人监听、篡改数据
 
-```
-设备 ──── TLS 加密 ────► MQTT Broker（EMQX）
-          ↑
-    服务端证书验证
-    （可选：客户端证书双向认证）
-```
+设备通过 TLS 加密连接到 MQTT Broker（EMQX），Broker 验证服务端证书；开启双向认证时设备也需提供客户端证书。
 
 **MQTT over TLS 配置要点（EMQX）：**
 

@@ -7,14 +7,12 @@
 
 ## 一、技术栈全景
 
-```
-设备接入层      消息中间件        业务处理层            存储层
-──────────     ──────────       ────────────────     ──────────
-Netty          EMQX Broker      Spring Boot          TDengine
-Eclipse Paho   Kafka            规则引擎服务           InfluxDB
-j2mod                           设备影子服务           MySQL/Redis
-Eclipse Milo                    OTA 服务
-```
+| 设备接入层 | 消息中间件 | 业务处理层 | 存储层 |
+|-----------|-----------|-----------|--------|
+| Netty | EMQX Broker | Spring Boot | TDengine |
+| Eclipse Paho（MQTT）| Kafka | 规则引擎服务 | InfluxDB |
+| j2mod（Modbus）| | 设备影子服务 | MySQL / Redis |
+| Eclipse Milo（OPC-UA）| | OTA 服务 | |
 
 ---
 
@@ -227,19 +225,7 @@ public class ModbusDemo {
 
 ### 设备接入架构
 
-```
-设备（MQTT / Modbus / HTTP）
-    ↓
-接入网关（Netty）
-    ├── 协议解析（MQTT / Modbus / 私有协议）
-    ├── 设备认证（查 Redis 验证 token）
-    └── 消息分发 → Kafka
-              ↓
-        消息处理服务
-            ├── 写入时序数据库
-            ├── 触发规则引擎
-            └── 更新设备状态（Redis）
-```
+![设备接入服务架构](../assets/iot/iot-device-access-arch.svg)
 
 ### 设备影子（Device Shadow）
 
