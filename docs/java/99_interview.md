@@ -1,4 +1,4 @@
-# Java 面试高频题
+# 面试高频题
 
 > 汇总 Java 基础与进阶方向的高频面试问题，完整解答见 <RouteLink to="/interview/0_java">开发总结-Java</RouteLink>
 

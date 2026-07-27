@@ -1,4 +1,4 @@
-# 微服务设计模式
+# 设计模式
 
 > 参考资料：
 > * 《Microservices Patterns》Chris Richardson：[https://microservices.io/patterns/](https://microservices.io/patterns/)

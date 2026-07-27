@@ -1,4 +1,4 @@
-# 消息队列面试高频题
+# 面试高频题
 
 > 汇总 MQ 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/6_mq">开发总结-消息队列</RouteLink>
 

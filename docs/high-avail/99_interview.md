@@ -1,4 +1,4 @@
-# 高可用面试高频题
+# 面试高频题
 
 > 汇总高可用方向的核心面试问题，完整解答见 <RouteLink to="/interview/9_high_avail">开发总结-高可用</RouteLink>
 

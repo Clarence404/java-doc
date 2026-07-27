@@ -193,6 +193,7 @@ const databaseSidebar = [
             {text: 'CDC 工具',    link: '/database/5_ops/0_cdc_tools'},
             {text: '备份与恢复',  link: '/database/5_ops/1_backup_recovery'},
             {text: '分库分表',    link: '/database/5_ops/2_sharding'},
+            {text: '数据库连接池', link: '/database/5_ops/3_connection_pool'},
         ],
     },
     {

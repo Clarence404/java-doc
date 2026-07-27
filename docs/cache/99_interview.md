@@ -1,4 +1,4 @@
-# 缓存面试高频题
+# 面试高频题
 
 > 汇总 Redis 与缓存核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/2_cache">开发总结-缓存</RouteLink>
 

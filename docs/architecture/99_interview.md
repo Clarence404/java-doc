@@ -1,4 +1,4 @@
-# 系统架构面试高频题
+# 面试高频题
 
 > 汇总系统架构核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/12_architecture">开发总结-系统架构</RouteLink>
 

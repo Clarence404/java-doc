@@ -1,4 +1,4 @@
-# Spring 面试高频题
+# 面试高频题
 
 > 汇总 Spring / Spring Boot 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/4_spring">开发总结-Spring</RouteLink>
 

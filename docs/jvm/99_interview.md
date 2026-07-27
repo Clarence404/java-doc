@@ -1,4 +1,4 @@
-# JVM 面试高频题
+# 面试高频题
 
 > 汇总 JVM 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/3_jvm">开发总结-JVM</RouteLink>
 

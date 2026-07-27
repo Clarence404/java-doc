@@ -225,3 +225,181 @@ Consumer Rebalance 或消费者崩溃重启都会导致重复消费，必须在�
 - 使用 Cooperative Sticky Assignor（Kafka 2.4+）减少全量重分配
 - 避免消费者长时间阻塞（max.poll.interval.ms 内必须 poll）
 ```
+
+---
+
+## 七、Kafka Streams
+
+Kafka Streams 是 Kafka 内置的**流处理库**（非独立集群），以普通 Java 应用方式部署，直接消费和生产 Kafka Topic。
+
+### 核心概念
+
+| 概念 | 说明 |
+|------|------|
+| **KStream** | 无界数据流，每条记录代表一个事件（INSERT 语义）|
+| **KTable** | 变更日志流，相同 key 的新记录覆盖旧值（UPSERT 语义）|
+| **GlobalKTable** | 全量广播的 KTable，每个实例都有完整副本，用于流-表 JOIN |
+| **Topology** | 处理拓扑，由 Source → Processor → Sink 节点组成 |
+| **State Store** | 本地 RocksDB 状态存储，支持窗口聚合、JOIN 等有状态操作 |
+| **Task** | 并行处理单元，一个 Partition 对应一个 Task |
+
+### 快速示例：订单金额实时聚合
+
+```java
+@Bean
+public KStream<String, OrderEvent> orderStream(StreamsBuilder builder) {
+    // 读取 Source Topic
+    KStream<String, OrderEvent> stream = builder.stream(
+        "order-events",
+        Consumed.with(Serdes.String(), orderSerde())
+    );
+
+    // 过滤 + 分组 + 窗口聚合：统计每分钟每用户的订单金额
+    stream
+        .filter((key, order) -> order.getStatus().equals("PAID"))
+        .groupBy((key, order) -> order.getUserId(),
+                 Grouped.with(Serdes.String(), orderSerde()))
+        .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(1)))
+        .aggregate(
+            () -> BigDecimal.ZERO,
+            (userId, order, total) -> total.add(order.getAmount()),
+            Materialized.<String, BigDecimal, WindowStore<Bytes, byte[]>>as("user-order-amount-store")
+                .withKeySerde(Serdes.String())
+                .withValueSerde(bigDecimalSerde())
+        )
+        .toStream()
+        .to("user-order-stats", Produced.with(windowedSerde(), bigDecimalSerde()));
+
+    return stream;
+}
+```
+
+```yaml
+spring:
+  kafka:
+    streams:
+      application-id: order-stats-app    # 消费者 Group ID，多实例水平扩展
+      bootstrap-servers: localhost:9092
+      properties:
+        default.key.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+        default.value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+        commit.interval.ms: 1000         # 状态刷盘间隔
+        num.stream.threads: 4            # 处理线程数
+```
+
+### KStream vs KTable JOIN
+
+```java
+KStream<String, Order> orders = builder.stream("orders");
+KTable<String, User>   users  = builder.table("users");
+
+// Stream-Table JOIN：每条订单携带用户信息（KTable 本地查询）
+KStream<String, EnrichedOrder> enriched = orders.join(
+    users,
+    (order, user) -> new EnrichedOrder(order, user),
+    Joined.with(Serdes.String(), orderSerde(), userSerde())
+);
+```
+
+### 适用场景
+
+| 场景 | 说明 |
+|------|------|
+| 实时统计 / 排行榜 | 窗口聚合，每分钟/每小时 Top N |
+| 流式 ETL | 过滤 → 转换 → 写入目标 Topic |
+| 事件驱动聚合 | 订单 + 用户 JOIN 生成宽表 |
+| 异常检测 | 滑动窗口统计，触发告警 |
+
+> Kafka Streams vs Flink：数据量百万级 / 无需跨语言 → Kafka Streams；超大数据量 / 复杂 CEP / 批流一体 → Flink。
+
+---
+
+## 八、Kafka Connect
+
+Kafka Connect 是 Kafka 内置的**数据管道框架**，无需编写代码即可将外部系统的数据导入/导出 Kafka。
+
+### 核心概念
+
+| 概念 | 说明 |
+|------|------|
+| **Source Connector** | 从外部系统读取数据写入 Kafka（如 MySQL → Kafka）|
+| **Sink Connector** | 从 Kafka 消费数据写入外部系统（如 Kafka → Elasticsearch）|
+| **Worker** | Connect 运行进程，支持 Standalone / Distributed 两种模式 |
+| **Task** | Connector 的并行执行单元，Task 数 = 并行度 |
+| **Converter** | 数据格式转换（JSON / Avro / Protobuf），与 Schema Registry 配合 |
+
+### Debezium：MySQL CDC → Kafka
+
+Debezium 是最常用的 Source Connector，基于 MySQL Binlog 实现变更数据捕获（CDC）：
+
+```json
+{
+  "name": "mysql-cdc-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+    "database.hostname": "mysql",
+    "database.port": "3306",
+    "database.user": "debezium",
+    "database.password": "dbz",
+    "database.server.id": "1",
+    "database.server.name": "dbserver1",
+    "database.include.list": "inventory",
+    "table.include.list": "inventory.orders",
+    "database.history.kafka.bootstrap.servers": "kafka:9092",
+    "database.history.kafka.topic": "schema-changes.inventory"
+  }
+}
+```
+
+每条 Binlog 变更会产生一条 Kafka 消息，路由到 Topic `dbserver1.inventory.orders`：
+
+```json
+{
+  "op": "u",           // c=insert, u=update, d=delete, r=snapshot
+  "before": { "id": 1, "amount": 100 },
+  "after":  { "id": 1, "amount": 200 },
+  "source": { "ts_ms": 1700000000000, "table": "orders" }
+}
+```
+
+### Sink：Kafka → Elasticsearch
+
+```json
+{
+  "name": "es-sink-connector",
+  "config": {
+    "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+    "tasks.max": "4",
+    "topics": "dbserver1.inventory.orders",
+    "connection.url": "http://elasticsearch:9200",
+    "type.name": "_doc",
+    "key.ignore": "false",
+    "schema.ignore": "true"
+  }
+}
+```
+
+### 部署模式对比
+
+| 模式 | 适用场景 | 说明 |
+|------|---------|------|
+| **Standalone** | 开发 / 测试 | 单进程，配置写文件，不支持水平扩展 |
+| **Distributed** | 生产 | 多 Worker 自动负载均衡，REST API 管理 Connector |
+
+```bash
+# Distributed 模式下通过 REST API 管理
+curl -X POST http://connect:8083/connectors \
+  -H "Content-Type: application/json" \
+  -d @mysql-cdc-connector.json
+
+# 查看 Connector 状态
+curl http://connect:8083/connectors/mysql-cdc-connector/status
+```
+
+### 典型架构
+
+```
+MySQL ──Debezium──→ Kafka ──ES Sink──→ Elasticsearch（搜索）
+                       └──Flink/Streams──→ ClickHouse（分析）
+                       └──JDBC Sink──→ 数仓
+```

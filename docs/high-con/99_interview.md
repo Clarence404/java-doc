@@ -1,4 +1,4 @@
-# 高并发面试高频题
+# 面试高频题
 
 > 汇总高并发方向的核心面试问题，完整解答见 <RouteLink to="/interview/8_concurrent">开发总结-高并发</RouteLink>
 
