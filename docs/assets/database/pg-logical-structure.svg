@@ -27,34 +27,34 @@
 
   <!-- Fan out to leaf nodes -->
   <line class="line" x1="290" y1="162" x2="290" y2="178" stroke="var(--border)"/>
-  <line class="line" x1="80" y1="178" x2="500" y2="178" stroke="var(--border)"/>
-  <line class="line" x1="80"  y1="178" x2="80"  y2="194" stroke="var(--border)"/>
-  <line class="line" x1="200" y1="178" x2="200" y2="194" stroke="var(--border)"/>
+  <line class="line" x1="70" y1="178" x2="506" y2="178" stroke="var(--border)"/>
+  <line class="line" x1="70"  y1="178" x2="70"  y2="194" stroke="var(--border)"/>
+  <line class="line" x1="186" y1="178" x2="186" y2="194" stroke="var(--border)"/>
   <line class="line" x1="290" y1="178" x2="290" y2="194" stroke="var(--border)"/>
-  <line class="line" x1="395" y1="178" x2="395" y2="194" stroke="var(--border)"/>
-  <line class="line" x1="500" y1="178" x2="500" y2="194" stroke="var(--border)"/>
+  <line class="line" x1="398" y1="178" x2="398" y2="194" stroke="var(--border)"/>
+  <line class="line" x1="506" y1="178" x2="506" y2="194" stroke="var(--border)"/>
 
   <!-- Table -->
-  <rect class="box" x="30"  y="194" width="100" height="30" stroke="var(--y)"/>
-  <text x="80"  y="214" text-anchor="middle" fill="var(--y)" font-weight="600">表（Table）</text>
+  <rect class="box" x="22"  y="194" width="96" height="30" stroke="var(--y)"/>
+  <text x="70"  y="214" text-anchor="middle" fill="var(--y)" font-weight="600">表（Table）</text>
 
   <!-- View -->
-  <rect class="box" x="150" y="194" width="100" height="30" stroke="var(--muted)"/>
-  <text x="200" y="214" text-anchor="middle" fill="var(--muted)" font-weight="600">视图（View）</text>
+  <rect class="box" x="138" y="194" width="96" height="30" stroke="var(--muted)"/>
+  <text x="186" y="214" text-anchor="middle" fill="var(--muted)" font-weight="600">视图（View）</text>
 
   <!-- Function -->
-  <rect class="box" x="242" y="194" width="100" height="30" stroke="var(--muted)"/>
-  <text x="292" y="214" text-anchor="middle" fill="var(--muted)" font-weight="600">函数（Function）</text>
+  <rect class="box" x="242" y="194" width="96" height="30" stroke="var(--muted)"/>
+  <text x="290" y="214" text-anchor="middle" fill="var(--muted)" font-weight="600">函数（Function）</text>
 
   <!-- Sequence -->
-  <rect class="box" x="348" y="194" width="96" height="30" stroke="var(--muted)"/>
-  <text x="396" y="214" text-anchor="middle" fill="var(--muted)" font-weight="600">序列（Sequence）</text>
+  <rect class="box" x="350" y="194" width="96" height="30" stroke="var(--muted)"/>
+  <text x="398" y="214" text-anchor="middle" fill="var(--muted)" font-weight="600">序列（Sequence）</text>
 
   <!-- Index -->
-  <rect class="box" x="452" y="194" width="96" height="30" stroke="var(--muted)"/>
-  <text x="500" y="214" text-anchor="middle" fill="var(--muted)" font-weight="600">索引（Index）</text>
+  <rect class="box" x="458" y="194" width="96" height="30" stroke="var(--muted)"/>
+  <text x="506" y="214" text-anchor="middle" fill="var(--muted)" font-weight="600">索引（Index）</text>
 
   <!-- Annotations -->
-  <rect x="30" y="236" width="520" height="26" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
+  <rect x="22" y="236" width="532" height="26" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
   <text x="290" y="249" text-anchor="middle" fill="var(--muted)" font-size="10">默认 Schema = public；多 Schema 实现多租户隔离 / 模块化管理 / 权限隔离</text>
 </svg>

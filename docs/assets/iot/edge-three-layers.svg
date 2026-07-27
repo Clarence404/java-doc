@@ -1,4 +1,4 @@
-<svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+<svg viewBox="0 0 680 368" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
   <style>
     :root {
       --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
@@ -29,27 +29,28 @@
 
   <!-- 云端 -->
   <rect class="layer" x="10" y="10" width="660" height="80" stroke="var(--b)"/>
-  <text class="tag" x="36" y="38" fill="var(--b)">云端（Cloud）</text>
-  <text class="item" x="36" y="57">全局数据存储 / 模型训练 / 大盘分析</text>
-  <text class="item" x="36" y="75">设备管理平台 / OTA 升级 / 告警中心</text>
+  <text class="tag" x="340" y="36" text-anchor="middle" fill="var(--b)">云端（Cloud）</text>
+  <text class="item" x="170" y="64" text-anchor="middle">全局数据存储 / 模型训练 / 大盘分析</text>
+  <text class="item" x="510" y="64" text-anchor="middle">设备管理平台 / OTA 升级 / 告警中心</text>
 
   <!-- 双向箭头 + 协议 -->
-  <line class="arr" x1="340" y1="90" x2="340" y2="142" stroke="var(--muted)"/>
-  <text class="proto" x="348" y="124">MQTT / HTTP / gRPC</text>
+  <line class="arr" x1="340" y1="90" x2="340" y2="130" stroke="var(--muted)"/>
+  <text class="proto" x="348" y="120">MQTT / HTTP / gRPC</text>
 
   <!-- 边缘层 -->
-  <rect class="layer" x="10" y="148" width="660" height="96" stroke="var(--y)"/>
-  <text class="tag" x="36" y="176" fill="var(--y)">边缘层（Edge）</text>
-  <text class="item" x="36" y="197">协议转换（Modbus / OPC-UA → MQTT）</text>
-  <text class="item" x="36" y="215">本地规则引擎（实时告警、联动控制）</text>
-  <text class="item" x="36" y="233">数据过滤聚合 · 断网续传缓存</text>
+  <rect class="layer" x="10" y="136" width="660" height="96" stroke="var(--y)"/>
+  <text class="tag" x="340" y="160" text-anchor="middle" fill="var(--y)">边缘层（Edge）</text>
+  <text class="item" x="170" y="183" text-anchor="middle">协议转换（Modbus / OPC-UA → MQTT）</text>
+  <text class="item" x="510" y="183" text-anchor="middle">本地规则引擎（实时告警、联动控制）</text>
+  <text class="item" x="340" y="206" text-anchor="middle">数据过滤聚合 · 断网续传缓存</text>
 
   <!-- 双向箭头 + 协议 -->
-  <line class="arr" x1="340" y1="244" x2="340" y2="276" stroke="var(--muted)"/>
-  <text class="proto" x="348" y="267">Modbus · OPC-UA · Zigbee</text>
+  <line class="arr" x1="340" y1="232" x2="340" y2="272" stroke="var(--muted)"/>
+  <text class="proto" x="348" y="261">Modbus · OPC-UA · Zigbee</text>
 
   <!-- 设备端 -->
-  <rect class="layer" x="10" y="282" width="660" height="28" stroke="var(--g)"/>
-  <text class="tag" x="36" y="302" fill="var(--g)">设备端（Device）</text>
-  <text class="item" x="180" y="302">传感器 · PLC · 摄像头 · 控制器 · 智能电表</text>
+  <rect class="layer" x="10" y="278" width="660" height="70" stroke="var(--g)"/>
+  <text class="tag" x="340" y="300" text-anchor="middle" fill="var(--g)">设备端（Device）</text>
+  <text class="item" x="170" y="326" text-anchor="middle">传感器 · PLC · 摄像头 · 控制器 · 智能电表</text>
+  <text class="item" x="510" y="326" text-anchor="middle">边缘网关 · RTU · 工业相机 · 智能仪表</text>
 </svg>

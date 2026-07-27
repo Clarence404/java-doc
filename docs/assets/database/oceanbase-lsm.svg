@@ -38,9 +38,9 @@
   <text x="355" y="92" text-anchor="middle" fill="var(--fg)" font-size="10">多个 Minor 文件并存</text>
 
   <line class="arr" x1="430" y1="70" x2="454" y2="70" stroke="var(--muted)"/>
-  <text x="445" y="60" text-anchor="middle" fill="var(--muted)" font-size="9">Major</text>
-  <text x="445" y="72" text-anchor="middle" fill="var(--muted)" font-size="9">Compaction</text>
-  <text x="445" y="84" text-anchor="middle" fill="var(--muted)" font-size="9">（定期）</text>
+  <text x="445" y="58" text-anchor="middle" fill="var(--muted)" font-size="9">Major</text>
+  <text x="445" y="82" text-anchor="middle" fill="var(--muted)" font-size="9">Compaction</text>
+  <text x="445" y="94" text-anchor="middle" fill="var(--muted)" font-size="9">（定期）</text>
 
   <!-- Major SSTable -->
   <rect class="box" x="460" y="40" width="210" height="60" stroke="var(--g)"/>

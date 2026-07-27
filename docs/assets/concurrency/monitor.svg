@@ -1,4 +1,4 @@
-<svg viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',system-ui,sans-serif">
+<svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',system-ui,sans-serif">
   <title>服务监控 — 可观测性三支柱</title>
   <style>
     :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;
@@ -18,7 +18,7 @@
       <path d="M0,0 L7,3.5 L0,7" fill="#9ca3af"/>
     </marker>
   </defs>
-  <rect width="800" height="350" fill="var(--bg)"/>
+  <rect width="800" height="360" fill="var(--bg)"/>
   <text x="400" y="28" text-anchor="middle" font-size="17" font-weight="700" fill="var(--g)">服务监控（可观测性）</text>
 
   <!-- Services row -->

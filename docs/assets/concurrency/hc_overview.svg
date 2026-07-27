@@ -1,4 +1,4 @@
-<svg viewBox="0 0 900 1380" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',system-ui,sans-serif">
+<svg viewBox="0 0 900 1210" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',system-ui,sans-serif">
   <title>高并发系统设计全景图</title>
   <desc>包含系统拆分、缓存、MQ、分库分表、读写分离和监控的完整高并发架构图</desc>
 
@@ -32,7 +32,7 @@
   </defs>
 
   <!-- 背景 -->
-  <rect width="900" height="1380" fill="var(--bg)"/>
+  <rect width="900" height="1210" fill="var(--bg)"/>
 
   <!-- ─── HEADER ─── -->
   <rect x="20" y="10" width="860" height="100" rx="10" class="section-bg"/>
