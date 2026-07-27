@@ -1,0 +1,77 @@
+<svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .arr { stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="350" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Elasticsearch 写入流程</text>
+
+  <!-- Step boxes -->
+  <!-- 1: Client -->
+  <rect class="box" x="10" y="60" width="90" height="50" stroke="var(--muted)"/>
+  <text x="55" y="82" text-anchor="middle" fill="var(--fg)" font-weight="600">Client</text>
+  <text x="55" y="97" text-anchor="middle" fill="var(--muted)" font-size="10">PUT /idx/_doc/1</text>
+
+  <line class="arr" x1="100" y1="85" x2="120" y2="85" stroke="var(--muted)"/>
+
+  <!-- 2: Coordinating Node -->
+  <rect class="box" x="120" y="50" width="110" height="70" stroke="var(--b)"/>
+  <text x="175" y="72" text-anchor="middle" fill="var(--b)" font-weight="700">协调节点</text>
+  <text x="175" y="88" text-anchor="middle" fill="var(--fg)" font-size="10">路由计算</text>
+  <text x="175" y="102" text-anchor="middle" fill="var(--fg)" font-size="10">shard = hash(id) % n</text>
+  <text x="175" y="115" text-anchor="middle" fill="var(--muted)" font-size="9">转发到 Primary Shard</text>
+
+  <line class="arr" x1="230" y1="85" x2="250" y2="85" stroke="var(--muted)"/>
+
+  <!-- 3: Primary Shard -->
+  <rect class="box" x="250" y="42" width="130" height="86" stroke="var(--g)"/>
+  <text x="315" y="62" text-anchor="middle" fill="var(--g)" font-weight="700">Primary Shard</text>
+  <text x="315" y="78" text-anchor="middle" fill="var(--fg)" font-size="10">①写 Translog（WAL）</text>
+  <text x="315" y="92" text-anchor="middle" fill="var(--fg)" font-size="10">②写 In-memory Buffer</text>
+  <text x="315" y="106" text-anchor="middle" fill="var(--fg)" font-size="10">③同步到 Replica Shard</text>
+  <text x="315" y="120" text-anchor="middle" fill="var(--muted)" font-size="9">多数确认后响应成功</text>
+
+  <!-- Parallel: replica -->
+  <line class="arr" x1="380" y1="78" x2="400" y2="60" stroke="var(--muted)"/>
+  <line class="arr" x1="380" y1="100" x2="400" y2="118" stroke="var(--muted)"/>
+
+  <rect class="box" x="400" y="42" width="120" height="36" stroke="var(--y)"/>
+  <text x="460" y="58" text-anchor="middle" fill="var(--y)" font-weight="600">Replica Shard 1</text>
+  <text x="460" y="72" text-anchor="middle" fill="var(--muted)" font-size="9">同步写入</text>
+
+  <rect class="box" x="400" y="100" width="120" height="36" stroke="var(--y)"/>
+  <text x="460" y="116" text-anchor="middle" fill="var(--y)" font-weight="600">Replica Shard 2</text>
+  <text x="460" y="130" text-anchor="middle" fill="var(--muted)" font-size="9">同步写入</text>
+
+  <!-- Refresh & Flush timeline -->
+  <rect x="10" y="152" width="680" height="76" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
+  <text x="350" y="170" text-anchor="middle" fill="var(--fg)" font-weight="700" font-size="11">近实时（NRT）机制</text>
+
+  <!-- Timeline bar -->
+  <rect x="30" y="178" width="640" height="6" rx="3" fill="var(--border)"/>
+
+  <!-- Phases -->
+  <rect x="30" y="176" width="160" height="10" rx="3" fill="var(--y)" opacity="0.5"/>
+  <text x="110" y="200" text-anchor="middle" fill="var(--y)" font-size="10">In-memory Buffer</text>
+  <text x="110" y="213" text-anchor="middle" fill="var(--muted)" font-size="9">不可搜索</text>
+
+  <rect x="190" y="176" width="160" height="10" rx="3" fill="var(--g)" opacity="0.5"/>
+  <text x="270" y="200" text-anchor="middle" fill="var(--g)" font-size="10">refresh（默认 1s）</text>
+  <text x="270" y="213" text-anchor="middle" fill="var(--muted)" font-size="9">内存 Segment → 可搜索</text>
+
+  <rect x="350" y="176" width="160" height="10" rx="3" fill="var(--b)" opacity="0.5"/>
+  <text x="430" y="200" text-anchor="middle" fill="var(--b)" font-size="10">flush（默认 30min / 512MB）</text>
+  <text x="430" y="213" text-anchor="middle" fill="var(--muted)" font-size="9">Translog 清空 + 段持久化到磁盘</text>
+
+  <rect x="510" y="176" width="160" height="10" rx="3" fill="var(--p)" opacity="0.5"/>
+  <text x="590" y="200" text-anchor="middle" fill="var(--p)" font-size="10">merge（后台）</text>
+  <text x="590" y="213" text-anchor="middle" fill="var(--muted)" font-size="9">段合并，删除标记清理</text>
+</svg>

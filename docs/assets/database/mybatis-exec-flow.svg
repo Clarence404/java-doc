@@ -1,0 +1,95 @@
+<svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .arr { stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">MyBatis 执行流程（一次查询）</text>
+
+  <!-- Row 1: mapper → sqlSession -->
+  <rect class="box" x="10" y="50" width="110" height="44" stroke="var(--muted)"/>
+  <text x="65" y="68" text-anchor="middle" fill="var(--fg)" font-weight="600">Mapper 接口</text>
+  <text x="65" y="84" text-anchor="middle" fill="var(--muted)" font-size="10">userMapper.findById(1)</text>
+  <line class="arr" x1="120" y1="72" x2="142" y2="72" stroke="var(--muted)"/>
+
+  <rect class="box" x="142" y="50" width="120" height="44" stroke="var(--b)"/>
+  <text x="202" y="68" text-anchor="middle" fill="var(--b)" font-weight="700">MapperProxy</text>
+  <text x="202" y="84" text-anchor="middle" fill="var(--fg)" font-size="10">JDK 动态代理</text>
+  <line class="arr" x1="262" y1="72" x2="284" y2="72" stroke="var(--muted)"/>
+
+  <rect class="box" x="284" y="50" width="120" height="44" stroke="var(--b)"/>
+  <text x="344" y="68" text-anchor="middle" fill="var(--b)" font-weight="700">SqlSession</text>
+  <text x="344" y="84" text-anchor="middle" fill="var(--fg)" font-size="10">selectOne / selectList</text>
+  <line class="arr" x1="404" y1="72" x2="426" y2="72" stroke="var(--muted)"/>
+
+  <!-- Plugin interceptor chain -->
+  <rect class="box" x="426" y="50" width="120" height="44" stroke="var(--r)"/>
+  <text x="486" y="68" text-anchor="middle" fill="var(--r)" font-weight="700">Interceptor 链</text>
+  <text x="486" y="84" text-anchor="middle" fill="var(--fg)" font-size="10">Plugin（责任链）</text>
+  <line class="arr" x1="546" y1="72" x2="568" y2="72" stroke="var(--muted)"/>
+
+  <!-- Executor -->
+  <rect class="box" x="568" y="50" width="140" height="44" stroke="var(--p)"/>
+  <text x="638" y="68" text-anchor="middle" fill="var(--p)" font-weight="700">Executor</text>
+  <text x="638" y="84" text-anchor="middle" fill="var(--fg)" font-size="10">Simple / Reuse / Batch</text>
+
+  <!-- Cache check -->
+  <line class="arr" x1="638" y1="94" x2="638" y2="116" stroke="var(--muted)"/>
+
+  <!-- Row 2: cache + statementHandler -->
+  <rect class="box" x="568" y="116" width="140" height="44" stroke="var(--y)"/>
+  <text x="638" y="134" text-anchor="middle" fill="var(--y)" font-weight="700">Cache</text>
+  <text x="638" y="150" text-anchor="middle" fill="var(--fg)" font-size="10">一级 / 二级缓存命中？</text>
+
+  <!-- Miss arrow -->
+  <text x="530" y="140" fill="var(--r)" font-size="9" text-anchor="end">未命中</text>
+  <line class="arr" x1="568" y1="138" x2="490" y2="138" stroke="var(--r)"/>
+
+  <rect class="box" x="370" y="116" width="120" height="44" stroke="var(--p)"/>
+  <text x="430" y="134" text-anchor="middle" fill="var(--p)" font-weight="700">StatementHandler</text>
+  <text x="430" y="150" text-anchor="middle" fill="var(--fg)" font-size="10">Prepared / Simple</text>
+  <line class="arr" x1="370" y1="138" x2="298" y2="138" stroke="var(--muted)"/>
+
+  <rect class="box" x="178" y="116" width="120" height="44" stroke="var(--g)"/>
+  <text x="238" y="134" text-anchor="middle" fill="var(--g)" font-weight="700">ParameterHandler</text>
+  <text x="238" y="150" text-anchor="middle" fill="var(--fg)" font-size="10">#{} 参数绑定</text>
+  <line class="arr" x1="178" y1="138" x2="106" y2="138" stroke="var(--muted)"/>
+
+  <!-- JDBC -->
+  <rect class="box" x="10" y="116" width="96" height="44" stroke="var(--b)"/>
+  <text x="58" y="134" text-anchor="middle" fill="var(--b)" font-weight="700">JDBC</text>
+  <text x="58" y="150" text-anchor="middle" fill="var(--fg)" font-size="10">PreparedStatement</text>
+
+  <!-- Result -->
+  <line class="arr" x1="58" y1="160" x2="58" y2="182" stroke="var(--muted)"/>
+
+  <rect class="box" x="10" y="182" width="140" height="44" stroke="var(--g)"/>
+  <text x="80" y="200" text-anchor="middle" fill="var(--g)" font-weight="700">ResultSetHandler</text>
+  <text x="80" y="216" text-anchor="middle" fill="var(--fg)" font-size="10">ResultSet → Java 对象</text>
+  <line class="arr" x1="150" y1="204" x2="185" y2="204" stroke="var(--muted)"/>
+
+  <!-- TypeHandler -->
+  <rect class="box" x="185" y="182" width="120" height="44" stroke="var(--y)"/>
+  <text x="245" y="200" text-anchor="middle" fill="var(--y)" font-weight="700">TypeHandler</text>
+  <text x="245" y="216" text-anchor="middle" fill="var(--fg)" font-size="10">JDBC 类型 ↔ Java 类型</text>
+  <line class="arr" x1="305" y1="204" x2="360" y2="204" stroke="var(--muted)"/>
+
+  <!-- Result object -->
+  <rect class="box" x="360" y="182" width="110" height="44" stroke="var(--fg)"/>
+  <text x="415" y="200" text-anchor="middle" fill="var(--fg)" font-weight="600">Java 对象</text>
+  <text x="415" y="216" text-anchor="middle" fill="var(--muted)" font-size="10">User / List&lt;User&gt;</text>
+
+  <!-- Annotations -->
+  <rect x="490" y="182" width="220" height="44" rx="5" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
+  <text x="600" y="200" text-anchor="middle" fill="var(--fg)" font-weight="700" font-size="10">一级缓存（SqlSession 级）</text>
+  <text x="600" y="214" text-anchor="middle" fill="var(--muted)" font-size="9">默认开启；同一 Session 重复查询命中</text>
+  <text x="600" y="224" text-anchor="middle" fill="var(--muted)" font-size="9">二级缓存（Mapper 级）需 @CacheNamespace</text>
+</svg>

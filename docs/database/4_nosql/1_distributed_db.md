@@ -11,15 +11,7 @@
 
 ### 2、整体架构
 
-```
-Client（MySQL 驱动直连，无需改代码）
-  ↓
-TiDB Server（无状态 SQL 计算层）
-  ↓
-PD（Placement Driver，调度中心）
-  ↓
-TiKV（行存储，OLTP）    TiFlash（列存储，OLAP）
-```
+![TiDB 整体架构](../../assets/database/tidb-architecture.svg)
 
 | 组件 | 职责 |
 |------|------|
@@ -46,15 +38,7 @@ TiKV（行存储，OLTP）    TiFlash（列存储，OLAP）
 
 ### 4、HTAP 原理
 
-```
-TiKV（行存，OLTP 写入）
-    ↓ 异步实时同步（Raft learner）
-TiFlash（列存，OLAP 读取）
-
-优化器根据查询特征自动路由：
-- 点查/事务  → TiKV
-- 聚合分析   → TiFlash
-```
+架构图见上图（TiKV 行存 + TiFlash 列存，PD 优化器路由）。
 
 无需 ETL，同一份数据两种访问模式，分析查询不影响 OLTP 性能。
 
@@ -105,12 +89,7 @@ TiDB 兼容 MySQL 5.7 大部分语法，以下特性**不支持或有差异**：
 
 ### 2、整体架构
 
-```
-OBProxy（连接代理，连接复用、路由）
-  ↓
-OBServer Zone1 | OBServer Zone2 | OBServer Zone3
-（计算 + 存储一体，无共享架构）
-```
+![OceanBase 架构与 Paxos 高可用](../../assets/database/oceanbase-architecture.svg)
 
 | 组件 | 职责 |
 |------|------|
@@ -121,27 +100,14 @@ OBServer Zone1 | OBServer Zone2 | OBServer Zone3
 
 ### 3、Paxos 多副本高可用
 
-```
-Zone1（主副本 Leader）
-Zone2（从副本 Follower）
-Zone3（从副本 Follower）
-
-写入：Leader 接收写请求 → 同步给多数派（≥2个Zone）→ 提交
-故障：Zone1 宕机 → Zone2/Zone3 Paxos 选主（< 30s）
-```
+Paxos 高可用流程见上图（Zone 间同步、自动选主）。
 
 - **RPO = 0**：任意一个 Zone 宕机，数据不丢失
 - **RTO < 30s**：自动选主，业务快速恢复
 
 ### 4、存储引擎：LSM 树变体
 
-```
-写入 → MemTable（内存）
-            ↓ Flush
-         Minor SSTable（增量，磁盘）
-            ↓ 定期合并（Major Compaction）
-         Major SSTable（基线，高度压缩）
-```
+![OceanBase 存储引擎：LSM 树变体](../../assets/database/oceanbase-lsm.svg)
 
 **高压缩原理**：
 - 基线数据使用字典编码、Run-Length Encoding（RLE）、列式压缩

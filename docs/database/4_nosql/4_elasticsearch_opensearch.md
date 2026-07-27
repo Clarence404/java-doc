@@ -24,22 +24,7 @@
 
 全文搜索的核心数据结构：**词 → 文档 ID 列表（Posting List）**
 
-```
-文档1: "Java is fast and powerful"
-文档2: "Java and Python are popular"
-文档3: "Python is easy to learn"
-
-分词后的倒排索引：
-Term      Posting List
-"java"  → [doc1, doc2]
-"python"→ [doc2, doc3]
-"fast"  → [doc1]
-"easy"  → [doc3]
-"learn" → [doc3]
-
-查询 "java AND fast" → 取交集 → [doc1]
-查询 "java OR python" → 取并集 → [doc1, doc2, doc3]
-```
+![倒排索引（Inverted Index）结构](../../assets/database/es-inverted-index.svg)
 
 相比关系型数据库的 LIKE '%keyword%'（全表扫描），倒排索引查询时间复杂度接近 O(1)。
 
@@ -189,17 +174,7 @@ GET /orders/_search
 
 ### 写入流程
 
-```
-Client → Coordinating Node
-  → 按路由算法（shard = hash(doc_id) % primary_count）找 Primary Shard
-  → Primary 写入 Translog + Memory Buffer
-  → 同步复制到 Replica Shard
-  → 返回 ACK
-
-后台异步：
-  refresh（默认每1s）→ Buffer 写入 Segment → 数据可被搜索（NRT）
-  flush（定时）→ Segment + Translog 持久化到磁盘，清空 Translog
-```
+![Elasticsearch 写入流程](../../assets/database/es-write-flow.svg)
 
 ### refresh vs flush
 
@@ -222,15 +197,7 @@ PUT /my_index/_settings
 
 ## 八、集群架构
 
-```
-Client
-  ↓
-Coordinating Node（路由请求、聚合结果）
-  ↓
-Data Node × N（存储 Primary/Replica Shard）
-  ↑
-Master Node（集群元数据管理，选主，不处理数据）
-```
+![Elasticsearch 集群架构](../../assets/database/es-cluster.svg)
 
 **分片规划原则**：
 - 单个 Shard 建议 10~50GB，不超过 50GB

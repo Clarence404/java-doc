@@ -1,0 +1,63 @@
+<svg viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .arr { stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">MongoDB 分片集群（Sharding）</text>
+
+  <!-- Client -->
+  <rect class="box" x="10" y="110" width="90" height="38" stroke="var(--muted)"/>
+  <text x="55" y="126" text-anchor="middle" fill="var(--fg)" font-weight="600">Client</text>
+  <text x="55" y="141" text-anchor="middle" fill="var(--muted)" font-size="10">Driver / App</text>
+  <line class="arr" x1="100" y1="129" x2="135" y2="129" stroke="var(--muted)"/>
+
+  <!-- mongos -->
+  <rect class="box" x="135" y="96" width="130" height="66" stroke="var(--b)"/>
+  <text x="200" y="116" text-anchor="middle" fill="var(--b)" font-weight="700">mongos</text>
+  <text x="200" y="132" text-anchor="middle" fill="var(--fg)" font-size="10">查询路由器</text>
+  <text x="200" y="146" text-anchor="middle" fill="var(--fg)" font-size="10">读取 Config Server</text>
+  <text x="200" y="160" text-anchor="middle" fill="var(--fg)" font-size="10">路由到对应 Shard</text>
+
+  <!-- Config Server -->
+  <line class="arr" x1="200" y1="96" x2="200" y2="66" stroke="var(--y)"/>
+  <rect class="box" x="135" y="36" width="130" height="30" stroke="var(--y)"/>
+  <text x="200" y="56" text-anchor="middle" fill="var(--y)" font-weight="600">Config Server</text>
+
+  <!-- Arrows to shards -->
+  <line class="arr" x1="265" y1="129" x2="310" y2="80" stroke="var(--muted)"/>
+  <line class="arr" x1="265" y1="129" x2="310" y2="129" stroke="var(--muted)"/>
+  <line class="arr" x1="265" y1="129" x2="310" y2="178" stroke="var(--muted)"/>
+
+  <!-- Shard 1 -->
+  <rect class="box" x="310" y="50" width="350" height="58" stroke="var(--g)"/>
+  <text x="395" y="70" text-anchor="middle" fill="var(--g)" font-weight="700">Shard 1（Replica Set）</text>
+  <text x="485" y="70" text-anchor="middle" fill="var(--muted)" font-size="10">chunk: a→m</text>
+  <text x="395" y="86" text-anchor="middle" fill="var(--fg)" font-size="10">Primary + Secondary × 2</text>
+  <text x="485" y="86" text-anchor="middle" fill="var(--muted)" font-size="10">hashed / range</text>
+  <text x="445" y="100" text-anchor="middle" fill="var(--muted)" font-size="10">sh.shardCollection("db.coll", { userId: "hashed" })</text>
+
+  <!-- Shard 2 -->
+  <rect class="box" x="310" y="118" width="350" height="44" stroke="var(--p)"/>
+  <text x="395" y="136" text-anchor="middle" fill="var(--p)" font-weight="700">Shard 2（Replica Set）</text>
+  <text x="500" y="136" text-anchor="middle" fill="var(--muted)" font-size="10">chunk: m→z</text>
+  <text x="445" y="154" text-anchor="middle" fill="var(--fg)" font-size="10">Primary + Secondary × 2</text>
+
+  <!-- Shard 3 -->
+  <rect class="box" x="310" y="172" width="350" height="44" stroke="var(--b)"/>
+  <text x="395" y="190" text-anchor="middle" fill="var(--b)" font-weight="700">Shard 3（Replica Set）</text>
+  <text x="445" y="208" text-anchor="middle" fill="var(--fg)" font-size="10">Primary + Secondary × 2</text>
+
+  <!-- Bottom note -->
+  <rect x="10" y="232" width="660" height="36" rx="5" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
+  <text x="340" y="248" text-anchor="middle" fill="var(--fg)" font-size="11">分片策略：<tspan fill="var(--g)">Hashed</tspan>（均匀分布，适合高写）<tspan fill="var(--b)">  Range</tspan>（范围查询友好）<tspan fill="var(--p)">  Zone</tspan>（地理/标签路由）</text>
+  <text x="340" y="264" text-anchor="middle" fill="var(--muted)" font-size="10">mongos 无状态，可多实例部署；Config Server 建议 3 节点副本集保证可用</text>
+</svg>

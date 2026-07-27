@@ -152,11 +152,68 @@ ACID、隔离级别与并发问题（脏读/幻读）、undo log / redo log、MV
 
 ## 八、MySQL 运维
 
-- **主从复制**（主从同步延迟、半同步复制、GTID 复制）
-- **读写分离**
-- **高可用方案**：MHA、MySQL Router、ProxySQL
-- **分库分表**：垂直拆分 vs 水平拆分，数据一致性问题
-- **配置优化**：`innodb_buffer_pool_size`、`max_connections`、`sync_binlog`
+### 主从复制原理
+
+![MySQL 主从复制原理](../assets/mysql/mysql-replication.svg)
+
+**三个核心线程：**
+
+| 线程 | 所在节点 | 职责 |
+|------|---------|------|
+| **Binlog Dump Thread** | 主库 | 监听 binlog 变化，将事件推送给从库 IO Thread |
+| **IO Thread** | 从库 | 连接主库，接收 binlog 事件，写入本地 relay log |
+| **SQL Thread** | 从库 | 读取 relay log，在从库重放 SQL，应用数据变更 |
+
+**GTID 复制（推荐）：**
+
+```sql
+-- 主库配置
+[mysqld]
+gtid_mode = ON
+enforce_gtid_consistency = ON
+log_bin = mysql-bin
+
+-- 从库配置（GTID 模式自动定位）
+CHANGE MASTER TO
+  MASTER_HOST = '主库IP',
+  MASTER_USER = 'repl',
+  MASTER_PASSWORD = 'xxx',
+  MASTER_AUTO_POSITION = 1;
+START SLAVE;
+```
+
+**常见延迟问题：**
+
+| 原因 | 优化方案 |
+|------|---------|
+| 主库大事务（大批量 DML）| 拆分小事务，减少单次 binlog 体积 |
+| SQL Thread 单线程重放 | 开启并行复制（`slave_parallel_workers`）|
+| 网络抖动 | 检查主从网络质量，就近部署 |
+| 从库 IO 性能差 | 升级从库磁盘，或使用 SSD |
+
+**半同步复制：**
+
+```sql
+-- 主库等待至少一个从库写入 relay log 才返回提交成功
+-- 避免主库宕机导致已提交数据在从库不存在
+INSTALL PLUGIN rpl_semi_sync_master SONAME 'semisync_master.so';
+SET GLOBAL rpl_semi_sync_master_enabled = ON;
+SET GLOBAL rpl_semi_sync_master_timeout = 1000;  -- 1秒超时，超时自动降级为异步
+```
+
+### 高可用方案对比
+
+| 方案 | 原理 | 优势 | 劣势 |
+|------|------|------|------|
+| **MHA** | 主库故障时从 ISR 中选新主，补全 binlog | 成熟稳定，切换快（30s 内）| 需额外 MHA Manager 节点 |
+| **MGR（组复制）** | Paxos 协议，多节点投票，数据强一致 | 原生支持，无需第三方 | 配置复杂，跨机房延迟敏感 |
+| **InnoDB Cluster** | MGR + MySQL Shell + MySQL Router 封装 | 官方推荐，运维友好 | 对 MySQL 版本要求高（8.0+）|
+
+### 其他运维要点
+
+- **读写分离**：应用层（ShardingSphere-JDBC）或代理层（ProxySQL、MySQL Router）拦截请求，写主读从
+- **分库分表**：垂直拆分（按业务）vs 水平拆分（按数据量），见 [数据库中间件](../5_ops/2_sharding)
+- **配置优化**：`innodb_buffer_pool_size`（建议物理内存 70%）、`max_connections`（按连接池总量设置）、`sync_binlog=1`（强持久性）
 
 ### MySQL Binlog
 

@@ -26,22 +26,12 @@ InnoDB 索引底层使用 **B+ 树**，而不是 B 树或哈希索引：
 - InnoDB 中，**主键索引 = 聚簇索引**，一张表只能有一个
 - 若无主键，InnoDB 自动选择第一个 NOT NULL 唯一索引；否则内部生成 6 字节隐式 rowid
 
-```
-主键索引（聚簇）叶节点：
-  [id=1 | name='Alice' | age=25 | ...]
-  [id=2 | name='Bob'   | age=30 | ...]
-```
-
 ### 二级索引（Secondary Index / 非聚簇索引）
 
 - 叶节点存储 **索引字段值 + 主键值**，不存完整行
 - 查询时先找到主键，再去聚簇索引取完整数据 → **回表**
 
-```
-name 索引（二级）叶节点：
-  ['Alice' | id=1]
-  ['Bob'   | id=2]
-```
+![聚簇索引 vs 二级索引结构](../../assets/mysql/mysql-index-structure.svg)
 
 ---
 
@@ -174,20 +164,7 @@ SELECT * FROM order WHERE status = 1;
 
 MySQL 5.6 引入，**Index Condition Pushdown**，减少回表次数。
 
-**无 ICP（旧行为）**：
-
-```
-存储引擎：按索引第一列找到所有满足条件的主键 → 全部回表
-Server 层：对拿回来的行过滤其他索引列的条件
-```
-
-**有 ICP（5.6+）**：
-
-```
-存储引擎：在索引遍历时同时过滤所有索引列的条件
-         → 只对满足全部条件的记录回表
-Server 层：拿到的行已经过滤，不再需要再过滤
-```
+![ICP 执行流对比（无 ICP vs 有 ICP）](../../assets/mysql/mysql-icp.svg)
 
 ```sql
 -- 联合索引 idx_name_age(name, age)

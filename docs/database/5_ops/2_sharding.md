@@ -154,10 +154,8 @@ try (HintManager hintManager = HintManager.getInstance()) {
 | 自定义 | 实现 `KeyGenerateAlgorithm` 接口 | 特殊需求 |
 
 Snowflake 结构：
-```
-63         22       12      0
-|  时间戳(41位) | 机器ID(10位) | 序列(12位) |
-```
+
+![Snowflake ID 64位结构](../../assets/database/snowflake-id.svg)
 
 ---
 

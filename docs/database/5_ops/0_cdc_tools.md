@@ -24,19 +24,7 @@ CDC（Change Data Capture，变更数据捕获）通过监听数据库的**变�
 
 ## 二、架构
 
-```
-mysql-binlog-connector-java
-  MySQL Binlog → BinaryLogClient → EventListener → 应用内处理
-
-Canal
-  MySQL Master → Canal Server（模拟 Slave）→ Canal Adapter → MQ / ES / DB
-
-Debezium
-  MySQL/PG/Mongo → Debezium Connector（Kafka Connect）→ Kafka Topic → 消费者
-
-Flink CDC
-  MySQL/PG/Oracle → Flink CDC Source → DataStream / Table API → Sink（Kafka/ES/DB）
-```
+![主流 CDC 工具对比架构](../../assets/database/cdc-tools-arch.svg)
 
 ---
 

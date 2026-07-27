@@ -7,12 +7,7 @@
 | **RPO** | Recovery Point Objective | 最多允许丢失多长时间的数据（0 = 不允许丢）|
 | **RTO** | Recovery Time Objective | 最多允许多长时间完成恢复（恢复速度要求）|
 
-```
-时间轴：
-[最后备份] ←—— RPO ——→ [故障点]（这段数据可能丢失）
-                         ↓
-              [开始恢复] ←—— RTO ——→ [恢复完成]
-```
+![RPO / RTO 时间线](../../assets/database/rpo-rto-timeline.svg)
 
 ---
 

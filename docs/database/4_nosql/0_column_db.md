@@ -30,17 +30,7 @@ Table（表）
 
 ### 3、架构组件
 
-```
-Client
-  ↓
-ZooKeeper（集群协调、RegionServer 发现）
-  ↓
-HMaster（DDL管理、Region分配、负载均衡）
-  ↓
-RegionServer × N（数据读写、Region管理）
-  ↓
-HDFS（底层存储）
-```
+![HBase 架构](../../assets/database/hbase-architecture.svg)
 
 | 组件 | 职责 |
 |------|------|
@@ -51,21 +41,7 @@ HDFS（底层存储）
 
 ### 4、读写流程（LSM 树）
 
-**写入流程**：
-```
-Client → RegionServer
-  → 写 WAL（Write Ahead Log，防崩溃丢数据）
-  → 写 MemStore（内存缓冲）
-  → MemStore 满 → Flush 到 HDFS 生成 HFile
-  → 后台 Compaction 合并 HFile
-```
-
-**读取流程**：
-```
-Client → RegionServer
-  → BlockCache（内存）→ MemStore → HFile
-  → 多版本合并，返回最新值
-```
+![HBase LSM 写入 & 读取流程](../../assets/database/hbase-lsm-flow.svg)
 
 ### 5、RowKey 设计（核心）
 

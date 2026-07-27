@@ -135,12 +135,7 @@ db.orders.aggregate([
 
 ### 5、副本集（Replica Set）
 
-```
-Primary（主节点）
-  ├── Secondary 1（从节点）
-  └── Secondary 2（从节点）
-        ↑ 自动选举（Raft 协议）
-```
+![MongoDB 副本集（Replica Set）](../../assets/database/mongodb-replica-set.svg)
 
 - **Primary** 处理所有写操作
 - **Secondary** 异步复制，可承担读请求（`readPreference: secondaryPreferred`）
@@ -155,15 +150,7 @@ const client = new MongoClient(
 
 ### 6、分片集群（Sharding）
 
-```
-Client
-  ↓
-mongos（路由节点）
-  ↓
-Config Server（元数据）
-  ↓
-Shard 1（副本集）  Shard 2（副本集）  Shard 3（副本集）
-```
+![MongoDB 分片集群（Sharding）](../../assets/database/mongodb-sharding.svg)
 
 **分片策略**：
 

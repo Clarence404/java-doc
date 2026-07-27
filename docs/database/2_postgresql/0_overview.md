@@ -81,15 +81,7 @@ spring:
 
 ### 1、逻辑结构
 
-```
-PostgreSQL 实例
-└── 数据库（Database）         ← 各数据库完全隔离，不能跨库 JOIN
-    └── 模式（Schema）         ← 命名空间，默认 public，可创建多个
-        ├── 表（Table）
-        ├── 视图（View）
-        ├── 函数（Function）
-        └── 序列（Sequence）
-```
+![PostgreSQL 逻辑结构](../../assets/database/pg-logical-structure.svg)
 
 Schema 的实际用途：
 - 多租户隔离：每个租户一个 schema，共享同一数据库

@@ -1,0 +1,77 @@
+<svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .arr { stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Elasticsearch 集群架构</text>
+
+  <!-- Client -->
+  <rect class="box" x="10" y="120" width="80" height="38" stroke="var(--muted)"/>
+  <text x="50" y="135" text-anchor="middle" fill="var(--fg)" font-weight="600">Client</text>
+  <text x="50" y="150" text-anchor="middle" fill="var(--muted)" font-size="10">REST API</text>
+  <line class="arr" x1="90" y1="139" x2="118" y2="139" stroke="var(--muted)"/>
+
+  <!-- Master Node -->
+  <rect class="box" x="118" y="52" width="140" height="80" stroke="var(--r)"/>
+  <text x="188" y="72" text-anchor="middle" fill="var(--r)" font-weight="700">Master Node</text>
+  <text x="188" y="88" text-anchor="middle" fill="var(--fg)" font-size="10">集群状态管理</text>
+  <text x="188" y="102" text-anchor="middle" fill="var(--fg)" font-size="10">Index / Shard 分配</text>
+  <text x="188" y="116" text-anchor="middle" fill="var(--fg)" font-size="10">节点加入 / 离开</text>
+  <text x="188" y="128" text-anchor="middle" fill="var(--muted)" font-size="9">不处理搜索请求</text>
+
+  <!-- Coordinating Node -->
+  <rect class="box" x="118" y="150" width="140" height="68" stroke="var(--b)"/>
+  <text x="188" y="170" text-anchor="middle" fill="var(--b)" font-weight="700">Coordinating Node</text>
+  <text x="188" y="186" text-anchor="middle" fill="var(--fg)" font-size="10">接收并转发请求</text>
+  <text x="188" y="200" text-anchor="middle" fill="var(--fg)" font-size="10">合并分片结果</text>
+  <text x="188" y="214" text-anchor="middle" fill="var(--muted)" font-size="9">任意节点都可充当</text>
+
+  <!-- Data Node cluster -->
+  <rect x="290" y="36" width="370" height="230" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="2"/>
+  <text x="475" y="56" text-anchor="middle" fill="var(--g)" font-weight="700">Data Nodes</text>
+
+  <!-- Node 1 -->
+  <rect class="box" x="304" y="64" width="160" height="90" stroke="var(--g)"/>
+  <text x="384" y="82" text-anchor="middle" fill="var(--g)" font-weight="600">Data Node 1</text>
+  <rect x="314" y="88" width="60" height="22" rx="3" fill="var(--p)" opacity="0.7"/>
+  <text x="344" y="103" text-anchor="middle" fill="var(--card)" font-size="10" font-weight="600">P0</text>
+  <rect x="380" y="88" width="60" height="22" rx="3" fill="var(--y)" opacity="0.7"/>
+  <text x="410" y="103" text-anchor="middle" fill="var(--card)" font-size="10" font-weight="600">R1</text>
+  <text x="384" y="128" text-anchor="middle" fill="var(--muted)" font-size="9">Primary P0 + Replica R1</text>
+  <text x="384" y="142" text-anchor="middle" fill="var(--muted)" font-size="9">存储分片数据 + 执行查询</text>
+
+  <!-- Node 2 -->
+  <rect class="box" x="480" y="64" width="160" height="90" stroke="var(--b)"/>
+  <text x="560" y="82" text-anchor="middle" fill="var(--b)" font-weight="600">Data Node 2</text>
+  <rect x="490" y="88" width="60" height="22" rx="3" fill="var(--p)" opacity="0.7"/>
+  <text x="520" y="103" text-anchor="middle" fill="var(--card)" font-size="10" font-weight="600">P1</text>
+  <rect x="556" y="88" width="60" height="22" rx="3" fill="var(--y)" opacity="0.7"/>
+  <text x="586" y="103" text-anchor="middle" fill="var(--card)" font-size="10" font-weight="600">R2</text>
+  <text x="560" y="128" text-anchor="middle" fill="var(--muted)" font-size="9">Primary P1 + Replica R2</text>
+  <text x="560" y="142" text-anchor="middle" fill="var(--muted)" font-size="9">存储分片数据 + 执行查询</text>
+
+  <!-- Node 3 -->
+  <rect class="box" x="304" y="170" width="336" height="82" stroke="var(--muted)"/>
+  <text x="472" y="188" text-anchor="middle" fill="var(--muted)" font-weight="600">Data Node 3</text>
+  <rect x="314" y="196" width="60" height="22" rx="3" fill="var(--p)" opacity="0.7"/>
+  <text x="344" y="211" text-anchor="middle" fill="var(--card)" font-size="10" font-weight="600">P2</text>
+  <rect x="380" y="196" width="60" height="22" rx="3" fill="var(--y)" opacity="0.7"/>
+  <text x="410" y="211" text-anchor="middle" fill="var(--card)" font-size="10" font-weight="600">R0</text>
+  <rect x="446" y="196" width="60" height="22" rx="3" fill="var(--y)" opacity="0.7"/>
+  <text x="476" y="211" text-anchor="middle" fill="var(--card)" font-size="10" font-weight="600">R1 dup</text>
+  <text x="565" y="218" text-anchor="middle" fill="var(--muted)" font-size="9">P2 + Replica R0 / R1</text>
+  <text x="472" y="242" text-anchor="middle" fill="var(--muted)" font-size="9">P: Primary（主分片）  R: Replica（副本分片）</text>
+
+  <!-- Arrows from Coordinating to Data Nodes -->
+  <line class="arr" x1="258" y1="175" x2="290" y2="140" stroke="var(--b)"/>
+  <line class="arr" x1="258" y1="185" x2="290" y2="200" stroke="var(--b)"/>
+</svg>

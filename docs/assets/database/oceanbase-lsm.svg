@@ -1,0 +1,66 @@
+<svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .arr { stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">OceanBase 存储引擎：LSM 树变体</text>
+
+  <!-- Write path -->
+  <rect class="box" x="10" y="50" width="90" height="40" stroke="var(--muted)"/>
+  <text x="55" y="66" text-anchor="middle" fill="var(--fg)" font-weight="600">写入请求</text>
+  <text x="55" y="82" text-anchor="middle" fill="var(--muted)" font-size="10">DML / Redo Log</text>
+
+  <line class="arr" x1="100" y1="70" x2="120" y2="70" stroke="var(--muted)"/>
+
+  <!-- MemTable -->
+  <rect class="box" x="120" y="40" width="130" height="60" stroke="var(--y)"/>
+  <text x="185" y="62" text-anchor="middle" fill="var(--y)" font-weight="700">MemTable</text>
+  <text x="185" y="78" text-anchor="middle" fill="var(--fg)" font-size="10">内存中（跳表有序）</text>
+  <text x="185" y="92" text-anchor="middle" fill="var(--fg)" font-size="10">读写最新数据</text>
+
+  <line class="arr" x1="250" y1="70" x2="280" y2="70" stroke="var(--muted)"/>
+  <text x="265" y="64" text-anchor="middle" fill="var(--muted)" font-size="9">Freeze &amp;</text>
+  <text x="265" y="76" text-anchor="middle" fill="var(--muted)" font-size="9">Flush</text>
+
+  <!-- Minor SSTable -->
+  <rect class="box" x="280" y="40" width="150" height="60" stroke="var(--b)"/>
+  <text x="355" y="62" text-anchor="middle" fill="var(--b)" font-weight="700">Minor SSTable</text>
+  <text x="355" y="78" text-anchor="middle" fill="var(--fg)" font-size="10">增量数据（磁盘）</text>
+  <text x="355" y="92" text-anchor="middle" fill="var(--fg)" font-size="10">多个 Minor 文件并存</text>
+
+  <line class="arr" x1="430" y1="70" x2="460" y2="70" stroke="var(--muted)"/>
+  <text x="445" y="60" text-anchor="middle" fill="var(--muted)" font-size="9">Major</text>
+  <text x="445" y="72" text-anchor="middle" fill="var(--muted)" font-size="9">Compaction</text>
+  <text x="445" y="84" text-anchor="middle" fill="var(--muted)" font-size="9">（定期）</text>
+
+  <!-- Major SSTable -->
+  <rect class="box" x="460" y="40" width="210" height="60" stroke="var(--g)"/>
+  <text x="565" y="62" text-anchor="middle" fill="var(--g)" font-weight="700">Major SSTable（基线）</text>
+  <text x="565" y="78" text-anchor="middle" fill="var(--fg)" font-size="10">高度压缩（行列混存）</text>
+  <text x="565" y="92" text-anchor="middle" fill="var(--fg)" font-size="10">字典/RLE/列式压缩，省 70%+ 空间</text>
+
+  <!-- Compression detail -->
+  <rect x="10" y="120" width="660" height="88" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
+  <text x="340" y="138" text-anchor="middle" fill="var(--fg)" font-weight="700" font-size="11">压缩与混合存储策略</text>
+
+  <rect x="20" y="146" width="200" height="24" rx="4" fill="var(--y)" opacity="0.15" stroke="var(--y)" stroke-width="1"/>
+  <text x="120" y="162" text-anchor="middle" fill="var(--y)" font-weight="600" font-size="10">MemTable（行存）</text>
+
+  <rect x="228" y="146" width="200" height="24" rx="4" fill="var(--b)" opacity="0.15" stroke="var(--b)" stroke-width="1"/>
+  <text x="328" y="162" text-anchor="middle" fill="var(--b)" font-weight="600" font-size="10">Minor SSTable（行存增量）</text>
+
+  <rect x="436" y="146" width="234" height="24" rx="4" fill="var(--g)" opacity="0.15" stroke="var(--g)" stroke-width="1"/>
+  <text x="553" y="162" text-anchor="middle" fill="var(--g)" font-weight="600" font-size="10">Major SSTable（列存基线）</text>
+
+  <text x="340" y="185" text-anchor="middle" fill="var(--fg)" font-size="10">OLTP 点查：先查 MemTable → Minor SSTable → Major SSTable（读路径合并）</text>
+  <text x="340" y="200" text-anchor="middle" fill="var(--muted)" font-size="10">OLAP 扫描：直接命中 Major SSTable 列存部分，SIMD 向量化加速；Major Compaction 后存储空间可节省 70%~90%</text>
+</svg>

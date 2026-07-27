@@ -104,41 +104,11 @@ MyBatis 核心工作流程分为**初始化阶段**和**执行阶段**：
 
 #### 初始化阶段（应用启动时）
 
-```
-读取 mybatis-config.xml + Mapper XML（或注解）
-  ↓
-SqlSessionFactoryBuilder.build()
-  ↓
-XMLConfigBuilder 解析配置 → Configuration 对象（全局唯一）
-  ↓
-XMLMapperBuilder 解析 Mapper → MappedStatement（每条 SQL 对应一个）
-  ↓
-构建 SqlSessionFactory（DefaultSqlSessionFactory）
-```
+![MyBatis 初始化流程](../../assets/database/mybatis-init-flow.svg)
 
 #### 执行阶段（每次 SQL 调用）
 
-```
-SqlSessionFactory.openSession()
-  ↓
-创建 SqlSession（DefaultSqlSession）+ 创建 Executor
-  ↓
-调用 Mapper 接口方法
-  ↓
-MapperProxy.invoke() → MapperMethod.execute()
-  ↓
-Executor.query() / update()
-  ↓
-StatementHandler 创建 PreparedStatement
-  ↓
-ParameterHandler 设置参数（调用 TypeHandler）
-  ↓
-执行 JDBC，获取 ResultSet
-  ↓
-ResultSetHandler 映射结果（调用 TypeHandler）
-  ↓
-返回 Java 对象
-```
+![MyBatis 执行流程（一次查询）](../../assets/database/mybatis-exec-flow.svg)
 
 #### 核心组件职责
 

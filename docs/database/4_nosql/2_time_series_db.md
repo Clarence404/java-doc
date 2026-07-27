@@ -257,7 +257,159 @@ influx query --sql 'SELECT * FROM sensor'
 
 ## 二、Prometheus
 
-* **官网地址**：[https://prometheus.io](https://prometheus.io)
+官网：[https://prometheus.io](https://prometheus.io)
+
+Prometheus 是云原生监控领域的事实标准，CNCF 毕业项目，配合 Grafana 提供完整的监控告警体系。
+
+### 1、数据模型
+
+Prometheus 以**时间序列**为核心，每条序列由 **metric 名称 + label 集合**唯一标识：
+
+```
+<metric_name>{<label_name>=<label_value>, ...}  →  [(timestamp, value), ...]
+```
+
+**示例**：
+
+```
+# HTTP 请求总数（Counter）
+http_requests_total{method="POST", handler="/api/orders", status="200"} 3492
+
+# 内存使用（Gauge）
+process_resident_memory_bytes{job="app"} 134217728
+
+# 请求延迟分布（Histogram）
+http_request_duration_seconds_bucket{le="0.1"} 523
+http_request_duration_seconds_bucket{le="0.5"} 1024
+http_request_duration_seconds_count 1051
+http_request_duration_seconds_sum 204.3
+```
+
+### 2、四种 Metric 类型
+
+| 类型 | 描述 | 典型用途 |
+|------|------|---------|
+| **Counter** | 只增不减的计数器（重启归零）| 请求总数、错误总数、处理字节数 |
+| **Gauge** | 可升可降的当前值 | 内存使用量、在线连接数、队列长度 |
+| **Histogram** | 采样并按桶分组，计算百分位 | 请求延迟分布、响应包大小 |
+| **Summary** | 客户端计算百分位，精确但无法聚合 | 低基数场景的精确百分位 |
+
+### 3、PromQL 常用查询
+
+```promql
+# 请求速率（5分钟内每秒请求数）
+rate(http_requests_total{job="app"}[5m])
+
+# 错误率
+rate(http_requests_total{status=~"5.."}[5m]) 
+  / rate(http_requests_total[5m])
+
+# 99th 百分位延迟（Histogram）
+histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
+
+# 服务实例 CPU 使用率（Top 5）
+topk(5, rate(process_cpu_seconds_total[5m]))
+
+# 内存超过 1GB 的实例
+process_resident_memory_bytes > 1073741824
+```
+
+### 4、Spring Boot 集成（Micrometer）
+
+```xml
+<!-- Spring Boot Actuator + Prometheus 导出 -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+<dependency>
+  <groupId>io.micrometer</groupId>
+  <artifactId>micrometer-registry-prometheus</artifactId>
+</dependency>
+```
+
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,info
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+```
+
+访问 `http://localhost:8080/actuator/prometheus` 即可看到所有指标，Prometheus 定时抓取（scrape）该端点。
+
+```java
+// 自定义 Meter
+@Component
+public class OrderMetrics {
+    private final Counter orderCreated;
+    private final Timer orderProcessTime;
+
+    public OrderMetrics(MeterRegistry registry) {
+        orderCreated = Counter.builder("order.created.total")
+            .description("订单创建总数")
+            .tag("channel", "web")
+            .register(registry);
+
+        orderProcessTime = Timer.builder("order.process.seconds")
+            .description("订单处理耗时")
+            .register(registry);
+    }
+
+    public void recordOrder(Runnable task) {
+        orderCreated.increment();
+        orderProcessTime.record(task);
+    }
+}
+```
+
+### 5、Prometheus 抓取配置
+
+```yaml
+# prometheus.yml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'spring-app'
+    static_configs:
+      - targets: ['app1:8080', 'app2:8080']
+    metrics_path: /actuator/prometheus
+
+  - job_name: 'mysql-exporter'
+    static_configs:
+      - targets: ['mysql-exporter:9104']
+```
+
+### 6、告警规则示例
+
+```yaml
+# alert_rules.yml
+groups:
+  - name: app-alerts
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} 错误率超过 5%"
+
+      - alert: HighP99Latency
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "P99 延迟超过 1s"
+```
 
 ---
 
@@ -265,8 +417,67 @@ influx query --sql 'SELECT * FROM sensor'
 
 ### 1、TDengine
 
-* **官网地址**：[https://www.taosdata.com](https://www.taosdata.com)
+官网：[https://www.taosdata.com](https://www.taosdata.com)
+
+涛思数据开源的高性能时序数据库，针对 IoT 和工业场景深度优化。
+
+**核心特性**：
+- **超级表（STable）**：用一张逻辑大表表示同类型设备，每台设备是一个子表，schema 一致，查询可跨子表聚合
+- **写入性能**：单机可达千万 TPS（测试值），依托列式存储 + 时间戳主键压缩
+- **内置计算**：支持 `LAST_ROW`、时间窗口聚合（`INTERVAL`）、数据插补（`FILL`）等时序专属函数
+- **数据保留策略**：按表/库设置 `KEEP` 自动过期删除
+
+```sql
+-- 创建超级表（一类设备的模板）
+CREATE STABLE meters (ts TIMESTAMP, current FLOAT, voltage INT, phase FLOAT)
+  TAGS (location BINARY(64), groupid INT);
+
+-- 创建子表（一台具体设备）
+CREATE TABLE d1001 USING meters TAGS ("Beijing.Chaoyang", 2);
+
+-- 写入数据
+INSERT INTO d1001 VALUES (NOW, 10.3, 219, 0.31);
+
+-- 跨设备聚合（按 location 统计平均电流）
+SELECT location, AVG(current) FROM meters
+WHERE ts > NOW - 1h GROUP BY location;
+```
+
+**适用场景**：工业 IoT、智能电网、车联网、APM 监控
 
 ### 2、IoTDB（Apache IoTDB）
 
-* **官网地址**：[https://iotdb.apache.org](https://iotdb.apache.org)
+官网：[https://iotdb.apache.org](https://iotdb.apache.org)
+
+Apache 顶级项目，清华大学主导开发，专为工业物联网设计的时序数据库，与 Hadoop/Spark 生态深度集成。
+
+**核心特性**：
+- **树状存储模型**：`root.plant.device.sensor` 层次化命名，对应工厂→设备→传感器的物理拓扑
+- **TsFile 格式**：列式存储，支持按时间范围高效查询，可直接导出供 Spark/Flink 分析
+- **边缘-云协同**：轻量级部署在边缘节点，定期将 TsFile 同步到云端 IoTDB 集群
+- **SQL 支持**：兼容标准 SQL 语法 + 时序扩展（`FILL`、滑动窗口、对齐时间序列）
+
+```sql
+-- 创建时间序列
+CREATE TIMESERIES root.plant1.device1.temperature WITH DATATYPE=FLOAT, ENCODING=RLE;
+
+-- 写入数据
+INSERT INTO root.plant1.device1(timestamp, temperature) VALUES(NOW(), 36.5);
+
+-- 时间窗口聚合（每 10 分钟平均温度）
+SELECT AVG(temperature) FROM root.plant1.device1
+GROUP BY ([2024-01-01, 2024-01-02), 10m);
+```
+
+**适用场景**：工业制造、智慧城市、能源管理、边云协同 IoT
+
+### 3、时序数据库选型对比
+
+| 维度 | InfluxDB | Prometheus | TDengine | IoTDB |
+|------|---------|-----------|----------|-------|
+| 开源协议 | MIT（1.x/2.x）/ 商业（3.x）| Apache 2.0 | AGPL 3.0 | Apache 2.0 |
+| 主要场景 | 通用时序 / DevOps | 监控告警 | IoT / 工业 | 工业 IoT / 边云协同 |
+| 集群支持 | 商业版 | 联邦 / Thanos | 开源支持 | 开源支持 |
+| SQL 支持 | InfluxQL / Flux / SQL | PromQL | SQL 方言 | SQL 扩展 |
+| 生态集成 | Telegraf / Grafana | Alertmanager / Grafana | 全套组件 | Hadoop / Spark |
+| 国内使用 | 较广泛 | 云原生主流 | 工业 IoT 主流 | 工业领域增长中 |

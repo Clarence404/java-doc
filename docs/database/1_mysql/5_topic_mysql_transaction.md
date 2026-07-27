@@ -54,15 +54,7 @@
 
 ### 两阶段提交（redo log + binlog 一致性）
 
-```
-① 写 redo log（prepare 状态）
-② 写 binlog
-③ redo log 标记 commit
-```
-
-崩溃恢复规则：
-- redo log prepare + binlog 完整 → 提交
-- redo log prepare + binlog 不完整 → 回滚
+![undo log / redo log 两阶段提交流程](../../assets/mysql/mysql-two-phase-commit.svg)
 
 ---
 
@@ -79,38 +71,27 @@ InnoDB 每行记录隐式携带：
 | `trx_id` | 最近一次修改此行的事务 ID |
 | `roll_pointer` | 指向 undo log 中的上一个版本 |
 
-### 版本链
+### 版本链 与 Read View 可见性
 
-每次 UPDATE 不直接覆盖原行，而是写入新版本，旧版本通过 `roll_pointer` 串联：
+每次 UPDATE 不直接覆盖原行，而是写入新版本，旧版本通过 `roll_pointer` 串联。事务执行**快照读**时生成 Read View，通过四字段判断每个版本是否可见：
 
+![MVCC 版本链与 Read View 可见性判断](../../assets/mysql/mysql-mvcc-version-chain.svg)
+
+**可见性判断伪代码：**
+
+```python
+if trx_id == creator_trx_id:   # 自己改的
+    可见
+elif trx_id < min_trx_id:      # Read View 生成前已提交
+    可见
+elif trx_id >= max_trx_id:     # Read View 生成后才开始
+    不可见
+elif trx_id in m_ids:          # 生成时还未提交
+    不可见
+else:                           # 已提交的并发事务
+    可见
+# 不可见 → 沿 roll_ptr 继续向前找
 ```
-当前行 [trx_id=100] → undo版本[trx_id=80] → undo版本[trx_id=60] → ...
-```
-
-### Read View（快照）
-
-事务执行**快照读**时生成 Read View，包含四个字段：
-
-| 字段 | 含义 |
-|------|------|
-| `m_ids` | 生成 Read View 时，当前**活跃（未提交）**的事务 ID 列表 |
-| `min_trx_id` | `m_ids` 中的最小值 |
-| `max_trx_id` | 生成 Read View 时下一个待分配的事务 ID（即 **当前最大 + 1**） |
-| `creator_trx_id` | 创建此 Read View 的事务自身 ID |
-
-### 可见性判断规则
-
-遍历版本链，对每个版本的 `trx_id` 判断：
-
-```
-if trx_id == creator_trx_id        → 可见（自己改的）
-elif trx_id < min_trx_id           → 可见（Read View 生成前已提交）
-elif trx_id >= max_trx_id          → 不可见（Read View 生成后才开始）
-elif trx_id in m_ids               → 不可见（生成时还未提交）
-else                               → 可见（已提交的并发事务）
-```
-
-找不到可见版本则继续沿链向前，直到找到或链尾（返回空）。
 
 ### RC vs RR 的本质差异
 
@@ -138,19 +119,9 @@ else                               → 可见（已提交的并发事务）
 - **IX**（意向排他锁）：加行级 X 锁前先加 IX
 - 意向锁之间完全兼容，只与**表级** S/X 锁冲突
 
-### 行锁的三种形态
+### 行锁的三种形态 与 Next-Key Lock 区间
 
-| 锁名 | 锁定范围 | 作用 |
-|------|---------|------|
-| **Record Lock** | 单条索引记录 | 锁住具体一行 |
-| **Gap Lock** | 两条索引记录**之间**的间隙（不含记录本身） | 阻止在间隙内插入，防幻读 |
-| **Next-Key Lock** | Gap Lock + Record Lock（左开右闭区间） | RR 级别默认行锁形态 |
-
-```
-假设索引值为：10, 20, 30
-Next-Key Lock 区间划分：
-  (-∞, 10]   (10, 20]   (20, 30]   (30, +∞)
-```
+![行锁三种形态与 Next-Key Lock 区间划分](../../assets/mysql/mysql-next-key-lock.svg)
 
 **退化规则**：
 - 等值查询**命中**记录 → Next-Key Lock 退化为 Record Lock
@@ -173,12 +144,7 @@ SELECT * FROM order WHERE id > 10 AND id < 20 FOR UPDATE;
 
 **产生场景**：两个事务互相持有对方需要的锁。
 
-```
-事务A: UPDATE t SET ... WHERE id = 1   ← 持有 id=1 的锁
-事务B: UPDATE t SET ... WHERE id = 2   ← 持有 id=2 的锁
-事务A: UPDATE t SET ... WHERE id = 2   ← 等待事务B
-事务B: UPDATE t SET ... WHERE id = 1   ← 等待事务A  → 死锁
-```
+![死锁场景：两事务交叉持有锁](../../assets/mysql/mysql-deadlock.svg)
 
 **InnoDB 处理**：后台自动检测死锁，选代价最小的事务回滚并抛出 `ERROR 1213: Deadlock found`。
 
