@@ -54,9 +54,11 @@ const navbarDropdown = [
     {
         text: '框架生态',
         children: [
-            {text: 'Spring',      link: '/spring/0_spring_framework'},
-            {text: 'Spring Boot', link: '/spring-boot/0_spring_boot'},
-            {text: 'Netty',       link: '/netty/0_stick_split'},
+            {text: 'Spring',          link: '/spring/0_spring_framework'},
+            {text: 'Spring Boot',     link: '/spring-boot/0_spring_boot'},
+            {text: 'Spring Cloud',    link: '/spring-cloud/0_overview'},
+            {text: 'Spring Security', link: '/spring/9_spring_security'},
+            {text: 'Netty',           link: '/netty/0_stick_split'},
         ],
     },
     {
@@ -238,6 +240,7 @@ export default defineUserConfig({
             '/jvm/': getSidebarFromDir(path.resolve(__dirname, '../jvm')),
             '/spring/': getSidebarFromDir(path.resolve(__dirname, '../spring')),
             '/spring-boot/': getSidebarFromDir(path.resolve(__dirname, '../spring-boot')),
+            '/spring-cloud/': getSidebarFromDir(path.resolve(__dirname, '../spring-cloud')),
             '/microservices/': getSidebarFromDir(path.resolve(__dirname, '../microservices')),
             '/messaging/': getSidebarFromDir(path.resolve(__dirname, '../messaging')),
             '/high-con/': getSidebarFromDir(path.resolve(__dirname, '../high-con')),

@@ -12,16 +12,7 @@
 - 通过轻量级 API（REST / gRPC / 消息队列）与其他服务通信
 - 可独立开发、测试、部署、扩展
 
-```
-单体应用                      微服务架构
-┌─────────────────────┐       ┌──────────┐  ┌──────────┐
-│  用户模块             │       │ 用户服务   │  │ 商品服务   │
-│  商品模块             │  →    └──────────┘  └──────────┘
-│  订单模块             │       ┌──────────┐  ┌──────────┐
-│  支付模块             │       │ 订单服务   │  │ 支付服务   │
-└─────────────────────┘       └──────────┘  └──────────┘
-  一个进程，统一部署               每个服务独立部署，独立扩展
-```
+![单体应用 vs 微服务架构](../assets/microservices/monolith-vs-microservices.svg)
 
 ---
 
@@ -68,13 +59,21 @@
 
 ## 五、相关章节导航
 
+**微服务架构理念（本模块）**
+
 | 主题 | 链接 |
 |------|------|
 | 优劣势与单体迁移 | [优势和挑战](./1_pros_and_cons.md) |
-| 核心组件全景 | [核心组件](./2_core_component.md) |
-| 服务注册与发现 | [服务注册与发现](./3_service_registry.md) |
-| API 网关 | [API 网关](./4_api_gateway.md) |
-| 服务间通信 | [服务间通信](./5_communication.md) |
-| 配置中心 | [配置中心](./6_config_center.md) |
-| 设计模式 | [微服务设计模式](./8_patterns.md) |
-| 服务网格 | [服务网格](./9_service_mesh.md) |
+| 微服务设计模式 | [设计模式](./2_patterns.md) |
+| 服务网格 | [服务网格](./3_service_mesh.md) |
+
+**Spring Cloud 技术实现（独立模块）**
+
+| 主题 | 链接 |
+|------|------|
+| 核心组件全景 | [Spring Cloud 总览](../spring-cloud/0_overview.md) |
+| 服务注册与发现 | [服务注册与发现](../spring-cloud/1_service_registry.md) |
+| API 网关 | [API 网关](../spring-cloud/2_api_gateway.md) |
+| 服务间通信 | [服务间通信](../spring-cloud/3_communication.md) |
+| 配置中心 | [配置中心](../spring-cloud/4_config_center.md) |
+| 服务治理 | [服务治理](../spring-cloud/5_service_governance.md) |
