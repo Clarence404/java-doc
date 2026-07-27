@@ -57,7 +57,6 @@ const navbarDropdown = [
             {text: 'Spring',      link: '/spring/0_spring_framework'},
             {text: 'Spring Boot', link: '/spring-boot/0_spring_boot'},
             {text: 'Netty',       link: '/netty/0_stick_split'},
-            {text: '测试体系',     link: '/testing/0_testing_intro'},
         ],
     },
     {
@@ -75,23 +74,18 @@ const navbarDropdown = [
             {text: '高并发', link: '/high-con/0_juc'},
             {text: '高可用', link: '/high-avail/0_overview'},
             {text: '微服务', link: '/microservices/0_overview'},
-        ],
-    },
-    {
-        text: '架构设计',
-        children: [
             {text: '系统架构', link: '/architecture/0_overview'},
-            {text: '业务场景', link: '/scenario/0_scene'},
+            {text: '协议体系', link: '/protocols/0_overview'},
         ],
     },
     {
-        text: '工程运维',
+        text: '工程实践',
         children: [
             {text: '云原生',   link: '/cloud-native/0_linux'},
             {text: 'DevOps',  link: '/devops/0_overview'},
             {text: '工程效率', link: '/engineering/0_overview'},
             {text: '可观测性', link: '/observability/0_observability'},
-            {text: '协议体系', link: '/protocols/0_overview'},
+            {text: '测试体系', link: '/testing/0_testing_intro'},
         ],
     },
     {
@@ -110,10 +104,11 @@ const navbarDropdown = [
         ],
     },
     {
-        text: '新兴技术',
+        text: '垂直领域',
         children: [
-            {text: 'IoT', link: '/iot/0_base'},
-            {text: 'AI',  link: '/ai/0_ai'},
+            {text: 'IoT',     link: '/iot/0_base'},
+            {text: 'AI',      link: '/ai/0_ai'},
+            {text: '大数据场景', link: '/scenario/0_scene'},
         ],
     },
 ];
