@@ -59,13 +59,13 @@
   <text x="510" y="171" text-anchor="middle" fill="var(--muted)" font-size="10">（被事务 A 持有）</text>
 
   <!-- A holds id=1 -->
-  <line class="hold" x1="190" y1="100" x2="230" y2="98" stroke="var(--g)" marker-end="url(#ah)"/>
+  <line class="hold" x1="190" y1="100" x2="224" y2="98" stroke="var(--g)" marker-end="url(#ah)"/>
   <!-- B holds id=2 -->
-  <line class="hold" x1="430" y1="164" x2="330" y2="166" stroke="var(--g)" marker-end="url(#ah)"/>
+  <line class="hold" x1="430" y1="164" x2="324" y2="166" stroke="var(--g)" marker-end="url(#ah)"/>
   <!-- A waits for id=2 -->
-  <line class="wait" x1="190" y1="148" x2="230" y2="158" stroke="var(--r)" marker-end="url(#aw)"/>
+  <line class="wait" x1="190" y1="148" x2="224" y2="158" stroke="var(--r)" marker-end="url(#aw)"/>
   <!-- B waits for id=1 -->
-  <line class="wait" x1="430" y1="108" x2="330" y2="98" stroke="var(--r)" marker-end="url(#aw)"/>
+  <line class="wait" x1="430" y1="108" x2="324" y2="98" stroke="var(--r)" marker-end="url(#aw)"/>
 
   <!-- Legend -->
   <line x1="30" y1="212" x2="60" y2="212" stroke="var(--g)" stroke-width="2" marker-end="url(#ah)"/>
@@ -74,7 +74,7 @@
   <text x="176" y="216" fill="var(--fg)" font-size="11">等待锁（阻塞）</text>
 
   <!-- InnoDB resolution -->
-  <rect x="280" y="200" width="300" height="36" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <rect x="280" y="200" width="300" height="48" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
   <text x="430" y="216" text-anchor="middle" fill="var(--r)" font-weight="700" font-size="12">InnoDB 自动检测死锁</text>
   <text x="430" y="232" text-anchor="middle" fill="var(--fg)" font-size="11">回滚代价较小的事务，抛出 ERROR 1213</text>
 </svg>

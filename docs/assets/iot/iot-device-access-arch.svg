@@ -29,7 +29,7 @@
   <text class="sub" x="65" y="129" text-anchor="middle">MQTT / Modbus</text>
   <text class="sub" x="65" y="143" text-anchor="middle">/ HTTP</text>
 
-  <line class="arr" x1="120" y1="120" x2="158" y2="120" stroke="var(--muted)"/>
+  <line class="arr" x1="120" y1="120" x2="152" y2="120" stroke="var(--muted)"/>
 
   <!-- 接入网关 Netty -->
   <rect class="box" x="158" y="76" width="130" height="88" stroke="var(--b)"/>
@@ -38,14 +38,14 @@
   <text class="sub" x="223" y="137" text-anchor="middle">协议解析</text>
   <text class="sub" x="223" y="153" text-anchor="middle">设备认证</text>
 
-  <line class="arr" x1="288" y1="120" x2="326" y2="120" stroke="var(--muted)"/>
+  <line class="arr" x1="288" y1="120" x2="320" y2="120" stroke="var(--muted)"/>
 
   <!-- Kafka -->
   <rect class="box" x="326" y="90" width="100" height="60" stroke="var(--p)"/>
   <text class="lbl" x="376" y="116" text-anchor="middle" fill="var(--p)">Kafka</text>
   <text class="sub" x="376" y="133" text-anchor="middle">消息分发</text>
 
-  <line class="arr" x1="426" y1="120" x2="464" y2="120" stroke="var(--muted)"/>
+  <line class="arr" x1="426" y1="120" x2="458" y2="120" stroke="var(--muted)"/>
 
   <!-- 消息处理服务 -->
   <rect class="box" x="464" y="76" width="120" height="88" stroke="var(--g)"/>
@@ -55,17 +55,17 @@
   <text class="sub" x="524" y="154" text-anchor="middle">更新设备状态</text>
 
   <!-- → 时序DB -->
-  <line class="arr" x1="584" y1="96" x2="622" y2="56" stroke="var(--muted)"/>
+  <line class="arr" x1="584" y1="96" x2="616" y2="56" stroke="var(--muted)"/>
   <rect class="box" x="622" y="20" width="68" height="36" stroke="var(--b)"/>
   <text class="lbl" x="656" y="44" text-anchor="middle" fill="var(--b)" font-size="11">时序 DB</text>
 
   <!-- → 规则引擎 -->
-  <line class="arr" x1="584" y1="120" x2="622" y2="120" stroke="var(--muted)"/>
+  <line class="arr" x1="584" y1="120" x2="616" y2="120" stroke="var(--muted)"/>
   <rect class="box" x="622" y="102" width="68" height="36" stroke="var(--y)"/>
   <text class="lbl" x="656" y="126" text-anchor="middle" fill="var(--y)" font-size="11">规则引擎</text>
 
   <!-- → Redis -->
-  <line class="arr" x1="584" y1="148" x2="622" y2="184" stroke="var(--muted)"/>
+  <line class="arr" x1="584" y1="148" x2="616" y2="184" stroke="var(--muted)"/>
   <rect class="box" x="622" y="184" width="68" height="36" stroke="var(--r)"/>
   <text class="lbl" x="656" y="208" text-anchor="middle" fill="var(--r)" font-size="11">Redis 状态</text>
 </svg>

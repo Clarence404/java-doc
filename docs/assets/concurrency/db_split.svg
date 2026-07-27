@@ -38,7 +38,7 @@
   <text x="124" y="261" text-anchor="middle" font-size="11" fill="var(--r)">连接数瓶颈</text>
 
   <!-- Arrow -->
-  <line x1="204" y1="166" x2="270" y2="166" stroke="var(--p)" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+  <line x1="204" y1="166" x2="264" y2="166" stroke="var(--p)" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
   <text x="237" y="158" text-anchor="middle" font-size="11" fill="var(--p)">垂直拆分</text>
   <text x="237" y="178" text-anchor="middle" font-size="10" class="muted">按业务域</text>
 

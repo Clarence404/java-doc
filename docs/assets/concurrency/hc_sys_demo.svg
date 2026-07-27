@@ -37,7 +37,7 @@
   <text x="400" y="82" text-anchor="middle" font-size="11" class="muted">Nginx · 限流 · 熔断 · 鉴权</text>
 
   <!-- Arrow down -->
-  <line x1="400" y1="90" x2="400" y2="110" class="arr"/>
+  <line x1="400" y1="90" x2="400" y2="104" class="arr"/>
 
   <!-- Row 2: Services -->
   <rect x="44" y="110" width="130" height="44" rx="7" class="card"/>
@@ -61,11 +61,11 @@
   <text x="692" y="146" text-anchor="middle" font-size="11" class="muted">Pay Service</text>
 
   <!-- Arrows LB → services -->
-  <line x1="320" y1="90" x2="109" y2="110" class="arr" opacity="0.3"/>
-  <line x1="360" y1="90" x2="255" y2="110" class="arr" opacity="0.3"/>
-  <line x1="400" y1="90" x2="401" y2="110" class="arr" opacity="0.3"/>
-  <line x1="440" y1="90" x2="547" y2="110" class="arr" opacity="0.3"/>
-  <line x1="480" y1="90" x2="692" y2="110" class="arr" opacity="0.3"/>
+  <line x1="320" y1="90" x2="109" y2="104" class="arr" opacity="0.3"/>
+  <line x1="360" y1="90" x2="255" y2="104" class="arr" opacity="0.3"/>
+  <line x1="400" y1="90" x2="401" y2="104" class="arr" opacity="0.3"/>
+  <line x1="440" y1="90" x2="547" y2="104" class="arr" opacity="0.3"/>
+  <line x1="480" y1="90" x2="692" y2="104" class="arr" opacity="0.3"/>
 
   <!-- Row 3: Cache + MQ -->
   <rect x="44" y="196" width="360" height="52" rx="8" fill="var(--y)" opacity="0.1" stroke="var(--y)" stroke-width="1.5"/>
@@ -95,12 +95,12 @@
   <text x="657" y="334" text-anchor="middle" font-size="11" class="muted">order_0 … order_N</text>
 
   <!-- Replication arrow -->
-  <line x1="284" y1="318" x2="308" y2="318" stroke="var(--b)" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <line x1="284" y1="318" x2="302" y2="318" stroke="var(--b)" stroke-width="2" fill="none" marker-end="url(#a)"/>
   <text x="296" y="312" text-anchor="middle" font-size="10" class="muted">复制</text>
 
   <!-- Cache/MQ → DB -->
-  <line x1="164" y1="248" x2="164" y2="290" class="arr" opacity="0.35"/>
-  <line x1="588" y1="248" x2="480" y2="290" class="arr" stroke-dasharray="4 3" opacity="0.3"/>
+  <line x1="164" y1="248" x2="164" y2="284" class="arr" opacity="0.35"/>
+  <line x1="588" y1="248" x2="480" y2="284" class="arr" stroke-dasharray="4 3" opacity="0.3"/>
 
   <!-- Row 5: Monitor -->
   <rect x="44" y="382" width="712" height="30" rx="6" fill="var(--g)" opacity="0.08" stroke="var(--g)" stroke-width="1"/>

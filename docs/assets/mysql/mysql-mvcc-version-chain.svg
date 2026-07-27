@@ -33,7 +33,7 @@
   <text x="89" y="70" text-anchor="middle" fill="var(--b)" font-weight="600">当前行</text>
   <text x="89" y="86" text-anchor="middle" fill="var(--fg)">trx_id = 100</text>
 
-  <line class="arr" x1="164" y1="76" x2="200" y2="76" stroke="var(--muted)"/>
+  <line class="arr" x1="164" y1="76" x2="194" y2="76" stroke="var(--muted)"/>
   <text x="182" y="68" text-anchor="middle" fill="var(--muted)" font-size="10">roll_ptr</text>
 
   <!-- Version 2 -->
@@ -41,7 +41,7 @@
   <text x="275" y="70" text-anchor="middle" fill="var(--y)" font-weight="600">undo 版本 2</text>
   <text x="275" y="86" text-anchor="middle" fill="var(--fg)">trx_id = 80</text>
 
-  <line class="arr" x1="350" y1="76" x2="386" y2="76" stroke="var(--muted)"/>
+  <line class="arr" x1="350" y1="76" x2="380" y2="76" stroke="var(--muted)"/>
   <text x="368" y="68" text-anchor="middle" fill="var(--muted)" font-size="10">roll_ptr</text>
 
   <!-- Version 1 -->
@@ -68,19 +68,19 @@
   <!-- ===== VISIBILITY RULES ===== -->
   <text class="ttl" x="14" y="218" fill="var(--g)">可见性判断（对版本链每个 trx_id 逐一检查）</text>
 
-  <rect class="box" x="14" y="226" width="210" height="60" stroke="var(--g)"/>
+  <rect class="box" x="14" y="226" width="210" height="72" stroke="var(--g)"/>
   <text x="119" y="242" text-anchor="middle" fill="var(--g)" font-weight="600">可见</text>
   <text x="119" y="258" text-anchor="middle" fill="var(--fg)" font-size="11">= creator_trx_id（自己改的）</text>
   <text x="119" y="272" text-anchor="middle" fill="var(--fg)" font-size="11">&lt; min_trx_id（已提交的旧事务）</text>
   <text x="119" y="286" text-anchor="middle" fill="var(--fg)" font-size="11">不在 m_ids 且 &lt; max_trx_id</text>
 
-  <rect class="box" x="250" y="226" width="210" height="60" stroke="var(--r)"/>
+  <rect class="box" x="250" y="226" width="210" height="72" stroke="var(--r)"/>
   <text x="355" y="242" text-anchor="middle" fill="var(--r)" font-weight="600">不可见</text>
   <text x="355" y="258" text-anchor="middle" fill="var(--fg)" font-size="11">≥ max_trx_id（快照后才开始）</text>
   <text x="355" y="272" text-anchor="middle" fill="var(--fg)" font-size="11">在 m_ids 中（生成时未提交）</text>
   <text x="355" y="286" text-anchor="middle" fill="var(--muted)" font-size="11">→ 沿 roll_ptr 继续向前找</text>
 
-  <rect class="box" x="486" y="226" width="208" height="60" stroke="var(--y)"/>
+  <rect class="box" x="486" y="226" width="208" height="72" stroke="var(--y)"/>
   <text x="590" y="242" text-anchor="middle" fill="var(--y)" font-weight="600">RC vs RR 差异</text>
   <text x="590" y="258" text-anchor="middle" fill="var(--fg)" font-size="11">RC：每次快照读重新生成 RV</text>
   <text x="590" y="272" text-anchor="middle" fill="var(--fg)" font-size="11">RR：复用同一个 Read View</text>

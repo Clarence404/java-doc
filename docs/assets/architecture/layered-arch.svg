@@ -30,7 +30,7 @@
   <text x="380" y="47" class="layer-desc">处理 HTTP 请求，参数校验，DTO 转换</text>
 
   <!-- Arrow -->
-  <line x1="190" y1="64" x2="190" y2="76" class="arrow"/>
+  <line x1="190" y1="64" x2="190" y2="70" class="arrow"/>
 
   <!-- Layer 2: Service -->
   <rect x="30" y="76" width="320" height="44" rx="6" fill="var(--b)" fill-opacity="0.15" stroke="var(--b)" stroke-width="1.5"/>
@@ -38,7 +38,7 @@
   <text x="380" y="103" class="layer-desc">业务逻辑编排，事务边界</text>
 
   <!-- Arrow -->
-  <line x1="190" y1="120" x2="190" y2="132" class="arrow"/>
+  <line x1="190" y1="120" x2="190" y2="126" class="arrow"/>
 
   <!-- Layer 3: Repository -->
   <rect x="30" y="132" width="320" height="44" rx="6" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
@@ -46,7 +46,7 @@
   <text x="380" y="159" class="layer-desc">数据访问，屏蔽 ORM 细节</text>
 
   <!-- Arrow -->
-  <line x1="190" y1="176" x2="190" y2="188" class="arrow"/>
+  <line x1="190" y1="176" x2="190" y2="182" class="arrow"/>
 
   <!-- Layer 4: Domain -->
   <rect x="30" y="188" width="320" height="40" rx="6" fill="var(--y)" fill-opacity="0.15" stroke="var(--y)" stroke-width="1.5"/>

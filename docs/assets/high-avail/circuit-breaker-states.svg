@@ -42,19 +42,19 @@
   <text class="sub" x="360" y="240" text-anchor="middle">（探测放行中）</text>
 
   <!-- Closed → Open (top) -->
-  <path class="arrow" d="M190,135 L530,135" stroke="var(--r)"/>
+  <path class="arrow" d="M190,135 L524,135" stroke="var(--r)"/>
   <text class="edge-label" x="360" y="125" text-anchor="middle">失败率 / 慢调用率超阈值</text>
 
   <!-- Open → Half-Open (right side down) -->
-  <path class="arrow" d="M605,170 Q605,225 435,225" stroke="var(--y)"/>
+  <path class="arrow" d="M605,170 Q605,225 441,225" stroke="var(--y)"/>
   <text class="edge-label" x="560" y="220" text-anchor="middle">等待恢复</text>
   <text class="edge-label" x="560" y="233" text-anchor="middle">时间窗口到期</text>
 
   <!-- Half-Open → Closed (bottom left) -->
-  <path class="arrow" d="M285,240 Q115,240 115,170" stroke="var(--g)"/>
+  <path class="arrow" d="M285,240 Q115,240 115,176" stroke="var(--g)"/>
   <text class="edge-label" x="170" y="262" text-anchor="middle">探测成功</text>
 
   <!-- Half-Open → Open (up right) -->
-  <path class="arrow" d="M435,200 Q435,160 530,150" stroke="var(--r)"/>
+  <path class="arrow" d="M435,200 Q435,160 524,150" stroke="var(--r)"/>
   <text class="edge-label" x="490" y="178" text-anchor="middle">探测失败</text>
 </svg>

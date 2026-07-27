@@ -31,7 +31,7 @@
   <text x="80" y="73" text-anchor="middle" fill="var(--muted)" font-size="10">BEGIN / DML / COMMIT</text>
 
   <!-- Arrow to InnoDB -->
-  <line class="arr" x1="140" y1="63" x2="175" y2="63" stroke="var(--muted)"/>
+  <line class="arr" x1="140" y1="63" x2="169" y2="63" stroke="var(--muted)"/>
 
   <!-- InnoDB Engine -->
   <rect class="box" x="175" y="35" width="230" height="56" stroke="var(--b)"/>
@@ -48,14 +48,14 @@
   <text x="130" y="146" text-anchor="middle" fill="var(--b)" font-weight="600" font-size="11">① redo log（prepare）</text>
   <text x="130" y="162" text-anchor="middle" fill="var(--fg)" font-size="10">顺序写磁盘，WAL 保证持久</text>
 
-  <line class="arr" x1="210" y1="150" x2="260" y2="150" stroke="var(--muted)"/>
+  <line class="arr" x1="210" y1="150" x2="254" y2="150" stroke="var(--muted)"/>
 
   <!-- binlog -->
   <rect class="box" x="260" y="130" width="160" height="40" stroke="var(--y)"/>
   <text x="340" y="146" text-anchor="middle" fill="var(--y)" font-weight="600" font-size="11">② 写 binlog</text>
   <text x="340" y="162" text-anchor="middle" fill="var(--fg)" font-size="10">Server 层日志，用于复制/恢复</text>
 
-  <line class="arr" x1="420" y1="150" x2="470" y2="150" stroke="var(--muted)"/>
+  <line class="arr" x1="420" y1="150" x2="464" y2="150" stroke="var(--muted)"/>
 
   <!-- Phase 2 -->
   <rect class="box" x="470" y="130" width="160" height="40" stroke="var(--g)"/>
@@ -63,7 +63,7 @@
   <text x="550" y="162" text-anchor="middle" fill="var(--fg)" font-size="10">标记提交完成</text>
 
   <!-- Crash Recovery Rules -->
-  <rect class="note" x="50" y="195" width="580" height="52" stroke="var(--border)"/>
+  <rect class="note" x="50" y="195" width="580" height="64" stroke="var(--border)"/>
   <text x="340" y="212" text-anchor="middle" fill="var(--fg)" font-weight="700" font-size="12">崩溃恢复规则</text>
   <text x="340" y="228" text-anchor="middle" fill="var(--g)" font-size="11">redo(prepare) + binlog 完整 → 重新提交 ✅</text>
   <text x="340" y="243" text-anchor="middle" fill="var(--r)" font-size="11">redo(prepare) + binlog 不完整 → 回滚 ✅</text>

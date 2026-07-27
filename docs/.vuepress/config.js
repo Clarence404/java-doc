@@ -57,7 +57,6 @@ const navbarDropdown = [
             {text: 'Spring',          link: '/spring/0_spring_framework'},
             {text: 'Spring Boot',     link: '/spring-boot/0_spring_boot'},
             {text: 'Spring Cloud',    link: '/spring-cloud/0_overview'},
-            {text: 'Spring Security', link: '/spring/9_spring_security'},
             {text: 'Netty',           link: '/netty/0_stick_split'},
         ],
     },

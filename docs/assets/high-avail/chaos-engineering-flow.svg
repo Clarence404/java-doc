@@ -63,6 +63,6 @@
   <line class="arr" x1="550" y1="110" x2="578" y2="110" stroke="var(--muted)"/>
 
   <!-- Feedback loop -->
-  <path class="arr" d="M645,150 Q645,190 75,190 Q75,152 75,150" stroke="var(--p)" stroke-dasharray="5,3"/>
+  <path class="arr" d="M645,150 Q645,190 75,190 Q75,158 75,156" stroke="var(--p)" stroke-dasharray="5,3"/>
   <text x="360" y="205" text-anchor="middle" fill="var(--muted)" font-size="10">持续迭代，提升系统韧性</text>
 </svg>

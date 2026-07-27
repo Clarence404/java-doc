@@ -50,7 +50,7 @@
   <rect x="380" y="142" width="140" height="44" rx="8" fill="var(--p)"/>
   <text x="450" y="161" text-anchor="middle" font-size="13" font-weight="600" fill="white">用户请求</text>
   <text x="450" y="178" text-anchor="middle" font-size="11" fill="white" opacity="0.85">Web / App / API</text>
-  <line x1="450" y1="186" x2="450" y2="208" class="arrow-blue"/>
+  <line x1="450" y1="186" x2="450" y2="202" class="arrow-blue"/>
   <rect x="310" y="208" width="280" height="44" rx="8" class="card"/>
   <rect x="310" y="208" width="8" height="44" rx="4" fill="var(--b)"/>
   <text x="462" y="228" text-anchor="middle" font-size="13">负载均衡 / API Gateway</text>
@@ -79,11 +79,11 @@
   <rect x="760" y="300" width="100" height="6" rx="3" fill="var(--g)"/>
   <text x="810" y="326" text-anchor="middle" font-size="13">支付</text>
   <text x="810" y="344" text-anchor="middle" font-size="11" class="muted">Pay</text>
-  <path d="M370,272 L120,300" class="arrow" opacity="0.4"/>
-  <path d="M400,272 L300,300" class="arrow" opacity="0.4"/>
-  <line x1="450" y1="272" x2="480" y2="300" class="arrow" opacity="0.4"/>
-  <path d="M500,272 L660,300" class="arrow" opacity="0.4"/>
-  <path d="M520,272 L810,300" class="arrow" opacity="0.4"/>
+  <path d="M370,272 L120,294" class="arrow" opacity="0.4"/>
+  <path d="M400,272 L300,294" class="arrow" opacity="0.4"/>
+  <line x1="450" y1="272" x2="480" y2="294" class="arrow" opacity="0.4"/>
+  <path d="M500,272 L660,294" class="arrow" opacity="0.4"/>
+  <path d="M520,272 L810,294" class="arrow" opacity="0.4"/>
 
   <!-- ─── 缓存层 ─── -->
   <text x="450" y="390" text-anchor="middle" font-size="12" font-weight="700" class="muted">── 缓存层 ──</text>
@@ -100,8 +100,8 @@
   <rect x="620" y="410" width="8" height="52" rx="4" fill="var(--y)"/>
   <text x="748" y="432" text-anchor="middle" font-size="13">CDN</text>
   <text x="748" y="450" text-anchor="middle" font-size="11" class="muted">静态资源就近分发</text>
-  <line x1="300" y1="356" x2="280" y2="410" class="arrow" opacity="0.35"/>
-  <line x1="480" y1="356" x2="448" y2="410" class="arrow" opacity="0.35"/>
+  <line x1="300" y1="356" x2="280" y2="404" class="arrow" opacity="0.35"/>
+  <line x1="480" y1="356" x2="448" y2="404" class="arrow" opacity="0.35"/>
 
   <!-- ─── MQ层 ─── -->
   <text x="450" y="510" text-anchor="middle" font-size="12" font-weight="700" class="muted">── 异步消息层 ──</text>
@@ -112,8 +112,8 @@
   <text x="448" y="568" text-anchor="middle" font-size="11" class="muted">Kafka / RocketMQ — 异步削峰解耦</text>
   <text x="200" y="548" text-anchor="middle" font-size="11" class="muted">Producer →</text>
   <text x="700" y="548" text-anchor="middle" font-size="11" class="muted">→ Consumer</text>
-  <line x1="480" y1="356" x2="480" y2="528" class="arrow" stroke-dasharray="4 3" opacity="0.35"/>
-  <line x1="660" y1="356" x2="560" y2="528" class="arrow" stroke-dasharray="4 3" opacity="0.35"/>
+  <line x1="480" y1="356" x2="480" y2="522" class="arrow" stroke-dasharray="4 3" opacity="0.35"/>
+  <line x1="660" y1="356" x2="560" y2="522" class="arrow" stroke-dasharray="4 3" opacity="0.35"/>
 
   <!-- ─── 数据层 ─── -->
   <text x="450" y="628" text-anchor="middle" font-size="12" font-weight="700" class="muted">── 数据层（分库分表 + 读写分离）──</text>
@@ -136,14 +136,14 @@
   <rect x="466" y="714" width="204" height="36" rx="6" class="card"/>
   <text x="568" y="729" text-anchor="middle" font-size="12">从库 N（水平扩展）</text>
   <text x="568" y="744" text-anchor="middle" font-size="11" class="muted">按读压力动态增加</text>
-  <line x1="400" y1="703" x2="450" y2="703" class="arrow-blue"/>
+  <line x1="400" y1="703" x2="444" y2="703" class="arrow-blue"/>
   <text x="425" y="697" text-anchor="middle" font-size="10" class="muted">主从</text>
   <text x="425" y="712" text-anchor="middle" font-size="10" class="muted">复制</text>
   <text x="100" y="703" text-anchor="middle" font-size="11" fill="var(--b)">写请求 →</text>
-  <line x1="140" y1="700" x2="160" y2="700" class="arrow-blue"/>
+  <line x1="140" y1="700" x2="154" y2="700" class="arrow-blue"/>
   <line x1="700" y1="700" x2="730" y2="700" stroke="var(--g)" stroke-width="2" fill="none" marker-end="url(#arr-green)"/>
   <text x="780" y="703" text-anchor="middle" font-size="11" fill="var(--g)">← 读请求</text>
-  <line x1="448" y1="580" x2="280" y2="638" class="arrow" stroke-dasharray="4 3" opacity="0.3"/>
+  <line x1="448" y1="580" x2="280" y2="632" class="arrow" stroke-dasharray="4 3" opacity="0.3"/>
 
   <!-- ─── 水平分表 ─── -->
   <text x="450" y="806" text-anchor="middle" font-size="12" font-weight="700" class="muted">── 水平分表（同一业务大表拆分）──</text>

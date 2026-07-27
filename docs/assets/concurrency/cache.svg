@@ -35,11 +35,11 @@
   <text x="255" y="179" text-anchor="middle" font-size="11" class="muted">微秒级 · 容量小（百MB内）</text>
 
   <!-- Arrow: request → L1 -->
-  <line x1="370" y1="84" x2="290" y2="122" stroke="var(--muted)" stroke-width="1.8" fill="none" marker-end="url(#miss)"/>
+  <line x1="370" y1="84" x2="290" y2="116" stroke="var(--muted)" stroke-width="1.8" fill="none" marker-end="url(#miss)"/>
   <text x="310" y="106" text-anchor="middle" font-size="10" class="muted">① 查L1</text>
 
   <!-- L1 hit arrow back -->
-  <path d="M255,122 C230,100 330,80 360,84" stroke="var(--g)" stroke-width="1.8" fill="none" stroke-dasharray="5 3" marker-end="url(#hit)"/>
+  <path d="M255,122 C230,100 330,80 360,90" stroke="var(--g)" stroke-width="1.8" fill="none" stroke-dasharray="5 3" marker-end="url(#hit)"/>
   <text x="270" y="100" text-anchor="middle" font-size="10" fill="var(--g)">命中✓</text>
 
   <!-- L2 Redis -->
@@ -49,11 +49,11 @@
   <text x="480" y="179" text-anchor="middle" font-size="11" class="muted">毫秒级 · 容量大（数GB）</text>
 
   <!-- L1 miss → L2 -->
-  <line x1="350" y1="155" x2="380" y2="155" stroke="var(--muted)" stroke-width="1.8" fill="none" marker-end="url(#miss)"/>
+  <line x1="350" y1="155" x2="374" y2="155" stroke="var(--muted)" stroke-width="1.8" fill="none" marker-end="url(#miss)"/>
   <text x="365" y="147" text-anchor="middle" font-size="10" class="muted">② L1未中</text>
 
   <!-- L2 hit arrow back -->
-  <path d="M480,122 C460,94 420,84 400,84" stroke="var(--g)" stroke-width="1.8" fill="none" stroke-dasharray="5 3" marker-end="url(#hit)"/>
+  <path d="M480,122 C460,94 420,84 400,90" stroke="var(--g)" stroke-width="1.8" fill="none" stroke-dasharray="5 3" marker-end="url(#hit)"/>
   <text x="448" y="100" text-anchor="middle" font-size="10" fill="var(--g)">命中✓</text>
 
   <!-- DB -->
@@ -62,11 +62,11 @@
   <text x="400" y="284" text-anchor="middle" font-size="11" class="muted">MySQL · 毫秒~秒级</text>
 
   <!-- L2 miss → DB -->
-  <line x1="480" y1="188" x2="420" y2="240" stroke="var(--muted)" stroke-width="1.8" fill="none" marker-end="url(#miss)"/>
+  <line x1="480" y1="188" x2="420" y2="234" stroke="var(--muted)" stroke-width="1.8" fill="none" marker-end="url(#miss)"/>
   <text x="464" y="220" text-anchor="middle" font-size="10" class="muted">③ L2未中 → DB</text>
 
   <!-- DB → L2 write back -->
-  <path d="M380,260 C330,250 330,200 380,188" stroke="var(--g)" stroke-width="1.8" fill="none" stroke-dasharray="5 3" marker-end="url(#hit)"/>
+  <path d="M380,260 C330,250 330,200 380,182" stroke="var(--g)" stroke-width="1.8" fill="none" stroke-dasharray="5 3" marker-end="url(#hit)"/>
   <text x="316" y="228" text-anchor="middle" font-size="10" fill="var(--g)">回填L2</text>
 
   <!-- CDN annotation -->

@@ -30,7 +30,7 @@
   <text class="sub" x="130" y="62" text-anchor="middle">传感器 / 智能水表</text>
 
   <!-- 箭头 + 协议 -->
-  <line class="arr" x1="130" y1="74" x2="130" y2="112" stroke="var(--muted)"/>
+  <line class="arr" x1="130" y1="74" x2="130" y2="106" stroke="var(--muted)"/>
   <text class="proto" x="138" y="97" fill="var(--muted)">LoRa 无线</text>
 
   <!-- 网关 -->
@@ -39,7 +39,7 @@
   <text class="sub" x="130" y="154" text-anchor="middle">LoRa → TCP/IP 转换</text>
 
   <!-- 箭头 -->
-  <line class="arr" x1="130" y1="166" x2="130" y2="204" stroke="var(--muted)"/>
+  <line class="arr" x1="130" y1="166" x2="130" y2="198" stroke="var(--muted)"/>
   <text class="proto" x="138" y="189" fill="var(--muted)">4G / 以太网</text>
 
   <!-- 网络服务器 -->
@@ -48,7 +48,7 @@
   <text class="sub" x="130" y="246" text-anchor="middle">Network Server</text>
 
   <!-- 箭头 -->
-  <line class="arr" x1="130" y1="258" x2="130" y2="296" stroke="var(--muted)"/>
+  <line class="arr" x1="130" y1="258" x2="130" y2="290" stroke="var(--muted)"/>
   <text class="proto" x="138" y="281" fill="var(--muted)">MQTT / HTTP</text>
 
   <!-- 应用服务器 -->

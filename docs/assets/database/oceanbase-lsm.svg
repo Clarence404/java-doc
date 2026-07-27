@@ -19,7 +19,7 @@
   <text x="55" y="66" text-anchor="middle" fill="var(--fg)" font-weight="600">写入请求</text>
   <text x="55" y="82" text-anchor="middle" fill="var(--muted)" font-size="10">DML / Redo Log</text>
 
-  <line class="arr" x1="100" y1="70" x2="120" y2="70" stroke="var(--muted)"/>
+  <line class="arr" x1="100" y1="70" x2="114" y2="70" stroke="var(--muted)"/>
 
   <!-- MemTable -->
   <rect class="box" x="120" y="40" width="130" height="60" stroke="var(--y)"/>
@@ -27,7 +27,7 @@
   <text x="185" y="78" text-anchor="middle" fill="var(--fg)" font-size="10">内存中（跳表有序）</text>
   <text x="185" y="92" text-anchor="middle" fill="var(--fg)" font-size="10">读写最新数据</text>
 
-  <line class="arr" x1="250" y1="70" x2="280" y2="70" stroke="var(--muted)"/>
+  <line class="arr" x1="250" y1="70" x2="274" y2="70" stroke="var(--muted)"/>
   <text x="265" y="64" text-anchor="middle" fill="var(--muted)" font-size="9">Freeze &amp;</text>
   <text x="265" y="76" text-anchor="middle" fill="var(--muted)" font-size="9">Flush</text>
 
@@ -37,7 +37,7 @@
   <text x="355" y="78" text-anchor="middle" fill="var(--fg)" font-size="10">增量数据（磁盘）</text>
   <text x="355" y="92" text-anchor="middle" fill="var(--fg)" font-size="10">多个 Minor 文件并存</text>
 
-  <line class="arr" x1="430" y1="70" x2="460" y2="70" stroke="var(--muted)"/>
+  <line class="arr" x1="430" y1="70" x2="454" y2="70" stroke="var(--muted)"/>
   <text x="445" y="60" text-anchor="middle" fill="var(--muted)" font-size="9">Major</text>
   <text x="445" y="72" text-anchor="middle" fill="var(--muted)" font-size="9">Compaction</text>
   <text x="445" y="84" text-anchor="middle" fill="var(--muted)" font-size="9">（定期）</text>

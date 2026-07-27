@@ -19,7 +19,7 @@
   <text x="55" y="136" text-anchor="middle" fill="var(--fg)" font-weight="600">Client</text>
   <text x="55" y="152" text-anchor="middle" fill="var(--muted)" font-size="10">MySQL 协议</text>
 
-  <line class="arr" x1="100" y1="140" x2="135" y2="140" stroke="var(--muted)"/>
+  <line class="arr" x1="100" y1="140" x2="129" y2="140" stroke="var(--muted)"/>
 
   <!-- TiDB Server -->
   <rect class="box" x="135" y="100" width="150" height="80" stroke="var(--b)"/>
@@ -28,7 +28,7 @@
   <text x="210" y="152" text-anchor="middle" fill="var(--fg)" font-size="10">兼容 MySQL 5.7 协议</text>
   <text x="210" y="166" text-anchor="middle" fill="var(--fg)" font-size="10">查询优化 / 执行计划</text>
 
-  <line class="arr" x1="285" y1="140" x2="325" y2="140" stroke="var(--muted)"/>
+  <line class="arr" x1="285" y1="140" x2="319" y2="140" stroke="var(--muted)"/>
 
   <!-- PD -->
   <rect class="box" x="325" y="100" width="140" height="80" stroke="var(--y)"/>
@@ -42,14 +42,14 @@
   <line class="arr" x1="395" y1="180" x2="520" y2="218" stroke="var(--muted)"/>
 
   <!-- TiKV -->
-  <rect class="box" x="220" y="220" width="230" height="66" stroke="var(--g)"/>
+  <rect class="box" x="220" y="220" width="230" height="76" stroke="var(--g)"/>
   <text x="335" y="240" text-anchor="middle" fill="var(--g)" font-weight="700">TiKV（行存 / OLTP）</text>
   <text x="335" y="256" text-anchor="middle" fill="var(--fg)" font-size="10">Raft 协议，3 副本强一致</text>
   <text x="335" y="270" text-anchor="middle" fill="var(--fg)" font-size="10">Region 96MB，RocksDB 底层</text>
   <text x="335" y="284" text-anchor="middle" fill="var(--fg)" font-size="10">Percolator 2PC 分布式事务</text>
 
   <!-- TiFlash -->
-  <rect class="box" x="470" y="220" width="220" height="66" stroke="var(--p)"/>
+  <rect class="box" x="470" y="220" width="220" height="76" stroke="var(--p)"/>
   <text x="580" y="240" text-anchor="middle" fill="var(--p)" font-weight="700">TiFlash（列存 / OLAP）</text>
   <text x="580" y="256" text-anchor="middle" fill="var(--fg)" font-size="10">异步 Raft Learner 同步</text>
   <text x="580" y="270" text-anchor="middle" fill="var(--fg)" font-size="10">列式存储，SIMD 向量化执行</text>

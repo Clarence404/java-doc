@@ -34,22 +34,22 @@
   <text x="185" y="65" text-anchor="middle" fill="var(--fg)">id=1 | id=50 | id=100</text>
 
   <!-- arrows down -->
-  <line class="arr" x1="160" y1="74" x2="60" y2="108" stroke="var(--muted)"/>
-  <line class="arr" x1="185" y1="74" x2="185" y2="108" stroke="var(--muted)"/>
-  <line class="arr" x1="210" y1="74" x2="310" y2="108" stroke="var(--muted)"/>
+  <line class="arr" x1="160" y1="74" x2="60" y2="102" stroke="var(--muted)"/>
+  <line class="arr" x1="185" y1="74" x2="185" y2="102" stroke="var(--muted)"/>
+  <line class="arr" x1="210" y1="74" x2="310" y2="102" stroke="var(--muted)"/>
 
   <!-- leaf nodes -->
-  <rect class="leaf" x="10"  y="108" width="100" height="44" stroke="var(--b)"/>
+  <rect class="leaf" x="10"  y="108" width="100" height="56" stroke="var(--b)"/>
   <text x="60" y="124" text-anchor="middle" fill="var(--fg)" font-size="11">id=1</text>
   <text x="60" y="138" text-anchor="middle" fill="var(--g)" font-size="10">Alice | 25 | ...</text>
   <text class="lbl" x="60" y="152" text-anchor="middle">完整行数据</text>
 
-  <rect class="leaf" x="135" y="108" width="100" height="44" stroke="var(--b)"/>
+  <rect class="leaf" x="135" y="108" width="100" height="56" stroke="var(--b)"/>
   <text x="185" y="124" text-anchor="middle" fill="var(--fg)" font-size="11">id=50</text>
   <text x="185" y="138" text-anchor="middle" fill="var(--g)" font-size="10">Bob | 30 | ...</text>
   <text class="lbl" x="185" y="152" text-anchor="middle">完整行数据</text>
 
-  <rect class="leaf" x="260" y="108" width="100" height="44" stroke="var(--b)"/>
+  <rect class="leaf" x="260" y="108" width="100" height="56" stroke="var(--b)"/>
   <text x="310" y="124" text-anchor="middle" fill="var(--fg)" font-size="11">id=100</text>
   <text x="310" y="138" text-anchor="middle" fill="var(--g)" font-size="10">Carol | 28 | ...</text>
   <text class="lbl" x="310" y="152" text-anchor="middle">完整行数据</text>
@@ -71,22 +71,22 @@
   <text x="568" y="65" text-anchor="middle" fill="var(--fg)">Alice | Bob | Carol</text>
 
   <!-- arrows down -->
-  <line class="arr" x1="543" y1="74" x2="443" y2="108" stroke="var(--muted)"/>
-  <line class="arr" x1="568" y1="74" x2="568" y2="108" stroke="var(--muted)"/>
-  <line class="arr" x1="593" y1="74" x2="693" y2="108" stroke="var(--muted)"/>
+  <line class="arr" x1="543" y1="74" x2="443" y2="102" stroke="var(--muted)"/>
+  <line class="arr" x1="568" y1="74" x2="568" y2="102" stroke="var(--muted)"/>
+  <line class="arr" x1="593" y1="74" x2="693" y2="102" stroke="var(--muted)"/>
 
   <!-- leaf nodes -->
-  <rect class="leaf" x="393" y="108" width="100" height="44" stroke="var(--p)"/>
+  <rect class="leaf" x="393" y="108" width="100" height="56" stroke="var(--p)"/>
   <text x="443" y="124" text-anchor="middle" fill="var(--fg)" font-size="11">name=Alice</text>
   <text x="443" y="138" text-anchor="middle" fill="var(--r)" font-size="10">→ 主键 id=1</text>
   <text class="lbl" x="443" y="152" text-anchor="middle">需回表取完整行</text>
 
-  <rect class="leaf" x="518" y="108" width="100" height="44" stroke="var(--p)"/>
+  <rect class="leaf" x="518" y="108" width="100" height="56" stroke="var(--p)"/>
   <text x="568" y="124" text-anchor="middle" fill="var(--fg)" font-size="11">name=Bob</text>
   <text x="568" y="138" text-anchor="middle" fill="var(--r)" font-size="10">→ 主键 id=50</text>
   <text class="lbl" x="568" y="152" text-anchor="middle">需回表取完整行</text>
 
-  <rect class="leaf" x="643" y="108" width="100" height="44" stroke="var(--p)"/>
+  <rect class="leaf" x="643" y="108" width="100" height="56" stroke="var(--p)"/>
   <text x="693" y="124" text-anchor="middle" fill="var(--fg)" font-size="11">name=Carol</text>
   <text x="693" y="138" text-anchor="middle" fill="var(--r)" font-size="10">→ 主键 id=100</text>
   <text class="lbl" x="693" y="152" text-anchor="middle">需回表取完整行</text>
@@ -99,13 +99,13 @@
   <text x="568" y="175" text-anchor="middle" fill="var(--muted)" font-size="10">← 叶节点双向链表 →</text>
 
   <!-- 回表 annotation -->
-  <rect x="460" y="200" width="220" height="50" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <rect x="460" y="200" width="220" height="62" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
   <text x="570" y="218" text-anchor="middle" fill="var(--r)" font-weight="700" font-size="12">回表（Back to Table）</text>
   <text x="570" y="234" text-anchor="middle" fill="var(--fg)" font-size="11">二级索引 → 得到主键</text>
   <text x="570" y="248" text-anchor="middle" fill="var(--fg)" font-size="11">→ 聚簇索引再取完整行</text>
 
   <!-- 覆盖索引 annotation -->
-  <rect x="460" y="262" width="220" height="36" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <rect x="460" y="262" width="220" height="48" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
   <text x="570" y="280" text-anchor="middle" fill="var(--g)" font-weight="700" font-size="12">覆盖索引：避免回表</text>
   <text x="570" y="295" text-anchor="middle" fill="var(--fg)" font-size="11">查询列已在索引中，Extra: Using index</text>
 </svg>

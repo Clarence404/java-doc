@@ -72,6 +72,6 @@
   <text x="472" y="242" text-anchor="middle" fill="var(--muted)" font-size="9">P: Primary（主分片）  R: Replica（副本分片）</text>
 
   <!-- Arrows from Coordinating to Data Nodes -->
-  <line class="arr" x1="258" y1="175" x2="290" y2="140" stroke="var(--b)"/>
-  <line class="arr" x1="258" y1="185" x2="290" y2="200" stroke="var(--b)"/>
+  <line class="arr" x1="258" y1="175" x2="284" y2="140" stroke="var(--b)"/>
+  <line class="arr" x1="258" y1="185" x2="284" y2="200" stroke="var(--b)"/>
 </svg>

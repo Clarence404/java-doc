@@ -1,4 +1,4 @@
-<svg viewBox="0 0 580 260" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+<svg viewBox="0 0 580 262" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
   <style>
     :root { --fg:#1a1a2e; --muted:#6b7280; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
     :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
@@ -55,6 +55,6 @@
   <text x="500" y="214" text-anchor="middle" fill="var(--muted)" font-weight="600">索引（Index）</text>
 
   <!-- Annotations -->
-  <rect x="30" y="236" width="520" height="18" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
+  <rect x="30" y="236" width="520" height="26" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
   <text x="290" y="249" text-anchor="middle" fill="var(--muted)" font-size="10">默认 Schema = public；多 Schema 实现多租户隔离 / 模块化管理 / 权限隔离</text>
 </svg>

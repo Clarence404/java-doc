@@ -30,7 +30,7 @@
   <text x="40" y="56" class="layer-sub">Controller · Consumer · RPC Endpoint</text>
   <text x="380" y="44" class="layer-desc">DTO 转换，参数校验，调用 application</text>
 
-  <line x1="280" y1="64" x2="280" y2="80" class="arrow"/>
+  <line x1="280" y1="64" x2="280" y2="74" class="arrow"/>
 
   <!-- application layer -->
   <rect x="20" y="80" width="520" height="48" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
@@ -38,7 +38,7 @@
   <text x="40" y="120" class="layer-sub">Use Case · App Service</text>
   <text x="380" y="108" class="layer-desc">编排 Domain 对象，定义事务边界</text>
 
-  <line x1="280" y1="128" x2="280" y2="144" class="arrow"/>
+  <line x1="280" y1="128" x2="280" y2="138" class="arrow"/>
 
   <!-- domain layer -->
   <rect x="20" y="144" width="520" height="48" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
@@ -46,7 +46,7 @@
   <text x="40" y="184" class="layer-sub">Entity · Aggregate · Domain Service · Repository 接口</text>
   <text x="380" y="172" class="layer-desc">纯业务逻辑，不依赖任何框架</text>
 
-  <line x1="280" y1="192" x2="280" y2="208" class="arrow"/>
+  <line x1="280" y1="192" x2="280" y2="202" class="arrow"/>
 
   <!-- infrastructure layer -->
   <rect x="20" y="208" width="520" height="48" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>

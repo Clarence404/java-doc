@@ -20,13 +20,13 @@
   <rect class="box" x="10" y="54" width="90" height="34" stroke="var(--muted)"/>
   <text x="55" y="76" text-anchor="middle" fill="var(--fg)" font-weight="600">Client 写</text>
 
-  <line class="arr" x1="100" y1="71" x2="120" y2="71" stroke="var(--muted)"/>
+  <line class="arr" x1="100" y1="71" x2="114" y2="71" stroke="var(--muted)"/>
 
   <rect class="box" x="120" y="54" width="90" height="34" stroke="var(--r)"/>
   <text x="165" y="70" text-anchor="middle" fill="var(--r)" font-weight="600">WAL</text>
   <text x="165" y="83" text-anchor="middle" fill="var(--muted)" font-size="9">HLog 顺序写</text>
 
-  <line class="arr" x1="210" y1="71" x2="230" y2="71" stroke="var(--muted)"/>
+  <line class="arr" x1="210" y1="71" x2="224" y2="71" stroke="var(--muted)"/>
 
   <rect class="box" x="230" y="54" width="100" height="34" stroke="var(--y)"/>
   <text x="280" y="70" text-anchor="middle" fill="var(--y)" font-weight="600">MemStore</text>
@@ -34,7 +34,7 @@
 
   <!-- Flush -->
   <text x="336" y="68" text-anchor="middle" fill="var(--muted)" font-size="9">Flush</text>
-  <line class="arr" x1="330" y1="71" x2="356" y2="71" stroke="var(--g)"/>
+  <line class="arr" x1="330" y1="71" x2="350" y2="71" stroke="var(--g)"/>
 
   <rect class="box" x="356" y="54" width="80" height="34" stroke="var(--g)"/>
   <text x="396" y="70" text-anchor="middle" fill="var(--g)" font-weight="600">HFile</text>
@@ -43,14 +43,14 @@
   <!-- Compaction -->
   <text x="460" y="62" text-anchor="middle" fill="var(--muted)" font-size="9">Minor/Major</text>
   <text x="460" y="73" text-anchor="middle" fill="var(--muted)" font-size="9">Compaction</text>
-  <line class="arr" x1="436" y1="71" x2="480" y2="71" stroke="var(--p)"/>
+  <line class="arr" x1="436" y1="71" x2="474" y2="71" stroke="var(--p)"/>
 
   <rect class="box" x="480" y="54" width="100" height="34" stroke="var(--p)"/>
   <text x="530" y="70" text-anchor="middle" fill="var(--p)" font-weight="600">合并后 HFile</text>
   <text x="530" y="83" text-anchor="middle" fill="var(--muted)" font-size="9">删除过期 / 合并版本</text>
 
   <!-- Flush threshold note -->
-  <rect x="230" y="96" width="206" height="18" rx="3" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
+  <rect x="230" y="96" width="206" height="24" rx="3" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
   <text x="333" y="109" text-anchor="middle" fill="var(--muted)" font-size="9">MemStore ≥ 128MB（默认）触发 Flush</text>
 
   <!-- ===== READ PATH ===== -->
@@ -59,7 +59,7 @@
   <rect class="box" x="10" y="148" width="90" height="34" stroke="var(--muted)"/>
   <text x="55" y="170" text-anchor="middle" fill="var(--fg)" font-weight="600">Client 读</text>
 
-  <line class="arr" x1="100" y1="165" x2="120" y2="165" stroke="var(--muted)"/>
+  <line class="arr" x1="100" y1="165" x2="114" y2="165" stroke="var(--muted)"/>
 
   <rect class="box" x="120" y="148" width="110" height="34" stroke="var(--b)"/>
   <text x="175" y="164" text-anchor="middle" fill="var(--b)" font-weight="600">BlockCache</text>
@@ -72,20 +72,20 @@
   <text x="270" y="130" fill="var(--g)" font-size="10" font-weight="600">直接返回</text>
 
   <!-- Miss -->
-  <line class="arr" x1="230" y1="165" x2="254" y2="165" stroke="var(--muted)"/>
+  <line class="arr" x1="230" y1="165" x2="248" y2="165" stroke="var(--muted)"/>
   <text x="242" y="160" text-anchor="middle" fill="var(--r)" font-size="9">未命中</text>
 
   <rect class="box" x="254" y="148" width="100" height="34" stroke="var(--y)"/>
   <text x="304" y="164" text-anchor="middle" fill="var(--y)" font-weight="600">MemStore</text>
   <text x="304" y="177" text-anchor="middle" fill="var(--muted)" font-size="9">内存中最新版本</text>
 
-  <line class="arr" x1="354" y1="165" x2="374" y2="165" stroke="var(--muted)"/>
+  <line class="arr" x1="354" y1="165" x2="368" y2="165" stroke="var(--muted)"/>
 
   <rect class="box" x="374" y="148" width="110" height="34" stroke="var(--g)"/>
   <text x="429" y="164" text-anchor="middle" fill="var(--g)" font-weight="600">HFile × N</text>
   <text x="429" y="177" text-anchor="middle" fill="var(--muted)" font-size="9">BloomFilter + 索引</text>
 
-  <line class="arr" x1="484" y1="165" x2="504" y2="165" stroke="var(--muted)"/>
+  <line class="arr" x1="484" y1="165" x2="498" y2="165" stroke="var(--muted)"/>
 
   <rect class="box" x="504" y="148" width="120" height="34" stroke="var(--p)"/>
   <text x="564" y="164" text-anchor="middle" fill="var(--p)" font-weight="600">合并多版本结果</text>

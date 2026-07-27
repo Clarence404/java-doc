@@ -20,7 +20,7 @@
   <text x="55" y="82" text-anchor="middle" fill="var(--fg)" font-weight="600">Client</text>
   <text x="55" y="97" text-anchor="middle" fill="var(--muted)" font-size="10">PUT /idx/_doc/1</text>
 
-  <line class="arr" x1="100" y1="85" x2="120" y2="85" stroke="var(--muted)"/>
+  <line class="arr" x1="100" y1="85" x2="114" y2="85" stroke="var(--muted)"/>
 
   <!-- 2: Coordinating Node -->
   <rect class="box" x="120" y="50" width="110" height="70" stroke="var(--b)"/>
@@ -29,7 +29,7 @@
   <text x="175" y="102" text-anchor="middle" fill="var(--fg)" font-size="10">shard = hash(id) % n</text>
   <text x="175" y="115" text-anchor="middle" fill="var(--muted)" font-size="9">转发到 Primary Shard</text>
 
-  <line class="arr" x1="230" y1="85" x2="250" y2="85" stroke="var(--muted)"/>
+  <line class="arr" x1="230" y1="85" x2="244" y2="85" stroke="var(--muted)"/>
 
   <!-- 3: Primary Shard -->
   <rect class="box" x="250" y="42" width="130" height="86" stroke="var(--g)"/>
@@ -40,8 +40,8 @@
   <text x="315" y="120" text-anchor="middle" fill="var(--muted)" font-size="9">多数确认后响应成功</text>
 
   <!-- Parallel: replica -->
-  <line class="arr" x1="380" y1="78" x2="400" y2="60" stroke="var(--muted)"/>
-  <line class="arr" x1="380" y1="100" x2="400" y2="118" stroke="var(--muted)"/>
+  <line class="arr" x1="380" y1="78" x2="394" y2="60" stroke="var(--muted)"/>
+  <line class="arr" x1="380" y1="100" x2="394" y2="118" stroke="var(--muted)"/>
 
   <rect class="box" x="400" y="42" width="120" height="36" stroke="var(--y)"/>
   <text x="460" y="58" text-anchor="middle" fill="var(--y)" font-weight="600">Replica Shard 1</text>

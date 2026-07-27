@@ -19,28 +19,28 @@
   <text x="75" y="70" text-anchor="middle" fill="var(--b)" font-weight="700">SqlSessionFactoryBuilder</text>
   <text x="75" y="86" text-anchor="middle" fill="var(--fg)" font-size="10">读取 mybatis-config.xml</text>
   <text x="75" y="100" text-anchor="middle" fill="var(--fg)" font-size="10">或 Java 配置类</text>
-  <line class="arr" x1="140" y1="77" x2="160" y2="77" stroke="var(--muted)"/>
+  <line class="arr" x1="140" y1="77" x2="154" y2="77" stroke="var(--muted)"/>
 
   <!-- Step 2 -->
   <rect class="box" x="160" y="50" width="130" height="54" stroke="var(--y)"/>
   <text x="225" y="70" text-anchor="middle" fill="var(--y)" font-weight="700">XMLConfigBuilder</text>
   <text x="225" y="86" text-anchor="middle" fill="var(--fg)" font-size="10">解析全局配置</text>
   <text x="225" y="100" text-anchor="middle" fill="var(--fg)" font-size="10">plugins / typeHandlers</text>
-  <line class="arr" x1="290" y1="77" x2="310" y2="77" stroke="var(--muted)"/>
+  <line class="arr" x1="290" y1="77" x2="304" y2="77" stroke="var(--muted)"/>
 
   <!-- Step 3 -->
   <rect class="box" x="310" y="50" width="130" height="54" stroke="var(--p)"/>
   <text x="375" y="70" text-anchor="middle" fill="var(--p)" font-weight="700">XMLMapperBuilder</text>
   <text x="375" y="86" text-anchor="middle" fill="var(--fg)" font-size="10">解析 Mapper XML</text>
   <text x="375" y="100" text-anchor="middle" fill="var(--fg)" font-size="10">注册 MappedStatement</text>
-  <line class="arr" x1="440" y1="77" x2="460" y2="77" stroke="var(--muted)"/>
+  <line class="arr" x1="440" y1="77" x2="454" y2="77" stroke="var(--muted)"/>
 
   <!-- Step 4 -->
   <rect class="box" x="460" y="50" width="130" height="54" stroke="var(--g)"/>
   <text x="525" y="70" text-anchor="middle" fill="var(--g)" font-weight="700">Configuration</text>
   <text x="525" y="86" text-anchor="middle" fill="var(--fg)" font-size="10">全局配置对象</text>
   <text x="525" y="100" text-anchor="middle" fill="var(--fg)" font-size="10">mappedStatements Map</text>
-  <line class="arr" x1="590" y1="77" x2="610" y2="77" stroke="var(--muted)"/>
+  <line class="arr" x1="590" y1="77" x2="604" y2="77" stroke="var(--muted)"/>
 
   <!-- Step 5 -->
   <rect class="box" x="610" y="50" width="60" height="54" stroke="var(--r)"/>
