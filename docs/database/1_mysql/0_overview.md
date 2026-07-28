@@ -154,7 +154,7 @@ ACID、隔离级别与并发问题（脏读/幻读）、undo log / redo log、MV
 
 ### 主从复制原理
 
-![MySQL 主从复制原理](../assets/mysql/mysql-replication.svg)
+![MySQL 主从复制原理](../../assets/mysql/mysql-replication.svg)
 
 **三个核心线程：**
 

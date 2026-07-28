@@ -78,14 +78,14 @@ OpenFeign（声明式 HTTP 调用）+ Spring Cloud LoadBalancer（客户端负�
 
 | 方向 | 章节 |
 |------|------|
-| 服务注册与发现 | [服务注册与发现](./3_service_registry.md) |
-| API 网关 | [API 网关](./4_api_gateway.md) |
-| 服务间通信 | [服务间通信](./5_communication.md) |
-| 配置中心 | [配置中心](./6_config_center.md) |
-| 链路追踪 | [链路追踪](./7_tracing.md) |
-| 微服务设计模式 | [微服务设计模式](./8_patterns.md) |
-| 服务网格 | [服务网格](./9_service_mesh.md) |
-| 服务治理 | [服务治理](./10_service_governance.md) |
+| 服务注册与发现 | [服务注册与发现](./1_service_registry.md) |
+| API 网关 | [API 网关](./2_api_gateway.md) |
+| 服务间通信 | [服务间通信](./3_communication.md) |
+| 配置中心 | [配置中心](./4_config_center.md) |
+| 链路追踪 | [链路追踪](../observability/3_tracing.md) |
+| 微服务设计模式 | [微服务设计模式](../microservices/2_patterns.md) |
+| 服务网格 | [服务网格](../microservices/3_service_mesh.md) |
+| 服务治理 | [服务治理](./5_service_governance.md) |
 | 熔断限流 | [高可用](../high-avail/) |
 | 分布式事务 | [分布式事务](../distributed/3_transaction.md) |
 | 消息中间件 | [消息队列](../messaging/0_mq.md) |

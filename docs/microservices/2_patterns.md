@@ -47,7 +47,7 @@
 
 客户端不直接访问各微服务，通过统一网关路由、鉴权、限流。
 
-> 详见：[API 网关](./4_api_gateway.md)
+> 详见：[API 网关](../spring-cloud/2_api_gateway.md)
 
 ### 2.2 BFF（Backend for Frontend）
 
@@ -174,7 +174,7 @@ Outbox 方案：
 
 将通用能力（监控、日志、服务发现、mTLS）以独立进程附加在主服务旁，是 Service Mesh 的基础。
 
-> 详见：[服务网格](./9_service_mesh.md)
+> 详见：[服务网格](./3_service_mesh.md)
 
 ### 5.2 Strangler Fig（绞杀者模式）
 
