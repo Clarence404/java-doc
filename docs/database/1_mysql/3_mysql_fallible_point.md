@@ -1,4 +1,4 @@
-# Mysql 雷区标识
+# MySQL 避坑指南
 
 参考：https://mp.weixin.qq.com/s/xQGJBn_M9qT2znd-2nmAng
 

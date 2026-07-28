@@ -1,4 +1,4 @@
-# Distributed DB
+# 分布式数据库
 
 ## 一、TiDB
 

@@ -1,4 +1,4 @@
-# Time Series DB
+# 时序数据库
 
 ## 一、InfluxDB
 

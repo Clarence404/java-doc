@@ -1,4 +1,4 @@
-# Postgres 重要版本特性
+# PostgreSQL 重要版本特性
 
 参考：
 - [PostgreSQL Release Notes](https://www.postgresql.org/docs/release/)

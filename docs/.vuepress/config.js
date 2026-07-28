@@ -21,7 +21,7 @@ const navbarFlat = [
     {text: 'Spring Boot', link: '/spring-boot/0_spring_boot'},
     {text: 'Netty',   link: '/netty/0_stick_split'},
     {text: '测试体系', link: '/testing/0_testing_intro'},
-    {text: '数据库',  link: '/database/1_mysql/0_overview'},
+    {text: '数据库',  link: '/database/0_overview'},
     {text: '缓存',    link: '/cache/0_redis_base'},
     {text: '消息队列', link: '/messaging/0_mq'},
     {text: '分布式',  link: '/distributed/0_distributed'},
@@ -63,7 +63,7 @@ const navbarDropdown = [
     {
         text: '数据存储',
         children: [
-            {text: '数据库',   link: '/database/1_mysql/0_overview'},
+            {text: '数据库',   link: '/database/0_overview'},
             {text: '缓存',     link: '/cache/0_redis_base'},
             {text: '消息队列', link: '/messaging/0_mq'},
         ],
@@ -142,6 +142,7 @@ function getSidebarFromDir(dirPath) {
 }
 
 const databaseSidebar = [
+    {text: '数据库总览', link: '/database/0_overview'},
     {
         text: 'MySQL 专题',
         link: '/database/1_mysql/0_overview',
