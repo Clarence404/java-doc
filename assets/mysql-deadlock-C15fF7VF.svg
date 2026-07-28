@@ -1,0 +1,80 @@
+<svg viewBox="0 0 620 268" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .txn { rx:8; ry:8; fill:var(--card); stroke-width:2; }
+    .arr { stroke-width:2; fill:none; }
+    .hold { stroke-width:2; stroke-dasharray:0; }
+    .wait { stroke-width:2; stroke-dasharray:5,3; }
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--g)"/>
+    </marker>
+    <marker id="aw" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--r)"/>
+    </marker>
+  </defs>
+
+  <text x="310" y="20" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">死锁：两事务交叉持有锁</text>
+
+  <!-- Transaction A -->
+  <rect class="txn" x="30" y="55" width="160" height="130" stroke="var(--b)"/>
+  <text x="110" y="75" text-anchor="middle" fill="var(--b)" font-weight="700" font-size="13">事务 A</text>
+  <text x="110" y="95" text-anchor="middle" fill="var(--fg)" font-size="11">UPDATE … WHERE id=1</text>
+  <text x="110" y="111" text-anchor="middle" fill="var(--g)" font-size="11">✅ 持有 id=1 的锁</text>
+  <line x1="50" y1="120" x2="170" y2="120" stroke="var(--border)" stroke-width="1"/>
+  <text x="110" y="139" text-anchor="middle" fill="var(--fg)" font-size="11">UPDATE … WHERE id=2</text>
+  <text x="110" y="155" text-anchor="middle" fill="var(--r)" font-size="11">⏳ 等待 id=2 的锁</text>
+  <text x="110" y="171" text-anchor="middle" fill="var(--muted)" font-size="10">（被事务 B 持有）</text>
+
+  <!-- Resources -->
+  <rect class="box" x="230" y="80" width="100" height="36" stroke="var(--y)"/>
+  <text x="280" y="96" text-anchor="middle" fill="var(--y)" font-weight="700">行 id=1</text>
+  <text x="280" y="110" text-anchor="middle" fill="var(--muted)" font-size="10">X Lock</text>
+
+  <rect class="box" x="230" y="150" width="100" height="36" stroke="var(--y)"/>
+  <text x="280" y="166" text-anchor="middle" fill="var(--y)" font-weight="700">行 id=2</text>
+  <text x="280" y="180" text-anchor="middle" fill="var(--muted)" font-size="10">X Lock</text>
+
+  <!-- Transaction B -->
+  <rect class="txn" x="430" y="55" width="160" height="130" stroke="var(--p)"/>
+  <text x="510" y="75" text-anchor="middle" fill="var(--p)" font-weight="700" font-size="13">事务 B</text>
+  <text x="510" y="95" text-anchor="middle" fill="var(--fg)" font-size="11">UPDATE … WHERE id=2</text>
+  <text x="510" y="111" text-anchor="middle" fill="var(--g)" font-size="11">✅ 持有 id=2 的锁</text>
+  <line x1="450" y1="120" x2="570" y2="120" stroke="var(--border)" stroke-width="1"/>
+  <text x="510" y="139" text-anchor="middle" fill="var(--fg)" font-size="11">UPDATE … WHERE id=1</text>
+  <text x="510" y="155" text-anchor="middle" fill="var(--r)" font-size="11">⏳ 等待 id=1 的锁</text>
+  <text x="510" y="171" text-anchor="middle" fill="var(--muted)" font-size="10">（被事务 A 持有）</text>
+
+  <!-- A holds id=1 -->
+  <line class="hold" x1="190" y1="100" x2="224" y2="98" stroke="var(--g)" marker-end="url(#ah)"/>
+  <!-- B holds id=2 -->
+  <line class="hold" x1="430" y1="164" x2="324" y2="166" stroke="var(--g)" marker-end="url(#ah)"/>
+  <!-- A waits for id=2 -->
+  <line class="wait" x1="190" y1="148" x2="224" y2="158" stroke="var(--r)" marker-end="url(#aw)"/>
+  <!-- B waits for id=1 -->
+  <line class="wait" x1="430" y1="108" x2="324" y2="98" stroke="var(--r)" marker-end="url(#aw)"/>
+
+  <!-- Legend -->
+  <line x1="30" y1="212" x2="60" y2="212" stroke="var(--g)" stroke-width="2" marker-end="url(#ah)"/>
+  <text x="66" y="216" fill="var(--fg)" font-size="11">持有锁</text>
+  <line x1="140" y1="212" x2="170" y2="212" stroke="var(--r)" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#aw)"/>
+  <text x="176" y="216" fill="var(--fg)" font-size="11">等待锁（阻塞）</text>
+
+  <!-- InnoDB resolution -->
+  <rect x="280" y="200" width="300" height="48" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="430" y="216" text-anchor="middle" fill="var(--r)" font-weight="700" font-size="12">InnoDB 自动检测死锁</text>
+  <text x="430" y="232" text-anchor="middle" fill="var(--fg)" font-size="11">回滚代价较小的事务，抛出 ERROR 1213</text>
+</svg>

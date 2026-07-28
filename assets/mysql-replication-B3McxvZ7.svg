@@ -1,0 +1,96 @@
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .outer { rx:8; ry:8; fill:var(--card); stroke-width:2; }
+    .inner { rx:4; ry:4; fill:var(--card); stroke-width:1; }
+    .arr   { stroke-width:2; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="360" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">MySQL 主从复制原理</text>
+
+  <!-- ===== Master ===== -->
+  <rect class="outer" x="14" y="38" width="206" height="172" stroke="var(--b)"/>
+  <text x="117" y="60" text-anchor="middle" fill="var(--b)" font-weight="700" font-size="13">主库（Master）</text>
+
+  <!-- Step 1 -->
+  <rect class="inner" x="28" y="68" width="178" height="30" stroke="var(--muted)"/>
+  <text x="117" y="88" text-anchor="middle" fill="var(--fg)" font-size="11">① 执行写操作（DML / DDL）</text>
+
+  <!-- Step 2: 2-line, height=46 -->
+  <rect class="inner" x="28" y="104" width="178" height="46" stroke="var(--y)"/>
+  <text x="117" y="122" text-anchor="middle" fill="var(--y)" font-weight="600" font-size="11">② 写入 binlog</text>
+  <text x="117" y="140" text-anchor="middle" fill="var(--muted)" font-size="10">（ROW / STATEMENT / MIXED）</text>
+
+  <!-- Step 3 -->
+  <rect class="inner" x="28" y="158" width="178" height="30" stroke="var(--muted)"/>
+  <text x="117" y="178" text-anchor="middle" fill="var(--fg)" font-size="11">③ Binlog Dump Thread 推送</text>
+
+  <!-- ===== Network ===== -->
+  <rect class="outer" x="240" y="72" width="240" height="118" stroke="var(--border)"/>
+  <text x="360" y="94" text-anchor="middle" fill="var(--muted)" font-weight="700" font-size="11">网络传输（TCP）</text>
+  <text x="360" y="114" text-anchor="middle" fill="var(--fg)" font-size="11">④ IO Thread 主动连接主库</text>
+  <text x="360" y="132" text-anchor="middle" fill="var(--fg)" font-size="11">接收 binlog 事件流</text>
+  <text x="360" y="154" text-anchor="middle" fill="var(--g)" font-weight="600" font-size="11">⑤ 写入 relay log（中继日志）</text>
+  <text x="360" y="172" text-anchor="middle" fill="var(--muted)" font-size="10">保存到从库本地磁盘</text>
+
+  <!-- Arrows: horizontal, aligned to center of outer boxes -->
+  <line class="arr" x1="222" y1="131" x2="238" y2="131" stroke="var(--y)"/>
+  <line class="arr" x1="482" y1="131" x2="498" y2="131" stroke="var(--g)"/>
+
+  <!-- ===== Slave ===== -->
+  <rect class="outer" x="500" y="38" width="206" height="172" stroke="var(--g)"/>
+  <text x="603" y="60" text-anchor="middle" fill="var(--g)" font-weight="700" font-size="13">从库（Slave / Replica）</text>
+
+  <!-- relay log -->
+  <rect class="inner" x="514" y="68" width="178" height="30" stroke="var(--g)"/>
+  <text x="603" y="88" text-anchor="middle" fill="var(--g)" font-weight="600" font-size="11">relay log（中继日志）</text>
+
+  <!-- SQL Thread: 2-line, height=46 -->
+  <rect class="inner" x="514" y="104" width="178" height="46" stroke="var(--p)"/>
+  <text x="603" y="122" text-anchor="middle" fill="var(--p)" font-weight="600" font-size="11">⑥ SQL Thread 重放</text>
+  <text x="603" y="140" text-anchor="middle" fill="var(--muted)" font-size="10">将 relay log 应用到从库数据</text>
+
+  <!-- Sync done -->
+  <rect class="inner" x="514" y="158" width="178" height="30" stroke="var(--muted)"/>
+  <text x="603" y="178" text-anchor="middle" fill="var(--fg)" font-size="11">从库数据与主库保持同步</text>
+
+  <!-- ===== HA Comparison ===== -->
+  <rect class="outer" x="14" y="228" width="692" height="98" stroke="var(--border)"/>
+  <text x="360" y="250" text-anchor="middle" fill="var(--fg)" font-weight="700" font-size="12">高可用方案对比</text>
+
+  <!-- Dividers -->
+  <line x1="247" y1="260" x2="247" y2="318" stroke="var(--border)" stroke-width="1"/>
+  <line x1="480" y1="260" x2="480" y2="318" stroke="var(--border)" stroke-width="1"/>
+
+  <!-- MHA -->
+  <text x="130" y="274" text-anchor="middle" fill="var(--b)" font-weight="600" font-size="12">MHA：主库故障自动切换</text>
+  <text x="130" y="292" text-anchor="middle" fill="var(--muted)" font-size="11">需额外节点，适合传统主从</text>
+  <text x="130" y="308" text-anchor="middle" fill="var(--muted)" font-size="10">切换时间 &lt; 30s</text>
+
+  <!-- MGR -->
+  <text x="363" y="274" text-anchor="middle" fill="var(--p)" font-weight="600" font-size="12">MGR（组复制）</text>
+  <text x="363" y="292" text-anchor="middle" fill="var(--muted)" font-size="11">多主模式，Paxos 协议，高一致</text>
+  <text x="363" y="308" text-anchor="middle" fill="var(--muted)" font-size="10">原生支持，配置较复杂</text>
+
+  <!-- InnoDB Cluster -->
+  <text x="596" y="274" text-anchor="middle" fill="var(--g)" font-weight="600" font-size="12">InnoDB Cluster</text>
+  <text x="596" y="292" text-anchor="middle" fill="var(--muted)" font-size="11">MGR + MySQL Shell，官方推荐</text>
+  <text x="596" y="308" text-anchor="middle" fill="var(--muted)" font-size="10">需 MySQL 8.0+</text>
+</svg>

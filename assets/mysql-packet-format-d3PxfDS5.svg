@@ -1,0 +1,63 @@
+<svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+  </style>
+
+  <text x="340" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">MySQL 协议包格式（MySQL Packet Format）</text>
+
+  <!-- Packet header fields -->
+  <text x="340" y="46" text-anchor="middle" fill="var(--muted)" font-size="11">每个数据包 = 4 字节 Header + N 字节 Payload</text>
+
+  <!-- Header bar -->
+  <rect x="10" y="56" width="180" height="48" rx="4" fill="var(--b)" opacity="0.2" stroke="var(--b)" stroke-width="2"/>
+  <text x="100" y="74" text-anchor="middle" fill="var(--b)" font-weight="700" font-size="11">Payload Length</text>
+  <text x="100" y="90" text-anchor="middle" fill="var(--b)" font-size="10">3 字节，小端序</text>
+  <text x="100" y="100" text-anchor="middle" fill="var(--muted)" font-size="9">最大 16MB（0xFFFFFF）</text>
+
+  <rect x="192" y="56" width="80" height="48" rx="4" fill="var(--y)" opacity="0.2" stroke="var(--y)" stroke-width="2"/>
+  <text x="232" y="74" text-anchor="middle" fill="var(--y)" font-weight="700" font-size="11">Seq ID</text>
+  <text x="232" y="90" text-anchor="middle" fill="var(--y)" font-size="10">1 字节</text>
+  <text x="232" y="100" text-anchor="middle" fill="var(--muted)" font-size="9">序列号 0~255</text>
+
+  <rect x="274" y="56" width="396" height="48" rx="4" fill="var(--g)" opacity="0.15" stroke="var(--g)" stroke-width="2"/>
+  <text x="472" y="74" text-anchor="middle" fill="var(--g)" font-weight="700" font-size="11">Payload（包体内容）</text>
+  <text x="472" y="90" text-anchor="middle" fill="var(--g)" font-size="10">N 字节（由 Payload Length 决定）</text>
+  <text x="472" y="100" text-anchor="middle" fill="var(--muted)" font-size="9">具体内容取决于包类型（命令 / 响应 / 错误 / EOF）</text>
+
+  <!-- Byte position markers -->
+  <text x="10"  y="116" fill="var(--muted)" font-size="9">byte[0]</text>
+  <text x="122" y="116" fill="var(--muted)" font-size="9">byte[2]</text>
+  <text x="192" y="116" fill="var(--muted)" font-size="9">byte[3]</text>
+  <text x="274" y="116" fill="var(--muted)" font-size="9">byte[4] …</text>
+
+  <!-- Packet types -->
+  <rect x="10" y="130" width="660" height="120" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
+  <text x="340" y="148" text-anchor="middle" fill="var(--fg)" font-weight="700" font-size="11">常见包类型（Payload 首字节标识）</text>
+
+  <!-- COM_QUERY -->
+  <rect x="20" y="156" width="150" height="34" rx="4" fill="var(--b)" opacity="0.12" stroke="var(--b)" stroke-width="1"/>
+  <text x="95" y="170" text-anchor="middle" fill="var(--b)" font-weight="600" font-size="10">COM_QUERY (0x03)</text>
+  <text x="95" y="184" text-anchor="middle" fill="var(--muted)" font-size="9">客户端发送 SQL 语句</text>
+
+  <!-- OK Packet -->
+  <rect x="178" y="156" width="150" height="34" rx="4" fill="var(--g)" opacity="0.12" stroke="var(--g)" stroke-width="1"/>
+  <text x="253" y="170" text-anchor="middle" fill="var(--g)" font-weight="600" font-size="10">OK Packet (0x00)</text>
+  <text x="253" y="184" text-anchor="middle" fill="var(--muted)" font-size="9">成功响应（affectedRows等）</text>
+
+  <!-- ERR Packet -->
+  <rect x="336" y="156" width="150" height="34" rx="4" fill="var(--r)" opacity="0.12" stroke="var(--r)" stroke-width="1"/>
+  <text x="411" y="170" text-anchor="middle" fill="var(--r)" font-weight="600" font-size="10">ERR Packet (0xFF)</text>
+  <text x="411" y="184" text-anchor="middle" fill="var(--muted)" font-size="9">错误码 + 错误信息</text>
+
+  <!-- EOF Packet -->
+  <rect x="494" y="156" width="166" height="34" rx="4" fill="var(--muted)" opacity="0.12" stroke="var(--muted)" stroke-width="1"/>
+  <text x="577" y="170" text-anchor="middle" fill="var(--muted)" font-weight="600" font-size="10">EOF Packet (0xFE)</text>
+  <text x="577" y="184" text-anchor="middle" fill="var(--muted)" font-size="9">结果集结束标志</text>
+
+  <!-- ResultSet flow -->
+  <text x="340" y="208" text-anchor="middle" fill="var(--fg)" font-weight="700" font-size="10">ResultSet 传输顺序</text>
+  <text x="340" y="224" text-anchor="middle" fill="var(--fg)" font-size="10">① Column Count → ② Column Def × N → ③ EOF → ④ Row Data × M → ⑤ EOF</text>
+  <text x="340" y="240" text-anchor="middle" fill="var(--muted)" font-size="9">大于 16MB 的包用多包分片（Payload Length=0xFFFFFF，Seq ID 递增）</text>
+</svg>

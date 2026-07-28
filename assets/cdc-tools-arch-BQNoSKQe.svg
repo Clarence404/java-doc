@@ -1,0 +1,74 @@
+<svg viewBox="0 0 720 296" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .card { rx:8; ry:8; fill:var(--card); stroke-width:2; }
+    .inner { rx:4; ry:4; fill:var(--card); stroke-width:1.5; }
+    .arr { stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">主流 CDC 工具对比架构</text>
+
+  <!-- Debezium -->
+  <rect class="card" x="10" y="38" width="160" height="186" stroke="var(--b)"/>
+  <text x="90" y="58" text-anchor="middle" fill="var(--b)" font-weight="700" font-size="13">Debezium</text>
+  <rect class="inner" x="20" y="66" width="140" height="22" stroke="var(--b)"/>
+  <text x="90" y="81" text-anchor="middle" fill="var(--fg)" font-size="10">MySQL Binlog / PG WAL</text>
+  <text x="90" y="108" text-anchor="middle" fill="var(--muted)" font-size="9">Kafka Connect 插件</text>
+  <text x="90" y="122" text-anchor="middle" fill="var(--fg)" font-size="10">行级变更事件</text>
+  <text x="90" y="136" text-anchor="middle" fill="var(--fg)" font-size="10">精确一次语义</text>
+  <text x="90" y="152" text-anchor="middle" fill="var(--fg)" font-size="10">多数据库支持</text>
+  <rect class="inner" x="20" y="164" width="140" height="22" stroke="var(--muted)"/>
+  <text x="90" y="179" text-anchor="middle" fill="var(--muted)" font-size="9">Sink → Kafka / ES / DB</text>
+  <text x="90" y="206" text-anchor="middle" fill="var(--b)" font-weight="600" font-size="10">★ 社区最活跃</text>
+
+  <!-- Canal -->
+  <rect class="card" x="186" y="38" width="160" height="186" stroke="var(--g)"/>
+  <text x="266" y="58" text-anchor="middle" fill="var(--g)" font-weight="700" font-size="13">Canal（阿里）</text>
+  <rect class="inner" x="196" y="66" width="140" height="22" stroke="var(--g)"/>
+  <text x="266" y="81" text-anchor="middle" fill="var(--fg)" font-size="10">MySQL Binlog（伪从库）</text>
+  <text x="266" y="108" text-anchor="middle" fill="var(--muted)" font-size="9">Java 实现，独立进程</text>
+  <text x="266" y="122" text-anchor="middle" fill="var(--fg)" font-size="10">HA 模式（ZK 协调）</text>
+  <text x="266" y="136" text-anchor="middle" fill="var(--fg)" font-size="10">TCP / MQ 推送</text>
+  <text x="266" y="152" text-anchor="middle" fill="var(--fg)" font-size="10">仅支持 MySQL</text>
+  <rect class="inner" x="196" y="164" width="140" height="22" stroke="var(--muted)"/>
+  <text x="266" y="179" text-anchor="middle" fill="var(--muted)" font-size="9">Sink → Kafka / RocketMQ</text>
+  <text x="266" y="206" text-anchor="middle" fill="var(--g)" font-weight="600" font-size="10">★ 国内使用广泛</text>
+
+  <!-- Maxwell -->
+  <rect class="card" x="362" y="38" width="160" height="186" stroke="var(--y)"/>
+  <text x="442" y="58" text-anchor="middle" fill="var(--y)" font-weight="700" font-size="13">Maxwell</text>
+  <rect class="inner" x="372" y="66" width="140" height="22" stroke="var(--y)"/>
+  <text x="442" y="81" text-anchor="middle" fill="var(--fg)" font-size="10">MySQL Binlog</text>
+  <text x="442" y="108" text-anchor="middle" fill="var(--muted)" font-size="9">轻量级，单进程</text>
+  <text x="442" y="122" text-anchor="middle" fill="var(--fg)" font-size="10">JSON 格式输出</text>
+  <text x="442" y="136" text-anchor="middle" fill="var(--fg)" font-size="10">部署简单</text>
+  <text x="442" y="152" text-anchor="middle" fill="var(--fg)" font-size="10">功能相对基础</text>
+  <rect class="inner" x="372" y="164" width="140" height="22" stroke="var(--muted)"/>
+  <text x="442" y="179" text-anchor="middle" fill="var(--muted)" font-size="9">Sink → Kafka / Kinesis / RMQ</text>
+  <text x="442" y="206" text-anchor="middle" fill="var(--y)" font-weight="600" font-size="10">★ 快速验证首选</text>
+
+  <!-- Flink CDC -->
+  <rect class="card" x="538" y="38" width="172" height="186" stroke="var(--p)"/>
+  <text x="624" y="58" text-anchor="middle" fill="var(--p)" font-weight="700" font-size="13">Flink CDC</text>
+  <rect class="inner" x="548" y="66" width="152" height="22" stroke="var(--p)"/>
+  <text x="624" y="81" text-anchor="middle" fill="var(--fg)" font-size="10">基于 Debezium 引擎</text>
+  <text x="624" y="108" text-anchor="middle" fill="var(--muted)" font-size="9">Flink SQL / DataStream API</text>
+  <text x="624" y="122" text-anchor="middle" fill="var(--fg)" font-size="10">全量 + 增量无缝切换</text>
+  <text x="624" y="136" text-anchor="middle" fill="var(--fg)" font-size="10">实时计算 / ETL 整合</text>
+  <text x="624" y="152" text-anchor="middle" fill="var(--fg)" font-size="10">Checkpoint 容错</text>
+  <rect class="inner" x="548" y="164" width="152" height="22" stroke="var(--muted)"/>
+  <text x="624" y="179" text-anchor="middle" fill="var(--muted)" font-size="9">Sink → 任意 Flink Connector</text>
+  <text x="624" y="206" text-anchor="middle" fill="var(--p)" font-weight="600" font-size="10">★ 实时数仓首选</text>
+
+  <!-- Common Source -->
+  <rect x="10" y="240" width="700" height="44" rx="5" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
+  <text x="360" y="257" text-anchor="middle" fill="var(--fg)" font-size="11">共同原理：读取数据库事务日志（Binlog / WAL / Redo Log）→ 解析为变更事件流，避免全量轮询</text>
+  <text x="360" y="270" text-anchor="middle" fill="var(--muted)" font-size="10">适用场景：数据同步 / 缓存失效 / 微服务事件驱动 / 数仓 ETL / 异地多活</text>
+</svg>

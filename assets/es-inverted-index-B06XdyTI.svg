@@ -1,0 +1,83 @@
+<svg viewBox="0 0 660 280" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { rx:4; ry:4; fill:var(--card); stroke-width:1.5; }
+    .hdr { rx:4; ry:4; }
+    .arr { stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="330" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">倒排索引（Inverted Index）结构</text>
+
+  <!-- ===== LEFT: Documents ===== -->
+  <text x="130" y="44" text-anchor="middle" font-weight="700" fill="var(--b)" font-size="12">原始文档</text>
+
+  <rect class="box" x="10" y="50" width="240" height="26" stroke="var(--b)"/>
+  <text x="16" y="68" fill="var(--b)" font-weight="600">Doc 1:</text>
+  <text x="65" y="68" fill="var(--fg)">Elasticsearch 是分布式搜索引擎</text>
+
+  <rect class="box" x="10" y="82" width="240" height="26" stroke="var(--b)"/>
+  <text x="16" y="100" fill="var(--b)" font-weight="600">Doc 2:</text>
+  <text x="65" y="100" fill="var(--fg)">分布式系统需要高可用设计</text>
+
+  <rect class="box" x="10" y="114" width="240" height="26" stroke="var(--b)"/>
+  <text x="16" y="132" fill="var(--b)" font-weight="600">Doc 3:</text>
+  <text x="65" y="132" fill="var(--fg)">搜索引擎底层使用倒排索引</text>
+
+  <!-- Analysis step -->
+  <line class="arr" x1="250" y1="104" x2="274" y2="104" stroke="var(--muted)"/>
+  <text x="265" y="98" text-anchor="middle" fill="var(--muted)" font-size="9">分词</text>
+  <text x="265" y="118" text-anchor="middle" fill="var(--muted)" font-size="9">分析</text>
+
+  <!-- ===== RIGHT: Inverted Index ===== -->
+  <text x="470" y="44" text-anchor="middle" font-weight="700" fill="var(--g)" font-size="12">倒排索引</text>
+
+  <!-- Header row -->
+  <rect class="hdr" x="280" y="50" width="120" height="24" fill="var(--g)" opacity="0.2" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="340" y="67" text-anchor="middle" fill="var(--g)" font-weight="700">Term（词项）</text>
+  <rect class="hdr" x="400" y="50" width="250" height="24" fill="var(--g)" opacity="0.2" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="525" y="67" text-anchor="middle" fill="var(--g)" font-weight="700">Posting List（文档列表 + 词频 + 位置）</text>
+
+  <!-- Rows -->
+  <rect class="box" x="280" y="74" width="120" height="28" stroke="var(--border)"/>
+  <text x="340" y="93" text-anchor="middle" fill="var(--p)" font-weight="600">分布式</text>
+  <rect class="box" x="400" y="74" width="250" height="28" stroke="var(--border)"/>
+  <text x="525" y="90" text-anchor="middle" fill="var(--fg)" font-size="11">Doc1(tf=1,pos=3), Doc2(tf=1,pos=1)</text>
+
+  <rect class="box" x="280" y="102" width="120" height="28" stroke="var(--border)"/>
+  <text x="340" y="121" text-anchor="middle" fill="var(--p)" font-weight="600">搜索引擎</text>
+  <rect class="box" x="400" y="102" width="250" height="28" stroke="var(--border)"/>
+  <text x="525" y="118" text-anchor="middle" fill="var(--fg)" font-size="11">Doc1(tf=1,pos=4), Doc3(tf=1,pos=2)</text>
+
+  <rect class="box" x="280" y="130" width="120" height="28" stroke="var(--border)"/>
+  <text x="340" y="149" text-anchor="middle" fill="var(--p)" font-weight="600">高可用</text>
+  <rect class="box" x="400" y="130" width="250" height="28" stroke="var(--border)"/>
+  <text x="525" y="146" text-anchor="middle" fill="var(--fg)" font-size="11">Doc2(tf=1,pos=3)</text>
+
+  <rect class="box" x="280" y="158" width="120" height="28" stroke="var(--border)"/>
+  <text x="340" y="177" text-anchor="middle" fill="var(--p)" font-weight="600">倒排索引</text>
+  <rect class="box" x="400" y="158" width="250" height="28" stroke="var(--border)"/>
+  <text x="525" y="174" text-anchor="middle" fill="var(--fg)" font-size="11">Doc3(tf=1,pos=4)</text>
+
+  <!-- Lucene internals -->
+  <rect x="280" y="196" width="370" height="72" rx="5" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="465" y="214" text-anchor="middle" fill="var(--p)" font-weight="700" font-size="11">Lucene 段（Segment）内部结构</text>
+  <text x="465" y="230" text-anchor="middle" fill="var(--fg)" font-size="10">Term Dictionary（FST 精确 / 前缀查找）→ Term Index（加速定位）</text>
+  <text x="465" y="246" text-anchor="middle" fill="var(--fg)" font-size="10">Posting List（压缩存储 docId 差值 + TF + 位置信息）</text>
+  <text x="465" y="262" text-anchor="middle" fill="var(--muted)" font-size="10">Segment 不可变；实时更新靠 refresh（内存 → 可见）+ commit（磁盘持久化）</text>
+
+  <!-- Bottom left note -->
+  <rect x="10" y="160" width="260" height="116" rx="5" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
+  <text x="140" y="178" text-anchor="middle" fill="var(--fg)" font-weight="700" font-size="11">查询示例</text>
+  <text x="20" y="196" fill="var(--b)" font-size="11">GET /index/_search</text>
+  <text x="20" y="212" fill="var(--b)" font-size="11">{ "query": { "match": {</text>
+  <text x="20" y="228" fill="var(--b)" font-size="11">    "content": "分布式搜索" } } }</text>
+  <text x="140" y="248" text-anchor="middle" fill="var(--muted)" font-size="10">分词 → 查 Term → 取交集 PostingList</text>
+  <text x="140" y="262" text-anchor="middle" fill="var(--muted)" font-size="10">→ 按 TF-IDF / BM25 打分排序</text>
+</svg>
