@@ -1,0 +1,108 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
+  <defs>
+    <style>
+      :root {
+        --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+        --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+      }
+      :root[data-theme="dark"] {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+          --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+        }
+      }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="700" height="420" fill="var(--bg)" rx="8"/>
+
+  <!-- Title -->
+  <text x="350" y="32" text-anchor="middle" font-size="16" font-weight="700" fill="var(--fg)">JWT 结构</text>
+
+  <!-- Header block -->
+  <rect x="30" y="55" width="192" height="54" rx="8" fill="var(--b)" opacity="0.9"/>
+  <text x="126" y="86" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">Header</text>
+  <text x="126" y="101" text-anchor="middle" font-size="11" fill="#e0f2fe">算法 + 令牌类型</text>
+
+  <!-- Dot separator 1 -->
+  <text x="238" y="88" text-anchor="middle" font-size="28" font-weight="900" fill="var(--y)">.</text>
+
+  <!-- Payload block -->
+  <rect x="254" y="55" width="192" height="54" rx="8" fill="var(--p)" opacity="0.9"/>
+  <text x="350" y="86" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">Payload</text>
+  <text x="350" y="101" text-anchor="middle" font-size="11" fill="#e0e7ff">声明 / 载荷数据</text>
+
+  <!-- Dot separator 2 -->
+  <text x="462" y="88" text-anchor="middle" font-size="28" font-weight="900" fill="var(--y)">.</text>
+
+  <!-- Signature block -->
+  <rect x="478" y="55" width="192" height="54" rx="8" fill="var(--g)" opacity="0.9"/>
+  <text x="574" y="86" text-anchor="middle" font-size="15" font-weight="700" fill="#ffffff">Signature</text>
+  <text x="574" y="101" text-anchor="middle" font-size="11" fill="#d1fae5">数字签名</text>
+
+  <!-- Detail cards -->
+  <!-- Header detail -->
+  <rect x="30" y="135" width="192" height="110" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="126" y="158" text-anchor="middle" font-size="12" font-weight="600" fill="var(--b)">字段内容</text>
+  <line x1="44" y1="165" x2="208" y2="165" stroke="var(--border)" stroke-width="1"/>
+  <text x="126" y="185" text-anchor="middle" font-size="12" fill="var(--fg)">alg: HS256 / RS256</text>
+  <text x="126" y="205" text-anchor="middle" font-size="12" fill="var(--fg)">typ: JWT</text>
+  <text x="126" y="225" text-anchor="middle" font-size="11" fill="var(--muted)">Base64URL 编码</text>
+  <text x="126" y="241" text-anchor="middle" font-size="10" fill="var(--muted)">eyJhbGciOiJIUzI1NiJ9</text>
+
+  <!-- Payload detail -->
+  <rect x="254" y="135" width="192" height="110" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="350" y="158" text-anchor="middle" font-size="12" font-weight="600" fill="var(--p)">标准声明（Claims）</text>
+  <line x1="268" y1="165" x2="432" y2="165" stroke="var(--border)" stroke-width="1"/>
+  <text x="350" y="185" text-anchor="middle" font-size="12" fill="var(--fg)">sub: 主题（用户 ID）</text>
+  <text x="350" y="203" text-anchor="middle" font-size="12" fill="var(--fg)">iss: 签发方</text>
+  <text x="350" y="221" text-anchor="middle" font-size="12" fill="var(--fg)">exp: 过期时间</text>
+  <text x="350" y="239" text-anchor="middle" font-size="12" fill="var(--fg)">roles: 自定义声明</text>
+
+  <!-- Signature detail -->
+  <rect x="478" y="135" width="192" height="110" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="574" y="158" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">签名算法</text>
+  <line x1="492" y1="165" x2="656" y2="165" stroke="var(--border)" stroke-width="1"/>
+  <text x="574" y="185" text-anchor="middle" font-size="12" fill="var(--fg)">HMAC-SHA256</text>
+  <text x="574" y="203" text-anchor="middle" font-size="12" fill="var(--fg)">RSA / ECDSA</text>
+  <text x="574" y="221" text-anchor="middle" font-size="11" fill="var(--muted)">防篡改保证完整性</text>
+  <text x="574" y="241" text-anchor="middle" font-size="11" fill="var(--muted)">服务端密钥签发</text>
+
+  <!-- Arrows from blocks to detail cards -->
+  <line x1="126" y1="109" x2="126" y2="129" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrowB)"/>
+  <line x1="350" y1="109" x2="350" y2="129" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrowP)"/>
+  <line x1="574" y1="109" x2="574" y2="129" stroke="var(--g)" stroke-width="1.5" marker-end="url(#arrowG)"/>
+
+  <!-- Bottom explanation box -->
+  <rect x="30" y="268" width="640" height="64" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="350" y="290" text-anchor="middle" font-size="12" font-weight="600" fill="var(--fg)">完整 JWT Token 格式</text>
+  <text x="350" y="312" text-anchor="middle" font-size="12" fill="var(--b)">Base64URL(Header)</text>
+  <text x="350" y="312" text-anchor="middle" font-size="12" fill="var(--y)" dx="105">.</text>
+  <text x="350" y="312" text-anchor="middle" font-size="12" fill="var(--p)" dx="140">Base64URL(Payload)</text>
+  <text x="350" y="312" text-anchor="middle" font-size="12" fill="var(--y)" dx="258">.</text>
+  <text x="350" y="312" text-anchor="middle" font-size="12" fill="var(--g)" dx="300">Signature</text>
+  <text x="350" y="326" text-anchor="middle" font-size="11" fill="var(--muted)">三段均为 Base64URL 编码，用"."连接，无状态、自包含、可跨服务验证</text>
+
+  <!-- Verification flow -->
+  <rect x="30" y="354" width="640" height="48" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="350" y="374" text-anchor="middle" font-size="12" font-weight="600" fill="var(--fg)">验证流程</text>
+  <text x="350" y="393" text-anchor="middle" font-size="11" fill="var(--muted)">客户端携带 Token → 服务端解码 Header+Payload → 用密钥重新计算签名 → 与 Signature 比对 → 验证通过</text>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowB" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+    <marker id="arrowP" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--p)"/>
+    </marker>
+    <marker id="arrowG" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--g)"/>
+    </marker>
+  </defs>
+</svg>
