@@ -1,4 +1,4 @@
-# AI 开发体系导论
+# AI 开发总览
 
 > 参考资料：
 > * Andrej Karpathy - The spelled-out intro to LLMs：[https://www.youtube.com/watch?v=zjkBMFhNj_g](https://www.youtube.com/watch?v=zjkBMFhNj_g)
@@ -65,25 +65,25 @@ LangChain 的 Java 实现，支持链式调用、工具接入、RAG 模式等，
 
 结合知识库与大模型，先检索、后生成，提升大模型回答的准确性与上下文相关性。
 
-> 详见：[RAG 检索增强生成](./5_rag.md)
+> 详见：[RAG](./5_rag.md)
 
 ### 3.2 Fine-tuning（微调）
 
 在基础模型之上，利用领域数据做再训练，使模型更好适配特定业务场景或风格要求。
 
-> 详见：[模型微调 Fine-tuning](./11_fine_tuning.md)
+> 详见：[模型微调](./11_fine_tuning.md)
 
 ### 3.3 Embedding（向量化）
 
 将文本转换为高维向量，用于语义相似度计算，是 RAG 的核心组件。
 
-> 详见：[Embedding 与语义搜索](./10_embedding.md)
+> 详见：[Embedding](./10_embedding.md)
 
 ### 3.4 AI Agent（智能体）
 
 具备自主规划与工具调用能力的 AI 系统，可以拆解任务、调用外部工具、循环执行直至完成目标。
 
-> 详见：[AI Agent 智能体](./8_ai_agent.md)
+> 详见：[AI Agent](./8_ai_agent.md)
 
 ---
 
@@ -99,4 +99,4 @@ MCP（Model Context Protocol）是 Anthropic 推出的开放协议，用于标�
 - ✅ 兼容多种 LLM 提供商
 - ✅ 支持本地部署，数据安全可控
 
-> 详见：[MCP 协议实战](./9_mcp.md)
+> 详见：[MCP 协议](./9_mcp.md)
