@@ -7,21 +7,22 @@
 | 模块 | 覆盖内容 | 重点产出 |
 |------|----------|----------|
 | [JWT 令牌机制](./1_jwt) | 令牌结构、签名算法、失效与刷新策略 | 会设计短期 Access Token 与 Refresh Token |
-| [OAuth2 与 OIDC](./2_oauth2_oidc) | 授权码、PKCE、OIDC 身份层、安全风险 | 能区分认证、授权与第三方登录 |
-| [单点登录（SSO）](./3_sso) | Session SSO、CAS、SAML、OIDC、Sa-Token、Keycloak | 能选择合适的企业登录方案 |
-| [认证与授权](./4_rbac_abac) | RBAC / ABAC 模型、权限数据库设计、OPA | 能落地菜单、按钮、数据权限 |
-| [API 安全](./5_api_security) | 接口签名、防重放、API Key、CORS、HTTPS | 能保护开放接口与内部服务接口 |
-| [数据安全](./6_data_security) | 加密算法、脱敏、密钥管理、操作审计、Vault | 能处理敏感字段、密钥轮换、合规审计 |
-| [常见漏洞与防护](./7_vulnerabilities) | OWASP Top 10、SQL 注入、XSS、CSRF、反序列化 | 能识别常见 Web 风险并制定防护 |
-| [零信任架构](./8_zero_trust) | 零信任模型、mTLS、OPA 动态授权 | 能理解服务间身份与动态策略 |
+| [OAuth2](./2_oauth2) | 授权框架、四角色、四种授权模式、安全风险 | 能理解 OAuth2 授权框架与 PKCE |
+| [OIDC](./3_oidc) | id_token、UserInfo Endpoint、与 OAuth2 对比 | 能区分认证与授权，理解第三方登录 |
+| [单点登录（SSO）](./4_sso) | Session SSO、CAS、SAML、OIDC、Sa-Token、Keycloak | 能选择合适的企业登录方案 |
+| [认证与授权](./5_rbac_abac) | RBAC / ABAC 模型、权限数据库设计、OPA | 能落地菜单、按钮、数据权限 |
+| [API 安全](./6_api_security) | 接口签名、防重放、API Key、CORS、HTTPS | 能保护开放接口与内部服务接口 |
+| [数据安全](./7_data_security) | 加密算法、脱敏、密钥管理、操作审计、Vault | 能处理敏感字段、密钥轮换、合规审计 |
+| [常见漏洞与防护](./8_vulnerabilities) | OWASP Top 10、SQL 注入、XSS、CSRF、反序列化 | 能识别常见 Web 风险并制定防护 |
+| [零信任架构](./9_zero_trust) | 零信任模型、mTLS、OPA 动态授权 | 能理解服务间身份与动态策略 |
 
 ## 二、推荐阅读路径
 
-1. 先读 [JWT 令牌机制](./1_jwt)、[OAuth2 与 OIDC](./2_oauth2_oidc)、[单点登录（SSO）](./3_sso)，建立身份与登录体系。
-2. 再读 [认证与授权](./4_rbac_abac)，区分认证、授权、RBAC、ABAC 和数据权限。
-3. 然后读 [API 安全](./5_api_security) 与 [常见漏洞与防护](./7_vulnerabilities)，补齐接口暴露面的防护手段。
-4. 接着读 [数据安全](./6_data_security)，覆盖敏感数据、密钥轮换、日志和追责。
-5. 最后读 [零信任架构](./8_zero_trust)，把单体/网关视角扩展到微服务、服务网格和动态授权。
+1. 先读 [JWT](./1_jwt)、[OAuth2](./2_oauth2)、[OIDC](./3_oidc)、[单点登录（SSO）](./4_sso)，建立身份与登录体系。
+2. 再读 [认证与授权](./5_rbac_abac)，区分认证、授权、RBAC、ABAC 和数据权限。
+3. 然后读 [API 安全](./6_api_security) 与 [常见漏洞与防护](./8_vulnerabilities)，补齐接口暴露面的防护手段。
+4. 接着读 [数据安全](./7_data_security)，覆盖敏感数据、密钥轮换、日志和追责。
+5. 最后读 [零信任架构](./9_zero_trust)，把单体/网关视角扩展到微服务、服务网格和动态授权。
 
 ## 三、安全分层模型
 

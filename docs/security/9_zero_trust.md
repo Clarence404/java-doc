@@ -77,7 +77,7 @@ Istio 自动通过 cert-manager / SPIFFE 为每个 Pod 颁发 SVID 证书，每 
 
 OPA 是 CNCF 的策略引擎，将权限策略从业务代码解耦，以"策略即代码"方式集中管理。在零信任体系中，OPA 承担**政策引擎（Policy Engine）**角色，每次请求都实时查询策略决策。
 
-> Rego 策略编写与 Spring ABAC 集成详见 → [认证授权与权限模型](/security/4_rbac_abac)
+> Rego 策略编写与 Spring ABAC 集成详见 → [认证与授权](/security/5_rbac_abac)
 
 **零信任场景下 OPA 的典型部署方式：**
 

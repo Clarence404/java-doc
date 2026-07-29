@@ -1,10 +1,9 @@
-# OAuth2 与 OIDC
+# OAuth2
 
 > 参考资料：
 > * OAuth2 RFC 6749：[https://datatracker.ietf.org/doc/html/rfc6749](https://datatracker.ietf.org/doc/html/rfc6749)
-> * OIDC 规范：[https://openid.net/specs/openid-connect-core-1_0.html](https://openid.net/specs/openid-connect-core-1_0.html)
 
-> 本文聚焦 OAuth2 / OIDC 协议原理。SSO 落地实现见 → [单点登录](/security/3_sso)
+> 本文聚焦 OAuth2 协议框架。基于 OAuth2 的身份认证层见 → [OIDC](/security/3_oidc)；SSO 落地实现见 → [单点登录](/security/4_sso)
 >
 > JWT 令牌格式详见 → [JWT](/security/1_jwt)
 
@@ -68,38 +67,7 @@ Token 直接返回到浏览器 URL，安全性差，OAuth2.1 中已废弃，SPA 
 
 ---
 
-## 四、OIDC 是什么
-
-**OIDC（OpenID Connect）**：在 OAuth2 之上增加了身份认证层，解决 OAuth2 只能授权、不能认证的问题。
-
-| 对比 | OAuth2 | OIDC |
-|------|--------|------|
-| 解决问题 | 授权（能访问什么） | 认证（你是谁）|
-| 核心产物 | access_token | access_token + **id_token** |
-| id_token | 无 | JWT 格式，包含用户身份信息（sub、name、email 等）|
-
-### OIDC 新增内容
-
-- **id_token**：JWT 格式的身份令牌，包含用户信息（`sub` = 用户唯一标识）
-- **UserInfo Endpoint**：用 access_token 请求该接口可获取更详细的用户信息
-- **scope**：新增 `openid`、`profile`、`email` 等标准 scope
-
-```json
-// id_token 解码后的 Payload 示例
-{
-  "iss": "https://accounts.google.com",   // 签发方
-  "sub": "110169484474386276334",          // 用户唯一 ID
-  "aud": "my-client-id",                  // 受众（Client ID）
-  "exp": 1715000000,                      // 过期时间
-  "iat": 1714996400,                      // 签发时间
-  "email": "user@example.com",
-  "name": "Zhang San"
-}
-```
-
----
-
-## 五、常见安全风险
+## 四、常见安全风险
 
 | 风险 | 说明 | 防护 |
 |------|------|------|
