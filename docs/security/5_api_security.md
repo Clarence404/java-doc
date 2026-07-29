@@ -359,12 +359,3 @@ server:
     key-store-type: PKCS12
 ```
 
----
-
-## 九、幂等设计
-
-→ 详见 [幂等性设计](/architecture/5_idempotence)
-
-## 十、限流与熔断
-
-→ 详见 [限流与降级](/high-avail/1_rate_limiting)

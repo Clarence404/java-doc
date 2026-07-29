@@ -20,18 +20,7 @@
 
 ## 二、零信任决策架构
 
-```
-访问请求
-    ↓
-政策引擎（Policy Engine）
-  ├── 身份验证（用户 / 服务账户 / 设备证书）
-  ├── 设备信任评估（是否合规、是否加入域）
-  └── 访问上下文（时间、地理位置、风险评分）
-    ↓
-政策执行点（Policy Enforcement Point）
-    ↓
-资源（API / 数据库 / 文件系统）
-```
+![零信任架构](../assets/security/zero-trust-arch.svg)
 
 ---
 
@@ -86,38 +75,14 @@ Istio 自动通过 cert-manager / SPIFFE 为每个 Pod 颁发 SVID 证书，每 
 
 ## 四、OPA 动态授权（Open Policy Agent）
 
-OPA 是 CNCF 的策略引擎，将权限策略从业务代码解耦，以"策略即代码"方式集中管理。
+OPA 是 CNCF 的策略引擎，将权限策略从业务代码解耦，以"策略即代码"方式集中管理。在零信任体系中，OPA 承担**政策引擎（Policy Engine）**角色，每次请求都实时查询策略决策。
 
-```rego
-# policy.rego
-package httpapi.authz
+> Rego 策略编写与 Spring ABAC 集成详见 → [认证授权与权限模型](/security/4_rbac_abac)
 
-import future.keywords.if
-
-default allow := false
-
-# 管理员可访问所有资源
-allow if {
-    input.user.role == "admin"
-}
-
-# 用户只能访问自己的资源
-allow if {
-    input.method == "GET"
-    input.resource.owner_id == input.user.id
-}
-
-# 审计员只能在工作时间访问报表
-allow if {
-    input.user.role == "auditor"
-    input.path[0] == "reports"
-    to_number(time.clock(time.now_ns())[0]) >= 9
-    to_number(time.clock(time.now_ns())[0]) < 18
-}
-```
+**零信任场景下 OPA 的典型部署方式：**
 
 ```java
-// Spring 拦截器集成 OPA
+// Spring 拦截器调用 OPA REST API 完成动态授权
 @Component
 public class OpaAuthInterceptor implements HandlerInterceptor {
 
@@ -128,17 +93,14 @@ public class OpaAuthInterceptor implements HandlerInterceptor {
         Map<String, Object> input = Map.of(
             "method", request.getMethod(),
             "path",   Arrays.asList(request.getRequestURI().replaceFirst("/", "").split("/")),
-            "user",   Map.of(
-                "id",   getCurrentUserId(),
-                "role", getCurrentUserRole()
-            ),
+            "user",   Map.of("id", getCurrentUserId(), "role", getCurrentUserRole()),
             "resource", Map.of("owner_id", getResourceOwnerId(request))
         );
 
         // OPA REST API：POST /v1/data/httpapi/authz
-        Map<String, Object> body = Map.of("input", input);
         ResponseEntity<Map> resp = restTemplate.postForEntity(
-            "http://opa:8181/v1/data/httpapi/authz", body, Map.class);
+            "http://opa:8181/v1/data/httpapi/authz",
+            Map.of("input", input), Map.class);
 
         boolean allowed = (Boolean) ((Map<?, ?>) resp.getBody()).get("result");
         if (!allowed) {

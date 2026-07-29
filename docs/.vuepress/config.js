@@ -89,21 +89,7 @@ const navbarDropdown = [
             {text: '测试体系', link: '/testing/0_testing_intro'},
         ],
     },
-    {
-        text: '安全体系',
-        children: [
-            {text: '安全体系总览',       link: '/security/0_security'},
-            {text: 'JWT 令牌机制',       link: '/security/1_jwt'},
-            {text: 'OAuth2 与 OIDC',    link: '/security/2_oauth2_oidc'},
-            {text: '单点登录（SSO）',    link: '/security/3_sso'},
-            {text: '认证与授权',         link: '/security/4_authentication'},
-            {text: 'API 安全',           link: '/security/5_api_security'},
-            {text: '数据安全',           link: '/security/6_data_security'},
-            {text: '常见漏洞与防护',     link: '/security/7_vulnerabilities'},
-            {text: '零信任架构',         link: '/security/8_zero_trust'},
-            {text: '审计日志与密钥管理', link: '/security/9_audit_secret'},
-        ],
-    },
+    {text: '安全体系', link: '/security/0_security'},
     {
         text: '垂直领域',
         children: [

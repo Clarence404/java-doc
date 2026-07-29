@@ -1,0 +1,164 @@
+<svg viewBox="0 0 680 522" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171; }
+    }
+  </style>
+  <defs>
+    <!-- Arrow pointing forward (tip at x2/y2) -->
+    <marker id="arr-end" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0.5 L6,3.5 L0,6.5 z" fill="var(--fg)"/>
+    </marker>
+    <!-- Arrow pointing backward (tip at x1/y1) -->
+    <marker id="arr-start" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
+      <path d="M7,0.5 L1,3.5 L7,6.5 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="680" height="522" fill="var(--bg)"/>
+
+  <!-- ── Title (baseline y=20, top≈10) ── -->
+  <text x="340" y="20" font-size="14" font-weight="700" text-anchor="middle" fill="var(--fg)">零信任架构（Never Trust, Always Verify）</text>
+
+  <!-- ════════════════════════════════════════════════════════
+       Layer 1 — 访问请求层
+       Outer: y=32  h=90  bottom=122
+       Inner boxes: y=52  h=62  bottom=114  (2 lines → h≥60 ✓)
+       Inner box cols: x=20/245/470  w=190
+       Inner box gap: 245-210=35px ✓
+       Outer-inner gap bottom: 122-114=8px ✓
+       Label dist from bottom: 122-45=77px ✓
+       Inner line1 y=80: 114-80=34px ✓
+       Inner line2 y=96: 114-96=18px ✓
+       ════════════════════════════════════════════════════════ -->
+  <rect x="10" y="32" width="660" height="90" rx="6"
+        fill="var(--b)" fill-opacity="0.08" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="340" y="45" font-size="11" font-weight="600" text-anchor="middle" fill="var(--b)">访问请求层</text>
+
+  <!-- 用户设备 -->
+  <rect x="20" y="52" width="190" height="62" rx="5"
+        fill="var(--b)" fill-opacity="0.15" stroke="var(--b)" stroke-width="1"/>
+  <text x="115" y="80" font-size="11" font-weight="600" text-anchor="middle" fill="var(--b)">用户设备</text>
+  <text x="115" y="96" font-size="10" text-anchor="middle" fill="var(--muted)">终端 / 移动端</text>
+
+  <!-- 服务账户 -->
+  <rect x="245" y="52" width="190" height="62" rx="5"
+        fill="var(--b)" fill-opacity="0.15" stroke="var(--b)" stroke-width="1"/>
+  <text x="340" y="80" font-size="11" font-weight="600" text-anchor="middle" fill="var(--b)">服务账户</text>
+  <text x="340" y="96" font-size="10" text-anchor="middle" fill="var(--muted)">后台服务 / CI/CD</text>
+
+  <!-- 外部应用 -->
+  <rect x="470" y="52" width="190" height="62" rx="5"
+        fill="var(--b)" fill-opacity="0.15" stroke="var(--b)" stroke-width="1"/>
+  <text x="565" y="80" font-size="11" font-weight="600" text-anchor="middle" fill="var(--b)">外部应用</text>
+  <text x="565" y="96" font-size="10" text-anchor="middle" fill="var(--muted)">第三方 / 合作方</text>
+
+  <!-- ── Double arrow 1: Layer1(122) ↕ Layer2(162)
+       y1=122+6=128  y2=162-6=156  length=28px ≥18px ✓ -->
+  <line x1="340" y1="128" x2="340" y2="156"
+        stroke="var(--fg)" stroke-width="1.5"
+        marker-start="url(#arr-start)" marker-end="url(#arr-end)"/>
+
+  <!-- ════════════════════════════════════════════════════════
+       Layer 2 — 策略引擎层（核心）  [prominent / taller]
+       Outer: y=162  h=110  bottom=272
+       Inner boxes: y=182  h=76  bottom=258  (3 lines → h≥60 ✓)
+       Label dist from bottom: 272-176=96px ✓
+       Inner line1 y=204: 258-204=54px ✓
+       Inner line2 y=221: 258-221=37px ✓
+       Inner line3 y=238: 258-238=20px ✓
+       Outer-inner gap bottom: 272-258=14px ✓
+       ════════════════════════════════════════════════════════ -->
+  <rect x="10" y="162" width="660" height="110" rx="6"
+        fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="2"/>
+  <text x="340" y="176" font-size="11" font-weight="700" text-anchor="middle" fill="var(--p)">策略引擎层（核心）</text>
+
+  <!-- 身份验证 -->
+  <rect x="20" y="182" width="190" height="76" rx="5"
+        fill="var(--p)" fill-opacity="0.15" stroke="var(--p)" stroke-width="1"/>
+  <text x="115" y="204" font-size="11" font-weight="600" text-anchor="middle" fill="var(--p)">身份验证</text>
+  <text x="115" y="221" font-size="10" text-anchor="middle" fill="var(--muted)">MFA / SSO / OIDC</text>
+  <text x="115" y="238" font-size="10" text-anchor="middle" fill="var(--muted)">持续身份校验</text>
+
+  <!-- 设备信任评估 -->
+  <rect x="245" y="182" width="190" height="76" rx="5"
+        fill="var(--p)" fill-opacity="0.15" stroke="var(--p)" stroke-width="1"/>
+  <text x="340" y="204" font-size="11" font-weight="600" text-anchor="middle" fill="var(--p)">设备信任评估</text>
+  <text x="340" y="221" font-size="10" text-anchor="middle" fill="var(--muted)">端点合规 / EDR</text>
+  <text x="340" y="238" font-size="10" text-anchor="middle" fill="var(--muted)">设备健康检查</text>
+
+  <!-- 访问上下文（风险评分） -->
+  <rect x="470" y="182" width="190" height="76" rx="5"
+        fill="var(--p)" fill-opacity="0.15" stroke="var(--p)" stroke-width="1"/>
+  <text x="565" y="204" font-size="11" font-weight="600" text-anchor="middle" fill="var(--p)">访问上下文</text>
+  <text x="565" y="221" font-size="10" text-anchor="middle" fill="var(--muted)">风险评分 / 时间地点</text>
+  <text x="565" y="238" font-size="10" text-anchor="middle" fill="var(--muted)">最小权限原则</text>
+
+  <!-- ── Double arrow 2: Layer2(272) ↕ Layer3(312)
+       y1=272+6=278  y2=312-6=306  length=28px ✓ -->
+  <line x1="340" y1="278" x2="340" y2="306"
+        stroke="var(--fg)" stroke-width="1.5"
+        marker-start="url(#arr-start)" marker-end="url(#arr-end)"/>
+
+  <!-- ════════════════════════════════════════════════════════
+       Layer 3 — 执行层
+       Outer: y=312  h=90  bottom=402
+       PEP inner: y=334  h=60  bottom=394  (2 lines → h≥60 ✓)
+       Label dist from outer bottom: 402-325=77px ✓
+       PEP line1 y=357: 394-357=37px ✓
+       PEP line2 y=373: 394-373=21px ✓
+       Outer-inner gap bottom: 402-394=8px ✓
+       ════════════════════════════════════════════════════════ -->
+  <rect x="10" y="312" width="660" height="90" rx="6"
+        fill="var(--g)" fill-opacity="0.08" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="340" y="325" font-size="11" font-weight="600" text-anchor="middle" fill="var(--g)">执行层</text>
+
+  <!-- PEP single wide box -->
+  <rect x="20" y="334" width="640" height="60" rx="5"
+        fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1"/>
+  <text x="340" y="357" font-size="12" font-weight="700" text-anchor="middle" fill="var(--g)">Policy Enforcement Point（PEP）</text>
+  <text x="340" y="373" font-size="10" text-anchor="middle" fill="var(--muted)">拦截所有访问请求 · 执行策略决策 · 动态授权</text>
+
+  <!-- ── Double arrow 3: Layer3(402) ↕ Layer4(442)
+       y1=402+6=408  y2=442-6=436  length=28px ✓ -->
+  <line x1="340" y1="408" x2="340" y2="436"
+        stroke="var(--fg)" stroke-width="1.5"
+        marker-start="url(#arr-start)" marker-end="url(#arr-end)"/>
+
+  <!-- ════════════════════════════════════════════════════════
+       Layer 4 — 资源层
+       Outer: y=442  h=72  bottom=514
+       Inner boxes: y=462  h=42  bottom=504  (single line, h≥60 not required)
+       Label dist from outer bottom: 514-455=59px ✓
+       Inner text y=485: 504-485=19px ✓
+       Outer-inner gap bottom: 514-504=10px ✓
+       ════════════════════════════════════════════════════════ -->
+  <rect x="10" y="442" width="660" height="72" rx="6"
+        fill="var(--y)" fill-opacity="0.08" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="340" y="455" font-size="11" font-weight="600" text-anchor="middle" fill="var(--y)">资源层</text>
+
+  <!-- API 服务 -->
+  <rect x="20" y="462" width="190" height="42" rx="5"
+        fill="var(--y)" fill-opacity="0.18" stroke="var(--y)" stroke-width="1"/>
+  <text x="115" y="485" font-size="11" font-weight="600" text-anchor="middle" fill="var(--y)">API 服务</text>
+
+  <!-- 数据库 -->
+  <rect x="245" y="462" width="190" height="42" rx="5"
+        fill="var(--y)" fill-opacity="0.18" stroke="var(--y)" stroke-width="1"/>
+  <text x="340" y="485" font-size="11" font-weight="600" text-anchor="middle" fill="var(--y)">数据库</text>
+
+  <!-- 内部系统 -->
+  <rect x="470" y="462" width="190" height="42" rx="5"
+        fill="var(--y)" fill-opacity="0.18" stroke="var(--y)" stroke-width="1"/>
+  <text x="565" y="485" font-size="11" font-weight="600" text-anchor="middle" fill="var(--y)">内部系统</text>
+</svg>

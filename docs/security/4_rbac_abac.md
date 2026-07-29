@@ -16,6 +16,8 @@
 
 ## 二、RBAC 模型（Role-Based Access Control）
 
+![RBAC 权限模型](../assets/security/rbac-model.svg)
+
 最广泛使用的权限模型：用户通过角色拥有权限，而非直接给用户授权。
 
 ### RBAC 进阶模型

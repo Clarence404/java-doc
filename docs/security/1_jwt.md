@@ -22,6 +22,8 @@
 
 ## 二、结构
 
+![JWT 三段结构](../assets/security/jwt-structure.svg)
+
 JWT 由三部分组成，用 `.` 分隔：
 
 ```
@@ -149,5 +151,58 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 | **Token 不过期** | 长期有效的 Token 泄露影响大 | 合理设置 exp，结合 refresh_token 机制 |
 | **XSS 导致 Token 泄露** | Token 存 localStorage，被 XSS 脚本读取 | 存 httpOnly Cookie，或做 XSS 防护 |
 
-> [!warning]
-> 待补充：RS256 密钥对生成与轮换、JWT 黑名单 Redis 实现、多服务公钥分发方案
+## 七、密钥轮换与吊销
+
+### 7.1 RS256 / ES256 密钥轮换
+
+非对称签名适合微服务场景：认证服务持有私钥并签发 Token，业务服务只持有公钥并验证 Token。
+
+推荐做法：
+
+- JWT Header 中必须带 `kid`，用于标识签名密钥版本。
+- 认证服务维护多组密钥：`current` 用于签发，`previous` 用于验证尚未过期的旧 Token。
+- 轮换时先发布新公钥，再切换签发私钥，最后等待旧 Token 自然过期后下线旧公钥。
+- 私钥只保存在认证服务或 KMS / Vault 中，不进入 Git、镜像、日志和前端包。
+- 业务服务缓存 JWKS 时要设置合理 TTL，并支持主动刷新，避免密钥切换后大面积验证失败。
+
+### 7.2 JWT 黑名单
+
+JWT 天然是无状态的，签发后在 `exp` 到期前通常都可用。以下场景需要服务端吊销能力：
+
+- 用户主动退出登录。
+- 密码修改、MFA 重置、账号禁用。
+- Token 泄露或设备丢失。
+- 权限发生高风险变更。
+
+常见实现：
+
+```java
+// Redis key: jwt:blacklist:{jti}
+// TTL = token.exp - now，避免黑名单无限增长
+redisTemplate.opsForValue().set(
+    "jwt:blacklist:" + jti,
+    "revoked",
+    Duration.between(Instant.now(), tokenExpiresAt)
+);
+```
+
+验证流程：
+
+1. 校验签名、`exp`、`iss`、`aud`。
+2. 读取 `jti`，检查是否在 Redis 黑名单中。
+3. 对关键接口可额外校验用户状态、密码版本号或权限版本号。
+
+### 7.3 多服务公钥分发
+
+多服务环境中不要手工复制公钥文件，推荐提供 JWKS 端点：
+
+```text
+GET /.well-known/jwks.json
+```
+
+业务服务通过 `kid` 选择对应公钥验证签名。公钥分发要注意：
+
+- JWKS 端点必须走 HTTPS。
+- 返回当前公钥和仍在有效期内的旧公钥。
+- 公钥缓存 TTL 不宜过长，通常按 Token 有效期和轮换频率折中。
+- 验证端必须固定允许的 `alg`，不能完全信任 JWT Header 中的算法字段。

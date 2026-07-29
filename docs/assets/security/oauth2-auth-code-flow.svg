@@ -1,0 +1,101 @@
+<svg viewBox="0 0 780 551" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171; }
+    }
+  </style>
+  <defs>
+    <!-- Arrow marker: tip aligns with line endpoint (refX=6) -->
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0.5 L6,3.5 L0,6.5 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="780" height="551" fill="var(--bg)"/>
+
+  <!-- ── Title (baseline y=18, top≈8) ── -->
+  <text x="390" y="18" font-size="14" font-weight="700" text-anchor="middle" fill="var(--fg)">OAuth2 授权码流程（Authorization Code Flow）</text>
+
+  <!-- ════════════════════════════════════════════════════════════
+       Participant boxes  y=28  h=60  bottom=88
+       Single-line text: baseline y=58  (dist from bottom: 88-58=30px ✓)
+       Two-line text:    line1 y=51  line2 y=66  (dist: 88-66=22px ✓)
+       Box gap:  each box width=120, gaps=75px (≥8px ✓)
+       ════════════════════════════════════════════════════════════ -->
+
+  <!-- User: x=38, center=98 -->
+  <rect x="38" y="28" width="120" height="60" rx="6"
+        fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="98" y="58" font-size="12" font-weight="600" text-anchor="middle" fill="var(--p)">用户 User</text>
+
+  <!-- Client: x=233, center=293 -->
+  <rect x="233" y="28" width="120" height="60" rx="6"
+        fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="293" y="58" font-size="12" font-weight="600" text-anchor="middle" fill="var(--b)">客户端 Client</text>
+
+  <!-- Auth Server: x=428, center=488  (2 lines → h=60 ✓) -->
+  <rect x="428" y="28" width="120" height="60" rx="6"
+        fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="488" y="51" font-size="12" font-weight="600" text-anchor="middle" fill="var(--g)">授权服务器</text>
+  <text x="488" y="66" font-size="10" text-anchor="middle" fill="var(--g)">Auth Server</text>
+
+  <!-- Resource Server: x=623, center=683  (2 lines → h=60 ✓) -->
+  <rect x="623" y="28" width="120" height="60" rx="6"
+        fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="683" y="51" font-size="12" font-weight="600" text-anchor="middle" fill="var(--y)">资源服务器</text>
+  <text x="683" y="66" font-size="10" text-anchor="middle" fill="var(--y)">Resource Server</text>
+
+  <!-- ── Lifelines: y1=88, y2=541 ── -->
+  <line x1="98"  y1="88" x2="98"  y2="541" stroke="var(--p)" stroke-width="1" stroke-dasharray="4,4" opacity="0.45"/>
+  <line x1="293" y1="88" x2="293" y2="541" stroke="var(--b)" stroke-width="1" stroke-dasharray="4,4" opacity="0.45"/>
+  <line x1="488" y1="88" x2="488" y2="541" stroke="var(--g)" stroke-width="1" stroke-dasharray="4,4" opacity="0.45"/>
+  <line x1="683" y1="88" x2="683" y2="541" stroke="var(--y)" stroke-width="1" stroke-dasharray="4,4" opacity="0.45"/>
+
+  <!-- ══════════════════════════════════════════════
+       Steps: y = 144, 199, 254, 309, 364, 419, 474, 529
+       Labels: y = step_y − 6
+       Step gap: 55px (uniform, diff=0 ✓)
+       ══════════════════════════════════════════════ -->
+
+  <!-- Step 1: User(98) → Client(293)  label x=(98+293)/2=195 -->
+  <text x="195" y="138" font-size="10" text-anchor="middle" fill="var(--muted)">① 发起登录</text>
+  <line x1="98" y1="144" x2="293" y2="144" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 2: Client(293) → AuthSrv(488)  label x=390 -->
+  <text x="390" y="193" font-size="10" text-anchor="middle" fill="var(--muted)">② 重定向授权页（client_id / scope / redirect_uri）</text>
+  <line x1="293" y1="199" x2="488" y2="199" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 3: User(98) → AuthSrv(488)  label x=(98+488)/2=293 -->
+  <text x="293" y="248" font-size="10" text-anchor="middle" fill="var(--muted)">③ 输入账号密码，确认授权</text>
+  <line x1="98" y1="254" x2="488" y2="254" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 4: AuthSrv(488) → Client(293)  label x=390 -->
+  <text x="390" y="303" font-size="10" text-anchor="middle" fill="var(--muted)">④ 回调 redirect_uri（携带 code）</text>
+  <line x1="488" y1="309" x2="293" y2="309" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 5: Client(293) → AuthSrv(488)  label x=390 -->
+  <text x="390" y="358" font-size="10" text-anchor="middle" fill="var(--muted)">⑤ 用 code 换 token（带 client_secret）</text>
+  <line x1="293" y1="364" x2="488" y2="364" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 6: AuthSrv(488) → Client(293)  label x=390 -->
+  <text x="390" y="413" font-size="10" text-anchor="middle" fill="var(--muted)">⑥ 返回 access_token + refresh_token</text>
+  <line x1="488" y1="419" x2="293" y2="419" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 7: Client(293) → ResSrv(683)  label x=(293+683)/2=488 -->
+  <text x="488" y="468" font-size="10" text-anchor="middle" fill="var(--muted)">⑦ 携带 access_token 访问 API</text>
+  <line x1="293" y1="474" x2="683" y2="474" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 8: ResSrv(683) → Client(293)  label x=488 -->
+  <text x="488" y="523" font-size="10" text-anchor="middle" fill="var(--muted)">⑧ 返回受保护资源</text>
+  <line x1="683" y1="529" x2="293" y2="529" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

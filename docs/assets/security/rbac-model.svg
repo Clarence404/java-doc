@@ -1,0 +1,110 @@
+<svg viewBox="0 0 600 440" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif">
+  <defs>
+    <style>
+      :root {
+        --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+        --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+      }
+      :root[data-theme="dark"] {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+          --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+        }
+      }
+    </style>
+    <marker id="arrowDash" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arrowSolid" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="440" fill="var(--bg)" rx="8"/>
+
+  <!-- Title -->
+  <text x="300" y="30" text-anchor="middle" font-size="15" font-weight="700" fill="var(--fg)">RBAC 权限模型（用户 → 角色 → 权限）</text>
+
+  <!-- ========== Layer 1: Users ========== -->
+  <!-- Layer label -->
+  <rect x="20" y="52" width="560" height="80" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="300" y="73" text-anchor="middle" font-size="12" font-weight="600" fill="var(--b)">用户层（User）</text>
+
+  <!-- User A -->
+  <rect x="148" y="82" width="120" height="38" rx="5" fill="var(--b)" opacity="0.15" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="208" y="106" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">用户 A</text>
+
+  <!-- User B -->
+  <rect x="332" y="82" width="120" height="38" rx="5" fill="var(--b)" opacity="0.15" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="392" y="106" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">用户 B</text>
+
+  <!-- ========== Arrows: User → Role (dashed, many-to-many) ========== -->
+  <!-- User A → Admin -->
+  <line x1="208" y1="120" x2="152" y2="214" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowDash)"/>
+  <!-- User A → Editor -->
+  <line x1="208" y1="120" x2="300" y2="214" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowDash)"/>
+  <!-- User B → Editor -->
+  <line x1="392" y1="120" x2="300" y2="214" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowDash)"/>
+  <!-- User B → Viewer -->
+  <line x1="392" y1="120" x2="448" y2="214" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowDash)"/>
+
+  <!-- Relation label -->
+  <text x="300" y="175" text-anchor="middle" font-size="10" fill="var(--muted)">多对多分配</text>
+
+  <!-- ========== Layer 2: Roles ========== -->
+  <rect x="20" y="184" width="560" height="80" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="300" y="205" text-anchor="middle" font-size="12" font-weight="600" fill="var(--p)">角色层（Role）</text>
+
+  <!-- Admin -->
+  <rect x="52" y="214" width="148" height="38" rx="5" fill="var(--p)" opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="126" y="238" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">管理员</text>
+
+  <!-- Editor -->
+  <rect x="226" y="214" width="148" height="38" rx="5" fill="var(--p)" opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="300" y="238" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">编辑</text>
+
+  <!-- Viewer -->
+  <rect x="400" y="214" width="148" height="38" rx="5" fill="var(--p)" opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="474" y="238" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">访客</text>
+
+  <!-- ========== Arrows: Role → Permission (dashed, many-to-many) ========== -->
+  <!-- Admin → user:delete -->
+  <line x1="126" y1="252" x2="126" y2="346" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowDash)"/>
+  <!-- Admin → order:export -->
+  <line x1="126" y1="252" x2="300" y2="346" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowDash)"/>
+  <!-- Editor → order:export -->
+  <line x1="300" y1="252" x2="300" y2="346" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowDash)"/>
+  <!-- Editor → data:read -->
+  <line x1="300" y1="252" x2="474" y2="346" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowDash)"/>
+  <!-- Viewer → data:read -->
+  <line x1="474" y1="252" x2="474" y2="346" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowDash)"/>
+
+  <!-- Relation label -->
+  <text x="300" y="310" text-anchor="middle" font-size="10" fill="var(--muted)">多对多分配</text>
+
+  <!-- ========== Layer 3: Permissions ========== -->
+  <rect x="20" y="316" width="560" height="80" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="300" y="337" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">权限层（Permission）</text>
+
+  <!-- user:delete -->
+  <rect x="52" y="346" width="148" height="38" rx="5" fill="var(--g)" opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="126" y="370" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">user:delete</text>
+
+  <!-- order:export -->
+  <rect x="226" y="346" width="148" height="38" rx="5" fill="var(--g)" opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="300" y="370" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">order:export</text>
+
+  <!-- data:read -->
+  <rect x="400" y="346" width="148" height="38" rx="5" fill="var(--g)" opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="474" y="370" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">data:read</text>
+
+  <!-- ========== Legend ========== -->
+  <rect x="20" y="414" width="560" height="14" rx="3" fill="none"/>
+  <line x1="30" y1="421" x2="70" y2="421" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="76" y="425" font-size="10" fill="var(--muted)">多对多关系（用户与角色 / 角色与权限均可多对多分配）</text>
+</svg>

@@ -1,6 +1,8 @@
-# 单点登录（SSO）
+# 单点登录
 
 单点登录（Single Sign-On）指用户只需登录一次，即可访问多个相互信任的系统，无需重复认证。
+
+![SSO 单点登录流程](../assets/security/sso-flow.svg)
 
 **核心角色：**
 - **认证服务（Identity Provider, IdP）**：统一认证中心，验证身份、颁发票据/令牌
