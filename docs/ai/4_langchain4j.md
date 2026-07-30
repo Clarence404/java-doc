@@ -1,4 +1,4 @@
-# LangChain4j
+﻿# LangChain4j
 
 > 参考资料：
 > * 官方文档：[https://docs.langchain4j.dev/](https://docs.langchain4j.dev/)
@@ -317,4 +317,4 @@ KnowledgeAssistant assistant = AiServices.builder(KnowledgeAssistant.class)
 String answer = assistant.ask("公司请假流程是什么？");
 ```
 
-详细的 RAG 架构和向量数据库选型见 [RAG 检索增强生成](./5_rag.md)。
+详细的 RAG 架构和向量数据库选型见 [RAG 检索增强生成](./11_rag.md)。

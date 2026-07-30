@@ -1,4 +1,4 @@
-# Spring AI
+﻿# Spring AI
 
 > 参考资料：
 > * 官方文档：[https://docs.spring.io/spring-ai/reference/](https://docs.spring.io/spring-ai/reference/)
@@ -249,4 +249,4 @@ String result = chatClient.prompt()
 
 Spring AI 内置 `VectorStore`、`EmbeddingModel`、`DocumentReader` 等 RAG 组件，可快速构建基于本地知识库的问答系统。
 
-详见 [RAG 检索增强生成](./5_rag.md)。
+详见 [RAG 检索增强生成](./11_rag.md)。
