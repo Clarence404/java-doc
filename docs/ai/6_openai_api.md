@@ -9,13 +9,14 @@
 
 ## 一、模型总览
 
-| 模型 | 用途 | 上下文窗口 | 特点 |
-|------|------|-----------|------|
-| gpt-4o | 旗舰多模态推理 | 128K tokens | 支持文本 + 图片，速度与质量兼顾 |
-| gpt-4o-mini | 轻量高效日常任务 | 128K tokens | 性价比最高，适合高吞吐场景 |
-| o3 | 深度推理/复杂问题 | 200K tokens | 慢思考模型，STEM/编程顶级水准 |
-| o3-mini | 轻量推理 | 200K tokens | o3 的精简版，推理能力强且成本较低 |
-| text-embedding-3-small | 文本向量化 | 8191 tokens | 1536 维，RAG/语义搜索首选 |
+> gpt-4o / o3 系列已进入 Legacy 状态，新项目请使用 GPT-5.6 系列。
+
+| 模型 | 别名 | 用途 | 上下文窗口 | 输入/输出价格（/MTok） |
+|------|------|------|-----------|----------------------|
+| gpt-5.6-sol | gpt-5.6 | 旗舰推理与编程 | 1.05M tokens | $5 / $30 |
+| gpt-5.6-terra | — | 智能与成本均衡 | 1.05M tokens | $2.50 / $15 |
+| gpt-5.6-luna | — | 高性价比高吞吐 | 1.05M tokens | $1 / $6 |
+| text-embedding-3-small | — | 文本向量化 | 8191 tokens | 按 Token 计费，RAG/语义搜索首选 |
 
 ---
 
@@ -27,7 +28,7 @@
 <dependency>
     <groupId>com.openai</groupId>
     <artifactId>openai-java</artifactId>
-    <version>2.1.0</version>
+    <version>4.46.0</version>
 </dependency>
 ```
 
@@ -49,7 +50,7 @@ import com.openai.models.chat.completions.*;
 import com.openai.models.ChatModel;
 
 ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
-        .model(ChatModel.GPT_4O_MINI)
+        .model(ChatModel.GPT_5_6_LUNA)
         .maxTokens(512)
         .addSystemMessage("你是一位 Java 后端专家，回答简洁专业。")
         .addUserMessage("请解释 Java 虚拟线程的使用场景。")
@@ -70,7 +71,7 @@ import com.openai.models.chat.completions.ChatCompletionChunk;
 import java.util.stream.Stream;
 
 ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
-        .model(ChatModel.GPT_4O_MINI)
+        .model(ChatModel.GPT_5_6_LUNA)
         .addUserMessage("用一段话介绍 Spring Boot 自动配置原理。")
         .build();
 
@@ -123,7 +124,7 @@ ChatCompletionTool weatherTool = ChatCompletionTool.builder()
 
 ```java
 ChatCompletionCreateParams round1 = ChatCompletionCreateParams.builder()
-        .model(ChatModel.GPT_4O_MINI)
+        .model(ChatModel.GPT_5_6_LUNA)
         .addUserMessage("北京今天天气怎么样？")
         .tools(List.of(weatherTool))
         .toolChoice(ChatCompletionToolChoiceOption.ofAuto())
@@ -149,7 +150,7 @@ String toolCallId = assistantMsg.toolCalls().get().get(0).id();
 String toolResult = "{\"temperature\": 22, \"condition\": \"晴天\", \"humidity\": 45}";
 
 ChatCompletionCreateParams round2 = ChatCompletionCreateParams.builder()
-        .model(ChatModel.GPT_4O_MINI)
+        .model(ChatModel.GPT_5_6_LUNA)
         .addUserMessage("北京今天天气怎么样？")
         .addMessage(assistantMsg)  // 带 tool_calls 的 assistant 消息
         .addToolMessage(toolCallId, toolResult)
@@ -182,7 +183,7 @@ ChatCompletionContentPartText textPart = ChatCompletionContentPartText.builder()
         .build();
 
 ChatCompletionCreateParams visionParams = ChatCompletionCreateParams.builder()
-        .model(ChatModel.GPT_4O)
+        .model(ChatModel.GPT_5_6_SOL)
         .addUserMessageParts(List.of(imagePart, textPart))
         .build();
 
@@ -213,7 +214,7 @@ spring:
       api-key: ${OPENAI_API_KEY}
       chat:
         options:
-          model: gpt-4o-mini
+          model: gpt-5.6-luna
           temperature: 0.7
           max-tokens: 1024
       embedding:
@@ -273,8 +274,8 @@ public class OpenAiChatService {
 
 OpenAI 按账户消费金额分为 Tier 1–5，Tier 越高，RPM（每分钟请求数）和 TPM（每分钟 Token 数）配额越大。
 
-| Tier | 月消费门槛 | GPT-4o RPM | GPT-4o TPM |
-|------|-----------|------------|------------|
+| Tier | 月消费门槛 | GPT-5.6 系列 RPM | GPT-5.6 系列 TPM |
+|------|-----------|-----------------|-----------------|
 | Tier 1 | $5 充值 | 500 | 30,000 |
 | Tier 2 | $50+ | 5,000 | 450,000 |
 | Tier 3 | $100+ | 5,000 | 800,000 |

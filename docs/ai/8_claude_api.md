@@ -9,14 +9,14 @@
 
 ## 一、模型总览
 
-| 模型 | 用途 | 上下文窗口 | 特点 |
-|------|------|-----------|------|
-| claude-opus-4 | 顶级复杂推理与研究 | 200K tokens | 最强智能，Deep Research 场景首选 |
-| claude-sonnet-4-5 | 企业级通用推理 | 200K tokens | 智能与速度均衡，生产主力 |
-| claude-haiku-4-5 | 高吞吐低延迟任务 | 200K tokens | 速度最快，适合实时交互 |
-| claude-sonnet-4-5-20251022 | 固定版本（Sonnet 4.5） | 200K tokens | 稳定可复现，生产推荐锁版本 |
+| 模型 | 用途 | 上下文窗口 | 特点 | 价格（输入/输出，每百万 Token） |
+|------|------|-----------|------|-------------------------------|
+| claude-fable-5 | 顶级智能 / 长时间 Agent 任务 | 1M tokens | 最强能力，知识密集与编程首选 | $10 / $50 |
+| claude-opus-5 | 复杂 Agent 编程与企业级任务 | 1M tokens | 强推理，长时间运行 Agent | $5 / $25 |
+| claude-sonnet-5 | 智能与速度均衡 | 1M tokens | 生产主力，综合性价比最高（8 月 31 日前优惠价 $2 / $10） | $3 / $15 |
+| claude-haiku-4-5-20251001 | 高吞吐低延迟任务 | 200K tokens | 速度最快，适合实时交互 | $1 / $5 |
 
-> 所有 Claude 3+ 模型均支持 200K tokens 上下文，可处理约 150,000 词的超长内容。
+> Sonnet 5 / Opus 5 / Fable 5 均支持 1M tokens 超长上下文，可处理约 75 万词的内容。
 
 ---
 
@@ -28,17 +28,17 @@
 <dependency>
     <groupId>com.anthropic</groupId>
     <artifactId>anthropic-java</artifactId>
-    <version>1.2.0</version>
+    <version>2.52.0</version>
 </dependency>
 ```
 
 ### 初始化客户端
 
 ```java
-import com.anthropic.client.Anthropic;
+import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 
-Anthropic client = AnthropicOkHttpClient.builder()
+AnthropicClient client = AnthropicOkHttpClient.builder()
         .apiKey(System.getenv("ANTHROPIC_API_KEY"))
         .build();
 ```
@@ -49,7 +49,7 @@ Anthropic client = AnthropicOkHttpClient.builder()
 import com.anthropic.models.messages.*;
 
 MessageCreateParams params = MessageCreateParams.builder()
-        .model(Model.CLAUDE_SONNET_4_5)
+        .model(Model.CLAUDE_SONNET_5)
         .maxTokens(1024)
         .system("你是一位专业的 Java 后端架构师，回答精确且有深度。")
         .addUserMessage("请解释 Java 虚拟线程（Virtual Threads）与平台线程的核心区别。")
@@ -68,19 +68,22 @@ message.content().forEach(block ->
 ## 三、流式响应
 
 ```java
-import com.anthropic.models.messages.stream.*;
+import com.anthropic.core.http.StreamResponse;
+import com.anthropic.models.messages.*;
 
 MessageCreateParams params = MessageCreateParams.builder()
-        .model(Model.CLAUDE_SONNET_4_5)
+        .model(Model.CLAUDE_SONNET_5)
         .maxTokens(2048)
         .addUserMessage("详细讲解 Spring AOP 的代理机制与切面执行顺序。")
         .build();
 
-try (MessageStream stream = client.messages().createStreaming(params).stream()) {
+try (StreamResponse<RawMessageStreamEvent> stream = client.messages().createStreaming(params)) {
     stream.stream().forEach(event -> {
-        if (event instanceof ContentBlockDeltaEvent deltaEvent) {
-            TextDelta delta = deltaEvent.delta().asTextDelta();
-            System.out.print(delta.text());
+        if (event.isContentBlockDelta()) {
+            RawContentBlockDeltaEvent deltaEvent = event.asContentBlockDelta();
+            if (deltaEvent.delta().isText()) {
+                System.out.print(deltaEvent.delta().asText().text());
+            }
         }
     });
 }
@@ -111,6 +114,7 @@ Map<String, Object> inputSchema = Map.of(
 Tool dbQueryTool = Tool.builder()
         .name("search_database")
         .description("在产品数据库中搜索记录，返回匹配结果列表")
+        .type(Tool.Type.CUSTOM)
         .inputSchema(Tool.InputSchema.builder()
                 .properties(JsonValue.from(inputSchema))
                 .build())
@@ -121,7 +125,7 @@ Tool dbQueryTool = Tool.builder()
 
 ```java
 MessageCreateParams round1 = MessageCreateParams.builder()
-        .model(Model.CLAUDE_SONNET_4_5)
+        .model(Model.CLAUDE_SONNET_5)
         .maxTokens(1024)
         .tools(List.of(dbQueryTool))
         .addUserMessage("帮我查一下所有名称包含'微服务'的文档。")
@@ -141,6 +145,8 @@ response1.content().forEach(block -> {
 ### 第二轮：回传 tool_result
 
 ```java
+import java.util.stream.Collectors;
+
 // 假设从数据库取得了结果
 String toolUseId = response1.content().stream()
         .filter(b -> b.isToolUse())
@@ -151,12 +157,23 @@ String toolUseId = response1.content().stream()
 String toolResult = "[{\"id\":1,\"title\":\"微服务架构设计\"},{\"id\":2,\"title\":\"微服务拆分实战\"}]";
 
 MessageCreateParams round2 = MessageCreateParams.builder()
-        .model(Model.CLAUDE_SONNET_4_5)
+        .model(Model.CLAUDE_SONNET_5)
         .maxTokens(1024)
         .tools(List.of(dbQueryTool))
         .addUserMessage("帮我查一下所有名称包含'微服务'的文档。")
-        .addAssistantMessage(response1.content())      // 含 tool_use 的 assistant 消息
-        .addToolResultMessage(toolUseId, toolResult)   // tool_result 消息
+        .addAssistantMessageOfBlockParams(                       // 含 tool_use 的 assistant 消息
+                response1.content().stream()
+                        .map(ContentBlock::toParam)
+                        .collect(Collectors.toList())
+        )
+        .addUserMessageOfBlockParams(List.of(                    // tool_result 消息
+                ContentBlockParam.ofToolResult(
+                        ToolResultBlockParam.builder()
+                                .toolUseId(toolUseId)
+                                .content(toolResult)
+                                .build()
+                )
+        ))
         .build();
 
 Message finalResponse = client.messages().create(round2);
@@ -193,7 +210,7 @@ TextBlockParam textBlock = TextBlockParam.builder()
         .build();
 
 MessageCreateParams visionParams = MessageCreateParams.builder()
-        .model(Model.CLAUDE_SONNET_4_5)
+        .model(Model.CLAUDE_SONNET_5)
         .maxTokens(1024)
         .addUserMessage(List.of(imageBlock, textBlock))
         .build();
@@ -230,7 +247,7 @@ String longSystemPrompt = """
         """;
 
 MessageCreateParams params = MessageCreateParams.builder()
-        .model(Model.CLAUDE_SONNET_4_5)
+        .model(Model.CLAUDE_SONNET_5)
         .maxTokens(1024)
         // 通过 CacheControlEphemeral 标记 system 块开启缓存
         .system(List.of(
@@ -283,7 +300,7 @@ spring:
       api-key: ${ANTHROPIC_API_KEY}
       chat:
         options:
-          model: claude-sonnet-4-5-20251022
+          model: claude-sonnet-5
           max-tokens: 2048
           temperature: 0.7
 ```

@@ -94,7 +94,7 @@ const navbarDropdown = [
         text: '垂直领域',
         children: [
             {text: 'IoT',     link: '/iot/0_base'},
-            {text: 'AI',      link: '/ai/0_ai'},
+            {text: 'AI',      link: '/ai/0_overview'},
             {text: '大数据场景', link: '/scenario/0_scene'},
         ],
     },

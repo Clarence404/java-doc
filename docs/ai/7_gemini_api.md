@@ -9,13 +9,16 @@
 
 ## 一、模型总览
 
-| 模型 | 用途 | 上下文窗口 | 特点 |
-|------|------|-----------|------|
-| gemini-2.5-pro | 顶级推理与代码生成 | 1M tokens | 思维链推理，最强综合能力 |
-| gemini-2.5-flash | 快速多任务处理 | 1M tokens | 速度与质量均衡，性价比高 |
-| gemini-2.0-flash | 轻量实时任务 | 1M tokens | 低延迟，适合实时对话 |
-| text-embedding-004 | 文本向量化 | 2048 tokens | 768 维，语义检索/RAG 推荐 |
+| 模型 | 状态 | 用途 | 上下文窗口 | 特点 |
+|------|------|------|-----------|------|
+| gemini-3.5-flash | 稳定版 | Agent / 编程任务首选 | 1M tokens | 智能体与代码生成最优模型 |
+| gemini-3.1-flash-lite | 稳定版 | 轻量多任务处理 | 1M tokens | 成本最低，适合高频调用 |
+| gemini-3.1-pro-preview | 预览版 | 高级推理与复杂分析 | 1M tokens | 最强综合智能，适合复杂任务 |
+| gemini-3-flash-preview | 预览版 | 快速多模态任务 | 1M tokens | 轻量快速，适合实验性功能 |
+| gemini-embedding-2 | 稳定版 | 多模态向量化 | 8K tokens | 支持文本与图像，语义检索/RAG 推荐 |
 
+> **上一代模型**（gemini-2.5-pro / gemini-2.5-flash）仍可使用，但推荐迁移到 3.x 系列。
+>
 > 1M tokens 超长上下文使 Gemini 特别适合处理整个代码库、长文档分析等场景。
 
 ---
@@ -46,7 +49,7 @@
 <dependency>
     <groupId>com.google.genai</groupId>
     <artifactId>google-genai</artifactId>
-    <version>1.2.0</version>
+    <version>1.64.0</version>
 </dependency>
 ```
 
@@ -68,7 +71,7 @@ import com.google.genai.types.Content;
 import com.google.genai.types.Part;
 
 GenerateContentResponse response = client.models().generateContent(
-        "gemini-2.0-flash",
+        "gemini-3.5-flash",
         Content.builder()
                 .role("user")
                 .addPart(Part.fromText("请用三句话解释 Redis 的持久化机制。"))
@@ -99,7 +102,7 @@ Blob imageBlob = Blob.builder()
         .build();
 
 GenerateContentResponse response = client.models().generateContent(
-        "gemini-2.0-flash",
+        "gemini-3.5-flash",
         Content.builder()
                 .role("user")
                 .addPart(Part.fromBytes(imageBytes, "image/png"))
@@ -120,7 +123,7 @@ import com.google.genai.ResponseStream;
 import com.google.genai.types.GenerateContentResponse;
 
 ResponseStream<GenerateContentResponse> stream = client.models().generateContentStream(
-        "gemini-2.0-flash",
+        "gemini-3.5-flash",
         Content.builder()
                 .role("user")
                 .addPart(Part.fromText("详细讲解 Kafka 消费者组的 Rebalance 过程。"))
@@ -174,7 +177,7 @@ GenerateContentConfig config = GenerateContentConfig.builder()
 
 ```java
 GenerateContentResponse round1 = client.models().generateContent(
-        "gemini-2.0-flash",
+        "gemini-3.5-flash",
         Content.builder()
                 .role("user")
                 .addPart(Part.fromText("上海今天的天气如何？"))
@@ -204,7 +207,7 @@ FunctionResponse funcResult = FunctionResponse.builder()
         .build();
 
 GenerateContentResponse round2 = client.models().generateContent(
-        "gemini-2.0-flash",
+        "gemini-3.5-flash",
         List.of(
             Content.builder().role("user")
                     .addPart(Part.fromText("上海今天的天气如何？")).build(),
@@ -245,7 +248,7 @@ spring:
           location: us-central1
           chat:
             options:
-              model: gemini-2.0-flash
+              model: gemini-3.5-flash
               temperature: 0.7
               max-output-tokens: 2048
 ```

@@ -1,4 +1,4 @@
-﻿# LangChain4j
+# LangChain4j
 
 > 参考资料：
 > * 官方文档：[https://docs.langchain4j.dev/](https://docs.langchain4j.dev/)
@@ -18,6 +18,9 @@ LangChain4j 是 LangChain（Python）的 Java 移植，提供从底层 LLM 调�
 | 适用场景 | 标准 ChatBot / RAG / Tool Calling | 复杂 Agent、多步推理、Memory 管理 |
 | 抽象风格 | Spring Bean / 自动配置 | 接口驱动、AiServices 代理 |
 | 灵活性 | 偏约定，配置简单 | 更底层，组合自由度高 |
+| 工具补偿 | 不支持 | 支持（@CompensateFor，事务回滚） |
+| 并发工具执行 | 不支持 | 支持（executeToolsConcurrently） |
+| 思考模型流式 | 不支持 | 支持（onPartialThinking 回调） |
 
 简单项目用 Spring AI 足够；需要多轮对话记忆管理、复杂工具链、自定义 Agent 时选 LangChain4j。
 
@@ -32,35 +35,39 @@ LangChain4j 是 LangChain（Python）的 Java 移植，提供从底层 LLM 调�
 <dependency>
   <groupId>dev.langchain4j</groupId>
   <artifactId>langchain4j</artifactId>
-  <version>0.35.0</version>
+  <version>1.18.1</version>
 </dependency>
 <dependency>
   <groupId>dev.langchain4j</groupId>
   <artifactId>langchain4j-open-ai</artifactId>
-  <version>0.35.0</version>
+  <version>1.18.1</version>
 </dependency>
 
-<!-- 可选：Spring Boot Starter（自动配置） -->
+<!-- 可选：Spring Boot Starter（按 provider 选择，自动配置） -->
 <dependency>
   <groupId>dev.langchain4j</groupId>
-  <artifactId>langchain4j-spring-boot-starter</artifactId>
-  <version>0.35.0</version>
+  <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
+  <version>1.18.1</version>
 </dependency>
 ```
+
+> **说明**：1.x 版本将 Spring Boot Starter 拆分为按 provider 的子包（如 `langchain4j-open-ai-spring-boot-starter`），不再使用旧版统一的 `langchain4j-spring-boot-starter`。
 
 ### 基础调用（不依赖 Spring）
 
 ```java
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import dev.langchain4j.model.chat.ChatLanguageModel;
 
-ChatLanguageModel model = OpenAiChatModel.builder()
+// 1.x：ChatLanguageModel 已重命名为 ChatModel
+ChatModel model = OpenAiChatModel.builder()
         .apiKey(System.getenv("OPENAI_API_KEY"))
         .modelName("gpt-4o-mini")
         .temperature(0.7)
         .build();
 
-String answer = model.generate("Java 中 volatile 解决了什么问题？");
+// 1.x：generate() 已重命名为 chat()
+String answer = model.chat("Java 中 volatile 解决了什么问题？");
 System.out.println(answer);
 ```
 
@@ -75,6 +82,7 @@ AiServices 是 LangChain4j 最推荐的用法：用接口定义 AI 行为，框�
 ```java
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
 
 public interface JavaAssistant {
 
@@ -83,17 +91,18 @@ public interface JavaAssistant {
 
     @SystemMessage("你是一位代码审查专家，请找出以下代码的潜在问题。")
     @UserMessage("代码如下：\n{{code}}\n请给出审查意见。")
-    String reviewCode(@dev.langchain4j.service.V("code") String code);
+    String reviewCode(@V("code") String code);
 }
 ```
 
 ### 创建实例并使用
 
 ```java
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
 
-ChatLanguageModel model = OpenAiChatModel.builder()
+ChatModel model = OpenAiChatModel.builder()
         .apiKey(System.getenv("OPENAI_API_KEY"))
         .modelName("gpt-4o-mini")
         .build();
@@ -113,6 +122,8 @@ String review = assistant.reviewCode("""
 System.out.println(review);
 ```
 
+> **1.x 变更**：`AiServices.builder()` 中 `.chatLanguageModel()` 已重命名为 `.chatModel()`。
+
 ---
 
 ## 四、ChatMemory（对话记忆）
@@ -129,7 +140,7 @@ import dev.langchain4j.service.AiServices;
 MessageWindowChatMemory memory = MessageWindowChatMemory.withMaxMessages(10);
 
 JavaAssistant assistant = AiServices.builder(JavaAssistant.class)
-        .chatLanguageModel(model)
+        .chatModel(model)          // 1.x：chatLanguageModel → chatModel
         .chatMemory(memory)
         .build();
 
@@ -145,23 +156,23 @@ System.out.println(response);
 ### 多用户隔离（每用户独立 Memory）
 
 ```java
-import dev.langchain4j.memory.chat.ChatMemoryProvider;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
+import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.MemoryId;
+import dev.langchain4j.service.UserMessage;
 
 public interface MultiUserAssistant {
     String chat(@MemoryId String userId, @UserMessage String message);
 }
 
 // 使用 memoryId 区分不同用户的会话
-ChatMemoryProvider memoryProvider = memoryId ->
-        MessageWindowChatMemory.builder()
-                .id(memoryId)
-                .maxMessages(10)
-                .build();
-
 MultiUserAssistant assistant = AiServices.builder(MultiUserAssistant.class)
-        .chatLanguageModel(model)
-        .chatMemoryProvider(memoryProvider)
+        .chatModel(model)
+        .chatMemoryProvider(memoryId ->
+                MessageWindowChatMemory.builder()
+                        .id(memoryId)
+                        .maxMessages(10)
+                        .build())
         .build();
 
 assistant.chat("user-001", "我叫小明");
@@ -210,6 +221,10 @@ public class DatabaseTools {
 ### 绑定到 AiServices
 
 ```java
+import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
+
 public interface OrderAssistant {
     @SystemMessage("你是一个电商客服助手，可以查询用户信息、商品库存，并帮用户下单。")
     String handle(@UserMessage String userRequest);
@@ -218,8 +233,9 @@ public interface OrderAssistant {
 DatabaseTools tools = new DatabaseTools();
 
 OrderAssistant assistant = AiServices.builder(OrderAssistant.class)
-        .chatLanguageModel(model)
-        .tools(tools)   // 注册工具实例
+        .chatModel(model)
+        .tools(tools)                        // 注册工具实例
+        .executeToolsConcurrently(true)      // 1.x 新增：支持并发工具执行
         .build();
 
 String result = assistant.handle("帮用户ID=1001查询一下，然后给他下一个笔记本电脑的订单，数量1件");
@@ -232,27 +248,32 @@ System.out.println(result);
 ## 六、Streaming（流式输出）
 
 ```java
+import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
-import dev.langchain4j.model.streaming.StreamingChatLanguageModel;
-import dev.langchain4j.model.StreamingResponseHandler;
-import dev.langchain4j.model.output.Response;
 
-StreamingChatLanguageModel streamingModel = OpenAiStreamingChatModel.builder()
+// 1.x：StreamingChatLanguageModel 已重命名为 StreamingChatModel
+StreamingChatModel streamingModel = OpenAiStreamingChatModel.builder()
         .apiKey(System.getenv("OPENAI_API_KEY"))
         .modelName("gpt-4o-mini")
         .build();
 
-streamingModel.generate("请详细解释 Java 内存模型（JMM）", new StreamingResponseHandler<>() {
+// 1.x：StreamingResponseHandler → StreamingChatResponseHandler
+streamingModel.chat("请详细解释 Java 内存模型（JMM）", new StreamingChatResponseHandler() {
 
     @Override
-    public void onNext(String token) {
+    public void onPartialResponse(String partialResponse) {
+        // 1.x：onNext() → onPartialResponse()
         // 每收到一个 token 立即处理（如推送到 SSE）
-        System.out.print(token);
+        System.out.print(partialResponse);
     }
 
     @Override
-    public void onComplete(Response<dev.langchain4j.model.output.AiMessage> response) {
-        System.out.println("\n--- 完成，总 token：" + response.tokenUsage().totalTokenCount());
+    public void onCompleteResponse(ChatResponse completeResponse) {
+        // 1.x：onComplete(Response<AiMessage>) → onCompleteResponse(ChatResponse)
+        System.out.println("\n--- 完成，总 token：" +
+                completeResponse.metadata().tokenUsage().totalTokenCount());
     }
 
     @Override
@@ -264,6 +285,26 @@ streamingModel.generate("请详细解释 Java 内存模型（JMM）", new Stream
 
 在 Spring Boot 中配合 `SseEmitter` 或 WebFlux `Flux` 可直接推送到前端。
 
+### AiServices 流式（TokenStream）
+
+```java
+import dev.langchain4j.service.TokenStream;
+
+public interface StreamingAssistant {
+    TokenStream chat(String message);
+}
+
+StreamingAssistant assistant = AiServices.builder(StreamingAssistant.class)
+        .streamingChatModel(streamingModel)
+        .build();
+
+assistant.chat("请解释 Java 虚拟线程")
+        .onPartialResponse(token -> System.out.print(token))
+        .onCompleteResponse(response -> System.out.println("\n完成"))
+        .onError(Throwable::printStackTrace)
+        .start();
+```
+
 ---
 
 ## 七、RAG 集成
@@ -272,14 +313,14 @@ LangChain4j 提供 `EmbeddingStoreIngestor`（文档入库）和 `EmbeddingStore
 
 ```java
 import dev.langchain4j.data.document.Document;
-import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.document.loader.FileSystemDocumentLoader;  // 1.x 包路径已调整
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
-import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
-import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
+import dev.langchain4j.store.embedding.EmbeddingStore;
+import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
+import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 
 // 1. 准备 Embedding 模型和向量存储
 EmbeddingModel embeddingModel = OpenAiEmbeddingModel.builder()
@@ -310,8 +351,8 @@ public interface KnowledgeAssistant {
 }
 
 KnowledgeAssistant assistant = AiServices.builder(KnowledgeAssistant.class)
-        .chatLanguageModel(model)
-        .contentRetriever(retriever)   // 自动检索相关内容注入 prompt
+        .chatModel(model)                   // 1.x：chatLanguageModel → chatModel
+        .contentRetriever(retriever)        // 自动检索相关内容注入 prompt
         .build();
 
 String answer = assistant.ask("公司请假流程是什么？");

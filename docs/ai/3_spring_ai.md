@@ -12,7 +12,7 @@ Spring AI 是 Spring 官方推出的 AI 集成框架，目标是用 Spring 的�
 
 **核心优势：**
 
-- 与 Spring Boot 3.x 深度集成，自动配置、`@Bean`、`application.yaml` 全套生效
+- 与 Spring Boot 4.x 深度集成，自动配置、`@Bean`、`application.yaml` 全套生效
 - 统一抽象层（`ChatModel`、`EmbeddingModel`、`VectorStore`），换模型只改依赖和配置，业务代码不动
 - 原生支持 Tool Calling、RAG、Structured Output、Multimodal
 - 官方维护，迭代快，社区活跃
@@ -29,7 +29,7 @@ Spring AI 是 Spring 官方推出的 AI 集成框架，目标是用 Spring 的�
     <dependency>
       <groupId>org.springframework.ai</groupId>
       <artifactId>spring-ai-bom</artifactId>
-      <version>1.0.0</version>
+      <version>2.0.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -40,7 +40,7 @@ Spring AI 是 Spring 官方推出的 AI 集成框架，目标是用 Spring 的�
   <!-- 以 OpenAI 为例，换模型只换这一个 starter -->
   <dependency>
     <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+    <artifactId>spring-ai-starter-model-openai</artifactId>
   </dependency>
 </dependencies>
 ```
@@ -54,12 +54,13 @@ spring:
       api-key: ${OPENAI_API_KEY}
       base-url: https://api.openai.com   # 可改为代理地址
       chat:
-        options:
-          model: gpt-4o-mini
-          temperature: 0.7
+        model: gpt-4o-mini
+        temperature: 0.7   # 2.0 已移除默认值 0.7，需显式配置
 ```
 
 启动后 Spring AI 自动注册 `ChatModel`、`ChatClient.Builder` 等 Bean，直接注入即用。
+
+> **注意（2.0 迁移）**：配置项 `spring.ai.<provider>.chat.options.*` 中的 `.options` 层级已移除，直接写 `spring.ai.<provider>.chat.*`；各 provider 默认 temperature 已取消，须显式配置。
 
 ---
 
@@ -227,19 +228,23 @@ String result = chatClient.prompt()
         .content();
 ```
 
+> **2.0 变更**：`ToolCallingAdvisor` 现在由 ChatClient 自动注册，无需手动 `.advisors(ToolCallingAdvisor.builder().build())` 显式添加。旧版的 `toolNames()`（按 Spring Bean 名称注册工具）API 已移除，统一改用 `@Tool` 注解或 `ToolCallback` bean。
+
 ---
 
 ## 六、多模型支持
 
-| 模型提供商 | Starter 依赖 artifactId |
+| 模型提供商 | Starter 依赖 artifactId（2.0.0 新命名） |
 |---|---|
-| OpenAI（GPT-4o / o1） | `spring-ai-openai-spring-boot-starter` |
-| Anthropic（Claude 3.x） | `spring-ai-anthropic-spring-boot-starter` |
-| Ollama（本地模型） | `spring-ai-ollama-spring-boot-starter` |
-| Azure OpenAI | `spring-ai-azure-openai-spring-boot-starter` |
-| Google Vertex AI | `spring-ai-vertex-ai-gemini-spring-boot-starter` |
-| Mistral AI | `spring-ai-mistral-ai-spring-boot-starter` |
-| DeepSeek | `spring-ai-openai-spring-boot-starter`（兼容 OpenAI 协议，改 base-url） |
+| OpenAI（GPT-4o / o1） | `spring-ai-starter-model-openai` |
+| Anthropic（Claude 3.x） | `spring-ai-starter-model-anthropic` |
+| Ollama（本地模型） | `spring-ai-starter-model-ollama` |
+| Azure OpenAI | `spring-ai-starter-model-openai`（2.0 已移除独立 azure 模块，配置 `base-url` 指向 Azure 端点） |
+| Google GenAI / Vertex AI（Gemini） | `spring-ai-starter-model-google-genai` |
+| Mistral AI | `spring-ai-starter-model-mistral-ai` |
+| DeepSeek | `spring-ai-starter-model-deepseek`（2.0 新增独立 starter） |
+
+> **2.0 Starter 命名规则变更**：旧版 `spring-ai-<provider>-spring-boot-starter` 统一改为 `spring-ai-starter-model-<provider>`，升级时需全部替换。
 
 切换模型只需替换 Starter 依赖 + 修改 `application.yaml` 中对应的 api-key 和 model，业务代码无需改动。
 
