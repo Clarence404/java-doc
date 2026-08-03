@@ -1,7 +1,7 @@
 # 负载均衡
 
 参考链接：
-> [microservices/10_service_governance 服务治理](../microservices/10_service_governance)
+> [微服务总览](../microservices/0_overview)
 > [cloud-native/5_kubernetes Kubernetes](../cloud-native/5_kubernetes)
 
 ## 一、负载均衡算法

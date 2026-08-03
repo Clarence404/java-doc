@@ -274,5 +274,5 @@ mysqlbinlog mysql-bin.000001
 
 ## 九、后续补充专题
 
-- [Elasticsearch 与 OpenSearch](../4_nosql/4_elasticsearch_opensearch)：搜索引擎、日志检索、聚合分析
+- [Elasticsearch 与 OpenSearch](../4_nosql/5_search_db)：搜索引擎、日志检索、聚合分析
 - [数据备份与恢复](../5_ops/1_backup_recovery)：备份策略、RTO / RPO、恢复演练

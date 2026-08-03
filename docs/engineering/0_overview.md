@@ -19,5 +19,5 @@
 - CI/CD 流水线 → [devops/2_ci_cd](../devops/2_ci_cd)
 - Git 工作流 → [devops/1_git_workflow](../devops/1_git_workflow)
 - Code Review 规范 → [devops/3_code_review](../devops/3_code_review)
-- JVM 监控工具 → [jvm/6_monitoring_tools](../jvm/6_monitoring_tools)
-- JVM 故障排查 → [jvm/7_troubleshooting](../jvm/7_troubleshooting)
+- JVM 监控工具 → [jvm/7_monitoring_tools](../jvm/7_monitoring_tools)
+- JVM 故障排查 → [jvm/8_troubleshooting](../jvm/8_troubleshooting)

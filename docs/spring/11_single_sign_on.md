@@ -5,7 +5,7 @@
 > * CAS 官网：[https://apereo.github.io/cas/](https://apereo.github.io/cas/)
 > * OAuth2 RFC：[https://datatracker.ietf.org/doc/html/rfc6749](https://datatracker.ietf.org/doc/html/rfc6749)
 
-> 本文聚焦 Spring 生态下 SSO 的落地方案。OAuth2 / OIDC 协议原理见 → [OAuth2 与 OIDC](/security/6_oauth2_oidc)　JWT 令牌详见 → [JWT](/security/7_jwt)
+> 本文聚焦 Spring 生态下 SSO 的落地方案。OAuth2 协议见 → [OAuth2](/security/2_oauth2)　OIDC 协议见 → [OIDC](/security/3_oidc)　JWT 令牌详见 → [JWT](/security/1_jwt)
 
 ## 一、什么是 SSO
 

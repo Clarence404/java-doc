@@ -27,5 +27,5 @@
 
 - JVM 监控工具 → [jvm/7_monitoring_tools](../jvm/7_monitoring_tools)
 - JVM 故障排查 → [jvm/8_troubleshooting](../jvm/8_troubleshooting)
-- 微服务链路追踪 → [microservices/7_tracing](../microservices/7_tracing)
-- 架构日志设计 → [architecture/12_logging_system](../architecture/12_logging_system)
+- 微服务链路追踪 → 见本模块链路追踪章节
+- 架构日志设计 → 见本模块日志章节

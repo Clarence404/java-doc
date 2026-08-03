@@ -1,6 +1,6 @@
 # 线上诊断
 
-> JVM 监控工具详见 [jvm/7_monitoring_tools](../jvm/7_monitoring_tools)，GC 调优详见 [jvm/7_troubleshooting](../jvm/7_troubleshooting)。
+> JVM 监控工具详见 [jvm/7_monitoring_tools](../jvm/7_monitoring_tools)，GC 调优详见 [jvm/8_troubleshooting](../jvm/8_troubleshooting)。
 
 ---
 

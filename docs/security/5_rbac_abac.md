@@ -1,6 +1,6 @@
 # 认证与授权
 
-> 本文聚焦认证授权基础概念与权限模型。JWT 格式见 → [JWT](/security/1_jwt)；OAuth2 协议见 → [OAuth2](/security/2_oauth2)；OIDC 协议见 → [OIDC](/security/3_oidc)；SSO 实现方案见 → [单点登录](/security/3_sso)；Spring Security / Sa-Token 框架实现见 → [认证框架](/spring/10_auth_framework)
+> 本文聚焦认证授权基础概念与权限模型。JWT 格式见 → [JWT](/security/1_jwt)；OAuth2 协议见 → [OAuth2](/security/2_oauth2)；OIDC 协议见 → [OIDC](/security/3_oidc)；SSO 实现方案见 → [单点登录](/security/4_sso)；Spring Security / Sa-Token 框架实现见 → [认证框架](/spring/10_auth_framework)
 
 ---
 
@@ -187,4 +187,4 @@ public class OpaAuthInterceptor implements HandlerInterceptor {
 | 适合场景 | 权限规则稳定、较少变化 | 规则复杂、动态变化 |
 | 典型框架 | Spring Security、Sa-Token | OPA、Casbin |
 
-> 大多数业务系统用 RBAC0 即可。访问控制模型的完整讨论见 → [访问控制模型](/architecture/9_access_control_model)
+> 大多数业务系统用 RBAC0 即可。访问控制模型的完整讨论见 → [访问控制模型](/architecture/6_access_control)

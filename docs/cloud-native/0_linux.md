@@ -242,6 +242,6 @@ Linux 从最初的一个内核发展到如今的众多发行版，主要经历�
 
 ## 四、后续补充专题
 
-- [Nginx 与 Ingress](./11_nginx_ingress)：反向代理、负载均衡、Kubernetes 入口流量
-- [Helm、Argo CD 与 Terraform](./12_helm_argocd_terraform)：应用部署、GitOps、基础设施即代码
-- [Service Mesh](./13_service_mesh)：Sidecar、流量治理、mTLS、可观测性
+- [Nginx 与 Ingress](./6_nginx_ingress)：反向代理、负载均衡、Kubernetes 入口流量
+- [Helm](./7_helm) / [Argo CD](./8_argocd) / [Terraform](./10_terraform)：应用部署、GitOps、基础设施即代码
+- [Service Mesh](./9_service_mesh)：Sidecar、流量治理、mTLS、可观测性

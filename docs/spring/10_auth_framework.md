@@ -5,7 +5,7 @@
 > * Apache Shiro：[https://shiro.apache.org/documentation.html](https://shiro.apache.org/documentation.html)
 > * Spring Security：[https://docs.spring.io/spring-security/reference/](https://docs.spring.io/spring-security/reference/)
 
-> 本文聚焦框架选型与 API 使用。认证授权基础概念（RBAC / ABAC / OAuth2 / JWT）见 → [认证与授权](/security/1_authentication)
+> 本文聚焦框架选型与 API 使用。认证授权基础概念（RBAC / ABAC / OAuth2 / JWT）见 → [认证与授权](/security/0_security)
 
 ## 一、三大框架对比
 
@@ -20,21 +20,188 @@
 | 学习曲线 | 高 | 低 | 中 |
 | 社区活跃度 | 高（Spring 生态） | 高（国内活跃） | 中（趋于维护态） |
 
-## 二、Sa-Token 核心功能
+---
 
-Sa-Token 专为国内项目设计，API 极简，内置大量开箱即用功能：
+## 二、Sa-Token 实战
 
-| 功能 | 说明 |
-|------|------|
-| 登录认证 | `StpUtil.login(userId)` |
-| 权限校验 | `StpUtil.checkPermission("user:add")` |
-| 角色校验 | `StpUtil.checkRole("admin")` |
-| 踢人下线 | `StpUtil.kickout(userId)` |
-| 账号封禁 | `StpUtil.disable(userId, 86400)` |
-| 二级认证 | 敏感操作二次验证 |
-| 分布式 Session | 内置 Redis 集成 |
+```xml
+<dependency>
+    <groupId>cn.dev33</groupId>
+    <artifactId>sa-token-spring-boot3-starter</artifactId>
+    <version>1.38.0</version>
+</dependency>
+<!-- 分布式 Session（可选）-->
+<dependency>
+    <groupId>cn.dev33</groupId>
+    <artifactId>sa-token-redis-jackson</artifactId>
+    <version>1.38.0</version>
+</dependency>
+```
 
-## 三、选型建议
+```yaml
+sa-token:
+  token-name: Authorization
+  timeout: 86400          # Token 有效期（秒）
+  is-concurrent: true     # 允许同账号多端登录
+  is-share: true          # 同端多次登录复用同一 Token
+  token-style: uuid
+  is-log: false
+```
+
+### 2.1 登录 / 登出
+
+```java
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    @PostMapping("/login")
+    public Result<String> login(@RequestBody LoginDTO dto) {
+        // 校验用户名密码
+        User user = userService.authenticate(dto.getUsername(), dto.getPassword());
+        if (user == null) {
+            return Result.fail(401, "用户名或密码错误");
+        }
+        // 登录，绑定 userId
+        StpUtil.login(user.getId());
+        // 获取 Token
+        return Result.ok(StpUtil.getTokenValue());
+    }
+
+    @PostMapping("/logout")
+    public Result<Void> logout() {
+        StpUtil.logout();
+        return Result.ok();
+    }
+
+    @GetMapping("/me")
+    public Result<Long> me() {
+        return Result.ok(StpUtil.getLoginIdAsLong());
+    }
+}
+```
+
+### 2.2 权限 / 角色校验
+
+```java
+// 接口注解鉴权
+@SaCheckLogin
+@GetMapping("/profile")
+public Result<UserVO> profile() { ... }
+
+@SaCheckRole("admin")
+@DeleteMapping("/{id}")
+public Result<Void> delete(@PathVariable Long id) { ... }
+
+@SaCheckPermission("user:edit")
+@PutMapping("/{id}")
+public Result<Void> update(@PathVariable Long id, @RequestBody UserUpdateDTO dto) { ... }
+
+// 编程式鉴权
+@Service
+public class OrderService {
+
+    public void deleteOrder(Long orderId) {
+        StpUtil.checkPermission("order:delete");    // 无权限抛异常
+        // 或
+        if (!StpUtil.hasPermission("order:delete")) {
+            throw new BusinessException("无删除权限");
+        }
+        orderRepo.deleteById(orderId);
+    }
+}
+```
+
+### 2.3 实现权限数据接口
+
+```java
+@Component
+public class StpInterfaceImpl implements StpInterface {
+
+    @Autowired
+    private UserService userService;
+
+    @Override
+    public List<String> getPermissionList(Object loginId, String loginType) {
+        Long userId = Long.parseLong(loginId.toString());
+        return userService.getPermissionCodes(userId);
+        // 返回如：["user:list", "user:edit", "order:delete"]
+    }
+
+    @Override
+    public List<String> getRoleList(Object loginId, String loginType) {
+        Long userId = Long.parseLong(loginId.toString());
+        return userService.getRoleCodes(userId);
+        // 返回如：["admin", "operator"]
+    }
+}
+```
+
+### 2.4 其他实用功能
+
+```java
+// 踢人下线（强制某用户下线）
+StpUtil.kickout(userId);
+
+// 账号封禁（禁止登录 N 秒）
+StpUtil.disable(userId, 86400);
+StpUtil.isDisable(userId);    // 检查是否被封禁
+
+// 二级认证（敏感操作前要求重新验证）
+StpUtil.openSafe(120);        // 开启二级认证，有效期 120 秒
+StpUtil.checkSafe();          // 校验是否处于二级认证状态
+
+// Token 信息
+TokenInfo info = StpUtil.getTokenInfo();
+```
+
+---
+
+## 三、Apache Shiro（简要）
+
+```java
+// 自定义 Realm
+public class UserRealm extends AuthorizingRealm {
+
+    @Autowired
+    private UserService userService;
+
+    // 授权
+    @Override
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        Long userId = (Long) principals.getPrimaryPrincipal();
+        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+        info.setRoles(userService.getRoles(userId));
+        info.setStringPermissions(userService.getPermissions(userId));
+        return info;
+    }
+
+    // 认证
+    @Override
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token)
+            throws AuthenticationException {
+        String username = (String) token.getPrincipal();
+        User user = userService.findByUsername(username);
+        if (user == null) {
+            throw new UnknownAccountException("用户不存在");
+        }
+        return new SimpleAuthenticationInfo(user.getId(), user.getPassword(),
+            ByteSource.Util.bytes(user.getSalt()), getName());
+    }
+}
+
+// Shiro 配置
+@Bean
+public SecurityManager securityManager(UserRealm realm) {
+    DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
+    manager.setRealm(realm);
+    return manager;
+}
+```
+
+---
+
+## 四、选型建议
 
 | 场景 | 推荐 |
 |------|------|
@@ -43,6 +210,3 @@ Sa-Token 专为国内项目设计，API 极简，内置大量开箱即用功能�
 | 非 Spring 的 Java 项目 | Shiro |
 | 微服务 + OAuth2 / OIDC | Spring Security + Spring Authorization Server |
 | 国内中小项目，需要分布式 Session | Sa-Token + Redis |
-
-> [!warning]
-> 待补充

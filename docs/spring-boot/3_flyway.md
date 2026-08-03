@@ -59,7 +59,7 @@ spring:
 
 ## 三、Liquibase
 
-> 依赖：`spring-boot-starter-data-liquibase` / `liquibase-core`
+> 依赖：`liquibase-core`（Spring Boot 已内置自动配置，无需独立 Starter）
 
 ### 3.1 与 Flyway 的主要区别
 

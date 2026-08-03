@@ -359,3 +359,31 @@ String answer = assistant.ask("公司请假流程是什么？");
 ```
 
 详细的 RAG 架构和向量数据库选型见 [RAG 检索增强生成](../4_core_tech/2_rag.md)。
+
+---
+
+## 八、与 LangGraph4j 的关系
+
+LangGraph4j 是建立在 LangChain4j 之上的 Agent 编排扩展库，两者定位不同：
+
+| | LangChain4j | LangGraph4j |
+|---|---|---|
+| 定位 | LLM 应用基础框架 | 有状态多步 Agent 编排 |
+| 结构 | 线性链式调用 / AiServices | 有向图：节点（Node）+ 边（Edge）|
+| 循环与条件 | 不支持 | 原生支持（图可回环）|
+| Human-in-the-loop | 不支持 | 支持（在节点间插入人工确认）|
+| 适合场景 | 标准问答、RAG、单轮工具调用 | 复杂多轮推理、多 Agent 协作、需要中断恢复的长流程 |
+
+**使用 LangChain4j 就够用的情况：** 单次工具调用、RAG 问答、简单多轮对话记忆。
+
+**需要引入 LangGraph4j 的信号：** 工作流有分支判断（"如果结果不满足条件则重试"）、多个 Agent 需要相互传递状态、流程中需要等待人工审批。
+
+```xml
+<dependency>
+    <groupId>dev.langchain4j</groupId>
+    <artifactId>langchain4j-langgraph</artifactId>
+    <version>1.18.1</version>
+</dependency>
+```
+
+> 详细的 Agent 编排模式见 [AI Agent 智能体](../5_advanced/0_agent.md)。
