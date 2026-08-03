@@ -83,7 +83,7 @@ highlights:
       - title: Netty
         icon: network-wired
         details: BIO → NIO → IO 多路复用演进 / Reactor 模式实战 / WebSocket / SSE 长连接
-        link: /netty/1_io_model
+        link: /netty/0_io_model
       - title: 测试体系
         icon: vial
         details: JUnit 5 单元测试 / Mockito Mock / TestContainers 集成测试 / TDD 实践

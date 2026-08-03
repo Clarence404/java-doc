@@ -1,4 +1,4 @@
-# 团队开发规范
+# 开发规范
 
 > 参考资料：
 > * 阿里巴巴 Java 开发手册：[https://github.com/alibaba/p3c](https://github.com/alibaba/p3c)

@@ -1,6 +1,6 @@
 # 开发总结-Netty
 
-> 精华提炼，细节详见 [netty/](../netty/1_io_model)
+> 精华提炼，细节详见 [netty/](../netty/0_io_model)
 
 ## 一、BIO、NIO、AIO 的区别？
 

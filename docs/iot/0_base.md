@@ -62,4 +62,4 @@
 > - 边缘计算 → `3_edge.md`
 > - 数据处理 → `4_data.md`
 > - 安全体系 → `5_security.md`
-> - Java 实战 → `6_java_practice.md`
+> - Java 实战 → `6_java_iot.md`

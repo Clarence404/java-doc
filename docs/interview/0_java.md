@@ -320,7 +320,7 @@ private static final long serialVersionUID = 1L;
 
 ## 九、IO模型的理解
 
-详情见: <RouteLink to="/netty/1_io_model">Netty-IO模型</RouteLink>
+详情见: <RouteLink to="/netty/0_io_model">Netty-IO模型</RouteLink>
 
 ## 十、反射的基本原理
 

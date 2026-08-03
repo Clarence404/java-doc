@@ -1,4 +1,4 @@
-# CI/CD 持续集成与部署
+# CI/CD
 
 > 参考资料：
 > * GitHub Actions 文档：[https://docs.github.com/en/actions](https://docs.github.com/en/actions)

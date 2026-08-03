@@ -8,7 +8,7 @@
 - **Java NIO 的核心组件是什么？（Channel、Buffer、Selector）**
 - **`select`、`poll`、`epoll` 的区别？epoll 为什么比 select 高效？**
 - **epoll 的 LT（水平触发）和 ET（边缘触发）有什么区别？**  
-  → 详见 <RouteLink to="/netty/1_io_model">IO 模型</RouteLink>
+  → 详见 <RouteLink to="/netty/0_io_model">IO 模型</RouteLink>
 
 ## 二、Reactor 模型
 
@@ -33,7 +33,7 @@
 - **WebSocket、SSE、HTTP 长轮询的区别？各适合什么场景？**
 - **Netty 如何实现 WebSocket 握手升级？**
 - **如何在 Netty 中实现心跳机制？`IdleStateHandler` 的作用是什么？**  
-  → 详见 <RouteLink to="/netty/3_websocket">WebSocket</RouteLink>、<RouteLink to="/netty/4_sse">SSE</RouteLink>
+  → 详见 <RouteLink to="/netty/4_websocket">WebSocket</RouteLink>、<RouteLink to="/netty/5_sse">SSE</RouteLink>
 
 ---
 
