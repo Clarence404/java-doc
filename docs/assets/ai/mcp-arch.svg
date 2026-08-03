@@ -1,0 +1,67 @@
+<svg viewBox="0 0 500 540" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="500" height="540" fill="var(--bg)"/>
+
+  <!-- Title -->
+  <text x="250" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">MCP 调用链路</text>
+
+  <!-- Node 1: 用户 (x=170, y=44, w=160, h=44, center=250, bottom=88) -->
+  <rect x="170" y="44" width="160" height="44" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="250" y="70" text-anchor="middle" font-size="13" fill="var(--fg)">用户（User）</text>
+
+  <!-- Arrow: 用户 → MCP Host (y1=92, y2=124) -->
+  <line x1="250" y1="92" x2="250" y2="124" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="258" y="108" text-anchor="start" font-size="11" fill="var(--muted)">发起请求</text>
+
+  <!-- Node 2: MCP Host (x=100, y=130, w=300, h=64, center=250, bottom=194) -->
+  <rect x="100" y="130" width="300" height="64" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="250" y="156" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">MCP Host / MCP Client</text>
+  <text x="250" y="175" text-anchor="middle" font-size="11" fill="var(--fg)">如 Claude Desktop、Cursor</text>
+
+  <!-- Arrow: MCP Host → MCP Server (y1=198, y2=229) -->
+  <line x1="250" y1="198" x2="250" y2="229" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="258" y="214" text-anchor="start" font-size="11" fill="var(--muted)">JSON-RPC 请求</text>
+
+  <!-- Node 3: MCP Server (x=100, y=235, w=300, h=64, center=250, bottom=299) -->
+  <rect x="100" y="235" width="300" height="64" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="250" y="261" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">MCP Server</text>
+  <text x="250" y="280" text-anchor="middle" font-size="11" fill="var(--fg)">如 GitHub / 文件系统 Server</text>
+
+  <!-- Arrow: MCP Server → MCP Client 结果注入 (y1=303, y2=334) -->
+  <line x1="250" y1="303" x2="250" y2="334" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="258" y="319" text-anchor="start" font-size="11" fill="var(--muted)">工具列表 / 执行结果</text>
+
+  <!-- Node 4: MCP Client 结果注入 (x=100, y=340, w=300, h=64, center=250, bottom=404) -->
+  <rect x="100" y="340" width="300" height="64" rx="6" fill="var(--y)" fill-opacity="0.15" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="250" y="366" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">MCP Client 结果注入</text>
+  <text x="250" y="384" text-anchor="middle" font-size="11" fill="var(--fg)">将工具结果加入 LLM 上下文</text>
+
+  <!-- Arrow: → LLM 推理 (y1=408, y2=439) -->
+  <line x1="250" y1="408" x2="250" y2="439" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="258" y="424" text-anchor="start" font-size="11" fill="var(--muted)">基于上下文推理</text>
+
+  <!-- Node 5: LLM 生成最终回复 (x=170, y=445, w=160, h=48, center=250, bottom=493) -->
+  <rect x="170" y="445" width="160" height="48" rx="6" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="250" y="473" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">LLM 生成最终回复</text>
+</svg>

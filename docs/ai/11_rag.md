@@ -228,7 +228,7 @@ public interface KnowledgeAssistant {
 @RequiredArgsConstructor
 public class AiConfig {
 
-    private final ChatLanguageModel chatModel;
+    private final ChatModel chatModel;
     private final EmbeddingModel embeddingModel;
     private final EmbeddingStore<TextSegment> embeddingStore;
 
@@ -242,7 +242,7 @@ public class AiConfig {
             .build();
 
         return AiServices.builder(KnowledgeAssistant.class)
-            .chatLanguageModel(chatModel)
+            .chatModel(chatModel)
             .contentRetriever(retriever)
             .build();
     }

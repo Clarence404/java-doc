@@ -228,11 +228,9 @@ System.out.println(round2.text());
 ### Maven 依赖
 
 ```xml
-<!-- 使用 Vertex AI Gemini（推荐生产环境） -->
 <dependency>
     <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-vertex-ai-gemini-spring-boot-starter</artifactId>
-    <version>1.0.0</version>
+    <artifactId>spring-ai-starter-model-google-genai</artifactId>
 </dependency>
 ```
 
@@ -241,19 +239,14 @@ System.out.println(round2.text());
 ```yaml
 spring:
   ai:
-    vertex:
-      ai:
-        gemini:
-          project-id: ${GCP_PROJECT_ID}
-          location: us-central1
-          chat:
-            options:
-              model: gemini-3.5-flash
-              temperature: 0.7
-              max-output-tokens: 2048
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}
+        chat:
+          model: gemini-3.5-flash
+          temperature: 0.7
+          max-output-tokens: 2048
 ```
-
-> 使用 Google AI Studio（API Key）时改用 `spring-ai-google-genai-spring-boot-starter`，配置 `spring.ai.google.genai.api-key`。
 
 ### ChatClient 调用示例
 

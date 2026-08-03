@@ -1,0 +1,76 @@
+<svg viewBox="0 0 560 530" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="560" height="530" fill="var(--bg)"/>
+
+  <!-- Title -->
+  <text x="280" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">ReAct 推理循环</text>
+
+  <!-- 用户输入目标 (y=44, h=44, bottom=88) -->
+  <rect x="180" y="44" width="200" height="44" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="280" y="70" text-anchor="middle" font-size="13" fill="var(--fg)">用户输入目标</text>
+
+  <!-- Arrow: 用户输入 → Thought (y1=92, y2=124) -->
+  <line x1="280" y1="92" x2="280" y2="124" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Thought (y=130, h=64, bottom=194) -->
+  <rect x="180" y="130" width="200" height="64" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="280" y="156" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">Thought</text>
+  <text x="280" y="176" text-anchor="middle" font-size="11" fill="var(--fg)">LLM 推理分析当前状态</text>
+
+  <!-- Arrow: Thought → Action (y1=198, y2=229) -->
+  <line x1="280" y1="198" x2="280" y2="229" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Action (y=235, h=64, bottom=299) -->
+  <rect x="180" y="235" width="200" height="64" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="280" y="261" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">Action</text>
+  <text x="280" y="281" text-anchor="middle" font-size="11" fill="var(--fg)">选择并调用工具执行</text>
+
+  <!-- Arrow: Action → Observation (y1=303, y2=334) -->
+  <line x1="280" y1="303" x2="280" y2="334" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Observation (y=340, h=64, bottom=404) -->
+  <rect x="180" y="340" width="200" height="64" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="280" y="366" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">Observation</text>
+  <text x="280" y="386" text-anchor="middle" font-size="11" fill="var(--fg)">获取工具执行结果</text>
+
+  <!-- Arrow: Observation → 判断完成 (y1=408, y2=439) -->
+  <line x1="280" y1="408" x2="280" y2="439" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 判断是否完成 (y=445, h=48, bottom=493) -->
+  <rect x="180" y="445" width="200" height="48" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="280" y="473" text-anchor="middle" font-size="12" fill="var(--fg)">判断是否任务完成？</text>
+
+  <!-- Loop back: 未完成 path from left edge (x=180, y=469) → x=85 → up to Thought left (x=174, y=162) -->
+  <path d="M 180 469 L 85 469 L 85 162 L 174 162" stroke="var(--muted)" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <text x="133" y="461" text-anchor="middle" font-size="11" fill="var(--muted)">未完成</text>
+
+  <!-- 已完成 arrow: right edge (x=380, y=469) → Final Answer left (x=404, y=469) -->
+  <line x1="380" y1="469" x2="404" y2="469" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="392" y="461" text-anchor="middle" font-size="11" fill="var(--muted)">已完成</text>
+
+  <!-- Final Answer (x=410, y=445, w=130, h=48, bottom=493) -->
+  <rect x="410" y="445" width="130" height="48" rx="6" fill="var(--y)" fill-opacity="0.15" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="475" y="464" text-anchor="middle" font-size="12" font-weight="600" fill="var(--y)">Final Answer</text>
+  <text x="475" y="481" text-anchor="middle" font-size="11" fill="var(--fg)">输出最终回答</text>
+</svg>

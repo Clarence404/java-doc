@@ -37,15 +37,7 @@ MCP 定义了三个核心角色：
 
 **调用链路：**
 
-```
-用户 → MCP Host（如 Claude Desktop）
-           ↓ 通过 MCP Client 发起请求
-      MCP Server（如 GitHub MCP Server）
-           ↓ 返回工具列表 / 执行工具
-      MCP Client 将结果传回 LLM 上下文
-           ↓
-      LLM 生成最终回复 → 用户
-```
+![MCP 调用链路](../assets/ai/mcp-arch.svg)
 
 MCP Server 可以运行在本地（stdio 传输）或远程（HTTP/SSE 传输），Host 和 Server 通过标准化的 JSON-RPC 2.0 协议通信。
 

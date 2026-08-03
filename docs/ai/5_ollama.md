@@ -107,14 +107,14 @@ curl http://localhost:11434/v1/chat/completions \
 
 ## 四、Java 接入（Spring AI）
 
-Spring AI 通过 `spring-ai-ollama-spring-boot-starter` 原生支持 Ollama。
+Spring AI 通过 `spring-ai-starter-model-ollama` 原生支持 Ollama。
 
 ### 依赖
 
 ```xml
 <dependency>
     <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
+    <artifactId>spring-ai-starter-model-ollama</artifactId>
 </dependency>
 ```
 
@@ -126,12 +126,10 @@ spring:
     ollama:
       base-url: http://localhost:11434
       chat:
-        options:
-          model: qwen2.5:7b
-          temperature: 0.7
+        model: qwen2.5:7b
+        temperature: 0.7
       embedding:
-        options:
-          model: nomic-embed-text
+        model: nomic-embed-text
 ```
 
 ### ChatClient 调用示例

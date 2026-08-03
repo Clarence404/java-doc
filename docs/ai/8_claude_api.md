@@ -286,8 +286,7 @@ response.usage().cacheReadInputTokens()
 ```xml
 <dependency>
     <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-anthropic-spring-boot-starter</artifactId>
-    <version>1.0.0</version>
+    <artifactId>spring-ai-starter-model-anthropic</artifactId>
 </dependency>
 ```
 
@@ -299,10 +298,9 @@ spring:
     anthropic:
       api-key: ${ANTHROPIC_API_KEY}
       chat:
-        options:
-          model: claude-sonnet-5
-          max-tokens: 2048
-          temperature: 0.7
+        model: claude-sonnet-5
+        max-tokens: 2048
+        temperature: 0.7
 ```
 
 ### ChatClient 同步 + 流式示例

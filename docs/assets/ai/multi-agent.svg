@@ -1,0 +1,80 @@
+<svg viewBox="0 0 620 510" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="620" height="510" fill="var(--bg)"/>
+
+  <!-- Title -->
+  <text x="310" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Multi-Agent Orchestrator-Worker 模式</text>
+
+  <!-- 用户请求 (x=210, y=44, w=200, h=44, center=310, bottom=88) -->
+  <rect x="210" y="44" width="200" height="44" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="310" y="70" text-anchor="middle" font-size="13" fill="var(--fg)">用户请求</text>
+
+  <!-- Arrow: 用户请求 → Orchestrator (y1=92, y2=124) -->
+  <line x1="310" y1="92" x2="310" y2="124" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Orchestrator (x=140, y=130, w=340, h=54, center=310, bottom=184) -->
+  <rect x="140" y="130" width="340" height="54" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="310" y="154" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">Orchestrator（编排者）</text>
+  <text x="310" y="173" text-anchor="middle" font-size="11" fill="var(--fg)">接收任务并分解给子 Agent</text>
+
+  <!-- Fan-out arrows: Orchestrator bottom (310, 188) → workers top centers -->
+  <!-- Left worker center x=140, top y=270-6=264 -->
+  <line x1="310" y1="188" x2="140" y2="264" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- Middle worker center x=320, top y=264 -->
+  <line x1="310" y1="188" x2="320" y2="264" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- Right worker center x=500, top y=264 -->
+  <line x1="310" y1="188" x2="500" y2="264" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- Zone label: 任务分解 (right of rightmost arrow at y=225, arrow x≈403) -->
+  <text x="415" y="225" text-anchor="start" font-size="11" fill="var(--muted)">任务分解</text>
+
+  <!-- Workers (y=270, h=64, bottom=334) -->
+  <!-- 搜索 Agent (x=60, w=160, center=140) -->
+  <rect x="60" y="270" width="160" height="64" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="140" y="296" text-anchor="middle" font-size="12" font-weight="600" fill="var(--b)">搜索 Agent</text>
+  <text x="140" y="316" text-anchor="middle" font-size="11" fill="var(--fg)">搜索互联网信息</text>
+
+  <!-- 分析 Agent (x=240, w=160, center=320) -->
+  <rect x="240" y="270" width="160" height="64" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="320" y="296" text-anchor="middle" font-size="12" font-weight="600" fill="var(--p)">分析 Agent</text>
+  <text x="320" y="316" text-anchor="middle" font-size="11" fill="var(--fg)">分析数据生成摘要</text>
+
+  <!-- 写作 Agent (x=420, w=160, center=500) -->
+  <rect x="420" y="270" width="160" height="64" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="500" y="296" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">写作 Agent</text>
+  <text x="500" y="316" text-anchor="middle" font-size="11" fill="var(--fg)">生成最终报告</text>
+
+  <!-- Fan-in arrows: workers bottom (y=338) → 最终输出 top (y=414) -->
+  <!-- Left: (140,338) → (250,414) -->
+  <line x1="140" y1="338" x2="250" y2="414" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- Middle: (320,338) → (310,414) -->
+  <line x1="320" y1="338" x2="310" y2="414" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- Right: (500,338) → (370,414) -->
+  <line x1="500" y1="338" x2="370" y2="414" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- Zone label: 汇总结果 (right of all fan-in arrows at y=378, rightmost arrow x≈432) -->
+  <text x="520" y="378" text-anchor="start" font-size="11" fill="var(--muted)">汇总结果</text>
+
+  <!-- 最终输出 (x=210, y=420, w=200, h=48, center=310, bottom=468) -->
+  <rect x="210" y="420" width="200" height="48" rx="6" fill="var(--y)" fill-opacity="0.15" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="310" y="448" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">汇总并输出最终结果</text>
+</svg>

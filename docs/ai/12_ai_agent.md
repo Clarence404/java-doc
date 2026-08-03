@@ -46,19 +46,7 @@ ReAct（Reasoning + Acting）是目前最主流的 Agent 推理框架，核心�
 
 **循环流程：**
 
-```
-用户输入目标
-    ↓
-[Thought] LLM 分析当前情况，判断下一步需要做什么
-    ↓
-[Action] 选择并调用工具（如搜索、查数据库）
-    ↓
-[Observation] 获取工具返回结果
-    ↓
-[Thought] 根据观察结果继续推理，判断是否完成
-    ↓
-若未完成 → 继续下一轮 Action；若完成 → 输出 Final Answer
-```
+![ReAct 推理循环](../assets/ai/react-loop.svg)
 
 每一轮 Thought-Action-Observation 构成一个"推理步"，Agent 自主决定循环次数，通常会设置最大步数防止无限循环。
 
@@ -267,15 +255,7 @@ spring:
 - **Orchestrator（编排者）**：主 Agent，负责理解用户目标、任务分解、分配给子 Agent、汇总结果
 - **Worker（执行者）**：专门化的子 Agent，各自有专属工具和职责（如"搜索 Agent"、"数据分析 Agent"、"报告生成 Agent"）
 
-```
-用户请求 → Orchestrator
-                ↓ 任务分解
-    ┌───────────┬───────────┐
- 搜索 Agent  分析 Agent  写作 Agent
-    └───────────┴───────────┘
-                ↓ 汇总结果
-           Orchestrator → 最终输出
-```
+![Multi-Agent Orchestrator-Worker 模式](../assets/ai/multi-agent.svg)
 
 ### LangChain4j 实现思路
 

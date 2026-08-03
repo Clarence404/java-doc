@@ -200,8 +200,7 @@ System.out.println(visionResult.choices().get(0).message().content().orElse(""))
 ```xml
 <dependency>
     <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
-    <version>1.0.0</version>
+    <artifactId>spring-ai-starter-model-openai</artifactId>
 </dependency>
 ```
 
@@ -213,13 +212,11 @@ spring:
     openai:
       api-key: ${OPENAI_API_KEY}
       chat:
-        options:
-          model: gpt-5.6-luna
-          temperature: 0.7
-          max-tokens: 1024
+        model: gpt-5.6-luna
+        temperature: 0.7
+        max-tokens: 1024
       embedding:
-        options:
-          model: text-embedding-3-small
+        model: text-embedding-3-small
 ```
 
 ### ChatClient 调用示例
