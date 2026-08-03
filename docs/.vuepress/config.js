@@ -19,7 +19,7 @@ const navbarFlat = [
     {text: '设计模式', link: '/patterns/0_design_intro'},
     {text: 'Spring',  link: '/spring/0_spring_framework'},
     {text: 'Spring Boot', link: '/spring-boot/0_spring_boot'},
-    {text: 'Netty',   link: '/netty/0_stick_split'},
+    {text: 'Netty',   link: '/netty/0_io_model'},
     {text: '测试体系', link: '/testing/0_testing_intro'},
     {text: '数据库',  link: '/database/0_overview'},
     {text: '缓存',    link: '/cache/0_redis_base'},
@@ -57,7 +57,7 @@ const navbarDropdown = [
             {text: 'Spring',          link: '/spring/0_spring_framework'},
             {text: 'Spring Boot',     link: '/spring-boot/0_spring_boot'},
             {text: 'Spring Cloud',    link: '/spring-cloud/0_overview'},
-            {text: 'Netty',           link: '/netty/0_stick_split'},
+            {text: 'Netty',           link: '/netty/0_io_model'},
         ],
     },
     {

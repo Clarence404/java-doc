@@ -1,5 +1,7 @@
 # Reactor 模型
 
+![Reactor 三种模式对比](../assets/netty/reactor-patterns.svg)
+
 ::: warning Todo 理解后优化
 :::
 
@@ -94,3 +96,20 @@ Reactor 模型是 **基于 IO 多路复用的一种事件驱动模型**，用于
     - **NIO（Reactor）**：主流方案，如 **Netty、Tomcat**。
 
     - **AIO（Proactor）**：适合超高并发（但 Java AIO 实际应用少）。
+
+---
+
+## 四、EventLoop 与 Channel 绑定
+
+- **EventLoop 本质**：单线程 + 任务队列，负责处理 Channel 的所有 I/O 事件和定时任务
+- **绑定规则**：Channel 注册时永久绑定到一个 EventLoop（一个 EventLoop 可服务多个 Channel）
+- **为什么不能切换 EventLoop**：保证 Channel 内所有操作串行执行，无需加锁；切换会引入竞态条件
+- **代码示意**：
+
+  ```java
+  channel.eventLoop().execute(() -> {
+      // 在 EventLoop 线程中执行
+  });
+  ```
+
+- **NioEventLoopGroup 默认线程数** = CPU 核心数 × 2

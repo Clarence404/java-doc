@@ -1,0 +1,63 @@
+<svg viewBox="0 0 660 406" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="330" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Netty 架构分层</text>
+
+  <!-- Layer 1: 用户代码  y=36 h=60 bottom=96 -->
+  <rect x="10" y="36" width="640" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="170" y="58"  text-anchor="middle" font-weight="600" fill="var(--p)">用户代码</text>
+  <text x="170" y="80"  text-anchor="middle" font-size="12" fill="var(--muted)">ChannelHandler 业务逻辑</text>
+  <text x="510" y="58"  text-anchor="middle" font-weight="600" fill="var(--p)">业务层</text>
+  <text x="510" y="80"  text-anchor="middle" font-size="12" fill="var(--muted)">编解码 · 协议处理 · 业务分发</text>
+
+  <!-- Arrow 1→2  y1=100 y2=126  body=26px ✓ -->
+  <line x1="330" y1="100" x2="330" y2="126" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Layer 2: Pipeline  y=132 h=60 bottom=192 -->
+  <rect x="10" y="132" width="640" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="170" y="154" text-anchor="middle" font-weight="600" fill="var(--b)">Pipeline</text>
+  <text x="170" y="176" text-anchor="middle" font-size="12" fill="var(--muted)">ChannelPipeline · Handler 链</text>
+  <text x="510" y="154" text-anchor="middle" font-weight="600" fill="var(--b)">事件传播</text>
+  <text x="510" y="176" text-anchor="middle" font-size="12" fill="var(--muted)">入站 Inbound · 出站 Outbound</text>
+
+  <!-- Arrow 2→3  y1=196 y2=222  body=26px ✓ -->
+  <line x1="330" y1="196" x2="330" y2="222" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Layer 3: Transport  y=228 h=60 bottom=288 -->
+  <rect x="10" y="228" width="640" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="170" y="250" text-anchor="middle" font-weight="600" fill="var(--g)">Transport</text>
+  <text x="170" y="272" text-anchor="middle" font-size="12" fill="var(--muted)">Channel · EventLoop · ByteBuf</text>
+  <text x="510" y="250" text-anchor="middle" font-weight="600" fill="var(--g)">I/O 抽象</text>
+  <text x="510" y="272" text-anchor="middle" font-size="12" fill="var(--muted)">Reactor 线程模型 · 内存管理</text>
+
+  <!-- Arrow 3→4  y1=292 y2=318  body=26px ✓ -->
+  <line x1="330" y1="292" x2="330" y2="318" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Layer 4: Java NIO  y=324 h=60 bottom=384 -->
+  <rect x="10" y="324" width="640" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="170" y="346" text-anchor="middle" font-weight="600" fill="var(--y)">Java NIO</text>
+  <text x="170" y="368" text-anchor="middle" font-size="12" fill="var(--muted)">Selector · SocketChannel · ByteBuffer</text>
+  <text x="510" y="346" text-anchor="middle" font-weight="600" fill="var(--y)">底层支撑</text>
+  <text x="510" y="368" text-anchor="middle" font-size="12" fill="var(--muted)">JDK 原生 NIO 实现</text>
+</svg>

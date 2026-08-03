@@ -1,0 +1,100 @@
+<svg viewBox="0 0 680 330" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .row-label { font-size: 12px; font-weight: 600; fill: var(--fg); }
+    .box-label { font-size: 13px; font-weight: 600; }
+    .box-sub { font-size: 11px; fill: var(--muted); }
+  </style>
+
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="340" y="20" text-anchor="middle" class="title">Reactor 三种模式对比</text>
+
+  <!-- ══════════════ Row 1: 单线程 Reactor ══════════════ -->
+  <!-- Pattern label -->
+  <text x="8" y="62" class="row-label">① 单线程</text>
+  <text x="8" y="78" class="row-label">Reactor</text>
+
+  <!-- Single EventLoop rect (x=200, y=38, w=280, h=60, bottom=98) -->
+  <rect x="200" y="38" width="280" height="60" rx="6"
+        fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <!-- Line 1 baseline: y=38+22=60  Line 2 baseline: y=38+40=78  bottom margin: 98-78=20 ✓ -->
+  <text x="340" y="60" text-anchor="middle" class="box-label" fill="var(--b)">EventLoop（单线程）</text>
+  <text x="340" y="78" text-anchor="middle" class="box-sub">Accept + IO + 业务</text>
+
+  <!-- ══════════════ Row 2: 多线程 Reactor ══════════════ -->
+  <!-- gap: 148-98=50 -->
+  <!-- Pattern label -->
+  <text x="8" y="172" class="row-label">② 多线程</text>
+  <text x="8" y="188" class="row-label">Reactor</text>
+
+  <!-- BossGroup (x=150, y=148, w=140, h=60, right=290, bottom=208) -->
+  <rect x="150" y="148" width="140" height="60" rx="6"
+        fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <!-- Line 1 baseline: 148+22=170  Line 2 baseline: 148+40=188  bottom margin: 208-188=20 ✓ -->
+  <text x="220" y="170" text-anchor="middle" class="box-label" fill="var(--b)">BossGroup</text>
+  <text x="220" y="188" text-anchor="middle" class="box-sub">1 线程 / Accept</text>
+
+  <!-- Arrow Row 2: x1=290, x2=360-6=354, y=178; body=64 ✓ -->
+  <line x1="290" y1="178" x2="354" y2="178"
+        stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- WorkerGroup (x=360, y=148, w=160, h=60, right=520, bottom=208) -->
+  <rect x="360" y="148" width="160" height="60" rx="6"
+        fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="440" y="170" text-anchor="middle" class="box-label" fill="var(--g)">WorkerGroup</text>
+  <text x="440" y="188" text-anchor="middle" class="box-sub">N 线程 / IO + 业务</text>
+
+  <!-- ══════════════ Row 3: 主从 Reactor (Netty默认) ══════════════ -->
+  <!-- gap: 258-208=50 -->
+  <!-- Pattern label -->
+  <text x="8" y="278" class="row-label">③ 主从 Reactor</text>
+  <text x="8" y="294" class="row-label">（Netty 默认）</text>
+
+  <!-- BossGroup (x=150, y=258, w=120, h=60, right=270, bottom=318) -->
+  <rect x="150" y="258" width="120" height="60" rx="6"
+        fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <!-- Line 1 baseline: 258+22=280  Line 2 baseline: 258+40=298  bottom margin: 318-298=20 ✓ -->
+  <text x="210" y="280" text-anchor="middle" class="box-label" fill="var(--b)">BossGroup</text>
+  <text x="210" y="298" text-anchor="middle" class="box-sub">N 线程 / Accept</text>
+
+  <!-- Arrow Row 3 first: x1=270, x2=300-6=294, y=288; body=24 ✓ -->
+  <line x1="270" y1="288" x2="294" y2="288"
+        stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- WorkerGroup (x=300, y=258, w=130, h=60, right=430, bottom=318); gap from BossGroup: 30 ✓ -->
+  <rect x="300" y="258" width="130" height="60" rx="6"
+        fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="365" y="280" text-anchor="middle" class="box-label" fill="var(--g)">WorkerGroup</text>
+  <text x="365" y="298" text-anchor="middle" class="box-sub">M 线程 / IO</text>
+
+  <!-- Arrow Row 3 second: x1=430, x2=460-6=454, y=288; body=24 ✓ -->
+  <line x1="430" y1="288" x2="454" y2="288"
+        stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 业务线程池 (x=460, y=258, w=140, h=60, right=600, bottom=318); gap from WorkerGroup: 30 ✓ -->
+  <rect x="460" y="258" width="140" height="60" rx="6"
+        fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="530" y="280" text-anchor="middle" class="box-label" fill="var(--p)">业务线程池</text>
+  <text x="530" y="298" text-anchor="middle" class="box-sub">业务处理</text>
+</svg>

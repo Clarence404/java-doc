@@ -52,3 +52,33 @@
 - **拆包**：一个大的数据包被分割成多个小包，接收方需要正确重组这些小包。
 
 通过合理的协议设计和数据包边界的标识，可以有效避免粘包和拆包的问题。
+
+### 5、Netty 内置解码器
+
+| 解码器 | 适用场景 | 关键参数 |
+|---|---|---|
+| FixedLengthFrameDecoder | 定长消息 | frameLength |
+| DelimiterBasedFrameDecoder | 分隔符消息 | maxFrameLength, delimiter |
+| LengthFieldBasedFrameDecoder | 长度字段消息（最通用）| 见下表 |
+
+```java
+// 定长解码器
+pipeline.addLast(new FixedLengthFrameDecoder(100));
+
+// 分隔符解码器
+ByteBuf delimiter = Unpooled.copiedBuffer("\r\n", CharsetUtil.UTF_8);
+pipeline.addLast(new DelimiterBasedFrameDecoder(1024, delimiter));
+
+// 长度字段解码器（最常用）
+pipeline.addLast(new LengthFieldBasedFrameDecoder(
+    65535,  // maxFrameLength
+    0,      // lengthFieldOffset
+    4,      // lengthFieldLength
+    0,      // lengthAdjustment
+    4       // initialBytesToStrip
+));
+```
+
+#### LengthFieldBasedFrameDecoder 参数速查
+
+> 完整参数说明见 [自定义私有协议 § 二](6_custom_protocol.md#二lengthfieldbasedframedecoder-参数详解)
