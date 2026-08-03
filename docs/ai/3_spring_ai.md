@@ -1,4 +1,4 @@
-﻿# Spring AI
+# Spring AI
 
 > 参考资料：
 > * 官方文档：[https://docs.spring.io/spring-ai/reference/](https://docs.spring.io/spring-ai/reference/)

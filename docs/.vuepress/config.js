@@ -114,7 +114,7 @@ function getSidebarFromDir(dirPath) {
         });
     return files.map(file => {
         const filePath = path.join(dirPath, file);
-        const content = fs.readFileSync(filePath, 'utf-8');
+        const content = fs.readFileSync(filePath, 'utf-8').replace(/^﻿/, '');
         const firstHeadingMatch = content.match(/^# (.+)/m);
         const firstHeading = firstHeadingMatch ? firstHeadingMatch[1] : file;
         const relativeLink = path.relative(path.resolve(__dirname, '../'), filePath)

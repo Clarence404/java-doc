@@ -1,4 +1,4 @@
-﻿# AI 开发总览
+# AI 开发总览
 
 > 参考资料：
 > * Andrej Karpathy - The spelled-out intro to LLMs：[https://www.youtube.com/watch?v=zjkBMFhNj_g](https://www.youtube.com/watch?v=zjkBMFhNj_g)
