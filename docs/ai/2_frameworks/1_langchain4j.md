@@ -358,4 +358,4 @@ KnowledgeAssistant assistant = AiServices.builder(KnowledgeAssistant.class)
 String answer = assistant.ask("公司请假流程是什么？");
 ```
 
-详细的 RAG 架构和向量数据库选型见 [RAG 检索增强生成](./11_rag.md)。
+详细的 RAG 架构和向量数据库选型见 [RAG 检索增强生成](../4_core_tech/2_rag.md)。

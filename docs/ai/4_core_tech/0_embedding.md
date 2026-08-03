@@ -1,4 +1,4 @@
-# Embedding
+# Embedding 向量化
 
 > 参考资料：
 > * OpenAI Embeddings：[https://platform.openai.com/docs/guides/embeddings](https://platform.openai.com/docs/guides/embeddings)

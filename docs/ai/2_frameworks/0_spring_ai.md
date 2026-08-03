@@ -254,4 +254,4 @@ String result = chatClient.prompt()
 
 Spring AI 内置 `VectorStore`、`EmbeddingModel`、`DocumentReader` 等 RAG 组件，可快速构建基于本地知识库的问答系统。
 
-详见 [RAG 检索增强生成](./11_rag.md)。
+详见 [RAG 检索增强生成](../4_core_tech/2_rag.md)。

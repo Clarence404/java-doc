@@ -1,4 +1,4 @@
-# 主流大语言模型
+# 大语言模型（LLM）
 
 > 参考资料：
 > * LMSYS Chatbot Arena（模型能力榜单）：[https://chat.lmsys.org/](https://chat.lmsys.org/)

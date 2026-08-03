@@ -1,4 +1,4 @@
-# Other RDBMS
+# 其他 RDBMS
 
 ## 一、Oracle
 

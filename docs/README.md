@@ -173,7 +173,7 @@ highlights:
       - title: 人工智能
         icon: robot
         details: Spring AI / LangChain4j 框架 / RAG 检索增强生成 / Ollama 本地大模型部署
-        link: /ai/0_ai
+        link: /ai/0_overview
 
 footer: MIT 协议 | 版权所有 © 2025-至今 Clarence
 ---

@@ -1,4 +1,4 @@
-# RAG
+# RAG 检索增强生成
 
 > 参考资料：
 > * RAG 概念：[https://www.pinecone.io/learn/retrieval-augmented-generation/](https://www.pinecone.io/learn/retrieval-augmented-generation/)

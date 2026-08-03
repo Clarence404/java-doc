@@ -36,7 +36,7 @@ const navbarFlat = [
     {text: '可观测性', link: '/observability/0_observability'},
     {text: '安全',    link: '/security/0_security'},
     {text: 'IoT',     link: '/iot/0_base'},
-    {text: 'AI',      link: '/ai/0_ai'},
+    {text: 'AI',      link: '/ai/0_overview'},
     {text: '业务场景', link: '/scenario/0_scene'},
 ];
 
@@ -127,6 +127,65 @@ function getSidebarFromDir(dirPath) {
     });
 }
 
+const aiSidebar = [
+    {text: 'AI 开发总览', link: '/ai/0_overview'},
+    {
+        text: '基础概念',
+        collapsible: true,
+        collapsed: false,
+        children: [
+            {text: '主流大语言模型', link: '/ai/1_concepts/0_model'},
+            {text: 'Prompt 工程',   link: '/ai/1_concepts/1_prompt'},
+        ],
+    },
+    {
+        text: 'Java 开发框架',
+        collapsible: true,
+        collapsed: false,
+        children: [
+            {text: 'Spring AI',    link: '/ai/2_frameworks/0_spring_ai'},
+            {text: 'LangChain4j', link: '/ai/2_frameworks/1_langchain4j'},
+        ],
+    },
+    {
+        text: '模型接入',
+        collapsible: true,
+        collapsed: false,
+        children: [
+            {text: 'Ollama（本地部署）', link: '/ai/3_integration/0_ollama'},
+            {text: '主流 API 接入',      link: '/ai/3_integration/1_api_access'},
+        ],
+    },
+    {
+        text: '核心技术',
+        collapsible: true,
+        collapsed: false,
+        children: [
+            {text: 'Embedding',  link: '/ai/4_core_tech/0_embedding'},
+            {text: '向量数据库', link: '/ai/4_core_tech/1_vector_db'},
+            {text: 'RAG 检索增强',        link: '/ai/4_core_tech/2_rag'},
+        ],
+    },
+    {
+        text: '高阶应用',
+        collapsible: true,
+        collapsed: false,
+        children: [
+            {text: 'AI Agent', link: '/ai/5_advanced/0_agent'},
+            {text: 'MCP 协议', link: '/ai/5_advanced/1_mcp'},
+            {text: '模型微调', link: '/ai/5_advanced/2_fine_tuning'},
+        ],
+    },
+    {
+        text: 'AI 工具生态',
+        collapsible: true,
+        collapsed: true,
+        children: [
+            {text: 'AI 工具总览', link: '/ai/6_tools/0_ai_tools'},
+        ],
+    },
+];
+
 const databaseSidebar = [
     {text: '数据库总览', link: '/database/0_overview'},
     {
@@ -163,7 +222,7 @@ const databaseSidebar = [
         collapsed: true,
         children: [
             {text: '其他 RDBMS', link: '/database/3_relational/0_other_rdbms'},
-            {text: 'ORM', link: '/database/3_relational/1_orm_framework'},
+            {text: 'ORM 框架', link: '/database/3_relational/1_orm_framework'},
         ],
     },
     {
@@ -172,12 +231,11 @@ const databaseSidebar = [
         collapsible: true,
         collapsed: true,
         children: [
-            {text: '列式', link: '/database/4_nosql/0_column_db'},
-            {text: '分布式', link: '/database/4_nosql/1_distributed_db'},
-            {text: '时序', link: '/database/4_nosql/2_time_series_db'},
-            {text: '文档', link: '/database/4_nosql/3_document_db'},
-            {text: 'ES', link: '/database/4_nosql/4_elasticsearch_opensearch'},
-            {text: '搜索', link: '/database/4_nosql/5_search_db'},
+            {text: '列式数据库', link: '/database/4_nosql/0_column_db'},
+            {text: '分布式数据库', link: '/database/4_nosql/1_distributed_db'},
+            {text: '时序数据库',  link: '/database/4_nosql/2_time_series_db'},
+            {text: '文档数据库',  link: '/database/4_nosql/3_document_db'},
+            {text: '搜索数据库',  link: '/database/4_nosql/5_search_db'},
         ],
     },
     {
@@ -193,7 +251,7 @@ const databaseSidebar = [
         ],
     },
     {
-        text: '选型源码',
+        text: '选型及源码',
         link: '/database/6_misc/0_mbcj_source_code',
         collapsible: true,
         collapsed: true,
@@ -253,7 +311,7 @@ export default defineUserConfig({
             '/architecture/': getSidebarFromDir(path.resolve(__dirname, '../architecture')),
             '/protocols/': getSidebarFromDir(path.resolve(__dirname, '../protocols')),
             '/iot/': getSidebarFromDir(path.resolve(__dirname, '../iot')),
-            '/ai/': getSidebarFromDir(path.resolve(__dirname, '../ai')),
+            '/ai/': aiSidebar,
             '/testing/': getSidebarFromDir(path.resolve(__dirname, '../testing')),
             '/devops/': getSidebarFromDir(path.resolve(__dirname, '../devops')),
             '/engineering/': getSidebarFromDir(path.resolve(__dirname, '../engineering')),

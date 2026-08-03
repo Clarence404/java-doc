@@ -37,7 +37,7 @@ MCP 定义了三个核心角色：
 
 **调用链路：**
 
-![MCP 调用链路](../assets/ai/mcp-arch.svg)
+![MCP 调用链路](../../assets/ai/mcp-arch.svg)
 
 MCP Server 可以运行在本地（stdio 传输）或远程（HTTP/SSE 传输），Host 和 Server 通过标准化的 JSON-RPC 2.0 协议通信。
 
