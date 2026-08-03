@@ -1,4 +1,4 @@
-<svg viewBox="0 0 680 122" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+<svg viewBox="0 0 780 122" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
   <style>
     :root {
       --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
@@ -25,37 +25,37 @@
   </defs>
 
   <!-- 标题 -->
-  <text x="340" y="22" text-anchor="middle" font-weight="700" font-size="13" fill="var(--fg)">LoRaWAN 网络架构</text>
+  <text x="390" y="19" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">LoRaWAN 网络架构</text>
 
-  <!-- 终端设备 -->
+  <!-- 终端设备 x=10~140 -->
   <rect class="box" x="10" y="32" width="130" height="80" stroke="var(--y)"/>
-  <text class="label" x="75" y="60" text-anchor="middle" fill="var(--y)">终端设备</text>
-  <text class="sub" x="75" y="76" text-anchor="middle">传感器 / 智能水表</text>
+  <text class="label" x="75" y="67" text-anchor="middle" fill="var(--y)">终端设备</text>
+  <text class="sub" x="75" y="83" text-anchor="middle">传感器 / 智能水表</text>
 
-  <!-- Arrow 1 -->
-  <line class="arr" x1="140" y1="72" x2="179" y2="72" stroke="var(--muted)"/>
-  <text class="proto" x="162" y="87" text-anchor="middle">LoRa 无线</text>
+  <!-- Arrow 1: gap 140~220 (80px) -->
+  <line class="arr" x1="140" y1="72" x2="214" y2="72" stroke="var(--muted)"/>
+  <text class="proto" x="177" y="85" text-anchor="middle">LoRa 无线</text>
 
-  <!-- 网关 -->
-  <rect class="box" x="185" y="32" width="130" height="80" stroke="var(--g)"/>
-  <text class="label" x="250" y="57" text-anchor="middle" fill="var(--g)">网关（Gateway）</text>
-  <text class="sub" x="250" y="73" text-anchor="middle">LoRa → TCP/IP 转换</text>
+  <!-- 网关 x=220~350 -->
+  <rect class="box" x="220" y="32" width="130" height="80" stroke="var(--g)"/>
+  <text class="label" x="285" y="67" text-anchor="middle" fill="var(--g)">网关（Gateway）</text>
+  <text class="sub" x="285" y="83" text-anchor="middle">LoRa → TCP/IP 转换</text>
 
-  <!-- Arrow 2 -->
-  <line class="arr" x1="315" y1="72" x2="354" y2="72" stroke="var(--muted)"/>
-  <text class="proto" x="337" y="87" text-anchor="middle">4G / 以太网</text>
+  <!-- Arrow 2: gap 350~430 (80px) -->
+  <line class="arr" x1="350" y1="72" x2="424" y2="72" stroke="var(--muted)"/>
+  <text class="proto" x="387" y="85" text-anchor="middle">4G / 以太网</text>
 
-  <!-- 网络服务器 -->
-  <rect class="box" x="360" y="32" width="130" height="80" stroke="var(--b)"/>
-  <text class="label" x="425" y="57" text-anchor="middle" fill="var(--b)">网络服务器</text>
-  <text class="sub" x="425" y="73" text-anchor="middle">Network Server</text>
+  <!-- 网络服务器 x=430~560 -->
+  <rect class="box" x="430" y="32" width="130" height="80" stroke="var(--b)"/>
+  <text class="label" x="495" y="67" text-anchor="middle" fill="var(--b)">网络服务器</text>
+  <text class="sub" x="495" y="83" text-anchor="middle">Network Server</text>
 
-  <!-- Arrow 3 -->
-  <line class="arr" x1="490" y1="72" x2="529" y2="72" stroke="var(--muted)"/>
-  <text class="proto" x="512" y="87" text-anchor="middle">MQTT / HTTP</text>
+  <!-- Arrow 3: gap 560~640 (80px) -->
+  <line class="arr" x1="560" y1="72" x2="634" y2="72" stroke="var(--muted)"/>
+  <text class="proto" x="597" y="85" text-anchor="middle">MQTT / HTTP</text>
 
-  <!-- 应用服务器 -->
-  <rect class="box" x="535" y="32" width="130" height="80" stroke="var(--p)"/>
-  <text class="label" x="600" y="57" text-anchor="middle" fill="var(--p)">应用服务器</text>
-  <text class="sub" x="600" y="73" text-anchor="middle">Application Server</text>
+  <!-- 应用服务器 x=640~770 -->
+  <rect class="box" x="640" y="32" width="130" height="80" stroke="var(--p)"/>
+  <text class="label" x="705" y="67" text-anchor="middle" fill="var(--p)">应用服务器</text>
+  <text class="sub" x="705" y="83" text-anchor="middle">Application Server</text>
 </svg>
