@@ -32,6 +32,29 @@
 
 > MySQL 默认 **RR**。RR 下 MVCC 解决了快照读的幻读；当前读（`SELECT FOR UPDATE`）依靠 Next-Key Lock 防幻读。
 
+### 快照读 vs 当前读
+
+理解 MVCC 和幻读的分水岭，就是区分这两种读：
+
+| | 快照读（Snapshot Read）| 当前读（Current Read）|
+|---|---|---|
+| 语句 | 普通 `SELECT` | `SELECT ... FOR UPDATE` / `LOCK IN SHARE MODE`、`UPDATE`、`DELETE`、`INSERT` |
+| 读到的版本 | Read View 决定的历史版本 | **最新已提交版本** |
+| 是否加锁 | ❌ 不加锁（MVCC）| ✅ 加锁（Record / Gap / Next-Key）|
+| RR 下防幻读 | 靠 Read View 复用 | 靠 Next-Key Lock |
+
+**混用两种读仍可能"看见"幻读**：
+
+```sql
+-- RR 级别，事务 A：
+SELECT * FROM t WHERE k = 5;          -- 快照读：0 行
+-- 此时事务 B 插入 k=5 并提交
+UPDATE t SET v = 1 WHERE k = 5;       -- 当前读：更新到了 B 插入的行！
+SELECT * FROM t WHERE k = 5;          -- 再快照读：1 行（自己改过的行永远可见）
+```
+
+> 所以严格说 RR 只对**纯快照读**序列保证可重复读；一旦事务中出现当前读，就切换到了"最新数据"的世界。需要"先检查再修改"的业务，第一步就该用 `SELECT ... FOR UPDATE`。
+
 ---
 
 ## 三、undo log & redo log
@@ -52,9 +75,32 @@
   - 顺序 I/O（redo log append）比随机 I/O（直接写数据页）快得多
 - **组成**：`ib_logfile0` / `ib_logfile1`，循环写
 
+### redo log 刷盘时机
+
+redo log 先写 **log buffer**（内存），何时落盘由 `innodb_flush_log_at_trx_commit` 控制：
+
+| 值 | 提交时行为 | 宕机丢数据风险 | 性能 |
+|:--:|-----------|--------------|------|
+| 0 | 只写 log buffer，后台每秒刷盘 | MySQL 崩溃丢最多 1 秒 | 最快 |
+| **1（默认）** | 每次提交 `fsync` 落盘 | ✅ 不丢已提交事务 | 最慢 |
+| 2 | 提交写入 OS page cache，每秒 fsync | MySQL 崩溃不丢，**主机断电**丢最多 1 秒 | 折中 |
+
+binlog 同理由 `sync_binlog` 控制（1 = 每次提交 fsync）。**"双 1" 配置**（两者都为 1）是金融级持久性的标配，代价是每次提交两次 fsync；写入密集且可容忍秒级丢失的场景可用 `2 + N`。
+
 ### 两阶段提交（redo log + binlog 一致性）
 
 ![undo log / redo log 两阶段提交流程](../../assets/mysql/mysql-two-phase-commit.svg)
+
+> 崩溃恢复时如何依据 redo prepare + binlog 完整性决定提交或回滚，见 [SQL 执行流程专项](./6_topic_execution)。
+
+### 三种日志对比
+
+| | undo log | redo log | binlog |
+|---|---|---|---|
+| 所属层 | InnoDB 引擎层 | InnoDB 引擎层 | **Server 层**（所有引擎共用）|
+| 日志类型 | 逻辑日志（逆操作）| 物理日志（页的改动）| 逻辑日志（语句 / 行变更）|
+| 写入方式 | 随事务写 | 循环写（写满推进 checkpoint）| 追加写（写满换文件）|
+| 用途 | 回滚 + MVCC 版本链 | 崩溃恢复（持久性）| 主从复制、PITR 恢复、CDC 订阅 |
 
 ---
 
@@ -154,3 +200,31 @@ SELECT * FROM order WHERE id > 10 AND id < 20 FOR UPDATE;
 2. 拆小大事务，缩短锁的持有时间
 3. WHERE 条件加合适索引（避免全表扫描锁住大量行）
 4. 先查后更新改为 `SELECT ... FOR UPDATE` 一步完成（避免间隙扩大）
+
+---
+
+## 六、长事务
+
+### 危害
+
+- **undo log 无法清理**：MVCC 需要保留长事务可能访问的所有旧版本，undo 表空间持续膨胀
+- **锁持有时间长**：阻塞其他事务，放大死锁概率
+- **阻塞 DDL**：长事务持有 MDL 读锁，DDL 请求 MDL 写锁被卡住，后续所有该表查询排队（见 [避坑指南 · 大表 DDL 雷区](./3_fallible_point)）
+- **主从延迟**：大事务的 binlog 一次性传输 + 从库整体重放
+
+### 排查
+
+```sql
+-- 找出运行超过 60 秒的事务（trx_started 越早越危险）
+SELECT trx_id, trx_started, trx_mysql_thread_id,
+       TIMESTAMPDIFF(SECOND, trx_started, NOW()) AS duration_sec
+FROM information_schema.innodb_trx
+WHERE TIMESTAMPDIFF(SECOND, trx_started, NOW()) > 60;
+
+-- 结合 PROCESSLIST 定位来源，必要时 KILL
+KILL <trx_mysql_thread_id>;
+```
+
+**常见根因**：`autocommit=0` 忘记提交、事务内做 RPC / 长循环、`@Transactional` 包了不该包的慢逻辑（如文件上传、外部接口调用）。
+
+> **实践守则**：事务内只做数据库操作，控制在毫秒级；监控上对 `innodb_trx` 超过 N 秒的事务告警。

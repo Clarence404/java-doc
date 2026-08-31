@@ -6,20 +6,20 @@
 
 | 方向 | 内容 | 适合关注 |
 |------|------|----------|
-| MySQL 专题 | 基础、版本特性、MariaDB、避坑、索引、事务与锁 | Java 后端主力 OLTP 场景 |
-| PostgreSQL 专题 | 基础、版本特性、MVCC、索引、高级 SQL | 复杂 SQL、JSONB、GIS、分析型查询 |
-| 关系型生态 | Oracle、达梦、人大金仓、ORM 框架 | 企业数据库迁移与持久层选型 |
-| NoSQL 生态 | 列式、分布式、时序、文档、搜索数据库 | 多模型存储与特定场景优化 |
+| MySQL 专题 | 基础、版本特性、MariaDB、避坑、索引、事务与锁、执行流程、EXPLAIN、InnoDB、主从高可用 | Java 后端主力 OLTP 场景 |
+| PostgreSQL 专题 | 基础、版本特性、MVCC、索引、高级 SQL、复制与高可用 | 复杂 SQL、JSONB、GIS、分析型查询 |
+| 关系型生态 | Oracle、达梦、人大金仓、分布式数据库（TiDB / OceanBase）、ORM 框架 | 企业数据库迁移、水平扩展与持久层选型 |
+| NoSQL 生态 | 列式、时序、文档、搜索、图数据库 | 多模型存储与特定场景优化 |
 | 运维架构 | CDC、备份恢复、分库分表、连接池 | 数据可靠性、扩展性与应用接入 |
-| 选型源码 | MBCJ 源码、数据库选型参考 | 原理阅读与技术方案决策 |
+| 选型源码 | mysql-binlog-connector-java 源码、数据库选型参考 | 原理阅读与技术方案决策 |
 
 ## 二、推荐阅读路径
 
 1. 先读 [MySQL 概览](./1_mysql/0_overview)，建立范式、视图、存储过程、优化、复制与运维基础。
-2. 再读 [MySQL 索引专项](./1_mysql/4_topic_mysql_index) 和 [事务与锁专项](./1_mysql/5_topic_mysql_transaction)，补齐高频性能与并发问题。
+2. 再读 [MySQL 索引专项](./1_mysql/4_topic_index) 和 [事务与锁专项](./1_mysql/5_topic_transaction)，补齐高频性能与并发问题。
 3. 对比 [PostgreSQL 概览](./2_postgresql/0_overview)，理解 PostgreSQL 与 MySQL 在类型系统、MVCC、索引和高级 SQL 上的差异。
-4. 进入 [NoSQL 生态](./4_nosql/1_distributed_db)，按业务场景补充分布式数据库、文档数据库、时序数据库与搜索数据库。
-5. 最后看 [备份恢复](./5_ops/1_backup_recovery)、[分库分表](./5_ops/2_sharding)、[连接池](./5_ops/3_connection_pool) 和 [数据库选型](./6_misc/1_db_ranking_selection)，形成工程落地能力。
+4. 数据量到达单机瓶颈时，看 [分布式数据库](./3_relational/1_distributed_db)（TiDB / OceanBase）；再进入 [NoSQL 生态](./4_nosql/0_column_db)，按业务场景补充列式、时序、文档、搜索与图数据库。
+5. 最后看 [备份恢复](./5_practice/1_backup_recovery)、[分库分表](./5_practice/2_sharding)、[连接池](./5_practice/3_connection_pool) 和 [数据库选型](./6_reference/1_selection_guide)，形成工程落地能力。
 
 ## 三、选型原则
 

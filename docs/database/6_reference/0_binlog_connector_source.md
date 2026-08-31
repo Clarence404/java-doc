@@ -1,6 +1,7 @@
-# MBCJ 源码分析
+# mysql-binlog-connector-java 源码分析
 
 - Github: [https://github.com/shyiko/mysql-binlog-connector-java](https://github.com/shyiko/mysql-binlog-connector-java)
+- 该库的使用方式与 CDC 工具链对比见 [CDC 工具](../5_practice/0_cdc_tools)
 
 ## 一、核心类：BinaryLogClient
 
@@ -524,4 +525,5 @@ public class BinlogListenerConfig {
 
 ![img.png](../../assets/database/mbcj_usage.png)
 
-## 未完待续...
+> [!warning] 待补充
+> 事件反序列化（EventDeserializer）、GTID 位点管理、断线重连机制的源码分析。

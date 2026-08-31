@@ -102,7 +102,45 @@ spring:
 
 ---
 
-## 四、国产数据库选型参考
+## 四、SQL Server
+
+- 官网：[microsoft.com/sql-server](https://www.microsoft.com/sql-server)
+- 微软企业级 RDBMS，.NET 技术栈标配，制造业 / 传统企业 ERP（用友、金蝶部分版本）常见
+
+**与 MySQL 常见差异（Java 开发必知）**：
+
+| 场景 | MySQL | SQL Server |
+|------|-------|-----------|
+| 分页查询 | `LIMIT 10 OFFSET 20` | `OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY`（2012+）|
+| 自增主键 | `AUTO_INCREMENT` | `IDENTITY(1,1)` |
+| 当前时间 | `NOW()` | `GETDATE()` / `SYSDATETIME()` |
+| 字符串拼接 | `CONCAT(a, b)` | `+` 运算符或 `CONCAT` |
+| 限制行数 | `LIMIT n` | `SELECT TOP n` |
+| 存储过程语言 | SQL/PSM | T-SQL |
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:sqlserver://host:1433;databaseName=mydb;encrypt=true;trustServerCertificate=true
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+```
+
+---
+
+## 五、openGauss
+
+- 官网：[opengauss.org](https://opengauss.org/)
+- 华为基于 PostgreSQL 9.2 内核深度重构的开源数据库，运营商、政企场景常见
+- 衍生商业版：华为 GaussDB；生态兼容 PG，但内核已大幅分化（线程池模型、增量 checkpoint、NUMA 优化）
+
+**Java 接入要点**：
+- JDBC 驱动：`org.opengauss.Driver`（Maven 坐标 `org.opengauss:opengauss-jdbc`）
+- URL：`jdbc:opengauss://host:5432/db_name`
+- 默认加密认证为 SHA256，PG 原生驱动直连会报认证失败，需用官方驱动或调整认证方式
+
+---
+
+## 六、国产数据库选型参考
 
 | 数据库 | 内核基础 | Oracle 兼容 | PostgreSQL 兼容 | 主要场景 |
 |--------|---------|:-----------:|:---------------:|---------|

@@ -106,7 +106,7 @@ DROP PROCEDURE IF EXISTS batch_expire_orders;
 
 B+ 树原理、聚簇索引与二级索引、回表、覆盖索引、最左前缀原则、索引失效场景、ICP 索引下推、深度分页优化详见专项文档：
 
-→ [MySQL 索引专项](./4_topic_mysql_index)
+→ [MySQL 索引专项](./4_topic_index)
 
 ---
 
@@ -114,27 +114,37 @@ B+ 树原理、聚簇索引与二级索引、回表、覆盖索引、最左前�
 
 ACID、隔离级别与并发问题（脏读/幻读）、undo log / redo log、MVCC 版本链与 Read View、行锁三种形态（Record / Gap / Next-Key Lock）、死锁检测详见专项文档：
 
-→ [MySQL 事务、MVCC 与锁专项](./5_topic_mysql_transaction)
+→ [MySQL 事务、MVCC 与锁专项](./5_topic_transaction)
 
 ---
 
-## 六、MySQL 性能优化
+## 六、SQL 执行流程
 
-- **查询分析**
-  - `EXPLAIN` 详解（type / key / rows / Extra 字段含义）
-  - 慢查询日志（`slow_query_log`）+ `pt-query-digest` 分析
-  - Performance Schema（替代已废弃的 `SHOW PROFILE`）
-- **索引优化**
-  - 覆盖索引减少回表
-  - 区分度低的字段不建单列索引，考虑联合索引
-- **SQL 优化**
-  - 避免 `SELECT *`，只查需要的列
-  - 避免在 WHERE 中对列做函数运算
-  - 大批量操作用分批次 + 事务控制
+连接器 → 分析器 → 优化器 → 执行器的完整链路、UPDATE 的写入路径（Buffer Pool / undo / redo / binlog）、崩溃恢复规则详见专项文档：
+
+→ [MySQL SQL 执行流程专项](./6_topic_execution)
 
 ---
 
-## 七、数据库安全
+## 七、性能优化（EXPLAIN 与慢 SQL）
+
+EXPLAIN 字段详解（type 等级 / key_len / Extra）、慢查询日志 + `pt-query-digest`、Optimizer Trace、ORDER BY 与 filesort、COUNT 性能差异、JOIN 原理与优化详见专项文档：
+
+→ [MySQL EXPLAIN 与 SQL 优化专项](./7_topic_explain)
+
+**日常三条速记**：避免 `SELECT *`；WHERE 里不对列做函数运算；大批量操作分批次提交。
+
+---
+
+## 八、InnoDB 存储结构
+
+段 / 区 / 页层次、行格式与行溢出、Buffer Pool 三链表与 LRU 冷热分离、Double Write、脏页刷盘时机、存储引擎对比详见专项文档：
+
+→ [InnoDB 存储结构与 Buffer Pool 专项](./8_topic_innodb)
+
+---
+
+## 九、数据库安全
 
 - **SQL 注入防范**
   - 使用预编译语句（`PreparedStatement`）
@@ -150,129 +160,20 @@ ACID、隔离级别与并发问题（脏读/幻读）、undo log / redo log、MV
 
 ---
 
-## 八、MySQL 运维
+## 十、Binlog、主从复制与高可用
 
-### 主从复制原理
+Binlog 三种格式与管理、主从复制三线程模型、GTID / 半同步、主从延迟与并行复制、高可用方案（MHA / MGR / InnoDB Cluster）、读写分离详见专项文档：
 
-![MySQL 主从复制原理](../../assets/mysql/mysql-replication.svg)
+→ [MySQL Binlog、主从复制与高可用专项](./9_topic_replication)
 
-**三个核心线程：**
+**其他运维要点**：
 
-| 线程 | 所在节点 | 职责 |
-|------|---------|------|
-| **Binlog Dump Thread** | 主库 | 监听 binlog 变化，将事件推送给从库 IO Thread |
-| **IO Thread** | 从库 | 连接主库，接收 binlog 事件，写入本地 relay log |
-| **SQL Thread** | 从库 | 读取 relay log，在从库重放 SQL，应用数据变更 |
-
-**GTID 复制（推荐）：**
-
-```sql
--- 主库配置
-[mysqld]
-gtid_mode = ON
-enforce_gtid_consistency = ON
-log_bin = mysql-bin
-
--- 从库配置（GTID 模式自动定位）
-CHANGE MASTER TO
-  MASTER_HOST = '主库IP',
-  MASTER_USER = 'repl',
-  MASTER_PASSWORD = 'xxx',
-  MASTER_AUTO_POSITION = 1;
-START SLAVE;
-```
-
-**常见延迟问题：**
-
-| 原因 | 优化方案 |
-|------|---------|
-| 主库大事务（大批量 DML）| 拆分小事务，减少单次 binlog 体积 |
-| SQL Thread 单线程重放 | 开启并行复制（`slave_parallel_workers`）|
-| 网络抖动 | 检查主从网络质量，就近部署 |
-| 从库 IO 性能差 | 升级从库磁盘，或使用 SSD |
-
-**半同步复制：**
-
-```sql
--- 主库等待至少一个从库写入 relay log 才返回提交成功
--- 避免主库宕机导致已提交数据在从库不存在
-INSTALL PLUGIN rpl_semi_sync_master SONAME 'semisync_master.so';
-SET GLOBAL rpl_semi_sync_master_enabled = ON;
-SET GLOBAL rpl_semi_sync_master_timeout = 1000;  -- 1秒超时，超时自动降级为异步
-```
-
-### 高可用方案对比
-
-| 方案 | 原理 | 优势 | 劣势 |
-|------|------|------|------|
-| **MHA** | 主库故障时从 ISR 中选新主，补全 binlog | 成熟稳定，切换快（30s 内）| 需额外 MHA Manager 节点 |
-| **MGR（组复制）** | Paxos 协议，多节点投票，数据强一致 | 原生支持，无需第三方 | 配置复杂，跨机房延迟敏感 |
-| **InnoDB Cluster** | MGR + MySQL Shell + MySQL Router 封装 | 官方推荐，运维友好 | 对 MySQL 版本要求高（8.0+）|
-
-### 其他运维要点
-
-- **读写分离**：应用层（ShardingSphere-JDBC）或代理层（ProxySQL、MySQL Router）拦截请求，写主读从
-- **分库分表**：垂直拆分（按业务）vs 水平拆分（按数据量），见 [数据库中间件](../5_ops/2_sharding)
-- **配置优化**：`innodb_buffer_pool_size`（建议物理内存 70%）、`max_connections`（按连接池总量设置）、`sync_binlog=1`（强持久性）
-
-### MySQL Binlog
-
-**概念**
-
-* Binlog 是 MySQL 的二进制日志（Binary Log），记录了数据库的所有 **修改操作**（INSERT/UPDATE/DELETE）以及 **数据变更顺序**。
-* Binlog 不记录 SELECT 语句，但可以记录 `CREATE TABLE`、`ALTER TABLE` 等 DDL 操作。
-* 主要用途：
-
-  1. **数据恢复**：可用于 Point-in-Time 恢复（基于时间回滚数据）。
-  2. **主从复制**：主库通过 Binlog 发送数据变更给从库。
-  3. **审计与监控**：分析数据修改历史。
-
-**类型**
-
-1. **Statement-Based Logging (SBL)**：记录执行的 SQL 语句。
-
-  * 优点：日志体积小。
-  * 缺点：依赖 SQL 执行结果，某些函数（如 NOW()）可能在主从库不一致。
-2. **Row-Based Logging (RBL)**：记录变更的行数据。
-
-  * 优点：精确记录每一行变动，主从库结果一致。
-  * 缺点：日志体积大。
-3. **Mixed Logging (MBL)**：SBL 与 RBL 的混合模式，MySQL 自动选择最优方式。
-
-**存储位置**
-
-* Binlog 文件位于 MySQL 数据目录下，文件名通常形如：`mysql-bin.000001`。
-* 对应的索引文件：`mysql-bin.index`，记录所有 binlog 文件列表。
-
-**开启与管理**
-
-```ini
-[mysqld]
-server-id = 1
-log_bin = mysql-bin
-binlog_format = ROW   # 或 STATEMENT / MIXED
-expire_logs_days = 7  # 自动清理过期 binlog
-```
-
-```sql
--- 查看所有 binlog 文件
-SHOW BINARY LOGS;
-```
-
-```bash
-# 查看 binlog 内容
-mysqlbinlog mysql-bin.000001
-```
-
-**注意事项**
-
-1. **日志轮转与清理**：长期不清理会占用大量磁盘空间。
-2. **性能考虑**：Binlog 开启后会略微增加写操作的开销。
-3. **GTID**：增强型复制方式，更方便进行主从切换和容灾。
+- **分库分表**：垂直拆分（按业务）vs 水平拆分（按数据量），见 [数据库中间件](../5_practice/2_sharding)
+- **配置优化**：`innodb_buffer_pool_size`（建议物理内存 60%~70%）、`max_connections`（按连接池总量设置）、`sync_binlog=1` + `innodb_flush_log_at_trx_commit=1`（双 1 强持久性）
 
 ---
 
-## 九、后续补充专题
+## 十一、后续补充专题
 
-- [Elasticsearch 与 OpenSearch](../4_nosql/5_search_db)：搜索引擎、日志检索、聚合分析
-- [数据备份与恢复](../5_ops/1_backup_recovery)：备份策略、RTO / RPO、恢复演练
+- [Elasticsearch 与 OpenSearch](../4_nosql/3_search_db)：搜索引擎、日志检索、聚合分析
+- [数据备份与恢复](../5_practice/1_backup_recovery)：备份策略、RTO / RPO、恢复演练

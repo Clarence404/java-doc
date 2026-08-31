@@ -327,3 +327,13 @@ CREATE TABLE events (
 - `TIMESTAMPTZ`：存储时转为 UTC，取出时按会话时区转换
 
 **推荐**：统一使用 `TIMESTAMPTZ`，避免跨时区数据混乱。
+
+---
+
+## 六、专项目录
+
+- [版本特性（9.6 ~ 18）](./1_feature)
+- [MVCC 与 VACUUM](./2_topic_mvcc)：Tuple 可见性、表膨胀、XID 回卷
+- [索引类型](./3_topic_index)：B-tree / GIN / GiST / BRIN / 部分索引 / 表达式索引
+- [高级 SQL](./4_topic_advanced_sql)：JSONB、递归 CTE、窗口函数、全文搜索、数组
+- [复制与高可用](./5_topic_replication)：进程模型与 PgBouncer、流复制、逻辑复制、Patroni

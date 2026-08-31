@@ -18,7 +18,27 @@ InnoDB 索引底层使用 **B+ 树**，而不是 B 树或哈希索引：
 
 ---
 
-## 二、聚簇索引 vs 二级索引
+## 二、索引分类总览
+
+| 分类 | 说明 | 备注 |
+|------|------|------|
+| **主键索引** | 即聚簇索引，叶节点存整行 | 每表一个 |
+| **唯一索引** | 值唯一，可为 NULL | 写入需校验唯一性，**用不了 Change Buffer**（见下文）|
+| **普通索引** | 最常用的二级索引 | — |
+| **联合索引** | 多列组成，遵守最左前缀 | 优先于多个单列索引 |
+| **前缀索引** | 只索引字符串前 N 个字符 | 省空间；**无法做覆盖索引**，也无法用于 ORDER BY |
+| **全文索引** | FULLTEXT，倒排结构 | 中文分词弱，重检索场景用 Elasticsearch |
+| **自适应哈希索引** | InnoDB 自动为热点页建哈希（AHI）| 引擎内部行为，不可手工创建 |
+
+```sql
+-- 前缀索引：先评估区分度再选长度
+SELECT COUNT(DISTINCT LEFT(email, 8)) / COUNT(DISTINCT email) FROM user;  -- 越接近 1 越好
+CREATE INDEX idx_email ON user(email(8));
+```
+
+---
+
+## 三、聚簇索引 vs 二级索引
 
 ### 聚簇索引（Clustered Index）
 
@@ -35,7 +55,28 @@ InnoDB 索引底层使用 **B+ 树**，而不是 B 树或哈希索引：
 
 ---
 
-## 三、回表 & 覆盖索引
+## 四、Change Buffer：普通索引 vs 唯一索引的写入差异
+
+更新**二级索引**时，若目标页不在 Buffer Pool，InnoDB 不会立刻读盘，而是把变更缓存在 **Change Buffer** 中，等该页下次被读取时再合并（merge）——省掉一次随机读 I/O。
+
+**关键限制：唯一索引用不了 Change Buffer**。因为唯一性校验必须先把页读进内存，既然页已在内存，直接改就行了。
+
+| | 普通索引 | 唯一索引 |
+|---|---------|---------|
+| 目标页不在内存时的写入 | 记入 Change Buffer，✅ 无读盘 | 必须读盘校验唯一性 |
+| 适用场景 | **写多读少**（日志、账单流水）收益最大 | — |
+
+```sql
+-- Change Buffer 占 Buffer Pool 的比例（默认 25%，最大 50%）
+SHOW VARIABLES LIKE 'innodb_change_buffer_max_size';
+```
+
+> **选型结论**：业务上能保证唯一（如应用层已校验）时，从性能出发**优先普通索引**；
+> 但"写后立刻读"的场景会马上触发 merge，Change Buffer 反而没收益。
+
+---
+
+## 五、回表 & 覆盖索引
 
 ### 回表（Back to Table）
 
@@ -65,7 +106,7 @@ SELECT name, age FROM user WHERE name = 'Alice';
 
 ---
 
-## 四、最左前缀原则
+## 六、最左前缀原则
 
 联合索引 `idx_a_b_c(a, b, c)` 的使用规则：
 
@@ -83,7 +124,7 @@ SELECT name, age FROM user WHERE name = 'Alice';
 
 ---
 
-## 五、索引失效的 7 种场景
+## 七、索引失效的 7 种场景
 
 ### 1. 对索引列做函数运算
 
@@ -147,7 +188,7 @@ SELECT * FROM user WHERE status IN (0, 2);
 
 ### 6. 违反最左前缀
 
-见第四节，跳过联合索引最左列直接查询中间列。
+见上文最左前缀一节，跳过联合索引最左列直接查询中间列。
 
 ### 7. 字段区分度极低
 
@@ -160,7 +201,7 @@ SELECT * FROM order WHERE status = 1;
 
 ---
 
-## 六、索引下推（ICP）
+## 八、索引下推（ICP）
 
 MySQL 5.6 引入，**Index Condition Pushdown**，减少回表次数。
 
@@ -177,7 +218,7 @@ SELECT * FROM user WHERE name LIKE 'A%' AND age = 18;
 
 ---
 
-## 七、深度分页优化
+## 九、深度分页优化
 
 `LIMIT offset, n` 在 offset 很大时，MySQL 必须**扫描并丢弃**前 offset 行，性能随 offset 线性下降。
 
@@ -213,3 +254,31 @@ SELECT * FROM order WHERE id > 100 ORDER BY id LIMIT 10;
 
 > **取舍**：游标翻页不支持随机跳页（跳到第 1000 页），只能上/下翻。
 > 需要随机跳页时用方案一/二；纯翻页列表用方案三。
+
+---
+
+## 十、索引设计原则
+
+**该建索引的：**
+
+- WHERE / JOIN ON / ORDER BY / GROUP BY 中的高频字段
+- 区分度高的字段（`COUNT(DISTINCT col) / COUNT(*)` 越接近 1 越好）
+- 高频查询组合 → 联合索引，并尽量做成**覆盖索引**
+
+**不该建 / 慎建的：**
+
+- 区分度极低的字段单独建（性别、状态位）—— 优化器大概率不用
+- 频繁更新的字段（每次更新都要维护 B+ 树）
+- 大字符串直接建（用前缀索引或 hash 冗余列代替）
+- 一张表索引过多（写放大：每个二级索引都是一棵要维护的树，经验上限 5~6 个）
+
+**联合索引列顺序三原则：**
+
+1. **等值查询列在前，范围查询列在后**（范围会截断后续列）
+2. 区分度高的列尽量靠前
+3. 兼顾 ORDER BY：`WHERE a = ? ORDER BY b` → 建 `(a, b)`
+
+```sql
+-- 定期清理从未使用的索引（8.0 可先设 INVISIBLE 观察）
+SELECT * FROM sys.schema_unused_indexes WHERE object_schema = 'mydb';
+```

@@ -6,7 +6,7 @@
 
 索引失效的完整场景（隐式类型转换、函数运算、LIKE 前缀、OR 条件、最左前缀、范围截断、低区分度等）详见专项文档：
 
-→ [MySQL 索引专项 · 索引失效的 7 种场景](./4_topic_mysql_index)
+→ [MySQL 索引专项 · 索引失效的 7 种场景](./4_topic_index)
 
 ---
 
@@ -220,3 +220,53 @@ SET time_zone = '+08:00';
 ```sql
 CREATE INDEX idx_content ON articles(content(100));  -- 前 100 个字符建索引
 ```
+
+---
+
+## 七、大表 DDL 雷区
+
+### 1、DDL 被 MDL 锁阻塞，拖垮整张表
+
+DDL 需要 **MDL（元数据）写锁**；任何未提交的事务（哪怕只是一条 SELECT）都持有 MDL 读锁。危险链条：
+
+```
+长事务持 MDL 读锁 → ALTER 等 MDL 写锁 → 后续所有查询排在 ALTER 之后 → 整表不可用
+```
+
+```sql
+-- DDL 前先确认没有长事务（见事务专项 · 长事务排查）
+SELECT * FROM information_schema.innodb_trx;
+
+-- 给 DDL 设置锁等待超时，拿不到锁就放弃而不是排队堵死业务
+SET SESSION lock_wait_timeout = 5;
+ALTER TABLE orders ADD COLUMN remark VARCHAR(64);
+```
+
+### 2、显式声明 ALGORITHM 和 LOCK，避免意外锁表
+
+```sql
+-- 显式要求 INPLACE + 不锁：若 MySQL 做不到会直接报错，而不是默默降级为锁表 COPY
+ALTER TABLE orders ADD INDEX idx_status(status), ALGORITHM=INPLACE, LOCK=NONE;
+
+-- 8.0：加列支持 INSTANT（只改元数据，秒级完成）
+ALTER TABLE orders ADD COLUMN remark VARCHAR(64), ALGORITHM=INSTANT;
+-- 注意：8.0.29 前 INSTANT 只能加在最后一列；修改列类型仍是 COPY
+```
+
+### 3、超大表变更用外部工具
+
+INPLACE 虽不锁表，但仍在原表上重建，期间的磁盘 / IO 压力和主从延迟不可忽视。千万行以上建议：
+
+| 工具 | 原理 | 特点 |
+|------|------|------|
+| **gh-ost**（GitHub）| 建影子表 + 消费 binlog 回放增量 | 不用触发器，可暂停、限速，对主库侵入最小 |
+| **pt-online-schema-change** | 建影子表 + 触发器同步增量 | 老牌成熟；触发器有额外写开销 |
+
+```bash
+gh-ost --alter="ADD COLUMN remark VARCHAR(64)" \
+  --database=mydb --table=orders \
+  --max-load=Threads_running=50 --chunk-size=1000 \
+  --execute
+```
+
+> **上线守则**：大表 DDL 放低峰期；先在从库/预发验证耗时；变更期间盯主从延迟。

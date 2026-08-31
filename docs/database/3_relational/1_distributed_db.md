@@ -1,5 +1,7 @@
 # 分布式数据库
 
+> TiDB / OceanBase 属于 **NewSQL / 分布式关系型数据库**：兼容 SQL 与 ACID 事务，同时具备 NoSQL 的水平扩展能力。
+
 ## 一、TiDB
 
 ### 1、定位与特点
@@ -156,3 +158,27 @@ OceanBase 提供 Oracle 模式租户，支持：
 | 社区生态 | 活跃，文档丰富 | 快速成长 |
 | 成熟度验证 | 互联网大量使用 | 金融核心系统验证 |
 | 适用场景 | MySQL 扩展、HTAP | 金融核心、Oracle 迁移、多租户 SaaS |
+
+---
+
+## 四、云原生数据库：Aurora 与 PolarDB
+
+与 TiDB/OceanBase 的 Shared-Nothing 分片路线不同，云原生数据库走 **存算分离 + 共享存储** 路线：
+
+```
+计算节点（1 写 + N 读，MySQL/PG 内核）
+        ↓ 只下推 redo log
+分布式共享存储（多副本、跨 AZ）
+```
+
+| | Aurora（AWS）| PolarDB（阿里云）|
+|---|---|---|
+| 兼容内核 | MySQL / PostgreSQL | MySQL / PostgreSQL / Oracle 语法 |
+| 核心思想 | "日志即数据库"：计算层只写 redo，存储层自行回放成页 | 类似，RDMA 高速互联共享存储 |
+| 扩展方式 | 加只读节点（分钟级，共享同一份数据）| 同左，另有 PolarDB-X 支持分片写扩展 |
+| 写扩展 | ❌ 单写节点 | PolarDB-X ✅ |
+
+**与 NewSQL 的选型分界**：
+
+- 读多写少、想无痛从 RDS 升级、运维零投入 → **云原生数据库**（数据不用迁移分片）
+- 写入量本身超单机、需要多写 / HTAP / 跨云自建 → **TiDB / OceanBase**

@@ -1,0 +1,74 @@
+<svg viewBox="0 0 720 414" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .sub-title { font-size:12px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-bp" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="360" y="26" text-anchor="middle">InnoDB Buffer Pool 结构</text>
+
+  <!-- Buffer Pool 容器 -->
+  <rect x="20" y="44" width="680" height="244" rx="10" fill="var(--bg)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="68" text-anchor="middle">Buffer Pool（innodb_buffer_pool_size，建议物理内存 60%~70%）</text>
+
+  <!-- Free List -->
+  <rect x="40" y="84" width="640" height="48" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="sub-title" x="50" y="114">Free List（空闲页链表）</text>
+  <text class="desc" x="670" y="114" text-anchor="end">申请新页从此获取，不足则淘汰 LRU 冷端页</text>
+
+  <!-- LRU List -->
+  <rect x="40" y="140" width="640" height="80" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="sub-title" x="360" y="164" text-anchor="middle">LRU List（已缓存页，冷热分离防全表扫描污染）</text>
+  <rect x="50" y="176" width="380" height="34" rx="4" fill="var(--bg)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="desc" x="240" y="197" text-anchor="middle">young 区（热端 5/8，频繁访问页）</text>
+  <rect x="438" y="176" width="232" height="34" rx="4" fill="var(--bg)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="desc" x="554" y="197" text-anchor="middle">old 区（冷端 3/8，新读入页）</text>
+
+  <!-- Flush List -->
+  <rect x="40" y="228" width="640" height="48" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="sub-title" x="50" y="258">Flush List（脏页链表）</text>
+  <text class="desc" x="670" y="258" text-anchor="end">按最早修改 LSN 排序，checkpoint 依此刷盘</text>
+
+  <!-- 刷脏箭头 -->
+  <line x1="170" y1="292" x2="170" y2="328" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bp)"/>
+  <text class="label" x="178" y="314">刷脏页</text>
+
+  <!-- 读入箭头（向上） -->
+  <line x1="550" y1="330" x2="550" y2="294" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bp)"/>
+  <text class="label" x="558" y="314">读入页</text>
+
+  <!-- Double Write Buffer -->
+  <rect x="20" y="334" width="300" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="170" y="358" text-anchor="middle">Double Write Buffer</text>
+  <text class="desc" x="170" y="380" text-anchor="middle">先顺序写共享区域，防部分页写失效</text>
+
+  <!-- 落盘箭头 -->
+  <line x1="324" y1="364" x2="394" y2="364" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bp)"/>
+  <text class="label" x="359" y="356" text-anchor="middle">数据页落盘</text>
+
+  <!-- 磁盘 -->
+  <rect x="400" y="334" width="300" height="60" rx="8" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text class="box-title" x="550" y="358" text-anchor="middle">磁盘数据文件</text>
+  <text class="desc" x="550" y="380" text-anchor="middle">*.ibd 独立表空间 / ibdata 系统表空间</text>
+</svg>
