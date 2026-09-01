@@ -203,7 +203,7 @@ const databaseSidebar = [
                 collapsible: true,
                 collapsed: false,
                 children: [
-                    {text: '索引', link: '/database/1_mysql/4_topic_index'},
+                    {text: 'MySQL 索引', link: '/database/1_mysql/4_topic_index'},
                     {text: '事务与锁', link: '/database/1_mysql/5_topic_transaction'},
                     {text: '执行流程', link: '/database/1_mysql/6_topic_execution'},
                     {text: 'EXPLAIN 优化', link: '/database/1_mysql/7_topic_explain'},
@@ -241,7 +241,7 @@ const databaseSidebar = [
         collapsed: true,
         children: [
             {text: '其他 RDBMS', link: '/database/3_relational/0_other_rdbms'},
-            {text: '分布式数据库', link: '/database/3_relational/1_distributed_db'},
+            {text: '分布式', link: '/database/3_relational/1_distributed_db'},
             {text: 'ORM 框架', link: '/database/3_relational/2_orm_framework'},
         ],
     },
@@ -251,11 +251,11 @@ const databaseSidebar = [
         collapsible: true,
         collapsed: true,
         children: [
-            {text: '列式数据库', link: '/database/4_nosql/0_column_db'},
-            {text: '时序数据库',  link: '/database/4_nosql/1_time_series_db'},
-            {text: '文档数据库',  link: '/database/4_nosql/2_document_db'},
-            {text: '搜索数据库',  link: '/database/4_nosql/3_search_db'},
-            {text: '图数据库',    link: '/database/4_nosql/4_graph_db'},
+            {text: '列式库', link: '/database/4_nosql/0_column_db'},
+            {text: '时序库', link: '/database/4_nosql/1_time_series_db'},
+            {text: '文档库', link: '/database/4_nosql/2_document_db'},
+            {text: '搜索库', link: '/database/4_nosql/3_search_db'},
+            {text: '图数据库',   link: '/database/4_nosql/4_graph_db'},
         ],
     },
     {
@@ -276,7 +276,7 @@ const databaseSidebar = [
         collapsible: true,
         collapsed: true,
         children: [
-            {text: 'Binlog Connector 源码', link: '/database/6_reference/0_binlog_connector_source'},
+            {text: 'Mbcj 源码', link: '/database/6_reference/0_binlog_connector_source'},
             {text: '选型', link: '/database/6_reference/1_selection_guide'},
         ],
     },

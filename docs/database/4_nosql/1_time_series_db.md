@@ -1,29 +1,65 @@
 # 时序数据库
 
-## 一、InfluxDB
+## 一、时序数据与 TSDB 核心概念
 
-### 1、背景介绍
+### 1、时序数据的特点
 
-目前存在两个InfluxDB的实现，一个是开源的，一个是商业的。开源版本不支持集群模式。
+| 特点 | 说明 |
+|------|------|
+| **写多读少，几乎不更新** | 数据按时间源源不断追加（append-only），历史数据一旦写入基本不改 |
+| **时间是一等公民** | 所有查询都带时间范围；最近的数据最热，越老越冷 |
+| **批量过期** | 数据按保留期整块删除（"删掉 3 个月前的"），而不是逐行删 |
+| **聚合为主** | 关心的是趋势（每分钟均值、P99），很少查单条原始点 |
 
-开源版本为 1.x 和 2.x的版本，此处只讨论 1.x版本。
+### 2、为什么不用 MySQL 存时序数据
 
-1.x版本和2.x版本区别：
+- **写入路径**：B+ 树的随机写 + 页分裂扛不住每秒百万级数据点；TSDB 普遍用 LSM/TSM 类结构，纯顺序写
+- **过期删除**：MySQL `DELETE` 三个月前的数据是海量行删除（锁、binlog、碎片）；TSDB 按时间分区/分块，**整文件直接丢弃**
+- **压缩比**：时序专用编码（时间戳 delta-of-delta、数值 Gorilla XOR、RLE）能做到 10~20 倍压缩，通用行存做不到
+- **聚合查询**：按时间窗口聚合（`GROUP BY time(1m)`）是 TSDB 的原生算子，MySQL 只能全量扫描后计算
 
-- **架构变化**：1.x 采用单体架构，2.x 整合了多个组件（如Telegraf、Kapacitor），提供一站式解决方案。
-- **API 变化**：1.x 使用 InfluxQL 类 SQL 查询语言，2.x 推出了 Flux 查询语言，功能更强大但学习成本更高。
-- **用户管理**：1.x 用户管理较为基础，2.x 支持多用户、多组织，安全管理更细致。
-- **数据存储**：2.x 引入了 Bucket（桶）的概念，取代了 1.x 的数据库和保留策略概念。
+### 3、数据模型
+
+各家术语不同，但模型高度一致（以 InfluxDB 行协议为例）：
+
+![时序数据模型](../../assets/database/tsdb-data-model.svg)
+
+| 概念 | InfluxDB | Prometheus | TDengine | 关系型类比 |
+|------|----------|-----------|----------|-----------|
+| 指标集合 | measurement | metric name | 超级表 STable | 表 |
+| 维度（索引）| tag | label | TAGS | 带索引的列 |
+| 值 | field | value | 普通列 | 无索引的列 |
+| 一条序列 | series | time series | 子表 | — |
+
+### 4、三个共性机制
+
+- **保留策略（Retention）**：按时间自动过期删除，建库时就要定（如原始数据留 30 天）
+- **降采样（Downsampling）**：原始秒级数据聚合成分钟级/小时级长期保存，"近期细、久远粗"
+- **高基数问题（High Cardinality）**：序列总数 = 各 tag 取值的笛卡尔积；把 user_id、订单号这类高基数字段放进 tag/label 会让索引爆炸，是所有 TSDB 的第一大坑
+
+---
+
+## 二、InfluxDB
+
+官网：[https://www.influxdata.com](https://www.influxdata.com)
+
+### 1、版本演进
+
+InfluxDB 三代架构差异极大，几乎是三个产品，按需选读：
+
+- **1.x**：单体架构，InfluxQL（类 SQL），存量系统仍大量使用
+- **2.x**：整合 Telegraf / Kapacitor 一站式，主推 Flux 查询语言（学习成本高，官方已宣布 Flux 进入维护模式）
+- **3.x**：2025 年 GA 的重构版（原代号 IOx），Rust 重写，**列式存储（Parquet）+ 对象存储 + 计算存储分离**，回归标准 SQL；开源版为 **InfluxDB 3 Core**（MIT/Apache-2.0），商业版 Enterprise
+- 集群/高可用能力始终在商业版（1.x/2.x 开源版单机；3 Core 单机、Enterprise 多节点）
 
 ### 2、InfluxDB 1.x
 
 #### 1.x 安装
 
-个人安装使用docker-compose形式安装，代码如下所示：
+个人安装使用 docker-compose 形式安装，代码如下所示：
 
-```dockerfile
-docker-compose.yml
-
+```yaml
+# docker-compose.yml
 services:
   influxdb:
     # 此处的镜像可能失效，后续随时更新
@@ -41,12 +77,10 @@ services:
 
 #### 1.x 使用
 
-基础的语法等同与SQL语法，详情可以参考官方文档。
-
-- 命令行方式
+基础语法等同于 SQL 语法，详情可参考官方文档。
 
 ```bash
-# 进入InfluxDB交互界面
+# 进入 InfluxDB 交互界面
 influx
 
 # 创建数据库
@@ -61,24 +95,22 @@ SHOW MEASUREMENTS
 # 使用指定数据库
 USE mydb
 
-# 插入数据
+# 插入数据（行协议：measurement,tag=值 field=值）
 INSERT cpu,host=serverA value=0.64
 
 # 查询数据
 SELECT * FROM cpu
+
+# 时间窗口聚合 + 保留策略（时序典型用法）
+SELECT MEAN(value) FROM cpu WHERE time > now() - 1h GROUP BY time(1m)
+CREATE RETENTION POLICY "30d" ON mydb DURATION 30d REPLICATION 1 DEFAULT
 ```
 
-- InfluxDB Studio方式
+图形化工具可用 InfluxDB Studio（开源，Windows）。
 
-InfluxDB Studio 是一个开源的图形化管理工具，支持 Windows，可以方便地查询、管理 InfluxDB 数据库。
+#### 1.x 索引
 
-#### 1.x 其他特性
-
-- 1.x 索引
-
-1.x 版本使用的是 `tsi1`（Time Series Index），适合大规模数据存储，默认不开启，需要手动配置。
-
-开启索引的方法：
+1.x 默认使用内存索引（inmem），序列多时内存占用高；`tsi1`（Time Series Index）是磁盘索引，适合大规模序列，需手动开启：
 
 ```toml
 [data]
@@ -91,7 +123,7 @@ index-version = "tsi1"
 
 #### 2.x 安装
 
-```dockerfile
+```yaml
 services:
   influxdb_v2:
     image: docker.1ms.run/library/influxdb:2.7.10
@@ -108,17 +140,9 @@ services:
 
 #### 2.x 使用
 
-- 初始化配置
+- **初始化配置**：访问 `http://localhost:8087` 进入初始化界面，创建组织、Bucket、Token（2.x 用 Bucket 取代了 1.x 的"数据库 + 保留策略"）
 
-访问 `http://localhost:8087`，会进入初始化界面，创建组织、Bucket、Token。
-
-创建完成后，记下 Token 方便后续使用。
-
-- 数据写入
-
-2.x 支持多种方式写入数据，最常见的是 `CLI` 和 `API`。
-
-**CLI方式**
+- **数据写入**（CLI / API）：
 
 ```bash
 influx write \
@@ -129,137 +153,126 @@ influx write \
   "sensor,location=room1 temperature=25.3,humidity=60"
 ```
 
-**API方式**
-
 ```bash
 curl -X POST "http://localhost:8087/api/v2/write?org=my-org&bucket=my-bucket&precision=s" \
   --header "Authorization: Token my-token" \
   --data-raw "sensor,location=room1 temperature=25.3,humidity=60"
 ```
 
-- 数据查询
+- **数据查询**（Flux 语言）：
 
-2.x 默认使用 Flux 语言查询数据，示例：
-
-```sql
+```
 from(bucket: "my-bucket")
   |> range(start: -1h)
   |> filter(fn: (r) => r._measurement == "sensor")
   |> filter(fn: (r) => r.location == "room1")
 ```
 
+> 2.x 也保留了 InfluxQL 兼容端点；Flux 已进入维护模式，新项目不建议在 Flux 上做重投入。
+
 ### 4、InfluxDB 3.x
 
 #### 版本背景
 
-InfluxDB 3.0 是 InfluxData 公司于 2023 年推出的重构版本，它基于 **Apache Arrow** 和 **Object Store（如 S3）**
-构建，完全改变了原有的存储和查询架构。该版本在可扩展性、查询性能、成本控制方面做了大幅提升。
+InfluxDB 3（原代号 IOx）是 2023 年起重构、**2025 年 4 月 GA** 的新一代版本，Rust 编写，与 1.x/2.x 完全不兼容：
 
-> 🚨 注意：InfluxDB 3.0 与 1.x / 2.x 完全不兼容，采用了全新的架构和 API 接口。
-
-#### 架构特点
-
-- **基于 Apache Arrow 格式存储数据**
-- **使用 Object Store（如 S3）作为主存储层**
-- **计算和存储分离（Compute/Storage Separation）**
-- 支持标准 SQL（通过 FlightSQL 协议）
-- 提供 InfluxQL / Flux / SQL 三种查询语言接口（但以 SQL 为主）
-
-#### 适用场景
-
-- 大规模数据分析（TB/PB 级别）
-- 云原生架构下的数据湖、冷热数据分析
-- 成本敏感型的时序数据应用
-
----
+- **列式存储**：数据以 Apache Parquet 落盘，内存中用 Apache Arrow
+- **对象存储优先**：本地磁盘 / S3 / OSS 皆可作主存储，计算存储分离
+- **回归标准 SQL**（基于 Apache DataFusion 引擎），同时兼容 InfluxQL
+- 开源版 **InfluxDB 3 Core**：定位近实时数据（**默认查询窗口限最近 72 小时**）；历史长查询、多节点高可用属于 **Enterprise** 版
 
 #### 3.x 安装
 
-InfluxDB 3.0 不再提供直接的开源二进制安装包，而是以托管服务（InfluxDB Cloud）为主，并开放了使用 **InfluxDB IOx** 源码自部署的能力。
-
-官方提供了 Docker Compose 示例：
-
 ```yaml
-version: '3'
 services:
   influxdb3:
-    image: quay.io/influxdb/influxdb_iox:2024-01-18
+    image: influxdb:3-core
+    container_name: influxdb3
     ports:
-      - "8080:8080"   # gRPC + FlightSQL
-      - "8081:8081"   # HTTP API
+      - "8181:8181"          # HTTP API
     volumes:
-      - ./iox_data:/root/.influxdb_iox
-    environment:
-      INFLUXDB_IOX_DATABASE_NAME: mydb
+      - ./influxdb3_data:/var/lib/influxdb3
+    command: >
+      influxdb3 serve --node-id node0
+      --object-store file --data-dir /var/lib/influxdb3
     restart: always
 ```
 
----
-
 #### 3.x 使用
 
-- 数据写入
-
-InfluxDB 3.0 兼容 Line Protocol 写入格式：
+- **数据写入**：兼容 1.x/2.x 的 Line Protocol：
 
 ```bash
-curl -X POST http://localhost:8081/api/v2/write \
-  -H 'Content-Type: text/plain; charset=utf-8' \
+curl -X POST "http://localhost:8181/api/v3/write_lp?db=mydb" \
   --data-raw "sensor,location=lab temperature=23.5"
 ```
 
-还支持通过 Arrow Flight、gRPC 或 Kafka 等形式批量写入。
-
-- 数据查询（SQL）
-
-3.0 主推标准 SQL 查询，使用 FlightSQL 协议，也支持通过 REST API 查询：
-
-```sql
-SELECT *
-FROM sensor
-WHERE location = 'lab' AND time > now() - interval '1 hour';
-```
-
-也支持 CLI 方式：
+- **数据查询**（标准 SQL）：
 
 ```bash
-influx query --sql 'SELECT * FROM sensor'
+curl "http://localhost:8181/api/v3/query_sql?db=mydb" \
+  --data-urlencode "q=SELECT * FROM sensor WHERE time > now() - interval '1 hour'"
 ```
-
----
-
-- 3.x 特性与优势
-
-| 特性      | InfluxDB 3.x                      |
-|---------|-----------------------------------|
-| 存储引擎    | Apache Arrow + Object Store（S3）   |
-| 查询语言    | SQL（FlightSQL），兼容 InfluxQL / Flux |
-| 数据压缩    | 高效列式压缩（Arrow + Parquet）           |
-| 计算与存储分离 | ✅ 支持                              |
-| 扩展性     | 弹性扩展，适合大规模 IoT/监控场景               |
-| 安装方式    | Docker / Cloud / 自建 IOx           |
-
----
 
 ### 5、版本对比总结
 
-| 特性      | InfluxDB 1.x | InfluxDB 2.x    | InfluxDB 3.x（IOx）           |
-|---------|--------------|-----------------|-----------------------------|
-| 查询语言    | InfluxQL     | Flux / InfluxQL | SQL / InfluxQL / Flux       |
-| 管理方式    | CLI          | Web UI + Token  | API（支持 Cloud / 本地）          |
-| 存储结构    | TSM          | TSM + BoltDB    | Apache Arrow + Object Store |
-| 异步写入    | 有限           | 支持              | 高并发写入（gRPC + Kafka）         |
-| 计算与存储分离 | ❌            | ❌               | ✅                           |
-| 多租户     | 基础权限         | 多用户多组织          | 未来支持（基于 Cloud）              |
-| 最佳应用场景  | 小型系统迁移       | 中型系统            | 大数据量、云原生、数据湖分析              |
+| 特性 | InfluxDB 1.x | InfluxDB 2.x | InfluxDB 3.x |
+|------|--------------|--------------|--------------|
+| 查询语言 | InfluxQL | Flux / InfluxQL | **SQL** / InfluxQL |
+| 存储结构 | TSM | TSM + BoltDB | Parquet + 对象存储（Arrow）|
+| 计算存储分离 | ❌ | ❌ | ✅ |
+| 组织概念 | 数据库 + 保留策略 | Org / Bucket / Token | 数据库（SQL 语义）|
+| 开源许可 | MIT | MIT | MIT / Apache-2.0（3 Core）|
+| 开源版限制 | 单机 | 单机 | 单机 + 默认查最近 72h |
+| 适用 | 存量系统维护 | 存量系统维护 | 新项目 / 云原生 / 大数据量 |
 
---- 
+---
 
-## 二、Prometheus
+## 三、TimescaleDB
+
+官网：[https://www.timescale.com](https://www.timescale.com)
+
+**PostgreSQL 扩展**形态的时序数据库——不引入新组件、新语言，全部能力都是标准 SQL：
+
+```sql
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+
+-- 普通表一键变时序表（hypertable）：自动按时间分区（chunk）
+CREATE TABLE metrics (
+  time        TIMESTAMPTZ NOT NULL,
+  device_id   INT,
+  temperature DOUBLE PRECISION
+);
+SELECT create_hypertable('metrics', 'time');
+
+-- 写入/查询就是普通 SQL，还能 JOIN 业务表
+SELECT d.name, time_bucket('5 minutes', m.time) AS bucket, AVG(m.temperature)
+FROM metrics m JOIN devices d ON d.id = m.device_id
+WHERE m.time > NOW() - INTERVAL '1 day'
+GROUP BY d.name, bucket;
+
+-- 连续聚合（降采样物化视图，自动增量刷新）
+CREATE MATERIALIZED VIEW metrics_hourly
+WITH (timescaledb.continuous) AS
+SELECT time_bucket('1 hour', time) AS bucket, device_id, AVG(temperature) AS avg_temp
+FROM metrics GROUP BY bucket, device_id;
+
+-- 压缩 + 保留策略
+ALTER TABLE metrics SET (timescaledb.compress);
+SELECT add_compression_policy('metrics', INTERVAL '7 days');   -- 7 天后压缩（列式，约 10 倍）
+SELECT add_retention_policy('metrics', INTERVAL '90 days');    -- 90 天后整 chunk 删除
+```
+
+**适合**：已有 PostgreSQL 技术栈、时序数据需要和业务数据 JOIN、团队只想写 SQL。
+**不适合**：单机写入千万点/秒级别的极端场景（不如 TDengine / InfluxDB 专用引擎）。
+
+---
+
+## 四、Prometheus
 
 官网：[https://prometheus.io](https://prometheus.io)
 
-Prometheus 是云原生监控领域的事实标准，CNCF 毕业项目，配合 Grafana 提供完整的监控告警体系。
+Prometheus 是云原生监控领域的事实标准，CNCF 毕业项目，配合 Grafana 提供完整的监控告警体系。与其他 TSDB 的关键差异：**拉模型（pull）**——Prometheus 主动抓取目标的 `/metrics` 端点，而不是应用推数据。
 
 ### 1、数据模型
 
@@ -411,9 +424,21 @@ groups:
           summary: "P99 延迟超过 1s"
 ```
 
+### 7、长期存储与集群
+
+Prometheus 本地 TSDB 定位是**短期存储**（默认保留 15 天，单机无高可用），长期/大规模方案通过 `remote_write` 外接：
+
+| 方案 | 思路 | 特点 |
+|------|------|------|
+| **VictoriaMetrics** | 兼容 PromQL 的独立 TSDB，Prometheus remote_write 写入 | 资源占用低、压缩比高，可直接**替代** Prometheus 存储层，国内使用广泛 |
+| **Thanos** | Sidecar 把本地块上传对象存储，Query 层聚合多个 Prometheus | 保留 Prometheus 本体，适合多集群全局视图 |
+| **Grafana Mimir** | Cortex 演进版，水平扩展的多租户存储 | 大规模多租户 SaaS 场景 |
+
+> 选型速记：单团队想省事 → VictoriaMetrics；多 K8s 集群联邦查询 → Thanos。
+
 ---
 
-## 三、国产 TSDB
+## 五、国产 TSDB
 
 ### 1、TDengine
 
@@ -471,13 +496,24 @@ GROUP BY ([2024-01-01, 2024-01-02), 10m);
 
 **适用场景**：工业制造、智慧城市、能源管理、边云协同 IoT
 
-### 3、时序数据库选型对比
+---
 
-| 维度 | InfluxDB | Prometheus | TDengine | IoTDB |
-|------|---------|-----------|----------|-------|
-| 开源协议 | MIT（1.x/2.x）/ 商业（3.x）| Apache 2.0 | AGPL 3.0 | Apache 2.0 |
-| 主要场景 | 通用时序 / DevOps | 监控告警 | IoT / 工业 | 工业 IoT / 边云协同 |
-| 集群支持 | 商业版 | 联邦 / Thanos | 开源支持 | 开源支持 |
-| SQL 支持 | InfluxQL / Flux / SQL | PromQL | SQL 方言 | SQL 扩展 |
-| 生态集成 | Telegraf / Grafana | Alertmanager / Grafana | 全套组件 | Hadoop / Spark |
-| 国内使用 | 较广泛 | 云原生主流 | 工业 IoT 主流 | 工业领域增长中 |
+## 六、选型对比
+
+| 维度 | InfluxDB | TimescaleDB | Prometheus (+VM) | TDengine | IoTDB |
+|------|---------|-------------|------------------|----------|-------|
+| 形态 | 独立 TSDB | **PG 扩展** | 监控系统（拉模型）| 独立 TSDB | 独立 TSDB |
+| 开源协议 | MIT（3 Core）| Apache 2.0 / TSL | Apache 2.0 | AGPL 3.0 | Apache 2.0 |
+| 查询语言 | SQL / InfluxQL | **标准 SQL（PG）** | PromQL | SQL 方言 | SQL 扩展 |
+| 开源集群 | ❌（商业版）| ❌（多节点属云版）| 联邦 / Thanos / VM | ✅ | ✅ |
+| 与业务表 JOIN | ❌ | ✅ | ❌ | 弱 | 弱 |
+| 主要场景 | 通用时序 / DevOps | 已有 PG 栈的时序 | 监控告警 | IoT / 工业 | 工业 IoT / 边云协同 |
+
+**选型速记**：
+
+```
+系统监控告警            → Prometheus + Grafana（存储扛不住上 VictoriaMetrics）
+已有 PostgreSQL 技术栈  → TimescaleDB（免新组件，能 JOIN 业务表）
+工业 IoT / 设备采集     → TDengine（超级表模型贴合设备场景）/ IoTDB（边云协同、Hadoop 生态）
+通用时序 / 新建独立系统  → InfluxDB 3
+```
