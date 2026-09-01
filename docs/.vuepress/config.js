@@ -19,6 +19,7 @@ const navbarFlat = [
     {text: '设计模式', link: '/patterns/0_design_intro'},
     {text: 'Spring',  link: '/spring/0_spring_framework'},
     {text: 'Spring Boot', link: '/spring-boot/0_spring_boot'},
+    {text: 'Spring Cloud', link: '/spring-cloud/0_overview'},
     {text: '测试体系', link: '/testing/0_testing_intro'},
     {text: '数据库',  link: '/database/0_overview'},
     {text: '缓存',    link: '/cache/0_redis_base'},
@@ -141,6 +142,7 @@ const aiSidebar = [
         children: [
             {text: '大语言模型', link: '/ai/1_concepts/0_model'},
             {text: 'Prompt 工程',   link: '/ai/1_concepts/1_prompt'},
+            {text: 'Function Calling', link: '/ai/1_concepts/2_function_calling'},
         ],
     },
     {

@@ -1,0 +1,64 @@
+<svg viewBox="0 0 720 428" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .label { font-size:11px; fill:var(--fg); }
+    .note { font-size:11px; fill:var(--muted); }
+    .warn { font-size:12px; font-weight:700; fill:var(--r); }
+  </style>
+  <defs>
+    <marker id="arrow-fc" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="360" y="26" text-anchor="middle">Function Calling 协议流程</text>
+
+  <!-- 参与者 -->
+  <rect x="80" y="44" width="180" height="44" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="170" y="72" text-anchor="middle">应用（你的代码）</text>
+  <rect x="460" y="44" width="180" height="44" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="550" y="72" text-anchor="middle">LLM API</text>
+
+  <!-- 生命线 -->
+  <line x1="170" y1="92" x2="170" y2="356" stroke="var(--border)" stroke-width="2" stroke-dasharray="4 4"/>
+  <line x1="550" y1="92" x2="550" y2="356" stroke="var(--border)" stroke-width="2" stroke-dasharray="4 4"/>
+
+  <!-- ① 请求 -->
+  <text class="label" x="360" y="116" text-anchor="middle">① messages + tools 定义（JSON Schema）</text>
+  <line x1="176" y1="124" x2="544" y2="124" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-fc)"/>
+
+  <!-- ② 返回调用意图 -->
+  <text class="label" x="360" y="168" text-anchor="middle">② finish_reason = tool_calls：函数名 + JSON 参数</text>
+  <line x1="544" y1="176" x2="176" y2="176" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-fc)"/>
+
+  <!-- ③ 本地执行 -->
+  <rect x="90" y="200" width="160" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="label" x="170" y="228" text-anchor="middle">③ 应用执行真实函数</text>
+
+  <!-- ④ 回传结果 -->
+  <text class="label" x="360" y="272" text-anchor="middle">④ 追加 role=tool 消息，再次请求</text>
+  <line x1="176" y1="280" x2="544" y2="280" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-fc)"/>
+
+  <!-- ⑤ 最终回答 -->
+  <text class="label" x="360" y="324" text-anchor="middle">⑤ 基于工具结果生成最终回答</text>
+  <line x1="544" y1="332" x2="176" y2="332" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-fc)"/>
+
+  <!-- 底部关键认知 -->
+  <rect x="80" y="364" width="560" height="44" rx="8" fill="var(--bg)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="warn" x="360" y="392" text-anchor="middle">模型不执行任何函数——它只输出"想调用什么"，执行永远发生在你的代码里</text>
+</svg>

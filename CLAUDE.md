@@ -70,7 +70,7 @@ docs/
 | 协议体系 | `docs/protocols/` | TCP/UDP / HTTP / IoT 协议 / gRPC / TLS / 数据库协议 |
 | 安全体系 | `docs/security/` | 认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任 |
 | IoT | `docs/iot/` | 物联网架构 / 协议 / 开源平台 |
-| AI | `docs/ai/` | Spring AI / LangChain4j / RAG / Agent / MCP / API 接入 / AI 工具 |
+| AI | `docs/ai/` | Function Calling / Spring AI / LangChain4j / RAG / Agent / MCP / API 接入 / AI 工具 |
 
 ---
 
