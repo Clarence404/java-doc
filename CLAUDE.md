@@ -34,6 +34,7 @@ docs/
 ├── security/       安全体系：认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任
 ├── spring/         Spring Framework / WebFlux / Security
 ├── spring-boot/    Spring Boot / Flyway
+├── spring-cloud/   Spring Cloud：注册发现 / 网关 / 服务通信 / 配置中心 / 治理
 └── testing/        测试体系：单元测试 / Mock / 集成测试 / TDD
 ```
 
@@ -50,13 +51,14 @@ docs/
 | 设计模式 | `docs/patterns/` | 23 种 GoF 模式 |
 | Spring | `docs/spring/` | IoC / AOP / WebFlux / Security |
 | Spring Boot | `docs/spring-boot/` | 自动配置 / Flyway 数据迁移 |
+| Spring Cloud | `docs/spring-cloud/` | 注册发现 / 网关 / 服务通信 / 配置中心 / 治理 |
 | 测试体系 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD |
 | Netty | `docs/netty/` | IO 模型 / Reactor / WebSocket / SSE |
 | 分布式 | `docs/distributed/` | CAP / Raft / 分布式锁 / 事务 |
 | 高并发 | `docs/high-con/` | JUC / 线程池 / 压测 / Profiler |
 | 高可用 | `docs/high-avail/` | 限流 / 熔断 / 降级 |
 | 消息队列 | `docs/messaging/` | Kafka / RocketMQ / RabbitMQ |
-| 微服务 | `docs/microservices/` | 拆分 / 注册发现 / 网关 / 模式 |
+| 微服务 | `docs/microservices/` | 拆分 / 注册发现 / 网关 / 模式 / Dubbo |
 | 数据库 | `docs/database/` | MySQL / 分库分表 / 各类 NoSQL |
 | 缓存 | `docs/cache/` | Redis / Caffeine / 两级缓存 |
 | 系统架构 | `docs/architecture/` | 架构设计 / DDD / 幂等 / 对象存储 |
@@ -76,9 +78,9 @@ docs/
 
 ```
 基础层：  Java 特性 → JVM → 算法 → 设计模式
-框架层：  Spring → Spring Boot → Netty
+框架层：  Spring → Spring Boot → Spring Cloud
 数据层：  数据库 → 缓存 → 消息队列
-分布式层：分布式理论 → 高并发 → 高可用 → 微服务
+分布式层：分布式理论 → 高并发 → Netty → 高可用 → 微服务
 架构层：  系统架构 → 业务场景
 运维层：  云原生 → DevOps → 工程效率 → 可观测性 → 协议体系 → 安全体系
 新兴层：  IoT → AI

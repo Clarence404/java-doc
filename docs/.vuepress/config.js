@@ -19,7 +19,6 @@ const navbarFlat = [
     {text: '设计模式', link: '/patterns/0_design_intro'},
     {text: 'Spring',  link: '/spring/0_spring_framework'},
     {text: 'Spring Boot', link: '/spring-boot/0_spring_boot'},
-    {text: 'Netty',   link: '/netty/0_io_model'},
     {text: '测试体系', link: '/testing/0_testing_intro'},
     {text: '数据库',  link: '/database/0_overview'},
     {text: '缓存',    link: '/cache/0_redis_base'},
@@ -30,6 +29,7 @@ const navbarFlat = [
     {text: '微服务',  link: '/microservices/0_overview'},
     {text: '架构',    link: '/architecture/0_overview'},
     {text: '协议体系', link: '/protocols/0_overview'},
+    {text: 'Netty',   link: '/netty/0_io_model'},
     {text: '云原生',  link: '/cloud-native/0_linux'},
     {text: 'DevOps',  link: '/devops/0_overview'},
     {text: '工程效率', link: '/engineering/0_overview'},
@@ -57,7 +57,11 @@ const navbarDropdown = [
             {text: 'Spring',          link: '/spring/0_spring_framework'},
             {text: 'Spring Boot',     link: '/spring-boot/0_spring_boot'},
             {text: 'Spring Cloud',    link: '/spring-cloud/0_overview'},
-            {text: 'Netty',           link: '/netty/0_io_model'},
+            {text: 'Dubbo',           link: '/microservices/4_dubbo'},
+            {text: 'ORM 框架',        link: '/database/3_relational/2_orm_framework'},
+            {text: '任务调度',        link: '/distributed/5_job_scheduler'},
+            {text: 'Spring AI',       link: '/ai/2_frameworks/0_spring_ai'},
+            {text: 'LangChain4j',     link: '/ai/2_frameworks/1_langchain4j'},
         ],
     },
     {
@@ -77,6 +81,7 @@ const navbarDropdown = [
             {text: '微服务', link: '/microservices/0_overview'},
             {text: '系统架构', link: '/architecture/0_overview'},
             {text: '协议体系', link: '/protocols/0_overview'},
+            {text: 'Netty 网络编程', link: '/netty/0_io_model'},
         ],
     },
     {
@@ -95,7 +100,7 @@ const navbarDropdown = [
         children: [
             {text: 'IoT',     link: '/iot/0_base'},
             {text: 'AI',      link: '/ai/0_overview'},
-            {text: '大数据场景', link: '/scenario/0_scene'},
+            {text: '大数据', link: '/scenario/0_scene'},
         ],
     },
 ];
@@ -134,12 +139,12 @@ const aiSidebar = [
         collapsible: true,
         collapsed: false,
         children: [
-            {text: '主流大语言模型', link: '/ai/1_concepts/0_model'},
+            {text: '大语言模型', link: '/ai/1_concepts/0_model'},
             {text: 'Prompt 工程',   link: '/ai/1_concepts/1_prompt'},
         ],
     },
     {
-        text: 'Java 开发框架',
+        text: 'Java 框架',
         collapsible: true,
         collapsed: false,
         children: [
@@ -235,7 +240,7 @@ const databaseSidebar = [
         ],
     },
     {
-        text: '关系型生态',
+        text: '关系库生态',
         link: '/database/3_relational/0_other_rdbms',
         collapsible: true,
         collapsed: true,
@@ -259,25 +264,25 @@ const databaseSidebar = [
         ],
     },
     {
-        text: '运维架构',
+        text: '架构运维',
         link: '/database/5_practice/0_cdc_tools',
         collapsible: true,
         collapsed: true,
         children: [
-            {text: 'CDC', link: '/database/5_practice/0_cdc_tools'},
+            {text: 'CDC 工具', link: '/database/5_practice/0_cdc_tools'},
             {text: '备份恢复', link: '/database/5_practice/1_backup_recovery'},
             {text: '分库分表', link: '/database/5_practice/2_sharding'},
             {text: '连接池', link: '/database/5_practice/3_connection_pool'},
         ],
     },
     {
-        text: '选型及源码',
+        text: '源码及选型',
         link: '/database/6_reference/0_binlog_connector_source',
         collapsible: true,
         collapsed: true,
         children: [
             {text: 'Mbcj 源码', link: '/database/6_reference/0_binlog_connector_source'},
-            {text: '选型', link: '/database/6_reference/1_selection_guide'},
+            {text: '数据库选型', link: '/database/6_reference/1_selection_guide'},
         ],
     },
     {text: '面试专题', link: '/database/99_interview'},

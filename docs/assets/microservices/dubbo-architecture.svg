@@ -1,0 +1,62 @@
+<svg viewBox="0 0 720 394" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-dubbo" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="360" y="26" text-anchor="middle">Dubbo 架构与调用流程</text>
+
+  <!-- 注册中心 -->
+  <rect x="260" y="44" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="68" text-anchor="middle">注册中心</text>
+  <text class="desc" x="360" y="90" text-anchor="middle">Nacos / ZooKeeper</text>
+
+  <!-- 订阅箭头：Consumer → 注册中心 -->
+  <line x1="150" y1="196" x2="296" y2="110" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-dubbo)"/>
+  <text class="label" x="150" y="150">② 订阅 / 变更推送</text>
+
+  <!-- 注册箭头：Provider → 注册中心 -->
+  <line x1="570" y1="196" x2="424" y2="110" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-dubbo)"/>
+  <text class="label" x="500" y="150">① 注册服务</text>
+
+  <!-- Consumer -->
+  <rect x="40" y="200" width="220" height="80" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="150" y="224" text-anchor="middle">Consumer（消费方）</text>
+  <text class="desc" x="150" y="246" text-anchor="middle">@DubboReference 引用服务</text>
+  <text class="desc" x="150" y="268" text-anchor="middle">负载均衡 / 集群容错</text>
+
+  <!-- RPC 调用箭头 -->
+  <line x1="264" y1="244" x2="454" y2="244" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-dubbo)"/>
+  <text class="label" x="360" y="236" text-anchor="middle">③ RPC 调用</text>
+
+  <!-- Provider -->
+  <rect x="460" y="200" width="220" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="570" y="224" text-anchor="middle">Provider（提供方）</text>
+  <text class="desc" x="570" y="246" text-anchor="middle">@DubboService 暴露服务</text>
+  <text class="desc" x="570" y="268" text-anchor="middle">Netty Server 长连接</text>
+
+  <!-- 底部说明 -->
+  <rect x="40" y="326" width="640" height="48" rx="8" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="desc" x="360" y="356" text-anchor="middle">Dubbo 3 运行期依赖三大中心：注册中心 + 元数据中心 + 配置中心，可由同一个 Nacos 承担</text>
+</svg>
