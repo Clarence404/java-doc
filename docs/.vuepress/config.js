@@ -195,15 +195,22 @@ const databaseSidebar = [
         collapsed: false,
         children: [
             {text: '概览', link: '/database/1_mysql/0_overview'},
-            {text: '特性', link: '/database/1_mysql/1_feature'},
+            {text: '版本特性', link: '/database/1_mysql/1_feature'},
             {text: 'MariaDB', link: '/database/1_mysql/2_maria_db'},
-            {text: '避坑', link: '/database/1_mysql/3_fallible_point'},
-            {text: '索引', link: '/database/1_mysql/4_topic_index'},
-            {text: '事务与锁', link: '/database/1_mysql/5_topic_transaction'},
-            {text: '执行流程', link: '/database/1_mysql/6_topic_execution'},
-            {text: 'EXPLAIN 优化', link: '/database/1_mysql/7_topic_explain'},
-            {text: 'InnoDB 存储', link: '/database/1_mysql/8_topic_innodb'},
-            {text: '主从与高可用', link: '/database/1_mysql/9_topic_replication'},
+            {text: '避坑指南', link: '/database/1_mysql/3_fallible_point'},
+            {
+                text: '核心专项',
+                collapsible: true,
+                collapsed: false,
+                children: [
+                    {text: '索引', link: '/database/1_mysql/4_topic_index'},
+                    {text: '事务与锁', link: '/database/1_mysql/5_topic_transaction'},
+                    {text: '执行流程', link: '/database/1_mysql/6_topic_execution'},
+                    {text: 'EXPLAIN 优化', link: '/database/1_mysql/7_topic_explain'},
+                    {text: 'InnoDB 存储', link: '/database/1_mysql/8_topic_innodb'},
+                    {text: '主从与高可用', link: '/database/1_mysql/9_topic_replication'},
+                ],
+            },
         ],
     },
     {
@@ -214,10 +221,17 @@ const databaseSidebar = [
         children: [
             {text: '概览', link: '/database/2_postgresql/0_overview'},
             {text: '特性', link: '/database/2_postgresql/1_feature'},
-            {text: 'MVCC', link: '/database/2_postgresql/2_topic_mvcc'},
-            {text: '索引', link: '/database/2_postgresql/3_topic_index'},
-            {text: 'SQL', link: '/database/2_postgresql/4_topic_advanced_sql'},
-            {text: '复制与高可用', link: '/database/2_postgresql/5_topic_replication'},
+            {
+                text: '核心专项',
+                collapsible: true,
+                collapsed: false,
+                children: [
+                    {text: 'MVCC 与 VACUUM', link: '/database/2_postgresql/2_topic_mvcc'},
+                    {text: '索引类型', link: '/database/2_postgresql/3_topic_index'},
+                    {text: '高级 SQL', link: '/database/2_postgresql/4_topic_advanced_sql'},
+                    {text: '复制与高可用', link: '/database/2_postgresql/5_topic_replication'},
+                ],
+            },
         ],
     },
     {
