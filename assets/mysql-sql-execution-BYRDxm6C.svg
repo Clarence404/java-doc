@@ -1,0 +1,86 @@
+<svg viewBox="0 0 720 674" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .note { font-size:11px; fill:var(--y); }
+    .group { font-size:12px; font-weight:700; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-exec" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--p)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="360" y="26" text-anchor="middle">一条 SQL 在 MySQL 中的执行流程</text>
+
+  <!-- 客户端 -->
+  <rect x="140" y="44" width="440" height="60" rx="8" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="68" text-anchor="middle">客户端</text>
+  <text class="desc" x="360" y="90" text-anchor="middle">JDBC 驱动 / mysql CLI / 连接池（HikariCP）</text>
+
+  <line x1="360" y1="108" x2="360" y2="144" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrow-exec)"/>
+
+  <!-- Server 层分组标识 -->
+  <line x1="126" y1="150" x2="126" y2="528" stroke="var(--border)" stroke-width="2"/>
+  <text class="group" x="112" y="339" text-anchor="middle" transform="rotate(-90 112 339)">Server 层</text>
+
+  <!-- 连接器 -->
+  <rect x="140" y="150" width="440" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="174" text-anchor="middle">连接器</text>
+  <text class="desc" x="250" y="196" text-anchor="middle">身份认证 / 读取权限</text>
+  <text class="desc" x="470" y="196" text-anchor="middle">连接管理 / wait_timeout</text>
+
+  <line x1="360" y1="214" x2="360" y2="250" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrow-exec)"/>
+  <text class="note" x="372" y="236">查询缓存已在 8.0 移除</text>
+
+  <!-- 分析器 -->
+  <rect x="140" y="256" width="440" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="280" text-anchor="middle">分析器</text>
+  <text class="desc" x="250" y="302" text-anchor="middle">词法分析（识别 token）</text>
+  <text class="desc" x="470" y="302" text-anchor="middle">语法分析（生成语法树）</text>
+
+  <line x1="360" y1="320" x2="360" y2="356" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrow-exec)"/>
+
+  <!-- 优化器 -->
+  <rect x="140" y="362" width="440" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="386" text-anchor="middle">优化器</text>
+  <text class="desc" x="250" y="408" text-anchor="middle">基于成本选择索引</text>
+  <text class="desc" x="470" y="408" text-anchor="middle">确定 JOIN 顺序 / 执行计划</text>
+
+  <line x1="360" y1="426" x2="360" y2="462" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrow-exec)"/>
+
+  <!-- 执行器 -->
+  <rect x="140" y="468" width="440" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="492" text-anchor="middle">执行器</text>
+  <text class="desc" x="250" y="514" text-anchor="middle">校验表级权限</text>
+  <text class="desc" x="470" y="514" text-anchor="middle">循环调用引擎接口取行</text>
+
+  <line x1="360" y1="532" x2="360" y2="568" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrow-exec)"/>
+  <text class="note" x="372" y="554">handler API</text>
+
+  <!-- 引擎层分组标识 -->
+  <line x1="126" y1="574" x2="126" y2="654" stroke="var(--border)" stroke-width="2"/>
+  <text class="group" x="112" y="614" text-anchor="middle" transform="rotate(-90 112 614)">引擎层</text>
+
+  <!-- 存储引擎 -->
+  <rect x="140" y="574" width="440" height="80" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="598" text-anchor="middle">存储引擎层（InnoDB）</text>
+  <text class="desc" x="250" y="620" text-anchor="middle">Buffer Pool 缓存页</text>
+  <text class="desc" x="470" y="620" text-anchor="middle">B+ 树索引读写</text>
+  <text class="desc" x="360" y="642" text-anchor="middle">undo log / redo log</text>
+</svg>
