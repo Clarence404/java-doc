@@ -75,7 +75,7 @@ try (var driver = GraphDatabase.driver("bolt://localhost:7687",
 - 面向**千亿点边**的超大规模图，美团、快手、微众银行等生产验证
 - 查询语言 nGQL（部分兼容 openCypher）
 
-```ngql
+```sql
 -- 建图空间（分片 + 副本）
 CREATE SPACE social (partition_num = 100, replica_factor = 3, vid_type = INT64);
 

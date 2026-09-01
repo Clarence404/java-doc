@@ -6,7 +6,7 @@
 
 ## 一、核心架构
 
-![Spring Batch 架构](../../assets/spring/spring_batch_arch.svg)
+![Spring Batch 架构](../assets/spring/spring_batch_arch.svg)
 
 **核心组件：**
 

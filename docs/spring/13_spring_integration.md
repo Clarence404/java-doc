@@ -14,7 +14,7 @@ Spring Integration 是企业集成模式（EIP）的 Java 实现，用于构建*
 
 ## 二、核心概念
 
-![Spring Integration 架构](../../assets/spring/spring_integration_arch.svg)
+![Spring Integration 架构](../assets/spring/spring_integration_arch.svg)
 
 | 概念 | 说明 |
 |------|------|
