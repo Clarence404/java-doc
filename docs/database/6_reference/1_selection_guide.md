@@ -18,6 +18,7 @@
 | **InfluxDB** | 时序 DB | 原生时序优化、Flux 查询语言 | 监控指标、IoT 传感器 | 非时序场景 |
 | **Cassandra** | 宽列 DB | 多主架构、高可用、写入极快 | 消息、时序、全球分布 | 强一致、复杂查询 |
 | **Neo4j** | 图数据库 | 原生图存储、Cypher 查询 | 知识图谱、社交关系、推荐 | 非图关系场景 |
+| **Milvus** | 向量数据库 | 十亿级向量 ANN 检索、多种索引（HNSW/IVF）| RAG 知识库、语义搜索、以图搜图 | 常规结构化查询 |
 
 ---
 
@@ -99,6 +100,24 @@ Schema 灵活 + 嵌套文档 + 原生分片
   → PostgreSQL（JSONB + GIN 索引）
 ```
 
+### 向量检索 / RAG
+
+```
+已有 PostgreSQL 且向量 < 千万级
+  → pgvector（PG 扩展，免新组件，事务/过滤条件都是 SQL）
+
+已有 Elasticsearch / Redis
+  → ES kNN / Redis Vector（复用现有设施）
+
+专职向量场景，亿级以上、高 QPS
+  → Milvus（自建）/ 云厂商向量服务
+
+MySQL 技术栈尝鲜
+  → MySQL 9.x VECTOR 类型 + HNSW 索引（9.2+，尚年轻）
+```
+
+> 详见 [AI 模块 · 向量数据库](../../ai/4_core_tech/1_vector_db)。选型口诀：**先看手里有什么，能复用就不引入新组件**。
+
 ### 海量写入 + 随机点查
 
 ```
@@ -177,3 +196,22 @@ Schema 灵活 + 嵌套文档 + 原生分片
 | "用了 ES 就不需要 MySQL" | ES 不保证强一致，不适合做业务主数据存储 |
 | "ClickHouse 能替代 MySQL" | 定位完全不同；ClickHouse 不适合 OLTP |
 | "新项目都用 MongoDB" | Schema 自由是双刃剑；业务核心数据结构不清晰时会带来维护噩梦 |
+| "做 RAG 就要上 Milvus" | 千万级以下 pgvector / ES kNN 足够；专职向量库是规模到了之后的选项 |
+
+---
+
+## 六、站内延伸阅读
+
+| 类型 | 站内专项 |
+|------|---------|
+| 关系型 OLTP | [MySQL 专题](../1_mysql/0_overview) / [PostgreSQL 专题](../2_postgresql/0_overview) |
+| 商业 / 国产 RDBMS | [其他 RDBMS](../3_relational/0_other_rdbms) |
+| NewSQL / 云原生 | [分布式数据库（TiDB / OceanBase / Aurora）](../3_relational/1_distributed_db) |
+| 列式 OLAP | [列式数据库（HBase / ClickHouse）](../4_nosql/0_column_db) |
+| 时序 | [时序数据库（InfluxDB / Prometheus）](../4_nosql/1_time_series_db) |
+| 文档 | [文档数据库（MongoDB）](../4_nosql/2_document_db) |
+| 搜索 | [搜索数据库（Elasticsearch / OpenSearch）](../4_nosql/3_search_db) |
+| 图 | [图数据库（Neo4j / NebulaGraph）](../4_nosql/4_graph_db) |
+| 缓存 / KV | [缓存模块（Redis / Caffeine）](../../cache/0_redis_base) |
+| 向量 | [AI 模块 · 向量数据库](../../ai/4_core_tech/1_vector_db) |
+| 扩展与接入 | [分库分表](../5_practice/2_sharding) / [连接池](../5_practice/3_connection_pool) / [CDC 工具](../5_practice/0_cdc_tools) |

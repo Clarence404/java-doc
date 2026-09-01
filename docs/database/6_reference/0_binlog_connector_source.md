@@ -296,7 +296,149 @@ public void connect() throws IOException, IllegalStateException {
 
 这是整个 `BinaryLogClient` 的核心，负责将 MySQL 的二进制日志事件转换为 Java 对象并分发给应用程序。
 
-## 四、完整流程图
+## 四、EventDeserializer 事件反序列化
+
+`eventDeserializer.nextEvent(inputStream)` 把原始字节流还原为 `Event` 对象，核心逻辑（精简）：
+
+```java
+public Event nextEvent(ByteArrayInputStream inputStream) throws IOException {
+    // 1. 反序列化事件头（EventHeaderV4：timestamp、eventType、serverId、
+    //    eventLength、nextPosition、flags，共 19 字节）
+    EventHeader eventHeader = eventHeaderDeserializer.deserialize(inputStream);
+
+    // 2. 按事件类型从注册表中选择对应的 EventDataDeserializer
+    EventDataDeserializer dataDeserializer =
+        getEventDataDeserializer(eventHeader.getEventType());
+
+    // 3. 反序列化事件体（若开启了 checksum，先剥离末尾 4 字节 CRC32）
+    return new Event(eventHeader, deserializeEventData(inputStream, eventHeader, dataDeserializer));
+}
+```
+
+### 1、两个关键的"有状态"处理
+
+- **checksum 自适应**：连接后收到的第一个 `FORMAT_DESCRIPTION` 事件声明了 binlog 的 checksum 算法（NONE / CRC32），反序列化器据此决定后续每个事件是否要剥掉末尾 4 字节校验和——这就是为什么不能跳过 FORMAT_DESCRIPTION 事件
+- **TableMap 缓存**：`TABLE_MAP` 事件携带表的列类型元数据，反序列化器内部按 `tableId` 缓存；后续 `WRITE/UPDATE/DELETE_ROWS` 事件只带 tableId 和裸数据，必须查这份缓存才能按列类型解出字段值（第五节使用示例里应用层再缓存一份 `TableMapEventData` 是同样的道理——binlog 里**没有列名**，列名要自己查 `information_schema`）
+
+### 2、兼容模式与跳过策略
+
+```java
+EventDeserializer eventDeserializer = new EventDeserializer();
+
+// 类型映射调整：DATETIME 默认反序列化为 java.util.Date（时区敏感），
+// 建议改为 long（epoch millis）由应用层自行处理时区
+eventDeserializer.setCompatibilityMode(
+    EventDeserializer.CompatibilityMode.DATE_AND_TIME_AS_LONG,
+    EventDeserializer.CompatibilityMode.CHAR_AND_BINARY_AS_BYTE_ARRAY);
+
+// 不关心的事件类型可替换为空反序列化器，跳过解析开销
+eventDeserializer.setEventDataDeserializer(EventType.XID,
+    new NullEventDataDeserializer());
+
+client.setEventDeserializer(eventDeserializer);
+```
+
+反序列化失败抛出 `EventDataDeserializationException`（包含事件头信息便于定位位点），`listenForEventPackets` 捕获后通知 `onEventDeserializationFailure` 并**跳过该事件继续**（见第三节 3.1），不会中断整个监听。
+
+---
+
+## 五、GTID 位点管理
+
+### 1、两种订阅模式
+
+| 模式 | 设置方式 | 底层命令 | 断点续传精度 |
+|------|---------|---------|-------------|
+| 文件名 + 位点 | `setBinlogFilename()` + `setBinlogPosition()` | `COM_BINLOG_DUMP` | 依赖具体文件，主从切换后失效 |
+| **GTID** | `setGtidSet("uuid:1-100")`（空串 = 从当前开始）| `COM_BINLOG_DUMP_GTID` | 全局唯一，**主从切换仍有效** |
+
+### 2、位点推进逻辑（updateGtidSet）
+
+第三节主循环中每个事件都会经过 `updateGtidSet(event)`，其推进规则很讲究：
+
+```java
+// 精简逻辑
+private void updateGtidSet(Event event) {
+    switch (event.getHeader().getEventType()) {
+        case GTID:   // 事务开始：只暂存当前 gtid，不立即加入 gtidSet
+            gtid = ((GtidEventData) event.getData()).getGtid();
+            break;
+        case XID:    // 事务提交（DML）：此时才把暂存的 gtid 并入 gtidSet
+            commitGtid();
+            break;
+        case QUERY:  // COMMIT / DDL 语句：同样触发提交
+            if (/* sql 是 COMMIT 或 DDL */) commitGtid();
+            break;
+    }
+}
+```
+
+> **关键设计**：GTID 在**事务完成时**才计入位点。若在事务中途崩溃重连，该事务会完整重放，保证事务不被"腰斩"——代价是可能重复投递，所以**下游消费必须幂等**。
+
+同时，`ROTATE` 事件会重置 `binlogFilename` / `binlogPosition`，其余事件按 header 的 `nextPosition` 推进——文件位点和 GTID 两套状态是并行维护的。
+
+### 3、位点持久化是使用方的责任
+
+库本身**不落盘任何位点**，重启后从哪继续完全取决于你 `connect()` 前 set 了什么。生产实践：
+
+```java
+client.registerEventListener(event -> {
+    handleLogEvent(event);
+    if (event.getHeader().getEventType() == EventType.XID) {
+        // 事务边界处持久化位点（DB / Redis / ZK），而不是每个事件都存
+        savePosition(client.getGtidSet(), client.getBinlogFilename(), client.getBinlogPosition());
+    }
+});
+```
+
+这正是 Canal / Debezium 在这个库（或同类实现）之上做的核心增值之一：位点管理 + 全量/增量切换。
+
+---
+
+## 六、保活与断线重连
+
+### 1、keepalive 线程
+
+`connect()` 时默认（`keepAlive = true`）会额外拉起一个守护线程：
+
+```java
+// 精简逻辑：每 keepAliveInterval（默认 1 分钟）检查一次
+threadExecutor.scheduleAtFixedRate(() -> {
+    boolean connectionLost = false;
+    if (System.currentTimeMillis() - eventLastSeen > keepAliveInterval) {
+        connectionLost = !channel.isOpen() || !ping();   // 长时间没事件 → 主动探测
+    }
+    if (connectionLost) {
+        terminateConnect();   // 关闭旧连接（第三节 finally 里的"部分关闭"）
+        connect(connectTimeout);  // 用内存中的 gtidSet / 文件位点重新订阅
+    }
+}, ..., keepAliveInterval, MILLISECONDS);
+```
+
+这里用到了第三节 2.6 维护的 `eventLastSeen` 时间戳：**低流量库长时间无事件是正常的**，所以先 ping 探活而不是直接重连。
+
+### 2、重连语义与注意事项
+
+| 项 | 说明 |
+|----|------|
+| 恢复位点 | 用**内存中**最新的 gtidSet / filename+position，重连本身不丢位点 |
+| 重复投递 | GTID 模式从未完成事务的开头重放 → 下游需幂等（与第五节呼应）|
+| 进程重启 | 内存位点消失，必须靠自己持久化的位点恢复，否则从当前最新开始（**丢数据**）|
+| `serverId` | 必须全局唯一：两个客户端用相同 serverId 连同一主库，后连的会把先连的踢下线，表现为"莫名其妙反复重连" |
+| 事件监听器阻塞 | `notifyEventListeners` 是同步调用，监听器里做慢操作（写库、调接口）会阻塞整个接收循环，反压到 MySQL 端；重活应投递到队列异步处理 |
+
+```java
+// 相关配置
+client.setKeepAlive(true);                    // 默认开启
+client.setKeepAliveInterval(TimeUnit.MINUTES.toMillis(1));
+client.setHeartbeatInterval(TimeUnit.SECONDS.toMillis(30)); // 让 MySQL 主动发心跳事件，
+                                              // 低流量场景防止误判死链
+```
+
+> `heartbeatInterval` 与 `keepAliveInterval` 配合：前者让服务端定期发 `HEARTBEAT` 事件刷新 `eventLastSeen`，后者是客户端兜底探测，`heartbeat < keepAlive` 才能避免无谓重连。
+
+---
+
+## 七、完整流程图
 
 ```mermaid
 graph TD
@@ -323,7 +465,7 @@ graph TD
 
 ```
 
-## 五、使用方法
+## 八、使用方法
 
 ### 1、简化处理方案
 
@@ -525,5 +667,5 @@ public class BinlogListenerConfig {
 
 ![img.png](../../assets/database/mbcj_usage.png)
 
-> [!warning] 待补充
-> 事件反序列化（EventDeserializer）、GTID 位点管理、断线重连机制的源码分析。
+> 上面的简化示例没有做**位点持久化**和**幂等消费**，仅适合演示/开发环境；
+> 生产环境要么按第五、六节补齐这两块，要么直接使用 [Canal / Debezium / Flink CDC](../5_practice/0_cdc_tools)。
