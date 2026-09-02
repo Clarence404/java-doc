@@ -1,4 +1,4 @@
-# 服务注册与发现
+# 注册发现
 
 > 参考资料：
 > * Nacos 官方文档：[https://nacos.io/zh-cn/docs/what-is-nacos.html](https://nacos.io/zh-cn/docs/what-is-nacos.html)

@@ -1,4 +1,4 @@
-# Spring Cloud 总览
+# 总览
 
 > 主要基于 [Spring Cloud Alibaba](https://sca.aliyun.com/) + 国际流行方案扩展。
 
@@ -23,21 +23,7 @@
 
 ## 二、Spring Cloud Alibaba 技术栈
 
-```
-客户端
-    │
-    ▼
-Spring Cloud Gateway（API 网关：路由/鉴权/限流）
-    │
-    ▼
-OpenFeign（声明式 HTTP 调用）+ Spring Cloud LoadBalancer（客户端负载均衡）
-    │
-    ├── order-service ──→ Nacos（注册中心 + 配置中心）
-    ├── user-service  ──→ Sentinel（流量控制 + 熔断）
-    └── pay-service   ──→ Seata（分布式事务）
-                         RocketMQ（异步消息）
-                         SkyWalking（链路追踪）
-```
+![Spring Cloud Alibaba 技术栈](../assets/spring-cloud/sca-stack.svg)
 
 ---
 
@@ -78,14 +64,16 @@ OpenFeign（声明式 HTTP 调用）+ Spring Cloud LoadBalancer（客户端负�
 
 | 方向 | 章节 |
 |------|------|
-| 服务注册与发现 | [服务注册与发现](./1_service_registry.md) |
+| 服务注册与发现 | [注册发现](./1_service_registry.md) |
 | API 网关 | [API 网关](./2_api_gateway.md) |
-| 服务间通信 | [服务间通信](./3_communication.md) |
+| 服务间通信 | [服务通信](./3_communication.md) |
 | 配置中心 | [配置中心](./4_config_center.md) |
+| 服务治理 | [服务治理](./5_service_governance.md) |
+| Nacos / Sentinel / Seata 实操 | [Alibaba](./6_alibaba.md) |
+| 消息驱动抽象 | [Stream](./7_stream.md) |
 | 链路追踪 | [链路追踪](../observability/3_tracing.md) |
 | 微服务设计模式 | [微服务设计模式](../microservices/2_patterns.md) |
 | 服务网格 | [服务网格](../microservices/3_service_mesh.md) |
-| 服务治理 | [服务治理](./5_service_governance.md) |
-| 熔断限流 | [高可用](../high-avail/) |
+| 熔断限流 | [高可用](../high-avail/0_overview.md) |
 | 分布式事务 | [分布式事务](../distributed/3_transaction.md) |
 | 消息中间件 | [消息队列](../messaging/0_mq.md) |

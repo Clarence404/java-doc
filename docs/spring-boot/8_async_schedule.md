@@ -223,3 +223,37 @@ public class OrderJobHandler {
     }
 }
 ```
+
+## 四、虚拟线程（Boot 3.2+）
+
+> 虚拟线程的语言层原理（JEP 444 / Project Loom）见 [Java 版本特性](../java/2_version)，本节只讲 Boot 侧集成。
+
+一个开关，全家桶生效：
+
+```yaml
+spring:
+  threads:
+    virtual:
+      enabled: true
+```
+
+开启后 Boot 自动切换的组件：
+
+| 组件 | 变化 |
+|------|------|
+| Tomcat / Jetty | 每个请求跑在虚拟线程上，不再受 `server.tomcat.threads.max`（200）限制 |
+| `@Async` | 默认执行器换成虚拟线程 per-task 执行器 |
+| `@Scheduled` | 调度任务跑在虚拟线程 |
+| RabbitMQ / Kafka Listener | 监听容器使用虚拟线程 |
+
+### 收益边界：只救"阻塞等待"，不救"CPU 计算"
+
+虚拟线程的价值是**阻塞成本趋近于零**——线程在等 IO（DB 查询、HTTP 调用）时让出载体线程。适合典型的"一个请求大部分时间在等下游"的 Web 应用；CPU 密集型任务毫无收益，反而少了池化的并发上限保护。
+
+### 三个必知的坑
+
+1. **`synchronized` 钉住（pinning）**：虚拟线程在 `synchronized` 块内阻塞时，JDK 21 会把载体线程一起钉住，高并发下退化。JDK 24（JEP 491）已修复；21 上的库/自身代码热点路径建议用 `ReentrantLock` 替代
+2. **池化语义消失**：虚拟线程不复用、不该池化。原来靠线程池上限兜底的"最大并发保护"没了——对下游（DB 连接池、第三方接口）的并发控制要改用 `Semaphore` 或连接池自身上限
+3. **`ThreadLocal` 慎用**：百万级虚拟线程下每个都携带 ThreadLocal 副本，内存放大；框架级透传考虑 ScopedValue（JDK 21 预览）
+
+**与 `@Async` 线程池的取舍**：IO 密集的异步任务直接用虚拟线程开关，不再手工调 `corePoolSize`；需要**限流语义**（最多同时 N 个任务打下游）时，保留自定义平台线程池或加信号量。

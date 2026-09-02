@@ -58,11 +58,6 @@ const navbarDropdown = [
             {text: 'Spring',          link: '/spring/0_spring_framework'},
             {text: 'Spring Boot',     link: '/spring-boot/0_spring_boot'},
             {text: 'Spring Cloud',    link: '/spring-cloud/0_overview'},
-            {text: 'Dubbo',           link: '/microservices/4_dubbo'},
-            {text: 'ORM 框架',        link: '/database/3_relational/2_orm_framework'},
-            {text: '任务调度',        link: '/distributed/5_job_scheduler'},
-            {text: 'Spring AI',       link: '/ai/2_frameworks/0_spring_ai'},
-            {text: 'LangChain4j',     link: '/ai/2_frameworks/1_langchain4j'},
         ],
     },
     {
@@ -132,6 +127,117 @@ function getSidebarFromDir(dirPath) {
         };
     });
 }
+
+const patternsSidebar = [
+    {text: '设计模式总览', link: '/patterns/0_design_intro'},
+    {
+        text: '创建型',
+        link: '/patterns/1_creational_singleton',
+        collapsible: true,
+        collapsed: false,
+        children: [
+            {text: '单例', link: '/patterns/1_creational_singleton'},
+            {text: '工厂', link: '/patterns/2_creational_factory'},
+            {text: '抽象工厂', link: '/patterns/3_creational_abstract_factory'},
+            {text: '建造者', link: '/patterns/4_creational_builder'},
+            {text: '原型', link: '/patterns/5_creational_prototype'},
+        ],
+    },
+    {
+        text: '结构型',
+        link: '/patterns/6_structural_adapter',
+        collapsible: true,
+        collapsed: true,
+        children: [
+            {text: '适配器', link: '/patterns/6_structural_adapter'},
+            {text: '桥接', link: '/patterns/7_structural_bridge'},
+            {text: '组合', link: '/patterns/8_structural_composite'},
+            {text: '装饰器', link: '/patterns/9_structural_decorator'},
+            {text: '外观', link: '/patterns/10_structural_facade'},
+            {text: '享元', link: '/patterns/11_structural_flyweight'},
+            {text: '代理', link: '/patterns/12_structural_proxy'},
+        ],
+    },
+    {
+        text: '行为型',
+        link: '/patterns/13_behavioral_chain_of_responsibility',
+        collapsible: true,
+        collapsed: true,
+        children: [
+            {text: '责任链', link: '/patterns/13_behavioral_chain_of_responsibility'},
+            {text: '命令', link: '/patterns/14_behavioral_command'},
+            {text: '迭代器', link: '/patterns/15_behavioral_iterator'},
+            {text: '中介者', link: '/patterns/16_behavioral_mediator'},
+            {text: '备忘录', link: '/patterns/17_behavioral_memento'},
+            {text: '观察者', link: '/patterns/18_behavioral_observer'},
+            {text: '状态', link: '/patterns/19_behavioral_state'},
+            {text: '策略', link: '/patterns/20_behavioral_strategy'},
+            {text: '模板方法', link: '/patterns/21_behavioral_template_method'},
+            {text: '访问者', link: '/patterns/22_behavioral_visitor'},
+            {text: '解释器', link: '/patterns/23_behavioral_interpreter'},
+        ],
+    },
+];
+
+const cloudNativeSidebar = [
+    {
+        text: 'Linux 基础',
+        link: '/cloud-native/0_linux',
+        collapsible: true,
+        collapsed: false,
+        children: [
+            {text: '概述', link: '/cloud-native/0_linux'},
+            {text: '发行版', link: '/cloud-native/1_linux_distros'},
+        ],
+    },
+    {
+        text: '虚拟化',
+        link: '/cloud-native/2_virtual',
+        collapsible: true,
+        collapsed: true,
+        children: [
+            {text: '虚拟机', link: '/cloud-native/2_virtual'},
+            {text: '常用工具', link: '/cloud-native/3_virtual_tools'},
+        ],
+    },
+    {
+        text: '容器与编排',
+        link: '/cloud-native/4_docker',
+        collapsible: true,
+        collapsed: true,
+        children: [
+            {text: 'Docker', link: '/cloud-native/4_docker'},
+            {text: 'Kubernetes', link: '/cloud-native/5_kubernetes'},
+            {text: 'Nginx 与 Ingress', link: '/cloud-native/6_nginx_ingress'},
+            {text: 'Helm', link: '/cloud-native/7_helm'},
+            {text: 'Argo CD', link: '/cloud-native/8_argocd'},
+            {text: 'Service Mesh', link: '/cloud-native/9_service_mesh'},
+        ],
+    },
+    {
+        text: '基础设施自动化',
+        link: '/cloud-native/10_terraform',
+        collapsible: true,
+        collapsed: true,
+        children: [
+            {text: 'Terraform', link: '/cloud-native/10_terraform'},
+            {text: 'Ansible', link: '/cloud-native/16_ansible'},
+        ],
+    },
+    {
+        text: '云平台与选购',
+        link: '/cloud-native/11_cloud_overview',
+        collapsible: true,
+        collapsed: true,
+        children: [
+            {text: '概述', link: '/cloud-native/11_cloud_overview'},
+            {text: '国际云', link: '/cloud-native/12_cloud_global'},
+            {text: '国内云', link: '/cloud-native/13_cloud_domestic'},
+            {text: 'Cloudflare', link: '/cloud-native/14_cloudflare'},
+            {text: 'VPS 选购', link: '/cloud-native/15_vps_intro'},
+        ],
+    },
+];
 
 const aiSidebar = [
     {text: 'AI 开发总览', link: '/ai/0_overview'},
@@ -330,10 +436,10 @@ export default defineUserConfig({
             '/high-con/': getSidebarFromDir(path.resolve(__dirname, '../high-con')),
             '/distributed/': getSidebarFromDir(path.resolve(__dirname, '../distributed')),
             '/high-avail/': getSidebarFromDir(path.resolve(__dirname, '../high-avail')),
-            '/patterns/': getSidebarFromDir(path.resolve(__dirname, '../patterns')),
+            '/patterns/': patternsSidebar,
             '/scenario/': getSidebarFromDir(path.resolve(__dirname, '../scenario')),
             '/netty/': getSidebarFromDir(path.resolve(__dirname, '../netty')),
-            '/cloud-native/': getSidebarFromDir(path.resolve(__dirname, '../cloud-native')),
+            '/cloud-native/': cloudNativeSidebar,
             '/algorithms/': getSidebarFromDir(path.resolve(__dirname, '../algorithms')),
             '/architecture/': getSidebarFromDir(path.resolve(__dirname, '../architecture')),
             '/protocols/': getSidebarFromDir(path.resolve(__dirname, '../protocols')),

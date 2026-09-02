@@ -127,7 +127,38 @@ envs/
 - ✅ 多云或混合云环境统一管理
 - ✅ 环境快速复制（一套代码 apply 出 dev / staging / prod 三套相同架构）
 - ✅ 搭配 Argo CD 使用：Terraform 建好基础设施，Argo CD 在上面部署应用
+- ✅ 搭配 [Ansible](./16_ansible) 使用：Terraform 造机器，Ansible 配机器（装软件、发应用）
 - ❌ 不适合管理 K8s 内部的应用配置（用 Helm / Argo CD）
+
+## 八、Terraform vs Pulumi
+
+Pulumi（[pulumi.com](https://www.pulumi.com/)）是 IaC 的另一条路线：**用通用编程语言代替 HCL**，且官方支持 Java：
+
+```java
+// Pulumi + Java：真正的代码，能用循环、函数、单元测试
+var group = new SecurityGroup("web-sg", SecurityGroupArgs.builder()
+    .ingress(SecurityGroupIngressArgs.builder()
+        .protocol("tcp").fromPort(80).toPort(80)
+        .cidrBlocks("0.0.0.0/0").build())
+    .build());
+
+for (int i = 0; i < 3; i++) {          // HCL 里要用 count/for_each 变通的逻辑
+    new Instance("web-" + i, InstanceArgs.builder()
+        .instanceType("t3.micro")
+        .vpcSecurityGroupIds(group.id().applyValue(List::of))
+        .build());
+}
+```
+
+| | Terraform | Pulumi |
+|---|---|---|
+| 语言 | HCL（专用 DSL）| TypeScript / Python / Go / **Java** / C# |
+| 逻辑表达 | count / for_each / 内置函数，复杂逻辑别扭 | 原生循环、条件、抽象、单元测试 |
+| State | 自管（本地 / OSS / S3）| 默认托管在 Pulumi Cloud（可自建后端）|
+| 生态 | Provider 最全，社区模块海量 | 可直接桥接 Terraform Provider |
+| 团队门槛 | 运维友好（学一门小 DSL）| 开发友好（就是写代码）|
+
+**选型速记**：团队以运维为主、资源结构相对固定 → Terraform（生态与人才池都更大）；开发主导、基础设施逻辑复杂（多租户动态生成资源）→ Pulumi 的通用语言优势才真正兑现。
 
 > [!warning]
 > 待补充：Terraform Cloud / Atlantis 实践、Module 封装最佳实践、Import 导入已有资源

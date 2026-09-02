@@ -1,4 +1,4 @@
-# 服务间通信
+# 服务通信
 
 > 参考资料：
 > * OpenFeign：[https://docs.spring.io/spring-cloud-openfeign/docs/current/reference/html/](https://docs.spring.io/spring-cloud-openfeign/docs/current/reference/html/)

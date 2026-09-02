@@ -34,7 +34,7 @@ docs/
 ├── security/       安全体系：认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任
 ├── spring/         Spring Framework / WebFlux / Security
 ├── spring-boot/    Spring Boot / Flyway
-├── spring-cloud/   Spring Cloud：注册发现 / 网关 / 服务通信 / 配置中心 / 治理
+├── spring-cloud/   Spring Cloud：注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream
 └── testing/        测试体系：单元测试 / Mock / 集成测试 / TDD
 ```
 
@@ -51,7 +51,7 @@ docs/
 | 设计模式 | `docs/patterns/` | 23 种 GoF 模式 |
 | Spring | `docs/spring/` | IoC / AOP / WebFlux / Security |
 | Spring Boot | `docs/spring-boot/` | 自动配置 / Flyway 数据迁移 |
-| Spring Cloud | `docs/spring-cloud/` | 注册发现 / 网关 / 服务通信 / 配置中心 / 治理 |
+| Spring Cloud | `docs/spring-cloud/` | 注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream |
 | 测试体系 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD |
 | Netty | `docs/netty/` | IO 模型 / Reactor / WebSocket / SSE |
 | 分布式 | `docs/distributed/` | CAP / Raft / 分布式锁 / 事务 |
@@ -63,7 +63,7 @@ docs/
 | 缓存 | `docs/cache/` | Redis / Caffeine / 两级缓存 |
 | 系统架构 | `docs/architecture/` | 架构设计 / DDD / 幂等 / 对象存储 |
 | 业务场景 | `docs/scenario/` | 大数据场景方案 |
-| 云原生 | `docs/cloud-native/` | Linux 运维 / Docker / Kubernetes / Helm / VPS |
+| 云原生 | `docs/cloud-native/` | Linux 运维 / Docker / Kubernetes / Helm / Terraform / Ansible / VPS |
 | DevOps | `docs/devops/` | Git 工作流 / CI/CD / Code Review / 团队规范 |
 | 工程效率 | `docs/engineering/` | 构建工具 / 开发工具 / 代码质量 / 线上诊断 / API 规范 |
 | 可观测性 | `docs/observability/` | 日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry |
