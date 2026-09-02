@@ -1,4 +1,4 @@
-# Spring 事件机制
+# 事件机制
 
 > 参考资料：
 > * Spring 官方文档 - Events：[https://docs.spring.io/spring-framework/reference/core/beans/context-introduction.html#context-functionality-events](https://docs.spring.io/spring-framework/reference/core/beans/context-introduction.html#context-functionality-events)

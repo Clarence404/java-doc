@@ -1,4 +1,4 @@
-# Spring Cache 抽象
+# Cache 抽象
 
 > 参考资料：
 > * Spring 官方文档 - Cache：[https://docs.spring.io/spring-framework/reference/integration/cache.html](https://docs.spring.io/spring-framework/reference/integration/cache.html)

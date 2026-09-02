@@ -1,4 +1,4 @@
-# Spring 事务管理
+# 事务管理
 
 > 参考资料：
 > * Spring 官方文档 - Transaction：[https://docs.spring.io/spring-framework/reference/data-access/transaction.html](https://docs.spring.io/spring-framework/reference/data-access/transaction.html)

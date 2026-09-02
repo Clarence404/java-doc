@@ -75,7 +75,7 @@ highlights:
       - title: Spring Framework
         icon: leaf
         details: IoC 容器原理 / AOP 动态代理 / Bean 生命周期 / 事务传播 / 三级缓存解循环依赖
-        link: /spring/0_spring_framework
+        link: /spring/0_framework
       - title: Spring Boot
         icon: rocket
         details: 自动配置原理深度解析 / Actuator 监控 / Flyway 数据库版本迁移最佳实践

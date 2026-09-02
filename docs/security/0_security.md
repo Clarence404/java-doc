@@ -48,7 +48,7 @@
 
 ## 五、关联模块
 
-- Spring Security 实现细节 → [spring/9_spring_security](../spring/9_spring_security)
+- Spring Security 实现细节 → [spring/9_security](../spring/9_security)
 - 认证框架（Sa-Token / Shiro）→ [spring/10_auth_framework](../spring/10_auth_framework)
 - 访问控制模型 → [architecture/6_access_control](../architecture/6_access_control)
 - 安全通信协议（TLS / mTLS）→ [protocols/4_security_protocols](../protocols/4_security_protocols)

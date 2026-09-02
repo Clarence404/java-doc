@@ -1,4 +1,4 @@
-# Spring Retry
+# Retry 重试
 
 > 参考资料：
 > * GitHub：[https://github.com/spring-projects/spring-retry](https://github.com/spring-projects/spring-retry)

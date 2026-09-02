@@ -6,7 +6,7 @@
 
 > JWT 在 OAuth2 / OIDC 中的使用场景见 → [OAuth2](/security/2_oauth2) / [OIDC](/security/3_oidc)
 >
-> Spring Security 中 JWT 集成实践见 → [Spring Security](/spring/9_spring_security)
+> Spring Security 中 JWT 集成实践见 → [Spring Security](/spring/9_security)
 
 ---
 

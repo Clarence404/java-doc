@@ -1,4 +1,4 @@
-# Spring Security
+# Security
 
 > 参考资料：
 > * 官方文档：[https://docs.spring.io/spring-security/reference/](https://docs.spring.io/spring-security/reference/)

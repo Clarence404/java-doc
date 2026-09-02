@@ -327,3 +327,61 @@ public CorsConfigurationSource corsConfigurationSource() {
 ```
 
 > **常见坑**：携带 Cookie 时 `allowedOrigins` 不能用 `*`，必须换成 `allowedOriginPatterns`。
+
+## 六、HTTP 客户端：RestTemplate → RestClient → HTTP Interface
+
+调用外部 HTTP 接口的三代方案：
+
+| | RestTemplate | RestClient（Boot 3.2+）| HTTP Interface（`@HttpExchange`）|
+|---|---|---|---|
+| 风格 | 模板方法 | Fluent 链式 | **声明式接口**（类似 Feign）|
+| 状态 | 维护模式，不再新增功能 | 同步场景官方推荐 | 推荐，底层可挂 RestClient / WebClient |
+| 异步 | ❌ | ❌（异步用 WebClient）| 取决于底层适配器 |
+
+### RestClient（同步调用的现代写法）
+
+```java
+@Configuration
+public class HttpClientConfig {
+    @Bean
+    public RestClient restClient(RestClient.Builder builder) {
+        return builder
+            .baseUrl("https://api.example.com")
+            .defaultHeader("X-App", "order-service")
+            .build();
+    }
+}
+
+// 使用：链式 API，自动 JSON 转换
+Product product = restClient.get()
+    .uri("/products/{id}", 42)
+    .retrieve()
+    .onStatus(HttpStatusCode::is4xxClientError,
+        (req, resp) -> { throw new ProductNotFoundException(); })
+    .body(Product.class);
+```
+
+### HTTP Interface（声明式，无需 Spring Cloud）
+
+```java
+// 定义接口：注解描述远程 API
+public interface ProductApi {
+    @GetExchange("/products/{id}")
+    Product getProduct(@PathVariable Long id);
+
+    @PostExchange("/products")
+    Product create(@RequestBody ProductRequest req);
+}
+
+// 注册：把接口绑定到 RestClient
+@Bean
+public ProductApi productApi(RestClient restClient) {
+    return HttpServiceProxyFactory
+        .builderFor(RestClientAdapter.create(restClient))
+        .build()
+        .createClient(ProductApi.class);
+}
+// Boot 3.5+ 可用 @ImportHttpServices 批量注册，省掉手写工厂
+```
+
+**选型速记**：新代码同步调用一律 RestClient；对外部 API 的调用面较宽时用 HTTP Interface 收口成接口；响应式技术栈用 [WebClient](../spring/8_webflux)；微服务内部互调走 [OpenFeign](../spring-cloud/3_communication)。RestTemplate 只在存量代码维持现状。

@@ -1,4 +1,4 @@
-# Spring Batch
+# Batch 批处理
 
 > 参考资料：
 > * Spring Batch 官方文档：[https://docs.spring.io/spring-batch/reference/](https://docs.spring.io/spring-batch/reference/)

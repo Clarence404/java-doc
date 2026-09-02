@@ -17,7 +17,7 @@ const navbarFlat = [
     {text: 'JVM',     link: '/jvm/0_memory'},
     {text: '算法',    link: '/algorithms/0_complexity'},
     {text: '设计模式', link: '/patterns/0_design_intro'},
-    {text: 'Spring',  link: '/spring/0_spring_framework'},
+    {text: 'Spring',  link: '/spring/0_framework'},
     {text: 'Spring Boot', link: '/spring-boot/0_spring_boot'},
     {text: 'Spring Cloud', link: '/spring-cloud/0_overview'},
     {text: '测试体系', link: '/testing/0_testing_intro'},
@@ -55,7 +55,7 @@ const navbarDropdown = [
     {
         text: '框架生态',
         children: [
-            {text: 'Spring',          link: '/spring/0_spring_framework'},
+            {text: 'Spring',          link: '/spring/0_framework'},
             {text: 'Spring Boot',     link: '/spring-boot/0_spring_boot'},
             {text: 'Spring Cloud',    link: '/spring-cloud/0_overview'},
         ],

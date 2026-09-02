@@ -1,4 +1,4 @@
-# Spring AOP
+# AOP
 
 > 参考资料：
 > * Spring 官方文档 - AOP：[https://docs.spring.io/spring-framework/reference/core/aop.html](https://docs.spring.io/spring-framework/reference/core/aop.html)

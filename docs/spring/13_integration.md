@@ -1,4 +1,4 @@
-# Spring Integration
+# Integration 集成
 
 > 参考资料：
 > * Spring Integration 官方文档：[https://docs.spring.io/spring-integration/reference/](https://docs.spring.io/spring-integration/reference/)

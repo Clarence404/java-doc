@@ -64,13 +64,9 @@ INSERT INTO t VALUES (15, 'data');  -- 等待 A 的间隙锁
 
 ### 5、@Transactional 注解失效
 
-| 场景 | 原因 |
-|------|------|
-| 方法非 `public` | Spring AOP 代理不拦截非 public 方法 |
-| 同类内部调用 `this.method()` | 绕过代理，事务不生效 |
-| 异常被 catch 吞掉 | 没有异常抛出，事务不回滚 |
-| 检查型异常未配 `rollbackFor` | 默认只回滚 `RuntimeException` |
-| 多线程异步执行 | 不同线程不共享事务上下文 |
+属于 Spring 层的失效问题（非 public 方法、同类自调用、异常被吞、rollbackFor 缺失、多线程等），完整场景与修复方式详见：
+
+→ [Spring 事务管理 · 事务失效的常见场景](../../spring/4_transaction)
 
 ---
 

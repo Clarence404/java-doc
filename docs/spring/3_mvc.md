@@ -1,4 +1,4 @@
-# Spring MVC
+# MVC
 
 > 参考资料：
 > * Spring 官方文档 - MVC：[https://docs.spring.io/spring-framework/reference/web/webmvc.html](https://docs.spring.io/spring-framework/reference/web/webmvc.html)

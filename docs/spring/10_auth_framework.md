@@ -1,4 +1,4 @@
-# 安全框架横向对比
+# 安全框架对比
 
 > 参考资料：
 > * Sa-Token 官方文档：[https://sa-token.cc/doc.html](https://sa-token.cc/doc.html)

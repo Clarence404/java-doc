@@ -1,4 +1,4 @@
-# Spring IoC 容器
+# IoC 容器
 
 > 参考资料：
 > * Spring 官方文档 - Core：[https://docs.spring.io/spring-framework/reference/core/beans.html](https://docs.spring.io/spring-framework/reference/core/beans.html)
