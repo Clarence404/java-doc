@@ -55,6 +55,19 @@ Netty 是一个**异步事件驱动**的网络应用框架，基于 Java NIO 构
 - **入站事件**（Inbound）：从链头流向链尾，如 `channelRead`、`channelActive`
 - **出站事件**（Outbound）：从链尾流向链头，如 `write`、`connect`、`flush`
 
+**传播机制的三个关键点**（实战第一坑位）：
+
+```java
+pipeline.addLast(new InboundA())    // 入站顺序：A → B
+        .addLast(new InboundB())
+        .addLast(new OutboundC())   // 出站顺序：D → C（与添加顺序相反）
+        .addLast(new OutboundD());
+```
+
+1. **传播不是自动的**：入站 Handler 必须调用 `ctx.fireChannelRead(msg)`（或继承 Adapter 的默认实现）事件才会继续向后走——忘记调用，后面的 Handler 全部收不到，这是"解码器加了却不生效"的头号原因
+2. **`ctx.write()` vs `channel.write()`**：前者从**当前 Handler 向前**找出站 Handler，后者从**链尾**走完整条出站链——位置感知错误会导致编码器被跳过
+3. **异常传播只走入站方向**：`exceptionCaught` 沿入站链继续向后传播，出站异常需要通过 `ChannelFuture.addListener` 捕获；惯例是在**链尾放一个统一异常处理 Handler** 兜底（记日志 + 关连接），否则异常只会打印 "An exceptionCaught() event was fired..." 警告后被丢弃
+
 ### ChannelHandler
 
 处理 I/O 事件或拦截 I/O 操作的接口，分为两类：

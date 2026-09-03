@@ -2,59 +2,82 @@
 
 ![IO 模型对比](../assets/netty/io-models.svg)
 
-::: warning Todo 理解后优化
-:::
+IO 模型描述的是**操作系统如何处理网络 IO 请求**。理解它是掌握 Netty、NIO、WebFlux 的地基。常见 5 种：
 
-在网络编程中，IO 模型和 Reactor 模型是两种重要的并发处理方式，主要用于高并发网络服务器的设计，特别是 **Java 的 Netty、NIO、Spring WebFlux** 等框架都会涉及。
+## 一、五种 IO 模型
 
----
-IO 模型主要描述 **操作系统如何处理网络 IO 请求**。常见的 IO 模型有 5 种：
+### 1、阻塞 IO（Blocking IO / BIO）
 
-### **1、 阻塞IO（Blocking IO）**
-- **特点**：每个请求需要一个线程处理，线程会一直阻塞，直到数据到达并完成读取。
+- **特点**：每个连接一个线程，线程从等待数据到读取完成全程阻塞
+- **缺点**：高并发下线程数爆炸（每线程约 1MB 栈内存 + 上下文切换开销）
 
-- **缺点**：线程资源浪费，在高并发情况下容易造成性能瓶颈。
+```java
+ServerSocket serverSocket = new ServerSocket(8080);
+Socket socket = serverSocket.accept(); // 阻塞等待连接
+InputStream inputStream = socket.getInputStream();
+int data = inputStream.read();         // 阻塞等待数据
+```
 
-- **示例**：
-  ```java
-  ServerSocket serverSocket = new ServerSocket(8080);
-  Socket socket = serverSocket.accept(); // 阻塞等待连接
-  InputStream inputStream = socket.getInputStream();
-  int data = inputStream.read(); // 阻塞等待数据
-  ```
+### 2、非阻塞 IO（Non-Blocking IO）
 
-### **2、 非阻塞IO（Non-Blocking IO）**
-- **特点**：进程不断轮询检查数据是否准备好，如果没有数据，立即返回，不会阻塞线程。
+- **特点**：读不到数据立即返回，应用层自己轮询
+- **缺点**：空转轮询烧 CPU，几乎不单独使用（它是多路复用的底层前提）
 
-- **缺点**：CPU 资源消耗大，需要不断轮询。
+```java
+socketChannel.configureBlocking(false);
+int bytesRead = socketChannel.read(buffer); // 无数据返回 0，不阻塞
+```
 
-- **示例**：
-  ```java
-  socketChannel.configureBlocking(false);
-  int bytesRead = socketChannel.read(buffer); // 非阻塞读取
-  ```
+### 3、IO 多路复用（Multiplexing，主流方案）
 
-### **3、IO多路复用（Multiplexing IO，Select/epoll）**
-- **特点**：使用 `select` / `poll` / `epoll` 让单个线程管理多个连接，避免了多个线程的资源开销。
+- **特点**：用 `select` / `poll` / `epoll` 让**单个线程同时监视成千上万个连接**，谁就绪处理谁
+- 这是 Java NIO、Netty、Redis、Nginx 的共同底座
 
-- **优点**：适用于高并发场景，不需要每个连接创建一个线程。
+```java
+Selector selector = Selector.open();
+socketChannel.register(selector, SelectionKey.OP_READ);
+while (true) {
+    selector.select();                  // 阻塞直到有事件就绪
+    Set<SelectionKey> keys = selector.selectedKeys();
+    for (SelectionKey key : keys) {
+        if (key.isReadable()) {
+            // 处理可读事件
+        }
+    }
+}
+```
 
-- **示例（Java NIO）**：
-  ```java
-  Selector selector = Selector.open();
-  socketChannel.register(selector, SelectionKey.OP_READ);
-  while (true) {
-      selector.select(); // 阻塞直到有事件发生
-      Set<SelectionKey> keys = selector.selectedKeys();
-      for (SelectionKey key : keys) {
-          if (key.isReadable()) {
-              // 处理可读事件
-          }
-      }
-  }
-  ```
+### 4、信号驱动 IO（Signal-driven IO）
 
-### epoll 触发模式
+- 内核在数据就绪时发 `SIGIO` 信号通知应用。Java 中不使用，常见于 Linux 底层编程。
+
+### 5、异步 IO（Asynchronous IO / AIO）
+
+- **特点**：应用只管发起请求，**数据从内核拷贝到用户空间也由内核完成**，完成后回调通知——前四种模型这一步都要应用自己等
+- Java AIO（NIO.2）在 Linux 上底层仍由 epoll 模拟，性能无优势，实际应用很少
+
+```java
+AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open();
+server.accept(null, new CompletionHandler<>() {
+    public void completed(AsynchronousSocketChannel channel, Object attachment) {
+        // 处理连接
+    }
+});
+```
+
+## 二、select / poll / epoll 对比
+
+| | select | poll | epoll |
+|---|---|---|---|
+| fd 数量上限 | 1024（FD_SETSIZE）| 无硬上限 | 无硬上限 |
+| fd 集合传递 | 每次调用全量拷贝进内核 | 同 select | 只注册一次（`epoll_ctl`）|
+| 就绪检测 | 内核线性扫描 O(n) | O(n) | 回调置就绪链表，**O(1)** 取结果 |
+| 就绪结果 | 返回后应用遍历全集 | 同 select | 只返回就绪的 fd |
+| 适用 | 连接少、跨平台 | 略优于 select | **大量连接（Linux 主流）**|
+
+> 连接数越大、活跃比例越低，epoll 优势越明显；Java NIO 的 `Selector` 在 Linux 上底层就是 epoll。
+
+## 三、epoll 触发模式
 
 | | LT（水平触发，默认）| ET（边缘触发）|
 |---|---|---|
@@ -62,28 +85,20 @@ IO 模型主要描述 **操作系统如何处理网络 IO 请求**。常见的 I
 | 读取要求 | 不必一次读完 | 必须一次读完（循环到 EAGAIN）|
 | 漏事件风险 | 低 | 高（未读完不再通知）|
 | 性能 | 稍低（通知更频繁）| 更高（通知次数少）|
-| 适用 | 通用场景 | 高性能场景（Nginx、Netty）|
+| 适用 | 通用场景 | 高性能场景（Nginx）|
 
-> Netty 使用 ET 模式 + 非阻塞读取（循环读直到 EAGAIN），兼顾高性能与正确性。
+> **Netty 的实际选择**：默认的 NIO 传输（基于 JDK Selector）是 **LT** 模式；换用 `netty-transport-native-epoll`（Linux 原生传输）后才是 **ET** 模式 + 循环读到 EAGAIN。这也是原生传输吞吐更高的原因之一。
 
-### **4、信号驱动IO（Signal-driven IO）**
+## 四、总结：两个维度看五种模型
 
-- **特点**：使用 `SIGIO` 信号通知应用程序数据已准备好。
+| 模型 | 等待数据就绪 | 内核拷贝数据到用户空间 | 分类 |
+|------|:---:|:---:|------|
+| 阻塞 IO | 阻塞 | 阻塞 | 同步阻塞 |
+| 非阻塞 IO | 轮询 | 阻塞 | 同步非阻塞 |
+| IO 多路复用 | select/epoll 阻塞等待（一次等一批）| 阻塞 | 同步非阻塞 |
+| 信号驱动 | 信号通知 | 阻塞 | 同步 |
+| 异步 IO | 内核通知 | **内核完成** | 异步 |
 
-- **应用场景**：很少用于 Java，更常见于 Linux 低级编程。
+**关键结论**：前四种都是**同步** IO——"数据拷贝"这一步都要应用自己完成；只有 AIO 是真异步。所以"Java NIO 是同步非阻塞"这句话是准确的，NIO 的"N"指非阻塞，不是异步。
 
-### **5、异步IO（Asynchronous IO，AIO）**
-- **特点**：IO 操作完全由内核负责，应用程序只需要在数据准备好后接收通知，无需轮询。
-
-- **优点**：彻底的异步模型，适用于超高并发场景。
-
-- **示例（Java AIO）**：
-  ```java
-  AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open();
-  server.accept(null, new CompletionHandler<>() {
-      public void completed(AsynchronousSocketChannel channel, Object attachment) {
-          // 处理连接
-      }
-  });
-  ```
-
+> 基于多路复用之上的事件驱动架构，见下一篇 [Reactor 模型](./1_reactor)。
