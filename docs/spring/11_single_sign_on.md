@@ -18,6 +18,8 @@
 3. 带着票据回跳子系统 A → A 拿票据到认证中心**验证换取用户信息** → 建立自己的局部会话
 4. 用户再访问子系统 B → 重定向到认证中心 → 全局会话还在，**免登录**直接发票据
 
+![SSO 三方票据模型](../assets/spring/sso-ticket-model.svg)
+
 各方案的差异只在票据格式和验证方式：CAS 用 Service Ticket、OAuth2/OIDC 用授权码 + Token、SAML2 用 XML 断言。
 
 ### 同域会话共享 ≠ SSO
@@ -75,6 +77,8 @@ AuthenticationManager ldapAuthManager(BaseLdapPathContextSource contextSource) {
 
 **票据流程（对应第一节骨架）**：
 
+![CAS 票据流程](../assets/spring/sso-cas-flow.svg)
+
 1. 浏览器访问子系统 → 未登录 → 302 到 `CAS Server /login?service=子系统地址`
 2. CAS 登录成功 → 浏览器种下 **TGC**（全局会话 Cookie），并 302 回子系统，URL 带一次性 **ST**（Service Ticket）
 3. 子系统后端拿 ST 调 CAS 的 `/serviceValidate` **服务端间验证** → 返回用户信息 → 子系统建立局部会话
@@ -128,6 +132,8 @@ spring:
 
 **授权码流程（Authorization Code + PKCE，唯一推荐模式）**：
 
+![OIDC 授权码流程](../assets/spring/sso-oidc-flow.svg)
+
 1. 应用把用户重定向到认证中心 `/authorize`（带 `client_id`、`redirect_uri`、`scope=openid`）
 2. 用户在认证中心登录（第二个应用来时全局会话仍在 → 免登录）
 3. 认证中心 302 回 `redirect_uri`，带一次性**授权码 code**
@@ -174,6 +180,10 @@ spring:
 | 前端通道 | 认证中心页面内嵌各系统登出 iframe | 被浏览器三方 Cookie 限制逐步废掉 |
 | 后端通道（推荐）| 认证中心逐个回调各系统的登出端点（CAS Single Logout / OIDC Back-Channel Logout）| 各系统必须实现回调并能定位到对应会话 |
 | 短会话 + 静默续期 | 局部会话只有几分钟，靠全局会话静默刷新 | 登出后最多残留几分钟，实现最简单 |
+
+后端通道（推荐方案）的工作方式：
+
+![单点登出后端通道](../assets/spring/sso-logout-backchannel.svg)
 
 > 工程上大量系统实际采用第三种"降级"方案——设计阶段就要和业务确认登出的实时性要求。
 

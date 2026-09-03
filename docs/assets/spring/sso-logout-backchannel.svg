@@ -1,0 +1,59 @@
+<svg viewBox="0 0 720 324" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-slo" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="360" y="26" text-anchor="middle">单点登出：后端通道（Back-Channel Logout）</text>
+
+  <!-- 触发 -->
+  <rect x="260" y="44" width="200" height="48" rx="8" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="74" text-anchor="middle">用户在系统 A 点击登出</text>
+
+  <line x1="360" y1="96" x2="360" y2="130" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-slo)"/>
+
+  <!-- 认证中心 -->
+  <rect x="210" y="136" width="300" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="160" text-anchor="middle">认证中心</text>
+  <text class="desc" x="360" y="182" text-anchor="middle">销毁全局会话（TGC / SSO Session）</text>
+
+  <!-- 三条回调箭头 -->
+  <line x1="270" y1="200" x2="146" y2="234" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-slo)"/>
+  <line x1="360" y1="200" x2="360" y2="234" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-slo)"/>
+  <line x1="450" y1="200" x2="574" y2="234" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-slo)"/>
+  <text class="label" x="368" y="222">回调登出端点</text>
+
+  <!-- 各系统 -->
+  <rect x="40" y="240" width="200" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="140" y="264" text-anchor="middle">系统 A</text>
+  <text class="desc" x="140" y="288" text-anchor="middle">登出回调 → 销毁局部会话</text>
+
+  <rect x="260" y="240" width="200" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="264" text-anchor="middle">系统 B</text>
+  <text class="desc" x="360" y="288" text-anchor="middle">登出回调 → 销毁局部会话</text>
+
+  <rect x="480" y="240" width="200" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="580" y="264" text-anchor="middle">系统 C</text>
+  <text class="desc" x="580" y="288" text-anchor="middle">登出回调 → 销毁局部会话</text>
+</svg>
