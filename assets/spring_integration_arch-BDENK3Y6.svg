@@ -1,0 +1,109 @@
+<svg viewBox="0 0 720 378" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .label-p { font-size:12px; font-weight:700; fill:var(--p); }
+    .label-b { font-size:12px; font-weight:700; fill:var(--b); }
+    .label-g { font-size:12px; font-weight:700; fill:var(--g); }
+    .label-y { font-size:12px; font-weight:700; fill:var(--y); }
+    .fg   { font-size:11px; fill:var(--fg); }
+    .desc { font-size:10px; fill:var(--muted); }
+    .card { fill:var(--card); stroke:var(--border); stroke-width:1.5; }
+    .layer { fill:var(--bg); stroke:var(--border); stroke-width:1.5; }
+    .arrow { stroke:var(--b); stroke-width:1.5; fill:none; marker-end:url(#arrow-si); }
+  </style>
+  <defs>
+    <marker id="arrow-si" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="360" y="22" text-anchor="middle">Spring Integration 消息流架构</text>
+
+  <!-- 顶行：入站流 -->
+  <rect class="card" x="20" y="46" width="110" height="66" rx="6" stroke="var(--g)"/>
+  <text class="label-g" x="75" y="66" text-anchor="middle">外部系统</text>
+  <text class="desc" x="75" y="82" text-anchor="middle">文件 / HTTP</text>
+  <text class="desc" x="75" y="96" text-anchor="middle">JMS / AMQP</text>
+
+  <line class="arrow" x1="134" y1="79" x2="158" y2="79"/>
+
+  <rect class="card" x="164" y="46" width="110" height="66" rx="6" stroke="var(--g)"/>
+  <text class="label-g" x="219" y="66" text-anchor="middle">Inbound</text>
+  <text class="label-g" x="219" y="82" text-anchor="middle">Adapter</text>
+  <text class="desc" x="219" y="96" text-anchor="middle">入站适配器</text>
+
+  <line class="arrow" x1="278" y1="79" x2="302" y2="79"/>
+
+  <rect class="card" x="308" y="46" width="110" height="66" rx="6" stroke="var(--b)"/>
+  <text class="label-b" x="363" y="66" text-anchor="middle">Message</text>
+  <text class="label-b" x="363" y="82" text-anchor="middle">Channel</text>
+  <text class="desc" x="363" y="96" text-anchor="middle">解耦缓冲</text>
+
+  <line class="arrow" x1="422" y1="79" x2="446" y2="79"/>
+
+  <!-- Endpoints 组 -->
+  <rect class="layer" x="452" y="36" width="248" height="86" rx="8"/>
+  <text class="label-p" x="576" y="56" text-anchor="middle">Endpoints（处理节点）</text>
+  <rect class="card" x="458" y="64" width="64" height="48" rx="4"/>
+  <text class="fg" x="490" y="82" text-anchor="middle">Filter</text>
+  <text class="desc" x="490" y="98" text-anchor="middle">过滤</text>
+  <rect class="card" x="530" y="64" width="68" height="48" rx="4"/>
+  <text class="fg" x="564" y="82" text-anchor="middle">Transform</text>
+  <text class="desc" x="564" y="98" text-anchor="middle">转换</text>
+  <rect class="card" x="606" y="64" width="88" height="48" rx="4"/>
+  <text class="fg" x="650" y="82" text-anchor="middle">Router/Splitter</text>
+  <text class="desc" x="650" y="98" text-anchor="middle">路由 / 拆分</text>
+
+  <!-- 折线：Endpoints → 第二个 Channel（单一路径，仅末端一个箭头） -->
+  <path class="arrow" d="M576,126 V146 H363 V166"/>
+
+  <!-- 第二行：出站流（从右向左） -->
+  <rect class="card" x="308" y="172" width="110" height="66" rx="6" stroke="var(--b)"/>
+  <text class="label-b" x="363" y="192" text-anchor="middle">Message</text>
+  <text class="label-b" x="363" y="208" text-anchor="middle">Channel</text>
+  <text class="desc" x="363" y="222" text-anchor="middle">处理结果</text>
+
+  <line class="arrow" x1="304" y1="205" x2="280" y2="205"/>
+
+  <rect class="card" x="164" y="172" width="110" height="66" rx="6" stroke="var(--y)"/>
+  <text class="label-y" x="219" y="192" text-anchor="middle">Outbound</text>
+  <text class="label-y" x="219" y="208" text-anchor="middle">Adapter</text>
+  <text class="desc" x="219" y="222" text-anchor="middle">出站适配器</text>
+
+  <line class="arrow" x1="160" y1="205" x2="136" y2="205"/>
+
+  <rect class="card" x="20" y="172" width="110" height="66" rx="6" stroke="var(--y)"/>
+  <text class="label-y" x="75" y="192" text-anchor="middle">目标系统</text>
+  <text class="desc" x="75" y="208" text-anchor="middle">DB / MQ</text>
+  <text class="desc" x="75" y="222" text-anchor="middle">REST / 文件</text>
+
+  <!-- Gateway 说明卡 -->
+  <rect class="card" x="452" y="172" width="248" height="66" rx="8" stroke="var(--p)"/>
+  <text class="label-p" x="576" y="192" text-anchor="middle">Gateway（同步调用入口）</text>
+  <text class="desc" x="576" y="208" text-anchor="middle">@MessagingGateway 将消息流包装为</text>
+  <text class="desc" x="576" y="222" text-anchor="middle">同步接口，调用方无感知</text>
+
+  <!-- Message 结构 -->
+  <rect class="layer" x="20" y="282" width="680" height="76" rx="8"/>
+  <text class="label-b" x="360" y="302" text-anchor="middle">Message 结构 = Headers + Payload</text>
+  <rect class="card" x="46" y="312" width="150" height="34" rx="4" stroke="var(--b)"/>
+  <text class="fg" x="121" y="333" text-anchor="middle">MessageHeaders</text>
+  <text class="desc" x="208" y="333">id / timestamp / correlationId / 自定义 key</text>
+  <rect class="card" x="470" y="312" width="110" height="34" rx="4" stroke="var(--g)"/>
+  <text class="fg" x="525" y="333" text-anchor="middle">Payload</text>
+  <text class="desc" x="592" y="333">任意 Java 对象</text>
+</svg>
