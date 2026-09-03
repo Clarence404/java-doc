@@ -77,7 +77,7 @@ const navbarDropdown = [
             {text: '微服务', link: '/microservices/0_overview'},
             {text: '系统架构', link: '/architecture/0_overview'},
             {text: '协议体系', link: '/protocols/0_overview'},
-            {text: 'Netty 网络编程', link: '/netty/0_io_model'},
+            {text: 'Netty', link: '/netty/0_io_model'},
         ],
     },
     {
