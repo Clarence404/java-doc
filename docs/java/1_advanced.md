@@ -1,4 +1,4 @@
-# Java 高级
+ Java 高级
 
 ## 一、泛型（Generics）
 
@@ -68,7 +68,8 @@ List<Item> allItems = orders.stream()
 #### ✅ Collectors 高级收集器
 
 ```java
-List<Employee> employees = ...;
+// 假设已有员工列表
+List<Employee> employees = getEmployees();
 
 // 按部门分组
 Map<String, List<Employee>> byDept =
