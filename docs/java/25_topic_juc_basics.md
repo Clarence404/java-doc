@@ -1,4 +1,4 @@
- 专项 - JUC 基础
+# 专项 - JUC 基础
 
 > Java 多线程基础：线程创建方式、Future 异步结果、等待/唤醒机制、线程池（Executors）、ThreadLocal 线程隔离与跨线程传递。
 

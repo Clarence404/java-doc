@@ -1,4 +1,4 @@
- 专项 - JMM 内存模型
+# 专项 - JMM 内存模型
 
 > JMM（Java Memory Model）定义了多线程程序中变量的**读写规则**，是理解 `volatile`、`synchronized`、`final` 线程安全语义的理论基础。
 
