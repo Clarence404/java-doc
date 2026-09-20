@@ -13,7 +13,7 @@ const NAVBAR_STYLE = process.env.NAVBAR_STYLE ?? 'dropdown';
 
 const navbarFlat = [
     {text: '开发总结', link: '/interview/0_java'},
-    {text: 'Java',    link: '/java/0_base'},
+    {text: 'Java',    link: '/java/0_overview'},
     {text: 'JVM',     link: '/jvm/0_memory'},
     {text: '算法',    link: '/algorithms/0_complexity'},
     {text: '设计模式', link: '/patterns/0_design_intro'},
@@ -46,7 +46,7 @@ const navbarDropdown = [
     {
         text: '基础体系',
         children: [
-            {text: 'Java',    link: '/java/0_base'},
+            {text: 'Java',    link: '/java/0_overview'},
             {text: 'JVM',     link: '/jvm/0_memory'},
             {text: '算法',    link: '/algorithms/0_complexity'},
             {text: '设计模式', link: '/patterns/0_design_intro'},
