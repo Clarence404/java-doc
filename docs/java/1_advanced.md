@@ -2,7 +2,7 @@
 
 ## 一、泛型（Generics）
 
-详见：<RouteLink to="/interview/0_java#十四、说说你对泛型的理解">Java 总结-Java：十四、说说你对泛型的理解</RouteLink>
+> 详细内容已整理为独立专题，见 [泛型（Generics）](./23_topic_generics.md)，涵盖类型擦除、通配符、PECS 原则、有界类型参数、泛型与数组等核心知识点。
 
 ## 二、Lambda与函数式编程
 
@@ -51,7 +51,7 @@ List<String> upperNames = names.stream()
 
 ## 三、反射机制（Reflection）
 
-- 详见： <RouteLink to="/interview/0_java.html#十、反射的基本原理">反射的基本原理</RouteLink>
+> 详细内容已整理为独立专题，见 [反射（Reflection）](./24_topic_reflection.md)，涵盖 Class 对象获取、字段/方法/构造器操作、setAccessible 安全隐患、性能优化（MethodHandle）及主要应用场景。
 
 ## 四、注解与元编程
 
