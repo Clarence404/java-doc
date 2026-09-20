@@ -256,22 +256,151 @@ list.reversed();   // [3, 2, 1]
 
 ## 五、Java 22 / 23 / 24 新特性速览
 
-| 特性 | 版本 | 状态 |
-|------|------|------|
-| Unnamed Variables（`_`）| 22 | 正式 |
-| String Templates | 22 预览 → 23 二次预览 | 仍在演进 |
-| 结构化并发 | 22 | 第四次预览 |
-| Stream Gatherers | 22 | 预览 |
-| 类文件 API | 22 | 预览 |
-| 原始类型模式匹配 | 23 | 预览 |
+| 特性 | 引入版本 | Java 24 状态 |
+|------|----------|-------------|
+| Unnamed Variables（`_`） | 22 | **正式** |
+| Stream Gatherers | 22 预览 | **正式**（24，JEP 485） |
+| Class-File API | 22 预览 | **正式**（24，JEP 484） |
+| 原始类型模式匹配 | 23 预览 | 二次预览（24） |
+| 结构化并发 | 22 预览 | 四次预览（24） |
+| Scoped Values | 22 预览 | 四次预览（24） |
+| Flexible Constructor Bodies | 22 预览 | 三次预览（24） |
+| String Templates | 22 预览 | **已撤回**（JEP 430 withdrawn） |
 
 ```java
-// Unnamed Variables（Java 22）
+// Unnamed Variables（Java 22，正式）
 try {
     doSomething();
 } catch (Exception _) {   // 不关心异常对象时用 _
     log.warn("failed");
 }
-
 for (var _ : list) count++;  // 不关心循环变量
+
+// Stream Gatherers（Java 24，正式）——自定义流中间操作
+List<List<Integer>> windows = Stream.of(1, 2, 3, 4, 5)
+    .gather(Gatherers.windowFixed(2))
+    .toList();
+// 结果：[[1,2],[3,4],[5]]
+
+// 内置 Gatherer：fold（有状态归约）、scan（滚动前缀和）、mapConcurrent（并发映射）
+List<Integer> prefixSums = IntStream.rangeClosed(1, 5).boxed()
+    .gather(Gatherers.scan(() -> 0, Integer::sum))
+    .toList();
+// 结果：[1, 3, 6, 10, 15]
 ```
+
+---
+
+## 六、Java 25（LTS）核心亮点
+
+Java 25 是继 Java 21 之后的下一个 LTS 版本（2025 年 9 月发布），多个长期预览特性在此正式定稿。
+
+### 1、Scoped Values（正式，JEP 506）
+
+线程局部数据的现代替代，专为虚拟线程设计——不可变、生命周期有界、天然防泄漏。
+
+```java
+static final ScopedValue<User> CURRENT_USER = ScopedValue.newInstance();
+
+// 绑定作用域
+ScopedValue.where(CURRENT_USER, user).run(() -> {
+    processRequest();           // 作用域内可读取
+    CURRENT_USER.get();         // User 对象
+});
+// 作用域外自动清除，子虚拟线程自动继承（无需手动传递）
+```
+
+**对比 ThreadLocal**：ThreadLocal 可修改、生命周期不受控、在虚拟线程大量使用时内存占用高；ScopedValue 不可变、与 StructuredTaskScope 天然协作。
+
+### 2、结构化并发（正式，JEP 505）
+
+将并发子任务的生命周期与代码块作用域绑定，出错时自动取消其他子任务。
+
+```java
+try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+    Subtask<User>  user  = scope.fork(() -> fetchUser(id));
+    Subtask<Order> order = scope.fork(() -> fetchOrder(id));
+    scope.join().throwIfFailed();       // 任一失败则取消另一个
+    render(user.get(), order.get());
+}
+// 作用域结束时所有子任务必须完成，不会泄漏线程
+```
+
+### 3、原始类型模式匹配（正式，JEP 507）
+
+`instanceof` 和 `switch` 中直接匹配原始类型，消除拆箱转换样板代码。
+
+```java
+Object obj = 42;
+
+// instanceof 原始类型匹配
+if (obj instanceof int i) {
+    System.out.println(i * 2);   // 直接使用 int，无需拆箱
+}
+
+// switch 混合匹配
+switch (obj) {
+    case int i when i > 0    -> "正整数: " + i;
+    case int i               -> "非正整数: " + i;
+    case double d            -> "浮点数: " + d;
+    case String s            -> "字符串: " + s;
+    default                  -> "其他: " + obj;
+}
+```
+
+### 4、灵活的构造器体（正式，JEP 513）
+
+`super()` / `this()` 调用之前现在可以有语句，只要这些语句不引用 `this`。
+
+```java
+class Rectangle extends Shape {
+    final int width, height;
+
+    Rectangle(int w, int h) {
+        // Java 25 之前：super() 必须是第一条语句
+        // Java 25：合法，因为此处不引用 this
+        if (w <= 0 || h <= 0) throw new IllegalArgumentException("尺寸须为正数");
+        super();
+        this.width  = w;
+        this.height = h;
+    }
+}
+```
+
+### 5、模块导入声明（正式，JEP 511）
+
+一行语句导入整个模块的所有公开包，简化大量 `import` 行。
+
+```java
+import module java.base;      // 等价于 java.util.* + java.io.* + java.lang.* 等
+import module java.sql;
+
+// 脚本、教学、快速原型时特别有用
+```
+
+### 6、主要变化汇总
+
+| 特性 | JEP | 说明 |
+|------|-----|------|
+| Scoped Values | 506 | ThreadLocal 现代替代，虚拟线程友好 |
+| 结构化并发 | 505 | 子任务生命周期与代码块绑定 |
+| 原始类型模式匹配 | 507 | switch/instanceof 支持 int/double 等 |
+| 灵活构造器体 | 513 | super() 前可有不引用 this 的语句 |
+| 模块导入声明 | 511 | `import module M` 批量导入 |
+| AOT 类加载与链接 | 483 | 应用启动时间显著缩短（实验性） |
+| 紧凑对象头 | 450 | 堆内存降低约 10–20%（实验性） |
+
+---
+
+## 七、Java 26 / 27 新特性速览
+
+Java 26（2026 年 3 月）和 Java 27（2026 年 9 月）均为非 LTS 版本，继续孵化 Valhalla、Loom 后续特性。
+
+| 特性方向 | 说明 |
+|----------|------|
+| Project Valhalla — Value Classes | 轻量级值类型（无标识），减少堆分配，预计在 26/27 进入预览 |
+| 泛型特化（Generic Specialization） | 泛型支持原始类型参数，如 `List<int>`，消除装箱开销 |
+| String Templates（重新设计） | 原 JEP 430 已撤回，重新设计中 |
+| 结构化并发增强 | 在 25 正式化基础上继续完善 API |
+
+> **版本选型建议**：生产环境优先选 LTS 版本（8 / 11 / 17 / **21** / **25**）。新项目建议直接上 Java 21 或 Java 25；Java 27 作为非 LTS，适合尝鲜预览特性，不建议直接用于生产。
