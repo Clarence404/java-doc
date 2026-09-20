@@ -150,7 +150,7 @@ public class ClassLoadOrder {
 
 ## 四、说说 Synchronized 和 ReentrantLock
 
-详情见: <RouteLink to="/java/3_topic_lock">Java 专项-Lock 锁</RouteLink>
+详情见: <RouteLink to="/java/3_topic_lock">专项-Lock 锁</RouteLink>
 
 ## 五、ConcurrentHashMap 为何放弃分段锁？
 

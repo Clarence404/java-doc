@@ -309,7 +309,7 @@ http_request_duration_seconds_sum 204.3
 
 ### 3、PromQL 常用查询
 
-```promql
+```bash
 # 请求速率（5分钟内每秒请求数）
 rate(http_requests_total{job="app"}[5m])
 

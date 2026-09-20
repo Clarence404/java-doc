@@ -129,7 +129,7 @@ http.authorizeHttpRequests(auth -> auth
 
 ### OPA（Open Policy Agent）
 
-```rego
+```go
 # policy.rego
 package authz
 
