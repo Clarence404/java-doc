@@ -31,7 +31,7 @@ docs/
 ├── observability/  可观测性：日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry
 ├── patterns/       设计模式（23 种 GoF）
 ├── protocols/      协议体系：网络通信 / IoT / 远程调用 / 安全 / 文件 / 数据库 / 邮件 / 分布式
-├── scenario/       业务场景：大数据
+├── scenario/       业务场景：秒杀 / 订单 / 短链 / Feed / 搜索等系统设计案例
 ├── security/       安全体系：认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任
 ├── spring/         Spring Framework / WebFlux / Security
 ├── spring-boot/    Spring Boot / Flyway
@@ -45,7 +45,7 @@ docs/
 
 | 模块 | 路径 | 覆盖主题 |
 |------|------|----------|
-| 面试专题 | `docs/interview/` | Java / DB / 缓存 / JVM / Spring / MQ 高频题 |
+| 面试专题 | `docs/interview/` | 各方向答案页（Java / DB / 缓存 / JVM / Spring / MQ / 分布式 / 三高 等） |
 | Java 特性 | `docs/java/` | 语言机制 / IO / 集合 / 并发（JMM、锁、JUC、线程池） / 版本特性 |
 | JVM | `docs/jvm/` | 内存结构 / 类加载 / GC / 调优 |
 | 算法 | `docs/algorithms/` | 数据结构 / 搜索 / 排序 / DP / LeetCode |
@@ -64,7 +64,7 @@ docs/
 | 数据库 | `docs/database/` | MySQL / 分库分表 / 各类 NoSQL |
 | 缓存 | `docs/cache/` | Redis / Caffeine / 两级缓存 |
 | 系统架构 | `docs/architecture/` | 架构设计 / DDD / 幂等 / 对象存储 |
-| 业务场景 | `docs/scenario/` | 大数据场景方案 |
+| 业务场景 | `docs/scenario/` | 海量数据 / 秒杀 / 订单 / 短链 / 排行榜 / Feed / 搜索 / 红包 / LBS / 幂等 |
 | 云原生 | `docs/cloud-native/` | Linux 运维 / Docker / Kubernetes / Helm / Terraform / Ansible / VPS |
 | DevOps | `docs/devops/` | Git 工作流 / CI/CD / Code Review / 团队规范 |
 | 工程效率 | `docs/engineering/` | 构建工具 / 开发工具 / 代码质量 / 线上诊断 / API 规范 |
@@ -79,13 +79,13 @@ docs/
 ## 推荐学习路径
 
 ```
-基础层：  Java 特性 → JVM → 算法 → 设计模式
-框架层：  Spring → Spring Boot → Spring Cloud
+基础层：  Java 特性 → JVM → 算法 → 设计模式 → 协议体系
+框架层：  Spring → Spring Boot → Spring Cloud → Netty
 数据层：  数据库 → 缓存 → 消息队列
-分布式层：分布式理论 → Netty → 微服务
+分布式层：分布式理论 → 微服务
 三高层：  高并发 → 高可用 → 高性能
 架构层：  系统架构 → 业务场景
-运维层：  云原生 → DevOps → 工程效率 → 可观测性 → 协议体系 → 安全体系
+工程层：  测试体系 → 云原生 → DevOps → 工程效率 → 可观测性 → 安全体系
 新兴层：  IoT → AI
 面试：    interview/ 各专题汇总复习
 ```
@@ -95,6 +95,10 @@ docs/
 ## 文档约定
 
 - 文件命名：`数字_主题.md`，数字前缀决定侧边栏顺序，全部使用下划线分隔
+- 模块入口：每个模块的 `0_overview.md` 为总览页（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；新增文章后同步更新导航表
+- 面试题：模块内 `99_interview.md` 只列题目清单，答案统一写在 `docs/interview/` 的对应答案页，两边互相链接
+- 分组侧边栏：篇数较多的模块（java / spring / scenario / patterns / cloud-native）在 `config.js` 中用 `getGroupedSidebar` 按编号区间分组，新增文件时编号要落在所属分组的区间内
+- 模块边界：同一主题只保留一个主文档，其他模块用一句话概括 + 链接，不重复展开；三高模块写系统级策略，具体技术细节链接到 cache / database / messaging / jvm 等模块
 - 文件夹命名：全小写，多单词使用连字符（kebab-case），如 `cloud-native`、`spring-boot`
 - 图片存放：`docs/assets/<模块名>/`
 - 待补充内容用 VuePress `warning` callout 标记：`> [!warning] 待补充`

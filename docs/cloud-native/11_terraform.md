@@ -127,7 +127,7 @@ envs/
 - ✅ 多云或混合云环境统一管理
 - ✅ 环境快速复制（一套代码 apply 出 dev / staging / prod 三套相同架构）
 - ✅ 搭配 Argo CD 使用：Terraform 建好基础设施，Argo CD 在上面部署应用
-- ✅ 搭配 [Ansible](./17_ansible) 使用：Terraform 造机器，Ansible 配机器（装软件、发应用）
+- ✅ 搭配 [Ansible](./12_ansible) 使用：Terraform 造机器，Ansible 配机器（装软件、发应用）
 - ❌ 不适合管理 K8s 内部的应用配置（用 Helm / Argo CD）
 
 ## 八、Terraform vs Pulumi

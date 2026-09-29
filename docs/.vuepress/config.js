@@ -17,9 +17,11 @@ const navbarFlat = [
     {text: 'JVM',     link: '/jvm/0_overview'},
     {text: '算法',    link: '/algorithms/0_overview'},
     {text: '设计模式', link: '/patterns/0_overview'},
+    {text: '协议体系', link: '/protocols/0_overview'},
     {text: 'Spring',  link: '/spring/0_overview'},
     {text: 'Spring Boot', link: '/spring-boot/0_overview'},
     {text: 'Spring Cloud', link: '/spring-cloud/0_overview'},
+    {text: 'Netty',   link: '/netty/0_overview'},
     {text: '测试体系', link: '/testing/0_overview'},
     {text: '数据库',  link: '/database/0_overview'},
     {text: '缓存',    link: '/cache/0_overview'},
@@ -30,8 +32,6 @@ const navbarFlat = [
     {text: '高性能',  link: '/high-perf/0_overview'},
     {text: '微服务',  link: '/microservices/0_overview'},
     {text: '架构',    link: '/architecture/0_overview'},
-    {text: '协议体系', link: '/protocols/0_overview'},
-    {text: 'Netty',   link: '/netty/0_overview'},
     {text: '云原生',  link: '/cloud-native/0_overview'},
     {text: 'DevOps',  link: '/devops/0_overview'},
     {text: '工程效率', link: '/engineering/0_overview'},
@@ -51,6 +51,7 @@ const navbarDropdown = [
             {text: 'JVM',     link: '/jvm/0_overview'},
             {text: '算法',    link: '/algorithms/0_overview'},
             {text: '设计模式', link: '/patterns/0_overview'},
+            {text: '协议体系', link: '/protocols/0_overview'},
         ],
     },
     {
@@ -59,6 +60,7 @@ const navbarDropdown = [
             {text: 'Spring',          link: '/spring/0_overview'},
             {text: 'Spring Boot',     link: '/spring-boot/0_overview'},
             {text: 'Spring Cloud',    link: '/spring-cloud/0_overview'},
+            {text: 'Netty',           link: '/netty/0_overview'},
         ],
     },
     {
@@ -75,8 +77,6 @@ const navbarDropdown = [
             {text: '分布式', link: '/distributed/0_overview'},
             {text: '微服务', link: '/microservices/0_overview'},
             {text: '系统架构', link: '/architecture/0_overview'},
-            {text: '协议体系', link: '/protocols/0_overview'},
-            {text: 'Netty', link: '/netty/0_overview'},
         ],
     },
     {
@@ -135,124 +135,69 @@ function getSidebarFromDir(dirPath) {
     });
 }
 
-const patternsSidebar = [
-    {text: '设计模式总览', link: '/patterns/0_overview'},
-    {
-        text: '创建型',
-        link: '/patterns/1_creational_singleton',
-        collapsible: true,
-        collapsed: false,
-        children: [
-            {text: '单例', link: '/patterns/1_creational_singleton'},
-            {text: '工厂', link: '/patterns/2_creational_factory'},
-            {text: '抽象工厂', link: '/patterns/3_creational_abstract_factory'},
-            {text: '建造者', link: '/patterns/4_creational_builder'},
-            {text: '原型', link: '/patterns/5_creational_prototype'},
-        ],
-    },
-    {
-        text: '结构型',
-        link: '/patterns/6_structural_adapter',
-        collapsible: true,
-        collapsed: true,
-        children: [
-            {text: '适配器', link: '/patterns/6_structural_adapter'},
-            {text: '桥接', link: '/patterns/7_structural_bridge'},
-            {text: '组合', link: '/patterns/8_structural_composite'},
-            {text: '装饰器', link: '/patterns/9_structural_decorator'},
-            {text: '外观', link: '/patterns/10_structural_facade'},
-            {text: '享元', link: '/patterns/11_structural_flyweight'},
-            {text: '代理', link: '/patterns/12_structural_proxy'},
-        ],
-    },
-    {
-        text: '行为型',
-        link: '/patterns/13_behavioral_chain_of_responsibility',
-        collapsible: true,
-        collapsed: true,
-        children: [
-            {text: '责任链', link: '/patterns/13_behavioral_chain_of_responsibility'},
-            {text: '命令', link: '/patterns/14_behavioral_command'},
-            {text: '迭代器', link: '/patterns/15_behavioral_iterator'},
-            {text: '中介者', link: '/patterns/16_behavioral_mediator'},
-            {text: '备忘录', link: '/patterns/17_behavioral_memento'},
-            {text: '观察者', link: '/patterns/18_behavioral_observer'},
-            {text: '状态', link: '/patterns/19_behavioral_state'},
-            {text: '策略', link: '/patterns/20_behavioral_strategy'},
-            {text: '模板方法', link: '/patterns/21_behavioral_template_method'},
-            {text: '访问者', link: '/patterns/22_behavioral_visitor'},
-            {text: '解释器', link: '/patterns/23_behavioral_interpreter'},
-        ],
-    },
-];
+// 按文件编号区间分组：组内文件仍自动读取目录，新增文件只要编号落在区间内即自动归组
+function getGroupedSidebar(dirPath, groups) {
+    const num = item => parseInt(item.link.split('/').pop().match(/^(\d+)/)?.[1] ?? '0');
+    const result = [];
+    const emitted = new Map();
+    for (const item of getSidebarFromDir(dirPath)) {
+        const n = num(item);
+        const group = groups.find(g => n >= g.from && n <= g.to);
+        if (!group) {
+            result.push(item);
+            continue;
+        }
+        if (!emitted.has(group)) {
+            const node = {text: group.text, collapsible: true, expanded: !group.collapsed, children: []};
+            emitted.set(group, node);
+            result.push(node);
+        }
+        emitted.get(group).children.push(item);
+    }
+    return result;
+}
 
-const cloudNativeSidebar = [
-    {text: '云原生总览', link: '/cloud-native/0_overview'},
-    {
-        text: 'Linux 基础',
-        link: '/cloud-native/1_linux',
-        collapsible: true,
-        collapsed: false,
-        children: [
-            {text: '概述', link: '/cloud-native/1_linux'},
-            {text: '发行版', link: '/cloud-native/2_linux_distros'},
-        ],
-    },
-    {
-        text: '虚拟化',
-        link: '/cloud-native/3_virtual',
-        collapsible: true,
-        collapsed: true,
-        children: [
-            {text: '虚拟机', link: '/cloud-native/3_virtual'},
-            {text: '常用工具', link: '/cloud-native/4_virtual_tools'},
-        ],
-    },
-    {
-        text: '容器与编排',
-        link: '/cloud-native/5_docker',
-        collapsible: true,
-        collapsed: true,
-        children: [
-            {text: 'Docker', link: '/cloud-native/5_docker'},
-            {text: 'Kubernetes', link: '/cloud-native/6_kubernetes'},
-            {text: 'Nginx 与 Ingress', link: '/cloud-native/7_nginx_ingress'},
-            {text: 'Helm', link: '/cloud-native/8_helm'},
-            {text: 'Argo CD', link: '/cloud-native/9_argocd'},
-            {text: 'Service Mesh', link: '/cloud-native/10_service_mesh'},
-        ],
-    },
-    {
-        text: '基础设施自动化',
-        link: '/cloud-native/11_terraform',
-        collapsible: true,
-        collapsed: true,
-        children: [
-            {text: 'Terraform', link: '/cloud-native/11_terraform'},
-            {text: 'Ansible', link: '/cloud-native/17_ansible'},
-        ],
-    },
-    {
-        text: '云平台与选购',
-        link: '/cloud-native/12_cloud_overview',
-        collapsible: true,
-        collapsed: true,
-        children: [
-            {text: '概述', link: '/cloud-native/12_cloud_overview'},
-            {text: '国际云', link: '/cloud-native/13_cloud_global'},
-            {text: '国内云', link: '/cloud-native/14_cloud_domestic'},
-            {text: 'Cloudflare', link: '/cloud-native/15_cloudflare'},
-            {text: 'VPS 选购', link: '/cloud-native/16_vps_intro'},
-        ],
-    },
-];
+const dirOf = name => path.resolve(__dirname, `../${name}`);
+
+const javaSidebar = getGroupedSidebar(dirOf('java'), [
+    {text: '综合', from: 1, to: 9},
+    {text: '语言机制', from: 10, to: 16},
+    {text: 'IO 与数据', from: 17, to: 21},
+    {text: '并发', from: 22, to: 29},
+]);
+
+const springSidebar = getGroupedSidebar(dirOf('spring'), [
+    {text: '核心容器', from: 1, to: 4},
+    {text: '常用组件', from: 5, to: 8},
+    {text: '安全', from: 9, to: 11},
+    {text: '批处理与集成', from: 12, to: 13},
+]);
+
+const scenarioSidebar = getGroupedSidebar(dirOf('scenario'), [
+    {text: '通用问题', from: 1, to: 3},
+    {text: '系统设计案例', from: 4, to: 13},
+]);
+
+const patternsSidebar = getGroupedSidebar(dirOf('patterns'), [
+    {text: '创建型', from: 1, to: 5},
+    {text: '结构型', from: 6, to: 12},
+    {text: '行为型', from: 13, to: 23},
+]);
+
+const cloudNativeSidebar = getGroupedSidebar(dirOf('cloud-native'), [
+    {text: 'Linux 基础', from: 1, to: 2},
+    {text: '虚拟化', from: 3, to: 4, collapsed: true},
+    {text: '容器与编排', from: 5, to: 10, collapsed: true},
+    {text: '基础设施自动化', from: 11, to: 12, collapsed: true},
+    {text: '云平台与选购', from: 13, to: 17, collapsed: true},
+]);
 
 const aiSidebar = [
     {text: 'AI 开发总览', link: '/ai/0_overview'},
     {
         text: '基础概念',
         collapsible: true,
-        collapsed: false,
+        expanded: true,
         children: [
             {text: '大语言模型', link: '/ai/1_concepts/0_model'},
             {text: 'Prompt 工程',   link: '/ai/1_concepts/1_prompt'},
@@ -262,7 +207,7 @@ const aiSidebar = [
     {
         text: 'Java 框架',
         collapsible: true,
-        collapsed: false,
+        expanded: true,
         children: [
             {text: 'Spring AI',    link: '/ai/2_frameworks/0_spring_ai'},
             {text: 'LangChain4j', link: '/ai/2_frameworks/1_langchain4j'},
@@ -271,7 +216,7 @@ const aiSidebar = [
     {
         text: '模型接入',
         collapsible: true,
-        collapsed: false,
+        expanded: true,
         children: [
             {text: 'Ollama（本地部署）', link: '/ai/3_integration/0_ollama'},
             {text: '主流 API 接入',      link: '/ai/3_integration/1_api_access'},
@@ -280,7 +225,7 @@ const aiSidebar = [
     {
         text: '核心技术',
         collapsible: true,
-        collapsed: false,
+        expanded: true,
         children: [
             {text: 'Embedding',  link: '/ai/4_core_tech/0_embedding'},
             {text: '向量数据库', link: '/ai/4_core_tech/1_vector_db'},
@@ -290,7 +235,7 @@ const aiSidebar = [
     {
         text: '高阶应用',
         collapsible: true,
-        collapsed: false,
+        expanded: true,
         children: [
             {text: 'AI Agent', link: '/ai/5_advanced/0_agent'},
             {text: 'MCP 协议', link: '/ai/5_advanced/1_mcp'},
@@ -300,7 +245,7 @@ const aiSidebar = [
     {
         text: 'AI 工具生态',
         collapsible: true,
-        collapsed: true,
+        expanded: false,
         children: [
             {text: 'AI 工具总览', link: '/ai/6_tools/0_ai_tools'},
         ],
@@ -314,7 +259,7 @@ const algorithmsSidebar = [
         text: '数据结构',
         link: '/algorithms/1_data_structures/0_array_list',
         collapsible: true,
-        collapsed: false,
+        expanded: true,
         children: [
             {text: '数组 & 链表', link: '/algorithms/1_data_structures/0_array_list'},
             {text: '栈 & 队列',   link: '/algorithms/1_data_structures/1_stack_queue'},
@@ -329,7 +274,7 @@ const algorithmsSidebar = [
         text: '基础算法',
         link: '/algorithms/2_algorithms/0_search',
         collapsible: true,
-        collapsed: false,
+        expanded: true,
         children: [
             {text: '搜索算法', link: '/algorithms/2_algorithms/0_search'},
             {text: '排序算法', link: '/algorithms/2_algorithms/1_sort'},
@@ -342,7 +287,7 @@ const algorithmsSidebar = [
         text: '算法技巧',
         link: '/algorithms/3_patterns/0_dynamic_programming',
         collapsible: true,
-        collapsed: false,
+        expanded: true,
         children: [
             {text: '动态规划',      link: '/algorithms/3_patterns/0_dynamic_programming'},
             {text: '双指针',        link: '/algorithms/3_patterns/1_two_pointers'},
@@ -355,7 +300,7 @@ const algorithmsSidebar = [
         text: '刷题实战',
         link: '/algorithms/4_practice/0_leet_code',
         collapsible: true,
-        collapsed: true,
+        expanded: false,
         children: [
             {text: 'LeetCode', link: '/algorithms/4_practice/0_leet_code'},
             {text: 'HuaWei Code',  link: '/algorithms/4_practice/1_huawei_oj'},
@@ -369,7 +314,7 @@ const databaseSidebar = [
         text: 'MySQL',
         link: '/database/1_mysql/0_overview',
         collapsible: true,
-        collapsed: false,
+        expanded: true,
         children: [
             {text: '概览', link: '/database/1_mysql/0_overview'},
             {text: '版本特性', link: '/database/1_mysql/1_feature'},
@@ -378,7 +323,7 @@ const databaseSidebar = [
             {
                 text: '核心专项',
                 collapsible: true,
-                collapsed: false,
+                expanded: true,
                 children: [
                     {text: 'MySQL 索引', link: '/database/1_mysql/4_topic_index'},
                     {text: '事务与锁', link: '/database/1_mysql/5_topic_transaction'},
@@ -394,14 +339,14 @@ const databaseSidebar = [
         text: 'PostgreSQL',
         link: '/database/2_postgresql/0_overview',
         collapsible: true,
-        collapsed: true,
+        expanded: false,
         children: [
             {text: '概览', link: '/database/2_postgresql/0_overview'},
             {text: '特性', link: '/database/2_postgresql/1_feature'},
             {
                 text: '核心专项',
                 collapsible: true,
-                collapsed: false,
+                expanded: true,
                 children: [
                     {text: 'MVCC 与 VACUUM', link: '/database/2_postgresql/2_topic_mvcc'},
                     {text: '索引类型', link: '/database/2_postgresql/3_topic_index'},
@@ -415,7 +360,7 @@ const databaseSidebar = [
         text: '关系库',
         link: '/database/3_relational/0_other_rdbms',
         collapsible: true,
-        collapsed: true,
+        expanded: false,
         children: [
             {text: '其他 RDBMS', link: '/database/3_relational/0_other_rdbms'},
             {text: '分布式', link: '/database/3_relational/1_distributed_db'},
@@ -426,7 +371,7 @@ const databaseSidebar = [
         text: 'NoSQL',
         link: '/database/4_nosql/0_column_db',
         collapsible: true,
-        collapsed: true,
+        expanded: false,
         children: [
             {text: '列式库', link: '/database/4_nosql/0_column_db'},
             {text: '时序库', link: '/database/4_nosql/1_time_series_db'},
@@ -439,7 +384,7 @@ const databaseSidebar = [
         text: '架构运维',
         link: '/database/5_practice/0_cdc_tools',
         collapsible: true,
-        collapsed: true,
+        expanded: false,
         children: [
             {text: 'CDC 工具', link: '/database/5_practice/0_cdc_tools'},
             {text: '备份恢复', link: '/database/5_practice/1_backup_recovery'},
@@ -451,7 +396,7 @@ const databaseSidebar = [
         text: '参考延伸',
         link: '/database/6_reference/0_binlog_connector_source',
         collapsible: true,
-        collapsed: true,
+        expanded: false,
         children: [
             {text: 'Binlog 源码', link: '/database/6_reference/0_binlog_connector_source'},
             {text: '选型指南', link: '/database/6_reference/1_selection_guide'},
@@ -489,11 +434,11 @@ export default defineUserConfig({
         navbar: NAVBAR_STYLE === 'dropdown' ? navbarDropdown : navbarFlat,
         sidebar: {
             '/interview/': getSidebarFromDir(path.resolve(__dirname, '../interview')),
-            '/java/': getSidebarFromDir(path.resolve(__dirname, '../java')),
+            '/java/': javaSidebar,
             '/database/': databaseSidebar,
             '/cache/': getSidebarFromDir(path.resolve(__dirname, '../cache')),
             '/jvm/': getSidebarFromDir(path.resolve(__dirname, '../jvm')),
-            '/spring/': getSidebarFromDir(path.resolve(__dirname, '../spring')),
+            '/spring/': springSidebar,
             '/spring-boot/': getSidebarFromDir(path.resolve(__dirname, '../spring-boot')),
             '/spring-cloud/': getSidebarFromDir(path.resolve(__dirname, '../spring-cloud')),
             '/microservices/': getSidebarFromDir(path.resolve(__dirname, '../microservices')),
@@ -503,7 +448,7 @@ export default defineUserConfig({
             '/high-avail/': getSidebarFromDir(path.resolve(__dirname, '../high-avail')),
             '/high-perf/': getSidebarFromDir(path.resolve(__dirname, '../high-perf')),
             '/patterns/': patternsSidebar,
-            '/scenario/': getSidebarFromDir(path.resolve(__dirname, '../scenario')),
+            '/scenario/': scenarioSidebar,
             '/netty/': getSidebarFromDir(path.resolve(__dirname, '../netty')),
             '/cloud-native/': cloudNativeSidebar,
             '/algorithms/': algorithmsSidebar,

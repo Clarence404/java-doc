@@ -52,10 +52,10 @@ highlights:
     bgImageStyle:
       background-color: rgba(236, 244, 255, 0.6)
     features:
-      - title: Java 特性
+      - title: Java
         icon: code
-        details: Java 8 → 21 核心新特性：Stream / Lambda / Record / Sealed Class / Virtual Thread
-        link: /java/2_version
+        details: 语言机制 / 集合框架 / IO / 并发（JMM、锁、线程池、CompletableFuture）/ Java 8 → 25 版本特性
+        link: /java/0_overview
       - title: JVM
         icon: gears
         details: 内存结构 / 类加载机制 / GC 算法全解 / 参数调优 / 线上 OOM 排查实战
@@ -68,6 +68,10 @@ highlights:
         icon: shapes
         details: GoF 全部 23 种经典模式详解，结合 Spring / JDK 真实源码场景深度讲解
         link: /patterns/0_overview
+      - title: 协议体系
+        icon: tower-broadcast
+        details: TCP/IP / HTTP/2 / gRPC / WebSocket / IoT 协议 / TLS 安全协议全栈体系
+        link: /protocols/0_overview
 
   - header: 框架生态
     description: Spring 全家桶与高性能网络编程
@@ -80,14 +84,14 @@ highlights:
         icon: rocket
         details: 自动配置原理深度解析 / Actuator 监控 / Flyway 数据库版本迁移最佳实践
         link: /spring-boot/0_overview
+      - title: Spring Cloud
+        icon: cloud-arrow-up
+        details: Nacos 注册与配置 / Gateway 网关 / OpenFeign / Sentinel 治理 / Seata 分布式事务
+        link: /spring-cloud/0_overview
       - title: Netty
         icon: network-wired
         details: BIO → NIO → IO 多路复用演进 / Reactor 模式实战 / WebSocket / SSE 长连接
         link: /netty/0_overview
-      - title: 测试体系
-        icon: vial
-        details: JUnit 5 单元测试 / Mockito Mock / TestContainers 集成测试 / TDD 实践
-        link: /testing/0_overview
 
   - header: 数据存储
     description: 关系型 · NoSQL · 消息中间件，数据全链路
@@ -150,7 +154,7 @@ highlights:
         link: /scenario/0_overview
 
   - header: 工程运维
-    description: 云原生 · DevOps · 通信协议，基础设施全栈
+    description: 云原生 · DevOps · 可观测性 · 测试，工程化全链路
     features:
       - title: 云原生
         icon: cloud
@@ -164,10 +168,10 @@ highlights:
         icon: chart-line
         details: 日志 / 指标 / 链路追踪 / 告警治理 / OpenTelemetry，支撑线上排障与稳定性建设
         link: /observability/0_overview
-      - title: 协议体系
-        icon: tower-broadcast
-        details: TCP/IP / HTTP/2 / gRPC / WebSocket / IoT 协议 / TLS 安全协议全栈体系
-        link: /protocols/0_overview
+      - title: 测试体系
+        icon: vial
+        details: JUnit 5 单元测试 / Mockito Mock / TestContainers 集成测试 / TDD 实践
+        link: /testing/0_overview
 
   - header: 新兴技术
     description: IoT 物联网 · 人工智能，拓展技术边界
