@@ -18,11 +18,12 @@ docs/
 ├── devops/         DevOps：Git 工作流 / CI/CD / Code Review / 团队规范
 ├── distributed/    分布式理论 / 锁 / 事务 / 会话
 ├── engineering/    工程效率：构建 / 工具链 / 代码质量 / 线上诊断 / API 规范
-├── high-avail/     高可用：限流 / 熔断 / 降级
-├── high-con/       高并发：JUC / 线程池 / 系统设计
+├── high-avail/     高可用：SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线
+├── high-con/       高并发：水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划
+├── high-perf/      高性能：指标 / 方法论 / 基准测试 / 池化与异步 / IO 与数据库优化 / Profiler
 ├── interview/      开发总结（各方向高频问题汇总）
 ├── iot/            物联网：基础 / 协议 / 开源平台
-├── java/           Java 8+ 语言特性
+├── java/           Java 语言：语言机制 / IO / 集合 / 并发 / 版本特性
 ├── jvm/            JVM 原理与调优
 ├── messaging/      消息队列：Kafka / RocketMQ / RabbitMQ
 ├── microservices/  微服务：概念 / 拆分 / 组件 / 模式
@@ -30,10 +31,11 @@ docs/
 ├── observability/  可观测性：日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry
 ├── patterns/       设计模式（23 种 GoF）
 ├── protocols/      协议体系：网络通信 / IoT / 远程调用 / 安全 / 文件 / 数据库 / 邮件 / 分布式
-├── scenario/       业务场景：大数据
+├── scenario/       业务场景：秒杀 / 订单 / 短链 / Feed / 搜索等系统设计案例
 ├── security/       安全体系：认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任
 ├── spring/         Spring Framework / WebFlux / Security
 ├── spring-boot/    Spring Boot / Flyway
+├── spring-cloud/   Spring Cloud：注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream
 └── testing/        测试体系：单元测试 / Mock / 集成测试 / TDD
 ```
 
@@ -43,44 +45,48 @@ docs/
 
 | 模块 | 路径 | 覆盖主题 |
 |------|------|----------|
-| 面试专题 | `docs/interview/` | Java / DB / 缓存 / JVM / Spring / MQ 高频题 |
-| Java 特性 | `docs/java/` | Java 8–21 核心新特性 |
+| 面试专题 | `docs/interview/` | 各方向答案页（Java / DB / 缓存 / JVM / Spring / MQ / 分布式 / 三高 等） |
+| Java 特性 | `docs/java/` | 语言机制 / IO / 集合 / 并发（JMM、锁、JUC、线程池） / 版本特性 |
 | JVM | `docs/jvm/` | 内存结构 / 类加载 / GC / 调优 |
 | 算法 | `docs/algorithms/` | 数据结构 / 搜索 / 排序 / DP / LeetCode |
 | 设计模式 | `docs/patterns/` | 23 种 GoF 模式 |
 | Spring | `docs/spring/` | IoC / AOP / WebFlux / Security |
 | Spring Boot | `docs/spring-boot/` | 自动配置 / Flyway 数据迁移 |
+| Spring Cloud | `docs/spring-cloud/` | 注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream |
 | 测试体系 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD |
 | Netty | `docs/netty/` | IO 模型 / Reactor / WebSocket / SSE |
 | 分布式 | `docs/distributed/` | CAP / Raft / 分布式锁 / 事务 |
-| 高并发 | `docs/high-con/` | JUC / 线程池 / 压测 / Profiler |
-| 高可用 | `docs/high-avail/` | 限流 / 熔断 / 降级 |
+| 高并发 | `docs/high-con/` | 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划 |
+| 高可用 | `docs/high-avail/` | SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线 |
+| 高性能 | `docs/high-perf/` | 指标 / 方法论 / JMH / 池化与异步 / IO 与数据库优化 / Profiler |
 | 消息队列 | `docs/messaging/` | Kafka / RocketMQ / RabbitMQ |
-| 微服务 | `docs/microservices/` | 拆分 / 注册发现 / 网关 / 模式 |
+| 微服务 | `docs/microservices/` | 拆分 / 注册发现 / 网关 / 模式 / Dubbo |
 | 数据库 | `docs/database/` | MySQL / 分库分表 / 各类 NoSQL |
 | 缓存 | `docs/cache/` | Redis / Caffeine / 两级缓存 |
 | 系统架构 | `docs/architecture/` | 架构设计 / DDD / 幂等 / 对象存储 |
-| 业务场景 | `docs/scenario/` | 大数据场景方案 |
-| 云原生 | `docs/cloud-native/` | Linux 运维 / Docker / Kubernetes / Helm / VPS |
+| 业务场景 | `docs/scenario/` | 海量数据 / 秒杀 / 订单 / 短链 / 排行榜 / Feed / 搜索 / 红包 / LBS / 幂等 |
+| 云原生 | `docs/cloud-native/` | Linux 运维 / Docker / Kubernetes / Helm / Terraform / Ansible / VPS |
 | DevOps | `docs/devops/` | Git 工作流 / CI/CD / Code Review / 团队规范 |
 | 工程效率 | `docs/engineering/` | 构建工具 / 开发工具 / 代码质量 / 线上诊断 / API 规范 |
 | 可观测性 | `docs/observability/` | 日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry |
 | 协议体系 | `docs/protocols/` | TCP/UDP / HTTP / IoT 协议 / gRPC / TLS / 数据库协议 |
 | 安全体系 | `docs/security/` | 认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任 |
 | IoT | `docs/iot/` | 物联网架构 / 协议 / 开源平台 |
-| AI | `docs/ai/` | Spring AI / LangChain4j / RAG / Agent / MCP / API 接入 / AI 工具 |
+| AI | `docs/ai/` | Function Calling / Spring AI / LangChain4j / RAG / Agent / MCP / API 接入 / AI 工具 |
 
 ---
 
 ## 推荐学习路径
 
 ```
-基础层：  Java 特性 → JVM → 算法 → 设计模式
-框架层：  Spring → Spring Boot → Netty
+基础层：  Java 特性 → JVM → 算法 → 设计模式 → 协议体系
+框架层：  Spring → Spring Boot → Spring Cloud → Netty
 数据层：  数据库 → 缓存 → 消息队列
-分布式层：分布式理论 → 高并发 → 高可用 → 微服务
+分布式层：分布式理论 → 微服务
+三高层：  高并发 → 高可用 → 高性能
 架构层：  系统架构 → 业务场景
-运维层：  云原生 → DevOps → 工程效率 → 可观测性 → 协议体系 → 安全体系
+研发效能：测试体系 → DevOps → 工程效率
+运维保障：云原生 → 可观测性 → 安全体系
 新兴层：  IoT → AI
 面试：    interview/ 各专题汇总复习
 ```
@@ -90,11 +96,16 @@ docs/
 ## 文档约定
 
 - 文件命名：`数字_主题.md`，数字前缀决定侧边栏顺序，全部使用下划线分隔
+- 模块入口：每个模块的 `0_overview.md` 为总览页（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；新增文章后同步更新导航表
+- 面试题：模块内 `99_interview.md` 只列题目清单，答案统一写在 `docs/interview/` 的对应答案页，两边互相链接
+- 分组侧边栏：篇数较多的模块（java / spring / scenario / patterns / cloud-native）在 `config.js` 中用 `getGroupedSidebar` 按编号区间分组，新增文件时编号要落在所属分组的区间内
+- 模块边界：同一主题只保留一个主文档，其他模块用一句话概括 + 链接，不重复展开；三高模块写系统级策略，具体技术细节链接到 cache / database / messaging / jvm 等模块
 - 文件夹命名：全小写，多单词使用连字符（kebab-case），如 `cloud-native`、`spring-boot`
 - 图片存放：`docs/assets/<模块名>/`
 - 待补充内容用 VuePress `warning` callout 标记：`> [!warning] 待补充`
 - 参考链接放文章顶部，便于溯源
 - 站点部署：GitHub Actions → `.github/workflows/deploy-docs.yml`
+- 规范文件同步：`CLAUDE.md` 与 `AGENTS.md` 内容保持完全一致（AGENTS.md 供其他 AI 编码工具读取），修改其中一个时必须同步更新另一个
 
 ## 画图规范
 
@@ -128,13 +139,14 @@ docs/
 - 同一 `<rect>` 内多行文字，最后一行基线必须满足上述要求
 - 违例示例：`<rect y="100" height="30"/>` + `<text y="130">`（基线恰好在底边，无留白）
 
-### 箭头间距
+### 箭头首尾贴框
 
-- **箭头端点距目标 `<rect>` 边框 6px**（`markerWidth=7` + `refX=6` 时箭头尖端会超出端点约 1px，故线段端点需提前 6px）
+- **起点贴源框边**（距源框边 0px，线尾与框线相接）
+- **终点距目标框边 2px**（`markerWidth=7` + `refX=6` 时箭头尖端超出端点约 1px，尖端恰好触到框线）；**不得穿入框内，也不得留出可见空隙（>5px）**
 - 同时适用于 `<line>` 和 `<path>` 元素：
-  - `<line>` 修改 `x2` / `y2`（水平/垂直箭头）
-  - `<path>` 修改 `d` 属性中最后一对坐标
-- 箭头不得穿过目标框的 `<rect>` 区域
+  - `<line>` 修改 `x1/y1`（起点）与 `x2/y2`（终点）
+  - `<path>` 修改 `d` 属性中首/末坐标
+- 斜向箭头同理：两端沿线方向延伸至框缘（终点留 2px）
 
 ### 框线不重叠
 
@@ -159,8 +171,10 @@ docs/
 
 ### 模块间距均匀
 
-- **同一 SVG 中各层/组之间的间距差值 ≤ 8px**（无大片留白）
-- 间距定义：上一层底边 → 下一层顶边的距离；多个间距应统一为相同值
+- **同一 SVG 中各层/组之间的间距（含箭头区域）应保持一致，最大间距差值 ≤ 8px**
+- 间距定义：上一层底边 → 下一层顶边的距离
+- 违例示例：层A→层B 间距 58px，层B→层C 间距 38px（差值 20px）
+- 修正方式：统一为相同间距（如均取 46px），同步调整各层 y 坐标
 
 ### 层内布局：标题居中 + 内容对称分布
 
@@ -175,7 +189,7 @@ docs/
 
 - **连接两个元素的箭头必须有可见的线段身体，不能仅有箭头头部**
 - 要求：箭头所在间距（上层底边 → 下层顶边）**≥ 30px**，确保线身长度 ≥ 18px
-- 线段端点规则：`y1 = 上层底边 + 4`，`y2 = 下层顶边 - 6`（结合箭头间距规范）
+- 线段端点规则：`y1 = 上层底边`，`y2 = 下层顶边 - 2`（结合"箭头首尾贴框"规范）
 - 违例示例：层间距 16px → 线身仅 10px，视觉上只见箭头头部
 - 修正方式：增大层间距至 30px，同步下移后续层的 `y` 坐标及文字坐标，并更新 viewBox 高度
 
@@ -186,15 +200,32 @@ docs/
 - 违例示例：`<rect x="20" width="520"/>` + `<text x="380">长描述文字</text>`（文字可延伸到 580，超出 viewBox）
 - 修正方式：`<text x="530" text-anchor="end">长描述文字</text>`（530 = 20 + 520 − 10）
 
+### 自动校验
+
+新绘制或修改 SVG 后，运行校验脚本自检（可传目录或单个文件，缺省扫描全部）：
+
+```bash
+python scripts/svg_lint.py docs/assets/<模块名>/<文件名>.svg
+```
+
+脚本按下方审查清单做机械检查；估宽为近似值，临界告警需人工复核。
+
+### 箭头 marker 定义
+
+- `<marker>` 必须同时定义 `refX` 与 `refY`，且 **`refY = markerHeight / 2`**（缺 refY 或不居中会导致箭头头垂直错位，视觉呈"哑铃/T 字"形）
+- 标准模板：`<marker markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">`
+
 ### 审查清单（修改 SVG 后自检）
 
 ```
+□ marker 定义含 refX 与 refY，且 refY = markerHeight / 2
 □ 每个 <rect> 内所有 <text> 基线距底边 ≥ 12px
-□ 每条箭头端点距目标框边 ≥ 6px，且不穿入框内
+□ 箭头起点贴源框边（0px）、终点距目标框边 2px（尖端触框），不穿入框内也无可见空隙
 □ 所有同行/同列 <rect> 之间间距 ≥ 8px，无重叠
 □ 含多行文字的 <rect> 高度 ≥ 60px
 □ viewBox 上下留白差值 ≤ 10px
-□ 箭头标注文字不与箭头线交叉
+□ 箭头标注文字不与箭头线交叉，且水平居中于线段中点（贴线上方或下方）
+□ 框宽须容纳最长一行文字（估宽 ≈ CJK×字号 + ASCII×0.55字号），文字不得压到框线
 □ 层级图各层之间间距差值 ≤ 8px（无大片留白）
 □ 层内文本均匀分布，无单侧大面积空白
 □ 行内右侧描述文字使用 text-anchor="end"，不超出 rect 右边界

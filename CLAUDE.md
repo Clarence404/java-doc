@@ -105,6 +105,7 @@ docs/
 - 待补充内容用 VuePress `warning` callout 标记：`> [!warning] 待补充`
 - 参考链接放文章顶部，便于溯源
 - 站点部署：GitHub Actions → `.github/workflows/deploy-docs.yml`
+- 规范文件同步：`CLAUDE.md` 与 `AGENTS.md` 内容保持完全一致（AGENTS.md 供其他 AI 编码工具读取），修改其中一个时必须同步更新另一个
 
 ## 画图规范
 
