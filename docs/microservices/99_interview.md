@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总微服务架构核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/5_spring_cloud">开发总结-微服务</RouteLink>
+> 汇总微服务架构核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/6_spring_cloud">开发总结-微服务</RouteLink>
 
 ## 一、微服务基础
 
@@ -38,12 +38,12 @@
 ## 六、分布式场景
 
 - **微服务之间的分布式事务如何处理？**  
-  → 详见 <RouteLink to="/distributed/3_transaction">分布式事务</RouteLink>
+  → 详见 <RouteLink to="/distributed/4_transaction">分布式事务</RouteLink>
 - **微服务如何实现幂等性？**
 - **服务间如何传递认证信息（Token 透传）？**
 
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/5_spring_cloud">开发总结-微服务</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/6_spring_cloud">开发总结-微服务</RouteLink>
 :::

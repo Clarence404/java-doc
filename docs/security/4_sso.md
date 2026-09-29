@@ -68,7 +68,7 @@
 
 ### 同域会话共享 ≠ SSO
 
-先排除一个常见混淆：同一主域下的多个应用（`a.example.com` / `b.example.com`）用 **Cookie 顶域 + Spring Session（Redis）** 共享会话即可，不需要 SSO 全套（见 [分布式会话](/distributed/4_session)）。SSO 解决的是**跨域、跨系统、跨信任边界**的登录问题。
+先排除一个常见混淆：同一主域下的多个应用（`a.example.com` / `b.example.com`）用 **Cookie 顶域 + Spring Session（Redis）** 共享会话即可，不需要 SSO 全套（见 [分布式会话](/distributed/5_session)）。SSO 解决的是**跨域、跨系统、跨信任边界**的登录问题。
 
 ### Cookie 跨子域 + Redis 共享 Session
 

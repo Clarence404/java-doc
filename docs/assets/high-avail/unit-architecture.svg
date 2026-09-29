@@ -1,0 +1,70 @@
+<svg viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .title { fill:var(--fg); font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .note { fill:var(--muted); font-size:10px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">单元化架构（按 userId 分片路由）</text>
+
+  <!-- 流量调度层 -->
+  <rect class="box" x="20" y="40" width="640" height="60" rx="8" stroke="var(--p)"/>
+  <text class="title" x="340" y="64" text-anchor="middle" fill="var(--p)">流量调度层</text>
+  <text class="sub" x="340" y="84" text-anchor="middle">DNS / GSLB 就近接入 → 网关按 userId 查路由表，转发到归属单元</text>
+
+  <!-- 调度层 → 单元 -->
+  <line class="arr" x1="160" y1="100" x2="160" y2="138" marker-end="url(#a)"/>
+  <text class="note" x="170" y="124">userId 0–49</text>
+  <line class="arr" x1="520" y1="100" x2="520" y2="138" marker-end="url(#a)"/>
+  <text class="note" x="530" y="124">userId 50–99</text>
+
+  <!-- 单元 A -->
+  <rect class="box" x="20" y="140" width="280" height="120" rx="8" stroke="var(--b)"/>
+  <text class="title" x="160" y="164" text-anchor="middle" fill="var(--b)">单元 A（上海）</text>
+  <text class="sub" x="160" y="188" text-anchor="middle">网关 + 应用集群 + 缓存 + MQ</text>
+  <text class="sub" x="160" y="208" text-anchor="middle">DB 分片 A（主）+ 分片 B（备）</text>
+  <text class="sub" x="160" y="228" text-anchor="middle">请求在单元内闭环</text>
+
+  <!-- 单元 B -->
+  <rect class="box" x="380" y="140" width="280" height="120" rx="8" stroke="var(--g)"/>
+  <text class="title" x="520" y="164" text-anchor="middle" fill="var(--g)">单元 B（北京）</text>
+  <text class="sub" x="520" y="188" text-anchor="middle">网关 + 应用集群 + 缓存 + MQ</text>
+  <text class="sub" x="520" y="208" text-anchor="middle">DB 分片 B（主）+ 分片 A（备）</text>
+  <text class="sub" x="520" y="228" text-anchor="middle">请求在单元内闭环</text>
+
+  <!-- 单元间数据同步 -->
+  <text class="note" x="340" y="192" text-anchor="middle">双向同步</text>
+  <line class="arr" x1="302" y1="200" x2="378" y2="200" stroke-dasharray="4 3" marker-start="url(#a)" marker-end="url(#a)"/>
+
+  <!-- 单元 ↔ 中心 -->
+  <line class="arr" x1="160" y1="262" x2="160" y2="298" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="note" x="170" y="284">写中心，读本地副本</text>
+  <line class="arr" x1="520" y1="262" x2="520" y2="298" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="note" x="530" y="284">写中心，读本地副本</text>
+
+  <!-- 中心单元 -->
+  <rect class="box" x="20" y="300" width="640" height="80" rx="8" stroke="var(--y)"/>
+  <text class="title" x="340" y="326" text-anchor="middle" fill="var(--y)">中心单元（全局数据）</text>
+  <text class="sub" x="340" y="350" text-anchor="middle">库存、商家、配置等全局数据：写入集中在中心，只读副本同步到各单元</text>
+</svg>

@@ -220,4 +220,4 @@ public class TwoLevelCacheService {
 }
 ```
 
-> 完整的两级缓存方案详见：[缓存模块 → 两级缓存架构](/cache/0_redis_base)
+> 完整的两级缓存方案详见：[缓存模块 → 两级缓存架构](/cache/1_redis_base)

@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总 MQ 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/6_mq">开发总结-消息队列</RouteLink>
+> 汇总 MQ 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/7_mq">开发总结-消息队列</RouteLink>
 
 ## 一、MQ 基础
 
@@ -45,5 +45,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/6_mq">开发总结-消息队列</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/7_mq">开发总结-消息队列</RouteLink>
 :::

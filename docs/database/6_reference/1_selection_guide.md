@@ -212,6 +212,6 @@ MySQL 技术栈尝鲜
 | 文档 | [文档数据库（MongoDB）](../4_nosql/2_document_db) |
 | 搜索 | [搜索数据库（Elasticsearch / OpenSearch）](../4_nosql/3_search_db) |
 | 图 | [图数据库（Neo4j / NebulaGraph）](../4_nosql/4_graph_db) |
-| 缓存 / KV | [缓存模块（Redis / Caffeine）](../../cache/0_redis_base) |
+| 缓存 / KV | [缓存模块（Redis / Caffeine）](../../cache/1_redis_base) |
 | 向量 | [AI 模块 · 向量数据库](../../ai/4_core_tech/1_vector_db) |
 | 扩展与接入 | [分库分表](../5_practice/2_sharding) / [连接池](../5_practice/3_connection_pool) / [CDC 工具](../5_practice/0_cdc_tools) |

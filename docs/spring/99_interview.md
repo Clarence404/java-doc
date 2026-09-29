@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总 Spring / Spring Boot 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/4_spring">开发总结-Spring</RouteLink>
+> 汇总 Spring / Spring Boot 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/5_spring">开发总结-Spring</RouteLink>
 
 ## 一、IoC 与 DI
 
@@ -35,7 +35,7 @@
 - **`spring.factories` / `AutoConfiguration.imports` 的作用？**
 - **如何自定义一个 Spring Boot Starter？**
 - **Spring Boot 启动流程是什么？**  
-  → 详见 <RouteLink to="/spring-boot/0_spring_boot">Spring Boot</RouteLink>
+  → 详见 <RouteLink to="/spring-boot/1_spring_boot">Spring Boot</RouteLink>
 
 ## 六、Spring MVC
 
@@ -46,5 +46,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/4_spring">开发总结-Spring</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/5_spring">开发总结-Spring</RouteLink>
 :::

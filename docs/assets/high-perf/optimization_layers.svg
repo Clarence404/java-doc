@@ -1,0 +1,48 @@
+<svg viewBox="0 0 680 396" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .tag { font-weight:700; font-size:13px; }
+    .txt { fill:var(--fg); }
+    .cost { fill:var(--muted); font-size:11px; }
+    .hd { fill:var(--muted); font-size:11px; font-weight:700; }
+  </style>
+
+  <text x="340" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">性能优化分层</text>
+
+  <text x="36" y="52" class="hd">层次</text>
+  <text x="140" y="52" class="hd">典型手段</text>
+  <text x="650" y="52" text-anchor="end" class="hd">典型收益 / 成本</text>
+
+  <rect class="box" x="20" y="62" width="640" height="44" stroke="var(--p)"/>
+  <text x="36" y="89" class="tag" fill="var(--p)">代码</text>
+  <text x="140" y="89" class="txt">算法与数据结构 / 集合预分配 / 减少对象与装箱 / 锁粒度</text>
+  <text x="650" y="89" text-anchor="end" class="cost">局部数倍 · 成本低</text>
+
+  <rect class="box" x="20" y="116" width="640" height="44" stroke="var(--b)"/>
+  <text x="36" y="143" class="tag" fill="var(--b)">JVM</text>
+  <text x="140" y="143" class="txt">GC 选型与堆参数 / JIT 预热 / 减少分配与停顿</text>
+  <text x="650" y="143" text-anchor="end" class="cost">改善长尾 · 成本低～中</text>
+
+  <rect class="box" x="20" y="170" width="640" height="44" stroke="var(--g)"/>
+  <text x="36" y="197" class="tag" fill="var(--g)">中间件/缓存</text>
+  <text x="140" y="197" class="txt">多级缓存 / 连接池与线程池 / MQ 异步 / 批量</text>
+  <text x="650" y="197" text-anchor="end" class="cost">十倍级 · 需处理一致性</text>
+
+  <rect class="box" x="20" y="224" width="640" height="44" stroke="var(--y)"/>
+  <text x="36" y="251" class="tag" fill="var(--y)">数据库</text>
+  <text x="140" y="251" class="txt">索引 / SQL 改写 / 深分页治理 / 批量写 / 消除 N+1</text>
+  <text x="650" y="251" text-anchor="end" class="cost">十至千倍 · 成本低～中</text>
+
+  <rect class="box" x="20" y="278" width="640" height="44" stroke="var(--r)"/>
+  <text x="36" y="305" class="tag" fill="var(--r)">架构</text>
+  <text x="140" y="305" class="txt">同步转异步 / 预计算物化 / 请求合并 / 读写分离</text>
+  <text x="650" y="305" text-anchor="end" class="cost">量级提升 · 成本高</text>
+
+  <rect class="box" x="20" y="332" width="640" height="44" stroke="var(--muted)"/>
+  <text x="36" y="359" class="tag" fill="var(--muted)">网络</text>
+  <text x="140" y="359" class="txt">连接复用 / HTTP/2 / 压缩 / 高效序列化 / CDN</text>
+  <text x="650" y="359" text-anchor="end" class="cost">减少往返 · 成本中</text>
+</svg>

@@ -12,51 +12,52 @@ import 'dotenv/config';
 const NAVBAR_STYLE = process.env.NAVBAR_STYLE ?? 'dropdown';
 
 const navbarFlat = [
-    {text: '开发总结', link: '/interview/0_java'},
+    {text: '开发总结', link: '/interview/0_overview'},
     {text: 'Java',    link: '/java/0_overview'},
-    {text: 'JVM',     link: '/jvm/0_memory'},
-    {text: '算法',    link: '/algorithms/0_complexity'},
-    {text: '设计模式', link: '/patterns/0_design_intro'},
-    {text: 'Spring',  link: '/spring/0_framework'},
-    {text: 'Spring Boot', link: '/spring-boot/0_spring_boot'},
+    {text: 'JVM',     link: '/jvm/0_overview'},
+    {text: '算法',    link: '/algorithms/0_overview'},
+    {text: '设计模式', link: '/patterns/0_overview'},
+    {text: 'Spring',  link: '/spring/0_overview'},
+    {text: 'Spring Boot', link: '/spring-boot/0_overview'},
     {text: 'Spring Cloud', link: '/spring-cloud/0_overview'},
-    {text: '测试体系', link: '/testing/0_testing_intro'},
+    {text: '测试体系', link: '/testing/0_overview'},
     {text: '数据库',  link: '/database/0_overview'},
-    {text: '缓存',    link: '/cache/0_redis_base'},
-    {text: '消息队列', link: '/messaging/0_mq'},
-    {text: '分布式',  link: '/distributed/0_distributed'},
-    {text: '高并发',  link: '/high-con/0_system_design'},
+    {text: '缓存',    link: '/cache/0_overview'},
+    {text: '消息队列', link: '/messaging/0_overview'},
+    {text: '分布式',  link: '/distributed/0_overview'},
+    {text: '高并发',  link: '/high-con/0_overview'},
     {text: '高可用',  link: '/high-avail/0_overview'},
+    {text: '高性能',  link: '/high-perf/0_overview'},
     {text: '微服务',  link: '/microservices/0_overview'},
     {text: '架构',    link: '/architecture/0_overview'},
     {text: '协议体系', link: '/protocols/0_overview'},
-    {text: 'Netty',   link: '/netty/0_io_model'},
-    {text: '云原生',  link: '/cloud-native/0_linux'},
+    {text: 'Netty',   link: '/netty/0_overview'},
+    {text: '云原生',  link: '/cloud-native/0_overview'},
     {text: 'DevOps',  link: '/devops/0_overview'},
     {text: '工程效率', link: '/engineering/0_overview'},
-    {text: '可观测性', link: '/observability/0_observability'},
-    {text: '安全',    link: '/security/0_security'},
-    {text: 'IoT',     link: '/iot/0_base'},
+    {text: '可观测性', link: '/observability/0_overview'},
+    {text: '安全',    link: '/security/0_overview'},
+    {text: 'IoT',     link: '/iot/0_overview'},
     {text: 'AI',      link: '/ai/0_overview'},
-    {text: '业务场景', link: '/scenario/0_scene'},
+    {text: '业务场景', link: '/scenario/0_overview'},
 ];
 
 const navbarDropdown = [
-    {text: '开发总结', link: '/interview/0_java'},
+    {text: '开发总结', link: '/interview/0_overview'},
     {
         text: '基础体系',
         children: [
             {text: 'Java',    link: '/java/0_overview'},
-            {text: 'JVM',     link: '/jvm/0_memory'},
-            {text: '算法',    link: '/algorithms/0_complexity'},
-            {text: '设计模式', link: '/patterns/0_design_intro'},
+            {text: 'JVM',     link: '/jvm/0_overview'},
+            {text: '算法',    link: '/algorithms/0_overview'},
+            {text: '设计模式', link: '/patterns/0_overview'},
         ],
     },
     {
         text: '框架生态',
         children: [
-            {text: 'Spring',          link: '/spring/0_framework'},
-            {text: 'Spring Boot',     link: '/spring-boot/0_spring_boot'},
+            {text: 'Spring',          link: '/spring/0_overview'},
+            {text: 'Spring Boot',     link: '/spring-boot/0_overview'},
             {text: 'Spring Cloud',    link: '/spring-cloud/0_overview'},
         ],
     },
@@ -64,39 +65,45 @@ const navbarDropdown = [
         text: '数据存储',
         children: [
             {text: '数据库',   link: '/database/0_overview'},
-            {text: '缓存',     link: '/cache/0_redis_base'},
-            {text: '消息队列', link: '/messaging/0_mq'},
+            {text: '缓存',     link: '/cache/0_overview'},
+            {text: '消息队列', link: '/messaging/0_overview'},
         ],
     },
     {
         text: '分布式架构',
         children: [
-            {text: '分布式', link: '/distributed/0_distributed'},
-            {text: '高并发', link: '/high-con/0_system_design'},
-            {text: '高可用', link: '/high-avail/0_overview'},
+            {text: '分布式', link: '/distributed/0_overview'},
             {text: '微服务', link: '/microservices/0_overview'},
             {text: '系统架构', link: '/architecture/0_overview'},
             {text: '协议体系', link: '/protocols/0_overview'},
-            {text: 'Netty', link: '/netty/0_io_model'},
+            {text: 'Netty', link: '/netty/0_overview'},
+        ],
+    },
+    {
+        text: '三高架构',
+        children: [
+            {text: '高并发', link: '/high-con/0_overview'},
+            {text: '高可用', link: '/high-avail/0_overview'},
+            {text: '高性能', link: '/high-perf/0_overview'},
         ],
     },
     {
         text: '工程实践',
         children: [
-            {text: '云原生',   link: '/cloud-native/0_linux'},
+            {text: '云原生',   link: '/cloud-native/0_overview'},
             {text: 'DevOps',  link: '/devops/0_overview'},
             {text: '工程效率', link: '/engineering/0_overview'},
-            {text: '可观测性', link: '/observability/0_observability'},
-            {text: '测试体系', link: '/testing/0_testing_intro'},
+            {text: '可观测性', link: '/observability/0_overview'},
+            {text: '测试体系', link: '/testing/0_overview'},
         ],
     },
-    {text: '安全体系', link: '/security/0_security'},
+    {text: '安全体系', link: '/security/0_overview'},
     {
         text: '垂直领域',
         children: [
-            {text: 'IoT',     link: '/iot/0_base'},
+            {text: 'IoT',     link: '/iot/0_overview'},
             {text: 'AI',      link: '/ai/0_overview'},
-            {text: '大数据', link: '/scenario/0_scene'},
+            {text: '大数据', link: '/scenario/0_overview'},
         ],
     },
 ];
@@ -129,7 +136,7 @@ function getSidebarFromDir(dirPath) {
 }
 
 const patternsSidebar = [
-    {text: '设计模式总览', link: '/patterns/0_design_intro'},
+    {text: '设计模式总览', link: '/patterns/0_overview'},
     {
         text: '创建型',
         link: '/patterns/1_creational_singleton',
@@ -180,61 +187,62 @@ const patternsSidebar = [
 ];
 
 const cloudNativeSidebar = [
+    {text: '云原生总览', link: '/cloud-native/0_overview'},
     {
         text: 'Linux 基础',
-        link: '/cloud-native/0_linux',
+        link: '/cloud-native/1_linux',
         collapsible: true,
         collapsed: false,
         children: [
-            {text: '概述', link: '/cloud-native/0_linux'},
-            {text: '发行版', link: '/cloud-native/1_linux_distros'},
+            {text: '概述', link: '/cloud-native/1_linux'},
+            {text: '发行版', link: '/cloud-native/2_linux_distros'},
         ],
     },
     {
         text: '虚拟化',
-        link: '/cloud-native/2_virtual',
+        link: '/cloud-native/3_virtual',
         collapsible: true,
         collapsed: true,
         children: [
-            {text: '虚拟机', link: '/cloud-native/2_virtual'},
-            {text: '常用工具', link: '/cloud-native/3_virtual_tools'},
+            {text: '虚拟机', link: '/cloud-native/3_virtual'},
+            {text: '常用工具', link: '/cloud-native/4_virtual_tools'},
         ],
     },
     {
         text: '容器与编排',
-        link: '/cloud-native/4_docker',
+        link: '/cloud-native/5_docker',
         collapsible: true,
         collapsed: true,
         children: [
-            {text: 'Docker', link: '/cloud-native/4_docker'},
-            {text: 'Kubernetes', link: '/cloud-native/5_kubernetes'},
-            {text: 'Nginx 与 Ingress', link: '/cloud-native/6_nginx_ingress'},
-            {text: 'Helm', link: '/cloud-native/7_helm'},
-            {text: 'Argo CD', link: '/cloud-native/8_argocd'},
-            {text: 'Service Mesh', link: '/cloud-native/9_service_mesh'},
+            {text: 'Docker', link: '/cloud-native/5_docker'},
+            {text: 'Kubernetes', link: '/cloud-native/6_kubernetes'},
+            {text: 'Nginx 与 Ingress', link: '/cloud-native/7_nginx_ingress'},
+            {text: 'Helm', link: '/cloud-native/8_helm'},
+            {text: 'Argo CD', link: '/cloud-native/9_argocd'},
+            {text: 'Service Mesh', link: '/cloud-native/10_service_mesh'},
         ],
     },
     {
         text: '基础设施自动化',
-        link: '/cloud-native/10_terraform',
+        link: '/cloud-native/11_terraform',
         collapsible: true,
         collapsed: true,
         children: [
-            {text: 'Terraform', link: '/cloud-native/10_terraform'},
-            {text: 'Ansible', link: '/cloud-native/16_ansible'},
+            {text: 'Terraform', link: '/cloud-native/11_terraform'},
+            {text: 'Ansible', link: '/cloud-native/17_ansible'},
         ],
     },
     {
         text: '云平台与选购',
-        link: '/cloud-native/11_cloud_overview',
+        link: '/cloud-native/12_cloud_overview',
         collapsible: true,
         collapsed: true,
         children: [
-            {text: '概述', link: '/cloud-native/11_cloud_overview'},
-            {text: '国际云', link: '/cloud-native/12_cloud_global'},
-            {text: '国内云', link: '/cloud-native/13_cloud_domestic'},
-            {text: 'Cloudflare', link: '/cloud-native/14_cloudflare'},
-            {text: 'VPS 选购', link: '/cloud-native/15_vps_intro'},
+            {text: '概述', link: '/cloud-native/12_cloud_overview'},
+            {text: '国际云', link: '/cloud-native/13_cloud_global'},
+            {text: '国内云', link: '/cloud-native/14_cloud_domestic'},
+            {text: 'Cloudflare', link: '/cloud-native/15_cloudflare'},
+            {text: 'VPS 选购', link: '/cloud-native/16_vps_intro'},
         ],
     },
 ];
@@ -300,6 +308,7 @@ const aiSidebar = [
 ];
 
 const algorithmsSidebar = [
+    {text: '算法总览', link: '/algorithms/0_overview'},
     {text: '复杂度分析', link: '/algorithms/0_complexity'},
     {
         text: '数据结构',
@@ -492,6 +501,7 @@ export default defineUserConfig({
             '/high-con/': getSidebarFromDir(path.resolve(__dirname, '../high-con')),
             '/distributed/': getSidebarFromDir(path.resolve(__dirname, '../distributed')),
             '/high-avail/': getSidebarFromDir(path.resolve(__dirname, '../high-avail')),
+            '/high-perf/': getSidebarFromDir(path.resolve(__dirname, '../high-perf')),
             '/patterns/': patternsSidebar,
             '/scenario/': getSidebarFromDir(path.resolve(__dirname, '../scenario')),
             '/netty/': getSidebarFromDir(path.resolve(__dirname, '../netty')),

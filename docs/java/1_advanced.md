@@ -8,7 +8,7 @@
 
 ### 1、Lambda 底层原理与 函数式接口
 
-详见：<RouteLink to="/interview/0_java#十五、说说-lambda-表达式的底层原理">
+详见：<RouteLink to="/interview/1_java#十五、说说-lambda-表达式的底层原理">
 Java 总结-Java：十五、说说lambda表达式的底层原理</RouteLink>
 
 ### 2、流式 API（Stream API）与集合框架

@@ -75,5 +75,5 @@
 | 微服务设计模式 | [微服务设计模式](../microservices/2_patterns.md) |
 | 服务网格 | [服务网格](../microservices/3_service_mesh.md) |
 | 熔断限流 | [高可用](../high-avail/0_overview.md) |
-| 分布式事务 | [分布式事务](../distributed/3_transaction.md) |
-| 消息中间件 | [消息队列](../messaging/0_mq.md) |
+| 分布式事务 | [分布式事务](../distributed/4_transaction.md) |
+| 消息中间件 | [消息队列](../messaging/0_overview.md) |

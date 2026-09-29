@@ -1,6 +1,6 @@
 # 专项 - 线程池
 
-> `Executors` 快捷创建方式见 [线程基础 - 线程池基础](./23_topic_thread_basics.md#四、线程池基础-executors)，本文着重介绍 `ThreadPoolExecutor` 的原理与 Fork/Join。线程数如何设置、动态线程池等生产调优见 [高并发系统设计](/high-con/0_system_design#三、线程池参数调优)。
+> `Executors` 快捷创建方式见 [线程基础 - 线程池基础](./23_topic_thread_basics.md#四、线程池基础-executors)，本文着重介绍 `ThreadPoolExecutor` 的原理与 Fork/Join。线程数如何设置、动态线程池等生产调优见 [高并发系统设计](/high-con/6_concurrency_tuning#一、线程池参数调优)。
 
 参考文章：
 

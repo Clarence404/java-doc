@@ -18,8 +18,9 @@ docs/
 ├── devops/         DevOps：Git 工作流 / CI/CD / Code Review / 团队规范
 ├── distributed/    分布式理论 / 锁 / 事务 / 会话
 ├── engineering/    工程效率：构建 / 工具链 / 代码质量 / 线上诊断 / API 规范
-├── high-avail/     高可用：限流 / 熔断 / 降级
-├── high-con/       高并发：JUC / 线程池 / 系统设计
+├── high-avail/     高可用：SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线
+├── high-con/       高并发：水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划
+├── high-perf/      高性能：指标 / 方法论 / 基准测试 / 池化与异步 / IO 与数据库优化 / Profiler
 ├── interview/      开发总结（各方向高频问题汇总）
 ├── iot/            物联网：基础 / 协议 / 开源平台
 ├── java/           Java 语言：语言机制 / IO / 集合 / 并发 / 版本特性
@@ -55,8 +56,9 @@ docs/
 | 测试体系 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD |
 | Netty | `docs/netty/` | IO 模型 / Reactor / WebSocket / SSE |
 | 分布式 | `docs/distributed/` | CAP / Raft / 分布式锁 / 事务 |
-| 高并发 | `docs/high-con/` | 系统设计 / 线程池调优 / 指标 / Profiler |
-| 高可用 | `docs/high-avail/` | 限流 / 熔断 / 降级 |
+| 高并发 | `docs/high-con/` | 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划 |
+| 高可用 | `docs/high-avail/` | SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线 |
+| 高性能 | `docs/high-perf/` | 指标 / 方法论 / JMH / 池化与异步 / IO 与数据库优化 / Profiler |
 | 消息队列 | `docs/messaging/` | Kafka / RocketMQ / RabbitMQ |
 | 微服务 | `docs/microservices/` | 拆分 / 注册发现 / 网关 / 模式 / Dubbo |
 | 数据库 | `docs/database/` | MySQL / 分库分表 / 各类 NoSQL |
@@ -80,7 +82,8 @@ docs/
 基础层：  Java 特性 → JVM → 算法 → 设计模式
 框架层：  Spring → Spring Boot → Spring Cloud
 数据层：  数据库 → 缓存 → 消息队列
-分布式层：分布式理论 → 高并发 → Netty → 高可用 → 微服务
+分布式层：分布式理论 → Netty → 微服务
+三高层：  高并发 → 高可用 → 高性能
 架构层：  系统架构 → 业务场景
 运维层：  云原生 → DevOps → 工程效率 → 可观测性 → 协议体系 → 安全体系
 新兴层：  IoT → AI

@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总系统架构核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/12_architecture">开发总结-系统架构</RouteLink>
+> 汇总系统架构核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/13_architecture">开发总结-系统架构</RouteLink>
 
 ## 一、架构演进
 
@@ -40,14 +40,14 @@
 ## 六、系统设计
 
 - **如何设计一个高并发秒杀系统？**  
-  → 详见 <RouteLink to="/scenario/3_seckill">秒杀系统</RouteLink>
+  → 详见 <RouteLink to="/scenario/4_seckill">秒杀系统</RouteLink>
 - **如何设计一个短链接系统？**  
-  → 详见 <RouteLink to="/scenario/5_shorturl">短链接</RouteLink>
+  → 详见 <RouteLink to="/scenario/6_shorturl">短链接</RouteLink>
 - **如何设计一个排行榜系统？**  
-  → 详见 <RouteLink to="/scenario/6_rank_system">排行榜</RouteLink>
+  → 详见 <RouteLink to="/scenario/7_rank_system">排行榜</RouteLink>
 
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/12_architecture">开发总结-系统架构</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/13_architecture">开发总结-系统架构</RouteLink>
 :::

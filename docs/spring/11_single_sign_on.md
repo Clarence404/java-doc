@@ -254,4 +254,4 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 - [单点登录](/security/4_sso)：SSO 原理、方案对比、单点登出、IAM 平台
 - [认证授权框架横向对比（Spring Security / Shiro / Sa-Token）](./10_auth_framework)：含 Sa-Token SSO
 - [OAuth2](/security/2_oauth2) / [OIDC](/security/3_oidc) / [JWT](/security/1_jwt)：协议细节
-- [分布式会话](/distributed/4_session)：同域会话共享方案
+- [分布式会话](/distributed/5_session)：同域会话共享方案

@@ -121,7 +121,7 @@ session-service → Redis（专用，不共享）
 
 服务调用失败率达到阈值时自动熔断，防止雪崩。
 
-> 详见：[高可用 - 熔断](../high-avail/)
+> 详见：[高可用 - 熔断](/high-avail/4_circuit_breaking)
 
 ### 4.2 Saga 模式（分布式事务）
 

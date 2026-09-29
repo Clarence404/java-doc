@@ -37,7 +37,7 @@
 | 文档 | 说明 |
 |------|------|
 | [时间 API](./17_topic_time.md) | Date/Calendar 痛点 → java.time 完整迁移指南 |
-| [IO / NIO API](./18_topic_io.md) | 字节流/字符流、Channel、Buffer、Selector、零拷贝（OS 层 IO 模型见 [Netty](/netty/0_io_model)） |
+| [IO / NIO API](./18_topic_io.md) | 字节流/字符流、Channel、Buffer、Selector、零拷贝（OS 层 IO 模型见 [Netty](/netty/1_io_model)） |
 | [序列化](./19_topic_serialization.md) | Serializable、Externalizable、JSON 序列化对比 |
 | [SPI 机制](./20_topic_spi.md) | ServiceLoader、双亲委派扩展点、Spring 的 SPI 变体 |
 | [集合框架](./21_topic_collection.md) | List/Set/Queue、HashMap/ConcurrentHashMap/TreeMap 原理、线程安全选型 |
@@ -57,7 +57,7 @@
 | [线程池](./28_topic_thread_pool.md) | ThreadPoolExecutor 参数与执行流程、队列、拒绝策略、Fork/Join |
 | [CompletableFuture](./29_topic_completable_future.md) | 异步编排、任务组合、异常处理与常见坑 |
 
-> 线程数设置、压测、Profiler 等系统级内容见 [高并发](/high-con/0_system_design)。
+> 线程数设置、压测、Profiler 等系统级内容见 [高并发](/high-con/0_overview)。
 
 ---
 

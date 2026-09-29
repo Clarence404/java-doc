@@ -179,7 +179,7 @@ seata:
 | Saga | 中（写补偿逻辑）| 最终一致 | 长流程、跨企业服务 |
 | XA | 零侵入 | 强一致 | 数据库支持 XA 且并发不高 |
 
-> 分布式事务的第一原则仍然是**能不用就不用**：优先考虑消息最终一致 / 本地消息表 / 对账补偿（见 [分布式事务理论](../distributed/3_transaction)），Seata 是"必须同步强一致"时的选项。
+> 分布式事务的第一原则仍然是**能不用就不用**：优先考虑消息最终一致 / 本地消息表 / 对账补偿（见 [分布式事务理论](../distributed/4_transaction)），Seata 是"必须同步强一致"时的选项。
 
 ---
 
@@ -200,5 +200,5 @@ seata:
 ## 六、相关文档
 
 - 抽象层：[注册发现](./1_service_registry) / [网关](./2_api_gateway) / [通信](./3_communication) / [配置中心](./4_config_center) / [治理](./5_service_governance)
-- [分布式事务理论（2PC / TCC / Saga）](../distributed/3_transaction)
+- [分布式事务理论（2PC / TCC / Saga）](../distributed/4_transaction)
 - [高可用：限流熔断降级](../high-avail/0_overview)

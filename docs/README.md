@@ -9,13 +9,13 @@ heroFullScreen: true
 
 actions:
   - text: 开发总结
-    link: /interview/0_java
+    link: /interview/0_overview
     type: primary
   - text: 开始阅读
     link: /java/0_overview
     type: default
   - text: 云原生
-    link: /cloud-native/0_linux
+    link: /cloud-native/0_overview
     type: default
 
 highlights:
@@ -25,27 +25,27 @@ highlights:
       - title: Java 核心
         icon: coffee
         details: 语言特性 / 集合框架 / 并发编程 / 泛型与反射，Java 开发核心高频题精选
-        link: /interview/0_java
+        link: /interview/1_java
       - title: 数据库
         icon: database
         details: MySQL 索引 / 事务 / MVCC / SQL 优化 / 分库分表，数据库高频面试题
-        link: /interview/1_db
+        link: /interview/2_db
       - title: 缓存
         icon: bolt
         details: Redis 数据结构 / 持久化 / 主从集群 / 缓存穿透击穿雪崩完整解法
-        link: /interview/2_cache
+        link: /interview/3_cache
       - title: JVM
         icon: gears
         details: 内存结构 / 垃圾回收算法 / 类加载机制 / 性能调优与 OOM 排查
-        link: /interview/3_jvm
+        link: /interview/4_jvm
       - title: Spring 全家桶
         icon: leaf
         details: IoC / AOP / 事务传播 / 循环依赖三级缓存 / Spring Boot 自动配置原理
-        link: /interview/4_spring
+        link: /interview/5_spring
       - title: 消息队列
         icon: comments
         details: Kafka / RocketMQ 架构原理，消息可靠性 / 顺序消费 / 幂等保障方案
-        link: /interview/6_mq
+        link: /interview/7_mq
 
   - header: 基础体系
     description: 扎实根基，以不变应万变
@@ -59,15 +59,15 @@ highlights:
       - title: JVM
         icon: gears
         details: 内存结构 / 类加载机制 / GC 算法全解 / 参数调优 / 线上 OOM 排查实战
-        link: /jvm/0_memory
+        link: /jvm/0_overview
       - title: 算法与数据结构
         icon: diagram-project
         details: 复杂度分析 + 13 种算法范式，LeetCode / 华为 OJ 分类题解与解题思路
-        link: /algorithms/0_complexity
+        link: /algorithms/0_overview
       - title: 设计模式
         icon: shapes
         details: GoF 全部 23 种经典模式详解，结合 Spring / JDK 真实源码场景深度讲解
-        link: /patterns/0_design_intro
+        link: /patterns/0_overview
 
   - header: 框架生态
     description: Spring 全家桶与高性能网络编程
@@ -75,19 +75,19 @@ highlights:
       - title: Spring Framework
         icon: leaf
         details: IoC 容器原理 / AOP 动态代理 / Bean 生命周期 / 事务传播 / 三级缓存解循环依赖
-        link: /spring/0_framework
+        link: /spring/0_overview
       - title: Spring Boot
         icon: rocket
         details: 自动配置原理深度解析 / Actuator 监控 / Flyway 数据库版本迁移最佳实践
-        link: /spring-boot/0_spring_boot
+        link: /spring-boot/0_overview
       - title: Netty
         icon: network-wired
         details: BIO → NIO → IO 多路复用演进 / Reactor 模式实战 / WebSocket / SSE 长连接
-        link: /netty/0_io_model
+        link: /netty/0_overview
       - title: 测试体系
         icon: vial
         details: JUnit 5 单元测试 / Mockito Mock / TestContainers 集成测试 / TDD 实践
-        link: /testing/0_testing_intro
+        link: /testing/0_overview
 
   - header: 数据存储
     description: 关系型 · NoSQL · 消息中间件，数据全链路
@@ -101,31 +101,39 @@ highlights:
       - title: 缓存
         icon: bolt
         details: Redis 核心 / Caffeine 本地缓存 / 两级缓存架构 / 缓存一致性解决方案
-        link: /cache/0_redis_base
+        link: /cache/0_overview
       - title: 消息队列
         icon: comments
         details: Kafka / RocketMQ / RabbitMQ 原理横向对比，消息可靠性 / 顺序消费 / 幂等方案
-        link: /messaging/0_mq
+        link: /messaging/0_overview
 
   - header: 分布式架构
-    description: 高并发 · 高可用 · 微服务，架构进阶核心
+    description: 分布式理论 · 微服务，架构进阶核心
     features:
       - title: 分布式理论
         icon: globe
         details: CAP / BASE / Raft / Gossip 协议精讲，分布式锁 / 分布式事务 / 分布式 Session
-        link: /distributed/0_distributed
-      - title: 高并发
-        icon: fire
-        details: 高并发系统设计 / 线程池参数调优 / 高并发指标 / JProfiler 与火焰图
-        link: /high-con/0_system_design
-      - title: 高可用
-        icon: shield-halved
-        details: 漏桶 / 令牌桶限流算法 / 熔断三态机制 / 降级策略，Sentinel / Resilience4j 对比
-        link: /high-avail/0_overview
+        link: /distributed/0_overview
       - title: 微服务
         icon: cubes
         details: 服务拆分原则 / 注册发现 / API 网关 / 全链路追踪 / Saga 等微服务治理模式
         link: /microservices/0_overview
+
+  - header: 三高架构
+    description: 高并发 · 高可用 · 高性能，系统级设计策略
+    features:
+      - title: 高并发
+        icon: fire
+        details: 水平扩展 / 缓存架构 / 异步削峰 / 数据层扩展 / 热点治理 / 容量规划
+        link: /high-con/0_overview
+      - title: 高可用
+        icon: shield-halved
+        details: SLA 与错误预算 / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线 / 混沌工程
+        link: /high-avail/0_overview
+      - title: 高性能
+        icon: gauge-high
+        details: 性能指标 / 分析方法论 / JMH 基准测试 / 池化与异步批量 / IO 与数据库优化 / Profiler
+        link: /high-perf/0_overview
 
   - header: 架构设计
     description: 系统设计方法论 · DDD · 业务场景落地
@@ -139,7 +147,7 @@ highlights:
       - title: 业务场景
         icon: briefcase
         details: 大数据业务场景方案 / 技术选型实战案例，从业务需求到架构落地全流程
-        link: /scenario/0_scene
+        link: /scenario/0_overview
 
   - header: 工程运维
     description: 云原生 · DevOps · 通信协议，基础设施全栈
@@ -147,7 +155,7 @@ highlights:
       - title: 云原生
         icon: cloud
         details: Linux 高频运维命令 / Docker 容器化 / Kubernetes 集群部署 / Helm Chart 实践
-        link: /cloud-native/0_linux
+        link: /cloud-native/0_overview
       - title: DevOps
         icon: screwdriver-wrench
         details: Git 工作流 / CI/CD 流水线 / Code Review / 团队开发规范
@@ -155,7 +163,7 @@ highlights:
       - title: 可观测性
         icon: chart-line
         details: 日志 / 指标 / 链路追踪 / 告警治理 / OpenTelemetry，支撑线上排障与稳定性建设
-        link: /observability/0_observability
+        link: /observability/0_overview
       - title: 协议体系
         icon: tower-broadcast
         details: TCP/IP / HTTP/2 / gRPC / WebSocket / IoT 协议 / TLS 安全协议全栈体系
@@ -169,7 +177,7 @@ highlights:
       - title: IoT 物联网
         icon: microchip
         details: 物联网四层架构 / MQTT / OPC-UA 协议精讲 / ThingsBoard 开源平台源码实战
-        link: /iot/0_base
+        link: /iot/0_overview
       - title: 人工智能
         icon: robot
         details: Spring AI / LangChain4j 框架 / RAG 检索增强生成 / Ollama 本地大模型部署

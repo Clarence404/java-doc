@@ -1,6 +1,6 @@
 # 图数据库
 
-> NoSQL 四大类型：键值（Redis，见 [缓存模块](../../cache/0_redis_base)）、文档（MongoDB）、列族（HBase）、**图**。
+> NoSQL 四大类型：键值（Redis，见 [缓存模块](../../cache/1_redis_base)）、文档（MongoDB）、列族（HBase）、**图**。
 
 ## 一、为什么需要图数据库
 

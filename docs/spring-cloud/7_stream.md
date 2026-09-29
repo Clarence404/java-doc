@@ -1,7 +1,7 @@
 # Stream
 
 - 官方文档：[https://docs.spring.io/spring-cloud-stream/reference/](https://docs.spring.io/spring-cloud-stream/reference/)
-- MQ 本体（Kafka / RocketMQ / RabbitMQ 原理与选型）见 [消息队列模块](../messaging/0_mq)
+- MQ 本体（Kafka / RocketMQ / RabbitMQ 原理与选型）见 [消息队列模块](../messaging/0_overview)
 
 ## 一、解决什么问题
 
@@ -121,7 +121,7 @@ spring.cloud.stream.rabbit.bindings.settle-in-0.consumer:
   auto-bind-dlq: true            # 重试耗尽进死信队列（Rabbit Binder 特性）
 ```
 
-重试耗尽后的消息进入 DLQ，人工或定时任务兜底——处理思路与 [消息队列模块](../messaging/0_mq) 的死信设计一致。
+重试耗尽后的消息进入 DLQ，人工或定时任务兜底——处理思路与 [消息队列模块](../messaging/0_overview) 的死信设计一致。
 
 ---
 
@@ -166,6 +166,6 @@ spring.cloud.stream.rabbit.bindings.settle-in-0.consumer:
 
 ## 六、相关文档
 
-- [消息队列模块（Kafka / RocketMQ / RabbitMQ 本体）](../messaging/0_mq)
+- [消息队列模块（Kafka / RocketMQ / RabbitMQ 本体）](../messaging/0_overview)
 - [Spring Cloud Alibaba（RocketMQ Binder）](./6_alibaba)
 - [微服务通信模式（同步 vs 异步）](../microservices/2_patterns)

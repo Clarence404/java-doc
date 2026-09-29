@@ -220,4 +220,4 @@ Spring Batch 专注**批量处理逻辑**，本身不负责调度。通常配合
 | Quartz | 集群定时触发，精确 Cron |
 | XXL-Job / Elastic-Job | 分布式调度，支持分片、监控 |
 
-详见 → [分布式任务调度](/distributed/5_job_scheduler)
+详见 → [分布式任务调度](/distributed/6_job_scheduler)

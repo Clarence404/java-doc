@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总 Java 基础与进阶方向的高频面试问题，完整解答见 <RouteLink to="/interview/0_java">开发总结-Java</RouteLink>
+> 汇总 Java 基础与进阶方向的高频面试问题，完整解答见 <RouteLink to="/interview/1_java">开发总结-Java</RouteLink>
 
 ## 一、基础类型与对象
 
@@ -55,5 +55,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答（含代码示例）见 <RouteLink to="/interview/0_java">开发总结-Java</RouteLink>
+以上问题的详细解答（含代码示例）见 <RouteLink to="/interview/1_java">开发总结-Java</RouteLink>
 :::

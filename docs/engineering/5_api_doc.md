@@ -1,6 +1,6 @@
 # API 文档
 
-> SpringDoc / Knife4j 的依赖、配置、注解等集成代码统一见 [spring-boot/9_api_doc](../spring-boot/9_api_doc)，本文聚焦方案选型、文档导出与规范。
+> SpringDoc / Knife4j 的依赖、配置、注解等集成代码统一见 [spring-boot/10_api_doc](../spring-boot/10_api_doc)，本文聚焦方案选型、文档导出与规范。
 
 ---
 
@@ -17,7 +17,7 @@
 
 ## 二、集成实践
 
-SpringDoc OpenAPI 3 与 Knife4j 的依赖、`application.yml` 配置、全局 OpenAPI Bean、Controller / DTO 注解、Spring Security 放行及多环境控制，详见 [spring-boot/9_api_doc](../spring-boot/9_api_doc)。
+SpringDoc OpenAPI 3 与 Knife4j 的依赖、`application.yml` 配置、全局 OpenAPI Bean、Controller / DTO 注解、Spring Security 放行及多环境控制，详见 [spring-boot/10_api_doc](../spring-boot/10_api_doc)。
 
 ---
 

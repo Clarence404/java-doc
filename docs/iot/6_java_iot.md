@@ -260,7 +260,7 @@ public class DeviceShadowService {
 
 ## 六、Netty 自定义私有协议接入
 
-> 通用帧格式设计、`LengthFieldBasedFrameDecoder` 参数详解及编解码器模板，见 [Netty → 自定义私有协议](../netty/6_custom_protocol.md)。本节在通用模式基础上加入 **CRC16 校验**，适配 IoT 设备接入场景。
+> 通用帧格式设计、`LengthFieldBasedFrameDecoder` 参数详解及编解码器模板，见 [Netty → 自定义私有协议](../netty/7_custom_protocol.md)。本节在通用模式基础上加入 **CRC16 校验**，适配 IoT 设备接入场景。
 
 ### 私有协议帧格式
 

@@ -1,6 +1,6 @@
 # 线上诊断
 
-> JVM 监控工具详见 [jvm/7_monitoring_tools](../jvm/7_monitoring_tools)，按故障类型排查详见 [jvm/8_troubleshooting](../jvm/8_troubleshooting)。
+> JVM 监控工具详见 [jvm/8_monitoring_tools](../jvm/8_monitoring_tools)，按故障类型排查详见 [jvm/9_troubleshooting](../jvm/9_troubleshooting)。
 >
 > 本文聚焦 Arthas 在线诊断。
 
@@ -117,6 +117,6 @@ thread -b                            # 找出阻塞其他线程最多的线程�
 
 ## 二、JDK 自带工具与故障排查
 
-- **JDK 自带工具**（jps / jstack / jmap / jstat / jinfo / MAT / VisualVM / JFR / GC 日志分析）→ [jvm/7_monitoring_tools](../jvm/7_monitoring_tools)
-- **按故障类型排查**（各类 OOM / StackOverflowError / CPU 高 / 死锁 / 类加载失败 / 速查表）→ [jvm/8_troubleshooting](../jvm/8_troubleshooting)
-- **Profiler**（JProfiler / async-profiler 火焰图）→ [high-con/2_profilers](../high-con/2_profilers)
+- **JDK 自带工具**（jps / jstack / jmap / jstat / jinfo / MAT / VisualVM / JFR / GC 日志分析）→ [jvm/8_monitoring_tools](../jvm/8_monitoring_tools)
+- **按故障类型排查**（各类 OOM / StackOverflowError / CPU 高 / 死锁 / 类加载失败 / 速查表）→ [jvm/9_troubleshooting](../jvm/9_troubleshooting)
+- **Profiler**（JProfiler / async-profiler 火焰图）→ [high-perf/9_profilers](../high-perf/9_profilers)

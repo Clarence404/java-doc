@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总 MySQL 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/1_db">开发总结-数据库</RouteLink>
+> 汇总 MySQL 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/2_db">开发总结-数据库</RouteLink>
 
 ## 一、事务与隔离级别
 
@@ -48,5 +48,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/1_db">开发总结-数据库</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/2_db">开发总结-数据库</RouteLink>
 :::

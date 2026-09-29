@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总 JVM 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/3_jvm">开发总结-JVM</RouteLink>
+> 汇总 JVM 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/4_jvm">开发总结-JVM</RouteLink>
 
 ## 一、内存结构
 
@@ -11,7 +11,7 @@
 - **OOM 有哪几种类型？各是什么原因？**
 - **String 常量池在哪里？JDK 6 和 JDK 7+ 有什么区别？**
 - **String.intern() 的作用和使用场景？**  
-  → 详见 <RouteLink to="/jvm/0_memory">JVM 内存结构</RouteLink>
+  → 详见 <RouteLink to="/jvm/1_memory">JVM 内存结构</RouteLink>
 
 ## 二、类加载
 
@@ -19,7 +19,7 @@
 - **双亲委派模型的原理和作用？**
 - **如何打破双亲委派？（SPI、Tomcat 类加载器、OSGi）**
 - **类的初始化时机有哪些？（主动引用 vs 被动引用）**  
-  → 详见 <RouteLink to="/jvm/1_class_loading">类加载</RouteLink>
+  → 详见 <RouteLink to="/jvm/2_class_loading">类加载</RouteLink>
 
 ## 三、垃圾回收
 
@@ -35,7 +35,7 @@
 - **CMS 的垃圾回收过程？它有什么缺点？**
 - **G1 的工作原理？Region 是什么？为什么它能预测停顿时间？**
 - **ZGC 如何实现低延迟？（着色指针、读屏障）**  
-  → 详见 <RouteLink to="/jvm/3_gc_theory">垃圾回收</RouteLink>
+  → 详见 <RouteLink to="/jvm/4_gc_theory">垃圾回收</RouteLink>
 
 ## 五、Java 内存模型（JMM）
 
@@ -53,7 +53,7 @@
 - **虚拟线程的挂载/卸载（mount/unmount）机制是什么？**
 - **虚拟线程为什么不适合 CPU 密集型任务？**
 - **虚拟线程中使用 synchronized 有什么问题？如何解决？**  
-  → 详见 <RouteLink to="/jvm/6_jit">JIT 编译器 - 虚拟线程</RouteLink>
+  → 详见 <RouteLink to="/jvm/7_jit">JIT 编译器 - 虚拟线程</RouteLink>
 
 ## 七、JVM 调优
 
@@ -61,10 +61,10 @@
 - **如何排查 CPU 100% 问题？（`top` → `jstack`）**
 - **如何排查内存溢出问题？（`-XX:+HeapDumpOnOutOfMemoryError`）**
 - **如何排查频繁 Full GC？**  
-  → 详见 <RouteLink to="/jvm/8_troubleshooting">JVM 故障排查</RouteLink>
+  → 详见 <RouteLink to="/jvm/9_troubleshooting">JVM 故障排查</RouteLink>
 
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/3_jvm">开发总结-JVM</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/4_jvm">开发总结-JVM</RouteLink>
 :::
