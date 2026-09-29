@@ -12,7 +12,7 @@ actions:
     link: /interview/0_java
     type: primary
   - text: 开始阅读
-    link: /java/0_base
+    link: /java/0_overview
     type: default
   - text: 云原生
     link: /cloud-native/0_linux
@@ -55,7 +55,7 @@ highlights:
       - title: Java 特性
         icon: code
         details: Java 8 → 21 核心新特性：Stream / Lambda / Record / Sealed Class / Virtual Thread
-        link: /java/11_version
+        link: /java/2_version
       - title: JVM
         icon: gears
         details: 内存结构 / 类加载机制 / GC 算法全解 / 参数调优 / 线上 OOM 排查实战
@@ -116,8 +116,8 @@ highlights:
         link: /distributed/0_distributed
       - title: 高并发
         icon: fire
-        details: JUC 全面解析 / 线程池调优实战 / 高并发系统设计 / 压测方案 / Arthas Profiler
-        link: /high-con/0_juc
+        details: 高并发系统设计 / 线程池参数调优 / 高并发指标 / JProfiler 与火焰图
+        link: /high-con/0_system_design
       - title: 高可用
         icon: shield-halved
         details: 漏桶 / 令牌桶限流算法 / 熔断三态机制 / 降级策略，Sentinel / Resilience4j 对比
@@ -135,7 +135,7 @@ highlights:
       - title: 系统架构
         icon: building-columns
         details: 技术选型方法论 / DDD 领域驱动设计 / 幂等设计 / 对象存储 / RBAC 访问控制
-        link: /architecture/0_system_structure
+        link: /architecture/0_overview
       - title: 业务场景
         icon: briefcase
         details: 大数据业务场景方案 / 技术选型实战案例，从业务需求到架构落地全流程
@@ -151,7 +151,7 @@ highlights:
       - title: DevOps
         icon: screwdriver-wrench
         details: Git 工作流 / CI/CD 流水线 / Code Review / 团队开发规范
-        link: /devops/0_devops
+        link: /devops/0_overview
       - title: 可观测性
         icon: chart-line
         details: 日志 / 指标 / 链路追踪 / 告警治理 / OpenTelemetry，支撑线上排障与稳定性建设
@@ -159,7 +159,7 @@ highlights:
       - title: 协议体系
         icon: tower-broadcast
         details: TCP/IP / HTTP/2 / gRPC / WebSocket / IoT 协议 / TLS 安全协议全栈体系
-        link: /protocols/0_protocols_base
+        link: /protocols/0_overview
 
   - header: 新兴技术
     description: IoT 物联网 · 人工智能，拓展技术边界

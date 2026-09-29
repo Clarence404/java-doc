@@ -1,171 +1,99 @@
-# 访问控制模型
+# 权限系统架构设计
 
-> 访问控制决定"谁能对什么资源做什么操作"，是权限系统设计的核心。
-
----
-
-## 一、四种主流模型
-
-| 模型 | 全称 | 核心思想 | 适用场景 |
-|------|------|---------|---------|
-| **RBAC** | 基于角色的访问控制 | 用户 → 角色 → 权限 | 企业内部系统，主流方案 |
-| **ABAC** | 基于属性的访问控制 | 用户属性 + 资源属性 + 环境动态判断 | 细粒度权限、零信任、云平台 |
-| **DAC** | 自主访问控制 | 资源所有者自行决定授权 | 文件系统、小型系统 |
-| **MAC** | 强制访问控制 | 系统强制定义安全级别，禁止降级 | 军事、政府高安全场景 |
+> 本文讨论权限系统在分布式架构中"放在哪、怎么缓存、怎么拦数据"。权限模型本身（RBAC / ABAC / DAC / MAC、5 张表、OPA 策略、选型）见 → [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)；Spring Security 接线代码（UserDetailsService、`@PreAuthorize`、动态权限）见 → [Spring Security](/spring/9_security)
 
 ---
 
-## 二、RBAC 详解与落地
+## 一、权限系统的四个角色
 
-### 1. 数据模型（5张表）
+无论用 RBAC 还是 ABAC，一次鉴权都可以拆成四个职责（术语源自 XACML，零信任架构也沿用）：
 
-```sql
--- 用户表
-CREATE TABLE sys_user (
-    id       BIGINT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(64) NOT NULL UNIQUE,
-    password VARCHAR(128) NOT NULL,
-    status   TINYINT DEFAULT 1  -- 1启用 0禁用
-);
+| 角色 | 全称 | 职责 | 典型落点 |
+|------|------|------|---------|
+| **PEP** | Policy Enforcement Point（执行点）| 拦截请求，向 PDP 询问结果并执行放行 / 拒绝 | 网关过滤器、Spring Security FilterChain、`@PreAuthorize`、SQL 拦截器 |
+| **PDP** | Policy Decision Point（决策点）| 根据策略 + 属性计算 allow / deny | 应用内鉴权服务、OPA、Casbin Enforcer |
+| **PAP** | Policy Administration Point（管理点）| 维护角色、权限、策略 | 权限管理后台 |
+| **PIP** | Policy Information Point（信息点）| 为决策提供属性：用户部门、资源归属、时间、IP | 用户中心、组织架构服务、业务库 |
 
--- 角色表
-CREATE TABLE sys_role (
-    id        BIGINT PRIMARY KEY AUTO_INCREMENT,
-    role_code VARCHAR(64) NOT NULL UNIQUE,  -- 如 ROLE_ADMIN
-    role_name VARCHAR(64) NOT NULL
-);
-
--- 权限表
-CREATE TABLE sys_permission (
-    id       BIGINT PRIMARY KEY AUTO_INCREMENT,
-    perm_key VARCHAR(128) NOT NULL UNIQUE,  -- 如 order:read, order:delete
-    perm_name VARCHAR(64),
-    resource VARCHAR(128),   -- 资源路径，如 /api/order/**
-    method   VARCHAR(10)     -- HTTP方法：GET POST DELETE
-);
-
--- 用户-角色关联
-CREATE TABLE sys_user_role (
-    user_id BIGINT NOT NULL,
-    role_id BIGINT NOT NULL,
-    PRIMARY KEY (user_id, role_id)
-);
-
--- 角色-权限关联
-CREATE TABLE sys_role_permission (
-    role_id BIGINT NOT NULL,
-    perm_id BIGINT NOT NULL,
-    PRIMARY KEY (role_id, perm_id)
-);
-```
-
-### 2. Spring Security + JWT 集成
-
-```java
-// 加载用户权限
-@Service
-public class UserDetailsServiceImpl implements UserDetailsService {
-    @Autowired private UserMapper userMapper;
-    @Autowired private PermissionMapper permMapper;
-
-    @Override
-    public UserDetails loadUserByUsername(String username) {
-        SysUser user = userMapper.selectByUsername(username);
-        if (user == null) throw new UsernameNotFoundException(username);
-
-        // 查询该用户的所有权限
-        List<String> perms = permMapper.selectPermKeysByUserId(user.getId());
-        List<GrantedAuthority> authorities = perms.stream()
-            .map(SimpleGrantedAuthority::new)
-            .collect(toList());
-
-        return new org.springframework.security.core.userdetails.User(
-            user.getUsername(), user.getPassword(), authorities);
-    }
-}
-
-// 接口级权限控制
-@RestController
-@RequestMapping("/api/order")
-public class OrderController {
-
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('order:read')")
-    public OrderResponse getOrder(@PathVariable Long id) { ... }
-
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('order:delete') or hasRole('ADMIN')")
-    public void deleteOrder(@PathVariable Long id) { ... }
-}
-```
-
-### 3. 动态权限（数据库驱动）
-
-```java
-@Component
-public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
-    @Autowired private PermissionMapper permMapper;
-
-    @Override
-    public Collection<ConfigAttribute> getAttributes(Object object) {
-        String requestUrl = ((FilterInvocation) object).getRequestUrl();
-        String method = ((FilterInvocation) object).getHttpRequest().getMethod();
-
-        // 从 DB 匹配权限（也可缓存到 Redis，定时刷新）
-        List<String> perms = permMapper.selectPermKeysByUrl(requestUrl, method);
-        if (perms.isEmpty()) return null;  // null = 不需要权限
-
-        return perms.stream()
-            .map(SecurityConfig::createList)
-            .flatMap(Collection::stream)
-            .collect(toList());
-    }
-}
-```
+设计原则：**PEP 可以有很多个，PDP 的规则只维护一份**。同一条规则如果在网关、服务、前端各写一遍，迟早会出现不一致。
 
 ---
 
-## 三、ABAC 详解与落地
+## 二、鉴权放在哪一层
 
-基于**属性**动态判断权限，比 RBAC 更灵活，适合多维条件组合。
+### 网关级 vs 服务级
 
-**属性类型**：
-- **主体属性**：用户的部门、职级、地区
-- **资源属性**：数据的归属部门、密级、创建者
-- **环境属性**：访问时间、IP 地址、设备类型
+| 维度 | 网关级鉴权 | 服务级鉴权 |
+|------|-----------|-----------|
+| 能拿到的信息 | Token、URL、HTTP 方法、Header | 完整业务上下文（订单归属、审批状态）|
+| 适合的规则 | 认证、粗粒度 URL / 角色校验、黑白名单 | 方法级权限、资源归属校验、数据权限 |
+| 优点 | 统一入口，非法请求不进内网，业务服务无感 | 规则贴近业务，能做细粒度判断 |
+| 缺点 | 无法判断"这条数据是不是你的" | 每个服务都要接入，容易遗漏 |
 
-```java
-// 策略定义（可存 DB，动态配置）
-public interface AccessPolicy {
-    boolean evaluate(Subject subject, Resource resource, Environment env);
-}
+**推荐分工**：网关负责**认证 + 粗粒度授权**，服务负责**细粒度授权 + 数据权限**。
 
-// 示例：只有同部门且在工作时间才能查看文档
-public class DeptTimePolicy implements AccessPolicy {
-    @Override
-    public boolean evaluate(Subject subject, Resource resource, Environment env) {
-        boolean sameDept = subject.getDeptId().equals(resource.getOwnerDeptId());
-        boolean workHour = env.getHour() >= 9 && env.getHour() < 18;
-        return sameDept && workHour;
-    }
-}
+1. 网关校验 JWT 签名与有效期，拒绝未登录请求
+2. 网关按 URL 前缀做角色级拦截（如 `/admin/**` 需 `ADMIN`）
+3. 网关把解析后的用户标识透传给下游（如 `X-User-Id`），**必须先删除客户端自带的同名 Header**，防止伪造
+4. 服务内用 `@PreAuthorize` 做权限码校验，用 SQL 拦截器做数据范围过滤
 
-// 决策点（PDP）
-@Service
-public class AbacDecisionService {
-    @Autowired private List<AccessPolicy> policies;
+### 服务间调用
 
-    public boolean canAccess(Subject subject, Resource resource, Environment env) {
-        return policies.stream().allMatch(p -> p.evaluate(subject, resource, env));
-    }
-}
-```
+内部服务互调不能默认"内网可信"：要么继续透传用户 Token（按用户身份鉴权），要么使用服务身份（OAuth2 Client Credentials / mTLS）按服务身份鉴权。详见 → [零信任架构](/security/9_zero_trust)
+
+### 集中式 PDP 的部署形态
+
+| 形态 | 做法 | 适用 |
+|------|------|------|
+| 应用内嵌 | 每个服务引入权限 SDK，本地计算 | 单体、少量服务，延迟最低 |
+| 集中权限服务 | 独立权限服务提供 `check(user, perm)` 接口 | 多服务共享规则，需加缓存兜底 |
+| Sidecar（如 OPA）| 每个 Pod 旁挂策略引擎，策略集中下发 | 服务网格、策略频繁变化的场景 |
 
 ---
 
-## 四、数据权限（行级权限）
+## 三、权限数据的缓存与刷新
 
-除接口权限外，常见需求是**只能看到自己部门的数据**。
+每个请求都查 5 张表不可接受，权限数据必须缓存；难点在于**权限变更后多快生效**。
+
+### 权限放在哪
+
+| 方案 | 做法 | 优点 | 缺点 |
+|------|------|------|------|
+| 写进 JWT | 登录时把角色 / 权限码放入 claims | 无需查询，网关可直接判断 | Token 变大；改权限要等 Token 过期 |
+| Redis 集中缓存 | `perm:user:{userId}` → 权限码集合 | 改权限后删 key 即可生效 | 每次请求一次 Redis 往返 |
+| 本地缓存 + Redis | Caffeine 本地缓存，Redis 作二级 | 延迟最低 | 需要广播失效，多节点一致性更复杂 |
+
+常见折中：**JWT 只放 userId 和角色**，权限码走 Redis / 本地缓存；URL → 权限码的映射（动态权限表）数据量小、变化少，适合全量加载到本地缓存并定时刷新。
+
+### 变更后如何刷新
+
+| 策略 | 做法 | 生效时间 |
+|------|------|---------|
+| TTL 过期 | 缓存设 5~10 分钟过期 | 最多延迟一个 TTL |
+| 主动失效 | 管理后台改权限后删除相关用户的缓存 key | 秒级 |
+| 广播失效 | 改权限后发 MQ / Redis Pub/Sub 消息，各节点清本地缓存 | 秒级，适合本地缓存 |
+| 权限版本号 | 用户表存 `perm_version`，Token 携带版本号，不一致则强制重新加载 / 重新登录 | 下一次请求 |
+
+注意"角色改了影响多少人"：修改一个角色的权限，要失效**所有持有该角色的用户**的缓存；用户量大时宜按角色维度缓存（`perm:role:{roleId}`），用户只缓存角色列表。
+
+> JWT 吊销与版本号策略见 → [JWT · 失效与刷新策略](/security/1_jwt)；两级缓存一致性见 → [两级缓存](/cache/7_two_level_cache)
+
+---
+
+## 四、数据权限拦截架构
+
+数据权限（行级权限）的原理与数据范围类型见 → [权限模型 · 数据权限](/security/5_rbac_abac)。架构上的关键是：**在哪一层统一追加过滤条件**。
+
+| 拦截位置 | 做法 | 评价 |
+|---------|------|------|
+| Controller / Service 手写 | 每个查询自己拼 `dept_id` 条件 | 易遗漏，不推荐 |
+| AOP 注解 | `@DataScope` 标记方法，切面把范围条件放入上下文 | 声明式，需配合 SQL 层落地 |
+| ORM / SQL 拦截器 | 在 SQL 执行前统一改写 | 覆盖最全，主流做法 |
+| 数据库行级安全（RLS）| PostgreSQL Row Level Security 等 | 最底层，但与连接池 / 多租户会话变量耦合 |
+
+典型链路：网关 / FilterChain 解析出当前用户 → 用户上下文（ThreadLocal / SecurityContext）带上部门与数据范围 → Mapper 方法可选 `@DataScope` 标记 → SQL 拦截器读取上下文并改写 SQL。
+
+### MyBatis-Plus 数据权限拦截器
 
 ```java
 // MyBatis Plus 数据权限拦截器
@@ -189,19 +117,30 @@ public class DataScopeInterceptor implements InnerInterceptor {
 }
 ```
 
+落地注意：
+
+- 示例用字符串拼接只为说明思路；生产应使用 JSqlParser 解析 SQL 后在 WHERE 中追加条件（MyBatis-Plus 自带的 `DataPermissionInterceptor` 即基于此），避免 `ORDER BY` / `LIMIT` / 子查询场景拼错
+- "本部门及子部门"不要每次递归查组织树：部门表冗余 `ancestors` 路径字段，或把子部门 ID 列表缓存起来
+- 统计报表、定时任务等**无用户上下文**的调用要显式声明跳过，而不是因为取不到用户就默认放开
+- 多租户的 `tenant_id` 过滤与数据权限是两层，应分别拦截，不要混在一条规则里
+
 ---
 
-## 五、模型对比与选型
+## 五、演进路线
 
-| 维度 | RBAC | ABAC | DAC | MAC |
-|------|------|------|-----|-----|
-| 实现复杂度 | 低 | 高 | 低 | 高 |
-| 灵活性 | 中 | 高 | 高 | 低 |
-| 安全性 | 中 | 高 | 低 | 最高 |
-| 运维成本 | 低 | 高 | 低 | 高 |
-| 适用场景 | 企业系统 | 云平台/零信任 | 文件系统 | 军事/政府 |
+| 阶段 | 形态 | 关注点 |
+|------|------|--------|
+| 单体 | Spring Security / Sa-Token + RBAC 5 张表 | 菜单、按钮、接口权限一套模型 |
+| 微服务初期 | 网关认证 + 各服务 `@PreAuthorize`，权限码缓存到 Redis | Header 透传安全、缓存失效 |
+| 微服务成熟 | 独立权限中心（PAP + PDP），统一 SDK / 网关插件 | 规则只维护一份，审计变更 |
+| 规则复杂 / 零信任 | RBAC + ABAC 混合，OPA Sidecar 做策略引擎 | 策略即代码、策略测试与灰度 |
 
-**选型建议**：
-- 普通业务系统 → **RBAC**（5张表 + Spring Security）
-- 需要细粒度/动态权限 → **RBAC + ABAC 混合**（RBAC 控制接口级，ABAC 控制数据级）
-- 角色爆炸（角色数量超过 100）→ 考虑迁移到 ABAC
+---
+
+## 六、相关文档
+
+- [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)：模型、表设计、OPA、选型
+- [Spring Security](/spring/9_security)：RBAC 集成、动态权限、方法级权限
+- [安全框架对比](/spring/10_auth_framework)：Sa-Token / Shiro 权限 API
+- [零信任架构](/security/9_zero_trust)：mTLS、OPA 动态授权
+- [JWT](/security/1_jwt)：Token 失效、吊销与版本号

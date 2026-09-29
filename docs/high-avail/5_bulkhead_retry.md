@@ -129,35 +129,7 @@ String result = retry.executeSupplier(() -> callServiceA());
 
 ### Spring Retry
 
-```xml
-<dependency>
-    <groupId>org.springframework.retry</groupId>
-    <artifactId>spring-retry</artifactId>
-</dependency>
-```
-
-```java
-@Service
-@EnableRetry
-public class OrderService {
-
-    @Retryable(
-        retryFor = {IOException.class, TimeoutException.class},
-        noRetryFor = BusinessException.class,
-        maxAttempts = 3,
-        backoff = @Backoff(delay = 1000, multiplier = 2, maxDelay = 10000)
-    )
-    public Order queryOrder(Long id) {
-        return remoteOrderService.query(id);
-    }
-
-    @Recover
-    public Order recoverQueryOrder(IOException e, Long id) {
-        log.error("重试耗尽，id={}", id, e);
-        return Order.empty();    // 最终兜底
-    }
-}
-```
+Spring 生态可用 `@Retryable` + `@Backoff` 声明式实现指数退避重试，`@Recover` 做重试耗尽后的兜底。用法、退避参数、`RetryTemplate` 与自定义 `RetryPolicy` 详见 [Retry 重试](/spring/6_retry)。
 
 ---
 

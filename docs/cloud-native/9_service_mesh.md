@@ -1,11 +1,5 @@
 # Service Mesh
 
-> [!warning] 待补充
+在云原生技术栈中，Service Mesh 位于 Kubernetes 之上，以 Sidecar 代理的形式接管服务间（东西向）流量，负责流量治理、mTLS 与可观测性。
 
-## 大纲
-
-- 基本概念：Sidecar、数据平面、控制平面
-- 核心能力：流量治理、熔断限流、mTLS、可观测性
-- 常见方案：Istio、Linkerd、Kuma
-- 与网关关系：南北向流量与东西向流量
-- 落地取舍：复杂度、性能开销、团队成熟度
+> 详细内容（架构、Istio 流量管理、mTLS、方案对比与落地取舍）见 [服务网格](/microservices/3_service_mesh)。

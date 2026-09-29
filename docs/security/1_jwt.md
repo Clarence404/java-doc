@@ -24,13 +24,7 @@
 
 ![JWT 三段结构](../assets/security/jwt-structure.svg)
 
-JWT 由三部分组成，用 `.` 分隔：
-
-```
-xxxxx.yyyyy.zzzzz
-  │      │      │
-Header  Payload  Signature
-```
+JWT 由三部分组成（Header.Payload.Signature），用 `.` 分隔。
 
 ### Header（头部）
 
@@ -99,45 +93,7 @@ JWT 无状态的代价是**难以主动吊销**，常见应对方案：
 
 ## 五、在 Spring Boot 中使用
 
-```java
-// 依赖：io.jsonwebtoken:jjwt-api / jjwt-impl / jjwt-jackson
-
-// 生成 Token
-public String generateToken(String userId, List<String> roles) {
-    return Jwts.builder()
-        .subject(userId)
-        .claim("roles", roles)
-        .issuedAt(new Date())
-        .expiration(new Date(System.currentTimeMillis() + 3600_000)) // 1小时
-        .signWith(getSecretKey())
-        .compact();
-}
-
-// 解析 Token
-public Claims parseToken(String token) {
-    return Jwts.parser()
-        .verifyWith(getSecretKey())
-        .build()
-        .parseSignedClaims(token)
-        .getPayload();
-}
-
-// 自定义过滤器：从请求头提取 JWT 写入 SecurityContext
-@Component
-public class JwtAuthFilter extends OncePerRequestFilter {
-    @Override
-    protected void doFilterInternal(HttpServletRequest req,
-                                    HttpServletResponse res,
-                                    FilterChain chain) throws ... {
-        String token = req.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            Claims claims = parseToken(token.substring(7));
-            // 写入 SecurityContextHolder...
-        }
-        chain.doFilter(req, res);
-    }
-}
-```
+jjwt 生成 / 解析 Token（`JwtUtil`）、JWT 认证过滤器与登录接口的完整代码见 → [Spring Security · JWT 集成](/spring/9_security)
 
 ---
 

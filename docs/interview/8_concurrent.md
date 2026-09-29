@@ -1,6 +1,6 @@
 # 开发总结-高并发
 
-> 精华提炼，细节详见 [high-con/](../high-con/0_juc)
+> 精华提炼，细节详见 [Java 并发专题](/java/0_overview) / [高并发](/high-con/0_system_design)
 
 ## 一、线程池的核心参数有哪些？如何合理设置？
 
@@ -99,7 +99,7 @@ ref.compareAndSet(val, 2, stampHolder[0], stampHolder[0] + 1); // 同时比较�
 
 ## 五、ConcurrentHashMap 在 JDK 7 和 JDK 8 中有何不同？
 
-更多详情见：<RouteLink to="/java/1_base.md#四、concurrenthashmap-为何放弃分段锁">Java基础：ConcurrentHashMap</RouteLink>
+更多详情见：<RouteLink to="/java/21_topic_collection#八、concurrenthashmap">Java基础：ConcurrentHashMap</RouteLink>
 
 | | JDK 7 | JDK 8 |
 |--|-------|-------|

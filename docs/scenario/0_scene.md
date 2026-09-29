@@ -45,7 +45,7 @@ Todo 按照自己的理解实现：
 
 ## 六、如何设计一个高并发系统？
 
-解答：<RouteLink to="/currency/4_high_concurrency_sys">高并发-如何设计一个高并发系统？</RouteLink>
+解答：<RouteLink to="/high-con/0_system_design">高并发-如何设计一个高并发系统？</RouteLink>
 
 ## 七、分布式场景下是否适用 synchronized 加锁机制？
 

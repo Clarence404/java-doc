@@ -8,7 +8,7 @@
 - **线程数如何设置？CPU 密集型和 IO 密集型有何不同？**
 - **有哪几种拒绝策略？`CallerRunsPolicy` 的作用是什么？**
 - **为什么禁止使用 `Executors` 工厂方法？**  
-  → 详见 <RouteLink to="/high-con/1_thread_pool">线程池</RouteLink>
+  → 详见 <RouteLink to="/java/28_topic_thread_pool">线程池</RouteLink>
 
 ## 二、JUC 并发工具
 
@@ -31,7 +31,7 @@
 - **读多写少的场景如何设计？（CDN + 多级缓存 + 读写分离）**
 - **写多的场景如何设计？（MQ 削峰 + 异步处理）**
 - **如何压测一个高并发系统？关注哪些核心指标？**  
-  → 详见 <RouteLink to="/high-con/4_stress_test">压测</RouteLink>
+  → 详见 <RouteLink to="/testing/7_performance_test">压测</RouteLink>
 
 ---
 

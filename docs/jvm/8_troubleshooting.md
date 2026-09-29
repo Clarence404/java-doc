@@ -71,7 +71,35 @@ jmap -clstats <pid>
 
 ---
 
-## 四、StackOverflowError
+## 四、OutOfMemoryError: Direct buffer memory
+
+**可能原因：**
+- 堆外内存不足（Netty / NIO 使用 DirectByteBuffer）
+- ByteBuf 未释放导致堆外内存泄漏
+
+**排查方向：** 检查 ByteBuf 是否释放（Netty 的 `release()` / 引用计数），必要时通过 `-XX:MaxDirectMemorySize` 调整堆外内存上限。
+
+---
+
+## 五、OutOfMemoryError: unable to create new native thread
+
+**可能原因：**
+- 线程数超过 OS 限制（`ulimit -u`）
+- 线程池无界增长（如 `newCachedThreadPool` 或自行 `new Thread`）
+
+**排查步骤：**
+
+```bash
+# 查看进程可创建的最大线程数
+ulimit -u
+
+# 统计当前线程数，结合 thread dump 看是哪类线程在增长
+jstack <pid> | grep -c "java.lang.Thread.State"
+```
+
+---
+
+## 六、StackOverflowError
 
 **可能原因：**
 - 递归调用深度过大（无终止条件 or 终止条件错误）
@@ -93,7 +121,7 @@ grep -A 200 "StackOverflowError" thread_dump.txt
 
 ---
 
-## 五、CPU 使用率高
+## 七、CPU 使用率高
 
 **可能原因：**
 - 死循环 / 死锁导致线程空转
@@ -122,7 +150,7 @@ grep "Full GC" gc.log | tail -20
 
 ---
 
-## 六、死锁
+## 八、死锁
 
 **症状：** 应用无响应，线程大量 BLOCKED。
 
@@ -147,7 +175,7 @@ Found one Java-level deadlock:
 
 ---
 
-## 七、类加载失败
+## 九、类加载失败
 
 | 异常 | 原因 |
 |------|------|
@@ -165,14 +193,19 @@ jinfo -sysprops <pid> | grep "java.class.path"
 
 ---
 
-## 八、常见问题速查表
+## 十、常见问题速查表
 
 | 现象 | 首先看 | 工具 |
 |------|--------|------|
 | OOM: heap space | 老年代使用趋势 + heap dump | `jstat` + MAT |
 | OOM: Metaspace | 类加载数量 | `jmap -clstats` |
+| OOM: Direct buffer memory | ByteBuf 是否释放 | 代码排查 + `-XX:MaxDirectMemorySize` |
+| OOM: unable to create native thread | 线程数 / OS 限制 | `ulimit -u` + `jstack` |
 | Full GC 频繁 | GC 日志频率和触发原因 | `jstat`, GCViewer |
 | CPU 高 | 高CPU线程堆栈 | `top -H` + `jstack` |
 | 死锁 | jstack 死锁检测 | `jstack -l` |
-| 响应慢 | 线程状态 / GC 停顿 | `jstack` + GC日志 |
+| 响应慢 | 线程状态 / GC 停顿 / 方法耗时 | `jstack` + GC日志；Arthas `trace <class> <method> '#cost > 100'` |
+| 方法行为异常 | 入参 / 返回值 / 异常 | Arthas `watch <class> <method> '{params, returnObj}'` |
 | 内存泄漏 | heap dump + 引用链 | MAT |
+
+> Arthas 用法详见 [engineering/4_diagnosis](../engineering/4_diagnosis)。

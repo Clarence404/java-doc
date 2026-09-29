@@ -3,7 +3,7 @@
 ## 一、synchronized
 
 > synchronized 锁升级机制（Mark Word、偏向锁、轻量级锁、ObjectMonitor、版本差异、常见误区）详见专项文档：
-> → [synchronized 锁升级机制](/java/12_topic_synchronized)
+> → [synchronized 锁升级机制](./24_topic_synchronized.md)
 
 **使用注意：**
 - 锁对象不能为 `null`，不建议锁 `String` 常量（池中共享，可能死锁）
@@ -28,6 +28,15 @@ CLH 变体双向队列：等待线程封装为 Node 排队
   Node.EXCLUSIVE（独占模式）
   Node.SHARED（共享模式）
 ```
+
+### 模板方法（子类实现）
+
+AQS 用模板方法模式封装了排队、挂起、唤醒逻辑，子类只需定义 state 的获取/释放语义：
+
+- `tryAcquire(int)`：尝试独占获取
+- `tryRelease(int)`：尝试独占释放
+- `tryAcquireShared(int)`：尝试共享获取（`Semaphore`、`CountDownLatch`）
+- `tryReleaseShared(int)`：尝试共享释放
 
 ### 独占锁获取流程
 
@@ -154,18 +163,7 @@ finally { sl.unlockWrite(stamp); }
 
 ## 六、LockSupport
 
-AQS 底层线程挂起/唤醒工具，比 `wait/notify` 更灵活：
-
-```java
-// 挂起当前线程（不需要持有锁）
-LockSupport.park();
-LockSupport.parkNanos(1000_000_000L); // 超时
-
-// 唤醒指定线程（可先于 park 调用，不丢失信号）
-LockSupport.unpark(thread);
-```
-
-`unpark` 可以在 `park` 之前调用（发放"许可证"），调用 `park` 时直接返回，解决了 `notify` 必须在 `wait` 之后的限制。
+AQS 底层的线程挂起/唤醒工具。`unpark` 可以先于 `park` 调用（发放"许可证"），不会丢失信号，解决了 `notify` 必须在 `wait` 之后的限制。用法及与 `wait/notify`、`Condition` 的对比见 [线程基础 - 等待与唤醒机制](./23_topic_thread_basics.md#三、线程的等待与唤醒机制)。
 
 ---
 

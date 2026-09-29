@@ -14,7 +14,7 @@
 - **聚合根的作用是什么？为什么不能直接操作聚合内的实体？**
 - **限界上下文和微服务的关系是什么？**
 - **领域事件如何驱动跨聚合的最终一致性？**  
-  → 详见 <RouteLink to="/architecture/8_ddd_architecture">DDD 架构</RouteLink>
+  → 详见 <RouteLink to="/architecture/3_ddd">DDD 架构</RouteLink>
 
 ## 三、接口设计
 
@@ -28,7 +28,7 @@
 - **RBAC 和 ABAC 的区别？各适合什么场景？**
 - **RBAC 的五张核心表是什么？**
 - **JWT 如何实现鉴权？Token 过期如何处理（无感刷新）？**  
-  → 详见 <RouteLink to="/architecture/9_access_control_model">访问控制</RouteLink>
+  → 详见 <RouteLink to="/architecture/6_access_control">权限系统架构设计</RouteLink>
 
 ## 五、可观测性
 

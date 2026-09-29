@@ -2,7 +2,7 @@
 
 ## 一、消息队列的使用场景
 
-更多详情见：<RouteLink to="/mq/1_mq#二、消息中间件的核心作用">消息队列-消息中间件的核心作用</RouteLink>
+更多详情见：<RouteLink to="/messaging/0_mq">消息队列-消息中间件的核心作用</RouteLink>
 
 ## 二、消息队列的工作流程？
 

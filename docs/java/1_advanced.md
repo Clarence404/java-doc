@@ -41,7 +41,7 @@ List<String> result = list.stream()
 | 创建流 | `list.stream()` | 从集合创建顺序流 |
 | 过滤 | `stream.filter(x -> x > 10)` | 过滤符合条件的元素 |
 | 映射 | `stream.map(String::toUpperCase)` | 一对一转换 |
-| 扁平映射 | `stream.flatMap(Collection::stream)` | 一对多展开（List<List<T>> → List<T>） |
+| 扁平映射 | `stream.flatMap(Collection::stream)` | 一对多展开（`List<List<T>>` → `List<T>`） |
 | 去重 | `stream.distinct()` | 依赖 equals/hashCode |
 | 排序 | `stream.sorted(Comparator.reverseOrder())` | 自然序或自定义比较器 |
 | 收集为 List | `stream.collect(Collectors.toList())` | 最常用终结操作 |

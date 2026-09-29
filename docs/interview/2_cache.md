@@ -2,7 +2,7 @@
 
 ## 一、缓存和数据库一致性问题
 
-更多深入了解：<RouteLink to="/cache/1_redis.html#十一、缓存一致性">缓存一致性</RouteLink>
+更多深入了解：<RouteLink to="/cache/9_cache_consistency">缓存一致性</RouteLink>
 
 **【场景一】** 先操作缓存，再写数据库成功之前，如果有读请求发生，可能导致旧数据入缓存，引发数据不一致。在分布式环境下，数据的读
 写都是并发的，一个服务多机器部署，对同一个数据进行读写，在数据库层面并不能保证完成顺序，就有可能后读的操作先完成
@@ -588,7 +588,7 @@ public class LRUCache<K, V> {
 
     - 构建延时队列，使用 Score 作为时间戳，按时间顺序处理任务。
 
-**更多类型**： <RouteLink to="/cache/1_redis.md#一、redis数据结构">缓存：Redis数据结构</RouteLink>
+**更多类型**： <RouteLink to="/cache/0_redis_base">缓存：Redis数据结构</RouteLink>
 
 ## 七、本地缓存与分布式缓存
 

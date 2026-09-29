@@ -102,3 +102,5 @@ server.accept(null, new CompletionHandler<>() {
 **关键结论**：前四种都是**同步** IO——"数据拷贝"这一步都要应用自己完成；只有 AIO 是真异步。所以"Java NIO 是同步非阻塞"这句话是准确的，NIO 的"N"指非阻塞，不是异步。
 
 > 基于多路复用之上的事件驱动架构，见下一篇 [Reactor 模型](./1_reactor)。
+>
+> Java 侧 NIO API（Channel / Buffer / Selector）与零拷贝见 [专项 - IO / NIO](/java/18_topic_io)。

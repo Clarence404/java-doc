@@ -2,6 +2,8 @@
 
 > 参考：[幂等的八种实现方式-苏三说技术](https://mp.weixin.qq.com/s/adRe5OuDhMndPltzgP73hg) · [如何保证接口的幂等性-JavaGuide](https://mp.weixin.qq.com/s/tL0fnUR3BNBjP8Qw2pldVg)
 
+> 业务场景视角的幂等设计见 [业务场景：幂等设计](../scenario/12_idempotent)。
+
 **幂等**：同一请求无论执行一次还是多次，结果完全相同。
 
 **触发场景**：网络超时重试、MQ 消费重试、用户重复点击提交、支付回调重推。

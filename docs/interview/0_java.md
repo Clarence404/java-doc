@@ -150,11 +150,11 @@ public class ClassLoadOrder {
 
 ## 四、说说 Synchronized 和 ReentrantLock
 
-详情见: <RouteLink to="/java/3_topic_lock">专项-Lock 锁</RouteLink>
+详情见: <RouteLink to="/java/25_topic_lock">专项-Lock 锁</RouteLink>
 
 ## 五、ConcurrentHashMap 为何放弃分段锁？
 
-详情见: <RouteLink to="/java/0_base#四、concurrenthashmap-为何放弃分段锁">Java 基础：ConcurrentHashMap</RouteLink>
+详情见: <RouteLink to="/java/21_topic_collection#八、concurrenthashmap">Java 基础：ConcurrentHashMap</RouteLink>
 
 ## 六、抽象类和接口的区别
 
@@ -1099,7 +1099,7 @@ private void test() {
 
 - **终止操作**（`reduce()`、`collect()`）会触发 **归约合并**。
 
-- **底层原理**：详细原理见：<RouteLink to="/high-con/0_juc#fork-join-框架">Fork/Join框架</RouteLink>
+- **底层原理**：详细原理见：<RouteLink to="/java/28_topic_thread_pool#三、fork-join">Fork/Join框架</RouteLink>
 
 ### **4、并行流 vs 顺序流**
 
@@ -1123,7 +1123,7 @@ private void test() {
 
 ## 十八、常见算法的复杂度是多少？
 
-更多详情，请查看: <RouteLink to="/algorithm/0_base_8_sort">算法-排序</RouteLink>
+更多详情，请查看: <RouteLink to="/algorithms/2_algorithms/1_sort">算法-排序</RouteLink>
 
 ## 十九、Servlet 的生命周期
 

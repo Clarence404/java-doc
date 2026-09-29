@@ -26,10 +26,10 @@
 ## 四、并发基础
 
 - **synchronized 和 ReentrantLock 的区别？**  
-  → 详见 <RouteLink to="/java/3_topic_lock">Java 锁专题</RouteLink>
+  → 详见 <RouteLink to="/java/25_topic_lock">Java 锁专题</RouteLink>
 - **volatile 的作用？为什么不能保证原子性？**
 - **ConcurrentHashMap 在 JDK 7 和 JDK 8 中有何不同？**  
-  → 详见 <RouteLink to="/java/0_base">Java 基础</RouteLink>
+  → 详见 <RouteLink to="/java/0_overview">Java 基础</RouteLink>
 
 ## 五、泛型与函数式
 
@@ -40,9 +40,9 @@
 ## 六、IO 与序列化
 
 - **BIO / NIO / AIO 的区别？**  
-  → 详见 <RouteLink to="/java/4_topic_io">IO 专题</RouteLink>
+  → 详见 <RouteLink to="/java/18_topic_io">IO 专题</RouteLink>
 - **序列化的作用？serialVersionUID 有什么用？**  
-  → 详见 <RouteLink to="/java/7_topic_serialization">序列化专题</RouteLink>
+  → 详见 <RouteLink to="/java/19_topic_serialization">序列化专题</RouteLink>
 - **Java 有哪几种 IO 流分类方式（字节流/字符流、输入流/输出流）？**
 
 ## 七、其他高频

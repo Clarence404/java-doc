@@ -2,7 +2,7 @@
 
 > 官方规范：[TLS 1.3 RFC 8446](https://www.rfc-editor.org/rfc/rfc8446.html) / [OAuth 2.0 RFC 6749](https://www.rfc-editor.org/rfc/rfc6749.html) / [OIDC Core](https://openid.net/specs/openid-connect-core-1_0.html)
 >
-> 认证授权（JWT / OAuth2 / SSO）的详细内容见 → [安全体系](../security/)
+> 认证授权详细内容见 → [JWT](../security/1_jwt) / [OAuth2](../security/2_oauth2) / [OIDC](../security/3_oidc) / [单点登录](../security/4_sso)
 
 ---
 
@@ -127,8 +127,11 @@ Root CA（根证书）
 
 认证授权相关协议（OAuth2、JWT、OIDC、SAML、单点登录）在实际工程中与 Spring Security 深度结合，详细内容见安全体系专章：
 
-- **认证与授权** → [security/认证授权](../security/)
-- **API 安全（Token 设计、接口签名）** → [security/API 安全](../security/)
+- **JWT（令牌结构、签名算法、吊销）** → [security/JWT](../security/1_jwt)
+- **OAuth2（授权模式、PKCE）** → [security/OAuth2](../security/2_oauth2)
+- **OIDC（id_token、Discovery、登出）** → [security/OIDC](../security/3_oidc)
+- **单点登录（CAS / SAML / OIDC 方案选型）** → [security/单点登录](../security/4_sso)
+- **API 安全（Token 设计、接口签名）** → [security/API 安全](../security/6_api_security)
 
 ---
 

@@ -25,7 +25,7 @@ const navbarFlat = [
     {text: '缓存',    link: '/cache/0_redis_base'},
     {text: '消息队列', link: '/messaging/0_mq'},
     {text: '分布式',  link: '/distributed/0_distributed'},
-    {text: '高并发',  link: '/high-con/0_juc'},
+    {text: '高并发',  link: '/high-con/0_system_design'},
     {text: '高可用',  link: '/high-avail/0_overview'},
     {text: '微服务',  link: '/microservices/0_overview'},
     {text: '架构',    link: '/architecture/0_overview'},
@@ -72,7 +72,7 @@ const navbarDropdown = [
         text: '分布式架构',
         children: [
             {text: '分布式', link: '/distributed/0_distributed'},
-            {text: '高并发', link: '/high-con/0_juc'},
+            {text: '高并发', link: '/high-con/0_system_design'},
             {text: '高可用', link: '/high-avail/0_overview'},
             {text: '微服务', link: '/microservices/0_overview'},
             {text: '系统架构', link: '/architecture/0_overview'},

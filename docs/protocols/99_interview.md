@@ -32,7 +32,7 @@
 - **WebSocket 和 HTTP 长轮询有什么区别？**
 - **SSE（Server-Sent Events）适合什么场景？**
 - **gRPC 基于什么协议？有哪些优势？**  
-  → 详见 <RouteLink to="/protocols/0_protocols_base">通信协议基础</RouteLink>
+  → 详见 <RouteLink to="/protocols/0_overview">通信协议基础</RouteLink>
 
 ---
 

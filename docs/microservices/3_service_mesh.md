@@ -167,3 +167,36 @@ Envoy Sidecar 自动上报遥测数据，无需业务代码埋点：
 - 纯 Java 微服务，团队规模中等 → Spring Cloud Alibaba（Nacos + Sentinel + Gateway）
 - 多语言混合，已上 Kubernetes，有专职平台团队 → Istio
 - 国内大厂实践：通常两者混用（Spring Cloud 做业务治理，Service Mesh 做基础设施层 mTLS 和可观测性）
+
+---
+
+## 七、方案对比与落地取舍
+
+### 7.1 Istio / Linkerd / Kuma
+
+| 维度 | Istio | Linkerd | Kuma |
+|------|-------|---------|------|
+| 维护方 | Google / IBM 发起，CNCF 毕业项目 | Buoyant 发起，CNCF 毕业项目 | Kong 发起，CNCF 沙箱项目 |
+| 数据面 | Envoy | 自研 linkerd2-proxy（Rust） | Envoy |
+| 功能丰富度 | 最全（流量、安全、策略、多集群） | 精简，聚焦核心能力 | 中等，内置多区域 / 多集群 |
+| 资源开销 | 较高 | 低 | 中 |
+| 运行环境 | Kubernetes 为主（也支持虚拟机） | Kubernetes | Kubernetes + 虚拟机 / 裸机 |
+| 适合 | 功能要求全面、有平台团队 | 追求简单、低开销 | 混合环境、多区域部署 |
+
+### 7.2 南北向 vs 东西向流量
+
+| 流量方向 | 含义 | 负责组件 |
+|---------|------|---------|
+| **南北向** | 集群外部客户端 → 集群内部服务 | API 网关 / Ingress（鉴权、限流、协议转换、对外 API 管理） |
+| **东西向** | 集群内服务 ↔ 服务 | Service Mesh（服务发现、负载均衡、熔断、mTLS、遥测） |
+
+两者是互补关系而非替代：API 网关管入口，Service Mesh 管内部调用。Istio 也提供 Ingress Gateway 处理南北向流量，但面向外部开发者的 API 管理（开放平台、计费、文档）通常仍交给专门的 API 网关。
+
+### 7.3 落地取舍
+
+| 考量 | 说明 |
+|------|------|
+| 复杂度 | 引入控制面、Sidecar 注入、CRD 配置，排障链路变长，需要熟悉 Envoy 与 Kubernetes |
+| 性能开销 | 每跳多经过两次代理，增加延迟与 CPU / 内存占用（可评估 Ambient 等无 Sidecar 模式） |
+| 团队成熟度 | 需要专职平台 / SRE 团队维护升级；小团队、单语言场景优先考虑 SDK 方案 |
+| 渐进落地 | 先从可观测性和 mTLS（PERMISSIVE 过渡）起步，再逐步接管流量治理 |

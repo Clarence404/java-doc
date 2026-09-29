@@ -141,9 +141,9 @@ public ConversionService conversionService() {
 
 **安全体系**：
 
-- [Security](./9_security)：过滤器链 / JWT / 方法级权限
-- [安全框架对比](./10_auth_framework)：Security vs Shiro vs Sa-Token
-- [SSO 单点登录](./11_single_sign_on)：CAS / OIDC / 单点登出
+- [Security](./9_security)：过滤器链 / JWT / 方法级权限 / 动态权限
+- [安全框架对比](./10_auth_framework)：Security vs Shiro vs Sa-Token / Sa-Token SSO
+- [SSO 单点登录](./11_single_sign_on)：LDAP / CAS / SAML2 / OIDC / Keycloak 接入配置（原理见 [单点登录](/security/4_sso)）
 
 **企业集成**：
 

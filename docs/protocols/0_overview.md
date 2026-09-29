@@ -9,7 +9,7 @@
 | # | 模块 | 覆盖协议 | 链接 |
 |---|------|---------|------|
 | 1 | 网络通信 | TCP、UDP、HTTP/1-3、WebSocket、DNS | [→](./1_network_protocols) |
-| 2 | IoT 与工业 | MQTT、CoAP、Modbus、OPC UA、ZigBee | [→](./2_iot_protocols) |
+| 2 | IoT 与工业 | MQTT、CoAP、Modbus、OPC UA、LoRaWAN、NB-IoT、ZigBee | [→](./2_iot_protocols) |
 | 3 | 远程调用 | gRPC、REST、SOAP、Thrift、AMQP | [→](./3_rpc_protocols) |
 | 4 | 安全协议 | TLS、mTLS、OAuth2、OIDC、JWT、SAML | [→](./4_security_protocols) |
 | 5 | 文件传输 | FTP、SFTP、TFTP、NFS、SMB | [→](./5_file_protocols) |

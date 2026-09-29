@@ -8,9 +8,9 @@
 |------|----------|----------|
 | [JWT 令牌机制](./1_jwt) | 令牌结构、签名算法、失效与刷新策略 | 会设计短期 Access Token 与 Refresh Token |
 | [OAuth2](./2_oauth2) | 授权框架、四角色、四种授权模式、安全风险 | 能理解 OAuth2 授权框架与 PKCE |
-| [OIDC](./3_oidc) | id_token、UserInfo Endpoint、与 OAuth2 对比 | 能区分认证与授权，理解第三方登录 |
-| [单点登录（SSO）](./4_sso) | Session SSO、CAS、SAML、OIDC、Sa-Token、Keycloak | 能选择合适的企业登录方案 |
-| [认证与授权](./5_rbac_abac) | RBAC / ABAC 模型、权限数据库设计、OPA | 能落地菜单、按钮、数据权限 |
+| [OIDC](./3_oidc) | id_token、授权码 + PKCE 流程、Discovery、Front/Back-Channel Logout | 能区分认证与授权，理解第三方登录 |
+| [单点登录（SSO）](./4_sso) | 三方票据模型、方案对比与选型、Session 共享、CAS、SAML、OIDC、单点登出、Keycloak / MaxKey | 能选择合适的企业登录方案 |
+| [权限模型：RBAC 与 ABAC](./5_rbac_abac) | RBAC / ABAC / DAC / MAC、权限数据库设计、OPA、数据权限、模型选型 | 能落地菜单、按钮、数据权限 |
 | [API 安全](./6_api_security) | 接口签名、防重放、API Key、CORS、HTTPS | 能保护开放接口与内部服务接口 |
 | [数据安全](./7_data_security) | 加密算法、脱敏、密钥管理、操作审计、Vault | 能处理敏感字段、密钥轮换、合规审计 |
 | [常见漏洞与防护](./8_vulnerabilities) | OWASP Top 10、SQL 注入、XSS、CSRF、反序列化 | 能识别常见 Web 风险并制定防护 |
@@ -19,7 +19,7 @@
 ## 二、推荐阅读路径
 
 1. 先读 [JWT](./1_jwt)、[OAuth2](./2_oauth2)、[OIDC](./3_oidc)、[单点登录（SSO）](./4_sso)，建立身份与登录体系。
-2. 再读 [认证与授权](./5_rbac_abac)，区分认证、授权、RBAC、ABAC 和数据权限。
+2. 再读 [权限模型：RBAC 与 ABAC](./5_rbac_abac)，区分认证、授权、RBAC、ABAC 和数据权限。
 3. 然后读 [API 安全](./6_api_security) 与 [常见漏洞与防护](./8_vulnerabilities)，补齐接口暴露面的防护手段。
 4. 接着读 [数据安全](./7_data_security)，覆盖敏感数据、密钥轮换、日志和追责。
 5. 最后读 [零信任架构](./9_zero_trust)，把单体/网关视角扩展到微服务、服务网格和动态授权。
@@ -48,7 +48,8 @@
 
 ## 五、关联模块
 
-- Spring Security 实现细节 → [spring/9_security](../spring/9_security)
-- 认证框架（Sa-Token / Shiro）→ [spring/10_auth_framework](../spring/10_auth_framework)
-- 访问控制模型 → [architecture/6_access_control](../architecture/6_access_control)
+- Spring Security 实现细节（JWT 集成、RBAC 集成、动态权限）→ [spring/9_security](../spring/9_security)
+- 认证框架（Sa-Token / Shiro，含 Sa-Token SSO）→ [spring/10_auth_framework](../spring/10_auth_framework)
+- Spring 生态 SSO 接入（LDAP / CAS / SAML2 / OIDC / Keycloak）→ [spring/11_single_sign_on](../spring/11_single_sign_on)
+- 权限系统架构设计（PEP / PDP、权限缓存、数据权限拦截）→ [architecture/6_access_control](../architecture/6_access_control)
 - 安全通信协议（TLS / mTLS）→ [protocols/4_security_protocols](../protocols/4_security_protocols)

@@ -5,7 +5,7 @@
 > * Apache Shiro：[https://shiro.apache.org/documentation.html](https://shiro.apache.org/documentation.html)
 > * Spring Security：[https://docs.spring.io/spring-security/reference/](https://docs.spring.io/spring-security/reference/)
 
-> 本文聚焦框架选型与 API 使用。认证授权基础概念（RBAC / ABAC / OAuth2 / JWT）见 → [认证与授权](/security/0_security)
+> 本文聚焦框架选型与 API 使用。权限模型（RBAC / ABAC）见 → [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)；OAuth2 / JWT 见 → [OAuth2](/security/2_oauth2) / [JWT](/security/1_jwt)；SSO 原理见 → [单点登录](/security/4_sso)
 
 ## 一、三大框架对比
 
@@ -153,6 +153,56 @@ StpUtil.checkSafe();          // 校验是否处于二级认证状态
 
 // Token 信息
 TokenInfo info = StpUtil.getTokenInfo();
+```
+
+### 2.5 SSO 单点登录（sa-token-sso）
+
+> SSO 原理（三方票据模型、方案选型、单点登出）见 → [单点登录](/security/4_sso)
+
+Sa-Token 内置三种 SSO 模式：
+- **模式一（同域）**：共享 Cookie domain
+- **模式二（跨域，前后端不分离）**：ticket 跳转
+- **模式三（跨域，前后端分离）**：ticket 换 token
+
+```xml
+<dependency>
+  <groupId>cn.dev33</groupId>
+  <artifactId>sa-token-sso</artifactId>
+  <version>1.39.0</version>
+</dependency>
+```
+
+```yaml
+# 认证中心（SSO Server）
+sa-token:
+  sso-server:
+    ticket-timeout: 300       # ticket 有效期（秒）
+    allow-url: "*"            # 允许的回调 URL（生产环境应配置白名单）
+    is-check-sign: true       # 开启参数签名校验
+
+# 业务子系统（SSO Client）
+sa-token:
+  sso-client:
+    server-url: http://sso.example.com   # 认证中心地址
+    is-slo: true                          # 开启单点注销
+```
+
+```java
+// 认证中心：处理登录
+@RequestMapping("/sso/doLogin")
+public SaResult doLogin(String name, String pwd) {
+    if ("admin".equals(name) && "123456".equals(pwd)) {
+        StpUtil.login(10001);
+        return SaResult.ok("登录成功");
+    }
+    return SaResult.error("用户名或密码错误");
+}
+
+// 子系统：SSO 回调，ticket 换取 loginId
+@RequestMapping("/sso/login")
+public Object ssoLogin(String ticket, String back) {
+    return SaSsoClientProcessor.instance.ssoLogin(ticket, back);
+}
 ```
 
 ---

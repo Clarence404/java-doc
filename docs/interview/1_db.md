@@ -265,7 +265,7 @@ WHERE age > 10; -- 小表走索引，大表直接全表扫描
 
 ## 七、Mysql的几种锁对比？
 
-更多详情请查看 <RouteLink to="/database/1_mysql.md">Mysql锁</RouteLink>
+更多详情请查看 <RouteLink to="/database/1_mysql/5_topic_transaction">Mysql锁</RouteLink>
 
 ### 1、共享锁（S锁）
 

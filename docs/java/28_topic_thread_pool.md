@@ -1,9 +1,10 @@
-# ThreadPool
+# 专项 - 线程池
 
-关于Executor的介绍，在 <RouteLink to="/java/0_base#八、线程池基础-executors">Java基础-线程池基础（Executors）</RouteLink> 
-已经讲述过，此处只着重介绍 ThreadPoolExecutor相关的处理方案，以下为参考文章：
+> `Executors` 快捷创建方式见 [线程基础 - 线程池基础](./23_topic_thread_basics.md#四、线程池基础-executors)，本文着重介绍 `ThreadPoolExecutor` 的原理与 Fork/Join。线程数如何设置、动态线程池等生产调优见 [高并发系统设计](/high-con/0_system_design#三、线程池参数调优)。
 
->[程序员老猫-背会了常见的几个线程池用法，结果被问翻](https://mp.weixin.qq.com/s/xWbSPHJG_TztJpM4Pv9knw)
+参考文章：
+
+> [程序员老猫-背会了常见的几个线程池用法，结果被问翻](https://mp.weixin.qq.com/s/xWbSPHJG_TztJpM4Pv9knw)
 
 > [程序员追风-面试官：线程池灵魂8连问，你挡的住吗？](https://mp.weixin.qq.com/s/7ub5RhxfuklzYsa84tGAzQ)
 
@@ -28,7 +29,7 @@
 
 所以我们说线程池是 **提升线程可重复利用率、可控性的池化技术的一种。**
 
-## 二、线程池的底层原理
+## 二、ThreadPoolExecutor 底层原理
 
 ### 1、类继承视图
 
@@ -91,7 +92,7 @@ public ThreadPoolExecutor(int corePoolSize,
 
 3. 但是条件2中如果阻塞队列满了之后，此时又会重新获取当前线程的数量和最大线程数(maximumPoolSize)进行比较，如果发现小于最大线程数，那么继续添加到线程池中即可。
 
-4.如果都不满足上述条件，那么此时会放到拒绝策略中。
+4. 如果都不满足上述条件，那么此时会放到拒绝策略中。
 
 :::
 
@@ -196,42 +197,38 @@ public class LoggingRejectionHandler implements RejectedExecutionHandler {
 
 ---
 
-### 7、线程池最优参数
+## 三、Fork/Join
 
-**CPU 密集型**（大量计算，几乎不阻塞）：
-```
-线程数 = CPU 核心数 + 1
-```
-多余 1 个线程是为了应对偶发的线程中断/等待，让 CPU 始终保持满载。
+### Fork/Join 工作窃取算法
 
-**IO 密集型**（大量等待，如数据库、网络调用）：
-```
-线程数 = CPU 核心数 × (1 + 等待时间 / 计算时间)
-```
-若等待时间 / 计算时间 = 9（即 90% 时间在等待），则 8 核 CPU 可设 80 个线程。
-
-**实际推荐做法**：
-1. 通过压测找到系统 TPS 和响应时间的最优平衡点
-2. 参考 Little's Law：`并发数 = QPS × 平均响应时间`
-3. 使用动态线程池（如 [DynamicTP](https://dynamictp.cn/)）在不重启的情况下动态调整参数
+Fork/Join 框架用于**递归分治**任务，每个工作线程有一个双端队列（Deque），空闲线程从其他线程队列**尾部窃取**任务。
 
 ```java
-// 常见生产配置模板
-ThreadPoolExecutor executor = new ThreadPoolExecutor(
-    Runtime.getRuntime().availableProcessors() * 2,  // corePoolSize
-    Runtime.getRuntime().availableProcessors() * 4,  // maximumPoolSize
-    60L, TimeUnit.SECONDS,
-    new ArrayBlockingQueue<>(500),                    // 有界队列，防 OOM
-    new ThreadFactoryBuilder()
-        .setNameFormat("order-pool-%d")               // 线程名带业务前缀，便于 jstack 排查
-        .setDaemon(false)
-        .build(),
-    new LoggingRejectionHandler()
-);
+public class SumTask extends RecursiveTask<Long> {
+    private static final int THRESHOLD = 1000;
+    private final long[] arr;
+    private final int start, end;
+
+    @Override
+    protected Long compute() {
+        if (end - start <= THRESHOLD) {
+            // 任务足够小，直接计算
+            long sum = 0;
+            for (int i = start; i < end; i++) sum += arr[i];
+            return sum;
+        }
+        // 拆分任务
+        int mid = (start + end) / 2;
+        SumTask left = new SumTask(arr, start, mid);
+        SumTask right = new SumTask(arr, mid, end);
+        left.fork();               // 异步执行左半部分
+        return right.compute()     // 当前线程执行右半部分
+             + left.join();        // 等待左半部分结果
+    }
+}
+
+ForkJoinPool pool = new ForkJoinPool();
+long result = pool.invoke(new SumTask(arr, 0, arr.length));
 ```
 
-参考：[计算线程池场景分析](https://zhuanlan.zhihu.com/p/116426107)
-
-## 三、动态线程池
-
-此处查看详情：[dynamictp](https://dynamictp.cn/)
+`parallelStream` 与 `CompletableFuture` 的默认线程池都是 `ForkJoinPool.commonPool()`。

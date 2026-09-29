@@ -65,6 +65,8 @@ Client 携带 refresh_token 请求 Authorization Server
 
 Token 直接返回到浏览器 URL，安全性差，OAuth2.1 中已废弃，SPA 应改用授权码 + PKCE。
 
+> 旧的隐式模式、密码模式在 OAuth 2.1 中已废弃，新系统一律授权码 + PKCE。
+
 ---
 
 ## 四、常见安全风险
@@ -78,4 +80,6 @@ Token 直接返回到浏览器 URL，安全性差，OAuth2.1 中已废弃，SPA 
 | **权限过大** | scope 申请过多权限 | 最小权限原则，精细化 scope |
 
 > [!warning]
-> 待补充：Spring Authorization Server 实战、Token 吊销（Revocation）机制、多租户场景
+> 待补充：Token 吊销（Revocation）机制、多租户场景
+>
+> Spring Authorization Server 实战属于 Spring 模块，后续补充到 → [SSO 单点登录（Spring）](/spring/11_single_sign_on)

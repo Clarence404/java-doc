@@ -29,9 +29,19 @@ IoT 协议按应用场景分为三类：
 | Publisher | 发布者，设备向 Topic 推送数据 |
 | Subscriber | 订阅者，服务端订阅 Topic 接收数据 |
 | Topic | 消息路由路径，如 `factory/line1/temp` |
+| Wildcard | `+` 匹配单层（`sensor/+/temperature`），`#` 匹配多层（`sensor/#`） |
 | QoS | 服务质量：0（最多一次）/ 1（至少一次）/ 2（有且仅一次） |
 | Retain | 保留消息，新订阅者立即获取最新值 |
 | Will | 遗嘱消息，设备异常离线时自动发布 |
+| Keep Alive | 心跳间隔，超时未收到 PINGREQ 则断开连接 |
+
+### QoS 三个等级
+
+| QoS | 名称 | 语义 | 原理 | 适用 |
+|-----|------|------|------|------|
+| 0 | At most once | 最多一次，可能丢失 | 发后不管 | 实时传感器数据，少量丢失可接受 |
+| 1 | At least once | 至少一次，可能重复 | 发后等 PUBACK，无响应重发 | 告警事件，业务层做幂等 |
+| 2 | Exactly once | 精确一次 | 4 步握手（PUBLISH→PUBREC→PUBREL→PUBCOMP）| 计费、控制指令 |
 
 ### 主流 Broker
 
@@ -43,6 +53,83 @@ IoT 协议按应用场景分为三类：
 | HiveMQ | Java | 商业版功能强，提供开源社区版 |
 
 > 官网：[https://www.emqx.io](https://www.emqx.io)
+
+**EMQX Docker Compose 部署：**
+
+```yaml
+services:
+  emqx:
+    image: emqx/emqx:5.7
+    ports:
+      - "1883:1883"     # MQTT TCP
+      - "8083:8083"     # MQTT over WebSocket
+      - "8883:8883"     # MQTT over TLS
+      - "18083:18083"   # 管理控制台
+    volumes:
+      - ./emqx_data:/opt/emqx/data
+```
+
+### Java Paho 客户端
+
+```xml
+<dependency>
+    <groupId>org.eclipse.paho</groupId>
+    <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+    <version>1.2.5</version>
+</dependency>
+```
+
+```java
+@Component
+public class MqttService {
+
+    private MqttClient client;
+
+    @PostConstruct
+    public void connect() throws MqttException {
+        MqttConnectOptions options = new MqttConnectOptions();
+        options.setCleanSession(false);           // 持久会话，重连后恢复订阅
+        options.setKeepAliveInterval(60);
+        options.setAutomaticReconnect(true);
+        options.setUserName("user");
+        options.setPassword("password".toCharArray());
+        options.setWill("device/status", "offline".getBytes(), 1, true);
+
+        client = new MqttClient("tcp://localhost:1883",
+            "gateway-" + UUID.randomUUID(), new MemoryPersistence());
+
+        client.setCallback(new MqttCallbackExtended() {
+            @Override
+            public void connectComplete(boolean reconnect, String serverURI) {
+                subscribeTopics();
+            }
+            @Override
+            public void messageArrived(String topic, MqttMessage message) {
+                log.info("Topic: {}, Payload: {}", topic, new String(message.getPayload()));
+            }
+            @Override public void deliveryComplete(IMqttDeliveryToken token) {}
+            @Override public void connectionLost(Throwable cause) {}
+        });
+
+        client.connect(options);
+        subscribeTopics();
+    }
+
+    private void subscribeTopics() {
+        try {
+            client.subscribe("sensor/+/temperature", 1);
+        } catch (MqttException e) {
+            log.error("Subscribe failed", e);
+        }
+    }
+
+    public void publish(String topic, String payload, int qos) throws MqttException {
+        MqttMessage message = new MqttMessage(payload.getBytes(StandardCharsets.UTF_8));
+        message.setQos(qos);
+        client.publish(topic, message);
+    }
+}
+```
 
 ---
 
@@ -64,7 +151,8 @@ IoT 协议按应用场景分为三类：
 |--------|------|------|
 | 传输层 | TCP | UDP |
 | 模型 | 发布/订阅 | 请求/响应 |
-| 可靠性 | 高（QoS 保障） | 轻量（重传可选） |
+| 消息大小 | 较小（2 字节固定头） | 极小（4 字节固定头） |
+| 可靠性 | 高（QoS 保障） | 轻量（应用层 ACK，CON/NON 消息类型） |
 | 功耗 | 中 | 低 |
 | 适合场景 | 稳定网络、状态保留 | 受限设备、低功耗网络 |
 
@@ -179,6 +267,8 @@ IoT 协议按应用场景分为三类：
 
 > Java 开源库：[Eclipse Milo](https://github.com/eclipse/milo)（OPC-UA 客户端 + 服务端完整实现）
 
+**常见架构**：设备 → OPC UA → 边缘网关 → MQTT → 云端平台 → Kafka/数据库
+
 ---
 
 ## 九、协议选型速查
@@ -192,6 +282,7 @@ IoT 协议按应用场景分为三类：
 | 智能家居短距网状组网 | Zigbee |
 | 工业老旧设备接入（PLC / 仪表） | Modbus RTU / TCP |
 | 工厂设备现代化互联、工业数字化 | OPC-UA |
+| 大规模设备数据流入大数据平台 | MQTT → Kafka |
 
 ---
 

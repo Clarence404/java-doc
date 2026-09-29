@@ -1,4 +1,4 @@
-# 专项 - JUC 基础
+# 专项 - 线程基础
 
 > Java 多线程基础：线程创建方式、Future 异步结果、等待/唤醒机制、线程池（Executors）、ThreadLocal 线程隔离与跨线程传递。
 
@@ -170,7 +170,7 @@ ExecutorService workStealing = Executors.newWorkStealingPool();
 - `FixedThreadPool` / `SingleThreadPool`：队列为无界 `LinkedBlockingQueue`（容量 `Integer.MAX_VALUE`），大量请求时可能 OOM。
 - `CachedThreadPool`：线程数无上限，可能创建大量线程导致 OOM。
 
-> 生产环境建议直接使用 <RouteLink to="/high-con/1_thread_pool">ThreadPoolExecutor</RouteLink> 手动指定核心线程数、最大线程数和队列容量。
+> 生产环境建议直接使用 [ThreadPoolExecutor](./28_topic_thread_pool.md) 手动指定核心线程数、最大线程数和队列容量。
 
 **invokeAll / invokeAny：**
 

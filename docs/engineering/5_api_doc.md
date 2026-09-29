@@ -1,6 +1,6 @@
 # API 文档
 
-> Spring Boot 集成实践详见 [spring-boot/9_api_doc](../spring-boot/9_api_doc)。
+> SpringDoc / Knife4j 的依赖、配置、注解等集成代码统一见 [spring-boot/9_api_doc](../spring-boot/9_api_doc)，本文聚焦方案选型、文档导出与规范。
 
 ---
 
@@ -15,103 +15,13 @@
 
 ---
 
-## 二、Springdoc OpenAPI 3 集成
+## 二、集成实践
 
-```xml
-<dependency>
-  <groupId>org.springdoc</groupId>
-  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-  <version>2.3.0</version>
-</dependency>
-```
-
-```yaml
-# application.yml
-springdoc:
-  api-docs:
-    path: /v3/api-docs      # JSON 文档地址
-  swagger-ui:
-    path: /swagger-ui.html  # UI 地址
-    tags-sorter: alpha       # 按 Tag 字母排序
-    operations-sorter: alpha
-  packages-to-scan: com.example.interfaces.rest   # 只扫描 Controller 包
-  paths-to-exclude: /actuator/**                  # 排除 actuator 接口
-```
-
-```java
-// 全局 API 信息配置
-@Configuration
-public class OpenApiConfig {
-
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-            .info(new Info()
-                .title("订单服务 API")
-                .version("v1.0")
-                .description("订单管理相关接口")
-                .contact(new Contact().name("后端团队").email("backend@example.com")))
-            .addSecurityItem(new SecurityRequirement().addList("Bearer"))
-            .components(new Components()
-                .addSecuritySchemes("Bearer", new SecurityScheme()
-                    .type(SecurityScheme.Type.HTTP)
-                    .scheme("bearer")
-                    .bearerFormat("JWT")));
-    }
-}
-
-// Controller 注解
-@Tag(name = "订单管理", description = "订单 CRUD 接口")
-@RestController
-@RequestMapping("/api/orders")
-public class OrderController {
-
-    @Operation(summary = "创建订单", description = "幂等接口，相同 idempotentKey 只创建一次")
-    @ApiResponse(responseCode = "200", description = "创建成功")
-    @ApiResponse(responseCode = "400", description = "参数错误")
-    @PostMapping
-    public Result<String> createOrder(
-        @Parameter(description = "幂等键", required = true)
-        @RequestHeader("Idempotent-Key") String idempotentKey,
-        @RequestBody @Valid CreateOrderRequest req) {
-        return Result.ok(orderService.create(req, idempotentKey));
-    }
-}
-```
+SpringDoc OpenAPI 3 与 Knife4j 的依赖、`application.yml` 配置、全局 OpenAPI Bean、Controller / DTO 注解、Spring Security 放行及多环境控制，详见 [spring-boot/9_api_doc](../spring-boot/9_api_doc)。
 
 ---
 
-## 三、Knife4j 集成（国内友好）
-
-```xml
-<dependency>
-  <groupId>com.github.xiaoymin</groupId>
-  <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
-  <version>4.4.0</version>
-</dependency>
-```
-
-```yaml
-knife4j:
-  enable: true
-  setting:
-    language: zh_cn
-    enable-swagger-models: true
-    enable-document-manage: true
-  production: false   # 生产环境设为 true 关闭 UI
-```
-
-访问地址：`http://localhost:8080/doc.html`
-
-**Knife4j 特有功能**：
-- 接口分组管理
-- 在线调试（支持文件上传）
-- 导出 Word / Markdown 文档
-- 离线文档下载
-
----
-
-## 四、OpenAPI 文档版本化与导出
+## 三、OpenAPI 文档版本化与导出
 
 ```bash
 # 从运行中的服务导出 JSON 规范
@@ -142,7 +52,7 @@ npx redoc-cli bundle openapi.yaml -o api-docs.html
 
 ---
 
-## 五、接口文档规范
+## 四、接口文档规范
 
 - **必须描述**：接口用途、入参约束、成功/失败响应示例
 - **请求示例**：`@Schema(example = "1001")` 提供有意义的示例值，不要用 `string` / `0`

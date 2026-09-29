@@ -22,7 +22,7 @@ docs/
 ├── high-con/       高并发：JUC / 线程池 / 系统设计
 ├── interview/      开发总结（各方向高频问题汇总）
 ├── iot/            物联网：基础 / 协议 / 开源平台
-├── java/           Java 8+ 语言特性
+├── java/           Java 语言：语言机制 / IO / 集合 / 并发 / 版本特性
 ├── jvm/            JVM 原理与调优
 ├── messaging/      消息队列：Kafka / RocketMQ / RabbitMQ
 ├── microservices/  微服务：概念 / 拆分 / 组件 / 模式
@@ -45,7 +45,7 @@ docs/
 | 模块 | 路径 | 覆盖主题 |
 |------|------|----------|
 | 面试专题 | `docs/interview/` | Java / DB / 缓存 / JVM / Spring / MQ 高频题 |
-| Java 特性 | `docs/java/` | Java 8–21 核心新特性 |
+| Java 特性 | `docs/java/` | 语言机制 / IO / 集合 / 并发（JMM、锁、JUC、线程池） / 版本特性 |
 | JVM | `docs/jvm/` | 内存结构 / 类加载 / GC / 调优 |
 | 算法 | `docs/algorithms/` | 数据结构 / 搜索 / 排序 / DP / LeetCode |
 | 设计模式 | `docs/patterns/` | 23 种 GoF 模式 |
@@ -55,7 +55,7 @@ docs/
 | 测试体系 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD |
 | Netty | `docs/netty/` | IO 模型 / Reactor / WebSocket / SSE |
 | 分布式 | `docs/distributed/` | CAP / Raft / 分布式锁 / 事务 |
-| 高并发 | `docs/high-con/` | JUC / 线程池 / 压测 / Profiler |
+| 高并发 | `docs/high-con/` | 系统设计 / 线程池调优 / 指标 / Profiler |
 | 高可用 | `docs/high-avail/` | 限流 / 熔断 / 降级 |
 | 消息队列 | `docs/messaging/` | Kafka / RocketMQ / RabbitMQ |
 | 微服务 | `docs/microservices/` | 拆分 / 注册发现 / 网关 / 模式 / Dubbo |

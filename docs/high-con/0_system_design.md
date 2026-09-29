@@ -105,3 +105,43 @@
 - **线程池状态**：活跃线程数、队列积压
 
 详细可观测性方案见 [observability/](../observability/0_observability)。
+
+---
+
+## 三、线程池参数调优
+
+> `ThreadPoolExecutor` 的构造参数、执行流程、队列与拒绝策略见 [Java 专项 - 线程池](/java/28_topic_thread_pool)。
+
+**CPU 密集型**（大量计算，几乎不阻塞）：
+```
+线程数 = CPU 核心数 + 1
+```
+多余 1 个线程是为了应对偶发的线程中断/等待，让 CPU 始终保持满载。
+
+**IO 密集型**（大量等待，如数据库、网络调用）：
+```
+线程数 = CPU 核心数 × (1 + 等待时间 / 计算时间)
+```
+若等待时间 / 计算时间 = 9（即 90% 时间在等待），则 8 核 CPU 可设 80 个线程。
+
+**实际推荐做法**：
+1. 通过压测找到系统 TPS 和响应时间的最优平衡点
+2. 参考 Little's Law：`并发数 = QPS × 平均响应时间`
+3. 使用动态线程池（如 [DynamicTP](https://dynamictp.cn/)）在不重启的情况下动态调整参数
+
+```java
+// 常见生产配置模板（LoggingRejectionHandler 见 Java 专项 - 线程池 的拒绝策略一节）
+ThreadPoolExecutor executor = new ThreadPoolExecutor(
+    Runtime.getRuntime().availableProcessors() * 2,  // corePoolSize
+    Runtime.getRuntime().availableProcessors() * 4,  // maximumPoolSize
+    60L, TimeUnit.SECONDS,
+    new ArrayBlockingQueue<>(500),                    // 有界队列，防 OOM
+    new ThreadFactoryBuilder()
+        .setNameFormat("order-pool-%d")               // 线程名带业务前缀，便于 jstack 排查
+        .setDaemon(false)
+        .build(),
+    new LoggingRejectionHandler()
+);
+```
+
+参考：[计算线程池场景分析](https://zhuanlan.zhihu.com/p/116426107)

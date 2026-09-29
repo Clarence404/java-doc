@@ -1,6 +1,8 @@
 # OIDC
 
-> OIDC（OpenID Connect）基于 OAuth2 构建，在授权层之上增加了标准的身份认证协议。OAuth2 协议基础见 → [OAuth2](/security/2_oauth2)；SSO 落地实现见 → [单点登录](/security/4_sso)；JWT 令牌格式见 → [JWT](/security/1_jwt)
+> OIDC（OpenID Connect）基于 OAuth2 构建，在授权层之上增加了标准的身份认证协议。OAuth2 协议基础见 → [OAuth2](/security/2_oauth2)；SSO 原理与选型见 → [单点登录](/security/4_sso)；JWT 令牌格式见 → [JWT](/security/1_jwt)
+>
+> Spring Boot 对接 OIDC / Keycloak（依赖、配置、角色映射、Back-Channel Logout）见 → [SSO 单点登录（Spring）](/spring/11_single_sign_on)
 
 ---
 
@@ -37,7 +39,21 @@
 
 ---
 
-## 三、Discovery Endpoint
+## 三、登录流程（授权码 + PKCE）
+
+**授权码流程（Authorization Code + PKCE，唯一推荐模式）**：
+
+![OIDC 授权码流程](../assets/security/sso-oidc-flow.svg)
+
+1. 应用把用户重定向到认证中心 `/authorize`（带 `client_id`、`redirect_uri`、`scope=openid`）
+2. 用户在认证中心登录（第二个应用来时全局会话仍在 → 免登录）
+3. 认证中心 302 回 `redirect_uri`，带一次性**授权码 code**
+4. 应用后端用 code + client_secret 换 **ID Token（我是谁）+ Access Token（能访问什么）**
+5. 校验 ID Token 签名与 claims → 登录完成
+
+---
+
+## 四、Discovery Endpoint
 
 OIDC 规定 IdP 必须在固定路径暴露元数据，客户端无需手动配置各个端点地址：
 
@@ -75,7 +91,7 @@ spring:
 
 ---
 
-## 四、Front-Channel / Back-Channel Logout
+## 五、Front-Channel / Back-Channel Logout
 
 OIDC 定义了两种单点注销方式：
 
@@ -86,125 +102,4 @@ OIDC 定义了两种单点注销方式：
 | 对 SP 要求 | SP 提供注销 URL，浏览器可访问 | SP 提供可被 IdP 访问的内网端点 |
 | 适用场景 | 简单演示 / 老系统兼容 | **生产环境推荐** |
 
-### Spring Security 配置 Back-Channel Logout
-
-```yaml
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: my-app
-            client-secret: ${KEYCLOAK_SECRET}
-            scope: openid, profile, email
-```
-
-```java
-@Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    return http
-        .oauth2Login(Customizer.withDefaults())
-        .oidcLogout(logout -> logout
-            .backChannel(Customizer.withDefaults())  // 开启 Back-Channel Logout
-        )
-        .build();
-}
-```
-
-Keycloak 会在用户注销时向 `{baseUrl}/logout/connect/back-channel/{registrationId}` 发送 POST 请求，Spring Security 自动处理 Session 销毁。
-
----
-
-## 五、Keycloak 实战（Spring Boot）
-
-### 依赖
-
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-oauth2-client</artifactId>
-</dependency>
-```
-
-### 配置
-
-```yaml
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:
-            client-id: my-app
-            client-secret: ${KEYCLOAK_SECRET}
-            authorization-grant-type: authorization_code
-            scope: openid, profile, email
-            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
-        provider:
-          keycloak:
-            issuer-uri: http://keycloak:8080/realms/my-realm
-```
-
-### SecurityFilterChain
-
-```java
-@Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    return http
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/public/**").permitAll()
-            .anyRequest().authenticated())
-        .oauth2Login(login -> login
-            .userInfoEndpoint(ui -> ui
-                .oidcUserService(oidcUserService())))  // 自定义用户信息加载
-        .oidcLogout(logout -> logout
-            .backChannel(Customizer.withDefaults()))
-        .build();
-}
-```
-
-### 从 id_token 提取用户信息
-
-```java
-@GetMapping("/me")
-public Map<String, Object> me(@AuthenticationPrincipal OidcUser user) {
-    return Map.of(
-        "sub",   user.getSubject(),          // 用户唯一 ID
-        "name",  user.getFullName(),
-        "email", user.getEmail(),
-        "roles", user.getClaimAsStringList("roles")  // Keycloak 自定义 claim
-    );
-}
-```
-
-### 自定义 Keycloak 角色映射
-
-Keycloak 将角色放在 `realm_access.roles` 而非标准字段，需要自定义 `OidcUserService`：
-
-```java
-@Bean
-public OidcUserService oidcUserService() {
-    OidcUserService delegate = new OidcUserService();
-    return new OidcUserService() {
-        @Override
-        public OidcUser loadUser(OidcUserRequest request) throws OAuth2AuthenticationException {
-            OidcUser oidcUser = delegate.loadUser(request);
-
-            // 从 realm_access.roles 提取角色
-            Map<String, Object> realmAccess =
-                oidcUser.getClaimAsMap("realm_access");
-            List<String> roles = realmAccess != null
-                ? (List<String>) realmAccess.get("roles")
-                : List.of();
-
-            List<GrantedAuthority> authorities = roles.stream()
-                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
-                .collect(Collectors.toList());
-            authorities.addAll(oidcUser.getAuthorities());
-
-            return new DefaultOidcUser(authorities, oidcUser.getIdToken(),
-                oidcUser.getUserInfo());
-        }
-    };
-}
+> Spring Security 开启 Back-Channel Logout 的配置见 → [SSO 单点登录（Spring）· 单点登出配置](/spring/11_single_sign_on)；SLO 方案整体选型见 → [单点登录](/security/4_sso)

@@ -11,6 +11,9 @@
 | SpringDoc + Swagger UI | Spring Boot 3.x 官方推荐 | ⭐⭐⭐ |
 | Knife4j | SpringDoc 增强版，UI 更友好 | ⭐⭐⭐ |
 | Springfox（已停更） | 老项目常见，不推荐新项目使用 | ⭐ |
+| 手写 API 文档 | 人工维护，适合对外 OpenAPI、需精细控制的场景 | 按需 |
+
+> 方案选型、OpenAPI 导出 / CI 集成与接口文档规范见 [engineering/5_api_doc](../engineering/5_api_doc)。
 
 ---
 
@@ -80,7 +83,9 @@ springdoc:
     enabled: true
     path: /swagger-ui.html
     operations-sorter: method   # 按 HTTP 方法排序
-    tags-sorter: alpha
+    tags-sorter: alpha           # 按 Tag 字母排序
+  packages-to-scan: com.example.interfaces.rest   # 只扫描 Controller 包
+  paths-to-exclude: /actuator/**                  # 排除 actuator 接口
   # 生产环境关闭
   # api-docs.enabled: false
 ```
@@ -177,7 +182,9 @@ knife4j:
     enable-footer: false
     enable-debug: true        # 启用接口调试
     enable-open-api: true     # 显示 OpenAPI 规范链接
-  # 生产环境关闭
+    enable-swagger-models: true
+    enable-document-manage: true
+  # 生产环境设为 true 关闭 UI
   production: false
   # 开启访问鉴权
   # basic:
@@ -186,7 +193,13 @@ knife4j:
   #   password: 123456
 ```
 
-访问路径：`/doc.html`（比 Swagger UI 更友好）
+访问路径：`/doc.html`（比 Swagger UI 更友好），如 `http://localhost:8080/doc.html`
+
+**Knife4j 特有功能**：
+- 接口分组管理
+- 在线调试（支持文件上传）
+- 导出 Word / Markdown 文档
+- 离线文档下载
 
 ---
 

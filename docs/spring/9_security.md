@@ -4,6 +4,8 @@
 > * 官方文档：[https://docs.spring.io/spring-security/reference/](https://docs.spring.io/spring-security/reference/)
 > * Spring Security JWT 实战：[https://www.baeldung.com/spring-security-oauth-jwt](https://www.baeldung.com/spring-security-oauth-jwt)
 
+> 本文只讲 Spring Security 的配置与代码。JWT 原理见 → [JWT](/security/1_jwt)；权限模型见 → [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)
+
 ## 一、核心架构
 
 Spring Security 本质是一条 **Servlet Filter Chain**，所有安全逻辑通过过滤器串联。
@@ -271,7 +273,76 @@ public class OrderService {
 
 ---
 
-## 六、核心组件速查
+## 六、RBAC 集成（权限码直查）
+
+> RBAC 模型与 5 张表设计见 → [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)；权限系统整体架构见 → [权限系统架构设计](/architecture/6_access_control)
+
+```java
+// 加载用户权限（UserDetailsService）
+@Override
+public UserDetails loadUserByUsername(String username) {
+    User user = userMapper.findByUsername(username);
+    List<String> perms = permissionMapper.findByUserId(user.getId());
+
+    List<GrantedAuthority> authorities = perms.stream()
+        .map(SimpleGrantedAuthority::new)
+        .toList();
+    return new org.springframework.security.core.userdetails.User(
+        user.getUsername(), user.getPassword(), authorities);
+}
+
+// 方法级权限注解
+@PreAuthorize("hasAuthority('user:delete')")
+@DeleteMapping("/users/{id}")
+public void deleteUser(@PathVariable Long id) { ... }
+
+@PreAuthorize("hasRole('ADMIN')")
+@GetMapping("/admin/dashboard")
+public DashboardVO getDashboard() { ... }
+
+// FilterChain 级别配置
+http.authorizeHttpRequests(auth -> auth
+    .requestMatchers("/admin/**").hasRole("ADMIN")
+    .requestMatchers(HttpMethod.DELETE, "/api/**").hasAuthority("data:delete")
+    .anyRequest().authenticated());
+```
+
+---
+
+## 七、动态权限（数据库驱动）
+
+URL → 权限码的映射存在数据库（权限表带 `resource` / `method` 列），运行时按请求匹配，改权限无需重新发版。
+
+> [!warning]
+> 以下 `FilterInvocationSecurityMetadataSource` 写法属于 Spring Security 5.x 及以前的 `FilterSecurityInterceptor` 体系，在 Spring Security 6 中已废弃；新项目应改用 `AuthorizationManager<RequestAuthorizationContext>`（配合 `authorizeHttpRequests(...).anyRequest().access(...)`）实现同样的动态匹配。
+
+```java
+@Component
+public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
+    @Autowired private PermissionMapper permMapper;
+
+    @Override
+    public Collection<ConfigAttribute> getAttributes(Object object) {
+        String requestUrl = ((FilterInvocation) object).getRequestUrl();
+        String method = ((FilterInvocation) object).getHttpRequest().getMethod();
+
+        // 从 DB 匹配权限（也可缓存到 Redis，定时刷新）
+        List<String> perms = permMapper.selectPermKeysByUrl(requestUrl, method);
+        if (perms.isEmpty()) return null;  // null = 不需要权限
+
+        return perms.stream()
+            .map(SecurityConfig::createList)
+            .flatMap(Collection::stream)
+            .collect(toList());
+    }
+}
+```
+
+> 权限缓存与刷新策略见 → [权限系统架构设计](/architecture/6_access_control)；OAuth2 / OIDC 客户端与资源服务器配置见 → [SSO 单点登录](./11_single_sign_on)
+
+---
+
+## 八、核心组件速查
 
 | 组件 | 职责 |
 |------|------|

@@ -35,7 +35,7 @@
 - **CMS 的垃圾回收过程？它有什么缺点？**
 - **G1 的工作原理？Region 是什么？为什么它能预测停顿时间？**
 - **ZGC 如何实现低延迟？（着色指针、读屏障）**  
-  → 详见 <RouteLink to="/jvm/3_gc">垃圾回收</RouteLink>
+  → 详见 <RouteLink to="/jvm/3_gc_theory">垃圾回收</RouteLink>
 
 ## 五、Java 内存模型（JMM）
 
@@ -45,7 +45,7 @@
 - **为什么 DCL 单例需要 volatile？不加会有什么问题？**
 - **synchronized 除了互斥，还有什么内存语义？**
 - **final 字段的内存语义是什么？**  
-  → 详见 <RouteLink to="/jvm/9_jmm">Java 内存模型</RouteLink>
+  → 详见 <RouteLink to="/java/22_topic_jmm">Java 内存模型</RouteLink>
 
 ## 六、虚拟线程
 
