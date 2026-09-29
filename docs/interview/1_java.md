@@ -1099,7 +1099,7 @@ private void test() {
 
 - **终止操作**（`reduce()`、`collect()`）会触发 **归约合并**。
 
-- **底层原理**：详细原理见：<RouteLink to="/java/28_topic_thread_pool#三、fork-join">Fork/Join框架</RouteLink>
+- **底层原理**：详细原理见：<RouteLink to="/java/28_topic_thread_pool#七、fork-join">Fork/Join框架</RouteLink>
 
 ### **4、并行流 vs 顺序流**
 

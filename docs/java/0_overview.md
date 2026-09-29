@@ -54,7 +54,7 @@
 | [Lock 锁](./25_topic_lock.md) | AQS 原理、ReentrantLock、ReadWriteLock/StampedLock |
 | [Atomic 原子类](./26_topic_atomic.md) | CAS、ABA 问题、LongAdder |
 | [并发工具类](./27_topic_juc_tools.md) | CountDownLatch、CyclicBarrier、Semaphore |
-| [线程池](./28_topic_thread_pool.md) | ThreadPoolExecutor 参数与执行流程、队列、拒绝策略、Fork/Join |
+| [线程池](./28_topic_thread_pool.md) | ThreadPoolExecutor 原理（ctl / Worker）、异常处理、优雅关闭、监控、定时任务、Fork/Join、虚拟线程、常见坑 |
 | [CompletableFuture](./29_topic_completable_future.md) | 异步编排、任务组合、异常处理与常见坑 |
 
 > 线程数设置、压测、Profiler 等系统级内容见 [高并发](/high-con/0_overview)。

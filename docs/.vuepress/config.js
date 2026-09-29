@@ -88,16 +88,21 @@ const navbarDropdown = [
         ],
     },
     {
-        text: '工程实践',
+        text: '研发效能',
         children: [
-            {text: '云原生',   link: '/cloud-native/0_overview'},
+            {text: '测试体系', link: '/testing/0_overview'},
             {text: 'DevOps',  link: '/devops/0_overview'},
             {text: '工程效率', link: '/engineering/0_overview'},
-            {text: '可观测性', link: '/observability/0_overview'},
-            {text: '测试体系', link: '/testing/0_overview'},
         ],
     },
-    {text: '安全体系', link: '/security/0_overview'},
+    {
+        text: '运维保障',
+        children: [
+            {text: '云原生',   link: '/cloud-native/0_overview'},
+            {text: '可观测性', link: '/observability/0_overview'},
+            {text: '安全体系', link: '/security/0_overview'},
+        ],
+    },
     {
         text: '垂直领域',
         children: [

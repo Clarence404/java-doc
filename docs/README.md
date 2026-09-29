@@ -153,25 +153,37 @@ highlights:
         details: 大数据业务场景方案 / 技术选型实战案例，从业务需求到架构落地全流程
         link: /scenario/0_overview
 
-  - header: 工程运维
-    description: 云原生 · DevOps · 可观测性 · 测试，工程化全链路
+  - header: 研发效能
+    description: 测试 · DevOps · 工程效率，提升交付质量与速度
+    features:
+      - title: 测试体系
+        icon: vial
+        details: JUnit 5 单元测试 / Mockito Mock / TestContainers 集成测试 / TDD 实践 / 性能测试
+        link: /testing/0_overview
+      - title: DevOps
+        icon: screwdriver-wrench
+        details: Git 工作流 / CI/CD 流水线 / Code Review / 团队开发规范 / 发布策略
+        link: /devops/0_overview
+      - title: 工程效率
+        icon: toolbox
+        details: Maven / Gradle 构建 / IDEA 与效率工具 / 代码质量 / Arthas 线上诊断 / API 规范
+        link: /engineering/0_overview
+
+  - header: 运维保障
+    description: 云原生 · 可观测性 · 安全，保障线上稳定与安全
     features:
       - title: 云原生
         icon: cloud
         details: Linux 高频运维命令 / Docker 容器化 / Kubernetes 集群部署 / Helm Chart 实践
         link: /cloud-native/0_overview
-      - title: DevOps
-        icon: screwdriver-wrench
-        details: Git 工作流 / CI/CD 流水线 / Code Review / 团队开发规范
-        link: /devops/0_overview
       - title: 可观测性
         icon: chart-line
         details: 日志 / 指标 / 链路追踪 / 告警治理 / OpenTelemetry，支撑线上排障与稳定性建设
         link: /observability/0_overview
-      - title: 测试体系
-        icon: vial
-        details: JUnit 5 单元测试 / Mockito Mock / TestContainers 集成测试 / TDD 实践
-        link: /testing/0_overview
+      - title: 安全体系
+        icon: lock
+        details: JWT / OAuth2 / OIDC / SSO / RBAC 权限模型 / API 安全 / 数据安全 / 零信任
+        link: /security/0_overview
 
   - header: 新兴技术
     description: IoT 物联网 · 人工智能，拓展技术边界

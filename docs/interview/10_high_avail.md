@@ -1,4 +1,4 @@
-# 开发总结-三高（高性能 / 高并发 / 高可用）
+# 开发总结-三高架构
 
 > 精华提炼，细节详见 [高性能](/high-perf/0_overview) / [高并发](/high-con/0_overview) / [高可用](/high-avail/0_overview)
 >
