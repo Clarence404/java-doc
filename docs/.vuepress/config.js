@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import 'dotenv/config';
 import {homeStatsPlugin} from './plugins/homeStats.js';
+import {GROUPS, SUMMARY, overviewLink} from './site.js';
 
 // 导航栏风格：统一读 .env 里的 NAVBAR_STYLE
 //   flat      → 所有模块平铺展开
@@ -12,112 +13,11 @@ import {homeStatsPlugin} from './plugins/homeStats.js';
 // 本地：改 .env 文件即可；CI/CD：workflow env 里覆盖
 const NAVBAR_STYLE = process.env.NAVBAR_STYLE ?? 'dropdown';
 
-const navbarFlat = [
-    {text: '开发总结', link: '/interview/0_overview'},
-    {text: 'Java',    link: '/java/0_overview'},
-    {text: 'JVM',     link: '/jvm/0_overview'},
-    {text: '算法',    link: '/algorithms/0_overview'},
-    {text: '网络协议', link: '/protocols/0_overview'},
-    {text: 'Spring',  link: '/spring/0_overview'},
-    {text: 'Spring Boot', link: '/spring-boot/0_overview'},
-    {text: 'Netty',   link: '/netty/0_overview'},
-    {text: '数据库',  link: '/database/0_overview'},
-    {text: '缓存',    link: '/cache/0_overview'},
-    {text: '消息队列', link: '/messaging/0_overview'},
-    {text: '分布式',  link: '/distributed/0_overview'},
-    {text: '微服务',  link: '/microservices/0_overview'},
-    {text: 'Spring Cloud', link: '/spring-cloud/0_overview'},
-    {text: '高性能',  link: '/high-perf/0_overview'},
-    {text: '高并发',  link: '/high-con/0_overview'},
-    {text: '高可用',  link: '/high-avail/0_overview'},
-    {text: '设计模式', link: '/patterns/0_overview'},
-    {text: '架构',    link: '/architecture/0_overview'},
-    {text: '业务场景', link: '/scenario/0_overview'},
-    {text: '测试',    link: '/testing/0_overview'},
-    {text: 'DevOps',  link: '/devops/0_overview'},
-    {text: '工程效率', link: '/engineering/0_overview'},
-    {text: '云原生',  link: '/cloud-native/0_overview'},
-    {text: '可观测性', link: '/observability/0_overview'},
-    {text: '安全',    link: '/security/0_overview'},
-    {text: 'IoT',     link: '/iot/0_overview'},
-    {text: 'AI',      link: '/ai/0_overview'},
-];
-
-const navbarDropdown = [
-    {text: '开发总结', link: '/interview/0_overview'},
-    {
-        text: '基础体系',
-        children: [
-            {text: 'Java',    link: '/java/0_overview'},
-            {text: 'JVM',     link: '/jvm/0_overview'},
-            {text: '算法',    link: '/algorithms/0_overview'},
-            {text: '网络协议', link: '/protocols/0_overview'},
-        ],
-    },
-    {
-        text: '框架生态',
-        children: [
-            {text: 'Spring',          link: '/spring/0_overview'},
-            {text: 'Spring Boot',     link: '/spring-boot/0_overview'},
-            {text: 'Netty',           link: '/netty/0_overview'},
-        ],
-    },
-    {
-        text: '数据存储',
-        children: [
-            {text: '数据库',   link: '/database/0_overview'},
-            {text: '缓存',     link: '/cache/0_overview'},
-            {text: '消息队列', link: '/messaging/0_overview'},
-        ],
-    },
-    {
-        text: '分布式架构',
-        children: [
-            {text: '分布式',       link: '/distributed/0_overview'},
-            {text: '微服务',       link: '/microservices/0_overview'},
-            {text: 'Spring Cloud', link: '/spring-cloud/0_overview'},
-        ],
-    },
-    {
-        text: '三高架构',
-        children: [
-            {text: '高性能', link: '/high-perf/0_overview'},
-            {text: '高并发', link: '/high-con/0_overview'},
-            {text: '高可用', link: '/high-avail/0_overview'},
-        ],
-    },
-    {
-        text: '架构设计',
-        children: [
-            {text: '设计模式', link: '/patterns/0_overview'},
-            {text: '系统架构', link: '/architecture/0_overview'},
-            {text: '业务场景', link: '/scenario/0_overview'},
-        ],
-    },
-    {
-        text: '研发效能',
-        children: [
-            {text: '测试体系',    link: '/testing/0_overview'},
-            {text: 'DevOps',  link: '/devops/0_overview'},
-            {text: '工程效率', link: '/engineering/0_overview'},
-        ],
-    },
-    {
-        text: '运维保障',
-        children: [
-            {text: '云原生',   link: '/cloud-native/0_overview'},
-            {text: '可观测性', link: '/observability/0_overview'},
-            {text: '安全',    link: '/security/0_overview'},
-        ],
-    },
-    {
-        text: '垂直领域',
-        children: [
-            {text: 'IoT',     link: '/iot/0_overview'},
-            {text: 'AI',      link: '/ai/0_overview'},
-        ],
-    },
-];
+// 导航栏由 site.js 生成：导航文字优先用模块的 nav 短名
+const navItem = m => ({text: m.nav ?? m.name, link: overviewLink(m.dir)});
+const summaryNav = {text: SUMMARY.name, link: overviewLink(SUMMARY.dir)};
+const navbarFlat = [summaryNav, ...GROUPS.flatMap(g => g.modules.map(navItem))];
+const navbarDropdown = [summaryNav, ...GROUPS.map(g => ({text: g.name, children: g.modules.map(navItem)}))];
 
 // stripPrefix：侧边栏去掉标题中重复的模块前缀（页面 H1 保持完整）
 function getSidebarFromDir(dirPath, {stripPrefix} = {}) {
@@ -170,54 +70,6 @@ function getGroupedSidebar(dirPath, groups, options = {}) {
 }
 
 const dirOf = name => path.resolve(__dirname, `../${name}`);
-
-const javaSidebar = getGroupedSidebar(dirOf('java'), [
-    {text: '综合', from: 1, to: 9},
-    {text: '语言机制', from: 10, to: 16},
-    {text: 'IO 与数据', from: 17, to: 21},
-    {text: '并发', from: 22, to: 29},
-]);
-
-const interviewSidebar = getGroupedSidebar(dirOf('interview'), [
-    {text: '基础体系', from: 1, to: 4},
-    {text: '框架生态', from: 5, to: 6},
-    {text: '数据存储', from: 7, to: 9},
-    {text: '分布式架构', from: 10, to: 11},
-    {text: '三高架构', from: 12, to: 14},
-    {text: '架构设计', from: 15, to: 15},
-], {stripPrefix: '开发总结 - '});
-
-const jvmSidebar = getGroupedSidebar(dirOf('jvm'), [
-    {text: '运行时', from: 1, to: 3},
-    {text: '垃圾回收', from: 4, to: 6},
-    {text: '编译与诊断', from: 7, to: 9},
-]);
-
-const springSidebar = getGroupedSidebar(dirOf('spring'), [
-    {text: '核心容器', from: 1, to: 4},
-    {text: '常用组件', from: 5, to: 8},
-    {text: '安全', from: 9, to: 11},
-    {text: '批处理与集成', from: 12, to: 13},
-]);
-
-const scenarioSidebar = getGroupedSidebar(dirOf('scenario'), [
-    {text: '通用问题', from: 1, to: 3},
-    {text: '系统设计案例', from: 4, to: 13},
-]);
-
-const patternsSidebar = getGroupedSidebar(dirOf('patterns'), [
-    {text: '创建型', from: 1, to: 5},
-    {text: '结构型', from: 6, to: 12},
-    {text: '行为型', from: 13, to: 23},
-]);
-
-const cloudNativeSidebar = getGroupedSidebar(dirOf('cloud-native'), [
-    {text: 'Linux 基础', from: 1, to: 2},
-    {text: '虚拟化', from: 3, to: 4, collapsed: true},
-    {text: '容器与编排', from: 5, to: 10, collapsed: true},
-    {text: '基础设施自动化', from: 11, to: 12, collapsed: true},
-    {text: '云平台与选购', from: 13, to: 17, collapsed: true},
-]);
 
 const aiSidebar = [
     {text: 'AI 开发总览', link: '/ai/0_overview'},
@@ -433,53 +285,24 @@ const databaseSidebar = [
     {text: '面试专题', link: '/database/99_interview'},
 ];
 
-// 目录页（面包屑中间层级）标题：主题会为没有 README 的目录自动生成目录页，默认用目录名首字母大写
-const DIR_TITLES = {
-    '/interview/': '开发总结',
-    '/java/': 'Java',
-    '/jvm/': 'JVM',
-    '/algorithms/': '数据结构与算法',
-    '/algorithms/1_data_structures/': '数据结构',
-    '/algorithms/2_algorithms/': '基础算法',
-    '/algorithms/3_patterns/': '算法技巧',
-    '/algorithms/4_practice/': '刷题实战',
-    '/protocols/': '网络协议',
-    '/spring/': 'Spring',
-    '/spring-boot/': 'Spring Boot',
-    '/spring-cloud/': 'Spring Cloud',
-    '/netty/': 'Netty',
-    '/database/': '数据库',
-    '/database/1_mysql/': 'MySQL',
-    '/database/2_postgresql/': 'PostgreSQL',
-    '/database/3_relational/': '关系库',
-    '/database/4_nosql/': 'NoSQL',
-    '/database/5_practice/': '架构运维',
-    '/database/6_reference/': '参考延伸',
-    '/cache/': '缓存',
-    '/messaging/': '消息队列',
-    '/distributed/': '分布式',
-    '/microservices/': '微服务',
-    '/high-perf/': '高性能',
-    '/high-con/': '高并发',
-    '/high-avail/': '高可用',
-    '/patterns/': '设计模式',
-    '/architecture/': '系统架构',
-    '/scenario/': '业务场景',
-    '/testing/': '测试',
-    '/devops/': 'DevOps',
-    '/engineering/': '工程效率',
-    '/cloud-native/': '云原生',
-    '/observability/': '可观测性',
-    '/security/': '安全',
-    '/iot/': 'IoT',
-    '/ai/': 'AI',
-    '/ai/1_concepts/': '基础概念',
-    '/ai/2_frameworks/': 'Java 框架',
-    '/ai/3_integration/': '模型接入',
-    '/ai/4_core_tech/': '核心技术',
-    '/ai/5_advanced/': '高阶应用',
-    '/ai/6_tools/': 'AI 工具生态',
+// 结构特殊、需要手写的侧边栏；其余模块按 site.js 的 sidebar 区间分组，或直接读取目录
+const CUSTOM_SIDEBARS = {
+    ai: aiSidebar,
+    algorithms: algorithmsSidebar,
+    database: databaseSidebar,
 };
+
+const sidebarOf = ({dir, sidebar, stripPrefix}) => CUSTOM_SIDEBARS[dir]
+    ?? (sidebar ? getGroupedSidebar(dirOf(dir), sidebar, {stripPrefix}) : getSidebarFromDir(dirOf(dir), {stripPrefix}));
+
+const ALL_MODULES = [SUMMARY, ...GROUPS.flatMap(g => g.modules)];
+const SIDEBAR = Object.fromEntries(ALL_MODULES.map(m => [`/${m.dir}/`, sidebarOf(m)]));
+
+// 面包屑名称：目录没有 README 时主题自动生成目录页，这里给出中文标题（模块名 + subdirs）
+const DIR_TITLES = Object.fromEntries(ALL_MODULES.flatMap(m => [
+    [`/${m.dir}/`, m.name],
+    ...Object.entries(m.subdirs ?? {}).map(([sub, title]) => [`/${m.dir}/${sub}/`, title]),
+]));
 
 export default defineUserConfig({
     head: [
@@ -509,36 +332,7 @@ export default defineUserConfig({
     theme: hopeTheme({
         logo: '/images/logo.png',
         navbar: NAVBAR_STYLE === 'dropdown' ? navbarDropdown : navbarFlat,
-        sidebar: {
-            '/interview/': interviewSidebar,
-            '/java/': javaSidebar,
-            '/database/': databaseSidebar,
-            '/cache/': getSidebarFromDir(path.resolve(__dirname, '../cache')),
-            '/jvm/': jvmSidebar,
-            '/spring/': springSidebar,
-            '/spring-boot/': getSidebarFromDir(path.resolve(__dirname, '../spring-boot')),
-            '/spring-cloud/': getSidebarFromDir(path.resolve(__dirname, '../spring-cloud')),
-            '/microservices/': getSidebarFromDir(path.resolve(__dirname, '../microservices')),
-            '/messaging/': getSidebarFromDir(path.resolve(__dirname, '../messaging')),
-            '/high-con/': getSidebarFromDir(path.resolve(__dirname, '../high-con')),
-            '/distributed/': getSidebarFromDir(path.resolve(__dirname, '../distributed')),
-            '/high-avail/': getSidebarFromDir(path.resolve(__dirname, '../high-avail')),
-            '/high-perf/': getSidebarFromDir(path.resolve(__dirname, '../high-perf')),
-            '/patterns/': patternsSidebar,
-            '/scenario/': scenarioSidebar,
-            '/netty/': getSidebarFromDir(path.resolve(__dirname, '../netty')),
-            '/cloud-native/': cloudNativeSidebar,
-            '/algorithms/': algorithmsSidebar,
-            '/architecture/': getSidebarFromDir(path.resolve(__dirname, '../architecture')),
-            '/protocols/': getSidebarFromDir(path.resolve(__dirname, '../protocols')),
-            '/iot/': getSidebarFromDir(path.resolve(__dirname, '../iot')),
-            '/ai/': aiSidebar,
-            '/testing/': getSidebarFromDir(path.resolve(__dirname, '../testing')),
-            '/devops/': getSidebarFromDir(path.resolve(__dirname, '../devops')),
-            '/engineering/': getSidebarFromDir(path.resolve(__dirname, '../engineering')),
-            '/observability/': getSidebarFromDir(path.resolve(__dirname, '../observability')),
-            '/security/': getSidebarFromDir(path.resolve(__dirname, '../security')),
-        },
+        sidebar: SIDEBAR,
         markdown: {
             hint: true,
             alert: true,

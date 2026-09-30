@@ -36,7 +36,7 @@ docs/
 ├── spring/         Spring Framework / WebFlux / Security
 ├── spring-boot/    Spring Boot / Flyway
 ├── spring-cloud/   Spring Cloud：注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream
-└── testing/        测试：单元测试 / Mock / 集成测试 / TDD
+└── testing/        测试工程：单元测试 / Mock / 集成测试 / TDD
 ```
 
 ---
@@ -53,7 +53,7 @@ docs/
 | Spring | `docs/spring/` | IoC / AOP / WebFlux / Security |
 | Spring Boot | `docs/spring-boot/` | 自动配置 / Flyway 数据迁移 |
 | Spring Cloud | `docs/spring-cloud/` | 注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream |
-| 测试 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD |
+| 测试工程 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD |
 | Netty | `docs/netty/` | IO 模型 / Reactor / 核心组件 / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优 |
 | 分布式 | `docs/distributed/` | CAP / Raft / 分布式锁 / 事务 |
 | 高并发 | `docs/high-con/` | 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划 |
@@ -85,7 +85,7 @@ docs/
 分布式层：分布式理论 → 微服务 → Spring Cloud
 三高层：  高性能 → 高并发 → 高可用
 架构层：  设计模式 → 系统架构 → 业务场景
-研发效能：测试 → DevOps → 工程效率
+研发效能：测试工程 → DevOps → 工程效率
 运维保障：云原生 → 可观测性 → 安全
 新兴层：  IoT → AI
 面试：    interview/ 各专题汇总复习
@@ -98,9 +98,10 @@ docs/
 - 文件命名：`数字_主题.md`，数字前缀决定侧边栏顺序，全部使用下划线分隔
 - 模块入口：每个模块的 `0_overview.md` 为总览页（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；新增文章后同步更新导航表
 - 面试题：模块内 `99_interview.md` 只列题目清单，答案统一写在 `docs/interview/` 的对应答案页，两边互相链接
-- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / scenario / patterns / cloud-native）在 `config.js` 中用 `getGroupedSidebar` 按编号区间分组（interview 另用 `stripPrefix` 去掉标题中的「开发总结 - 」前缀），新增文件时编号要落在所属分组的区间内
-- 面包屑名称：目录没有 README 时主题会自动生成目录页，其标题在 `config.js` 的 `DIR_TITLES` 中登记；新增模块或子目录时同步添加，否则面包屑会显示首字母大写的目录名
-- 首页：`docs/README.md` 使用 `layout: HomeLayout`（知识星图），实现在 `.vuepress/components/home/`；模块名称、简介、答案页、推荐路线等文字只改 `data.js`，文章数 / 题数 / 答案页数 / SVG 数由 `.vuepress/plugins/homeStats.js` 在构建时自动统计；新增、删除或改名模块与答案页时同步更新 `data.js`
+- 站点目录：模块、分组、名称的唯一数据源是 `docs/.vuepress/site.js`，导航栏、侧边栏、面包屑名称和首页星图都由它生成；新增、删除、改名模块只改这一处（导航短名用 `nav` 字段）
+- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / scenario / patterns / cloud-native）在 `site.js` 对应模块的 `sidebar` 字段里按编号区间分组（interview 另用 `stripPrefix` 去掉标题中的「开发总结 - 」前缀），新增文件时编号要落在所属分组的区间内；结构特殊的 ai / algorithms / database 侧边栏在 `config.js` 的 `CUSTOM_SIDEBARS` 中手写
+- 面包屑名称：目录没有 README 时主题会自动生成目录页，模块目录用 `site.js` 的 `name`，子目录的中文名登记在模块的 `subdirs` 字段；新增子目录时同步添加，否则面包屑会显示首字母大写的目录名
+- 首页：`docs/README.md` 使用 `layout: HomeLayout`（知识星图），实现在 `.vuepress/components/home/`；模块信息复用 `site.js`，首页独有的答案页列表、推荐路线、跨模块关联、推荐博客在 `components/home/data.js`；文章数 / 题数 / 答案页数 / SVG 数由 `.vuepress/plugins/homeStats.js` 在构建时自动统计；新增答案页时同步更新 `data.js`
 - 模块边界：同一主题只保留一个主文档，其他模块用一句话概括 + 链接，不重复展开；三高模块写系统级策略，具体技术细节链接到 cache / database / messaging / jvm 等模块
 - 文件夹命名：全小写，多单词使用连字符（kebab-case），如 `cloud-native`、`spring-boot`
 - 图片存放：`docs/assets/<模块名>/`
