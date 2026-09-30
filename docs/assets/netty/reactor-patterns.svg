@@ -42,18 +42,18 @@
   <text x="340" y="60" text-anchor="middle" class="box-label" fill="var(--b)">EventLoop（单线程）</text>
   <text x="340" y="78" text-anchor="middle" class="box-sub">Accept + IO + 业务</text>
 
-  <!-- ══════════════ Row 2: 多线程 Reactor ══════════════ -->
+  <!-- ══════════════ Row 2: 单 Reactor 多线程 ══════════════ -->
   <!-- gap: 148-98=50 -->
   <!-- Pattern label -->
-  <text x="8" y="172" class="row-label">② 多线程</text>
-  <text x="8" y="188" class="row-label">Reactor</text>
+  <text x="8" y="172" class="row-label">② 单 Reactor</text>
+  <text x="8" y="188" class="row-label">多线程</text>
 
   <!-- BossGroup (x=150, y=148, w=140, h=60, right=290, bottom=208) -->
   <rect x="150" y="148" width="140" height="60" rx="6"
         fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
   <!-- Line 1 baseline: 148+22=170  Line 2 baseline: 148+40=188  bottom margin: 208-188=20 ✓ -->
-  <text x="220" y="170" text-anchor="middle" class="box-label" fill="var(--b)">BossGroup</text>
-  <text x="220" y="188" text-anchor="middle" class="box-sub">1 线程 / Accept</text>
+  <text x="220" y="170" text-anchor="middle" class="box-label" fill="var(--b)">Reactor</text>
+  <text x="220" y="188" text-anchor="middle" class="box-sub">1 线程 / Accept + IO</text>
 
   <!-- Arrow Row 2: x1=290, x2=360-6=354, y=178; body=64 ✓ -->
   <line x1="290" y1="178" x2="358" y2="178"
@@ -62,8 +62,8 @@
   <!-- WorkerGroup (x=360, y=148, w=160, h=60, right=520, bottom=208) -->
   <rect x="360" y="148" width="160" height="60" rx="6"
         fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
-  <text x="440" y="170" text-anchor="middle" class="box-label" fill="var(--g)">WorkerGroup</text>
-  <text x="440" y="188" text-anchor="middle" class="box-sub">N 线程 / IO + 业务</text>
+  <text x="440" y="170" text-anchor="middle" class="box-label" fill="var(--g)">业务线程池</text>
+  <text x="440" y="188" text-anchor="middle" class="box-sub">N 线程 / 业务处理</text>
 
   <!-- ══════════════ Row 3: 主从 Reactor (Netty默认) ══════════════ -->
   <!-- gap: 258-208=50 -->

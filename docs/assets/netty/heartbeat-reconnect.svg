@@ -1,0 +1,71 @@
+<svg viewBox="0 0 640 464" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .head { font-size: 13px; font-weight: 600; }
+    .lbl { font-size: 12px; }
+    .sub { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arrg" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--g)"/>
+    </marker>
+  </defs>
+
+  <text x="320" y="24" text-anchor="middle" class="title">心跳检测与断线重连</text>
+
+  <!-- 参与者 -->
+  <rect x="60" y="40" width="160" height="36" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="140" y="63" text-anchor="middle" class="head">客户端 Client</text>
+  <rect x="420" y="40" width="160" height="36" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="500" y="63" text-anchor="middle" class="head">服务端 Server</text>
+
+  <!-- 生命线（虚线） -->
+  <line x1="140" y1="76" x2="140" y2="450" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <line x1="500" y1="76" x2="500" y2="450" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+  <!-- 正常心跳 -->
+  <text x="320" y="104" text-anchor="middle" class="lbl">PING（写空闲 30s 触发）</text>
+  <line x1="140" y1="110" x2="498" y2="110" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="320" y="142" text-anchor="middle" class="lbl">PONG（读事件重置服务端空闲计时）</text>
+  <line x1="500" y1="148" x2="142" y2="148" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 网络中断 -->
+  <rect x="170" y="170" width="300" height="36" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="320" y="193" text-anchor="middle" class="lbl">网络中断：半开连接，双方都收不到 FIN</text>
+
+  <!-- 双方各自检测 -->
+  <rect x="40" y="226" width="200" height="60" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="140" y="250" text-anchor="middle" class="lbl">连续 3 次未收到 PONG</text>
+  <text x="140" y="272" text-anchor="middle" class="sub">客户端主动 close</text>
+  <rect x="400" y="226" width="200" height="60" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="500" y="250" text-anchor="middle" class="lbl">读空闲 90s：READER_IDLE</text>
+  <text x="500" y="272" text-anchor="middle" class="sub">服务端 close，清理会话</text>
+
+  <rect x="40" y="314" width="200" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="140" y="338" text-anchor="middle" class="lbl">channelInactive</text>
+  <text x="140" y="360" text-anchor="middle" class="sub">退避重连 1s → 2s → 4s …</text>
+
+  <!-- 恢复 -->
+  <text x="320" y="400" text-anchor="middle" class="lbl">connect 成功，重试计数归零</text>
+  <line x1="140" y1="406" x2="498" y2="406" stroke="var(--g)" stroke-width="1.5" marker-end="url(#arrg)"/>
+  <text x="320" y="438" text-anchor="middle" class="lbl">登录 / 绑定会话，恢复 PING</text>
+  <line x1="140" y1="444" x2="498" y2="444" stroke="var(--g)" stroke-width="1.5" marker-end="url(#arrg)"/>
+</svg>

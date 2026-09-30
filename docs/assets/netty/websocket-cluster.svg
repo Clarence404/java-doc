@@ -1,0 +1,72 @@
+<svg viewBox="0 0 680 392" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .head { font-size: 13px; font-weight: 600; }
+    .sub { font-size: 12px; fill: var(--muted); }
+    .ok { font-size: 12px; fill: var(--g); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arrg" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--g)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="24" text-anchor="middle" class="title">WebSocket 集群推送（Redis Pub/Sub 广播）</text>
+
+  <!-- 第 1 层：业务服务 -->
+  <rect x="190" y="40" width="300" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="340" y="64" text-anchor="middle" class="head">业务服务</text>
+  <text x="340" y="86" text-anchor="middle" class="sub">publish("ws:push", {userId: u1, msg})</text>
+
+  <line x1="340" y1="100" x2="340" y2="138" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第 2 层：Redis -->
+  <rect x="190" y="140" width="300" height="60" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="340" y="164" text-anchor="middle" class="head">Redis Pub/Sub</text>
+  <text x="340" y="186" text-anchor="middle" class="sub">所有 WS 节点订阅同一频道</text>
+
+  <line x1="260" y1="200" x2="122" y2="238" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="340" y1="200" x2="340" y2="238" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="420" y1="200" x2="558" y2="238" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第 3 层：WS 节点 -->
+  <rect x="20" y="240" width="200" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="120" y="264" text-anchor="middle" class="head">WS 节点 A</text>
+  <text x="120" y="286" text-anchor="middle" class="ok">本地持有 u1 → 下发</text>
+  <rect x="240" y="240" width="200" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="340" y="264" text-anchor="middle" class="head">WS 节点 B</text>
+  <text x="340" y="286" text-anchor="middle" class="sub">本地无 u1 → 忽略</text>
+  <rect x="460" y="240" width="200" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="560" y="264" text-anchor="middle" class="head">WS 节点 C</text>
+  <text x="560" y="286" text-anchor="middle" class="sub">本地无 u1 → 忽略</text>
+
+  <line x1="120" y1="300" x2="120" y2="338" stroke="var(--g)" stroke-width="1.5" marker-end="url(#arrg)"/>
+  <line x1="340" y1="300" x2="340" y2="340" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <line x1="560" y1="300" x2="560" y2="340" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+  <!-- 第 4 层：客户端 -->
+  <rect x="20" y="340" width="200" height="36" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="120" y="363" text-anchor="middle" class="head">用户 u1</text>
+  <rect x="240" y="340" width="200" height="36" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="363" text-anchor="middle" class="head">用户 u2</text>
+  <rect x="460" y="340" width="200" height="36" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="560" y="363" text-anchor="middle" class="head">用户 u3</text>
+</svg>

@@ -159,7 +159,7 @@ try (Stream<Path> walk = Files.walk(Path.of("."))) {
 ## 六、常见面试问题
 
 **Q：NIO 的 Selector 底层是什么？**
-Linux 下基于 `epoll`，macOS 下基于 `kqueue`，Windows 下基于 `IOCP`。`epoll` 使用事件驱动，时间复杂度 O(1)，优于 `select/poll` 的 O(n)。详见 [select / poll / epoll 对比](../netty/1_io_model.md#二、select-poll-epoll-对比)。
+Linux 下基于 `epoll`，macOS 下基于 `kqueue`，Windows 下基于 `select`（IOCP 只用于 AIO 的 `AsynchronousChannel`）。`epoll` 使用事件驱动，时间复杂度 O(1)，优于 `select/poll` 的 O(n)。详见 [select / poll / epoll 对比](../netty/1_io_model.md#二、select-poll-epoll-对比)。
 
 **Q：直接缓冲区为什么更快？**
 堆内缓冲区在做 IO 操作前，JVM 会先把数据拷贝到一个临时的直接缓冲区再传给 OS；直接缓冲区跳过了这一步，减少了一次内存拷贝。

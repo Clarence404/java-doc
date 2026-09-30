@@ -27,7 +27,7 @@ docs/
 ├── jvm/            JVM 原理与调优
 ├── messaging/      消息队列：Kafka / RocketMQ / RabbitMQ
 ├── microservices/  微服务：概念 / 拆分 / 组件 / 模式
-├── netty/          IO 模型 / Reactor / Netty / WebSocket / SSE
+├── netty/          IO 模型 / Reactor / 核心组件 / ByteBuf / 编解码与私有协议 / 心跳 / WebSocket / SSE / 生产调优
 ├── observability/  可观测性：日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry
 ├── patterns/       设计模式（23 种 GoF）
 ├── protocols/      协议体系：网络通信 / IoT / 远程调用 / 安全 / 文件 / 数据库 / 邮件 / 分布式
@@ -54,7 +54,7 @@ docs/
 | Spring Boot | `docs/spring-boot/` | 自动配置 / Flyway 数据迁移 |
 | Spring Cloud | `docs/spring-cloud/` | 注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream |
 | 测试体系 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD |
-| Netty | `docs/netty/` | IO 模型 / Reactor / WebSocket / SSE |
+| Netty | `docs/netty/` | IO 模型 / Reactor / 核心组件 / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优 |
 | 分布式 | `docs/distributed/` | CAP / Raft / 分布式锁 / 事务 |
 | 高并发 | `docs/high-con/` | 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划 |
 | 高可用 | `docs/high-avail/` | SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线 |

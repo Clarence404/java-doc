@@ -1,0 +1,53 @@
+<svg viewBox="0 0 660 196" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="330" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">一次网络读的两个阶段</text>
+
+  <!-- Box 1: 网卡  x=10 w=170 y=50 h=70 -->
+  <rect x="10" y="50" width="170" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="95" y="78" text-anchor="middle" font-weight="600" fill="var(--b)">网卡</text>
+  <text x="95" y="100" text-anchor="middle" font-size="12" fill="var(--muted)">对端数据到达</text>
+
+  <!-- Box 2: 内核缓冲区  x=245 w=170 -->
+  <rect x="245" y="50" width="170" height="70" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="330" y="78" text-anchor="middle" font-weight="600" fill="var(--y)">内核缓冲区</text>
+  <text x="330" y="100" text-anchor="middle" font-size="12" fill="var(--muted)">Socket 接收队列</text>
+
+  <!-- Box 3: 用户缓冲区  x=480 w=170 -->
+  <rect x="480" y="50" width="170" height="70" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="565" y="78" text-anchor="middle" font-weight="600" fill="var(--g)">用户缓冲区</text>
+  <text x="565" y="100" text-anchor="middle" font-size="12" fill="var(--muted)">byte[] / ByteBuf</text>
+
+  <!-- Arrows -->
+  <line x1="180" y1="85" x2="243" y2="85" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="211" y="78" text-anchor="middle" font-size="11" fill="var(--muted)">DMA 写入</text>
+  <line x1="415" y1="85" x2="478" y2="85" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="446" y="78" text-anchor="middle" font-size="11" fill="var(--muted)">CPU 拷贝</text>
+
+  <!-- Phase bands  y=140 h=36 -->
+  <rect x="10" y="140" width="405" height="36" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.2"/>
+  <text x="212" y="163" text-anchor="middle" font-size="12" fill="var(--fg)">阶段一 等待数据就绪：数据到达内核缓冲区</text>
+  <rect x="423" y="140" width="227" height="36" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.2"/>
+  <text x="536" y="163" text-anchor="middle" font-size="12" fill="var(--fg)">阶段二 内核拷贝到用户空间</text>
+</svg>
