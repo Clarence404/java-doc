@@ -100,6 +100,7 @@ docs/
 - 面试题：模块内 `99_interview.md` 只列题目清单，答案统一写在 `docs/interview/` 的对应答案页，两边互相链接
 - 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / scenario / patterns / cloud-native）在 `config.js` 中用 `getGroupedSidebar` 按编号区间分组（interview 另用 `stripPrefix` 去掉标题中的「开发总结 - 」前缀），新增文件时编号要落在所属分组的区间内
 - 面包屑名称：目录没有 README 时主题会自动生成目录页，其标题在 `config.js` 的 `DIR_TITLES` 中登记；新增模块或子目录时同步添加，否则面包屑会显示首字母大写的目录名
+- 首页：`docs/README.md` 使用 `layout: HomeLayout`（知识星图），实现在 `.vuepress/components/home/`；模块名称、简介、答案页、推荐路线等文字只改 `data.js`，文章数 / 题数 / 答案页数 / SVG 数由 `.vuepress/plugins/homeStats.js` 在构建时自动统计；新增、删除或改名模块与答案页时同步更新 `data.js`
 - 模块边界：同一主题只保留一个主文档，其他模块用一句话概括 + 链接，不重复展开；三高模块写系统级策略，具体技术细节链接到 cache / database / messaging / jvm 等模块
 - 文件夹命名：全小写，多单词使用连字符（kebab-case），如 `cloud-native`、`spring-boot`
 - 图片存放：`docs/assets/<模块名>/`

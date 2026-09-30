@@ -4,6 +4,7 @@ import {viteBundler} from '@vuepress/bundler-vite';
 import fs from 'fs';
 import path from 'path';
 import 'dotenv/config';
+import {homeStatsPlugin} from './plugins/homeStats.js';
 
 // 导航栏风格：统一读 .env 里的 NAVBAR_STYLE
 //   flat      → 所有模块平铺展开
@@ -96,7 +97,7 @@ const navbarDropdown = [
     {
         text: '研发效能',
         children: [
-            {text: '测试',    link: '/testing/0_overview'},
+            {text: '测试体系',    link: '/testing/0_overview'},
             {text: 'DevOps',  link: '/devops/0_overview'},
             {text: '工程效率', link: '/engineering/0_overview'},
         ],
@@ -489,6 +490,8 @@ export default defineUserConfig({
     port: 1000,
     title: 'Java Doc',
     description: '实践是检验真理的唯一标准',
+    // 首页知识星图的数字（文章数 / 题数 / 答案页 / SVG）在构建时统计
+    plugins: [homeStatsPlugin(path.resolve(__dirname, '..'))],
     // 处理vite 打包警告
     bundler: viteBundler({
         viteOptions: {

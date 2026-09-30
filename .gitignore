@@ -5,6 +5,13 @@ docs/.vuepress/.cache
 # VuePress 默认构建生成的静态文件目录
 docs/.vuepress/dist
 
-.idea
+# 依赖
+node_modules/
 
-node_modules__pycache__/
+# Python 字节码缓存（scripts/ 下的校验脚本）
+__pycache__/
+
+# IDE 与本地工具配置
+.idea
+.claude/launch.json
+.claude/settings.local.json
