@@ -79,12 +79,12 @@ docs/
 ## 推荐学习路径
 
 ```
-基础层：  Java 特性 → JVM → 算法 → 设计模式 → 协议体系
-框架层：  Spring → Spring Boot → Spring Cloud → Netty
+基础层：  Java 特性 → JVM → 算法 → 协议体系
+框架层：  Spring → Spring Boot → Netty
 数据层：  数据库 → 缓存 → 消息队列
-分布式层：分布式理论 → 微服务
+分布式层：分布式理论 → 微服务 → Spring Cloud
 三高层：  高性能 → 高并发 → 高可用
-架构层：  系统架构 → 业务场景
+架构层：  设计模式 → 系统架构 → 业务场景
 研发效能：测试体系 → DevOps → 工程效率
 运维保障：云原生 → 可观测性 → 安全体系
 新兴层：  IoT → AI

@@ -16,30 +16,30 @@ const navbarFlat = [
     {text: 'Java',    link: '/java/0_overview'},
     {text: 'JVM',     link: '/jvm/0_overview'},
     {text: '算法',    link: '/algorithms/0_overview'},
-    {text: '设计模式', link: '/patterns/0_overview'},
     {text: '协议体系', link: '/protocols/0_overview'},
     {text: 'Spring',  link: '/spring/0_overview'},
     {text: 'Spring Boot', link: '/spring-boot/0_overview'},
-    {text: 'Spring Cloud', link: '/spring-cloud/0_overview'},
     {text: 'Netty',   link: '/netty/0_overview'},
-    {text: '测试体系', link: '/testing/0_overview'},
     {text: '数据库',  link: '/database/0_overview'},
     {text: '缓存',    link: '/cache/0_overview'},
     {text: '消息队列', link: '/messaging/0_overview'},
     {text: '分布式',  link: '/distributed/0_overview'},
+    {text: '微服务',  link: '/microservices/0_overview'},
+    {text: 'Spring Cloud', link: '/spring-cloud/0_overview'},
     {text: '高性能',  link: '/high-perf/0_overview'},
     {text: '高并发',  link: '/high-con/0_overview'},
     {text: '高可用',  link: '/high-avail/0_overview'},
-    {text: '微服务',  link: '/microservices/0_overview'},
+    {text: '设计模式', link: '/patterns/0_overview'},
     {text: '架构',    link: '/architecture/0_overview'},
-    {text: '云原生',  link: '/cloud-native/0_overview'},
+    {text: '业务场景', link: '/scenario/0_overview'},
+    {text: '测试体系', link: '/testing/0_overview'},
     {text: 'DevOps',  link: '/devops/0_overview'},
     {text: '工程效率', link: '/engineering/0_overview'},
+    {text: '云原生',  link: '/cloud-native/0_overview'},
     {text: '可观测性', link: '/observability/0_overview'},
     {text: '安全',    link: '/security/0_overview'},
     {text: 'IoT',     link: '/iot/0_overview'},
     {text: 'AI',      link: '/ai/0_overview'},
-    {text: '业务场景', link: '/scenario/0_overview'},
 ];
 
 const navbarDropdown = [
@@ -50,7 +50,6 @@ const navbarDropdown = [
             {text: 'Java',    link: '/java/0_overview'},
             {text: 'JVM',     link: '/jvm/0_overview'},
             {text: '算法',    link: '/algorithms/0_overview'},
-            {text: '设计模式', link: '/patterns/0_overview'},
             {text: '协议体系', link: '/protocols/0_overview'},
         ],
     },
@@ -59,7 +58,6 @@ const navbarDropdown = [
         children: [
             {text: 'Spring',          link: '/spring/0_overview'},
             {text: 'Spring Boot',     link: '/spring-boot/0_overview'},
-            {text: 'Spring Cloud',    link: '/spring-cloud/0_overview'},
             {text: 'Netty',           link: '/netty/0_overview'},
         ],
     },
@@ -74,9 +72,9 @@ const navbarDropdown = [
     {
         text: '分布式架构',
         children: [
-            {text: '分布式', link: '/distributed/0_overview'},
-            {text: '微服务', link: '/microservices/0_overview'},
-            {text: '系统架构', link: '/architecture/0_overview'},
+            {text: '分布式',       link: '/distributed/0_overview'},
+            {text: '微服务',       link: '/microservices/0_overview'},
+            {text: 'Spring Cloud', link: '/spring-cloud/0_overview'},
         ],
     },
     {
@@ -85,6 +83,14 @@ const navbarDropdown = [
             {text: '高性能', link: '/high-perf/0_overview'},
             {text: '高并发', link: '/high-con/0_overview'},
             {text: '高可用', link: '/high-avail/0_overview'},
+        ],
+    },
+    {
+        text: '架构设计',
+        children: [
+            {text: '设计模式', link: '/patterns/0_overview'},
+            {text: '系统架构', link: '/architecture/0_overview'},
+            {text: '业务场景', link: '/scenario/0_overview'},
         ],
     },
     {
@@ -108,7 +114,6 @@ const navbarDropdown = [
         children: [
             {text: 'IoT',     link: '/iot/0_overview'},
             {text: 'AI',      link: '/ai/0_overview'},
-            {text: '大数据', link: '/scenario/0_overview'},
         ],
     },
 ];

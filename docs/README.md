@@ -64,17 +64,13 @@ highlights:
         icon: diagram-project
         details: 复杂度分析 + 13 种算法范式，LeetCode / 华为 OJ 分类题解与解题思路
         link: /algorithms/0_overview
-      - title: 设计模式
-        icon: shapes
-        details: GoF 全部 23 种经典模式详解，结合 Spring / JDK 真实源码场景深度讲解
-        link: /patterns/0_overview
       - title: 协议体系
         icon: tower-broadcast
         details: TCP/IP / HTTP/2 / gRPC / WebSocket / IoT 协议 / TLS 安全协议全栈体系
         link: /protocols/0_overview
 
   - header: 框架生态
-    description: Spring 全家桶与高性能网络编程
+    description: Spring · Spring Boot · Netty，应用开发框架
     features:
       - title: Spring Framework
         icon: leaf
@@ -84,10 +80,6 @@ highlights:
         icon: rocket
         details: 自动配置原理深度解析 / Actuator 监控 / Flyway 数据库版本迁移最佳实践
         link: /spring-boot/0_overview
-      - title: Spring Cloud
-        icon: cloud-arrow-up
-        details: Nacos 注册与配置 / Gateway 网关 / OpenFeign / Sentinel 治理 / Seata 分布式事务
-        link: /spring-cloud/0_overview
       - title: Netty
         icon: network-wired
         details: BIO → NIO → IO 多路复用演进 / Reactor 模式实战 / WebSocket / SSE 长连接
@@ -101,7 +93,7 @@ highlights:
       - title: 数据库
         icon: database
         details: MySQL 索引 / 事务隔离 / MVCC / 分库分表，列式 / 时序 / 搜索引擎 / 文档库选型
-        link: /database/1_mysql/1_feature
+        link: /database/0_overview
       - title: 缓存
         icon: bolt
         details: Redis 核心 / Caffeine 本地缓存 / 两级缓存架构 / 缓存一致性解决方案
@@ -112,7 +104,7 @@ highlights:
         link: /messaging/0_overview
 
   - header: 分布式架构
-    description: 分布式理论 · 微服务，架构进阶核心
+    description: 分布式理论 · 微服务 · Spring Cloud，从理念到落地
     features:
       - title: 分布式理论
         icon: globe
@@ -122,6 +114,10 @@ highlights:
         icon: cubes
         details: 服务拆分原则 / 注册发现 / API 网关 / 全链路追踪 / Saga 等微服务治理模式
         link: /microservices/0_overview
+      - title: Spring Cloud
+        icon: cloud-arrow-up
+        details: Nacos 注册与配置 / Gateway 网关 / OpenFeign / Sentinel 治理 / Seata 分布式事务
+        link: /spring-cloud/0_overview
 
   - header: 三高架构
     description: 高性能 · 高并发 · 高可用，系统级设计策略
@@ -140,17 +136,21 @@ highlights:
         link: /high-avail/0_overview
 
   - header: 架构设计
-    description: 系统设计方法论 · DDD · 业务场景落地
+    description: 设计模式 · 系统架构 · 业务场景，从代码设计到架构落地
     bgImageStyle:
       background-color: rgba(236, 244, 255, 0.6)
     features:
+      - title: 设计模式
+        icon: shapes
+        details: GoF 全部 23 种经典模式详解，结合 Spring / JDK 真实源码场景深度讲解
+        link: /patterns/0_overview
       - title: 系统架构
         icon: building-columns
         details: 技术选型方法论 / DDD 领域驱动设计 / 幂等设计 / 对象存储 / RBAC 访问控制
         link: /architecture/0_overview
       - title: 业务场景
         icon: briefcase
-        details: 大数据业务场景方案 / 技术选型实战案例，从业务需求到架构落地全流程
+        details: 秒杀 / 订单 / 短链 / 排行榜 / Feed 流 / 搜索 / 红包 / LBS 等系统设计案例，从业务需求到架构落地
         link: /scenario/0_overview
 
   - header: 研发效能
