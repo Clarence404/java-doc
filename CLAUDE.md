@@ -110,6 +110,42 @@ docs/
 - 站点部署：GitHub Actions → `.github/workflows/deploy-docs.yml`
 - 规范文件同步：`CLAUDE.md` 与 `AGENTS.md` 内容保持完全一致（AGENTS.md 供其他 AI 编码工具读取），修改其中一个时必须同步更新另一个
 
+## 目录维护
+
+站点有哪些模块、怎么分组、叫什么名字，统一在 `docs/.vuepress/site.js` 配置；模块里有哪些文章、什么顺序，由 Markdown 文件本身决定（侧边栏文字取文件的第一个 `# 标题`，顺序取文件名数字前缀）。
+
+### 数据来源
+
+| 数据 | 来源 | 作用在哪里 |
+|------|------|------------|
+| 分组 `name` / `tagline` | `site.js` | 导航下拉分组名、首页星图方向名与星表标语 |
+| 模块 `name` | `site.js` | 面包屑、首页、平铺导航中的模块名 |
+| 模块 `nav`（可选） | `site.js` | 导航栏短名，不写则用 `name` |
+| 模块 `dir` | `site.js` | 对应 `docs/` 下的目录，入口固定为 `<dir>/0_overview.md` |
+| 模块 `desc` / `stub` | `site.js` | 首页星表简介与「编写中」徽标 |
+| 模块 `sidebar`（可选） | `site.js` | 侧边栏按文件编号区间分段 |
+| 模块 `subdirs`（可选） | `site.js` | 子目录在面包屑中的中文名 |
+| 侧边栏条目文字与顺序 | Markdown 文件 | 第一个 `# 标题` + 文件名数字前缀 |
+| 文章数 / 题数 / 答案页数 / SVG 数 | `.vuepress/plugins/homeStats.js` | 构建时扫描 `docs/` 自动统计，首页使用 |
+| ai / algorithms / database 侧边栏 | `config.js` 的 `CUSTOM_SIDEBARS` | 多级子目录，结构特殊，手写 |
+| 答案页列表、推荐路线、跨模块关联、推荐博客 | `.vuepress/components/home/data.js` | 首页独有内容 |
+
+### 操作步骤
+
+| 我想… | 要改哪里 |
+|------|----------|
+| 在模块里新增一篇文章 | 只新建 `.md`，编号放对（分段模块须落在 `sidebar` 区间内）；同步更新模块 `0_overview.md` 的导航表 |
+| 新增一个模块 | 新建 `docs/<dir>/0_overview.md`，在 `site.js` 对应分组加一条（`name` / `dir` / `desc`），并在本文件「项目结构」「模块索引」补充 |
+| 模块改名 | 改 `site.js` 的 `name`（导航短名改 `nav`），同步改总览页 `# 标题`和本文件中的模块名 |
+| 调整某模块侧边栏分段 | 改 `site.js` 中该模块的 `sidebar` 区间 |
+| 新增子目录 | 在 `site.js` 该模块的 `subdirs` 登记中文名，否则面包屑显示首字母大写的目录名 |
+| 新增答案页 | 在 `docs/interview/` 新建并编号，改 `site.js` 中 `SUMMARY.sidebar` 区间，并在首页 `data.js` 的 `INTERVIEW` 加一项 |
+| 调整推荐路线 | 改首页 `data.js` 的 `GOALS`，`stops` 填 `site.js` 中已有的模块名 |
+| 改 ai / algorithms / database 侧边栏 | 改 `config.js` 的 `CUSTOM_SIDEBARS` |
+| 新增第 10 个分组 | `site.js` 加分组，并在 `components/home/atlas.scss` 补 `--s10` / `--c10` / `--t10` 配色 |
+
+改完后执行 `npm run docs:build` 确认构建通过。
+
 ## 画图规范
 
 - **禁止**在 Markdown 代码块（` ``` `）内用 ASCII 字符画流程图、时序图、架构图

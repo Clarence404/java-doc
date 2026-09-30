@@ -59,19 +59,12 @@ export const WIDE = {
         {s: [[-28, 0, 'out'], [28, -4, 'out']], name: {dx: -57, dy: -58}},
     ],
 };
-export const TALL = {
-    v: 'tall', vb: '0 0 360 640', cx: 180, cy: 320, rx0: 116, rxs: 2, ry0: 214, rys: 5, k: .64, zone: 46, zone0: 58,
-    spec: [
-        {s: [[0, -58, 'l'], [58, -8, 'r'], [10, 54, 'b'], [-56, 20, 'b']], name: {dx: 0, dy: -58}},
-        {s: [[-42, 4, 'r'], [0, -10, 'r'], [42, 6, 'r']], name: {dx: 0, dy: -50}},
-        {s: [[-42, 0, 'r'], [0, -10, 'r'], [42, 4, 'r']], name: {dx: -20, dy: -42}},
-        {s: [[-48, 2, 'l'], [0, -8, 'b'], [48, -2, 'r']], name: {dx: 0, dy: -34}},
-        {s: [[-42, 0, 'l'], [0, -10, 'l'], [42, 4, 'l']], name: {dx: 18, dy: -44}},
-        {s: [[-44, 2, 'l'], [0, -10, 'l'], [44, 4, 'l']], name: {dx: 0, dy: -50}},
-        {s: [[-42, 0, 'l'], [0, -10, 'l'], [42, 4, 'l']], name: {dx: 14, dy: 52}},
-        {s: [[-48, 2, 'r'], [0, -8, 't'], [48, -2, 'l']], name: {dx: 0, dy: 44}},
-        {s: [[-28, 0, 'r'], [28, -4, 'r']], name: {dx: -6, dy: 48}},
-    ],
+// 手机：紧凑星盘（与桌面同一套螺旋坐标，整体缩小，模块名轻触方向后显示）
+export const DISC = {
+    v: 'disc', vb: '0 0 360 360', cx: 180, cy: 180, R: 170,
+    rx0: 114, rxs: 3, ry0: 114, rys: 3, k: .56, sr: .72, nk: .62, zone: 38, zone0: 48, badge: 7,
+    // 名字位置单独微调（像素，不再乘 nk）：02 放到内侧，04 放到星点下方，避免压线、贴框
+    spec: WIDE.spec.map((sp, gi) => ({...sp, name: ({1: {inn: 46, raw: 1}, 3: {inn: 36, raw: 1}})[gi] ?? sp.name})),
 };
 
 function autoSpec(n, gi, L) {
@@ -81,12 +74,12 @@ function autoSpec(n, gi, L) {
             const t = -Math.PI / 2 + i * 2 * Math.PI / n;
             s.push([Math.round(58 * Math.cos(t)), Math.round(58 * Math.sin(t)), Math.sin(t) < -.5 ? 't' : (Math.cos(t) > .5 ? 'r' : 'b')]);
         }
-        return {s, name: L.v === 'wide' ? {dx: 0, dy: 6} : {dx: 0, dy: -58}};
+        return {s, name: {dx: 0, dy: 6}};
     }
-    const step = n > 3 ? 34 : 42, side = L.v === 'wide' ? 'out' : 'r';
+    const step = n > 3 ? 34 : 42, side = 'out';
     const s = [];
     for (let i = 0; i < n; i++) s.push([Math.round((i - (n - 1) / 2) * step), i % 2 ? -10 : 2, side]);
-    return {s, name: L.v === 'wide' ? {out: 50} : {dx: 0, dy: -46}};
+    return {s, name: {out: 50}};
 }
 function specOf(L, gi, n) {
     const sp = L.spec[gi];
@@ -99,6 +92,7 @@ function f1(n) { return Math.round(n * 10) / 10; }
 function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
 export function place(model, L) {
+    const sr = L.sr ?? 1;
     const n0 = Math.max(model.groups.length - 1, 1), stepDeg = 360 / Math.max(n0, 8);
     return model.groups.map((g, gi) => {
         const sp = specOf(L, gi, g.modules.length);
@@ -125,12 +119,13 @@ export function place(model, L) {
                 case 't': d = {x: 0, y: -1}; break;
                 default: d = {x: 0, y: 1};
             }
-            return {x, y, d, m, r: starR(m.a), rr: ringR(m)};
+            return {x, y, d, m, r: starR(m.a) * sr, rr: ringR(m) * sr};
         });
+        const nk = sp.name.raw ? 1 : (L.nk ?? 1);
         let nm;
-        if (sp.name.inn != null) nm = {x: C.x - n.x * sp.name.inn, y: C.y - n.y * sp.name.inn};
-        else if (sp.name.out != null) nm = {x: C.x + n.x * sp.name.out, y: C.y + n.y * sp.name.out};
-        else nm = {x: C.x + sp.name.dx, y: C.y + sp.name.dy};
+        if (sp.name.inn != null) nm = {x: C.x - n.x * sp.name.inn * nk, y: C.y - n.y * sp.name.inn * nk};
+        else if (sp.name.out != null) nm = {x: C.x + n.x * sp.name.out * nk, y: C.y + n.y * sp.name.out * nk};
+        else nm = {x: C.x + sp.name.dx * nk, y: C.y + sp.name.dy * nk};
         return {C, stars, name: nm, n};
     });
 }
@@ -156,61 +151,50 @@ function rng(seed) {
 export function buildAtlas(model, L, withBase) {
     const P = place(model, L), wide = L.v === 'wide', o = [], id = 'atlas-' + L.v;
     const G = model.groups;
-    o.push(`<svg class="atlas atlas--${L.v}" viewBox="${L.vb}" role="group" aria-label="知识星图：${model.totals.modules} 个模块按 ${G.length} 个方向聚类，沿推荐学习路径由中心向外盘旋">`);
+    o.push(`<svg class="atlas atlas--${L.v}" data-v="${L.v}" viewBox="${L.vb}" role="group" aria-label="知识星图：${model.totals.modules} 个模块按 ${G.length} 个方向聚类，沿推荐学习路径由中心向外盘旋">`);
     o.push('<defs>' +
         `<radialGradient id="${id}na"><stop offset="0" class="nb0 nb-a"/><stop offset="1" class="nb1 nb-a"/></radialGradient>` +
         `<radialGradient id="${id}nb"><stop offset="0" class="nb0 nb-b"/><stop offset="1" class="nb1 nb-b"/></radialGradient>` +
         `<radialGradient id="${id}nc"><stop offset="0" class="nb0 nb-c"/><stop offset="1" class="nb1 nb-c"/></radialGradient>` +
         '</defs>');
 
-    /* background plate: disc, grid, bezel, field stars */
+    /* background plate: disc, grid, bezel, then field stars */
     o.push('<g class="a-bg" aria-hidden="true">');
+    const cx0 = wide ? 400 : L.cx, cy0 = wide ? 360 : L.cy, R0 = wide ? 318 : (L.R || 0), sc = R0 / 318;
+    o.push(`<circle class="a-disc" cx="${cx0}" cy="${cy0}" r="${R0}"/>`);
+    o.push(`<ellipse cx="${f1(cx0 - 150 * sc)}" cy="${f1(cy0 + 160 * sc)}" rx="${f1(260 * sc)}" ry="${f1(200 * sc)}" fill="url(#${id}na)"/>`);
+    o.push(`<ellipse cx="${cx0}" cy="${cy0}" rx="${f1(230 * sc)}" ry="${f1(210 * sc)}" fill="url(#${id}nb)"/>`);
+    o.push(`<ellipse cx="${f1(cx0 + 180 * sc)}" cy="${f1(cy0 - 150 * sc)}" rx="${f1(270 * sc)}" ry="${f1(210 * sc)}" fill="url(#${id}nc)"/>`);
+    o.push(`<circle class="a-grid d" cx="${cx0}" cy="${cy0}" r="${f1(128 * sc)}"/>`);
+    for (let sa = 0; sa < 360; sa += 30) {
+        const rad = sa * Math.PI / 180;
+        o.push(`<line class="a-spoke" x1="${f1(cx0 + 132 * sc * Math.cos(rad))}" y1="${f1(cy0 + 132 * sc * Math.sin(rad))}" x2="${f1(cx0 + 306 * sc * Math.cos(rad))}" y2="${f1(cy0 + 306 * sc * Math.sin(rad))}"/>`);
+    }
+    const R1 = R0 + (wide ? 8 : 4);
+    o.push(`<circle class="a-bezel" cx="${cx0}" cy="${cy0}" r="${R0}"/><circle class="a-bezel" cx="${cx0}" cy="${cy0}" r="${R1}"/>`);
+    const step = wide ? 3 : 5;
+    for (let ta = 0; ta < 360; ta += step) {
+        const tr = ta * Math.PI / 180, major = ta % 45 === 0, mid = ta % 15 === 0;
+        const r2 = major ? R1 : (mid ? R0 + (R1 - R0) * .7 : R0 + (R1 - R0) * .38);
+        o.push(`<line class="a-tick${major ? ' m' : ''}" x1="${f1(cx0 + R0 * Math.cos(tr))}" y1="${f1(cy0 + R0 * Math.sin(tr))}" x2="${f1(cx0 + r2 * Math.cos(tr))}" y2="${f1(cy0 + r2 * Math.sin(tr))}"/>`);
+    }
     if (wide) {
-        o.push('<circle class="a-disc" cx="400" cy="360" r="318"/>');
-        o.push(`<ellipse cx="250" cy="520" rx="260" ry="200" fill="url(#${id}na)"/>`);
-        o.push(`<ellipse cx="400" cy="360" rx="230" ry="210" fill="url(#${id}nb)"/>`);
-        o.push(`<ellipse cx="580" cy="210" rx="270" ry="210" fill="url(#${id}nc)"/>`);
-        o.push('<circle class="a-grid d" cx="400" cy="360" r="128"/>');
-        for (let sa = 0; sa < 360; sa += 30) {
-            const rad = sa * Math.PI / 180;
-            o.push(`<line class="a-spoke" x1="${f1(400 + 132 * Math.cos(rad))}" y1="${f1(360 + 132 * Math.sin(rad))}" x2="${f1(400 + 306 * Math.cos(rad))}" y2="${f1(360 + 306 * Math.sin(rad))}"/>`);
-        }
-        o.push('<circle class="a-bezel" cx="400" cy="360" r="318"/><circle class="a-bezel" cx="400" cy="360" r="326"/>');
-        for (let ta = 0; ta < 360; ta += 3) {
-            const tr = ta * Math.PI / 180, major = ta % 45 === 0, mid = ta % 15 === 0;
-            const r2 = major ? 326 : (mid ? 323.5 : 321);
-            o.push(`<line class="a-tick${major ? ' m' : ''}" x1="${f1(400 + 318 * Math.cos(tr))}" y1="${f1(360 + 318 * Math.sin(tr))}" x2="${f1(400 + r2 * Math.cos(tr))}" y2="${f1(360 + r2 * Math.sin(tr))}"/>`);
-        }
         for (let bi = 1; bi < P.length; bi++) {
             const c = P[bi].C, dx = c.x - 400, dy = c.y - 360, len = Math.hypot(dx, dy) || 1;
             o.push(`<text class="a-blbl" x="${f1(400 + 336 * dx / len)}" y="${f1(360 + 336 * dy / len + 3.4)}" text-anchor="middle">${G[bi].no}</text>`);
-        }
-    } else {
-        o.push('<ellipse class="a-disc" cx="180" cy="320" rx="170" ry="308"/>');
-        o.push(`<ellipse cx="100" cy="470" rx="160" ry="220" fill="url(#${id}na)"/>`);
-        o.push(`<ellipse cx="180" cy="320" rx="130" ry="200" fill="url(#${id}nb)"/>`);
-        o.push(`<ellipse cx="260" cy="170" rx="160" ry="220" fill="url(#${id}nc)"/>`);
-        o.push('<ellipse class="a-grid d" cx="180" cy="320" rx="76" ry="136"/>');
-        o.push('<ellipse class="a-bezel" cx="180" cy="320" rx="170" ry="308"/>');
-        for (let tt = 0; tt < 360; tt += 4) {
-            const q = tt * Math.PI / 180, mj = tt % 45 === 0, len = mj ? 6 : 3;
-            const ex = 180 + 170 * Math.cos(q), ey = 320 + 308 * Math.sin(q);
-            let nx = Math.cos(q) / 170, ny = Math.sin(q) / 308;
-            const nl = Math.hypot(nx, ny); nx /= nl; ny /= nl;
-            o.push(`<line class="a-tick${mj ? ' m' : ''}" x1="${f1(ex)}" y1="${f1(ey)}" x2="${f1(ex - nx * len)}" y2="${f1(ey - ny * len)}"/>`);
         }
     }
     const R = rng(wide ? 20250930 : 7331), stars = [];
     P.forEach((p) => p.stars.forEach((s) => stars.push(s)));
     o.push('<g class="a-field">');
-    const count = wide ? 190 : 120;
+    const count = wide ? 190 : 90, minGap = wide ? 20 : 14;
     let made = 0, guard = 0;
     while (made < count && guard++ < 3000) {
         const u = R(), v = R();
         let fx, fy;
-        if (wide) { const ang = u * Math.PI * 2, rr = Math.sqrt(v) * 312; fx = 400 + rr * Math.cos(ang); fy = 360 + rr * Math.sin(ang); }
-        else { const ang = u * Math.PI * 2, rr = Math.sqrt(v); fx = 180 + 162 * rr * Math.cos(ang); fy = 320 + 298 * rr * Math.sin(ang); }
-        if (stars.some((s) => Math.hypot(s.x - fx, s.y - fy) < 20)) continue;
+        const ang = u * Math.PI * 2, rr = Math.sqrt(v) * (R0 - 6);
+        fx = cx0 + rr * Math.cos(ang); fy = cy0 + rr * Math.sin(ang);
+        if (stars.some((st) => Math.hypot(st.x - fx, st.y - fy) < minGap)) continue;
         const size = .35 + Math.pow(R(), 3) * 1.15, op = (.25 + R() * .75).toFixed(2), tw = R() < .1;
         o.push(`<circle cx="${f1(fx)}" cy="${f1(fy)}" r="${size.toFixed(2)}"` +
             (tw ? ` class="tw" style="animation-delay:${(R() * -6).toFixed(2)}s"` : ` style="opacity:calc(var(--field-o) * ${op})"`) + '/>');
@@ -233,8 +217,8 @@ export function buildAtlas(model, L, withBase) {
     o.push('<g class="a-route" aria-hidden="true">');
     for (let gi = 1; gi < P.length; gi++) {
         const from = P[gi - 1].stars[P[gi - 1].stars.length - 1], to = P[gi].stars[0];
-        const T = trim(from, to, gap(from), gap(to) + 1);
         const st = `style="--c:var(--c${gi + 1})"`;
+        const T = trim(from, to, gap(from), gap(to) + 1);
         o.push(`<line class="rs" data-to="${gi}" ${st} x1="${f1(T.x1)}" y1="${f1(T.y1)}" x2="${f1(T.x2)}" y2="${f1(T.y2)}"/>`);
         const px = T.x1 + (T.x2 - T.x1) * .56, py = T.y1 + (T.y2 - T.y1) * .56, deg = Math.atan2(T.uy, T.ux) * 180 / Math.PI;
         o.push(`<path class="rc" data-to="${gi}" ${st} transform="translate(${f1(px)} ${f1(py)}) rotate(${f1(deg)})" d="M-2.6 -3L1.6 0L-2.6 3"/>`);
@@ -322,7 +306,7 @@ export function mountAtlas(root, model, {withBase, navigate}) {
     const on = (el, ev, fn, opt) => { el.addEventListener(ev, fn, opt); off.push(() => el.removeEventListener(ev, fn, opt)); };
     const $ = (sel) => root.querySelector(sel);
     const $$ = (sel) => Array.from(root.querySelectorAll(sel));
-    const layouts = {wide: {L: WIDE, P: place(model, WIDE)}, tall: {L: TALL, P: place(model, TALL)}};
+    const layouts = Object.fromEntries([WIDE, DISC].map((L) => [L.v, {L, P: place(model, L)}]));
 
     let reduce = false;
     try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { /* ignore */ }
@@ -464,7 +448,7 @@ export function mountAtlas(root, model, {withBase, navigate}) {
         });
     });
     function drawGoal(svg, k) {
-        const {L, P} = svg.classList.contains('atlas--wide') ? layouts.wide : layouts.tall;
+        const {L, P} = layouts[svg.getAttribute('data-v')];
         const lay = svg.querySelector('.a-goal'), layb = svg.querySelector('.a-goalb');
         svg.querySelectorAll('.st.is-goal').forEach((el) => el.classList.remove('is-goal'));
         svg.classList.toggle('has-goal', k !== null);
@@ -475,15 +459,15 @@ export function mountAtlas(root, model, {withBase, navigate}) {
         for (let i = 1; i < pts.length; i++) {
             const a = pts[i - 1].s, b = pts[i].s, T = trim(a, b, gap(a) + 1, gap(b) + 2);
             const mx = (T.x1 + T.x2) / 2, my = (T.y1 + T.y2) / 2;
-            const cx = mx + (L.cx - mx) * .14, cy = my + (L.cy - my) * .14;
+            const bend = L.bend ?? .14, cx = mx + (L.cx - mx) * bend, cy = my + (L.cy - my) * bend;
             const d = `M${f1(T.x1)} ${f1(T.y1)}Q${f1(cx)} ${f1(cy)} ${f1(T.x2)} ${f1(T.y2)}`;
             h += `<path class="gp-h" d="${d}"/>`;
             h += `<path class="gp${anim}" pathLength="1" style="--c:var(--c${pts[i].m.gi + 1});--k:${i - 1}" d="${d}"/>`;
         }
         pts.forEach((p, i) => {
-            const s = p.s, o2 = (s.rr || s.r) + 12, bx = s.x - s.d.x * o2, by = s.y - s.d.y * o2;
-            hb += `<g class="gb${anim}" style="--c:var(--c${p.m.gi + 1});--k:${i}"><circle cx="${f1(bx)}" cy="${f1(by)}" r="9"/>` +
-                `<text x="${f1(bx)}" y="${f1(by + 3.9)}">${i + 1}</text></g>`;
+            const br = L.badge ?? 9, s = p.s, o2 = (s.rr || s.r) + br + 3, bx = s.x - s.d.x * o2, by = s.y - s.d.y * o2;
+            hb += `<g class="gb${anim}" style="--c:var(--c${p.m.gi + 1});--k:${i}"><circle cx="${f1(bx)}" cy="${f1(by)}" r="${br}"/>` +
+                `<text x="${f1(bx)}" y="${f1(by + br * .43)}" style="font-size:${f1(br * 1.2)}px">${i + 1}</text></g>`;
             const el = svg.querySelector(`.st[data-g="${p.m.gi}"][data-m="${p.m.mi}"]`);
             if (el) el.classList.add('is-goal');
         });

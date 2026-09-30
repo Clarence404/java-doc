@@ -3,11 +3,11 @@ import {onBeforeUnmount, onMounted, ref} from 'vue';
 import {RouteLink, resolveRoutePath, useRouter, withBase} from 'vuepress/client';
 import stats from '@temp/home-stats.js';
 import {FOOTER, INTERVIEW, REFS} from './data.js';
-import {TALL, WIDE, buildAtlas, buildGlyph, buildModel, defaultCaption, mountAtlas} from './atlas.js';
+import {DISC, WIDE, buildAtlas, buildGlyph, buildModel, defaultCaption, mountAtlas} from './atlas.js';
 
 const model = buildModel(stats);
 const {groups, goals, totals} = model;
-const atlasSvg = buildAtlas(model, WIDE, withBase) + buildAtlas(model, TALL, withBase);
+const atlasSvg = [WIDE, DISC].map((L) => buildAtlas(model, L, withBase)).join('');
 const glyphs = groups.map((g) => buildGlyph(model, g.i));
 const caption = defaultCaption(model);
 const digest = INTERVIEW.map((col) => ({g: groups[col.g], pages: col.pages}));
