@@ -1,0 +1,73 @@
+<svg viewBox="0 0 720 400" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .group { font-size: 12px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+  </style>
+
+  <text x="360" y="24" text-anchor="middle" class="title">JVM 运行时数据区（HotSpot）</text>
+
+  <!-- 线程私有 -->
+  <rect x="20" y="44" width="680" height="102" rx="6" fill="var(--b)" fill-opacity="0.05" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="360" y="64" text-anchor="middle" class="group" fill="var(--b)">线程私有（随线程创建与销毁）</text>
+
+  <rect x="32" y="74" width="210" height="60" rx="4" fill="var(--card)" stroke="var(--b)" stroke-width="1.2"/>
+  <text x="137" y="98" text-anchor="middle" class="name">程序计数器</text>
+  <text x="137" y="118" text-anchor="middle" class="desc">当前字节码行号，唯一不会 OOM</text>
+
+  <rect x="254" y="74" width="210" height="60" rx="4" fill="var(--card)" stroke="var(--b)" stroke-width="1.2"/>
+  <text x="359" y="98" text-anchor="middle" class="name">虚拟机栈</text>
+  <text x="359" y="118" text-anchor="middle" class="desc">每次方法调用压入一个栈帧</text>
+
+  <rect x="476" y="74" width="212" height="60" rx="4" fill="var(--card)" stroke="var(--b)" stroke-width="1.2"/>
+  <text x="582" y="98" text-anchor="middle" class="name">本地方法栈</text>
+  <text x="582" y="118" text-anchor="middle" class="desc">Native 方法，HotSpot 与虚拟机栈合一</text>
+
+  <!-- 线程共享 -->
+  <rect x="20" y="162" width="680" height="154" rx="6" fill="var(--g)" fill-opacity="0.05" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="360" y="182" text-anchor="middle" class="group" fill="var(--g)">线程共享（随 JVM 启动与退出）</text>
+
+  <rect x="32" y="194" width="436" height="110" rx="4" fill="var(--card)" stroke="var(--g)" stroke-width="1.2"/>
+  <text x="250" y="214" text-anchor="middle" class="name">堆 Heap：对象实例、数组、静态变量、字符串常量池</text>
+
+  <rect x="44" y="226" width="130" height="60" rx="4" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1"/>
+  <text x="109" y="250" text-anchor="middle" class="name">Eden</text>
+  <text x="109" y="270" text-anchor="middle" class="desc">新对象优先分配</text>
+
+  <rect x="182" y="226" width="60" height="60" rx="4" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1"/>
+  <text x="212" y="250" text-anchor="middle" class="name">S0</text>
+  <text x="212" y="270" text-anchor="middle" class="desc">Survivor</text>
+
+  <rect x="250" y="226" width="60" height="60" rx="4" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1"/>
+  <text x="280" y="250" text-anchor="middle" class="name">S1</text>
+  <text x="280" y="270" text-anchor="middle" class="desc">Survivor</text>
+
+  <rect x="318" y="226" width="138" height="60" rx="4" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1"/>
+  <text x="387" y="250" text-anchor="middle" class="name">老年代</text>
+  <text x="387" y="270" text-anchor="middle" class="desc">长期存活 / 大对象</text>
+
+  <rect x="480" y="194" width="208" height="110" rx="4" fill="var(--card)" stroke="var(--p)" stroke-width="1.2"/>
+  <text x="584" y="222" text-anchor="middle" class="name">方法区（元空间）</text>
+  <text x="584" y="248" text-anchor="middle" class="desc">类元数据、运行时常量池</text>
+  <text x="584" y="270" text-anchor="middle" class="desc">JDK 8+ 使用本地内存</text>
+
+  <!-- 直接内存 -->
+  <rect x="20" y="332" width="680" height="48" rx="6" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="360" y="361" text-anchor="middle" class="desc">直接内存（堆外，不属于运行时数据区）：DirectByteBuffer，受 -XX:MaxDirectMemorySize 限制</text>
+</svg>

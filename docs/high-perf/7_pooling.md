@@ -60,7 +60,7 @@ HikariCP 是 Spring Boot 2.0 起的默认连接池。完整参数表、yaml 与 
 | `minimumIdle` | 官方建议不设置（等于最大值），保持固定大小，避免突发流量临时建连 |
 | `connectionTimeout` | 默认 30 秒，线上建议调低到 2～5 秒，快速失败优于长时间挂起 |
 | `maxLifetime` | 必须比数据库 `wait_timeout`、防火墙、LB 的空闲超时短几十秒 |
-| `keepaliveTime` | HikariCP 5.1.0 起默认 120000ms（2 分钟），更早版本默认 0（禁用）；Spring Boot 3.2+ 使用 5.1.x，老版本建议显式设置 |
+| `keepaliveTime` | HikariCP 5.1.0 起默认 120000ms（2 分钟），更早版本默认 0（禁用）；Spring Boot 3.3+ 使用 5.1.x（3.2 及更早为 5.0.x），老版本建议显式设置 |
 | `leakDetectionThreshold` | 默认 0（关闭），排查泄漏时开启 |
 
 ### 4、连接泄漏检测

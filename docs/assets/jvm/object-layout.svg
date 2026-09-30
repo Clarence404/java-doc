@@ -1,0 +1,54 @@
+<svg viewBox="0 0 720 346" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .group { font-size: 12px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .note  { font-size: 12px; fill: var(--muted); }
+  </style>
+
+  <text x="360" y="24" text-anchor="middle" class="title">HotSpot 对象内存布局（64 位 JVM）</text>
+
+  <!-- 对象头 -->
+  <rect x="20" y="40" width="680" height="108" rx="6" fill="var(--p)" fill-opacity="0.05" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="60" text-anchor="middle" class="group" fill="var(--p)">对象头 Header</text>
+
+  <rect x="32" y="72" width="210" height="64" rx="4" fill="var(--card)" stroke="var(--p)" stroke-width="1.2"/>
+  <text x="137" y="98" text-anchor="middle" class="name">Mark Word（8 字节）</text>
+  <text x="137" y="120" text-anchor="middle" class="desc">哈希码、GC 分代年龄、锁状态</text>
+
+  <rect x="254" y="72" width="210" height="64" rx="4" fill="var(--card)" stroke="var(--p)" stroke-width="1.2"/>
+  <text x="359" y="98" text-anchor="middle" class="name">Klass Pointer（4 / 8 字节）</text>
+  <text x="359" y="120" text-anchor="middle" class="desc">指向元空间中的类元数据</text>
+
+  <rect x="476" y="72" width="212" height="64" rx="4" fill="none" stroke="var(--p)" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="582" y="98" text-anchor="middle" class="name">数组长度（4 字节）</text>
+  <text x="582" y="120" text-anchor="middle" class="desc">仅数组对象才有</text>
+
+  <!-- 实例数据 -->
+  <rect x="20" y="160" width="680" height="64" rx="6" fill="var(--b)" fill-opacity="0.08" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="360" y="186" text-anchor="middle" class="name" fill="var(--b)">实例数据 Instance Data</text>
+  <text x="360" y="208" text-anchor="middle" class="desc">各字段的值（含继承字段）；JVM 按字段宽度重排，减少内部空洞</text>
+
+  <!-- 对齐填充 -->
+  <rect x="20" y="236" width="680" height="64" rx="6" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="360" y="262" text-anchor="middle" class="name">对齐填充 Padding</text>
+  <text x="360" y="284" text-anchor="middle" class="desc">补齐到 8 字节整数倍（-XX:ObjectAlignmentInBytes，默认 8），非必需</text>
+
+  <text x="360" y="324" text-anchor="middle" class="note">例：new Object() = 8（Mark Word）+ 4（压缩 Klass Pointer）+ 4（填充）= 16 字节</text>
+</svg>

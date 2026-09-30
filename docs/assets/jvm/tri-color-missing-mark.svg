@@ -1,0 +1,63 @@
+<svg viewBox="0 0 720 274" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .note  { font-size: 12px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr-g" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--g)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">并发标记漏标：两个条件同时成立</text>
+
+  <!-- A 黑色 -->
+  <rect x="80" y="50" width="180" height="64" rx="6" fill="var(--fg)" fill-opacity="0.12" stroke="var(--fg)" stroke-width="2.5"/>
+  <text x="170" y="76" text-anchor="middle" class="name">A · 黑色</text>
+  <text x="170" y="98" text-anchor="middle" class="desc">自身与子引用均已扫描</text>
+
+  <!-- B 灰色 -->
+  <rect x="460" y="50" width="180" height="64" rx="6" fill="var(--muted)" fill-opacity="0.2" stroke="var(--muted)" stroke-width="2"/>
+  <text x="550" y="76" text-anchor="middle" class="name">B · 灰色</text>
+  <text x="550" y="98" text-anchor="middle" class="desc">自身已扫描，子引用未扫完</text>
+
+  <!-- C 白色 -->
+  <rect x="270" y="190" width="180" height="64" rx="6" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="360" y="216" text-anchor="middle" class="name">C · 白色</text>
+  <text x="360" y="238" text-anchor="middle" class="desc">未被访问，将被误回收</text>
+
+  <!-- A -> B 已有引用 -->
+  <line x1="260" y1="82" x2="458" y2="82" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="359" y="74" text-anchor="middle" class="desc">已有引用</text>
+
+  <!-- ① 新增 A -> C -->
+  <line x1="200" y1="114" x2="318" y2="188" stroke="var(--g)" stroke-width="1.8" marker-end="url(#arr-g)"/>
+  <text x="235" y="164" text-anchor="end" class="note" fill="var(--g)">① 新增 A→C</text>
+
+  <!-- ② 删除 B -> C -->
+  <line x1="520" y1="114" x2="402" y2="188" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arr-r)"/>
+  <text x="485" y="164" text-anchor="start" class="note" fill="var(--r)">② 删除 B→C</text>
+</svg>

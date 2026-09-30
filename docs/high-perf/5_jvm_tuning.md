@@ -4,7 +4,7 @@
 >
 > **前置阅读**：[基准测试（JMH）](./4_benchmark)
 
-本篇只讲**策略与判断**，以 JDK 21 LTS 为主要视角。收集器原理见 [垃圾收集器详解](/jvm/5_gc_collectors)，参数细节见 [GC 调优实践](/jvm/6_gc_tuning)，JIT 原理见 [JIT 编译器](/jvm/7_jit)，工具见 [JVM 监控工具](/jvm/8_monitoring_tools)。
+本篇只讲**策略与判断**，以 JDK 21 LTS 为主要视角。收集器原理见 [GC 收集器](/jvm/5_gc_collectors)，参数细节见 [GC 调优](/jvm/6_gc_tuning)，JIT 原理见 [JIT 编译](/jvm/7_jit)，工具见 [JVM 诊断工具](/jvm/8_monitoring_tools)。
 
 **先记住优先级：先修代码（分配过多、内存泄漏），再选对收集器和堆大小，最后才动细节参数。** 多数服务用默认 G1 加上合理的堆大小就够了。
 
@@ -53,7 +53,7 @@
 | 减少中间对象 | 避免无谓的字符串拼接、`String.format`、多层 DTO 转换 | [代码级优化](./6_code_optimization) |
 | 流式处理 | 大结果集分页 / 游标读取，不一次性加载到内存 | [数据访问性能](./10_db_performance) |
 | 复用缓冲区 | IO 场景复用 `byte[]` / `ByteBuffer`，Netty 使用池化 ByteBuf | [ByteBuf 与内存管理](/netty/5_bytebuf) |
-| 避免大数组 | G1 中超过 Region 一半大小的对象是 Humongous 对象，分配和回收代价高 | [GC 调优实践](/jvm/6_gc_tuning) |
+| 避免大数组 | G1 中超过 Region 一半大小的对象是 Humongous 对象，分配和回收代价高 | [GC 调优](/jvm/6_gc_tuning) |
 
 ::: tip 逃逸分析
 JIT 的逃逸分析可以把未逃逸的小对象做标量替换，不在堆上分配。但它依赖方法内联，效果不稳定，不要把性能寄托在它上面，以分配火焰图的实测为准。
@@ -118,7 +118,7 @@ java -XX:InitialRAMPercentage=70 -XX:MaxRAMPercentage=70 \
 | 保证 CPU | 启动阶段 JIT 编译线程与业务线程争抢 CPU，CPU limit 过小会显著拉长预热 | 编译速度 |
 | 关注 Code Cache | 满了会停止 JIT 编译（日志出现 `CodeCache is full`），性能骤降 | 长期运行的大应用 |
 
-预热与流量接入的发布流程见 [优雅上下线与变更](/high-avail/8_graceful_release)，分层编译原理见 [JIT 编译器](/jvm/7_jit)。
+预热与流量接入的发布流程见 [优雅上下线与变更](/high-avail/8_graceful_release)，分层编译原理见 [JIT 编译](/jvm/7_jit)。
 
 ### 2、缩短启动与预热的技术
 
@@ -127,7 +127,7 @@ java -XX:InitialRAMPercentage=70 -XX:MaxRAMPercentage=70 \
 | AppCDS（类数据共享） | 把类加载和解析结果存成归档，后续启动直接映射，缩短启动时间；JDK 13 起可用 `-XX:ArchiveClassesAtExit` 动态生成归档，Spring Boot 3.3 起提供 CDS 支持 | 成熟，JDK 主线特性 |
 | Leyden AOT 缓存 | 在训练运行中记录类加载与链接结果（JDK 24，JEP 483），JDK 25 进一步缓存方法 profile，缩短启动和预热 | JDK 24 起的正式特性，**JDK 21 不可用**，仍在演进 |
 | CRaC | 在预热完成后对进程做检查点快照，之后从快照恢复，几乎跳过启动与预热 | 不在 OpenJDK 主线，需要支持 CRaC 的发行版（如 Azul Zulu、BellSoft Liberica）且仅限 Linux；需处理快照前后的连接与密钥 |
-| GraalVM Native Image | AOT 编译为原生可执行文件，毫秒级启动 | 成熟，但峰值吞吐与动态特性受限，见 [JIT 编译器](/jvm/7_jit) |
+| GraalVM Native Image | AOT 编译为原生可执行文件，毫秒级启动 | 成熟，但峰值吞吐与动态特性受限，见 [JIT 编译](/jvm/7_jit) |
 
 ::: warning 选型提示
 AppCDS 主要缩短类加载，**解决不了 JIT 预热**；长期运行的在线服务通常用"预热流量 + 就绪后置 + 预热权重"就足够，只有启动时间直接影响弹性扩容或 Serverless 场景，才值得引入 CRaC、Native Image 这类改造成本较高的方案。
@@ -145,7 +145,7 @@ AppCDS 主要缩短类加载，**解决不了 JIT 预热**；长期运行的在�
 -Xlog:gc*,safepoint:file=/data/logs/gc.log:time,uptime,level,tags:filecount=10,filesize=20m
 ```
 
-分析工具（GCEasy、GCViewer、JMC）见 [JVM 监控工具](/jvm/8_monitoring_tools)。
+分析工具（GCEasy、GCViewer、JMC）见 [GC 调优](/jvm/6_gc_tuning)。
 
 ### 2、关键指标
 
@@ -166,7 +166,7 @@ AppCDS 主要缩短类加载，**解决不了 JIT 预热**；长期运行的在�
 | GC 停顿与 P99 毛刺不相关 | 瓶颈不在 GC | 回到 [性能分析方法论](./2_methodology) 查其他层 |
 | 老年代 GC 后持续上涨 | 内存泄漏 | 堆 dump 分析，见 [JVM 故障排查](/jvm/9_troubleshooting) |
 | Young GC 过频、分配速率高 | 分配过多 | 用分配火焰图降低分配速率（第二节） |
-| 停顿本身超过 SLO，分配已合理 | 收集器或堆不合适 | 调大堆 / 调整 `MaxGCPauseMillis` / 换分代 ZGC，见 [GC 调优实践](/jvm/6_gc_tuning) |
+| 停顿本身超过 SLO，分配已合理 | 收集器或堆不合适 | 调大堆 / 调整 `MaxGCPauseMillis` / 换分代 ZGC，见 [GC 调优](/jvm/6_gc_tuning) |
 | 容器被 OOMKilled | 堆外内存未计入 | 按第三节用 NMT 核算，调低堆比例或限制直接内存 |
 
 每次只改一个参数，并用压测对比改动前后的 P99 与 CPU，见 [性能分析方法论](./2_methodology) 的优化闭环。

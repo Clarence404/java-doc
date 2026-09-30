@@ -16,7 +16,7 @@ const navbarFlat = [
     {text: 'Java',    link: '/java/0_overview'},
     {text: 'JVM',     link: '/jvm/0_overview'},
     {text: '算法',    link: '/algorithms/0_overview'},
-    {text: '协议体系', link: '/protocols/0_overview'},
+    {text: '网络协议', link: '/protocols/0_overview'},
     {text: 'Spring',  link: '/spring/0_overview'},
     {text: 'Spring Boot', link: '/spring-boot/0_overview'},
     {text: 'Netty',   link: '/netty/0_overview'},
@@ -32,7 +32,7 @@ const navbarFlat = [
     {text: '设计模式', link: '/patterns/0_overview'},
     {text: '架构',    link: '/architecture/0_overview'},
     {text: '业务场景', link: '/scenario/0_overview'},
-    {text: '测试体系', link: '/testing/0_overview'},
+    {text: '测试',    link: '/testing/0_overview'},
     {text: 'DevOps',  link: '/devops/0_overview'},
     {text: '工程效率', link: '/engineering/0_overview'},
     {text: '云原生',  link: '/cloud-native/0_overview'},
@@ -50,7 +50,7 @@ const navbarDropdown = [
             {text: 'Java',    link: '/java/0_overview'},
             {text: 'JVM',     link: '/jvm/0_overview'},
             {text: '算法',    link: '/algorithms/0_overview'},
-            {text: '协议体系', link: '/protocols/0_overview'},
+            {text: '网络协议', link: '/protocols/0_overview'},
         ],
     },
     {
@@ -96,7 +96,7 @@ const navbarDropdown = [
     {
         text: '研发效能',
         children: [
-            {text: '测试体系', link: '/testing/0_overview'},
+            {text: '测试',    link: '/testing/0_overview'},
             {text: 'DevOps',  link: '/devops/0_overview'},
             {text: '工程效率', link: '/engineering/0_overview'},
         ],
@@ -106,7 +106,7 @@ const navbarDropdown = [
         children: [
             {text: '云原生',   link: '/cloud-native/0_overview'},
             {text: '可观测性', link: '/observability/0_overview'},
-            {text: '安全体系', link: '/security/0_overview'},
+            {text: '安全',    link: '/security/0_overview'},
         ],
     },
     {
@@ -174,6 +174,12 @@ const javaSidebar = getGroupedSidebar(dirOf('java'), [
     {text: '语言机制', from: 10, to: 16},
     {text: 'IO 与数据', from: 17, to: 21},
     {text: '并发', from: 22, to: 29},
+]);
+
+const jvmSidebar = getGroupedSidebar(dirOf('jvm'), [
+    {text: '运行时', from: 1, to: 3},
+    {text: '垃圾回收', from: 4, to: 6},
+    {text: '编译与诊断', from: 7, to: 9},
 ]);
 
 const springSidebar = getGroupedSidebar(dirOf('spring'), [
@@ -263,7 +269,7 @@ const aiSidebar = [
 ];
 
 const algorithmsSidebar = [
-    {text: '算法总览', link: '/algorithms/0_overview'},
+    {text: '数据结构与算法总览', link: '/algorithms/0_overview'},
     {text: '复杂度分析', link: '/algorithms/0_complexity'},
     {
         text: '数据结构',
@@ -416,6 +422,54 @@ const databaseSidebar = [
     {text: '面试专题', link: '/database/99_interview'},
 ];
 
+// 目录页（面包屑中间层级）标题：主题会为没有 README 的目录自动生成目录页，默认用目录名首字母大写
+const DIR_TITLES = {
+    '/interview/': '开发总结',
+    '/java/': 'Java',
+    '/jvm/': 'JVM',
+    '/algorithms/': '数据结构与算法',
+    '/algorithms/1_data_structures/': '数据结构',
+    '/algorithms/2_algorithms/': '基础算法',
+    '/algorithms/3_patterns/': '算法技巧',
+    '/algorithms/4_practice/': '刷题实战',
+    '/protocols/': '网络协议',
+    '/spring/': 'Spring',
+    '/spring-boot/': 'Spring Boot',
+    '/spring-cloud/': 'Spring Cloud',
+    '/netty/': 'Netty',
+    '/database/': '数据库',
+    '/database/1_mysql/': 'MySQL',
+    '/database/2_postgresql/': 'PostgreSQL',
+    '/database/3_relational/': '关系库',
+    '/database/4_nosql/': 'NoSQL',
+    '/database/5_practice/': '架构运维',
+    '/database/6_reference/': '参考延伸',
+    '/cache/': '缓存',
+    '/messaging/': '消息队列',
+    '/distributed/': '分布式',
+    '/microservices/': '微服务',
+    '/high-perf/': '高性能',
+    '/high-con/': '高并发',
+    '/high-avail/': '高可用',
+    '/patterns/': '设计模式',
+    '/architecture/': '系统架构',
+    '/scenario/': '业务场景',
+    '/testing/': '测试',
+    '/devops/': 'DevOps',
+    '/engineering/': '工程效率',
+    '/cloud-native/': '云原生',
+    '/observability/': '可观测性',
+    '/security/': '安全',
+    '/iot/': 'IoT',
+    '/ai/': 'AI',
+    '/ai/1_concepts/': '基础概念',
+    '/ai/2_frameworks/': 'Java 框架',
+    '/ai/3_integration/': '模型接入',
+    '/ai/4_core_tech/': '核心技术',
+    '/ai/5_advanced/': '高阶应用',
+    '/ai/6_tools/': 'AI 工具生态',
+};
+
 export default defineUserConfig({
     head: [
         ['link', {rel: 'icon', href: 'images/logo.png'}]
@@ -447,7 +501,7 @@ export default defineUserConfig({
             '/java/': javaSidebar,
             '/database/': databaseSidebar,
             '/cache/': getSidebarFromDir(path.resolve(__dirname, '../cache')),
-            '/jvm/': getSidebarFromDir(path.resolve(__dirname, '../jvm')),
+            '/jvm/': jvmSidebar,
             '/spring/': springSidebar,
             '/spring-boot/': getSidebarFromDir(path.resolve(__dirname, '../spring-boot')),
             '/spring-cloud/': getSidebarFromDir(path.resolve(__dirname, '../spring-cloud')),
@@ -477,6 +531,15 @@ export default defineUserConfig({
             alert: true,
         },
         plugins: {
+            // 保留主题默认的 frontmatter，再补上中文目录标题
+            catalog: {
+                frontmatter: (pagePath) => ({
+                    article: false,
+                    feed: false,
+                    sitemap: false,
+                    ...(DIR_TITLES[pagePath] ? {title: DIR_TITLES[pagePath]} : {}),
+                }),
+            },
             copyCode: {
                 showInMobile: true,
             },

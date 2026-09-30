@@ -68,7 +68,7 @@
 
 - **Load Average** 表示处于可运行 + 不可中断（通常是 IO）状态的平均进程数，需要与 CPU 核数对比：长期高于核数说明有排队。
 - `%util` 在 SSD / NVMe 等可并行处理请求的设备上接近 100% 不一定代表饱和，应结合 await 与队列长度判断。
-- GC 指标的解读见 [JVM 层性能策略](./5_jvm_tuning)，监控工具见 [JVM 监控工具](/jvm/8_monitoring_tools)。
+- GC 指标的解读见 [JVM 层性能策略](./5_jvm_tuning)，监控工具见 [JVM 诊断工具](/jvm/8_monitoring_tools)。
 
 ---
 

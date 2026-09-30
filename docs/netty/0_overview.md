@@ -38,6 +38,6 @@ Netty 是 Java 生态中使用最广的网络通信框架。Dubbo、gRPC-Java、
 ## 四、关联模块
 
 - Java 侧的 NIO API（Channel、Buffer、Selector）与零拷贝 → [Java 专项 - IO / NIO](/java/18_topic_io)
-- TCP、HTTP、WebSocket 等协议基础 → [协议体系](/protocols/0_overview)
+- TCP、HTTP、WebSocket 等协议基础 → [网络协议](/protocols/0_overview)
 - IO 与网络层性能优化 → [高性能 - IO 与网络优化](/high-perf/9_io_network)
 - 答案汇总 → [开发总结 - Netty](/interview/11_netty)

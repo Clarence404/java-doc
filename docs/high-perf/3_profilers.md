@@ -6,7 +6,7 @@
 
 本篇聚焦采样型 / 图形化 Profiler。命令行诊断工具见：
 
-- JDK 自带工具（jps / jstack / jmap / jstat / MAT 等）→ [JVM 监控工具](/jvm/8_monitoring_tools)
+- JDK 自带工具（jps / jstack / jmap / jstat / MAT 等）→ [JVM 诊断工具](/jvm/8_monitoring_tools)
 - Arthas 在线诊断（dashboard / trace / watch / jad / ognl 等）→ [线上诊断](/engineering/4_diagnosis)
 - 按故障类型排查及常见问题速查表 → [JVM 故障排查](/jvm/9_troubleshooting)
 

@@ -17,7 +17,7 @@
 | [Java 并发](./9_concurrent) | 线程池、synchronized vs ReentrantLock、volatile、CAS、ConcurrentHashMap、死锁 | [Java](/java/99_interview) |
 | [三高](./10_high_avail) | 高性能、高并发、高可用 | [高并发](/high-con/99_interview) / [高可用](/high-avail/99_interview) / [高性能](/high-perf/99_interview) |
 | [Netty](./11_netty) | IO 模型、Reactor、粘包拆包、长连接 | [Netty](/netty/99_interview) |
-| [网络协议](./12_network) | TCP / UDP、HTTP、HTTPS / TLS | [协议体系](/protocols/99_interview) |
+| [网络协议](./12_network) | TCP / UDP、HTTP、HTTPS / TLS | [网络协议](/protocols/99_interview) |
 | [系统架构](./13_architecture) | 架构设计、DDD、幂等、权限系统 | [系统架构](/architecture/99_interview) |
 
 ## 二、使用建议

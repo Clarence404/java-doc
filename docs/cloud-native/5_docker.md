@@ -87,8 +87,6 @@ bridge和Host模式的结合体，存在Docker0网络，后续指定其网关；
 
 ![img_3.png](../assets/container/container_warning.png)
 
-好的，下面是对你博客大纲中“**三、Docker 常用命令**” 和 “**四、Docker Compose**” 两节内容的详细补充：
-
 ## 三、Docker 常用命令
 
 ### 1. 镜像相关

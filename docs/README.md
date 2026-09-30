@@ -60,11 +60,11 @@ highlights:
         icon: gears
         details: 内存结构 / 类加载机制 / GC 算法全解 / 参数调优 / 线上 OOM 排查实战
         link: /jvm/0_overview
-      - title: 算法与数据结构
+      - title: 数据结构与算法
         icon: diagram-project
         details: 复杂度分析 + 13 种算法范式，LeetCode / 华为 OJ 分类题解与解题思路
         link: /algorithms/0_overview
-      - title: 协议体系
+      - title: 网络协议
         icon: tower-broadcast
         details: TCP/IP / HTTP/2 / gRPC / WebSocket / IoT 协议 / TLS 安全协议全栈体系
         link: /protocols/0_overview
@@ -156,7 +156,7 @@ highlights:
   - header: 研发效能
     description: 测试 · DevOps · 工程效率，提升交付质量与速度
     features:
-      - title: 测试体系
+      - title: 测试
         icon: vial
         details: JUnit 5 单元测试 / Mockito Mock / TestContainers 集成测试 / TDD 实践 / 性能测试
         link: /testing/0_overview
@@ -180,7 +180,7 @@ highlights:
         icon: chart-line
         details: 日志 / 指标 / 链路追踪 / 告警治理 / OpenTelemetry，支撑线上排障与稳定性建设
         link: /observability/0_overview
-      - title: 安全体系
+      - title: 安全
         icon: lock
         details: JWT / OAuth2 / OIDC / SSO / RBAC 权限模型 / API 安全 / 数据安全 / 零信任
         link: /security/0_overview
@@ -204,11 +204,11 @@ footer: MIT 协议 | 版权所有 © 2025-至今 Clarence
 
 <div style="display:flex; justify-content:center; gap:1.5rem; flex-wrap:wrap; padding: 2.5rem 1rem 1rem;">
   <div style="text-align:center; padding:1.25rem 2rem; border-radius:14px; border:1px solid rgba(168,85,247,0.18); background:rgba(168,85,247,0.04); min-width:120px;">
-    <div style="font-size:2rem; font-weight:800; background:linear-gradient(135deg,#ff6b9d,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2;">26</div>
+    <div style="font-size:2rem; font-weight:800; background:linear-gradient(135deg,#ff6b9d,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2;">27</div>
     <div style="font-size:0.85rem; color:var(--vp-c-text-2,#666); margin-top:0.3rem;">技术模块</div>
   </div>
   <div style="text-align:center; padding:1.25rem 2rem; border-radius:14px; border:1px solid rgba(168,85,247,0.18); background:rgba(168,85,247,0.04); min-width:120px;">
-    <div style="font-size:2rem; font-weight:800; background:linear-gradient(135deg,#a855f7,#38bdf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2;">160+</div>
+    <div style="font-size:2rem; font-weight:800; background:linear-gradient(135deg,#a855f7,#38bdf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2;">300+</div>
     <div style="font-size:0.85rem; color:var(--vp-c-text-2,#666); margin-top:0.3rem;">深度文章</div>
   </div>
   <div style="text-align:center; padding:1.25rem 2rem; border-radius:14px; border:1px solid rgba(168,85,247,0.18); background:rgba(168,85,247,0.04); min-width:120px;">
@@ -223,16 +223,18 @@ footer: MIT 协议 | 版权所有 © 2025-至今 Clarence
 
 ### 推荐学习路径
 
-```
-基础层    Java 特性  →  JVM  →  算法  →  设计模式
-框架层    Spring  →  Spring Boot  →  Netty  →  测试
-数据层    数据库  →  缓存  →  消息队列
-分布式层  分布式理论  →  高并发  →  高可用  →  微服务
-架构层    系统架构  →  业务场景
-运维层    云原生  →  DevOps  →  工程效率  →  可观测性  →  协议体系
-新兴层    IoT  →  AI
-面试冲刺  interview/ 各方向高频题汇总速查
-```
+| 层级 | 路径 |
+|------|------|
+| 基础体系 | Java → JVM → 数据结构与算法 → 网络协议 |
+| 框架生态 | Spring → Spring Boot → Netty |
+| 数据存储 | 数据库 → 缓存 → 消息队列 |
+| 分布式架构 | 分布式理论 → 微服务 → Spring Cloud |
+| 三高架构 | 高性能 → 高并发 → 高可用 |
+| 架构设计 | 设计模式 → 系统架构 → 业务场景 |
+| 研发效能 | 测试 → DevOps → 工程效率 |
+| 运维保障 | 云原生 → 可观测性 → 安全 |
+| 垂直领域 | IoT → AI |
+| 面试冲刺 | 开发总结：各方向高频题汇总速查 |
 
 ### 推荐博客
 

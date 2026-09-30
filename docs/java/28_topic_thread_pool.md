@@ -688,7 +688,7 @@ void callWithLimit() throws InterruptedException {
 - 虚拟线程上的 `ThreadLocal` 依然可用，但虚拟线程数量巨大，在 ThreadLocal 里缓存大对象会显著放大内存占用。
 - CPU 密集型任务用虚拟线程没有收益，仍然使用大小固定的平台线程池。
 
-虚拟线程的原理见 [JVM - JIT 编译器](/jvm/7_jit)（虚拟线程一节）。Spring Boot 3.2+ 开启 `spring.threads.virtual.enabled=true` 即可让 Tomcat 和 `@Async` 使用虚拟线程，详见 [异步任务与定时任务](/spring-boot/9_async_schedule)。
+Spring Boot 3.2+ 开启 `spring.threads.virtual.enabled=true` 即可让 Tomcat 和 `@Async` 使用虚拟线程，详见 [异步任务与定时任务](/spring-boot/9_async_schedule)。
 
 ---
 

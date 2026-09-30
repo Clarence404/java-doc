@@ -1,0 +1,61 @@
+<svg viewBox="0 0 720 440" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .note  { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">Tomcat 类加载器层级（箭头指向父加载器）</text>
+
+  <!-- JVM 自带 -->
+  <rect x="140" y="40" width="440" height="60" rx="4" fill="var(--p)" fill-opacity="0.08" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="64" text-anchor="middle" class="name">Bootstrap（含 Platform）</text>
+  <text x="360" y="86" text-anchor="middle" class="desc">JDK 核心类与平台模块</text>
+
+  <rect x="140" y="130" width="440" height="60" rx="4" fill="var(--p)" fill-opacity="0.08" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="154" text-anchor="middle" class="name">System（Application）</text>
+  <text x="360" y="176" text-anchor="middle" class="desc">CLASSPATH：bin/bootstrap.jar、tomcat-juli.jar 等启动类</text>
+
+  <!-- Tomcat 自定义 -->
+  <rect x="140" y="220" width="440" height="60" rx="4" fill="var(--b)" fill-opacity="0.08" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="360" y="244" text-anchor="middle" class="name">Common</text>
+  <text x="360" y="266" text-anchor="middle" class="desc">$CATALINA_HOME/lib：Tomcat 自身与所有应用共享的类</text>
+
+  <rect x="140" y="310" width="200" height="60" rx="4" fill="var(--g)" fill-opacity="0.08" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="240" y="334" text-anchor="middle" class="name">WebApp1</text>
+  <text x="240" y="356" text-anchor="middle" class="desc">WEB-INF/classes 与 lib</text>
+
+  <rect x="380" y="310" width="200" height="60" rx="4" fill="var(--g)" fill-opacity="0.08" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="480" y="334" text-anchor="middle" class="name">WebApp2</text>
+  <text x="480" y="356" text-anchor="middle" class="desc">WEB-INF/classes 与 lib</text>
+
+  <!-- 委派箭头：子 → 父 -->
+  <line x1="360" y1="130" x2="360" y2="102" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="360" y1="220" x2="360" y2="192" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="240" y1="310" x2="240" y2="282" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="480" y1="310" x2="480" y2="282" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <text x="360" y="396" text-anchor="middle" class="note">WebApp 加载器：JDK 类仍先交给上层，其余类先查 WEB-INF，找不到再委派 Common</text>
+  <text x="360" y="416" text-anchor="middle" class="note">Catalina（服务器私有）与 Shared（应用间共享）由 server.loader / shared.loader 配置，默认为空即并入 Common</text>
+</svg>

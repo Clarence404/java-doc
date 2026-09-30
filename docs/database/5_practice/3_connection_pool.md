@@ -32,7 +32,7 @@ Spring Boot 2.x+ 默认连接池，以**极低资源占用**和**高吞吐**著�
 | `connectionTimeout` | 30000ms | 等待获取连接的超时时间，超时抛 SQLException |
 | `idleTimeout` | 600000ms | 空闲连接在池中存活最长时间（minimumIdle < maximumPoolSize 时生效）|
 | `maxLifetime` | 1800000ms | 连接最长存活时间（建议低于数据库 wait_timeout 1分钟）|
-| `keepaliveTime` | 120000ms（5.1.0 起；更早版本为 0，即禁用）| 周期性对空闲连接做保活探测，防止被防火墙/代理断开；Spring Boot 3.2+ 使用 HikariCP 5.1.x |
+| `keepaliveTime` | 120000ms（5.1.0 起；更早版本为 0，即禁用）| 周期性对空闲连接做保活探测，防止被防火墙/代理断开；Spring Boot 3.3+ 使用 HikariCP 5.1.x（3.2 及更早为 5.0.x） |
 | `connectionTestQuery` | 无 | 连接验证 SQL（JDBC4 驱动无需设置，自动使用 `isValid()`）|
 
 ### Spring Boot 配置

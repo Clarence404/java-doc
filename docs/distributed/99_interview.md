@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总分布式系统核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/7_distributed">开发总结-分布式</RouteLink>
+> 汇总分布式系统核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/8_distributed">开发总结-分布式</RouteLink>
 
 ## 一、理论基础
 
@@ -16,7 +16,7 @@
 - **Redlock 算法是什么？有什么争议？**
 - **ZooKeeper 分布式锁和 Redis 分布式锁的对比？**
 - **分布式锁有哪些常见坑？**  
-  → 详见 <RouteLink to="/distributed/2_lock">分布式锁</RouteLink>
+  → 详见 <RouteLink to="/distributed/3_lock">分布式锁</RouteLink>
 
 ## 三、分布式事务
 
@@ -25,7 +25,7 @@
 - **Saga 和 TCC 的区别？各适合什么场景？**
 - **Seata AT 模式的原理是什么？**
 - **消息最终一致性（本地消息表 / RocketMQ 事务消息）如何实现？**  
-  → 详见 <RouteLink to="/distributed/3_transaction">分布式事务</RouteLink>
+  → 详见 <RouteLink to="/distributed/4_transaction">分布式事务</RouteLink>
 
 ## 四、分布式 ID
 
@@ -33,17 +33,17 @@
 - **数据库号段模式的原理是什么？双 buffer 优化解决什么问题？**
 - **UUID 为什么不适合做数据库主键？**
 - **美团 Leaf 和百度 UidGenerator 分别解决了什么问题？**  
-  → 详见 <RouteLink to="/distributed/7_id_generator">分布式 ID</RouteLink>
+  → 详见 <RouteLink to="/distributed/8_id_generator">分布式 ID</RouteLink>
 
 ## 五、一致性哈希
 
 - **普通取模哈希有什么问题？一致性哈希如何解决？**
 - **虚拟节点的作用是什么？**
 - **Redis Cluster 是如何分片的？slot 是什么？**  
-  → 详见 <RouteLink to="/distributed/8_consistent_hashing">一致性哈希</RouteLink>
+  → 详见 <RouteLink to="/distributed/9_consistent_hashing">一致性哈希</RouteLink>
 
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/7_distributed">开发总结-分布式</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/8_distributed">开发总结-分布式</RouteLink>
 :::
