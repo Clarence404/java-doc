@@ -1,4 +1,4 @@
-# 开发总结-JVM
+# 开发总结 - JVM
 
 > 精华提炼，细节详见 [JVM 总览](/jvm/0_overview)。以 JDK 21 LTS 为基准，兼顾 JDK 8 / 17 与 25。
 

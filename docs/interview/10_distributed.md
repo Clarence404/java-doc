@@ -1,4 +1,4 @@
-# 开发总结-分布式
+# 开发总结 - 分布式
 
 > 精华提炼，细节详见 [distributed/](../distributed/2_theorem)
 

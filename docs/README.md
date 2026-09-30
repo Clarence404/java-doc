@@ -24,28 +24,40 @@ highlights:
     features:
       - title: Java 核心
         icon: coffee
-        details: 语言特性 / 集合框架 / 并发编程 / 泛型与反射，Java 开发核心高频题精选
+        details: 语言基础 / 集合 / String / 类加载 / Lambda，Java 语言高频题
         link: /interview/1_java
-      - title: 数据库
-        icon: database
-        details: MySQL 索引 / 事务 / MVCC / SQL 优化 / 分库分表，数据库高频面试题
-        link: /interview/2_db
-      - title: 缓存
-        icon: bolt
-        details: Redis 数据结构 / 持久化 / 主从集群 / 缓存穿透击穿雪崩完整解法
-        link: /interview/3_cache
+      - title: Java 并发
+        icon: code-branch
+        details: 线程池 / synchronized 与 ReentrantLock / volatile / CAS / ConcurrentHashMap / 死锁
+        link: /interview/2_concurrent
       - title: JVM
         icon: gears
-        details: 内存结构 / 垃圾回收算法 / 类加载机制 / 性能调优与 OOM 排查
-        link: /interview/4_jvm
+        details: 内存结构 / 类加载 / GC 原理与收集器 / JIT / 调优与故障排查
+        link: /interview/3_jvm
       - title: Spring 全家桶
         icon: leaf
-        details: IoC / AOP / 事务传播 / 循环依赖三级缓存 / Spring Boot 自动配置原理
+        details: IoC / Bean 生命周期 / 循环依赖 / AOP / 事务 / MVC / Spring Boot 自动配置
         link: /interview/5_spring
+      - title: 数据库
+        icon: database
+        details: MySQL 索引 / 事务与锁 / MVCC / 分库分表
+        link: /interview/7_db
+      - title: 缓存
+        icon: bolt
+        details: Redis 数据结构 / 持久化 / 集群 / 缓存三大问题 / 缓存一致性
+        link: /interview/8_cache
       - title: 消息队列
         icon: comments
-        details: Kafka / RocketMQ 架构原理，消息可靠性 / 顺序消费 / 幂等保障方案
-        link: /interview/7_mq
+        details: Kafka / RocketMQ / RabbitMQ，消息可靠性 / 顺序消费 / 幂等
+        link: /interview/9_mq
+      - title: 分布式
+        icon: globe
+        details: CAP / BASE / 共识算法 / 分布式锁 / 分布式事务 / 分布式 ID
+        link: /interview/10_distributed
+      - title: 三高架构
+        icon: gauge-high
+        details: 高性能 / 高并发 / 高可用，三页共 136 道系统设计高频题
+        link: /interview/12_high_perf
 
   - header: 基础体系
     description: 扎实根基，以不变应万变

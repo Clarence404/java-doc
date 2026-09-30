@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总 Spring / Spring Boot 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/5_spring">开发总结-Spring</RouteLink>
+> 汇总 Spring / Spring Boot 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/5_spring">开发总结 - Spring</RouteLink>
 
 ## 一、IoC 与 DI
 
@@ -46,5 +46,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/5_spring">开发总结-Spring</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/5_spring">开发总结 - Spring</RouteLink>
 :::

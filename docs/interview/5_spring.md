@@ -1,4 +1,4 @@
-# 开发总结-Spring
+# 开发总结 - Spring
 
 > 精华提炼，细节详见 [Spring](/spring/0_overview) / [Spring Boot](/spring-boot/1_spring_boot)
 

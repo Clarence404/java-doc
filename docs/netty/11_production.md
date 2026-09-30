@@ -414,4 +414,4 @@ public static void registerPendingTasks(MeterRegistry registry, EventLoopGroup g
 - 内存与停机：限制直接内存、测试环境 `PARANOID` 泄漏检测；停机先关端口、通知连接，再依次 `shutdownGracefully`。
 - 上线前对照监控指标与常见坑表逐项检查。
 
-> 回到 [模块总览](./0_overview) 查看完整学习路径，或前往 [开发总结-Netty](/interview/11_netty) 复习高频问题。
+> 回到 [模块总览](./0_overview) 查看完整学习路径，或前往 [开发总结 - Netty](/interview/6_netty) 复习高频问题。

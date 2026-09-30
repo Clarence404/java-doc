@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总 Java 基础与进阶方向的高频面试问题，完整解答见 <RouteLink to="/interview/1_java">开发总结-Java</RouteLink>
+> 汇总 Java 基础与进阶方向的高频面试问题，完整解答见 <RouteLink to="/interview/1_java">开发总结 - Java</RouteLink>
 
 ## 一、基础类型与对象
 
@@ -39,7 +39,7 @@
 - **死锁的四个必要条件是什么？如何预防？**
 - **如何用 `jstack` 排查死锁？**
 - **活锁和线程饥饿的区别？如何解决？**  
-  → 完整解答见 <RouteLink to="/interview/9_concurrent">开发总结-Java 并发</RouteLink>
+  → 完整解答见 <RouteLink to="/interview/2_concurrent">开发总结 - Java 并发</RouteLink>
 
 ## 五、泛型与函数式
 
@@ -65,5 +65,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答（含代码示例）见 <RouteLink to="/interview/1_java">开发总结-Java</RouteLink>
+以上问题的详细解答（含代码示例）见 <RouteLink to="/interview/1_java">开发总结 - Java</RouteLink>
 :::

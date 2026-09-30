@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总分布式系统核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/8_distributed">开发总结-分布式</RouteLink>
+> 汇总分布式系统核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/10_distributed">开发总结 - 分布式</RouteLink>
 
 ## 一、理论基础
 
@@ -45,5 +45,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/8_distributed">开发总结-分布式</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/10_distributed">开发总结 - 分布式</RouteLink>
 :::

@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总系统架构核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/13_architecture">开发总结-系统架构</RouteLink>
+> 汇总系统架构核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/15_architecture">开发总结 - 系统架构</RouteLink>
 
 ## 一、架构演进
 
@@ -49,5 +49,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/13_architecture">开发总结-系统架构</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/15_architecture">开发总结 - 系统架构</RouteLink>
 :::

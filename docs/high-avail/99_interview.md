@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总高可用方向的核心面试问题，按本模块文章分组；完整解答见 <RouteLink to="/interview/10_high_avail">开发总结-高可用</RouteLink>。
+> 汇总高可用方向的核心面试问题，按本模块文章分组；完整解答见 <RouteLink to="/interview/14_high_avail">开发总结 - 高可用</RouteLink>。
 
 ## 一、可用性度量
 
@@ -108,5 +108,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/10_high_avail">开发总结-高可用</RouteLink>。
+以上问题的详细解答见 <RouteLink to="/interview/14_high_avail">开发总结 - 高可用</RouteLink>。
 :::

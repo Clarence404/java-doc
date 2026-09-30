@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总 Spring Cloud 微服务组件的高频面试问题，完整解答见 <RouteLink to="/interview/6_spring_cloud">开发总结-Spring Cloud</RouteLink>
+> 汇总 Spring Cloud 微服务组件的高频面试问题，完整解答见 <RouteLink to="/interview/11_spring_cloud">开发总结 - Spring Cloud</RouteLink>
 
 ## 一、整体选型
 
@@ -43,5 +43,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/6_spring_cloud">开发总结-Spring Cloud</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/11_spring_cloud">开发总结 - Spring Cloud</RouteLink>
 :::

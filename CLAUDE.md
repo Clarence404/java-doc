@@ -98,7 +98,7 @@ docs/
 - 文件命名：`数字_主题.md`，数字前缀决定侧边栏顺序，全部使用下划线分隔
 - 模块入口：每个模块的 `0_overview.md` 为总览页（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；新增文章后同步更新导航表
 - 面试题：模块内 `99_interview.md` 只列题目清单，答案统一写在 `docs/interview/` 的对应答案页，两边互相链接
-- 分组侧边栏：篇数较多的模块（java / jvm / spring / scenario / patterns / cloud-native）在 `config.js` 中用 `getGroupedSidebar` 按编号区间分组，新增文件时编号要落在所属分组的区间内
+- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / scenario / patterns / cloud-native）在 `config.js` 中用 `getGroupedSidebar` 按编号区间分组（interview 另用 `stripPrefix` 去掉标题中的「开发总结 - 」前缀），新增文件时编号要落在所属分组的区间内
 - 面包屑名称：目录没有 README 时主题会自动生成目录页，其标题在 `config.js` 的 `DIR_TITLES` 中登记；新增模块或子目录时同步添加，否则面包屑会显示首字母大写的目录名
 - 模块边界：同一主题只保留一个主文档，其他模块用一句话概括 + 链接，不重复展开；三高模块写系统级策略，具体技术细节链接到 cache / database / messaging / jvm 等模块
 - 文件夹命名：全小写，多单词使用连字符（kebab-case），如 `cloud-native`、`spring-boot`

@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总 JVM 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/4_jvm">开发总结-JVM</RouteLink>
+> 汇总 JVM 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/3_jvm">开发总结 - JVM</RouteLink>
 
 ## 一、内存结构
 
@@ -92,5 +92,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/4_jvm">开发总结-JVM</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/3_jvm">开发总结 - JVM</RouteLink>
 :::

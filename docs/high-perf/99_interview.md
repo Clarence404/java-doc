@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总高性能方向的核心面试问题，完整解答见 <RouteLink to="/interview/10_high_avail">开发总结-三高</RouteLink>
+> 汇总高性能方向的核心面试问题，完整解答见 <RouteLink to="/interview/12_high_perf">开发总结 - 高性能</RouteLink>
 
 ## 一、指标与方法论
 
@@ -72,5 +72,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/10_high_avail">开发总结-三高</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/12_high_perf">开发总结 - 高性能</RouteLink>
 :::

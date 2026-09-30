@@ -1,6 +1,6 @@
 # 面试高频题
 
-> 汇总高并发方向的核心面试问题，完整解答见 <RouteLink to="/interview/10_high_avail">开发总结-三高</RouteLink>；锁、volatile、CAS、同步器、死锁等 Java 语言层并发题见 <RouteLink to="/java/99_interview">Java 面试高频题</RouteLink> 与 <RouteLink to="/interview/9_concurrent">开发总结-Java 并发</RouteLink>
+> 汇总高并发方向的核心面试问题，完整解答见 <RouteLink to="/interview/13_high_con">开发总结 - 高并发</RouteLink>；锁、volatile、CAS、同步器、死锁等 Java 语言层并发题见 <RouteLink to="/java/99_interview">Java 面试高频题</RouteLink> 与 <RouteLink to="/interview/2_concurrent">开发总结 - Java 并发</RouteLink>
 
 ## 一、总体设计
 
@@ -86,5 +86,5 @@
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/10_high_avail">开发总结-三高</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/13_high_con">开发总结 - 高并发</RouteLink>
 :::

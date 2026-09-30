@@ -1,4 +1,4 @@
-# 开发总结-Spring Cloud
+# 开发总结 - Spring Cloud
 
 > 精华提炼，细节详见 [Spring Cloud](/spring-cloud/0_overview) / [微服务](/microservices/0_overview)
 
@@ -179,7 +179,7 @@ Spring Cloud 2020.0 起已移除 Ribbon、Hystrix、Zuul；国内项目常用 **
 
 **生产要点**：规则默认存内存，重启丢失，需接 Nacos 数据源持久化并实现控制台推送；`blockHandler` 处理限流/熔断异常，`fallback` 处理业务异常。
 
-详见：<RouteLink to="/spring-cloud/6_alibaba">Sentinel</RouteLink> / <RouteLink to="/interview/10_high_avail">开发总结-三高</RouteLink>
+详见：<RouteLink to="/spring-cloud/6_alibaba">Sentinel</RouteLink> / <RouteLink to="/interview/14_high_avail">开发总结 - 高可用</RouteLink>
 
 ## 九、Seata AT 模式的原理？
 
@@ -262,7 +262,7 @@ Spring Cloud 2020.0 起已移除 Ribbon、Hystrix、Zuul；国内项目常用 **
 | **异步化** | 非核心链路走 MQ 解耦 | RocketMQ / Kafka |
 | **优雅上下线** | 发布时不丢请求 | 先从注册中心摘除再停机 |
 
-详见：<RouteLink to="/spring-cloud/5_service_governance">服务治理</RouteLink> / <RouteLink to="/interview/10_high_avail">开发总结-三高</RouteLink>
+详见：<RouteLink to="/spring-cloud/5_service_governance">服务治理</RouteLink> / <RouteLink to="/interview/14_high_avail">开发总结 - 高可用</RouteLink>
 
 ## 十二、Spring Cloud Stream 解决什么问题？
 

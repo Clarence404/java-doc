@@ -118,7 +118,8 @@ const navbarDropdown = [
     },
 ];
 
-function getSidebarFromDir(dirPath) {
+// stripPrefix：侧边栏去掉标题中重复的模块前缀（页面 H1 保持完整）
+function getSidebarFromDir(dirPath, {stripPrefix} = {}) {
     if (!fs.existsSync(dirPath)) {
         console.warn(`Warning: Directory ${dirPath} does not exist. Skipping sidebar generation.`);
         return [];
@@ -139,18 +140,18 @@ function getSidebarFromDir(dirPath) {
             .replace(/\\/g, '/')
             .replace('.md', '');
         return {
-            text: firstHeading,
+            text: stripPrefix && firstHeading.startsWith(stripPrefix) ? firstHeading.slice(stripPrefix.length) : firstHeading,
             link: `/${relativeLink}`,
         };
     });
 }
 
 // 按文件编号区间分组：组内文件仍自动读取目录，新增文件只要编号落在区间内即自动归组
-function getGroupedSidebar(dirPath, groups) {
+function getGroupedSidebar(dirPath, groups, options = {}) {
     const num = item => parseInt(item.link.split('/').pop().match(/^(\d+)/)?.[1] ?? '0');
     const result = [];
     const emitted = new Map();
-    for (const item of getSidebarFromDir(dirPath)) {
+    for (const item of getSidebarFromDir(dirPath, options)) {
         const n = num(item);
         const group = groups.find(g => n >= g.from && n <= g.to);
         if (!group) {
@@ -175,6 +176,15 @@ const javaSidebar = getGroupedSidebar(dirOf('java'), [
     {text: 'IO 与数据', from: 17, to: 21},
     {text: '并发', from: 22, to: 29},
 ]);
+
+const interviewSidebar = getGroupedSidebar(dirOf('interview'), [
+    {text: '基础体系', from: 1, to: 4},
+    {text: '框架生态', from: 5, to: 6},
+    {text: '数据存储', from: 7, to: 9},
+    {text: '分布式架构', from: 10, to: 11},
+    {text: '三高架构', from: 12, to: 14},
+    {text: '架构设计', from: 15, to: 15},
+], {stripPrefix: '开发总结 - '});
 
 const jvmSidebar = getGroupedSidebar(dirOf('jvm'), [
     {text: '运行时', from: 1, to: 3},
@@ -497,7 +507,7 @@ export default defineUserConfig({
         logo: '/images/logo.png',
         navbar: NAVBAR_STYLE === 'dropdown' ? navbarDropdown : navbarFlat,
         sidebar: {
-            '/interview/': getSidebarFromDir(path.resolve(__dirname, '../interview')),
+            '/interview/': interviewSidebar,
             '/java/': javaSidebar,
             '/database/': databaseSidebar,
             '/cache/': getSidebarFromDir(path.resolve(__dirname, '../cache')),

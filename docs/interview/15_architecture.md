@@ -1,4 +1,4 @@
-# 开发总结-系统架构
+# 开发总结 - 系统架构
 
 > 精华提炼，细节详见 [architecture/](../architecture/0_overview)、[microservices/](../microservices/0_overview)
 

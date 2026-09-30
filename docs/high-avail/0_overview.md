@@ -107,6 +107,6 @@
 - MySQL 复制与 Redis 集群 → [MySQL 主从复制](/database/1_mysql/9_topic_replication)、[Redis 集群](/cache/3_redis_cluster)
 - 监控告警 → [可观测性](/observability/0_overview)
 - 重试的前提 → [幂等设计](/architecture/5_idempotence)
-- 答案汇总 → [开发总结 - 三高](/interview/10_high_avail)
+- 答案汇总 → [开发总结 - 高可用](/interview/14_high_avail)
 
 > 下一篇：[可用性度量](./1_sla_slo) —— 先把"多可用才够"变成可计算的数字。
