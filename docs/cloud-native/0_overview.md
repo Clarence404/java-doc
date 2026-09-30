@@ -36,4 +36,4 @@
 
 - CI/CD 与发布策略 → [DevOps](/devops/0_overview)
 - 可观测性（日志 / 指标 / 链路追踪）→ [可观测性](/observability/0_overview)
-- 弹性扩缩容与多活容灾 → [高并发 - 水平扩展](/high-con/1_scale_out) / [高可用 - 多活与容灾](/high-avail/8_multi_active)
+- 弹性扩缩容与多活容灾 → [高并发 - 水平扩展](/high-con/2_scale_out) / [高可用 - 多活与容灾](/high-avail/9_multi_active)

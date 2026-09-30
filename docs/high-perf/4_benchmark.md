@@ -1,8 +1,12 @@
 # 基准测试（JMH）
 
-> 参考：[OpenJDK JMH](https://github.com/openjdk/jmh)、[JMH Samples](https://github.com/openjdk/jmh/tree/master/jmh-samples/src/main/java/org/openjdk/jmh/samples)
+> **本篇目标**：理解手写计时循环为什么不可信，会用 JMH 写出可靠的微基准并正确解读结果。
+>
+> **前置阅读**：[性能分析工具](./3_profilers)
 
-JMH（Java Microbenchmark Harness）是 OpenJDK 官方的微基准测试框架，由 JIT 编译器团队开发，用来可靠地测量**方法级、代码片段级**的性能差异。
+参考：[OpenJDK JMH](https://github.com/openjdk/jmh)、[JMH Samples](https://github.com/openjdk/jmh/tree/master/jmh-samples/src/main/java/org/openjdk/jmh/samples)
+
+JMH（Java Microbenchmark Harness）是 OpenJDK 项目提供的微基准测试框架，用来可靠地测量**方法级、代码片段级**的性能差异。Profiler 告诉你"哪里慢"，JMH 回答"换一种写法能快多少"。
 
 ---
 
@@ -10,20 +14,23 @@ JMH（Java Microbenchmark Harness）是 OpenJDK 官方的微基准测试框架�
 
 ### 1、朴素写法
 
+**手写 `nanoTime` 循环测出来的数字通常不可信。** 典型的反例：
+
 ```java
+@Slf4j
 public class NaiveBenchmark {
     public static void main(String[] args) {
         long start = System.nanoTime();
         for (int i = 0; i < 1_000_000; i++) {
-            String s = "a" + i;        // 结果未被使用
+            String s = "a" + i;        // 结果未被使用，可能被 JIT 整段消除
         }
         long cost = System.nanoTime() - start;
-        System.out.println("cost: " + cost / 1_000_000 + " ms");
+        log.info("cost: {} ms", cost / 1_000_000);
     }
 }
 ```
 
-这类测试的结果通常**不可信**，原因如下：
+原因如下：
 
 | 问题 | 说明 | 后果 |
 |------|------|------|
@@ -37,6 +44,8 @@ public class NaiveBenchmark {
 JIT 的分层编译与优化手段见 [JIT 即时编译](/jvm/7_jit)。
 
 ### 2、JMH 如何解决
+
+**JMH 把预热、进程隔离、结果消费和统计都做成了框架能力：**
 
 - **Warmup**：正式测量前先执行若干轮预热迭代，让 JIT 编译稳定。
 - **Fork**：每组测试在独立的 JVM 进程中运行，隔离 profile 污染。
@@ -75,6 +84,10 @@ JIT 的分层编译与优化手段见 [JIT 即时编译](/jvm/7_jit)。
 - 放在 `test` 作用域，基准代码写在 `src/test/java`，可以直接在 IDE 中通过 `main` 方法运行。
 - 独立的基准工程可用官方 archetype 生成：`mvn archetype:generate -DarchetypeGroupId=org.openjdk.jmh -DarchetypeArtifactId=jmh-java-benchmark-archetype`，打包后以 `java -jar target/benchmarks.jar` 运行。
 
+::: warning 新版 JDK 的注解处理
+JDK 23 起 javac 默认不再自动运行 classpath 上的注解处理器。若运行时报 `Unable to find the resource: /META-INF/BenchmarkList`（说明基准代码没有生成），在 `maven-compiler-plugin` 中通过 `annotationProcessorPaths` 显式声明 `jmh-generator-annprocess`，或加编译参数 `-proc:full`。
+:::
+
 ### 2、核心注解
 
 | 注解 | 作用 | 常用取值 |
@@ -96,7 +109,7 @@ JIT 的分层编译与优化手段见 [JIT 即时编译](/jvm/7_jit)。
 
 ## 三、完整示例：字符串拼接
 
-对比循环中 `+` 拼接、`StringBuilder` 默认容量与预分配容量三种写法：
+**用一个完整示例串起上面的注解**：对比循环中 `+` 拼接、`StringBuilder` 默认容量与预分配容量三种写法：
 
 ```java
 package com.example.bench;
@@ -177,10 +190,12 @@ public class StringConcatBenchmark {
 |------|------|------|
 | IDE | 直接运行 `main` 方法 | 开发中快速对比 |
 | 独立 jar | `java -jar target/benchmarks.jar StringConcat -f 2 -wi 3 -i 5` | 正式测试，结果更稳定 |
-| 附加 Profiler | `-prof gc`（分配速率）、`-prof stack`、`-prof async`（需 async-profiler） | 解释"为什么快/慢" |
+| 附加 Profiler | `-prof gc`（分配速率）、`-prof stack`、`-prof async:libPath=<libasyncProfiler.so 路径>` | 解释"为什么快/慢" |
 | 输出文件 | `-rf json -rff result.json` | 结果归档、可视化（如 JMH Visualizer） |
 
 ### 2、结果示例
+
+**解读结果时看误差区间和趋势，不看单个数字：**
 
 ```text
 Benchmark                              (size)  Mode  Cnt    Score    Error  Units
@@ -210,6 +225,8 @@ StringConcatBenchmark.plusInLoop         1000  avgt   10  812.447 ± 20.513  us/
 
 ## 五、常见陷阱
 
+**大部分错误结论都来自下面几类问题：**
+
 | 陷阱 | 错误做法 | 正确做法 |
 |------|----------|----------|
 | 死代码消除 | 计算结果不返回也不消费 | `return` 结果或 `bh.consume()` |
@@ -219,11 +236,13 @@ StringConcatBenchmark.plusInLoop         1000  avgt   10  812.447 ± 20.513  us/
 | Fork 为 0 | `@Fork(0)` 在当前 JVM 运行 | 至少 `@Fork(1)`，正式测试用 2 以上 |
 | 忽略参数规模 | 只测一个输入规模 | 用 `@Param` 覆盖小、中、大规模 |
 | 笔记本测试 | 在开启睿频、节能模式、运行其他程序的机器上测 | 固定 CPU 频率、关闭干扰进程，或在专用机器上测 |
-| 结论外推 | 微基准快 30%，就认为接口会快 30% | 用 Amdahl 定律评估，再用压测验证 |
+| 结论外推 | 微基准快 30%，就认为接口会快 30% | 按 [Amdahl 定律](./2_methodology) 乘以该方法的耗时占比，再用压测验证 |
 
 ---
 
 ## 六、JMH 与压测的分工
+
+**两者粒度不同、不能相互替代：**
 
 | 对比项 | JMH 基准测试 | 压测 |
 |--------|--------------|------|
@@ -233,4 +252,15 @@ StringConcatBenchmark.plusInLoop         1000  avgt   10  812.447 ± 20.513  us/
 | 指标 | ns/op、ops/s、分配字节数 | QPS、P99、错误率、资源使用率 |
 | 工具 | JMH | JMeter、k6、Gatling、wrk |
 
-两者不能相互替代：JMH 回答"**A 写法比 B 写法快多少**"，压测回答"**系统能扛多少流量**"。压测方法与工具见 [性能测试](/testing/7_performance_test)。
+JMH 回答"**A 写法比 B 写法快多少**"，压测回答"**系统能扛多少流量**"。压测方法与工具见 [性能测试](/testing/7_performance_test)，容量评估见 [容量评估与规划](/high-con/8_capacity_planning)。
+
+---
+
+## 小结
+
+- 手写计时循环会被 JIT 预热、死代码消除、常量折叠、Profile 污染干扰，结论不可信
+- JMH 用 Warmup、Fork、Blackhole、`@State` 解决这些问题，正式测试至少 `@Fork(2)`
+- 解读结果看误差区间是否重叠、看随 `@Param` 规模变化的趋势，用 `-prof gc` 解释差异
+- 微基准收益要按耗时占比折算，系统级结论以压测为准
+
+> 下一篇：[JVM 层性能策略](./5_jvm_tuning) —— 从代码片段上升到运行时：收集器、分配速率、容器内存与 JIT 预热。

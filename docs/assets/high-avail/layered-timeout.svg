@@ -1,0 +1,58 @@
+<svg viewBox="0 0 900 234" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="234" rx="8" fill="var(--bg)"/>
+
+  <text x="450" y="30" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">分层超时：越靠近用户越长，越靠近数据越短</text>
+
+  <rect x="28" y="56" width="140" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="98" y="80" text-anchor="middle" font-weight="600" fill="var(--fg)">客户端</text>
+  <text x="98" y="104" text-anchor="middle" font-size="12" fill="var(--p)">等待 10s</text>
+
+  <line x1="168" y1="88" x2="202" y2="88" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="204" y="56" width="140" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="274" y="80" text-anchor="middle" font-weight="600" fill="var(--fg)">Nginx</text>
+  <text x="274" y="104" text-anchor="middle" font-size="12" fill="var(--b)">调网关 8s</text>
+
+  <line x1="344" y1="88" x2="378" y2="88" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="380" y="56" width="140" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="450" y="80" text-anchor="middle" font-weight="600" fill="var(--fg)">网关</text>
+  <text x="450" y="104" text-anchor="middle" font-size="12" fill="var(--b)">调订单 3s，重试 1 次</text>
+
+  <line x1="520" y1="88" x2="554" y2="88" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="556" y="56" width="140" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="626" y="80" text-anchor="middle" font-weight="600" fill="var(--fg)">订单服务</text>
+  <text x="626" y="104" text-anchor="middle" font-size="12" fill="var(--g)">调库存 1s，不重试</text>
+
+  <line x1="696" y1="88" x2="730" y2="88" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="732" y="56" width="140" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="802" y="80" text-anchor="middle" font-weight="600" fill="var(--fg)">库存服务</text>
+  <text x="802" y="104" text-anchor="middle" font-size="12" fill="var(--g)">查 DB 500ms</text>
+
+  <rect x="28" y="150" width="844" height="64" rx="8" fill="var(--card)" stroke="var(--border)"/>
+  <text x="450" y="174" text-anchor="middle" font-size="12" fill="var(--fg)">约束：上游超时 ≥ 下游超时 ×（重试次数 + 1）+ 退避时间 + 自身处理时间</text>
+  <text x="450" y="198" text-anchor="middle" font-size="12" fill="var(--muted)">网关 3s × 2 + 退避 0.2s ≈ 6.2s &lt; Nginx 8s &lt; 客户端 10s；订单处理 ≈ 库存 1s + 自身耗时 &lt; 3s</text>
+</svg>

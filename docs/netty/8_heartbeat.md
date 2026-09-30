@@ -413,7 +413,7 @@ public class SessionCleanupHandler extends ChannelInboundHandlerAdapter {
 ```
 
 ::: tip 多节点部署
-会话表只存在于本机内存，集群中用户可能连在任意节点上。跨节点推送的方案见 [WebSocket → 集群部署与消息推送](./9_websocket)，无状态化思路见 [水平扩展与无状态化](/high-con/1_scale_out)。
+会话表只存在于本机内存，集群中用户可能连在任意节点上。跨节点推送的方案见 [WebSocket → 集群部署与消息推送](./9_websocket)，无状态化思路见 [水平扩展与无状态化](/high-con/2_scale_out)。
 :::
 
 ### 3、单机能撑多少连接

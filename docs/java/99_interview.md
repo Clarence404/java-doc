@@ -25,11 +25,21 @@
 
 ## 四、并发基础
 
-- **synchronized 和 ReentrantLock 的区别？**  
-  → 详见 <RouteLink to="/java/25_topic_lock">Java 锁专题</RouteLink>
-- **volatile 的作用？为什么不能保证原子性？**
+- **synchronized 和 ReentrantLock 的区别？**
+- **synchronized 的锁升级过程（偏向锁 → 轻量级锁 → 重量级锁）？JDK 15 之后偏向锁有什么变化？**  
+  → 详见 <RouteLink to="/java/24_topic_synchronized">专项 - synchronized</RouteLink> / <RouteLink to="/java/25_topic_lock">专项 - Lock 锁</RouteLink>
+- **volatile 的作用？为什么不能保证原子性？**  
+  → 详见 <RouteLink to="/java/22_topic_jmm">专项 - JMM 内存模型</RouteLink>
+- **CAS 是什么？ABA 问题如何解决？**  
+  → 详见 <RouteLink to="/java/26_topic_atomic">专项 - Atomic 原子类</RouteLink>
 - **ConcurrentHashMap 在 JDK 7 和 JDK 8 中有何不同？**  
-  → 详见 <RouteLink to="/java/0_overview">Java 基础</RouteLink>
+  → 详见 <RouteLink to="/java/21_topic_collection">专项 - 集合框架</RouteLink>
+- **`CountDownLatch`、`CyclicBarrier`、`Semaphore` 的区别和应用场景？**  
+  → 详见 <RouteLink to="/java/27_topic_juc_tools">专项 - 并发工具类</RouteLink>
+- **死锁的四个必要条件是什么？如何预防？**
+- **如何用 `jstack` 排查死锁？**
+- **活锁和线程饥饿的区别？如何解决？**  
+  → 完整解答见 <RouteLink to="/interview/9_concurrent">开发总结-Java 并发</RouteLink>
 
 ## 五、泛型与函数式
 

@@ -168,11 +168,13 @@ public class RateLimiterConfig {
     }
 
     // 按用户 ID 限流（需先经过鉴权 Filter 注入 X-User-Id）
+    // 取不到时返回空 Mono，由 deny-empty-key（默认 true）直接拒绝；
+    // 不要兜底成 "anonymous" 之类的固定值，否则所有匿名请求会共用一个令牌桶
     @Bean
     public KeyResolver userKeyResolver() {
         return exchange -> Mono.justOrEmpty(
             exchange.getRequest().getHeaders().getFirst("X-User-Id")
-        ).defaultIfEmpty("anonymous");
+        );
     }
 }
 ```

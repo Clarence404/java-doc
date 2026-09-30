@@ -121,4 +121,4 @@ if (!isNew) return;  // 已处理，跳过
 | [MQ 选型指南](./4_other_mq) | 场景决策表、关键维度速查、Pulsar、常见误区 |
 | [面试高频题](./99_interview) | 消息队列方向题目清单 |
 
-> 异步削峰的系统设计见 [高并发 - 异步与削峰](/high-con/3_async_peak_shaving)；Spring Boot 集成见 [中间件集成](/spring-boot/5_middleware)。
+> 异步削峰的系统设计见 [高并发 - 异步与削峰](/high-con/4_async_peak_shaving)；Spring Boot 集成见 [中间件集成](/spring-boot/5_middleware)。

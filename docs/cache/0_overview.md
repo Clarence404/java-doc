@@ -29,7 +29,7 @@
 
 ## 三、关联模块
 
-- 缓存架构设计（多级缓存、预热、热点探测）→ [高并发 - 缓存架构设计](/high-con/2_cache_architecture)
-- 热点 Key / 热点行治理 → [高并发 - 热点问题](/high-con/5_hotspot)
+- 缓存架构设计（多级缓存、预热、热点探测）→ [高并发 - 缓存架构设计](/high-con/3_cache_architecture)
+- 热点 Key / 热点行治理 → [高并发 - 热点问题](/high-con/6_hotspot)
 - 分布式锁（Redis / Redlock / ZooKeeper 对比）→ [分布式锁](/distributed/3_lock)
 - Spring Cache 抽象 → [Spring Cache](/spring/5_cache)

@@ -1,0 +1,45 @@
+<svg viewBox="0 0 680 194" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .win { fill:var(--card); stroke:var(--b); stroke-width:1.5; }
+    .burst { fill:var(--r); fill-opacity:0.18; stroke:var(--r); stroke-width:1.2; }
+    .note { fill:var(--bg); stroke:var(--r); stroke-width:1.2; }
+    .label { fill:var(--fg); font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:12px; }
+    .hot { fill:var(--r); font-weight:600; font-size:12px; }
+  </style>
+
+  <text x="340" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">固定窗口：窗口边界的突发问题（阈值 100 次/秒）</text>
+
+  <rect class="win" x="20" y="50" width="200" height="60" rx="8"/>
+  <text class="label" x="100" y="74" text-anchor="middle">窗口 1：0 ~ 1s</text>
+  <text class="sub" x="100" y="96" text-anchor="middle">计数 ≤ 100，放行</text>
+  <rect class="burst" x="176" y="58" width="36" height="44" rx="4"/>
+  <text class="hot" x="194" y="86" text-anchor="middle">100</text>
+
+  <rect class="win" x="240" y="50" width="200" height="60" rx="8"/>
+  <rect class="burst" x="248" y="58" width="36" height="44" rx="4"/>
+  <text class="hot" x="266" y="86" text-anchor="middle">100</text>
+  <text class="label" x="360" y="74" text-anchor="middle">窗口 2：1 ~ 2s</text>
+  <text class="sub" x="360" y="96" text-anchor="middle">计数 ≤ 100，放行</text>
+
+  <rect class="win" x="460" y="50" width="200" height="60" rx="8"/>
+  <text class="label" x="560" y="74" text-anchor="middle">窗口 3：2 ~ 3s</text>
+  <text class="sub" x="560" y="96" text-anchor="middle">计数清零重新累计</text>
+
+  <rect class="note" x="20" y="130" width="640" height="44" rx="8"/>
+  <text class="hot" x="340" y="157" text-anchor="middle">0.9 ~ 1.0s 放行 100 次 + 1.0 ~ 1.1s 放行 100 次 → 200ms 内通过 200 次，是阈值的 2 倍</text>
+</svg>

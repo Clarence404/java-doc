@@ -347,7 +347,7 @@ public class NettyServerLifecycle implements SmartLifecycle {
 ```
 
 ::: tip
-`SmartLifecycle` 默认 `isAutoStartup()` 为 `true`，Spring 容器刷新完成后自动启动。与 Kubernetes 配合时，还要让 `preStop` 等待时间、`terminationGracePeriodSeconds` 覆盖上述停机耗时，详见 [优雅上下线与变更](/high-avail/9_graceful_release)。
+`SmartLifecycle` 默认 `isAutoStartup()` 为 `true`，Spring 容器刷新完成后自动启动。与 Kubernetes 配合时，还要让 `preStop` 等待时间、`terminationGracePeriodSeconds` 覆盖上述停机耗时，详见 [优雅上下线与变更](/high-avail/8_graceful_release)。
 :::
 
 ---

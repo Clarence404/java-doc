@@ -1,0 +1,55 @@
+<svg viewBox="0 0 680 286" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .note { fill:var(--bg); stroke:var(--y); stroke-width:1.2; }
+    .label { fill:var(--fg); font-weight:600; font-size:14px; }
+    .sub { fill:var(--muted); font-size:12px; }
+    .warn { fill:var(--y); font-weight:600; font-size:12px; }
+    .arrow { stroke:var(--muted); stroke-width:1.6; fill:none; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0, 7 3.5, 0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">令牌桶：匀速放令牌，按令牌放行请求</text>
+
+  <rect class="box" x="200" y="46" width="280" height="40" rx="8" stroke="var(--g)"/>
+  <text class="sub" x="340" y="71" text-anchor="middle">令牌生成器：以固定速率 r 个/秒 放入令牌</text>
+
+  <line class="arrow" x1="340" y1="86" x2="340" y2="124" marker-end="url(#arr)"/>
+
+  <rect class="box" x="20" y="126" width="130" height="60" rx="8" stroke="var(--p)"/>
+  <text class="label" x="85" y="150" text-anchor="middle">请求到达</text>
+  <text class="sub" x="85" y="172" text-anchor="middle">每次取 1 个令牌</text>
+
+  <line class="arrow" x1="150" y1="156" x2="198" y2="156" marker-end="url(#arr)"/>
+
+  <rect class="box" x="200" y="126" width="280" height="60" rx="8" stroke="var(--b)"/>
+  <text class="label" x="340" y="150" text-anchor="middle">令牌桶（容量 b）</text>
+  <text class="sub" x="340" y="172" text-anchor="middle">桶满后新生成的令牌被丢弃</text>
+
+  <line class="arrow" x1="480" y1="156" x2="528" y2="156" marker-end="url(#arr)"/>
+
+  <rect class="box" x="530" y="126" width="130" height="60" rx="8" stroke="var(--g)"/>
+  <text class="label" x="595" y="150" text-anchor="middle">有令牌：放行</text>
+  <text class="sub" x="595" y="172" text-anchor="middle">无令牌：拒绝或等待</text>
+
+  <rect class="note" x="20" y="226" width="640" height="40" rx="8"/>
+  <text class="warn" x="340" y="251" text-anchor="middle">允许突发：空闲时桶内攒满 b 个令牌，可瞬间放行 b 个请求；长期平均速率仍为 r</text>
+</svg>

@@ -28,4 +28,4 @@ Spring Boot 模块从启动流程与自动配置原理出发，覆盖 Web 开发
 
 - Spring Framework（IoC / AOP / 事务 / MVC）→ [Spring](/spring/0_overview)
 - 微服务组件 → [Spring Cloud](/spring-cloud/0_overview)
-- 优雅停机与服务预热 → [高可用 - 优雅上下线与变更](/high-avail/9_graceful_release)
+- 优雅停机与服务预热 → [高可用 - 优雅上下线与变更](/high-avail/8_graceful_release)

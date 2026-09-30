@@ -1,0 +1,54 @@
+<svg viewBox="0 0 680 350" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="680" height="350" rx="8" fill="var(--bg)"/>
+
+  <text x="340" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">优雅上下线流程</text>
+  <text x="180" y="62" text-anchor="middle" font-weight="600" fill="var(--g)">优雅上线（预热）</text>
+  <text x="500" y="62" text-anchor="middle" font-weight="600" fill="var(--r)">优雅下线（排水）</text>
+
+  <!-- 上线 -->
+  <rect x="40" y="80" width="280" height="40" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="180" y="105" text-anchor="middle" font-size="12" fill="var(--fg)">启动：初始化连接池、加载热点缓存</text>
+  <line x1="180" y1="120" x2="180" y2="148" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="150" width="280" height="40" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="180" y="175" text-anchor="middle" font-size="12" fill="var(--fg)">预热：调用核心路径，促进 JIT 编译</text>
+  <line x1="180" y1="190" x2="180" y2="218" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="220" width="280" height="40" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="180" y="245" text-anchor="middle" font-size="12" fill="var(--fg)">就绪：Readiness 通过 / 注册到注册中心</text>
+  <line x1="180" y1="260" x2="180" y2="288" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="290" width="280" height="40" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="180" y="315" text-anchor="middle" font-size="12" fill="var(--fg)">放量：权重随运行时长逐步升到 100%</text>
+
+  <!-- 下线 -->
+  <rect x="360" y="80" width="280" height="40" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="500" y="105" text-anchor="middle" font-size="12" fill="var(--fg)">从注册中心注销 / 摘除 Endpoints</text>
+  <line x1="500" y1="120" x2="500" y2="148" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="360" y="150" width="280" height="40" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="500" y="175" text-anchor="middle" font-size="12" fill="var(--fg)">等待调用方刷新实例列表（10 ~ 20s）</text>
+  <line x1="500" y1="190" x2="500" y2="218" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="360" y="220" width="280" height="40" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="500" y="245" text-anchor="middle" font-size="12" fill="var(--fg)">Web 容器停止接收，处理完在途请求</text>
+  <line x1="500" y1="260" x2="500" y2="288" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="360" y="290" width="280" height="40" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="500" y="315" text-anchor="middle" font-size="12" fill="var(--fg)">停止消费与定时任务，释放资源后退出</text>
+</svg>

@@ -84,7 +84,8 @@ spring:
 ### 绑定表（避免跨分片 JOIN）
 
 ```yaml
-# t_order 和 t_order_item 使用相同分片键 order_id，保证在同一分片
+# t_order 与 t_order_item 的分片规则必须完全一致（分库键 user_id、分表键 order_id），
+# 因此 t_order_item 也要冗余 user_id 列，关联查询才能落在同一分片
 sharding:
   binding-tables:
     - t_order, t_order_item
@@ -161,27 +162,13 @@ Snowflake 结构：
 
 ## 七、分库分表核心问题
 
-### 1、分片键选择
+分片键选择、分片算法对比、非分片键查询、跨分片分页与聚合、平滑扩容流程等策略层问题统一见 [高并发 - 数据层扩展](/high-con/5_data_scaling)，本节只列 ShardingSphere 中的对应能力。
 
-| 原则 | 说明 |
-|------|------|
-| 散列均匀 | 避免数据热点（如不要用时间戳做分片键）|
-| 查询必带 | 核心查询 WHERE 条件必须包含分片键，否则全路由 |
-| 不可变 | 分片键一旦写入不能修改（改了需数据迁移）|
-| 业务语义 | 优先选 user_id、tenant_id 等业务核心维度 |
+### 1、跨分片查询的执行方式
 
-### 2、跨分片查询
+ShardingSphere 对跨分片的 `ORDER BY + LIMIT` 会在每个分片各取前 N 条、在内存中归并后再取 TOP N，分片越多越慢；深分页应改为游标分页（`WHERE id > ? ORDER BY id LIMIT 10`）。
 
-```sql
--- 跨分片 ORDER BY + LIMIT：ShardingSphere 会在每个分片各取 N 条，内存合并后再取 TOP N
--- 性能差，分片越多越慢
-SELECT * FROM t_order ORDER BY created_at DESC LIMIT 10000, 10;  -- ❌ 深分页跨分片
-
--- 解决方案：游标翻页，不用 OFFSET
-SELECT * FROM t_order WHERE id > :last_id ORDER BY id LIMIT 10;  -- ✅
-```
-
-### 3、分布式事务
+### 2、分布式事务
 
 ```java
 // 集成 Seata AT 模式
@@ -194,7 +181,7 @@ public void placeOrder(OrderDTO dto) {
 }
 ```
 
-### 4、数据迁移（5.x 内置工具）
+### 3、数据迁移（5.x 内置工具）
 
 ```sql
 -- ShardingSphere DistSQL

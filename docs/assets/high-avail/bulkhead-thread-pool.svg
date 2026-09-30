@@ -1,0 +1,75 @@
+<svg viewBox="0 0 680 354" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="680" height="354" rx="8" fill="var(--bg)"/>
+
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">线程池隔离：每个依赖独占一组线程</text>
+
+  <!-- Web 容器线程 -->
+  <rect x="40" y="44" width="600" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="340" y="68" text-anchor="middle" font-weight="600" fill="var(--fg)">Web 容器线程（Tomcat）</text>
+  <text x="340" y="90" text-anchor="middle" font-size="12" fill="var(--muted)">把下游调用提交到对应的隔离池，自身不被下游拖住</text>
+
+  <line x1="180" y1="104" x2="180" y2="138" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="500" y1="104" x2="500" y2="138" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 下游 A 线程池 -->
+  <rect x="40" y="140" width="280" height="90" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="180" y="164" text-anchor="middle" font-weight="600" fill="var(--fg)">下游 A 专用线程池（10 线程）</text>
+  <text x="180" y="188" text-anchor="middle" font-size="12" fill="var(--r)">已被慢调用占满 → 新请求快速拒绝</text>
+  <rect x="64" y="200" width="16" height="12" rx="2" fill="var(--r)"/>
+  <rect x="88" y="200" width="16" height="12" rx="2" fill="var(--r)"/>
+  <rect x="112" y="200" width="16" height="12" rx="2" fill="var(--r)"/>
+  <rect x="136" y="200" width="16" height="12" rx="2" fill="var(--r)"/>
+  <rect x="160" y="200" width="16" height="12" rx="2" fill="var(--r)"/>
+  <rect x="184" y="200" width="16" height="12" rx="2" fill="var(--r)"/>
+  <rect x="208" y="200" width="16" height="12" rx="2" fill="var(--r)"/>
+  <rect x="232" y="200" width="16" height="12" rx="2" fill="var(--r)"/>
+  <rect x="256" y="200" width="16" height="12" rx="2" fill="var(--r)"/>
+  <rect x="280" y="200" width="16" height="12" rx="2" fill="var(--r)"/>
+
+  <!-- 下游 B 线程池 -->
+  <rect x="360" y="140" width="280" height="90" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="500" y="164" text-anchor="middle" font-weight="600" fill="var(--fg)">下游 B 专用线程池（10 线程）</text>
+  <text x="500" y="188" text-anchor="middle" font-size="12" fill="var(--g)">仅 3 个线程忙碌，照常处理</text>
+  <rect x="384" y="200" width="16" height="12" rx="2" fill="var(--g)"/>
+  <rect x="408" y="200" width="16" height="12" rx="2" fill="var(--g)"/>
+  <rect x="432" y="200" width="16" height="12" rx="2" fill="var(--g)"/>
+  <rect x="456" y="200" width="16" height="12" rx="2" fill="none" stroke="var(--border)"/>
+  <rect x="480" y="200" width="16" height="12" rx="2" fill="none" stroke="var(--border)"/>
+  <rect x="504" y="200" width="16" height="12" rx="2" fill="none" stroke="var(--border)"/>
+  <rect x="528" y="200" width="16" height="12" rx="2" fill="none" stroke="var(--border)"/>
+  <rect x="552" y="200" width="16" height="12" rx="2" fill="none" stroke="var(--border)"/>
+  <rect x="576" y="200" width="16" height="12" rx="2" fill="none" stroke="var(--border)"/>
+  <rect x="600" y="200" width="16" height="12" rx="2" fill="none" stroke="var(--border)"/>
+
+  <line x1="180" y1="230" x2="180" y2="264" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="500" y1="230" x2="500" y2="264" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 下游服务 -->
+  <rect x="40" y="266" width="280" height="44" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="180" y="293" text-anchor="middle" fill="var(--r)">服务 A（故障 / 响应慢）</text>
+  <rect x="360" y="266" width="280" height="44" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="500" y="293" text-anchor="middle" fill="var(--g)">服务 B（正常）</text>
+
+  <text x="340" y="334" text-anchor="middle" font-size="12" fill="var(--muted)">A 的线程耗尽只影响调用 A 的请求，调用 B 的请求仍有线程可用</text>
+</svg>

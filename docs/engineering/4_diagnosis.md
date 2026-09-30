@@ -119,4 +119,4 @@ thread -b                            # 找出阻塞其他线程最多的线程�
 
 - **JDK 自带工具**（jps / jstack / jmap / jstat / jinfo / MAT / VisualVM / JFR / GC 日志分析）→ [jvm/8_monitoring_tools](../jvm/8_monitoring_tools)
 - **按故障类型排查**（各类 OOM / StackOverflowError / CPU 高 / 死锁 / 类加载失败 / 速查表）→ [jvm/9_troubleshooting](../jvm/9_troubleshooting)
-- **Profiler**（JProfiler / async-profiler 火焰图）→ [high-perf/9_profilers](../high-perf/9_profilers)
+- **Profiler**（JProfiler / async-profiler 火焰图）→ [high-perf/3_profilers](../high-perf/3_profilers)

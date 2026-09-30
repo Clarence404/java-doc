@@ -1,7 +1,10 @@
 # 代码级优化
 
-> 代码级优化的前提是**已经用 Profiler 确认热点在这里**（见 [性能分析工具](/high-perf/9_profilers)）。以下手段在热点路径（高频调用、大循环、核心接口）上收益明显，在冷代码上优先保证可读性。
-> 优化效果建议用 [JMH](/high-perf/3_benchmark) 验证。
+> **本篇目标**：掌握热点路径上最常见的代码级优化手段，知道哪些值得改、哪些只是徒增复杂度。
+>
+> **前置阅读**：[JVM 层性能策略](./5_jvm_tuning)
+
+代码级优化的前提是**先用 Profiler 确认热点就在这里**（见 [性能分析工具](./3_profilers)）。以下手段在热点路径（高频调用、大循环、核心接口）上收益明显，在冷代码上优先保证可读性；优化效果用 [基准测试（JMH）](./4_benchmark) 验证。
 
 ---
 
@@ -41,7 +44,7 @@ public String toJson(Object obj) throws JsonProcessingException {
 
 ### 2、不要自作聪明地做对象池
 
-现代 JVM 分配小对象极快（TLAB 上指针碰撞），短命对象在年轻代回收几乎零成本。**只有创建代价高的资源（连接、线程、大缓冲区）才值得池化**，见 [池化技术](/high-perf/5_pooling)。
+现代 JVM 分配小对象极快（TLAB 上指针碰撞），短命对象在年轻代回收几乎零成本。**只有创建代价高的资源（连接、线程、大缓冲区）才值得池化**，见 [池化技术](./7_pooling)。
 
 ---
 
@@ -93,7 +96,10 @@ String joined = String.join(",", columns);
 | 循环内拼接 | `StringBuilder`，能估算长度时预分配 |
 | 按分隔符连接集合 | `String.join` / `Collectors.joining` |
 | 单字符分割 | `split(",")` 单字符非正则元字符有快速路径；复杂分隔符用预编译 `Pattern` |
-| 大量重复字符串（如枚举值、状态码） | 考虑 `intern()` 或 G1 的 `-XX:+UseStringDeduplication` |
+| 大量重复字符串（如枚举值、状态码） | 优先在业务层复用常量或枚举；JVM 层可开启 `-XX:+UseStringDeduplication`；`intern()` 慎用 |
+
+- `-XX:+UseStringDeduplication` 最早只支持 G1，JDK 18 起 Serial、Parallel、ZGC 等收集器也支持；它只让内容相同的 String **共享底层 `byte[]`**，String 对象本身并不合并，`==` 结果不变。
+- `intern()` 会把字符串放进 JVM 全局 StringTable，数量大时哈希冲突和 GC 扫描开销明显，且容易误用于用户输入导致表膨胀；确需规范化时更推荐应用层的 `Map` / Guava `Interner`，范围可控。
 
 字符串的内部实现（Compact Strings、常量池）见 [String 专题](/java/11_topic_string)。
 
@@ -176,7 +182,8 @@ public boolean isNumber(String s) {
     if (s == null || s.isEmpty()) {
         return false;
     }
-    int start = s.charAt(0) == '-' ? 1 : 0;
+    char first = s.charAt(0);
+    int start = (first == '-' || first == '+') ? 1 : 0;   // 与 Long.parseLong 一致，允许正负号前缀
     if (start == s.length()) {
         return false;
     }
@@ -270,3 +277,15 @@ for (Order o : orders) {
 | 异常 | 是否用异常做流程控制 |
 | 日志 | 是否使用占位符；昂贵参数是否有级别判断；是否使用异步 Appender |
 | 算法 | 是否存在嵌套循环查找（O(n²)），可否用 `Map` 索引降为 O(n) |
+
+---
+
+## 小结
+
+- 先定位后优化：只在 Profiler 确认的热点路径上动手，冷代码优先可读性
+- 线程安全的昂贵对象（`Pattern`、`ObjectMapper`、`DateTimeFormatter`）作为常量复用；普通小对象不要池化
+- 集合按预期大小预分配，循环内用 `StringBuilder`，大循环避免装箱
+- 缩小临界区、把 IO 移出锁；不要用异常做流程控制；日志用占位符 + 异步 Appender
+- 每项改动都用 JMH 或压测验证收益
+
+> 下一篇：[池化技术](./7_pooling) —— 连接、线程等昂贵资源如何复用，池子为什么不是越大越好。

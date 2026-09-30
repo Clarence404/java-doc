@@ -173,7 +173,7 @@ public String breakerFallback(RemoteCallException e, String param) {
 }
 ```
 
-> 生产环境更推荐使用 Resilience4j（功能更完整）。详见 → [高可用：熔断降级](/high-avail/4_circuit_breaking)
+> 生产环境更推荐使用 Resilience4j（功能更完整）。详见 → [高可用：熔断降级](/high-avail/5_circuit_breaking)
 
 ---
 

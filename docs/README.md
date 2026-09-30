@@ -124,8 +124,12 @@ highlights:
         link: /microservices/0_overview
 
   - header: 三高架构
-    description: 高并发 · 高可用 · 高性能，系统级设计策略
+    description: 高性能 · 高并发 · 高可用，系统级设计策略
     features:
+      - title: 高性能
+        icon: gauge-high
+        details: 性能指标 / 分析方法论 / JMH 基准测试 / 池化与异步批量 / IO 与数据库优化 / Profiler
+        link: /high-perf/0_overview
       - title: 高并发
         icon: fire
         details: 水平扩展 / 缓存架构 / 异步削峰 / 数据层扩展 / 热点治理 / 容量规划
@@ -134,10 +138,6 @@ highlights:
         icon: shield-halved
         details: SLA 与错误预算 / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线 / 混沌工程
         link: /high-avail/0_overview
-      - title: 高性能
-        icon: gauge-high
-        details: 性能指标 / 分析方法论 / JMH 基准测试 / 池化与异步批量 / IO 与数据库优化 / Profiler
-        link: /high-perf/0_overview
 
   - header: 架构设计
     description: 系统设计方法论 · DDD · 业务场景落地

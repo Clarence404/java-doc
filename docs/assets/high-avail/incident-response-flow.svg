@@ -1,0 +1,66 @@
+<svg viewBox="0 0 680 192" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .span { fill:var(--bg); stroke-width:1.2; }
+    .label { fill:var(--fg); font-weight:600; font-size:14px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .tag { font-weight:600; font-size:12px; }
+    .arrow { stroke:var(--muted); stroke-width:1.6; fill:none; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0, 7 3.5, 0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">故障应急五步：先恢复业务，再追查根因</text>
+
+  <rect class="box" x="12" y="46" width="104" height="60" rx="8" stroke="var(--y)"/>
+  <text class="label" x="64" y="70" text-anchor="middle">发现</text>
+  <text class="sub" x="64" y="92" text-anchor="middle">告警 / 巡检 / 客诉</text>
+
+  <line class="arrow" x1="116" y1="76" x2="148" y2="76" marker-end="url(#arr)"/>
+
+  <rect class="box" x="150" y="46" width="104" height="60" rx="8" stroke="var(--p)"/>
+  <text class="label" x="202" y="70" text-anchor="middle">响应</text>
+  <text class="sub" x="202" y="92" text-anchor="middle">定级、拉群、指挥</text>
+
+  <line class="arrow" x1="254" y1="76" x2="286" y2="76" marker-end="url(#arr)"/>
+
+  <rect class="box" x="288" y="46" width="104" height="60" rx="8" stroke="var(--r)"/>
+  <text class="label" x="340" y="70" text-anchor="middle">止血</text>
+  <text class="sub" x="340" y="92" text-anchor="middle">回滚、切流、降级</text>
+
+  <line class="arrow" x1="392" y1="76" x2="424" y2="76" marker-end="url(#arr)"/>
+
+  <rect class="box" x="426" y="46" width="104" height="60" rx="8" stroke="var(--b)"/>
+  <text class="label" x="478" y="70" text-anchor="middle">恢复</text>
+  <text class="sub" x="478" y="92" text-anchor="middle">指标回稳、撤预案</text>
+
+  <line class="arrow" x1="530" y1="76" x2="562" y2="76" marker-end="url(#arr)"/>
+
+  <rect class="box" x="564" y="46" width="104" height="60" rx="8" stroke="var(--g)"/>
+  <text class="label" x="616" y="70" text-anchor="middle">复盘</text>
+  <text class="sub" x="616" y="92" text-anchor="middle">根因与改进项</text>
+
+  <rect class="span" x="12" y="136" width="104" height="36" rx="6" stroke="var(--y)"/>
+  <text class="tag" x="64" y="159" text-anchor="middle" fill="var(--y)">MTTD</text>
+  <rect class="span" x="150" y="136" width="380" height="36" rx="6" stroke="var(--r)"/>
+  <text class="tag" x="340" y="159" text-anchor="middle" fill="var(--r)">MTTR：从发现到恢复，止血越快越短</text>
+  <rect class="span" x="564" y="136" width="104" height="36" rx="6" stroke="var(--g)"/>
+  <text class="tag" x="616" y="159" text-anchor="middle" fill="var(--g)">防止复发</text>
+</svg>

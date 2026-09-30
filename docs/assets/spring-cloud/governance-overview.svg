@@ -1,0 +1,49 @@
+<svg viewBox="0 0 680 456" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="680" height="456" rx="8" fill="var(--bg)"/>
+
+  <text x="340" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">服务治理：一次调用经过的保护环节</text>
+
+  <rect x="110" y="46" width="460" height="40" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="340" y="72" text-anchor="middle" fill="var(--fg)">流量入口（网关）：鉴权、路由、入口限流</text>
+  <line x1="340" y1="86" x2="340" y2="114" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="110" y="116" width="460" height="40" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="340" y="142" text-anchor="middle" fill="var(--fg)">负载均衡：把请求分发到健康实例</text>
+  <line x1="340" y1="156" x2="340" y2="184" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="110" y="186" width="460" height="40" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="340" y="212" text-anchor="middle" fill="var(--fg)">限流：超出阈值直接拒绝，保护服务不被压垮</text>
+  <line x1="340" y1="226" x2="340" y2="254" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="110" y="256" width="460" height="40" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="340" y="282" text-anchor="middle" fill="var(--fg)">熔断降级：下游持续失败时快速失败并兜底，防止雪崩</text>
+  <line x1="340" y1="296" x2="340" y2="324" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="110" y="326" width="460" height="40" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="340" y="352" text-anchor="middle" fill="var(--fg)">超时与重试：临时故障有限重试，永久故障快速失败</text>
+  <line x1="340" y1="366" x2="340" y2="394" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="110" y="396" width="460" height="40" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="340" y="422" text-anchor="middle" fill="var(--fg)">服务实例：健康检查、优雅上下线</text>
+</svg>

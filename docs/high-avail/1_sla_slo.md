@@ -1,8 +1,10 @@
 # 可用性度量
 
+> **本篇目标**：用 SLI / SLO / 错误预算把"多可用才够"变成可计算、可告警、可约束发布的数字，并会估算串并联系统的可用率。
+
 参考链接：[Google SRE Book - Service Level Objectives](https://sre.google/sre-book/service-level-objectives/) · [SRE Workbook - Alerting on SLOs](https://sre.google/workbook/alerting-on-slos/)
 
-> 相关：[指标监控](/observability/2_metrics) · [告警体系](/observability/4_alerting)
+相关：[指标监控](/observability/2_metrics) · [告警体系](/observability/4_alerting)
 
 高可用首先是一个**可度量**的目标。没有度量，"系统很稳定"只是感觉；有了 SLO 和错误预算，稳定性投入与迭代速度之间才有可量化的取舍依据。
 
@@ -123,7 +125,7 @@ groups:
 
 **可用率 = MTBF / (MTBF + MTTR)**。例如平均 30 天（720 小时）出一次故障、每次恢复 1 小时，可用率 = 720 / 721 ≈ 99.86%。
 
-提升可用性有两条路：让故障更少（提高 MTBF），或让恢复更快（降低 MTTR）。工程上 **降低 MTTR 往往更划算**——故障无法杜绝，但"先止血后定位"（切流、回滚、降级）能把分钟级恢复变为常态。
+提升可用性有两条路：让故障更少（提高 MTBF），或让恢复更快（降低 MTTR）。工程上 **降低 MTTR 往往更划算**——故障无法杜绝，但"先止血后定位"（切流、回滚、降级）能把分钟级恢复变为常态。止血手段清单、On-call 与复盘等降低 MTTR 的做法见 [故障应急与复盘](./11_incident_response)。
 
 ---
 
@@ -157,7 +159,7 @@ groups:
 - 应用层并联：1 - (0.001)² = 99.9999%
 - 整体串联：0.9999 × 0.999999 × 0.9995 ≈ **99.94%**
 
-瓶颈立刻显现：再增加应用实例几乎没有收益，真正拉低可用率的是**单点的数据库**，应优先做数据层高可用，见 [冗余与故障转移](/high-avail/2_redundancy_failover)。
+瓶颈立刻显现：再增加应用实例几乎没有收益，真正拉低可用率的是**单点的数据库**，应优先做数据层高可用，见 [冗余与故障转移](./2_redundancy_failover)。
 
 ::: warning 并联公式的前提
 并联公式假设各副本**故障相互独立**。实际中同机架断电、同一版本 Bug、共享的配置中心 / DNS 故障都会让副本同时失效，所以冗余要跨故障域（机架、可用区、机房）部署，发布要灰度而不是全量同时生效。
@@ -201,3 +203,15 @@ sum(rate(http_server_requests_seconds_bucket{le="0.3"}[5m]))
 ```
 
 指标体系建设见 [指标监控](/observability/2_metrics)，告警分级与值班见 [告警体系](/observability/4_alerting)。
+
+---
+
+## 小结
+
+- SLI 是度量、SLO 是目标、SLA 是合同，SLO 要比 SLA 严格；延迟 SLI 用"达标请求占比"而不是平均值
+- 错误预算 = 1 - SLO，按剩余预算决定发布节奏，需要各方事先认可
+- 用多窗口燃烧速率告警代替固定错误率阈值
+- 可用率 = MTBF / (MTBF + MTTR)，降低 MTTR 往往比提高 MTBF 更划算
+- 串联拉低可用率、并联提升可用率，但并联要求副本跨故障域、故障相互独立
+
+> 下一篇：[冗余与故障转移](./2_redundancy_failover) —— 知道了目标，先从消除单点、让备份能自动顶上做起。

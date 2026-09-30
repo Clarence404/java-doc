@@ -120,7 +120,7 @@ Spring Session 是 Spring 官方提供的 Session 管理抽象，支持 Redis、
 ```yaml
 spring:
   session:
-    store-type: redis
+    # Spring Boot 3 已移除 store-type，classpath 中存在 spring-session-data-redis 即自动配置
     timeout: 30m
     redis:
       namespace: spring:session

@@ -1,6 +1,6 @@
 # 专项 - 线程池
 
-> `Executors` 快捷创建方式见 [线程基础 - 线程池基础](./23_topic_thread_basics.md#四、线程池基础-executors)，本文着重介绍 `ThreadPoolExecutor` 的原理、使用与常见坑，以及 Fork/Join、虚拟线程。线程数如何设置、动态线程池等生产调优见 [高并发 - 并发参数调优](/high-con/6_concurrency_tuning#一、线程池参数调优)。
+> `Executors` 快捷创建方式见 [线程基础 - 线程池基础](./23_topic_thread_basics.md#四、线程池基础-executors)，本文着重介绍 `ThreadPoolExecutor` 的原理、使用与常见坑，以及 Fork/Join、虚拟线程。线程数如何设置、动态线程池等生产调优见 [高并发 - 并发参数调优](/high-con/7_concurrency_tuning#一、线程池参数调优)。
 
 参考文章：
 
@@ -470,7 +470,7 @@ try (ExecutorService pool = Executors.newFixedThreadPool(4)) {
 }   // 离开代码块时自动等待所有任务完成
 ```
 
-应用里的全局线程池应在进程退出前关闭：Spring 管理的 `ThreadPoolTaskExecutor` 会随容器销毁自动关闭；自己 new 的线程池可以注册为 Bean 并指定 `destroyMethod`，或注册 JVM ShutdownHook。服务下线流程见 [高可用 - 优雅上下线与变更](/high-avail/9_graceful_release)。
+应用里的全局线程池应在进程退出前关闭：Spring 管理的 `ThreadPoolTaskExecutor` 会随容器销毁自动关闭；自己 new 的线程池可以注册为 Bean 并指定 `destroyMethod`，或注册 JVM ShutdownHook。服务下线流程见 [高可用 - 优雅上下线与变更](/high-avail/8_graceful_release)。
 
 ---
 
@@ -747,7 +747,7 @@ Spring Boot 默认的 `applicationTaskExecutor` 的队列容量和最大线程�
 | ThreadLocal 未清理 | 线程复用导致数据串到下一个任务、内存泄漏 | `finally` 中 `remove()`；跨线程传递用 TTL（见 [线程基础 - ThreadLocal](./23_topic_thread_basics.md#五、threadlocal)） |
 | 在方法内部 new 线程池且不关闭 | 每次调用都创建新线程池，核心线程不退出 → 线程泄漏 | 线程池定义为单例或 Spring Bean |
 | 线程没有命名 | `jstack` 里全是 `pool-3-thread-7`，无法定位业务 | 自定义 `ThreadFactory` 加业务前缀 |
-| 所有业务共用一个线程池 | 某个慢业务占满线程，拖垮其他业务 | 按业务隔离线程池（舱壁模式，见 [高可用 - 隔离、重试与超时](/high-avail/6_bulkhead_retry)） |
+| 所有业务共用一个线程池 | 某个慢业务占满线程，拖垮其他业务 | 按业务隔离线程池（舱壁模式，见 [高可用 - 隔离、重试与超时](/high-avail/4_timeout_retry_bulkhead)） |
 | 在 `commonPool` 里做阻塞 IO | `parallelStream` / `CompletableFuture` 全局变慢 | IO 任务传入自定义线程池 |
 | `CallerRunsPolicy` 用在 Web 请求链路上 | 高峰期 Tomcat 线程被拖去执行任务，接口整体超时 | 核心链路优先考虑快速失败 + 降级 |
 
@@ -795,4 +795,4 @@ for (int i = 0; i < 2; i++) {
 
 **Q：线程数应该设置多少？**
 
-CPU 密集型约为核数 + 1，IO 密集型按 `核数 × (1 + 等待时间 / 计算时间)` 估算，最终以压测结果为准，并结合动态线程池在线调整。详见 [高并发 - 并发参数调优](/high-con/6_concurrency_tuning#一、线程池参数调优)。
+CPU 密集型约为核数 + 1，IO 密集型按 `核数 × (1 + 等待时间 / 计算时间)` 估算，最终以压测结果为准，并结合动态线程池在线调整。详见 [高并发 - 并发参数调优](/high-con/7_concurrency_tuning#一、线程池参数调优)。

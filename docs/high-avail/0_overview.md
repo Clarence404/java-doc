@@ -1,65 +1,112 @@
-# 高可用概览
+# 高可用总览
 
-参考链接：[advanced-java 高可用架构](https://gitee.com/Doocs/advanced-java#%E9%AB%98%E5%8F%AF%E7%94%A8%E6%9E%B6%E6%9E%84) · [Google SRE Book](https://sre.google/sre-book/table-of-contents/)
+> **本篇目标**：建立高可用的全局视图：故障从哪里来、各用什么手段应对、按什么顺序阅读本模块。
+
+参考链接：[Google SRE Book](https://sre.google/sre-book/table-of-contents/) · [advanced-java 高可用架构](https://gitee.com/Doocs/advanced-java#%E9%AB%98%E5%8F%AF%E7%94%A8%E6%9E%B6%E6%9E%84)
+
+本模块聚焦**系统级的高可用策略**：如何度量、如何消除单点、如何防住下游故障与上游过载、如何让变更和机房故障不停服。Sentinel、Resilience4j、Nacos 等组件的框架配置在 [Spring Cloud 服务治理](/spring-cloud/5_service_governance) 与 [Spring Cloud Alibaba](/spring-cloud/6_alibaba) 中展开，本模块只讲原理、选型与阈值。
+
+---
 
 ## 一、什么是高可用
 
-高可用（High Availability，HA）是指系统在**实例宕机、依赖失败、机房故障、错误变更**等异常情况下，仍能持续对外提供服务的能力。它关注的不是"不出故障"，而是：
+高可用（High Availability，HA）是指系统在**实例宕机、依赖失败、流量突增、错误变更、机房故障**等异常下，仍能持续对外提供服务的能力。它追求的不是"不出故障"，而是：
 
-- **故障影响面小**：一个依赖或一个实例出问题，不拖垮整体（隔离、熔断、降级）
-- **故障恢复快**：自动发现、自动切换、快速回滚（冗余、健康检查、故障转移）
-- **可度量**：用 SLA / SLO / 错误预算量化"多可用才够"，见 [可用性度量](/high-avail/1_sla_slo)
+| 目标 | 含义 | 典型手段 |
+|------|------|---------|
+| 可度量 | 用 SLO 与错误预算量化"多可用才够" | SLI / SLO、燃烧速率告警 |
+| 影响面小 | 一个实例或依赖出问题，不拖垮整体 | 冗余、超时、隔离、熔断、降级、限流 |
+| 恢复快 | 自动发现、自动切换、快速回滚 | 健康检查、故障转移、灰度与回滚、应急预案 |
 
-高可用的本质手段只有两类：**冗余**（多副本、多机房，消除单点）与**控制**（限流、熔断、降级、隔离，限制故障扩散）。
+手段归结为两类：**冗余**（多副本、多机房，消除单点）与**控制**（超时、隔离、熔断、降级、限流，限制故障扩散）。
 
 ---
 
-## 二、核心策略
+## 二、学习路线
+
+| 阶段 | 要解决的问题 | 文章 |
+|------|-------------|------|
+| **度量** | 多可用才够？怎么算、怎么告警？ | [可用性度量](./1_sla_slo) |
+| **冗余** | 如何消除单点、让备份自动顶上？流量如何分到健康实例？ | [冗余与故障转移](./2_redundancy_failover) → [负载均衡](./3_load_balancing) |
+| **防下游故障** | 依赖变慢、出错时，如何不被拖垮？ | [超时、重试与隔离](./4_timeout_retry_bulkhead) → [熔断](./5_circuit_breaking) → [降级](./6_degradation) |
+| **防上游过载** | 流量超过容量时，如何保住大部分请求？ | [限流与过载保护](./7_rate_limiting) |
+| **变更与容灾** | 发布如何无损？机房、地域故障怎么办？ | [优雅上下线与变更](./8_graceful_release) → [多活与容灾](./9_multi_active) |
+| **验证与应急** | 预案真的有效吗？出了故障如何快速止血、避免再犯？ | [混沌工程](./10_chaos_engineering) → [故障应急与复盘](./11_incident_response) |
+
+---
+
+## 三、核心策略
 
 | 故障场景 | 典型表现 | 应对手段 | 对应文章 |
 |---------|---------|---------|---------|
-| 单实例宕机 | 进程崩溃、机器掉电、Pod 被驱逐 | 多副本 + 健康检查 + 自动摘除 | [冗余与故障转移](/high-avail/2_redundancy_failover) |
-| 数据库 / 缓存主节点故障 | 写入失败、连接中断 | 主从切换、哨兵 / Raft 选主、fencing 防脑裂 | [冗余与故障转移](/high-avail/2_redundancy_failover) |
-| 流量超出容量 | 线程池 / 连接池耗尽，RT 飙升 | 限流、排队、负载卸除 | [限流](/high-avail/3_rate_limiting) |
-| 下游依赖故障 | 调用超时、错误率上升 | 熔断快速失败 | [熔断](/high-avail/4_circuit_breaking) |
-| 资源不足、非核心功能拖累 | 核心链路被挤占 | 主动降级、开关、兜底数据 | [降级](/high-avail/5_degradation) |
-| 慢依赖引发雪崩 | 一个慢服务拖垮整条链路 | 舱壁隔离 + 超时 + 有限重试 | [隔离、重试与超时](/high-avail/6_bulkhead_retry) |
-| 实例负载不均 / 容量不足 | 部分实例过热 | 负载均衡、HPA 弹性扩容 | [负载均衡](/high-avail/7_load_balancing) |
-| 机房 / 地域级故障 | 整个 AZ 或城市不可用 | 同城双活、两地三中心、单元化 | [多活与容灾](/high-avail/8_multi_active) |
-| 发布 / 配置变更 | 上线后错误率突增 | 优雅上下线、灰度、可回滚 | [优雅上下线与变更](/high-avail/9_graceful_release) |
-| 未知脆弱点 | 预案从未演练，真出事时失效 | 故障注入、演练 | [混沌工程](/high-avail/10_chaos_engineering) |
+| 单实例宕机 | 进程崩溃、机器掉电、Pod 被驱逐 | 多副本 + 健康检查 + 自动摘除 | [冗余与故障转移](./2_redundancy_failover) |
+| 数据库 / 缓存主节点故障 | 写入失败、连接中断 | 主从切换、哨兵 / Raft 选主、fencing 防脑裂 | [冗余与故障转移](./2_redundancy_failover) |
+| 实例负载不均 | 部分实例过热、故障实例仍收到流量 | 负载均衡算法、故障摘除、区域优先 | [负载均衡](./3_load_balancing) |
+| 慢依赖引发雪崩 | 线程池被占满，一个慢服务拖垮整条链路 | 分层超时 + 有限重试 + 舱壁隔离 | [超时、重试与隔离](./4_timeout_retry_bulkhead) |
+| 下游持续故障 | 调用超时、错误率上升 | 熔断快速失败 | [熔断](./5_circuit_breaking) |
+| 非核心功能拖累核心链路 | 资源被挤占 | 主动降级、开关、兜底数据 | [降级](./6_degradation) |
+| 流量超出容量 | 线程池 / 连接池耗尽，RT 飙升 | 限流、自适应过载保护、负载卸除 | [限流与过载保护](./7_rate_limiting) |
+| 发布 / 配置变更 | 上线后错误率突增、发布时出现 502 | 优雅上下线、灰度、可回滚 | [优雅上下线与变更](./8_graceful_release) |
+| 机房 / 地域级故障 | 整个可用区或城市不可用 | 同城双活、两地三中心、单元化 | [多活与容灾](./9_multi_active) |
+| 未知脆弱点 | 预案从未演练，真出事时失效 | 故障注入、演练 | [混沌工程](./10_chaos_engineering) |
+| 故障已经发生 | 告警风暴、定位慢、恢复慢 | 分级响应、先止血后定位、复盘改进 | [故障应急与复盘](./11_incident_response) |
 
-> 经验数据：线上故障中相当大比例由**变更**（发布、配置、数据修复）引起，因此"变更可灰度、可监控、可回滚"与冗余同等重要。
-
-治理组件的框架层用法（Sentinel、Resilience4j、Nacos 等）见 [Spring Cloud 服务治理](/spring-cloud/5_service_governance) 与 [Spring Cloud Alibaba](/spring-cloud/6_alibaba)。
+::: tip 变更是最常见的故障来源
+线上故障中相当大比例由**变更**（发布、配置、数据修复）引起，因此"可灰度、可监控、可回滚"与冗余同等重要。
+:::
 
 ---
 
-## 三、与高性能、高并发的关系
+## 四、与高性能、高并发的关系
 
-| 维度 | 高性能 | 高并发 | 高可用 |
+| 维度 | [高性能](/high-perf/0_overview) | [高并发](/high-con/0_overview) | 高可用（本模块） |
 |------|-------|-------|-------|
-| 关注问题 | 单次请求够不够快 | 流量大时扛不扛得住 | 出故障时停不停服 |
-| 核心指标 | RT、P99 延迟、吞吐 | QPS / TPS、并发数、容量水位 | 可用率、MTTR、错误预算 |
-| 典型手段 | 缓存、索引优化、异步化、减少 IO | 水平扩展、分库分表、削峰、池化 | 冗余、故障转移、限流熔断降级、多活 |
-| 模块 | [高性能](/high-perf/0_overview) | [高并发](/high-con/0_overview) | 本模块 |
+| 关注问题 | 单次请求够不够快、资源省不省 | 流量大时扛不扛得住 | 出故障时停不停服 |
+| 核心指标 | RT、P99 延迟、吞吐、资源利用率 | QPS / TPS、并发数、容量水位 | 可用率、MTTR、错误预算 |
+| 典型手段 | 代码 / SQL / 缓存优化、池化、异步、批量 | 水平扩展、缓存架构、削峰、分库分表、热点治理 | 冗余、故障转移、超时重试隔离、熔断降级限流、多活 |
 
-三者相互影响：性能差会放大并发压力，并发超出容量会演变为可用性故障；限流、降级等高可用手段又以牺牲部分请求为代价保住整体。
+- **性能差会放大并发压力，并发超出容量会演变为可用性故障**：容量评估见 [容量评估与规划](/high-con/8_capacity_planning)，它给出限流阈值的依据
+- **高可用手段有代价**：重试和多副本同步增加延迟，限流和降级以牺牲部分请求为代价保住整体，需要在三者之间取舍
 
 ---
 
-## 四、模块导航
+## 五、模块导航
 
-| 文章 | 说明 |
-|------|------|
-| [可用性度量](/high-avail/1_sla_slo) | 几个 9、SLA / SLO / SLI、错误预算、MTBF / MTTR、串并联可用性计算 |
-| [冗余与故障转移](/high-avail/2_redundancy_failover) | 冷备 / 温备 / 热备，主备 / 主主 / 集群，健康检查，自动切换，脑裂与 fencing，数据层 HA |
-| [限流](/high-avail/3_rate_limiting) | 固定窗口 / 滑动窗口 / 令牌桶 / 漏桶，Redis + Lua，Guava，Gateway，Sentinel |
-| [熔断](/high-avail/4_circuit_breaking) | 三态机，Sentinel / Resilience4j 规则，OpenFeign 集成 |
-| [降级](/high-avail/5_degradation) | 系统级 / 业务级降级，静态 / 动态降级，规则持久化 |
-| [隔离、重试与超时](/high-avail/6_bulkhead_retry) | 线程池 / 信号量隔离，指数退避重试，分层超时，负载卸除 |
-| [负载均衡](/high-avail/7_load_balancing) | 负载均衡算法与层次，Nginx，Spring Cloud LoadBalancer，K8s HPA / PDB |
-| [多活与容灾](/high-avail/8_multi_active) | RPO / RTO，同城双活，两地三中心，异地多活，单元化，流量调度 |
-| [优雅上下线与变更](/high-avail/9_graceful_release) | 优雅停机，服务预热，灰度发布，变更三板斧 |
-| [混沌工程](/high-avail/10_chaos_engineering) | ChaosBlade / Chaos Mesh，故障注入实战与检查单 |
-| [面试高频题](/high-avail/99_interview) | 高可用方向问题汇总 |
+| 文章 | 覆盖内容 |
+|------|---------|
+| [可用性度量](./1_sla_slo) | 几个 9、SLA / SLO / SLI、错误预算、燃烧速率告警、MTBF / MTTR、串并联可用性计算 |
+| [冗余与故障转移](./2_redundancy_failover) | 消除单点、冷备 / 温备 / 热备、健康检查与 K8s 探针、自动切换、脑裂与 fencing、数据层高可用、依赖治理 |
+| [负载均衡](./3_load_balancing) | 负载均衡算法、故障摘除、Nginx 配置、会话保持、客户端负载均衡 |
+| [超时、重试与隔离](./4_timeout_retry_bulkhead) | 分层超时、指数退避与抖动、重试放大控制（重试预算、deadline 传播）、线程池 / 信号量隔离 |
+| [熔断](./5_circuit_breaking) | 熔断器三态、统计窗口与阈值、Sentinel 与 Resilience4j 对比 |
+| [降级](./6_degradation) | 降级分级、兜底策略、开关与规则管理 |
+| [限流与过载保护](./7_rate_limiting) | 限流算法、限流放在哪一层、阈值怎么定、分布式限流、自适应过载保护与负载卸除 |
+| [优雅上下线与变更](./8_graceful_release) | 优雅停机、K8s preStop、滚动参数与 PDB、服务预热、发布策略、变更三板斧 |
+| [多活与容灾](./9_multi_active) | RPO / RTO、同城双活、两地三中心、异地多活、单元化、流量调度 |
+| [混沌工程](./10_chaos_engineering) | 实验原则、ChaosBlade / Chaos Mesh、故障注入实战与检查单 |
+| [故障应急与复盘](./11_incident_response) | 故障分级、On-call、止血手段、降低 MTTR、无责复盘 |
+| [面试高频题](./99_interview) | 高可用方向题目清单 |
+
+---
+
+## 六、推荐阅读路径
+
+- **系统学习**：按编号顺序阅读。先读 [可用性度量](./1_sla_slo) 明确目标，再按"冗余 → 防下游故障 → 防上游过载 → 变更与容灾 → 验证与应急"的顺序推进
+- **服务经常被下游拖垮**：[超时、重试与隔离](./4_timeout_retry_bulkhead) → [熔断](./5_circuit_breaking) → [降级](./6_degradation)，并用 [冗余与故障转移](./2_redundancy_failover) 的"依赖治理"梳理强弱依赖
+- **大促或流量突增**：先读 [容量评估与规划](/high-con/8_capacity_planning) 定容量，再读 [限流与过载保护](./7_rate_limiting) 与 [降级](./6_degradation) 准备预案
+- **发布总出问题**：[优雅上下线与变更](./8_graceful_release)，配合 [发布策略](/devops/5_release_strategy)
+- **线上正在出故障**：直接看 [故障应急与复盘](./11_incident_response) 的止血手段清单
+
+---
+
+## 七、关联模块
+
+- 服务治理框架配置（Spring Cloud LoadBalancer、灰度路由、Resilience4j）→ [Spring Cloud 服务治理](/spring-cloud/5_service_governance)
+- Sentinel、Nacos 规则持久化 → [Spring Cloud Alibaba](/spring-cloud/6_alibaba)
+- 选主、共识与分布式一致性 → [分布式理论](/distributed/2_theorem)
+- MySQL 复制与 Redis 集群 → [MySQL 主从复制](/database/1_mysql/9_topic_replication)、[Redis 集群](/cache/3_redis_cluster)
+- 监控告警 → [可观测性](/observability/0_overview)
+- 重试的前提 → [幂等设计](/architecture/5_idempotence)
+- 答案汇总 → [开发总结 - 三高](/interview/10_high_avail)
+
+> 下一篇：[可用性度量](./1_sla_slo) —— 先把"多可用才够"变成可计算的数字。

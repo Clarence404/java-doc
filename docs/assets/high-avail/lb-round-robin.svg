@@ -1,0 +1,53 @@
+<svg viewBox="0 0 680 296" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <rect x="0" y="0" width="680" height="296" rx="8" fill="var(--bg)"/>
+
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">轮询与平滑加权轮询</text>
+
+  <!-- 轮询 -->
+  <rect x="20" y="44" width="640" height="96" rx="8" fill="var(--card)" stroke="var(--border)"/>
+  <text x="340" y="68" text-anchor="middle" font-weight="600" fill="var(--fg)">轮询：实例 A / B / C 依次分配，循环往复</text>
+  <rect x="34" y="82" width="92" height="40" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="80" y="107" text-anchor="middle" font-size="12" fill="var(--p)">请求1 → A</text>
+  <rect x="138" y="82" width="92" height="40" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="184" y="107" text-anchor="middle" font-size="12" fill="var(--b)">请求2 → B</text>
+  <rect x="242" y="82" width="92" height="40" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="288" y="107" text-anchor="middle" font-size="12" fill="var(--g)">请求3 → C</text>
+  <rect x="346" y="82" width="92" height="40" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="392" y="107" text-anchor="middle" font-size="12" fill="var(--p)">请求4 → A</text>
+  <rect x="450" y="82" width="92" height="40" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="496" y="107" text-anchor="middle" font-size="12" fill="var(--b)">请求5 → B</text>
+  <rect x="554" y="82" width="92" height="40" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="600" y="107" text-anchor="middle" font-size="12" fill="var(--g)">请求6 → C</text>
+
+  <!-- 平滑加权轮询 -->
+  <rect x="20" y="156" width="640" height="96" rx="8" fill="var(--card)" stroke="var(--border)"/>
+  <text x="340" y="180" text-anchor="middle" font-weight="600" fill="var(--fg)">平滑加权轮询（Nginx）：权重 A:B:C = 3:1:1，每 5 个请求 A 占 3 次</text>
+  <rect x="86" y="194" width="92" height="40" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="132" y="219" text-anchor="middle" font-size="12" fill="var(--p)">请求1 → A</text>
+  <rect x="190" y="194" width="92" height="40" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="236" y="219" text-anchor="middle" font-size="12" fill="var(--b)">请求2 → B</text>
+  <rect x="294" y="194" width="92" height="40" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="340" y="219" text-anchor="middle" font-size="12" fill="var(--p)">请求3 → A</text>
+  <rect x="398" y="194" width="92" height="40" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="444" y="219" text-anchor="middle" font-size="12" fill="var(--g)">请求4 → C</text>
+  <rect x="502" y="194" width="92" height="40" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="548" y="219" text-anchor="middle" font-size="12" fill="var(--p)">请求5 → A</text>
+
+  <text x="340" y="276" text-anchor="middle" font-size="12" fill="var(--muted)">平滑加权把 A 的 3 次分散开，避免 A A A B C 这种连续打到同一实例的突发</text>
+</svg>

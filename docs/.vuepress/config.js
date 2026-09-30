@@ -27,9 +27,9 @@ const navbarFlat = [
     {text: '缓存',    link: '/cache/0_overview'},
     {text: '消息队列', link: '/messaging/0_overview'},
     {text: '分布式',  link: '/distributed/0_overview'},
+    {text: '高性能',  link: '/high-perf/0_overview'},
     {text: '高并发',  link: '/high-con/0_overview'},
     {text: '高可用',  link: '/high-avail/0_overview'},
-    {text: '高性能',  link: '/high-perf/0_overview'},
     {text: '微服务',  link: '/microservices/0_overview'},
     {text: '架构',    link: '/architecture/0_overview'},
     {text: '云原生',  link: '/cloud-native/0_overview'},
@@ -82,9 +82,9 @@ const navbarDropdown = [
     {
         text: '三高架构',
         children: [
+            {text: '高性能', link: '/high-perf/0_overview'},
             {text: '高并发', link: '/high-con/0_overview'},
             {text: '高可用', link: '/high-avail/0_overview'},
-            {text: '高性能', link: '/high-perf/0_overview'},
         ],
     },
     {

@@ -220,40 +220,66 @@ SELECT * FROM user WHERE name LIKE 'A%' AND age = 18;
 
 ## 九、深度分页优化
 
-`LIMIT offset, n` 在 offset 很大时，MySQL 必须**扫描并丢弃**前 offset 行，性能随 offset 线性下降。
-
-### 方案一：子查询 + 覆盖索引
+`LIMIT offset, n` 在 offset 很大时，MySQL 必须**扫描并丢弃**前 offset 行，性能随 offset 线性下降；`SELECT *` 时被丢弃的每一行还要回表，代价更大。
 
 ```sql
--- ❌ 慢：需要扫描 100010 行
-SELECT * FROM order ORDER BY id LIMIT 100000, 10;
+-- ❌ 慢：按 create_time 倒序读出 100020 行（每行回表），再丢弃前 100000 行
+SELECT * FROM t_order WHERE user_id = 1001 ORDER BY create_time DESC LIMIT 100000, 20;
+```
 
--- ✅ 先用覆盖索引找边界 id，再取完整行
-SELECT * FROM order
-WHERE id >= (SELECT id FROM order ORDER BY id LIMIT 100000, 1)
+下面的写法都以联合索引 `idx_user_time(user_id, create_time)` 为前提。**不需要把 id 也加进索引**：InnoDB 二级索引叶子节点本身就存了主键 id，且在 `(user_id, create_time)` 相同时按 id 有序，覆盖索引和复合游标都能直接利用。
+
+### 方案一：子查询 + 覆盖索引（按主键排序时）
+
+```sql
+-- ✅ 先用覆盖索引找到边界 id，再取完整行；适合 ORDER BY id 的场景
+SELECT * FROM t_order
+WHERE id >= (SELECT id FROM t_order ORDER BY id LIMIT 100000, 1)
 ORDER BY id LIMIT 10;
 ```
 
 ### 方案二：延迟关联（Deferred Join）
 
 ```sql
-SELECT o.* FROM order o
-JOIN (SELECT id FROM order ORDER BY id LIMIT 100000, 10) tmp
-  ON o.id = tmp.id;
--- 内层子查询走覆盖索引，外层只关联必要的行
+-- ✅ 内层只在二级索引上扫描并取出 20 个主键（覆盖索引，不回表），外层只回表这 20 行
+SELECT o.* FROM t_order o
+JOIN (
+    SELECT id FROM t_order
+    WHERE user_id = 1001
+    ORDER BY create_time DESC
+    LIMIT 100000, 20
+) tmp ON o.id = tmp.id
+ORDER BY o.create_time DESC, o.id DESC;
 ```
+
+延迟关联仍要扫描 offset 行索引记录，只是省掉了这些行的回表，**支持随机跳页**。
 
 ### 方案三：游标翻页（最优，适合"下一页"场景）
 
 ```sql
--- 记录上一页最后一条的 id（如 last_id = 100）
-SELECT * FROM order WHERE id > 100 ORDER BY id LIMIT 10;
+-- ✅ 记录上一页最后一条的 (create_time, id) 作为游标
+-- 排序值可能重复，必须带上 id 组成唯一的复合游标，否则翻页会漏数据或重复
+SELECT * FROM t_order
+WHERE user_id = 1001
+  AND (create_time < ? OR (create_time = ? AND id < ?))
+ORDER BY create_time DESC, id DESC
+LIMIT 20;
 
--- 原理：直接用主键索引定位，O(log n)，无需跳过前 N 行
+-- 全量遍历（导出、迁移）：直接按主键游标
+SELECT * FROM t_order WHERE id > ? ORDER BY id LIMIT 1000;
 ```
 
+原理：直接在索引上定位到游标位置再往后取 n 行，耗时与页数无关，无需跳过前 N 行。
+
+| 方案 | 耗时是否随页数增长 | 随机跳页 | 适用 |
+|------|------------------|---------|------|
+| 方案一：子查询找边界 id | 是（只扫索引） | 支持 | 按主键排序的列表 |
+| 方案二：延迟关联 | 是（只扫索引） | 支持 | 带过滤条件、需要跳页的后台列表 |
+| 方案三：游标翻页 | 否 | 不支持 | App 下拉加载、"下一页"、全量导出 |
+
 > **取舍**：游标翻页不支持随机跳页（跳到第 1000 页），只能上/下翻。
-> 需要随机跳页时用方案一/二；纯翻页列表用方案三。
+> 需要随机跳页时用方案一/二，并在产品层面限制最大页数；纯翻页列表和批量导出用方案三。
+> 应用侧的方案选型（含限制页数、ES `search_after`）见 [数据访问性能](/high-perf/10_db_performance)。
 
 ---
 

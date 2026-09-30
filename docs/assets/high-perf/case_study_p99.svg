@@ -1,0 +1,46 @@
+<svg viewBox="0 0 680 356" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .row { fill:var(--card); stroke:var(--border); stroke-width:1.2; }
+    .lbl { fill:var(--fg); font-size:12px; }
+    .val { fill:var(--fg); font-size:12px; font-weight:700; }
+    .note { fill:var(--muted); font-size:11px; }
+  </style>
+
+  <text x="340" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">下单接口 P99 优化过程（示例数据）</text>
+  <text x="313" y="46" text-anchor="middle" class="note">SLO 250ms</text>
+
+  <rect class="row" x="20" y="56" width="640" height="40" rx="6"/>
+  <text x="36" y="81" class="lbl">基线</text>
+  <rect x="200" y="68" width="360" height="16" rx="3" fill="var(--r)"/>
+  <text x="650" y="81" text-anchor="end" class="val">800 ms</text>
+
+  <rect class="row" x="20" y="104" width="640" height="40" rx="6"/>
+  <text x="36" y="129" class="lbl">① N+1 批量化</text>
+  <rect x="200" y="116" width="252" height="16" rx="3" fill="var(--b)"/>
+  <text x="650" y="129" text-anchor="end" class="val">560 ms</text>
+
+  <rect class="row" x="20" y="152" width="640" height="40" rx="6"/>
+  <text x="36" y="177" class="lbl">② 事务内 RPC 移出</text>
+  <rect x="200" y="164" width="180" height="16" rx="3" fill="var(--b)"/>
+  <text x="650" y="177" text-anchor="end" class="val">400 ms</text>
+
+  <rect class="row" x="20" y="200" width="640" height="40" rx="6"/>
+  <text x="36" y="225" class="lbl">③ 串行 RPC 并行化</text>
+  <rect x="200" y="212" width="130" height="16" rx="3" fill="var(--b)"/>
+  <text x="650" y="225" text-anchor="end" class="val">290 ms</text>
+
+  <rect class="row" x="20" y="248" width="640" height="40" rx="6"/>
+  <text x="36" y="273" class="lbl">④ 热点数据本地缓存</text>
+  <rect x="200" y="260" width="104" height="16" rx="3" fill="var(--b)"/>
+  <text x="650" y="273" text-anchor="end" class="val">230 ms</text>
+
+  <rect class="row" x="20" y="296" width="640" height="40" rx="6"/>
+  <text x="36" y="321" class="lbl">⑤ 日志瘦身 + 异步</text>
+  <rect x="200" y="308" width="88" height="16" rx="3" fill="var(--g)"/>
+  <text x="650" y="321" text-anchor="end" class="val">195 ms</text>
+
+  <line x1="313" y1="50" x2="313" y2="338" stroke="var(--y)" stroke-width="1.5" stroke-dasharray="4 3"/>
+</svg>
