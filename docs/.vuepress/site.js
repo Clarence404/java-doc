@@ -14,9 +14,9 @@
 //   dir      docs/ 下的目录名
 //   desc     首页星表中的一行简介
 //   stub     首页「编写中」徽标文字，可选
-//   sidebar  按起始编号分组的侧边栏，可选：[{text, from, collapsed?}]，编号 ≥ from 的文章归入该组（0_overview 与 90 号以后的附录、99_interview 不分组）
+//   sidebar  按起始编号分组的侧边栏，可选：[{text, from}]，编号 ≥ from 的文章归入该组（0_overview 与 90 号以后的附录、99_interview 不分组）
 //   interview 本模块 99_interview 题单的答案页（docs/interview/ 下的文件名），用于开发总结导航表的「对应题目清单」列
-//   subdirs  子目录分组，可选：{'1_mysql': 'MySQL'} 或 {'1_mysql': {title, collapsed?, sidebar?}}；title 同时用于面包屑
+//   subdirs  子目录分组，可选：{'1_mysql': 'MySQL'} 或 {'1_mysql': {title, sidebar?}}；title 同时用于面包屑
 
 // 开发总结（导航栏第一项，不参与首页的分组卡片）
 export const SUMMARY = {
@@ -58,7 +58,7 @@ export const GROUPS = [
             {
                 name: '数据结构与算法', nav: 'DSA', dir: 'algorithms',
                 desc: '复杂度 / 数据结构 / 基础算法 / 算法技巧 / 刷题实战',
-                subdirs: {'1_data_structures': '数据结构', '2_algorithms': '基础算法', '3_patterns': '算法技巧', '4_practice': {title: '刷题实战', collapsed: true}},
+                subdirs: {'1_data_structures': '数据结构', '2_algorithms': '基础算法', '3_patterns': '算法技巧', '4_practice': '刷题实战'},
             },
             {name: '网络协议', dir: 'protocols', interview: ['4_network'], desc: 'TCP/IP / HTTP/2 / gRPC / WebSocket / IoT 协议 / TLS'},
         ],
@@ -86,11 +86,11 @@ export const GROUPS = [
                 desc: 'MySQL / PostgreSQL / 分布式数据库 / NoSQL / CDC / 分库分表',
                 subdirs: {
                     '1_mysql': {title: 'MySQL', sidebar: [{text: '核心专项', from: 4}]},
-                    '2_postgresql': {title: 'PostgreSQL', collapsed: true, sidebar: [{text: '核心专项', from: 2}]},
-                    '3_relational': {title: '关系库', collapsed: true},
-                    '4_nosql': {title: 'NoSQL', collapsed: true},
-                    '5_practice': {title: '架构运维', collapsed: true},
-                    '6_reference': {title: '参考延伸', collapsed: true},
+                    '2_postgresql': {title: 'PostgreSQL', sidebar: [{text: '核心专项', from: 2}]},
+                    '3_relational': '关系库',
+                    '4_nosql': 'NoSQL',
+                    '5_practice': '架构运维',
+                    '6_reference': '参考延伸',
                 },
             },
             {name: '缓存', dir: 'cache', interview: ['8_cache'], desc: 'Redis / Redisson / Caffeine / 两级缓存 / 缓存一致性'},
@@ -146,11 +146,11 @@ export const GROUPS = [
                 name: '云原生', dir: 'cloud-native',
                 desc: 'Linux / Docker / Kubernetes / Helm / Terraform / 云平台',
                 sidebar: [
-                    {text: 'Linux 基础', from: 1},
-                    {text: '虚拟化', from: 3, collapsed: true},
-                    {text: '容器与编排', from: 5, collapsed: true},
-                    {text: '基础设施自动化', from: 11, collapsed: true},
-                    {text: '云平台与选购', from: 13, collapsed: true},
+                    {text: 'Linux', from: 1},
+                    {text: '虚拟化', from: 3},
+                    {text: '容器与编排', from: 5},
+                    {text: '基础设施自动化', from: 11},
+                    {text: '云平台与选购', from: 13},
                 ],
             },
             {name: '可观测性', dir: 'observability', desc: '日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry（大纲阶段）', stub: '大纲阶段'},
@@ -163,7 +163,7 @@ export const GROUPS = [
             {
                 name: 'AI', dir: 'ai',
                 desc: 'Spring AI / LangChain4j / RAG / Agent / MCP / 本地模型',
-                subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': {title: 'AI 工具生态', collapsed: true}},
+                subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 工具生态'},
             },
         ],
     },

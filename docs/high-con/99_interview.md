@@ -75,7 +75,7 @@ description: 高并发方向题目清单
 - **数据库连接池是不是越大越好？水平扩容时要注意什么？**
 - **Lettuce 需要配置连接池吗？什么时候池才会被使用？**
 - **服务器出现大量 TIME_WAIT 是什么原因？如何解决？**  
-  → 详见 <RouteLink to="/high-con/7_concurrency_tuning">并发参数调优</RouteLink>，线程池原理见 <RouteLink to="/java/28_topic_thread_pool">线程池</RouteLink>
+  → 详见 <RouteLink to="/high-con/7_concurrency_tuning">并发参数调优</RouteLink>，线程池原理见 <RouteLink to="/java/28_topic_thread_pool">Java 线程池</RouteLink>
 
 ## 九、容量评估
 

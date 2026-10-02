@@ -96,8 +96,8 @@ docs/
 ## 文档约定
 
 - 文件命名：`数字_主题.md`，数字前缀决定侧边栏顺序，全部使用下划线分隔
-- 模块入口：每个模块的 `0_overview.md` 为总览页（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；导航表统一写 `<ModuleNav />`，由各文章的 frontmatter `description` 自动生成，不再手写
-- 文章 frontmatter：每篇文章开头写一行 `description`（覆盖内容，「、」或「 / 」分隔的要点，15–60 字，不加句号），供总览页导航表与网页 meta 使用；侧边栏、导航表中的显示名永远与 `# 标题` 一致
+- 模块入口：每个模块的 `0_overview.md` 为总览页，标题统一为「X 总览」（X 为 `site.js` 中的模块名，西文名后加空格，如「JVM 总览」「数据库总览」）（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；导航表统一写 `<ModuleNav />`，由各文章的 frontmatter `description` 自动生成，不再手写
+- 文章 frontmatter：每篇文章开头写一行 `description`（覆盖内容，「、」或「 / 」分隔的要点，15–60 字，不加句号），供总览页导航表与网页 meta 使用；侧边栏、导航表中的显示名取 `# 标题`；若标题以所在分组名开头，侧边栏自动去掉该前缀（如 MySQL 组内「MySQL 索引」显示为「索引」），H1 本身保持完整（用于页面标题与搜索）；标题不加「专项 - 」之类的修饰前缀，概述类页面统一叫「概览」
 - 面试题：模块内 `99_interview.md` 只列题目清单，答案统一写在 `docs/interview/` 的对应答案页，两边互相链接
 - 站点目录：除文章本身外，所有配置只在 `docs/.vuepress/site.js` 维护（模块、分组、名称、侧边栏分组、子目录、答案页对应关系、首页推荐博客 / 页脚）；导航栏、侧边栏、面包屑、总览页导航表和首页都由它与文章自动生成，不在其他文件重复维护
 - 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / scenario / patterns / cloud-native）在 `site.js` 对应模块的 `sidebar` 字段里写每组的起始编号 `from`，编号 ≥ `from` 的文章自动归入该组（`0_overview`、90 号以后的附录与 `99_interview` 不分组；interview 另用 `stripPrefix` 去掉标题中的「开发总结 - 」前缀）；ai / algorithms / database 按子目录自动分组，子目录在 `subdirs` 登记
@@ -139,8 +139,9 @@ description: 要点一、要点二、要点三
 | 模块 `dir` | `site.js` | 对应 `docs/` 下的目录，入口固定为 `<dir>/0_overview.md` |
 | 模块 `desc` / `stub` | `site.js` | 首页分组卡片中的模块简介与「编写中」徽标 |
 | 模块 `sidebar`（可选） | `site.js` | 侧边栏分组，每组只写起始编号 `from` |
-| 模块 `subdirs`（可选） | `site.js` | 子目录分组：中文名（同时用于面包屑）、是否折叠、组内分段 |
-| 侧边栏条目文字与顺序 | Markdown 文件 | 第一个 `# 标题`；顺序取文件名数字前缀 |
+| 模块 `subdirs`（可选） | `site.js` | 子目录分组：中文名（同时用于面包屑）、组内分段 |
+| 侧边栏分组展开 | 自动 | 所有分组默认收起，只展开当前页面所在的分组 |
+| 侧边栏条目文字与顺序 | Markdown 文件 | 第一个 `# 标题`（以分组名开头时自动去掉该前缀）；顺序取文件名数字前缀 |
 | 开发总结「对应题目清单」 | `site.js` | 模块的 `interview` 字段（本模块题单对应的答案页） |
 | 总览页导航表「覆盖内容」 | Markdown 文件 | frontmatter `description` |
 | 文章数 / 题数 / 答案页数 / SVG 数 | `.vuepress/plugins/homeStats.js` | 构建时扫描 `docs/` 自动统计，首页使用 |

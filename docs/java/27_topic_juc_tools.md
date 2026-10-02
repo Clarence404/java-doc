@@ -2,7 +2,7 @@
 description: CountDownLatch、CyclicBarrier、Semaphore
 ---
 
-# 专项 - 并发工具类
+# 同步工具类
 
 > `CountDownLatch`、`CyclicBarrier`、`Semaphore` 都基于 [AQS](./25_topic_lock.md#二、abstractqueuedsynchronizer-aqs) 实现，用于多线程之间的协调与限流。
 

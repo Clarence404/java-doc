@@ -80,7 +80,7 @@ while (true) {
 - **代价**：`select()` 本身仍会阻塞，阶段二的拷贝仍由应用线程完成
 - Java NIO、Netty、Redis、Nginx 都建立在这一模型之上
 
-Selector / Channel / Buffer 的 API 细节见 [专项 - IO / NIO](/java/18_topic_io)，本篇只讲原理。
+Selector / Channel / Buffer 的 API 细节见 [Java IO 与 NIO](/java/18_topic_io)，本篇只讲原理。
 
 ### 4、信号驱动 IO（Signal-driven IO）
 

@@ -15,4 +15,4 @@
 
 ## 三、关联模块
 
-- Java 集合框架中的数据结构实现（HashMap / TreeMap 红黑树）→ [Java 专项 - 集合框架](/java/21_topic_collection)
+- Java 集合框架中的数据结构实现（HashMap / TreeMap 红黑树）→ [Java 集合框架](/java/21_topic_collection)

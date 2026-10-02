@@ -83,7 +83,7 @@ description: JVM 方向题目清单
 - **为什么 DCL 单例需要 volatile？不加会有什么问题？**
 - **synchronized 除了互斥，还有什么内存语义？**
 - **final 字段的内存语义是什么？**  
-  → 详见 <RouteLink to="/java/22_topic_jmm">专项 - JMM 内存模型</RouteLink>
+  → 详见 <RouteLink to="/java/22_topic_jmm">Java JMM 内存模型</RouteLink>
 
 ## 九、虚拟线程
 
@@ -91,7 +91,7 @@ description: JVM 方向题目清单
 - **虚拟线程的挂载/卸载（mount/unmount）机制是什么？**
 - **虚拟线程为什么不适合 CPU 密集型任务？**
 - **虚拟线程中使用 synchronized 有什么问题？如何解决？**  
-  → 详见 <RouteLink to="/java/28_topic_thread_pool">专项 - 线程池</RouteLink>（虚拟线程与线程池一节）
+  → 详见 <RouteLink to="/java/28_topic_thread_pool">Java 线程池</RouteLink>（虚拟线程与线程池一节）
 
 ---
 

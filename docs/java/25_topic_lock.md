@@ -2,7 +2,7 @@
 description: AQS 原理、ReentrantLock、ReadWriteLock/StampedLock
 ---
 
-# 专项 - Lock 锁
+# 显式锁（Lock）
 
 ## 一、synchronized
 

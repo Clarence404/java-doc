@@ -546,7 +546,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 等待与计算的比例很难准确测量，且下游（DB、RPC）的承载能力往往先于 CPU 到顶
 - 线程过多会导致 CPU sys 态高、上下文切换开销大
 
-→ 详见 [并发参数调优](/high-con/7_concurrency_tuning)、[线程池](/java/28_topic_thread_pool)
+→ 详见 [并发参数调优](/high-con/7_concurrency_tuning)、[Java 线程池](/java/28_topic_thread_pool)
 
 ### Q34：线程池核心线程满了之后，是先扩到最大线程数还是先进队列？Tomcat 线程池有何不同？
 

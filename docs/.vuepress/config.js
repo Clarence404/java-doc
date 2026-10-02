@@ -25,6 +25,7 @@ const navbarDropdown = [summaryNav, ...GROUPS.map(g => ({text: g.name, children:
 //   条目顺序：0_overview 在最前，其余按文件名数字前缀，99_interview 在最后
 //   分组：site.js 中模块的 sidebar 只写每组起始编号 from，编号 ≥ from 的文章归入该组（90 号以后为附录，不分组）
 //   子目录：site.js 中登记了 subdirs 的模块，每个子目录自动成为一个可折叠分组
+//   展开：所有分组默认收起，主题只展开当前页面所在的分组（点开其他分组时自动收起原分组）
 // 同时收集每篇文章的 description，供总览页 <ModuleNav /> 自动生成导航表
 // ============================================================
 const docsRoot = path.resolve(__dirname, '..');
@@ -79,7 +80,7 @@ function groupItems(items, groups) {
             continue;
         }
         if (!emitted.has(group)) {
-            const node = {text: group.text, collapsible: true, expanded: !group.collapsed, children: []};
+            const node = {text: group.text, collapsible: true, expanded: false, children: []};
             emitted.set(group, node);
             result.push(node);
         }
@@ -100,17 +101,36 @@ function getSubdirSidebar(dir, subdirs) {
         const conf = subdirConf(subdirs[sub]);
         const items = getSidebarFromDir(path.join(dirOf(dir), sub));
         const children = conf.sidebar ? groupItems(items, conf.sidebar) : items;
-        return {text: conf.title, link: items[0]?.link, collapsible: true, expanded: !conf.collapsed, children};
+        return {text: conf.title, link: items[0]?.link, collapsible: true, expanded: false, children};
     });
     return [...head, ...groups, ...tail];
 }
 
 const dirOf = name => path.resolve(docsRoot, name);
 
+// 组内条目若以所在分组名（含上层分组）开头，侧边栏自动去掉该前缀，避免「MySQL 组 → MySQL 索引」式重复；
+// 页面 H1、浏览器标题与搜索结果仍保留完整标题
+const SEP = /^[\s·\-—:：]+/;
+function stripGroupPrefix(items, ancestors = []) {
+    return items.map(item => {
+        if (item.children) {
+            return {...item, children: stripGroupPrefix(item.children, [...ancestors, item.text])};
+        }
+        let text = item.text;
+        for (const g of ancestors) {
+            if (text.startsWith(g)) {
+                const rest = text.slice(g.length).replace(SEP, '');
+                if (rest) text = rest;
+            }
+        }
+        return text === item.text ? item : {...item, text};
+    });
+}
+
 const sidebarOf = ({dir, sidebar, subdirs, stripPrefix}) => {
-    if (subdirs) return getSubdirSidebar(dir, subdirs);
+    if (subdirs) return stripGroupPrefix(getSubdirSidebar(dir, subdirs));
     const items = getSidebarFromDir(dirOf(dir), {stripPrefix});
-    return sidebar ? groupItems(items, sidebar) : items;
+    return stripGroupPrefix(sidebar ? groupItems(items, sidebar) : items);
 };
 
 const ALL_MODULES = [SUMMARY, ...GROUPS.flatMap(g => g.modules)];

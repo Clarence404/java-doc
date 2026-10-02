@@ -40,7 +40,7 @@ new ThreadPoolExecutor(
 禁止使用 `Executors.newFixedThreadPool`（使用无界 `LinkedBlockingQueue`，可能 OOM）和 `Executors.newCachedThreadPool`（线程数无上限）。
 :::
 
-→ 详见 [线程池](/java/28_topic_thread_pool)；线程数、队列长度与 Tomcat 线程参数的调优见 [并发参数调优](/high-con/7_concurrency_tuning)
+→ 详见 [Java 线程池](/java/28_topic_thread_pool)；线程数、队列长度与 Tomcat 线程参数的调优见 [并发参数调优](/high-con/7_concurrency_tuning)
 
 ## 二、synchronized 和 ReentrantLock 的区别？
 
@@ -65,7 +65,7 @@ new ThreadPoolExecutor(
 
 **如何选择**：大多数场景用 `synchronized` 足够；需要公平锁、超时、可中断、多条件通知时用 `ReentrantLock`。
 
-→ 详见 [synchronized](/java/24_topic_synchronized) / [Lock 锁](/java/25_topic_lock)
+→ 详见 [Java synchronized](/java/24_topic_synchronized) / [Lock 锁](/java/25_topic_lock)
 
 ## 三、volatile 关键字的作用？为什么不能保证原子性？
 
@@ -97,7 +97,7 @@ public static Singleton getInstance() {
 }
 ```
 
-→ 详见 [JMM 内存模型](/java/22_topic_jmm)
+→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
 
 ## 四、CAS 是什么？ABA 问题如何解决？
 
@@ -144,7 +144,7 @@ ref.compareAndSet(val, 2, stampHolder[0], stampHolder[0] + 1); // 同时比较�
 | 不可剥夺 | `tryLock(timeout)` 获取失败时主动释放已持有的锁，稍后重试 |
 | 循环等待 | **固定加锁顺序**（如按账户 ID 从小到大加锁），最常用 |
 
-**编码习惯**：避免嵌套锁、缩小临界区、锁内不调用外部方法和 RPC；读锁不要尝试升级为写锁（`ReentrantReadWriteLock` 两个线程同时升级会死锁）；父子任务不要共用同一个线程池，否则会出现线程池饥饿死锁（见 [线程池](/java/28_topic_thread_pool)）。
+**编码习惯**：避免嵌套锁、缩小临界区、锁内不调用外部方法和 RPC；读锁不要尝试升级为写锁（`ReentrantReadWriteLock` 两个线程同时升级会死锁）；父子任务不要共用同一个线程池，否则会出现线程池饥饿死锁（见 [Java 线程池](/java/28_topic_thread_pool)）。
 
 → 详见 [Lock 锁](/java/25_topic_lock)
 
@@ -219,7 +219,7 @@ try {
 - **活锁**：重试加**随机退避**（随机等待时间打破"同步谦让"），限制重试次数；失败消息进入延迟或死信队列，而不是立即重投
 - **饥饿**：需要时用公平锁（`new ReentrantLock(true)`，代价是吞吐下降）；避免依赖线程优先级；缩短锁持有时间；慢任务与快任务使用不同线程池隔离；读写锁场景可用 `StampedLock` 乐观读减少写锁等待
 
-→ 详见 [Lock 锁](/java/25_topic_lock)（公平锁与非公平锁）、[线程池](/java/28_topic_thread_pool)（线程池饥饿死锁）
+→ 详见 [Lock 锁](/java/25_topic_lock)（公平锁与非公平锁）、[Java 线程池](/java/28_topic_thread_pool)（线程池饥饿死锁）
 
 ---
 

@@ -2,7 +2,7 @@
 description: CAS、ABA 问题、LongAdder
 ---
 
-# 专项 - Atomic 原子类
+# 原子类（Atomic）
 
 > `java.util.concurrent.atomic` 包提供了一组**原子变量类**，基于 CAS 实现**无锁编程**，比 `synchronized` 在低中度竞争下有更高的吞吐量。
 

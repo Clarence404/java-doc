@@ -2,7 +2,7 @@
 description: ThreadPoolExecutor 原理（ctl / Worker）、异常处理、优雅关闭、监控、定时任务、Fork/Join、虚拟线程、常见坑
 ---
 
-# 专项 - 线程池
+# 线程池
 
 > `Executors` 快捷创建方式见 [线程基础 - 线程池基础](./23_topic_thread_basics.md#四、线程池基础-executors)，本文着重介绍 `ThreadPoolExecutor` 的原理、使用与常见坑，以及 Fork/Join、虚拟线程。线程数如何设置、动态线程池等生产调优见 [高并发 - 并发参数调优](/high-con/7_concurrency_tuning#一、线程池参数调优)。
 

@@ -23,7 +23,7 @@ description: 线程池、Web 容器、数据库 / Redis 连接池、OS 参数、
 
 ## 一、线程池参数调优
 
-**线程数先用公式估一个起点，再用压测找到最优点，上线后用动态线程池微调。** `ThreadPoolExecutor` 的构造参数、执行流程、队列与拒绝策略见 [线程池](/java/28_topic_thread_pool)。
+**线程数先用公式估一个起点，再用压测找到最优点，上线后用动态线程池微调。** `ThreadPoolExecutor` 的构造参数、执行流程、队列与拒绝策略见 [Java 线程池](/java/28_topic_thread_pool)。
 
 ### 1、线程数估算
 

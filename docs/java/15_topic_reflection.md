@@ -2,7 +2,7 @@
 description: Class 对象获取、MethodHandle 优化、Java 9+ 模块系统限制
 ---
 
-# 专项 - 反射（Reflection）
+# 反射
 
 > 运行时检查、修改类的结构和行为的能力。Spring IoC、MyBatis、Jackson 等主流框架的核心机制，同时也是安全审计和性能优化的关注点。
 

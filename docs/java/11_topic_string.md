@@ -2,7 +2,7 @@
 description: String 不可变原理、字符串池、StringBuilder 内部实现
 ---
 
-# 专项 - String
+# String
 
 ## 一、String 不可变性
 

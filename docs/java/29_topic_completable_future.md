@@ -2,7 +2,7 @@
 description: 异步编排、任务组合、异常处理与常见坑
 ---
 
-# 专项 - CompletableFuture
+# CompletableFuture
 
 > Java 8 引入的异步编排工具，弥补了 [Future](./23_topic_thread_basics.md#二、future-接口-异步结果) 只能阻塞 `get()` 的不足，支持链式转换、组合多个异步任务与统一的异常处理。
 

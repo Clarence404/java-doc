@@ -649,7 +649,7 @@ jstack <pid> | grep "nid=0x3039" -A 30
 - 对开发者的承诺：正确同步（volatile、锁、final、happens-before）的程序表现为顺序一致
 - 注意与 JVM 内存结构（堆、栈、方法区）区分：一个是并发语义规范，一个是运行时内存划分
 
-→ 详见 [专项 - JMM 内存模型](/java/22_topic_jmm)
+→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
 
 ### 43、happens-before 的 8 条规则是什么？
 
@@ -666,7 +666,7 @@ jstack <pid> | grep "nid=0x3039" -A 30
 | 对象终结 | 构造函数结束 hb `finalize()` 开始 |
 | 传递性 | A hb B 且 B hb C，则 A hb C |
 
-→ 详见 [专项 - JMM 内存模型](/java/22_topic_jmm)
+→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
 
 ### 44、volatile 能保证原子性吗？适合什么场景？
 
@@ -676,7 +676,7 @@ jstack <pid> | grep "nid=0x3039" -A 30
 - 适合：状态标志（`volatile boolean running`）、一写多读的配置、DCL 单例中的实例引用
 - 需要原子性时用 `AtomicInteger` / `LongAdder`，或加锁
 
-→ 详见 [专项 - JMM 内存模型](/java/22_topic_jmm)
+→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
 
 ### 45、为什么 DCL 单例需要 volatile？不加会有什么问题？
 
@@ -699,7 +699,7 @@ public static Singleton getInstance() {
 
 替代方案：静态内部类单例（依赖 `<clinit>` 线程安全）、枚举单例。
 
-→ 详见 [专项 - JMM 内存模型](/java/22_topic_jmm)
+→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
 
 ### 46、synchronized 除了互斥，还有什么内存语义？
 
@@ -709,7 +709,7 @@ public static Singleton getInstance() {
 - 临界区内的代码不会被重排序到临界区之外
 - 因此 synchronized 同时提供原子性、可见性、有序性
 
-→ 详见 [专项 - JMM 内存模型](/java/22_topic_jmm)
+→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
 
 ### 47、final 字段的内存语义是什么？
 
@@ -718,7 +718,7 @@ public static Singleton getInstance() {
 - 前提：构造过程中 `this` 没有逸出（没有在构造函数里把 `this` 发布出去）
 - 这是不可变对象（如 `String`）无需同步即可安全共享的基础
 
-→ 详见 [专项 - JMM 内存模型](/java/22_topic_jmm)
+→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
 
 ## 九、虚拟线程
 
@@ -743,7 +743,7 @@ try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
 
 Spring Boot 3.2+ 配置 `spring.threads.virtual.enabled=true` 即可让 Tomcat 与 `@Async` 使用虚拟线程。
 
-→ 详见 [专项 - 线程池](/java/28_topic_thread_pool)
+→ 详见 [Java 线程池](/java/28_topic_thread_pool)
 
 ### 49、虚拟线程的挂载/卸载（mount/unmount）机制是什么？
 
@@ -753,7 +753,7 @@ Spring Boot 3.2+ 配置 `spring.threads.virtual.enabled=true` 即可让 Tomcat �
 - 阻塞期间只占用少量堆内存保存栈帧，不占用 OS 线程
 - 无法卸载的情况称为**钉住**（pinning），见第 51 题
 
-→ 详见 [专项 - 线程池](/java/28_topic_thread_pool)
+→ 详见 [Java 线程池](/java/28_topic_thread_pool)
 
 ### 50、虚拟线程为什么不适合 CPU 密集型任务？
 
@@ -762,7 +762,7 @@ Spring Boot 3.2+ 配置 `spring.threads.virtual.enabled=true` 即可让 Tomcat �
 - 虚拟线程提升的是**吞吐量**（同时处理更多阻塞请求），不是单任务的**速度**
 - CPU 密集任务仍用固定大小的平台线程池（核数左右）或 `ForkJoinPool`
 
-→ 详见 [专项 - 线程池](/java/28_topic_thread_pool)
+→ 详见 [Java 线程池](/java/28_topic_thread_pool)
 
 ### 51、虚拟线程中使用 synchronized 有什么问题？如何解决？
 
@@ -773,4 +773,4 @@ Spring Boot 3.2+ 配置 `spring.threads.virtual.enabled=true` 即可让 Tomcat �
 - 调用 native 方法或外部函数时仍会钉住，与 JDK 版本无关
 - 其他注意：虚拟线程数量巨大，`ThreadLocal` 缓存大对象会放大内存占用，可考虑 `ScopedValue`
 
-→ 详见 [专项 - 线程池](/java/28_topic_thread_pool)
+→ 详见 [Java 线程池](/java/28_topic_thread_pool)

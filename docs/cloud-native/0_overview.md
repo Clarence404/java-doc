@@ -8,7 +8,7 @@
 
 ## 二、推荐阅读路径
 
-1. 先读 [Linux 概述](./1_linux) 与 [发行版](./2_linux_distros)，打好运维基础。
+1. 先读 [Linux 概览](./1_linux) 与 [发行版](./2_linux_distros)，打好运维基础。
 2. 再读 [Docker](./5_docker) 与 [Kubernetes](./6_kubernetes)，掌握容器化与编排的核心。
 3. 然后读 [Nginx 与 Ingress](./7_nginx_ingress)、[Helm](./8_helm)、[Argo CD](./9_argocd)，形成从打包到持续部署的链路。
 4. 接着读 [Terraform](./11_terraform) 与 [Ansible](./12_ansible)，把基础设施纳入代码管理。

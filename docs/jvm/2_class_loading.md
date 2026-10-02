@@ -204,7 +204,7 @@ protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundE
 
 `java.sql.Driver`、`DriverManager` 由上层加载器加载（JDK 8 为 Bootstrap，JDK 9+ 为 Platform），而驱动实现（如 `com.mysql.cj.jdbc.Driver`）在 classpath 的第三方 jar 里，上层加载器看不到。
 
-解决办法是**线程上下文类加载器**（TCCL）：`ServiceLoader.load(Driver.class)` 内部取 `Thread.currentThread().getContextClassLoader()`（默认为 Application ClassLoader），由它加载实现类，相当于父加载器"向下"请求子加载器。SPI 机制本身详见 [专项 - SPI 机制](/java/20_topic_spi)。
+解决办法是**线程上下文类加载器**（TCCL）：`ServiceLoader.load(Driver.class)` 内部取 `Thread.currentThread().getContextClassLoader()`（默认为 Application ClassLoader），由它加载实现类，相当于父加载器"向下"请求子加载器。SPI 机制本身详见 [Java SPI 机制](/java/20_topic_spi)。
 
 ### 2、Tomcat 多应用隔离
 
