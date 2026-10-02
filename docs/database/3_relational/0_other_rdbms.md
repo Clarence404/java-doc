@@ -1,3 +1,7 @@
+---
+description: Oracle、达梦、人大金仓、SQL Server、openGauss 与国产数据库选型
+---
+
 # 其他 RDBMS
 
 ## 一、Oracle

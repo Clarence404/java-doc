@@ -1,3 +1,7 @@
+---
+description: 帧格式与字段设计、LengthFieldBasedFrameDecoder、编解码器体系、请求与响应的匹配
+---
+
 # 自定义私有协议
 
 > **本篇目标**：从零设计一个二进制私有协议，完成帧格式、编解码器、Pipeline 组装，并实现 RPC 核心的请求-响应匹配。

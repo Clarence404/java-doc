@@ -1,3 +1,7 @@
+---
+description: Key/Value/TTL 规范、穿透与击穿防护、禁止事项、监控告警
+---
+
 # 缓存最佳实践
 
 参考：[用好缓存的10条军规-苏三说技术](https://mp.weixin.qq.com/s/O4uto6IdP0rrtS2B2m3OXw)

@@ -4,18 +4,7 @@
 
 ## 一、模块导航
 
-| 文档 | 覆盖内容 |
-|------|----------|
-| [分布式架构](./1_distributed) | 单体 → 集群 → 分布式 → SOA → 微服务的演进与对比 |
-| [分布式理论](./2_theorem) | CAP、BASE、Paxos、Raft、ZAB、Gossip、FLP |
-| [分布式锁](./3_lock) | Redis 锁、Redlock 争议、ZooKeeper / etcd 锁、方案对比 |
-| [分布式事务](./4_transaction) | 2PC / 3PC、TCC、本地消息表、可靠消息、Saga、Seata |
-| [分布式会话](./5_session) | Cookie-Session、JWT、Redis Session、选型建议 |
-| [分布式调度](./6_job_scheduler) | XXL-JOB、Quartz、ElasticJob、PowerJob 等对比 |
-| [工作流](./7_work_flow) | Activiti / Flowable / Camunda / jBPM 选型 |
-| [分布式 ID 生成](./8_id_generator) | UUID、自增、雪花算法、号段模式、Leaf、UidGenerator |
-| [一致性哈希](./9_consistent_hashing) | 原理、虚拟节点、在缓存与 MQ 中的应用 |
-| [面试高频题](./99_interview) | 分布式方向题目清单 |
+<ModuleNav />
 
 ## 二、推荐阅读路径
 

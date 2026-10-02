@@ -1,3 +1,7 @@
+---
+description: 服务拆分、API Gateway / BFF、CQRS / 事件溯源、熔断 / Saga / Outbox、Sidecar / 绞杀者
+---
+
 # 设计模式
 
 > 参考资料：

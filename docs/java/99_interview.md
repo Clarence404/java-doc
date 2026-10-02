@@ -1,3 +1,7 @@
+---
+description: Java 方向题目清单
+---
+
 # 面试高频题
 
 > 汇总 Java 基础与进阶方向的高频面试问题，完整解答见 <RouteLink to="/interview/1_java">开发总结 - Java</RouteLink>

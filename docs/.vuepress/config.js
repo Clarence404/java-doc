@@ -19,42 +19,61 @@ const summaryNav = {text: SUMMARY.name, link: overviewLink(SUMMARY.dir)};
 const navbarFlat = [summaryNav, ...GROUPS.flatMap(g => g.modules.map(navItem))];
 const navbarDropdown = [summaryNav, ...GROUPS.map(g => ({text: g.name, children: g.modules.map(navItem)}))];
 
-// stripPrefix：侧边栏去掉标题中重复的模块前缀（页面 H1 保持完整）
+// ============================================================
+// 侧边栏：全部由目录与文章 frontmatter 自动生成，新增文章只需新建 .md
+//   条目文字：第一个 # 标题（interview 去掉「开发总结 - 」前缀）
+//   条目顺序：0_overview 在最前，其余按文件名数字前缀，99_interview 在最后
+//   分组：site.js 中模块的 sidebar 只写每组起始编号 from，编号 ≥ from 的文章归入该组（90 号以后为附录，不分组）
+//   子目录：site.js 中登记了 subdirs 的模块，每个子目录自动成为一个可折叠分组
+// 同时收集每篇文章的 description，供总览页 <ModuleNav /> 自动生成导航表
+// ============================================================
+const docsRoot = path.resolve(__dirname, '..');
+const NAV_DESC = {};
+
+// 只解析单行 key: value 的简单 frontmatter（description）
+function readFrontmatter(content) {
+    const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (!m) return {};
+    const fm = {};
+    for (const line of m[1].split(/\r?\n/)) {
+        const kv = line.match(/^(\w+):\s*(.*)$/);
+        if (kv) fm[kv[1]] = kv[2].replace(/^(['"])(.*)\1$/, '$2').trim();
+    }
+    return fm;
+}
+
+const fileNum = name => parseInt(name.match(/^(\d+)/)?.[1] ?? '0');
+const byFileOrder = (a, b) => {
+    const oa = a.startsWith('0_overview') ? -1 : fileNum(a), ob = b.startsWith('0_overview') ? -1 : fileNum(b);
+    return oa - ob || a.localeCompare(b);
+};
+
 function getSidebarFromDir(dirPath, {stripPrefix} = {}) {
     if (!fs.existsSync(dirPath)) {
         console.warn(`Warning: Directory ${dirPath} does not exist. Skipping sidebar generation.`);
         return [];
     }
-    const files = fs.readdirSync(dirPath)
-        .filter(file => file.endsWith('.md'))
-        .sort((a, b) => {
-            const na = parseInt(a.match(/^(\d+)/)?.[1] ?? '0');
-            const nb = parseInt(b.match(/^(\d+)/)?.[1] ?? '0');
-            return na - nb;
-        });
+    const files = fs.readdirSync(dirPath).filter(file => file.endsWith('.md') && file !== 'README.md').sort(byFileOrder);
     return files.map(file => {
         const filePath = path.join(dirPath, file);
         const content = fs.readFileSync(filePath, 'utf-8').replace(/^﻿/, '');
-        const firstHeadingMatch = content.match(/^# (.+)/m);
-        const firstHeading = firstHeadingMatch ? firstHeadingMatch[1] : file;
-        const relativeLink = path.relative(path.resolve(__dirname, '../'), filePath)
-            .replace(/\\/g, '/')
-            .replace('.md', '');
-        return {
-            text: stripPrefix && firstHeading.startsWith(stripPrefix) ? firstHeading.slice(stripPrefix.length) : firstHeading,
-            link: `/${relativeLink}`,
-        };
+        const fm = readFrontmatter(content);
+        const heading = content.match(/^# (.+)/m)?.[1] ?? file;
+        const link = '/' + path.relative(docsRoot, filePath).replace(/\\/g, '/').replace(/\.md$/, '');
+        NAV_DESC[link] = fm.description ?? '';
+        const title = stripPrefix && heading.startsWith(stripPrefix) ? heading.slice(stripPrefix.length) : heading;
+        return {text: title, link};
     });
 }
 
-// 按文件编号区间分组：组内文件仍自动读取目录，新增文件只要编号落在区间内即自动归组
-function getGroupedSidebar(dirPath, groups, options = {}) {
-    const num = item => parseInt(item.link.split('/').pop().match(/^(\d+)/)?.[1] ?? '0');
+// 按起始编号分组：0_overview 与 90 号以后（附录、99 题单）不分组；其余归入 from ≤ 编号的最后一组
+function groupItems(items, groups) {
     const result = [];
     const emitted = new Map();
-    for (const item of getSidebarFromDir(dirPath, options)) {
-        const n = num(item);
-        const group = groups.find(g => n >= g.from && n <= g.to);
+    for (const item of items) {
+        const n = fileNum(item.link.split('/').pop());
+        const isOverview = item.link.endsWith('/0_overview') && n === 0;
+        const group = isOverview || n >= 90 ? null : groups.filter(g => n >= g.from).at(-1);
         if (!group) {
             result.push(item);
             continue;
@@ -69,239 +88,75 @@ function getGroupedSidebar(dirPath, groups, options = {}) {
     return result;
 }
 
-const dirOf = name => path.resolve(__dirname, `../${name}`);
+const subdirConf = conf => (typeof conf === 'string' ? {title: conf} : conf);
 
-const aiSidebar = [
-    {text: 'AI 开发总览', link: '/ai/0_overview'},
-    {
-        text: '基础概念',
-        collapsible: true,
-        expanded: true,
-        children: [
-            {text: '大语言模型', link: '/ai/1_concepts/0_model'},
-            {text: 'Prompt 工程',   link: '/ai/1_concepts/1_prompt'},
-            {text: 'Function Calling', link: '/ai/1_concepts/2_function_calling'},
-        ],
-    },
-    {
-        text: 'Java 框架',
-        collapsible: true,
-        expanded: true,
-        children: [
-            {text: 'Spring AI',    link: '/ai/2_frameworks/0_spring_ai'},
-            {text: 'LangChain4j', link: '/ai/2_frameworks/1_langchain4j'},
-        ],
-    },
-    {
-        text: '模型接入',
-        collapsible: true,
-        expanded: true,
-        children: [
-            {text: 'Ollama（本地部署）', link: '/ai/3_integration/0_ollama'},
-            {text: '主流 API 接入',      link: '/ai/3_integration/1_api_access'},
-        ],
-    },
-    {
-        text: '核心技术',
-        collapsible: true,
-        expanded: true,
-        children: [
-            {text: 'Embedding',  link: '/ai/4_core_tech/0_embedding'},
-            {text: '向量数据库', link: '/ai/4_core_tech/1_vector_db'},
-            {text: 'RAG 检索增强',        link: '/ai/4_core_tech/2_rag'},
-        ],
-    },
-    {
-        text: '高阶应用',
-        collapsible: true,
-        expanded: true,
-        children: [
-            {text: 'AI Agent', link: '/ai/5_advanced/0_agent'},
-            {text: 'MCP 协议', link: '/ai/5_advanced/1_mcp'},
-            {text: '模型微调', link: '/ai/5_advanced/2_fine_tuning'},
-        ],
-    },
-    {
-        text: 'AI 工具生态',
-        collapsible: true,
-        expanded: false,
-        children: [
-            {text: 'AI 工具总览', link: '/ai/6_tools/0_ai_tools'},
-        ],
-    },
-];
+// 子目录模块：根目录文章 → 各子目录分组（按目录编号）→ 99 号题单
+function getSubdirSidebar(dir, subdirs) {
+    const root = getSidebarFromDir(dirOf(dir));
+    const head = root.filter(i => fileNum(i.link.split('/').pop()) < 99);
+    const tail = root.filter(i => fileNum(i.link.split('/').pop()) >= 99);
+    const subs = Object.keys(subdirs).filter(sub => fs.existsSync(path.join(dirOf(dir), sub))).sort(byFileOrder);
+    const groups = subs.map(sub => {
+        const conf = subdirConf(subdirs[sub]);
+        const items = getSidebarFromDir(path.join(dirOf(dir), sub));
+        const children = conf.sidebar ? groupItems(items, conf.sidebar) : items;
+        return {text: conf.title, link: items[0]?.link, collapsible: true, expanded: !conf.collapsed, children};
+    });
+    return [...head, ...groups, ...tail];
+}
 
-const algorithmsSidebar = [
-    {text: '数据结构与算法总览', link: '/algorithms/0_overview'},
-    {text: '复杂度分析', link: '/algorithms/0_complexity'},
-    {
-        text: '数据结构',
-        link: '/algorithms/1_data_structures/0_array_list',
-        collapsible: true,
-        expanded: true,
-        children: [
-            {text: '数组 & 链表', link: '/algorithms/1_data_structures/0_array_list'},
-            {text: '栈 & 队列',   link: '/algorithms/1_data_structures/1_stack_queue'},
-            {text: '哈希表',      link: '/algorithms/1_data_structures/2_hash_table'},
-            {text: '树',          link: '/algorithms/1_data_structures/3_tree'},
-            {text: '堆',          link: '/algorithms/1_data_structures/4_heap'},
-            {text: '图',          link: '/algorithms/1_data_structures/5_graph'},
-            {text: '字典树 Trie', link: '/algorithms/1_data_structures/6_trie'},
-        ],
-    },
-    {
-        text: '基础算法',
-        link: '/algorithms/2_algorithms/0_search',
-        collapsible: true,
-        expanded: true,
-        children: [
-            {text: '搜索算法', link: '/algorithms/2_algorithms/0_search'},
-            {text: '排序算法', link: '/algorithms/2_algorithms/1_sort'},
-            {text: '分治算法', link: '/algorithms/2_algorithms/2_divide_conquer'},
-            {text: '回溯算法', link: '/algorithms/2_algorithms/3_backtrack'},
-            {text: '贪心算法', link: '/algorithms/2_algorithms/4_greedy'},
-        ],
-    },
-    {
-        text: '算法技巧',
-        link: '/algorithms/3_patterns/0_dynamic_programming',
-        collapsible: true,
-        expanded: true,
-        children: [
-            {text: '动态规划',      link: '/algorithms/3_patterns/0_dynamic_programming'},
-            {text: '双指针',        link: '/algorithms/3_patterns/1_two_pointers'},
-            {text: '滑动窗口',      link: '/algorithms/3_patterns/2_sliding_window'},
-            {text: '前缀和 & 差分', link: '/algorithms/3_patterns/3_prefix_sum'},
-            {text: '位运算',        link: '/algorithms/3_patterns/4_bit_manipulation'},
-        ],
-    },
-    {
-        text: '刷题实战',
-        link: '/algorithms/4_practice/0_leet_code',
-        collapsible: true,
-        expanded: false,
-        children: [
-            {text: 'LeetCode', link: '/algorithms/4_practice/0_leet_code'},
-            {text: 'HuaWei Code',  link: '/algorithms/4_practice/1_huawei_oj'},
-        ],
-    },
-];
+const dirOf = name => path.resolve(docsRoot, name);
 
-const databaseSidebar = [
-    {text: '数据库总览', link: '/database/0_overview'},
-    {
-        text: 'MySQL',
-        link: '/database/1_mysql/0_overview',
-        collapsible: true,
-        expanded: true,
-        children: [
-            {text: '概览', link: '/database/1_mysql/0_overview'},
-            {text: '版本特性', link: '/database/1_mysql/1_feature'},
-            {text: 'MariaDB', link: '/database/1_mysql/2_maria_db'},
-            {text: '避坑指南', link: '/database/1_mysql/3_fallible_point'},
-            {
-                text: '核心专项',
-                collapsible: true,
-                expanded: true,
-                children: [
-                    {text: 'MySQL 索引', link: '/database/1_mysql/4_topic_index'},
-                    {text: '事务与锁', link: '/database/1_mysql/5_topic_transaction'},
-                    {text: '执行流程', link: '/database/1_mysql/6_topic_execution'},
-                    {text: 'EXPLAIN 优化', link: '/database/1_mysql/7_topic_explain'},
-                    {text: 'InnoDB 存储', link: '/database/1_mysql/8_topic_innodb'},
-                    {text: '主从与高可用', link: '/database/1_mysql/9_topic_replication'},
-                ],
-            },
-        ],
-    },
-    {
-        text: 'PostgreSQL',
-        link: '/database/2_postgresql/0_overview',
-        collapsible: true,
-        expanded: false,
-        children: [
-            {text: '概览', link: '/database/2_postgresql/0_overview'},
-            {text: '特性', link: '/database/2_postgresql/1_feature'},
-            {
-                text: '核心专项',
-                collapsible: true,
-                expanded: true,
-                children: [
-                    {text: 'MVCC 与 VACUUM', link: '/database/2_postgresql/2_topic_mvcc'},
-                    {text: '索引类型', link: '/database/2_postgresql/3_topic_index'},
-                    {text: '高级 SQL', link: '/database/2_postgresql/4_topic_advanced_sql'},
-                    {text: '复制与高可用', link: '/database/2_postgresql/5_topic_replication'},
-                ],
-            },
-        ],
-    },
-    {
-        text: '关系库',
-        link: '/database/3_relational/0_other_rdbms',
-        collapsible: true,
-        expanded: false,
-        children: [
-            {text: '其他 RDBMS', link: '/database/3_relational/0_other_rdbms'},
-            {text: '分布式', link: '/database/3_relational/1_distributed_db'},
-            {text: 'ORM 框架', link: '/database/3_relational/2_orm_framework'},
-        ],
-    },
-    {
-        text: 'NoSQL',
-        link: '/database/4_nosql/0_column_db',
-        collapsible: true,
-        expanded: false,
-        children: [
-            {text: '列式库', link: '/database/4_nosql/0_column_db'},
-            {text: '时序库', link: '/database/4_nosql/1_time_series_db'},
-            {text: '文档库', link: '/database/4_nosql/2_document_db'},
-            {text: '搜索库', link: '/database/4_nosql/3_search_db'},
-            {text: '图数据库',   link: '/database/4_nosql/4_graph_db'},
-        ],
-    },
-    {
-        text: '架构运维',
-        link: '/database/5_practice/0_cdc_tools',
-        collapsible: true,
-        expanded: false,
-        children: [
-            {text: 'CDC 工具', link: '/database/5_practice/0_cdc_tools'},
-            {text: '备份恢复', link: '/database/5_practice/1_backup_recovery'},
-            {text: '分库分表', link: '/database/5_practice/2_sharding'},
-            {text: '连接池', link: '/database/5_practice/3_connection_pool'},
-        ],
-    },
-    {
-        text: '参考延伸',
-        link: '/database/6_reference/0_binlog_connector_source',
-        collapsible: true,
-        expanded: false,
-        children: [
-            {text: 'Binlog 源码', link: '/database/6_reference/0_binlog_connector_source'},
-            {text: '选型指南', link: '/database/6_reference/1_selection_guide'},
-            {text: 'JDBC 驱动', link: '/database/6_reference/2_jdbc_driver'},
-        ],
-    },
-    {text: '面试专题', link: '/database/99_interview'},
-];
-
-// 结构特殊、需要手写的侧边栏；其余模块按 site.js 的 sidebar 区间分组，或直接读取目录
-const CUSTOM_SIDEBARS = {
-    ai: aiSidebar,
-    algorithms: algorithmsSidebar,
-    database: databaseSidebar,
+const sidebarOf = ({dir, sidebar, subdirs, stripPrefix}) => {
+    if (subdirs) return getSubdirSidebar(dir, subdirs);
+    const items = getSidebarFromDir(dirOf(dir), {stripPrefix});
+    return sidebar ? groupItems(items, sidebar) : items;
 };
-
-const sidebarOf = ({dir, sidebar, stripPrefix}) => CUSTOM_SIDEBARS[dir]
-    ?? (sidebar ? getGroupedSidebar(dirOf(dir), sidebar, {stripPrefix}) : getSidebarFromDir(dirOf(dir), {stripPrefix}));
 
 const ALL_MODULES = [SUMMARY, ...GROUPS.flatMap(g => g.modules)];
 const SIDEBAR = Object.fromEntries(ALL_MODULES.map(m => [`/${m.dir}/`, sidebarOf(m)]));
 
+// 总览页导航表数据：与侧边栏同一棵树，叶子带上文章 frontmatter 的 description，写入 @temp/module-nav.js
+// 简介取自页面数据，开发时修改 description 会热更新（新增文章仍需重启，与侧边栏一致）
+const missingDesc = Object.entries(NAV_DESC).filter(([link, d]) => !d && !link.endsWith('/0_overview')).map(([link]) => link);
+if (missingDesc.length) console.warn(`[module-nav] ${missingDesc.length} 篇文章缺少 frontmatter description：\n  ${missingDesc.join('\n  ')}`);
+
+// 答案页 → 对应的模块题目清单：由 site.js 中各模块的 interview 字段反推
+const ANSWER_LISTS = {};
+for (const m of GROUPS.flatMap(g => g.modules)) {
+    for (const stem of m.interview ?? []) {
+        (ANSWER_LISTS[`/${SUMMARY.dir}/${stem}`] ??= []).push({text: m.name, link: `/${m.dir}/99_interview`});
+    }
+}
+
+function writeModuleNav(app) {
+    const desc = Object.fromEntries(app.pages
+        .filter(p => p.filePathRelative)
+        .map(p => ['/' + p.filePathRelative.replace(/\.md$/, ''), p.frontmatter.description ?? '']));
+    const withDesc = items => items.map(i => (i.children
+        ? {text: i.text, children: withDesc(i.children)}
+        : {text: i.text, link: i.link, description: desc[i.link] ?? NAV_DESC[i.link] ?? '', ...(ANSWER_LISTS[i.link] ? {lists: ANSWER_LISTS[i.link]} : {})}));
+    const nav = Object.fromEntries(ALL_MODULES.map(m => [m.dir, withDesc(SIDEBAR[`/${m.dir}/`])]));
+    return app.writeTemp('module-nav.js', `export default ${JSON.stringify(nav)};\n`);
+}
+
+const moduleNavPlugin = {
+    name: 'module-nav',
+    onPrepared: (app) => writeModuleNav(app),
+    // 开发模式：Markdown 变更后（页面数据已更新）重新生成导航表数据
+    onWatched: (app, watchers) => {
+        let timer = null;
+        watchers.filter(w => typeof w?.on === 'function').forEach(w => w.on('change', () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => writeModuleNav(app), 300);
+        }));
+    },
+};
+
 // 面包屑名称：目录没有 README 时主题自动生成目录页，这里给出中文标题（模块名 + subdirs）
 const DIR_TITLES = Object.fromEntries(ALL_MODULES.flatMap(m => [
     [`/${m.dir}/`, m.name],
-    ...Object.entries(m.subdirs ?? {}).map(([sub, title]) => [`/${m.dir}/${sub}/`, title]),
+    ...Object.entries(m.subdirs ?? {}).map(([sub, conf]) => [`/${m.dir}/${sub}/`, subdirConf(conf).title]),
 ]));
 
 export default defineUserConfig({
@@ -314,7 +169,7 @@ export default defineUserConfig({
     title: 'Java Doc',
     description: '实践是检验真理的唯一标准',
     // 首页知识星图的数字（文章数 / 题数 / 答案页 / SVG）在构建时统计
-    plugins: [homeStatsPlugin(path.resolve(__dirname, '..'))],
+    plugins: [homeStatsPlugin(docsRoot), moduleNavPlugin],
     // 处理vite 打包警告
     bundler: viteBundler({
         viteOptions: {

@@ -1,3 +1,7 @@
+---
+description: Cache Aside 等模式对比、延迟双删、Binlog 订阅
+---
+
 # 缓存一致性
 
 参考文章：

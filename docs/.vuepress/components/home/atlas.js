@@ -1,8 +1,8 @@
 // 知识星图：数据组装、布局、SVG 生成（纯函数，SSR 与客户端结果一致）以及交互挂载
-import {GROUPS as RAW_GROUPS, GOALS, REL} from './data.js';
+import {GROUPS as RAW_GROUPS, GOALS, REL} from '../../site.js';
 
 /* ---------------------------------------------------------------
-   Model: data.js + build-time stats
+   Model: site.js + build-time stats
    --------------------------------------------------------------- */
 export function buildModel(stats) {
     const mods = (stats && stats.modules) || {};
@@ -37,6 +37,23 @@ export function buildModel(stats) {
         svgs: (stats && stats.svgs) || 0,
     };
     return {groups, byName, rel, goals, totals};
+}
+
+/* 分组配色：沿品牌渐变 #ff6b9d → #a855f7 → #38bdf8 按学习顺序等距取色，分组数量变化时自动适配 */
+const BRAND = [[255, 107, 157], [168, 85, 247], [56, 189, 248]];
+function brandAt(t) {
+    const seg = t <= .5 ? 0 : 1, u = t <= .5 ? t * 2 : (t - .5) * 2;
+    const [a, b] = [BRAND[seg], BRAND[seg + 1]];
+    return '#' + a.map((v, k) => Math.round(v + (b[k] - v) * u).toString(16).padStart(2, '0')).join('');
+}
+export function paletteStyle(n) {
+    const style = {};
+    for (let i = 1; i <= n; i++) {
+        style[`--s${i}`] = brandAt(n === 1 ? 0 : (i - 1) / (n - 1));
+        style[`--c${i}`] = `color-mix(in oklab,var(--s${i}) var(--mixp),var(--mix))`;
+        style[`--t${i}`] = `color-mix(in oklab,var(--s${i}) var(--tmixp),var(--mix))`;
+    }
+    return style;
 }
 
 /* ---------------------------------------------------------------

@@ -1,3 +1,7 @@
+---
+description: MCP 架构模型、核心概念、MCP vs Function Calling、Spring AI MCP Client、Java 编写 MCP Server
+---
+
 # MCP 协议
 
 > 参考资料：

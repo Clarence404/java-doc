@@ -1,3 +1,7 @@
+---
+description: 微调适用时机、微调类型、数据准备、OpenAI Fine-tuning API、LoRA 本地微调、评估与注意事项
+---
+
 # 模型微调
 
 > 参考资料：

@@ -1,3 +1,7 @@
+---
+description: 缓存方向题目清单
+---
+
 # 面试高频题
 
 > 汇总 Redis 与缓存核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/8_cache">开发总结 - 缓存</RouteLink>

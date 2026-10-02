@@ -1,3 +1,7 @@
+---
+description: 熔断器三态、统计窗口与阈值、Sentinel 与 Resilience4j 对比
+---
+
 # 熔断
 
 > **本篇目标**：理解熔断器三态机与熔断策略，会为依赖设定合理的熔断阈值，并在 Sentinel 与 Resilience4j 之间做出选型。

@@ -13,20 +13,7 @@ Netty 是 Java 生态中使用最广的网络通信框架。Dubbo、gRPC-Java、
 
 ## 二、模块导航
 
-| 文档 | 覆盖内容 |
-|------|----------|
-| [IO 模型](./1_io_model) | 一次读操作的两个阶段、五种 IO 模型、select / poll / epoll、LT / ET 触发模式 |
-| [Reactor 模型](./2_reactor) | 单线程、单 Reactor 多线程、主从 Reactor，以及 Reactor 与 Proactor 的区别 |
-| [Netty 入门](./3_netty_desc) | 原生 NIO 的痛点、Netty 的定位与架构、第一个 Echo 程序、核心组件速览、Bootstrap 配置 |
-| [核心组件](./4_core_components) | Channel 生命周期、ChannelFuture、EventLoop 运行机制、Pipeline 事件传播、Handler、业务线程池 |
-| [ByteBuf 与内存管理](./5_bytebuf) | 读写指针、堆内与直接内存、池化、引用计数、泄漏检测、零拷贝、内存池原理 |
-| [粘包与拆包](./6_stick_split) | 成因与复现、四种界定方案、Netty 内置帧解码器及其工作原理 |
-| [自定义私有协议](./7_custom_protocol) | 帧格式与字段设计、LengthFieldBasedFrameDecoder、编解码器体系、请求与响应的匹配 |
-| [心跳与连接管理](./8_heartbeat) | 半开连接、IdleStateHandler、心跳方案、断线重连、在线会话管理 |
-| [WebSocket](./9_websocket) | 握手与帧格式、Netty 与 Spring 两种实现、集群部署下的消息推送 |
-| [SSE](./10_sse) | 数据格式、SseEmitter 与 WebFlux、Netty 原生实现、反向代理配置 |
-| [生产实践与调优](./11_production) | 线程模型与原生传输、关键参数、写水位与背压、优雅停机、监控指标、常见坑 |
-| [面试高频题](./99_interview) | Netty 方向题目清单 |
+<ModuleNav />
 
 ## 三、阅读建议
 

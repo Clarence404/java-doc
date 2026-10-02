@@ -1,3 +1,7 @@
+---
+description: PEP / PDP 部署 / 网关与服务鉴权分工 / 权限缓存刷新 / 数据权限拦截
+---
+
 # 权限系统架构设计
 
 > 本文讨论权限系统在分布式架构中"放在哪、怎么缓存、怎么拦数据"。权限模型本身（RBAC / ABAC / DAC / MAC、5 张表、OPA 策略、选型）见 → [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)；Spring Security 接线代码（UserDetailsService、`@PreAuthorize`、动态权限）见 → [Spring Security](/spring/9_security)

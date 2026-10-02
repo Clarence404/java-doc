@@ -1,3 +1,7 @@
+---
+description: 字节流/字符流、Channel、Buffer、Selector、零拷贝（OS 层 IO 模型见 [Netty](/netty/1_io_model)）
+---
+
 # 专项 - IO / NIO
 
 ## 一、IO 体系结构

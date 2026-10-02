@@ -1,3 +1,7 @@
+---
+description: LangChain4j 快速接入、AiServices、ChatMemory、Tools、Streaming、RAG 集成、LangGraph4j
+---
+
 # LangChain4j
 
 > 参考资料：

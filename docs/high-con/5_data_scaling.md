@@ -1,3 +1,7 @@
+---
+description: 读写分离与主从延迟、冷热分离、分库分表、分片键、跨分片查询、扩容迁移、NoSQL / ES
+---
+
 # 数据层扩展
 
 > **本篇目标**：按改造成本从低到高掌握数据层的扩展路径，知道每一步解决什么瓶颈、代价是什么、何时该走下一步。
@@ -45,7 +49,7 @@
 | 代理层 | ShardingSphere-Proxy、MySQL Router、ProxySQL | 对应用透明，多语言 | 多一跳网络，代理需高可用 |
 | 云数据库 | RDS 读写分离地址 | 开箱即用 | 依赖云厂商 |
 
-ShardingSphere 读写分离配置见 [数据库中间件](/database/5_practice/2_sharding)。
+ShardingSphere 读写分离配置见 [分库分表与中间件](/database/5_practice/2_sharding)。
 
 ### 2、主从延迟处理策略
 
@@ -136,7 +140,7 @@ try (HintManager hint = HintManager.getInstance()) {
 | 一致性哈希 | 哈希环 + 虚拟节点 | 扩容只迁移部分数据 | 实现复杂，分布需虚拟节点调匀 |
 | 映射表 | 路由表记录 key → 分片 | 最灵活，可单独迁移大租户 | 多一次查询，路由表本身要高可用 |
 
-一致性哈希原理见 [一致性哈希](/distributed/9_consistent_hashing)，ShardingSphere 内置算法类型与配置见 [数据库中间件](/database/5_practice/2_sharding)。
+一致性哈希原理见 [一致性哈希](/distributed/9_consistent_hashing)，ShardingSphere 内置算法类型与配置见 [分库分表与中间件](/database/5_practice/2_sharding)。
 
 ### 4、分布式 ID
 
@@ -172,7 +176,7 @@ try (HintManager hint = HintManager.getInstance()) {
 
 **降低扩容频率的技巧**：一开始就规划足够的逻辑分片（如 1024 张表分布在 8 个库），扩容时只把整张表迁到新库，而不是重新哈希每一行。
 
-ShardingSphere 内置迁移工具见 [数据库中间件](/database/5_practice/2_sharding)，Binlog 同步工具见 [CDC 工具](/database/5_practice/0_cdc_tools)。分布式数据库（TiDB、OceanBase）可以免去应用层分片，代价是运维体系与成本，见 [分布式数据库](/database/3_relational/1_distributed_db)。
+ShardingSphere 内置迁移工具见 [分库分表与中间件](/database/5_practice/2_sharding)，Binlog 同步工具见 [CDC 工具](/database/5_practice/0_cdc_tools)。分布式数据库（TiDB、OceanBase）可以免去应用层分片，代价是运维体系与成本，见 [分布式数据库](/database/3_relational/1_distributed_db)。
 
 ---
 

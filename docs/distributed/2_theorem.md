@@ -1,3 +1,7 @@
+---
+description: CAP、BASE、Paxos、Raft、ZAB、Gossip、FLP
+---
+
 # 分布式理论
 
 > 分布式系统的核心理论基础，理解这些原理是设计高可用、强一致系统的前提。

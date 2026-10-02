@@ -1,3 +1,7 @@
+---
+description: Eclipse Paho、Spring Boot 集成 MQTT、Modbus TCP、Netty 私有协议、OTA 升级、规则引擎、多协议网关
+---
+
 # Java IoT 实战
 
 > 参考资料：

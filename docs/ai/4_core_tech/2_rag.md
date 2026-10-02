@@ -1,3 +1,7 @@
+---
+description: RAG 完整流程、文档切块策略、Spring AI / LangChain4j 实战、RAG 优化方向
+---
+
 # RAG 检索增强生成
 
 > 参考资料：

@@ -1,3 +1,7 @@
+---
+description: Redis、Kafka、RabbitMQ、Elasticsearch、MongoDB
+---
+
 # 中间件集成
 
 > 本章聚焦 Spring Boot 与各中间件的**集成方式**（Starter 引入 / 配置项 / 常见坑），

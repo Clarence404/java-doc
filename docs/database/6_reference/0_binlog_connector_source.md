@@ -1,4 +1,8 @@
-# mysql-binlog-connector-java 源码分析
+---
+description: BinaryLogClient、connect 与事件监听、EventDeserializer、GTID 位点、保活与断线重连
+---
+
+# Binlog Connector 源码分析
 
 - Github: [https://github.com/shyiko/mysql-binlog-connector-java](https://github.com/shyiko/mysql-binlog-connector-java)
 - 该库的使用方式与 CDC 工具链对比见 [CDC 工具](../5_practice/0_cdc_tools)

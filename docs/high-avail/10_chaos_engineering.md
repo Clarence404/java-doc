@@ -1,3 +1,7 @@
+---
+description: 实验原则、ChaosBlade / Chaos Mesh、故障注入实战与检查单
+---
+
 # 混沌工程
 
 > **本篇目标**：掌握混沌工程的实验流程与原则，能用 ChaosBlade 与 Chaos Mesh 注入常见故障，并验证熔断、降级、故障转移等预案是否真的生效。

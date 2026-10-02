@@ -125,30 +125,4 @@ public ConversionService conversionService() {
 
 ## 八、模块导读
 
-**核心原理**：
-
-- [IoC 容器](./1_ioc)：Bean 作用域 / 生命周期 / 三级缓存解循环依赖
-- [AOP](./2_aop)：动态代理 / 切点表达式 / 自调用失效
-- [MVC](./3_mvc)：DispatcherServlet 流程 / 统一返回与异常
-- [事务管理](./4_transaction)：传播行为 / 隔离级别 / 失效场景
-
-**周边能力**：
-
-- [Cache 抽象](./5_cache)：注解缓存 / 两级缓存架构
-- [Retry 重试](./6_retry)：退避策略 / 断路器
-- [事件机制](./7_event)：同步异步 / 事务事件 / 事件驱动解耦
-- [WebFlux](./8_webflux)：响应式编程 / Mono/Flux / R2DBC
-
-**安全体系**：
-
-- [Security](./9_security)：过滤器链 / JWT / 方法级权限 / 动态权限
-- [安全框架对比](./10_auth_framework)：Security vs Shiro vs Sa-Token / Sa-Token SSO
-- [SSO 单点登录](./11_single_sign_on)：LDAP / CAS / SAML2 / OIDC / Keycloak 接入配置（原理见 [单点登录](/security/4_sso)）
-
-**企业集成**：
-
-- [Batch 批处理](./12_batch)：大批量数据的分块读写
-- [Integration 集成](./13_integration)：消息通道 / 系统集成 DSL
-
-
-
+<ModuleNav />

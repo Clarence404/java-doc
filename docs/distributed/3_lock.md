@@ -1,3 +1,7 @@
+---
+description: Redis 锁、Redlock 争议、ZooKeeper / etcd 锁、方案对比
+---
+
 # 分布式锁
 
 > 优秀开源实现参考：

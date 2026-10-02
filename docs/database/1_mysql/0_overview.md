@@ -1,4 +1,8 @@
-# MySQL
+---
+description: 范式、视图、存储过程、索引、事务与锁、SQL 执行、性能优化、InnoDB、安全、Binlog 与主从复制
+---
+
+# MySQL 概览
 
 参考的数据库教程: [https://dunwu.github.io/db-tutorial/](https://dunwu.github.io/db-tutorial/)
 
@@ -168,7 +172,7 @@ Binlog 三种格式与管理、主从复制三线程模型、GTID / 半同步、
 
 **其他运维要点**：
 
-- **分库分表**：垂直拆分（按业务）vs 水平拆分（按数据量），见 [数据库中间件](../5_practice/2_sharding)
+- **分库分表**：垂直拆分（按业务）vs 水平拆分（按数据量），见 [分库分表与中间件](../5_practice/2_sharding)
 - **配置优化**：`innodb_buffer_pool_size`（建议物理内存 60%~70%）、`max_connections`（按连接池总量设置）、`sync_binlog=1` + `innodb_flush_log_at_trx_commit=1`（双 1 强持久性）
 
 ---

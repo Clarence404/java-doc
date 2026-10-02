@@ -62,15 +62,12 @@
 
 ## 四、各章节深度链接
 
+<ModuleNav />
+
+**关联模块**
+
 | 方向 | 章节 |
 |------|------|
-| 服务注册与发现 | [注册发现](./1_service_registry.md) |
-| API 网关 | [API 网关](./2_api_gateway.md) |
-| 服务间通信 | [服务通信](./3_communication.md) |
-| 配置中心 | [配置中心](./4_config_center.md) |
-| 服务治理 | [服务治理](./5_service_governance.md) |
-| Nacos / Sentinel / Seata 实操 | [Alibaba](./6_alibaba.md) |
-| 消息驱动抽象 | [Stream](./7_stream.md) |
 | 链路追踪 | [链路追踪](../observability/3_tracing.md) |
 | 微服务设计模式 | [微服务设计模式](../microservices/2_patterns.md) |
 | 服务网格 | [服务网格](../microservices/3_service_mesh.md) |

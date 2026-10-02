@@ -1,3 +1,7 @@
+---
+description: Cookie-Session、JWT、Redis Session、选型建议
+---
+
 # 分布式会话
 
 > 分布式场景下，多个服务实例无法共享本地内存中的 Session，需要统一的会话管理方案。

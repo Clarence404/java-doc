@@ -1,3 +1,7 @@
+---
+description: 接口签名、防重放、API Key、CORS、HTTPS；目标：能保护开放接口与内部服务接口
+---
+
 # API 安全
 
 ## 一、接口签名

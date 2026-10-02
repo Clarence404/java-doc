@@ -1,3 +1,7 @@
+---
+description: 架构与核心概念、Spring Boot 接入、消息可靠性、顺序消息、高性能原理
+---
+
 # Kafka
 
 > 参考资料：

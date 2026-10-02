@@ -1,3 +1,7 @@
+---
+description: 单线程、单 Reactor 多线程、主从 Reactor，以及 Reactor 与 Proactor 的区别
+---
+
 # Reactor 模型
 
 > **本篇目标**：能画出三种 Reactor 模式的线程结构，说清 Netty 的 BossGroup / WorkerGroup 分别对应什么，以及 Reactor 与 Proactor 的区别。

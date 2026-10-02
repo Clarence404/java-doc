@@ -1,3 +1,7 @@
+---
+description: Ollama 安装与使用、REST API、Spring AI / LangChain4j 接入、常用模型推荐、性能调优
+---
+
 # Ollama
 
 Ollama 官方地址：[https://ollama.com/](https://ollama.com/)

@@ -1,3 +1,7 @@
+---
+description: Serializable、Externalizable、JSON 序列化对比
+---
+
 # 专项 - 序列化
 
 ## 一、Java 原生序列化

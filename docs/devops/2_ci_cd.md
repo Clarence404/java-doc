@@ -1,3 +1,7 @@
+---
+description: GitHub Actions / Jenkins / 质量门禁 / 多环境部署
+---
+
 # CI/CD
 
 > 参考资料：

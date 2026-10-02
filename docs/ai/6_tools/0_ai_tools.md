@@ -1,3 +1,7 @@
+---
+description: 主流 AI 产品与编程工具横向对比：ChatGPT、Claude Code、Gemini、Cursor、Copilot、Devin Desktop
+---
+
 # AI 工具总览
 
 > 汇总当前主流 AI 产品与开发者工具，覆盖对话助手、编程辅助等方向。

@@ -1,3 +1,7 @@
+---
+description: 分布式方向题目清单
+---
+
 # 面试高频题
 
 > 汇总分布式系统核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/10_distributed">开发总结 - 分布式</RouteLink>

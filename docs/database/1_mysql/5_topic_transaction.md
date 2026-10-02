@@ -1,4 +1,8 @@
-# MySQL 专项 - 事务、MVCC 与锁
+---
+description: 事务 ACID、隔离级别、undo / redo log、MVCC、锁机制、长事务
+---
+
+# MySQL 事务与锁
 
 ## 一、事务 ACID
 

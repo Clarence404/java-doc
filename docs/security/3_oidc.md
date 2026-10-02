@@ -1,3 +1,7 @@
+---
+description: id_token、授权码 + PKCE 流程、Discovery、Front/Back-Channel Logout；目标：能区分认证与授权，理解第三方登录
+---
+
 # OIDC
 
 > OIDC（OpenID Connect）基于 OAuth2 构建，在授权层之上增加了标准的身份认证协议。OAuth2 协议基础见 → [OAuth2](/security/2_oauth2)；SSO 原理与选型见 → [单点登录](/security/4_sso)；JWT 令牌格式见 → [JWT](/security/1_jwt)

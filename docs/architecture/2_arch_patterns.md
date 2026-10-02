@@ -1,3 +1,7 @@
+---
+description: Clean Architecture / CQRS / Event Sourcing / 六边形架构
+---
+
 # 架构模式与风格
 
 > 本文聚焦 Java 后端常见架构模式，每个模式附核心思想、结构说明与代码示例。

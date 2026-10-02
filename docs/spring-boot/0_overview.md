@@ -4,18 +4,7 @@ Spring Boot 模块从启动流程与自动配置原理出发，覆盖 Web 开发
 
 ## 一、模块导航
 
-| 文档 | 覆盖内容 |
-|------|----------|
-| [启动流程与自动配置](./1_spring_boot) | 启动流程、自动配置原理、核心注解、内嵌 Web 服务器 |
-| [Web 开发](./2_web_dev) | Controller、参数校验、统一异常、拦截器与过滤器、CORS、HTTP 客户端 |
-| [数据访问](./3_data_access) | ORM 选型、Spring Data JPA、MyBatis-Plus、事务、多数据源、分页 |
-| [数据库版本迁移](./4_flyway) | Flyway、Liquibase |
-| [中间件集成](./5_middleware) | Redis、Kafka、RabbitMQ、Elasticsearch、MongoDB |
-| [配置管理](./6_config) | 配置源优先级、多环境 Profiles、配置加密、动态刷新 |
-| [Actuator 监控](./7_actuator) | 核心端点、自定义健康检查与端点、Prometheus + Grafana |
-| [自定义 Starter](./8_custom_starter) | 自动配置加载原理、命名规范、完整实战、条件注解 |
-| [异步任务与定时任务](./9_async_schedule) | @Async、@Scheduled、分布式定时任务、虚拟线程 |
-| [接口文档](./10_api_doc) | SpringDoc、Knife4j、Security 放行、多环境控制 |
+<ModuleNav />
 
 ## 二、推荐阅读路径
 

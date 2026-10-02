@@ -1,3 +1,7 @@
+---
+description: 时序数据核心概念、InfluxDB、TimescaleDB、Prometheus、国产 TSDB 与选型对比
+---
+
 # 时序数据库
 
 ## 一、时序数据与 TSDB 核心概念

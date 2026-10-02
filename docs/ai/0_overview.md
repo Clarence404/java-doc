@@ -100,3 +100,9 @@ MCP（Model Context Protocol）是 Anthropic 推出的开放协议，用于标�
 - ✅ 支持本地部署，数据安全可控
 
 > 详见：[MCP 协议](./5_advanced/1_mcp.md)
+
+---
+
+## 五、模块导航
+
+<ModuleNav />

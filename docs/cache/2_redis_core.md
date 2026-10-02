@@ -1,3 +1,7 @@
+---
+description: 线程模型、RDB/AOF 持久化、淘汰策略、过期删除、事务与 Pipeline
+---
+
 # Redis 核心原理
 
 ## 一、线程模型

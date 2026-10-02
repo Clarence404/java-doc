@@ -1,3 +1,7 @@
+---
+description: 全景选型矩阵、按场景选型、经典组合架构、评估维度与常见误区
+---
+
 # 数据库选型参考
 
 参考：[DB-Engines Ranking](https://db-engines.com/)

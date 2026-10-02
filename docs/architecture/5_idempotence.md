@@ -1,3 +1,7 @@
+---
+description: 8种实现方案 + 代码示例 + 对比选型
+---
+
 # 幂等方案总结
 
 > 参考：[幂等的八种实现方式-苏三说技术](https://mp.weixin.qq.com/s/adRe5OuDhMndPltzgP73hg) · [如何保证接口的幂等性-JavaGuide](https://mp.weixin.qq.com/s/tL0fnUR3BNBjP8Qw2pldVg)

@@ -53,12 +53,4 @@
 
 ## 四、模块导航
 
-| 文档 | 核心内容 |
-|------|---------|
-| [1. 数据冷热分离](./1_cold_hot_data) | 冷热判断标准、迁移策略、MySQL 分区、技术选型 |
-| [2. 架构模式与风格](./2_arch_patterns) | Clean Architecture / CQRS / Event Sourcing / 六边形架构 |
-| [3. DDD 领域驱动设计](./3_ddd) | 聚合根 / 限界上下文 / 分层架构 / Spring Boot 落地 |
-| [4. OSS 对象存储](./4_object_storage) | 核心概念 / 主流方案 / Java SDK 使用 |
-| [5. 幂等方案](./5_idempotence) | 8种实现方案 + 代码示例 + 对比选型 |
-| [6. 权限系统架构设计](./6_access_control) | PEP / PDP 部署 / 网关与服务鉴权分工 / 权限缓存刷新 / 数据权限拦截 |
-| [7. 主数据系统设计](./7_master_data) | 建模 / 同步 / 审批流 / 数据质量 / 缓存一致性 |
+<ModuleNav />

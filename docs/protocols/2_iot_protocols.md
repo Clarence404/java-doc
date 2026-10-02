@@ -1,3 +1,7 @@
+---
+description: MQTT、CoAP、Modbus、OPC UA、LoRaWAN、NB-IoT、ZigBee
+---
+
 # IoT 与工业协议
 
 > 官方规范：[MQTT 5.0](https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html) / [CoAP RFC 7252](https://www.rfc-editor.org/rfc/rfc7252.html) / [Modbus](https://www.modbus.org/specs.php) / [OPC UA](https://opcfoundation.org/)

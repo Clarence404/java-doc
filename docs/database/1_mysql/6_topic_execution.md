@@ -1,4 +1,8 @@
-# MySQL 专项 - SQL 执行流程
+---
+description: Server 层与存储引擎层架构、各组件职责、SELECT 与 UPDATE 完整执行过程
+---
+
+# SQL 执行流程
 
 ## 一、整体架构
 

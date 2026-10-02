@@ -1,8 +1,8 @@
 // 首页「知识星图」样式：全部限定在 .atlas-home 内，颜色随主题的 html[data-theme] 切换
 .atlas-home{
   /* spectral stops: brand gradient #ff6b9d → #a855f7 → #38bdf8 sampled at 9 points (learning order) */
-  --s1:#ff6b9d; --s2:#e966b4; --s3:#d460ca; --s4:#be5ae0; --s5:#a855f7;
-  --s6:#8c6ff7; --s7:#7089f8; --s8:#54a3f8; --s9:#38bdf8;
+  /* 品牌渐变三色；各分组色 --sN / --cN / --tN 由 atlas.js 的 paletteStyle() 按分组数量自动生成 */
+  --brand-1:#ff6b9d; --brand-2:#a855f7; --brand-3:#38bdf8;
 
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   --serif: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, "Noto Serif SC", "Source Han Serif SC", "Songti SC", STSong, serif;
@@ -54,18 +54,6 @@ html[data-theme="dark"] .atlas-home{
   --tint:8%;
 }
 }
-/* per-group colour: --cN for marks, --tN for small text (higher contrast) */
-.atlas-home{
-  --c1:color-mix(in oklab,var(--s1) var(--mixp),var(--mix)); --t1:color-mix(in oklab,var(--s1) var(--tmixp),var(--mix));
-  --c2:color-mix(in oklab,var(--s2) var(--mixp),var(--mix)); --t2:color-mix(in oklab,var(--s2) var(--tmixp),var(--mix));
-  --c3:color-mix(in oklab,var(--s3) var(--mixp),var(--mix)); --t3:color-mix(in oklab,var(--s3) var(--tmixp),var(--mix));
-  --c4:color-mix(in oklab,var(--s4) var(--mixp),var(--mix)); --t4:color-mix(in oklab,var(--s4) var(--tmixp),var(--mix));
-  --c5:color-mix(in oklab,var(--s5) var(--mixp),var(--mix)); --t5:color-mix(in oklab,var(--s5) var(--tmixp),var(--mix));
-  --c6:color-mix(in oklab,var(--s6) var(--mixp),var(--mix)); --t6:color-mix(in oklab,var(--s6) var(--tmixp),var(--mix));
-  --c7:color-mix(in oklab,var(--s7) var(--mixp),var(--mix)); --t7:color-mix(in oklab,var(--s7) var(--tmixp),var(--mix));
-  --c8:color-mix(in oklab,var(--s8) var(--mixp),var(--mix)); --t8:color-mix(in oklab,var(--s8) var(--tmixp),var(--mix));
-  --c9:color-mix(in oklab,var(--s9) var(--mixp),var(--mix)); --t9:color-mix(in oklab,var(--s9) var(--tmixp),var(--mix));
-}
 
 .atlas-home{
 /* =========================================================
@@ -86,9 +74,9 @@ a{color:inherit}
 .hero::before{ /* barely-there page aura, sits behind the plate */
   content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
   background:
-    radial-gradient(640px 420px at 72% 38%, color-mix(in oklab,var(--s5) calc(var(--neb-o)*100%),transparent), transparent 70%),
-    radial-gradient(520px 380px at 90% 80%, color-mix(in oklab,var(--s9) calc(var(--neb-o)*80%),transparent), transparent 70%),
-    radial-gradient(520px 380px at 8% 10%, color-mix(in oklab,var(--s1) calc(var(--neb-o)*60%),transparent), transparent 70%);
+    radial-gradient(640px 420px at 72% 38%, color-mix(in oklab,var(--brand-2) calc(var(--neb-o)*100%),transparent), transparent 70%),
+    radial-gradient(520px 380px at 90% 80%, color-mix(in oklab,var(--brand-3) calc(var(--neb-o)*80%),transparent), transparent 70%),
+    radial-gradient(520px 380px at 8% 10%, color-mix(in oklab,var(--brand-1) calc(var(--neb-o)*60%),transparent), transparent 70%);
 }
 .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:56px;align-items:center}
 .kicker{display:flex;align-items:center;gap:12px;font:500 11.5px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:0}
@@ -103,7 +91,7 @@ h1{margin:26px 0 0;font-weight:400}
 .btn .arr{width:15px;height:15px;transition:transform .25s var(--ease)}
 .btn:hover .arr{transform:translateX(3px)}
 .btn-primary{background:var(--btn-bg);color:var(--btn-fg)}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 26px -14px color-mix(in oklab,var(--s5) 80%,transparent)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 26px -14px color-mix(in oklab,var(--brand-2) 80%,transparent)}
 .btn-ghost{border:1px solid var(--rule-2);color:var(--ink)}
 .btn-ghost:hover{border-color:var(--ink)}
 .quiet{font-size:14.5px;color:var(--muted);text-decoration:underline;text-underline-offset:6px;text-decoration-color:var(--rule-2);margin-left:6px;transition:color .2s,text-decoration-color .2s}
@@ -162,7 +150,7 @@ h1{margin:26px 0 0;font-weight:400}
 .a-field .tw{animation:atl-twinkle 5.5s ease-in-out infinite}
 @keyframes atl-twinkle{0%,100%{opacity:calc(var(--field-o)*.35)}50%{opacity:var(--field-o)}}
 .nb0{stop-opacity:var(--neb-o)} .nb1{stop-opacity:0}
-.nb-a{stop-color:var(--s1)} .nb-b{stop-color:var(--s5)} .nb-c{stop-color:var(--s9)}
+.nb-a{stop-color:var(--brand-1)} .nb-b{stop-color:var(--brand-2)} .nb-c{stop-color:var(--brand-3)}
 
 .rel{fill:none;stroke:var(--ink);stroke-opacity:.14;stroke-width:.9;stroke-dasharray:1 3.5;stroke-linecap:round;transition:stroke-opacity .3s,stroke .3s,stroke-width .3s}
 .atlas--disc .rel{stroke-opacity:0}
@@ -316,7 +304,7 @@ h2{margin:18px 0 0;font-family:var(--serif);font-weight:600;font-size:clamp(26px
 .refs .rt{display:block;margin-top:8px;font-family:var(--serif);font-size:18px;font-weight:600;color:var(--ink);transition:color .2s}
 .refs .rd{display:block;margin-top:4px;font:12px var(--mono);color:var(--muted)}
 .refs .rx{display:block;margin-top:8px;font-size:14px;color:var(--ink-2)}
-.refs a:hover .rt{color:var(--t5, var(--c5))}
+.refs a:hover .rt{color:var(--brand-2)}
 
 .foot{margin-top:112px;border-top:1px solid var(--rule);padding:28px 0 40px;text-align:center;font-size:13.5px;color:var(--muted)}
 

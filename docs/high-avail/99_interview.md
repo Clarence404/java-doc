@@ -1,3 +1,7 @@
+---
+description: 高可用方向题目清单
+---
+
 # 面试高频题
 
 > 汇总高可用方向的核心面试问题，按本模块文章分组；完整解答见 <RouteLink to="/interview/14_high_avail">开发总结 - 高可用</RouteLink>。

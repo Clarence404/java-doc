@@ -1,3 +1,7 @@
+---
+description: AWS / Azure / GCP 核心服务对照
+---
+
 # 国际云平台
 
 > 以 AWS 为主体，附 Azure / GCP 横向对比。三者均提供全球多 Region 部署，适合出海业务或对开源生态有高要求的场景。

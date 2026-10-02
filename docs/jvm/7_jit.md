@@ -1,3 +1,7 @@
+---
+description: 分层编译、内联与去虚化、逃逸分析、OSR、Code Cache、Graal 与 AOT 启动优化
+---
+
 # JIT 编译
 
 > **本篇目标**：理解 HotSpot 如何把热点字节码编译成机器码：分层编译怎么走、JIT 做了哪些关键优化、Code Cache 与 AOT 启动优化各解决什么问题。

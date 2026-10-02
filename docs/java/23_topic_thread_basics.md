@@ -1,3 +1,7 @@
+---
+description: 线程创建、Future、等待/唤醒机制、Executors、ThreadLocal、TTL
+---
+
 # 专项 - 线程基础
 
 > Java 多线程基础：线程创建方式、Future 异步结果、等待/唤醒机制、线程池（Executors）、ThreadLocal 线程隔离与跨线程传递。

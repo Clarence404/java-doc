@@ -72,20 +72,7 @@
 
 ## 五、模块导航
 
-| 文章 | 覆盖内容 |
-|------|---------|
-| [可用性度量](./1_sla_slo) | 几个 9、SLA / SLO / SLI、错误预算、燃烧速率告警、MTBF / MTTR、串并联可用性计算 |
-| [冗余与故障转移](./2_redundancy_failover) | 消除单点、冷备 / 温备 / 热备、健康检查与 K8s 探针、自动切换、脑裂与 fencing、数据层高可用、依赖治理 |
-| [负载均衡](./3_load_balancing) | 负载均衡算法、故障摘除、Nginx 配置、会话保持、客户端负载均衡 |
-| [超时、重试与隔离](./4_timeout_retry_bulkhead) | 分层超时、指数退避与抖动、重试放大控制（重试预算、deadline 传播）、线程池 / 信号量隔离 |
-| [熔断](./5_circuit_breaking) | 熔断器三态、统计窗口与阈值、Sentinel 与 Resilience4j 对比 |
-| [降级](./6_degradation) | 降级分级、兜底策略、开关与规则管理 |
-| [限流与过载保护](./7_rate_limiting) | 限流算法、限流放在哪一层、阈值怎么定、分布式限流、自适应过载保护与负载卸除 |
-| [优雅上下线与变更](./8_graceful_release) | 优雅停机、K8s preStop、滚动参数与 PDB、服务预热、发布策略、变更三板斧 |
-| [多活与容灾](./9_multi_active) | RPO / RTO、同城双活、两地三中心、异地多活、单元化、流量调度 |
-| [混沌工程](./10_chaos_engineering) | 实验原则、ChaosBlade / Chaos Mesh、故障注入实战与检查单 |
-| [故障应急与复盘](./11_incident_response) | 故障分级、On-call、止血手段、降低 MTTR、无责复盘 |
-| [面试高频题](./99_interview) | 高可用方向题目清单 |
+<ModuleNav />
 
 ---
 

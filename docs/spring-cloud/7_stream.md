@@ -1,3 +1,7 @@
+---
+description: 消息驱动抽象、函数式编程模型、消费组 / 分区 / 重试死信、切换 MQ
+---
+
 # Stream
 
 - 官方文档：[https://docs.spring.io/spring-cloud-stream/reference/](https://docs.spring.io/spring-cloud-stream/reference/)

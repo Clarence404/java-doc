@@ -1,3 +1,7 @@
+---
+description: 数据格式、SseEmitter 与 WebFlux、Netty 原生实现、反向代理配置
+---
+
 # SSE（Server-Sent Events）
 
 > **本篇目标**：掌握 SSE 的数据格式与三种服务端实现（Spring MVC、WebFlux、Netty），并能正确处理超时、心跳和反向代理缓冲。

@@ -1,3 +1,7 @@
+---
+description: RTO / RPO、备份类型、MySQL 与 PostgreSQL 备份方案、备份策略、恢复演练
+---
+
 # 数据备份与恢复
 
 ## 一、核心指标

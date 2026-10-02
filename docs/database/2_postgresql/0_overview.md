@@ -1,4 +1,8 @@
-# PostgreSQL
+---
+description: PostgreSQL vs MySQL 差异、安装使用、核心概念、常用命令、常见问题
+---
+
+# PostgreSQL 概览
 
 官网：[https://www.postgresql.org](https://www.postgresql.org)
 

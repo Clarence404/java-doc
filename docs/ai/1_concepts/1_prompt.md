@@ -1,3 +1,7 @@
+---
+description: Prompt 基本原则、System Prompt、Few-shot、思维链、结构化输出、常用模板、Prompt 注入防护
+---
+
 # Prompt 工程
 
 > 参考资料：

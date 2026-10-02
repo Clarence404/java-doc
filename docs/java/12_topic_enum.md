@@ -1,3 +1,7 @@
+---
+description: 枚举单例（防反射破坏）、EnumSet/EnumMap、switch 穷举
+---
+
 # 专项 - 枚举（Enum）
 
 > Java 5 引入，本质上是一个继承自 `java.lang.Enum` 的**不可继承的 final 类**，每个枚举常量都是该类的静态 final 实例。

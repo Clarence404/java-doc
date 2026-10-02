@@ -1,3 +1,7 @@
+---
+description: OWASP Top 10、SQL 注入、XSS、CSRF、反序列化；目标：能识别常见 Web 风险并制定防护
+---
+
 # 常见漏洞与防护
 
 ## 一、OWASP Top 10（2021 版）

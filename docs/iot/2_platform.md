@@ -1,3 +1,7 @@
+---
+description: 平台分类、商业云平台与开源平台、选型建议、ThingsBoard 规则引擎、EMQX 集群、JetLinks 二次开发
+---
+
 # IoT 平台选型
 
 > 参考资料：

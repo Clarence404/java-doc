@@ -1,3 +1,7 @@
+---
+description: 闭源商业模型（GPT / Claude / Gemini）、开源模型（Llama / DeepSeek / Qwen）、按场景选型与本地部署参数
+---
+
 # 大语言模型（LLM）
 
 > 参考资料：

@@ -1,3 +1,7 @@
+---
+description: Spring 方向题目清单
+---
+
 # 面试高频题
 
 > 汇总 Spring / Spring Boot 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/5_spring">开发总结 - Spring</RouteLink>

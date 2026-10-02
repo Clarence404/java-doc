@@ -31,12 +31,4 @@ Google DevOps Research and Assessment 定义的四项关键指标：
 
 ## 三、模块导航
 
-| 文档 | 核心内容 |
-|------|---------|
-| [1. Git 工作流](./1_git_workflow) | 分支策略 / Commit 规范 / PR 流程 / Git Hooks |
-| [2. CI/CD 流水线](./2_ci_cd) | GitHub Actions / Jenkins / 质量门禁 / 多环境部署 |
-| [3. Code Review](./3_code_review) | Review 检查单 / Conventional Comments / PR 模板 |
-| [4. 团队开发规范](./4_dev_standards) | Java 命名 / 异常 / 日志 / SQL 规范 |
-| [5. 发布策略](./5_release_strategy) | 蓝绿 / 金丝雀 / 滚动发布 / 回滚 SOP |
-| [6. 制品与版本管理](./6_artifact_version) | 语义化版本 / Nexus / Harbor / 构建追溯 |
-| [7. 环境管理](./7_env_management) | dev/test/staging/prod 隔离 / Feature Flag / 配置策略 |
+<ModuleNav />

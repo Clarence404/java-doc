@@ -1,3 +1,7 @@
+---
+description: 本地缓存、过期与容量策略、Spring Cache 集成、统计监控
+---
+
 # Caffeine
 
 官方仓库：[https://github.com/ben-manes/caffeine](https://github.com/ben-manes/caffeine)

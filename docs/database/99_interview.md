@@ -1,3 +1,7 @@
+---
+description: 数据库方向题目清单
+---
+
 # 面试高频题
 
 > 汇总 MySQL 核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/7_db">开发总结 - 数据库</RouteLink>

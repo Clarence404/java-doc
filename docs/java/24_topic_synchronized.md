@@ -1,3 +1,7 @@
+---
+description: Monitor 对象、偏向锁/轻量锁/重量锁升级路径
+---
+
 # 专项 - synchronized
 
 > 参考资料：

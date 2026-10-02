@@ -1,4 +1,8 @@
-# MySQL 专项 - InnoDB 存储结构与 Buffer Pool
+---
+description: 表空间段 / 区 / 页 / 行、行格式与行溢出、Buffer Pool、Double Write、脏页刷盘、存储引擎对比
+---
+
+# InnoDB 存储结构
 
 ## 一、表空间层次：段 / 区 / 页 / 行
 

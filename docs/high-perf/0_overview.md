@@ -91,20 +91,7 @@
 
 ## 五、模块导航
 
-| 文档 | 内容 |
-|------|------|
-| [性能指标](./1_metrics) | QPS / TPS / RT / 并发数、分位数、资源指标、Little 定律、组件量级参考 |
-| [性能分析方法论](./2_methodology) | USE / RED 方法、自顶向下定位、Amdahl 定律、瓶颈信号、长尾治理、优化闭环 |
-| [性能分析工具](./3_profilers) | async-profiler 与火焰图、JFR、JProfiler、工具选择 |
-| [基准测试（JMH）](./4_benchmark) | 微基准的陷阱、JMH 注解与示例、结果解读 |
-| [JVM 层性能策略](./5_jvm_tuning) | 收集器选型、降低分配速率、堆与容器内存、JIT 预热与冷启动、何时需要 GC 调优 |
-| [代码级优化](./6_code_optimization) | 对象复用、集合预分配、字符串、装箱、锁、异常、日志、Stream |
-| [池化技术](./7_pooling) | 连接池原理、HTTP 连接池、对象池 |
-| [异步与批量](./8_async_batch) | 同步转异步、批量化、请求合并、预计算 |
-| [IO 与网络优化](./9_io_network) | 零拷贝与 IO 模型的选用、Keep-Alive / HTTP/2、压缩、序列化、CDN |
-| [数据访问性能](./10_db_performance) | 慢 SQL 治理闭环、N+1、深分页方案对比、批量写 |
-| [端到端优化案例](./11_case_study) | 把前面各篇串起来：基线 → 火焰图 → 逐层优化 → 验证 |
-| [面试高频题](./99_interview) | 高性能方向题目清单 |
+<ModuleNav />
 
 ---
 

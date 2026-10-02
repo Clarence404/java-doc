@@ -1,3 +1,7 @@
+---
+description: 统一采集标准、SDK、Collector、生态集成
+---
+
 # OpenTelemetry
 
 > [!warning] 待补充

@@ -1,3 +1,7 @@
+---
+description: dev/test/staging/prod 隔离 / Feature Flag / 配置策略
+---
+
 # 环境管理
 
 > 合理的多环境隔离是保障生产稳定性的基础，防止开发测试变更污染生产数据。

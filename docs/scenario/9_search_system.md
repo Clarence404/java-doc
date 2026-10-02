@@ -1,3 +1,7 @@
+---
+description: Elasticsearch 核心概念、商品搜索、MySQL → ES 同步、相关性调优
+---
+
 # 搜索系统设计
 
 > 搜索是电商、内容平台的核心功能，从简单的 MySQL LIKE 到 Elasticsearch 全文检索，涉及索引构建、相关性排序、数据同步等多个维度。

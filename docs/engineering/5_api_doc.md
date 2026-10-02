@@ -1,3 +1,7 @@
+---
+description: 方案选型、OpenAPI 导出与 CI、接口文档规范
+---
+
 # API 文档
 
 > SpringDoc / Knife4j 的依赖、配置、注解等集成代码统一见 [spring-boot/10_api_doc](../spring-boot/10_api_doc)，本文聚焦方案选型、文档导出与规范。

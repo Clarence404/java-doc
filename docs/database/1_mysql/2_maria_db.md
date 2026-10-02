@@ -1,3 +1,7 @@
+---
+description: MariaDB 起源、与 MySQL 对比、特有能力、Percona 生态、选型建议
+---
+
 # MariaDB
 
 - 官网：[mariadb.com](https://mariadb.com/)

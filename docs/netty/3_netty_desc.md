@@ -1,3 +1,7 @@
+---
+description: 原生 NIO 的痛点、Netty 的定位与架构、第一个 Echo 程序、核心组件速览、Bootstrap 配置
+---
+
 # Netty 入门
 
 > **本篇目标**：知道 Netty 解决了原生 NIO 的哪些问题，能写出并读懂一个完整的 Echo 服务端 / 客户端，说清一次请求在 Netty 中怎么流动。

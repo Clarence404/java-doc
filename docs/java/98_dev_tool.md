@@ -1,3 +1,7 @@
+---
+description: Lombok、MapStruct、Hutool、Guava（IDE 与软件工具见 [工程效率](/engineering/2_dev_tools)）
+---
+
 # 专项 - 效率工具
 
 Java 生态中有大量工具库可以减少样板代码、提升开发效率。本文覆盖项目中最常用的四个：Lombok、MapStruct、Hutool、Guava。

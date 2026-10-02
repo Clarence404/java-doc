@@ -1,3 +1,7 @@
+---
+description: 流量估算、单机压测、机器数计算、全链路压测、大促预案、容量水位与监控
+---
+
 # 容量评估与规划
 
 > **本篇目标**：能从业务指标推出峰值 QPS，用压测得出单机容量并算出机器数，掌握全链路压测与影子库的做法，并用水位监控持续守住容量。
@@ -191,7 +195,7 @@ public class StressRoutingDataSource extends AbstractRoutingDataSource {
 }
 ```
 
-ShardingSphere 也提供影子库功能，可按列值或 Hint 把压测 SQL 路由到影子库，见 [数据库中间件](/database/5_practice/2_sharding)。影子库要提前按生产数据量级准备数据，否则压出来的是"小表性能"。
+ShardingSphere 也提供影子库功能，可按列值或 Hint 把压测 SQL 路由到影子库，见 [分库分表与中间件](/database/5_practice/2_sharding)。影子库要提前按生产数据量级准备数据，否则压出来的是"小表性能"。
 
 ### 3、下游 Mock 与挡板
 

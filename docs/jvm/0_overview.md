@@ -4,18 +4,7 @@ JVM 模块覆盖运行时内存结构、类加载、字节码执行、GC 原理�
 
 ## 一、模块导航
 
-| 文档 | 覆盖内容 |
-|------|----------|
-| [内存结构](./1_memory) | 运行时数据区、对象内存布局与压缩指针、TLAB、分配与晋升策略、String 常量池 |
-| [类加载机制](./2_class_loading) | 加载过程、主动 / 被动引用、类加载器体系（JDK 9+ 模块化）、双亲委派及打破方式 |
-| [字节码执行](./3_bytecode) | Class 文件结构、栈帧、方法调用指令、静态分派与动态分派、invokedynamic 与 Lambda |
-| [GC 原理](./4_gc_theory) | 可达性分析、引用类型、GC 算法、三色标记与漏标、触发时机、STW |
-| [GC 收集器](./5_gc_collectors) | Serial / Parallel / CMS / G1 / ZGC（含分代 ZGC）/ Shenandoah 对比与选型 |
-| [GC 调优](./6_gc_tuning) | 调优目标、核心参数、G1 / ZGC 调优、容器环境、GC 日志分析、常见问题 |
-| [JIT 编译](./7_jit) | 分层编译、内联与去虚化、逃逸分析、OSR、Code Cache、Graal 与 AOT 启动优化 |
-| [诊断工具](./8_monitoring_tools) | jcmd、jps / jstack / jmap / jhsdb / jstat、NMT、JFR / JMC、MAT、VisualVM、容器中 attach |
-| [故障排查](./9_troubleshooting) | 排查流程、各类 OOM 与容器 OOMKilled、StackOverflowError、CPU 飙高、死锁、类加载失败 |
-| [面试高频题](./99_interview) | JVM 方向题目清单 |
+<ModuleNav />
 
 ## 二、推荐阅读路径
 

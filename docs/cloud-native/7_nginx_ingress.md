@@ -1,3 +1,7 @@
+---
+description: 反向代理与 Ingress 入口
+---
+
 # Nginx 与 Ingress
 
 > [!warning] 待补充

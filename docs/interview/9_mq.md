@@ -1,3 +1,7 @@
+---
+description: Kafka / RocketMQ / RabbitMQ、可靠性、顺序、幂等
+---
+
 # 开发总结 - 消息队列
 
 ## 一、消息队列的使用场景

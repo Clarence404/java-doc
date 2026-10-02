@@ -1,3 +1,7 @@
+---
+description: 三方票据模型、方案对比与选型、Session 共享、CAS、SAML、OIDC、单点登出、Keycloak / MaxKey；目标：能选择合适的企业登录方案
+---
+
 # 单点登录
 
 > 参考资料：

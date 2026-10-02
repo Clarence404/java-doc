@@ -1,3 +1,7 @@
+---
+description: Channel 生命周期、ChannelFuture、EventLoop 运行机制、Pipeline 事件传播、Handler、业务线程池
+---
+
 # 核心组件：Channel、EventLoop 与 Pipeline
 
 > **本篇目标**：吃透 Netty 的四大核心抽象，知道一条消息从进入 Socket 到交给业务代码，中间经过了谁、在哪个线程上执行。

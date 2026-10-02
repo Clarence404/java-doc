@@ -1,3 +1,7 @@
+---
+description: Class 文件结构、栈帧、方法调用指令、静态分派与动态分派、invokedynamic 与 Lambda
+---
+
 # 字节码执行
 
 > **本篇目标**：能读懂 `javap` 输出，理解栈帧结构、五条方法调用指令与分派机制，以及 Lambda 背后的 `invokedynamic`。

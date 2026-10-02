@@ -4,25 +4,7 @@
 
 ## 一、模块导航
 
-| 分组 | 文档 | 覆盖内容 |
-|------|------|----------|
-| Linux 基础 | [Linux 概述](./1_linux) | Unix 渊源、发展历程、通用核心命令 |
-| | [Linux 发行版](./2_linux_distros) | RHEL / Debian / Alpine / SUSE / 国产发行版与选型 |
-| 虚拟化 | [虚拟机](./3_virtual) | 虚拟机发展与分类、常用虚拟机 |
-| | [常用工具](./4_virtual_tools) | Hyper-V、VMware、WSL |
-| 容器与编排 | [Docker](./5_docker) | 镜像、网络、常用命令、Docker Compose |
-| | [Kubernetes](./6_kubernetes) | 基本概念、开源 K8s 平台 |
-| | [Nginx 与 Ingress](./7_nginx_ingress) | 反向代理与 Ingress 入口 |
-| | [Helm](./8_helm) | Chart、values 参数化、常用命令 |
-| | [Argo CD](./9_argocd) | GitOps、Application 定义、工作流程 |
-| | [Service Mesh](./10_service_mesh) | 在云原生栈中的位置（主文见微服务模块） |
-| 基础设施自动化 | [Terraform](./11_terraform) | HCL、State 管理、多环境、Terraform vs Pulumi |
-| | [Ansible](./12_ansible) | 无 Agent 架构、Playbook、Role 工程化 |
-| 云平台与选购 | [云平台概述](./13_cloud_overview) | 基本概念、核心服务分类、选型维度 |
-| | [国际云](./14_cloud_global) | AWS / Azure / GCP 核心服务对照 |
-| | [国内云](./15_cloud_domestic) | 阿里云 / 腾讯云 / 华为云对照与选型 |
-| | [Cloudflare](./16_cloudflare) | DNS、CDN、WAF、Workers、R2、Tunnel、Pages |
-| | [VPS 选购](./17_vps_intro) | 线路、机房、服务商对比与选购建议 |
+<ModuleNav />
 
 ## 二、推荐阅读路径
 

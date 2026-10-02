@@ -4,17 +4,7 @@
 
 ## 一、模块导航
 
-| 模块 | 覆盖内容 | 重点产出 |
-|------|----------|----------|
-| [JWT 令牌机制](./1_jwt) | 令牌结构、签名算法、失效与刷新策略 | 会设计短期 Access Token 与 Refresh Token |
-| [OAuth2](./2_oauth2) | 授权框架、四角色、四种授权模式、安全风险 | 能理解 OAuth2 授权框架与 PKCE |
-| [OIDC](./3_oidc) | id_token、授权码 + PKCE 流程、Discovery、Front/Back-Channel Logout | 能区分认证与授权，理解第三方登录 |
-| [单点登录（SSO）](./4_sso) | 三方票据模型、方案对比与选型、Session 共享、CAS、SAML、OIDC、单点登出、Keycloak / MaxKey | 能选择合适的企业登录方案 |
-| [权限模型：RBAC 与 ABAC](./5_rbac_abac) | RBAC / ABAC / DAC / MAC、权限数据库设计、OPA、数据权限、模型选型 | 能落地菜单、按钮、数据权限 |
-| [API 安全](./6_api_security) | 接口签名、防重放、API Key、CORS、HTTPS | 能保护开放接口与内部服务接口 |
-| [数据安全](./7_data_security) | 加密算法、脱敏、密钥管理、操作审计、Vault | 能处理敏感字段、密钥轮换、合规审计 |
-| [常见漏洞与防护](./8_vulnerabilities) | OWASP Top 10、SQL 注入、XSS、CSRF、反序列化 | 能识别常见 Web 风险并制定防护 |
-| [零信任架构](./9_zero_trust) | 零信任模型、mTLS、OPA 动态授权 | 能理解服务间身份与动态策略 |
+<ModuleNav />
 
 ## 二、推荐阅读路径
 

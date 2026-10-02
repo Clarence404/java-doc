@@ -1,3 +1,7 @@
+---
+description: 单体 → 集群 → 分布式 → SOA → 微服务的演进与对比
+---
+
 # 分布式架构
 
 参考链接：[https://gitee.com/Doocs/advanced-java](https://gitee.com/Doocs/advanced-java#分布式系统)

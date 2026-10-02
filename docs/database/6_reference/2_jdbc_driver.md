@@ -1,4 +1,8 @@
-# MySQL JDBC 驱动（Connector/J）要点
+---
+description: 驱动版本与 URL 参数、rewriteBatchedStatements、大结果集读取、超时体系、useServerPrepStmts
+---
+
+# MySQL JDBC 驱动
 
 - 官方文档：[https://dev.mysql.com/doc/connector-j/en/](https://dev.mysql.com/doc/connector-j/en/)
 - 连接池层面的配置（池大小、泄漏排查）见 [数据库连接池](../5_practice/3_connection_pool)

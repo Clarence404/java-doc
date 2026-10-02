@@ -1,3 +1,7 @@
+---
+description: LDAP / CAS / SAML2 / OIDC / Keycloak 接入配置（原理见 [单点登录](/security/4_sso)）
+---
+
 # SSO 单点登录
 
 > 参考资料：

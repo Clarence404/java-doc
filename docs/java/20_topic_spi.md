@@ -1,3 +1,7 @@
+---
+description: ServiceLoader、双亲委派扩展点、Spring 的 SPI 变体
+---
+
 # 专项 - SPI 机制
 
 ## 一、什么是 SPI

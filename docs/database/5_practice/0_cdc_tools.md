@@ -1,3 +1,7 @@
+---
+description: mysql-binlog-connector-java、Canal、Debezium、Flink CDC 对比与选型
+---
+
 # CDC 工具
 
 CDC（Change Data Capture，变更数据捕获）通过监听数据库的**变更日志**（MySQL Binlog、PG WAL）实时捕获 INSERT / UPDATE / DELETE 事件，用于数据同步、缓存刷新、审计、实时计算等场景。

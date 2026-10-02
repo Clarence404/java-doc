@@ -113,12 +113,6 @@ if (!isNew) return;  // 已处理，跳过
 
 ## 六、模块导航
 
-| 文档 | 覆盖内容 |
-|------|----------|
-| [Kafka](./1_kafka) | 架构与核心概念、Spring Boot 接入、消息可靠性、顺序消息、高性能原理 |
-| [RocketMQ](./2_rocketmq) | 架构、四种消息类型、事务消息原理、可靠性、消费模式 |
-| [RabbitMQ](./3_rabbitmq) | Exchange 四种类型、消息可靠性、死信与延迟队列、Quorum 高可用 |
-| [MQ 选型指南](./4_other_mq) | 场景决策表、关键维度速查、Pulsar、常见误区 |
-| [面试高频题](./99_interview) | 消息队列方向题目清单 |
+<ModuleNav />
 
 > 异步削峰的系统设计见 [高并发 - 异步与削峰](/high-con/4_async_peak_shaving)；Spring Boot 集成见 [中间件集成](/spring-boot/5_middleware)。

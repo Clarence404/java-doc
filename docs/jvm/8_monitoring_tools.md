@@ -1,3 +1,7 @@
+---
+description: jcmd、jps / jstack / jmap / jhsdb / jstat、NMT、JFR / JMC、MAT、VisualVM、容器中 attach
+---
+
 # 诊断工具
 
 > **本篇目标**：掌握 JDK 自带的命令行与图形化诊断工具，知道每个问题该用哪个工具、在生产和容器中怎样安全地使用。

@@ -1,3 +1,7 @@
+---
+description: Function Calling 解决的问题、协议流程、进阶机制、工程实践与常见坑
+---
+
 # Function Calling（工具调用）
 
 > 本篇讲协议层原理，不绑定框架。框架封装见 [Spring AI · Tool Calling](../2_frameworks/0_spring_ai) 与 [LangChain4j · Tools](../2_frameworks/1_langchain4j)；工具的标准化分发见 [MCP 协议](../5_advanced/1_mcp)。

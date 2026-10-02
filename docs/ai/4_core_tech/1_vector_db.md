@@ -1,3 +1,7 @@
+---
+description: 向量数据库原理、主流选型对比、pgvector、Qdrant 接入（Spring AI）、选型建议
+---
+
 # 向量数据库
 
 > 参考资料：

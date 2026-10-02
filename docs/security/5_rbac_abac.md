@@ -1,3 +1,7 @@
+---
+description: RBAC / ABAC / DAC / MAC、权限数据库设计、OPA、数据权限、模型选型；目标：能落地菜单、按钮、数据权限
+---
+
 # 权限模型：RBAC 与 ABAC
 
 > 本文聚焦认证授权基础概念与权限模型（与框架无关）。JWT 格式见 → [JWT](/security/1_jwt)；OAuth2 协议见 → [OAuth2](/security/2_oauth2)；OIDC 协议见 → [OIDC](/security/3_oidc)；SSO 实现方案见 → [单点登录](/security/4_sso)

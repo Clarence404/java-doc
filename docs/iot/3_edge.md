@@ -1,3 +1,7 @@
+---
+description: 云边端三层架构、边缘核心能力、主流边缘框架、EdgeX Foundry 部署、KubeEdge 云边协同、边缘 AI 推理
+---
+
 # 边缘计算
 
 > 参考资料：

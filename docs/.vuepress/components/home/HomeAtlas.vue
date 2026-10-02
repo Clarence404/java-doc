@@ -2,15 +2,21 @@
 import {onBeforeUnmount, onMounted, ref} from 'vue';
 import {RouteLink, resolveRoutePath, useRouter, withBase} from 'vuepress/client';
 import stats from '@temp/home-stats.js';
-import {FOOTER, INTERVIEW, REFS} from './data.js';
-import {DISC, WIDE, buildAtlas, buildGlyph, buildModel, defaultCaption, mountAtlas} from './atlas.js';
+import navData from '@temp/module-nav.js';
+import {FOOTER, REFS} from '../../site.js';
+import {DISC, WIDE, buildAtlas, buildGlyph, buildModel, defaultCaption, mountAtlas, paletteStyle} from './atlas.js';
 
 const model = buildModel(stats);
 const {groups, goals, totals} = model;
 const atlasSvg = [WIDE, DISC].map((L) => buildAtlas(model, L, withBase)).join('');
 const glyphs = groups.map((g) => buildGlyph(model, g.i));
 const caption = defaultCaption(model);
-const digest = INTERVIEW.map((col) => ({g: groups[col.g], pages: col.pages}));
+// 开发总结速查：直接取开发总结目录的侧边栏分组（分组名与星图方向同名），标题与说明来自各答案页
+const digest = (navData.interview ?? [])
+    .filter((n) => n.children)
+    .map((n) => ({g: groups.find((g) => g.name === n.text), pages: n.children.map((c) => [c.text, c.link, c.description])}))
+    .filter((c) => c.g);
+const palette = paletteStyle(groups.length);
 const pct = (n) => Math.round(n / (totals.articles || 1) * 100);
 const gstyle = (i) => ({'--c': `var(--c${i + 1})`, '--t': `var(--t${i + 1})`});
 const figs = [
@@ -32,7 +38,7 @@ onBeforeUnmount(() => cleanup && cleanup());
 </script>
 
 <template>
-  <div ref="root" class="atlas-home">
+  <div ref="root" class="atlas-home" :style="palette">
     <!-- ============ 首屏：品牌 + 知识星图 ============ -->
     <section class="hero" aria-labelledby="hero-title">
       <div class="wrap hero-grid">

@@ -1,4 +1,8 @@
-# MySQL 5.7 / 8.0 / 8.4 / 9.x 特性
+---
+description: MySQL 5.7 / 8.0 / 8.4 LTS / 9.x Innovation 重要特性与对比
+---
+
+# MySQL 版本特性
 
 ## 一、MySQL 5.7 重要特性
 

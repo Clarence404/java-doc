@@ -1,3 +1,7 @@
+---
+description: 注解与编程式 API、与 Spring Cache 对比
+---
+
 # JetCache
 
 JetCache 是阿里巴巴开源的 Java 缓存框架，核心价值是**统一管理本地缓存（Caffeine）和分布式缓存（Redis）**，支持注解驱动和编程式两种使用方式。

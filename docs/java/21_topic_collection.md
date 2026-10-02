@@ -1,3 +1,7 @@
+---
+description: List/Set/Queue、HashMap/ConcurrentHashMap/TreeMap 原理、线程安全选型
+---
+
 # 专项 - 集合框架
 
 > Java 集合框架：Collection 体系（List / Set / Queue）与 Map 体系（HashMap / LinkedHashMap / ConcurrentHashMap / TreeMap）。

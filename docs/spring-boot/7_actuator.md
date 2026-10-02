@@ -1,3 +1,7 @@
+---
+description: 核心端点、自定义健康检查与端点、Prometheus + Grafana
+---
+
 # Actuator 监控
 
 > 参考资料：

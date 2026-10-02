@@ -1,3 +1,7 @@
+---
+description: HikariCP、Druid、选型对比、连接泄漏排查与常见问题
+---
+
 # 数据库连接池
 
 > 参考资料：

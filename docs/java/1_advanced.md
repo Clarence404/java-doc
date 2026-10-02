@@ -1,3 +1,7 @@
+---
+description: 泛型、Lambda/Stream API、反射、注解与元编程
+---
+
 # Java 高级
 
 ## 一、泛型（Generics）

@@ -1,3 +1,7 @@
+---
+description: Serial / Parallel / CMS / G1 / ZGC（含分代 ZGC）/ Shenandoah 对比与选型
+---
+
 # GC 收集器
 
 > **本篇目标**：认清 HotSpot 各款收集器的工作方式、适用场景与 JDK 版本演进，能按业务目标选出合适的收集器。

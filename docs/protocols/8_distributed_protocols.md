@@ -1,3 +1,7 @@
+---
+description: Raft、Paxos、ZAB、Gossip
+---
+
 # 分布式协议
 
 > 官方规范：[Raft 论文](https://raft.github.io/raft.pdf) / [Paxos Made Simple](https://lamport.azurewebsites.net/pubs/paxos-simple.pdf) / [ZooKeeper ZAB](https://zookeeper.apache.org/doc/current/zookeeperInternals.html)

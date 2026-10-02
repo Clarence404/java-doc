@@ -1,4 +1,8 @@
-# MySQL 专项 - 索引
+---
+description: B+ 树、聚簇与二级索引、Change Buffer、覆盖索引、最左前缀、索引失效、ICP、深度分页、索引设计
+---
+
+# MySQL 索引
 
 ## 一、B+ 树数据结构
 

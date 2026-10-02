@@ -1,3 +1,7 @@
+---
+description: 一次读操作的两个阶段、五种 IO 模型、select / poll / epoll、LT / ET 触发模式
+---
+
 # IO 模型
 
 > **本篇目标**：能说清五种 IO 模型的区别、select / poll / epoll 为什么性能差距这么大，以及"Java NIO 是同步非阻塞"到底是什么意思。

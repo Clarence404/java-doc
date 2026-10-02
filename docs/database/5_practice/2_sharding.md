@@ -1,4 +1,8 @@
-# 数据库中间件
+---
+description: ShardingSphere 接入形态、分库分表与读写分离配置、分片算法、分布式主键、核心问题
+---
+
+# 分库分表与中间件
 
 ## 一、ShardingSphere 概述
 

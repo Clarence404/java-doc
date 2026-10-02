@@ -1,3 +1,7 @@
+---
+description: 索引失效、事务与锁、字符集、NULL、分页排序、大表 DDL 等常见雷区
+---
+
 # MySQL 避坑指南
 
 参考：https://mp.weixin.qq.com/s/xQGJBn_M9qT2znd-2nmAng

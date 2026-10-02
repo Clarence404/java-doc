@@ -1,3 +1,7 @@
+---
+description: async-profiler 与火焰图、JFR、JProfiler、工具选择
+---
+
 # 性能分析工具
 
 > **本篇目标**：会用 async-profiler 抓火焰图并读懂它，会用 JFR 做常驻录制，知道不同场景该选哪个 Profiler。

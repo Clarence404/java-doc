@@ -1,3 +1,7 @@
+---
+description: 高性能方向题目清单
+---
+
 # 面试高频题
 
 > 汇总高性能方向的核心面试问题，完整解答见 <RouteLink to="/interview/12_high_perf">开发总结 - 高性能</RouteLink>

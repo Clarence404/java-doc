@@ -1,4 +1,8 @@
-# PostgreSQL 专项 - MVCC 与 VACUUM
+---
+description: PG 与 MySQL MVCC 对比、Tuple 可见性、表膨胀、VACUUM、XID 回卷、长事务
+---
+
+# MVCC 与 VACUUM
 
 ## 一、PG vs MySQL MVCC 原理对比
 

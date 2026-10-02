@@ -1,3 +1,7 @@
+---
+description: 五种基础类型、四种高级类型、底层编码
+---
+
 # Redis 基础
 
 官网：[https://redis.io/](https://redis.io/) | 源码：[https://github.com/redis](https://github.com/redis)

@@ -1,3 +1,7 @@
+---
+description: CAP / BASE、共识算法、分布式锁、分布式事务、分布式 ID
+---
+
 # 开发总结 - 分布式
 
 > 精华提炼，细节详见 [distributed/](../distributed/2_theorem)

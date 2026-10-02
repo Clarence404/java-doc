@@ -1,3 +1,7 @@
+---
+description: 客户端对比、分布式锁与常用对象、Spring Boot 集成
+---
+
 # Redisson
 
 ## 一、Redisson 是什么

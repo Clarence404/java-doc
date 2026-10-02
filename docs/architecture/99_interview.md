@@ -1,3 +1,7 @@
+---
+description: 系统架构方向题目清单
+---
+
 # 面试高频题
 
 > 汇总系统架构核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/15_architecture">开发总结 - 系统架构</RouteLink>

@@ -1,4 +1,8 @@
-# PostgreSQL 专项 - 复制与高可用
+---
+description: 进程模型与 PgBouncer、流复制、逻辑复制、Patroni 高可用、与 MySQL 复制对照
+---
+
+# PostgreSQL 复制与高可用
 
 ## 一、进程模型与连接池
 

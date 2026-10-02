@@ -1,3 +1,7 @@
+---
+description: SMTP、POP3、IMAP、MIME
+---
+
 # 邮件协议
 
 > 官方规范：[SMTP RFC 5321](https://www.rfc-editor.org/rfc/rfc5321.html) / [IMAP RFC 9051](https://www.rfc-editor.org/rfc/rfc9051.html) / [MIME RFC 2045](https://www.rfc-editor.org/rfc/rfc2045.html)

@@ -1,3 +1,7 @@
+---
+description: TCP、UDP、HTTP/1-3、WebSocket、DNS
+---
+
 # 网络通信协议
 
 > 官方规范：[IETF RFC Editor](https://www.rfc-editor.org/) / [HTTP RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html) / [TCP RFC 9293](https://www.rfc-editor.org/rfc/rfc9293.html) / [WebSocket RFC 6455](https://www.rfc-editor.org/rfc/rfc6455.html)

@@ -1,3 +1,7 @@
+---
+description: Agent 核心组件、ReAct 模式、Tool Calling、LangChain4j / Spring AI 实战、Multi-Agent 模式
+---
+
 # AI Agent 智能体
 
 > 参考资料：

@@ -1,3 +1,7 @@
+---
+description: 高并发方向题目清单
+---
+
 # 面试高频题
 
 > 汇总高并发方向的核心面试问题，完整解答见 <RouteLink to="/interview/13_high_con">开发总结 - 高并发</RouteLink>；锁、volatile、CAS、同步器、死锁等 Java 语言层并发题见 <RouteLink to="/java/99_interview">Java 面试高频题</RouteLink> 与 <RouteLink to="/interview/2_concurrent">开发总结 - Java 并发</RouteLink>

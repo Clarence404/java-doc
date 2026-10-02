@@ -1,3 +1,7 @@
+---
+description: Spring AI 快速接入、ChatClient、流式响应、Tool Calling、多模型支持、RAG 集成
+---
+
 # Spring AI
 
 > 参考资料：

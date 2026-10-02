@@ -1,3 +1,7 @@
+---
+description: 请求沿链处理、Spring Security FilterChain、Netty Pipeline
+---
+
 # 责任链模式
 
 **作用**：将请求沿着处理链传递，多个处理者可对其进行处理。

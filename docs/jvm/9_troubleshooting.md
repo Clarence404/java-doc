@@ -1,3 +1,7 @@
+---
+description: 排查流程、各类 OOM 与容器 OOMKilled、StackOverflowError、CPU 飙高、死锁、类加载失败
+---
+
 # 故障排查
 
 > **本篇目标**：建立一套线上 JVM 问题的排查流程，能按错误类型快速判断原因、取对现场、用对工具。

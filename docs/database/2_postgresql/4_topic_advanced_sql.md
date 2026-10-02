@@ -1,4 +1,8 @@
-# PostgreSQL 专项 - 高级 SQL
+---
+description: JSONB、递归 CTE、窗口函数、全文搜索、数组、DISTINCT ON
+---
+
+# PostgreSQL 高级 SQL
 
 ## 一、JSONB
 

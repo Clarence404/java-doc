@@ -1,3 +1,7 @@
+---
+description: JDK Proxy vs CGLIB，InvocationHandler，字节码生成
+---
+
 # 专项 - 动态代理
 
 ## 一、代理模式回顾

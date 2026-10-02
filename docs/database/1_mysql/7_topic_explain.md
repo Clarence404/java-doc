@@ -1,4 +1,8 @@
-# MySQL 专项 - EXPLAIN 与 SQL 优化
+---
+description: EXPLAIN 字段、type 与 Extra、慢 SQL 定位、ORDER BY 与 filesort、COUNT 性能、JOIN 优化
+---
+
+# EXPLAIN 与 SQL 优化
 
 ## 一、EXPLAIN 字段总览
 

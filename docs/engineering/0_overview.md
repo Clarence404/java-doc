@@ -4,15 +4,7 @@
 
 ## 模块导航
 
-| 模块 | 覆盖内容 |
-|------|----------|
-| [构建工具](./1_build_tools) | Maven、Gradle、依赖管理、多模块项目 |
-| [开发工具](./2_dev_tools) | IDEA 配置、APIFox/Postman、效率插件 |
-| [代码质量](./3_code_quality) | SonarQube、Checkstyle、SpotBugs、代码规范 |
-| [线上诊断](./4_diagnosis) | Arthas 在线诊断（trace / watch / tt / ognl / jad） |
-| [API 文档](./5_api_doc) | 方案选型、OpenAPI 导出与 CI、接口文档规范 |
-| [依赖治理](./6_dependency_governance) | 依赖版本、漏洞扫描、License 检查、升级策略 |
-| [API 设计规范](./7_api_design_rule) | URL、状态码、错误码、分页、版本兼容 |
+<ModuleNav />
 
 ## 与其他模块的关系
 

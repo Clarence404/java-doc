@@ -1,3 +1,7 @@
+---
+description: Exchange 四种类型、消息可靠性、死信与延迟队列、Quorum 高可用
+---
+
 # RabbitMQ
 
 > 参考资料：

@@ -1,3 +1,7 @@
+---
+description: 大批量数据的分块读写 / Tasklet / Job 流程控制
+---
+
 # Batch 批处理
 
 > 参考资料：

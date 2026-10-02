@@ -1,4 +1,8 @@
-# PostgreSQL 专项 - 索引类型
+---
+description: B-tree / GIN / GiST / BRIN / 部分索引 / 表达式索引、索引选择与维护
+---
+
+# PostgreSQL 索引类型
 
 ## 一、索引类型总览
 

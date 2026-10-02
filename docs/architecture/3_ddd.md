@@ -1,3 +1,7 @@
+---
+description: 聚合根 / 限界上下文 / 分层架构 / Spring Boot 落地
+---
+
 # DDD 领域驱动设计
 
 > Domain-Driven Design：以业务领域为核心建模，让代码结构与业务语言保持一致。

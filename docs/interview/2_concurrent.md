@@ -1,3 +1,7 @@
+---
+description: 线程池、synchronized vs ReentrantLock、volatile、CAS、ConcurrentHashMap、死锁
+---
+
 # 开发总结 - Java 并发
 
 > 精华提炼，细节详见 [Java 并发专题](/java/0_overview)；题目清单见 [Java 面试高频题](/java/99_interview) 的"并发基础"一节

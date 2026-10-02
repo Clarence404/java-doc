@@ -1,3 +1,7 @@
+---
+description: 指标与方法论、Profiler、JVM 层、池化、异步批量、数据访问
+---
+
 # 开发总结 - 高性能
 
 > 精华提炼，细节详见 [高性能模块](/high-perf/0_overview)；题目清单见 [高性能面试题](/high-perf/99_interview)，本页按清单的分组与顺序作答。

@@ -1,3 +1,7 @@
+---
+description: OpenAI / Gemini / Claude API 接入、Java 框架选型对比
+---
+
 # API 直接接入
 
 > 参考资料：

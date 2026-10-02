@@ -1,3 +1,7 @@
+---
+description: 握手与帧格式、Netty 与 Spring 两种实现、集群部署下的消息推送
+---
+
 # WebSocket
 
 > **本篇目标**：理解 WebSocket 的握手与帧格式，能用 Netty 和 Spring 分别实现服务端，并解决集群部署下的消息推送问题。

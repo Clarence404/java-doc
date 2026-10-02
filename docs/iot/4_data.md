@@ -1,3 +1,7 @@
+---
+description: IoT 数据特点、时序数据库、流处理、可视化、TDengine 超表、Flink CEP、Grafana 告警
+---
+
 # IoT 数据处理
 
 > 参考资料：

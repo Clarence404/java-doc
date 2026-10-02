@@ -1,3 +1,7 @@
+---
+description: XXL-JOB、Quartz、ElasticJob、PowerJob 等对比
+---
+
 # 分布式调度
 
 分布式调度系统用于在多节点环境下统一管理和执行任务（Job），常见于定时任务、批处理任务、数据同步、日志清理等场景。

@@ -5,13 +5,7 @@
 
 ## 模块导航
 
-| 模块 | 覆盖内容 |
-|------|----------|
-| [日志体系](./1_logging) | 日志规范、结构化日志、日志采集、日志检索 |
-| [指标监控](./2_metrics) | 指标类型、Prometheus、Grafana、业务指标 |
-| [链路追踪](./3_tracing) | Trace / Span、上下文传播、SkyWalking、Jaeger |
-| [告警体系](./4_alerting) | 告警规则、告警分级、降噪、值班响应 |
-| [OpenTelemetry](./5_opentelemetry) | 统一采集标准、SDK、Collector、生态集成 |
+<ModuleNav />
 
 ## 学习主线
 

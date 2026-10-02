@@ -1,3 +1,7 @@
+---
+description: 二叉树、BST、AVL、红黑树、B / B+ 树
+---
+
 # 树
 
 ---

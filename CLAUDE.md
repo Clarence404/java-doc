@@ -96,12 +96,13 @@ docs/
 ## 文档约定
 
 - 文件命名：`数字_主题.md`，数字前缀决定侧边栏顺序，全部使用下划线分隔
-- 模块入口：每个模块的 `0_overview.md` 为总览页（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；新增文章后同步更新导航表
+- 模块入口：每个模块的 `0_overview.md` 为总览页（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；导航表统一写 `<ModuleNav />`，由各文章的 frontmatter `description` 自动生成，不再手写
+- 文章 frontmatter：每篇文章开头写一行 `description`（覆盖内容，「、」或「 / 」分隔的要点，15–60 字，不加句号），供总览页导航表与网页 meta 使用；侧边栏、导航表中的显示名永远与 `# 标题` 一致
 - 面试题：模块内 `99_interview.md` 只列题目清单，答案统一写在 `docs/interview/` 的对应答案页，两边互相链接
-- 站点目录：模块、分组、名称的唯一数据源是 `docs/.vuepress/site.js`，导航栏、侧边栏、面包屑名称和首页星图都由它生成；新增、删除、改名模块只改这一处（导航短名用 `nav` 字段）
-- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / scenario / patterns / cloud-native）在 `site.js` 对应模块的 `sidebar` 字段里按编号区间分组（interview 另用 `stripPrefix` 去掉标题中的「开发总结 - 」前缀），新增文件时编号要落在所属分组的区间内；结构特殊的 ai / algorithms / database 侧边栏在 `config.js` 的 `CUSTOM_SIDEBARS` 中手写
+- 站点目录：除文章本身外，所有配置只在 `docs/.vuepress/site.js` 维护（模块、分组、名称、侧边栏分组、子目录、答案页对应关系、首页推荐路线 / 关联 / 推荐博客 / 页脚）；导航栏、侧边栏、面包屑、总览页导航表和首页都由它与文章自动生成，不在其他文件重复维护
+- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / scenario / patterns / cloud-native）在 `site.js` 对应模块的 `sidebar` 字段里写每组的起始编号 `from`，编号 ≥ `from` 的文章自动归入该组（`0_overview`、90 号以后的附录与 `99_interview` 不分组；interview 另用 `stripPrefix` 去掉标题中的「开发总结 - 」前缀）；ai / algorithms / database 按子目录自动分组，子目录在 `subdirs` 登记
 - 面包屑名称：目录没有 README 时主题会自动生成目录页，模块目录用 `site.js` 的 `name`，子目录的中文名登记在模块的 `subdirs` 字段；新增子目录时同步添加，否则面包屑会显示首字母大写的目录名
-- 首页：`docs/README.md` 使用 `layout: HomeLayout`（知识星图），实现在 `.vuepress/components/home/`；模块信息复用 `site.js`，首页独有的答案页列表、推荐路线、跨模块关联、推荐博客在 `components/home/data.js`；文章数 / 题数 / 答案页数 / SVG 数由 `.vuepress/plugins/homeStats.js` 在构建时自动统计；新增答案页时同步更新 `data.js`
+- 首页：`docs/README.md` 使用 `layout: HomeLayout`（知识星图），实现在 `.vuepress/components/home/`；内容全部来自 `site.js`（模块、推荐路线、跨模块关联、推荐博客、页脚）与文章（开发总结速查取答案页的标题与 description）；文章数 / 题数 / 答案页数 / SVG 数由 `.vuepress/plugins/homeStats.js` 在构建时自动统计；分组配色按分组数量从品牌渐变自动取色
 - 模块边界：同一主题只保留一个主文档，其他模块用一句话概括 + 链接，不重复展开；三高模块写系统级策略，具体技术细节链接到 cache / database / messaging / jvm 等模块
 - 文件夹命名：全小写，多单词使用连字符（kebab-case），如 `cloud-native`、`spring-boot`
 - 图片存放：`docs/assets/<模块名>/`
@@ -112,7 +113,21 @@ docs/
 
 ## 目录维护
 
-站点有哪些模块、怎么分组、叫什么名字，统一在 `docs/.vuepress/site.js` 配置；模块里有哪些文章、什么顺序，由 Markdown 文件本身决定（侧边栏文字取文件的第一个 `# 标题`，顺序取文件名数字前缀）。
+站点有哪些模块、怎么分组、叫什么名字，统一在 `docs/.vuepress/site.js` 配置；模块里有哪些文章、什么顺序、导航表里写什么，由 Markdown 文件本身决定。
+
+### 新增一篇文章（只改 1 处）
+
+在模块目录（或其子目录）里新建一个 `.md`，编号接在已有文章之后：
+
+```markdown
+---
+description: 要点一、要点二、要点三
+---
+
+# 文章标题
+```
+
+侧边栏、总览页导航表（`<ModuleNav />`）、首页文章数会自动更新，无需改任何配置。开发服务器下新增文件需重启后才出现在侧边栏和导航表中。
 
 ### 数据来源
 
@@ -123,26 +138,28 @@ docs/
 | 模块 `nav`（可选） | `site.js` | 导航栏短名，不写则用 `name` |
 | 模块 `dir` | `site.js` | 对应 `docs/` 下的目录，入口固定为 `<dir>/0_overview.md` |
 | 模块 `desc` / `stub` | `site.js` | 首页星表简介与「编写中」徽标 |
-| 模块 `sidebar`（可选） | `site.js` | 侧边栏按文件编号区间分段 |
-| 模块 `subdirs`（可选） | `site.js` | 子目录在面包屑中的中文名 |
-| 侧边栏条目文字与顺序 | Markdown 文件 | 第一个 `# 标题` + 文件名数字前缀 |
+| 模块 `sidebar`（可选） | `site.js` | 侧边栏分组，每组只写起始编号 `from` |
+| 模块 `subdirs`（可选） | `site.js` | 子目录分组：中文名（同时用于面包屑）、是否折叠、组内分段 |
+| 侧边栏条目文字与顺序 | Markdown 文件 | 第一个 `# 标题`；顺序取文件名数字前缀 |
+| 开发总结「对应题目清单」 | `site.js` | 模块的 `interview` 字段（本模块题单对应的答案页） |
+| 总览页导航表「覆盖内容」 | Markdown 文件 | frontmatter `description` |
 | 文章数 / 题数 / 答案页数 / SVG 数 | `.vuepress/plugins/homeStats.js` | 构建时扫描 `docs/` 自动统计，首页使用 |
-| ai / algorithms / database 侧边栏 | `config.js` 的 `CUSTOM_SIDEBARS` | 多级子目录，结构特殊，手写 |
-| 答案页列表、推荐路线、跨模块关联、推荐博客 | `.vuepress/components/home/data.js` | 首页独有内容 |
+| 首页推荐路线、跨模块关联、推荐博客、页脚 | `site.js` 的 `GOALS` / `REL` / `REFS` / `FOOTER` | 首页 |
 
 ### 操作步骤
 
 | 我想… | 要改哪里 |
 |------|----------|
-| 在模块里新增一篇文章 | 只新建 `.md`，编号放对（分段模块须落在 `sidebar` 区间内）；同步更新模块 `0_overview.md` 的导航表 |
-| 新增一个模块 | 新建 `docs/<dir>/0_overview.md`，在 `site.js` 对应分组加一条（`name` / `dir` / `desc`），并在本文件「项目结构」「模块索引」补充 |
-| 模块改名 | 改 `site.js` 的 `name`（导航短名改 `nav`），同步改总览页 `# 标题`和本文件中的模块名 |
-| 调整某模块侧边栏分段 | 改 `site.js` 中该模块的 `sidebar` 区间 |
-| 新增子目录 | 在 `site.js` 该模块的 `subdirs` 登记中文名，否则面包屑显示首字母大写的目录名 |
-| 新增答案页 | 在 `docs/interview/` 新建并编号，改 `site.js` 中 `SUMMARY.sidebar` 区间，并在首页 `data.js` 的 `INTERVIEW` 加一项 |
-| 调整推荐路线 | 改首页 `data.js` 的 `GOALS`，`stops` 填 `site.js` 中已有的模块名 |
-| 改 ai / algorithms / database 侧边栏 | 改 `config.js` 的 `CUSTOM_SIDEBARS` |
-| 新增第 10 个分组 | `site.js` 加分组，并在 `components/home/atlas.scss` 补 `--s10` / `--c10` / `--t10` 配色 |
+| 新增一篇文章 | 只新建 `.md`（`description` + `# 标题`，编号接在已有文章之后） |
+| 新开一个侧边栏分组 | 在 `site.js` 该模块的 `sidebar` 加一项 `{text, from}` |
+| 新增子目录 | 在 `site.js` 该模块的 `subdirs` 登记中文名，否则面包屑显示首字母大写的目录名，且不会成为侧边栏分组 |
+| 新增一个模块 | 新建 `docs/<dir>/0_overview.md`（导航表写 `<ModuleNav />`），在 `site.js` 对应分组加一条（`name` / `dir` / `desc`）；本文件的「项目结构」「模块索引」仅为概览，以 `site.js` 为准 |
+| 模块改名 | 改 `site.js` 的 `name`（导航短名改 `nav`）；总览页 `0_overview.md` 的 `# 标题`属于文章内容，按需同步 |
+| 新增答案页 | 在 `docs/interview/` 新建并编号（带 `description`），在 `site.js` 对应模块的 `interview` 字段加上该文件名；如需新分组，改 `site.js` 中 `SUMMARY.sidebar` |
+| 调整推荐路线 / 关联 / 推荐博客 | 改 `site.js` 的 `GOALS` / `REL` / `REFS`，`stops` 填已有的模块名 |
+| 新增一个分组（方向） | `site.js` 的 `GROUPS` 加一项，配色自动生成 |
+
+构建时若有文章缺少 `description`，控制台会输出 `[module-nav]` 警告并列出文件。
 
 改完后执行 `npm run docs:build` 确认构建通过。
 

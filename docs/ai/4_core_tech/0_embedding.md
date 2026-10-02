@@ -1,3 +1,7 @@
+---
+description: Embedding 原理、常用模型、相似度计算、Spring AI / LangChain4j 接入、实用技巧
+---
+
 # Embedding 向量化
 
 > 参考资料：

@@ -1,3 +1,7 @@
+---
+description: Netty 方向题目清单
+---
+
 # 面试高频题
 
 > 汇总 Netty 与 IO 模型的核心面试问题，完整解答见 <RouteLink to="/interview/6_netty">开发总结 - Netty</RouteLink>

@@ -1,3 +1,7 @@
+---
+description: 二分查找、DFS / BFS
+---
+
 # 搜索算法
 
 ---

@@ -1,3 +1,7 @@
+---
+description: 零信任模型、mTLS、OPA 动态授权；目标：能理解服务间身份与动态策略
+---
+
 # 零信任架构
 
 > "从不信任，始终验证（Never trust, always verify）" —— NIST SP 800-207

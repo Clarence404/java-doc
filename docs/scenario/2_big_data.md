@@ -1,3 +1,7 @@
+---
+description: 海量数据存储、查询优化、日志处理、选型速查
+---
+
 # 海量数据处理
 
 > 参考资料：[advanced-java 海量数据处理](https://gitee.com/Doocs/advanced-java#%E6%B5%B7%E9%87%8F%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86)

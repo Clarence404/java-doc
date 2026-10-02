@@ -1,3 +1,7 @@
+---
+description: 注册中心、网关、OpenFeign、配置中心、Sentinel、Seata
+---
+
 # 开发总结 - Spring Cloud
 
 > 精华提炼，细节详见 [Spring Cloud](/spring-cloud/0_overview) / [微服务](/microservices/0_overview)

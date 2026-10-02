@@ -1,4 +1,8 @@
-# PostgreSQL 重要版本特性
+---
+description: PostgreSQL 9.6 ~ 18 各版本重要特性与特性总览
+---
+
+# PostgreSQL 版本特性
 
 参考：
 - [PostgreSQL Release Notes](https://www.postgresql.org/docs/release/)

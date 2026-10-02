@@ -1,3 +1,7 @@
+---
+description: 消息通道 / 系统集成 DSL
+---
+
 # Integration
 
 > 参考资料：

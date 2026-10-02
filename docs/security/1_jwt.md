@@ -1,3 +1,7 @@
+---
+description: 令牌结构、签名算法、失效与刷新策略；目标：会设计短期 Access Token 与 Refresh Token
+---
+
 # JWT 令牌机制
 
 > 参考资料：

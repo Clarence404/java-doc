@@ -1,3 +1,7 @@
+---
+description: MQTT、CoAP、LoRaWAN、NB-IoT、Zigbee、Modbus、OPC-UA、协议选型速查、MQTT 5.0 新特性
+---
+
 # IoT 通信协议
 
 > 参考资料：

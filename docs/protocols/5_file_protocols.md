@@ -1,3 +1,7 @@
+---
+description: FTP、SFTP、TFTP、NFS、SMB
+---
+
 # 文件传输协议
 
 > 官方规范：[FTP RFC 959](https://www.rfc-editor.org/rfc/rfc959.html) / [SFTP（SSH-2 子系统）](https://datatracker.ietf.org/doc/html/draft-ietf-secsh-filexfer-13) / [NFS RFC 7530](https://www.rfc-editor.org/rfc/rfc7530.html)

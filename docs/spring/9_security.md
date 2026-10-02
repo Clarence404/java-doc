@@ -1,3 +1,7 @@
+---
+description: 过滤器链 / JWT / 方法级权限 / 动态权限
+---
+
 # Security
 
 > 参考资料：

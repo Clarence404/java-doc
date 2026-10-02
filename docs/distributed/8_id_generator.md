@@ -1,3 +1,7 @@
+---
+description: UUID、自增、雪花算法、号段模式、Leaf、UidGenerator
+---
+
 # 分布式 ID 生成
 
 > 分布式系统中，多个实例无法依赖单库自增 ID，需要全局唯一、有序、高性能的 ID 生成方案。

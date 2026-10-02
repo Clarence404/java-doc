@@ -1,4 +1,8 @@
-# MySQL 专项 - Binlog、主从复制与高可用
+---
+description: Binlog、主从复制原理、GTID、半同步、主从延迟与并行复制、高可用方案、读写分离
+---
+
+# MySQL 主从与高可用
 
 ## 一、Binlog
 
@@ -156,7 +160,7 @@ binlog_transaction_dependency_tracking = WRITESET  # 主库侧
 - **应用层**：ShardingSphere-JDBC 等在 JDBC 层拦截，写主读从，无额外网络跳数
 - **代理层**：ProxySQL / MySQL Router，对应用透明，但多一跳且代理自身需高可用
 - 读写分离必须直面**主从延迟**问题（见第五节业务层应对）
-- 分库分表见 [数据库中间件](../5_practice/2_sharding)
+- 分库分表见 [分库分表与中间件](../5_practice/2_sharding)
 
 ---
 

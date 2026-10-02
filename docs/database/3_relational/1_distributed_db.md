@@ -1,3 +1,7 @@
+---
+description: TiDB、OceanBase、选型对比、云原生数据库 Aurora 与 PolarDB
+---
+
 # 分布式数据库
 
 > TiDB / OceanBase 属于 **NewSQL / 分布式关系型数据库**：兼容 SQL 与 ACID 事务，同时具备 NoSQL 的水平扩展能力。
