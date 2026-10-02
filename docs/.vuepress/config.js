@@ -4,7 +4,7 @@ import {viteBundler} from '@vuepress/bundler-vite';
 import fs from 'fs';
 import path from 'path';
 import 'dotenv/config';
-import {homeStatsPlugin} from './plugins/homeStats.js';
+import {computeHomeStats, homeStatsPlugin} from './plugins/homeStats.js';
 import {GROUPS, SUMMARY, overviewLink} from './site.js';
 
 // 导航栏风格：统一读 .env 里的 NAVBAR_STYLE
@@ -114,7 +114,8 @@ const sidebarOf = ({dir, sidebar, subdirs, stripPrefix}) => {
 };
 
 const ALL_MODULES = [SUMMARY, ...GROUPS.flatMap(g => g.modules)];
-const SIDEBAR = Object.fromEntries(ALL_MODULES.map(m => [`/${m.dir}/`, sidebarOf(m)]));
+const buildSidebar = () => Object.fromEntries(ALL_MODULES.map(m => [`/${m.dir}/`, sidebarOf(m)]));
+let SIDEBAR = buildSidebar();
 
 // 总览页导航表数据：与侧边栏同一棵树，叶子带上文章 frontmatter 的 description，写入 @temp/module-nav.js
 // 简介取自页面数据，开发时修改 description 会热更新（新增文章仍需重启，与侧边栏一致）
@@ -140,16 +141,38 @@ function writeModuleNav(app) {
     return app.writeTemp('module-nav.js', `export default ${JSON.stringify(nav)};\n`);
 }
 
+// 新增 / 删除文章后重算侧边栏，覆盖主题数据临时文件（客户端通过 HMR 的 updateThemeData 即时生效）
+async function refreshStructure(app) {
+    SIDEBAR = buildSidebar();
+    const file = app.dir.temp('internal/themeData.js');
+    const src = fs.readFileSync(file, 'utf-8');
+    const m = src.match(/^export const themeData = JSON\.parse\(("(?:[^"\\]|\\.)*")\)/);
+    if (m) {
+        const data = JSON.parse(JSON.parse(m[1]));
+        data.locales['/'].sidebar = SIDEBAR;
+        await app.writeTemp('internal/themeData.js', src.replace(m[1], JSON.stringify(JSON.stringify(data))));
+    }
+    await writeModuleNav(app);
+    await app.writeTemp('home-stats.js', `export default ${JSON.stringify(computeHomeStats(docsRoot))};\n`);
+}
+
 const moduleNavPlugin = {
     name: 'module-nav',
     onPrepared: (app) => writeModuleNav(app),
-    // 开发模式：Markdown 变更后（页面数据已更新）重新生成导航表数据
+    // 开发模式（全部热更新，无需重启）：
+    //   - Markdown 内容变更：页面数据已更新，重新生成导航表数据
+    //   - 新增 / 删除 Markdown：重算侧边栏写回主题数据，并刷新导航表与首页统计
     onWatched: (app, watchers) => {
         let timer = null;
-        watchers.filter(w => typeof w?.on === 'function').forEach(w => w.on('change', () => {
+        const schedule = (fn) => {
             clearTimeout(timer);
-            timer = setTimeout(() => writeModuleNav(app), 300);
-        }));
+            timer = setTimeout(fn, 400);
+        };
+        const pageWatchers = watchers.filter(w => typeof w?.on === 'function');
+        pageWatchers.forEach(w => w.on('change', () => schedule(() => writeModuleNav(app))));
+        pageWatchers.forEach(w => ['add', 'unlink'].forEach(ev => w.on(ev, (file) => {
+            if (String(file).endsWith('.md')) schedule(() => refreshStructure(app));
+        })));
     },
 };
 

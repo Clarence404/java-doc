@@ -56,7 +56,7 @@ export const GROUPS = [
                 ],
             },
             {
-                name: '数据结构与算法', nav: '算法', dir: 'algorithms',
+                name: '数据结构与算法', nav: 'DSA', dir: 'algorithms',
                 desc: '复杂度 / 数据结构 / 基础算法 / 算法技巧 / 刷题实战',
                 subdirs: {'1_data_structures': '数据结构', '2_algorithms': '基础算法', '3_patterns': '算法技巧', '4_practice': {title: '刷题实战', collapsed: true}},
             },
