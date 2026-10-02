@@ -1,0 +1,163 @@
+// 内页「期刊风」：与首页一致的排版语言（衬线西文 + 黑体中文、等宽编号、细线分隔）
+// 只调整字体、字号、间距与线条，颜色沿用主题原有配色（强调色 --vp-c-accent 等不改）
+// 作用于文档页的导航栏、侧边栏、页面标题、正文与目录；首页组件不含侧边栏 / 正文结构，不受影响
+
+// 标题字体栈：西文走衬线、中文走黑体，浏览器按字符逐个回退，避免中文落到不协调的宋体
+$display: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+$mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace;
+
+// ---------- 顶部导航栏 ----------
+.vp-navbar {
+  .vp-nav-item > .auto-link,
+  .vp-dropdown-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+}
+
+// ---------- 左侧边栏 ----------
+#sidebar {
+  > .vp-sidebar-links {
+    counter-reset: journal-group;
+    padding-top: 1.25rem;
+  }
+
+  // 模块总览：标题字体，与正文 H1 同一字体栈；下方细线与条目左缘对齐
+  > .vp-sidebar-links > li:first-child > .vp-sidebar-link {
+    font-family: $display;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    padding-top: 0.35rem;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--vp-c-divider);
+    border-radius: 0;
+  }
+
+  // 层级：一级（分组标题、未分组条目）0.9rem 600；组内文章 0.875rem 400
+  .vp-sidebar-header {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+
+    .vp-sidebar-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+  }
+
+  .vp-sidebar-link {
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  > .vp-sidebar-links > li:not(:first-child) > .vp-sidebar-link {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  // 一级分组编号 01 / 02 …：等宽小字、弱化颜色，只做节奏提示
+  > .vp-sidebar-links > li > .vp-sidebar-group > .vp-sidebar-header .vp-sidebar-title::before {
+    counter-increment: journal-group;
+    content: counter(journal-group, decimal-leading-zero);
+    display: inline-block;
+    min-width: 1.6em;
+    margin-right: 0.45em;
+    font-family: $mono;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--vp-c-text-subtle);
+  }
+
+  .vp-sidebar-header.active .vp-sidebar-title::before {
+    color: var(--vp-c-accent);
+  }
+
+  .vp-arrow {
+    opacity: 0.45;
+  }
+}
+
+// ---------- 页面顶部 ----------
+.vp-breadcrumb {
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+.vp-page-title {
+  h1 {
+    font-family: $display;
+    font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.005em;
+  }
+
+  .page-info {
+    font-size: 0.8rem;
+  }
+}
+
+// ---------- 正文：H2 1.5rem 标题字体；H3 1.15rem 黑体；H4 1rem ----------
+// 章节分隔线由文章自己的 `---` 提供（全站多数文章在 H2 前都有），这里不再给标题加线，避免出现双线
+// 注意：主题给标题设置了「负 margin-top + 等量 padding-top」（导航栏高度）用于锚点跳转偏移，不要改标题的 margin / padding / border
+#markdown-content {
+  h2 {
+    font-family: $display;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.005em;
+    border-bottom: 0;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  table th {
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .module-nav-group td {
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+  }
+}
+
+// ---------- 右侧目录：标题与条目同一字体，标题略小加粗，条目按层级缩小 ----------
+#toc {
+  .vp-toc-header {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .vp-toc-link {
+    font-size: 0.8125rem;
+    line-height: 1.6;
+
+    &.level3,
+    &.level4 {
+      font-size: 0.78rem;
+    }
+  }
+}
+
+// ---------- 上一篇 / 下一篇 ----------
+.vp-page-nav .route-link {
+  font-family: $display;
+}

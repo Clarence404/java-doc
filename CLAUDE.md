@@ -99,10 +99,10 @@ docs/
 - 模块入口：每个模块的 `0_overview.md` 为总览页（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；导航表统一写 `<ModuleNav />`，由各文章的 frontmatter `description` 自动生成，不再手写
 - 文章 frontmatter：每篇文章开头写一行 `description`（覆盖内容，「、」或「 / 」分隔的要点，15–60 字，不加句号），供总览页导航表与网页 meta 使用；侧边栏、导航表中的显示名永远与 `# 标题` 一致
 - 面试题：模块内 `99_interview.md` 只列题目清单，答案统一写在 `docs/interview/` 的对应答案页，两边互相链接
-- 站点目录：除文章本身外，所有配置只在 `docs/.vuepress/site.js` 维护（模块、分组、名称、侧边栏分组、子目录、答案页对应关系、首页推荐路线 / 关联 / 推荐博客 / 页脚）；导航栏、侧边栏、面包屑、总览页导航表和首页都由它与文章自动生成，不在其他文件重复维护
+- 站点目录：除文章本身外，所有配置只在 `docs/.vuepress/site.js` 维护（模块、分组、名称、侧边栏分组、子目录、答案页对应关系、首页推荐博客 / 页脚）；导航栏、侧边栏、面包屑、总览页导航表和首页都由它与文章自动生成，不在其他文件重复维护
 - 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / scenario / patterns / cloud-native）在 `site.js` 对应模块的 `sidebar` 字段里写每组的起始编号 `from`，编号 ≥ `from` 的文章自动归入该组（`0_overview`、90 号以后的附录与 `99_interview` 不分组；interview 另用 `stripPrefix` 去掉标题中的「开发总结 - 」前缀）；ai / algorithms / database 按子目录自动分组，子目录在 `subdirs` 登记
 - 面包屑名称：目录没有 README 时主题会自动生成目录页，模块目录用 `site.js` 的 `name`，子目录的中文名登记在模块的 `subdirs` 字段；新增子目录时同步添加，否则面包屑会显示首字母大写的目录名
-- 首页：`docs/README.md` 使用 `layout: HomeLayout`（知识星图），实现在 `.vuepress/components/home/`；内容全部来自 `site.js`（模块、推荐路线、跨模块关联、推荐博客、页脚）与文章（开发总结速查取答案页的标题与 description）；文章数 / 题数 / 答案页数 / SVG 数由 `.vuepress/plugins/homeStats.js` 在构建时自动统计；分组配色按分组数量从品牌渐变自动取色
+- 首页：`docs/README.md` 使用 `layout: HomeLayout`（杂志式 Bento 首页），实现在 `.vuepress/components/home/HomeEditorial.vue`；内容全部来自 `site.js`（模块、分组、推荐博客、页脚）与文章（开发总结速查取答案页的标题与 description）；文章数 / 题数 / 答案页数 / SVG 数由 `.vuepress/plugins/homeStats.js` 在构建时自动统计；分组配色按分组数量从品牌渐变自动取色
 - 模块边界：同一主题只保留一个主文档，其他模块用一句话概括 + 链接，不重复展开；三高模块写系统级策略，具体技术细节链接到 cache / database / messaging / jvm 等模块
 - 文件夹命名：全小写，多单词使用连字符（kebab-case），如 `cloud-native`、`spring-boot`
 - 图片存放：`docs/assets/<模块名>/`
@@ -133,18 +133,18 @@ description: 要点一、要点二、要点三
 
 | 数据 | 来源 | 作用在哪里 |
 |------|------|------------|
-| 分组 `name` / `tagline` | `site.js` | 导航下拉分组名、首页星图方向名与星表标语 |
+| 分组 `name` / `tagline` | `site.js` | 导航下拉分组名、首页分组卡片的名称与标语 |
 | 模块 `name` | `site.js` | 面包屑、首页、平铺导航中的模块名 |
 | 模块 `nav`（可选） | `site.js` | 导航栏短名，不写则用 `name` |
 | 模块 `dir` | `site.js` | 对应 `docs/` 下的目录，入口固定为 `<dir>/0_overview.md` |
-| 模块 `desc` / `stub` | `site.js` | 首页星表简介与「编写中」徽标 |
+| 模块 `desc` / `stub` | `site.js` | 首页分组卡片中的模块简介与「编写中」徽标 |
 | 模块 `sidebar`（可选） | `site.js` | 侧边栏分组，每组只写起始编号 `from` |
 | 模块 `subdirs`（可选） | `site.js` | 子目录分组：中文名（同时用于面包屑）、是否折叠、组内分段 |
 | 侧边栏条目文字与顺序 | Markdown 文件 | 第一个 `# 标题`；顺序取文件名数字前缀 |
 | 开发总结「对应题目清单」 | `site.js` | 模块的 `interview` 字段（本模块题单对应的答案页） |
 | 总览页导航表「覆盖内容」 | Markdown 文件 | frontmatter `description` |
 | 文章数 / 题数 / 答案页数 / SVG 数 | `.vuepress/plugins/homeStats.js` | 构建时扫描 `docs/` 自动统计，首页使用 |
-| 首页推荐路线、跨模块关联、推荐博客、页脚 | `site.js` 的 `GOALS` / `REL` / `REFS` / `FOOTER` | 首页 |
+| 首页推荐博客、页脚 | `site.js` 的 `REFS` / `FOOTER` | 首页 |
 
 ### 操作步骤
 
@@ -156,7 +156,7 @@ description: 要点一、要点二、要点三
 | 新增一个模块 | 新建 `docs/<dir>/0_overview.md`（导航表写 `<ModuleNav />`），在 `site.js` 对应分组加一条（`name` / `dir` / `desc`）；本文件的「项目结构」「模块索引」仅为概览，以 `site.js` 为准 |
 | 模块改名 | 改 `site.js` 的 `name`（导航短名改 `nav`）；总览页 `0_overview.md` 的 `# 标题`属于文章内容，按需同步 |
 | 新增答案页 | 在 `docs/interview/` 新建并编号（带 `description`），在 `site.js` 对应模块的 `interview` 字段加上该文件名；如需新分组，改 `site.js` 中 `SUMMARY.sidebar` |
-| 调整推荐路线 / 关联 / 推荐博客 | 改 `site.js` 的 `GOALS` / `REL` / `REFS`，`stops` 填已有的模块名 |
+| 调整首页推荐博客 / 页脚 | 改 `site.js` 的 `REFS` / `FOOTER` |
 | 新增一个分组（方向） | `site.js` 的 `GROUPS` 加一项，配色自动生成 |
 
 构建时若有文章缺少 `description`，控制台会输出 `[module-nav]` 警告并列出文件。

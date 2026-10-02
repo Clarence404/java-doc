@@ -4,7 +4,7 @@
 //   - 导航栏（分组下拉 / 平铺两种风格）
 //   - 面包屑名称（模块目录与 subdirs 子目录）
 //   - 侧边栏（按目录自动读取；sidebar 按起始编号分组；subdirs 让子目录成为分组）
-//   - 首页知识星图与星表（name / desc / stub，分组的 name / tagline），以及首页的推荐路线、跨模块关联、推荐博客
+//   - 首页（模块的 name / desc / stub，分组的 name / tagline），以及首页的推荐博客、页脚
 //   - 开发总结：答案页的分组（SUMMARY.sidebar）与「对应题目清单」（模块的 interview 字段）
 //
 // 新增模块：在所属分组的 modules 中加一项，dir 为 docs/ 下的目录名，入口页为 <dir>/0_overview.md
@@ -18,7 +18,7 @@
 //   interview 本模块 99_interview 题单的答案页（docs/interview/ 下的文件名），用于开发总结导航表的「对应题目清单」列
 //   subdirs  子目录分组，可选：{'1_mysql': 'MySQL'} 或 {'1_mysql': {title, collapsed?, sidebar?}}；title 同时用于面包屑
 
-// 开发总结（导航栏第一项，不参与首页星图）
+// 开发总结（导航栏第一项，不参与首页的分组卡片）
 export const SUMMARY = {
     name: '开发总结',
     dir: 'interview',
@@ -170,23 +170,6 @@ export const GROUPS = [
 ];
 
 // ---------- 首页 ----------
-
-// 首页星图的跨模块关联（节选），第三项为弧线向圆心的弯曲程度
-export const REL = [
-    ['网络协议', 'Netty', .25], ['网络协议', 'IoT', .15], ['JVM', '高性能', .3], ['Java', '设计模式', 0],
-    ['Spring Boot', 'Spring Cloud', .2], ['缓存', '高并发', 0], ['消息队列', '高并发', 0],
-    ['分布式', '数据库', .1], ['Spring Cloud', '高可用', .1], ['可观测性', '高可用', .15], ['业务场景', '高并发', .15],
-    ['云原生', 'DevOps', .1], ['AI', 'Spring Boot', .1], ['工程效率', 'JVM', .1],
-];
-
-// 首页「按目标选路径」（编辑推荐路线），stops 填上面已有的模块名；pre 表示先读开发总结
-export const GOALS = [
-    {name: '夯实基础', desc: '先把语言与运行时吃透，再补上算法与网络协议。', stops: ['Java', 'JVM', '数据结构与算法', '网络协议']},
-    {name: '面试冲刺', desc: '先用答案页通读一遍，再回到题量最多的核心模块逐题复盘。', pre: true, stops: ['Java', 'JVM', '数据库', '缓存', '高并发']},
-    {name: '系统设计', desc: '从分布式理论出发，经过三高策略，落到真实业务场景。', stops: ['分布式', '高并发', '高可用', '系统架构', '业务场景']},
-    {name: '微服务落地', desc: '沿 Spring 全家桶走到服务治理，再部署到云原生环境。', stops: ['Spring', 'Spring Boot', 'Spring Cloud', '微服务', '云原生']},
-    {name: '性能调优', desc: '先立指标与方法论，再逐层优化 JVM、数据库与缓存，最后借助线上诊断验证。', stops: ['高性能', 'JVM', '数据库', '缓存', '工程效率']},
-];
 
 // 首页「延伸阅读」
 export const REFS = [
