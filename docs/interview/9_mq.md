@@ -63,7 +63,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 - Kafka 4.x 正在引入共享组（KIP-932，队列式按条确认的消费语义），目前仍应视为预览特性，不宜据此替代 RabbitMQ / RocketMQ 选型
 - 已在公有云上时，托管版的运维成本往往比引擎差异更重要；同一公司尽量收敛到一到两种 MQ
 
-→ 详见 [MQ 选型与其他 MQ](/messaging/5_selection)
+→ 详见 [MQ 选型](/messaging/6_selection)
 
 ### Q4：RocketMQ 5.x 相比 4.x 有哪些主要变化？
 
@@ -505,4 +505,4 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 - 取舍要主动说：同步刷盘 / 同步复制换可靠性牺牲吞吐；分区多提升并行但增加元数据与 Rebalance 开销；全局有序与吞吐不可兼得
 - 无论怎么设计，至少一次投递下的**幂等消费**都要交给业务
 
-→ 详见 [MQ 选型与其他 MQ](/messaging/5_selection)、[Kafka](/messaging/2_kafka)
+→ 详见 [MQ 选型](/messaging/6_selection)、[Kafka](/messaging/2_kafka)

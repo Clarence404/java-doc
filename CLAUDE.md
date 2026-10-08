@@ -32,7 +32,7 @@ docs/
 ├── patterns/       设计模式（23 种 GoF）
 ├── protocols/      网络协议：网络通信 / IoT / 远程调用 / 安全 / 文件 / 数据库 / 邮件 / 分布式
 ├── scenario/       业务场景：秒杀 / 订单 / 短链 / Feed / 搜索等系统设计案例
-├── security/       安全：认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任
+├── security/       应用安全：认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任
 ├── spring/         Spring Framework / WebFlux / Security
 ├── spring-boot/    Spring Boot / Flyway
 ├── spring-cloud/   Spring Cloud：注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream
@@ -70,7 +70,7 @@ docs/
 | 工程效率 | `docs/engineering/` | 构建工具 / 开发工具 / 代码质量 / 线上诊断 / API 规范 |
 | 可观测性 | `docs/observability/` | 日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry |
 | 网络协议 | `docs/protocols/` | TCP/UDP / HTTP / IoT 协议 / gRPC / TLS / 数据库协议 |
-| 安全 | `docs/security/` | 认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任 |
+| 应用安全 | `docs/security/` | 认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任 |
 | IoT | `docs/iot/` | 物联网架构 / 协议 / 开源平台 |
 | AI | `docs/ai/` | Function Calling / Spring AI / LangChain4j / RAG / Agent / MCP / API 接入 / AI 工具 |
 
@@ -86,7 +86,7 @@ docs/
 三高层：  高性能 → 高并发 → 高可用
 架构层：  设计模式 → 系统架构 → 业务场景
 研发效能：测试工程 → DevOps → 工程效率
-运维保障：云原生 → 可观测性 → 安全
+运维保障：云原生 → 可观测性 → 应用安全
 新兴层：  IoT → AI
 面试：    interview/ 各专题汇总复习
 ```

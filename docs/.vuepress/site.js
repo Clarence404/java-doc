@@ -154,7 +154,7 @@ export const GROUPS = [
                 ],
             },
             {name: '可观测性', dir: 'observability', desc: '日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry（大纲阶段）', stub: '大纲阶段'},
-            {name: '安全', dir: 'security', desc: 'JWT / OAuth2 / OIDC / SSO / RBAC / API 安全 / 零信任'},
+            {name: '应用安全', dir: 'security', desc: 'JWT / OAuth2 / OIDC / SSO / RBAC / API 安全 / 零信任'},
         ],
     },
     {

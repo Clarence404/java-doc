@@ -1,14 +1,14 @@
 ---
-description: 三大 MQ 对比、场景决策表、Apache Pulsar 存算分离、选型常见误区
+description: 三大 MQ 对比、场景决策表、选型步骤、常见误区
 ---
 
-# MQ 选型与其他 MQ
+# MQ 选型
 
-> **本篇目标**：能按业务特征在 Kafka / RocketMQ / RabbitMQ 之间做出有理由的选择，了解 Pulsar 的定位，避开选型时的常见误判。
+> **本篇目标**：能按业务特征在 Kafka / RocketMQ / RabbitMQ（以及 Pulsar 等其他 MQ）之间做出有理由的选择，避开选型时的常见误判。
 >
-> **前置阅读**：[Kafka](./2_kafka)、[RocketMQ](./3_rocketmq)、[RabbitMQ](./4_rabbitmq)
+> **前置阅读**：[Kafka](./2_kafka)、[RocketMQ](./3_rocketmq)、[RabbitMQ](./4_rabbitmq)、[其他 MQ](./5_other_mq)
 
-前面三篇分别讲了三大 MQ 的原理与用法。选型时真正起作用的往往不是"谁性能最高"，而是**消息语义**（事务、延迟、回放、路由）和**团队能否运维得住**。本篇把差异收拢到一张表里，再给出场景化的建议。
+前面几篇分别讲了三大 MQ 与 Pulsar 等其他 MQ 的原理与用法。选型时真正起作用的往往不是"谁性能最高"，而是**消息语义**（事务、延迟、回放、路由）和**团队能否运维得住**。本篇把差异收拢到一张表里，再给出场景化的建议。
 
 ---
 
@@ -54,7 +54,7 @@ description: 三大 MQ 对比、场景决策表、Apache Pulsar 存算分离、�
 | 复杂路由（按规则分发、广播、优先级） | **RabbitMQ** | Direct / Topic / Fanout / Headers 交换机，支持优先级队列 |
 | 对接外部系统 / 标准协议 | **RabbitMQ** | AMQP 标准协议，插件支持 MQTT / STOMP |
 | IoT 设备上报 | 设备侧 **MQTT Broker**，后端汇入 **Kafka** | 海量长连接交给 EMQX 等专用 Broker，汇聚后的数据流进 Kafka；小规模可直接用 RabbitMQ MQTT 插件 |
-| 多租户、跨地域复制、存储独立扩容 | **Pulsar** | 存算分离，原生多租户与 Geo 复制（见下一节） |
+| 多租户、跨地域复制、存储独立扩容 | **Pulsar** | 存算分离，原生多租户与 Geo 复制，详见 [其他 MQ](./5_other_mq) |
 | 已在公有云上 | 优先云厂商托管版 | 运维成本往往比引擎差异更重要 |
 
 选型时可以按下面的顺序过一遍：
@@ -65,65 +65,7 @@ description: 三大 MQ 对比、场景决策表、Apache Pulsar 存算分离、�
 
 ---
 
-## 三、Apache Pulsar
-
-Pulsar 是 Apache 顶级项目，同时提供队列和流两种语义，最大特点是**存算分离**：Broker 只负责计算，消息持久化交给 BookKeeper。
-
-### 1、架构与特性
-
-![Pulsar 存算分离架构](../assets/messaging/pulsar-architecture.svg)
-
-| 特性 | 说明 |
-|------|------|
-| **存算分离** | Broker 无状态，Topic 归属可在 Broker 间快速迁移；存储由 Bookie 集群承担，两层独立扩缩容 |
-| **分段存储** | 一个分区的数据按 Segment 分散在多个 Bookie 上，扩容新 Bookie 后新数据直接写入，无需像 Kafka 那样做分区重分配 |
-| **分层存储** | 冷数据可卸载到 S3 等对象存储，适合超长保留 |
-| **多租户** | 原生 Tenant / Namespace / Topic 三级隔离，可按租户配置配额与权限 |
-| **订阅模型** | Exclusive / Failover / Shared / Key_Shared，一套系统覆盖队列与流 |
-| **Geo 复制** | 原生跨集群、跨地域复制 |
-| **协议兼容** | 通过 KoP 等协议处理器兼容 Kafka 客户端（成熟度需按版本评估） |
-
-### 2、订阅模式：一套系统同时覆盖队列与流
-
-Pulsar 把「怎么分发给消费者」交给**订阅（Subscription）**决定，同一个 Topic 可以同时挂多个不同模式的订阅：
-
-| 订阅模式 | 分发方式 | 顺序 | 相当于 |
-|---------|---------|------|--------|
-| **Exclusive** | 一个订阅只允许一个消费者，多连会报错 | 全局有序 | 单消费者的流 |
-| **Failover** | 多个消费者，只有主消费者在收，主挂了备接管 | 有序 | Kafka 消费组（分区内） |
-| **Shared** | 多个消费者轮询分发，逐条确认 | 不保证顺序 | 传统工作队列（RabbitMQ 竞争消费） |
-| **Key_Shared** | 多个消费者，同一 Key 固定发给同一消费者 | 同 Key 有序 | 按业务键并行 + 局部有序 |
-
-逐条确认（而不是只提交位点）也让 Pulsar 天然支持**单条重投、否认确认（negative ack）与死信**，这正是 Kafka 需要靠 Share Group 补齐的能力。
-
-### 3、和 Kafka 的关键差异
-
-| 维度 | Kafka | Pulsar |
-|------|-------|--------|
-| 存储位置 | 分区数据存在 Broker 本地磁盘 | Broker 无状态，数据分段存到 BookKeeper |
-| 扩容 | 新 Broker 需要分区重分配（搬迁数据） | 新 Bookie 直接接收新分段，Broker 扩容只迁移 Topic 归属，不搬数据 |
-| 消费确认 | 按分区提交位点（累计确认） | 逐条确认 + 累计确认都支持 |
-| 多租户 | 靠 Topic 命名与 ACL 约定 | 原生 Tenant / Namespace 隔离，配额与策略按租户配置 |
-| 跨地域复制 | MirrorMaker 2 等外部组件 | 内置 Geo-Replication |
-| 冷数据 | 分层存储（Tiered Storage） | 分层存储，冷段卸载到对象存储 |
-| 生态 | Connect、Streams、Flink / Spark 集成最成熟 | Pulsar Functions、IO Connectors，生态相对小 |
-| 运维代价 | 4.0 起只需 Kafka 自身（KRaft） | Broker + Bookie + 元数据存储三类组件，排障要同时理解计算层与存储层 |
-
-### 4、什么时候选它
-
-- **平台型消息中台**：要给多个团队、多个业务线共用一套集群，需要原生多租户隔离与配额。
-- **跨机房 / 跨地域复制**是硬需求，希望用内置能力而不是自己维护复制链路。
-- **海量 Topic** 或需要频繁弹性扩缩容，不希望每次扩容都搬迁分区数据。
-- **同一份数据既要流式回放、又要队列式竞争消费**，希望用订阅模式统一。
-- 前提：**团队有能力运维多组件集群**。如果只是普通业务解耦、日志采集，Kafka / RocketMQ / RabbitMQ 更省心。
-
-**当前现状**：Pulsar 已进入 4.x LTS 阶段，元数据存储除 ZooKeeper 外还可选 etcd、Oxia 等；国内外均有大规模生产案例。但它组件更多（Broker + Bookie + 元数据），排障需要同时理解两层，社区与中文资料也少于 Kafka、RocketMQ。**适合有平台团队、明确需要多租户或跨地域复制的场景，普通业务项目不建议为"架构先进"单独引入。**
-
-另外，Kafka 社区也在补齐"队列语义"：KIP-932（Share Group，即 Queues for Kafka）允许多个消费者共享消费同一分区并逐条确认，在 4.x 中从早期访问、预览逐步推进，生产使用前请确认所用版本中该特性的状态。
-
----
-
-## 四、常见误区
+## 三、常见误区
 
 | 误区 | 正解 |
 |------|------|
@@ -144,7 +86,7 @@ Pulsar 把「怎么分发给消费者」交给**订阅（Subscription）**决定
 - Kafka 的事务是跨分区原子写与 EOS，RocketMQ 的事务消息是半消息回查，RabbitMQ 没有对应的事务消息
 - 延迟消息：Kafka 不原生支持，RocketMQ 5.x 支持任意时间，RabbitMQ 用 TTL + DLX 或插件
 - 版本基线：Kafka 4.0 去掉 ZooKeeper，RabbitMQ 4.0 去掉镜像队列，RocketMQ 5.x 引入 Proxy 与 Controller
-- Pulsar 以存算分离、多租户、Geo 复制见长，四种订阅模式让一套系统同时覆盖队列与流；但组件多、门槛高，平台型场景再引入
+- Pulsar 适合多租户、跨地域复制的平台型场景，普通业务项目仍以三大 MQ 为主（见 [其他 MQ](./5_other_mq)）
 - 选型先看语义硬需求，再看量级，最后看团队与生态；无论选哪种，消费幂等与可靠投递都要业务自己兜底
 
 > 学完本模块，可到开发总结复习：[开发总结 · 消息队列](/interview/9_mq) —— 高频问题与标准答案汇总。

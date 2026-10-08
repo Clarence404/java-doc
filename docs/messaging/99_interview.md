@@ -13,7 +13,7 @@ description: 消息队列方向题目清单
 - **Kafka、RocketMQ、RabbitMQ 的对比？各自适合什么场景？**
 - **RocketMQ 5.x 相比 4.x 有哪些主要变化？**
 - **RabbitMQ 延迟消息有哪几种实现方式？各有什么坑？**  
-  → 详见 <RouteLink to="/messaging/1_basics">消息队列基础</RouteLink>、<RouteLink to="/messaging/3_rocketmq">RocketMQ</RouteLink>、<RouteLink to="/messaging/4_rabbitmq">RabbitMQ</RouteLink>、<RouteLink to="/messaging/5_selection">MQ 选型与其他 MQ</RouteLink>
+  → 详见 <RouteLink to="/messaging/1_basics">消息队列基础</RouteLink>、<RouteLink to="/messaging/3_rocketmq">RocketMQ</RouteLink>、<RouteLink to="/messaging/4_rabbitmq">RabbitMQ</RouteLink>、<RouteLink to="/messaging/6_selection">MQ 选型</RouteLink>
 
 ## 二、消息可靠性
 
@@ -52,7 +52,7 @@ description: 消息队列方向题目清单
 - **Kafka 的副本机制是什么？Leader 宕机如何选举？**
 - **RabbitMQ 的镜像队列（4.0 已移除）和 Quorum Queue 有什么区别？为什么要迁移？**
 - **如何设计一个消息队列？**  
-  → 详见 <RouteLink to="/messaging/2_kafka">Kafka</RouteLink>、<RouteLink to="/messaging/3_rocketmq">RocketMQ</RouteLink>、<RouteLink to="/messaging/4_rabbitmq">RabbitMQ</RouteLink>、<RouteLink to="/messaging/5_selection">MQ 选型与其他 MQ</RouteLink>
+  → 详见 <RouteLink to="/messaging/2_kafka">Kafka</RouteLink>、<RouteLink to="/messaging/3_rocketmq">RocketMQ</RouteLink>、<RouteLink to="/messaging/4_rabbitmq">RabbitMQ</RouteLink>、<RouteLink to="/messaging/6_selection">MQ 选型</RouteLink>
 
 ---
 

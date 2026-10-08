@@ -129,7 +129,7 @@ Root CA（根证书）
 
 ## 四、OAuth2 / JWT / SSO
 
-认证授权相关协议（OAuth2、JWT、OIDC、SAML、单点登录）在实际工程中与 Spring Security 深度结合，详细内容见安全模块：
+认证授权相关协议（OAuth2、JWT、OIDC、SAML、单点登录）在实际工程中与 Spring Security 深度结合，详细内容见应用安全模块：
 
 - **JWT（令牌结构、签名算法、吊销）** → [security/JWT](../security/1_jwt)
 - **OAuth2（授权模式、PKCE）** → [security/OAuth2](../security/2_oauth2)
