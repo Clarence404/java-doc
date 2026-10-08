@@ -1,0 +1,68 @@
+<svg viewBox="0 0 760 344" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+    .sec   { font-size: 13px; font-weight: 700; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrs" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <text x="380" y="24" text-anchor="middle" class="title">LongAdder：base + Cell[] 分段累加</text>
+  <rect x="20" y="44" width="150" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="95" y="68" text-anchor="middle" class="name">线程 T1</text>
+  <text x="95" y="88" text-anchor="middle" class="desc">无竞争：CAS base</text>
+  <line x1="95" y1="104" x2="95" y2="152" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="210" y="44" width="150" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="285" y="68" text-anchor="middle" class="name">线程 T2</text>
+  <text x="285" y="88" text-anchor="middle" class="desc">probe 散列 → Cell[0]</text>
+  <line x1="285" y1="104" x2="285" y2="152" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="400" y="44" width="150" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="475" y="68" text-anchor="middle" class="name">线程 T3</text>
+  <text x="475" y="88" text-anchor="middle" class="desc">probe 散列 → Cell[1]</text>
+  <line x1="475" y1="104" x2="475" y2="152" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="590" y="44" width="150" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="665" y="68" text-anchor="middle" class="name">线程 T4</text>
+  <text x="665" y="88" text-anchor="middle" class="desc">probe 散列 → Cell[2]</text>
+  <line x1="665" y1="104" x2="665" y2="152" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="154" width="150" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="95" y="178" text-anchor="middle" class="name">base</text>
+  <text x="95" y="198" text-anchor="middle" class="desc">无竞争时的累加值</text>
+  <rect x="210" y="154" width="150" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="285" y="178" text-anchor="middle" class="name">Cell[0]</text>
+  <text x="285" y="198" text-anchor="middle" class="desc">@Contended 独占缓存行</text>
+  <rect x="400" y="154" width="150" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="475" y="178" text-anchor="middle" class="name">Cell[1]</text>
+  <text x="475" y="198" text-anchor="middle" class="desc">@Contended 独占缓存行</text>
+  <rect x="590" y="154" width="150" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="665" y="178" text-anchor="middle" class="name">Cell[2]</text>
+  <text x="665" y="198" text-anchor="middle" class="desc">@Contended 独占缓存行</text>
+  <line x1="95" y1="214" x2="95" y2="262" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="285" y1="214" x2="285" y2="262" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="475" y1="214" x2="475" y2="262" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="665" y1="214" x2="665" y2="262" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="264" width="720" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="380" y="288" text-anchor="middle" class="name">sum() = base + Σ Cell[i].value</text>
+  <text x="380" y="308" text-anchor="middle" class="desc">逐个读取再相加，不是原子快照：求和期间的并发更新可能计入也可能不计入</text>
+</svg>

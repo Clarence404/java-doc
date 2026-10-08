@@ -1,0 +1,67 @@
+<svg viewBox="0 0 760 530" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="26" text-anchor="middle" class="title">ThreadPoolExecutor.execute 提交流程</text>
+  <rect x="40" y="50" width="300" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="190" y="76" text-anchor="middle" class="name">提交任务 execute(task)</text>
+  <text x="190" y="96" text-anchor="middle" class="desc">submit 包装成 FutureTask 后同样走这里</text>
+  <rect x="40" y="150" width="300" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="190" y="176" text-anchor="middle" class="name">线程数 &lt; corePoolSize ?</text>
+  <text x="190" y="196" text-anchor="middle" class="desc">workerCountOf(ctl.get())</text>
+  <rect x="40" y="250" width="300" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="190" y="276" text-anchor="middle" class="name">workQueue.offer(task) 成功 ?</text>
+  <text x="190" y="296" text-anchor="middle" class="desc">队列未满即入队成功</text>
+  <rect x="40" y="350" width="300" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="190" y="376" text-anchor="middle" class="name">线程数 &lt; maximumPoolSize ?</text>
+  <text x="190" y="396" text-anchor="middle" class="desc">仅在队列已满时才走到这一步</text>
+  <rect x="40" y="450" width="300" height="60" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="190" y="476" text-anchor="middle" class="name">执行拒绝策略</text>
+  <text x="190" y="496" text-anchor="middle" class="desc">RejectedExecutionHandler</text>
+  <rect x="420" y="150" width="300" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="570" y="176" text-anchor="middle" class="name">新建核心线程执行任务</text>
+  <text x="570" y="196" text-anchor="middle" class="desc">addWorker(task, true)</text>
+  <rect x="420" y="250" width="300" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="570" y="276" text-anchor="middle" class="name">任务入队，等待空闲线程</text>
+  <text x="570" y="296" text-anchor="middle" class="desc">二次检查：已关闭则拒绝，0 线程则补一个</text>
+  <rect x="420" y="350" width="300" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="570" y="376" text-anchor="middle" class="name">新建非核心线程执行任务</text>
+  <text x="570" y="396" text-anchor="middle" class="desc">addWorker(task, false)</text>
+  <line x1="190" y1="110" x2="190" y2="148" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="190" y1="210" x2="190" y2="248" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="198" y="233" text-anchor="start" class="lbl">否</text>
+  <line x1="340" y1="180" x2="418" y2="180" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="379" y="174" text-anchor="middle" class="lbl">是</text>
+  <line x1="190" y1="310" x2="190" y2="348" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="198" y="333" text-anchor="start" class="lbl">否</text>
+  <line x1="340" y1="280" x2="418" y2="280" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="379" y="274" text-anchor="middle" class="lbl">是</text>
+  <line x1="190" y1="410" x2="190" y2="448" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="198" y="433" text-anchor="start" class="lbl">否</text>
+  <line x1="340" y1="380" x2="418" y2="380" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="379" y="374" text-anchor="middle" class="lbl">是</text>
+</svg>

@@ -1,0 +1,85 @@
+<svg viewBox="0 0 680 664" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 11px; fill: var(--muted); }
+    .mono  { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .stale { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arrs" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="24" text-anchor="middle" class="title">ConcurrentHashMap.put 流程（JDK 8+）</text>
+  <rect x="40" y="44" width="240" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="160" y="69" text-anchor="middle" class="name">put(key, value)</text>
+  <text x="160" y="89" text-anchor="middle" class="note">null 检查，spread(hash)</text>
+  <line x1="160" y1="104" x2="160" y2="132" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="134" width="240" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="160" y="159" text-anchor="middle" class="name">table 为空？</text>
+  <text x="160" y="179" text-anchor="middle" class="note">首次 put 时初始化</text>
+  <line x1="160" y1="194" x2="160" y2="222" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="168" y="213" class="note">否</text>
+  <rect x="40" y="224" width="240" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="160" y="249" text-anchor="middle" class="name">目标桶为空？</text>
+  <text x="160" y="269" text-anchor="middle" class="note">tabAt 读取桶首节点 f</text>
+  <line x1="160" y1="284" x2="160" y2="312" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="168" y="303" class="note">否</text>
+  <rect x="40" y="314" width="240" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="160" y="339" text-anchor="middle" class="name">桶首 hash == MOVED？</text>
+  <text x="160" y="359" text-anchor="middle" class="note">f 是 ForwardingNode</text>
+  <line x1="160" y1="374" x2="160" y2="402" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="168" y="393" class="note">否</text>
+  <rect x="40" y="404" width="240" height="60" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="160" y="429" text-anchor="middle" class="name">synchronized (f)</text>
+  <text x="160" y="449" text-anchor="middle" class="note">链表覆盖或尾插 / TreeBin 插入</text>
+  <line x1="160" y1="464" x2="160" y2="492" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="494" width="240" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="160" y="519" text-anchor="middle" class="name">链表长度超过 8？</text>
+  <text x="160" y="539" text-anchor="middle" class="note">treeifyBin：表长 &lt; 64 时改为扩容</text>
+  <line x1="160" y1="554" x2="160" y2="582" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="584" width="240" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="160" y="609" text-anchor="middle" class="name">addCount</text>
+  <text x="160" y="629" text-anchor="middle" class="note">计数，超过 sizeCtl 触发扩容</text>
+  <rect x="360" y="134" width="240" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="480" y="159" text-anchor="middle" class="name">initTable()</text>
+  <text x="480" y="179" text-anchor="middle" class="note">CAS 把 sizeCtl 置为 -1，完成后重试</text>
+  <line x1="280" y1="164" x2="358" y2="164" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="319" y="158" text-anchor="middle" class="note">是</text>
+  <rect x="360" y="224" width="240" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="480" y="249" text-anchor="middle" class="name">casTabAt 放入新节点</text>
+  <text x="480" y="269" text-anchor="middle" class="note">不加锁；CAS 失败则重试</text>
+  <line x1="280" y1="254" x2="358" y2="254" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="319" y="248" text-anchor="middle" class="note">是</text>
+  <rect x="360" y="314" width="240" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="480" y="339" text-anchor="middle" class="name">helpTransfer</text>
+  <text x="480" y="359" text-anchor="middle" class="note">协助迁移，完成后重试</text>
+  <line x1="280" y1="344" x2="358" y2="344" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="319" y="338" text-anchor="middle" class="note">是</text>
+  <path d="M600,254 L640,254 L640,614 L282,614" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="648" y="434" class="note">成功</text>
+</svg>

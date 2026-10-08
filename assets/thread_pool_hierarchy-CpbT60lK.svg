@@ -1,0 +1,62 @@
+<svg viewBox="0 0 760 530" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="26" text-anchor="middle" class="title">Executor 体系的类关系</text>
+  <line x1="40" y1="70" x2="80" y2="70" stroke="var(--fg)" stroke-width="1.5"/>
+  <text x="88" y="74" text-anchor="start" class="lbl">继承（extends）</text>
+  <line x1="40" y1="96" x2="80" y2="96" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <text x="88" y="100" text-anchor="start" class="lbl">实现（implements）</text>
+  <rect x="270" y="50" width="220" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380" y="76" text-anchor="middle" class="name">Executor</text>
+  <text x="380" y="96" text-anchor="middle" class="desc">接口：execute(Runnable)</text>
+  <rect x="270" y="150" width="220" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380" y="176" text-anchor="middle" class="name">ExecutorService</text>
+  <text x="380" y="196" text-anchor="middle" class="desc">接口：submit / invokeAll / shutdown</text>
+  <rect x="30" y="250" width="220" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="140" y="276" text-anchor="middle" class="name">AbstractExecutorService</text>
+  <text x="140" y="296" text-anchor="middle" class="desc">抽象类：newTaskFor 包装 FutureTask</text>
+  <rect x="510" y="250" width="220" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="620" y="276" text-anchor="middle" class="name">ScheduledExecutorService</text>
+  <text x="620" y="296" text-anchor="middle" class="desc">接口：schedule / 周期调度</text>
+  <rect x="30" y="350" width="220" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="140" y="376" text-anchor="middle" class="name">ThreadPoolExecutor</text>
+  <text x="140" y="396" text-anchor="middle" class="desc">ctl + Worker + BlockingQueue</text>
+  <rect x="270" y="350" width="220" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="380" y="376" text-anchor="middle" class="name">ForkJoinPool</text>
+  <text x="380" y="396" text-anchor="middle" class="desc">每线程双端队列 + 工作窃取</text>
+  <rect x="30" y="450" width="220" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="140" y="476" text-anchor="middle" class="name">ScheduledThreadPoolExecutor</text>
+  <text x="140" y="496" text-anchor="middle" class="desc">DelayedWorkQueue 延迟 / 周期</text>
+  <line x1="380" y1="150" x2="380" y2="112" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M140,250 L140,180 L268,180" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <path d="M620,250 L620,180 L492,180" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="140" y1="350" x2="140" y2="312" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M380,350 L380,330 L200,330 L200,312" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="140" y1="450" x2="140" y2="412" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M250,480 L620,480 L620,312" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+</svg>

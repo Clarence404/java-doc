@@ -1,0 +1,67 @@
+<svg viewBox="0 0 760 276" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="24" text-anchor="middle" class="title">Java LTS 版本时间线</text>
+
+  <line x1="20" y1="64" x2="740" y2="64" stroke="var(--border)" stroke-width="2"/>
+  <circle cx="84" cy="64" r="5" fill="var(--p)"/>
+  <circle cx="232" cy="64" r="5" fill="var(--p)"/>
+  <circle cx="380" cy="64" r="5" fill="var(--p)"/>
+  <circle cx="528" cy="64" r="5" fill="var(--p)"/>
+  <circle cx="676" cy="64" r="5" fill="var(--p)"/>
+  <text x="84" y="52" text-anchor="middle" class="lbl">2014-03</text>
+  <text x="232" y="52" text-anchor="middle" class="lbl">2018-09</text>
+  <text x="380" y="52" text-anchor="middle" class="lbl">2021-09</text>
+  <text x="528" y="52" text-anchor="middle" class="lbl">2023-09</text>
+  <text x="676" y="52" text-anchor="middle" class="lbl">2025-09</text>
+
+  <rect x="20" y="80" width="128" height="84" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="84" y="104" text-anchor="middle" class="name">JDK 8</text>
+  <text x="84" y="126" text-anchor="middle" class="desc">Lambda / Stream</text>
+  <text x="84" y="146" text-anchor="middle" class="desc">java.time</text>
+  <rect x="168" y="80" width="128" height="84" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="232" y="104" text-anchor="middle" class="name">JDK 11</text>
+  <text x="232" y="126" text-anchor="middle" class="desc">模块系统 / HttpClient</text>
+  <text x="232" y="146" text-anchor="middle" class="desc">移除 Java EE 模块</text>
+  <rect x="316" y="80" width="128" height="84" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380" y="104" text-anchor="middle" class="name">JDK 17</text>
+  <text x="380" y="126" text-anchor="middle" class="desc">Record / Sealed</text>
+  <text x="380" y="146" text-anchor="middle" class="desc">强封装 JDK 内部</text>
+  <rect x="464" y="80" width="128" height="84" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="528" y="104" text-anchor="middle" class="name">JDK 21</text>
+  <text x="528" y="126" text-anchor="middle" class="desc">虚拟线程</text>
+  <text x="528" y="146" text-anchor="middle" class="desc">switch 模式匹配</text>
+  <rect x="612" y="80" width="128" height="84" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="676" y="104" text-anchor="middle" class="name">JDK 25</text>
+  <text x="676" y="126" text-anchor="middle" class="desc">ScopedValue</text>
+  <text x="676" y="146" text-anchor="middle" class="desc">紧凑对象头</text>
+
+  <rect x="20" y="196" width="720" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="380" y="220" text-anchor="middle" class="name">非 LTS：每年 3 月、9 月各发一版，只维护到下一版发布</text>
+  <text x="380" y="240" text-anchor="middle" class="desc">JDK 26（2026-03）、JDK 27（2026-09）已 GA；预览特性在非 LTS 版本中迭代，定稿后才可放心用于生产</text>
+</svg>

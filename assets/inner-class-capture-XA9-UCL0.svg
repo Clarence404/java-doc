@@ -1,0 +1,73 @@
+<svg viewBox="0 0 770 326" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .item  { font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+    <marker id="arr-y" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--y)"/>
+    </marker>
+  </defs>
+
+  <text x="385" y="24" text-anchor="middle" class="title">javac 为各类嵌套类 / Lambda 生成的外部引用</text>
+
+  <rect x="20" y="50" width="730" height="60" rx="4" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="385" y="74" text-anchor="middle" class="name">Outer 实例（外部类对象）</text>
+  <text x="385" y="94" text-anchor="middle" class="desc">只要有对象经由下列引用指向它，它就不会被 GC</text>
+
+  <!-- 引用箭头：从持有者指向 Outer -->
+  <line x1="107" y1="150" x2="107" y2="112" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <line x1="477" y1="150" x2="477" y2="112" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <line x1="662" y1="150" x2="662" y2="112" stroke="var(--y)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arr-y)"/>
+
+  <!-- 四列等高 -->
+  <rect x="20" y="150" width="175" height="130" rx="4" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="107" y="174" text-anchor="middle" class="name">成员内部类</text>
+  <text x="107" y="200" text-anchor="middle" class="item">字段 this$0 → Outer</text>
+  <text x="107" y="220" text-anchor="middle" class="item">JDK ≤17：一律生成</text>
+  <text x="107" y="240" text-anchor="middle" class="item">JDK 18+：未使用则省略</text>
+  <text x="107" y="260" text-anchor="middle" class="desc">可序列化的类仍保留</text>
+
+  <rect x="205" y="150" width="175" height="130" rx="4" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="292" y="174" text-anchor="middle" class="name">静态嵌套类</text>
+  <text x="292" y="200" text-anchor="middle" class="item">没有 this$0</text>
+  <text x="292" y="220" text-anchor="middle" class="item">需要外部对象时显式传参</text>
+  <text x="292" y="240" text-anchor="middle" class="item">可访问 Outer 私有成员</text>
+  <text x="292" y="260" text-anchor="middle" class="desc">不会意外持有外部实例</text>
+
+  <rect x="390" y="150" width="175" height="130" rx="4" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="477" y="174" text-anchor="middle" class="name">局部类 / 匿名类</text>
+  <text x="477" y="200" text-anchor="middle" class="item">val$x = 局部变量副本</text>
+  <text x="477" y="220" text-anchor="middle" class="item">实例上下文中另有 this$0</text>
+  <text x="477" y="240" text-anchor="middle" class="item">省略规则同成员内部类</text>
+  <text x="477" y="260" text-anchor="middle" class="desc">每个类一个 Outer$1.class</text>
+
+  <rect x="575" y="150" width="175" height="130" rx="4" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="662" y="174" text-anchor="middle" class="name">Lambda</text>
+  <text x="662" y="200" text-anchor="middle" class="item">lambda$方法名$0 合成方法</text>
+  <text x="662" y="220" text-anchor="middle" class="item">indy → 运行时隐藏类</text>
+  <text x="662" y="240" text-anchor="middle" class="item">体内用到 this 才捕获</text>
+  <text x="662" y="260" text-anchor="middle" class="desc">无捕获时复用同一实例</text>
+
+  <text x="385" y="306" text-anchor="middle" class="desc">实线：可能持有外部实例（以 javap -p 实际输出为准）；虚线：仅当 Lambda 体用到 this；无连线：不持有</text>
+</svg>

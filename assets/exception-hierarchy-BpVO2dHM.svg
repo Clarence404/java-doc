@@ -1,0 +1,72 @@
+<svg viewBox="0 0 780 388" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .item  { font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="390" y="24" text-anchor="middle" class="title">Java 异常类层次（受检 / 非受检按类型判定）</text>
+
+  <!-- Throwable -->
+  <rect x="290" y="50" width="180" height="44" rx="4" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="380" y="77" text-anchor="middle" class="name">Throwable</text>
+
+  <path d="M380,94 V114 H140 V132" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M380,94 V114 H515 V132" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第二层 -->
+  <rect x="20" y="134" width="240" height="44" rx="4" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="140" y="161" text-anchor="middle" class="name">Error · 严重错误，非受检</text>
+  <rect x="270" y="134" width="490" height="44" rx="4" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="515" y="161" text-anchor="middle" class="name">Exception · 程序可处理的异常</text>
+
+  <line x1="140" y1="178" x2="140" y2="216" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M515,178 V198 H390 V216" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M515,178 V198 H640 V216" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第三层：三列等高 -->
+  <rect x="20" y="218" width="240" height="150" rx="4" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="140" y="242" text-anchor="middle" class="name">Error 子类</text>
+  <text x="140" y="262" text-anchor="middle" class="desc">不应捕获后继续运行</text>
+  <text x="140" y="290" text-anchor="middle" class="item">VirtualMachineError</text>
+  <text x="140" y="310" text-anchor="middle" class="item">· OutOfMemoryError</text>
+  <text x="140" y="330" text-anchor="middle" class="item">· StackOverflowError</text>
+  <text x="140" y="350" text-anchor="middle" class="item">LinkageError · NoClassDefFoundError</text>
+
+  <rect x="270" y="218" width="240" height="150" rx="4" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="390" y="242" text-anchor="middle" class="name">RuntimeException</text>
+  <text x="390" y="262" text-anchor="middle" class="desc">非受检：编译器不强制处理</text>
+  <text x="390" y="290" text-anchor="middle" class="item">NullPointerException</text>
+  <text x="390" y="310" text-anchor="middle" class="item">IllegalArgumentException</text>
+  <text x="390" y="330" text-anchor="middle" class="item">IllegalStateException</text>
+  <text x="390" y="350" text-anchor="middle" class="item">UncheckedIOException</text>
+
+  <rect x="520" y="218" width="240" height="150" rx="4" fill="var(--card)" stroke="var(--g)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="640" y="242" text-anchor="middle" class="name">其他 Exception 子类</text>
+  <text x="640" y="262" text-anchor="middle" class="desc">受检：必须 catch 或 throws</text>
+  <text x="640" y="290" text-anchor="middle" class="item">IOException</text>
+  <text x="640" y="310" text-anchor="middle" class="item">SQLException</text>
+  <text x="640" y="330" text-anchor="middle" class="item">InterruptedException</text>
+  <text x="640" y="350" text-anchor="middle" class="item">TimeoutException</text>
+</svg>

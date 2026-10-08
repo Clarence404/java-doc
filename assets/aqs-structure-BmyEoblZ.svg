@@ -1,0 +1,71 @@
+<svg viewBox="0 0 760 394" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+    .sec   { font-size: 13px; font-weight: 700; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrs" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <text x="380" y="24" text-anchor="middle" class="title">AQS 结构：state + 同步队列 + 条件队列（JDK 14+）</text>
+  <rect x="20" y="44" width="720" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="95" y="68" text-anchor="middle" class="name">head</text>
+  <text x="95" y="88" text-anchor="middle" class="desc">哑节点 / 持锁者</text>
+  <text x="380" y="68" text-anchor="middle" class="name">state（volatile int）</text>
+  <text x="380" y="88" text-anchor="middle" class="desc">语义由子类定义：重入次数 / 许可数 / 剩余计数</text>
+  <text x="665" y="68" text-anchor="middle" class="name">tail</text>
+  <text x="665" y="88" text-anchor="middle" class="desc">CAS 追加新节点</text>
+  <rect x="20" y="164" width="150" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="95" y="188" text-anchor="middle" class="name">head</text>
+  <text x="95" y="208" text-anchor="middle" class="desc">已出队的哑节点</text>
+  <rect x="210" y="164" width="150" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="285" y="188" text-anchor="middle" class="name">ExclusiveNode T1</text>
+  <text x="285" y="208" text-anchor="middle" class="desc">WAITING，已 park</text>
+  <rect x="400" y="164" width="150" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="475" y="188" text-anchor="middle" class="name">SharedNode T2</text>
+  <text x="475" y="208" text-anchor="middle" class="desc">WAITING，已 park</text>
+  <rect x="590" y="164" width="150" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="665" y="188" text-anchor="middle" class="name">ExclusiveNode T3</text>
+  <text x="665" y="208" text-anchor="middle" class="desc">刚入队 = tail</text>
+  <line x1="95" y1="104" x2="95" y2="162" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="665" y1="104" x2="665" y2="162" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="172" y1="194" x2="208" y2="194" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arrs)" marker-end="url(#arr)"/>
+  <line x1="362" y1="194" x2="398" y2="194" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arrs)" marker-end="url(#arr)"/>
+  <line x1="552" y1="194" x2="588" y2="194" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arrs)" marker-end="url(#arr)"/>
+  <rect x="20" y="284" width="150" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="95" y="308" text-anchor="middle" class="name">ConditionObject</text>
+  <text x="95" y="328" text-anchor="middle" class="desc">每个 newCondition() 一条</text>
+  <rect x="210" y="284" width="150" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="285" y="308" text-anchor="middle" class="name">ConditionNode T4</text>
+  <text x="285" y="328" text-anchor="middle" class="desc">firstWaiter，await 中</text>
+  <rect x="400" y="284" width="150" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="475" y="308" text-anchor="middle" class="name">ConditionNode T5</text>
+  <text x="475" y="328" text-anchor="middle" class="desc">lastWaiter</text>
+  <line x1="170" y1="314" x2="208" y2="314" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="360" y1="314" x2="398" y2="314" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M285,284 V254 H700 V226" fill="none" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="492" y="248" text-anchor="middle" class="lbl">signal()：首节点转入同步队列尾部，等待重新获取锁</text>
+  <text x="380" y="374" text-anchor="middle" class="desc">同步队列节点由 prev / next 双向链接；条件队列是单向链表（nextWaiter）</text>
+</svg>

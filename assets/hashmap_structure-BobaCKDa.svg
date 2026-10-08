@@ -1,0 +1,84 @@
+<svg viewBox="0 0 720 456" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 11px; fill: var(--muted); }
+    .mono  { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .stale { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arrs" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">HashMap 结构（JDK 8+）</text>
+  <text x="30" y="79" class="name">Node[] table</text>
+  <rect x="150" y="56" width="56" height="36" rx="3" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="178" y="80" text-anchor="middle" class="mono">[0]</text>
+  <rect x="214" y="56" width="56" height="36" rx="3" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="242" y="80" text-anchor="middle" class="mono">[1]</text>
+  <rect x="278" y="56" width="56" height="36" rx="3" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="306" y="80" text-anchor="middle" class="mono">[2]</text>
+  <rect x="342" y="56" width="56" height="36" rx="3" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="370" y="80" text-anchor="middle" class="mono">[3]</text>
+  <rect x="406" y="56" width="56" height="36" rx="3" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="434" y="80" text-anchor="middle" class="mono">[4]</text>
+  <rect x="470" y="56" width="56" height="36" rx="3" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="498" y="80" text-anchor="middle" class="mono">[5]</text>
+  <rect x="534" y="56" width="56" height="36" rx="3" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="562" y="80" text-anchor="middle" class="mono">[6]</text>
+  <rect x="598" y="56" width="56" height="36" rx="3" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="626" y="80" text-anchor="middle" class="mono">[7]</text>
+  <rect x="150" y="132" width="56" height="36" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="178" y="155" text-anchor="middle" class="mono">null</text>
+  <line x1="178" y1="92" x2="178" y2="130" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="278" y="132" width="56" height="36" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="306" y="155" text-anchor="middle" class="mono">K1</text>
+  <rect x="278" y="208" width="56" height="36" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="306" y="231" text-anchor="middle" class="mono">K2</text>
+  <rect x="278" y="284" width="56" height="36" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="306" y="307" text-anchor="middle" class="mono">K3</text>
+  <line x1="306" y1="92" x2="306" y2="130" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="306" y1="168" x2="306" y2="206" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="306" y1="244" x2="306" y2="282" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="470" y="132" width="56" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="498" y="155" text-anchor="middle" class="mono">T1</text>
+  <rect x="402" y="208" width="56" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="430" y="231" text-anchor="middle" class="mono">T2</text>
+  <rect x="538" y="208" width="56" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="566" y="231" text-anchor="middle" class="mono">T3</text>
+  <line x1="498" y1="92" x2="498" y2="130" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="484" y1="168" x2="446" y2="206" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="512" y1="168" x2="550" y2="206" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="178" y="344" text-anchor="middle" class="note">null key 在 0 号桶</text>
+  <text x="306" y="344" text-anchor="middle" class="note">链表（尾插）</text>
+  <text x="498" y="344" text-anchor="middle" class="note">红黑树（TreeNode）</text>
+  <rect x="20" y="364" width="680" height="72" rx="4" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="190" y="392" text-anchor="middle" class="txt">index = (n - 1) &amp; hash，n 为 2 的幂</text>
+  <text x="530" y="392" text-anchor="middle" class="txt">hash = h ^ (h &gt;&gt;&gt; 16)，高位参与定位</text>
+  <text x="190" y="420" text-anchor="middle" class="txt">链表超过 8 且 n ≥ 64 → 树化，n &lt; 64 先扩容</text>
+  <text x="530" y="420" text-anchor="middle" class="txt">扩容拆分后节点 ≤ 6 → 退回链表</text>
+</svg>

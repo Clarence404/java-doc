@@ -1,0 +1,59 @@
+<svg viewBox="0 0 720 412" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">可见性问题的真实来源：寄存器、Store Buffer 与重排序</text>
+  <rect x="40" y="44" width="290" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="185" y="68" text-anchor="middle" class="name">执行单元 + 寄存器（Core 1）</text>
+  <text x="185" y="88" text-anchor="middle" class="desc">JIT 可把非 volatile 读提升出循环、缓存在寄存器</text>
+  <line x1="185" y1="104" x2="185" y2="138" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="140" width="290" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="185" y="164" text-anchor="middle" class="name">Store Buffer</text>
+  <text x="185" y="184" text-anchor="middle" class="desc">写先进缓冲区，稍后才提交到缓存（写可被延后）</text>
+  <line x1="185" y1="200" x2="185" y2="234" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="236" width="290" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="185" y="260" text-anchor="middle" class="name">L1 / L2 Cache</text>
+  <text x="185" y="280" text-anchor="middle" class="desc">已提交的写对其他核心可见</text>
+  <line x1="185" y1="296" x2="185" y2="330" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="390" y="44" width="290" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="535" y="68" text-anchor="middle" class="name">执行单元 + 寄存器（Core 2）</text>
+  <text x="535" y="88" text-anchor="middle" class="desc">JIT 可把非 volatile 读提升出循环、缓存在寄存器</text>
+  <line x1="535" y1="104" x2="535" y2="138" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="390" y="140" width="290" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="535" y="164" text-anchor="middle" class="name">Store Buffer</text>
+  <text x="535" y="184" text-anchor="middle" class="desc">写先进缓冲区，稍后才提交到缓存（写可被延后）</text>
+  <line x1="535" y1="200" x2="535" y2="234" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="390" y="236" width="290" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="535" y="260" text-anchor="middle" class="name">L1 / L2 Cache</text>
+  <text x="535" y="280" text-anchor="middle" class="desc">已提交的写对其他核心可见</text>
+  <line x1="535" y1="296" x2="535" y2="330" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="330" y1="270" x2="388" y2="270" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <text x="360" y="262" text-anchor="middle" class="lbl">MESI</text>
+  <rect x="40" y="332" width="640" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="360" y="356" text-anchor="middle" class="name">L3 / 主内存（共享）</text>
+  <text x="360" y="376" text-anchor="middle" class="desc">缓存一致性协议保证各核缓存不会长期不一致；问题出在缓存之前的寄存器、缓冲区和重排序</text>
+</svg>

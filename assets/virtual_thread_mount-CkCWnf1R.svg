@@ -1,0 +1,68 @@
+<svg viewBox="0 0 760 326" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="26" text-anchor="middle" class="title">虚拟线程在载体线程上的挂载与卸载</text>
+  <rect x="25" y="50" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="100" y="76" text-anchor="middle" class="name">VT1</text>
+  <text x="100" y="96" text-anchor="middle" class="desc">运行中（已挂载）</text>
+  <rect x="211" y="50" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="286" y="76" text-anchor="middle" class="name">VT2</text>
+  <text x="286" y="96" text-anchor="middle" class="desc">运行中（已挂载）</text>
+  <rect x="399" y="50" width="150" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="474" y="76" text-anchor="middle" class="name">VT3</text>
+  <text x="474" y="96" text-anchor="middle" class="desc">等待 socket 读</text>
+  <rect x="585" y="50" width="150" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="660" y="76" text-anchor="middle" class="name">VT4</text>
+  <text x="660" y="96" text-anchor="middle" class="desc">等待 ReentrantLock</text>
+  <rect x="20" y="150" width="346" height="110" rx="6" fill="var(--b)" fill-opacity="0.05" stroke="var(--b)" stroke-width="1.5"/>
+  <rect x="30" y="164" width="140" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="100" y="190" text-anchor="middle" class="name">Carrier-1</text>
+  <text x="100" y="210" text-anchor="middle" class="desc">平台线程 = OS 线程</text>
+  <rect x="216" y="164" width="140" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="286" y="190" text-anchor="middle" class="name">Carrier-2</text>
+  <text x="286" y="210" text-anchor="middle" class="desc">平台线程 = OS 线程</text>
+  <text x="193" y="248" text-anchor="middle" class="desc">调度器：专用 ForkJoinPool，并行度 = CPU 核数</text>
+  <rect x="384" y="150" width="362" height="110" rx="6" fill="var(--p)" fill-opacity="0.05" stroke="var(--p)" stroke-width="1.5"/>
+  <rect x="399" y="164" width="150" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="474" y="190" text-anchor="middle" class="name">VT3 栈帧</text>
+  <text x="474" y="210" text-anchor="middle" class="desc">StackChunk 对象</text>
+  <rect x="585" y="164" width="150" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="660" y="190" text-anchor="middle" class="name">VT4 栈帧</text>
+  <text x="660" y="210" text-anchor="middle" class="desc">StackChunk 对象</text>
+  <text x="565" y="248" text-anchor="middle" class="desc">Java 堆：已卸载虚拟线程的栈帧</text>
+  <line x1="100" y1="110" x2="100" y2="162" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="108" y="136" text-anchor="start" class="lbl">mount</text>
+  <line x1="286" y1="110" x2="286" y2="162" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="294" y="136" text-anchor="start" class="lbl">mount</text>
+  <line x1="474" y1="110" x2="474" y2="162" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="482" y="136" text-anchor="start" class="lbl">unmount</text>
+  <line x1="660" y1="110" x2="660" y2="162" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="668" y="136" text-anchor="start" class="lbl">unmount</text>
+  <path d="M565,260 L565,290 L193,290 L193,262" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <text x="379" y="306" text-anchor="middle" class="lbl">阻塞结束后 unpark：重新提交给调度器，挂载到任意空闲载体线程继续执行</text>
+</svg>

@@ -1,0 +1,60 @@
+<svg viewBox="0 0 720 412" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">JDK 23+ 默认加锁路径（新轻量级锁 + ObjectMonitor）</text>
+  <rect x="240" y="44" width="240" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="360" y="68" text-anchor="middle" class="name">进入 synchronized(obj)</text>
+  <text x="360" y="88" text-anchor="middle" class="desc">monitorenter / ACC_SYNCHRONIZED</text>
+  <path d="M360,104 L360,118 L190,118 L190,138" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="275" y="134" text-anchor="middle" class="lbl">无竞争</text>
+  <path d="M360,118 L530,118 L530,138" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="445" y="134" text-anchor="middle" class="lbl">CAS 失败 / 已膨胀</text>
+  <rect x="40" y="140" width="300" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="190" y="164" text-anchor="middle" class="name">快速路径</text>
+  <text x="190" y="184" text-anchor="middle" class="desc">CAS 置 mark word 锁位，对象压入 lock-stack</text>
+  <rect x="380" y="140" width="300" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="530" y="164" text-anchor="middle" class="name">膨胀为 ObjectMonitor</text>
+  <text x="530" y="184" text-anchor="middle" class="desc">竞争、wait()、identity hash 等触发</text>
+  <line x1="190" y1="200" x2="190" y2="234" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="530" y1="200" x2="530" y2="234" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="236" width="300" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="190" y="260" text-anchor="middle" class="name">持有锁</text>
+  <text x="190" y="280" text-anchor="middle" class="desc">同一线程重入只需再压栈，无需 CAS</text>
+  <rect x="380" y="236" width="300" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="530" y="260" text-anchor="middle" class="name">monitor 内自适应自旋</text>
+  <text x="530" y="280" text-anchor="middle" class="desc">成功则成为 owner，按历史成功率调整</text>
+  <line x1="190" y1="296" x2="190" y2="330" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="530" y1="296" x2="530" y2="330" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="538" y="318" text-anchor="start" class="lbl">自旋失败</text>
+  <rect x="40" y="332" width="300" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="190" y="356" text-anchor="middle" class="name">释放锁</text>
+  <text x="190" y="376" text-anchor="middle" class="desc">出栈并清锁位；已膨胀则走 monitor exit</text>
+  <rect x="380" y="332" width="300" height="60" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="530" y="356" text-anchor="middle" class="name">park 进入 entry_list</text>
+  <text x="530" y="376" text-anchor="middle" class="desc">被唤醒后重新竞争 owner</text>
+</svg>

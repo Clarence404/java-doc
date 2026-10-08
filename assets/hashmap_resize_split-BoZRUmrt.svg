@@ -1,0 +1,88 @@
+<svg viewBox="0 0 740 356" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 11px; fill: var(--muted); }
+    .mono  { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .stale { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arrs" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="370" y="24" text-anchor="middle" class="title">HashMap 扩容：旧桶 [5] 拆成 lo / hi 两条链</text>
+  <rect x="55" y="56" width="150" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="130" y="81" text-anchor="middle" class="name">旧表 table[5]</text>
+  <text x="130" y="101" text-anchor="middle" class="note">oldCap = 16</text>
+  <rect x="235" y="56" width="90" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="280" y="81" text-anchor="middle" class="txt">A · hash=5</text>
+  <text x="280" y="101" text-anchor="middle" class="note">&amp; 16 = 0</text>
+  <rect x="355" y="56" width="90" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="400" y="81" text-anchor="middle" class="txt">B · hash=21</text>
+  <text x="400" y="101" text-anchor="middle" class="note">&amp; 16 = 1</text>
+  <rect x="475" y="56" width="90" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="520" y="81" text-anchor="middle" class="txt">C · hash=37</text>
+  <text x="520" y="101" text-anchor="middle" class="note">&amp; 16 = 0</text>
+  <rect x="595" y="56" width="90" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="640" y="81" text-anchor="middle" class="txt">D · hash=53</text>
+  <text x="640" y="101" text-anchor="middle" class="note">&amp; 16 = 1</text>
+  <line x1="205" y1="86" x2="233" y2="86" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="325" y1="86" x2="353" y2="86" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="445" y1="86" x2="473" y2="86" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="565" y1="86" x2="593" y2="86" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="370" y1="116" x2="370" y2="154" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="378" y="140" class="note">resize：容量 16 → 32</text>
+  <rect x="20" y="156" width="700" height="44" rx="4" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="370" y="183" text-anchor="middle" class="txt">只看 hash &amp; oldCap 这一位：0 → 留在 [5]（lo 链），1 → 移到 [5 + 16] = [21]（hi 链）</text>
+  <rect x="20" y="240" width="100" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="70" y="265" text-anchor="middle" class="name">新表 [5]</text>
+  <text x="70" y="285" text-anchor="middle" class="note">lo 链</text>
+  <rect x="150" y="240" width="90" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="195" y="265" text-anchor="middle" class="txt">A · hash=5</text>
+  <text x="195" y="285" text-anchor="middle" class="note">&amp; 16 = 0</text>
+  <rect x="270" y="240" width="90" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="315" y="265" text-anchor="middle" class="txt">C · hash=37</text>
+  <text x="315" y="285" text-anchor="middle" class="note">&amp; 16 = 0</text>
+  <line x1="120" y1="270" x2="148" y2="270" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="240" y1="270" x2="268" y2="270" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="380" y="240" width="100" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="430" y="265" text-anchor="middle" class="name">新表 [21]</text>
+  <text x="430" y="285" text-anchor="middle" class="note">hi 链</text>
+  <rect x="510" y="240" width="90" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="555" y="265" text-anchor="middle" class="txt">B · hash=21</text>
+  <text x="555" y="285" text-anchor="middle" class="note">&amp; 16 = 1</text>
+  <rect x="630" y="240" width="90" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="675" y="265" text-anchor="middle" class="txt">D · hash=53</text>
+  <text x="675" y="285" text-anchor="middle" class="note">&amp; 16 = 1</text>
+  <line x1="480" y1="270" x2="508" y2="270" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="600" y1="270" x2="628" y2="270" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="70" y1="200" x2="70" y2="238" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="430" y1="200" x2="430" y2="238" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="78" y="224" class="note">&amp; 16 = 0</text>
+  <text x="438" y="224" class="note">&amp; 16 = 1</text>
+  <text x="370" y="336" text-anchor="middle" class="note">不重新计算 hash（Node 缓存了 hash），两条链各自保持原顺序；JDK 7 头插法迁移会把顺序反转</text>
+</svg>

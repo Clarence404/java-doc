@@ -1,0 +1,88 @@
+<svg viewBox="0 0 780 408" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .row { fill:var(--card); stroke-width:1.5; }
+    .chip { fill:var(--bg); stroke:var(--border); stroke-width:1; }
+    .tag { font-weight:700; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .ct { fill:var(--fg); font-size:11px; }
+    .ef { fill:var(--fg); font-size:11px; }
+    .ar { stroke:var(--muted); stroke-width:1.5; fill:none; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="390" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">五种启动路径：启动时还剩哪些工作</text>
+
+  <rect class="row" x="20" y="44" width="740" height="60" rx="6" ry="6" stroke="var(--b)"/>
+  <text x="34" y="70" class="tag" fill="var(--b)">JVM 冷启动</text>
+  <text x="34" y="88" class="sub">基准</text>
+  <rect class="chip" x="150" y="59" width="120" height="30" rx="4" ry="4"/>
+  <text x="210" y="77" text-anchor="middle" class="ct">加载、链接类</text>
+  <line class="ar" x1="270" y1="74" x2="298" y2="74" marker-end="url(#arr)"/>
+  <rect class="chip" x="300" y="59" width="120" height="30" rx="4" ry="4"/>
+  <text x="360" y="77" text-anchor="middle" class="ct">解析配置、建 Bean</text>
+  <line class="ar" x1="420" y1="74" x2="448" y2="74" marker-end="url(#arr)"/>
+  <rect class="chip" x="450" y="59" width="120" height="30" rx="4" ry="4"/>
+  <text x="510" y="77" text-anchor="middle" class="ct">解释执行 + JIT 预热</text>
+  <text x="750" y="70" text-anchor="end" class="ef">类加载 + 建 Bean + 预热</text>
+  <text x="750" y="88" text-anchor="end" class="sub">启动数秒，峰值靠 JIT</text>
+
+  <rect class="row" x="20" y="116" width="740" height="60" rx="6" ry="6" stroke="var(--p)"/>
+  <text x="34" y="142" class="tag" fill="var(--p)">CDS</text>
+  <text x="34" y="160" class="sub">Boot 3.3+</text>
+  <rect class="chip" x="150" y="131" width="120" height="30" rx="4" ry="4"/>
+  <text x="210" y="149" text-anchor="middle" class="ct">映射 CDS 归档</text>
+  <line class="ar" x1="270" y1="146" x2="298" y2="146" marker-end="url(#arr)"/>
+  <rect class="chip" x="300" y="131" width="120" height="30" rx="4" ry="4"/>
+  <text x="360" y="149" text-anchor="middle" class="ct">解析配置、建 Bean</text>
+  <line class="ar" x1="420" y1="146" x2="448" y2="146" marker-end="url(#arr)"/>
+  <rect class="chip" x="450" y="131" width="120" height="30" rx="4" ry="4"/>
+  <text x="510" y="149" text-anchor="middle" class="ct">解释执行 + JIT 预热</text>
+  <text x="750" y="142" text-anchor="end" class="ef">省掉类解析与校验</text>
+  <text x="750" y="160" text-anchor="end" class="sub">预热过程不变</text>
+
+  <rect class="row" x="20" y="188" width="740" height="60" rx="6" ry="6" stroke="var(--g)"/>
+  <text x="34" y="214" class="tag" fill="var(--g)">AOT 缓存</text>
+  <text x="34" y="232" class="sub">JDK 25+</text>
+  <rect class="chip" x="150" y="203" width="120" height="30" rx="4" ry="4"/>
+  <text x="210" y="221" text-anchor="middle" class="ct">映射 AOT 缓存</text>
+  <line class="ar" x1="270" y1="218" x2="298" y2="218" marker-end="url(#arr)"/>
+  <rect class="chip" x="300" y="203" width="120" height="30" rx="4" ry="4"/>
+  <text x="360" y="221" text-anchor="middle" class="ct">解析配置、建 Bean</text>
+  <line class="ar" x1="420" y1="218" x2="448" y2="218" marker-end="url(#arr)"/>
+  <rect class="chip" x="450" y="203" width="120" height="30" rx="4" ry="4"/>
+  <text x="510" y="221" text-anchor="middle" class="ct">按 profile 快速编译</text>
+  <text x="750" y="214" text-anchor="end" class="ef">类已加载链接 + profile</text>
+  <text x="750" y="232" text-anchor="end" class="sub">启动与预热都缩短</text>
+
+  <rect class="row" x="20" y="260" width="740" height="60" rx="6" ry="6" stroke="var(--y)"/>
+  <text x="34" y="286" class="tag" fill="var(--y)">CRaC</text>
+  <text x="34" y="304" class="sub">Boot 3.2+ / Linux</text>
+  <rect class="chip" x="150" y="275" width="120" height="30" rx="4" ry="4"/>
+  <text x="210" y="293" text-anchor="middle" class="ct">从快照恢复进程</text>
+  <line class="ar" x1="270" y1="290" x2="298" y2="290" marker-end="url(#arr)"/>
+  <rect class="chip" x="300" y="275" width="120" height="30" rx="4" ry="4"/>
+  <text x="360" y="293" text-anchor="middle" class="ct">Lifecycle 重开资源</text>
+  <text x="750" y="286" text-anchor="end" class="ef">跳过整个启动过程</text>
+  <text x="750" y="304" text-anchor="end" class="sub">快照在预热后则恢复即峰值</text>
+
+  <rect class="row" x="20" y="332" width="740" height="60" rx="6" ry="6" stroke="var(--r)"/>
+  <text x="34" y="358" class="tag" fill="var(--r)">Native</text>
+  <text x="34" y="376" class="sub">GraalVM</text>
+  <rect class="chip" x="150" y="347" width="120" height="30" rx="4" ry="4"/>
+  <text x="210" y="365" text-anchor="middle" class="ct">加载原生可执行文件</text>
+  <line class="ar" x1="270" y1="362" x2="298" y2="362" marker-end="url(#arr)"/>
+  <rect class="chip" x="300" y="347" width="120" height="30" rx="4" ry="4"/>
+  <text x="360" y="365" text-anchor="middle" class="ct">预生成代码建 Bean</text>
+  <line class="ar" x1="420" y1="362" x2="448" y2="362" marker-end="url(#arr)"/>
+  <rect class="chip" x="450" y="347" width="120" height="30" rx="4" ry="4"/>
+  <text x="510" y="365" text-anchor="middle" class="ct">直接执行机器码</text>
+  <text x="750" y="358" text-anchor="end" class="ef">毫秒级启动、内存小</text>
+  <text x="750" y="376" text-anchor="end" class="sub">无运行时 JIT，峰值偏低</text>
+</svg>
