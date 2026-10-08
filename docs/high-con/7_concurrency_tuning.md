@@ -23,7 +23,7 @@ description: 线程池、Web 容器、数据库 / Redis 连接池、OS 参数、
 
 ## 一、线程池参数调优
 
-**线程数先用公式估一个起点，再用压测找到最优点，上线后用动态线程池微调。** `ThreadPoolExecutor` 的构造参数、执行流程、队列与拒绝策略见 [Java 线程池](/java/28_topic_thread_pool)。
+**线程数先用公式估一个起点，再用压测找到最优点，上线后用动态线程池微调。** `ThreadPoolExecutor` 的构造参数、执行流程、队列与拒绝策略见 [线程池](/java/28_topic_thread_pool)。
 
 ### 1、线程数估算
 
@@ -118,7 +118,7 @@ Spring Boot 3.2+ 配置 `spring.threads.virtual.enabled=true` 后，Tomcat 为�
 
 - **`max-connections` 仍然生效**，它成为容器层唯一的并发闸门
 - 瓶颈转移到**下游连接池**：必须用连接池大小或信号量限制对下游的并发，否则会瞬间耗尽 DB 连接
-- 虚拟线程在 `synchronized` 块内阻塞会钉住载体线程（JDK 24 起已改善），热点路径优先使用 `ReentrantLock`
+- JDK 21–23 中虚拟线程在 `synchronized` 块内阻塞会钉住载体线程，这些版本的热点路径改用 `ReentrantLock`；JDK 24（JEP 491）起不再钉住，详见 [虚拟线程](/java/30_topic_virtual_thread)
 
 ---
 

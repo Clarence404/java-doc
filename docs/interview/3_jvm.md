@@ -653,7 +653,7 @@ jstack <pid> | grep "nid=0x3039" -A 30
 
 ### 43、happens-before 的 8 条规则是什么？
 
-**核心结论**：A happens-before B 意味着 A 的结果对 B 可见，且 A 的执行顺序排在 B 之前（在可见性意义上）。
+**核心结论**：A happens-before B 是可见性与顺序保证：A 的结果对 B 可见，且在 B 看来 A 排在 B 之前；它不代表 A 在时间上先于 B 执行，时间上先执行也不代表存在 happens-before。
 
 | 规则 | 说明 |
 |------|------|
@@ -724,53 +724,39 @@ public static Singleton getInstance() {
 
 ### 48、虚拟线程和平台线程的区别？
 
-**核心结论**：平台线程与 OS 线程 1:1 映射，成本高、数量有限；虚拟线程（JDK 21 正式）由 JVM 调度，多个虚拟线程复用少量载体线程，成本极低、可百万级创建。
+**核心结论**：平台线程与 OS 线程 1:1 绑定，栈预留 MB 级、数量千级、必须池化；虚拟线程（JDK 21 正式，JEP 444）由 JVM 调度，M 个虚拟线程复用约等于 CPU 核数的载体线程，栈帧放在堆上按需增长，可以百万级创建，**不池化**，用 `Semaphore` 或连接池限制对下游的并发。
 
-| 对比项 | 平台线程 | 虚拟线程 |
-|--------|---------|---------|
-| 映射 | 1:1 OS 线程 | M:N，挂载到载体线程（平台线程）上运行 |
-| 栈 | MB 级，预先分配 | 按需增长，存放在堆上 |
-| 数量 | 千级 | 百万级 |
-| 调度 | OS 调度器 | JVM，默认用 `ForkJoinPool` 作为调度器 |
-| 池化 | 必须池化 | **不池化**，每任务一个，用 `Semaphore` 限制下游并发 |
-| 适合 | CPU 密集、需精确控制并发 | 大量阻塞 IO 的高并发任务 |
+- 调度器是专用的 `ForkJoinPool`，与 `commonPool` 无关
+- 提升的是阻塞型任务的吞吐量，不是单个任务的速度
+- 创建：`Executors.newVirtualThreadPerTaskExecutor()`、`Thread.ofVirtual()`；Spring Boot 3.2+ 用 `spring.threads.virtual.enabled=true` 开启
 
-```java
-try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-    executor.submit(() -> callRemoteService());
-}
-```
-
-Spring Boot 3.2+ 配置 `spring.threads.virtual.enabled=true` 即可让 Tomcat 与 `@Async` 使用虚拟线程。
-
-→ 详见 [Java 线程池](/java/28_topic_thread_pool)
+→ 详见 [虚拟线程](/java/30_topic_virtual_thread)
 
 ### 49、虚拟线程的挂载/卸载（mount/unmount）机制是什么？
 
-**核心结论**：虚拟线程运行时**挂载**到某个载体线程上；遇到阻塞 IO、`sleep`、`LockSupport.park` 等操作时**卸载**，把栈帧保存到堆上，载体线程转去执行其他虚拟线程；阻塞结束后重新挂载到任意空闲载体线程继续执行。
+**核心结论**：虚拟线程运行时挂载在某个载体线程上；遇到阻塞 IO、`sleep`、`LockSupport.park` 等阻塞点时，JDK 通过 `Continuation.yield` 把栈帧冻结到堆上的 `StackChunk` 并卸载，载体线程转去执行其他虚拟线程；就绪后被重新提交给调度器，挂载到任意空闲载体线程继续执行。
 
-- JDK 把 socket、`sleep`、j.u.c 锁等阻塞点改造成"park 虚拟线程"，业务代码写法不变
-- 阻塞期间只占用少量堆内存保存栈帧，不占用 OS 线程
-- 无法卸载的情况称为**钉住**（pinning），见第 51 题
+- JDK 把 socket IO、j.u.c 锁、`sleep` 等阻塞点改造成"park 虚拟线程"，业务代码写法不变
+- 恢复时栈帧惰性拷回，只先拷顶部少量帧
+- 无法卸载的情况称为钉住（pinning），见第 51 题
 
-→ 详见 [Java 线程池](/java/28_topic_thread_pool)
+→ 详见 [虚拟线程](/java/30_topic_virtual_thread)
 
 ### 50、虚拟线程为什么不适合 CPU 密集型任务？
 
-**核心结论**：虚拟线程的收益来自"阻塞时让出载体线程"；CPU 密集型任务不阻塞、一直占着载体线程，而载体线程数默认约等于 CPU 核数，创建再多虚拟线程也不会更快，反而增加调度开销。
+**核心结论**：虚拟线程的收益来自"阻塞时让出载体线程"；CPU 密集型任务不阻塞，一直占着载体线程，而载体线程数默认等于 CPU 核数，再多虚拟线程也不会更快，还会让同一调度器上的 IO 型虚拟线程排队。
 
-- 虚拟线程提升的是**吞吐量**（同时处理更多阻塞请求），不是单任务的**速度**
-- CPU 密集任务仍用固定大小的平台线程池（核数左右）或 `ForkJoinPool`
+- CPU 密集任务仍用固定大小的平台线程池或 `ForkJoinPool`
+- 需要"最多 N 个任务同时执行"的限流语义时，同样保留平台线程池或加 `Semaphore`
 
-→ 详见 [Java 线程池](/java/28_topic_thread_pool)
+→ 详见 [虚拟线程](/java/30_topic_virtual_thread)
 
 ### 51、虚拟线程中使用 synchronized 有什么问题？如何解决？
 
-**核心结论**：JDK 21–23 中，虚拟线程在 `synchronized` 块内阻塞会**钉住**载体线程，无法卸载，大量钉住会耗尽载体线程；JDK 24（JEP 491）已消除 `synchronized` 导致的钉住。
+**核心结论**：JDK 21–23 中，虚拟线程在 `synchronized` 内阻塞或调用 `Object.wait()` 会**钉住**载体线程，大量钉住会耗尽载体线程；这些版本上把持锁期间会阻塞的代码改为 `ReentrantLock`。JDK 24（JEP 491）起 `synchronized` 与 `Object.wait()` 都能卸载，不再需要改写。
 
-- JDK 21–23 的解决办法：持锁期间有阻塞 IO 的代码改用 `ReentrantLock`
-- 用 `-Djdk.tracePinnedThreads=full`（JDK 21–23）或 JFR 的 `jdk.VirtualThreadPinned` 事件定位钉住
-- 调用 native 方法或外部函数时仍会钉住，与 JDK 版本无关
-- 其他注意：虚拟线程数量巨大，`ThreadLocal` 缓存大对象会放大内存占用，可考虑 `ScopedValue`
+- JDK 24+ 仍会钉住的情况：栈上有 native / FFM 帧并在回调中阻塞，类加载与类初始化中阻塞
+- 诊断：JFR `jdk.VirtualThreadPinned` 事件（默认开启，超过 20 ms 记录）、`jcmd <pid> Thread.dump_to_file -format=json`；`-Djdk.tracePinnedThreads` 只在 JDK 21–23 可用，JDK 24 已移除
+- 相关：虚拟线程数量巨大，`ThreadLocal` 缓存大对象会放大内存，传递上下文优先用 JDK 25 正式的 `ScopedValue`
 
-→ 详见 [Java 线程池](/java/28_topic_thread_pool)
+→ 详见 [虚拟线程](/java/30_topic_virtual_thread)

@@ -1,0 +1,45 @@
+<svg viewBox="0 0 720 192" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">ObjectMonitor：入口队列、owner 与 WaitSet</text>
+  <rect x="40" y="44" width="180" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="130" y="68" text-anchor="middle" class="name">entry_list</text>
+  <text x="130" y="88" text-anchor="middle" class="desc">竞争失败、park 的线程</text>
+  <rect x="270" y="44" width="180" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="360" y="68" text-anchor="middle" class="name">owner + recursions</text>
+  <text x="360" y="88" text-anchor="middle" class="desc">持有者与重入计数</text>
+  <rect x="500" y="44" width="180" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="590" y="68" text-anchor="middle" class="name">WaitSet</text>
+  <text x="590" y="88" text-anchor="middle" class="desc">调用 wait() 的线程</text>
+  <line x1="220" y1="74" x2="268" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="245" y="66" text-anchor="middle" class="lbl">出队</text>
+  <line x1="450" y1="74" x2="498" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="474" y="66" text-anchor="middle" class="lbl">wait()</text>
+  <path d="M590,104 L590,150 L130,150 L130,106" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="360" y="172" text-anchor="middle" class="lbl">notify / 超时 / 中断：移回入口队列，重新竞争 monitor</text>
+</svg>

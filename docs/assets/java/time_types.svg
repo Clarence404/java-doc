@@ -1,0 +1,51 @@
+<svg viewBox="0 0 860 310" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .lp{fill:var(--p);font-weight:700;}
+    .lb{fill:var(--b);font-weight:700;}
+    .lg{fill:var(--g);font-weight:700;}
+    .arr{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="430" y="30" text-anchor="middle" font-size="14" font-weight="700">java.time 核心类型：墙上时间 + 偏移 / 时区 = 时间线上的一点</text>
+
+  <rect class="card" x="20" y="60" width="180" height="200" rx="6"/>
+  <text x="110" y="130" text-anchor="middle" class="lb">LocalDateTime</text>
+  <text x="110" y="154" text-anchor="middle" font-size="12">LocalDate + LocalTime</text>
+  <text x="110" y="174" text-anchor="middle" class="muted" font-size="12">无偏移、无时区</text>
+  <text x="110" y="194" text-anchor="middle" class="muted" font-size="12">不能单独表示时刻</text>
+
+  <rect class="card" x="330" y="60" width="200" height="80" rx="6"/>
+  <text x="430" y="92" text-anchor="middle" class="lp">OffsetDateTime</text>
+  <text x="430" y="116" text-anchor="middle" class="muted" font-size="12">固定偏移，如 +08:00</text>
+  <rect class="card" x="330" y="180" width="200" height="80" rx="6"/>
+  <text x="430" y="212" text-anchor="middle" class="lp">ZonedDateTime</text>
+  <text x="430" y="236" text-anchor="middle" class="muted" font-size="12">IANA 时区，含夏令时规则</text>
+
+  <rect class="card" x="660" y="60" width="180" height="200" rx="6"/>
+  <text x="750" y="130" text-anchor="middle" class="lg">Instant</text>
+  <text x="750" y="154" text-anchor="middle" font-size="12">epoch 秒 + 纳秒</text>
+  <text x="750" y="174" text-anchor="middle" class="muted" font-size="12">UTC 时间线上的一点</text>
+  <text x="750" y="194" text-anchor="middle" class="muted" font-size="12">适合存储与传输</text>
+
+  <line class="arr" x1="200" y1="100" x2="328" y2="100"/>
+  <text x="265" y="92" text-anchor="middle" font-size="12">atOffset(offset)</text>
+  <line class="arr" x1="200" y1="220" x2="328" y2="220"/>
+  <text x="265" y="212" text-anchor="middle" font-size="12">atZone(zoneId)</text>
+  <line class="arr" x1="530" y1="100" x2="658" y2="100"/>
+  <text x="595" y="92" text-anchor="middle" font-size="12">toInstant()</text>
+  <line class="arr" x1="530" y1="220" x2="658" y2="220"/>
+  <text x="595" y="212" text-anchor="middle" font-size="12">toInstant()</text>
+
+  <text x="430" y="292" text-anchor="middle" class="muted" font-size="12">反向：instant.atZone(zoneId) / instant.atOffset(offset)；toLocalDateTime() 会丢掉偏移与时区</text>
+</svg>

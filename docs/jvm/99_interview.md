@@ -91,7 +91,7 @@ description: JVM 方向题目清单
 - **虚拟线程的挂载/卸载（mount/unmount）机制是什么？**
 - **虚拟线程为什么不适合 CPU 密集型任务？**
 - **虚拟线程中使用 synchronized 有什么问题？如何解决？**  
-  → 详见 <RouteLink to="/java/28_topic_thread_pool">Java 线程池</RouteLink>（虚拟线程与线程池一节）
+  → 详见 <RouteLink to="/java/30_topic_virtual_thread">虚拟线程</RouteLink>
 
 ---
 

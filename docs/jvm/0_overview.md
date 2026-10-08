@@ -17,7 +17,7 @@ JVM 模块覆盖运行时内存结构、类加载、字节码执行、GC 原理�
 ## 三、关联模块
 
 - Java 内存模型（JMM、happens-before、volatile）→ [Java JMM 内存模型](/java/22_topic_jmm)
-- 虚拟线程与线程池 → [Java 线程池](/java/28_topic_thread_pool)
+- 虚拟线程与线程池 → [虚拟线程](/java/30_topic_virtual_thread)、[线程池](/java/28_topic_thread_pool)
 - 收集器选型、容器内存、JIT 预热等性能策略 → [JVM 层性能策略](/high-perf/5_jvm_tuning)
 - 性能分析方法论与 Profiler → [高性能](/high-perf/0_overview)
 - Arthas 在线诊断 → [线上诊断](/engineering/4_diagnosis)

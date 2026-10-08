@@ -1,113 +1,202 @@
 ---
-description: ServiceLoader、双亲委派扩展点、Spring 的 SPI 变体
+description: ServiceLoader、TCCL、JPMS provides / uses、Dubbo 扩展点、自动配置登记
 ---
 
 # SPI 机制
 
-## 一、什么是 SPI
+> **本篇目标**：理解 SPI 的「接口在框架、实现在外部」思想，掌握 `ServiceLoader` 的加载过程（懒实例化、`stream()` 按类型筛选、线程上下文类加载器），以及 JPMS、Dubbo、Spring Boot 各自的 SPI 变体，能写出自己的可插拔扩展点。
+>
+> **前置阅读**：[序列化](./19_topic_serialization)；类加载器与双亲委派见 [类加载机制](/jvm/2_class_loading)
 
-SPI（Service Provider Interface）是 Java 提供的一套服务发现机制，允许第三方为某个接口提供实现，框架在运行时自动加载。
+> 参考资料：
+> * ServiceLoader API（JDK 25）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/ServiceLoader.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/ServiceLoader.html)
+> * Dubbo SPI 扩展：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/spi/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/spi/)
+> * Spring Boot 自动配置：[https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html)
 
-**核心思想**：接口定义与实现分离，调用方只依赖接口，实现通过配置文件注册。
+SPI（Service Provider Interface）是一种服务发现机制：框架只定义接口，第三方 jar 提供实现并在约定位置登记，框架运行时把实现找出来。JDBC 驱动、SLF4J 日志绑定、Dubbo 协议、Spring Boot 自动配置都是这个思路。
 
 ---
 
-## 二、Java 原生 SPI
+## 一、SPI 与 API 的区别
 
-### 使用步骤
+| 维度 | API | SPI |
+|------|-----|-----|
+| 谁定义接口 | 实现方（框架） | 调用方（框架） |
+| 谁实现接口 | 框架自己 | 第三方 |
+| 调用方向 | 应用调用框架 | 框架调用第三方实现 |
+| 典型例子 | `List.add()`、`String.length()` | `java.sql.Driver`、`SLF4JServiceProvider`、Dubbo `Protocol` |
+
+一句话：API 是「我提供能力给你用」，SPI 是「我定规则，你来实现，我负责发现和调用」。
+
+---
+
+## 二、Java 原生 SPI：ServiceLoader
+
+### 1、使用步骤
 
 1. 定义服务接口
-2. 在 `META-INF/services/` 目录下创建以接口全限定名命名的文件
-3. 文件内容为实现类的全限定名（每行一个）
-4. 使用 `ServiceLoader` 加载
+2. 实现方在自己的 jar 中提供实现类（需 public 无参构造器）
+3. 在 `META-INF/services/` 下创建以**接口全限定名**命名的文件，每行写一个实现类全限定名
+4. 调用方用 `ServiceLoader` 加载
 
 ```java
-// 1. 接口
+// 框架定义的接口
 public interface MessageSender {
+    String type();
     void send(String message);
 }
 
-// 2. 实现（在另一个 jar 中）
+// 另一个 jar 中的实现
 public class KafkaSender implements MessageSender {
+    public String type() { return "kafka"; }
     public void send(String message) { /* ... */ }
 }
 ```
 
 `META-INF/services/com.example.MessageSender` 文件内容：
-```
+
+```text
 com.example.kafka.KafkaSender
 ```
 
 ```java
-// 3. 加载并使用
 ServiceLoader<MessageSender> loader = ServiceLoader.load(MessageSender.class);
-for (MessageSender sender : loader) {
+for (MessageSender sender : loader) {          // 迭代到哪个实现，才实例化哪个
     sender.send("hello");
 }
 ```
 
-### 原生 SPI 的局限
+### 2、加载过程
 
-- **全量加载**：所有实现都会被实例化，不支持按需加载
-- **不支持排序**：无法指定实现的优先级
-- **不支持依赖注入**：无法自动注入 Spring Bean
-- **线程不安全**：多线程使用需自行处理
+![ServiceLoader 加载流程：TCCL 定位配置文件、懒解析、迭代或 get() 时才实例化](../assets/java/spi_service_loader.svg)
+
+- **懒加载**：`load()` 本身不读文件也不创建对象；迭代器每前进一步才解析下一个类名并实例化。已实例化的提供者会被缓存，`reload()` 清空缓存
+- **按类型筛选（JDK 9+）**：`stream()` 返回 `Stream<ServiceLoader.Provider<S>>`，`Provider.type()` 只加载类、不实例化，`get()` 才创建对象；`findFirst()` 取第一个可用实现
+
+```java
+// 只实例化需要的实现：按注解或类名筛选，再 get()
+MessageSender sender = ServiceLoader.load(MessageSender.class).stream()
+        .filter(p -> p.type().getSimpleName().startsWith("Kafka"))
+        .map(ServiceLoader.Provider::get)
+        .findFirst()
+        .orElseThrow();
+```
+
+- **出错处理**：配置文件中的类找不到、不是接口的实现、构造器抛异常，都会在迭代时抛 `ServiceConfigurationError`（是 `Error`，普通的 `catch (Exception)` 接不住）
+- **线程安全**：`ServiceLoader` 实例不是线程安全的，多线程共享时自行同步，或在启动时加载完放进不可变集合
+
+### 3、线程上下文类加载器（TCCL）
+
+`ServiceLoader.load(Class)` 使用 `Thread.currentThread().getContextClassLoader()` 加载实现类。原因是接口常在核心库中（如 `java.sql.Driver` 由平台类加载器加载），而实现在应用 classpath 上，按双亲委派父加载器看不到子加载器的类，只能借助 TCCL 「向下」加载，这就是常说的「SPI 打破双亲委派」。细节见 [类加载机制 · SPI 与线程上下文类加载器](/jvm/2_class_loading#_1、spi-与线程上下文类加载器)。
+
+在 Tomcat 这类多 ClassLoader 环境里，可以用 `ServiceLoader.load(Class, ClassLoader)` 显式指定加载器，避免在错误的线程上下文中加载不到实现。
+
+### 4、原生 SPI 的局限
+
+- **不能按名称取**：只能遍历或按类型筛选，没有 `key → 实现` 的映射
+- **没有排序与优先级**：顺序取决于 classpath 上 jar 的顺序，不可靠
+- **没有依赖注入**：实现类用无参构造器（或 JPMS 的 `provider()` 方法）创建，无法注入其他组件
+- **没有条件激活与包装**：不能按环境选择实现，也不能统一加横切逻辑
+
+Dubbo 和 Spring 各自重新实现了 SPI，就是为了补上这些能力。
+
+### 5、JPMS 中的 SPI（JDK 9+）
+
+在模块化应用中，服务关系写在 `module-info.java` 里，由模块系统在启动时校验：
+
+```java
+// 框架模块：声明会使用这个服务
+module com.example.framework {
+    exports com.example.spi;
+    uses com.example.spi.MessageSender;
+}
+
+// 实现模块：声明提供实现
+module com.example.kafka {
+    requires com.example.framework;
+    provides com.example.spi.MessageSender with com.example.kafka.KafkaSender;
+}
+```
+
+模块中的提供者可以不要 public 无参构造器，改为声明 `public static MessageSender provider()` 工厂方法，`ServiceLoader` 会优先调用它，实现单例或复杂构造。大多数 Spring 应用仍运行在 classpath 上，这时只有 `META-INF/services` 生效。
 
 ---
 
-## 三、框架中的 SPI 实践
+## 三、JDK 与常用库中的 SPI
 
-### Dubbo SPI（扩展点机制）
+| 场景 | 接口 | 说明 |
+|------|------|------|
+| JDBC 驱动 | `java.sql.Driver` | JDBC 4.0（JDK 6）起 `DriverManager` 首次使用时用 ServiceLoader 加载驱动，不再需要 `Class.forName` |
+| 日志门面 | `org.slf4j.spi.SLF4JServiceProvider` | SLF4J 2.x 通过 ServiceLoader 找绑定；1.x 靠固定类名 `StaticLoggerBinder`。classpath 上有多个提供者时会打印警告并选第一个 |
+| 字符集 | `java.nio.charset.spi.CharsetProvider` | 扩展自定义字符集 |
+| Jakarta / JAXB / JSON-B | 各规范的 `*Provider` | 规范 API 与具体实现解耦 |
 
-Dubbo 重新实现了 SPI，解决了原生 SPI 的全量加载问题：
+**JDBC 驱动泄漏**：`DriverManager` 由平台类加载器加载，却持有 Web 应用类加载器加载的驱动实例。Tomcat 停止或重新部署应用时，如果驱动没有注销，整个 Web 应用类加载器都无法回收，日志里会出现「registered the JDBC driver but failed to unregister it」的警告。解决办法是把驱动 jar 放到 Tomcat 的 `lib` 下，或在应用关闭时调用 `DriverManager.deregisterDriver`。
 
-- 配置文件放在 `META-INF/dubbo/` 目录，使用 `key=实现类` 格式
-- 支持**按名称获取指定实现**（`ExtensionLoader.getExtension("kafka")`）
-- 支持 **Adaptive**（自适应扩展）、**Activate**（条件激活）
-- 支持 **Wrapper**（AOP 装饰器模式）
+---
 
-```
+## 四、Dubbo SPI
+
+Dubbo 的扩展点机制是对原生 SPI 的增强，协议、负载均衡、过滤器、序列化都通过它装配：
+
+- 接口必须标注 `@SPI`（可指定默认实现名）
+- 配置文件格式为 `name=实现类`，扫描 `META-INF/dubbo/internal/`、`META-INF/dubbo/`、`META-INF/services/` 三个目录
+- **按名称获取**，只实例化用到的实现
+- 支持 `@Adaptive`（运行时按 URL 参数选择实现）、`@Activate`（按条件自动激活，如过滤器链）、Wrapper 类（自动包装，相当于 AOP）、setter 注入其他扩展
+
+```properties
 # META-INF/dubbo/org.apache.dubbo.rpc.Protocol
 dubbo=org.apache.dubbo.rpc.protocol.dubbo.DubboProtocol
-http=org.apache.dubbo.rpc.protocol.http.HttpProtocol
+tri=org.apache.dubbo.rpc.protocol.tri.TripleProtocol
 ```
 
-### Spring SPI（spring.factories）
+```java
+// Dubbo 3：通过 ScopeModel 获取 ExtensionLoader（静态的 ExtensionLoader.getExtensionLoader 已过时）
+Protocol protocol = ApplicationModel.defaultModel()
+        .getExtensionLoader(Protocol.class)
+        .getExtension("tri");
+```
 
-Spring Boot 2.x 及以前通过 `META-INF/spring.factories` 实现自动配置加载：
+自定义负载均衡等扩展的写法见 [Dubbo · SPI 扩展机制](/microservices/4_dubbo#_4、spi-扩展机制)。
+
+---
+
+## 五、Spring 的 SPI 变体
+
+### 1、SpringFactoriesLoader 与 spring.factories
+
+`SpringFactoriesLoader` 属于 Spring Framework（spring-core），读取所有 jar 中的 `META-INF/spring.factories`，格式是 `接口全名=实现类列表`。它仍用于 `ApplicationContextInitializer`、`ApplicationListener`、`EnvironmentPostProcessor`、`FailureAnalyzer` 等扩展点。
 
 ```properties
 # META-INF/spring.factories
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.example.MyAutoConfiguration,\
-  com.example.AnotherAutoConfiguration
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  com.example.MyEnvironmentPostProcessor
 ```
 
-Spring Boot 3.x 改为 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`，每行一个类名。
+### 2、自动配置的登记方式
 
-### JDBC DriverManager
+| 版本 | 自动配置登记位置 |
+|------|------------------|
+| Boot 2.6 及以前 | `spring.factories` 中的 `org.springframework.boot.autoconfigure.EnableAutoConfiguration` 键 |
+| Boot 2.7 | 引入 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 与 `@AutoConfiguration`，旧方式仍兼容 |
+| Boot 3.0 起 | **只认** `AutoConfiguration.imports`，`spring.factories` 中的 `EnableAutoConfiguration` 键不再生效 |
 
-JDBC 驱动注册就是标准 SPI：MySQL Driver jar 的 `META-INF/services/java.sql.Driver` 中声明 `com.mysql.cj.jdbc.Driver`，`DriverManager` 通过 ServiceLoader 自动加载。
+```text
+# META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+com.example.autoconfigure.MyAutoConfiguration
+```
+
+`ImportCandidates.load()` 读取这个文件，交给 `AutoConfigurationImportSelector` 过滤（`@Conditional*`）和排序（`@AutoConfiguration(before = ..., after = ...)`）。与原生 SPI 相比，Spring 补上了条件激活、排序和依赖注入：被发现的不是实例，而是配置类，最终由 IoC 容器创建 Bean。自动配置原理见 [Spring Boot](/spring-boot/1_spring_boot)。
 
 ---
 
-## 四、SPI 与 API 的区别
+## 小结
 
-| | API | SPI |
-|--|-----|-----|
-| 调用方向 | 调用方调用框架提供的接口 | 框架调用第三方实现的接口 |
-| 设计者 | 接口与实现都在框架内 | 接口在框架，实现在外部 |
-| 典型例子 | `List.add()`、`String.length()` | JDBC Driver、Spring AutoConfiguration |
+- SPI 的核心是「框架定接口、外部提供实现、运行时发现」，与 API 的调用方向相反
+- `ServiceLoader` 懒加载：迭代到才实例化；JDK 9 起 `stream()` 可先看 `type()` 再决定是否 `get()`
+- 默认用 TCCL 加载实现，这是 SPI 绕开双亲委派的方式；多 ClassLoader 环境可显式传加载器
+- 原生 SPI 缺按名获取、排序、注入和条件激活；JPMS 用 `provides` / `uses` 在模块层声明服务
+- Dubbo 3 用 `@SPI` + `name=impl` 配置，经 `ApplicationModel` 获取扩展，支持 Adaptive、Activate、Wrapper
+- Spring Boot 2.7 引入 `AutoConfiguration.imports`，3.0 起自动配置只能在这里登记；`spring.factories` 仍承载其他扩展点
 
----
-
-## 五、常见面试问题
-
-**Q：Java SPI 和 Spring @Autowired 有什么区别？**
-SPI 是类级别的插件发现机制，运行时通过 ClassLoader 扫描 jar 包中的配置文件加载实现；Spring 的依赖注入是容器级别的，Bean 由 Spring IoC 容器管理，支持生命周期、AOP 等。两者可结合使用（如 Spring Boot AutoConfiguration 用 SPI 发现配置类，再交由 Spring 容器管理）。
-
-**Q：为什么 JDBC 不需要 `Class.forName()` 了？**
-JDBC 4.0（Java 6+）起，`DriverManager` 使用 ServiceLoader 自动加载 classpath 中所有 `java.sql.Driver` 的 SPI 实现，不再需要手动触发类加载。
-
-**Q：Dubbo SPI 相比 Java SPI 有哪些增强？**
-按需加载（键值映射）、自适应扩展（运行时选择实现）、条件激活、Wrapper 包装增强、支持 IoC 和 AOP。
+> 下一篇：[集合框架](./21_topic_collection) —— List / Set / Queue / Map 的实现原理，重点是 HashMap 与 ConcurrentHashMap。

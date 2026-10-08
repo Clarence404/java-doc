@@ -1,0 +1,127 @@
+<svg viewBox="0 0 760 818" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 11px; fill: var(--muted); }
+    .mono  { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .stale { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arrs" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="24" text-anchor="middle" class="title">Java 集合体系（JDK 21）</text>
+  <rect x="20" y="44" width="720" height="372" rx="4" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <rect x="300" y="60" width="160" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="380" y="83" text-anchor="middle" class="name">Collection&lt;E&gt;</text>
+  <rect x="36" y="136" width="160" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--b)" stroke-width="2"/>
+  <text x="116" y="159" text-anchor="middle" class="name">List</text>
+  <line x1="116" y1="136" x2="340" y2="98" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="36" y="188" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--b)" stroke-width="2"/>
+  <text x="116" y="211" text-anchor="middle" class="txt">ArrayList</text>
+  <rect x="36" y="232" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--b)" stroke-width="2"/>
+  <text x="116" y="255" text-anchor="middle" class="txt">LinkedList</text>
+  <rect x="36" y="276" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--b)" stroke-width="2"/>
+  <text x="116" y="299" text-anchor="middle" class="txt">CopyOnWriteArrayList</text>
+  <rect x="36" y="320" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="116" y="343" text-anchor="middle" class="txt">Vector（遗留）</text>
+  <rect x="36" y="364" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="116" y="387" text-anchor="middle" class="txt">Stack（遗留）</text>
+  <rect x="212" y="136" width="160" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="292" y="159" text-anchor="middle" class="name">Set</text>
+  <line x1="292" y1="136" x2="380" y2="98" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="212" y="188" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="292" y="211" text-anchor="middle" class="txt">HashSet</text>
+  <rect x="212" y="232" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--b)" stroke-width="2"/>
+  <text x="292" y="255" text-anchor="middle" class="txt">LinkedHashSet</text>
+  <rect x="212" y="276" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--b)" stroke-width="2"/>
+  <text x="292" y="299" text-anchor="middle" class="txt">TreeSet</text>
+  <rect x="212" y="320" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--b)" stroke-width="2"/>
+  <text x="292" y="343" text-anchor="middle" class="txt">ConcurrentSkipListSet</text>
+  <rect x="212" y="364" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="292" y="387" text-anchor="middle" class="txt">CopyOnWriteArraySet</text>
+  <rect x="388" y="136" width="160" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="468" y="159" text-anchor="middle" class="name">Queue / Deque</text>
+  <line x1="468" y1="136" x2="420" y2="98" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="388" y="188" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--b)" stroke-width="2"/>
+  <text x="468" y="211" text-anchor="middle" class="txt">ArrayDeque</text>
+  <rect x="388" y="232" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--b)" stroke-width="2"/>
+  <text x="468" y="255" text-anchor="middle" class="txt">LinkedList</text>
+  <rect x="388" y="276" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="468" y="299" text-anchor="middle" class="txt">PriorityQueue</text>
+  <rect x="388" y="320" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="468" y="343" text-anchor="middle" class="txt">ConcurrentLinkedQueue</text>
+  <rect x="388" y="364" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--b)" stroke-width="2"/>
+  <text x="468" y="387" text-anchor="middle" class="txt">ConcurrentLinkedDeque</text>
+  <rect x="564" y="136" width="160" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="644" y="159" text-anchor="middle" class="name">BlockingQueue</text>
+  <path d="M644,136 L644,118 L520,118 L520,134" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="564" y="188" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="644" y="211" text-anchor="middle" class="txt">ArrayBlockingQueue</text>
+  <rect x="564" y="232" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="644" y="255" text-anchor="middle" class="txt">LinkedBlockingQueue</text>
+  <rect x="564" y="276" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="644" y="299" text-anchor="middle" class="txt">SynchronousQueue</text>
+  <rect x="564" y="320" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="644" y="343" text-anchor="middle" class="txt">LinkedTransferQueue</text>
+  <rect x="564" y="364" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="644" y="387" text-anchor="middle" class="txt">DelayQueue</text>
+  <rect x="20" y="436" width="720" height="328" rx="4" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <rect x="300" y="452" width="160" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="380" y="475" text-anchor="middle" class="name">Map&lt;K, V&gt;</text>
+  <rect x="124" y="528" width="160" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="204" y="551" text-anchor="middle" class="name">通用实现</text>
+  <line x1="204" y1="528" x2="340" y2="490" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="124" y="580" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="204" y="603" text-anchor="middle" class="txt">HashMap</text>
+  <rect x="124" y="624" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--b)" stroke-width="2"/>
+  <text x="204" y="647" text-anchor="middle" class="txt">LinkedHashMap</text>
+  <rect x="124" y="668" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="204" y="691" text-anchor="middle" class="txt">WeakHashMap</text>
+  <rect x="124" y="712" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="204" y="735" text-anchor="middle" class="txt">Hashtable（遗留）</text>
+  <rect x="300" y="528" width="160" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="380" y="551" text-anchor="middle" class="name">NavigableMap</text>
+  <line x1="380" y1="528" x2="380" y2="490" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="300" y="580" width="160" height="36" rx="4" fill="var(--card)" stroke="var(--b)" stroke-width="2"/>
+  <text x="380" y="603" text-anchor="middle" class="txt">TreeMap</text>
+  <rect x="300" y="624" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--b)" stroke-width="2"/>
+  <text x="380" y="647" text-anchor="middle" class="txt">ConcurrentSkipListMap</text>
+  <rect x="476" y="528" width="160" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="556" y="551" text-anchor="middle" class="name">ConcurrentMap</text>
+  <line x1="556" y1="528" x2="420" y2="490" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="476" y="580" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="556" y="603" text-anchor="middle" class="txt">ConcurrentHashMap</text>
+  <rect x="476" y="624" width="160" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--b)" stroke-width="2"/>
+  <text x="556" y="647" text-anchor="middle" class="txt">ConcurrentSkipListMap</text>
+  <rect x="40" y="784" width="24" height="14" rx="2" fill="var(--card)" stroke="var(--b)" stroke-width="2"/>
+  <text x="72" y="795" class="note">实现 Sequenced* 接口（JDK 21）</text>
+  <rect x="300" y="784" width="24" height="14" rx="2" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="332" y="795" class="note">线程安全的并发集合</text>
+  <rect x="500" y="784" width="24" height="14" rx="2" fill="var(--card)" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="532" y="795" class="note">遗留类（不推荐）</text>
+</svg>

@@ -1,0 +1,63 @@
+<svg viewBox="0 0 820 300" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+    .sec   { font-size: 13px; font-weight: 700; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrs" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <text x="410" y="24" text-anchor="middle" class="title">CountDownLatch 与 CyclicBarrier</text>
+  <text x="20" y="52" text-anchor="start" class="sec">CountDownLatch（一次性，AQS 共享模式）</text>
+  <rect x="20" y="64" width="170" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="105" y="88" text-anchor="middle" class="name">工作线程 ×N</text>
+  <text x="105" y="108" text-anchor="middle" class="desc">完成后 countDown()，不阻塞</text>
+  <rect x="230" y="64" width="170" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="315" y="88" text-anchor="middle" class="name">CountDownLatch</text>
+  <text x="315" y="108" text-anchor="middle" class="desc">state：N → 0，不可重置</text>
+  <rect x="440" y="64" width="170" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="525" y="88" text-anchor="middle" class="name">等待线程（可多个）</text>
+  <text x="525" y="108" text-anchor="middle" class="desc">await() 在归零时全部放行</text>
+  <line x1="190" y1="94" x2="228" y2="94" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="400" y1="94" x2="438" y2="94" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="20" y="172" text-anchor="start" class="sec">CyclicBarrier（可循环，ReentrantLock + Condition）</text>
+  <rect x="20" y="184" width="170" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="105" y="208" text-anchor="middle" class="name">参与线程 ×N</text>
+  <text x="105" y="228" text-anchor="middle" class="desc">各自 await()，阻塞等齐</text>
+  <rect x="230" y="184" width="170" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="315" y="208" text-anchor="middle" class="name">CyclicBarrier</text>
+  <text x="315" y="228" text-anchor="middle" class="desc">count：N → 0 时触发</text>
+  <rect x="440" y="184" width="170" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="525" y="208" text-anchor="middle" class="name">barrierAction</text>
+  <text x="525" y="228" text-anchor="middle" class="desc">由最后到达的线程执行</text>
+  <rect x="650" y="184" width="150" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="725" y="208" text-anchor="middle" class="name">全部放行</text>
+  <text x="725" y="228" text-anchor="middle" class="desc">signalAll，开启下一代</text>
+  <line x1="190" y1="214" x2="228" y2="214" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="400" y1="214" x2="438" y2="214" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="610" y1="214" x2="648" y2="214" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M725,244 V264 H105 V246" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="415" y="280" text-anchor="middle" class="lbl">下一代：count 复位为 N，可再次 await</text>
+</svg>

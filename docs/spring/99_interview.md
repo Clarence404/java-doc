@@ -1,5 +1,5 @@
 ---
-description: Spring 方向题目清单
+description: IoC 与 DI、AOP、Bean 生命周期、事务、Spring Boot、Spring MVC 题目清单
 ---
 
 # 面试高频题
@@ -46,6 +46,7 @@ description: Spring 方向题目清单
 - **Spring MVC 的请求处理流程（DispatcherServlet 工作原理）？**
 - **`@Controller` 和 `@RestController` 的区别？**
 - **过滤器（Filter）和拦截器（Interceptor）的区别？**
+- **Servlet 的生命周期是怎样的？Servlet 是线程安全的吗？**
 
 ---
 

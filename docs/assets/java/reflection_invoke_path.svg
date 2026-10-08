@@ -1,0 +1,47 @@
+<svg viewBox="0 0 800 258" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .lp{fill:var(--p);font-weight:700;}
+    .lg{fill:var(--g);font-weight:700;}
+    .ly{fill:var(--y);font-weight:700;}
+    .arr{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="400" y="26" text-anchor="middle" font-size="14" font-weight="700">Method.invoke 的调用路径：JDK 18 前后</text>
+
+  <text x="20" y="54" class="ly">JDK 8 – 17：native accessor + 膨胀（inflation）</text>
+  <rect class="card" x="20" y="64" width="220" height="60" rx="6"/>
+  <text x="130" y="90" text-anchor="middle" class="lp">Method.invoke</text>
+  <text x="130" y="110" text-anchor="middle" class="muted" font-size="12">访问检查结果会缓存</text>
+  <rect class="card" x="290" y="64" width="220" height="60" rx="6"/>
+  <text x="400" y="90" text-anchor="middle" class="lp">NativeMethodAccessorImpl</text>
+  <text x="400" y="110" text-anchor="middle" class="muted" font-size="12">前 15 次经 JNI 调用</text>
+  <rect class="card" x="560" y="64" width="220" height="60" rx="6"/>
+  <text x="670" y="90" text-anchor="middle" class="lp">GeneratedMethodAccessorN</text>
+  <text x="670" y="110" text-anchor="middle" class="muted" font-size="12">超过阈值后生成字节码类</text>
+  <line class="arr" x1="240" y1="94" x2="288" y2="94"/>
+  <line class="arr" x1="510" y1="94" x2="558" y2="94"/>
+
+  <text x="20" y="168" class="lg">JDK 18+（JEP 416）：基于方法句柄</text>
+  <rect class="card" x="20" y="178" width="220" height="60" rx="6"/>
+  <text x="130" y="204" text-anchor="middle" class="lp">Method.invoke</text>
+  <text x="130" y="224" text-anchor="middle" class="muted" font-size="12">参数装箱为 Object[]</text>
+  <rect class="card" x="290" y="178" width="220" height="60" rx="6"/>
+  <text x="400" y="204" text-anchor="middle" class="lp">DirectMethodHandleAccessor</text>
+  <text x="400" y="224" text-anchor="middle" class="muted" font-size="12">内部持有 MethodHandle</text>
+  <rect class="card" x="560" y="178" width="220" height="60" rx="6"/>
+  <text x="670" y="204" text-anchor="middle" class="lp">MethodHandle → 目标方法</text>
+  <text x="670" y="224" text-anchor="middle" class="muted" font-size="12">常量时 JIT 可内联</text>
+  <line class="arr" x1="240" y1="208" x2="288" y2="208"/>
+  <line class="arr" x1="510" y1="208" x2="558" y2="208"/>
+</svg>

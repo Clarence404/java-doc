@@ -1,0 +1,58 @@
+<svg viewBox="0 0 720 290" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .lp{fill:var(--p);font-weight:700;}
+    .lb{fill:var(--b);font-weight:700;}
+    .lg{fill:var(--g);font-weight:700;}
+    .ok{fill:var(--g);}
+    .no{fill:var(--r);}
+    .arr{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="26" text-anchor="middle" font-size="14" font-weight="700">PECS：extends 只读（生产者），super 只写（消费者）</text>
+
+  <!-- 左：? extends Number -->
+  <rect class="card" x="20" y="50" width="210" height="188" rx="6"/>
+  <text x="125" y="76" text-anchor="middle" class="lb">List&lt;? extends Number&gt;</text>
+  <text x="125" y="100" text-anchor="middle" class="muted" font-size="12">可接收的实参</text>
+  <text x="125" y="122" text-anchor="middle">List&lt;Number&gt;</text>
+  <text x="125" y="142" text-anchor="middle">List&lt;Integer&gt;</text>
+  <text x="125" y="162" text-anchor="middle">List&lt;Double&gt;</text>
+  <text x="125" y="190" text-anchor="middle" class="ok">读：得到 Number</text>
+  <text x="125" y="212" text-anchor="middle" class="no">写：只能写 null</text>
+
+  <!-- 中：类型层次（箭头指向父类型） -->
+  <rect class="card" x="310" y="50" width="100" height="36" rx="6"/>
+  <text x="360" y="73" text-anchor="middle" class="lp">Object</text>
+  <rect class="card" x="310" y="126" width="100" height="36" rx="6"/>
+  <text x="360" y="149" text-anchor="middle" class="lp">Number</text>
+  <rect class="card" x="250" y="202" width="100" height="36" rx="6"/>
+  <text x="300" y="225" text-anchor="middle" class="lp">Integer</text>
+  <rect class="card" x="370" y="202" width="100" height="36" rx="6"/>
+  <text x="420" y="225" text-anchor="middle" class="lp">Double</text>
+  <line class="arr" x1="360" y1="126" x2="360" y2="88"/>
+  <line class="arr" x1="310" y1="202" x2="338" y2="164"/>
+  <line class="arr" x1="410" y1="202" x2="382" y2="164"/>
+
+  <!-- 右：? super Integer -->
+  <rect class="card" x="490" y="50" width="210" height="188" rx="6"/>
+  <text x="595" y="76" text-anchor="middle" class="lg">List&lt;? super Integer&gt;</text>
+  <text x="595" y="100" text-anchor="middle" class="muted" font-size="12">可接收的实参</text>
+  <text x="595" y="122" text-anchor="middle">List&lt;Integer&gt;</text>
+  <text x="595" y="142" text-anchor="middle">List&lt;Number&gt;</text>
+  <text x="595" y="162" text-anchor="middle">List&lt;Object&gt;</text>
+  <text x="595" y="190" text-anchor="middle" class="ok">写：Integer 及其子类</text>
+  <text x="595" y="212" text-anchor="middle" class="no">读：只能当 Object</text>
+
+  <text x="360" y="270" text-anchor="middle" class="muted" font-size="12">既要读又要写时不用通配符，直接用类型参数 T</text>
+</svg>

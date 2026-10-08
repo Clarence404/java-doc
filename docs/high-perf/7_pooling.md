@@ -140,7 +140,7 @@ client.dispatcher().setMaxRequestsPerHost(50);   // 仅影响异步调用，默�
 
 ## 四、线程池与 Redis 客户端池
 
-**线程池的收益同样来自"复用 + 限流"：复用省去线程创建销毁开销，有界池和有界队列给并发设上限。** 线程数公式、Tomcat 等容器线程参数、Redis 客户端池（含 Lettuce 共享连接的说明）统一见 [并发参数调优](/high-con/7_concurrency_tuning)；线程池的执行流程、拒绝策略与监控见 [线程池专题](/java/28_topic_thread_pool)。
+**线程池的收益同样来自"复用 + 限流"：复用省去线程创建销毁开销，有界池和有界队列给并发设上限。** 线程数公式、Tomcat 等容器线程参数、Redis 客户端池（含 Lettuce 共享连接的说明）统一见 [并发参数调优](/high-con/7_concurrency_tuning)；线程池的执行流程、拒绝策略与监控见 [线程池](/java/28_topic_thread_pool)。
 
 ::: tip 虚拟线程不需要池化
 JDK 21 的虚拟线程创建成本极低，不应放进池里复用；但它不限制并发，仍需用信号量或连接池限制对下游的并发量。

@@ -1,0 +1,59 @@
+<svg viewBox="0 0 760 410" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="26" text-anchor="middle" class="title">Fork/Join 工作窃取</text>
+  <rect x="40" y="50" width="200" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="140" y="76" text-anchor="middle" class="name">Worker 1（忙）</text>
+  <text x="140" y="96" text-anchor="middle" class="desc">top 端 push / pop，LIFO</text>
+  <rect x="280" y="50" width="200" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="380" y="76" text-anchor="middle" class="name">Worker 2（忙）</text>
+  <text x="380" y="96" text-anchor="middle" class="desc">top 端 push / pop，LIFO</text>
+  <rect x="520" y="50" width="200" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="620" y="76" text-anchor="middle" class="name">Worker 3（空闲）</text>
+  <text x="620" y="96" text-anchor="middle" class="desc">自己队列为空，去别人队列窃取</text>
+  <rect x="40" y="150" width="200" height="180" rx="6" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <rect x="280" y="150" width="200" height="180" rx="6" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <rect x="520" y="150" width="200" height="180" rx="6" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <rect x="60" y="162" width="160" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.2"/>
+  <text x="140" y="184" text-anchor="middle" class="desc">top：T4（最新 fork）</text>
+  <rect x="60" y="204" width="160" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.2"/>
+  <text x="140" y="226" text-anchor="middle" class="desc">T3</text>
+  <rect x="60" y="246" width="160" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.2"/>
+  <text x="140" y="268" text-anchor="middle" class="desc">T2</text>
+  <rect x="60" y="288" width="160" height="34" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.2"/>
+  <text x="140" y="310" text-anchor="middle" class="desc">base：T1（最早，粒度最大）</text>
+  <rect x="300" y="246" width="160" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.2"/>
+  <text x="380" y="268" text-anchor="middle" class="desc">top：T6</text>
+  <rect x="300" y="288" width="160" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.2"/>
+  <text x="380" y="310" text-anchor="middle" class="desc">base：T5</text>
+  <text x="620" y="245" text-anchor="middle" class="desc">空</text>
+  <line x1="140" y1="110" x2="140" y2="148" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="380" y1="110" x2="380" y2="148" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M140,330 L140,370 L620,370 L620,332" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <text x="380" y="387" text-anchor="middle" class="lbl">Worker 3 从 Worker 1 的 base 端窃取 T1（FIFO），与主人在两端操作，竞争很小</text>
+</svg>

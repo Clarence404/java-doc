@@ -1,0 +1,55 @@
+<svg viewBox="0 0 720 438" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .lp{fill:var(--p);font-weight:700;}
+    .lb{fill:var(--b);font-weight:700;}
+    .lg{fill:var(--g);font-weight:700;}
+    .arr{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="26" text-anchor="middle" font-size="14" font-weight="700">JDK 动态代理与 CGLIB 的结构对比</text>
+
+  <text x="180" y="56" text-anchor="middle" class="lb">JDK 动态代理：实现接口</text>
+  <rect class="card" x="20" y="70" width="320" height="60" rx="6"/>
+  <text x="180" y="96" text-anchor="middle" class="lp">UserService（接口）</text>
+  <text x="180" y="116" text-anchor="middle" class="muted" font-size="12">代理对象只能按接口类型使用</text>
+  <rect class="card" x="20" y="166" width="320" height="60" rx="6"/>
+  <text x="180" y="192" text-anchor="middle" class="lp">$Proxy0 implements UserService</text>
+  <text x="180" y="212" text-anchor="middle" class="muted" font-size="12">ProxyGenerator 运行时生成字节码</text>
+  <rect class="card" x="20" y="262" width="320" height="60" rx="6"/>
+  <text x="180" y="288" text-anchor="middle" class="lp">InvocationHandler.invoke</text>
+  <text x="180" y="308" text-anchor="middle" class="muted" font-size="12">接口方法与 equals / hashCode / toString</text>
+  <rect class="card" x="20" y="358" width="320" height="60" rx="6"/>
+  <text x="180" y="384" text-anchor="middle" class="lp">method.invoke(target, args)</text>
+  <text x="180" y="404" text-anchor="middle" class="muted" font-size="12">反射调用独立的目标对象</text>
+  <line class="arr" x1="180" y1="130" x2="180" y2="164"/>
+  <line class="arr" x1="180" y1="226" x2="180" y2="260"/>
+  <line class="arr" x1="180" y1="322" x2="180" y2="356"/>
+
+  <text x="540" y="56" text-anchor="middle" class="lg">CGLIB：继承目标类</text>
+  <rect class="card" x="380" y="70" width="320" height="60" rx="6"/>
+  <text x="540" y="96" text-anchor="middle" class="lp">UserServiceImpl（目标类）</text>
+  <text x="540" y="116" text-anchor="middle" class="muted" font-size="12">final 类、final 方法无法代理</text>
+  <rect class="card" x="380" y="166" width="320" height="60" rx="6"/>
+  <text x="540" y="192" text-anchor="middle" class="lp">UserServiceImpl$$SpringCGLIB$$0</text>
+  <text x="540" y="212" text-anchor="middle" class="muted" font-size="12">生成子类，覆写非 final 方法</text>
+  <rect class="card" x="380" y="262" width="320" height="60" rx="6"/>
+  <text x="540" y="288" text-anchor="middle" class="lp">MethodInterceptor.intercept</text>
+  <text x="540" y="308" text-anchor="middle" class="muted" font-size="12">由 CallbackFilter 选择回调</text>
+  <rect class="card" x="380" y="358" width="320" height="60" rx="6"/>
+  <text x="540" y="384" text-anchor="middle" class="lp">invokeSuper(proxy) 或 invoke(target)</text>
+  <text x="540" y="404" text-anchor="middle" class="muted" font-size="12">前者自调用仍被拦截，后者不会</text>
+  <line class="arr" x1="540" y1="130" x2="540" y2="164"/>
+  <line class="arr" x1="540" y1="226" x2="540" y2="260"/>
+  <line class="arr" x1="540" y1="322" x2="540" y2="356"/>
+</svg>

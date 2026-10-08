@@ -1,0 +1,64 @@
+<svg viewBox="0 0 720 322" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">Lambda 的编译与链接（invokedynamic）</text>
+
+  <!-- 编译期 y=44..144 -->
+  <rect x="20" y="44" width="680" height="100" rx="6" fill="none" stroke="var(--p)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="360" y="64" text-anchor="middle" class="lbl">编译期：javac</text>
+  <rect x="40" y="76" width="190" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="135" y="100" text-anchor="middle" class="name">Lambda 表达式</text>
+  <text x="135" y="120" text-anchor="middle" class="desc">x -&gt; x * factor</text>
+  <rect x="270" y="76" width="190" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="365" y="100" text-anchor="middle" class="name">脱糖为私有方法</text>
+  <text x="365" y="120" text-anchor="middle" class="desc">private static lambda$main$0</text>
+  <rect x="500" y="76" width="190" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="595" y="100" text-anchor="middle" class="name">调用点</text>
+  <text x="595" y="120" text-anchor="middle" class="desc">invokedynamic + 引导方法</text>
+  <line x1="230" y1="106" x2="268" y2="106" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="460" y1="106" x2="498" y2="106" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <line x1="360" y1="144" x2="360" y2="174" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 运行期 y=176..276 -->
+  <rect x="20" y="176" width="680" height="100" rx="6" fill="none" stroke="var(--b)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="360" y="196" text-anchor="middle" class="lbl">运行期：首次执行该调用点</text>
+  <rect x="40" y="208" width="190" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="135" y="232" text-anchor="middle" class="name">引导方法</text>
+  <text x="135" y="252" text-anchor="middle" class="desc">LambdaMetafactory.metafactory</text>
+  <rect x="270" y="208" width="190" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="365" y="232" text-anchor="middle" class="name">生成隐藏类</text>
+  <text x="365" y="252" text-anchor="middle" class="desc">defineHiddenClass（JDK 15+）</text>
+  <rect x="500" y="208" width="190" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="595" y="232" text-anchor="middle" class="name">链接 CallSite</text>
+  <text x="595" y="252" text-anchor="middle" class="desc">之后的调用直接走目标句柄</text>
+  <line x1="230" y1="238" x2="268" y2="238" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="460" y1="238" x2="498" y2="238" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <text x="360" y="302" text-anchor="middle" class="lbl">非捕获 Lambda 复用同一个实例；捕获变量的 Lambda 每次求值都创建新实例</text>
+</svg>

@@ -99,7 +99,7 @@ public class PaymentService {
 | 传输层 | TCP 私有二进制协议 | **HTTP/2** |
 | 跨语言 / 网关穿透 | 差（私有协议）| 好，**与 gRPC 互通** |
 | 流式调用 | ❌ | ✅ Server/Client/双向流 |
-| 序列化 | Hessian2 默认 | Protobuf（也支持 JSON）|
+| 序列化 | 2.x 默认 Hessian2；3.2 默认 fastjson2，3.3 起改回 Hessian2 | IDL 模式用 Protobuf（也支持 JSON）|
 
 ### 2、负载均衡策略
 

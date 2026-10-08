@@ -1,0 +1,59 @@
+<svg viewBox="0 0 720 362" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">new Singleton() 的三步与 DCL 的重排序风险</text>
+  <text x="40" y="60" text-anchor="start" class="lbl">程序代码顺序</text>
+  <rect x="40" y="70" width="190" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="135" y="94" text-anchor="middle" class="name">① 分配内存</text>
+  <text x="135" y="114" text-anchor="middle" class="desc">memory = allocate()</text>
+  <rect x="265" y="70" width="190" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="360" y="94" text-anchor="middle" class="name">② 初始化对象</text>
+  <text x="360" y="114" text-anchor="middle" class="desc">执行构造器、写字段</text>
+  <rect x="490" y="70" width="190" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="585" y="94" text-anchor="middle" class="name">③ 发布引用</text>
+  <text x="585" y="114" text-anchor="middle" class="desc">instance = memory</text>
+  <line x1="230" y1="100" x2="263" y2="100" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="455" y1="100" x2="488" y2="100" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="40" y="166" text-anchor="start" class="lbl">没有 volatile 时允许的重排（JIT 或 CPU）</text>
+  <rect x="40" y="176" width="190" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="135" y="200" text-anchor="middle" class="name">① 分配内存</text>
+  <text x="135" y="220" text-anchor="middle" class="desc">memory = allocate()</text>
+  <rect x="265" y="176" width="190" height="60" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="360" y="200" text-anchor="middle" class="name">③ 发布引用</text>
+  <text x="360" y="220" text-anchor="middle" class="desc">instance = memory</text>
+  <rect x="490" y="176" width="190" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="585" y="200" text-anchor="middle" class="name">② 初始化对象</text>
+  <text x="585" y="220" text-anchor="middle" class="desc">执行构造器、写字段</text>
+  <line x1="230" y1="206" x2="263" y2="206" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="455" y1="206" x2="488" y2="206" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="360" y1="236" x2="360" y2="280" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="370" y="262" text-anchor="start" class="lbl">此刻 instance 已非 null</text>
+  <rect x="190" y="282" width="340" height="60" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="360" y="306" text-anchor="middle" class="name">线程 B：第一次检查 instance != null</text>
+  <text x="360" y="326" text-anchor="middle" class="desc">直接返回，拿到字段还未初始化的对象</text>
+</svg>

@@ -387,7 +387,26 @@ public class MyCacheAutoConfiguration {
 
 详见：<RouteLink to="/spring/3_mvc">拦截器实现</RouteLink>
 
-## 二十三、`@Transactional` 的实现原理是什么？
+## 二十三、Servlet 的生命周期是怎样的？Servlet 是线程安全的吗？
+
+**核心结论**：Servlet 由容器（Tomcat / Jetty / Undertow）管理，**每个 Servlet 声明只创建一个实例**，生命周期分四步：加载并实例化 → `init` 一次 → 每个请求调用一次 `service` → 卸载时 `destroy` 一次。同一个实例被容器的多个工作线程并发调用，所以它**不是线程安全的**，不能在实例字段里保存请求相关的可变状态。
+
+| 阶段 | 时机 | 次数 |
+|------|------|------|
+| 加载与实例化 | 默认在第一次请求时；配置 `load-on-startup` ≥ 0 时在容器启动时，数值越小越先 | 1 次 |
+| `init(ServletConfig)` | 实例化后、处理任何请求前，读取初始化参数、建立资源 | 1 次 |
+| `service(req, resp)` | 每个请求在容器的工作线程上调用，`HttpServlet` 再按方法分派到 `doGet` / `doPost` 等 | 每请求 1 次 |
+| `destroy()` | 应用卸载或容器关闭时，释放资源 | 1 次 |
+
+- **线程安全**：请求数据只放在方法局部变量和 `request` / `response` 对象里；共享状态用不可变对象或并发容器。`SingleThreadModel` 早已废弃，Servlet 6.0（Jakarta EE 10）已将其移除
+- **与 Spring MVC 的关系**：整个 MVC 只有一个 `DispatcherServlet`，它的 `init` 中创建 / 关联 `WebApplicationContext` 并初始化 `HandlerMapping` 等组件。Spring Boot 默认 `spring.mvc.servlet.load-on-startup=-1`，所以第一个请求会稍慢，可设为 1 让它随启动初始化
+- Controller 默认也是单例，被多个请求线程共享，同样不能把请求状态放在字段里
+- 包名：Spring Boot 3 / Jakarta EE 9+ 起是 `jakarta.servlet`，不再是 `javax.servlet`
+- Filter 的 `init` / `doFilter` / `destroy` 生命周期与 Servlet 相同，也是单实例多线程
+
+详见：<RouteLink to="/spring/3_mvc">MVC</RouteLink>
+
+## 二十四、`@Transactional` 的实现原理是什么？
 
 1. `@EnableTransactionManagement`（Boot 自动开启）注册 `BeanFactoryTransactionAttributeSourceAdvisor`
 2. 自动代理创建器发现 Bean 方法上有 `@Transactional`，为其生成代理
@@ -402,7 +421,7 @@ public class MyCacheAutoConfiguration {
 
 详见：<RouteLink to="/spring/4_transaction">事务</RouteLink>
 
-## 二十四、Spring 常用扩展点有哪些？`FactoryBean` 和 `BeanFactory` 的区别？
+## 二十五、Spring 常用扩展点有哪些？`FactoryBean` 和 `BeanFactory` 的区别？
 
 | 扩展点 | 时机 | 典型应用 |
 |--------|------|---------|

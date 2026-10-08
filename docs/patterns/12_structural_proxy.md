@@ -86,7 +86,7 @@ proxy.findById(1L);
 
 ## 三、CGLIB 动态代理
 
-目标类**无需实现接口**，通过继承生成子类代理（Spring 默认使用 CGLIB）：
+目标类**无需实现接口**，通过继承生成子类代理（Spring Framework 默认在目标有接口时用 JDK 代理、无接口时用 CGLIB；Spring Boot 2.0 起 `spring.aop.proxy-target-class` 默认为 `true`，统一使用 CGLIB，详见 [动态代理](/java/16_topic_proxy)）：
 
 ```java
 // Spring 自动做，了解原理

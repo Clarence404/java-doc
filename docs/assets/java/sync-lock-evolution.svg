@@ -1,0 +1,73 @@
+<svg viewBox="0 0 720 172" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">HotSpot synchronized 实现的版本演进</text>
+  <line x1="21" y1="60" x2="699" y2="60" stroke="var(--border)" stroke-width="2"/>
+  <circle cx="66" cy="60" r="5" fill="var(--muted)"/>
+  <text x="66" y="46" text-anchor="middle" class="name">JDK 6</text>
+  <rect x="21" y="76" width="90" height="76" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="66" y="98" text-anchor="middle" class="desc">偏向锁</text>
+  <text x="66" y="116" text-anchor="middle" class="desc">栈锁 + 膨胀</text>
+  <text x="66" y="134" text-anchor="middle" class="desc">自适应自旋</text>
+  <circle cx="164" cy="60" r="5" fill="var(--y)"/>
+  <text x="164" y="46" text-anchor="middle" class="name">JDK 15</text>
+  <rect x="119" y="76" width="90" height="76" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="164" y="98" text-anchor="middle" class="desc">JEP 374</text>
+  <text x="164" y="116" text-anchor="middle" class="desc">偏向锁默认关闭</text>
+  <text x="164" y="134" text-anchor="middle" class="desc">并标记废弃</text>
+  <circle cx="262" cy="60" r="5" fill="var(--y)"/>
+  <text x="262" y="46" text-anchor="middle" class="name">JDK 18</text>
+  <rect x="217" y="76" width="90" height="76" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="262" y="98" text-anchor="middle" class="desc">偏向锁代码</text>
+  <text x="262" y="116" text-anchor="middle" class="desc">已移除</text>
+  <text x="262" y="134" text-anchor="middle" class="desc">参数 obsolete</text>
+  <circle cx="360" cy="60" r="5" fill="var(--b)"/>
+  <text x="360" y="46" text-anchor="middle" class="name">JDK 21</text>
+  <rect x="315" y="76" width="90" height="76" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="360" y="98" text-anchor="middle" class="desc">新轻量级锁</text>
+  <text x="360" y="116" text-anchor="middle" class="desc">lock-stack</text>
+  <text x="360" y="134" text-anchor="middle" class="desc">需手动开启</text>
+  <circle cx="458" cy="60" r="5" fill="var(--b)"/>
+  <text x="458" y="46" text-anchor="middle" class="name">JDK 23</text>
+  <rect x="413" y="76" width="90" height="76" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="458" y="98" text-anchor="middle" class="desc">新轻量级锁</text>
+  <text x="458" y="116" text-anchor="middle" class="desc">成为默认</text>
+  <text x="458" y="134" text-anchor="middle" class="desc">旧栈锁仍可选</text>
+  <circle cx="556" cy="60" r="5" fill="var(--g)"/>
+  <text x="556" y="46" text-anchor="middle" class="name">JDK 24</text>
+  <rect x="511" y="76" width="90" height="76" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="556" y="98" text-anchor="middle" class="desc">JEP 491</text>
+  <text x="556" y="116" text-anchor="middle" class="desc">synchronized</text>
+  <text x="556" y="134" text-anchor="middle" class="desc">不再 pin 载体</text>
+  <circle cx="654" cy="60" r="5" fill="var(--p)"/>
+  <text x="654" y="46" text-anchor="middle" class="name">JDK 25</text>
+  <rect x="609" y="76" width="90" height="76" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="654" y="98" text-anchor="middle" class="desc">JEP 519</text>
+  <text x="654" y="116" text-anchor="middle" class="desc">紧凑对象头</text>
+  <text x="654" y="134" text-anchor="middle" class="desc">入口队列合一</text>
+</svg>

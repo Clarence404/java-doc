@@ -99,7 +99,7 @@ META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
 com.example.MyAutoConfiguration
 ```
 
-> `spring.factories` 在 Boot 3.x 中仍受支持但已被标记为 legacy，新项目应使用 `AutoConfiguration.imports`。
+> `AutoConfiguration.imports` 在 Boot 2.7 引入；Boot 3.0 起自动配置只能在该文件中登记，`spring.factories` 中的 `EnableAutoConfiguration` 键不再生效（`spring.factories` 仍用于 `ApplicationListener`、`EnvironmentPostProcessor` 等其他扩展点）。
 
 - `SpringFactoriesLoader` / `ImportCandidates.load()` 负责读取配置文件
 - `@EnableAutoConfiguration` 触发 `AutoConfigurationImportSelector` 加载候选类

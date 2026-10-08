@@ -246,7 +246,7 @@ java -XX:AOTCache=app.aot -jar app.jar
 JDK 21 不可用。与 AppCDS、CRaC 的选型对比见 [JVM 层性能策略](/high-perf/5_jvm_tuning)。
 
 ::: tip 虚拟线程
-虚拟线程（JDK 21）属于并发模型，与 JIT 无关，原理与使用见 [Java 线程池](/java/28_topic_thread_pool)（虚拟线程与线程池一节）。
+虚拟线程（JDK 21）属于并发模型，与 JIT 无关，原理与使用见 [虚拟线程](/java/30_topic_virtual_thread)。
 :::
 
 ---

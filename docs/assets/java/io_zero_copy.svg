@@ -1,0 +1,103 @@
+<svg viewBox="0 0 800 580" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 11px; fill: var(--muted); }
+    .mono  { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .stale { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arrs" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="400" y="24" text-anchor="middle" class="title">文件发送到网络的三种数据路径</text>
+  <rect x="20" y="44" width="140" height="120" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="90" y="80" text-anchor="middle" class="name">read + write</text>
+  <text x="90" y="106" text-anchor="middle" class="txt">DMA 2 · CPU 2</text>
+  <text x="90" y="132" text-anchor="middle" class="txt">上下文切换 4</text>
+  <rect x="380" y="44" width="200" height="40" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="480" y="69" text-anchor="middle" class="name">用户缓冲区</text>
+  <rect x="180" y="124" width="120" height="40" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="240" y="149" text-anchor="middle" class="name">磁盘</text>
+  <rect x="340" y="124" width="120" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="400" y="149" text-anchor="middle" class="name">PageCache</text>
+  <rect x="500" y="124" width="120" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="560" y="149" text-anchor="middle" class="txt">Socket 缓冲区</text>
+  <rect x="660" y="124" width="120" height="40" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="720" y="149" text-anchor="middle" class="name">网卡</text>
+  <line x1="300" y1="144" x2="338" y2="144" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="319" y="138" text-anchor="middle" class="note">DMA</text>
+  <line x1="400" y1="124" x2="400" y2="86" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="394" y="110" text-anchor="end" class="note">CPU</text>
+  <line x1="560" y1="84" x2="560" y2="122" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="566" y="110" class="note">CPU</text>
+  <line x1="620" y1="144" x2="658" y2="144" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="639" y="138" text-anchor="middle" class="note">DMA</text>
+  <rect x="20" y="214" width="140" height="120" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="90" y="250" text-anchor="middle" class="name">mmap + write</text>
+  <text x="90" y="276" text-anchor="middle" class="txt">DMA 2 · CPU 1</text>
+  <text x="90" y="302" text-anchor="middle" class="txt">上下文切换 4</text>
+  <rect x="380" y="214" width="200" height="40" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="480" y="239" text-anchor="middle" class="txt">用户态映射（共享页）</text>
+  <rect x="180" y="294" width="120" height="40" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="240" y="319" text-anchor="middle" class="name">磁盘</text>
+  <rect x="340" y="294" width="120" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="400" y="319" text-anchor="middle" class="name">PageCache</text>
+  <rect x="500" y="294" width="120" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="560" y="319" text-anchor="middle" class="txt">Socket 缓冲区</text>
+  <rect x="660" y="294" width="120" height="40" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="720" y="319" text-anchor="middle" class="name">网卡</text>
+  <line x1="300" y1="314" x2="338" y2="314" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="319" y="308" text-anchor="middle" class="note">DMA</text>
+  <line x1="400" y1="294" x2="400" y2="254" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="394" y="280" text-anchor="end" class="note">映射，无拷贝</text>
+  <line x1="460" y1="314" x2="498" y2="314" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="479" y="308" text-anchor="middle" class="note">CPU</text>
+  <line x1="620" y1="314" x2="658" y2="314" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="639" y="308" text-anchor="middle" class="note">DMA</text>
+  <rect x="20" y="384" width="140" height="120" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="90" y="420" text-anchor="middle" class="name">sendfile + SG-DMA</text>
+  <text x="90" y="446" text-anchor="middle" class="txt">DMA 2 · CPU 0</text>
+  <text x="90" y="472" text-anchor="middle" class="txt">上下文切换 2</text>
+  <rect x="380" y="384" width="200" height="40" rx="4" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="480" y="409" text-anchor="middle" class="note">数据不进入用户态</text>
+  <rect x="180" y="464" width="120" height="40" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="240" y="489" text-anchor="middle" class="name">磁盘</text>
+  <rect x="340" y="464" width="120" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="400" y="489" text-anchor="middle" class="name">PageCache</text>
+  <rect x="500" y="464" width="120" height="40" rx="4" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="560" y="489" text-anchor="middle" class="txt">Socket 缓冲区</text>
+  <rect x="660" y="464" width="120" height="40" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="720" y="489" text-anchor="middle" class="name">网卡</text>
+  <line x1="300" y1="484" x2="338" y2="484" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="319" y="478" text-anchor="middle" class="note">DMA</text>
+  <line x1="460" y1="484" x2="498" y2="484" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrm)"/>
+  <text x="480" y="450" text-anchor="middle" class="note">只追加描述符</text>
+  <path d="M400,504 L400,520 L720,520 L720,506" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="560" y="536" text-anchor="middle" class="note">SG-DMA：从 PageCache 直接送网卡</text>
+  <text x="400" y="560" text-anchor="middle" class="note">网卡不支持 SG-DMA 时，sendfile 仍有一次 PageCache → Socket 缓冲区的 CPU 拷贝（DMA 2 · CPU 1 · 切换 2）</text>
+</svg>

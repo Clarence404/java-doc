@@ -72,7 +72,7 @@ public class ProductDetailService {
 
 - 必须使用**独立、有界的线程池**；`commonPool` 默认线程数为核数 − 1，被阻塞 IO 占满后会拖垮所有使用它的代码。
 - 核心数据失败要整体失败并给出明确异常；非核心数据用 `exceptionally` / `completeOnTimeout` 降级。
-- API 细节与异常传播规则见 [CompletableFuture 专题](/java/29_topic_completable_future)。
+- API 细节与异常传播规则见 [CompletableFuture](/java/29_topic_completable_future)。
 
 ::: warning orTimeout / completeOnTimeout 不会取消底层任务
 这两个方法只是让 **Future 提前完成**，正在执行的 `productClient.get()` 不会被中断，IO 线程和连接仍被占用，直到下游返回或客户端自身超时（`CompletableFuture.cancel(true)` 同样不会中断执行线程）。因此 **HTTP / RPC 客户端本身必须设置连接和读超时**，且应不大于这里的超时预算，否则慢下游会逐渐占满 `ioPool`。

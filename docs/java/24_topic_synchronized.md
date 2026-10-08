@@ -1,356 +1,311 @@
 ---
-description: Monitor 对象、偏向锁/轻量锁/重量锁升级路径
+description: Monitor 语义、字节码、锁实现演进、ObjectMonitor、锁消除、虚拟线程 pinning
 ---
 
 # synchronized
 
+> **本篇目标**：说清 `synchronized` 在语言层面保证什么，在字节码和 HotSpot 中如何实现；能按 JDK 版本区分偏向锁、栈锁、新轻量级锁和 ObjectMonitor，知道 JDK 21–25 中与虚拟线程、对象头相关的变化。
+>
+> **前置阅读**：[JMM 内存模型](./22_topic_jmm)、[线程基础](./23_topic_thread_basics)
+
 > 参考资料：
-> * JEP 374 — Disable and Deprecate Biased Locking：[https://openjdk.org/jeps/374](https://openjdk.org/jeps/374)
-> * HotSpot Runtime Overview：[https://openjdk.org/groups/hotspot/docs/RuntimeOverview.html](https://openjdk.org/groups/hotspot/docs/RuntimeOverview.html)
+> * JLS 17.1 Synchronization：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html#jls-17.1](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html#jls-17.1)
+> * JEP 374 Deprecate and Disable Biased Locking：[https://openjdk.org/jeps/374](https://openjdk.org/jeps/374)
+> * JEP 491 Synchronize Virtual Threads without Pinning：[https://openjdk.org/jeps/491](https://openjdk.org/jeps/491)
+> * JEP 519 Compact Object Headers：[https://openjdk.org/jeps/519](https://openjdk.org/jeps/519)
+> * JEP 390 Warnings for Value-Based Classes：[https://openjdk.org/jeps/390](https://openjdk.org/jeps/390)
 
-<div class="slk">
+---
 
-<!-- ① 路线对比 -->
-<div class="slk-sec">
-  <div class="slk-hd"><span class="slk-n">路线</span><span class="slk-t">旧 vs 现代</span></div>
-  <div class="slk-card">
-    <div class="slk-row-gap">
-      <div>
-        <div class="slk-sublabel">旧路线 <span class="slk-tag slk-tm">JDK 8~14</span></div>
-        <div class="slk-flow">
-          <span class="slk-lp slk-ul">无锁</span><span class="slk-arr">→</span>
-          <span class="slk-lp slk-bi">偏向锁</span><span class="slk-arr">→</span>
-          <span class="slk-lp slk-lw">轻量级锁</span><span class="slk-arr">→</span>
-          <span class="slk-lp slk-hw">重量级锁</span>
-        </div>
-      </div>
-      <div class="slk-divider"></div>
-      <div>
-        <div class="slk-sublabel">现代路线 <span class="slk-tag slk-tr">JDK 15+</span> 偏向锁已废弃/移除</div>
-        <div class="slk-flow">
-          <span class="slk-lp slk-ul">无锁</span><span class="slk-arr">→</span>
-          <span class="slk-lp slk-lw">轻量级锁</span><span class="slk-arr">→</span>
-          <span class="slk-lp slk-hw">重量级锁 / Monitor 锁</span>
-        </div>
-      </div>
-    </div>
-    <div class="slk-note-danger">偏向锁在 JDK 15 默认关闭并废弃，JDK 18 起相关选项 obsolete / 移除。<strong>讲锁升级必须先说 JDK 版本。</strong></div>
-  </div>
-</div>
+## 一、语义：锁的是对象的 monitor
 
-<!-- ② 版本 -->
-<div class="slk-sec">
-  <div class="slk-hd"><span class="slk-n">01</span><span class="slk-t">锁升级先看版本</span></div>
-  <div class="slk-card">
-    <div class="slk-vtl">
-      <div class="slk-vc">
-        <div class="slk-ver">JDK 8 ~ 14</div>
-        <div class="slk-vc-body">四阶段路径：<br>无锁 → 偏向锁<br>→ 轻量级锁<br>→ 重量级锁<br><span class="slk-muted" style="font-size:11px;">偏向锁默认开启</span></div>
-      </div>
-      <div class="slk-vc">
-        <div class="slk-ver">JDK 15 ~ 17</div>
-        <div class="slk-vc-body">偏向锁<strong style="color:#f85149;">默认关闭</strong>并废弃<br><code class="slk-code">-XX:+UseBiasedLocking</code><br><span class="slk-muted" style="font-size:11px;">仍可手动开启</span></div>
-      </div>
-      <div class="slk-vc">
-        <div class="slk-ver">JDK 18+</div>
-        <div class="slk-vc-body">偏向锁相关选项<br><strong style="color:#f85149;">obsolete</strong><br>实际路径：<br>无锁 → 轻量级锁<br>→ Monitor 锁</div>
-      </div>
-      <div class="slk-vc">
-        <div class="slk-ver">JDK 23+</div>
-        <div class="slk-vc-body">偏向锁完全<strong style="color:#f85149;">移除</strong><br>三阶段已成唯一路径<br><span class="slk-muted" style="font-size:11px;">偏向锁是历史概念</span></div>
-      </div>
-    </div>
-    <div class="slk-two" style="margin-top:14px;">
-      <div class="slk-card2" style="border-color:#6a7384;">
-        <div class="slk-card2-title" style="color:#6a7384;">传统面试说法</div>
-        <div style="font-size:12px;line-height:1.55;">无锁 → 偏向锁 → 轻量级锁 → 重量级锁<br><span class="slk-muted">适合限定 JDK 8~14</span></div>
-      </div>
-      <div class="slk-card2" style="border-color:#3fb950;">
-        <div class="slk-card2-title" style="color:#3fb950;">现代准确说法</div>
-        <div style="font-size:12px;line-height:1.55;">无锁 → 轻量级锁 → Monitor 锁<br><span class="slk-muted">偏向锁不是现代默认重点</span></div>
-      </div>
-    </div>
-  </div>
-</div>
+### 1、三种写法
 
-<!-- ③ monitor -->
-<div class="slk-sec">
-  <div class="slk-hd"><span class="slk-n">02</span><span class="slk-t">synchronized 锁的是 monitor</span></div>
-  <div class="slk-card">
-    <div style="font-size:13px;margin-bottom:14px;">锁竞争的对象，是 obj 背后的 <strong style="color:#e85d04;">ObjectMonitor</strong>。Object Header 中 Mark Word 指向 monitor。</div>
-    <div class="slk-mtype">
-      <div class="slk-mt">
-        <div class="slk-mt-n">① 同步代码块</div>
-        <div class="slk-code2">synchronized(obj){...}</div>
-        <div class="slk-muted" style="font-size:11px;">锁 obj 背后的 monitor</div>
-      </div>
-      <div class="slk-mt">
-        <div class="slk-mt-n">② 实例方法</div>
-        <div class="slk-code2">public synchronized void f()</div>
-        <div class="slk-muted" style="font-size:11px;">锁 this 的 monitor</div>
-      </div>
-      <div class="slk-mt">
-        <div class="slk-mt-n">③ 静态方法</div>
-        <div class="slk-code2">public static synchronized void f()</div>
-        <div class="slk-muted" style="font-size:11px;">锁 MyClass.class 的 monitor</div>
-      </div>
-    </div>
-    <div class="slk-tags-row" style="margin-top:14px;">
-      <div class="slk-pill"><span style="color:#d4a017;font-weight:700;">同一时刻</span>：最多一个线程持有该 monitor</div>
-      <div class="slk-pill"><span style="color:#d4a017;font-weight:700;">happens-before</span>：释放 monitor → 后续获取同一 monitor</div>
-      <div class="slk-pill"><span style="color:#d4a017;font-weight:700;">三重保证</span>：互斥性 + 可见性 + 有序性</div>
-    </div>
-    <div class="slk-note-ok">synchronized 的语义核心是<strong>获取对象 monitor</strong>，锁升级是 HotSpot 在获取 monitor 路径上的优化，不是 Java 语言规范的要求。</div>
-  </div>
-</div>
+每个 Java 对象都关联一个 monitor（监视器），`synchronized` 获取的就是它：
 
-<!-- ④ 四状态 -->
-<div class="slk-sec">
-  <div class="slk-hd"><span class="slk-n">03</span><span class="slk-t">四锁状态详解 <span style="font-size:12px;font-weight:400;color:#6a7384;">JDK 8~14 视角</span></span></div>
-  <div class="slk-card">
-    <div class="slk-sg">
-      <div class="slk-sc slk-sc-ul">
-        <div class="slk-sc-name" style="color:#3fb950;">① 无锁</div>
-        <div class="slk-sc-body">对象刚创建，通常无锁<br>Mark Word 存：hashcode、GC 年龄、锁标志等信息<br><br><span style="color:#3fb950;">触发：</span>对象创建后首次被访问</div>
-      </div>
-      <div class="slk-sc slk-sc-bi">
-        <div class="slk-sc-name" style="color:#58a6ff;">② 偏向锁 <span class="slk-tag slk-tm" style="font-size:10px;">JDK 8~14</span></div>
-        <div class="slk-sc-body">适合同一线程反复进入<br>Mark Word 记录偏向线程 T1 的 ID<br>成本极低，<strong>几乎不需要 CAS</strong><br><br><span style="color:#58a6ff;">触发：</span>T1 总是自己进入</div>
-      </div>
-      <div class="slk-sc slk-sc-lw">
-        <div class="slk-sc-name" style="color:#d4a017;">③ 轻量级锁</div>
-        <div class="slk-sc-body">适合轻微竞争场景<br>线程栈帧创建 <strong>Lock Record</strong><br><strong>CAS</strong> 尝试将对象头指向 Lock Record<br><br><span style="color:#d4a017;">触发：</span>T2 也来竞争，偏向撤销 / CAS 失败</div>
-      </div>
-      <div class="slk-sc slk-sc-hw">
-        <div class="slk-sc-name" style="color:#e85d04;">④ 重量级锁 / Monitor 锁</div>
-        <div class="slk-sc-body">竞争激烈，膨胀为 <strong>ObjectMonitor</strong><br>Owner / EntryList(cxq) / WaitSet<br>竞争失败线程阻塞，OS 调度唤醒<br><br><span style="color:#e85d04;">触发：</span>CAS 自旋失败 / 调用 wait()</div>
-      </div>
-    </div>
-    <div style="margin-top:18px;">
-      <div class="slk-sublabel" style="margin-bottom:10px;">升级触发关系（从左到右）</div>
-      <div class="slk-chain">
-        <div class="slk-cn"><div class="slk-cn-t" style="color:#3fb950;">T1 总是自进</div><div class="slk-cn-b">偏向锁最合适<br>Mark Word 记 T1</div></div>
-        <div class="slk-cn-arr">→</div>
-        <div class="slk-cn"><div class="slk-cn-t" style="color:#58a6ff;">T2 也来竞争</div><div class="slk-cn-b">偏向撤销<br>可能转轻量级锁</div></div>
-        <div class="slk-cn-arr">→</div>
-        <div class="slk-cn"><div class="slk-cn-t" style="color:#d4a017;">CAS 失败</div><div class="slk-cn-b">可能短暂自旋<br>等待 T1 释放</div></div>
-        <div class="slk-cn-arr">→</div>
-        <div class="slk-cn"><div class="slk-cn-t" style="color:#e85d04;">竞争仍在</div><div class="slk-cn-b">膨胀为<br>Monitor 锁</div></div>
-      </div>
-    </div>
-  </div>
-</div>
+| 写法 | 锁住的 monitor |
+|------|---------------|
+| `synchronized (obj) { ... }` | `obj` 的 monitor |
+| `public synchronized void f()` | `this` 的 monitor |
+| `public static synchronized void f()` | 当前类的 `Class` 对象（`MyClass.class`）的 monitor |
 
-<!-- ⑤ 轻量级锁 -->
-<div class="slk-sec">
-  <div class="slk-hd"><span class="slk-n">04</span><span class="slk-t">轻量级锁 — Lock Record + CAS</span></div>
-  <div class="slk-card">
-    <div class="slk-two">
-      <div>
-        <div class="slk-sublabel" style="color:#d4a017;margin-bottom:10px;">T1 首次获取轻量级锁（5 步）</div>
-        <div class="slk-steps">
-          <div class="slk-stp"><span class="slk-stn">1</span><span>T1 进入 <code class="slk-code">synchronized(obj)</code></span></div>
-          <div class="slk-stp"><span class="slk-stn">2</span><span>T1 <strong>栈帧</strong>中创建 Lock Record（含 Displaced Mark Word 槽位）</span></div>
-          <div class="slk-stp"><span class="slk-stn">3</span><span>把 obj 的 Mark Word <strong>拷贝</strong>到 Lock Record</span></div>
-          <div class="slk-stp"><span class="slk-stn">4</span><span><strong>CAS</strong> 尝试将 obj 的 Mark Word 改为指向 Lock Record 的指针</span></div>
-          <div class="slk-stp"><span class="slk-stn">5</span><span>CAS 成功：获得轻量级锁，obj Mark Word 指向 Lock Record ✓</span></div>
-        </div>
-      </div>
-      <div>
-        <div class="slk-sublabel" style="margin-bottom:10px;">T2 竞争 — 自旋等待策略</div>
-        <div class="slk-steps">
-          <div class="slk-stp"><span class="slk-stn">1</span><span>T1 持有轻量级锁</span></div>
-          <div class="slk-stp"><span class="slk-stn">2</span><span>T2 进入 synchronized(obj)</span></div>
-          <div class="slk-stp"><span class="slk-stn">3</span><span>T2 <strong>CAS 失败</strong></span></div>
-          <div class="slk-stp"><span class="slk-stn">4</span><span>短暂 <strong>自旋</strong>（spin）</span></div>
-          <div class="slk-stp"><span class="slk-stn">5a</span><span>T1 快速释放 → T2 获锁，避免阻塞/唤醒开销</span></div>
-          <div class="slk-stp"><span class="slk-stn">5b</span><span>竞争持续 → 膨胀为 Monitor 锁</span></div>
-        </div>
-      </div>
-    </div>
-    <div class="slk-sg" style="margin-top:14px;">
-      <div class="slk-sc" style="border-color:#3fb950;"><div class="slk-sc-name" style="color:#3fb950;">自旋收益</div><div class="slk-sc-body">避免 OS 线程阻塞、唤醒、上下文切换的开销<br>适合竞争短暂的场景</div></div>
-      <div class="slk-sc" style="border-color:#f85149;"><div class="slk-sc-name" style="color:#f85149;">自旋代价</div><div class="slk-sc-body">占用 CPU 空转<br>竞争时间长则浪费</div></div>
-      <div class="slk-sc" style="border-color:#d4a017;"><div class="slk-sc-name" style="color:#d4a017;">何时划算</div><div class="slk-sc-body">竞争短：划算<br>竞争长：不如直接阻塞<br>JVM 自适应调整自旋次数</div></div>
-      <div class="slk-sc" style="border-color:#58a6ff;"><div class="slk-sc-name" style="color:#58a6ff;">常见误解</div><div class="slk-sc-body">自旋<strong>不是</strong>一种锁状态<br>不在 Mark Word 里独立表示<br>只是竞争失败后的等待策略</div></div>
-    </div>
-    <div class="slk-note-ok">轻量级锁核心：Lock Record 记录原 Mark Word 的备份（Displaced Mark Word），CAS 成功让 Mark Word 指向 Lock Record。</div>
-  </div>
-</div>
+实例方法锁和静态方法锁是两把不同的锁，互不阻塞。
 
-<!-- ⑥ ObjectMonitor -->
-<div class="slk-sec">
-  <div class="slk-hd"><span class="slk-n">05</span><span class="slk-t">ObjectMonitor — 慢路径</span></div>
-  <div class="slk-card">
-    <div class="slk-two">
-      <div>
-        <div class="slk-sublabel" style="color:#e85d04;margin-bottom:10px;">ObjectMonitor 结构</div>
-        <div class="slk-om">
-          <div class="slk-om-title">ObjectMonitor</div>
-          <div class="slk-om-row"><div class="slk-om-f">Owner</div><div class="slk-muted" style="font-size:11px;margin-top:2px;">当前持有锁的线程</div></div>
-          <div class="slk-om-row"><div class="slk-om-f">EntryList (cxq)</div><div class="slk-muted" style="font-size:11px;margin-top:2px;">等待进入锁的竞争线程队列</div></div>
-          <div class="slk-om-row"><div class="slk-om-f">WaitSet</div><div class="slk-muted" style="font-size:11px;margin-top:2px;">调用 wait() 后等待 notify 的线程集合</div></div>
-          <div class="slk-om-row"><div class="slk-om-f">Recursions</div><div class="slk-muted" style="font-size:11px;margin-top:2px;">可重入计数（同一线程重入次数）</div></div>
-        </div>
-      </div>
-      <div>
-        <div class="slk-sublabel" style="color:#58a6ff;margin-bottom:10px;">wait / notify 流程（6 步）</div>
-        <div class="slk-steps">
-          <div class="slk-stp"><span class="slk-stn" style="color:#58a6ff;">1</span><span>线程持有 monitor（Owner）</span></div>
-          <div class="slk-stp"><span class="slk-stn" style="color:#58a6ff;">2</span><span>调用 <code class="slk-code">wait()</code></span></div>
-          <div class="slk-stp"><span class="slk-stn" style="color:#58a6ff;">3</span><span>释放 monitor，Owner 清空</span></div>
-          <div class="slk-stp"><span class="slk-stn" style="color:#58a6ff;">4</span><span>进入 <strong>WaitSet</strong> 等待通知</span></div>
-          <div class="slk-stp"><span class="slk-stn" style="color:#58a6ff;">5</span><span>notify / notifyAll / 中断 / 超时 / 伪唤醒</span></div>
-          <div class="slk-stp"><span class="slk-stn" style="color:#58a6ff;">6</span><span>重新竞争 monitor（移回 EntryList）</span></div>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top:14px;">
-      <div class="slk-sublabel" style="margin-bottom:8px;">锁膨胀触发条件</div>
-      <div class="slk-triggers">
-        <span class="slk-trig">竞争激烈</span>
-        <span class="slk-trig">自旋失败</span>
-        <span class="slk-trig">调用 wait()</span>
-        <span class="slk-trig">notify / notifyAll 需要 WaitSet</span>
-        <span class="slk-trig">JNI locking</span>
-        <span class="slk-trig">轻量级路径不足</span>
-      </div>
-    </div>
-    <div class="slk-note-ok">ObjectMonitor 空闲后 JVM 可能做 <strong>deflation（锁收缩）</strong> 回收 monitor 结构。"锁升级绝对不可逆"这一说法<strong>不严谨</strong>。</div>
-  </div>
-</div>
+### 2、语言层面的保证
 
-<!-- ⑦ 误区 -->
-<div class="slk-sec">
-  <div class="slk-hd"><span class="slk-n">06</span><span class="slk-t">5 个常见误区</span></div>
-  <div class="slk-card">
-    <div class="slk-mis"><div class="slk-mis-w"><div class="slk-mis-lbl">误区 1</div><div class="slk-mis-txt">锁升级是 <strong>Java 语言规范</strong>强制机制</div></div><div class="slk-mis-c"><div class="slk-mis-lbl slk-mis-lbl-ok">纠正</div><div class="slk-mis-txt">规范只定义 monitor 语义（lock / unlock / wait set / happens-before）；偏向锁、ObjectMonitor inflation 是 <strong>HotSpot 实现优化</strong></div></div></div>
-    <div class="slk-mis"><div class="slk-mis-w"><div class="slk-mis-lbl">误区 2</div><div class="slk-mis-txt">偏向锁是<strong>现代 JDK 的默认重点</strong></div></div><div class="slk-mis-c"><div class="slk-mis-lbl slk-mis-lbl-ok">纠正</div><div class="slk-mis-txt">JDK 15 默认关闭并废弃，JDK 18 相关选项 obsolete，回答时必须<strong>说明版本</strong></div></div></div>
-    <div class="slk-mis"><div class="slk-mis-w"><div class="slk-mis-lbl">误区 3</div><div class="slk-mis-txt"><strong>自旋是一种锁状态</strong>（和偏向锁、轻量级锁并列）</div></div><div class="slk-mis-c"><div class="slk-mis-lbl slk-mis-lbl-ok">纠正</div><div class="slk-mis-txt">自旋是竞争失败后的<strong>等待策略</strong>，不是对象头 Mark Word 里的独立锁状态</div></div></div>
-    <div class="slk-mis"><div class="slk-mis-w"><div class="slk-mis-lbl">误区 4</div><div class="slk-mis-txt">重量级锁 = synchronized <strong>一定很慢</strong></div></div><div class="slk-mis-c"><div class="slk-mis-lbl slk-mis-lbl-ok">纠正</div><div class="slk-mis-txt">真正贵的是<strong>高竞争下的阻塞、唤醒、上下文切换</strong>和 monitor 管理，不是锁本身</div></div></div>
-    <div class="slk-mis" style="margin-bottom:0;"><div class="slk-mis-w"><div class="slk-mis-lbl">误区 5</div><div class="slk-mis-txt">锁<strong>绝对不能降级</strong></div></div><div class="slk-mis-c"><div class="slk-mis-lbl slk-mis-lbl-ok">纠正</div><div class="slk-mis-txt">JVM 可在 monitor 空闲后做 <strong>deflation</strong> 回收，"绝对不可逆"说法不严谨</div></div></div>
-  </div>
-</div>
+- **互斥**：同一时刻最多一个线程持有某个 monitor
+- **可重入**：持有 monitor 的线程可以再次进入同一 monitor 的同步块，内部维护重入计数，完全退出后才释放
+- **内存语义**：获取 monitor 具有 acquire 语义，释放具有 release 语义；unlock hb 之后对同一 monitor 的 lock，详见 [JMM 内存模型](./22_topic_jmm)
+- **异常安全**：同步块因异常退出时，monitor 一定被释放
+- **不可中断、不可超时**：等待进入 `synchronized` 的线程不响应中断，需要可中断、超时或公平性时用 [显式锁（Lock）](./25_topic_lock)
 
-<!-- ⑧ 面试答法 -->
-<div class="slk-sec">
-  <div class="slk-hd"><span class="slk-n">07</span><span class="slk-t">面试标准答法（按版本区分）</span></div>
-  <div class="slk-card">
-    <div class="slk-ia"><span class="slk-ia-badge">JDK 8</span><span>讲四阶段路径：<span class="slk-tag slk-tg">无锁</span> → <span class="slk-tag slk-tb">偏向锁</span> → <span class="slk-tag slk-ty">轻量级锁</span> → <span class="slk-tag slk-tr">重量级锁</span>，并说明这是 HotSpot 优化，不是语言规范</span></div>
-    <div class="slk-ia"><span class="slk-ia-badge">JDK 17+</span><span>说明偏向锁已默认关闭并废弃，现代默认路径是 <span class="slk-tag slk-tg">无锁</span> → <span class="slk-tag slk-ty">轻量级锁</span> → <span class="slk-tag slk-tr">Monitor 锁</span></span></div>
-    <div class="slk-ia"><span class="slk-ia-badge">现代HotSpot</span><span>理解为：根据竞争程度，从<strong>快速用户态路径（Lock Record + CAS）</strong>切到完整 <strong>ObjectMonitor 路径</strong>的动态优化</span></div>
-    <div class="slk-ia" style="margin-bottom:0;"><span class="slk-ia-badge">核心本质</span><span>锁升级不是 Java 语法语义，而是 HotSpot 根据竞争程度选择不同 monitor 实现路径的<strong>优化细节</strong></span></div>
-  </div>
-</div>
+偏向锁、轻量级锁、锁膨胀都是 HotSpot 的**实现优化**，JLS 只定义 monitor 的语义。讨论「锁升级」时必须先说是哪个 JDK 版本。
 
-<!-- summary -->
-<div class="slk-summary">
-  <div class="slk-sum-lbl">一句话总结</div>
-  <div class="slk-sum-txt">synchronized 锁升级是 HotSpot 根据竞争程度，从轻量路径逐步走向 ObjectMonitor 路径的优化细节。<br><span style="font-size:13px;color:#6a7384;display:block;margin-top:6px;">讲锁升级，先问：你说的是哪个 JDK？</span></div>
-</div>
+### 3、锁对象怎么选
 
-</div>
+```java
+public class Inventory {
+    private final Object lock = new Object();     // 私有、final、专用
+    private int stock;
 
-<style>
-.slk{background:#0f1115;border-radius:12px;padding:28px 24px;margin:16px 0;color:#cdd5e0;font-size:14px;line-height:1.6;font-family:-apple-system,'PingFang SC','Microsoft YaHei',system-ui,sans-serif;}
-.slk *{box-sizing:border-box;}
-.slk-sec{margin-bottom:28px;}
-.slk-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.slk-n{font-size:9px;font-weight:800;letter-spacing:.14em;color:#e85d04;text-transform:uppercase;padding:3px 7px;border:1px solid rgba(232,93,4,.35);border-radius:3px;font-family:monospace;}
-.slk-t{font-size:16px;font-weight:700;color:#fff;}
-.slk-card{background:#181c23;border:1px solid #2a303d;border-radius:8px;padding:20px;}
-.slk-sublabel{font-size:11px;color:#6a7384;font-weight:600;margin-bottom:6px;}
-.slk-muted{color:#6a7384;}
-.slk-divider{border-top:1px solid #2a303d;margin:14px 0;}
-.slk-row-gap{display:flex;flex-direction:column;gap:0;}
-.slk-flow{display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:8px 0;}
-.slk-lp{padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;border:2px solid;white-space:nowrap;}
-.slk-ul{background:rgba(63,185,80,.12);border-color:#3fb950;color:#3fb950;}
-.slk-bi{background:rgba(88,166,255,.12);border-color:#58a6ff;color:#58a6ff;}
-.slk-lw{background:rgba(212,160,23,.12);border-color:#d4a017;color:#d4a017;}
-.slk-hw{background:rgba(232,93,4,.12);border-color:#e85d04;color:#e85d04;}
-.slk-arr{color:#6a7384;font-size:16px;padding:0 2px;}
-.slk-note-danger{background:rgba(248,81,73,.07);border-left:3px solid #f85149;padding:9px 12px;border-radius:0 4px 4px 0;font-size:12px;margin-top:12px;line-height:1.5;}
-.slk-note-ok{background:rgba(63,185,80,.07);border-left:3px solid #3fb950;padding:9px 12px;border-radius:0 4px 4px 0;font-size:12px;margin-top:12px;line-height:1.5;}
-.slk-vtl{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-.slk-vc{background:#1e2330;border:1px solid #2a303d;border-radius:6px;padding:14px;}
-.slk-ver{font-size:12px;font-weight:800;color:#e85d04;font-family:monospace;margin-bottom:8px;}
-.slk-vc-body{font-size:12px;line-height:1.55;}
-.slk-two{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.slk-card2{background:#1e2330;border-radius:6px;padding:12px;border-left:3px solid;}
-.slk-card2-title{font-size:11px;font-weight:700;margin-bottom:6px;}
-.slk-mtype{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.slk-mt{background:#1e2330;border-radius:6px;padding:12px;border-top:2px solid #e85d04;}
-.slk-mt-n{font-size:10px;font-weight:800;color:#e85d04;font-family:monospace;margin-bottom:6px;}
-.slk-code2{font-size:10px;font-family:monospace;color:#58a6ff;background:#0f1115;padding:5px 8px;border-radius:4px;margin-bottom:6px;overflow-x:auto;white-space:nowrap;}
-.slk-code{font-size:12px;font-family:monospace;color:#58a6ff;background:#1e2330;padding:1px 5px;border-radius:3px;}
-.slk-tags-row{display:flex;flex-wrap:wrap;gap:8px;}
-.slk-pill{background:#1e2330;border-radius:6px;padding:9px 14px;font-size:12px;flex:1;min-width:180px;}
-.slk-sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.slk-sc{background:#1e2330;border-radius:6px;padding:14px;border-left:3px solid;}
-.slk-sc-ul{border-color:#3fb950;}
-.slk-sc-bi{border-color:#58a6ff;}
-.slk-sc-lw{border-color:#d4a017;}
-.slk-sc-hw{border-color:#e85d04;}
-.slk-sc-name{font-size:13px;font-weight:700;margin-bottom:6px;}
-.slk-sc-body{font-size:12px;color:#6a7384;line-height:1.6;}
-.slk-chain{display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding:4px 0 8px;}
-.slk-cn{background:#1e2330;border:1px solid #2a303d;border-radius:6px;padding:10px 12px;min-width:120px;flex-shrink:0;}
-.slk-cn-t{font-size:11px;font-weight:700;margin-bottom:4px;}
-.slk-cn-b{font-size:11px;color:#6a7384;line-height:1.45;}
-.slk-cn-arr{display:flex;align-items:center;padding:0 6px;color:#e85d04;font-size:18px;flex-shrink:0;margin-top:16px;}
-.slk-steps{display:flex;flex-direction:column;gap:8px;}
-.slk-stp{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;}
-.slk-stn{min-width:22px;height:22px;background:#1e2330;border:1px solid #2a303d;border-radius:50%;font-size:11px;font-weight:700;color:#d4a017;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-family:monospace;}
-.slk-om{border:2px solid #e85d04;border-radius:8px;overflow:hidden;}
-.slk-om-title{background:rgba(232,93,4,.18);padding:9px 14px;font-size:13px;font-weight:800;color:#e85d04;letter-spacing:.04em;}
-.slk-om-row{padding:9px 14px;border-top:1px solid #2a303d;}
-.slk-om-f{font-size:12px;font-family:monospace;color:#d4a017;font-weight:600;}
-.slk-triggers{display:flex;flex-wrap:wrap;gap:6px;}
-.slk-trig{background:#1e2330;border:1px solid #2a303d;border-radius:4px;padding:4px 10px;font-size:11px;color:#6a7384;}
-.slk-mis{display:grid;grid-template-columns:1fr 1fr;gap:0;background:#1e2330;border-radius:6px;overflow:hidden;margin-bottom:8px;border:1px solid #2a303d;}
-.slk-mis-w{padding:12px 14px;border-right:1px solid #2a303d;}
-.slk-mis-c{padding:12px 14px;background:rgba(63,185,80,.04);}
-.slk-mis-lbl{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;color:#f85149;}
-.slk-mis-lbl-ok{color:#3fb950;}
-.slk-mis-txt{font-size:12px;line-height:1.55;}
-.slk-ia{display:flex;gap:10px;padding:12px;background:#1e2330;border-radius:6px;margin-bottom:8px;font-size:13px;line-height:1.6;align-items:flex-start;}
-.slk-ia-badge{background:#181c23;border:1px solid #2a303d;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:800;color:#e85d04;white-space:nowrap;font-family:monospace;flex-shrink:0;margin-top:1px;}
-.slk-summary{background:rgba(232,93,4,.08);border:1px solid rgba(232,93,4,.3);border-radius:8px;padding:20px 24px;margin-top:4px;text-align:center;}
-.slk-sum-lbl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#e85d04;font-weight:800;margin-bottom:8px;font-family:monospace;}
-.slk-sum-txt{font-size:15px;font-weight:600;line-height:1.6;}
-.slk-tag{display:inline-block;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:700;font-family:monospace;}
-.slk-tg{background:rgba(63,185,80,.14);color:#3fb950;}
-.slk-tb{background:rgba(88,166,255,.14);color:#58a6ff;}
-.slk-ty{background:rgba(212,160,23,.14);color:#d4a017;}
-.slk-tr{background:rgba(232,93,4,.14);color:#e85d04;}
-.slk-tm{background:rgba(106,115,132,.14);color:#6a7384;}
-/* tablet ≤768px */
-@media(max-width:768px){
-  .slk{padding:22px 16px;}
-  .slk-vtl{grid-template-columns:1fr 1fr;}
-  .slk-mtype{grid-template-columns:1fr 1fr;}
+    public void deduct(int n) {
+        synchronized (lock) {
+            if (stock < n) {
+                throw new IllegalStateException("库存不足");
+            }
+            stock -= n;
+        }
+    }
 }
-/* mobile ≤520px */
-@media(max-width:520px){
-  .slk{padding:16px 12px;border-radius:8px;}
-  .slk-card{padding:14px;}
-  .slk-t{font-size:14px;}
-  .slk-vtl{grid-template-columns:1fr 1fr;}
-  .slk-mtype{grid-template-columns:1fr;}
-  .slk-sg,.slk-two{grid-template-columns:1fr;}
-  .slk-mis{grid-template-columns:1fr;}
-  .slk-mis-w{border-right:none;border-bottom:1px solid #2a303d;}
-  .slk-chain{flex-direction:column;align-items:stretch;}
-  .slk-cn{min-width:unset;width:100%;}
-  .slk-cn-arr{transform:rotate(90deg);align-self:center;margin:2px 0;padding:0;}
-  .slk-pill{min-width:unset;width:100%;}
-  .slk-ia{flex-wrap:wrap;}
+```
+
+- 用 `private final` 的专用锁对象，避免外部代码锁住同一个对象（锁 `this` 时，任何拿到引用的代码都能参与竞争）
+- 字段不能是可变的：锁对象被重新赋值后，不同线程锁的是不同对象，互斥失效
+- 不要锁 `String` 字面量（常量池共享，全局同一个对象）和 `Integer`、`LocalDate` 等值类型类，见本文第九节
+
+---
+
+## 二、字节码：monitorenter 与 ACC_SYNCHRONIZED
+
+```java
+public class Counter {
+    private final Object lock = new Object();
+    private int count;
+
+    public void inc() {
+        synchronized (lock) { count++; }
+    }
+
+    public synchronized void dec() { count--; }
 }
-/* small phone ≤380px */
-@media(max-width:380px){
-  .slk-vtl{grid-template-columns:1fr;}
-  .slk-ia{flex-direction:column;gap:6px;}
-  .slk-ia-badge{align-self:flex-start;}
+```
+
+`javap -c -v Counter` 的关键输出（常量池编号省略）：
+
+```text
+public void inc();
+   0: aload_0
+   1: getfield      // Field lock:Ljava/lang/Object;
+   4: dup
+   5: astore_1
+   6: monitorenter                // 获取 lock 的 monitor
+   7: aload_0
+   8: dup
+   9: getfield      // Field count:I
+  12: iconst_1
+  13: iadd
+  14: putfield      // Field count:I
+  17: aload_1
+  18: monitorexit                 // 正常路径释放
+  19: goto          27
+  22: astore_2
+  23: aload_1
+  24: monitorexit                 // 异常路径释放
+  25: aload_2
+  26: athrow
+  27: return
+  Exception table:
+     from    to  target type
+         7    19    22   any
+        22    25    22   any
+
+public synchronized void dec();
+  flags: (0x0021) ACC_PUBLIC, ACC_SYNCHRONIZED
+```
+
+- **同步块**：`javac` 生成一条 `monitorenter` 和两条 `monitorexit`，第二条位于覆盖整个同步块的 `any` 异常处理器中，保证抛异常也会释放
+- **同步方法**：字节码里没有 monitor 指令，只在方法标志中设置 `ACC_SYNCHRONIZED`，JVM 在调用前获取、返回或抛异常时释放
+- 两者在 JIT 编译后走同一套加锁代码，性能没有差别
+
+---
+
+## 三、对象头与锁状态位
+
+HotSpot 中每个对象的对象头包含 Mark Word（64 位 JVM 上 8 字节）和类型指针。Mark Word 的最低 2 位是锁标志：`01` 未锁定、`00` 轻量级锁定、`10` 已膨胀为 ObjectMonitor、`11` 供 GC 标记使用。各状态下 Mark Word 的完整位布局见 [内存结构](/jvm/1_memory)。
+
+几个和锁相关的要点：
+
+- **identity hashCode 与锁互相影响**：未锁定时哈希值直接存在 Mark Word 中。JDK 8 中，对一个偏向锁对象调用 `Object.hashCode()` / `System.identityHashCode()` 会撤销偏向；栈锁状态下哈希值存在被替换出去的原 Mark Word 中，需要时可能触发膨胀
+- **`wait()` 一定会膨胀**：WaitSet 只存在于 ObjectMonitor 中
+- **紧凑对象头**：JDK 25 起 `-XX:+UseCompactObjectHeaders`（JEP 519）成为正式特性，把 Mark Word 与类指针压缩进 8 字节，默认不开启；它依赖新轻量级锁，不支持旧的栈锁
+
+---
+
+## 四、HotSpot 锁实现的版本演进
+
+![HotSpot synchronized 实现的版本演进](../assets/java/sync-lock-evolution.svg)
+
+| 版本 | 变化 |
+|------|------|
+| JDK 6 ~ 14 | 偏向锁默认开启（JVM 启动约 4 秒后生效，`BiasedLockingStartupDelay`），加锁路径为偏向锁、栈锁（经典「轻量级锁」）、ObjectMonitor |
+| JDK 15 | JEP 374：偏向锁默认关闭并标记废弃，`-XX:+UseBiasedLocking` 仍可手动开启；ObjectMonitor 改为后台线程异步收缩（deflation） |
+| JDK 17 | 与 15 相同，偏向锁需手动开启 |
+| JDK 18 | 偏向锁代码从 HotSpot 移除，`UseBiasedLocking` 变为 obsolete（设置会告警并被忽略） |
+| JDK 21 | 引入新的轻量级锁实现（实验参数 `-XX:LockingMode=2`），以线程私有的 lock-stack 代替栈上 Lock Record |
+| JDK 23 | 新轻量级锁成为默认（`LockingMode` 默认值改为 2），旧栈锁仍可通过参数选择 |
+| JDK 24 | JEP 491：虚拟线程在 `synchronized` 中阻塞不再钉住载体线程；`LockingMode` 参数标记废弃 |
+| JDK 25 | JEP 519 紧凑对象头转正；ObjectMonitor 的 cxq 与 EntryList 两个队列合并为一个 entry_list |
+| JDK 26 | `LockingMode` 参数 obsolete，只保留新轻量级锁 |
+
+结论：**JDK 17 及以后，默认路径中已经没有偏向锁；JDK 23 及以后，默认路径中也没有经典的 Lock Record 栈锁。**「无锁 → 偏向锁 → 轻量级锁 → 重量级锁」只适用于 JDK 8 ~ 14。
+
+---
+
+## 五、JDK 8 的经典路径（历史）
+
+JDK 8 仍有大量存量系统，理解这一路径有助于读老资料和排查老版本问题。
+
+### 1、偏向锁
+
+- 开启时，类的原型 Mark Word 带偏向标志，新对象创建后处于**匿名偏向**状态（偏向线程 ID 为空），而不是「无锁」
+- 第一个线程加锁时用一次 CAS 把自己的线程 ID 写入 Mark Word，此后该线程重入、再次加锁都**无需 CAS**
+- 另一个线程来加锁时需要**撤销偏向**：必须等到全局安全点（后期版本部分改用握手），检查原持有线程的栈帧，再把对象改为未锁定或栈锁状态
+- 同一个类的对象撤销次数过多时，HotSpot 会批量重偏向（默认阈值 20）或批量撤销并禁用该类的偏向（默认阈值 40）
+
+JEP 374 移除它的理由：现代应用多用 JUC 并发容器，「对象只被一个线程反复加锁」的场景（如早期 `Vector`、`Hashtable`）收益变小；撤销需要安全点，在线程多、锁对象多的服务中反而造成停顿；同时它让 HotSpot 同步子系统的代码复杂、难以维护。
+
+### 2、栈锁（经典轻量级锁）
+
+1. 线程在当前栈帧中分配一个 Lock Record
+2. 把对象原来的 Mark Word 复制到 Lock Record 中（Displaced Mark Word）
+3. CAS 把对象的 Mark Word 替换为指向该 Lock Record 的指针，锁标志变为 `00`
+4. 解锁时 CAS 把 Displaced Mark Word 写回对象头
+
+### 3、竞争时并不在轻量级锁上自旋
+
+常见说法是「轻量级锁 CAS 失败后自旋，自旋失败再升级为重量级锁」。HotSpot 的实际做法是：栈锁 CAS 失败、发现锁被别的线程持有时，**直接膨胀**为 ObjectMonitor；自适应自旋发生在膨胀之后的 `ObjectMonitor::enter` 中，自旋仍拿不到锁才 park 阻塞。自旋也不是一种锁状态，Mark Word 中没有它的位置。
+
+---
+
+## 六、JDK 21+ 的加锁路径
+
+### 1、新轻量级锁与膨胀
+
+![JDK 23+ 默认加锁路径](../assets/java/sync-lock-path.svg)
+
+新轻量级锁（HotSpot 内部称 `LM_LIGHTWEIGHT`）的变化：
+
+- 每个线程有一个容量很小的 **lock-stack**，记录当前持有的轻量级锁对象
+- 加锁时 CAS 只把 Mark Word 的锁位从 `01` 改为 `00`，Mark Word 其余内容（包括哈希值）保持不变，**不再有 Displaced Mark Word**
+- 判断「锁归谁」不再看 Mark Word 中的指针，而是看对象是否在某个线程的 lock-stack 中
+- 重入时把同一对象再压一次栈；lock-stack 满了、出现竞争、调用 `wait()` 等情况下膨胀为 ObjectMonitor
+
+这一设计让 Mark Word 不再需要存放指向栈的指针，是紧凑对象头能实现的前提。
+
+### 2、ObjectMonitor
+
+![ObjectMonitor：入口队列、owner 与 WaitSet](../assets/java/object-monitor.svg)
+
+| 字段 | 作用 |
+|------|------|
+| `owner` | 当前持有者 |
+| `recursions` | 重入次数 |
+| 入口队列 | 竞争失败、已 park 的线程。JDK 24 及以前分为两部分：新到线程无锁压入的 `cxq` 栈和释放者从中挑选继任者的 `EntryList`；JDK 25 合并为一个 `entry_list`，按到达顺序挑选继任者 |
+| `WaitSet` | 调用 `wait()` 的线程；被 `notify`、超时或中断后移回入口队列，重新竞争 monitor 才能从 `wait()` 返回 |
+
+竞争流程：
+
+1. 线程进入 `ObjectMonitor::enter`，先尝试 CAS 设置 owner
+2. 失败后**自适应自旋**：根据这个 monitor 上次自旋是否成功，动态决定自旋多久；持有者正在运行、临界区很短时，自旋可以避免一次 park / unpark 和上下文切换
+3. 自旋仍失败，把自己加入入口队列并 park
+4. owner 释放时选出继任者并 unpark，被唤醒的线程重新竞争（`synchronized` 是非公平锁，新来的线程可以插队）
+
+### 3、锁会「降级」
+
+空闲的 ObjectMonitor 会被收缩（deflation）：对象头恢复为未锁定，monitor 结构被回收复用。JDK 15 起由专门的后台线程异步完成。「锁只能升级不能降级」的说法不严谨。
+
+---
+
+## 七、JIT 优化：锁消除与锁粗化
+
+### 1、锁消除
+
+C2 通过逃逸分析发现锁对象不会逃逸出当前线程时，删除加锁解锁操作（`-XX:+EliminateLocks`，默认开启，依赖 `-XX:+DoEscapeAnalysis`）：
+
+```java
+public String join(String a, String b) {
+    StringBuffer sb = new StringBuffer();   // sb 不逃逸
+    sb.append(a).append(b);                 // append 是 synchronized 方法，锁被消除
+    return sb.toString();
 }
-</style>
+```
+
+### 2、锁粗化
+
+相邻的多个同步块锁的是同一个对象时，JIT 可以把它们合并为一个更大的同步块，减少反复加锁解锁。JMM 允许临界区外的代码移入临界区，这是锁粗化合法的依据。
+
+这两项优化意味着：微基准测试中测到的 `synchronized` 开销可能被优化掉，需要用 JMH 正确设计，见 [基准测试（JMH）](/high-perf/4_benchmark)。
+
+---
+
+## 八、虚拟线程与 pinning
+
+虚拟线程在阻塞时会从载体线程（carrier thread）上卸载，让载体去运行其他虚拟线程。**pinning（钉住）** 指虚拟线程阻塞时无法卸载，连同载体线程一起阻塞。
+
+| 版本 | `synchronized` 中阻塞的行为 |
+|------|---------------------------|
+| JDK 21 ~ 23 | 在 `synchronized` 块或方法中执行阻塞操作（IO、`sleep`、`Object.wait`、等待进入另一个 monitor）会钉住载体线程。载体线程数默认等于 CPU 核数，大量钉住会让所有虚拟线程停摆 |
+| JDK 24+ | JEP 491：虚拟线程可以在持有、等待或进入 monitor 时卸载，`synchronized` 不再导致 pinning |
+
+JDK 24 之后仍会钉住的情况：
+
+- 栈上存在本地方法帧：JNI 或 FFM API 调用的本地代码回调到 Java 后阻塞
+- 在类初始化器（`static {}`）中阻塞，或等待另一个线程完成类初始化
+- 加载类时阻塞
+
+排查与应对：
+
+- 使用 JFR 事件 `jdk.VirtualThreadPinned` 定位钉住的位置（JDK 24 起事件中会给出钉住原因）；`-Djdk.tracePinnedThreads` 在 JDK 24 中已移除
+- 仍在 JDK 21 的项目：把包住阻塞 IO 的 `synchronized` 改为 `ReentrantLock`，或升级到 JDK 25 LTS
+- 虚拟线程的完整内容见 [虚拟线程](./30_topic_virtual_thread)
+
+---
+
+## 九、不要在值类型类上同步
+
+`Integer`、`Long`、`Optional`、`LocalDate`、`List.of()` 返回的集合等被标注为**值类型类（value-based class）**：相等的实例可能是同一个对象，也可能不是，未来的 Valhalla 值对象中甚至没有 identity。在它们上加锁要么意外地与无关代码共享一把锁（如 `Integer` 缓存 -128 ~ 127），要么将来直接失败。
+
+```java
+private Integer count = 0;
+
+public void inc() {
+    synchronized (count) {   // 错误：count++ 后 count 指向新对象，且缓存的 Integer 全局共享
+        count++;
+    }
+}
+```
+
+JDK 16（JEP 390）起：
+
+- `javac` 对这类同步给出 `[synchronization]` 警告
+- 运行时可用 `-XX:DiagnoseSyncOnValueBasedClasses=1`（直接报致命错误）或 `=2`（记录日志）检测
+
+---
+
+## 十、synchronized 还是 ReentrantLock
+
+| 维度 | synchronized | ReentrantLock |
+|------|-------------|---------------|
+| 使用 | 语法级，自动释放 | 必须在 `finally` 中 `unlock()` |
+| 可中断 / 超时 | 不支持 | `lockInterruptibly()`、`tryLock(timeout)` |
+| 公平性 | 非公平 | 可选公平 |
+| 条件队列 | 一个 WaitSet | 多个 `Condition` |
+| 诊断 | `jstack` 显示 `waiting to lock` 及持有者 | 显示 `parking to wait for`，持有者需看 AQS |
+| 虚拟线程 | JDK 21 ~ 23 会钉住，JDK 24+ 无问题 | 不钉住 |
+
+没有特殊需求时优先 `synchronized`：代码简单、不会忘记释放，在 JDK 24+ 上与虚拟线程配合也没有障碍。需要中断、超时、公平、多条件时用 `ReentrantLock`，见 [显式锁（Lock）](./25_topic_lock)。
+
+---
+
+## 小结
+
+- `synchronized` 锁的是对象的 monitor，提供互斥、可重入和 acquire / release 内存语义；锁状态和升级是 HotSpot 的实现优化，不是语言规范
+- 同步块编译为 `monitorenter` 加两条 `monitorexit`（含异常路径），同步方法用 `ACC_SYNCHRONIZED` 标志
+- 偏向锁 JDK 15 默认关闭、JDK 18 代码移除；新轻量级锁 JDK 21 引入、JDK 23 成为默认、JDK 26 成为唯一实现
+- JDK 8 的栈锁在竞争时直接膨胀，自适应自旋发生在 ObjectMonitor 内部；自旋不是锁状态
+- ObjectMonitor 由 owner、重入计数、入口队列和 WaitSet 组成，JDK 25 把 cxq 与 EntryList 合并；空闲 monitor 会被异步收缩
+- C2 通过逃逸分析做锁消除，并对相邻同步块做锁粗化
+- JDK 21 ~ 23 中在 `synchronized` 内阻塞会钉住虚拟线程的载体线程，JDK 24（JEP 491）解决；用 JFR `jdk.VirtualThreadPinned` 排查剩余情况
+- 不要在 `Integer`、`String` 字面量等值类型类或共享对象上同步，锁对象用 `private final` 专用对象
+
+> 下一篇：[显式锁（Lock）](./25_topic_lock) —— AQS、ReentrantLock、读写锁与 StampedLock，看可中断、可超时的锁如何实现。

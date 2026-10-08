@@ -1,0 +1,70 @@
+<svg viewBox="0 0 720 426" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">并行流：Spliterator 拆分 + commonPool 执行 + 合并</text>
+
+  <rect x="240" y="44" width="240" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="68" text-anchor="middle" class="name">trySplit 拆分数据源</text>
+  <text x="360" y="88" text-anchor="middle" class="desc">ArrayList / 数组易均分，LinkedList 难拆</text>
+
+  <rect x="100" y="136" width="240" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="220" y="160" text-anchor="middle" class="name">子任务 A</text>
+  <text x="220" y="180" text-anchor="middle" class="desc">继续拆分，直到粒度足够小</text>
+  <rect x="380" y="136" width="240" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="500" y="160" text-anchor="middle" class="name">子任务 B</text>
+  <text x="500" y="180" text-anchor="middle" class="desc">继续拆分，直到粒度足够小</text>
+  <line x1="320" y1="104" x2="242" y2="134" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="400" y1="104" x2="478" y2="134" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="20" y="228" width="150" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="95" y="252" text-anchor="middle" class="name">叶子任务 1</text>
+  <text x="95" y="272" text-anchor="middle" class="desc">commonPool worker</text>
+  <rect x="197" y="228" width="150" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="272" y="252" text-anchor="middle" class="name">叶子任务 2</text>
+  <text x="272" y="272" text-anchor="middle" class="desc">commonPool worker</text>
+  <rect x="373" y="228" width="150" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="448" y="252" text-anchor="middle" class="name">叶子任务 3</text>
+  <text x="448" y="272" text-anchor="middle" class="desc">commonPool worker</text>
+  <rect x="550" y="228" width="150" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="625" y="252" text-anchor="middle" class="name">叶子任务 4</text>
+  <text x="625" y="272" text-anchor="middle" class="desc">调用线程也参与执行</text>
+  <line x1="180" y1="196" x2="104" y2="226" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="260" y1="196" x2="268" y2="226" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="460" y1="196" x2="452" y2="226" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="540" y1="196" x2="616" y2="226" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="200" y="320" width="320" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="344" text-anchor="middle" class="name">combiner 逐层合并结果</text>
+  <text x="360" y="364" text-anchor="middle" class="desc">有序、有状态操作在合并阶段付出额外代价</text>
+  <line x1="120" y1="288" x2="248" y2="319" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="280" y1="288" x2="310" y2="318" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="440" y1="288" x2="410" y2="318" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="600" y1="288" x2="472" y2="319" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <text x="360" y="406" text-anchor="middle" class="lbl">commonPool 默认并行度 = CPU 核数 − 1，调用线程补位；阻塞 IO 会拖住整个 JVM 共享的池</text>
+</svg>

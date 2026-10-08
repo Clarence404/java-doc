@@ -1,0 +1,63 @@
+<svg viewBox="0 0 760 370" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="26" text-anchor="middle" class="title">ctl 的位布局与线程池状态流转</text>
+  <rect x="20" y="50" width="200" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="120" y="76" text-anchor="middle" class="name">高 3 位：运行状态</text>
+  <text x="120" y="96" text-anchor="middle" class="desc">RUNNING=111，其余 000～011</text>
+  <rect x="228" y="50" width="512" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="484" y="76" text-anchor="middle" class="name">低 29 位：工作线程数 workerCount</text>
+  <text x="484" y="96" text-anchor="middle" class="desc">上限 2^29 − 1（约 5.4 亿），一次 CAS 同时改状态和计数</text>
+  <rect x="20" y="220" width="130" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="85" y="246" text-anchor="middle" class="name">RUNNING</text>
+  <text x="85" y="266" text-anchor="middle" class="desc">接收并处理任务</text>
+  <rect x="230" y="150" width="130" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="295" y="176" text-anchor="middle" class="name">SHUTDOWN</text>
+  <text x="295" y="196" text-anchor="middle" class="desc">不接新任务，清队列</text>
+  <rect x="230" y="290" width="130" height="60" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="295" y="316" text-anchor="middle" class="name">STOP</text>
+  <text x="295" y="336" text-anchor="middle" class="desc">不处理队列，中断</text>
+  <rect x="450" y="150" width="130" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="515" y="176" text-anchor="middle" class="name">TIDYING</text>
+  <text x="515" y="196" text-anchor="middle" class="desc">执行 terminated()</text>
+  <rect x="450" y="290" width="130" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="515" y="316" text-anchor="middle" class="name">TERMINATED</text>
+  <text x="515" y="336" text-anchor="middle" class="desc">彻底终止</text>
+  <path d="M85,220 L85,180 L228,180" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="156" y="174" text-anchor="middle" class="lbl">shutdown()</text>
+  <path d="M85,280 L85,320 L228,320" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="156" y="335" text-anchor="middle" class="lbl">shutdownNow()</text>
+  <line x1="295" y1="210" x2="295" y2="288" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="287" y="254" text-anchor="end" class="lbl">shutdownNow()</text>
+  <line x1="360" y1="180" x2="448" y2="180" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="404" y="174" text-anchor="middle" class="lbl">队列空且无线程</text>
+  <path d="M360,320 L420,320 L420,195 L448,195" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="414" y="262" text-anchor="end" class="lbl">线程数为 0</text>
+  <line x1="515" y1="210" x2="515" y2="288" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="523" y="254" text-anchor="start" class="lbl">terminated() 返回</text>
+</svg>

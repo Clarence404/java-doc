@@ -1,0 +1,66 @@
+<svg viewBox="0 0 760 242" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="24" text-anchor="middle" class="title">Stream 流水线：惰性求值与操作分类</text>
+
+  <rect x="20" y="44" width="100" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="70" y="68" text-anchor="middle" class="name">数据源</text>
+  <text x="70" y="88" text-anchor="middle" class="desc">list.stream()</text>
+  <rect x="144" y="44" width="100" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="194" y="68" text-anchor="middle" class="name">filter</text>
+  <text x="194" y="88" text-anchor="middle" class="desc">无状态</text>
+  <rect x="268" y="44" width="100" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="318" y="68" text-anchor="middle" class="name">map</text>
+  <text x="318" y="88" text-anchor="middle" class="desc">无状态</text>
+  <rect x="392" y="44" width="100" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="442" y="68" text-anchor="middle" class="name">sorted</text>
+  <text x="442" y="88" text-anchor="middle" class="desc">有状态（屏障）</text>
+  <rect x="516" y="44" width="100" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="566" y="68" text-anchor="middle" class="name">limit(3)</text>
+  <text x="566" y="88" text-anchor="middle" class="desc">短路</text>
+  <rect x="640" y="44" width="100" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="690" y="68" text-anchor="middle" class="name">toList()</text>
+  <text x="690" y="88" text-anchor="middle" class="desc">终结操作</text>
+  <line x1="120" y1="74" x2="142" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="244" y1="74" x2="266" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="368" y1="74" x2="390" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="492" y1="74" x2="514" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="616" y1="74" x2="638" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="20" y="136" width="232" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="136" y="160" text-anchor="middle" class="name">无状态：逐元素纵向传递</text>
+  <text x="136" y="180" text-anchor="middle" class="desc">一个元素走完 filter → map 再取下一个</text>
+  <rect x="264" y="136" width="232" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="380" y="160" text-anchor="middle" class="name">有状态：sorted / distinct</text>
+  <text x="380" y="180" text-anchor="middle" class="desc">缓冲全部上游元素后才向下游输出</text>
+  <rect x="508" y="136" width="232" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="624" y="160" text-anchor="middle" class="name">短路：limit / anyMatch</text>
+  <text x="624" y="180" text-anchor="middle" class="desc">下游已满足即停止从上游拉取</text>
+
+  <text x="380" y="222" text-anchor="middle" class="lbl">调用终结操作之前，中间操作一个都不执行；一个流只能消费一次</text>
+</svg>

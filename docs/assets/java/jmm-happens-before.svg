@@ -1,0 +1,50 @@
+<svg viewBox="0 0 720 396" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">volatile 写读建立的 happens-before 链</text>
+  <rect x="40" y="44" width="280" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="180" y="68" text-anchor="middle" class="name">data = 42</text>
+  <text x="180" y="88" text-anchor="middle" class="desc">线程 A · 普通写</text>
+  <line x1="180" y1="104" x2="180" y2="138" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="190" y="126" text-anchor="start" class="lbl">程序顺序</text>
+  <rect x="40" y="140" width="280" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="180" y="164" text-anchor="middle" class="name">ready = true</text>
+  <text x="180" y="184" text-anchor="middle" class="desc">线程 A · volatile 写（release）</text>
+  <line x1="320" y1="170" x2="398" y2="170" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="360" y="162" text-anchor="middle" class="lbl">同步关系</text>
+  <rect x="400" y="140" width="280" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="540" y="164" text-anchor="middle" class="name">if (ready)</text>
+  <text x="540" y="184" text-anchor="middle" class="desc">线程 B · volatile 读到 true（acquire）</text>
+  <line x1="540" y1="200" x2="540" y2="234" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="550" y="222" text-anchor="start" class="lbl">程序顺序</text>
+  <rect x="400" y="236" width="280" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="540" y="260" text-anchor="middle" class="name">use(data)</text>
+  <text x="540" y="280" text-anchor="middle" class="desc">线程 B · 一定看到 42</text>
+  <rect x="40" y="332" width="640" height="44" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="360" y="359" text-anchor="middle" class="desc">传递性：data = 42 → ready = true → 读到 ready → use(data)，所以普通写 data 对线程 B 可见</text>
+</svg>

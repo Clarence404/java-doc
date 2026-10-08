@@ -1,302 +1,349 @@
 ---
-description: 主内存/工作内存、三大特性、happens-before、volatile 内存屏障、DCL
+description: 可见性来源、happens-before、volatile、锁的内存语义、安全发布、VarHandle
 ---
 
 # JMM 内存模型
 
-> JMM（Java Memory Model）定义了多线程程序中变量的**读写规则**，是理解 `volatile`、`synchronized`、`final` 线程安全语义的理论基础。
+> **本篇目标**：建立与现代硬件和 JIT 相符的 JMM 心智模型，能用 happens-before 判断一段并发代码是否正确，说清 `volatile`、`synchronized`、`final` 各自保证了什么、没保证什么。
 >
-> 参考规范：[JSR-133: Java Memory Model and Thread Specification](https://www.cs.umd.edu/~pugh/java/memoryModel/jsr133.pdf) / 《深入理解 Java 虚拟机》第 12 章
+> **前置阅读**：[集合框架](./21_topic_collection)
+
+> 参考资料：
+> * JLS 第 17 章 Threads and Locks：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html)
+> * java.util.concurrent 内存一致性说明：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/package-summary.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/package-summary.html)
+> * JSR-133 FAQ：[https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html](https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html)
+> * JEP 193 Variable Handles：[https://openjdk.org/jeps/193](https://openjdk.org/jeps/193)
+
+JMM（Java Memory Model）是 JLS 第 17 章定义的一套规则：给定一段多线程程序，**一次读操作允许看到哪些写操作的值**。它不描述 CPU 缓存怎么工作，而是给出一个与硬件无关的契约——只要程序按规则同步（没有数据竞争），它的行为就和「所有操作按某种交错顺序依次执行」一样（顺序一致性，DRF-SC 保证）。
 
 ---
 
 ## 一、为什么需要 JMM
 
-现代 CPU 有多级缓存（L1/L2/L3），每个核心有自己的缓存。多线程程序中：
+### 1、问题不在「缓存不一致」
 
-```
-CPU Core 1                CPU Core 2
-┌──────────┐              ┌──────────┐
-│  L1 Cache│              │  L1 Cache│
-│  x = 1   │              │  x = 0   │  ← Core 2 读到的是缓存旧值
-└────┬─────┘              └────┬─────┘
-     │                         │
-     └──────── 主内存 ──────────┘
-               x = 1（已更新）
-```
+常见的说法是「每个核心有自己的缓存，Core 2 读到了缓存里的旧值」。这与现代硬件不符：x86、ARM 的多级缓存都由 MESI 一类的**缓存一致性协议**维护，一个写一旦提交到 L1，其他核心随后读到的一定是新值。
 
-加上编译器/CPU 的**指令重排序**优化，多线程程序的执行结果难以预测。JMM 定义了一套规则，让开发者可以推断多线程程序的行为。
+真正让一个线程「看不到」另一个线程写入的，是缓存之前的几层：
 
----
+![可见性问题的真实来源](../assets/java/jmm-cpu-store-buffer.svg)
 
-## 二、主内存与工作内存
+| 来源 | 发生在哪 | 典型后果 |
+|------|---------|---------|
+| JIT 编译优化 | C1 / C2 把字段读提升出循环、把值放在寄存器、合并或删除读写 | 循环读一个普通 `boolean` 永远看不到变化 |
+| Store Buffer | 写先进入核心私有的写缓冲，稍后才提交到缓存 | 本核心的后续读先于自己的写对外可见（StoreLoad 重排） |
+| 乱序执行 / 失效队列 | CPU 为了吞吐量乱序执行、延迟处理失效消息 | ARM 等弱内存模型上读读、写写也可能重排 |
 
-JMM 将内存抽象为两层：
+`javac` 几乎不做重排序，编译器层面的重排几乎都来自 JIT。
 
-| | 主内存（Main Memory） | 工作内存（Working Memory） |
-|--|--------------------|-----------------------|
-| 位置 | 所有线程共享 | 每个线程私有（对应 CPU 缓存 + 寄存器） |
-| 存储 | 所有共享变量的"权威副本" | 当前线程用到的变量副本 |
-| 操作 | read / write | load / use / assign / store |
-
-线程对变量的所有操作都在工作内存中进行，**不能直接操作主内存**；线程间通信必须经过主内存中转。
-
-```
-线程 A                    线程 B
-┌────────────┐            ┌────────────┐
-│  工作内存   │            │  工作内存   │
-│  变量副本   │            │  变量副本   │
-└─────┬──────┘            └──────┬─────┘
-      │  read/write/lock/unlock   │
-      └──────── 主内存 ───────────┘
-                共享变量
-```
-
-| 操作 | 说明 |
-|------|------|
-| `read` | 从主内存读取变量值到工作内存 |
-| `load` | 把 read 到的值放入工作内存副本 |
-| `use` | 把工作内存中的值传给执行引擎 |
-| `assign` | 把执行引擎的值赋给工作内存副本 |
-| `store` | 把工作内存副本值传输到主内存 |
-| `write` | 把 store 传来的值写入主内存变量 |
-
----
-
-## 三、三大特性
-
-### 3.1 可见性（Visibility）
-
-一个线程对共享变量的修改，**另一个线程能否立即看到**。
+### 2、实际最常见的可见性 Bug：JIT 循环提升
 
 ```java
-// 没有可见性保障的例子
-boolean flag = false;           // 主内存
+class StopFlag {
+    private boolean stop;          // 普通字段
 
-// 线程 A
-flag = true;                    // 写入工作内存，可能未刷回主内存
+    void runLoop() {
+        while (!stop) {            // C2 可能把 stop 的读提升到循环外：
+            // 空循环或纯计算         // if (!stop) { while (true) { ... } }
+        }
+    }
 
-// 线程 B
-while (!flag) { /* 可能永远循环 */ }
+    void shutdown() { stop = true; }
+}
 ```
 
-解决方案：`volatile`、`synchronized`、`Lock`、`final`（安全发布）。
+在 HotSpot 上，`runLoop` 被 C2 编译后很可能**永远不退出**。原因不是「写没刷回主内存」，而是 JIT 认为单线程语义下 `stop` 在循环内不会变，于是只读一次。JMM 允许这种优化，因为两个线程之间没有 happens-before 关系。把 `stop` 声明为 `volatile` 后，JIT 必须每次重新读取，问题消失。
 
-### 3.2 原子性（Atomicity）
+### 3、主内存 / 工作内存：一个历史教学模型
 
-操作不可被中断，要么全部执行，要么全部不执行。
+《深入理解 Java 虚拟机》里「线程私有的工作内存 + 共享主内存 + read / load / use / assign / store / write / lock / unlock 八种操作」的描述来自 JSR-133 之前（JDK 1.4 及更早）的规范。它适合用来直观理解「线程可能看到旧值」，但：
 
-- Java 基本类型（`long`/`double` 在 32 位 JVM 上除外）的**单次读写**是原子的
-- 复合操作（如 `i++`，等价于 read → add → write 三步）**不是**原子的
-- 解决方案：`synchronized`、`Lock`、`AtomicXxx`（CAS）
-
-### 3.3 有序性（Ordering）
-
-编译器和 CPU 为了优化可能对指令进行**重排序**，JMM 保证单线程语义不变，但多线程下可能出现问题。
+- 工作内存不是真实存在的硬件或 JVM 结构，大致对应寄存器、Store Buffer、编译器优化后的局部副本
+- 自 JDK 5（JSR-133）起，JLS 第 17 章用**同步顺序 + happens-before** 定义语义，八种操作已不在规范中
+- 推理并发代码时，用 happens-before 判断，而不是去想「什么时候刷回主内存」
 
 ---
 
-## 四、happens-before 原则
+## 二、三大特性
 
-happens-before 是 JMM 对外提供的**可见性保证**：若操作 A happens-before 操作 B，则 A 的结果对 B 可见。
+### 1、可见性
 
-**8 条 happens-before 规则：**
+一个线程的写，另一个线程能否以及何时看到。JMM 只保证：存在 happens-before 关系时一定看到；不存在时可能永远看不到（上面的循环提升）。
 
-| 规则 | 说明 |
+保证可见性的手段：`volatile`、`synchronized` / `Lock`、`final` 字段（构造完成后）、`java.util.concurrent` 中的类、线程 `start` / `join`。
+
+### 2、原子性
+
+操作不可分割，其他线程看不到中间状态。
+
+- 引用以及 `int`、`boolean` 等 32 位及以下基本类型的单次读写是原子的
+- JLS 17.7：非 `volatile` 的 `long` / `double` 写**允许**被拆成两次 32 位写，与 JVM 位数无关；64 位 HotSpot 实际上是原子的，但规范不保证。`volatile long` / `volatile double` 的读写保证原子
+- 复合操作（`i++`、检查后执行 check-then-act）不是原子的，需要锁或 CAS（`AtomicInteger`、`LongAdder`）
+
+### 3、有序性
+
+单线程内，JIT 和 CPU 可以随意重排，只要结果与按程序顺序执行一致（as-if-serial）。多线程下，另一个线程可能观察到「乱序」的结果，只有 happens-before 能约束跨线程可见的顺序。
+
+---
+
+## 三、happens-before
+
+### 1、定义：可见性与顺序保证，不是时间先后
+
+若操作 A happens-before 操作 B（记作 A hb B），则 **A 的结果对 B 可见，且在 B 看来 A 排在 B 之前**。
+
+- A hb B 不要求 A 在时间上先执行：只要 B 观察不到区别，JIT 照样可以重排
+- A 在时间上先执行，也不代表 A hb B：没有同步的两个线程之间不存在 hb，B 可能看不到 A 的写
+- 两个冲突访问（至少一个是写）之间没有 hb，就是**数据竞争**；有数据竞争的程序不保证顺序一致
+
+![volatile 写读建立的 happens-before 链](../assets/java/jmm-happens-before.svg)
+
+### 2、JLS 规定的规则
+
+| 规则 | 内容 |
 |------|------|
-| **程序顺序规则** | 同一线程内，按代码顺序，前面的操作 hb 后面的操作 |
-| **监视器锁规则** | 解锁（unlock）hb 后续对同一锁的加锁（lock）|
-| **volatile 变量规则** | volatile 写 hb 后续对同一变量的 volatile 读 |
-| **线程启动规则** | `Thread.start()` hb 该线程的任何操作 |
-| **线程终止规则** | 线程所有操作 hb `Thread.join()` 返回 |
-| **线程中断规则** | `interrupt()` hb 被中断线程检测到中断 |
-| **对象终结规则** | 构造函数结束 hb `finalize()` 开始 |
-| **传递性规则** | 若 A hb B，B hb C，则 A hb C |
+| 程序顺序 | 同一线程内，按程序顺序前面的操作 hb 后面的操作 |
+| 监视器锁 | 对一个 monitor 的 unlock hb 之后对**同一** monitor 的 lock |
+| volatile | 对 volatile 变量的写 hb 之后对**同一**变量的读 |
+| 线程启动 | `Thread.start()` hb 被启动线程的任何操作 |
+| 线程终止 | 线程的所有操作 hb 其他线程检测到它终止（`join()` 返回、`isAlive()` 返回 false） |
+| 线程中断 | `interrupt()` hb 被中断线程检测到中断（抛 `InterruptedException` 或 `isInterrupted()` 为 true） |
+| 默认值 | 每个变量默认值（0 / false / null）的写入 hb 每个线程的第一个操作 |
+| 对象终结 | 构造器结束 hb `finalize()` 开始；`finalize()` 自 JDK 18 起被标记为待移除（JEP 421），新代码不要依赖 |
+| 传递性 | A hb B 且 B hb C，则 A hb C |
+
+「之后」指同步顺序（synchronization order）中的之后：所有线程的 volatile 读写、加锁解锁、线程启动终止构成一个全序，每个线程看到的这个顺序是一致的。
+
+### 3、java.util.concurrent 的额外保证
+
+JLS 只覆盖语言层面，`java.util.concurrent` 包文档另外声明了一组 hb 边，日常代码多数依赖的是这些：
+
+| 场景 | happens-before 关系 |
+|------|-------------------|
+| 并发集合 | 放入 `ConcurrentHashMap`、`BlockingQueue` 等之前的操作 hb 另一线程取出或访问该元素之后的操作 |
+| 提交任务 | 向 `Executor` 提交 `Runnable` / `Callable` 之前的操作 hb 任务开始执行 |
+| Future | 异步计算中的操作 hb 另一线程从 `Future.get()` 返回之后的操作 |
+| 同步器 | `Lock.unlock`、`Semaphore.release`、`CountDownLatch.countDown` 之前的操作 hb 成功的 `lock` / `acquire` / `await` 之后的操作 |
+| Exchanger | 每对成功交换的线程，`exchange()` 之前的操作 hb 对方 `exchange()` 返回之后的操作 |
+| 屏障 | `CyclicBarrier.await` / `Phaser` 到达之前的操作 hb 屏障动作，屏障动作 hb 其他线程从 `await` 返回 |
+
+所以「主线程填好对象，`queue.put(obj)`，消费线程 `take()` 后读字段」不需要任何 `volatile`。
 
 ---
 
-## 五、指令重排序
+## 四、volatile 的精确语义
 
-编译器和 CPU 会在不改变**单线程语义**的前提下对指令重排序以提升性能，但会破坏多线程程序的正确性。
+### 1、规范层面
 
-### 5.1 三种重排序来源
+- **可见性 + 有序性**：对 volatile 变量的写 hb 之后对同一变量的读；加上程序顺序和传递性，写之前的所有普通写都对读之后的代码可见
+- **全序**：所有 volatile 读写参与同步顺序，任意两个线程看到的 volatile 操作顺序一致
+- **单次读写原子**：包括 `long` / `double`
+- **不保证复合操作原子性**：`volatile int count; count++` 仍然会丢更新，用 `AtomicInteger` / `LongAdder`
 
-```
-源代码 → [编译器重排序] → [指令级并行重排序] → [内存系统重排序] → 最终执行
-```
+「volatile 写立即刷新到主内存、读每次从主内存读」是把实现手段当成了语义。读完全可以命中一致的 L1 缓存；关键是 JIT 不能把它缓存在寄存器里，也不能把前后的普通读写越过它重排。
 
-- **编译器重排序**：JIT/javac 调整代码顺序（不改变单线程语义）
-- **处理器重排序**：CPU 乱序执行、写缓冲区延迟写回
-- **内存系统重排序**：多级缓存导致写操作对其他核心不立即可见
+### 2、实现层面：内存屏障
 
-### 5.2 经典案例：双重检查锁（DCL）
+JSR-133 Cookbook 给出的保守插入策略（实际 JIT 会按平台去掉多余屏障）：
+
+| 操作 | 之前插入 | 之后插入 | 禁止的重排 |
+|------|---------|---------|-----------|
+| volatile 写 | StoreStore | StoreLoad | 前面的普通写不能移到 volatile 写之后；volatile 写不能与后面的 volatile 读交换 |
+| volatile 读 | — | LoadLoad + LoadStore | 后面的普通读写不能移到 volatile 读之前 |
+
+x86（TSO 模型）只允许 StoreLoad 重排，所以 volatile 读不需要任何屏障指令，volatile 写之后只需一条 `lock addl` 或用 `xchg` 完成写入，这也是 volatile 写比读贵的原因。ARM / AArch64 上则用 `ldar` / `stlr` 这类 acquire / release 指令实现。
+
+### 3、适用场景
+
+| 适合 | 不适合 |
+|------|-------|
+| 状态标志（停止开关、初始化完成标记） | 计数器、累加 |
+| 一写多读的配置引用（整体替换不可变对象） | 依赖旧值的更新（check-then-act） |
+| DCL 中的实例引用 | 多个变量之间有不变式约束 |
+
+---
+
+## 五、synchronized 与 Lock 的内存语义
+
+### 1、acquire / release，而不是全屏障
+
+JSR-133 下，获取 monitor（`monitorenter`）具有 **acquire** 语义，释放 monitor（`monitorexit`）具有 **release** 语义：
+
+- 临界区内的读写不能移出临界区：不能提前到 lock 之前，也不能推迟到 unlock 之后
+- 临界区外的读写**可以移入**临界区（「蟑螂旅馆」规则：只进不出）。这正是 JIT 能做锁粗化的依据
+- 线程 A unlock 之前的所有写，对之后 lock 同一个 monitor 的线程 B 可见
+
+因此「`synchronized` 首尾各插一道全屏障」「进入时清空工作内存」都是概念模型，不是规范。真正的保证只针对**同一把锁**：两个线程分别锁不同对象，彼此之间没有任何 hb。
+
+`ReentrantLock` 等 `Lock` 实现通过 AQS 中 `volatile int state` 的读写和 CAS 获得同样的 acquire / release 语义，`java.util.concurrent.locks.Lock` 接口文档明确要求实现具备与内置 monitor 相同的内存同步语义。
+
+锁的实现细节（对象头、锁状态、ObjectMonitor、虚拟线程）见 [synchronized](./24_topic_synchronized)。
+
+### 2、volatile vs synchronized
+
+| | volatile | synchronized / Lock |
+|--|----------|---------------------|
+| 可见性 | 有 | 有（同一把锁之间） |
+| 原子性 | 仅单次读写 | 整个临界区 |
+| 有序性 | 禁止跨 volatile 访问的相关重排 | acquire / release |
+| 阻塞 | 不阻塞 | 竞争时阻塞 |
+| 开销 | 读几乎无开销，写有一次 StoreLoad | 无竞争时一次 CAS，竞争时排队 |
+
+---
+
+## 六、final 字段与安全发布
+
+### 1、final 的初始化安全
 
 ```java
-// ❌ 错误版本：instance 未加 volatile
-public class Singleton {
-    private static Singleton instance;
+public final class Point {
+    private final int x;
+    private int y;
 
-    public static Singleton getInstance() {
-        if (instance == null) {               // 第一次检查
-            synchronized (Singleton.class) {
-                if (instance == null) {       // 第二次检查
-                    instance = new Singleton();
-                    // 对象创建分三步：
-                    // 1. 分配内存
-                    // 2. 初始化对象
-                    // 3. 将引用赋给 instance
-                    // 步骤 2 和 3 可能被重排序！
-                    // 另一个线程看到非 null 的 instance 但对象未初始化完毕
+    public Point(int x, int y) {
+        this.x = x;   // final 字段
+        this.y = y;   // 普通字段
+    }
+}
+```
+
+JLS 17.5 保证：构造器结束时（freeze），final 字段的值以及通过它能到达的对象，对任何**之后拿到该对象引用**的线程都可见，即使引用是通过数据竞争拿到的。`x` 一定是构造器写入的值；普通字段 `y` 没有这个保证，可能看到 0。
+
+前提：构造期间 `this` 不能逸出，例如在构造器里注册监听器、启动线程、把 `this` 赋给静态字段。
+
+`record` 的组件字段都是 `private final`，天然享有这一保证；不可变对象是最简单的线程安全手段。
+
+### 2、安全发布的方式
+
+「发布」指让其他线程拿到对象引用。以下方式都能保证对方看到完整构造后的对象：
+
+| 方式 | 说明 |
+|------|------|
+| 静态初始化器 | `static final Foo FOO = new Foo();`，由类初始化锁保证 |
+| volatile 字段或 `AtomicReference` | 写引用 hb 读引用 |
+| 锁保护的字段 | 写和读都在同一把锁内 |
+| 并发容器 | 放入 `ConcurrentHashMap`、`BlockingQueue` 等 |
+| final 字段 | 引用存放在另一个正确构造对象的 final 字段中 |
+
+---
+
+## 七、双重检查锁（DCL）
+
+### 1、为什么必须加 volatile
+
+`instance = new Singleton()` 在底层是三步：分配内存、执行构造器初始化字段、把引用写入 `instance`。没有 hb 约束时，JIT 或 CPU 可以让「发布引用」先于「初始化」对其他线程可见：
+
+![new Singleton() 的三步与 DCL 的重排序风险](../assets/java/jmm-dcl-reorder.svg)
+
+```java
+public final class ConfigHolder {
+    private static volatile ConfigHolder instance;   // 必须 volatile
+
+    private final Map<String, String> props;
+
+    private ConfigHolder() {
+        this.props = loadFromDisk();
+    }
+
+    public static ConfigHolder getInstance() {
+        ConfigHolder local = instance;                 // 只读一次 volatile，减少开销
+        if (local == null) {
+            synchronized (ConfigHolder.class) {
+                local = instance;
+                if (local == null) {
+                    local = new ConfigHolder();
+                    instance = local;                  // volatile 写：release
                 }
             }
         }
-        return instance;
+        return local;
+    }
+
+    private static Map<String, String> loadFromDisk() {
+        return Map.of();
     }
 }
+```
 
-// ✅ 正确版本：volatile 禁止重排序
-public class Singleton {
-    private static volatile Singleton instance;  // 加 volatile
+加了 `volatile` 后，第一次检查的 volatile 读与 `instance = local` 的 volatile 写构成 hb，构造器中的所有写都对读线程可见。
 
-    public static Singleton getInstance() {
-        if (instance == null) {
-            synchronized (Singleton.class) {
-                if (instance == null) {
-                    instance = new Singleton();  // 写操作前有 StoreStore 屏障，保证初始化完成才对外可见
-                }
-            }
+### 2、通常不需要 DCL
+
+- 懒加载的**静态**单例：用静态内部持有类（Holder 模式）或枚举，由类初始化保证线程安全和懒加载，代码更短
+- DCL 只在需要懒加载**实例字段**（每个对象各有一份昂贵的派生值）时才有意义
+
+单例的各种写法与取舍见 [单例模式](/patterns/1_creational_singleton)。
+
+---
+
+## 八、VarHandle 访问模式
+
+JDK 9（JEP 193）引入的 `VarHandle` 可以对普通字段、数组元素按需选择内存语义，`java.util.concurrent` 内部已经从 `Unsafe` 迁移到它。业务代码很少直接用，但理解它有助于看懂 JUC 源码。
+
+| 访问模式 | 方法 | 语义强度 |
+|---------|------|---------|
+| Plain | `get` / `set` | 与普通字段相同，无保证 |
+| Opaque | `getOpaque` / `setOpaque` | 单个变量上的访问不被消除、对自身有一致顺序，不建立 hb |
+| Acquire / Release | `getAcquire` / `setRelease` | 只保证单方向的顺序，比 volatile 便宜（省掉 StoreLoad） |
+| Volatile | `getVolatile` / `setVolatile` | 与 volatile 字段相同 |
+| 原子更新 | `compareAndSet`、`getAndAdd` 等 | 默认 volatile 语义，另有 `Acquire` / `Release` / `Plain` 变体 |
+
+```java
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+
+class Publisher {
+    private Object payload;                 // 普通字段
+    private boolean ready;                  // 普通字段，用 VarHandle 控制语义
+
+    private static final VarHandle READY;
+    static {
+        try {
+            READY = MethodHandles.lookup().findVarHandle(Publisher.class, "ready", boolean.class);
+        } catch (ReflectiveOperationException e) {
+            throw new ExceptionInInitializerError(e);
         }
-        return instance;
+    }
+
+    void publish(Object p) {
+        payload = p;
+        READY.setRelease(this, true);       // 之前的写不能移到它之后
+    }
+
+    Object tryRead() {
+        return (boolean) READY.getAcquire(this) ? payload : null;   // 之后的读不能移到它之前
     }
 }
 ```
 
----
+另外还有显式栅栏 `VarHandle.fullFence()` / `acquireFence()` / `releaseFence()` / `loadLoadFence()` / `storeStoreFence()`。自旋等待循环中可以调用 `Thread.onSpinWait()`（JDK 9），提示 CPU 降低功耗、让出超线程资源。
 
-## 六、volatile 的内存语义
-
-`volatile` 提供两个语义：**可见性** + **禁止重排序**（但不保证原子性）。
-
-### 6.1 可见性
-
-```java
-volatile boolean ready = false;
-int data = 0;
-
-// 线程 A
-data = 42;          // 普通写
-ready = true;       // volatile 写：立即刷新到主内存
-
-// 线程 B
-if (ready) {        // volatile 读：每次从主内存读，不用缓存副本
-    use(data);      // 可以看到 data = 42（happens-before 保证）
-}
-```
-
-### 6.2 禁止重排序（内存屏障）
-
-JMM 对 volatile 读写插入内存屏障：
-
-```
-volatile 写：
-  StoreStore 屏障  ← 写之前：普通写不能重排到 volatile 写之后
-  volatile 写
-  StoreLoad 屏障   ← 写之后：volatile 写不能重排到后续读之前
-
-volatile 读：
-  volatile 读
-  LoadLoad 屏障    ← 读之后：后续普通读不能重排到 volatile 读之前
-  LoadStore 屏障
-```
-
-### 6.3 不能保证原子性
-
-```java
-volatile int count = 0;
-
-// 多线程执行 count++ 仍然不安全！
-// count++ 等价于：
-//   int tmp = count;  // 读
-//   tmp = tmp + 1;    // 计算
-//   count = tmp;      // 写
-// 读-改-写不是原子操作，volatile 无法保证
-
-// ✅ 应改用 AtomicInteger 或 synchronized
-AtomicInteger count = new AtomicInteger(0);
-count.incrementAndGet();
-```
+多个线程频繁写同一缓存行上的不同变量会造成伪共享（缓存行在核心之间反复失效），`LongAdder` 内部用 `@Contended` 填充规避。它影响的是性能，不影响正确性，与 JMM 语义无关。
 
 ---
 
-## 七、synchronized 的内存语义
+## 九、JMM 与 JVM 内存结构的区别
 
-`synchronized` 不仅保证互斥，还提供内存可见性：
+两者名字相近，讨论的是不同维度：
 
-- **进入 synchronized 块**：清空工作内存，强制从主内存重新读取变量
-- **退出 synchronized 块**：将工作内存中的修改立即刷新到主内存
-
-等价于在 `synchronized` 块首尾各插入一个全屏障（Full Memory Barrier），因此 `synchronized` 同时提供**可见性 + 原子性 + 有序性**。锁升级等实现细节见 [synchronized 专项](./24_topic_synchronized.md)。
-
----
-
-## 八、final 的内存语义
-
-```java
-public class FinalExample {
-    final int x;
-    int y;
-
-    public FinalExample() {
-        x = 1;   // final 写
-        y = 2;   // 普通写
-    }
-}
-
-FinalExample obj = new FinalExample();
-// JMM 保证：构造函数中 final 字段的写入，在构造函数完成后对其他线程可见
-// 即：其他线程读到 obj 引用后，obj.x 一定是 1（不会看到默认值 0）
-// 但 obj.y 不保证（普通字段，可能看到 0）
-```
-
-**前提**：对象引用不能在构造函数中"逸出"（提前发布 this 引用）。
+| | JVM 运行时数据区 | Java 内存模型（JMM） |
+|--|---------------|-------------------|
+| 出处 | JVM 规范 JVMS §2.5，由 HotSpot 等实现 | Java 语言规范 JLS 第 17 章 |
+| 关注点 | 堆、栈、方法区等内存区域的划分与管理 | 多线程下读能看到哪些写 |
+| 解决问题 | 内存如何分配、回收 | 线程之间如何安全共享数据 |
+| 详见 | [内存结构](/jvm/1_memory) | 本文 |
 
 ---
 
-## 九、JMM vs JVM 内存结构
+## 小结
 
-常见混淆，本质上是两个不同维度：
+- 现代 CPU 缓存是一致的，可见性问题来自 JIT 优化（寄存器、循环提升）、Store Buffer 和乱序执行；主内存 / 工作内存只是历史教学模型
+- happens-before 是可见性与顺序保证，不是时间先后；没有 hb 的冲突访问就是数据竞争
+- JLS 规则之外，`java.util.concurrent` 的并发集合、Executor、Future、同步器都提供 hb 边，日常代码主要依赖它们
+- volatile 的精确语义是：写 hb 后续对同一变量的读、参与同步全序、单次读写原子；不保证复合操作原子性；x86 上只有写之后的 StoreLoad 有成本
+- 锁是 acquire / release 语义，不是全屏障；临界区外的代码可以移入，保证只对同一把锁成立
+- final 字段在构造完成后对所有线程可见（this 不逸出为前提）；安全发布靠静态初始化、volatile、锁、并发容器或 final
+- DCL 必须 volatile，但静态单例优先用 Holder 或枚举
+- VarHandle 提供 plain / opaque / acquire-release / volatile 四档语义，是 JUC 的底层工具
 
-| | JVM 内存结构 | Java 内存模型（JMM）|
-|--|------------|-------------------|
-| 关注点 | 运行时内存**区域划分**（堆/栈/方法区）| 多线程的**可见性和有序性规则** |
-| 层次 | JVM 实现层面 | 语言规范层面（JSR-133）|
-| 解决问题 | 内存怎么分配和管理 | 多线程之间如何安全共享数据 |
-| 对应文件 | [JVM 内存结构](/jvm/1_memory) | 本文 |
-
----
-
-## 十、常见面试问题
-
-**Q：volatile 能替代 synchronized 吗？**
-
-不能完全替代。`volatile` 只保证可见性和有序性，不保证原子性（如 `i++`）。`synchronized` 三者都保证。`volatile` 适合状态标志位（`boolean flag`）、DCL 中的引用变量；需要复合操作时用 `synchronized` 或 `java.util.concurrent` 原子类。
-
-| | volatile | synchronized |
-|--|----------|-------------|
-| 可见性 | ✅ | ✅ |
-| 原子性 | ❌（单次读写✅） | ✅ |
-| 有序性 | ✅（禁止重排序） | ✅ |
-| 阻塞 | 不阻塞 | 会阻塞 |
-| 适用场景 | 状态标志、DCL | 复合操作、临界区 |
-
-**Q：happens-before 和时间先后顺序的关系？**
-
-没有直接关系。A 在时间上先于 B 执行，不代表 A happens-before B；反之 A hb B 也不代表 A 一定先执行（只保证 A 的结果对 B 可见）。happens-before 是一种**可见性保证**，不是执行顺序约束。程序员不需要了解底层屏障，只需关注 happens-before 规则。
-
-**Q：为什么说 long/double 的读写不是原子的？**
-
-JMM 允许将 64 位的 long/double 读写拆分为两次 32 位操作（商业 JVM 通常实现为原子，但规范不保证）。声明 `volatile long` 可强制原子读写。
-
-**Q：为什么双重检查锁需要 volatile？**
-
-`new Object()` 不是原子操作，JIT 可能重排序为"分配内存→赋值→初始化"。另一线程可能在初始化完成前拿到半初始化的对象。`volatile` 的屏障禁止该重排序。
+> 下一篇：[线程基础](./23_topic_thread_basics) —— 线程的状态、创建、中断与协作，以及 ThreadLocal 的上下文传递。
