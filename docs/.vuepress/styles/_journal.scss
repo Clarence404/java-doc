@@ -37,9 +37,11 @@ $mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono"
   }
 
   // 层级：一级（分组标题、未分组条目）0.9rem 600；组内文章 0.875rem 400
+  // 分组标题与一级条目统一行高（固定 rem，避免两者字号基准不同导致高度差约 1px）
   .vp-sidebar-header {
     padding-top: 0.55rem;
     padding-bottom: 0.55rem;
+    line-height: 1.4rem;
 
     .vp-sidebar-title {
       font-size: 0.9rem;
@@ -71,6 +73,30 @@ $mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono"
     font-weight: 500;
     letter-spacing: 0.04em;
     color: var(--vp-c-text-subtle);
+  }
+
+  // 未分组的一级条目（平铺模块的文章、分组后的「面试高频题」等）：与分组标题共用编号序列和上下留白，左缘对齐
+  > .vp-sidebar-links > li:not(:first-child) > .vp-sidebar-link {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+    line-height: 1.4rem;
+
+    &::before {
+      counter-increment: journal-group;
+      content: counter(journal-group, decimal-leading-zero);
+      display: inline-block;
+      min-width: 1.6em;
+      margin-right: 0.45em;
+      font-family: $mono;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--vp-c-text-subtle);
+    }
+
+    &.active::before {
+      color: var(--vp-c-accent);
+    }
   }
 
   .vp-sidebar-header.active .vp-sidebar-title::before {
