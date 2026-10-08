@@ -75,7 +75,7 @@ export const GROUPS = [
                     {text: '批处理与集成', from: 12},
                 ],
             },
-            {name: 'Spring Boot', dir: 'spring-boot', desc: '自动配置 / Web 开发 / 数据访问 / Actuator / 自定义 Starter'},
+            {name: 'Spring Boot', dir: 'spring-boot', desc: '自动配置 / Web / 数据访问 / 日志 / 测试 / Actuator / 版本演进 / 启动优化'},
             {name: 'Netty', dir: 'netty', interview: ['6_netty'], desc: 'IO 模型 / Reactor / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优'},
         ],
     },

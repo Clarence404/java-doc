@@ -34,7 +34,7 @@ docs/
 ├── scenario/       业务场景：秒杀 / 订单 / 短链 / Feed / 搜索等系统设计案例
 ├── security/       应用安全：认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任
 ├── spring/         Spring Framework / WebFlux / Security
-├── spring-boot/    Spring Boot / Flyway
+├── spring-boot/    Spring Boot：自动配置 / Web / 数据访问 / 日志 / 测试 / 版本演进 / 启动优化
 ├── spring-cloud/   Spring Cloud：注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream
 └── testing/        测试工程：单元测试 / Mock / 集成测试 / TDD
 ```
@@ -51,7 +51,7 @@ docs/
 | 数据结构与算法 | `docs/algorithms/` | 数据结构 / 搜索 / 排序 / DP / LeetCode |
 | 设计模式 | `docs/patterns/` | 23 种 GoF 模式 |
 | Spring | `docs/spring/` | IoC / AOP / WebFlux / Security |
-| Spring Boot | `docs/spring-boot/` | 自动配置 / Flyway 数据迁移 |
+| Spring Boot | `docs/spring-boot/` | 自动配置 / Web / 数据访问 / Flyway / 日志 / 测试 / 版本演进 / 启动优化 |
 | Spring Cloud | `docs/spring-cloud/` | 注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream |
 | 测试工程 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD |
 | Netty | `docs/netty/` | IO 模型 / Reactor / 核心组件 / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优 |

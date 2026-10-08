@@ -1,0 +1,68 @@
+<svg viewBox="0 0 780 280" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .card-b{fill:var(--card);stroke:var(--b);stroke-width:1.5;}
+    .card-p{fill:var(--card);stroke:var(--p);stroke-width:1.5;}
+    .lane-b{fill:var(--b);fill-opacity:0.12;stroke:var(--b);stroke-width:1;}
+    .lane-p{fill:var(--p);fill-opacity:0.12;stroke:var(--p);stroke-width:1;}
+    .label-b{fill:var(--b);font-weight:700;}
+    .label-p{fill:var(--p);font-weight:700;}
+    .arrow{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="390" y="26" text-anchor="middle" font-size="14" font-weight="700">publishOn / subscribeOn 线程切换</text>
+
+  <!-- 操作符链 -->
+  <rect class="card" x="20" y="50" width="124" height="60" rx="6"/>
+  <text x="82" y="75" text-anchor="middle" font-weight="700">Flux.range</text>
+  <text x="82" y="96" text-anchor="middle" class="muted" font-size="12">boundedElastic-1</text>
+
+  <rect class="card" x="174" y="50" width="124" height="60" rx="6"/>
+  <text x="236" y="75" text-anchor="middle" font-weight="700">map(map1)</text>
+  <text x="236" y="96" text-anchor="middle" class="muted" font-size="12">boundedElastic-1</text>
+
+  <rect class="card-p" x="328" y="50" width="124" height="60" rx="6"/>
+  <text x="390" y="75" text-anchor="middle" class="label-p">publishOn</text>
+  <text x="390" y="96" text-anchor="middle" class="muted" font-size="12">切到 parallel</text>
+
+  <rect class="card" x="482" y="50" width="124" height="60" rx="6"/>
+  <text x="544" y="75" text-anchor="middle" font-weight="700">map(map2)</text>
+  <text x="544" y="96" text-anchor="middle" class="muted" font-size="12">parallel-1</text>
+
+  <rect class="card" x="636" y="50" width="124" height="60" rx="6"/>
+  <text x="698" y="75" text-anchor="middle" font-weight="700">subscribe</text>
+  <text x="698" y="96" text-anchor="middle" class="muted" font-size="12">parallel-1</text>
+
+  <line x1="144" y1="80" x2="172" y2="80" class="arrow"/>
+  <line x1="298" y1="80" x2="326" y2="80" class="arrow"/>
+  <line x1="452" y1="80" x2="480" y2="80" class="arrow"/>
+  <line x1="606" y1="80" x2="634" y2="80" class="arrow"/>
+
+  <!-- 线程泳道 -->
+  <rect class="lane-b" x="20" y="130" width="278" height="36" rx="6"/>
+  <text x="159" y="153" text-anchor="middle" class="label-b" font-size="12">boundedElastic 线程（subscribeOn）</text>
+
+  <rect class="lane-p" x="328" y="130" width="432" height="36" rx="6"/>
+  <text x="544" y="153" text-anchor="middle" class="label-p" font-size="12">parallel 线程（publishOn 之后的下游）</text>
+
+  <!-- 说明卡片 -->
+  <rect class="card-b" x="20" y="186" width="362" height="74" rx="6"/>
+  <text x="201" y="208" text-anchor="middle" class="label-b">subscribeOn(boundedElastic)</text>
+  <text x="201" y="228" text-anchor="middle" font-size="12">决定订阅与源头发射所在线程，与书写位置无关</text>
+  <text x="201" y="246" text-anchor="middle" class="muted" font-size="12">多次调用时只有最靠近源头的那个生效</text>
+
+  <rect class="card-p" x="398" y="186" width="362" height="74" rx="6"/>
+  <text x="579" y="208" text-anchor="middle" class="label-p">publishOn(parallel)</text>
+  <text x="579" y="228" text-anchor="middle" font-size="12">只影响它下游的操作符，可多次切换</text>
+  <text x="579" y="246" text-anchor="middle" class="muted" font-size="12">上游的 range、map1 仍在 boundedElastic 执行</text>
+</svg>

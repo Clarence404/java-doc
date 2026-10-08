@@ -23,3 +23,4 @@
 - JVM 故障排查 → [jvm/9_troubleshooting](../jvm/9_troubleshooting)
 - 微服务链路追踪 → 见本模块链路追踪章节
 - 架构日志设计 → 见本模块日志章节
+- 应用侧日志框架（SLF4J / Logback / Log4j2、结构化日志、MDC）→ [日志](/spring-boot/12_logging)

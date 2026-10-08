@@ -37,3 +37,7 @@
 ## 四、模块导航
 
 <ModuleNav />
+
+## 五、关联模块
+
+- Spring Boot 中的切片测试、`@MockitoBean`、Testcontainers 集成 → [Spring Boot 测试](/spring-boot/13_testing)

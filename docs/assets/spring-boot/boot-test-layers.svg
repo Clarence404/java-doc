@@ -1,0 +1,54 @@
+<svg viewBox="0 0 780 352" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .note  { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="390" y="24" text-anchor="middle" class="title">Spring Boot 测试分层：越往上范围越大、越慢、数量越少</text>
+
+  <!-- 端到端 -->
+  <rect x="240" y="40" width="300" height="64" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="390" y="66" text-anchor="middle" class="name">@SpringBootTest(RANDOM_PORT)</text>
+  <text x="390" y="86" text-anchor="middle" class="desc">真实服务器 + RestTestClient · 秒级 · 少量</text>
+
+  <!-- 集成 -->
+  <rect x="190" y="116" width="400" height="64" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="390" y="142" text-anchor="middle" class="name">@SpringBootTest + Testcontainers</text>
+  <text x="390" y="162" text-anchor="middle" class="desc">完整上下文 + 真实中间件 · 首次秒级，命中缓存后很快</text>
+
+  <!-- 切片 -->
+  <rect x="140" y="192" width="500" height="64" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="390" y="218" text-anchor="middle" class="name">切片测试：@WebMvcTest、@DataJpaTest、@JsonTest 等</text>
+  <text x="390" y="238" text-anchor="middle" class="desc">只加载一层相关的 Bean，其余用 @MockitoBean 替身 · 亚秒到秒级</text>
+
+  <!-- 单元 -->
+  <rect x="90" y="268" width="600" height="64" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="390" y="294" text-anchor="middle" class="name">纯单元测试：JUnit + Mockito + AssertJ（不启动 Spring）</text>
+  <text x="390" y="314" text-anchor="middle" class="desc">毫秒级 · 数量最多 · 覆盖业务规则与分支</text>
+
+  <!-- 右侧方向箭头 -->
+  <line x1="730" y1="332" x2="730" y2="42" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="722" y="191" text-anchor="end" class="note">越往上越慢</text>
+</svg>

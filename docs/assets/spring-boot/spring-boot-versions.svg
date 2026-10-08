@@ -1,0 +1,89 @@
+<svg viewBox="0 0 760 414" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 14px; font-weight: 700; }
+    .sec   { font-size: 12px; font-weight: 600; }
+    .desc  { font-size: 11px; }
+    .note  { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="24" text-anchor="middle" class="title">Spring Boot 大版本演进与基线</text>
+
+
+  <!-- Spring Boot 2.x -->
+  <rect x="20" y="44" width="220" height="350" rx="6" fill="var(--y)" fill-opacity="0.08" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="130" y="70" text-anchor="middle" class="name">Spring Boot 2.x</text>
+  <text x="130" y="90" text-anchor="middle" class="note">2018-03 首发 · 末版 2.7（2022-05）</text>
+  <text x="130" y="118" text-anchor="middle" class="sec" style="fill:var(--y)">基线</text>
+  <text x="130" y="138" text-anchor="middle" class="desc">Spring Framework 5.x</text>
+  <text x="130" y="156" text-anchor="middle" class="desc">Java 8+</text>
+  <text x="130" y="174" text-anchor="middle" class="desc">javax.* 命名空间 · Tomcat 9</text>
+  <text x="130" y="202" text-anchor="middle" class="sec" style="fill:var(--y)">代表特性</text>
+  <text x="130" y="222" text-anchor="middle" class="desc">spring.factories 注册自动配置</text>
+  <text x="130" y="240" text-anchor="middle" class="desc">2.7 引入 AutoConfiguration.imports</text>
+  <text x="130" y="258" text-anchor="middle" class="desc">Spring Cloud Sleuth 链路追踪</text>
+  <text x="130" y="276" text-anchor="middle" class="desc">RestTemplate / WebClient</text>
+  <text x="130" y="340" text-anchor="middle" class="sec" style="fill:var(--y)">支持期</text>
+  <text x="130" y="360" text-anchor="middle" class="note">2.7 OSS 支持截止 2023-06</text>
+  <text x="130" y="378" text-anchor="middle" class="note">商业支持至 2029-06</text>
+
+  <!-- Spring Boot 3.x -->
+  <rect x="270" y="44" width="220" height="350" rx="6" fill="var(--b)" fill-opacity="0.08" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380" y="70" text-anchor="middle" class="name">Spring Boot 3.x</text>
+  <text x="380" y="90" text-anchor="middle" class="note">3.0 首发 2022-11 · 末版 3.5</text>
+  <text x="380" y="118" text-anchor="middle" class="sec" style="fill:var(--b)">基线</text>
+  <text x="380" y="138" text-anchor="middle" class="desc">Spring Framework 6.0 – 6.2</text>
+  <text x="380" y="156" text-anchor="middle" class="desc">Java 17+</text>
+  <text x="380" y="174" text-anchor="middle" class="desc">Jakarta EE 10 · Servlet 6.0</text>
+  <text x="380" y="202" text-anchor="middle" class="sec" style="fill:var(--b)">代表特性</text>
+  <text x="380" y="222" text-anchor="middle" class="desc">3.0 AOT / GraalVM 原生镜像</text>
+  <text x="380" y="240" text-anchor="middle" class="desc">3.0 Observation · ProblemDetail</text>
+  <text x="380" y="258" text-anchor="middle" class="desc">3.1 Docker Compose · SSL Bundle</text>
+  <text x="380" y="276" text-anchor="middle" class="desc">3.2 RestClient · 虚拟线程</text>
+  <text x="380" y="294" text-anchor="middle" class="desc">3.4 结构化日志 · @MockitoBean</text>
+  <text x="380" y="312" text-anchor="middle" class="desc">3.5 最后一个 3.x 版本线</text>
+  <text x="380" y="340" text-anchor="middle" class="sec" style="fill:var(--b)">支持期</text>
+  <text x="380" y="360" text-anchor="middle" class="note">3.5 OSS 支持截止 2026-06</text>
+  <text x="380" y="378" text-anchor="middle" class="note">商业支持至 2032-06</text>
+
+  <!-- Spring Boot 4.x -->
+  <rect x="520" y="44" width="220" height="350" rx="6" fill="var(--g)" fill-opacity="0.08" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="630" y="70" text-anchor="middle" class="name">Spring Boot 4.x</text>
+  <text x="630" y="90" text-anchor="middle" class="note">4.0 首发 2025-11 · 当前 4.1</text>
+  <text x="630" y="118" text-anchor="middle" class="sec" style="fill:var(--g)">基线</text>
+  <text x="630" y="138" text-anchor="middle" class="desc">Spring Framework 7.x</text>
+  <text x="630" y="156" text-anchor="middle" class="desc">Java 17+（推荐 21 / 25）</text>
+  <text x="630" y="174" text-anchor="middle" class="desc">Jakarta EE 11 · Servlet 6.1</text>
+  <text x="630" y="202" text-anchor="middle" class="sec" style="fill:var(--g)">代表特性</text>
+  <text x="630" y="222" text-anchor="middle" class="desc">模块化 starter（webmvc 等）</text>
+  <text x="630" y="240" text-anchor="middle" class="desc">JSpecify 空安全 · Jackson 3</text>
+  <text x="630" y="258" text-anchor="middle" class="desc">API 版本控制 · HTTP 服务注册</text>
+  <text x="630" y="276" text-anchor="middle" class="desc">@Retryable / @ConcurrencyLimit</text>
+  <text x="630" y="294" text-anchor="middle" class="desc">移除 Undertow / @MockBean</text>
+  <text x="630" y="340" text-anchor="middle" class="sec" style="fill:var(--g)">支持期</text>
+  <text x="630" y="360" text-anchor="middle" class="note">4.0 OSS 支持截止 2026-12</text>
+  <text x="630" y="378" text-anchor="middle" class="note">4.1 OSS 支持截止 2027-07</text>
+
+  <line x1="240" y1="219" x2="268" y2="219" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="490" y1="219" x2="518" y2="219" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>
