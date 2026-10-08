@@ -1,0 +1,87 @@
+<svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">MQ 的三个核心作用</text>
+
+  <!-- 解耦：y=44..172 -->
+  <rect x="20" y="44" width="110" height="128" rx="4" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="75" y="103" text-anchor="middle" class="name">应用解耦</text>
+  <text x="75" y="123" text-anchor="middle" class="desc">上游不感知下游</text>
+
+  <rect x="160" y="91" width="120" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="220" y="113" text-anchor="middle" class="name">订单系统</text>
+  <rect x="330" y="91" width="120" height="34" rx="4" fill="var(--p)" fill-opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="390" y="113" text-anchor="middle" class="name">MQ</text>
+  <rect x="500" y="44" width="120" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="560" y="66" text-anchor="middle" class="name">库存系统</text>
+  <rect x="500" y="91" width="120" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="560" y="113" text-anchor="middle" class="name">积分系统</text>
+  <rect x="500" y="138" width="120" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="560" y="160" text-anchor="middle" class="name">物流系统</text>
+
+  <line x1="280" y1="108" x2="328" y2="108" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="450" y1="108" x2="498" y2="61" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="450" y1="108" x2="498" y2="108" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="450" y1="108" x2="498" y2="155" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 削峰：y=196..256 -->
+  <rect x="20" y="196" width="110" height="60" rx="4" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="75" y="220" text-anchor="middle" class="name">流量削峰</text>
+  <text x="75" y="240" text-anchor="middle" class="desc">按能力匀速消费</text>
+
+  <rect x="160" y="196" width="120" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="220" y="220" text-anchor="middle" class="name">上游请求</text>
+  <text x="220" y="240" text-anchor="middle" class="desc">峰值 5000/s</text>
+  <rect x="330" y="196" width="120" height="60" rx="4" fill="var(--p)" fill-opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="390" y="220" text-anchor="middle" class="name">MQ 缓冲</text>
+  <text x="390" y="240" text-anchor="middle" class="desc">积压慢慢消化</text>
+  <rect x="500" y="196" width="120" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="560" y="220" text-anchor="middle" class="name">消费者</text>
+  <text x="560" y="240" text-anchor="middle" class="desc">匀速 2000/s</text>
+
+  <line x1="280" y1="226" x2="328" y2="226" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="450" y1="226" x2="498" y2="226" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 异步：y=280..340 -->
+  <rect x="20" y="280" width="110" height="60" rx="4" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="75" y="304" text-anchor="middle" class="name">异步处理</text>
+  <text x="75" y="324" text-anchor="middle" class="desc">旁路操作后置</text>
+
+  <rect x="160" y="280" width="120" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="220" y="304" text-anchor="middle" class="name">主流程</text>
+  <text x="220" y="324" text-anchor="middle" class="desc">写 DB 后立即返回</text>
+  <rect x="330" y="280" width="120" height="60" rx="4" fill="var(--p)" fill-opacity="0.15" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="390" y="304" text-anchor="middle" class="name">MQ</text>
+  <text x="390" y="324" text-anchor="middle" class="desc">业务事件</text>
+  <rect x="500" y="280" width="120" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="560" y="304" text-anchor="middle" class="name">旁路任务</text>
+  <text x="560" y="324" text-anchor="middle" class="desc">邮件 / 推送 / 统计</text>
+
+  <line x1="280" y1="310" x2="328" y2="310" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="450" y1="310" x2="498" y2="310" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

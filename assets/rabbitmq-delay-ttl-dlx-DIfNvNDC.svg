@@ -1,0 +1,77 @@
+<svg viewBox="0 0 760 352" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+    .note  { font-size: 12px; font-weight: 600; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="28" text-anchor="middle" class="title">TTL + DLX 实现延迟消息（订单 30 分钟未支付关单）</text>
+
+  <!-- Row 1 -->
+  <rect x="20" y="50" width="150" height="64" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="95" y="76" text-anchor="middle" class="name">Producer</text>
+  <text x="95" y="98" text-anchor="middle" class="desc">下单时发送 orderId</text>
+  <line x1="170" y1="82" x2="288" y2="82" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="229" y="74" text-anchor="middle" class="lbl">publish</text>
+
+  <rect x="290" y="50" width="180" height="64" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="380" y="76" text-anchor="middle" class="name">order.delay.exchange</text>
+  <text x="380" y="98" text-anchor="middle" class="desc">普通 direct Exchange</text>
+  <line x1="470" y1="82" x2="568" y2="82" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="519" y="74" text-anchor="middle" class="lbl">binding</text>
+
+  <rect x="570" y="50" width="170" height="64" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="655" y="76" text-anchor="middle" class="name">order.delay.queue</text>
+  <text x="655" y="98" text-anchor="middle" class="desc">TTL=30min，无消费者</text>
+
+  <!-- TTL expire -->
+  <line x1="655" y1="114" x2="655" y2="162" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <text x="645" y="143" text-anchor="end" class="lbl">TTL 到期 → 死信转发</text>
+
+  <!-- Row 2 (right to left) -->
+  <rect x="570" y="164" width="170" height="64" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="655" y="190" text-anchor="middle" class="name">order.dlx.exchange</text>
+  <text x="655" y="212" text-anchor="middle" class="desc">死信交换机</text>
+  <line x1="570" y1="196" x2="472" y2="196" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="521" y="188" text-anchor="middle" class="lbl">dlx routing</text>
+
+  <rect x="290" y="164" width="180" height="64" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="380" y="190" text-anchor="middle" class="name">order.timeout.queue</text>
+  <text x="380" y="212" text-anchor="middle" class="desc">真正被消费的队列</text>
+  <line x1="290" y1="196" x2="172" y2="196" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="231" y="188" text-anchor="middle" class="lbl">consume</text>
+
+  <rect x="20" y="164" width="150" height="64" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="95" y="190" text-anchor="middle" class="name">Consumer</text>
+  <text x="95" y="212" text-anchor="middle" class="desc">查状态，未支付则关单</text>
+
+  <!-- caveat -->
+  <rect x="20" y="268" width="720" height="64" rx="6" fill="var(--y)" fill-opacity="0.08" stroke="var(--y)" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <text x="380" y="292" text-anchor="middle" class="note">队头阻塞：逐条 TTL（expiration）只在消息到达队头时才判断过期</text>
+  <text x="380" y="314" text-anchor="middle" class="desc">长 TTL 消息排在前面会挡住后面的短 TTL 消息 → 一个延迟时长一个队列（队列级 x-message-ttl），或改用延迟插件</text>
+</svg>
