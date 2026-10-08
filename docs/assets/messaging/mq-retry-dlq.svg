@@ -1,0 +1,66 @@
+<svg viewBox="0 0 720 240" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">消费重试与死信队列</text>
+
+  <!-- 第一行 y=44..104 -->
+  <rect x="20" y="44" width="130" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="85" y="68" text-anchor="middle" class="name">Broker</text>
+  <text x="85" y="88" text-anchor="middle" class="desc">投递消息</text>
+  <rect x="200" y="44" width="140" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="270" y="68" text-anchor="middle" class="name">消费者</text>
+  <text x="270" y="88" text-anchor="middle" class="desc">执行业务逻辑</text>
+  <rect x="400" y="44" width="130" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="465" y="68" text-anchor="middle" class="name">确认</text>
+  <text x="465" y="88" text-anchor="middle" class="desc">ACK / 提交位点</text>
+
+  <line x1="150" y1="74" x2="198" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="340" y1="74" x2="398" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="370" y="66" text-anchor="middle" class="lbl">成功</text>
+
+  <!-- 失败下行 / 重投回到消费者 -->
+  <line x1="270" y1="104" x2="270" y2="158" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="280" y="136" class="lbl">失败</text>
+  <path d="M200,190 H175 V90 H198" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="168" y="144" text-anchor="end" class="lbl">到点重投</text>
+
+  <!-- 第二行 y=160..220 -->
+  <rect x="200" y="160" width="140" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="270" y="184" text-anchor="middle" class="name">重试</text>
+  <text x="270" y="204" text-anchor="middle" class="desc">退避重投（间隔递增）</text>
+  <rect x="400" y="160" width="130" height="60" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="465" y="184" text-anchor="middle" class="name">死信队列 DLQ</text>
+  <text x="465" y="204" text-anchor="middle" class="desc">超过最大重试次数</text>
+  <rect x="580" y="160" width="120" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="640" y="184" text-anchor="middle" class="name">告警 / 人工排查</text>
+  <text x="640" y="204" text-anchor="middle" class="desc">修复后重投或补偿</text>
+
+  <line x1="340" y1="190" x2="398" y2="190" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="370" y="182" text-anchor="middle" class="lbl">超过 N 次</text>
+  <line x1="530" y1="190" x2="578" y2="190" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

@@ -1,0 +1,73 @@
+<svg viewBox="0 0 720 420" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .band  { font-size: 12px; font-weight: 600; fill: var(--muted); }
+    .note  { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">mmap + write：RocketMQ CommitLog 的读写方式</text>
+
+  <!-- 三层：用户态 / 内核态 / 硬件 -->
+  <rect x="20" y="40" width="680" height="70" rx="6" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="40" y="80" class="band">用户态</text>
+  <rect x="20" y="150" width="680" height="90" rx="6" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="40" y="200" class="band">内核态</text>
+  <rect x="20" y="280" width="680" height="70" rx="6" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="40" y="320" class="band">硬件</text>
+
+  <rect x="120" y="292" width="200" height="46" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="220" y="320" text-anchor="middle" class="name">磁盘</text>
+  <rect x="420" y="292" width="200" height="46" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="520" y="320" text-anchor="middle" class="name">网卡</text>
+
+  <rect x="120" y="172" width="200" height="46" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="220" y="200" text-anchor="middle" class="name">PageCache（文件页）</text>
+
+  <line x1="220" y1="292" x2="220" y2="220" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="228" y="262" class="note">① DMA 拷贝</text>
+
+  <rect x="120" y="52" width="500" height="46" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="370" y="80" text-anchor="middle" class="name">Broker 进程 · MappedByteBuffer 映射 CommitLog 文件</text>
+
+  <rect x="420" y="172" width="200" height="46" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="520" y="200" text-anchor="middle" class="name">Socket 缓冲区</text>
+
+  <!-- 映射：用户态与 PageCache 共享物理页 -->
+  <line x1="220" y1="172" x2="220" y2="100" stroke="var(--g)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrm)"/>
+  <text x="228" y="139" class="note">虚拟地址映射，不拷贝</text>
+  <line x1="520" y1="98" x2="520" y2="170" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrm)"/>
+  <text x="528" y="139" class="note">write() 发送</text>
+
+  <line x1="320" y1="195" x2="418" y2="195" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="369" y="187" text-anchor="middle" class="note">② CPU 拷贝</text>
+
+  <line x1="520" y1="218" x2="520" y2="290" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="528" y="262" class="note">③ DMA 拷贝</text>
+
+  <text x="360" y="376" text-anchor="middle" class="note">共 3 次拷贝（2 次 DMA + 1 次 CPU）、4 次上下文切换；省掉了「内核 → 用户缓冲区」的那次 CPU 拷贝</text>
+  <text x="360" y="396" text-anchor="middle" class="note">进程可直接读写映射内存，适合小块消息的随机读写；Java 单次映射上限 2GB，CommitLog 单文件默认 1GB</text>
+</svg>

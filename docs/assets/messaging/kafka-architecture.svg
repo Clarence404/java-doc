@@ -1,0 +1,96 @@
+<svg viewBox="0 0 760 466" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .note  { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="24" text-anchor="middle" class="title">Kafka 4.x 集群架构（KRaft 模式）</text>
+
+  <!-- Producer -->
+  <rect x="170" y="40" width="200" height="44" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="270" y="67" text-anchor="middle" class="name">Producer（按 key 选分区）</text>
+  <line x1="270" y1="84" x2="270" y2="118" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="280" y="105" class="note">写入 Leader</text>
+
+  <!-- Broker 集群 -->
+  <rect x="20" y="120" width="500" height="180" rx="6" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="270" y="140" text-anchor="middle" class="name">Broker 集群 · Topic order-events（3 分区，每分区画 2 个副本）</text>
+
+  <rect x="32" y="150" width="148" height="138" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="106" y="170" text-anchor="middle" class="name">Broker 1</text>
+  <rect x="44" y="182" width="124" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="106" y="207" text-anchor="middle" class="name" fill="var(--b)">P0 · Leader</text>
+  <rect x="44" y="234" width="124" height="40" rx="4" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="106" y="259" text-anchor="middle" class="desc">P2 · Follower</text>
+
+  <rect x="196" y="150" width="148" height="138" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="270" y="170" text-anchor="middle" class="name">Broker 2</text>
+  <rect x="208" y="182" width="124" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="270" y="207" text-anchor="middle" class="name" fill="var(--b)">P1 · Leader</text>
+  <rect x="208" y="234" width="124" height="40" rx="4" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="270" y="259" text-anchor="middle" class="desc">P0 · Follower</text>
+
+  <rect x="360" y="150" width="148" height="138" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="434" y="170" text-anchor="middle" class="name">Broker 3</text>
+  <rect x="372" y="182" width="124" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="434" y="207" text-anchor="middle" class="name" fill="var(--b)">P2 · Leader</text>
+  <rect x="372" y="234" width="124" height="40" rx="4" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="434" y="259" text-anchor="middle" class="desc">P1 · Follower</text>
+
+  <!-- KRaft Controller -->
+  <rect x="560" y="120" width="180" height="180" rx="6" fill="var(--p)" fill-opacity="0.08" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="650" y="140" text-anchor="middle" class="name" fill="var(--p)">KRaft Controller 仲裁</text>
+  <rect x="574" y="152" width="152" height="36" rx="4" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="650" y="175" text-anchor="middle" class="desc">Controller 1（Active）</text>
+  <rect x="574" y="196" width="152" height="36" rx="4" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="650" y="219" text-anchor="middle" class="desc">Controller 2</text>
+  <rect x="574" y="240" width="152" height="36" rx="4" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="650" y="263" text-anchor="middle" class="desc">Controller 3</text>
+  <line x1="560" y1="210" x2="522" y2="210" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="541" y="203" text-anchor="middle" class="note">元数据</text>
+
+  <!-- Consumer Group -->
+  <line x1="270" y1="300" x2="270" y2="334" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="280" y="321" class="note">poll 拉取</text>
+  <rect x="20" y="336" width="500" height="110" rx="6" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="270" y="356" text-anchor="middle" class="name">Consumer Group：order-processor</text>
+  <rect x="32" y="368" width="148" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="106" y="390" text-anchor="middle" class="name">Consumer A</text>
+  <text x="106" y="412" text-anchor="middle" class="desc">消费 P0</text>
+  <rect x="196" y="368" width="148" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="270" y="390" text-anchor="middle" class="name">Consumer B</text>
+  <text x="270" y="412" text-anchor="middle" class="desc">消费 P1</text>
+  <rect x="360" y="368" width="148" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="434" y="390" text-anchor="middle" class="name">Consumer C</text>
+  <text x="434" y="412" text-anchor="middle" class="desc">消费 P2</text>
+
+  <!-- 要点 -->
+  <rect x="560" y="336" width="180" height="110" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="650" y="356" text-anchor="middle" class="name">要点</text>
+  <text x="650" y="378" text-anchor="middle" class="desc">实线框：分区 Leader，负责读写</text>
+  <text x="650" y="396" text-anchor="middle" class="desc">虚线框：Follower 拉取同步</text>
+  <text x="650" y="414" text-anchor="middle" class="desc">一个分区只给组内一个消费者</text>
+  <text x="650" y="432" text-anchor="middle" class="desc">4.0 起只用 KRaft，无 ZooKeeper</text>
+</svg>

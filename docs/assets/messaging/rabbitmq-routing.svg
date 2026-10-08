@@ -1,0 +1,90 @@
+<svg viewBox="0 0 760 380" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="28" text-anchor="middle" class="title">RabbitMQ 路由模型：Exchange → Binding → Queue（含死信）</text>
+
+  <!-- Producer -->
+  <rect x="20" y="120" width="110" height="64" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="75" y="146" text-anchor="middle" class="name">Producer</text>
+  <text x="75" y="166" text-anchor="middle" class="desc">携带 routing key</text>
+  <line x1="130" y1="152" x2="178" y2="152" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Exchange -->
+  <rect x="180" y="50" width="150" height="204" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="255" y="132" text-anchor="middle" class="name">order.exchange</text>
+  <text x="255" y="154" text-anchor="middle" class="desc">type = topic</text>
+  <text x="255" y="174" text-anchor="middle" class="desc">按 binding key 匹配</text>
+
+  <!-- Bindings -->
+  <line x1="330" y1="80" x2="418" y2="80" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="374" y="72" text-anchor="middle" class="lbl">order.#</text>
+  <line x1="330" y1="152" x2="418" y2="152" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="374" y="144" text-anchor="middle" class="lbl">order.*.cn</text>
+  <line x1="330" y1="224" x2="418" y2="224" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="374" y="216" text-anchor="middle" class="lbl">order.created</text>
+
+  <!-- Queues -->
+  <rect x="420" y="50" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="495" y="74" text-anchor="middle" class="name">audit.queue</text>
+  <text x="495" y="94" text-anchor="middle" class="desc">审计：收全部订单事件</text>
+  <rect x="420" y="122" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="495" y="146" text-anchor="middle" class="name">cn.queue</text>
+  <text x="495" y="166" text-anchor="middle" class="desc">只收 cn 区域事件</text>
+  <rect x="420" y="194" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="495" y="218" text-anchor="middle" class="name">order.queue</text>
+  <text x="495" y="238" text-anchor="middle" class="desc">配置了 DLX</text>
+
+  <!-- Consumers -->
+  <line x1="570" y1="80" x2="616" y2="80" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="570" y1="152" x2="616" y2="152" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="570" y1="224" x2="616" y2="224" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="618" y="50" width="122" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="679" y="74" text-anchor="middle" class="name">审计服务</text>
+  <text x="679" y="94" text-anchor="middle" class="desc">Consumer</text>
+  <rect x="618" y="122" width="122" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="679" y="146" text-anchor="middle" class="name">区域服务</text>
+  <text x="679" y="166" text-anchor="middle" class="desc">Consumer</text>
+  <rect x="618" y="194" width="122" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="679" y="218" text-anchor="middle" class="name">订单服务</text>
+  <text x="679" y="238" text-anchor="middle" class="desc">Consumer</text>
+
+  <!-- Dead letter -->
+  <line x1="495" y1="254" x2="495" y2="298" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr-r)"/>
+  <text x="485" y="272" text-anchor="end" class="lbl">reject(requeue=false)</text>
+  <text x="485" y="288" text-anchor="end" class="lbl">TTL 过期 / 超长 / 超投递次数</text>
+  <rect x="420" y="300" width="150" height="60" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="495" y="324" text-anchor="middle" class="name">order.dlx.exchange</text>
+  <text x="495" y="344" text-anchor="middle" class="desc">死信交换机</text>
+  <line x1="570" y1="330" x2="616" y2="330" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <rect x="618" y="300" width="122" height="60" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="679" y="324" text-anchor="middle" class="name">order.dlq</text>
+  <text x="679" y="344" text-anchor="middle" class="desc">告警 + 人工处理</text>
+</svg>

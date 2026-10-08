@@ -184,4 +184,4 @@ AMQP（Advanced Message Queuing Protocol）是面向消息中间件的开放标�
 
 与 REST/gRPC 的核心区别：REST/gRPC 是**同步**调用（等待响应），AMQP 是**异步**消息（发后不等）。
 
-> 详细使用见 [RabbitMQ](../messaging/3_rabbitmq)。
+> 详细使用见 [RabbitMQ](../messaging/4_rabbitmq)。

@@ -1,0 +1,67 @@
+<svg viewBox="0 0 680 360" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .head { font-size: 13px; font-weight: 600; }
+    .sub { font-size: 12px; fill: var(--muted); }
+    .lbl { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="24" text-anchor="middle" class="title">Pulsar 存算分离架构</text>
+
+  <!-- 客户端 -->
+  <rect x="100" y="40" width="200" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="200" y="64" text-anchor="middle" class="head">Producer</text>
+  <text x="200" y="84" text-anchor="middle" class="sub">发布消息到 Topic</text>
+  <rect x="380" y="40" width="200" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="480" y="64" text-anchor="middle" class="head">Consumer</text>
+  <text x="480" y="84" text-anchor="middle" class="sub">按 Subscription 消费</text>
+
+  <!-- 客户端 ↔ Broker -->
+  <line x1="200" y1="100" x2="200" y2="138" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="210" y="124" class="lbl">发布</text>
+  <line x1="480" y1="140" x2="480" y2="102" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="490" y="124" class="lbl">推送</text>
+
+  <!-- Broker 层 -->
+  <rect x="20" y="140" width="640" height="80" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="340" y="164" text-anchor="middle" class="head">Broker 层（无状态计算）</text>
+  <text x="180" y="196" text-anchor="middle" class="sub">协议处理、Topic 路由、读缓存</text>
+  <text x="500" y="196" text-anchor="middle" class="sub">Topic 归属可快速迁移，扩缩容不搬数据</text>
+
+  <!-- Broker → 存储 / 元数据 -->
+  <line x1="230" y1="220" x2="230" y2="258" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="240" y="244" class="lbl">写入 / 读取</text>
+  <line x1="560" y1="220" x2="560" y2="258" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="570" y="244" class="lbl">元数据</text>
+
+  <!-- BookKeeper 存储层 -->
+  <rect x="20" y="260" width="420" height="80" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="230" y="284" text-anchor="middle" class="head">BookKeeper 存储层（Bookie 集群）</text>
+  <text x="125" y="316" text-anchor="middle" class="sub">Segment 分散写多个 Bookie</text>
+  <text x="335" y="316" text-anchor="middle" class="sub">副本数按 Quorum 配置</text>
+
+  <!-- 元数据存储 -->
+  <rect x="460" y="260" width="200" height="80" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="560" y="284" text-anchor="middle" class="head">元数据存储</text>
+  <text x="560" y="316" text-anchor="middle" class="sub">ZooKeeper / etcd / Oxia</text>
+</svg>

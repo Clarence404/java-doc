@@ -1,0 +1,61 @@
+<svg viewBox="0 0 720 266" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">本地消息表（Transactional Outbox）</text>
+
+  <!-- 本地事务容器 y=44..220 -->
+  <rect x="20" y="44" width="200" height="176" rx="6" fill="none" stroke="var(--p)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="120" y="64" text-anchor="middle" class="lbl">同一个本地事务</text>
+  <rect x="40" y="76" width="160" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="120" y="100" text-anchor="middle" class="name">写业务表</text>
+  <text x="120" y="120" text-anchor="middle" class="desc">INSERT t_order</text>
+  <rect x="40" y="148" width="160" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="120" y="172" text-anchor="middle" class="name">写消息表</text>
+  <text x="120" y="192" text-anchor="middle" class="desc">INSERT outbox, status=NEW</text>
+
+  <!-- 投递链路 y=102..162 -->
+  <rect x="270" y="102" width="140" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="340" y="126" text-anchor="middle" class="name">投递任务</text>
+  <text x="340" y="146" text-anchor="middle" class="desc">轮询 / CDC 读 NEW</text>
+  <rect x="460" y="102" width="100" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="510" y="126" text-anchor="middle" class="name">MQ</text>
+  <text x="510" y="146" text-anchor="middle" class="desc">至少一次</text>
+  <rect x="600" y="102" width="100" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="650" y="126" text-anchor="middle" class="name">消费者</text>
+  <text x="650" y="146" text-anchor="middle" class="desc">幂等消费</text>
+
+  <line x1="220" y1="132" x2="268" y2="132" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="410" y1="132" x2="458" y2="132" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="560" y1="132" x2="598" y2="132" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 回写状态 -->
+  <path d="M340,162 V184 H202" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="280" y="202" text-anchor="middle" class="desc">发送成功后标记 SENT</text>
+
+  <text x="360" y="246" text-anchor="middle" class="lbl">业务数据与待发消息同库同事务提交；投递失败下次再扫，消费端必须幂等</text>
+</svg>

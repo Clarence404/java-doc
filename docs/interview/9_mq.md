@@ -1,541 +1,508 @@
 ---
-description: Kafka / RocketMQ / RabbitMQ、可靠性、顺序、幂等
+description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷贝与积压、事务消息与本地消息表、高可用
 ---
 
 # 开发总结 - 消息队列
 
-## 一、消息队列的使用场景
+> 精华提炼，细节详见 [消息队列总览](/messaging/0_overview)；题目清单见 [消息队列面试题](/messaging/99_interview)，本页按清单的分组与顺序作答。
+> 版本基线：Kafka 4.x、RocketMQ 5.x（兼顾 4.x）、RabbitMQ 4.x。
 
-更多详情见：<RouteLink to="/messaging/0_overview">消息队列-消息中间件的核心作用</RouteLink>
+## 一、MQ 基础
 
-## 二、消息队列的工作流程？
+### Q1：消息队列有哪些使用场景？（异步解耦、削峰填谷、广播通知）
 
-以下是常见的消息队列的设计模型：
+**核心结论**：MQ 的价值是**解耦、削峰、异步**，代价是引入重复、乱序、积压与一致性四类新问题。
 
-![img_1.png](../assets/interview/mq_process.png)
+![MQ 的三个核心作用](../assets/messaging/mq-roles.svg)
 
-- 发送端 MQ-Product （消息生产者）将消息发送给 MQ-server；
+| 场景 | 解决的问题 | 典型例子 |
+|------|-----------|---------|
+| 应用解耦 | 上游直接调下游，下游故障或新增下游都要改上游 | 订单完成后通知库存、积分、物流 |
+| 削峰填谷 | 突发流量超过后端处理能力 | 秒杀下单先入队，后端按能力消费 |
+| 异步处理 | 非核心操作串行执行拖慢主流程 | 注册后发邮件、推送、更新统计 |
+| 广播通知 | 一份事件多个系统各自处理 | 发布/订阅：每个消费者组各收一份 |
+| 数据管道 | 日志、埋点、CDC 汇聚到下游 | Kafka + Flink / Connect |
 
-- MQ-server 将消息落地，持久化到数据库等；
+- 代价：多一个要高可用部署的中间件；上下游从同步调用变为最终一致；链路排查需要消息轨迹与链路追踪
+- 系统级的削峰设计见 [高并发 · 异步与削峰](/high-con/4_async_peak_shaving)
 
-- MQ-server 回 ACK 给 MQ-Producer；
+→ 详见 [消息队列基础](/messaging/1_basics)
 
-- MQ-server 将消息发送给消息接收端 MQ-Consumer （消息消费者）；
+### Q2：消息队列的核心工作流程是什么？（Producer → Broker → Consumer）
 
-- MQ-Consumer 消费接收到消息后发送 ACK 给 MQ-server；
+**核心结论**：生产者把消息发给 Broker 并等待确认 → Broker 持久化并复制到副本 → 消费者拉取（或被推送）消息、处理成功后提交位点或 ACK。每一步都有"确认"，可靠性就建立在这三次确认上。
 
-- MQ-server 将落地消息删除；
+| 步骤 | 做什么 | 关键点 |
+|------|-------|-------|
+| 1. 发送 | Producer 按 Topic（及分区键）发送 | 收到 Broker 确认才算成功，失败重试 |
+| 2. 存储 | Broker 写入日志 / 队列，刷盘并复制 | 只确认已同步到足够副本的写入 |
+| 3. 投递 | Consumer Group 内实例分摊分区 / 队列 | 组内分摊、组间各自完整消费 |
+| 4. 确认 | 处理成功后提交 offset 或 ACK | Kafka / RocketMQ 记录位点，RabbitMQ 按单条确认 |
+| 5. 失败 | 退避重试，超过上限进死信 | 重试带来重复，消费端必须幂等 |
 
-## 三、MQ如何保证消息不丢失？
+- **消费后是否删除**是存储模型的差异：Kafka、RocketMQ 按日志保留、可按位点回放；RabbitMQ 经典 / 仲裁队列确认后删除，回放要用 Stream
 
-一个消息从生产者产生，到被消费者消费，主要经过这4个过程：
+→ 详见 [消息队列基础](/messaging/1_basics)
 
-![img.png](../assets/interview/prevent_mq_miss.png)
+### Q3：Kafka、RocketMQ、RabbitMQ 的对比？各自适合什么场景？
 
-因此如何保证MQ不丢失消息，可以从这四个阶段阐述：
+**核心结论**：Kafka 是**事件流平台**（日志即存储），RocketMQ 是**业务消息中间件**（事务、定时、重试开箱即用），RabbitMQ 是**灵活路由的消息代理**。选型先看语义硬需求，再看量级，最后看团队与生态。
 
-### 1、生产者保证不丢失
+| 维度 | Kafka 4.x | RocketMQ 5.x | RabbitMQ 4.x |
+|------|-----------|--------------|--------------|
+| 吞吐（相对） | 最高 | 高 | 中 |
+| 顺序 | 分区内有序 | 队列内有序（5.x 按 MessageGroup） | 单队列 + 单活消费者 |
+| 事务 | 跨分区原子写 + EOS，**不是**半消息 | 原生事务消息（半消息 + 回查） | 无事务消息 |
+| 延迟消息 | 不原生支持 | 5.x 任意时间（4.x 为 18 级） | TTL + DLX 或延迟插件 |
+| 回放 | 重置 offset | 重置消费位点 | 仅 Stream 支持 |
+| 死信 | 无内置，Spring 用 DLT | 内置重试队列 + 死信队列 | 内置 DLX |
+| 高可用 | ISR 副本，元数据 KRaft | 主从 / DLedger，5.x Controller | 仲裁队列（Raft） |
+| 典型场景 | 日志、埋点、数据管道、事件溯源 | 订单、支付、库存等核心链路 | 业务解耦、复杂路由、中低并发通知 |
 
-生产端如何保证不丢消息呢？**确保生产的消息能到达存储端。**
+- 吞吐只看量级关系，具体数字取决于消息大小、批量、刷盘与副本策略，不要拿网上的"百万 / 十万 / 万"直接下结论
+- Kafka 4.x 正在引入共享组（KIP-932，队列式按条确认的消费语义），目前仍应视为预览特性，不宜据此替代 RabbitMQ / RocketMQ 选型
+- 已在公有云上时，托管版的运维成本往往比引擎差异更重要；同一公司尽量收敛到一到两种 MQ
 
-如果是RocketMQ消息中间件，Producer生产者提供了三种发送消息的方式，分别是：
+→ 详见 [MQ 选型与其他 MQ](/messaging/5_selection)
 
-| 发送方式     | 说明                                        |
-|----------|-------------------------------------------|
-| **同步发送** | 生产者发送消息后，等待 Broker 确认，适用于对可靠性要求较高的场景。     |
-| **异步发送** | 生产者发送消息后不等待 Broker 响应，而是通过回调函数处理结果，提高吞吐量。 |
-| **单向发送** | 生产者只负责发送消息，不关心 Broker 是否收到，适用于日志收集等场景。    |
+### Q4：RocketMQ 5.x 相比 4.x 有哪些主要变化？
 
-生产者要想发消息时保证消息不丢失，可以：
+**核心结论**：5.x 是架构演进而不是小版本升级——引入**无状态 Proxy + gRPC** 与轻量多语言客户端，补上了**任意时间定时消息**、**POP 消费**和 **Controller 自动切主**；Remoting 协议仍兼容，老客户端可以继续连。
 
-- 采用**同步方式**发送，send消息方法返回**成功**状态，就表示消息正常到达了存储端Broker。
+| 维度 | 4.x | 5.x |
+|------|-----|-----|
+| 接入 | Remoting 协议，客户端直连 Broker | 新增 Proxy + gRPC，客户端连 Proxy |
+| 客户端 | `rocketmq-client`（重客户端，负载均衡在客户端） | `rocketmq-client-java`（轻客户端，多语言统一） |
+| 顺序消息 | 按 hashKey 选 MessageQueue | FIFO 类型 Topic + **MessageGroup** 组内有序 |
+| 延迟消息 | 18 个固定级别，最长 2h | 定时消息：任意投递时间戳（上限由 Broker 配置） |
+| 消费方式 | Push / Pull，按队列分配 | 新增 POP：Broker 按消息分配，消费者数可超过队列数 |
+| 高可用 | 主从复制 / DLedger（Raft） | 新增 Controller 模式：在同步副本中自动选主 |
+| Topic 类型 | 不区分 | 可声明 `message.type`（NORMAL / FIFO / DELAY / TRANSACTION），开启 Broker 类型校验时发送类型须与之一致 |
 
-- 如果send消息**异常**或者返回**非成功**状态，可以**重试**。
+- `rocketmq-spring-boot-starter` 2.3.x 仍是 Remoting 经典客户端，可连 5.x Broker 并使用按秒 / 毫秒 / 时间点的定时发送，但不经过 gRPC Proxy
 
-- 可以使用事务消息，RocketMQ的事务消息机制就是为了保证零丢失来设计的
+→ 详见 [RocketMQ](/messaging/3_rocketmq)
 
-### 2、主从复制不丢失
+### Q5：RabbitMQ 延迟消息有哪几种实现方式？各有什么坑？
 
-- 如 RocketMQ的消息的**强同步复制**（同步复制模式）或者异步复制
+**核心结论**：两种——**TTL + 死信交换机**（无需插件，但逐条 TTL 有队头阻塞）和**延迟消息插件**（每条任意延迟，但单节点存储、不复制）。大量、任意时间、强可靠的延迟需求更适合 RocketMQ 5.x 定时消息或"数据库 + 定时扫描"。
 
-- 如 Kafka 默认提供 **ISR**（in-sync replica）机制，确保所有副本都同步更新数据
+![TTL + DLX 延迟消息](../assets/messaging/rabbitmq-delay-ttl-dlx.svg)
 
-### 3、消息刷盘不丢失
+| 对比 | TTL + DLX | 延迟插件 `x-delayed-message` |
+|------|-----------|-----------------------------|
+| 原理 | 消息在无消费者的队列中过期 → 变死信 → DLX 转发到真正消费的队列 | 消息先存在插件内部，到期才路由到队列 |
+| 精度 | 队列级 TTL 准确；逐条 TTL 只在到达队头时才检查过期 | 每条任意延迟，较准确 |
+| 可靠性 | 延迟队列可用 Quorum，多副本 | 延迟中的消息**单节点存储、不复制**，节点数据丢失即丢 |
+| 坑 | 同一队列混用不同逐条 TTL → 短延迟被长延迟堵住 | 不适合百万级或超长延迟；禁用插件丢掉未到期消息；不支持 `mandatory`（发布时就可能收到 Returns 回调，需过滤），到期时的路由失败无法回调 |
+| 做法 | **一个延迟时长一个队列**（如 10s / 1min / 30min 三档） | 升级大版本前确认插件兼容性 |
 
-消息刷盘完后，响应producer
+- 延迟消息只能触发"检查"：超时关单要先确认订单仍是"待支付"再取消（带状态条件更新），否则会误关已支付订单
 
-如何保证存储端的消息不丢失呢？确保消息**持久化到磁盘**。大家很容易想到就是**刷盘机制**。
+→ 详见 [RabbitMQ](/messaging/4_rabbitmq)
 
-刷盘机制分**同步刷盘**和**异步刷盘**：
+## 二、消息可靠性
 
-- 生产者消息发过来时，只有持久化到磁盘，RocketMQ的存储端Broker才返回一个成功的ACK响应，这就是**同步刷盘**。
-  它保证消息不丢失，但是影响了性能。
+### Q6：如何保证消息不丢失？（生产确认 + 持久化 + 消费 ACK）
 
-- **异步刷盘**的话，只要消息写入PageCache缓存，就返回一个成功的ACK响应。这样提高了MQ的性能，但是
-  **如果这时候机器断电了，就会丢失消息**。
+**核心结论**：生产、存储、消费三个环节同时设防，任何一环偷懒都会丢。三层都做到后得到的是**至少一次**语义，所以幂等消费是可靠投递的另一半。
 
-::: tip
-Broker一般是集群部署的，有master主节点和slave从节点。
+| 环节 | Kafka | RocketMQ | RabbitMQ |
+|------|-------|----------|----------|
+| 生产者 | `acks=all` + 幂等生产者（默认开启），用 `delivery.timeout.ms` 控制重试总时长 | `syncSend` 并检查 `SEND_OK`，失败重试 | Publisher Confirm + Returns（`mandatory=true`） |
+| Broker | `replication.factor=3` + `min.insync.replicas=2` + 禁止 unclean 选举 | 同步复制（或 Controller 模式）+ 视要求同步刷盘 | durable + 持久化消息 + **Quorum 队列** |
+| 消费者 | 关闭自动提交，处理成功后提交 offset，失败抛异常 | 处理完成才正常返回，不要异步处理后直接返回 | 处理成功后 ack，失败有限重试 + DLX |
 
-- 消息到Broker存储端，只有主节点和从节点都写入成功，才反馈成功的ack给生产者。 这就是**同步复制**，它保证了消息不丢失，但是降低了系统的吞吐量。
-- 与之对应的就是**异步复制**，只要消息写入主节点成功，就返回成功的ack，它速度快，但是会有**数据丢失**问题。
-  :::
+- **发送失败不能靠回调补救来保证一致**：进程可能在回调前崩溃，业务库与消息需要一致时用本地消息表（见 Q18）
+- Kafka 的持久性来自多副本而不是每条 fsync，不建议强制刷盘参数
+- 三种投递语义：先确认再处理 = 最多一次；处理成功再确认 = **至少一次（业务默认）**；恰好一次 = 至少一次 + 幂等
 
-### 4、消息阶段不丢失
+→ 详见 [消息队列基础](/messaging/1_basics)、[Kafka](/messaging/2_kafka)
 
-消费者执行完业务逻辑，再反馈会Broker说消费成功，这样才可以保证消费阶段不丢消息。
+### Q7：RocketMQ 的同步刷盘和异步刷盘有什么区别？
 
-### 5、例外可接受丢失
+**核心结论**：同步刷盘等消息刷到磁盘才返回，可靠但吞吐明显下降；异步刷盘（默认）写入 PageCache 即返回，机器断电可能丢最近一小段。生产上更常见的是**异步刷盘 + 同步复制**，单机断电丢的数据由副本兜底。
 
-但是针对于不紧要的数据，提高系统速度，可以接受消息丢失问题
+| 刷盘方式 | 配置 | 返回时机 | 特点 |
+|---------|------|---------|------|
+| 异步刷盘（默认） | `flushDiskType=ASYNC_FLUSH` | 写入 PageCache | 性能高；宕机 / 断电可能丢未刷盘数据 |
+| 同步刷盘 | `flushDiskType=SYNC_FLUSH` | 刷盘完成 | 可靠性最高；吞吐明显下降 |
 
-## 四、Mq消息的幂等性（重复消费）如何保证？
+- 刷盘管的是**单机**持久化，复制管的是**多机**冗余：`SYNC_MASTER` 等 Slave 确认才返回，`ASYNC_MASTER` 延迟低但宕机可能丢少量未复制消息
+- 生产者收到 `FLUSH_DISK_TIMEOUT` / `FLUSH_SLAVE_TIMEOUT` / `SLAVE_NOT_AVAILABLE` 时，消息已到 Broker 但没达到配置的刷盘或复制要求，关键消息需告警或补偿
 
-开篇：所有Mq产品都没有主动提供消费者重复消费的问题，最好的方式是自己做一个全局的唯一标识
+→ 详见 [RocketMQ](/messaging/3_rocketmq)
 
-### 1、全局唯一标识
+### Q8：Kafka 的 ISR 机制是什么？如何保证数据不丢失？
+
+**核心结论**：ISR（In-Sync Replicas）是**跟上 Leader 的副本集合**；`acks=all` 时 Leader 要等 ISR 内全部副本写入才确认，Leader 故障只从 ISR 中选新 Leader，所以已确认的消息不会丢。
+
+| 概念 | 说明 |
+|------|------|
+| ISR | 与 Leader 保持同步的副本；落后超过 `replica.lag.time.max.ms` 的 Follower 被移出，追上后再加入 |
+| LEO | 副本日志末尾的下一个 offset |
+| HW | ISR 都已复制到的位置，消费者只能读到 HW 之前的消息 |
+
+不丢消息的配置组合：
+
+```properties
+# Broker / Topic
+default.replication.factor=3
+min.insync.replicas=2                 # ISR 不足 2 时 acks=all 的写入直接失败，而不是悄悄写成单副本
+unclean.leader.election.enable=false  # 默认 false：不让 ISR 之外的落后副本当 Leader
+# Producer
+acks=all                              # 3.0+ 默认
+enable.idempotence=true               # 3.0+ 默认，retries 默认 Integer.MAX_VALUE，由 delivery.timeout.ms 控制总时长
+```
+
+- `replication.factor=3` + `min.insync.replicas=2`：允许 1 个副本故障仍可写，ISR 不足时生产者收到 `NotEnoughReplicas`
+- 不要把 `retries` 调小：只会让 Leader 切换、网络闪断这类可自动恢复的抖动变成发送失败
+- 消费端关闭自动提交，处理成功后再提交 offset
+
+→ 详见 [Kafka](/messaging/2_kafka)
+
+### Q9：消息幂等性（重复消费）如何保证？（业务键去重：去重记录与业务写入同一本地事务 / Redis 状态机）
+
+**核心结论**：生产者重试、确认丢失、Rebalance 后位点回退都会重复投递，任何 MQ 都只保证至少一次，消费端必须幂等。**去重标记必须与业务结果绑定**：首选"去重记录 + 业务写入同一个本地事务"；用 Redis 时要做成"处理中 / 已完成"状态机，失败释放占位。
+
+> [!warning] 错误做法：SETNX 占位成功后直接处理
+> 先写"已消费"标记再处理业务，业务失败或进程崩溃后，重投的消息因为标记已存在被跳过——**消息就丢了**。
+
+**方案一：去重记录与业务写入同一事务（首选）**
 
 ```java
-private void test() {
-    String messageId = message.getId();
-    if (idempotentRepository.exists(messageId)) {
-        // 消息已处理，忽略
-        return;
+@Transactional(rollbackFor = Exception.class)
+public void onOrderPaid(OrderPaidEvent evt) {
+    // t_consume_record 主键 (biz_key, consumer)；MySQL INSERT IGNORE / PostgreSQL ON CONFLICT DO NOTHING
+    if (consumeRecordMapper.insertIgnore(evt.getOrderNo(), "points") == 0) {
+        return;                                                // 已处理过：正常返回，消息被确认
     }
-    // 处理消息
-    processMessage(message);
-    // 标记消息为已处理
-    idempotentRepository.save(messageId);
+    pointsService.addPoints(evt.getUserId(), evt.getAmount()); // 失败抛异常 → 去重记录一起回滚 → 重投可再处理
 }
 ```
 
-### 2、使用去重存储
+**方案二：Redis 状态机（业务结果不在同一个库时）**
 
-如 Redis、数据库等，保存已经处理的消息标识符
+1. `SET consume:{bizKey} PROCESSING NX EX <大于最长处理时间>`，成功才开始处理
+2. 处理成功后置为 `DONE`，保留时间覆盖可能重投的窗口
+3. 处理失败时 `DEL` 再抛异常，让重投能重新处理
+4. 抢占失败时读值：`DONE` 直接确认；`PROCESSING` 说明别的实例正在处理，**抛异常退避重试，不能确认后跳过**
+
+| 要点 | 说明 |
+|------|------|
+| 去重键 | 优先业务键（订单号 + 动作类型），不用 Broker msgId 或 Kafka `partition + offset`：生产者重发的同一事件 msgId / offset 都会变 |
+| Redis 的局限 | Redis 与业务库不是原子的：业务已提交但 `DONE` 没写成功，占位过期后会再处理一次，业务操作本身仍需带状态条件 |
+| 兜底 | 资金、库存类业务用方案一；更新语句带状态条件（`WHERE status = 'UNPAID'`）也是天然幂等 |
+
+- 通用幂等方案见 [系统架构 · 幂等设计](/architecture/5_idempotence)
+
+→ 详见 [消息队列基础](/messaging/1_basics)
+
+### Q10：Kafka 消费失败时为什么可能"跳过"消息？如何正确重试？
+
+**核心结论**：Kafka 按分区只记录**一个累计的 offset**，提交 N 表示 N 之前全部处理完毕。第 5 条失败不 ack、第 6 条成功并提交，第 5 条就被一起确认了——**"不 ack 等重投"在 Kafka 里不成立**。正确做法是**抛异常 → `DefaultErrorHandler` 原地退避重试 → 耗尽后 `DeadLetterPublishingRecoverer` 发死信 Topic → 提交 offset 继续**。
+
+常见的"跳过"原因：
+
+| 原因 | 结果 |
+|------|------|
+| 自动提交（`enable.auto.commit=true`） | 到时间就提交，处理失败或崩溃时消息被跳过 |
+| 监听方法 catch 住异常只打日志 | 容器认为成功，提交 offset |
+| 失败的消息不 ack，后续消息 ack | 累计提交把失败的那条一起确认 |
+| 只配了 `DefaultErrorHandler` 没配恢复器 | 默认重试 9 次（共 10 次投递、无退避）后**只打日志并跳过** |
 
 ```java
-private void test() {
-    boolean success = redis.setIfAbsent(messageId, "processed", 1, TimeUnit.HOURS);
-    if (success) {
-        processMessage(message);
-    } else {
-        // 消息重复，忽略
-    }
+@Bean
+public DefaultErrorHandler errorHandler(KafkaTemplate<Object, Object> template) {
+    // 重试耗尽后发到 <topic>.DLT 的同一分区（死信 Topic 分区数不能少于原 Topic）
+    DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(template);
+    ExponentialBackOffWithMaxRetries backOff = new ExponentialBackOffWithMaxRetries(4); // 1s、2s、4s、8s
+    backOff.setInitialInterval(1000);
+    backOff.setMultiplier(2.0);
+    DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backOff);
+    handler.addNotRetryableExceptions(JsonProcessingException.class, IllegalArgumentException.class);
+    return handler;   // Boot 自动装配到监听容器工厂
 }
 ```
 
-### 3、幂等处理逻辑
+![消费重试与死信队列](../assets/messaging/mq-retry-dlq.svg)
 
-```sql
-INSERT INTO orders (order_id, user_id, amount)
-VALUES ('12345', 1, 100) ON DUPLICATE KEY
-UPDATE updated_at = NOW();
-```
+- **阻塞重试**：seek 回失败位置再拉取，分区内顺序不乱；退避期间该分区停止前进，退避总时长要结合 `max.poll.interval.ms` 评估，过长可能触发 Rebalance
+- **非阻塞重试**：`@RetryableTopic` 把失败消息转到重试 Topic，主分区不被卡住，代价是同 key 可能乱序
+- 区分可重试（超时）与不可重试（参数校验、反序列化失败）异常；DLT 要有告警和重放工具
+- 重试意味着重复投递，消费端仍要按 Q9 做幂等
 
-### 4、MQ 自带机制
+→ 详见 [Kafka](/messaging/2_kafka)
 
-一些高级消息中间件（如 RocketMQ、Kafka）提供了重复消费控制的机制。
+## 三、消息顺序
 
-**RocketMQ：唯一标识及其事务**
+### Q11：如何保证消息的顺序消费？
 
-- 使用消息的 msgId 或 unique key 。
-- 配合事务消息进行两阶段提交（prepare 和 confirm 阶段）。
+**核心结论**：MQ 只保证**分区（队列）内有序**，实践中要的是"同一业务 key 有序"：**生产端按 key 路由到同一分区 + 生产端不乱序 + 消费端单分区串行处理**。全局有序只能单分区，吞吐被锁死，一般不可取。
 
-**Kafka： 消费组结合 offset 提交**
+| 环节 | 做法 |
+|------|------|
+| 生产端路由 | Kafka 指定消息 key；RocketMQ 4.x `MessageQueueSelector` / `syncSendOrderly`；5.x 设置 MessageGroup；RabbitMQ 同 key 路由到同一队列 |
+| 生产端不乱序 | 同一 key 同步串行发送；Kafka 保持幂等生产者开启 |
+| 消费端串行 | 一个分区同一时刻只由一个线程处理；RabbitMQ 用 `x-single-active-consumer` |
 
-- 通过消费者维护 offset，避免重复拉取消息。
-- 手动控制 offset 提交时机，仅在成功处理消息后更新。
+破坏顺序的常见情况：
 
-## 五、Mq如何保证消息顺序消费？
+- 消费者把消息丢进线程池异步处理（最常见）；确需并行时按 key 哈希到固定的单线程执行器
+- 处理失败后跳过当前消息继续往下，或用非阻塞重试 / 死信重放
+- 扩分区后 `hash(key) % 分区数` 变化，扩容瞬间新旧分区里同一 key 的消息并存
+- **热点 key**：同 key 必须串行，大商户、热门直播间会让单分区成为瓶颈——细化 key 粒度、消费端按 key 分桶，或拆独立 Topic
 
-### 1、单队列单消费者
+→ 详见 [消息队列基础](/messaging/1_basics)
 
-- 生产者：将相关联的消息发送到同一条队列中。
+### Q12：RocketMQ 如何实现顺序消息？（MessageGroup + FIFO 队列）
 
-- 消费者：设置单个消费者依次处理消息，确保消费顺序。
-  :::tip
-  优点：
-  实现简单，天然保持顺序性。
-  :::
-  :::warning
-  缺点：
-  队列吞吐量有限，性能受单消费者影响。
-  :::
-  例如,RocketMQ提供了如下方案：
+**核心结论**：4.x 靠"**同一 hashKey 选同一个 MessageQueue + 顺序消费模式锁队列串行**"；5.x 新 SDK 把 Topic 声明为 **FIFO 类型**、发送时设置 **MessageGroup**，同组内有序、不同组并行。
+
+| 版本 | 生产端 | 消费端 |
+|------|-------|-------|
+| 4.x / starter | `syncSendOrderly(topic, payload, hashKey)` | `consumeMode = ConsumeMode.ORDERLY`，同一队列同一时刻只由一个线程处理 |
+| 5.x 新 SDK | FIFO Topic + `MessageGroup`（如订单号） | 消费者组开启顺序投递 |
+
+- 生产端必须**同步发送**，异步并发发送会打乱顺序
+- 顺序消费失败时**不发回 Broker**，在本地挂起后重试同一条，整个队列停住等它；未配置 `maxReconsumeTimes` 时近乎无限重试，**务必设上限**，否则一条毒消息永久卡住队列
+- 顺序消费同样需要幂等
+
+→ 详见 [RocketMQ](/messaging/3_rocketmq)
+
+### Q13：Kafka 如何保证分区内有序？跨分区能保证顺序吗？
+
+**核心结论**：分区是只追加的日志，写入有序、按 offset 顺序读取，一个分区在组内只分配给一个消费者线程，所以**分区内天然有序**；**跨分区不保证顺序**，需要有序的消息用同一个 key 发送到同一分区。
 
 ```java
-/**
- * 顺序消息发送
- * */
-private void test() {
-    MessageBuilder messageBuilder = new MessageBuilderImpl();
-    Message message = messageBuilder.setTopic("topic")
-            //设置消息索引键，可根据关键字精确查找某条消息。
-            .setKeys("messageKey")
-            //设置消息Tag，用于消费端根据指定Tag过滤消息。
-            .setTag("messageTag")
-            //设置顺序消息的排序分组，该分组尽量保持离散，避免热点排序分组。
-            .setMessageGroup("fifoGroup001")
-            //消息体。
-            .setBody("messageBody".getBytes())
-            .build();
-    try {
-        //发送消息，需要关注发送结果，并捕获失败等异常
-        SendReceipt sendReceipt = producer.send(message);
-        System.out.println(sendReceipt.getMessageId());
-    } catch (ClientException e) {
-        e.printStackTrace();
-    }
-}
-
-/**
- * 消费顺序消息时，需要确保当前消费者分组是顺序投递模式，否则仍然按并发乱序投递。
- * 消费示例一：使用 PushConsumer 消费顺序消息，只需要在消费监听器处理即可。
- * */
-private void test() {
-    MessageListener messageListener = new MessageListener() {
-        @Override
-        public ConsumeResult consume(MessageView messageView) {
-            System.out.println(messageView);
-            //根据消费结果返回状态。
-            return ConsumeResult.SUCCESS;
-        }
-    };
-}
-
-/**
- * 消费示例二：使用SimpleConsumer消费顺序消息，主动获取消息进行消费处理并提交消费结果。
- * 需要注意的是，同一个MessageGroup的消息，如果前序消息没有消费完成，再次调用Receive是获取不到后续消息的。
- * */
-private void test() {
-    List<MessageView> messageViewList = null;
-    try {
-        messageViewList = simpleConsumer.receive(10, Duration.ofSeconds(30));
-        messageViewList.forEach(messageView -> {
-            System.out.println(messageView);
-            //消费处理完成后，需要主动调用ACK提交消费结果。
-            try {
-                simpleConsumer.ack(messageView);
-            } catch (ClientException e) {
-                e.printStackTrace();
-            }
-        });
-    } catch (ClientException e) {
-        //如果遇到系统流控等原因造成拉取失败，需要重新发起获取消息请求。
-        e.printStackTrace();
-    }
-}
-
+kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orderId
 ```
 
-### 2、按分区或分片管理
+- 消费端**不需要 `concurrency=1`**：每个分区始终只由一个线程串行处理，`concurrency=3` 只是不同分区之间并行
+- 生产端重试乱序只发生在**关闭幂等**且 `max.in.flight.requests.per.connection > 1` 时；幂等生产者（3.0+ 默认）在 in-flight ≤ 5 时保持分区内顺序
+- key 为空时按粘性策略分散到各分区；扩分区会改变 key 的映射；`@RetryableTopic` 非阻塞重试会让后续消息先被处理
+- 全局有序只能单分区，吞吐锁定在单分区的处理能力
 
-使用消息队列的分区机制（如 Kafka 的分区，RocketMQ 的队列）。
+→ 详见 [Kafka](/messaging/2_kafka)
 
-对某种业务键（如订单号、用户 ID 等）进行哈希计算，将同一键的消息路由到同一个分区。
-消费者按分区逐条消费，保证分区内的消息顺序。
+## 四、高性能
 
-- 发送消息时路由分区： 生产者发送消息时，根据业务键计算分区：
+### Q14：消息队列如何实现高效读写？（零拷贝 MMap/SendFile、顺序写入、PageCache）
 
-```java
-private void test() {
-    int partition = businessKey.hashCode() % numPartitions;
-    producer.send(new ProducerRecord<>("topic", partition, key, value));
-}
-```
+**核心结论**：**顺序追加写**把磁盘随机 IO 变成顺序 IO，**PageCache** 让读写都先走内存，**零拷贝**减少数据在内核态与用户态之间的拷贝和上下文切换。RocketMQ 用 **mmap** 读写 CommitLog，Kafka 消费时用 **sendfile** 直接把 PageCache 送到网卡。
 
-分区消费处理方案：
+| 方式 | 拷贝次数 | 上下文切换 | 谁在用 |
+|------|---------|-----------|-------|
+| 传统 `read` + `write` | 4 次（2 次 DMA + 2 次 CPU） | 4 次 | — |
+| `mmap` + `write` | 3 次（2 次 DMA + 1 次 CPU） | 4 次 | RocketMQ（`MappedByteBuffer`） |
+| `sendfile`（支持 SG-DMA） | 2 次（均为 DMA） | 2 次 | Kafka（`FileChannel.transferTo`） |
 
-- 单线程，消费者为每个分区分配单独的线程，按顺序拉取和处理消息。
-- 使用分布式锁，实现按顺序拉取和处理消息。
-  :::tip
-  优点：
-  可以并行处理不同分区，性能更高。
-  分区内部顺序可保证。
-  :::
-  :::warning
-  缺点：
-  跨分区的全局顺序无法保证。
-  分区配置复杂度增加。
-  :::
+![mmap + write 数据路径](../assets/messaging/zero-copy-mmap.svg)
 
-### 3、手动定制消息顺序
+![sendfile 数据路径](../assets/messaging/zero-copy-sendfile.svg)
 
-如果在RabbitMQ或者Kafka中，就需要自行设计顺序消费逻辑；
+- **mmap**：进程可直接读写映射内存，适合小块消息的随机读写；Java 单次映射上限 2GB，CommitLog 单文件默认 1GB
+- **sendfile**：数据完全不进用户态，Broker 无法加工内容；**开启 TLS 后必须在用户态加密，sendfile 失效**，CPU 开销明显上升
+- **顺序写**：Kafka 每个分区一组分段日志；RocketMQ 所有 Topic 共用一个 CommitLog，Topic 再多也是单文件顺序写，ConsumeQueue 只存定长索引
+- **PageCache**：不占 JVM 堆，刚写入的数据通常直接从缓存读到；持久性靠副本，而不是每条 fsync
+- 应用层（Netty `CompositeByteBuf`、`FileRegion`）的零拷贝是另一层概念，见 [Netty · ByteBuf 与内存管理](/netty/5_bytebuf)
 
-## 六、MQ如何保证消息的高效读写？
+→ 详见 [Kafka](/messaging/2_kafka)、[RocketMQ](/messaging/3_rocketmq)
 
-### 1、零拷贝（Zero Copy）
+### Q15：Kafka 为什么吞吐量这么高？
 
-#### 1.1、MMap
+**核心结论**：Kafka 把自己做成了一个**分区化的顺序日志**：写是顺序追加、读走 PageCache 和 sendfile，网络和磁盘上都按**批**处理，再用**分区**把负载摊到多台 Broker。
 
-MMap（Memory Map）是 Linux 操作系统中提供的一种将文件映射到进程地址空间的一种机制，通过 MMap 进程可以像访问内存一样访问文件，
-而无需显式的复制操作。
+| 机制 | 说明 |
+|------|------|
+| 顺序追加写 | 消息追加到分段日志文件，顺序 IO 远快于随机 IO |
+| PageCache | 读写走操作系统页缓存，不占 JVM 堆，避免 GC 压力 |
+| 零拷贝 sendfile | 消费时数据从 PageCache 直接送网卡，不经过用户态 |
+| 批量与压缩 | 生产者按分区攒批（`batch.size` / `linger.ms`），整批压缩（lz4 / zstd），Broker 原样存储，消费者解压 |
+| 分区并行 | 多分区分布在多个 Broker 上，生产与消费都能水平扩展 |
+| 消费不删除 | 消费只是移动 offset，多个消费者组读同一份数据没有额外写入 |
 
-使用 MMap 可以把 IO 执行流程优化成以下执行步骤：
+- 吞吐与延迟需要取舍：`linger.ms` 越大批越满、吞吐越高，单条延迟也越大
+- 开启 TLS 后 sendfile 失效，容量评估要预留 CPU
 
-![img.png](../assets/interview/mmap.png)
+→ 详见 [Kafka](/messaging/2_kafka)
 
-传统的 IO 需要四次拷贝和四次上下文（用户态和内核态）切换，而 MMap 只需要三次拷贝和四次上下文切换，从而能够提升程序整体的执行效率，
-并且节省了程序的内存空间。
+### Q16：消息积压了怎么处理？
 
-#### 1.2、SendFile
+**核心结论**：积压 = 生产速度持续大于消费速度。**先止血、再扩容、后根治**：先排除毒消息和下游故障，再扩消费者（必要时同时扩分区 / 队列），最后按峰值复盘消费能力与告警。
 
-在 Linux 操作系统中 sendFile() 是一个系统调用函数，用于高效地将文件数据从内核空间直接传输到网络套接字（Socket）上，从而实现零拷贝技术。
-这个函数的主要目的是减少 CPU 上下文切换以及内存复制操作，提高文件传输性能。
+排查：
 
-使用 sendFile() 可以把 IO 执行流程优化成以下执行步骤：
+1. Lag 是突增还是持续缓慢增长；全部分区都涨（整体能力不足）还是个别分区涨（热点 key、某实例卡住）
+2. 对比生产与消费 TPS；看消费者是否宕机、频繁 Rebalance、线程阻塞（`jstack`）
+3. 看下游依赖：慢 SQL、第三方超时、连接池耗尽；是否有毒消息反复重试堵住分区
 
-![img_1.png](../assets/interview/sendfile.png)
+处置：
 
-### 2、顺序写入（Sequential Write）
+| 手段 | 说明 |
+|------|------|
+| 隔离毒消息 | 失败超上限转死信；RabbitMQ 先停掉 requeue 循环，否则扩容也没用 |
+| 扩消费者 | Kafka、RocketMQ 4.x 按分区 / 队列分配，实例数超过分区数的部分空闲，需同时扩分区；RocketMQ 5.x POP 消费可突破；RabbitMQ 竞争消费可直接扩 |
+| 提升单实例吞吐 | 批量拉取 + 批量写库，减少同步远程调用，优化慢 SQL；RabbitMQ 调整 prefetch |
+| 临时转储 | 轻量消费者把消息原样转到分区更多的临时 Topic，再用大量实例消费 |
+| 降级 | 暂停统计类等非核心消费组，资源让给核心链路 |
+| 跳过（最后手段） | 业务允许丢弃时重置 offset 到最新，被跳过的数据事后补偿 |
 
-- **磁盘顺序写入比随机写入快**（尤其是传统机械硬盘）。
+- 事后：按峰值评估分区数与消费能力，配置 Lag 告警；系统级削峰见 [高并发 · 异步与削峰](/high-con/4_async_peak_shaving)
 
-- 举例说明：
+→ 详见 [消息队列基础](/messaging/1_basics)、[Kafka](/messaging/2_kafka)
 
-    - Kafka 采用 **日志分段（Segment）+ 顺序** 写入，避免磁盘寻址开销，提高写入速度。
+## 五、分布式事务
 
-    - RocketMQ 采用 **CommitLog** 顺序写入，然后异步刷盘或同步复制到从节点。
+### Q17：如何用消息队列实现分布式事务最终一致性？
 
-### 3、PageCache机制
+**核心结论**：MQ 只能做到**最终一致**。思路是"**上游本地事务与消息投递原子化 + MQ 至少一次投递 + 下游幂等重试 + 对账补偿兜底**"。原子化有两种可靠做法：**本地消息表（Outbox）** 或 **RocketMQ 事务消息**。
 
-- **消息先写入 OS 的 PageCache（内存映射文件），再异步刷盘**，提升写入吞吐量。
+| 方案 | 一致性 | 侵入性 | 适用场景 |
+|------|-------|-------|---------|
+| 本地消息表 / Outbox | 最终一致，可靠 | 需要消息表与投递任务 | 通用首选，不绑定 MQ |
+| RocketMQ 事务消息 | 最终一致，可靠 | 实现回查接口，绑定 RocketMQ | 已使用 RocketMQ 的核心链路 |
+| 最大努力通知 | 尽力而为，有限次重试 + 对账查询 | 低 | 跨企业回调，如支付结果通知 |
+| 提交后发送 | 可能丢 | 最低 | 非关键通知 |
 
-- **Kafka、RocketMQ 都利用了操作系统的 PageCache** 来减少磁盘 IO。
+- 上游只保证"本地事务成功 ⇔ 消息一定投递"，**下游消费失败不会回滚上游**：下游要重试 + 幂等，重试耗尽进死信后人工处理或反向补偿
+- Kafka 事务保证的是多分区原子写和 Kafka 内的 Exactly-Once，**无法与数据库事务绑定**，不能替代本地消息表
+- 需要回滚语义的强流程用 TCC / Saga，见 [分布式 · 分布式事务](/distributed/4_transaction)
 
-### 4、其他方案
+→ 详见 [消息队列基础](/messaging/1_basics)
 
-熟悉后写入，未完待续。。。
+### Q18：为什么不能在数据库事务里直接发 MQ 消息？本地消息表（Outbox）怎么做？
 
-## 七、MQ如何保证分布式事务的最终一致性？
+**核心结论**：数据库提交和发消息是两个系统，放不进同一个事务。在事务里发消息，会出现"**消息已发出但事务回滚**"或"**事务提交但消息没发出**"，发送超时还会拉长事务、占住连接。正确做法是**本地消息表**：业务数据和待发消息在同一个本地事务里落库，再由投递任务可靠地发出去。
 
-### 1、MQ基础流程
+| 写法 | 问题 |
+|------|------|
+| 先发消息再提交 / 事务内发送 | 事务回滚，下游收到一条"不存在"的事件 |
+| 先提交再发消息 | 提交后进程崩溃或发送失败，消息丢失 |
+| `@TransactionalEventListener(phase = AFTER_COMMIT)` | 避免了"回滚但已发出"，但提交后到发送前崩溃仍会丢，只适合非关键通知 |
 
-一条普通的MQ消息，从产生到被消费，大概流程如下：
+![本地消息表（Transactional Outbox）](../assets/messaging/mq-outbox.svg)
 
-![img_1.png](../assets/interview/mq_process.png)
+1. 同一个本地事务里写业务表和消息表（状态 `NEW`），两者同时成功或同时失败
+2. 投递任务扫描 `NEW` 消息发送到 MQ，收到 Broker 确认后标记 `SENT`；失败累加重试次数，下次再发
+3. 投递可能重复，**消费端必须幂等**
 
-- 生产者产生消息，发送带MQ服务器
+- 多实例扫表用 `SELECT ... FOR UPDATE SKIP LOCKED`（MySQL 8.0+ / PostgreSQL）或按分片扫描，避免重复投递
+- 也可以用 CDC（如 Debezium 读 binlog）推送 outbox 表，见 [数据库 · CDC 工具](/database/5_practice/0_cdc_tools)
+- `@TransactionalEventListener` 只在有活动事务时生效，没有事务时事件默认被丢弃（除非 `fallbackExecution = true`）
 
-- MQ收到消息后，将消息持久化到存储系统。
+→ 详见 [消息队列基础](/messaging/1_basics)
 
-- MQ服务器返回ACk到生产者。
+### Q19：RocketMQ 事务消息的原理是什么？（半消息 + 本地事务 + 回查）
 
-- MQ服务器把消息push给消费者
+**核心结论**：先发一条消费者不可见的**半消息** → 执行本地事务 → 按结果 **COMMIT** 投递或 **ROLLBACK** 丢弃；二次确认丢失或返回 `UNKNOWN` 时，Broker 定时**回查**生产者的本地事务状态。
 
-- 消费者消费完消息，响应ACK
+![RocketMQ 事务消息流程](../assets/messaging/rocketmq-transaction.svg)
 
-- MQ服务器收到ACK，认为消息消费成功，即在存储中删除消息。
+1. Producer 发送半消息，Broker 写入内部 Topic，消费者不可见
+2. 半消息写入成功后执行本地事务，并在**同一事务**里记录 `txId`（回查依据）
+3. 本地事务提交返回 `COMMIT`，确定失败返回 `ROLLBACK`，结果不确定返回 `UNKNOWN`
+4. 结果丢失或为 `UNKNOWN` 时 Broker 回查 `checkLocalTransaction`；超过回查上限（`transactionCheckMax`，默认 15 次）默认丢弃半消息
 
-### 2、MQ事务消息
+关键点：
 
-我们**举个下订单的例子**吧。订单系统创建完订单后，再发送消息给下游系统。如果订单创建成功，然后消息没有成功发送出去，
-下游系统就无法感知这个事情，出导致数据不一致。
+- **回查只在"确定"时返回 COMMIT / ROLLBACK**：查不到记录不等于失败，本地事务可能还没提交，应返回 `UNKNOWN`；超过合理窗口仍无记录才判定回滚
+- 回查依据必须持久化：回查可能落到 Producer 集群的其他实例，只能依赖数据库，不能依赖内存
+- 只保证"生产端本地事务 ⇔ 消息投递"，下游仍需重试 + 幂等
+- 5.x 的 Topic 需声明为 TRANSACTION 类型
 
-如何保证数据一致性呢？可以使用**事务消息**。一起来看下事务消息是如何实现的吧。
+→ 详见 [RocketMQ](/messaging/3_rocketmq)
 
-![img.png](../assets/interview/distributed_transaction_same.png)
+### Q20：本地消息表和 RocketMQ 事务消息的区别？
 
-- 生产者产生消息，发送一条**半事务消息**到MQ服务器
+**核心结论**：两者效果一致（本地事务成功则消息必达），差别在**谁来保证投递**：本地消息表靠**自己的消息表 + 投递任务**，与 MQ 无关；事务消息把这件事交给 **Broker 的半消息 + 回查**，省掉消息表，但绑定 RocketMQ。
 
-- MQ收到消息后，将消息持久化到存储系统，这条消息的状态是**待发送**状态。
+| 维度 | 本地消息表（Outbox） | RocketMQ 事务消息 |
+|------|---------------------|------------------|
+| 原子性来源 | 业务表与消息表同一本地事务 | 半消息 + 本地事务 + 回查 |
+| 额外组件 | 消息表、投递任务（或 CDC） | 回查接口、事务记录表（`txId`） |
+| MQ 依赖 | 任何 MQ 都能用 | 只能 RocketMQ |
+| 投递时延 | 取决于扫表间隔（CDC 可接近实时） | 本地事务提交后立即确认 |
+| 失败可见性 | 消息表里能直接查到未发送 / 重试中的消息 | 状态在 Broker 内部，依赖控制台与日志 |
+| 侵入与成本 | 多一张表和一个任务，库多一份写入 | 回查逻辑要写对（不确定返回 `UNKNOWN`） |
+| 共同点 | 都是至少一次，下游必须幂等；都不回滚上游 | 同左 |
 
-- MQ服务器**返回ACK确认到生产者**，此时MQ不会触发消息推送事件
+- 已用 RocketMQ 的核心链路可用事务消息；跨 MQ、需要统一治理或要接 CDC 时选本地消息表
 
-- 生产者执行本地事务，根据事务的执行情况进行后续判断
+→ 详见 [RocketMQ](/messaging/3_rocketmq)、[消息队列基础](/messaging/1_basics)
 
-- 如果本地事务执行成功，即commit执行结果到MQ服务器；如果执行失败，发送rollback。
+## 六、高可用
 
-- 如果是正常的commit，MQ服务器更新消息状态为可发送；如果是rollback，即删除消息。
+### Q21：RocketMQ 如何保证高可用？（主从复制 + DLedger / 5.x Controller）
 
-- 如果消息状态更新为**可发送**，则MQ服务器会push消息给消费者。消费者消费完就回ACK。
+**核心结论**：NameServer 无状态多节点部署，任一存活即可路由；Broker 侧经历了三个阶段——**主从复制（不自动切换）→ DLedger（Raft 自动选主）→ 5.x Controller（在同步副本中自动选主）**。新集群优先 5.x Controller 模式。
 
-- 如果MQ服务器长时间没有收到生产者的commit或者rollback，它会反查生产者，然后根据查询到的结果执行最终状态。
+![RocketMQ 部署架构](../assets/messaging/rocketmq-architecture.svg)
 
-## 八、MQ如何做到高可用？
----
+| 方案 | 复制方式 | 故障切换 | 说明 |
+|------|---------|---------|------|
+| 主从同步 / 异步复制 | `SYNC_MASTER` / `ASYNC_MASTER` | 不自动切换；Master 宕机后该组不可写，消费可转到 Slave 读 | 写入靠多组 Broker 分担；同步复制不丢，异步复制可能丢少量 |
+| DLedger（4.5+） | Raft，多数派写入成功才提交 | 自动选主 | 至少 3 副本；CommitLog 格式被 Raft 日志接管，存储与复制强耦合 |
+| Controller 模式（5.x） | 仍是主从复制，维护同步副本集合 SyncStateSet | Controller（可内嵌 NameServer）自动选主 | 只在同步副本中选主，避免丢数据；2 副本即可工作，复用原存储格式 |
 
-消息中间件如何保证高可用呢？**单机环境是没有高可用可言的**，高可用都是**基于集群**来实现的。接下来，我们看看 MQ 如何做到高可用。
+- 可靠性组合：同步复制（或 Controller）+ 异步刷盘是常见折中，详见 Q7
 
----
+→ 详见 [RocketMQ](/messaging/3_rocketmq)
 
-### 1、RocketMQ 高可用
+### Q22：Kafka 的副本机制是什么？Leader 宕机如何选举？
 
-RocketMQ 通过 **主从复制** 和 **DLedger** 机制来保障高可用，主要有以下两种模式：
+**核心结论**：每个分区有多个副本，**读写都走 Leader**，Follower 拉取同步；Leader 宕机后由 **KRaft Controller** 从 **ISR** 中选出新 Leader 并广播元数据，客户端刷新元数据后切到新 Leader。Kafka 4.0 起只有 KRaft 模式，不再依赖 ZooKeeper。
 
-#### **(1) 异步复制模式（默认）**
+![Kafka 4.x 集群架构](../assets/messaging/kafka-architecture.svg)
 
-- RocketMQ 的 **Master-Slave 架构**（主从架构）允许 **一个 Master 对应多个 Slave**，通过异步复制数据。
-- **Producer 生产消息后**，Master 先写入磁盘，随后 **异步同步给 Slave**，但不会等待 Slave 确认就返回 ACK 给 Producer。
-- **优点**：写入性能较高，不影响吞吐量。
-- **缺点**：如果 Master 宕机，可能会造成数据丢失（因为部分数据可能尚未同步到 Slave）。
+| 环节 | 说明 |
+|------|------|
+| 副本分布 | 同一分区的副本分散在不同 Broker（可按机架感知分布） |
+| 同步 | Follower 向 Leader 拉取；跟上的进入 ISR，HW 推进到 ISR 都已复制的位置 |
+| 故障检测 | Broker 与 Controller 的心跳 / 会话超时，Controller 感知 Broker 下线 |
+| 选举 | Controller 从该分区的 ISR 中选新 Leader；`unclean.leader.election.enable=false` 时 ISR 为空则分区不可用，而不是让落后副本上位丢数据 |
+| 截断 | 旧 Leader 恢复后作为 Follower，按新 Leader 的日志（Leader Epoch）截断未提交部分再追赶 |
 
-#### **(2) 同步复制模式**
+- KRaft Controller 通常 3 或 5 个节点组成 Raft 仲裁，管理 Topic、分区、Leader 与 ISR 变更；开发测试可与 Broker 同进程（combined 模式），生产建议独立部署
+- 旧集群需先在 3.x 完成 ZooKeeper → KRaft 迁移，再升级到 4.x
 
-- Master 在 **返回 Producer ACK 之前**，需要 **确保消息已同步给至少一个 Slave**。
-- **优点**：保证数据高可靠，即使 Master 宕机，也不会丢失已确认的消息。
-- **缺点**：写入性能较低，吞吐量下降。
+→ 详见 [Kafka](/messaging/2_kafka)
 
-#### **(3) DLedger 高可用模式（从 RocketMQ 4.5 开始）**
+### Q23：RabbitMQ 的镜像队列（4.0 已移除）和 Quorum Queue 有什么区别？为什么要迁移？
 
-- DLedger 是一种基于 **Raft 一致性协议** 的高可用存储机制，能够确保所有写入的数据都被多个节点确认后才返回 ACK。
-- **优势**：
-    - **更高的可用性**：采用 Raft 选主机制，避免了单点故障的影响。
-    - **强一致性保证**：数据不会因为 Master 宕机而丢失。
-    - **自动故障转移**：当 Leader 宕机时，Follower 可快速选举新的 Leader，无需人工介入。
+**核心结论**：经典镜像队列是 3.x 时代的主从复制方案，**已在 RabbitMQ 4.0 正式移除**，`ha-mode` 策略在 4.x 不再生效；需要复制的队列只剩 **Quorum 队列（Raft）** 和 **Stream**，升级前必须先把镜像队列迁移到 Quorum。
 
-**总结**：
+| 对比 | 经典镜像队列（≤ 3.x） | Quorum 队列（3.8+） |
+|------|---------------------|--------------------|
+| 复制模型 | 一主多镜像，靠策略把经典队列镜像到其他节点 | Raft：一个 leader + 若干 follower，多数派写入才确认 |
+| 数据安全 | 新镜像加入需同步历史消息，同步期间可用性受影响；提升未同步的镜像可能丢消息 | 多数派提交，Leader 宕机自动选举且不丢已确认消息 |
+| 毒消息保护 | 无 | `delivery-limit`（4.0 起默认 20），超过后死信或丢弃 |
+| 特性限制 | 支持非持久、排他等经典特性 | 始终持久化，不支持非持久、排他、自动删除；内存与磁盘 IO 要求更高 |
+| 现状 | 3.9 起废弃，**4.0 移除** | **业务队列的默认选择** |
 
-- **异步复制**：性能好，但存在数据丢失风险（默认）。
-- **同步复制**：保证高可用，但影响吞吐量。
-- **DLedger 模式**：基于 Raft 协议，能自动选主，并保证数据一致性。
+- 副本数建议奇数（3 或 5），3 副本容忍 1 个节点故障
+- 死信默认 at-most-once，要求可靠时设 `dead-letter-strategy: at-least-once`（配合 `overflow: reject-publish`）
+- 需要回放、大扇出或海量堆积时用 **Stream**（3.9+）：只追加日志、非破坏性消费、可按 offset / 时间戳回放
+- Classic 队列即使持久化也是单节点存储，只适合临时、可丢的队列
 
----
+→ 详见 [RabbitMQ](/messaging/4_rabbitmq)
 
-### 2、Kafka 高可用
+### Q24：如何设计一个消息队列？
 
-Kafka 的高可用主要依赖于 **Partition 机制** 和 **副本（Replica）同步**。
+**核心结论**：按"**一条消息的生命周期**"组织答案：怎么收（网络与协议）→ 怎么存（存储模型）→ 怎么投（消费模型）→ 怎么不丢不重（可靠性）→ 怎么扩与容错（分区与副本），再补上事务、延迟、死信等业务能力，并能说出每处的取舍。
 
-#### **(1) Kafka 的集群架构**
+| 维度 | 设计要点 | 参照 |
+|------|---------|------|
+| 网络通信 | 生产 / 消费两段 RPC，长连接 + 自定义二进制协议，批量收发与压缩 | Netty、Kafka 协议 |
+| 存储 | 顺序追加的分段日志 + 稀疏 / 定长索引；PageCache + 零拷贝；按时间 / 大小清理 | Kafka 分段日志、RocketMQ CommitLog + ConsumeQueue |
+| 消费模型 | 消费者组：组内分摊、组间各自全量；拉模式 + 长轮询；位点存 Broker | Kafka / RocketMQ |
+| 可靠性 | 生产确认 + 多副本确认后才 ack + 消费成功后再提交；默认至少一次 | `acks=all`、`min.insync.replicas` |
+| 扩展性 | Topic 拆分区，分区分布到多个 Broker；扩容加分区与节点 | Kafka Partition |
+| 高可用 | 分区多副本 + Leader 选举（Raft 或同步副本集合）；元数据集群化 | KRaft、Controller 模式 |
+| 业务能力 | 顺序（分区键）、延迟（时间轮）、事务（半消息 + 回查）、重试与死信 | RocketMQ |
+| 运维 | Lag 监控、消息轨迹、按 Key 查询、限流与配额 | — |
 
-- **Kafka 集群** 由多个 **Broker 组成**，每个 **Broker** 是一个 Kafka 节点。
-- **Topic** 可以被分为多个 **Partition**，而 **Partition** 分布在不同的 **Broker** 上。
-- 这样，一个 **Topic 的数据不是存储在单台机器上，而是分散存储在多个 Broker 之中**，避免了单点故障。
+- 取舍要主动说：同步刷盘 / 同步复制换可靠性牺牲吞吐；分区多提升并行但增加元数据与 Rebalance 开销；全局有序与吞吐不可兼得
+- 无论怎么设计，至少一次投递下的**幂等消费**都要交给业务
 
-#### **(2) 高可用的副本机制**
-
-Kafka **0.8 之后** 引入了 **副本（Replica）机制** 来保证高可用，即：
-
-- 每个 **Partition** 都有多个 **Replica（副本）**，其中一个是 **Leader**，其余是 **Follower**。
-- **Leader** 负责处理 **读写请求**，而 **Follower** 仅同步数据。
-- 当 **Leader 宕机** 后，Kafka **会自动从 Follower 选举一个新的 Leader** 来保证服务不中断。
-
-#### **(3) 副本同步机制**
-
-Kafka **采用 ISR（In-Sync Replica）机制** 来保证数据一致性：
-
-- **ISR（同步副本集）**：Kafka 维护一个 **ISR 列表**，其中包含所有 **同步进度与 Leader 相近的 Follower**。
-- **Leader 仅在 ISR 内的副本都确认写入后，才返回 ACK 给 Producer**，确保消息不会丢失。
-- 如果某个 Follower **同步太慢或者挂掉**，它会被踢出 ISR，避免影响整体吞吐量。
-
-#### **(4) Kafka 高可用总结**
-
-Kafka 通过以下机制来确保高可用：
-
-1. **分区（Partition）机制**：保证 Topic 的数据分散存储，不依赖单个 Broker。
-2. **副本（Replica）机制**：每个 Partition 有多个副本，确保数据冗余。
-3. **ISR 机制**：保证数据同步，Leader 挂了可以快速切换 Follower 作为新 Leader。
-4. **自动 Leader 选举**：如果某个 Leader 发生故障，Kafka 会自动从 ISR 中选择新的 Leader。
-
----
-
-### 3、RabbitMQ 高可用
-
-RabbitMQ 的高可用主要依靠 **镜像队列（Mirrored Queue）** 和 **Quorum Queue（法定队列）**。
-
-#### **(1) 镜像队列（Mirrored Queue）**
-
-- **普通队列（默认）**：消息只存储在某一个节点上，节点宕机会丢失队列数据。
-- **镜像队列**：消息会被复制到多个 RabbitMQ 节点上。所有的 **消费者都连接到同一个主队列**，但如果主队列所在节点挂掉，自动切换到其他节点的副本。
-- **优点**：保证数据高可用，即使某个 RabbitMQ 节点宕机，消息仍然可用。
-- **缺点**：数据同步会影响吞吐量。
-
-#### **(2) Quorum Queue（法定队列，RabbitMQ 3.8+）**
-
-- **基于 Raft 算法**，相比镜像队列更加可靠。
-- 数据写入后，**只要多数副本（Quorum）写入成功，就算成功**，提高了吞吐量和可靠性。
-- 适用于 **长时间运行且需要强一致性的消息队列**。
-
----
-
-### 4、高可用总结
-
-| MQ           | 高可用机制                         | 关键点                                         | 适用场景                    |  
-|--------------|-------------------------------|---------------------------------------------|-------------------------|  
-| **RocketMQ** | **Master-Slave 复制 + DLedger** | **DLedger（Raft）保证数据一致性**，避免 Master 宕机导致数据丢失 | **适用于高吞吐、高可靠的场景**       |  
-| **Kafka**    | **Partition + Replica 副本机制**  | **ISR（同步副本集）+ 自动 Leader 选举**                | **适用于流式数据处理，日志采集，实时计算** |  
-| **RabbitMQ** | **镜像队列 + Quorum Queue**       | **镜像队列保证数据冗余，Quorum Queue 提高一致性**           | **适用于需要严格一致性和事务保障的业务**  |  
-
-🚀 **总的来说**：
-
-- RocketMQ 依靠 **主从复制** 和 **DLedger** 实现高可用，适合 **事务保障** 和 **金融支付**。
-- Kafka 通过 **Partition + 副本机制** 保证高可用，适用于 **日志、流式计算** 等大数据场景。
-- RabbitMQ 通过 **镜像队列** 和 **Quorum Queue** 确保消息不丢，适合 **分布式事务、金融、订单** 等强一致性业务。
-
----
-
-## 九、如何设计一个MQ？
-
-### 1、问题剖析
-
-这个问题面试官主要考察三个方面的知识点：
-
-- 你有没有对消息队列的架构原理比较了解
-- 考察你的个人设计能力
-- 考察编程思想，如什么高可用、可扩展性、幂等等等。
-
-遇到这种设计题，大部分人会很蒙圈，因为平时没有思考过类似的问题。大多数人平时埋头增删改啥，不去思考框架背后的一些原理。
-有很多类似的问题，比如让你来设计一个 Dubbo 框架，或者让你来设计一个MyBatis 框架，你会怎么思考呢？
-
-回答这类问题，并不要求你研究过那技术的源码，你知道那个技术框架的基本结构、工作原理即可。
-
-### 2、设计思路
-
-设计一个消息队列，我们可以从这几个角度去思考：
-
-![img.png](../assets/interview/design_mq.png)
-
-- 首先是消息队列的整体流程，producer发送消息给broker，broker存储好，broker再发送给consumer消费，consumer回复消费确认等。
-
-- producer发送消息给broker，broker发消息给consumer消费，那就需要两次RPC了，RPC如何设计呢？可以参考开源框架Dubbo，你可以说说服务发现、序列化协议等等
-
-- broker考虑如何持久化呢，是放文件系统还是数据库呢，会不会消息堆积呢，消息堆积如何处理呢。
-
-- 消费关系如何保存呢？点对点还是广播方式呢？广播关系又是如何维护呢？zk还是config server
-
-- 消息可靠性如何保证呢？如果消息重复了，如何幂等处理呢？
-
-- 消息队列的高可用如何设计呢？可以参考Kafka的高可用保障机制。多副本 -> leader & follower -> broker 挂了重新选举 leader
-  即可对外服务。
-
-- 消息事务特性，与本地业务同个事务，本地消息落库;消息投递到服务端，本地才删除；定时任务扫描本地消息库，补偿发送。
-
-- MQ得伸缩性和可扩展性，如果消息积压或者资源不够时，如何支持快速扩容，提高吞吐？可以参照一下 Kafka 的设计理念，broker ->
-  topic -> partition，
-  每个 partition 放一个机器，就存一部分数据。如果现在资源不够了，简单啊，给 topic 增加
-  partition，然后做数据迁移，增加机器，不就可以存放更多数据，提供更高的吞吐量了？
-
-## 十、RocketMQ常见面试题
-
-以下内容待实践后调整：
-
-> 参考资料：[RocketMQ常见面试题](https://blog.csdn.net/ctwctw/article/details/107463884)
-
-## 十一、Kafka常见面试题
-
-以下内容待实践后调整：
-
-> 参考资料：[Kafka常见面试题](https://javabetter.cn/interview/kafka-40.html)
-
-## 十二、RocketMQ与Kafka对比？
-
-### 1、RocketMQ架构图
-
->
-参考地址：[https://blog.csdn.net/weixin_45304503/article/details/140248110](https://blog.csdn.net/weixin_45304503/article/details/140248110)
-
-![img.png](../assets/interview/RocketMQ_structure.png)
-
-### 2、Kafka架构图
-
->
-参考地址：[https://blog.csdn.net/weixin_45304503/article/details/140088911](https://blog.csdn.net/weixin_45304503/article/details/140088911)
-
-![img_1.png](../assets/interview/Kafka_structure.png)
-
-> RocketMQ与Kafka有何不同(
-> 上): [https://mp.weixin.qq.com/s/P40GLfVa7oFq0c0JgolvIQ](https://mp.weixin.qq.com/s/P40GLfVa7oFq0c0JgolvIQ)
-
-> RocketMQ与Kafka有何不同(
-> 下): [https://mp.weixin.qq.com/s/ioIr3nTBX5AMm3r8f49Mjw](https://mp.weixin.qq.com/s/ioIr3nTBX5AMm3r8f49Mjw)
+→ 详见 [MQ 选型与其他 MQ](/messaging/5_selection)、[Kafka](/messaging/2_kafka)

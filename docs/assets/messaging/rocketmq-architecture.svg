@@ -1,0 +1,79 @@
+<svg viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .head { font-size: 13px; font-weight: 600; }
+    .lbl { font-size: 12px; }
+    .sub { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arrr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="24" text-anchor="middle" class="title">RocketMQ 部署架构（4.x 经典模式）</text>
+
+  <!-- NameServer -->
+  <rect x="250" y="44" width="180" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="340" y="68" text-anchor="middle" class="head">NameServer 集群</text>
+  <text x="340" y="88" text-anchor="middle" class="sub">无状态路由，节点互不通信</text>
+
+  <!-- Producer / Consumer 拉路由 -->
+  <path d="M95,180 L95,74 L248,74" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+  <text x="170" y="66" text-anchor="middle" class="sub">拉取路由</text>
+  <path d="M585,180 L585,74 L432,74" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+  <text x="510" y="66" text-anchor="middle" class="sub">拉取路由</text>
+
+  <!-- Broker 注册 -->
+  <line x1="340" y1="150" x2="340" y2="106" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="348" y="132" class="sub">注册 + 心跳</text>
+
+  <!-- Producer -->
+  <rect x="20" y="180" width="150" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="95" y="204" text-anchor="middle" class="head">Producer</text>
+  <text x="95" y="224" text-anchor="middle" class="sub">按 Queue 选择发送</text>
+
+  <!-- Broker Master -->
+  <rect x="230" y="150" width="220" height="120" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="340" y="174" text-anchor="middle" class="head">Broker Master</text>
+  <text x="340" y="198" text-anchor="middle" class="lbl">CommitLog（所有 Topic 共用）</text>
+  <text x="340" y="220" text-anchor="middle" class="lbl">ConsumeQueue（每个 Queue 一份）</text>
+  <text x="340" y="244" text-anchor="middle" class="sub">Topic A：Queue 0 ~ 3</text>
+
+  <!-- Consumer -->
+  <rect x="510" y="180" width="150" height="60" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="585" y="204" text-anchor="middle" class="head">Consumer Group</text>
+  <text x="585" y="224" text-anchor="middle" class="sub">按 Queue 分配实例</text>
+
+  <line x1="170" y1="210" x2="228" y2="210" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="199" y="203" text-anchor="middle" class="sub">发送</text>
+  <line x1="450" y1="210" x2="508" y2="210" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="479" y="203" text-anchor="middle" class="sub">拉取</text>
+
+  <!-- Slave -->
+  <line x1="340" y1="270" x2="340" y2="318" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="348" y="298" class="sub">同步 / 异步复制</text>
+  <rect x="230" y="320" width="220" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="340" y="344" text-anchor="middle" class="head">Broker Slave</text>
+  <text x="340" y="364" text-anchor="middle" class="sub">备份数据，Master 繁忙时可读</text>
+
+  <text x="340" y="404" text-anchor="middle" class="sub">5.x 可在客户端与 Broker 之间加一层无状态 Proxy（gRPC），HA 可选 Controller 模式</text>
+</svg>
