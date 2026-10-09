@@ -1,0 +1,79 @@
+<svg viewBox="0 0 720 295" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 11px; fill: var(--muted); }
+    .mono  { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">冲突处理：依次放入 3、11、19、5，桶下标 = key % 8</text>
+
+  <!-- 链地址法 -->
+  <text x="200" y="56" text-anchor="middle" class="name">链地址法</text>
+  <rect x="60" y="70" width="60" height="34" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="90" y="92" text-anchor="middle" class="mono">[2]</text>
+  <rect x="60" y="104" width="60" height="34" fill="var(--p)" fill-opacity="0.12" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="90" y="126" text-anchor="middle" class="mono">[3]</text>
+  <rect x="60" y="138" width="60" height="34" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="90" y="160" text-anchor="middle" class="mono">[4]</text>
+  <rect x="60" y="172" width="60" height="34" fill="var(--p)" fill-opacity="0.12" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="90" y="194" text-anchor="middle" class="mono">[5]</text>
+  <rect x="60" y="206" width="60" height="34" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="90" y="228" text-anchor="middle" class="mono">[6]</text>
+
+  <line x1="120" y1="121" x2="146" y2="121" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="148" y="104" width="60" height="34" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="178" y="126" text-anchor="middle" class="mono">3</text>
+  <line x1="208" y1="121" x2="234" y2="121" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="236" y="104" width="60" height="34" rx="4" fill="var(--y)" fill-opacity="0.15" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="266" y="126" text-anchor="middle" class="mono">11</text>
+  <line x1="296" y1="121" x2="322" y2="121" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="324" y="104" width="60" height="34" rx="4" fill="var(--y)" fill-opacity="0.15" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="354" y="126" text-anchor="middle" class="mono">19</text>
+  <line x1="120" y1="189" x2="146" y2="189" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="148" y="172" width="60" height="34" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="178" y="194" text-anchor="middle" class="mono">5</text>
+  <text x="200" y="272" text-anchor="middle" class="note">冲突的 key 挂在同一个桶的链表上，链太长时 HashMap 会树化</text>
+
+  <!-- 线性探测 -->
+  <text x="560" y="56" text-anchor="middle" class="name">开放寻址（线性探测）</text>
+  <text x="462" y="92" text-anchor="end" class="mono">[2]</text>
+  <text x="462" y="126" text-anchor="end" class="mono">[3]</text>
+  <text x="462" y="160" text-anchor="end" class="mono">[4]</text>
+  <text x="462" y="194" text-anchor="end" class="mono">[5]</text>
+  <text x="462" y="228" text-anchor="end" class="mono">[6]</text>
+  <rect x="470" y="70" width="80" height="34" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <rect x="470" y="104" width="80" height="34" fill="var(--b)" fill-opacity="0.12" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="510" y="126" text-anchor="middle" class="mono">3</text>
+  <rect x="470" y="138" width="80" height="34" fill="var(--y)" fill-opacity="0.15" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="510" y="160" text-anchor="middle" class="mono">11</text>
+  <rect x="470" y="172" width="80" height="34" fill="var(--y)" fill-opacity="0.15" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="510" y="194" text-anchor="middle" class="mono">19</text>
+  <rect x="470" y="206" width="80" height="34" fill="var(--y)" fill-opacity="0.15" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="510" y="228" text-anchor="middle" class="mono">5</text>
+  <text x="562" y="160" class="note">11：[3] 被占，后移到 [4]</text>
+  <text x="562" y="194" class="note">19：[3][4] 被占 → [5]</text>
+  <text x="562" y="228" class="note">5：[5] 被占 → [6]</text>
+  <text x="560" y="272" text-anchor="middle" class="note">冲突时往后找空槽；连续占用会聚集，删除要留墓碑</text>
+</svg>

@@ -1,0 +1,66 @@
+<svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrp" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--p)"/>
+    </marker>
+    <marker id="arrm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="400" y="26" text-anchor="middle" class="title">纯责任链与管道式责任链</text>
+  <text x="30" y="66" text-anchor="start" class="lbl">纯责任链：某个处理者处理后就返回，后面的处理者收不到请求</text>
+  <rect x="30" y="80" width="140" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="100" y="106" text-anchor="middle" class="name">报销申请</text>
+  <text x="100" y="126" text-anchor="middle" class="desc">金额 3,000 元</text>
+  <rect x="220" y="80" width="160" height="60" rx="6" fill="var(--muted)" fill-opacity="0.10" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="300" y="106" text-anchor="middle" class="name">组长</text>
+  <text x="300" y="126" text-anchor="middle" class="desc">超出权限，转交</text>
+  <rect x="430" y="80" width="160" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="510" y="106" text-anchor="middle" class="name">经理</text>
+  <text x="510" y="126" text-anchor="middle" class="desc">处理并返回结果</text>
+  <rect x="640" y="80" width="140" height="60" rx="6" fill="var(--muted)" fill-opacity="0.10" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <text x="710" y="106" text-anchor="middle" class="name">总监</text>
+  <text x="710" y="126" text-anchor="middle" class="desc">收不到请求</text>
+  <line x1="170" y1="110" x2="218" y2="110" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <line x1="380" y1="110" x2="428" y2="110" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <line x1="590" y1="110" x2="638" y2="110" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrm)"/>
+  <text x="30" y="186" text-anchor="start" class="lbl">管道：每个处理者都执行自己的逻辑，再调用下一个（Servlet Filter、Netty Pipeline）</text>
+  <rect x="30" y="200" width="140" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="100" y="235" text-anchor="middle" class="name">HTTP 请求</text>
+  <rect x="220" y="200" width="160" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="300" y="226" text-anchor="middle" class="name">Filter A</text>
+  <text x="300" y="246" text-anchor="middle" class="desc">记录日志后放行</text>
+  <rect x="430" y="200" width="160" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="510" y="226" text-anchor="middle" class="name">Filter B</text>
+  <text x="510" y="246" text-anchor="middle" class="desc">鉴权通过后放行</text>
+  <rect x="640" y="200" width="140" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="710" y="226" text-anchor="middle" class="name">Servlet</text>
+  <text x="710" y="246" text-anchor="middle" class="desc">执行业务</text>
+  <line x1="170" y1="230" x2="218" y2="230" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <line x1="380" y1="230" x2="428" y2="230" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <line x1="590" y1="230" x2="638" y2="230" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+</svg>

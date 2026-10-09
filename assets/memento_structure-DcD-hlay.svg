@@ -1,0 +1,60 @@
+<svg viewBox="0 0 760 270" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrs" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
+      <path d="M7,0 L0,3.5 L7,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="26" text-anchor="middle" class="title">备忘录模式：角色与撤销 / 重做栈</text>
+  <rect x="20" y="50" width="210" height="80" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="125" y="76" text-anchor="middle" class="name">TextEditor（Originator）</text>
+  <text x="125" y="96" text-anchor="middle" class="desc">save() 生成快照</text>
+  <text x="125" y="114" text-anchor="middle" class="desc">restore() 恢复快照</text>
+  <rect x="275" y="50" width="210" height="80" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="380" y="76" text-anchor="middle" class="name">Snapshot（Memento）</text>
+  <text x="380" y="96" text-anchor="middle" class="desc">不可变 record</text>
+  <text x="380" y="114" text-anchor="middle" class="desc">只有 TextEditor 能读内容</text>
+  <rect x="530" y="50" width="210" height="80" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="635" y="76" text-anchor="middle" class="name">EditorHistory（Caretaker）</text>
+  <text x="635" y="96" text-anchor="middle" class="desc">持有 undo 栈 / redo 栈</text>
+  <text x="635" y="114" text-anchor="middle" class="desc">只保管，不读内容</text>
+  <line x1="230" y1="90" x2="273" y2="90" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="251.5" y="84" text-anchor="middle" class="lbl">创建</text>
+  <line x1="530" y1="90" x2="487" y2="90" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="508.5" y="84" text-anchor="middle" class="lbl">保管</text>
+  <rect x="20" y="170" width="250" height="80" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="145" y="196" text-anchor="middle" class="name">undo 栈（历史快照）</text>
+  <text x="145" y="216" text-anchor="middle" class="desc">每次编辑前压入当前快照</text>
+  <text x="145" y="234" text-anchor="middle" class="desc">新的编辑会清空 redo 栈</text>
+  <rect x="490" y="170" width="250" height="80" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="615" y="196" text-anchor="middle" class="name">redo 栈（被撤销的快照）</text>
+  <text x="615" y="216" text-anchor="middle" class="desc">undo 时压入当前快照</text>
+  <text x="615" y="234" text-anchor="middle" class="desc">redo 时弹出并恢复</text>
+  <line x1="270" y1="210" x2="488" y2="210" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)" marker-start="url(#arrs)"/>
+  <text x="380" y="202" text-anchor="middle" class="lbl">undo()：当前快照压入 redo</text>
+  <text x="380" y="226" text-anchor="middle" class="lbl">redo()：当前快照压入 undo</text>
+</svg>

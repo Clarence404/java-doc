@@ -1,0 +1,73 @@
+<svg viewBox="0 0 760 384" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 12px; fill: var(--muted); }
+    .item  { font-size: 12px; }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="24" text-anchor="middle" class="title">证书链校验：从叶子证书逐级验到受信根</text>
+
+  <!-- 叶子证书 -->
+  <rect x="20" y="44" width="320" height="80" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="180" y="68" text-anchor="middle" class="name" fill="var(--b)">服务器证书（叶子）</text>
+  <text x="180" y="90" text-anchor="middle" class="desc">Subject / SAN：www.example.com</text>
+  <text x="180" y="108" text-anchor="middle" class="desc">Issuer：某中间 CA，握手时下发</text>
+
+  <line x1="180" y1="124" x2="180" y2="162" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="190" y="148" class="lbl">用中间 CA 公钥验签</text>
+
+  <!-- 中间 CA -->
+  <rect x="20" y="164" width="320" height="80" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="180" y="188" text-anchor="middle" class="name" fill="var(--p)">中间 CA 证书</text>
+  <text x="180" y="210" text-anchor="middle" class="desc">Issuer：根 CA</text>
+  <text x="180" y="228" text-anchor="middle" class="desc">服务器必须在握手时一并下发</text>
+
+  <line x1="180" y1="244" x2="180" y2="282" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="190" y="268" class="lbl">用根 CA 公钥验签</text>
+
+  <!-- 根 CA -->
+  <rect x="20" y="284" width="320" height="80" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="180" y="308" text-anchor="middle" class="name" fill="var(--g)">根 CA 证书（自签名）</text>
+  <text x="180" y="330" text-anchor="middle" class="desc">不靠服务器下发</text>
+  <text x="180" y="348" text-anchor="middle" class="desc">只看本地信任库里有没有</text>
+
+  <line x1="340" y1="324" x2="378" y2="324" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="359" y="317" text-anchor="middle" class="lbl">匹配</text>
+
+  <!-- 信任库 -->
+  <rect x="380" y="284" width="360" height="80" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="560" y="308" text-anchor="middle" class="name" fill="var(--y)">本地信任库（truststore）</text>
+  <text x="560" y="330" text-anchor="middle" class="desc">操作系统 / 浏览器根证书库</text>
+  <text x="560" y="348" text-anchor="middle" class="desc">Java：$JAVA_HOME/lib/security/cacerts</text>
+
+  <!-- 逐张检查 -->
+  <rect x="380" y="44" width="360" height="200" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="560" y="68" text-anchor="middle" class="name">每一张证书都要检查</text>
+  <text x="400" y="96" class="item">1、签名：用上一级的公钥验证本证书签名</text>
+  <text x="400" y="124" class="item">2、有效期：当前时间在 notBefore ~ notAfter 内</text>
+  <text x="400" y="152" class="item">3、主机名：访问的域名命中叶子证书的 SAN</text>
+  <text x="400" y="180" class="item">4、用途：CA 证书带 BasicConstraints CA=true</text>
+  <text x="400" y="208" class="item">5、吊销：OCSP（含 Stapling）或 CRL</text>
+</svg>

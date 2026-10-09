@@ -1,0 +1,87 @@
+<svg viewBox="0 0 720 363" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 11px; fill: var(--muted); }
+    .mono  { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrg" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--g)"/>
+    </marker>
+    <marker id="arrm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">单链表的插入、删除与反转：只改指针，不搬数据</text>
+
+  <!-- ① 插入 -->
+  <text x="20" y="56" class="txt">① 插入：先 node.next = pre.next，再 pre.next = node（顺序反了会断链）</text>
+  <rect x="20" y="68" width="90" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="65" y="93" text-anchor="middle" class="mono">1 · pre</text>
+  <rect x="140" y="68" width="90" height="40" rx="4" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="185" y="93" text-anchor="middle" class="mono">2 · node</text>
+  <rect x="260" y="68" width="90" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="305" y="93" text-anchor="middle" class="mono">3</text>
+  <line x1="110" y1="88" x2="138" y2="88" stroke="var(--g)" stroke-width="1.5" marker-end="url(#arrg)"/>
+  <line x1="230" y1="88" x2="258" y2="88" stroke="var(--g)" stroke-width="1.5" marker-end="url(#arrg)"/>
+  <line x1="350" y1="88" x2="378" y2="88" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="384" y="93" class="mono">null</text>
+  <text x="700" y="93" text-anchor="end" class="note">O(1)，前提是已经拿到 pre；先找位置是 O(n)</text>
+
+  <!-- ② 删除 -->
+  <text x="20" y="140" class="txt">② 删除：pre.next = pre.next.next，跳过待删节点</text>
+  <rect x="20" y="152" width="90" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="65" y="177" text-anchor="middle" class="mono">1 · pre</text>
+  <rect x="140" y="152" width="90" height="40" rx="4" fill="var(--r)" fill-opacity="0.08" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="185" y="177" text-anchor="middle" class="mono">2 · 待删</text>
+  <rect x="260" y="152" width="90" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="305" y="177" text-anchor="middle" class="mono">3</text>
+  <line x1="110" y1="172" x2="138" y2="172" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrm)"/>
+  <line x1="230" y1="172" x2="258" y2="172" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrm)"/>
+  <path d="M65,192 L65,206 L305,206 L305,194" fill="none" stroke="var(--g)" stroke-width="1.5" marker-end="url(#arrg)"/>
+  <line x1="350" y1="172" x2="378" y2="172" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="384" y="177" class="mono">null</text>
+  <text x="700" y="177" text-anchor="end" class="note">节点 2 不再被引用，由 GC 回收</text>
+
+  <!-- ③ 反转 -->
+  <text x="20" y="238" class="txt">③ 反转（迭代）进行中：前两个节点已经掉头，cur 指向下一个待处理节点</text>
+  <text x="20" y="297" class="mono">null</text>
+  <rect x="70" y="272" width="90" height="40" rx="4" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="115" y="297" text-anchor="middle" class="mono">1</text>
+  <rect x="190" y="272" width="90" height="40" rx="4" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="235" y="297" text-anchor="middle" class="mono">2</text>
+  <rect x="310" y="272" width="90" height="40" rx="4" fill="var(--y)" fill-opacity="0.15" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="355" y="297" text-anchor="middle" class="mono">3</text>
+  <rect x="430" y="272" width="90" height="40" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="475" y="297" text-anchor="middle" class="mono">4</text>
+  <text x="235" y="264" text-anchor="middle" class="note">prev</text>
+  <text x="355" y="264" text-anchor="middle" class="note">cur</text>
+  <text x="475" y="264" text-anchor="middle" class="note">next</text>
+  <line x1="70" y1="292" x2="46" y2="292" stroke="var(--g)" stroke-width="1.5" marker-end="url(#arrg)"/>
+  <line x1="190" y1="292" x2="162" y2="292" stroke="var(--g)" stroke-width="1.5" marker-end="url(#arrg)"/>
+  <line x1="400" y1="292" x2="428" y2="292" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="520" y1="292" x2="548" y2="292" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="554" y="297" class="mono">null</text>
+  <text x="360" y="340" text-anchor="middle" class="txt">每轮四步：next = cur.next → cur.next = prev → prev = cur → cur = next</text>
+</svg>

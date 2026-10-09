@@ -1,0 +1,94 @@
+<svg viewBox="0 0 780 374" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .head  { font-size: 14px; font-weight: 700; }
+    .layer { font-size: 12px; }
+    .lane  { font-size: 11px; fill: var(--muted); }
+    .cap   { font-size: 11px; fill: var(--muted); }
+  </style>
+
+  <text x="390" y="24" text-anchor="middle" class="title">HTTP/1.1、HTTP/2、HTTP/3 协议栈与并发方式</text>
+
+  <!-- ===== HTTP/1.1 ===== -->
+  <rect x="20" y="44" width="240" height="310" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="140" y="68" text-anchor="middle" class="head" fill="var(--y)">HTTP/1.1</text>
+  <rect x="32" y="82" width="216" height="36" rx="4" fill="var(--y)" fill-opacity="0.15" stroke="var(--y)" stroke-width="1.2"/>
+  <text x="140" y="105" text-anchor="middle" class="layer">HTTP/1.1（文本报文）</text>
+  <rect x="32" y="126" width="216" height="36" rx="4" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="140" y="149" text-anchor="middle" class="layer">TLS（可选）</text>
+  <rect x="32" y="170" width="216" height="36" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text x="140" y="193" text-anchor="middle" class="layer">TCP</text>
+  <rect x="32" y="214" width="216" height="36" rx="4" fill="var(--muted)" fill-opacity="0.12" stroke="var(--muted)" stroke-width="1.2"/>
+  <text x="140" y="237" text-anchor="middle" class="layer">IP</text>
+
+  <text x="32" y="274" class="lane">连接 1</text>
+  <rect x="80" y="263" width="34" height="14" rx="2" fill="var(--p)"/>
+  <rect x="122" y="263" width="34" height="14" rx="2" fill="var(--p)" fill-opacity="0.4"/>
+  <rect x="164" y="263" width="34" height="14" rx="2" fill="var(--g)"/>
+  <rect x="206" y="263" width="34" height="14" rx="2" fill="var(--g)" fill-opacity="0.4"/>
+  <text x="32" y="298" class="lane">连接 2</text>
+  <rect x="80" y="287" width="34" height="14" rx="2" fill="var(--b)"/>
+  <rect x="122" y="287" width="34" height="14" rx="2" fill="var(--b)" fill-opacity="0.4"/>
+  <text x="140" y="342" text-anchor="middle" class="cap">一问一答串行，靠多开连接并发</text>
+
+  <!-- ===== HTTP/2 ===== -->
+  <rect x="270" y="44" width="240" height="310" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="390" y="68" text-anchor="middle" class="head" fill="var(--p)">HTTP/2</text>
+  <rect x="282" y="82" width="216" height="36" rx="4" fill="var(--p)" fill-opacity="0.15" stroke="var(--p)" stroke-width="1.2"/>
+  <text x="390" y="105" text-anchor="middle" class="layer">HTTP/2（二进制帧 + HPACK）</text>
+  <rect x="282" y="126" width="216" height="36" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text x="390" y="149" text-anchor="middle" class="layer">TLS 1.2+（ALPN 协商 h2）</text>
+  <rect x="282" y="170" width="216" height="36" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text x="390" y="193" text-anchor="middle" class="layer">TCP</text>
+  <rect x="282" y="214" width="216" height="36" rx="4" fill="var(--muted)" fill-opacity="0.12" stroke="var(--muted)" stroke-width="1.2"/>
+  <text x="390" y="237" text-anchor="middle" class="layer">IP</text>
+
+  <text x="282" y="298" class="lane">TCP</text>
+  <rect x="330" y="287" width="20" height="14" rx="2" fill="var(--p)"/>
+  <rect x="358" y="287" width="20" height="14" rx="2" fill="var(--b)"/>
+  <rect x="386" y="287" width="20" height="14" rx="2" fill="var(--r)" fill-opacity="0.25" stroke="var(--r)" stroke-width="1.2" stroke-dasharray="3 2"/>
+  <rect x="414" y="287" width="20" height="14" rx="2" fill="var(--p)"/>
+  <rect x="442" y="287" width="20" height="14" rx="2" fill="var(--b)"/>
+  <rect x="470" y="287" width="20" height="14" rx="2" fill="var(--g)"/>
+  <text x="390" y="342" text-anchor="middle" class="cap">多个流的帧交错；丢一个包，所有流一起等</text>
+
+  <!-- ===== HTTP/3 ===== -->
+  <rect x="520" y="44" width="240" height="310" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="640" y="68" text-anchor="middle" class="head" fill="var(--g)">HTTP/3</text>
+  <rect x="532" y="82" width="216" height="36" rx="4" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.2"/>
+  <text x="640" y="105" text-anchor="middle" class="layer">HTTP/3（帧 + QPACK）</text>
+  <rect x="532" y="126" width="216" height="36" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.2"/>
+  <text x="640" y="149" text-anchor="middle" class="layer">QUIC（流 + 内置 TLS 1.3）</text>
+  <rect x="532" y="170" width="216" height="36" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.2"/>
+  <text x="640" y="193" text-anchor="middle" class="layer">UDP</text>
+  <rect x="532" y="214" width="216" height="36" rx="4" fill="var(--muted)" fill-opacity="0.12" stroke="var(--muted)" stroke-width="1.2"/>
+  <text x="640" y="237" text-anchor="middle" class="layer">IP</text>
+
+  <text x="532" y="274" class="lane">流 1</text>
+  <rect x="580" y="263" width="20" height="14" rx="2" fill="var(--p)"/>
+  <rect x="608" y="263" width="20" height="14" rx="2" fill="var(--p)"/>
+  <rect x="636" y="263" width="20" height="14" rx="2" fill="var(--p)"/>
+  <text x="532" y="298" class="lane">流 2</text>
+  <rect x="580" y="287" width="20" height="14" rx="2" fill="var(--r)" fill-opacity="0.25" stroke="var(--r)" stroke-width="1.2" stroke-dasharray="3 2"/>
+  <rect x="608" y="287" width="20" height="14" rx="2" fill="var(--b)" fill-opacity="0.4"/>
+  <text x="532" y="322" class="lane">流 3</text>
+  <rect x="580" y="311" width="20" height="14" rx="2" fill="var(--g)"/>
+  <rect x="608" y="311" width="20" height="14" rx="2" fill="var(--g)"/>
+  <rect x="636" y="311" width="20" height="14" rx="2" fill="var(--g)"/>
+  <text x="640" y="342" text-anchor="middle" class="cap">流各自排序；丢包只卡住所在的流</text>
+</svg>

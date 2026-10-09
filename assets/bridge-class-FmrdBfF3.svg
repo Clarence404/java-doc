@@ -1,0 +1,68 @@
+<svg viewBox="0 0 780 320" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+    .sec   { font-size: 13px; font-weight: 700; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="tri" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0.5,0.5 L8.5,4.5 L0.5,8.5 z" fill="var(--card)" stroke="var(--fg)" stroke-width="0.8"/>
+    </marker>
+  </defs>
+  <text x="390" y="26" text-anchor="middle" class="title">桥接模式：两个维度各自扩展</text>
+  <rect x="30" y="50" width="300" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="180" y="74" text-anchor="middle" class="name">Notification（抽象部分）</text>
+  <text x="180" y="94" text-anchor="middle" class="desc">持有 MessageChannel，定义 send(to, msg)</text>
+  <rect x="450" y="50" width="300" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="600" y="74" text-anchor="middle" class="name">MessageChannel（实现部分）</text>
+  <text x="600" y="94" text-anchor="middle" class="desc">deliver(to, content)</text>
+  <line x1="330" y1="80" x2="448" y2="80" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="389" y="72" text-anchor="middle" class="lbl">桥：组合</text>
+  <rect x="30" y="170" width="145" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="102.5" y="194" text-anchor="middle" class="name">NormalNotification</text>
+  <text x="102.5" y="214" text-anchor="middle" class="desc">普通消息</text>
+  <rect x="185" y="170" width="145" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="257.5" y="194" text-anchor="middle" class="name">UrgentNotification</text>
+  <text x="257.5" y="214" text-anchor="middle" class="desc">紧急消息</text>
+  <rect x="450" y="170" width="145" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="522.5" y="194" text-anchor="middle" class="name">EmailChannel</text>
+  <text x="522.5" y="214" text-anchor="middle" class="desc">邮件</text>
+  <rect x="605" y="170" width="145" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="677.5" y="194" text-anchor="middle" class="name">SmsChannel</text>
+  <text x="677.5" y="214" text-anchor="middle" class="desc">短信</text>
+  <path d="M102.5,170 L102.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5"/>
+  <path d="M257.5,170 L257.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5"/>
+  <path d="M102.5,140 L257.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5"/>
+  <path d="M180,140 L180,112" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#tri)"/>
+  <path d="M522.5,170 L522.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M677.5,170 L677.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M522.5,140 L677.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M600,140 L600,112" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#tri)"/>
+  <text x="390" y="262" text-anchor="middle" class="lbl">继承方案：消息类型 × 渠道 = n×m 个类；桥接方案：n + m 个类，两边独立新增</text>
+  <path d="M237,296 L277,296" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#tri)"/>
+  <text x="287" y="300" text-anchor="start" class="lbl">继承</text>
+  <path d="M339,296 L379,296" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#tri)"/>
+  <text x="389" y="300" text-anchor="start" class="lbl">实现</text>
+  <path d="M441,296 L481,296" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="491" y="300" text-anchor="start" class="lbl">持有</text>
+</svg>

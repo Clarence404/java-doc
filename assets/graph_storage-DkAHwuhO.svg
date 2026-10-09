@@ -1,0 +1,132 @@
+<svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 11px; fill: var(--muted); }
+    .mono  { font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .edge  { stroke: var(--fg); stroke-width: 1.5; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">同一张无向图的两种存储方式</text>
+
+  <!-- 图 -->
+  <line class="edge" x1="80" y1="77" x2="160" y2="77"/>
+  <line class="edge" x1="60" y1="94" x2="60" y2="160"/>
+  <line class="edge" x1="164" y1="94" x2="76" y2="160"/>
+  <line class="edge" x1="80" y1="177" x2="160" y2="177"/>
+  <rect x="40" y="60" width="40" height="34" rx="17" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="60" y="82" text-anchor="middle" class="name">0</text>
+  <rect x="160" y="60" width="40" height="34" rx="17" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="180" y="82" text-anchor="middle" class="name">1</text>
+  <rect x="40" y="160" width="40" height="34" rx="17" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="60" y="182" text-anchor="middle" class="name">2</text>
+  <rect x="160" y="160" width="40" height="34" rx="17" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="180" y="182" text-anchor="middle" class="name">3</text>
+  <text x="120" y="236" text-anchor="middle" class="note">图：4 个顶点、4 条边</text>
+
+  <!-- 邻接矩阵 -->
+  <text x="308" y="52" text-anchor="middle" class="note">0</text>
+  <text x="344" y="52" text-anchor="middle" class="note">1</text>
+  <text x="380" y="52" text-anchor="middle" class="note">2</text>
+  <text x="416" y="52" text-anchor="middle" class="note">3</text>
+  <text x="282" y="82" text-anchor="end" class="note">0</text>
+  <text x="282" y="116" text-anchor="end" class="note">1</text>
+  <text x="282" y="150" text-anchor="end" class="note">2</text>
+  <text x="282" y="184" text-anchor="end" class="note">3</text>
+
+  <rect x="290" y="60" width="36" height="34" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="308" y="82" text-anchor="middle" class="mono">0</text>
+  <rect x="326" y="60" width="36" height="34" fill="var(--b)" fill-opacity="0.15" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="344" y="82" text-anchor="middle" class="mono">1</text>
+  <rect x="362" y="60" width="36" height="34" fill="var(--b)" fill-opacity="0.15" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="380" y="82" text-anchor="middle" class="mono">1</text>
+  <rect x="398" y="60" width="36" height="34" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="416" y="82" text-anchor="middle" class="mono">0</text>
+
+  <rect x="290" y="94" width="36" height="34" fill="var(--b)" fill-opacity="0.15" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="308" y="116" text-anchor="middle" class="mono">1</text>
+  <rect x="326" y="94" width="36" height="34" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="344" y="116" text-anchor="middle" class="mono">0</text>
+  <rect x="362" y="94" width="36" height="34" fill="var(--b)" fill-opacity="0.15" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="380" y="116" text-anchor="middle" class="mono">1</text>
+  <rect x="398" y="94" width="36" height="34" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="416" y="116" text-anchor="middle" class="mono">0</text>
+
+  <rect x="290" y="128" width="36" height="34" fill="var(--b)" fill-opacity="0.15" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="308" y="150" text-anchor="middle" class="mono">1</text>
+  <rect x="326" y="128" width="36" height="34" fill="var(--b)" fill-opacity="0.15" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="344" y="150" text-anchor="middle" class="mono">1</text>
+  <rect x="362" y="128" width="36" height="34" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="380" y="150" text-anchor="middle" class="mono">0</text>
+  <rect x="398" y="128" width="36" height="34" fill="var(--b)" fill-opacity="0.15" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="416" y="150" text-anchor="middle" class="mono">1</text>
+
+  <rect x="290" y="162" width="36" height="34" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="308" y="184" text-anchor="middle" class="mono">0</text>
+  <rect x="326" y="162" width="36" height="34" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="344" y="184" text-anchor="middle" class="mono">0</text>
+  <rect x="362" y="162" width="36" height="34" fill="var(--b)" fill-opacity="0.15" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="380" y="184" text-anchor="middle" class="mono">1</text>
+  <rect x="398" y="162" width="36" height="34" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="416" y="184" text-anchor="middle" class="mono">0</text>
+  <text x="362" y="236" text-anchor="middle" class="note">邻接矩阵：空间 O(V²)，查边 O(1)</text>
+
+  <!-- 邻接表 -->
+  <rect x="480" y="50" width="34" height="34" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="497" y="72" text-anchor="middle" class="mono">0</text>
+  <line x1="514" y1="67" x2="540" y2="67" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="542" y="50" width="34" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="559" y="72" text-anchor="middle" class="mono">1</text>
+  <line x1="576" y1="67" x2="602" y2="67" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="604" y="50" width="34" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="621" y="72" text-anchor="middle" class="mono">2</text>
+
+  <rect x="480" y="92" width="34" height="34" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="497" y="114" text-anchor="middle" class="mono">1</text>
+  <line x1="514" y1="109" x2="540" y2="109" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="542" y="92" width="34" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="559" y="114" text-anchor="middle" class="mono">0</text>
+  <line x1="576" y1="109" x2="602" y2="109" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="604" y="92" width="34" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="621" y="114" text-anchor="middle" class="mono">2</text>
+
+  <rect x="480" y="134" width="34" height="34" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="497" y="156" text-anchor="middle" class="mono">2</text>
+  <line x1="514" y1="151" x2="540" y2="151" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="542" y="134" width="34" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="559" y="156" text-anchor="middle" class="mono">0</text>
+  <line x1="576" y1="151" x2="602" y2="151" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="604" y="134" width="34" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="621" y="156" text-anchor="middle" class="mono">1</text>
+  <line x1="638" y1="151" x2="664" y2="151" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="666" y="134" width="34" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="683" y="156" text-anchor="middle" class="mono">3</text>
+
+  <rect x="480" y="176" width="34" height="34" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="497" y="198" text-anchor="middle" class="mono">3</text>
+  <line x1="514" y1="193" x2="540" y2="193" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="542" y="176" width="34" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="559" y="198" text-anchor="middle" class="mono">2</text>
+  <text x="590" y="236" text-anchor="middle" class="note">邻接表：空间 O(V+E)，适合稀疏图</text>
+</svg>

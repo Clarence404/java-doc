@@ -1,0 +1,59 @@
+<svg viewBox="0 0 720 306" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+    .sec   { font-size: 13px; font-weight: 700; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="tri" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0.5,0.5 L8.5,4.5 L0.5,8.5 z" fill="var(--card)" stroke="var(--fg)" stroke-width="0.8"/>
+    </marker>
+  </defs>
+  <text x="360" y="26" text-anchor="middle" class="title">建造者模式的角色（GoF）</text>
+  <rect x="40" y="50" width="260" height="80" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="170" y="74" text-anchor="middle" class="name">Director（指挥者）</text>
+  <text x="170" y="94" text-anchor="middle" class="desc">construct(builder)</text>
+  <text x="170" y="114" text-anchor="middle" class="desc">按固定顺序调用各 buildX()</text>
+  <rect x="420" y="50" width="260" height="80" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="550" y="74" text-anchor="middle" class="name">Builder（抽象建造者）</text>
+  <text x="550" y="94" text-anchor="middle" class="desc">buildPartA() / buildPartB()</text>
+  <text x="550" y="114" text-anchor="middle" class="desc">getResult()</text>
+  <rect x="40" y="180" width="260" height="80" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="170" y="204" text-anchor="middle" class="name">Product（产品）</text>
+  <text x="170" y="224" text-anchor="middle" class="desc">复杂对象，构建完成后不可变</text>
+  <rect x="420" y="180" width="260" height="80" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="550" y="204" text-anchor="middle" class="name">ConcreteBuilder（具体建造者）</text>
+  <text x="550" y="224" text-anchor="middle" class="desc">实现各步骤，内部暂存部件</text>
+  <text x="550" y="244" text-anchor="middle" class="desc">getResult() 组装出 Product</text>
+  <line x1="300" y1="90" x2="418" y2="90" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="359" y="82" text-anchor="middle" class="lbl">调用</text>
+  <line x1="550" y1="180" x2="550" y2="132" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#tri)"/>
+  <line x1="420" y1="220" x2="302" y2="220" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <text x="361" y="212" text-anchor="middle" class="lbl">创建</text>
+  <path d="M207,282 L247,282" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#tri)"/>
+  <text x="257" y="286" text-anchor="start" class="lbl">实现</text>
+  <path d="M309,282 L349,282" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="359" y="286" text-anchor="start" class="lbl">调用</text>
+  <path d="M411,282 L451,282" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <text x="461" y="286" text-anchor="start" class="lbl">创建</text>
+</svg>

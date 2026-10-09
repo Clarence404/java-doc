@@ -1,0 +1,80 @@
+<svg viewBox="0 0 760 486" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .node  { font-size: 12px; }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+    .note  { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="24" text-anchor="middle" class="title">HTTP 缓存判断流程（强缓存 → 协商缓存）</text>
+
+  <!-- 行 1 -->
+  <rect x="230" y="44" width="300" height="40" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="380" y="69" text-anchor="middle" class="node">浏览器 / 客户端发起请求</text>
+
+  <line x1="380" y1="84" x2="380" y2="112" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 行 2 -->
+  <rect x="230" y="114" width="300" height="40" rx="20" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="380" y="139" text-anchor="middle" class="node">本地有缓存副本吗？</text>
+
+  <line x1="380" y1="154" x2="380" y2="182" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="390" y="172" class="lbl">有</text>
+  <path d="M530,134 H600 V392" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="565" y="127" text-anchor="middle" class="lbl">没有</text>
+
+  <!-- 行 3 -->
+  <rect x="230" y="184" width="300" height="40" rx="20" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="380" y="209" text-anchor="middle" class="node">还在新鲜期内？（max-age / Expires）</text>
+
+  <rect x="10" y="184" width="180" height="40" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="100" y="209" text-anchor="middle" class="node" fill="var(--g)">强缓存命中：不发请求</text>
+  <line x1="230" y1="204" x2="192" y2="204" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="211" y="198" text-anchor="middle" class="lbl">是</text>
+
+  <line x1="380" y1="224" x2="380" y2="252" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="390" y="242" class="lbl">否（已过期或 no-cache）</text>
+
+  <!-- 行 4 -->
+  <rect x="200" y="254" width="360" height="40" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380" y="279" text-anchor="middle" class="node">带 If-None-Match / If-Modified-Since 发条件请求</text>
+
+  <line x1="380" y1="294" x2="380" y2="322" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 行 5 -->
+  <rect x="230" y="324" width="300" height="40" rx="20" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="380" y="349" text-anchor="middle" class="node">服务器比对 ETag / 修改时间：变了吗？</text>
+
+  <path d="M230,344 H190 V392" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="210" y="338" text-anchor="middle" class="lbl">没变</text>
+  <path d="M530,344 H560 V392" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="545" y="338" text-anchor="middle" class="lbl">变了</text>
+
+  <!-- 行 6 -->
+  <rect x="40" y="394" width="300" height="40" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="190" y="419" text-anchor="middle" class="node" fill="var(--g)">304：沿用本地副本，刷新新鲜期</text>
+  <rect x="420" y="394" width="300" height="40" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="570" y="419" text-anchor="middle" class="node" fill="var(--p)">200：返回新内容与新的缓存头</text>
+
+  <text x="380" y="466" text-anchor="middle" class="note">no-store 表示完全不缓存，不进入此流程；no-cache 表示可以存，但每次使用前都要协商</text>
+</svg>

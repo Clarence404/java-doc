@@ -1,0 +1,67 @@
+<svg viewBox="0 0 680 484" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .lbl { fill:var(--fg); font-size:12px; }
+    .arrb { stroke:var(--b); stroke-width:1.6; fill:none; }
+    .arrg { stroke:var(--g); stroke-width:1.6; fill:none; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+    <marker id="ab" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--b)"/>
+    </marker>
+    <marker id="ag" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--g)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">一封邮件从发出到被读取</text>
+  <rect class="layer" x="20" y="44" width="640" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="40" y="70" fill="var(--p)">发件方 MUA / 应用</text>
+  <text class="sub" x="40" y="88">Outlook / JavaMailSender</text>
+  <text class="desc" x="650" y="70" text-anchor="end">SMTP 提交：587 + STARTTLS 或 465 隐式 TLS</text>
+  <text class="desc" x="650" y="88" text-anchor="end">必须认证，后端用授权码或 API Key</text>
+  <line class="arr" x1="340" y1="104" x2="340" y2="132" marker-end="url(#a)"/>
+  <rect class="layer" x="20" y="134" width="640" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="40" y="160" fill="var(--b)">发送方 MSA / MTA</text>
+  <text class="sub" x="40" y="178">企业邮箱 / SES / SendGrid</text>
+  <text class="desc" x="650" y="160" text-anchor="end">对邮件做 DKIM 签名</text>
+  <text class="desc" x="650" y="178" text-anchor="end">查询 DNS 拿到收件域的 MX 记录</text>
+  <line class="arr" x1="340" y1="194" x2="340" y2="222" marker-end="url(#a)"/>
+  <rect class="layer" x="20" y="224" width="640" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="40" y="250" fill="var(--g)">接收方 MTA</text>
+  <text class="sub" x="40" y="268">收件域的邮件服务器</text>
+  <text class="desc" x="650" y="250" text-anchor="end">SMTP 25 端口服务器间投递</text>
+  <text class="desc" x="650" y="268" text-anchor="end">校验 SPF、DKIM、DMARC，决定收下或拒收</text>
+  <line class="arr" x1="340" y1="284" x2="340" y2="312" marker-end="url(#a)"/>
+  <rect class="layer" x="20" y="314" width="640" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="40" y="340" fill="var(--y)">邮箱存储</text>
+  <text class="sub" x="40" y="358">按用户分箱</text>
+  <text class="desc" x="650" y="340" text-anchor="end">投递到收件箱或垃圾邮件箱</text>
+  <text class="desc" x="650" y="358" text-anchor="end">邮件以 MIME 格式原样保存</text>
+  <line class="arr" x1="340" y1="374" x2="340" y2="402" marker-end="url(#a)"/>
+  <rect class="layer" x="20" y="404" width="640" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="40" y="430" fill="var(--r)">收件方 MUA</text>
+  <text class="sub" x="40" y="448">客户端 / 工单系统</text>
+  <text class="desc" x="650" y="430" text-anchor="end">IMAP 993：邮件留在服务端，多端同步</text>
+  <text class="desc" x="650" y="448" text-anchor="end">POP3 995：常见用法是下载到本地</text>
+</svg>
