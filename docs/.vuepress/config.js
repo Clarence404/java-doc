@@ -176,6 +176,24 @@ async function refreshStructure(app) {
     await app.writeTemp('home-stats.js', `export default ${JSON.stringify(computeHomeStats(docsRoot))};\n`);
 }
 
+// 站内链接补全：Markdown 中写成 [x](/java/1_advanced) 或 [x](./2_version) 的链接（无 .md / .html 后缀、不以 / 结尾）
+// VuePress 不会识别为站内路由，渲染成不带 base（/java-doc/）的普通 <a>，点击 404。这里在渲染前补上 .md，交给内置 linksPlugin 处理
+const INTERNAL_NO_EXT = /^(\.{1,2}\/|\/)(?!\/)([^#?]*?)([#?].*)?$/;
+const linkSuffixPlugin = {
+    name: 'link-suffix',
+    extendsMarkdown: (md) => {
+        const original = md.renderer.rules.link_open;
+        md.renderer.rules.link_open = (tokens, idx, opts, env, self) => {
+            const href = tokens[idx].attrGet('href');
+            const m = href?.match(INTERNAL_NO_EXT);
+            if (m && m[2] && !m[2].endsWith('/') && !/\.[a-z0-9]+$/i.test(m[2])) {
+                tokens[idx].attrSet('href', `${m[1]}${m[2]}.md${m[3] ?? ''}`);
+            }
+            return original ? original(tokens, idx, opts, env, self) : self.renderToken(tokens, idx, opts);
+        };
+    },
+};
+
 const moduleNavPlugin = {
     name: 'module-nav',
     onPrepared: (app) => writeModuleNav(app),
@@ -212,7 +230,7 @@ export default defineUserConfig({
     title: 'Java Doc',
     description: '实践是检验真理的唯一标准',
     // 首页知识星图的数字（文章数 / 题数 / 答案页 / SVG）在构建时统计
-    plugins: [homeStatsPlugin(docsRoot), moduleNavPlugin],
+    plugins: [homeStatsPlugin(docsRoot), moduleNavPlugin, linkSuffixPlugin],
     // 处理vite 打包警告
     bundler: viteBundler({
         viteOptions: {
