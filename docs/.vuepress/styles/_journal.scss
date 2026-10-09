@@ -75,7 +75,7 @@ $mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono"
     color: var(--vp-c-text-subtle);
   }
 
-  // 未分组的一级条目（平铺模块的文章、分组后的「面试高频题」等）：与分组标题共用编号序列和上下留白，左缘对齐
+  // 未分组的一级条目（平铺模块的文章、分组后的「高频面试题」等）：与分组标题共用编号序列和上下留白，左缘对齐
   > .vp-sidebar-links > li:not(:first-child) > .vp-sidebar-link {
     padding-top: 0.55rem;
     padding-bottom: 0.55rem;

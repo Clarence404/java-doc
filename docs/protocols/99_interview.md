@@ -2,9 +2,9 @@
 description: 网络协议方向题目清单
 ---
 
-# 面试高频题
+# 高频面试题
 
-> 汇总网络协议核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/4_network">开发总结 - 网络协议</RouteLink>
+> 汇总网络协议核心知识的高频面试问题，完整解答见 <RouteLink to="/interview/4_network">网络协议面试题解答</RouteLink>
 
 ## 一、TCP
 
@@ -41,5 +41,5 @@ description: 网络协议方向题目清单
 ---
 
 ::: tip 完整解答
-以上问题的详细解答见 <RouteLink to="/interview/4_network">开发总结 - 网络协议</RouteLink>
+以上问题的详细解答见 <RouteLink to="/interview/4_network">网络协议面试题解答</RouteLink>
 :::
