@@ -352,7 +352,7 @@ public ApiResponse<Void> handleUnknown(Exception ex, HttpServletRequest req) {
 
 ## 八、HTTPS / TLS
 
-> TLS 握手流程、证书链校验、mTLS 双向认证详见 → [安全通信协议](/protocols/4_security_protocols)
+> TLS 握手流程、证书链校验、mTLS 双向认证详见 → [HTTPS 与 TLS](/protocols/3_https_tls)
 
 ```yaml
 server:

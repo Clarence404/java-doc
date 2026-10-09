@@ -1,0 +1,71 @@
+<svg viewBox="0 0 720 378" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 11px; fill: var(--muted); }
+    .edge  { stroke: var(--muted); stroke-width: 1.5; }
+  </style>
+
+  <text x="360" y="24" text-anchor="middle" class="title">字典树：插入 app、apple、bat、ban 之后</text>
+
+  <line class="edge" x1="300" y1="78" x2="200" y2="100"/>
+  <line class="edge" x1="300" y1="78" x2="400" y2="100"/>
+  <line class="edge" x1="200" y1="134" x2="200" y2="156"/>
+  <line class="edge" x1="400" y1="134" x2="400" y2="156"/>
+  <line class="edge" x1="200" y1="190" x2="200" y2="212"/>
+  <line class="edge" x1="400" y1="190" x2="360" y2="212"/>
+  <line class="edge" x1="400" y1="190" x2="440" y2="212"/>
+  <line class="edge" x1="200" y1="246" x2="200" y2="268"/>
+  <line class="edge" x1="200" y1="302" x2="200" y2="324"/>
+
+  <rect x="270" y="44" width="60" height="34" rx="17" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="300" y="66" text-anchor="middle" class="name">root</text>
+
+  <rect x="180" y="100" width="40" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="200" y="122" text-anchor="middle" class="name">a</text>
+  <rect x="380" y="100" width="40" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="400" y="122" text-anchor="middle" class="name">b</text>
+
+  <rect x="180" y="156" width="40" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="200" y="178" text-anchor="middle" class="name">p</text>
+  <rect x="380" y="156" width="40" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="400" y="178" text-anchor="middle" class="name">a</text>
+
+  <rect x="180" y="212" width="40" height="34" rx="17" fill="var(--g)" fill-opacity="0.2" stroke="var(--g)" stroke-width="2"/>
+  <text x="200" y="234" text-anchor="middle" class="name">p</text>
+  <text x="228" y="234" class="note">"app"</text>
+  <rect x="340" y="212" width="40" height="34" rx="17" fill="var(--g)" fill-opacity="0.2" stroke="var(--g)" stroke-width="2"/>
+  <text x="360" y="234" text-anchor="middle" class="name">t</text>
+  <rect x="420" y="212" width="40" height="34" rx="17" fill="var(--g)" fill-opacity="0.2" stroke="var(--g)" stroke-width="2"/>
+  <text x="440" y="234" text-anchor="middle" class="name">n</text>
+  <text x="360" y="266" text-anchor="middle" class="note">"bat"</text>
+  <text x="440" y="266" text-anchor="middle" class="note">"ban"</text>
+
+  <rect x="180" y="268" width="40" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="200" y="290" text-anchor="middle" class="name">l</text>
+
+  <rect x="180" y="324" width="40" height="34" rx="17" fill="var(--g)" fill-opacity="0.2" stroke="var(--g)" stroke-width="2"/>
+  <text x="200" y="346" text-anchor="middle" class="name">e</text>
+  <text x="228" y="346" class="note">"apple"</text>
+
+  <rect x="500" y="100" width="200" height="84" rx="4" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="512" y="124" class="txt">绿色节点：isEnd = true</text>
+  <text x="512" y="148" class="txt">"app" 结束在内部节点上</text>
+  <text x="512" y="172" class="txt">前缀 ap、ba 只存一份</text>
+</svg>

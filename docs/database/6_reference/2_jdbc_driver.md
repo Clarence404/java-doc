@@ -8,7 +8,7 @@ description: Connector/J 版本、URL 参数与时区、真假批量、大结果
 >
 > **前置阅读**：[数据库连接池](../5_practice/3_connection_pool)
 
-Connector/J 是 Java 应用与 MySQL 之间的必经组件，很多「数据库问题」其实出在驱动参数上。连接池层面的配置（池大小、泄漏排查）见 [数据库连接池](../5_practice/3_connection_pool)；驱动与服务器之间的握手、`COM_STMT_PREPARE` 等协议细节见 [数据库访问协议](/protocols/6_database_protocols)。
+Connector/J 是 Java 应用与 MySQL 之间的必经组件，很多「数据库问题」其实出在驱动参数上。连接池层面的配置（池大小、泄漏排查）见 [数据库连接池](../5_practice/3_connection_pool)；驱动与服务器之间的握手、`COM_STMT_PREPARE` 等协议细节见 [数据库协议](/protocols/6_database_protocols)。
 
 ---
 

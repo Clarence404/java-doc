@@ -412,7 +412,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 **常见坑**：失败自动重试对非幂等的写接口会造成重复下单、重复扣款，写操作要关掉重试或保证幂等。
 
-→ 详见 [Dubbo](/microservices/4_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[远程调用协议](/protocols/3_rpc_protocols)
+→ 详见 [Dubbo](/microservices/4_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[RPC 协议](/protocols/5_rpc_protocols)
 
 ### Q31：分布式场景下 `synchronized` 还能用吗？
 

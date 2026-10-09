@@ -1,0 +1,80 @@
+<svg viewBox="0 0 720 356" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 11px; fill: var(--muted); }
+    .edge  { stroke: var(--muted); stroke-width: 1.5; }
+  </style>
+
+  <text x="360" y="24" text-anchor="middle" class="title">大顶堆：完全二叉树按层序存进数组</text>
+
+  <line class="edge" x1="360" y1="78" x2="220" y2="108"/>
+  <line class="edge" x1="360" y1="78" x2="500" y2="108"/>
+  <line class="edge" x1="220" y1="142" x2="150" y2="172"/>
+  <line class="edge" x1="220" y1="142" x2="290" y2="172"/>
+  <line class="edge" x1="500" y1="142" x2="430" y2="172"/>
+  <line class="edge" x1="500" y1="142" x2="570" y2="172"/>
+
+  <rect x="332" y="44" width="56" height="34" rx="17" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="360" y="66" text-anchor="middle" class="name">9</text>
+  <text x="396" y="66" class="note">[0] 堆顶</text>
+  <rect x="192" y="108" width="56" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="220" y="130" text-anchor="middle" class="name">7</text>
+  <text x="256" y="130" class="note">[1]</text>
+  <rect x="472" y="108" width="56" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="500" y="130" text-anchor="middle" class="name">8</text>
+  <text x="536" y="130" class="note">[2]</text>
+  <rect x="122" y="172" width="56" height="34" rx="17" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="150" y="194" text-anchor="middle" class="name">3</text>
+  <text x="186" y="194" class="note">[3]</text>
+  <rect x="262" y="172" width="56" height="34" rx="17" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="290" y="194" text-anchor="middle" class="name">5</text>
+  <text x="326" y="194" class="note">[4]</text>
+  <rect x="402" y="172" width="56" height="34" rx="17" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="430" y="194" text-anchor="middle" class="name">6</text>
+  <text x="466" y="194" class="note">[5]</text>
+  <rect x="542" y="172" width="56" height="34" rx="17" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="570" y="194" text-anchor="middle" class="name">2</text>
+  <text x="606" y="194" class="note">[6]</text>
+
+  <text x="140" y="272" text-anchor="end" class="txt">数组</text>
+  <rect x="150" y="246" width="60" height="40" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="180" y="272" text-anchor="middle" class="name">9</text>
+  <rect x="210" y="246" width="60" height="40" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="240" y="272" text-anchor="middle" class="name">7</text>
+  <rect x="270" y="246" width="60" height="40" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="300" y="272" text-anchor="middle" class="name">8</text>
+  <rect x="330" y="246" width="60" height="40" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="360" y="272" text-anchor="middle" class="name">3</text>
+  <rect x="390" y="246" width="60" height="40" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="420" y="272" text-anchor="middle" class="name">5</text>
+  <rect x="450" y="246" width="60" height="40" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="480" y="272" text-anchor="middle" class="name">6</text>
+  <rect x="510" y="246" width="60" height="40" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="540" y="272" text-anchor="middle" class="name">2</text>
+  <text x="180" y="304" text-anchor="middle" class="note">0</text>
+  <text x="240" y="304" text-anchor="middle" class="note">1</text>
+  <text x="300" y="304" text-anchor="middle" class="note">2</text>
+  <text x="360" y="304" text-anchor="middle" class="note">3</text>
+  <text x="420" y="304" text-anchor="middle" class="note">4</text>
+  <text x="480" y="304" text-anchor="middle" class="note">5</text>
+  <text x="540" y="304" text-anchor="middle" class="note">6</text>
+
+  <text x="360" y="336" text-anchor="middle" class="txt">下标 i 的左孩子 2i+1、右孩子 2i+2、父节点 (i-1)/2；例：[1] 的孩子是 [3]、[4]</text>
+</svg>

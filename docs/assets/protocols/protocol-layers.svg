@@ -1,0 +1,63 @@
+<svg viewBox="0 0 680 412" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .lbl { fill:var(--fg); font-size:12px; }
+    .arrb { stroke:var(--b); stroke-width:1.6; fill:none; }
+    .arrg { stroke:var(--g); stroke-width:1.6; fill:none; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+    <marker id="ab" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--b)"/>
+    </marker>
+    <marker id="ag" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--g)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">后端视角的协议分层</text>
+  <rect class="layer" x="20" y="44" width="640" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="40" y="70" fill="var(--p)">应用层</text>
+  <text class="sub" x="40" y="88">HTTP / gRPC / DNS / 数据库 / 邮件 / 文件</text>
+  <text class="desc" x="650" y="70" text-anchor="end">本模块 2 HTTP、4 DNS、5 RPC、6–8 数据库 / 邮件 / 文件协议</text>
+  <text class="desc" x="650" y="88" text-anchor="end">WebSocket / SSE 见 Netty，MQTT / CoAP 见 IoT</text>
+  <rect class="layer" x="20" y="116" width="640" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="40" y="142" fill="var(--b)">安全层</text>
+  <text class="sub" x="40" y="160">TLS 1.2 / 1.3</text>
+  <text class="desc" x="650" y="142" text-anchor="end">加密、服务端身份认证、完整性校验</text>
+  <text class="desc" x="650" y="160" text-anchor="end">本模块 3 HTTPS 与 TLS；QUIC 内置 TLS 1.3</text>
+  <rect class="layer" x="20" y="188" width="640" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="40" y="214" fill="var(--g)">传输层</text>
+  <text class="sub" x="40" y="232">TCP / UDP / QUIC</text>
+  <text class="desc" x="650" y="214" text-anchor="end">TCP：可靠有序字节流；UDP：无连接数据报</text>
+  <text class="desc" x="650" y="232" text-anchor="end">本模块 1 TCP 与 UDP；QUIC 跑在 UDP 之上</text>
+  <rect class="layer" x="20" y="260" width="640" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="40" y="286" fill="var(--y)">网络层</text>
+  <text class="sub" x="40" y="304">IP / ICMP</text>
+  <text class="desc" x="650" y="286" text-anchor="end">寻址与路由，按跳转发，不保证送达</text>
+  <text class="desc" x="650" y="304" text-anchor="end">排障常用 ping / traceroute / mtr</text>
+  <rect class="layer" x="20" y="332" width="640" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="40" y="358" fill="var(--r)">链路层</text>
+  <text class="sub" x="40" y="376">以太网 / Wi-Fi</text>
+  <text class="desc" x="650" y="358" text-anchor="end">MTU 决定单帧大小，影响分片与 MSS</text>
+  <text class="desc" x="650" y="376" text-anchor="end">后端开发很少直接接触</text>
+</svg>

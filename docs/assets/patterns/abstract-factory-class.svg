@@ -1,0 +1,76 @@
+<svg viewBox="0 0 860 330" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+    .sec   { font-size: 13px; font-weight: 700; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="tri" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0.5,0.5 L8.5,4.5 L0.5,8.5 z" fill="var(--card)" stroke="var(--fg)" stroke-width="0.8"/>
+    </marker>
+  </defs>
+  <text x="430" y="26" text-anchor="middle" class="title">抽象工厂模式：产品族 × 产品等级</text>
+  <rect x="20" y="50" width="260" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="150" y="74" text-anchor="middle" class="name">CloudFactory</text>
+  <text x="150" y="94" text-anchor="middle" class="desc">抽象工厂：createStorage() / createSms()</text>
+  <rect x="20" y="170" width="125" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="82.5" y="194" text-anchor="middle" class="name">AliyunFactory</text>
+  <text x="82.5" y="214" text-anchor="middle" class="desc">阿里云产品族</text>
+  <rect x="155" y="170" width="125" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="217.5" y="194" text-anchor="middle" class="name">AwsFactory</text>
+  <text x="217.5" y="214" text-anchor="middle" class="desc">AWS 产品族</text>
+  <path d="M82.5,170 L82.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M217.5,170 L217.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M82.5,140 L217.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M150,140 L150,112" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#tri)"/>
+  <rect x="300" y="50" width="260" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="430" y="74" text-anchor="middle" class="name">ObjectStorage</text>
+  <text x="430" y="94" text-anchor="middle" class="desc">产品 A 接口：put / get</text>
+  <rect x="300" y="170" width="125" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="362.5" y="194" text-anchor="middle" class="name">AliyunOss</text>
+  <text x="362.5" y="214" text-anchor="middle" class="desc">阿里云 OSS</text>
+  <rect x="435" y="170" width="125" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="497.5" y="194" text-anchor="middle" class="name">AwsS3</text>
+  <text x="497.5" y="214" text-anchor="middle" class="desc">AWS S3</text>
+  <path d="M362.5,170 L362.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M497.5,170 L497.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M362.5,140 L497.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M430,140 L430,112" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#tri)"/>
+  <rect x="580" y="50" width="260" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="710" y="74" text-anchor="middle" class="name">SmsSender</text>
+  <text x="710" y="94" text-anchor="middle" class="desc">产品 B 接口：send</text>
+  <rect x="580" y="170" width="125" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="642.5" y="194" text-anchor="middle" class="name">AliyunSms</text>
+  <text x="642.5" y="214" text-anchor="middle" class="desc">阿里云短信</text>
+  <rect x="715" y="170" width="125" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="777.5" y="194" text-anchor="middle" class="name">AwsSns</text>
+  <text x="777.5" y="214" text-anchor="middle" class="desc">AWS SNS</text>
+  <path d="M642.5,170 L642.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M777.5,170 L777.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M642.5,140 L777.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M710,140 L710,112" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#tri)"/>
+  <text x="430" y="260" text-anchor="middle" class="lbl">同色为同一产品族：AliyunFactory 只产出阿里云的 OSS 与短信，AwsFactory 只产出 AWS 的 S3 与 SNS</text>
+  <text x="430" y="280" text-anchor="middle" class="lbl">每个 createX() 本身就是一个工厂方法；新增产品族只加一组类，新增产品等级要改所有工厂</text>
+  <path d="M368,306 L408,306" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#tri)"/>
+  <text x="418" y="310" text-anchor="start" class="lbl">实现接口</text>
+</svg>

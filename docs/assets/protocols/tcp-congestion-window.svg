@@ -1,0 +1,62 @@
+<svg viewBox="0 0 720 390" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .lbl { font-size: 12px; }
+    .sub { font-size: 12px; fill: var(--muted); }
+    .thr { font-size: 12px; fill: var(--y); }
+    .evt { font-size: 12px; fill: var(--r); }
+  </style>
+
+  <text x="360" y="24" text-anchor="middle" class="title">拥塞窗口 cwnd 随时间变化（Reno 示意）</text>
+
+  <!-- 坐标轴 -->
+  <line x1="70" y1="330" x2="688" y2="330" stroke="var(--muted)" stroke-width="1.5"/>
+  <line x1="70" y1="330" x2="70" y2="52" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="80" y="56" class="sub">cwnd（MSS）</text>
+  <text x="688" y="366" text-anchor="end" class="sub">传输轮次（RTT）</text>
+
+  <text x="62" y="254" text-anchor="end" class="sub">8</text>
+  <text x="62" y="174" text-anchor="end" class="sub">16</text>
+  <text x="62" y="94" text-anchor="end" class="sub">24</text>
+  <text x="70" y="348" text-anchor="middle" class="sub">0</text>
+  <text x="170" y="348" text-anchor="middle" class="sub">4</text>
+  <text x="270" y="348" text-anchor="middle" class="sub">8</text>
+  <text x="370" y="348" text-anchor="middle" class="sub">12</text>
+  <text x="470" y="348" text-anchor="middle" class="sub">16</text>
+  <text x="570" y="348" text-anchor="middle" class="sub">20</text>
+
+  <!-- ssthresh -->
+  <line x1="70" y1="170" x2="370" y2="170" stroke="var(--y)" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="200" y="186" class="thr">ssthresh=16</text>
+  <line x1="370" y1="210" x2="520" y2="210" stroke="var(--y)" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="400" y="226" class="thr">ssthresh=12</text>
+  <line x1="520" y1="250" x2="670" y2="250" stroke="var(--y)" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="604" y="266" class="thr">ssthresh=8</text>
+
+  <!-- cwnd 曲线 -->
+  <polyline fill="none" stroke="var(--p)" stroke-width="2.2" stroke-linejoin="round" points="70,320 95,310 120,290 145,250 170,170 195,160 220,150 245,140 270,130 295,120 320,110 345,100 370,90 395,210 420,200 445,190 470,180 495,170 520,320 545,310 570,290 595,250 620,240 645,230"/>
+
+  <!-- 阶段说明 -->
+  <text x="105" y="200" text-anchor="middle" class="lbl">慢启动</text>
+  <text x="105" y="216" text-anchor="middle" class="sub">每 RTT 翻倍</text>
+  <text x="270" y="84" text-anchor="middle" class="lbl">拥塞避免（每 RTT +1）</text>
+  <text x="440" y="56" text-anchor="middle" class="evt">3 个重复 ACK：快速重传 + 快速恢复</text>
+  <text x="440" y="74" text-anchor="middle" class="sub">ssthresh = cwnd/2，cwnd 减半</text>
+  <text x="566" y="150" text-anchor="middle" class="evt">超时：cwnd 回到 1</text>
+  <text x="566" y="166" text-anchor="middle" class="sub">重新慢启动</text>
+</svg>

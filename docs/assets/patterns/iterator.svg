@@ -1,0 +1,66 @@
+<svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrp" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--p)"/>
+    </marker>
+    <marker id="arrm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="400" y="26" text-anchor="middle" class="title">迭代器模式的角色</text>
+  <rect x="300" y="80" width="200" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="400" y="106" text-anchor="middle" class="name">Client</text>
+  <text x="400" y="126" text-anchor="middle" class="desc">for-each / hasNext / next</text>
+  <rect x="60" y="210" width="260" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="190" y="236" text-anchor="middle" class="name">Iterable&lt;T&gt;（接口）</text>
+  <text x="190" y="256" text-anchor="middle" class="desc">Aggregate：iterator()</text>
+  <rect x="480" y="210" width="260" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="610" y="236" text-anchor="middle" class="name">Iterator&lt;T&gt;（接口）</text>
+  <text x="610" y="256" text-anchor="middle" class="desc">Iterator：hasNext() / next()</text>
+  <rect x="60" y="340" width="260" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="190" y="366" text-anchor="middle" class="name">ArrayList / PagedUsers</text>
+  <text x="190" y="386" text-anchor="middle" class="desc">ConcreteAggregate：持有数据</text>
+  <rect x="480" y="340" width="260" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="610" y="366" text-anchor="middle" class="name">ArrayList.Itr / PagedIterator</text>
+  <text x="610" y="386" text-anchor="middle" class="desc">ConcreteIterator：记录游标</text>
+  <path d="M360,140 L360,175 L190,175 L190,208" fill="none" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <text x="275" y="168" text-anchor="middle" class="lbl">iterator()</text>
+  <path d="M440,140 L440,175 L610,175 L610,208" fill="none" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <text x="525" y="168" text-anchor="middle" class="lbl">hasNext() / next()</text>
+  <line x1="320" y1="240" x2="478" y2="240" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrm)"/>
+  <text x="399" y="233" text-anchor="middle" class="lbl">返回</text>
+  <line x1="190" y1="340" x2="190" y2="272" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="610" y1="340" x2="610" y2="272" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="320" y1="370" x2="478" y2="370" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrm)"/>
+  <text x="399" y="363" text-anchor="middle" class="lbl">new</text>
+  <line x1="30" y1="52" x2="60" y2="52" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <text x="68" y="56" text-anchor="start" class="lbl">持有 / 调用</text>
+  <line x1="190" y1="52" x2="220" y2="52" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrm)"/>
+  <text x="228" y="56" text-anchor="start" class="lbl">创建 / 返回（依赖）</text>
+  <line x1="350" y1="52" x2="380" y2="52" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="388" y="56" text-anchor="start" class="lbl">实现 / 继承</text>
+</svg>

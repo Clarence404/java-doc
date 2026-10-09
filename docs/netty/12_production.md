@@ -104,7 +104,7 @@ ServerBootstrap b = new ServerBootstrap()
 | `RCVBUF_ALLOCATOR` | childOption | 每次读取分配多大的 ByteBuf | 默认自适应（`AdaptiveRecvByteBufAllocator`），根据历史读取量动态调整 |
 | `AUTO_READ` | childOption | 是否自动注册读事件 | 默认 `true`；做入站背压时临时关闭，见下文 |
 
-TCP 层面的原理（三次握手、TIME_WAIT 等）见 [网络通信协议](/protocols/1_network_protocols)。
+TCP 层面的原理（三次握手、TIME_WAIT 等）见 [TCP 与 UDP](/protocols/1_tcp_udp)。
 
 ---
 

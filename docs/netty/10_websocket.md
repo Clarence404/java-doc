@@ -482,7 +482,7 @@ server {
 | 多人实时游戏 | 玩家操作、位置同步，延迟敏感 |
 | IoT 设备控制 | 服务端下发控制指令，设备上报状态 |
 
-HTTP 升级与 TCP 基础可参考 [网络通信协议](/protocols/1_network_protocols)。
+HTTP 升级与 TCP 基础可参考 [HTTP](/protocols/2_http) 与 [TCP 与 UDP](/protocols/1_tcp_udp)。
 
 ---
 

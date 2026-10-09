@@ -34,7 +34,7 @@
 - [高可用 · 熔断](/high-avail/5_circuit_breaking)：熔断器状态机与系统级容错策略
 - [可观测性 · 链路追踪](/observability/3_tracing)：跨服务调用链的追踪与排障
 - [云原生 · Kubernetes](/cloud-native/6_kubernetes)：微服务与服务网格的运行底座
-- [网络协议 · 远程调用协议](/protocols/3_rpc_protocols)：gRPC、REST、Dubbo 协议的横向对比
+- [RPC 协议](/protocols/5_rpc_protocols)：gRPC 帧格式、Protobuf 编码、Thrift、SOAP 等协议的横向对比
 - [微服务面试题解答](/interview/11_microservices)：本模块高频问题的答案汇总
 
 ## 参考资料

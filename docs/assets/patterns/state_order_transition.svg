@@ -1,0 +1,59 @@
+<svg viewBox="0 0 780 270" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrs" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
+      <path d="M7,0 L0,3.5 L7,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="390" y="26" text-anchor="middle" class="title">订单状态流转</text>
+  <rect x="20" y="50" width="140" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="90" y="76" text-anchor="middle" class="name">PENDING</text>
+  <text x="90" y="96" text-anchor="middle" class="desc">待支付</text>
+  <rect x="220" y="50" width="140" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="290" y="76" text-anchor="middle" class="name">PAID</text>
+  <text x="290" y="96" text-anchor="middle" class="desc">已支付</text>
+  <rect x="420" y="50" width="140" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="490" y="76" text-anchor="middle" class="name">SHIPPED</text>
+  <text x="490" y="96" text-anchor="middle" class="desc">已发货</text>
+  <rect x="620" y="50" width="140" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="690" y="76" text-anchor="middle" class="name">COMPLETED</text>
+  <text x="690" y="96" text-anchor="middle" class="desc">已完成（终态）</text>
+  <line x1="160" y1="80" x2="218" y2="80" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="189" y="74" text-anchor="middle" class="lbl">pay</text>
+  <line x1="360" y1="80" x2="418" y2="80" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="389" y="74" text-anchor="middle" class="lbl">ship</text>
+  <line x1="560" y1="80" x2="618" y2="80" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="589" y="74" text-anchor="middle" class="lbl">complete</text>
+  <rect x="120" y="190" width="140" height="60" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="190" y="216" text-anchor="middle" class="name">CANCELLED</text>
+  <text x="190" y="236" text-anchor="middle" class="desc">已取消（终态）</text>
+  <path d="M60,110 L60,220 L118,220" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="68" y="165" text-anchor="start" class="lbl">cancel</text>
+  <path d="M320,110 L320,220 L262,220" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="328" y="165" text-anchor="start" class="lbl">cancel（需退款）</text>
+  <text x="440" y="160" text-anchor="start" class="lbl">已发货、终态之后不允许取消；非法事件直接拒绝</text>
+</svg>

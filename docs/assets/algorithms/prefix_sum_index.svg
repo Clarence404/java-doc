@@ -1,0 +1,66 @@
+<svg viewBox="0 0 580 262" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .hb{fill:var(--card);stroke:var(--b);stroke-width:2;}
+    .hg{fill:var(--card);stroke:var(--g);stroke-width:2;}
+    .hr{fill:var(--card);stroke:var(--r);stroke-width:2;}
+    .hp{fill:var(--card);stroke:var(--p);stroke-width:2;}
+    .lb{fill:var(--b);font-weight:700;}
+    .lg{fill:var(--g);font-weight:700;}
+    .lr{fill:var(--r);font-weight:700;}
+    .lp{fill:var(--p);font-weight:700;}
+    .arr{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+    .dash{stroke:var(--muted);stroke-width:1.2;fill:none;stroke-dasharray:4 3;}
+    .ring{stroke:var(--b);stroke-width:1.5;fill:none;stroke-dasharray:5 4;}
+    .ring2{stroke:var(--g);stroke-width:1.5;fill:none;stroke-dasharray:5 4;}
+    .bar-ok{fill:var(--g);fill-opacity:0.25;stroke:var(--g);stroke-width:1.5;}
+    .bar-no{fill:var(--border);fill-opacity:0.5;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:4 3;}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text font-weight="700" x="290" y="26" text-anchor="middle" font-size="14">p[i] = 前 i 个元素之和，p[0] = 0 是哨兵</text>
+  <text x="100" y="86" text-anchor="end" class="muted">原数组 a</text>
+  <text x="100" y="186" text-anchor="end" class="muted">前缀和 p</text>
+  <rect class="card" x="153" y="50" width="56" height="60" rx="6"/>
+  <text x="181" y="76" text-anchor="middle">3</text>
+  <text x="181" y="96" text-anchor="middle" class="muted" font-size="11">a[0]</text>
+  <rect class="hb" x="219" y="50" width="56" height="60" rx="6"/>
+  <text x="247" y="76" text-anchor="middle">1</text>
+  <text x="247" y="96" text-anchor="middle" class="muted" font-size="11">a[1]</text>
+  <rect class="hb" x="285" y="50" width="56" height="60" rx="6"/>
+  <text x="313" y="76" text-anchor="middle">4</text>
+  <text x="313" y="96" text-anchor="middle" class="muted" font-size="11">a[2]</text>
+  <rect class="hb" x="351" y="50" width="56" height="60" rx="6"/>
+  <text x="379" y="76" text-anchor="middle">1</text>
+  <text x="379" y="96" text-anchor="middle" class="muted" font-size="11">a[3]</text>
+  <rect class="card" x="417" y="50" width="56" height="60" rx="6"/>
+  <text x="445" y="76" text-anchor="middle">5</text>
+  <text x="445" y="96" text-anchor="middle" class="muted" font-size="11">a[4]</text>
+  <rect class="card" x="120" y="150" width="56" height="60" rx="6"/>
+  <text x="148" y="176" text-anchor="middle">0</text>
+  <text x="148" y="196" text-anchor="middle" class="muted" font-size="11">p[0]</text>
+  <rect class="hr" x="186" y="150" width="56" height="60" rx="6"/>
+  <text x="214" y="176" text-anchor="middle">3</text>
+  <text x="214" y="196" text-anchor="middle" class="muted" font-size="11">p[1]</text>
+  <rect class="card" x="252" y="150" width="56" height="60" rx="6"/>
+  <text x="280" y="176" text-anchor="middle">4</text>
+  <text x="280" y="196" text-anchor="middle" class="muted" font-size="11">p[2]</text>
+  <rect class="card" x="318" y="150" width="56" height="60" rx="6"/>
+  <text x="346" y="176" text-anchor="middle">8</text>
+  <text x="346" y="196" text-anchor="middle" class="muted" font-size="11">p[3]</text>
+  <rect class="hg" x="384" y="150" width="56" height="60" rx="6"/>
+  <text x="412" y="176" text-anchor="middle">9</text>
+  <text x="412" y="196" text-anchor="middle" class="muted" font-size="11">p[4]</text>
+  <rect class="card" x="450" y="150" width="56" height="60" rx="6"/>
+  <text x="478" y="176" text-anchor="middle">14</text>
+  <text x="478" y="196" text-anchor="middle" class="muted" font-size="11">p[5]</text>
+  <text x="290" y="242" text-anchor="middle" class="lb">区间 [1, 3] 之和 = p[4] − p[1] = 9 − 3 = 6（= 1 + 4 + 1）</text>
+</svg>

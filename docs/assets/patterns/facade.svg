@@ -1,0 +1,57 @@
+<svg viewBox="0 0 760 420" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrp" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--p)"/>
+    </marker>
+    <marker id="arrm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="380" y="26" text-anchor="middle" class="title">外观模式的角色（下单流程）</text>
+  <rect x="270" y="80" width="220" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="380" y="106" text-anchor="middle" class="name">OrderController</text>
+  <text x="380" y="126" text-anchor="middle" class="desc">Client：只依赖外观</text>
+  <rect x="270" y="210" width="220" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="380" y="236" text-anchor="middle" class="name">OrderFacade</text>
+  <text x="380" y="256" text-anchor="middle" class="desc">Facade：编排下单流程</text>
+  <rect x="40" y="340" width="200" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="140" y="366" text-anchor="middle" class="name">InventoryService</text>
+  <text x="140" y="386" text-anchor="middle" class="desc">子系统：锁定 / 释放库存</text>
+  <rect x="280" y="340" width="200" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380" y="366" text-anchor="middle" class="name">PaymentService</text>
+  <text x="380" y="386" text-anchor="middle" class="desc">子系统：扣款</text>
+  <rect x="520" y="340" width="200" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="620" y="366" text-anchor="middle" class="name">NotificationService</text>
+  <text x="620" y="386" text-anchor="middle" class="desc">子系统：下单通知</text>
+  <line x1="380" y1="140" x2="380" y2="208" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <text x="389" y="178" text-anchor="start" class="lbl">placeOrder()</text>
+  <path d="M330,270 L330,305 L140,305 L140,338" fill="none" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <line x1="380" y1="270" x2="380" y2="338" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <path d="M430,270 L430,305 L620,305 L620,338" fill="none" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <line x1="30" y1="52" x2="60" y2="52" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <text x="68" y="56" text-anchor="start" class="lbl">持有 / 调用</text>
+</svg>

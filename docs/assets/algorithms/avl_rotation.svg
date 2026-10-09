@@ -1,0 +1,120 @@
+<svg viewBox="0 0 720 516" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 11px; fill: var(--muted); }
+    .edge  { stroke: var(--muted); stroke-width: 1.5; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">AVL 旋转：LL 型单旋与 LR 型双旋</text>
+
+  <!-- ① LL 右旋 -->
+  <text x="20" y="48" class="txt">① LL 型（z 的平衡因子 = 2，左孩子 y 的为 1）：对 z 右旋</text>
+
+  <!-- before -->
+  <line class="edge" x1="170" y1="94" x2="110" y2="124"/>
+  <line class="edge" x1="170" y1="94" x2="230" y2="124"/>
+  <line class="edge" x1="110" y1="158" x2="70" y2="188"/>
+  <line class="edge" x1="110" y1="158" x2="150" y2="188"/>
+  <line class="edge" x1="70" y1="222" x2="40" y2="252"/>
+  <line class="edge" x1="70" y1="222" x2="100" y2="252"/>
+  <rect x="150" y="60" width="40" height="34" rx="17" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="170" y="82" text-anchor="middle" class="name">z</text>
+  <rect x="90" y="124" width="40" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="110" y="146" text-anchor="middle" class="name">y</text>
+  <rect x="210" y="124" width="40" height="34" rx="4" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="230" y="146" text-anchor="middle" class="txt">T4</text>
+  <rect x="50" y="188" width="40" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="70" y="210" text-anchor="middle" class="name">x</text>
+  <rect x="130" y="188" width="40" height="34" rx="4" fill="var(--y)" fill-opacity="0.15" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="150" y="210" text-anchor="middle" class="txt">T3</text>
+  <rect x="20" y="252" width="40" height="34" rx="4" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="40" y="274" text-anchor="middle" class="txt">T1</text>
+  <rect x="80" y="252" width="40" height="34" rx="4" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="100" y="274" text-anchor="middle" class="txt">T2</text>
+
+  <line x1="290" y1="170" x2="350" y2="170" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="320" y="160" text-anchor="middle" class="txt">右旋 z</text>
+
+  <!-- after -->
+  <line class="edge" x1="500" y1="94" x2="430" y2="124"/>
+  <line class="edge" x1="500" y1="94" x2="570" y2="124"/>
+  <line class="edge" x1="430" y1="158" x2="400" y2="188"/>
+  <line class="edge" x1="430" y1="158" x2="460" y2="188"/>
+  <line class="edge" x1="570" y1="158" x2="540" y2="188"/>
+  <line class="edge" x1="570" y1="158" x2="600" y2="188"/>
+  <rect x="480" y="60" width="40" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="500" y="82" text-anchor="middle" class="name">y</text>
+  <rect x="410" y="124" width="40" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="430" y="146" text-anchor="middle" class="name">x</text>
+  <rect x="550" y="124" width="40" height="34" rx="17" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="570" y="146" text-anchor="middle" class="name">z</text>
+  <rect x="380" y="188" width="40" height="34" rx="4" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="400" y="210" text-anchor="middle" class="txt">T1</text>
+  <rect x="440" y="188" width="40" height="34" rx="4" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="460" y="210" text-anchor="middle" class="txt">T2</text>
+  <rect x="520" y="188" width="40" height="34" rx="4" fill="var(--y)" fill-opacity="0.15" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="540" y="210" text-anchor="middle" class="txt">T3</text>
+  <rect x="580" y="188" width="40" height="34" rx="4" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="600" y="210" text-anchor="middle" class="txt">T4</text>
+  <text x="500" y="254" text-anchor="middle" class="note">y 上提为根，z 降为 y 的右孩子</text>
+  <text x="500" y="274" text-anchor="middle" class="note">y 原来的右子树 T3 改挂到 z 的左边</text>
+
+  <!-- ② LR 双旋 -->
+  <text x="20" y="320" class="txt">② LR 型（左孩子的右子树过高）：先对 10 左旋变成 LL 型，再对 30 右旋</text>
+
+  <line class="edge" x1="130" y1="368" x2="80" y2="398"/>
+  <line class="edge" x1="80" y1="432" x2="120" y2="462"/>
+  <rect x="110" y="334" width="40" height="34" rx="17" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="130" y="356" text-anchor="middle" class="name">30</text>
+  <rect x="60" y="398" width="40" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="80" y="420" text-anchor="middle" class="name">10</text>
+  <rect x="100" y="462" width="40" height="34" rx="17" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="120" y="484" text-anchor="middle" class="name">20</text>
+
+  <line x1="190" y1="440" x2="250" y2="440" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="220" y="430" text-anchor="middle" class="txt">左旋 10</text>
+
+  <line class="edge" x1="330" y1="368" x2="290" y2="398"/>
+  <line class="edge" x1="290" y1="432" x2="250" y2="462"/>
+  <rect x="310" y="334" width="40" height="34" rx="17" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="330" y="356" text-anchor="middle" class="name">30</text>
+  <rect x="270" y="398" width="40" height="34" rx="17" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="290" y="420" text-anchor="middle" class="name">20</text>
+  <rect x="230" y="462" width="40" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="250" y="484" text-anchor="middle" class="name">10</text>
+
+  <line x1="390" y1="440" x2="450" y2="440" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="420" y="430" text-anchor="middle" class="txt">右旋 30</text>
+
+  <line class="edge" x1="560" y1="432" x2="510" y2="462"/>
+  <line class="edge" x1="560" y1="432" x2="610" y2="462"/>
+  <rect x="540" y="398" width="40" height="34" rx="17" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="560" y="420" text-anchor="middle" class="name">20</text>
+  <rect x="490" y="462" width="40" height="34" rx="17" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="510" y="484" text-anchor="middle" class="name">10</text>
+  <rect x="590" y="462" width="40" height="34" rx="17" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="610" y="484" text-anchor="middle" class="name">30</text>
+  <text x="560" y="370" text-anchor="middle" class="note">恢复平衡，中序仍是 10、20、30</text>
+</svg>

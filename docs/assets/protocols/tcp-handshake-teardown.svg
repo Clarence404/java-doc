@@ -1,0 +1,84 @@
+<svg viewBox="0 0 720 510" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .head { font-size: 13px; font-weight: 600; }
+    .lbl { font-size: 12px; }
+    .sub { font-size: 12px; fill: var(--muted); }
+    .stc { font-size: 12px; font-weight: 600; fill: var(--b); }
+    .sts { font-size: 12px; font-weight: 600; fill: var(--p); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">TCP 三次握手与四次挥手（含状态变化）</text>
+
+  <rect x="100" y="40" width="160" height="36" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="180" y="63" text-anchor="middle" class="head">客户端 Client</text>
+  <rect x="460" y="40" width="160" height="36" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="540" y="63" text-anchor="middle" class="head">服务端 Server</text>
+
+  <line x1="180" y1="76" x2="180" y2="490" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <line x1="540" y1="76" x2="540" y2="490" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+  <!-- 三次握手 -->
+  <text x="360" y="100" text-anchor="middle" class="sub">建立连接：三次握手</text>
+  <text x="170" y="100" text-anchor="end" class="stc">CLOSED</text>
+  <text x="550" y="100" text-anchor="start" class="sts">LISTEN</text>
+
+  <text x="360" y="126" text-anchor="middle" class="lbl">SYN, seq=x</text>
+  <line x1="180" y1="132" x2="538" y2="132" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="170" y="136" text-anchor="end" class="stc">SYN_SENT</text>
+
+  <text x="360" y="164" text-anchor="middle" class="lbl">SYN+ACK, seq=y, ack=x+1</text>
+  <line x1="540" y1="170" x2="182" y2="170" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="550" y="174" text-anchor="start" class="sts">SYN_RCVD</text>
+
+  <text x="360" y="202" text-anchor="middle" class="lbl">ACK, ack=y+1</text>
+  <line x1="180" y1="208" x2="538" y2="208" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="170" y="212" text-anchor="end" class="stc">ESTABLISHED</text>
+  <text x="550" y="212" text-anchor="start" class="sts">ESTABLISHED</text>
+
+  <text x="360" y="246" text-anchor="middle" class="sub">…… 双向传输数据 ……</text>
+
+  <!-- 四次挥手 -->
+  <text x="360" y="282" text-anchor="middle" class="sub">关闭连接：四次挥手（客户端先关）</text>
+
+  <text x="360" y="308" text-anchor="middle" class="lbl">FIN, seq=u</text>
+  <line x1="180" y1="314" x2="538" y2="314" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="170" y="318" text-anchor="end" class="stc">FIN_WAIT_1</text>
+
+  <text x="360" y="346" text-anchor="middle" class="lbl">ACK, ack=u+1</text>
+  <line x1="540" y1="352" x2="182" y2="352" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="550" y="356" text-anchor="start" class="sts">CLOSE_WAIT</text>
+  <text x="170" y="360" text-anchor="end" class="stc">FIN_WAIT_2</text>
+
+  <text x="360" y="384" text-anchor="middle" class="sub">半关闭：服务端仍可继续发数据</text>
+
+  <text x="360" y="410" text-anchor="middle" class="lbl">FIN, seq=v</text>
+  <line x1="540" y1="416" x2="182" y2="416" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="550" y="420" text-anchor="start" class="sts">LAST_ACK</text>
+
+  <text x="360" y="448" text-anchor="middle" class="lbl">ACK, ack=v+1</text>
+  <line x1="180" y1="454" x2="538" y2="454" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="170" y="440" text-anchor="end" class="stc">TIME_WAIT</text>
+  <text x="170" y="458" text-anchor="end" class="sub">等 2MSL 后 CLOSED</text>
+  <text x="550" y="458" text-anchor="start" class="sts">CLOSED</text>
+</svg>

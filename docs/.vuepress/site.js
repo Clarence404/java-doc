@@ -57,11 +57,11 @@ export const GROUPS = [
                 ],
             },
             {
-                name: '数据结构与算法', nav: '算法', dir: 'algorithms',
+                name: '数据结构与算法', nav: '算法', dir: 'algorithms', interview: ['4_algorithms'],
                 desc: '复杂度 / 数据结构 / 基础算法 / 算法技巧 / 刷题实战',
                 subdirs: {'1_data_structures': '数据结构', '2_algorithms': '基础算法', '3_patterns': '算法技巧', '4_practice': '刷题实战'},
             },
-            {name: '网络协议', dir: 'protocols', interview: ['4_network'], desc: 'TCP/IP / HTTP/2 / gRPC / WebSocket / IoT 协议 / TLS'},
+            {name: '网络协议', dir: 'protocols', interview: ['4_network'], desc: 'TCP/UDP / HTTP / HTTPS 与 TLS / DNS / RPC / 数据库、邮件、文件协议'},
         ],
     },
     {
@@ -118,7 +118,7 @@ export const GROUPS = [
     {
         name: '架构设计', tagline: '从代码设计到架构落地', modules: [
             {
-                name: '设计模式', dir: 'patterns',
+                name: '设计模式', dir: 'patterns', interview: ['17_patterns'],
                 desc: 'GoF 23 种模式，结合 JDK / Spring 源码',
                 sidebar: [
                     {text: '创建型', from: 1},

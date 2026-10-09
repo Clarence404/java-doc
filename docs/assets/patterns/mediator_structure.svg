@@ -1,0 +1,59 @@
+<svg viewBox="0 0 760 370" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrs" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
+      <path d="M7,0 L0,3.5 L7,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="26" text-anchor="middle" class="title">中介者模式的角色：同事只认识中介者</text>
+  <text x="40" y="70" text-anchor="start" class="lbl">虚线：实现接口</text>
+  <text x="40" y="90" text-anchor="start" class="lbl">双向箭头：send 上行 / receive 下行</text>
+  <rect x="230" y="50" width="300" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380" y="76" text-anchor="middle" class="name">ChatMediator（Mediator 接口）</text>
+  <text x="380" y="96" text-anchor="middle" class="desc">send(message, sender)</text>
+  <rect x="230" y="150" width="300" height="80" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="380" y="176" text-anchor="middle" class="name">ChatRoom（ConcreteMediator）</text>
+  <text x="380" y="196" text-anchor="middle" class="desc">维护成员列表</text>
+  <text x="380" y="214" text-anchor="middle" class="desc">决定转发给谁、怎么转发</text>
+  <line x1="380" y1="150" x2="380" y2="112" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <text x="388" y="135" text-anchor="start" class="lbl">实现</text>
+  <rect x="40" y="270" width="200" height="80" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="140" y="296" text-anchor="middle" class="name">ChatUser：Alice（Colleague）</text>
+  <text x="140" y="316" text-anchor="middle" class="desc">只持有 mediator 引用</text>
+  <text x="140" y="334" text-anchor="middle" class="desc">不直接引用其他同事</text>
+  <rect x="280" y="270" width="200" height="80" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="380" y="296" text-anchor="middle" class="name">ChatUser：Bob（Colleague）</text>
+  <text x="380" y="316" text-anchor="middle" class="desc">只持有 mediator 引用</text>
+  <text x="380" y="334" text-anchor="middle" class="desc">不直接引用其他同事</text>
+  <rect x="520" y="270" width="200" height="80" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="620" y="296" text-anchor="middle" class="name">ChatUser：Carol（Colleague）</text>
+  <text x="620" y="316" text-anchor="middle" class="desc">只持有 mediator 引用</text>
+  <text x="620" y="334" text-anchor="middle" class="desc">不直接引用其他同事</text>
+  <path d="M140,270 L140,190 L228,190" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)" marker-start="url(#arrs)"/>
+  <path d="M620,270 L620,190 L532,190" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)" marker-start="url(#arrs)"/>
+  <line x1="380" y1="270" x2="380" y2="232" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)" marker-start="url(#arrs)"/>
+</svg>

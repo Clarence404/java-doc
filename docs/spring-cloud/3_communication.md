@@ -266,7 +266,7 @@ OpenFeign 默认连接 10s、读取 60s，远大于合理值，必须显式配�
 
 ## 四、gRPC
 
-gRPC 基于 HTTP/2 + Protobuf，`.proto` 文件即契约，自动生成多语言客户端与服务端代码。Protobuf 定义与 Spring Boot 接入代码见 [远程调用协议](/protocols/3_rpc_protocols)。
+gRPC 基于 HTTP/2 + Protobuf，`.proto` 文件即契约，自动生成多语言客户端与服务端代码。Protobuf 定义与 Spring Boot 接入代码见 [RPC 协议](/protocols/5_rpc_protocols)。
 
 - **HTTP/2 多路复用**：一条连接上并发多个请求，消除了 HTTP/1.1 的应用层队头阻塞；但 TCP 层丢包时同一连接上的所有流仍会等待重传，只有 HTTP/3（QUIC）才消除传输层队头阻塞
 - **Protobuf 二进制序列化**：通常比 JSON 体积更小、编解码更快，具体收益取决于消息结构，需要按业务数据实测；序列化方案对比见 [序列化](/java/19_topic_serialization)

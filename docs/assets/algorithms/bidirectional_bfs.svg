@@ -1,0 +1,50 @@
+<svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .hb{fill:var(--card);stroke:var(--b);stroke-width:2;}
+    .hg{fill:var(--card);stroke:var(--g);stroke-width:2;}
+    .hr{fill:var(--card);stroke:var(--r);stroke-width:2;}
+    .hp{fill:var(--card);stroke:var(--p);stroke-width:2;}
+    .lb{fill:var(--b);font-weight:700;}
+    .lg{fill:var(--g);font-weight:700;}
+    .lr{fill:var(--r);font-weight:700;}
+    .lp{fill:var(--p);font-weight:700;}
+    .arr{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+    .dash{stroke:var(--muted);stroke-width:1.2;fill:none;stroke-dasharray:4 3;}
+    .ring{stroke:var(--b);stroke-width:1.5;fill:none;stroke-dasharray:5 4;}
+    .ring2{stroke:var(--g);stroke-width:1.5;fill:none;stroke-dasharray:5 4;}
+    .bar-ok{fill:var(--g);fill-opacity:0.25;stroke:var(--g);stroke-width:1.5;}
+    .bar-no{fill:var(--border);fill-opacity:0.5;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:4 3;}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text font-weight="700" x="340" y="26" text-anchor="middle" font-size="14">单向 BFS 约访问 b^d 个节点，双向 BFS 约 2·b^(d/2) 个</text>
+  <rect class="card" x="20" y="44" width="310" height="196" rx="6"/>
+  <text x="175" y="68" text-anchor="middle" class="lb">单向：从起点扩展 d 层</text>
+  <circle class="ring" cx="175" cy="160" r="24"/>
+  <circle class="ring" cx="175" cy="160" r="48"/>
+  <circle class="ring" cx="175" cy="160" r="70"/>
+  <circle cx="175" cy="160" r="4" fill="var(--b)"/>
+  <text x="175" y="182" text-anchor="middle" font-size="12">起点</text>
+  <circle cx="245" cy="160" r="4" fill="var(--r)"/>
+  <text x="270" y="164" text-anchor="start" font-size="12">终点</text>
+  <rect class="card" x="350" y="44" width="310" height="196" rx="6"/>
+  <text x="505" y="68" text-anchor="middle" class="lg">双向：两端各扩展约 d/2 层</text>
+  <circle class="ring" cx="455" cy="160" r="26"/>
+  <circle class="ring2" cx="555" cy="160" r="26"/>
+  <circle class="ring" cx="455" cy="160" r="52"/>
+  <circle class="ring2" cx="555" cy="160" r="52"/>
+  <circle cx="455" cy="160" r="4" fill="var(--b)"/>
+  <text x="455" y="182" text-anchor="middle" font-size="12">起点</text>
+  <circle cx="555" cy="160" r="4" fill="var(--r)"/>
+  <text x="555" y="182" text-anchor="middle" font-size="12">终点</text>
+  <text x="505" y="228" text-anchor="middle" class="muted" font-size="12">两个搜索圈相交即找到最短路径</text>
+</svg>

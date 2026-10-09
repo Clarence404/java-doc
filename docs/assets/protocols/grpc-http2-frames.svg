@@ -1,0 +1,60 @@
+<svg viewBox="0 0 680 405" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .lbl { fill:var(--fg); font-size:12px; }
+    .arrb { stroke:var(--b); stroke-width:1.6; fill:none; }
+    .arrg { stroke:var(--g); stroke-width:1.6; fill:none; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+    <marker id="ab" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--b)"/>
+    </marker>
+    <marker id="ag" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--g)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">gRPC 一元调用在 HTTP/2 上的帧序列</text>
+  <rect class="layer" x="40" y="44" width="200" height="40" rx="8" stroke="var(--b)"/>
+  <text class="name" x="140" y="68" text-anchor="middle" fill="var(--b)">客户端</text>
+  <rect class="layer" x="440" y="44" width="200" height="40" rx="8" stroke="var(--g)"/>
+  <text class="name" x="540" y="68" text-anchor="middle" fill="var(--g)">服务端</text>
+  <line x1="140" y1="84" x2="140" y2="360" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <line x1="540" y1="84" x2="540" y2="360" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <text class="lbl" x="340" y="108" text-anchor="middle">HEADERS：:method POST  :path /order.OrderService/GetOrder</text>
+  <text class="sub" x="340" y="122" text-anchor="middle">content-type: application/grpc   te: trailers   grpc-timeout: 800m</text>
+  <line class="arrb" x1="140" y1="130" x2="538" y2="130" marker-end="url(#ab)"/>
+  <text class="lbl" x="340" y="160" text-anchor="middle">DATA：压缩标志 1 字节 + 长度 4 字节 + Protobuf 消息</text>
+  <text class="sub" x="340" y="174" text-anchor="middle">END_STREAM：请求发送完毕</text>
+  <line class="arrb" x1="140" y1="182" x2="538" y2="182" marker-end="url(#ab)"/>
+  <text class="lbl" x="340" y="212" text-anchor="middle">HEADERS：:status 200  content-type: application/grpc</text>
+  <text class="sub" x="340" y="226" text-anchor="middle">响应头，HTTP 状态恒为 200</text>
+  <line class="arrg" x1="540" y1="234" x2="142" y2="234" marker-end="url(#ag)"/>
+  <text class="lbl" x="340" y="264" text-anchor="middle">DATA：长度前缀的响应消息</text>
+  <text class="sub" x="340" y="278" text-anchor="middle">流式调用时这一类 DATA 帧会出现多次</text>
+  <line class="arrg" x1="540" y1="286" x2="142" y2="286" marker-end="url(#ag)"/>
+  <text class="lbl" x="340" y="316" text-anchor="middle">HEADERS（Trailers）：grpc-status: 0  grpc-message</text>
+  <text class="sub" x="340" y="330" text-anchor="middle">END_STREAM：调用结果在 Trailers 里，不在 HTTP 状态码里</text>
+  <line class="arrg" x1="540" y1="338" x2="142" y2="338" marker-end="url(#ag)"/>
+  <text class="sub" x="340" y="382" text-anchor="middle">一次调用 = 一个 HTTP/2 Stream；多个调用复用同一条 TCP 连接</text>
+</svg>

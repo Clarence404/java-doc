@@ -75,7 +75,7 @@ description: 零拷贝与 IO 模型的选用、Keep-Alive / HTTP/2、压缩、�
 
 - 服务间 HTTP 调用使用连接池并开启 Keep-Alive，参数见 [池化技术](./7_pooling)。
 - 服务间高频调用可考虑 gRPC（HTTP/2 + Protobuf）；Spring Boot 开启 HTTP/2：`server.http2.enabled=true`（浏览器访问需要 TLS）。
-- 协议细节见 [网络通信协议](/protocols/1_network_protocols)、[远程调用协议](/protocols/3_rpc_protocols)。
+- 协议细节见 [TCP 与 UDP](/protocols/1_tcp_udp)、[HTTP](/protocols/2_http)、[RPC 协议](/protocols/5_rpc_protocols)。
 
 ---
 

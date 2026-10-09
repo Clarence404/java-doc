@@ -1,0 +1,56 @@
+<svg viewBox="0 0 720 306" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+    .sec   { font-size: 13px; font-weight: 700; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="tri" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+      <path d="M0.5,0.5 L8.5,4.5 L0.5,8.5 z" fill="var(--card)" stroke="var(--fg)" stroke-width="0.8"/>
+    </marker>
+  </defs>
+  <text x="360" y="26" text-anchor="middle" class="title">原型模式的角色</text>
+  <rect x="40" y="50" width="220" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="150" y="74" text-anchor="middle" class="name">Client</text>
+  <text x="150" y="94" text-anchor="middle" class="desc">持有原型，需要时 copy()</text>
+  <rect x="400" y="50" width="280" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="540" y="74" text-anchor="middle" class="name">Prototype（原型接口）</text>
+  <text x="540" y="94" text-anchor="middle" class="desc">copy() : Prototype</text>
+  <rect x="400" y="170" width="135" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="467.5" y="194" text-anchor="middle" class="name">ReportTemplate</text>
+  <text x="467.5" y="214" text-anchor="middle" class="desc">复制构造</text>
+  <rect x="545" y="170" width="135" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="612.5" y="194" text-anchor="middle" class="name">MailTemplate</text>
+  <text x="612.5" y="214" text-anchor="middle" class="desc">复制构造</text>
+  <line x1="260" y1="80" x2="398" y2="80" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="329" y="72" text-anchor="middle" class="lbl">prototype.copy()</text>
+  <path d="M467.5,170 L467.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M612.5,170 L612.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M467.5,140 L612.5,140" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <path d="M540,140 L540,112" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#tri)"/>
+  <text x="360" y="258" text-anchor="middle" class="lbl">新对象从已配置好的原型复制而来，客户端不依赖具体类，也不重复昂贵的初始化</text>
+  <path d="M258,282 L298,282" fill="none" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#tri)"/>
+  <text x="308" y="286" text-anchor="start" class="lbl">实现</text>
+  <path d="M360,282 L400,282" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="410" y="286" text-anchor="start" class="lbl">调用</text>
+</svg>

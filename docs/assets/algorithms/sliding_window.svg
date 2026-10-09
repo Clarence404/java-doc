@@ -1,0 +1,54 @@
+<svg viewBox="0 0 560 210" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .hb{fill:var(--card);stroke:var(--b);stroke-width:2;}
+    .hg{fill:var(--card);stroke:var(--g);stroke-width:2;}
+    .hr{fill:var(--card);stroke:var(--r);stroke-width:2;}
+    .hp{fill:var(--card);stroke:var(--p);stroke-width:2;}
+    .lb{fill:var(--b);font-weight:700;}
+    .lg{fill:var(--g);font-weight:700;}
+    .lr{fill:var(--r);font-weight:700;}
+    .lp{fill:var(--p);font-weight:700;}
+    .arr{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+    .dash{stroke:var(--muted);stroke-width:1.2;fill:none;stroke-dasharray:4 3;}
+    .ring{stroke:var(--b);stroke-width:1.5;fill:none;stroke-dasharray:5 4;}
+    .ring2{stroke:var(--g);stroke-width:1.5;fill:none;stroke-dasharray:5 4;}
+    .bar-ok{fill:var(--g);fill-opacity:0.25;stroke:var(--g);stroke-width:1.5;}
+    .bar-no{fill:var(--border);fill-opacity:0.5;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:4 3;}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text font-weight="700" x="280" y="26" text-anchor="middle" font-size="14">LeetCode 3：窗口 [left, right] 内始终没有重复字符</text>
+  <rect x="162" y="62" width="164" height="56" rx="8" fill="none" stroke="var(--b)" stroke-width="2" stroke-dasharray="6 4"/>
+  <rect class="card" x="60" y="70" width="44" height="40" rx="6"/>
+  <text x="82" y="96" text-anchor="middle">a</text>
+  <rect class="card" x="114" y="70" width="44" height="40" rx="6"/>
+  <text x="136" y="96" text-anchor="middle">b</text>
+  <rect class="hb" x="168" y="70" width="44" height="40" rx="6"/>
+  <text x="190" y="96" text-anchor="middle">c</text>
+  <rect class="hb" x="222" y="70" width="44" height="40" rx="6"/>
+  <text x="244" y="96" text-anchor="middle">a</text>
+  <rect class="hb" x="276" y="70" width="44" height="40" rx="6"/>
+  <text x="298" y="96" text-anchor="middle">b</text>
+  <rect class="card" x="330" y="70" width="44" height="40" rx="6"/>
+  <text x="352" y="96" text-anchor="middle">c</text>
+  <rect class="card" x="384" y="70" width="44" height="40" rx="6"/>
+  <text x="406" y="96" text-anchor="middle">b</text>
+  <rect class="card" x="438" y="70" width="44" height="40" rx="6"/>
+  <text x="460" y="96" text-anchor="middle">b</text>
+  <text x="182" y="140" text-anchor="end" class="lr">left</text>
+  <line class="arr" x1="190" y1="152" x2="190" y2="120"/>
+  <text x="306" y="140" text-anchor="start" class="lg">right</text>
+  <line class="arr" x1="298" y1="152" x2="298" y2="120"/>
+  <text x="190" y="174" text-anchor="middle" class="muted" font-size="12">条件不满足时右移（收缩）</text>
+  <text x="298" y="194" text-anchor="middle" class="muted" font-size="12">每轮右移一格（扩张）</text>
+  <text x="280" y="52" text-anchor="middle" class="lb" font-size="12">当前窗口 "cab"，长度 3</text>
+</svg>

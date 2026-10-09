@@ -153,7 +153,7 @@ http {
 | 使用 ECDSA 证书 | 签名运算比同等安全强度的 RSA 更省 CPU |
 | OCSP Stapling | 由服务端附带证书状态，客户端无需单独查询 |
 
-卸载之后内网是明文，是否需要内部加密取决于安全要求，零信任架构下服务间通常改用 mTLS，见 [零信任](/security/9_zero_trust)。TLS 协议细节见 [安全协议](/protocols/4_security_protocols)。
+卸载之后内网是明文，是否需要内部加密取决于安全要求，零信任架构下服务间通常改用 mTLS，见 [零信任](/security/9_zero_trust)。TLS 协议细节见 [HTTPS 与 TLS](/protocols/3_https_tls)。
 
 ---
 
@@ -170,7 +170,7 @@ http {
 | 防重连风暴 | 网关重启或机房切换时，客户端重连采用指数退避 + 随机抖动 |
 | 系统参数 | 调大 `ulimit -n`、`somaxconn` 等，见 [并发参数调优](./7_concurrency_tuning) |
 
-基于 Netty 的长连接网关实现（心跳、WebSocket、生产调优）见 [Netty 总览](/netty/0_overview)；MQTT 等物联网协议见 [物联网协议](/protocols/2_iot_protocols)。
+基于 Netty 的长连接网关实现（心跳、WebSocket、生产调优）见 [Netty 总览](/netty/0_overview)；MQTT 等物联网协议见 [IoT 通信协议](/iot/1_protocol)。
 
 ---
 

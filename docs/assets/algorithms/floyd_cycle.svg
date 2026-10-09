@@ -1,0 +1,53 @@
+<svg viewBox="0 0 540 192" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .hb{fill:var(--card);stroke:var(--b);stroke-width:2;}
+    .hg{fill:var(--card);stroke:var(--g);stroke-width:2;}
+    .hr{fill:var(--card);stroke:var(--r);stroke-width:2;}
+    .hp{fill:var(--card);stroke:var(--p);stroke-width:2;}
+    .lb{fill:var(--b);font-weight:700;}
+    .lg{fill:var(--g);font-weight:700;}
+    .lr{fill:var(--r);font-weight:700;}
+    .lp{fill:var(--p);font-weight:700;}
+    .arr{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+    .dash{stroke:var(--muted);stroke-width:1.2;fill:none;stroke-dasharray:4 3;}
+    .ring{stroke:var(--b);stroke-width:1.5;fill:none;stroke-dasharray:5 4;}
+    .ring2{stroke:var(--g);stroke-width:1.5;fill:none;stroke-dasharray:5 4;}
+    .bar-ok{fill:var(--g);fill-opacity:0.25;stroke:var(--g);stroke-width:1.5;}
+    .bar-no{fill:var(--border);fill-opacity:0.5;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:4 3;}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text font-weight="700" x="270" y="26" text-anchor="middle" font-size="14">相遇时 2(a + b) = a + b + k·L，得 a = (k − 1)·L + (L − b)</text>
+  <rect class="card" x="30" y="80" width="50" height="34" rx="6"/>
+  <text x="55" y="102" text-anchor="middle">head</text>
+  <rect class="card" x="110" y="80" width="50" height="34" rx="6"/>
+  <text x="135" y="102" text-anchor="middle">1</text>
+  <rect class="hb" x="190" y="80" width="50" height="34" rx="6"/>
+  <text x="215" y="102" text-anchor="middle">入口</text>
+  <rect class="card" x="270" y="80" width="50" height="34" rx="6"/>
+  <text x="295" y="102" text-anchor="middle">3</text>
+  <rect class="hg" x="350" y="80" width="50" height="34" rx="6"/>
+  <text x="375" y="102" text-anchor="middle">相遇</text>
+  <rect class="card" x="430" y="80" width="50" height="34" rx="6"/>
+  <text x="455" y="102" text-anchor="middle">5</text>
+  <line class="arr" x1="80" y1="97" x2="108" y2="97"/>
+  <line class="arr" x1="160" y1="97" x2="188" y2="97"/>
+  <line class="arr" x1="240" y1="97" x2="268" y2="97"/>
+  <line class="arr" x1="320" y1="97" x2="348" y2="97"/>
+  <line class="arr" x1="400" y1="97" x2="428" y2="97"/>
+  <path class="arr" d="M455,114 L455,150 L215,150 L215,116"/>
+  <line class="dash" x1="57" y1="68" x2="213" y2="68"/>
+  <text x="135" y="60" text-anchor="middle" class="lb">a</text>
+  <line class="dash" x1="217" y1="68" x2="373" y2="68"/>
+  <text x="295" y="60" text-anchor="middle" class="lg">b</text>
+  <text x="335" y="172" text-anchor="middle" class="lr">L − b：从相遇点继续走回入口</text>
+</svg>

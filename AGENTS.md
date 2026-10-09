@@ -31,7 +31,7 @@ docs/
 ├── netty/          IO 模型 / Reactor / 核心组件 / ByteBuf / 编解码与私有协议 / 心跳 / WebSocket / SSE / 生产调优
 ├── observability/  可观测性：日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry
 ├── patterns/       设计模式（23 种 GoF）
-├── protocols/      网络协议：网络通信 / IoT / 远程调用 / 安全 / 文件 / 数据库 / 邮件 / 分布式
+├── protocols/      网络协议：TCP/UDP / HTTP / HTTPS 与 TLS / DNS / RPC / 数据库 / 邮件 / 文件
 ├── quarkus/        Quarkus：构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / 其他 Java 框架
 ├── scenario/       业务场景：秒杀 / 订单 / 短链 / Feed / 搜索等系统设计案例
 ├── security/       应用安全：认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任
@@ -75,7 +75,7 @@ docs/
 | DevOps | `docs/devops/` | Git 工作流 / CI/CD / Code Review / 团队规范 |
 | 工程效率 | `docs/engineering/` | 构建工具 / 开发工具 / 代码质量 / 线上诊断 / API 规范 |
 | 可观测性 | `docs/observability/` | 日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry |
-| 网络协议 | `docs/protocols/` | TCP/UDP / HTTP / IoT 协议 / gRPC / TLS / 数据库协议 |
+| 网络协议 | `docs/protocols/` | TCP/UDP / HTTP / TLS / DNS / gRPC / 数据库、邮件、文件协议 |
 | 应用安全 | `docs/security/` | 认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任 |
 | IoT | `docs/iot/` | 物联网架构 / 协议 / 开源平台 |
 | AI | `docs/ai/` | Function Calling / Spring AI / LangChain4j / RAG / Agent / MCP / API 接入 / AI 工具 |

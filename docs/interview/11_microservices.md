@@ -101,7 +101,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：gRPC 用长连接，四层负载均衡只在建连时分配一次，请求会全落在一台上，要按请求做均衡。
 
-→ 详见 [服务通信](/spring-cloud/3_communication#六、选型)、[远程调用协议](/protocols/3_rpc_protocols)
+→ 详见 [服务通信](/spring-cloud/3_communication#六、选型)、[RPC 协议](/protocols/5_rpc_protocols)
 
 ## 三、服务网格与 Dubbo
 

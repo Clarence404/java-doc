@@ -1,0 +1,57 @@
+<svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrp" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--p)"/>
+    </marker>
+    <marker id="arrm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="380" y="26" text-anchor="middle" class="title">代理模式的角色（缓存代理）</text>
+  <rect x="30" y="80" width="180" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="120" y="106" text-anchor="middle" class="name">Client</text>
+  <text x="120" y="126" text-anchor="middle" class="desc">面向 UserService 编程</text>
+  <rect x="270" y="80" width="220" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380" y="106" text-anchor="middle" class="name">UserService（接口）</text>
+  <text x="380" y="126" text-anchor="middle" class="desc">Subject：统一抽象</text>
+  <rect x="100" y="220" width="240" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="220" y="246" text-anchor="middle" class="name">UserServiceImpl</text>
+  <text x="220" y="266" text-anchor="middle" class="desc">RealSubject：真正查库</text>
+  <rect x="440" y="220" width="240" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="560" y="246" text-anchor="middle" class="name">CachingUserServiceProxy</text>
+  <text x="560" y="266" text-anchor="middle" class="desc">Proxy：控制访问并加缓存</text>
+  <line x1="210" y1="110" x2="268" y2="110" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <text x="239" y="103" text-anchor="middle" class="lbl">调用</text>
+  <path d="M220,220 L220,180 L340,180 L340,142" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M560,220 L560,180 L420,180 L420,142" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="440" y1="250" x2="342" y2="250" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <text x="391" y="243" text-anchor="middle" class="lbl">委托 target</text>
+  <line x1="30" y1="52" x2="60" y2="52" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <text x="68" y="56" text-anchor="start" class="lbl">持有 / 调用</text>
+  <line x1="190" y1="52" x2="220" y2="52" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="228" y="56" text-anchor="start" class="lbl">实现 / 继承</text>
+</svg>

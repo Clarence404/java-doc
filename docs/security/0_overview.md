@@ -42,4 +42,4 @@
 - 认证框架（Spring Security / Sa-Token / Shiro 对比与选型）→ [安全框架对比](../spring/10_auth_framework)
 - Spring 生态 SSO 接入（LDAP / CAS / SAML2 / OIDC / Keycloak / Spring Authorization Server / Sa-Token SSO）→ [Spring SSO 接入](../spring/11_single_sign_on)
 - 权限系统架构设计（PEP / PDP、权限缓存、数据权限拦截）→ [architecture/6_access_control](../architecture/6_access_control)
-- 安全通信协议（TLS / mTLS）→ [protocols/4_security_protocols](../protocols/4_security_protocols)
+- 安全通信协议（TLS / mTLS）→ [HTTPS 与 TLS](../protocols/3_https_tls)

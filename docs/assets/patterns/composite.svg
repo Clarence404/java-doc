@@ -1,0 +1,57 @@
+<svg viewBox="0 0 760 310" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrp" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--p)"/>
+    </marker>
+    <marker id="arrm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="380" y="26" text-anchor="middle" class="title">组合模式的角色（菜单树）</text>
+  <rect x="40" y="90" width="170" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="125" y="116" text-anchor="middle" class="name">Client</text>
+  <text x="125" y="136" text-anchor="middle" class="desc">只依赖 MenuItem</text>
+  <rect x="290" y="90" width="220" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="400" y="116" text-anchor="middle" class="name">MenuItem（接口）</text>
+  <text x="400" y="136" text-anchor="middle" class="desc">Component：统一接口</text>
+  <rect x="120" y="230" width="240" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="240" y="256" text-anchor="middle" class="name">MenuLeaf</text>
+  <text x="240" y="276" text-anchor="middle" class="desc">Leaf：叶子菜单，没有子节点</text>
+  <rect x="440" y="230" width="240" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="560" y="256" text-anchor="middle" class="name">MenuGroup</text>
+  <text x="560" y="276" text-anchor="middle" class="desc">Composite：持有子节点并递归</text>
+  <line x1="210" y1="120" x2="288" y2="120" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <text x="249" y="113" text-anchor="middle" class="lbl">调用</text>
+  <path d="M240,230 L240,190 L360,190 L360,152" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M560,230 L560,190 L440,190 L440,152" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M680,260 L720,260 L720,120 L512,120" fill="none" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <text x="616" y="113" text-anchor="middle" class="lbl">children：0..* 个子节点</text>
+  <line x1="30" y1="52" x2="60" y2="52" stroke="var(--p)" stroke-width="1.5" marker-end="url(#arrp)"/>
+  <text x="68" y="56" text-anchor="start" class="lbl">持有 / 调用</text>
+  <line x1="190" y1="52" x2="220" y2="52" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="228" y="56" text-anchor="start" class="lbl">实现 / 继承</text>
+</svg>

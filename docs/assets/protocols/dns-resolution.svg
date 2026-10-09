@@ -1,0 +1,74 @@
+<svg viewBox="0 0 750 380" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .head { font-size: 13px; font-weight: 600; }
+    .lbl { font-size: 12px; }
+    .sub { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="375" y="24" text-anchor="middle" class="title">DNS 解析：客户端递归查询 + 解析器迭代查询</text>
+
+  <!-- 客户端 -->
+  <rect x="20" y="150" width="150" height="70" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="95" y="178" text-anchor="middle" class="head">客户端</text>
+  <text x="95" y="200" text-anchor="middle" class="sub">浏览器 / OS 缓存</text>
+
+  <!-- 递归解析器 -->
+  <rect x="250" y="40" width="150" height="290" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="325" y="164" text-anchor="middle" class="head">递归解析器</text>
+  <text x="325" y="188" text-anchor="middle" class="sub">运营商 / 公共 DNS</text>
+  <text x="325" y="210" text-anchor="middle" class="sub">命中缓存直接返回</text>
+
+  <!-- 右侧三级 -->
+  <rect x="560" y="40" width="170" height="70" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="645" y="68" text-anchor="middle" class="head">根服务器</text>
+  <text x="645" y="90" text-anchor="middle" class="sub">指向 .com 的 NS</text>
+  <rect x="560" y="150" width="170" height="70" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="645" y="178" text-anchor="middle" class="head">顶级域 .com</text>
+  <text x="645" y="200" text-anchor="middle" class="sub">指向 example.com 的 NS</text>
+  <rect x="560" y="260" width="170" height="70" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="645" y="288" text-anchor="middle" class="head">权威服务器</text>
+  <text x="645" y="310" text-anchor="middle" class="sub">example.com 的记录</text>
+
+  <!-- 递归：客户端 与 解析器（双向） -->
+  <text x="210" y="179" text-anchor="middle" class="lbl">① 查询</text>
+  <line x1="172" y1="185" x2="248" y2="185" stroke="var(--b)" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <text x="210" y="201" text-anchor="middle" class="lbl">⑧ 返回 IP</text>
+
+  <!-- 迭代：解析器 与 根 -->
+  <text x="480" y="69" text-anchor="middle" class="lbl">② 查询</text>
+  <line x1="402" y1="75" x2="558" y2="75" stroke="var(--muted)" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <text x="480" y="91" text-anchor="middle" class="lbl">③ .com 的 NS</text>
+
+  <!-- 解析器 与 TLD -->
+  <text x="480" y="179" text-anchor="middle" class="lbl">④ 查询</text>
+  <line x1="402" y1="185" x2="558" y2="185" stroke="var(--muted)" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <text x="480" y="201" text-anchor="middle" class="lbl">⑤ example.com 的 NS</text>
+
+  <!-- 解析器 与 权威 -->
+  <text x="480" y="289" text-anchor="middle" class="lbl">⑥ 查询</text>
+  <line x1="402" y1="295" x2="558" y2="295" stroke="var(--muted)" stroke-width="1.5" marker-start="url(#arr)" marker-end="url(#arr)"/>
+  <text x="480" y="311" text-anchor="middle" class="lbl">⑦ A 记录</text>
+
+  <text x="375" y="360" text-anchor="middle" class="sub">①⑧ 递归：客户端只问一次、等最终答案；②–⑦ 迭代：解析器逐级追问，每级只给下一跳</text>
+</svg>

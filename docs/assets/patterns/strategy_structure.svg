@@ -1,0 +1,56 @@
+<svg viewBox="0 0 760 370" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrs" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
+      <path d="M7,0 L0,3.5 L7,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="26" text-anchor="middle" class="title">策略模式的角色</text>
+  <rect x="230" y="50" width="300" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="380" y="76" text-anchor="middle" class="name">PayService（Context）</text>
+  <text x="380" y="96" text-anchor="middle" class="desc">按支付方式查表，调用 strategy.pay()</text>
+  <line x1="380" y1="110" x2="380" y2="168" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="388" y="143" text-anchor="start" class="lbl">持有并调用</text>
+  <rect x="230" y="170" width="300" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380" y="196" text-anchor="middle" class="name">PayStrategy（Strategy）</text>
+  <text x="380" y="216" text-anchor="middle" class="desc">type() / pay(orderId, amount)</text>
+  <rect x="20" y="290" width="226.667" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="133.333" y="316" text-anchor="middle" class="name">WechatPay</text>
+  <text x="133.333" y="336" text-anchor="middle" class="desc">一个 Spring Bean</text>
+  <line x1="133.333" y1="290" x2="133.333" y2="260" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <rect x="266.667" y="290" width="226.667" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="380" y="316" text-anchor="middle" class="name">AliPay</text>
+  <text x="380" y="336" text-anchor="middle" class="desc">一个 Spring Bean</text>
+  <line x1="380" y1="290" x2="380" y2="260" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <rect x="513.333" y="290" width="226.667" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="626.667" y="316" text-anchor="middle" class="name">新增渠道</text>
+  <text x="626.667" y="336" text-anchor="middle" class="desc">加一个实现类，Context 不改</text>
+  <line x1="626.667" y1="290" x2="626.667" y2="260" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="133.333" y1="260" x2="626.667" y2="260" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <line x1="380" y1="260" x2="380" y2="232" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <text x="388" y="252" text-anchor="start" class="lbl">实现</text>
+</svg>

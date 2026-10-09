@@ -21,7 +21,7 @@ description: Lambda 与 Stream、版本特性、异常、String、泛型、反�
 
 **常见坑**：包装类之间用 `==` 比较（应该用 `equals`）；`Integer` 为 null 时自动拆箱直接 NPE。
 
-→ 详见 [集合框架](/java/21_topic_collection#_5、key-的设计)、[享元模式](/patterns/11_structural_flyweight#一、jdk-中的享元)
+→ 详见 [集合框架](/java/21_topic_collection#_5、key-的设计)、[享元模式](/patterns/11_structural_flyweight#三、jdk-中的应用)
 
 ### Q2：抽象类和接口的区别？Java 为什么不支持类的多继承，接口默认方法冲突怎么解决？
 
@@ -143,19 +143,12 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 ### Q10：单例模式有几种写法？DCL 为什么要加 volatile？推荐哪种？
 
-**一句话**：常见有饿汉、懒汉、双重检查锁（DCL）、静态内部类、枚举五种。推荐静态内部类（要懒加载时）和枚举（要防反射和序列化时）；实际项目里一般交给 Spring 管。
+**一句话**：常见有饿汉、懒汉、双重检查锁（DCL）、静态内部类、枚举五种；要懒加载用静态内部类，要防反射和序列化用枚举，实际项目里一般交给 Spring 管。
 
-| 写法 | 懒加载 | 线程安全靠什么 | 防反射 / 序列化 |
-|------|-------|--------------|---------------|
-| 饿汉 | 否 | 类加载时初始化 | 否 |
-| DCL | 是 | `volatile` + 锁 | 否 |
-| 静态内部类 | 是 | JVM 保证类只初始化一次 | 否 |
-| 枚举 | 否 | 类加载时初始化 | 是 |
+- DCL 必须加 `volatile`：`new` 对象的「分配内存、执行构造器、赋值给变量」三步可能被重排序，别的线程会拿到还没构造完的对象
+- 五种写法的完整对比、防反射与反序列化的做法，统一在设计模式答案页
 
-- DCL 为什么要 `volatile`：`new` 一个对象分为分配内存、执行构造器、赋值给变量三步，可能被重排序；别的线程可能拿到一个构造器还没跑完的对象。`volatile` 禁止这种情况
-- 静态内部类：第一次调 `getInstance()` 才加载内部类，由 JVM 保证只初始化一次，不用加锁
-
-→ 详见 [单例模式](/patterns/1_creational_singleton#四、静态内部类-holder-推荐)、[JMM 内存模型](/java/22_topic_jmm#七、双重检查锁-dcl)
+→ 详见 [设计模式面试题解答](/interview/17_patterns#q3-单例模式有几种写法-推荐哪种)、[JMM 内存模型](/java/22_topic_jmm#七、双重检查锁-dcl)
 
 ### Q11：`Arrays.sort()` 底层用的什么算法？对基本类型和对象有何不同？
 
@@ -168,7 +161,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 **常见坑**：比较器写成 `a - b` 可能溢出、违反比较规则，TimSort 会抛 `Comparison method violates its general contract!`；用 `Integer.compare` 或 `Comparator.comparing`。
 
-→ 详见 [排序算法](/algorithms/2_algorithms/1_sort#四、排序选型建议)
+→ 详见 [排序算法](/algorithms/2_algorithms/1_sort#四、内置排序的实现)
 
 ## 二、语言机制
 
@@ -482,4 +475,4 @@ protected boolean removeEldestEntry(Map.Entry<K, V> eldest) { return size() > ca
 - TreeSet / TreeMap 用比较器判断「是否同一个元素」，而不是 `equals`；比较结果为 0 就当作重复
 - 例子：按年龄排序的 `TreeSet<User>`，同龄的第二个用户加不进去；要用 `thenComparing` 再加一个区分字段
 
-→ 详见 [集合框架](/java/21_topic_collection#七、linkedhashmap)、[Caffeine](/cache/7_caffeine)
+→ 详见 [集合框架](/java/21_topic_collection#七、linkedhashmap)、[Caffeine](/cache/7_caffeine)；不借助 LinkedHashMap 手写 LRU 见 [数据结构与算法面试题解答](/interview/4_algorithms#q8-如何手写一个-lru-缓存)
