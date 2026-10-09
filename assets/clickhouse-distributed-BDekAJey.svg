@@ -1,0 +1,45 @@
+<svg viewBox="0 0 720 446" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="360" y="24" text-anchor="middle" fill="var(--fg)" font-size="14" font-weight="700">ClickHouse 分布式表与副本拓扑</text>
+  <rect x="280" y="40" width="160" height="60" rx="6" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="360" y="64" text-anchor="middle" fill="var(--fg)" font-size="12" font-weight="700">应用 / BI</text>
+  <text x="360" y="84" text-anchor="middle" fill="var(--muted)" font-size="10">INSERT / SELECT</text>
+  <line class="arr" x1="360" y1="100" x2="360" y2="128"/>
+  <rect x="140" y="130" width="440" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="154" text-anchor="middle" fill="var(--p)" font-size="12" font-weight="700">Distributed 表 events_all（不存数据）</text>
+  <text x="360" y="174" text-anchor="middle" fill="var(--fg)" font-size="10">写入按 cityHash64(user_id) 分发到各 shard；查询并行下发再汇总</text>
+  <line class="arr" x1="185" y1="190" x2="185" y2="218"/>
+  <line class="arr" x1="535" y1="190" x2="535" y2="218"/>
+  <rect x="20" y="220" width="330" height="116" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="185" y="244" text-anchor="middle" fill="var(--b)" font-size="12" font-weight="700">Shard 1（两个副本互相复制）</text>
+  <rect x="35" y="256" width="145" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="107.5" y="280" text-anchor="middle" fill="var(--fg)" font-size="11" font-weight="600">副本 A：events_local</text>
+  <text x="107.5" y="298" text-anchor="middle" fill="var(--muted)" font-size="10">ReplicatedMergeTree</text>
+  <rect x="190" y="256" width="145" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="262.5" y="280" text-anchor="middle" fill="var(--fg)" font-size="11" font-weight="600">副本 B：events_local</text>
+  <text x="262.5" y="298" text-anchor="middle" fill="var(--muted)" font-size="10">ReplicatedMergeTree</text>
+  <rect x="370" y="220" width="330" height="116" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="535" y="244" text-anchor="middle" fill="var(--b)" font-size="12" font-weight="700">Shard 2（两个副本互相复制）</text>
+  <rect x="385" y="256" width="145" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="457.5" y="280" text-anchor="middle" fill="var(--fg)" font-size="11" font-weight="600">副本 A：events_local</text>
+  <text x="457.5" y="298" text-anchor="middle" fill="var(--muted)" font-size="10">ReplicatedMergeTree</text>
+  <rect x="540" y="256" width="145" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="612.5" y="280" text-anchor="middle" fill="var(--fg)" font-size="11" font-weight="600">副本 B：events_local</text>
+  <text x="612.5" y="298" text-anchor="middle" fill="var(--muted)" font-size="10">ReplicatedMergeTree</text>
+  <line class="arr" x1="185" y1="336" x2="185" y2="364"/>
+  <line class="arr" x1="535" y1="336" x2="535" y2="364"/>
+  <rect x="140" y="366" width="440" height="60" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="360" y="390" text-anchor="middle" fill="var(--y)" font-size="12" font-weight="700">ClickHouse Keeper</text>
+  <text x="360" y="410" text-anchor="middle" fill="var(--fg)" font-size="10">复制日志与元数据协调（兼容 ZooKeeper）</text>
+</svg>

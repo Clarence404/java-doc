@@ -1,0 +1,64 @@
+<svg viewBox="0 0 680 284" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .arrow { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#arr); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">UPDATE 产生新版本：非 HOT 与 HOT</text>
+
+  <!-- 左：非 HOT -->
+  <text x="175" y="48" text-anchor="middle" font-weight="700" fill="var(--fg)">非 HOT 更新（改了索引列或本页无空间）</text>
+  <rect class="box" x="20" y="60" width="310" height="60" rx="6" stroke="var(--b)"/>
+  <text x="175" y="80" text-anchor="middle" font-weight="600" fill="var(--b)">索引 idx_users_name</text>
+  <text x="97" y="102" text-anchor="middle" font-size="11" fill="var(--fg)">'Ann' → (0,1)</text>
+  <text x="253" y="102" text-anchor="middle" font-size="11" fill="var(--fg)">'Bob' → (5,2)（新增条目）</text>
+
+  <line class="arrow" x1="85" y1="120" x2="85" y2="158"/>
+  <line class="arrow" x1="265" y1="120" x2="265" y2="158"/>
+
+  <rect class="box" x="20" y="160" width="130" height="76" rx="6" stroke="var(--muted)"/>
+  <text x="85" y="180" text-anchor="middle" font-weight="600" font-size="11" fill="var(--muted)">v1 · 页 0 行 1</text>
+  <text x="85" y="198" text-anchor="middle" font-size="11" fill="var(--fg)">xmin=100 xmax=200</text>
+  <text x="85" y="216" text-anchor="middle" font-size="11" fill="var(--fg)">t_ctid=(5,2)</text>
+
+  <line class="arrow" x1="150" y1="198" x2="198" y2="198"/>
+  <text x="174" y="192" text-anchor="middle" font-size="10" fill="var(--muted)">t_ctid</text>
+
+  <rect class="box" x="200" y="160" width="130" height="76" rx="6" stroke="var(--g)"/>
+  <text x="265" y="180" text-anchor="middle" font-weight="600" font-size="11" fill="var(--g)">v2 · 页 5 行 2</text>
+  <text x="265" y="198" text-anchor="middle" font-size="11" fill="var(--fg)">xmin=200 xmax=0</text>
+  <text x="265" y="216" text-anchor="middle" font-size="11" fill="var(--fg)">t_ctid=(5,2)</text>
+
+  <text x="175" y="262" text-anchor="middle" font-size="11" fill="var(--muted)">新版本可落在任意页，表上每个索引都要新增一条</text>
+
+  <!-- 右：HOT -->
+  <text x="505" y="48" text-anchor="middle" font-weight="700" fill="var(--fg)">HOT 更新（未改索引列且同页有空间）</text>
+  <rect class="box" x="350" y="60" width="310" height="60" rx="6" stroke="var(--b)"/>
+  <text x="505" y="80" text-anchor="middle" font-weight="600" fill="var(--b)">索引 idx_users_name</text>
+  <text x="505" y="102" text-anchor="middle" font-size="11" fill="var(--fg)">只有一条 → (0,1)，不新增条目</text>
+
+  <line class="arrow" x1="415" y1="120" x2="415" y2="158"/>
+
+  <rect class="box" x="350" y="160" width="130" height="76" rx="6" stroke="var(--muted)"/>
+  <text x="415" y="180" text-anchor="middle" font-weight="600" font-size="11" fill="var(--muted)">v1 · HOT_UPDATED</text>
+  <text x="415" y="198" text-anchor="middle" font-size="11" fill="var(--fg)">xmin=100 xmax=200</text>
+  <text x="415" y="216" text-anchor="middle" font-size="11" fill="var(--fg)">t_ctid=(0,2)</text>
+
+  <line class="arrow" x1="480" y1="198" x2="528" y2="198"/>
+  <text x="504" y="192" text-anchor="middle" font-size="10" fill="var(--muted)">HOT 链</text>
+
+  <rect class="box" x="530" y="160" width="130" height="76" rx="6" stroke="var(--g)"/>
+  <text x="595" y="180" text-anchor="middle" font-weight="600" font-size="11" fill="var(--g)">v2 · HEAP_ONLY</text>
+  <text x="595" y="198" text-anchor="middle" font-size="11" fill="var(--fg)">xmin=200 xmax=0</text>
+  <text x="595" y="216" text-anchor="middle" font-size="11" fill="var(--fg)">页 0 行 2</text>
+
+  <text x="505" y="262" text-anchor="middle" font-size="11" fill="var(--muted)">新旧版本同在页 0，页内剪枝即可回收 v1</text>
+</svg>

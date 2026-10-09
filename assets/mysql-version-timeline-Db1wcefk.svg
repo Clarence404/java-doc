@@ -1,0 +1,63 @@
+<svg viewBox="0 0 862 176" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .txt   { font-size: 12px; }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+  <text x="431.0" y="24" text-anchor="middle" class="title">MySQL 版本路线与生命周期</text>
+  <rect x="20" y="44" width="112" height="72" rx="8" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="76.0" y="66" text-anchor="middle" class="name">MySQL 5.7</text>
+  <text x="76.0" y="86" text-anchor="middle" class="desc">GA 2015-10</text>
+  <text x="76.0" y="103" text-anchor="middle" class="desc">2023-10 停止维护</text>
+  <line x1="132" y1="80.0" x2="160" y2="80.0" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="162" y="44" width="112" height="72" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="218.0" y="66" text-anchor="middle" class="name">MySQL 8.0</text>
+  <text x="218.0" y="86" text-anchor="middle" class="desc">GA 2018-04</text>
+  <text x="218.0" y="103" text-anchor="middle" class="desc">2026-04 停止维护</text>
+  <line x1="274" y1="80.0" x2="302" y2="80.0" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="304" y="44" width="112" height="72" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="360.0" y="66" text-anchor="middle" class="name">8.4 LTS</text>
+  <text x="360.0" y="86" text-anchor="middle" class="desc">GA 2024-04</text>
+  <text x="360.0" y="103" text-anchor="middle" class="desc">扩展支持至 2032</text>
+  <line x1="416" y1="80.0" x2="444" y2="80.0" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="446" y="44" width="112" height="72" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="502.0" y="66" text-anchor="middle" class="name">9.0 ~ 9.6</text>
+  <text x="502.0" y="86" text-anchor="middle" class="desc">Innovation</text>
+  <text x="502.0" y="103" text-anchor="middle" class="desc">2024-07 起按季度</text>
+  <line x1="558" y1="80.0" x2="586" y2="80.0" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="588" y="44" width="112" height="72" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="644.0" y="66" text-anchor="middle" class="name">9.7 LTS</text>
+  <text x="644.0" y="86" text-anchor="middle" class="desc">GA 2026-04-21</text>
+  <text x="644.0" y="103" text-anchor="middle" class="desc">当前最新 LTS</text>
+  <line x1="700" y1="80.0" x2="728" y2="80.0" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="730" y="44" width="112" height="72" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="786.0" y="66" text-anchor="middle" class="name">26.7 起</text>
+  <text x="786.0" y="86" text-anchor="middle" class="desc">日历版本 YY.M.P</text>
+  <text x="786.0" y="103" text-anchor="middle" class="desc">Innovation / LTS</text>
+  <text x="431.0" y="146" text-anchor="middle" class="lbl">LTS 之间逐级升级：8.0 → 8.4 → 9.7，不能跳过 LTS；Innovation 版本只维护到下一次发布</text>
+</svg>

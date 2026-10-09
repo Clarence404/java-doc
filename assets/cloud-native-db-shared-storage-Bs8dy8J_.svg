@@ -1,0 +1,54 @@
+<svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="350" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">两条扩展路线：Shared-Nothing 与 Shared-Storage</text>
+
+  <rect class="box" x="10" y="40" width="335" height="280" stroke="var(--border)"/>
+  <text x="177" y="62" text-anchor="middle" fill="var(--b)" font-weight="700">Shared-Nothing：TiDB / OceanBase</text>
+  <rect class="box" x="30" y="80" width="295" height="60" stroke="var(--b)"/>
+  <text x="177" y="104" text-anchor="middle" fill="var(--fg)" font-weight="600">SQL 计算层（可水平扩展）</text>
+  <text x="177" y="122" text-anchor="middle" fill="var(--muted)" font-size="10">TiDB Server / OBServer SQL 引擎</text>
+  <line class="arr" x1="75" y1="140" x2="75" y2="178"/>
+  <line class="arr" x1="177" y1="140" x2="177" y2="178"/>
+  <line class="arr" x1="279" y1="140" x2="279" y2="178"/>
+  <rect class="box" x="30" y="180" width="91" height="60" stroke="var(--g)"/>
+  <text x="75" y="204" text-anchor="middle" fill="var(--g)" font-weight="600">节点 1</text>
+  <text x="75" y="222" text-anchor="middle" fill="var(--muted)" font-size="10">分片 A / B</text>
+  <rect class="box" x="132" y="180" width="91" height="60" stroke="var(--g)"/>
+  <text x="177" y="204" text-anchor="middle" fill="var(--g)" font-weight="600">节点 2</text>
+  <text x="177" y="222" text-anchor="middle" fill="var(--muted)" font-size="10">分片 B / C</text>
+  <rect class="box" x="234" y="180" width="91" height="60" stroke="var(--g)"/>
+  <text x="279" y="204" text-anchor="middle" fill="var(--g)" font-weight="600">节点 3</text>
+  <text x="279" y="222" text-anchor="middle" fill="var(--muted)" font-size="10">分片 C / A</text>
+  <text x="177" y="270" text-anchor="middle" fill="var(--fg)" font-size="10">数据按分片打散，每个分片 Raft / Paxos 多副本</text>
+  <text x="177" y="290" text-anchor="middle" fill="var(--muted)" font-size="10">写入可水平扩展，代价是分布式事务与运维复杂度</text>
+
+  <rect class="box" x="355" y="40" width="335" height="280" stroke="var(--border)"/>
+  <text x="522" y="62" text-anchor="middle" fill="var(--p)" font-weight="700">Shared-Storage：Aurora / PolarDB</text>
+  <rect class="box" x="375" y="80" width="140" height="60" stroke="var(--p)"/>
+  <text x="445" y="104" text-anchor="middle" fill="var(--fg)" font-weight="600">写节点</text>
+  <text x="445" y="122" text-anchor="middle" fill="var(--muted)" font-size="10">执行事务、产生 redo</text>
+  <rect class="box" x="530" y="80" width="140" height="60" stroke="var(--p)"/>
+  <text x="600" y="104" text-anchor="middle" fill="var(--fg)" font-weight="600">只读节点 × N</text>
+  <text x="600" y="122" text-anchor="middle" fill="var(--muted)" font-size="10">共享同一份数据</text>
+  <line class="arr" x1="445" y1="140" x2="445" y2="178"/>
+  <text x="452" y="164" fill="var(--muted)" font-size="10">只写 redo</text>
+  <line class="arr" x1="600" y1="180" x2="600" y2="142"/>
+  <text x="593" y="164" text-anchor="end" fill="var(--muted)" font-size="10">读数据页</text>
+  <rect class="box" x="375" y="180" width="295" height="60" stroke="var(--y)"/>
+  <text x="522" y="204" text-anchor="middle" fill="var(--fg)" font-weight="600">分布式共享存储（多副本、跨 AZ）</text>
+  <text x="522" y="222" text-anchor="middle" fill="var(--muted)" font-size="10">存储层回放 redo 生成数据页</text>
+  <text x="522" y="270" text-anchor="middle" fill="var(--fg)" font-size="10">计算与存储分离，加只读节点不复制数据</text>
+  <text x="522" y="290" text-anchor="middle" fill="var(--muted)" font-size="10">写入受单写节点限制；多写另需 Limitless / 多主</text>
+</svg>
