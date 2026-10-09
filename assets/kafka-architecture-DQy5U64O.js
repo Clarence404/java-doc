@@ -1,1 +1,0 @@
-var e=`/java-doc/assets/kafka-architecture-JxjEzmQg.svg`;export{e as t};
