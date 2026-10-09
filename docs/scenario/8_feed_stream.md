@@ -1,253 +1,211 @@
 ---
-description: 推模式、拉模式、推拉结合、存储设计、推送系统
+description: 推模式、拉模式、推拉结合、收件箱游标分页、可靠扇出、在线推送
 ---
 
 # Feed 流 & 消息推送系统设计
 
-> Feed 流是社交产品的核心功能，将关注者的内容聚合推送给用户。微博、朋友圈、抖音首页均为典型 Feed 流场景。
+> **本篇目标**：在推、拉、推拉结合三种模式间做取舍，用 ZSet 收件箱 + 游标分页实现不重不漏的 Feed，用本地消息表 + MQ 做可靠扇出，并理清在线推送的整体链路。
+>
+> **前置阅读**：[Redis 基础](/cache/1_redis_base)（ZSet 一节）、[消息队列基础](/messaging/1_basics)
+
+Feed 流把关注对象的内容聚合给用户，微博、朋友圈、短视频首页都是典型场景。核心矛盾是**写扩散**（发布时写每个粉丝的收件箱）和**读扩散**（浏览时现拉现合并）之间的取舍。
 
 ---
 
-## 一、Feed 流核心问题
+## 一、三种模式
 
-**写扩散（推模式）**：用户发布内容时，立即推送给所有粉丝的收件箱。
-**读扩散（拉模式）**：用户浏览时，实时从关注列表拉取各人的最新内容聚合。
-**推拉结合**：活跃用户推，大 V 拉，兼顾性能与实时性。
+![推模式、拉模式与推拉结合](../assets/scenario/feed-fanout.svg)
+
+| 维度 | 推模式（写扩散） | 拉模式（读扩散） | 推拉结合 |
+|------|----------------|----------------|---------|
+| 发布时 | 写所有粉丝的收件箱 | 只写自己的发件箱 | 普通作者推，大 V 只写发件箱 |
+| 浏览时 | 读自己的收件箱 | 拉所有关注对象的发件箱再归并 | 收件箱 + 关注的大 V 发件箱归并 |
+| 读性能 | 最快 | 关注越多越慢 | 快 |
+| 写放大 | 粉丝数倍，大 V 发布压力极大 | 无 | 只对普通作者 |
+| 存储 | 高（每人一个收件箱） | 低 | 中 |
+| 适合 | 关系有上限的社交（公开资料常以朋友圈为例，好友数有上限） | 关注少、对实时性要求不高 | 粉丝分布极不均匀的平台（常以微博为例） |
 
 ---
 
 ## 二、推模式（写扩散）
 
-### 2.1 原理
+### 1、收件箱结构
 
-用户发布内容时，遍历所有粉丝，将内容 ID 写入每个粉丝的 Feed 收件箱（Redis List 或 DB）。
+收件箱用 ZSet，member 是内容 ID，score 是一个**按时间递增、在 2^53 以内**的值（score 是双精度浮点数，64 位雪花 ID 会丢精度，不能直接当 score）。本篇约定：
 
-```
-用户 A 发布内容
-    ↓
-查询 A 的粉丝列表（10w 粉丝）
-    ↓
-并发写入 10w 个粉丝的 Feed List（Redis）
-```
+- `score = 发布毫秒时间戳 × 1000 + contentId % 1000`，约 1.8 × 10^15，小于 2^53
+- 每个收件箱只保留最新 1000 条，更早的内容走拉模式从内容表查
 
-### 2.2 Redis 实现
+### 2、可靠扇出
+
+发布时不要在请求线程里起线程池写收件箱：进程崩溃时扇出直接丢失。生产上的链路是：
+
+1. 发布接口在**同一个本地事务**里写内容表和本地消息表（Outbox）
+2. 投递任务把「内容已发布」事件发到 MQ（做法见 [消息队列基础](/messaging/1_basics#_1、本地消息表-transactional-outbox) 的本地消息表一节）
+3. 扇出消费者按游标分页读取粉丝列表，每批几百人，用管道批量写收件箱；失败由 MQ 重试
 
 ```java
-// 发布内容后，异步推送给粉丝
-public void pushToFollowers(Long authorId, Long contentId) {
-    List<Long> followerIds = followService.getFollowers(authorId);
+public void fanOut(long contentId, long publishMillis, List<Long> followerIds) {
+    double score = publishMillis * 1000d + contentId % 1000;
+    byte[] member = String.valueOf(contentId).getBytes(StandardCharsets.UTF_8);
 
-    // 分批异步写入，避免单次任务过重
-    Lists.partition(followerIds, 100).forEach(batch ->
-        executor.execute(() -> batch.forEach(followerId -> {
-            String key = "feed:inbox:" + followerId;
-            // LPUSH + LTRIM 保留最新 1000 条
-            redisTemplate.opsForList().leftPush(key, contentId.toString());
-            redisTemplate.opsForList().trim(key, 0, 999);
-        }))
-    );
-}
-
-// 用户拉取 Feed（直接读自己的收件箱）
-public List<Long> getFeed(Long userId, int offset, int limit) {
-    String key = "feed:inbox:" + userId;
-    return redisTemplate.opsForList()
-        .range(key, offset, offset + limit - 1)
-        .stream().map(Long::parseLong).collect(Collectors.toList());
+    redis.executePipelined((RedisCallback<Object>) conn -> {
+        for (Long followerId : followerIds) {
+            byte[] key = ("feed:inbox:" + followerId).getBytes(StandardCharsets.UTF_8);
+            conn.zSetCommands().zAdd(key, score, member);
+            conn.zSetCommands().zRemRange(key, 0, -1001);          // 只保留最新 1000 条
+        }
+        return null;
+    });
 }
 ```
 
-### 2.3 优缺点
+`ZADD` 同一个 member 和 score 重复执行结果不变，重复消费天然幂等，消费端不需要额外去重。
 
-| 优点 | 缺点 |
-|------|------|
-| 读取极快（直接读收件箱） | 写放大严重（大 V 千万粉丝，一次发布写千万次） |
-| 实时性高 | 存储成本高（每人维护收件箱） |
-| 适合粉丝量小的普通用户 | 大 V 发布时系统压力极大 |
+### 3、游标分页
+
+收件箱头部不断插入新内容，用 `offset` 翻页会出现重复和遗漏。改用**游标**：上一页最后一条的 score 作为下一页的上界（开区间）。
+
+```bash
+# 第一页
+ZRANGE feed:inbox:1001 +inf -inf BYSCORE REV LIMIT 0 20 WITHSCORES
+# 下一页：cursor 为上一页最后一条的 score，"(" 表示不含
+ZRANGE feed:inbox:1001 (1791234567890123 -inf BYSCORE REV LIMIT 0 20 WITHSCORES
+```
+
+```java
+public record FeedPage(List<Long> contentIds, Double nextCursor) {
+
+    /** tuples 已按 score 倒序；不足一页说明没有下一页 */
+    static FeedPage of(List<ZSetOperations.TypedTuple<String>> tuples, int size) {
+        if (tuples.isEmpty()) return new FeedPage(List.of(), null);
+        List<Long> ids = tuples.stream().map(t -> Long.parseLong(t.getValue())).toList();
+        Double next = tuples.size() < size ? null : tuples.get(tuples.size() - 1).getScore();
+        return new FeedPage(ids, next);
+    }
+}
+
+public FeedPage inbox(long userId, Double cursor, int size) {
+    double max = cursor == null ? Double.POSITIVE_INFINITY : Math.nextDown(cursor);   // 开区间
+    Set<ZSetOperations.TypedTuple<String>> tuples = redis.opsForZSet()
+            .reverseRangeByScoreWithScores("feed:inbox:" + userId, Double.NEGATIVE_INFINITY, max, 0, size);
+    return FeedPage.of(tuples == null ? List.of() : new ArrayList<>(tuples), size);   // 返回的 Set 保持 Redis 顺序
+}
+```
+
+下拉刷新则反过来，用第一条的 score 作下界取更新的内容。两条内容 score 完全相同的概率极低，这种情况下翻页边界可能漏掉一条，Feed 场景可以接受。
 
 ---
 
 ## 三、拉模式（读扩散）
 
-### 3.1 原理
+每个作者维护一个发件箱 `feed:outbox:{authorId}`（同样的 score 规则），浏览时：
 
-用户浏览时，实时拉取所有关注人的最新内容，在内存中合并排序后返回。
+1. 取关注列表（关注上千人时需要分批）
+2. 用管道对每个发件箱执行 `ZRANGE ... (cursor -inf BYSCORE REV LIMIT 0 size`
+3. 在内存中多路归并，取前 `size` 条
 
-```
-用户 A 打开 Feed
-    ↓
-查询 A 的关注列表（关注了 200 人）
-    ↓
-并发查询每人的最新内容
-    ↓
-归并排序（按时间/权重）
-    ↓
-返回 Top N 条
-```
-
-### 3.2 优缺点
-
-| 优点 | 缺点 |
-|------|------|
-| 写操作简单（只写发布者自己的内容表） | 读取慢（关注越多，合并越慢） |
-| 存储成本低 | 关注人多时，并发查询压力大 |
-| 适合大 V（粉丝多但关注少） | 实时性依赖各服务响应速度 |
+正确性的依据：全局前 `size` 条中的任意一条，一定在它所属发件箱的前 `size` 条里，所以每个源只需取 `size` 条。代价是关注数越多，单次浏览的读放大越大。
 
 ---
 
-## 四、推拉结合（主流方案）
+## 四、推拉结合
 
-### 4.1 策略
-
-- **普通用户**（粉丝 < 阈值，如 5000）：发布时推送给所有粉丝（推模式）
-- **大 V**（粉丝 ≥ 阈值）：只推送给**活跃粉丝**（近 7 天有登录），其余粉丝登录时再拉
-- **读取时**：收件箱内容（推）+ 关注大 V 的最新内容（拉）合并
+- **普通作者**（粉丝数低于阈值，如 5000）：发布时推给全部粉丝
+- **大 V**：只写自己的发件箱；可以额外推给**活跃粉丝**（近 7 天登录），减少他们浏览时的拉取
+- **浏览时**：收件箱 + 关注的大 V 发件箱，按同一个游标归并
 
 ```java
-public void publish(Long authorId, Long contentId) {
-    long followerCount = followService.getFollowerCount(authorId);
-
-    if (followerCount < 5000) {
-        // 普通用户：全量推
-        pushToFollowers(authorId, contentId);
+public void onPublished(ContentPublishedEvent e) {                // 扇出消费者
+    long fans = followService.followerCount(e.authorId());
+    outbox.add(e.authorId(), e.contentId(), e.publishMillis());   // 所有作者都写发件箱
+    if (fans < BIG_V_THRESHOLD) {
+        followService.scanFollowers(e.authorId(), 500,
+                batch -> fanOut(e.contentId(), e.publishMillis(), batch));
     } else {
-        // 大 V：只推活跃粉丝
-        List<Long> activeFollowers = followService.getActiveFollowers(authorId);
-        pushToFollowers(activeFollowers, contentId);
-        // 非活跃粉丝下次登录时拉取
+        followService.scanActiveFollowers(e.authorId(), 500,
+                batch -> fanOut(e.contentId(), e.publishMillis(), batch));
     }
 }
 
-public List<Content> getFeed(Long userId) {
-    // 1. 从收件箱读（推的部分）
-    List<Long> inboxIds = getInbox(userId);
+public FeedPage feed(long userId, Double cursor, int size) {
+    List<String> sources = new ArrayList<>();
+    sources.add("feed:inbox:" + userId);
+    followService.followingBigVs(userId).forEach(id -> sources.add("feed:outbox:" + id));
 
-    // 2. 拉取关注大 V 的最新内容
-    List<Long> followingBigVIds = followService.getFollowingBigVs(userId);
-    List<Long> bigVContentIds = contentService.getLatestByAuthors(followingBigVIds);
-
-    // 3. 合并去重排序
-    return mergeAndSort(inboxIds, bigVContentIds);
+    // 每个源取 cursor 之后的前 size 条（管道批量），归并、按 score 倒序、按 contentId 去重
+    List<ZSetOperations.TypedTuple<String>> merged = feedReader.readAll(sources, cursor, size);
+    return FeedPage.of(merged, size);
 }
 ```
 
+活跃粉丝的收件箱里可能已经有大 V 的内容，同时又从发件箱拉到一次，所以归并时必须按 contentId 去重。大 V 的发件箱和新内容详情是典型的读热点，治理见 [热点问题](/high-con/6_hotspot)。
+
 ---
 
-## 五、Feed 流存储设计
+## 五、内容存储
 
-### 5.1 收件箱（Redis）
-
-```bash
-# 用 ZSet 替代 List，用时间戳做 score，支持按时间范围查询
-ZADD feed:inbox:{userId} {timestamp} {contentId}
-
-# 取最新 20 条
-ZREVRANGEBYSCORE feed:inbox:{userId} +inf -inf LIMIT 0 20
-
-# 控制大小：只保留最新 1000 条（防止 Redis 内存膨胀）
-ZREMRANGEBYRANK feed:inbox:{userId} 0 -1001
-```
-
-### 5.2 内容存储（MySQL + ES）
+收件箱和发件箱只存 ID，内容本身在 MySQL，详情经缓存批量读取：
 
 ```sql
--- 内容表
 CREATE TABLE content (
     id          BIGINT PRIMARY KEY,
-    author_id   BIGINT NOT NULL,
-    content     TEXT,
-    created_at  DATETIME NOT NULL,
-    INDEX idx_author_time (author_id, created_at DESC)
+    author_id   BIGINT   NOT NULL,
+    body        TEXT,
+    status      TINYINT  NOT NULL DEFAULT 1,     -- 1 正常 0 删除 / 审核不通过
+    created_at  DATETIME(3) NOT NULL,
+    KEY idx_author_time (author_id, created_at)
 );
 ```
 
-按 `author_id + created_at` 索引，支持"查某人最新内容"的高效查询。
+- `idx_author_time` 支撑「某作者的最新内容」，也是收件箱超出 1000 条后的回源查询
+- 删除和审核下线不去扫粉丝收件箱，读取详情时按 `status` 过滤即可
+- 内容的全文检索见 [搜索系统设计](./9_search_system)
 
 ---
 
-## 六、消息推送系统
+## 六、在线推送
 
-### 6.1 推送类型
+### 1、推送类型
 
 | 类型 | 场景 | 方案 |
 |------|------|------|
-| 应用内通知 | 点赞、评论、关注 | WebSocket / SSE 长连接 |
-| 系统消息 | 订单状态变更、活动通知 | MQ 异步推送 |
-| App Push | 离线用户唤起 | APNs（iOS）/ FCM（Android）|
-| 短信 | 验证码、重要通知 | 三方短信服务（阿里云/腾讯云）|
+| 应用内实时通知 | 点赞、评论、关注 | WebSocket / SSE 长连接 |
+| 系统消息 | 订单状态、活动通知 | MQ 异步写消息中心，在线时实时推 |
+| App Push | 离线唤起 | APNs（iOS）、FCM 与国内厂商通道（Android） |
+| 短信 | 验证码、重要通知 | 云厂商短信服务 |
 
-### 6.2 实时推送架构（WebSocket）
+### 2、集群推送链路
 
-```
-用户连接 WebSocket Server（长连接）
-    ↓
-用户 ID → 连接 ID 映射存 Redis
-    ↓
-后端有消息时，查 Redis 找到对应连接
-    ↓
-推送消息到该连接
-```
+长连接分散在多个网关节点上，推送要先知道用户连在哪个节点。WebSocket 的协议、Netty 与 Spring 实现、集群路由方案对比见 [WebSocket](/netty/10_websocket)，这里只给出设计要点：
 
-```java
-// 消息推送服务
-public void pushToUser(Long userId, Notification notification) {
-    // 查询用户连接在哪台 WebSocket Server
-    String serverId = redis.hget("user:conn:server", userId.toString());
-    if (serverId == null) {
-        // 用户不在线，存入离线消息队列
-        offlineMessageService.save(userId, notification);
-        return;
-    }
+- **连接注册**：连接建立后写 `ws:route:{userId} → nodeId`，带 TTL 并随心跳续期，断开时删除
+- **跨节点转发**：消息发往目标节点专属的 Redis Pub/Sub 频道（如 `ws:node:{nodeId}`），或用一个 MQ Topic 广播消费、各节点只处理本机连接的用户。不要按节点建 MQ Topic：节点扩缩容时 Topic 要跟着增减，而且 Kafka Topic 名只允许字母、数字、`.`、`_`、`-`
+- **离线与可靠**：消息先持久化到消息中心（带 msgId），再尝试推送；客户端收到后回 `ACK(msgId)`，服务端只在收到 ACK 后才标记已送达，不要「先取出并删除离线消息再推送」，否则推送失败就丢了
 
-    if (serverId.equals(currentServerId)) {
-        // 在当前服务器，直接推
-        webSocketManager.sendToUser(userId, notification);
-    } else {
-        // 在其他服务器，通过 MQ 转发
-        mqTemplate.send("ws-forward-topic:" + serverId,
-            new ForwardMessage(userId, notification));
-    }
-}
-```
+### 3、ACK 与重推
 
-### 6.3 离线消息处理
-
-用户重新上线时，拉取离线期间的消息：
-
-```java
-@OnOpen
-public void onOpen(Session session, Long userId) {
-    // 注册连接
-    webSocketManager.register(userId, session);
-    redis.hset("user:conn:server", userId.toString(), currentServerId);
-
-    // 推送离线消息
-    List<Notification> offlineMsg = offlineMessageService.getAndClear(userId);
-    offlineMsg.forEach(msg -> session.sendText(JSON.toJSONString(msg)));
-}
-```
-
-### 6.4 消息可靠性保证
-
-**问题**：WebSocket 连接不稳定，推送可能丢失。
-
-**方案**：消息 ACK 机制
-```
-服务端推送消息，附带 msgId
-客户端收到后回复 ACK(msgId)
-服务端未收到 ACK，定时重推（最多 N 次）
-超过重试次数，存入离线消息
-```
+1. 服务端推送时附带 msgId，记入「待确认」集合（如 ZSet，score 为重推时间）
+2. 客户端收到后回复 ACK，服务端从待确认集合移除并标记已送达
+3. 定时扫描超时未确认的消息重推，最多 N 次
+4. 超过次数仍未确认，保留在离线消息中，等客户端重连后按 msgId 增量拉取；客户端按 msgId 去重
 
 ---
 
-## 七、方案对比总结
+## 小结
 
-| 场景 | 推模式 | 拉模式 | 推拉结合 |
-|------|--------|--------|---------|
-| 普通用户（少量粉丝） | ✅ 最优 | 可接受 | — |
-| 大 V（海量粉丝） | ❌ 写放大 | ✅ 可接受 | ✅ 最优 |
-| 读取速度 | 极快 | 慢（粉丝多时） | 快 |
-| 存储成本 | 高 | 低 | 中 |
-| 实时性 | 高 | 高（实时拉） | 高 |
-| 代表产品 | 早期微博 | RSS | 微博/微信朋友圈 |
+- 推模式读快写放大，拉模式写简单读放大，粉丝分布不均的平台用推拉结合：普通作者推、大 V 拉、浏览时归并去重
+- 收件箱用 ZSet，score 必须在 2^53 以内且按时间递增；只保留最新 N 条，更早的回源内容表
+- 翻页用游标（上一页最后一条的 score，开区间），不用 offset
+- 扇出走「本地消息表 + MQ + 批量管道写」，`ZADD` 天然幂等；不要用进程内线程池「发后不管」
+- 在线推送：路由表 + 节点频道转发，消息先持久化、收到 ACK 才算送达；协议与实现细节见 Netty 模块
+
+## 参考资料
+
+- ZRANGE：[https://redis.io/docs/latest/commands/zrange/](https://redis.io/docs/latest/commands/zrange/)
+- ZREMRANGEBYRANK：[https://redis.io/docs/latest/commands/zremrangebyrank/](https://redis.io/docs/latest/commands/zremrangebyrank/)
+- Redis pipelining：[https://redis.io/docs/latest/develop/use/pipelining/](https://redis.io/docs/latest/develop/use/pipelining/)
+- Redis Pub/Sub：[https://redis.io/docs/latest/develop/interact/pubsub/](https://redis.io/docs/latest/develop/interact/pubsub/)
+- Kafka Topic 命名规则（`kafka-topics.sh` 与 Topic 配置）：[https://kafka.apache.org/documentation/#basic_ops_add_topic](https://kafka.apache.org/documentation/#basic_ops_add_topic)
+
+> 下一篇：[搜索系统设计](./9_search_system) —— 商品搜索的 Mapping、查询、MySQL → ES 同步与零停机重建。

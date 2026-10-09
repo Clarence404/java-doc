@@ -1,0 +1,71 @@
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">「先更新数据库，再删缓存」仍存在的竞态</text>
+
+  <!-- 泳道标签 -->
+  <rect x="20" y="44" width="90" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="65" y="70" text-anchor="middle" class="name">读请求 A</text>
+  <text x="65" y="90" text-anchor="middle" class="desc">回填缓存</text>
+  <rect x="20" y="124" width="90" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="65" y="150" text-anchor="middle" class="name">写请求 B</text>
+  <text x="65" y="170" text-anchor="middle" class="desc">更新数据</text>
+
+  <!-- A 的步骤 -->
+  <rect x="120" y="44" width="110" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="175" y="68" text-anchor="middle" class="name">① 读缓存未命中</text>
+  <text x="175" y="88" text-anchor="middle" class="desc">缓存刚过期</text>
+  <rect x="238" y="44" width="110" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="293" y="68" text-anchor="middle" class="name">② 读库得 v1</text>
+  <text x="293" y="88" text-anchor="middle" class="desc">读得早或读从库</text>
+  <rect x="592" y="44" width="110" height="60" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="647" y="68" text-anchor="middle" class="name">⑤ 写回 v1</text>
+  <text x="647" y="88" text-anchor="middle" class="desc">旧值进入缓存</text>
+
+  <!-- B 的步骤 -->
+  <rect x="356" y="124" width="110" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="411" y="148" text-anchor="middle" class="name">③ 更新为 v2</text>
+  <text x="411" y="168" text-anchor="middle" class="desc">主库提交</text>
+  <rect x="474" y="124" width="110" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="529" y="148" text-anchor="middle" class="name">④ 删除缓存</text>
+  <text x="529" y="168" text-anchor="middle" class="desc">此时缓存为空</text>
+
+  <!-- 时间轴 -->
+  <line x1="120" y1="204" x2="700" y2="204" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="410" y="222" text-anchor="middle" class="desc">时间推进</text>
+
+  <!-- 结果 -->
+  <rect x="20" y="240" width="336" height="60" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="188" y="264" text-anchor="middle" class="name">结果：缓存为 v1，数据库为 v2</text>
+  <text x="188" y="284" text-anchor="middle" class="desc">不一致持续到 TTL 过期或下一次删除</text>
+  <rect x="366" y="240" width="336" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="534" y="264" text-anchor="middle" class="name">延迟双删：在 ⑤ 之后再删一次</text>
+  <text x="534" y="284" text-anchor="middle" class="desc">延迟 &gt; 读库 + 写缓存耗时 + 主从复制延迟</text>
+
+  <text x="360" y="322" text-anchor="middle" class="lbl">条件苛刻：②③④ 必须都落在 A 读库与写缓存之间，概率低但高并发下会发生</text>
+</svg>

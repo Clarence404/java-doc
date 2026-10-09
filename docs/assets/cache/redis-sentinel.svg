@@ -1,0 +1,51 @@
+<svg viewBox="0 0 720 322" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="720" height="322" rx="8" fill="var(--bg)"/>
+
+  <text x="360" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">哨兵部署：3 个 Sentinel 监控 1 主 2 从</text>
+  <rect x="40" y="50" width="180" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="130" y="76" text-anchor="middle" font-weight="600" fill="var(--fg)">Sentinel 1</text>
+  <text x="130" y="98" text-anchor="middle" font-size="12" fill="var(--muted)">监控 / 投票 / 选 Leader</text>
+  <rect x="270" y="50" width="180" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="76" text-anchor="middle" font-weight="600" fill="var(--fg)">Sentinel 2</text>
+  <text x="360" y="98" text-anchor="middle" font-size="12" fill="var(--muted)">监控 / 投票 / 选 Leader</text>
+  <rect x="500" y="50" width="180" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="590" y="76" text-anchor="middle" font-weight="600" fill="var(--fg)">Sentinel 3</text>
+  <text x="590" y="98" text-anchor="middle" font-size="12" fill="var(--muted)">监控 / 投票 / 选 Leader</text>
+  <rect x="40" y="170" width="180" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="130" y="196" text-anchor="middle" font-weight="600" fill="var(--fg)">Replica 1</text>
+  <text x="130" y="218" text-anchor="middle" font-size="12" fill="var(--muted)">replicaof Master</text>
+  <line x1="130" y1="114" x2="130" y2="168" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <rect x="270" y="170" width="180" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="360" y="196" text-anchor="middle" font-weight="600" fill="var(--fg)">Master</text>
+  <text x="360" y="218" text-anchor="middle" font-size="12" fill="var(--muted)">接收写入</text>
+  <line x1="360" y1="114" x2="360" y2="168" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <rect x="500" y="170" width="180" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="590" y="196" text-anchor="middle" font-weight="600" fill="var(--fg)">Replica 2</text>
+  <text x="590" y="218" text-anchor="middle" font-size="12" fill="var(--muted)">replicaof Master</text>
+  <line x1="590" y1="114" x2="590" y2="168" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <line x1="270" y1="202" x2="222" y2="202" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="450" y1="202" x2="498" y2="202" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="262" width="640" height="40" rx="8" fill="var(--card)" stroke="var(--border)"/>
+  <text x="360" y="288" text-anchor="middle" font-size="12" fill="var(--fg)">虚线：Sentinel 定期 PING / INFO 探测；实线：主从异步复制</text>
+</svg>

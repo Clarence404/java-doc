@@ -1,305 +1,298 @@
 ---
-description: CAP、BASE、Paxos、Raft、ZAB、Gossip、FLP
+description: CAP 与 PACELC、BASE、一致性模型、Quorum、FLP、Paxos、Raft、ZAB、Gossip
 ---
 
 # 分布式理论
 
-> 分布式系统的核心理论基础，理解这些原理是设计高可用、强一致系统的前提。
+> **本篇目标**：准确理解 CAP（以及更实用的 PACELC）在说什么，分清各种一致性模型，掌握 Paxos、Raft、ZAB 的核心流程与 Gossip 的适用场景，能据此判断常见中间件的一致性行为。
+>
+> **前置阅读**：[分布式架构](./1_distributed)
 
 ---
 
-## 一、CAP 理论
+## 一、CAP 与 PACELC
 
-### 1.1 三个性质
+### 1、CAP 到底说了什么
 
-CAP 理论由 Eric Brewer 在 2000 年提出，指出分布式系统**无法同时满足**以下三个性质：
+CAP 由 Eric Brewer 在 2000 年提出猜想，2002 年由 Gilbert 和 Lynch 证明。三个性质的严格含义：
 
-| 性质 | 全称 | 说明 |
-|------|------|------|
-| **C** | Consistency（一致性） | 所有节点在同一时刻看到的数据相同（强一致） |
-| **A** | Availability（可用性） | 每个请求都能收到响应（不保证是最新数据） |
-| **P** | Partition Tolerance（分区容错） | 网络分区时系统仍能继续运行 |
+| 性质 | 含义 |
+|------|------|
+| **C**（Consistency） | 线性一致性（Linearizability）：所有操作看起来像在单副本上按某个全局顺序瞬时完成，读一定能读到最近一次已完成的写 |
+| **A**（Availability） | 每个发往**未故障节点**的请求都能在有限时间内得到非错误响应 |
+| **P**（Partition Tolerance） | 节点之间消息可能任意丢失（网络分区）时，系统仍按约定工作 |
 
-### 1.2 为什么只能三选二？
+定理的结论是：**发生网络分区时，只能在 C 和 A 之间选一个**。这不是「三选二」：
 
-网络分区（P）在分布式系统中**不可避免**（网络故障、机房断联都会发生），所以 P 必须保留。实际上只能在 C 和 A 之间做取舍：
+- 分布式系统无法排除分区，所以 P 不是可选项
+- 没有分区时，系统完全可以同时提供 C 和 A
+- CP / AP 描述的是分区期间的行为：CP 系统让少数派一侧拒绝服务，AP 系统让各侧继续服务、事后合并
 
-**CP 系统（保一致，牺牲可用性）：**
-网络分区时，拒绝服务（返回错误），直到各节点数据同步一致。
-> 典型：ZooKeeper、etcd、HBase
+### 2、PACELC：没有分区时也在取舍
 
-**AP 系统（保可用，牺牲一致性）：**
-网络分区时，继续提供服务，但各节点数据可能不一致，最终一致即可。
-> 典型：Cassandra、CouchDB、Eureka、DynamoDB
+Daniel Abadi 在 2010 年提出 PACELC：**分区时（P）在可用性（A）与一致性（C）之间选；否则（E）在延迟（L）与一致性（C）之间选**。它更贴近日常：大部分时间没有分区，真正的取舍是「同步复制到多数派再返回（一致但慢）」还是「本地写完就返回（快但可能读到旧值）」。
 
-### 1.3 常见中间件的 CAP 定位
+| 系统 | 分区时 | 正常时 | 说明 |
+|------|--------|--------|------|
+| etcd / ZooKeeper / Consul（KV） | PC | EC | 写入走多数派共识 |
+| Cassandra | PA | EL | 一致性级别可按请求调（ONE / QUORUM / ALL） |
+| MySQL 异步复制 | PA | EL | 主库提交即返回，从库可能落后 |
+| MySQL Group Replication | PC | EC | 基于 Paxos 变体，多数派认证后提交 |
+
+### 3、常见中间件的一致性定位
 
 | 中间件 | 定位 | 说明 |
 |--------|------|------|
-| ZooKeeper | CP | 选举期间不可用，保证强一致 |
-| etcd | CP | 基于 Raft，过半节点存活才提供服务 |
-| Eureka | AP | 节点故障时其他节点仍提供服务，数据可能短暂不一致 |
-| Nacos | CP/AP 可切换 | 服务注册默认 AP，配置中心默认 CP |
-| Cassandra | AP | 可调一致性级别（Quorum 可近似 CP） |
-| Redis Cluster | AP | 主节点宕机切换期间可能丢数据 |
-| MySQL 主从 | CP（同步复制）/ AP（异步复制）| 视配置而定 |
+| ZooKeeper | CP | 写是线性一致的；读默认是顺序一致，跟随者可能返回旧数据，需要最新值时先调用 `sync()` |
+| etcd | CP | Raft，默认读也是线性一致的（经 ReadIndex），可选 serializable 读换取低延迟 |
+| Eureka | AP | Server 之间点对点 HTTP 复制注册表，有自我保护模式 |
+| Nacos 注册中心 | 按实例类型 | 临时实例（默认 `ephemeral=true`）走 Distro 协议，AP；持久实例走 JRaft，CP |
+| Nacos 配置中心 | 依赖存储 | 配置存在外部 MySQL；集群内嵌模式下用 Derby + Raft |
+| Redis Cluster | 偏 AP | 主从异步复制，故障切换时可能丢失已确认的写 |
+| MySQL 主从 | 视复制模式 | 异步复制与半同步复制都不保证线性一致，半同步超时（`rpl_semi_sync_source_timeout`）后会退化为异步；只有 Group Replication / InnoDB Cluster 提供多数派共识 |
 
 ---
 
-## 二、BASE 理论
+## 二、BASE 与一致性模型
 
-### 2.1 三个概念
+### 1、BASE
 
-BASE 是 CAP 中 AP 路线的延伸，由 eBay 架构师 Dan Pritchett 提出，是对强一致性的妥协：
+BASE 由 eBay 的 Dan Pritchett 在 2008 年系统阐述，是 AP 路线的工程原则：
 
-| 概念 | 全称 | 说明 |
-|------|------|------|
-| **BA** | Basically Available（基本可用） | 允许损失部分可用性（延迟增加、降级服务），核心功能仍可用 |
-| **S** | Soft State（软状态） | 允许系统中存在中间状态，不同节点数据可以短暂不一致 |
-| **E** | Eventually Consistent（最终一致性） | 经过一段时间同步后，所有节点数据最终达到一致 |
-
-### 2.2 最终一致性的实现模式
-
-| 模式 | 说明 |
+| 概念 | 含义 |
 |------|------|
-| 读时修复 | 读操作发现数据不一致时触发修复（Cassandra Read Repair） |
-| 写时修复 | 写操作时检测并修复过期副本 |
-| 异步修复 | 后台任务定期比对并同步数据（Anti-entropy） |
-| 因果一致性 | 保证有因果关系的操作顺序一致（不相关操作可乱序） |
-| 会话一致性 | 同一会话内保证读自己写（Read Your Writes） |
+| **BA**（Basically Available） | 出故障时允许损失部分功能或性能（降级、限流），核心功能可用 |
+| **S**（Soft State） | 允许存在中间状态，副本之间短暂不一致 |
+| **E**（Eventually Consistent） | 没有新写入时，所有副本最终收敛到相同值 |
 
-### 2.3 ACID vs BASE
+ACID 与 BASE 不是二选一：一个系统里，单个服务内部用数据库 ACID 事务，跨服务用 BASE 的最终一致（见 [分布式事务](./4_transaction)）。
 
-| | ACID（关系型数据库） | BASE（分布式系统） |
-|---|---|---|
-| 一致性 | 强一致 | 最终一致 |
-| 隔离性 | 严格隔离 | 弱隔离 |
-| 可用性 | 优先一致 | 优先可用 |
-| 适用场景 | 金融、交易 | 互联网、高并发 |
+### 2、一致性模型（从强到弱）
+
+| 模型 | 保证 | 典型实现 |
+|------|------|----------|
+| 线性一致（Linearizable） | 存在全局实时顺序，读一定看到最新完成的写 | etcd 默认读、Raft ReadIndex |
+| 顺序一致（Sequential） | 所有节点看到相同的操作顺序，但不保证与真实时间一致 | ZooKeeper 读 |
+| 因果一致（Causal） | 有因果关系的操作按因果顺序可见，无关操作可乱序 | MongoDB 因果一致会话 |
+| 会话一致（读己之写、单调读） | 同一客户端会话内能读到自己的写、读到的版本不回退 | 读写分离时「写后读主库」 |
+| 最终一致（Eventual） | 停止写入后最终收敛 | DNS、异步复制、缓存 |
+
+### 3、最终一致的实现机制
+
+| 机制 | 做法 |
+|------|------|
+| 读修复（Read Repair） | 读多个副本发现版本不一致时，用新值修复旧副本 |
+| 提示移交（Hinted Handoff） | 目标副本不可用时，由其他节点暂存写入，恢复后再转交 |
+| 反熵（Anti-Entropy） | 后台用 Merkle Tree 比对副本差异，只同步不同的部分 |
+| Quorum NWR | 见下一节，通过读写副本数的重叠保证读到最新写 |
+
+### 4、Quorum NWR
+
+N 为副本数，W 为写成功需要的副本数，R 为读需要的副本数：
+
+- **W + R > N**：读集合与写集合必然有交集，读能看到最新写（还需要版本号或时间戳挑出最新值）
+- **W > N / 2**：两个并发写不可能同时成功，避免写冲突
+- 常见取值 N=3、W=2、R=2；要写快就降低 W、读快就降低 R
+
+Cassandra 的 `QUORUM` 一致性级别就是这个思路。注意 Quorum 本身不等于线性一致，节点故障与读修复时机仍可能产生异常读，需要共识协议才能严格保证。
 
 ---
 
-## 三、Paxos 算法
+## 三、FLP 不可能定理
 
-### 3.1 解决的问题
+Fischer、Lynch、Paterson 在 1985 年证明：**在完全异步的系统中，只要有一个进程可能崩溃，就不存在总能在有限时间内终止的确定性共识算法**。
 
-在**可能发生节点故障和消息丢失**的分布式系统中，如何让多个节点就某个值达成一致（共识）？
+它并不是说共识做不了，而是说「安全性」和「一定能结束」不能在纯异步模型下同时保证。工程上的绕法：
 
-Paxos 由 Leslie Lamport 在 1989 年提出（2001 年正式发表），是分布式共识的理论奠基算法。
+- **部分同步假设**：网络大部分时间延迟有上限，用超时检测故障、触发选举（Paxos、Raft 都是这样，只在网络稳定时保证进展）
+- **随机化**：引入随机数打破对称，以概率 1 终止（如 Raft 的随机选举超时）
 
-**FLP 不可能定理**：在异步网络中，即使只有一个节点故障，分布式系统也无法在有限时间内达成一致性。现实系统通过引入超时（Timeout）绕过这一限制。
-
-### 3.2 角色
-
-| 角色 | 说明 |
-|------|------|
-| Proposer（提议者） | 提出提案（Proposal），请求 Acceptor 接受 |
-| Acceptor（接受者） | 对提案进行投票，过半接受则达成共识 |
-| Learner（学习者） | 学习已达成共识的值（不参与投票） |
-
-### 3.3 两阶段流程（Basic Paxos）
-
-**Phase 1 — Prepare（准备）：**
-```
-1. Proposer 生成全局唯一递增编号 n，广播 Prepare(n) 给所有 Acceptor
-2. Acceptor 收到 Prepare(n)：
-   - 若 n 大于已承诺的最大编号 → 回复 Promise(n, 已接受的最大提案)
-   - 否则 → 拒绝
-```
-
-**Phase 2 — Accept（接受）：**
-```
-3. Proposer 收到过半 Promise 后，广播 Accept(n, value)
-   - value 取所有 Promise 中编号最大的提案值（若都为空则自由选择）
-4. Acceptor 收到 Accept(n, value)：
-   - 若 n ≥ 已承诺的最大编号 → 接受，回复 Accepted
-5. 过半 Acceptor 接受 → 共识达成，Learner 学习该值
-```
-
-### 3.4 局限性
-
-- **活锁问题**：两个 Proposer 互相抢占，导致无限循环无法达成共识
-- **Multi-Paxos**：Basic Paxos 每次决策都需要两轮通信，效率低；Multi-Paxos 引入 Leader 角色，稳定期只需一轮
-- **实现复杂**：Lamport 自己也承认论文非常难理解，工程实现极难
-
-> 实际工程中几乎不直接使用 Paxos，而是使用更易理解和实现的 **Raft**。Raft 本质上是 Multi-Paxos 的工程化简化版本。
+所有共识算法的共同选择是：**任何时候都不违反安全性，活性（进展）只在网络足够稳定时保证**。
 
 ---
 
-## 四、Raft 算法
+## 四、Paxos
 
-### 4.1 设计目标
+### 1、解决的问题与历史
 
-Raft 由 Diego Ongaro 和 John Ousterhout 在 2014 年提出，核心目标是"**比 Paxos 更易理解**"。将共识问题分解为三个相对独立的子问题：
-1. **Leader 选举**
-2. **日志复制**
-3. **安全性保证**
+在节点可能崩溃、消息可能丢失或延迟的前提下，让多个节点就**一个值**达成一致。Leslie Lamport 在 1989 年前后写成《The Part-Time Parliament》，1998 年发表于 ACM TOCS；2001 年的《Paxos Made Simple》是通俗重述。
 
-### 4.2 角色
+### 2、角色
 
-| 角色 | 说明 |
+| 角色 | 职责 |
 |------|------|
-| Leader（领导者） | 同一时刻只有一个，处理所有客户端请求，负责日志复制 |
-| Follower（跟随者） | 被动接受 Leader 的日志，参与投票 |
-| Candidate（候选人） | 选举期间的临时状态，竞选 Leader |
+| Proposer | 提出提案（编号 n，值 v） |
+| Acceptor | 对提案投票，多数派接受即达成共识 |
+| Learner | 学习已选定的值，不参与投票 |
 
-### 4.3 任期（Term）
+### 3、Basic Paxos 两阶段
 
-Raft 用**单调递增的任期（Term）**标识不同的领导时期，相当于逻辑时钟：
+阶段一：Prepare / Promise
 
-```
-Term 1: Leader A 正常工作
-Term 2: A 宕机，选举产生 Leader B
-Term 3: B 宕机，选举产生 Leader C
-...
-```
+1. Proposer 选一个全局唯一且递增的编号 n，向多数派 Acceptor 发送 `Prepare(n)`
+2. Acceptor 若 n 大于它承诺过的最大编号，就承诺不再接受编号小于 n 的提案，并回复 `Promise(n, 已接受的最大编号提案)`；否则拒绝
 
-节点看到更大的 Term 会立即更新自己的 Term，过时 Leader 收到更大 Term 后自动退位为 Follower。
+阶段二：Accept / Accepted
 
-### 4.4 Leader 选举
+1. Proposer 收到多数派的 Promise 后发送 `Accept(n, v)`；v 必须取这些回复中编号最大的已接受提案的值，都为空时才能用自己的值
+2. Acceptor 若没有承诺过比 n 更大的编号，就接受该提案并回复 `Accepted`
+3. 多数派接受后值被选定，Learner 学习该值
 
-**触发条件**：Follower 在 **Election Timeout**（随机 150ms～300ms）内未收到 Leader 心跳。
+「v 必须沿用已接受的值」是安全性的关键：一旦某个值被多数派接受，之后任何提案都只能提出这个值。
 
-**选举流程：**
-```
-1. Follower 超时 → 转为 Candidate，Term+1
-2. Candidate 投票给自己，广播 RequestVote(term, lastLogIndex, lastLogTerm)
-3. 其他节点收到投票请求：
-   - 本 Term 未投过票 且 Candidate 的日志不落后于自己 → 投票
-4. Candidate 获得过半票 → 成为 Leader，立即广播心跳宣示主权
-5. 若出现平票 → 等待随机超时后重新选举（随机超时减少平票概率）
-```
+### 4、局限与 Multi-Paxos
 
-### 4.5 日志复制
+- **活锁**：两个 Proposer 交替用更大编号抢占，谁也走不到阶段二；用随机退避或选出唯一 Leader 解决
+- **效率**：每个值两轮往返。Multi-Paxos 选出稳定 Leader 后可跳过阶段一，每条日志只需一轮
+- **工程难度**：论文只描述单值共识，成员变更、日志压缩等都需要自行设计
 
-**正常流程：**
-```
-1. 客户端请求到达 Leader
-2. Leader 将请求追加到本地日志（未提交状态）
-3. Leader 并行发送 AppendEntries RPC 给所有 Follower
-4. 过半 Follower 确认写入 → Leader 提交（commit）日志
-5. Leader 通知 Follower 提交，返回结果给客户端
-```
+实际落地多用 Raft，或 Paxos 变体（Google Chubby、MySQL Group Replication 使用的 XCom）。Raft 与 Multi-Paxos 在容错能力和性能上相当，它的设计目标是**更容易理解与正确实现**，而不是 Paxos 的简化版。
 
-**日志一致性保证：**
-- Leader 永远不会覆盖自己的日志，只追加
-- 若两个日志在相同 index 和 term 上的 entry 相同，则该 index 之前的所有 entry 也相同（Raft 日志匹配性质）
-- Leader 当选后，会强制 Follower 的日志与自己一致（以 Leader 为准）
+---
 
-### 4.6 安全性
+## 五、Raft
 
-**选举限制**：只有日志比过半节点更"新"（lastLogTerm 更大，或 term 相同但 index 更大）的 Candidate 才能当选，保证新 Leader 包含所有已提交的日志。
+### 1、设计思路
 
-**提交限制**：Leader 只能提交自己任期内的日志（通过当前任期日志的提交来间接提交之前任期的日志），避免已提交的日志被覆盖。
+Raft 由 Diego Ongaro 和 John Ousterhout 在 2014 年提出，把共识拆成三个子问题：**Leader 选举、日志复制、安全性**。所有写入都经过唯一的 Leader。
 
-**脑裂保护**：Raft 选举和日志提交都需要多数（Quorum），网络分区时少数派无法完成选举和写入，多数派继续工作。
+![Raft 节点状态转换](../assets/distributed/raft-states.svg)
 
-### 4.7 实际应用
+### 2、任期（Term）
+
+Term 是单调递增的整数，相当于逻辑时钟，每次选举开始一个新 Term。节点看到更大的 Term 会立即更新自己的 Term，Leader 或 Candidate 看到更大的 Term 会退回 Follower。
+
+### 3、Leader 选举
+
+1. Follower 在选举超时（随机值，论文建议 150～300ms）内没收到 Leader 心跳，转为 Candidate，Term 加一并投自己一票
+2. 向其他节点发送 `RequestVote(term, lastLogIndex, lastLogTerm)`
+3. 投票者在该 Term 内还没投过票，**且候选者的日志至少和自己一样新**时才投票。「新」的比较规则：先比 lastLogTerm，大者新；相同再比 lastLogIndex
+4. 获得多数票即成为 Leader，立刻发送心跳
+5. 平票则各自等待新的随机超时后重新选举
+
+因为每个已提交的日志都在多数派上，而当选需要多数派投票，两个多数派必有交集，所以**新 Leader 一定包含所有已提交的日志**。
+
+### 4、日志复制
+
+1. Leader 把客户端命令追加到本地日志
+2. 并行发送 `AppendEntries` 给所有 Follower，携带前一条日志的 index 和 term 做一致性检查
+3. 多数派写入后，Leader 推进 commitIndex，应用到状态机并返回客户端
+4. 后续的 `AppendEntries`（包括心跳）把 commitIndex 带给 Follower，Follower 再应用
+
+日志匹配性质：两个日志在同一 index 上 term 相同，则该 index 之前的所有条目都相同。Follower 日志与 Leader 不一致时，Leader 回退 nextIndex 找到分叉点，用自己的日志覆盖 Follower 的多余条目。
+
+### 5、安全性要点
+
+- **提交限制**：Leader 只通过「当前任期的日志达到多数派」来提交日志，之前任期的日志随之间接提交，避免已复制到多数派的旧日志被覆盖
+- **脑裂保护**：选举和提交都需要多数派，分区时少数派一侧选不出 Leader、也提交不了写入；旧 Leader 发现更大 Term 后退位
+
+### 6、线性一致读
+
+直接读 Leader 本地状态并不安全：它可能已被新 Leader 取代而不自知。两种做法：
+
+- **ReadIndex**：记录当前 commitIndex，向多数派发一轮心跳确认自己仍是 Leader，等状态机应用到该 index 后再读
+- **Lease Read**：依赖时钟，在租约内省去心跳，延迟更低，但时钟漂移过大时不安全
+
+### 7、实际应用
 
 | 系统 | 说明 |
 |------|------|
-| etcd | 使用 Raft，Kubernetes 元数据存储核心 |
-| CockroachDB | 分布式 SQL 数据库，Raft 保证副本一致 |
-| TiKV | PingCAP 开源，TiDB 底层存储，Multi-Raft |
-| Consul | 服务发现与配置，Raft 实现强一致 |
-| Kafka（KRaft 模式）| Kafka 2.8+ 用 KRaft 替代 ZooKeeper 依赖 |
+| etcd | Kubernetes 元数据存储 |
+| TiKV / CockroachDB | 按数据分片运行多个 Raft 组（Multi-Raft） |
+| Consul | 服务目录与 KV 存储 |
+| Kafka KRaft | Kafka 3.3 起可用于生产，4.0（2025 年 3 月）移除 ZooKeeper 模式，只剩 KRaft |
+| Nacos | 持久实例与内嵌配置存储使用 JRaft |
 
 ---
 
-## 五、ZAB（ZooKeeper Atomic Broadcast）
+## 六、ZAB
 
-ZAB 是 ZooKeeper 专用的原子广播协议，用于保证 ZooKeeper 集群数据的强一致性。
+ZAB（ZooKeeper Atomic Broadcast）是 ZooKeeper 专用的原子广播协议，与 Raft 思路相近：单 Leader、多数派确认、崩溃恢复。
 
-### 5.1 ZAB vs Raft
+### 1、ZXID
+
+ZXID 是 64 位事务 ID：高 32 位是 epoch（每选出一个新 Leader 加一，相当于 Raft 的 Term），低 32 位是该 epoch 内的递增计数器。所有写入按 ZXID 全局有序。
+
+### 2、选举与恢复
+
+- **快速选举**（Fast Leader Election）按 (epoch, zxid, myid) 依次比较投票，拥有最新数据的节点胜出，相同时 myid 大者胜出
+- 选出准 Leader 后依次经历三个阶段：**Discovery**（确定新 epoch、找到最新历史）→ **Synchronization**（让 Follower 与 Leader 历史一致）→ **Broadcast**（正常处理写请求）
+
+### 3、与 Raft 对比
 
 | 对比 | Raft | ZAB |
 |------|------|-----|
-| 应用系统 | etcd、Kafka KRaft、TiKV、Consul | ZooKeeper |
-| 核心概念 | Term + Log Index | Epoch + ZXID（事务ID）|
-| Leader 选举 | 基于日志完整性的投票 | 基于 ZXID 大小（最大 ZXID 优先）|
-| 日志提交 | 过半 Follower ACK | 过半 Follower ACK |
-| 崩溃恢复 | Leader 重新选举后同步日志 | 恢复模式（Recovery）+ 同步模式（Sync）|
-| 工程友好性 | 更简洁，易理解 | 与 ZooKeeper 数据模型强耦合 |
-
-### 5.2 ZXID 结构
-
-```
-ZXID（64位）= Epoch（高32位）+ Counter（低32位）
-```
-
-Epoch 相当于 Raft 的 Term；Counter 是该 Epoch 内的事务计数器。ZXID 最大的节点在选举中优先成为 Leader。
+| 逻辑时钟 | Term + Log Index | Epoch + ZXID |
+| 选举依据 | 投票者只投给日志不比自己旧的候选者 | (epoch, zxid, myid) 最大者 |
+| 提交 | 多数派写入后提交 | 多数派 ACK 后发送 COMMIT |
+| 读 | 可通过 ReadIndex 做线性一致读 | 默认本地读，顺序一致，`sync()` 后读最新 |
+| 应用 | etcd、Consul、TiKV、Kafka KRaft | ZooKeeper |
 
 ---
 
-## 六、Gossip 协议
+## 七、Gossip
 
-### 6.1 解决的问题
+### 1、思路
 
-在大规模节点集群（数百至数千节点）中，如何高效地让信息传播到所有节点？
+大规模集群（数百到数千节点）里，用中心节点广播状态会成为瓶颈。Gossip 让每个节点周期性地随机挑选少数节点交换信息，像流言一样扩散，没有中心节点。
 
-如果用 Leader 广播：Leader 压力大，且 Leader 故障就停了。
-Gossip（流言/八卦协议）模仿流言传播：**每个节点周期性随机选几个邻居同步信息，像病毒一样扩散**。
-
-### 6.2 传播方式
-
-| 方式 | 说明 |
+| 方式 | 做法 |
 |------|------|
-| Push | 节点 A 主动把信息推给随机节点 B |
-| Pull | 节点 A 询问随机节点 B 有无新信息，拉取差异 |
-| Push-Pull | A 推给 B 的同时，B 也把 A 没有的信息推回来（最高效） |
+| Push | 把自己的新信息推给随机节点 |
+| Pull | 向随机节点索取对方有而自己没有的信息 |
+| Push-Pull | 双向交换，收敛最快 |
 
-### 6.3 特性
+### 2、特性
 
-| 特性 | 说明 |
-|------|------|
-| 最终一致性 | 不保证强一致，信息扩散有延迟 |
-| 去中心化 | 无 Leader，任意节点故障不影响整体传播 |
-| 容错性强 | 消息会多路冗余传播，即使部分节点宕机也能扩散 |
-| 扩展性好 | 传播时间复杂度 O(log N)，适合大规模集群 |
-| 带宽消耗 | 冗余消息较多，同步已知信息产生浪费 |
+- **收敛快**：信息传遍全网需要 O(log N) 轮；粗略估算轮数约为 log(N) / log(K+1)（K 为每轮挑选的节点数），1000 个节点、K=3 时大约 5 轮
+- **去中心、容错强**：任意节点故障不影响整体传播
+- **最终一致**：有传播延迟，不适合需要强一致的数据
+- **冗余流量**：会重复发送对方已知的信息，通常配合摘要比对减少开销
 
-### 6.4 收敛时间
-
-假设集群有 N 个节点，每轮每个节点随机选 K 个邻居同步，理论收敛轮数约为：
-
-```
-收敛轮数 ≈ log(N) / log(K)
-```
-
-N=1000，K=3 时，约 7 轮即可全网同步。
-
-### 6.5 Anti-Entropy（反熵）
-
-Gossip 的常见变体：每轮节点互相比对状态摘要（如 Merkle Tree 哈希），只传输差异部分，用于数据同步而非仅消息广播。Cassandra 的跨节点数据修复用的就是 Anti-Entropy。
-
-### 6.6 实际应用
+### 3、实际应用
 
 | 系统 | 用途 |
 |------|------|
-| Cassandra | 节点状态（存活/宕机）传播、Token 环信息同步 |
-| Redis Cluster | 节点间心跳、槽位信息传播 |
-| Consul | 成员关系管理（基于 SWIM 协议，Gossip 变种） |
-| Eureka | 注册表在多个 Eureka Server 间同步 |
-| Amazon DynamoDB | 内部使用 Gossip 传播成员状态 |
+| Cassandra | 节点存活状态与 token 分布传播 |
+| Redis Cluster | 节点之间通过 Cluster Bus 交换心跳、槽位与故障判定信息 |
+| Consul / Serf | 基于 SWIM 协议的成员管理与故障检测 |
+| Amazon Dynamo（2007 年论文） | 成员关系与故障检测（这是论文中的设计，不等于 DynamoDB 服务的实现） |
 
 ---
 
-## 七、理论总结
+## 小结
 
-| 理论 | 核心思想 | 工程价值 |
-|------|---------|---------|
-| CAP | 分布式系统 C/A/P 三选二 | 指导中间件选型（CP vs AP） |
-| BASE | AP 系统的设计原则，最终一致 | 互联网高并发系统的设计范式 |
-| Paxos | 分布式共识的理论基础 | 理解 Raft 的前提 |
-| Raft | 可理解的共识算法 | etcd/TiKV/Consul 等的实现基础 |
-| ZAB | ZooKeeper 专用原子广播 | ZooKeeper 强一致的基础 |
-| Gossip | 去中心化信息扩散 | 大规模集群状态同步的高效方案 |
+| 理论 | 一句话 | 工程价值 |
+|------|--------|----------|
+| CAP | 分区发生时只能在线性一致与可用之间选一个 | 判断中间件在故障期间的行为 |
+| PACELC | 没有分区时也要在延迟与一致之间取舍 | 解释同步复制与异步复制的选择 |
+| BASE | 允许中间状态，追求最终一致 | 跨服务业务的设计范式 |
+| Quorum | W + R > N 保证读写重叠 | 可调一致性的基础 |
+| FLP | 纯异步下共识无法保证终止 | 所有共识算法都靠超时或随机化保活性 |
+| Paxos | 两阶段 + 沿用已接受的值 | 共识的理论基础 |
+| Raft | 单 Leader + 日志复制 + 选举限制 | etcd、TiKV、KRaft 的实现基础 |
+| ZAB | ZooKeeper 的原子广播 | 写线性一致，读默认顺序一致 |
+| Gossip | 随机扩散，O(log N) 轮收敛 | 大规模集群的成员与状态传播 |
 
-### 协议对比
+| 协议 | 一致性 | 是否需要 Leader | 主要应用 |
+|------|--------|-----------------|----------|
+| Paxos | 强一致 | Basic Paxos 不需要，Multi-Paxos 需要 | Chubby、MySQL Group Replication |
+| Raft | 线性一致（配合 ReadIndex 读） | 需要 | etcd、TiKV、Kafka KRaft |
+| ZAB | 写线性一致，读顺序一致 | 需要 | ZooKeeper |
+| Gossip | 最终一致 | 不需要 | Cassandra、Redis Cluster、Consul |
 
-| 协议 | 一致性强度 | 核心思想 | 主要应用 | 是否需要 Leader |
-|------|-----------|---------|---------|----------------|
-| Raft | 强一致（线性化）| 日志复制 + 多数投票 | etcd、Kafka KRaft | ✅ |
-| ZAB | 强一致 | 原子广播 + ZXID 顺序 | ZooKeeper | ✅ |
-| Paxos | 强一致 | 两阶段提案 | Chubby（Google）| 可选（Multi-Paxos 有 Leader）|
-| Gossip | 最终一致 | 随机传播 | Cassandra、Consul | ❌ |
+## 参考资料
+
+- Eric Brewer, Towards Robust Distributed Systems（PODC 2000 主题演讲）：[https://people.eecs.berkeley.edu/~brewer/cs262b-2004/PODC-keynote.pdf](https://people.eecs.berkeley.edu/~brewer/cs262b-2004/PODC-keynote.pdf)
+- Gilbert & Lynch, Brewer's Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services（2002）：[https://dl.acm.org/doi/10.1145/564585.564601](https://dl.acm.org/doi/10.1145/564585.564601)
+- Eric Brewer, CAP Twelve Years Later（2012）：[https://www.infoq.com/articles/cap-twelve-years-later-how-the-rules-have-changed/](https://www.infoq.com/articles/cap-twelve-years-later-how-the-rules-have-changed/)
+- Daniel Abadi, Consistency Tradeoffs in Modern Distributed Database System Design（PACELC，2012）：[https://doi.org/10.1109/MC.2012.33](https://doi.org/10.1109/MC.2012.33)
+- Dan Pritchett, BASE: An Acid Alternative（ACM Queue 2008）：[https://queue.acm.org/detail.cfm?id=1394128](https://queue.acm.org/detail.cfm?id=1394128)
+- Fischer, Lynch, Paterson, Impossibility of Distributed Consensus with One Faulty Process（1985）：[https://dl.acm.org/doi/10.1145/3149.214121](https://dl.acm.org/doi/10.1145/3149.214121)
+- Leslie Lamport, Paxos Made Simple（2001）：[https://lamport.azurewebsites.net/pubs/paxos-simple.pdf](https://lamport.azurewebsites.net/pubs/paxos-simple.pdf)
+- Raft 官网与论文：[https://raft.github.io/](https://raft.github.io/)
+- ZooKeeper Internals（ZAB）：[https://zookeeper.apache.org/doc/current/zookeeperInternals.html](https://zookeeper.apache.org/doc/current/zookeeperInternals.html)
+- Kafka KRaft 文档：[https://kafka.apache.org/documentation/#kraft](https://kafka.apache.org/documentation/#kraft)
+- Nacos 临时实例与持久化实例：[https://nacos.io/docs/latest/manual/user/java-sdk/usage/](https://nacos.io/docs/latest/manual/user/java-sdk/usage/)
+
+> 下一篇：[分布式锁](./3_lock) —— Redis、ZooKeeper、etcd 三种实现，租约过期与 Fencing Token，以及 Redlock 争议。

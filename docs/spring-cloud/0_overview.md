@@ -56,7 +56,7 @@ Spring Cloud 是 Spring 生态里的微服务工具集：在 Spring Boot 之上�
 | 网关 | Spring Cloud Gateway、APISIX、Higress | Envoy Gateway（K8s Gateway API）、Kong |
 | 服务调用 | HTTP Service Clients / OpenFeign + LoadBalancer，Dubbo 3 | gRPC |
 | 流控熔断 | Sentinel、Resilience4j | Istio / Envoy（服务网格，非侵入） |
-| 分布式事务 | Seata（强一致诉求）/ 事务消息 + 本地消息表 | Saga、Outbox |
+| 分布式事务 | Seata（AT / TCC / Saga 最终一致，XA 强一致）/ 事务消息 + 本地消息表 | Saga、Outbox |
 | 消息 | RocketMQ（业务）、Kafka（日志与事件流） | Kafka |
 | 可观测 | Micrometer Tracing + SkyWalking / Prometheus | OpenTelemetry + Jaeger / Tempo + Prometheus |
 

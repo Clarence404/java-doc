@@ -1,0 +1,62 @@
+<svg viewBox="0 0 720 276" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">基于 binlog / CDC 的缓存失效链路</text>
+
+  <!-- 第一行 -->
+  <rect x="20" y="44" width="200" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="120" y="68" text-anchor="middle" class="name">业务服务</text>
+  <text x="120" y="88" text-anchor="middle" class="desc">只写数据库，不管缓存</text>
+  <rect x="260" y="44" width="200" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="360" y="68" text-anchor="middle" class="name">MySQL</text>
+  <text x="360" y="88" text-anchor="middle" class="desc">提交后写入 binlog（ROW）</text>
+  <rect x="500" y="44" width="200" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="600" y="68" text-anchor="middle" class="name">CDC 组件</text>
+  <text x="600" y="88" text-anchor="middle" class="desc">Canal / Debezium / Flink CDC</text>
+
+  <!-- 第二行 -->
+  <rect x="20" y="164" width="200" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="120" y="188" text-anchor="middle" class="name">MQ</text>
+  <text x="120" y="208" text-anchor="middle" class="desc">按主键分区，同 key 有序</text>
+  <rect x="260" y="164" width="200" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="360" y="188" text-anchor="middle" class="name">失效消费者</text>
+  <text x="360" y="208" text-anchor="middle" class="desc">失败退避重试，超限进死信</text>
+  <rect x="500" y="164" width="200" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="600" y="188" text-anchor="middle" class="name">Redis</text>
+  <text x="600" y="208" text-anchor="middle" class="desc">DEL 缓存 key（幂等）</text>
+
+  <!-- 箭头 -->
+  <line x1="220" y1="74" x2="258" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="460" y1="74" x2="498" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M600,104 V134 H120 V162" fill="none" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="360" y="127" text-anchor="middle" class="desc">解析行变更，映射出缓存 key</text>
+  <line x1="220" y1="194" x2="258" y2="194" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="460" y1="194" x2="498" y2="194" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <text x="360" y="256" text-anchor="middle" class="lbl">只有提交成功的变更才会进入 binlog；业务进程崩溃不会漏删，删除失败可重放</text>
+</svg>

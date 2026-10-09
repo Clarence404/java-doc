@@ -1,0 +1,76 @@
+<svg viewBox="0 0 680 350" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Geohash 边界问题与九宫格查询</text>
+
+  <rect class="layer" x="40" y="44" width="120" height="90" rx="6" stroke="var(--b)"/>
+  <text x="100" y="70" text-anchor="middle" font-weight="600" font-size="13" fill="var(--b)">西北</text>
+  <text class="sub" x="100" y="88" text-anchor="middle">邻居格</text>
+  <rect class="layer" x="168" y="44" width="120" height="90" rx="6" stroke="var(--b)"/>
+  <text x="228" y="70" text-anchor="middle" font-weight="600" font-size="13" fill="var(--b)">北</text>
+  <text class="sub" x="228" y="88" text-anchor="middle">邻居格</text>
+  <rect class="layer" x="296" y="44" width="120" height="90" rx="6" stroke="var(--b)"/>
+  <text x="356" y="70" text-anchor="middle" font-weight="600" font-size="13" fill="var(--b)">东北</text>
+  <text class="sub" x="356" y="88" text-anchor="middle">邻居格</text>
+  <rect class="layer" x="40" y="142" width="120" height="90" rx="6" stroke="var(--b)"/>
+  <text x="100" y="168" text-anchor="middle" font-weight="600" font-size="13" fill="var(--b)">西</text>
+  <text class="sub" x="100" y="186" text-anchor="middle">邻居格</text>
+  <rect class="layer" x="168" y="142" width="120" height="90" rx="6" stroke="var(--p)"/>
+  <text x="180" y="166" font-weight="600" font-size="13" fill="var(--p)">中心格</text>
+  <text class="sub" x="180" y="184">P 靠近东边界</text>
+  <rect class="layer" x="296" y="142" width="120" height="90" rx="6" stroke="var(--b)"/>
+  <text x="356" y="168" text-anchor="middle" font-weight="600" font-size="13" fill="var(--b)">东</text>
+  <text class="sub" x="356" y="186" text-anchor="middle">邻居格</text>
+  <rect class="layer" x="40" y="240" width="120" height="90" rx="6" stroke="var(--b)"/>
+  <text x="100" y="266" text-anchor="middle" font-weight="600" font-size="13" fill="var(--b)">西南</text>
+  <text class="sub" x="100" y="284" text-anchor="middle">邻居格</text>
+  <rect class="layer" x="168" y="240" width="120" height="90" rx="6" stroke="var(--b)"/>
+  <text x="228" y="266" text-anchor="middle" font-weight="600" font-size="13" fill="var(--b)">南</text>
+  <text class="sub" x="228" y="284" text-anchor="middle">邻居格</text>
+  <rect class="layer" x="296" y="240" width="120" height="90" rx="6" stroke="var(--b)"/>
+  <text x="356" y="266" text-anchor="middle" font-weight="600" font-size="13" fill="var(--b)">东南</text>
+  <text class="sub" x="356" y="284" text-anchor="middle">邻居格</text>
+
+  <circle cx="278" cy="214" r="36" fill="none" stroke="var(--y)" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <circle cx="278" cy="214" r="4" fill="var(--p)"/>
+  <text x="270" y="210" text-anchor="end" font-weight="600" font-size="12" fill="var(--p)">P</text>
+  <circle cx="306" cy="214" r="4" fill="var(--r)"/>
+  <text x="314" y="210" font-weight="600" font-size="12" fill="var(--r)">Q</text>
+
+  <rect class="layer" x="440" y="44" width="220" height="286" rx="8" stroke="var(--border)"/>
+  <text x="456" y="72" font-weight="700" font-size="12" fill="var(--fg)">为什么要查九宫格</text>
+  <text x="456" y="102" font-weight="400" font-size="12" fill="var(--fg)">P 与 Q 只隔几十米</text>
+  <text x="456" y="132" font-weight="400" font-size="12" fill="var(--fg)">却落在不同格子，前缀不同</text>
+  <text x="456" y="162" font-weight="400" font-size="12" fill="var(--fg)">只查 P 所在的格子会漏掉 Q</text>
+  <text x="456" y="192" font-weight="700" font-size="12" fill="var(--fg)">做法</text>
+  <text x="456" y="222" font-weight="400" font-size="12" fill="var(--fg)">1. 查中心格和 8 个邻居格</text>
+  <text x="456" y="252" font-weight="400" font-size="12" fill="var(--fg)">2. 格子边长不小于查询半径</text>
+  <text x="456" y="282" font-weight="400" font-size="12" fill="var(--fg)">3. 按实际距离二次过滤</text>
+  <text class="sub" x="456" y="314">虚线圆为查询半径</text>
+</svg>

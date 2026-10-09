@@ -1,359 +1,423 @@
 ---
-description: 2PC / 3PC、TCC、本地消息表、可靠消息、Saga、Seata
+description: 2PC 与 XA、TCC、Saga、本地消息表、RocketMQ 事务消息、Seata 四种模式、选型
 ---
 
 # 分布式事务
 
-> 分布式事务解决跨服务、跨数据库操作的数据一致性问题。没有银弹，每种方案都是一致性与可用性的权衡。
+> **本篇目标**：理解 2PC / XA、TCC、Saga、本地消息表、事务消息、最大努力通知各自的一致性保证与代价，掌握 Seata AT 的全局锁与隔离级别、TCC 的空回滚 / 幂等 / 悬挂处理，能为具体业务选出合适的方案。
+>
+> **前置阅读**：[分布式理论](./2_theorem)、[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
+
+本篇是分布式事务原理与 Seata 机制的主文档。Seata 在 Spring Cloud 中的依赖与配置见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba)，消息投递与消费幂等的中间件细节见 [消息队列基础](/messaging/1_basics)。
 
 ---
 
-## 一、本地事务 vs 分布式事务
+## 一、先问能不能不用
 
-**本地事务**：同一数据库连接内，ACID 由数据库引擎保证，简单可靠。
+本地事务由数据库保证 ACID，简单可靠。下面这些情况会跨出单个本地事务：
 
-**分布式事务触发场景：**
-- 跨库操作：订单库扣库存 + 账户库扣余额
-- 跨服务调用：订单服务 → 库存服务 → 物流服务，任一失败需回滚
-- 数据库 + 消息队列：写 DB 成功 + 发 MQ 消息，需保证两者同时成功或失败
+- **跨库**：订单库建单，账户库扣余额
+- **跨服务**：订单服务调用库存服务、支付服务
+- **数据库 + 消息队列**：写库成功后要发一条消息通知下游
 
-**核心难点**：网络不可靠（超时/丢包），无法像本地事务一样原子操作。
+难点在于网络不可靠：调用超时时，不知道对方到底成功还是失败。没有任何方案能在网络分区下同时做到强一致、高可用、高性能（见 [分布式理论](./2_theorem)）。
+
+所以第一步是**尽量不产生分布式事务**：
+
+- 调整服务边界，让必须原子变更的数据落在同一个服务、同一个库里
+- 能接受最终一致的，用「本地事务 + 可靠消息」，下游异步处理
+- 只有确实需要同步得到一致结果的链路，才考虑 TCC、Seata 等协调方案
 
 ---
 
-## 二、XA 事务（2PC / 3PC）
+## 二、2PC 与 XA
 
-### 2.1 XA 协议
+### 1、XA 规范
 
-XA 是 X/Open 组织定义的分布式事务规范，定义了事务管理器（TM）与资源管理器（RM，如 MySQL）之间的接口。Java 通过 `javax.transaction.xa.XAResource` 接入。
+XA 是 X/Open 定义的接口规范，规定事务管理器（TM）与资源管理器（RM，如 MySQL）之间如何做两阶段提交。Java 通过 JTA（`jakarta.transaction`）和 `javax.transaction.xa.XAResource` 接入。MySQL InnoDB 原生支持 `XA START / END / PREPARE / COMMIT`。
 
-### 2.2 两阶段提交（2PC）
+### 2、两阶段提交流程
 
-**角色：**
-- **协调者（Coordinator / TM）**：发起并协调事务
-- **参与者（Participant / RM）**：各数据库节点
-
-**Phase 1 — 准备阶段（Prepare）：**
-```
-1. 协调者向所有参与者发送 Prepare 请求
-2. 参与者执行事务操作（但不提交），写 Undo/Redo 日志，回复 Yes/No
-```
-
-**Phase 2 — 提交阶段（Commit/Rollback）：**
-```
-所有参与者回复 Yes → 协调者发送 Commit → 各参与者提交
-任一参与者回复 No  → 协调者发送 Rollback → 各参与者回滚
-```
-
-**2PC 的问题：**
+1. **准备阶段**：协调者向所有参与者发送 Prepare；参与者执行操作、写好 redo / undo、**持有锁不提交**，回复 Yes 或 No
+2. **提交阶段**：全部 Yes 则发送 Commit，任一 No 或超时则发送 Rollback；参与者执行后释放锁
 
 | 问题 | 说明 |
 |------|------|
-| 同步阻塞 | 参与者在 Prepare 后持有锁等待 Commit，期间无法服务其他请求 |
-| 单点故障 | 协调者宕机后，参与者永久阻塞（不知道提交还是回滚） |
-| 数据不一致 | 协调者发送 Commit 后部分参与者宕机，导致部分提交 |
+| 同步阻塞 | 参与者从 Prepare 到 Commit 一直持有行锁，热点数据吞吐大幅下降 |
+| 协调者单点 | 协调者在发出决议前宕机，已 Prepare 的参与者不知道该提交还是回滚，只能等协调者恢复 |
+| 部分提交 | Commit 发出后部分参与者没收到，短时间内数据不一致，需要协调者恢复后重发 |
 
-### 2.3 三阶段提交（3PC）
+### 3、3PC
 
-在 2PC 基础上增加 **CanCommit** 阶段，并引入**超时机制**：
+3PC 在 Prepare 前加一个 CanCommit 询问，并让参与者在 PreCommit 后超时**默认提交**，以减少阻塞。但网络分区时，一侧超时提交、另一侧收到 Abort，反而会产生不一致，工程上几乎没有实现。
 
-```
-Phase 1 — CanCommit：询问参与者是否可以提交（不锁资源）
-Phase 2 — PreCommit：参与者执行并锁定资源（类似2PC的Prepare）
-Phase 3 — DoCommit：正式提交
-```
+### 4、实际可用的 2PC
 
-**改进**：参与者在 PreCommit 超时后**默认提交**（而非阻塞），降低了阻塞概率。但仍存在协调者与参与者网络分区时的数据不一致问题，且更复杂，工程上很少直接使用。
-
-::: tip 适用场景
-2PC 适合对一致性要求极高、并发量不大的场景（如传统金融系统）。高并发互联网场景应选择柔性事务。
-:::
+- **MySQL XA / JTA 事务管理器**（Atomikos、Narayana）：强一致，适合低并发、跨少量数据库的场景
+- **Seata XA 模式**：由 Seata 充当协调者，参与者是支持 XA 的数据库（见第八节）
 
 ---
 
-## 三、TCC（Try-Confirm-Cancel）
+## 三、TCC
 
-### 3.1 原理
+### 1、原理
 
-TCC 是**应用层**的两阶段提交，将业务逻辑分为三个操作：
+TCC 是业务层的两阶段提交，每个参与者提供三个接口：
 
-| 阶段 | 说明 |
+| 阶段 | 职责 |
 |------|------|
-| **Try** | 预留资源（不真正执行业务），检查并锁定资源 |
-| **Confirm** | 正式执行业务，使用 Try 阶段预留的资源 |
-| **Cancel** | 释放 Try 阶段预留的资源，回滚 |
+| **Try** | 检查并**预留**资源（冻结），不做最终变更 |
+| **Confirm** | 使用预留的资源完成业务，不再做检查，必须能成功（失败就重试） |
+| **Cancel** | 释放预留的资源 |
 
-### 3.2 订单扣款示例
+以扣余额为例，账户表增加冻结字段：
 
-```
-Try 阶段：
-  - 订单服务：创建订单（状态=待确认）
-  - 库存服务：冻结库存（可用库存-1，冻结库存+1）
-  - 账户服务：冻结余额（余额-100，冻结金额+100）
+| 阶段 | 账户服务的操作 |
+|------|----------------|
+| Try | `UPDATE account SET balance = balance - 100, frozen = frozen + 100 WHERE id = ? AND balance >= 100` |
+| Confirm | `UPDATE account SET frozen = frozen - 100 WHERE id = ?` |
+| Cancel | `UPDATE account SET balance = balance + 100, frozen = frozen - 100 WHERE id = ?` |
 
-Confirm 阶段（全部 Try 成功）：
-  - 订单服务：更新订单状态=已确认
-  - 库存服务：扣减冻结库存（冻结库存-1）
-  - 账户服务：扣减冻结余额（冻结金额-100）
+TCC 是**最终一致**的：Try 之后、Confirm 之前存在中间状态，只是被冻结字段隔离开，其他事务不会用到被预留的资源（业务层面的隔离）。
 
-Cancel 阶段（任一 Try 失败）：
-  - 订单服务：删除/取消订单
-  - 库存服务：释放冻结库存（冻结库存-1，可用库存+1）
-  - 账户服务：释放冻结余额（冻结金额-100，余额+100）
-```
+### 2、空回滚、幂等与悬挂
 
-### 3.3 需要处理的问题
+网络超时和重试会让 Try / Confirm / Cancel 以意外的顺序或次数到达：
 
-| 问题 | 解决方案 |
-|------|---------|
-| 空回滚 | Try 未执行就收到 Cancel（网络超时），Cancel 需判断 Try 是否执行过 |
-| 幂等 | Confirm/Cancel 可能被重复调用，需保证幂等（记录执行状态） |
-| 悬挂 | Cancel 先于 Try 执行完成后 Try 才到达，需拒绝迟到的 Try |
+| 问题 | 场景 | 处理 |
+|------|------|------|
+| 空回滚 | Try 请求丢了或超时，协调者发起 Cancel，此时根本没有可释放的资源 | Cancel 发现没有 Try 记录时直接返回成功，并记录「已回滚」 |
+| 幂等 | Confirm / Cancel 失败后被重试 | 按全局事务 ID + 分支 ID 记录执行状态，重复调用直接返回 |
+| 悬挂 | Try 网络延迟，Cancel 先执行完，迟到的 Try 才到达并冻结资源，再也没人释放 | Try 执行前检查是否已有「已回滚」记录，有则拒绝执行 |
 
-### 3.4 优缺点
+三者都依赖一张事务控制表，并且记录要与业务操作在**同一个本地事务**里写。Seata 1.5 起提供 **TCC Fence**：开启 `useTCCFence = true` 后，框架用 `tcc_fence_log` 表自动处理这三个问题，前提是 TCC 方法运行在本地事务中、且与业务表使用同一个数据源。
+
+### 3、优缺点
 
 | 优点 | 缺点 |
 |------|------|
-| 无长事务，性能较好 | 业务侵入性强，需实现三个接口 |
-| 可精确控制资源预留 | 数据库需额外的冻结字段 |
-| 适合强一致要求的场景 | 开发成本高 |
+| 不持有数据库长锁，性能好 | 每个参与者都要实现三个接口，侵入大 |
+| 资源预留粒度可控，适合资金类场景 | 需要冻结字段或预留表，以及事务控制表 |
+| 不依赖数据库的 XA 能力 | Confirm / Cancel 必须幂等且最终成功，开发测试成本高 |
 
 ---
 
-## 四、本地消息表（异步事务）
+## 四、Saga
 
-### 4.1 原理
+### 1、原理
 
-将消息与业务操作存入**同一数据库**，利用本地事务保证两者的原子性，再由后台任务异步投递消息。
+Saga（Garcia-Molina 与 Salem，1987）把长事务拆成一串本地事务 T1…Tn，每个 Ti 有对应的补偿 Ci。某一步失败时，**逆序补偿已经完成的步骤**。
 
-### 4.2 流程
+如果 T3 失败，T3 自己的本地事务已经回滚，需要执行的是 C2 → C1，而不是 C3：
 
-```
-1. 业务操作 + 写消息表 → 同一本地事务提交（原子）
-2. 定时任务扫描消息表中未发送的消息 → 投递到 MQ
-3. 消费方处理成功 → 回调更新消息状态为已完成
-4. 超时未确认 → 重试投递（消费方需幂等）
-```
+![Saga 编排：T3 失败后逆序补偿](../assets/distributed/saga-orchestration.svg)
 
-**消息表结构（示意）：**
+补偿的要求：
+
+- **幂等**：补偿可能被重复调用
+- **可重试直到成功**：补偿不能「失败了就算了」，只能不断重试或转人工
+- **允许空补偿**：补偿时发现正向操作没执行过，直接成功
+
+### 2、编排与协同
+
+| | 编排（Orchestration） | 协同（Choreography） |
+|---|---|---|
+| 驱动方式 | 中心编排器按顺序调用各服务，失败时触发补偿 | 各服务完成后发布事件，下一个服务订阅事件继续 |
+| 优点 | 流程集中、状态可查、容易监控与重试 | 无中心节点，服务间松耦合 |
+| 缺点 | 编排器要高可用、持久化每一步状态 | 流程分散在各服务，难追踪；容易形成事件环 |
+| 适合 | 步骤多、需要可视化和人工介入的流程 | 步骤少、链路简单的流程 |
+
+编排器的实现可以是 Seata Saga 状态机（JSON 定义流程），也可以是 Temporal 这类持久化执行引擎（流程代码化，引擎记录每一步结果，崩溃后从断点继续），见 [工作流引擎](./7_work_flow)。
+
+### 3、隔离性问题
+
+Saga 没有隔离：T1 提交后，在 Saga 结束前其他事务就能看到它的结果，可能出现读到稍后被补偿的数据、或在补偿前被其他事务修改。常用对策：
+
+- **语义锁**：正向步骤把数据置为中间状态（如订单「待支付」），其他流程看到中间状态就等待或拒绝
+- **可交换的更新**：设计成先后顺序无关的操作（如增减库存而不是覆盖库存值）
+- **重读校验**：补偿或后续步骤执行前重新读取数据，确认没被他人改过
+
+### 4、与 TCC 对比
+
+| | TCC | Saga |
+|---|---|---|
+| 隔离 | 资源预留，中间状态对外不可用 | 无隔离，需要语义锁等对策 |
+| 侵入 | 三个接口 + 冻结字段 | 正向操作 + 补偿操作 |
+| 时长 | 短流程，秒级 | 可以是长流程（分钟到天） |
+| 典型场景 | 扣款、扣积分 | 订单全流程、旅行预订、跨企业流程 |
+
+---
+
+## 五、本地消息表（Transactional Outbox）
+
+### 1、原理
+
+解决「写库 + 发消息」的原子性：**不在数据库事务里直接发 MQ**（事务回滚了消息却已发出，或提交了却没发出去），而是在同一个本地事务里写业务表和消息表，再由投递程序把消息表里的记录发到 MQ。
+
+1. 同一本地事务写业务数据和一条 `NEW` 状态的消息记录
+2. 投递程序把消息发送到 MQ，收到 Broker 确认后标记为 `SENT`
+3. 失败的记录按退避策略重试，超过上限告警
+4. 消费方按消息 ID 或业务键做幂等，因为投递可能重复
+
 ```sql
-CREATE TABLE local_message (
-    id          BIGINT PRIMARY KEY,
-    biz_id      VARCHAR(64),       -- 业务唯一 ID
-    topic       VARCHAR(128),      -- MQ Topic
-    payload     TEXT,              -- 消息内容（JSON）
-    status      TINYINT,           -- 0:待发送 1:已发送 2:已完成
-    retry_count INT DEFAULT 0,
-    created_at  DATETIME,
-    updated_at  DATETIME
+CREATE TABLE outbox_message (
+    id           BIGINT       PRIMARY KEY,
+    biz_key      VARCHAR(64)  NOT NULL,           -- 业务唯一键，如订单号 + 事件类型
+    topic        VARCHAR(128) NOT NULL,
+    payload      JSON         NOT NULL,
+    status       TINYINT      NOT NULL DEFAULT 0, -- 0:NEW 1:SENT 2:FAILED
+    retry_count  INT          NOT NULL DEFAULT 0,
+    next_retry_at DATETIME    NOT NULL,
+    created_at   DATETIME     NOT NULL,
+    UNIQUE KEY uk_biz_key (biz_key),
+    KEY idx_status_retry (status, next_retry_at)
 );
 ```
 
-### 4.3 优缺点
+### 2、生产要点
 
-| 优点 | 缺点 |
-|------|------|
-| 实现简单，不依赖 MQ 事务特性 | 消息表与业务库耦合 |
-| 可靠性高（DB 可靠性保证） | 定时任务扫表有延迟 |
-| | 消息表会膨胀，需定期清理 |
+- **提交后立即投递，扫表兜底**：用 `@TransactionalEventListener(phase = AFTER_COMMIT)` 或 `TransactionSynchronization.afterCommit` 在提交后立即发送，定时扫表只处理漏发和失败的记录，避免轮询带来的延迟
+- **多实例扫表**：用 `SELECT ... FOR UPDATE SKIP LOCKED`（MySQL 8.0+ / PostgreSQL）或按 ID 分片，避免多个实例重复投递同一条
+- **CDC 替代轮询**：用 Debezium 的 Outbox Event Router 读取 binlog 投递，业务侧只管写表
+- **定期归档**：已发送的记录按时间归档或删除，防止表膨胀
+- 消费方的「处理成功后回调更新状态」不是必需步骤，消费端靠幂等即可
+
+完整的投递代码与各 MQ 的确认机制见 [消息队列基础](/messaging/1_basics#八、分布式事务中的消息)。
 
 ---
 
-## 五、可靠消息最终一致性（基于 MQ）
+## 六、RocketMQ 事务消息
 
-### 5.1 原理
+### 1、流程
 
-利用 MQ 的**事务消息**特性，在消息发送与业务操作之间建立原子性保证。
+RocketMQ 把「本地事务 + 发消息」做成了两阶段，效果与本地消息表相同，但不需要自建消息表和投递程序：
 
-**以 RocketMQ 事务消息为例：**
+![RocketMQ 事务消息与回查](../assets/distributed/rocketmq-tx-message.svg)
 
-```
-1. Producer 发送 Half Message（半消息）到 Broker，此时消费方不可见
-2. Broker 存储半消息，回复确认
-3. Producer 执行本地事务
-4. 本地事务成功 → Producer 发送 Commit → Broker 投递消息给消费方
-   本地事务失败 → Producer 发送 Rollback → Broker 删除半消息
-5. 若 Producer 宕机（第4步未执行）→ Broker 定期回查 Producer 的事务状态
-```
+关键在回查：Broker 迟迟收不到二次确认时，会回调生产者查询本地事务状态。**回查可能在本地事务还没执行完时到达**（慢事务、大事务），此时查不到记录不代表失败，必须返回 `UNKNOW` 让 Broker 稍后再查；直接返回回滚会丢掉一条本该提交的消息。
 
-### 5.2 消息回查
+### 2、代码
+
+下面用 RocketMQ 的 Remoting 客户端（`rocketmq-client`，可连接 5.x Broker）。本地事务里建的订单本身就是「事务日志」，回查时按订单号查询：
 
 ```java
-// RocketMQ 事务监听器
-public class OrderTransactionListener implements TransactionListener {
+// 发送：订单号放进用户属性，供回查使用
+Message msg = new Message("order-created", objectMapper.writeValueAsBytes(dto));
+msg.putUserProperty("orderNo", dto.getOrderNo());
+producer.sendMessageInTransaction(msg, dto);   // producer 是 TransactionMQProducer，已设置下面的监听器
+```
+
+```java
+@Component
+@RequiredArgsConstructor
+public class OrderTxListener implements TransactionListener {
+
+    private static final long CHECK_GRACE_MILLIS = Duration.ofMinutes(5).toMillis();
+
+    private final OrderService orderService;
 
     @Override
     public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
         try {
-            // 执行本地事务（如扣减库存）
-            orderService.createOrder((OrderDTO) arg);
-            return LocalTransactionState.COMMIT_MESSAGE; // 提交：MQ 消息可见
+            orderService.createOrder((OrderDTO) arg);       // 本地事务：写订单表
+            return LocalTransactionState.COMMIT_MESSAGE;
         } catch (Exception e) {
-            return LocalTransactionState.ROLLBACK_MESSAGE; // 回滚：删除半消息
+            return LocalTransactionState.ROLLBACK_MESSAGE;
         }
     }
 
     @Override
     public LocalTransactionState checkLocalTransaction(MessageExt msg) {
-        // Broker 回查：判断本地事务是否执行成功
-        String orderId = msg.getUserProperty("orderId");
-        return orderService.exists(orderId)
-            ? LocalTransactionState.COMMIT_MESSAGE
-            : LocalTransactionState.ROLLBACK_MESSAGE;
+        String orderNo = msg.getUserProperty("orderNo");
+        if (orderService.exists(orderNo)) {
+            return LocalTransactionState.COMMIT_MESSAGE;
+        }
+        // 查不到：本地事务可能还在执行，未超过宽限期就让 Broker 稍后再查
+        long age = System.currentTimeMillis() - msg.getBornTimestamp();
+        return age < CHECK_GRACE_MILLIS
+                ? LocalTransactionState.UNKNOW
+                : LocalTransactionState.ROLLBACK_MESSAGE;
     }
 }
 ```
 
-### 5.3 优缺点
+要点：
 
-| 优点 | 缺点 |
-|------|------|
-| 与业务解耦，通用性强 | 最终一致，有延迟 |
-| 依赖 MQ 的可靠性，无需额外消息表 | 消费方必须实现幂等 |
-| 吞吐量高 | 需要 MQ 支持事务消息（RocketMQ 支持，Kafka 不直接支持） |
+- `executeLocalTransaction` 返回 `UNKNOW` 或进程崩溃时，Broker 按 `transactionCheckInterval` 周期回查，超过 `transactionCheckMax` 次（默认 15）后丢弃半消息
+- 宽限期要大于本地事务的最长执行时间；更严谨的做法是在同一本地事务中写一张以事务 ID 为主键的事务日志表，回查只查日志
+- 5.x 的 gRPC 客户端（`rocketmq-client-java`）用 `TransactionChecker` 和 `producer.beginTransaction()`，语义相同
+- 消费端仍需幂等
 
----
+更多 RocketMQ 事务消息配置见 [RocketMQ](/messaging/3_rocketmq#七、事务消息)。
 
-## 六、Saga 事务（长事务补偿机制）
+### 3、Kafka 为什么不行
 
-### 6.1 原理
-
-Saga 将长事务拆分为多个**本地事务**，每个本地事务都有对应的**补偿事务**（逆操作）。如果某步骤失败，按逆序执行已成功步骤的补偿操作。
-
-```
-正向：T1 → T2 → T3 → T4
-补偿：C4 → C3 → C2 → C1（失败时逆序执行）
-```
-
-### 6.2 两种协调模式
-
-**编排模式（Choreography）：**
-各服务通过事件相互驱动，无中心协调者。服务完成后发布事件，下一个服务监听并执行。
-- 优点：松耦合，无单点
-- 缺点：流程分散，难以追踪整体状态
-
-**orchestration（编制模式）：**
-中心化 Saga 协调者（Orchestrator）按顺序调用各服务，并在失败时触发补偿。
-- 优点：流程清晰，易于监控
-- 缺点：协调者成为中心节点
-
-### 6.3 旅游预订示例（编制模式）
-
-```
-Saga Orchestrator:
-  1. 调用 航班服务.预订() → 成功
-  2. 调用 酒店服务.预订() → 成功
-  3. 调用 租车服务.预订() → 失败！
-  
-补偿（逆序）：
-  2. 调用 酒店服务.取消()
-  1. 调用 航班服务.取消()
-```
-
-### 6.4 与 TCC 的区别
-
-| | TCC | Saga |
-|---|---|---|
-| 隔离性 | 资源预留，有一定隔离 | 无隔离，中间状态对外可见 |
-| 业务侵入 | 高（需实现 Try/Confirm/Cancel） | 中（需实现补偿操作） |
-| 适用场景 | 短流程、强隔离需求 | 长事务、跨多服务流程 |
-| 典型应用 | 支付、扣款 | 订单完整流程、旅行预订 |
+Kafka 事务保证的是**多个分区写入的原子性**，以及「消费-处理-生产」的 Exactly Once，它无法与外部数据库事务绑定。使用 Kafka 时，「写库 + 发消息」仍要用本地消息表或 CDC。
 
 ---
 
 ## 七、最大努力通知
 
-### 7.1 原理
+上游完成业务后通知下游，失败按递增间隔重试有限次数，并**提供查询接口让下游主动对账**兜底。一致性最弱，但最简单，适合跨企业的结果通知。
 
-对一致性要求最低的方案。系统执行完操作后，通过消息或回调**尽力通知**下游，允许下游暂时不一致，但最终通过多次重试达到一致。
+典型是支付结果回调：支付宝在 25 小时内最多发送 8 次异步通知，间隔逐步拉长（国际站文档给出 2m、10m、10m、1h、2h、6h、15h，具体以所接入产品的文档为准），直到商户返回约定的成功字符串。
 
-**典型场景**：支付宝支付结果通知商户。支付宝会在回调失败后，按 1min / 5min / 10min / 30min / 1h ... 的间隔持续重试，最长重试 24 小时。
-
-### 7.2 流程
-
-```
-1. 上游执行业务（如支付成功）
-2. 立即通知下游（回调 URL / MQ）
-3. 若下游处理失败 → 按指数退避策略重试
-4. 超过最大重试次数 → 记录失败日志，人工介入或下游主动查询对账
-```
-
-### 7.3 与可靠消息的区别
-
-| | 最大努力通知 | 可靠消息最终一致 |
+| | 最大努力通知 | 本地消息表 / 事务消息 |
 |---|---|---|
-| 消息可靠性 | 尽力，不保证 | 保证（MQ 可靠投递） |
-| 主动查询 | 下游需主动对账 | 不需要 |
-| 适用场景 | 跨企业通知（支付回调） | 企业内部系统间 |
+| 可靠性 | 有限次重试，可能放弃 | 持续重试直到成功 |
+| 兜底 | 下游主动查询、定期对账 | 投递方重试，消费方幂等 |
+| 适用 | 跨企业、跨系统通知 | 企业内部服务间 |
+
+接收方要先验签、做幂等处理，再返回成功应答。
 
 ---
 
-## 八、Seata 框架
+## 八、Seata
 
-### 8.1 简介
+### 1、简介
 
-Seata（Simple Extensible Autonomous Transaction Architecture）是阿里开源的分布式事务框架，支持多种事务模式，屏蔽底层细节。
+Seata 由阿里巴巴开源，2023 年进入 Apache 孵化器（截至本文，仍为孵化项目），2.x 起 groupId 为 `org.apache.seata`、包名为 `org.apache.seata.*`。架构有三个角色：
 
-> 开源地址：[https://github.com/apache/incubator-seata](https://github.com/apache/incubator-seata)
+- **TC**（Transaction Coordinator）：独立部署的 seata-server，维护全局事务和分支状态、管理全局锁
+- **TM**（Transaction Manager）：发起全局事务的一方，即标注 `@GlobalTransactional` 的方法
+- **RM**（Resource Manager）：管理分支事务，向 TC 注册分支、汇报状态、执行二阶段
 
-### 8.2 四种模式
+全局事务 ID（XID）随 RPC 调用在服务间透传。
 
-| 模式 | 一致性 | 隔离性 | 性能 | 业务侵入 |
-|------|--------|--------|------|---------|
-| **AT 模式** | 最终一致 | 读未提交（默认） | 高 | 无（自动回滚） |
-| **TCC 模式** | 最终一致 | 取决于业务实现 | 高 | 高 |
-| **Saga 模式** | 最终一致 | 无 | 高 | 中 |
-| **XA 模式** | 强一致 | 支持 | 低 | 无 |
+### 2、四种模式
 
-### 8.3 AT 模式原理（最常用）
+| 模式 | 一致性 | 隔离 | 侵入 | 性能 | 适用 |
+|------|--------|------|------|------|------|
+| AT | 最终一致（二阶段异步） | 写隔离靠全局锁，读默认读未提交 | 几乎无 | 较高，热点行受全局锁限制 | 普通业务，关系库，想快速落地 |
+| TCC | 最终一致 | 业务资源预留 | 高 | 高 | 资金类、非关系型资源 |
+| Saga | 最终一致 | 无 | 中 | 高 | 长流程、调用遗留系统 |
+| XA | 强一致 | 数据库 XA 隔离 | 几乎无 | 低（锁持有到二阶段） | 强一致、低并发 |
 
-AT 模式是 Seata 默认模式，对业务代码**零侵入**：
+### 3、AT 模式
 
-```
-Phase 1（业务执行 + 镜像生成）：
-  - 拦截 SQL，执行前保存"前镜像"（before image）
-  - 执行业务 SQL
-  - 执行后保存"后镜像"（after image）
-  - 注册分支事务到 TC（Transaction Coordinator）
+![Seata AT 模式两阶段流程](../assets/spring-cloud/seata-at.svg)
 
-Phase 2（提交 or 回滚）：
-  提交：TC 通知各分支异步删除镜像，释放锁
-  回滚：TC 通知各分支用前镜像做逆向 SQL 补偿
-```
+一阶段（每个 RM）：
 
-**三个核心角色：**
-- **TC（Transaction Coordinator）**：独立部署的 Seata Server，协调全局事务
-- **TM（Transaction Manager）**：发起全局事务的服务（`@GlobalTransactional` 注解处）
-- **RM（Resource Manager）**：各参与分支事务的服务
+1. 解析业务 SQL，查出修改前的数据作为**前镜像**
+2. 执行业务 SQL，查出修改后的数据作为**后镜像**
+3. 把前后镜像写入 `undo_log` 表，与业务 SQL 在**同一个本地事务**里
+4. 提交本地事务前，向 TC 注册分支并申请这些行的**全局锁**
+5. 拿到全局锁后提交本地事务，释放本地行锁；拿不到全局锁则重试，超时后回滚本地事务
 
-**使用示例：**
+二阶段：
+
+- **全局提交**：TC 立即释放全局锁，各分支异步删除 `undo_log`，非常快
+- **全局回滚**：各分支先拿后镜像与当前数据比对，一致则用前镜像生成反向 SQL 恢复数据并删除 `undo_log`；**不一致说明数据被 Seata 之外的写入改过（脏写），回滚失败，需要人工处理**
+
+隔离性：
+
+- **写隔离**：全局锁保证一个全局事务未结束前，其他全局事务不能改同一行，避免脏写
+- **读隔离**：全局层面默认是**读未提交**，其他事务能读到一阶段已提交、但之后会回滚的数据。需要读已提交时用 `SELECT ... FOR UPDATE`，Seata 代理会检查全局锁
+- 不在全局事务中、但会修改同一批表的本地方法，加 `@GlobalLock`（配合 `SELECT ... FOR UPDATE`）让它也检查全局锁；完全绕过 Seata 数据源代理的写入（其他系统直接改库）是回滚失败的主要来源
+
+代价：热点行在整个全局事务期间被全局锁串行化，**不适合秒杀库存这类热点更新**。
+
 ```java
-@Service
-public class OrderService {
+import org.apache.seata.spring.annotation.GlobalTransactional;
 
-    @GlobalTransactional  // 开启全局事务，其他服务自动参与
+@Service
+@RequiredArgsConstructor
+public class OrderAppService {
+
+    private final OrderMapper orderMapper;
+    private final InventoryClient inventoryClient;   // OpenFeign，XID 由 starter 自动透传
+    private final AccountClient accountClient;
+
+    @GlobalTransactional(name = "create-order", timeoutMills = 30000, rollbackFor = Exception.class)
     public void createOrder(OrderDTO dto) {
-        orderMapper.insert(dto);         // 本地操作
-        inventoryService.deduct(dto);    // 远程调用，自动纳入全局事务
-        accountService.deduct(dto);      // 远程调用，自动纳入全局事务
+        orderMapper.insert(Order.from(dto));
+        inventoryClient.deduct(dto.getSkuId(), dto.getCount());
+        accountClient.debit(dto.getUserId(), dto.getAmount());
     }
 }
 ```
 
+每个参与的数据库都要建 `undo_log` 表；依赖与配置见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba)。
+
+### 4、TCC 模式
+
+```java
+import org.apache.seata.rm.tcc.api.BusinessActionContext;
+import org.apache.seata.rm.tcc.api.BusinessActionContextParameter;
+import org.apache.seata.rm.tcc.api.LocalTCC;
+import org.apache.seata.rm.tcc.api.TwoPhaseBusinessAction;
+
+@LocalTCC
+public interface AccountTccAction {
+
+    @TwoPhaseBusinessAction(name = "accountDebit",
+            commitMethod = "confirm", rollbackMethod = "cancel", useTCCFence = true)
+    boolean tryDebit(@BusinessActionContextParameter(paramName = "userId") Long userId,
+                     @BusinessActionContextParameter(paramName = "amount") BigDecimal amount);
+
+    boolean confirm(BusinessActionContext ctx);
+
+    boolean cancel(BusinessActionContext ctx);
+}
+```
+
+实现类的三个方法上加 `@Transactional`，`tcc_fence_log` 建在与业务表相同的库里。开启 TCC Fence 后，空回滚、幂等、悬挂由框架处理，业务只写冻结与解冻逻辑。
+
+### 5、Saga 与 XA 模式
+
+- **Saga 模式**：用状态机 JSON 描述每一步的正向服务与补偿服务，由状态机引擎驱动执行与补偿，适合长流程和无法改造成 TCC 的遗留服务
+- **XA 模式**：分支使用数据库的 XA 事务，一阶段 `XA PREPARE` 后持有锁，二阶段统一提交或回滚。强一致，但锁持有时间长，吞吐低
+
 ---
 
-## 九、方案选型总结
+## 九、方案选型
 
-| 方案 | 一致性 | 性能 | 业务侵入 | 适用场景 |
-|------|--------|------|---------|---------|
-| 2PC（XA） | 强一致 | 低 | 无 | 低并发、强一致要求（金融） |
-| TCC | 最终一致（高） | 高 | 高 | 短流程、核心支付类场景 |
-| 本地消息表 | 最终一致 | 高 | 中 | 简单跨库通知，无 MQ 事务支持时 |
-| 可靠消息（MQ） | 最终一致 | 高 | 低 | 跨服务异步解耦，主流互联网方案 |
-| Saga | 最终一致 | 高 | 中 | 长事务、多步骤跨服务流程 |
-| 最大努力通知 | 弱一致 | 最高 | 低 | 跨企业回调通知 |
-| Seata AT | 最终一致 | 高 | 无 | 快速落地，单一公司内部系统 |
+| 方案 | 一致性 | 性能 | 侵入 | 适用场景 |
+|------|--------|------|------|----------|
+| 本地事务（调整边界） | 强一致 | 最高 | 无 | 首选，能合并就合并 |
+| 本地消息表 / Outbox | 最终一致 | 高 | 中 | 写库后通知下游，通用，不绑定 MQ |
+| RocketMQ 事务消息 | 最终一致 | 高 | 中（实现回查） | 已使用 RocketMQ 的核心链路 |
+| 最大努力通知 | 尽力而为 + 对账 | 高 | 低 | 跨企业回调 |
+| TCC | 最终一致，业务隔离 | 高 | 高 | 资金、库存预留，需要同步结果 |
+| Saga | 最终一致，无隔离 | 高 | 中 | 长流程、跨多个服务或外部系统 |
+| Seata AT | 最终一致，全局锁写隔离 | 中 | 低 | 内部系统、非热点数据、需要同步结果 |
+| XA / Seata XA | 强一致 | 低 | 低 | 低并发、强一致 |
 
-::: tip 互联网场景推荐
-优先选择**可靠消息（RocketMQ 事务消息）**或 **Seata AT 模式**。前者吞吐量更高适合高并发，后者落地最快适合快速交付。严格避免在高并发场景使用 2PC。
-:::
+建议顺序：
+
+1. 先通过服务边界设计避免分布式事务
+2. 能异步的用本地消息表或事务消息，下游幂等消费
+3. 必须同步得到一致结果时：资金类用 TCC，其他内部业务可以用 Seata AT（避开热点行）
+4. 长流程用 Saga，配合语义锁处理隔离
+5. 所有方案都要有对账和人工补偿兜底
+
+---
+
+## 小结
+
+- 分布式事务的首选是不产生分布式事务；其次是本地事务 + 可靠消息的最终一致
+- 2PC 强一致但阻塞、协调者单点；3PC 几乎不用；实际可用的是 MySQL XA 与 Seata XA
+- TCC 靠资源预留实现业务隔离，必须处理空回滚、幂等、悬挂，Seata TCC Fence 用 `tcc_fence_log` 自动处理
+- Saga 只补偿已完成的步骤，补偿要幂等并重试到成功；编排集中可控，协同松耦合但难追踪
+- 不要在数据库事务里发 MQ：用本地消息表（提交后立即发 + 扫表兜底）或 RocketMQ 事务消息
+- 事务消息回查查不到记录时，本地事务可能仍在执行，应返回 `UNKNOW`
+- Seata AT 一阶段写 `undo_log` 并取全局锁后本地提交；写隔离靠全局锁，读默认读未提交，回滚时后镜像不一致需人工处理；不适合热点行
+
+## 参考资料
+
+- Apache Seata 文档：[https://seata.apache.org/docs/overview/what-is-seata/](https://seata.apache.org/docs/overview/what-is-seata/)
+- Seata AT 模式：[https://seata.apache.org/docs/dev/mode/at-mode/](https://seata.apache.org/docs/dev/mode/at-mode/)
+- Seata TCC 模式：[https://seata.apache.org/docs/dev/mode/tcc-mode/](https://seata.apache.org/docs/dev/mode/tcc-mode/)
+- Seata Saga 模式：[https://seata.apache.org/docs/dev/mode/saga-mode/](https://seata.apache.org/docs/dev/mode/saga-mode/)
+- Seata XA 模式：[https://seata.apache.org/docs/dev/mode/xa-mode/](https://seata.apache.org/docs/dev/mode/xa-mode/)
+- Apache Seata GitHub：[https://github.com/apache/incubator-seata](https://github.com/apache/incubator-seata)
+- RocketMQ 事务消息：[https://rocketmq.apache.org/docs/featureBehavior/04transactionmessage/](https://rocketmq.apache.org/docs/featureBehavior/04transactionmessage/)
+- MySQL XA Transactions：[https://dev.mysql.com/doc/refman/8.4/en/xa.html](https://dev.mysql.com/doc/refman/8.4/en/xa.html)
+- Garcia-Molina & Salem, Sagas（1987）：[https://dl.acm.org/doi/10.1145/38713.38742](https://dl.acm.org/doi/10.1145/38713.38742)
+- Microservices.io, Pattern: Saga：[https://microservices.io/patterns/data/saga.html](https://microservices.io/patterns/data/saga.html)
+- Microservices.io, Pattern: Transactional outbox：[https://microservices.io/patterns/data/transactional-outbox.html](https://microservices.io/patterns/data/transactional-outbox.html)
+- Debezium Outbox Event Router：[https://debezium.io/documentation/reference/stable/transformations/outbox-event-router.html](https://debezium.io/documentation/reference/stable/transformations/outbox-event-router.html)
+- Antom（支付宝国际）异步通知：[https://docs.antom.com/ac/website_hk/asyncnotif](https://docs.antom.com/ac/website_hk/asyncnotif)
+
+> 下一篇：[分布式会话](./5_session) —— 多实例下的会话共享：粘性会话、Spring Session + Redis 与 JWT 的取舍。

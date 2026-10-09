@@ -1,0 +1,81 @@
+<svg viewBox="0 0 680 350" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .row { fill:var(--fg); font-weight:600; font-size:12px; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">短链接系统整体架构</text>
+
+  <text class="row" x="20" y="56">生成链路</text>
+  <rect class="box" x="20" y="66" width="140" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="90" y="92" text-anchor="middle" fill="var(--p)">创建请求</text>
+  <text class="sub" x="90" y="110" text-anchor="middle">校验 URL / 鉴权</text>
+  <rect class="box" x="190" y="66" width="140" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="260" y="92" text-anchor="middle" fill="var(--b)">发号器</text>
+  <text class="sub" x="260" y="110" text-anchor="middle">号段模式取 ID</text>
+  <rect class="box" x="360" y="66" width="140" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="430" y="92" text-anchor="middle" fill="var(--y)">混淆 + Base62</text>
+  <text class="sub" x="430" y="110" text-anchor="middle">6 位短码</text>
+  <rect class="box" x="530" y="66" width="140" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="600" y="92" text-anchor="middle" fill="var(--g)">MySQL + Redis</text>
+  <text class="sub" x="600" y="110" text-anchor="middle">唯一约束，写后预热</text>
+  <line class="arr" x1="160" y1="96" x2="188" y2="96"/>
+  <line class="arr" x1="330" y1="96" x2="358" y2="96"/>
+  <line class="arr" x1="500" y1="96" x2="528" y2="96"/>
+
+  <text class="row" x="20" y="158">跳转链路</text>
+  <rect class="box" x="20" y="168" width="140" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="90" y="194" text-anchor="middle" fill="var(--p)">用户访问</text>
+  <text class="sub" x="90" y="212" text-anchor="middle">短链 URL</text>
+  <rect class="box" x="190" y="168" width="140" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="260" y="194" text-anchor="middle" fill="var(--b)">Nginx</text>
+  <text class="sub" x="260" y="212" text-anchor="middle">负载均衡</text>
+  <rect class="box" x="360" y="168" width="140" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="430" y="194" text-anchor="middle" fill="var(--y)">跳转服务</text>
+  <text class="sub" x="430" y="212" text-anchor="middle">无状态，水平扩展</text>
+  <rect class="box" x="530" y="168" width="140" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="600" y="194" text-anchor="middle" fill="var(--g)">Redis → MySQL</text>
+  <text class="sub" x="600" y="212" text-anchor="middle">未命中回源，302</text>
+  <line class="arr" x1="160" y1="198" x2="188" y2="198"/>
+  <line class="arr" x1="330" y1="198" x2="358" y2="198"/>
+  <line class="arr" x1="500" y1="198" x2="528" y2="198"/>
+
+  <text class="row" x="20" y="260">统计链路</text>
+  <rect class="box" x="20" y="270" width="140" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="90" y="296" text-anchor="middle" fill="var(--y)">跳转服务</text>
+  <text class="sub" x="90" y="314" text-anchor="middle">异步投递点击</text>
+  <rect class="box" x="190" y="270" width="140" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="260" y="296" text-anchor="middle" fill="var(--b)">Kafka</text>
+  <text class="sub" x="260" y="314" text-anchor="middle">缓冲削峰</text>
+  <rect class="box" x="360" y="270" width="140" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="430" y="296" text-anchor="middle" fill="var(--p)">Flink</text>
+  <text class="sub" x="430" y="314" text-anchor="middle">去重 / 聚合</text>
+  <rect class="box" x="530" y="270" width="140" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="600" y="296" text-anchor="middle" fill="var(--g)">Redis + OLAP</text>
+  <text class="sub" x="600" y="314" text-anchor="middle">实时计数与明细</text>
+  <line class="arr" x1="160" y1="300" x2="188" y2="300"/>
+  <line class="arr" x1="330" y1="300" x2="358" y2="300"/>
+  <line class="arr" x1="500" y1="300" x2="528" y2="300"/>
+
+</svg>

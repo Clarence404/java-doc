@@ -1,0 +1,46 @@
+<svg viewBox="0 0 680 230" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="680" height="230" rx="8" fill="var(--bg)"/>
+  <text x="340" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">Raft 节点状态转换</text>
+  <rect x="20" y="50" width="170" height="70" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="105" y="74" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">Follower</text>
+  <text x="105" y="96" text-anchor="middle" font-size="12" fill="var(--fg)">被动接收日志与心跳</text>
+  <rect x="255" y="50" width="170" height="70" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="340" y="74" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">Candidate</text>
+  <text x="340" y="96" text-anchor="middle" font-size="12" fill="var(--fg)">Term+1，自投一票</text>
+  <rect x="490" y="50" width="170" height="70" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="575" y="74" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">Leader</text>
+  <text x="575" y="96" text-anchor="middle" font-size="12" fill="var(--fg)">处理写请求，复制日志</text>
+  <line x1="190" y1="85" x2="253" y2="85" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="221.5" y="79" text-anchor="middle" font-size="12" fill="var(--fg)">选举超时</text>
+  <line x1="425" y1="85" x2="488" y2="85" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="456.5" y="79" text-anchor="middle" font-size="12" fill="var(--fg)">获多数票</text>
+  <path d="M340,120 L340,160 L135,160 L135,122" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="237.5" y="154" text-anchor="middle" font-size="12" fill="var(--fg)">发现合法 Leader 或更大 Term</text>
+  <path d="M575,120 L575,195 L75,195 L75,122" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="325" y="189" text-anchor="middle" font-size="12" fill="var(--fg)">发现更大 Term，退位</text>
+</svg>

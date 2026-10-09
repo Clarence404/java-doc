@@ -25,7 +25,7 @@
 
 - [高并发 · 异步与削峰](/high-con/4_async_peak_shaving)：MQ 在系统级削峰设计中的位置
 - [分布式 · 分布式事务](/distributed/4_transaction)：TCC、Saga、本地消息表、事务消息的完整对比
-- [系统架构 · 幂等方案总结](/architecture/5_idempotence)：消费幂等所依赖的通用幂等方案
+- [系统架构 · 幂等设计](/architecture/5_idempotence)：消费幂等所依赖的通用幂等方案
 - [Spring Boot · 中间件集成](/spring-boot/5_middleware)：Spring Boot 集成 Kafka / RocketMQ / RabbitMQ
 - [CDC 工具](/database/5_practice/0_cdc_tools)：基于 binlog 的数据同步与 Outbox 投递
 - [消息队列面试题解答](/interview/9_mq)：本模块高频问题的答案汇总

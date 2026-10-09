@@ -118,7 +118,7 @@ public class RedisCacheConfig {
 |------|------|------|
 | 缓存 null（默认，配合短 TTL） | 不存在的 Key 也命中缓存，挡住穿透 | JSON 序列化需 `enableSpringCacheNullValueSupport()`；TTL 要短，避免数据新增后长时间查不到 |
 | `disableCachingNullValues()` | null 不进缓存，穿透直达数据库 | 此时 `@Cacheable` 方法返回 null 会抛 `IllegalArgumentException`，必须加 `unless = "#result == null"` |
-| 布隆过滤器前置 | 海量随机 Key 攻击时更省内存 | 见 [缓存一致性](/cache/10_cache_consistency) 的穿透 / 击穿 / 雪崩部分 |
+| 布隆过滤器前置 | 海量随机 Key 攻击时更省内存 | 见 [缓存最佳实践](/cache/11_cache_rule) 的穿透防护与 [Redis 典型应用场景](/cache/4_redis_scenario) |
 
 ### 4、Caffeine CacheManager（本地缓存）
 
@@ -274,7 +274,7 @@ public ProductVO getHot(Long id) { ... }
 
 - `sync = true` 让同一 Key 的加载串行化，只有一个线程执行方法，其他线程等待结果
 - 限制：不能和 `unless` 一起用，且同一方法上只能有这一个缓存操作
-- 锁的范围取决于 Cache 实现：Caffeine 是进程内锁；RedisCache 的同步也是**单 JVM 内**的，多实例仍会各自回源一次，跨实例互斥需要分布式锁或逻辑过期，见 [缓存一致性](/cache/10_cache_consistency)
+- 锁的范围取决于 Cache 实现：Caffeine 是进程内锁；RedisCache 的同步也是**单 JVM 内**的，多实例仍会各自回源一次，跨实例互斥需要分布式锁或逻辑过期，见 [缓存最佳实践](/cache/11_cache_rule)
 
 ### 3、雪崩：TTL 加随机抖动
 

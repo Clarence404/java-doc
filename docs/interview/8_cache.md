@@ -1,796 +1,444 @@
 ---
-description: Redis 数据结构、持久化、集群、缓存三大问题、一致性
+description: Redis 数据类型与编码、线程模型与持久化、过期与淘汰、主从哨兵集群、缓存问题治理、缓存一致性、本地与两级缓存、Redisson
 ---
 
 # 缓存面试题解答
 
-## 一、缓存和数据库一致性问题
+> 题目清单见 [缓存面试题](/cache/99_interview)；细节见 [缓存总览](/cache/0_overview)。
+>
+> 版本基线：Redis 8.x（兼顾 7.x）、Valkey 8.x、Spring Boot 4 / Spring Data Redis 4、Redisson 4.x、Caffeine 3.x、JetCache 2.7+。
 
-更多深入了解：<RouteLink to="/cache/10_cache_consistency">缓存一致性</RouteLink>
+## 一、数据类型与编码
 
-**【场景一】** 先操作缓存，再写数据库成功之前，如果有读请求发生，可能导致旧数据入缓存，引发数据不一致。在分布式环境下，数据的读
-写都是并发的，一个服务多机器部署，对同一个数据进行读写，在数据库层面并不能保证完成顺序，就有可能后读的操作先完成
-（读取到的是脏数据），如果不采用给缓存设置过期时间策略，该数据永远都是脏数据。
+### Q1：Redis 有哪些数据类型？各适合什么场景？
 
-### 1、延迟双删（缓存-库-缓存）
+**一句话**：五种基础类型（String、Hash、List、Set、ZSet）覆盖大部分缓存与计数需求；Bitmap、HyperLogLog、GEO、Stream 解决特定统计与队列问题；Redis 8 还把 JSON、布隆过滤器、时序等原 Redis Stack 能力并入了核心。
 
-**【解决办法】**：<br>
+| 类型 | 典型场景 |
+|------|---------|
+| String | 缓存对象、计数器、分布式锁 |
+| Hash | 对象的多个字段，单独读改某个字段 |
+| List / Set | 简单队列；去重、共同好友（交集） |
+| ZSet | 排行榜、延迟队列（score 存时间） |
+| Bitmap / HyperLogLog / GEO | 签到、UV 估算（误差约 0.81%）、附近的人 |
 
-- 可采用更新前后双删除缓存策略；<br>
-  > 参考链接：[延迟双删如此好用，为何大厂从来不用](https://mp.weixin.qq.com/s/CR7e6pjKd5cPdVnkq5mqbw)
+- Redis 8 内置：`JSON.*`、`BF.*` / `CF.*`（布隆 / 布谷鸟过滤器）、`TOPK.*`、`TS.*`（时序）、`FT.*`（查询引擎）、Vector Set
+- Valkey 没有这些内置类型，要另装模块，选型前先确认目标环境
 
-```java
-import java.util.concurrent.TimeUnit;
+**常见坑**：用 `LRANGE` 对大 List 做深分页，复杂度 O(S+N)，越往后越慢，还会把 List 养成大 key。
 
-public class CacheService {
+→ 详见 [Redis 基础](/cache/1_redis_base)
 
-    // 缓存客户端，比如 Redis
-    private CacheClient cacheClient;
-    // 数据库服务接口
-    private DatabaseService databaseService;
+### Q2：ZSet 底层为什么用跳表 + 哈希表？小 ZSet 用什么编码？
 
-    public CacheService(CacheClient cacheClient, DatabaseService databaseService) {
-        this.cacheClient = cacheClient;
-        this.databaseService = databaseService;
-    }
+**一句话**：元素少时用紧凑的 listpack，超过阈值转成「跳表 + 哈希表」：跳表负责按分数排序和范围查询，哈希表让按成员查分数做到 O(1)。
 
-    public void updateDataWithCache(String key, String value) {
-        // 1. 第一次删除缓存
-        cacheClient.delete(key);
+- 切换阈值：`zset-max-listpack-entries 128`、`zset-max-listpack-value 64`；listpack 是 7.0 起替代 ziplist 的编码，没有连锁更新问题
+- 选跳表而不是平衡树：作者给的理由是实现和调试简单，范围操作找到起点后顺序遍历即可，内存可通过层数概率调节
+- 「单线程所以跳表锁粒度小」「跳表缓存局部性好」都不是原因，命令本来就单线程执行
+- 用 `OBJECT ENCODING key` 查看实际编码
 
-        // 2. 更新数据库
-        databaseService.update(key, value);
+→ 详见 [Redis 基础](/cache/1_redis_base#四、底层编码总结)
 
-        // 3. 延迟删除缓存
-        new Thread(() -> {
-            try {
-                // 延迟一段时间（具体时间根据业务实际情况设定，通常是事务提交所需时间）
-                TimeUnit.SECONDS.sleep(1);
-                cacheClient.delete(key);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("延迟双删任务被中断：" + e.getMessage());
-            }
-        }).start();
-    }
-}
+### Q3：Redis 能当消息队列吗？List、Pub/Sub、Stream 怎么选？
 
-```
+**一句话**：能做轻量队列，但持久化和复制都是异步的，故障时可能丢最近的消息；可靠性要求高的业务消息还是交给专业 MQ。
 
-- 可以通过“串行化”解决，保证同一个数据的读写落在同一个后端服务上:
+| 方式 | 特点 |
+|------|------|
+| List + `BLMOVE` | 取出时转移到「处理中」列表，处理成功再删除，崩溃后可恢复 |
+| Pub/Sub | 不持久化，订阅者不在线就收不到，只适合通知类消息 |
+| Stream | 消费组 + ACK + 待确认列表（PEL），`XAUTOCLAIM` 接管超时未确认的消息 |
 
-    - 核心思路：
+- 延迟任务可以用 ZSet（score 存执行时间），要做到「处理成功才确认、超时重新入队」，并保证业务幂等
 
-      通过<span style="color: red;">**哈希一致性或分布式锁，确保对同一个 key 的读写请求串行执行**</span>，从而避免并发冲突。
+**常见坑**：用 List 的 `RPOP` 取完就算消费成功，处理中进程崩溃，消息就丢了。
 
-```java
-import java.util.concurrent.locks.ReentrantLock;
+→ 详见 [Redis 典型应用场景](/cache/4_redis_scenario#五、redis-做消息队列)
 
-public class CacheServiceWithSerialization {
-    // 缓存客户端
-    private CacheClient cacheClient;
-    // 数据库服务接口
-    private DatabaseService databaseService;
-    // 本地锁示例
-    private static final ReentrantLock lock = new ReentrantLock();
+### Q4：Redis 8 的许可有什么变化？Redis 和 Valkey 怎么选？
 
-    public void updateDataWithSerialization(String key, String value) {
-        // 获取分布式锁，确保同一时刻只有一个线程操作 key
-        boolean lockAcquired = DistributedLock.tryLock(key, 5, TimeUnit.SECONDS);
-        if (!lockAcquired) {
-            System.out.println("未能获得锁，操作已被其他线程占用");
-            return;
-        }
+**一句话**：Redis 8.0 起改名 Redis Open Source，在 RSALv2 / SSPLv1 之外新增 AGPLv3 可选；Valkey 是 Redis 7.2.4 的 BSD 许可分支，命令和协议兼容。
 
-        try {
-            // 1. 写缓存
-            cacheClient.set(key, value);
+- Redis 8 优势：JSON、概率结构、时序、查询引擎、Vector Set 都在核心里，开箱即用
+- Valkey 优势：许可宽松（BSD），云厂商托管版普遍提供；需要上面那些能力时要另装模块
+- 业务只用基础命令时两者几乎可以互换；用了 Redis 8 内置类型，就要确认部署环境是 Redis 8
+- AGPLv3 对「修改后以网络服务形式提供」有开源义务，私有化交付前做好许可评估
 
-            // 2. 更新数据库
-            databaseService.update(key, value);
+→ 详见 [缓存总览](/cache/0_overview)
 
-            // 3. 删除缓存
-            cacheClient.delete(key);
+## 二、线程模型与持久化
 
-        } finally {
-            DistributedLock.release(key); // 释放分布式锁
-        }
-    }
-}
+### Q5：Redis 为什么快？它是单线程还是多线程？
 
-```
+**一句话**：命令执行始终在一个主线程里顺序进行；快是因为数据在内存里、数据结构高效、没有锁竞争，网络 I/O 用多路复用（epoll）。
 
-**【场景二】** 先操作数据库，再清除缓存。如果删缓存失败了，就会出现数据不一致问题。
+- 单线程执行：每条命令天然原子，不需要加锁；大部分命令是 O(1) / O(log N)
+- 瓶颈通常是网络读写而不是 CPU，所以后来加的 I/O 线程只分担网络读写
+- 后台线程 / 子进程负责 fork 持久化、`UNLINK` 异步释放内存、AOF fsync
+- 代价：一条慢命令（`KEYS *`、`DEL` 大 key、长 Lua 脚本）会阻塞所有客户端
 
-### 2、先改库，后删缓存
+→ 详见 [Redis 核心原理](/cache/2_redis_core#一、线程模型)
 
-**【方案一】** ：将删除失败的 key 值存入队列中重复删除，如下图：
+### Q6：Redis 6.x 和 8.0 的 I/O 线程有什么区别？什么时候开？
 
-![img.png](../assets/interview/cache-diff-one.png)
+**一句话**：两者都只是把网络读写交给 I/O 线程，命令仍由主线程执行；8.0 重写了实现，读、解析、写都由 I/O 线程完成，不再需要 `io-threads-do-reads`。
 
-（1）更新数据库数据。
+| 版本 | 读取与解析 | 执行命令 | 写回响应 |
+|------|-----------|---------|---------|
+| 6.x / 7.x | 默认主线程，开 `io-threads-do-reads` 后并行 | 主线程 | I/O 线程 |
+| 8.0+ | I/O 线程（客户端固定分配给某个线程） | 主线程 | I/O 线程 |
 
-（2）缓存因为种种问题删除失败。
+- 默认 `io-threads 1` 即不开启；只有网络 I/O 把 CPU 吃满时才开，至少 4 核并留一个空闲核
+- 压测时 `redis-benchmark` 也要加 `--threads`，否则测不出差异
 
-（3）将需要删除的 key 发送至消息队列。
+→ 详见 [Redis 核心原理](/cache/2_redis_core#_2、i-o-线程-6-x-与-8-0-的区别)
 
-（4）自己消费消息，获得需要删除的 key。
+### Q7：RDB 和 AOF 怎么选？
 
-（5）继续重试删除操作，直到成功。
+**一句话**：RDB 是定时快照，文件小、恢复快，但两次快照之间的写入会丢；AOF 记录每条写命令，`everysec` 正常最多丢 1 秒（磁盘卡顿时约 2 秒）。生产一般开 AOF，它的 base 文件默认就是 RDB 格式（混合持久化）。
 
-::: warning
-【缺点】：对业务线代码造成大量的侵入。于是有了方案二。
-:::
+| 场景 | 推荐 |
+|------|------|
+| 纯缓存，可从数据库重建 | 关闭持久化或只留低频 RDB |
+| 可接受分钟级丢失 | RDB（7.0+ 默认 `save 3600 1 300 100 60 10000`） |
+| 最多丢 1~2 秒 | AOF `everysec` |
+| 一条都不能丢 | Redis 不该做唯一数据源，以数据库为准 |
 
-**【方案二】**：通过订阅 binlog 获取需要重新删除的 Key 值数据。在应用程序中，另起一段程序，获得这个订阅程序传来的消息，
-进行删除缓存操作。
+- `BGSAVE` 靠 fork + 写时复制，写多的大实例 fork 期间内存可能接近翻倍，要留足内存并关闭透明大页
+- 两者都开时，重启优先加载 AOF
 
-![img.png](../assets/interview/cache-diff-two.png)
+→ 详见 [Redis 核心原理](/cache/2_redis_core#二、持久化机制)
 
-（1）更新数据库数据
+### Q8：AOF 重写的原理是什么？Multi-Part AOF 是什么？
 
-（2）数据库会将操作信息写入 binlog 日志当中
+**一句话**：重写是 fork 子进程按当前内存生成一份新的基准文件，把冗长的命令历史压成最小集合；7.0 起 AOF 拆成 base、incr、manifest 三类文件，重写期间新写入直接进新的 incr 文件。
 
-（3）订阅程序提取出所需要的数据以及 key
+- base 文件：重写时生成，`aof-use-rdb-preamble yes`（5.0 起默认）时是 RDB 格式
+- incr 文件：base 之后的增量写命令
+- manifest：记录当前生效的 base 和 incr，重写完成后原子更新并删除旧文件
+- 相比 7.0 以前，不再需要在内存里维护重写缓冲区、结束时再双写
+- 触发：`auto-aof-rewrite-percentage 100` 加 `auto-aof-rewrite-min-size 64mb`，或手动 `BGREWRITEAOF`
 
-（4）另起一段非业务代码，获得该信息
+→ 详见 [Redis 核心原理](/cache/2_redis_core#_2、aof-追加日志)
 
-（5）尝试删除缓存操作，发现删除失败
+### Q9：Redis 事务、Pipeline、Lua 有什么区别？
 
-（6）将这些信息发送至消息队列
+**一句话**：事务（MULTI / EXEC）保证一组命令连续执行但不回滚；Pipeline 只是批量发送、减少往返，不保证原子；Lua 脚本在服务端整体执行，是「读-判断-写」复合操作的首选。
 
-（7）重新从消息队列中获得该数据，重试操作
+| 对比 | 事务 | Pipeline | Lua / Functions |
+|------|------|----------|-----------------|
+| 原子执行 | 是（不被插入） | 否 | 是 |
+| 能根据中间结果做判断 | 不能 | 不能 | 能 |
+| 出错回滚 | 不回滚 | — | 不回滚，已执行的写入保留 |
 
-## 二、Redis 内存用完会发生什么?
+- `WATCH` + `MULTI` 是乐观锁，高并发下 `EXEC` 频繁失败要重试，所以复杂读改写用 Lua
+- 脚本要短：执行期间整个实例阻塞；Cluster 下脚本里的 key 必须在同一个槽（用 Hash Tag）
+- 7.0 起可用 Functions（`FUNCTION LOAD` + `FCALL`），函数随复制同步，适合多服务共用的原子逻辑
 
-Redis 是一个基于内存的数据库，所有数据都存储在内存中。当内存用完时，Redis 的行为取决于配置，可能包括：
+→ 详见 [Redis 核心原理](/cache/2_redis_core#五、事务、pipeline-与-lua)
 
-- 默认情况下，新写入操作会失败，Redis 返回错误。
+## 三、过期与淘汰
 
-- 如果设置了 maxmemory 和 maxmemory-policy，Redis 会根据指定策略回收内存，比如淘汰最少使用的键（LRU 算法）或即将过期的键。
+### Q10：过期 key 是怎么删除的？从节点会主动删除吗？
 
-- **如果没有合理配置，内存压力可能导致操作系统触发 OOM（Out of Memory）机制，将 Redis 进程终止**。
+**一句话**：惰性删除 + 定期删除两种机制配合：访问时发现过期就删；后台每秒 10 次随机抽样带 TTL 的 key，删掉已过期的。
 
-## 三、Redis 过期策略？
+- 惰性删除保证读不到过期数据，但不再被访问的 key 会一直占内存
+- 定期删除某轮过期比例高就继续抽样，同时限制单轮耗时；`active-expire-effort` 可调清理力度
+- 从节点不主动删过期 key：读到逻辑过期的 key 返回空，内存要等主节点同步 `DEL` 后才释放
+- 漏网的过期 key 最终靠内存淘汰兜底
 
-Redis 支持为某些键（key）设置过期时间（TTL，Time To Live），当键的生存时间过期后，Redis 会自动删除该键。过期策略是 Redis
-保证键值过期自动清除的机制。
+**常见坑**：大量 key 设置相同 TTL，同一时刻过期，既让清理占满 CPU，又造成缓存雪崩；TTL 要加随机偏移。
 
-Redis 提供了多种方式来设置键的过期时间：
+→ 详见 [Redis 核心原理](/cache/2_redis_core#四、过期键删除)
 
-- 使用 EXPIRE 命令设置键的过期时间。
-- 使用 SET 命令的 EX（秒）和 PX（毫秒）参数来设置过期时间。
-- 使用 PERSIST 命令来移除过期时间。
+### Q11：Redis 内存用完会怎样？有哪些淘汰策略？
 
-Redis 的过期策略包括：
+**一句话**：要看 `maxmemory`：64 位版本默认是 0（不限制），内存会一直涨直到被操作系统 OOM 杀掉；设置了上限后，按 `maxmemory-policy` 淘汰，默认 `noeviction` 是不淘汰、写命令直接报 OOM 错误。
 
-**惰性删除**：当你访问某个键时，Redis 会检查该键是否已经过期，如果过期则删除它。换句话说，只有当你访问过期的键时，它才会被删除。
+| 策略 | 说明 |
+|------|------|
+| `noeviction`（默认） | 不淘汰，写入报错 |
+| `allkeys-lru` / `allkeys-lfu` | 所有 key 中淘汰最近最少用 / 访问频率最低的，缓存首选 |
+| `volatile-lru` / `volatile-lfu` / `volatile-ttl` | 只在设置了 TTL 的 key 中淘汰 |
+| `allkeys-random` / `volatile-random` | 随机淘汰 |
 
-**定期删除**：为了避免惰性删除带来的性能问题，Redis 会周期性地检查一些键的过期时间，并删除那些已经过期的键。这个操作是通过定时
-任务（默认每 100 毫秒）进行的，检查一部分过期的键。
+- 用作缓存的实例一定要设 `maxmemory`，并显式改成 `allkeys-lru` 或 `allkeys-lfu`
+- 缓存和不能丢的数据混在一个实例时，才考虑 `volatile-*`
 
-::: tip
-但是实际上这还是有问题的，如果定期删除漏掉了很多过期 key，然后你也没及时去查，也就没走惰性删除，此时会怎么样？如果大量过期
-key 堆积在内存里，导致 Redis 内存块耗尽了，咋整？
+→ 详见 [Redis 核心原理](/cache/2_redis_core#三、缓存淘汰策略)
 
-答案是：**走内存淘汰机制**。
-:::
+### Q12：Redis 的 LRU / LFU 是精确的吗？手写 LRU 怎么写？
 
-## 四、Redis 内存淘汰机制
+**一句话**：都是近似算法：每次随机采样 `maxmemory-samples`（默认 5）个 key，从里面挑最该淘汰的，不维护全局链表，省内存也省 CPU。
 
-### 1、常见的淘汰机制对比
+- 采样数调大更接近真实 LRU，但更耗 CPU
+- LFU（4.0+）用对数计数器加衰减表示频率，比 LRU 更不怕「扫描一次就把热点挤掉」
+- 手写 LRU 最短写法：`new LinkedHashMap<>(cap, 0.75f, true)`（按访问顺序）并重写 `removeEldestEntry` 返回 `size() > cap`
+- 面试要 O(1) 手写版本时：HashMap 存 key → 节点，双向链表维护访问顺序，访问时移到表尾、超容量删表头
 
-| 策略名称            | 描述                                 |
-|-----------------|------------------------------------|
-| noeviction      | 默认策略，当内存不足时，不会淘汰任何数据，新写操作会失败，返回错误。 |
-| allkeys-lru     | 从所有键中移除最近最少使用的键（基于 LRU）。           |
-| volatile-lru    | 从设置了过期时间的键中移除最近最少使用的键（基于 LRU）。     |
-| allkeys-random  | 从所有键中随机移除一个键。                      |
-| volatile-random | 从设置了过期时间的键中随机移除一个键。                |
-| volatile-ttl    | 从设置了过期时间的键中移除即将过期（TTL 最小）的键。       |
-| allkeys-lfu     | 从所有键中移除最不常使用的键（基于 LFU）。            |
-| volatile-lfu    | 从设置了过期时间的键中移除最不常使用的键（基于 LFU）。      |
+→ 详见 [Redis 核心原理](/cache/2_redis_core#三、缓存淘汰策略)
 
-### 2、手写一个 LRU 算法
+## 四、主从、哨兵与集群
 
-- 最简单：LinkedHashMap实现
+### Q13：主从复制的全量同步和增量同步是怎样的？
 
-```java
-import java.util.LinkedHashMap;
-import java.util.Map;
+**一句话**：首次连接走全量同步（主节点发 RDB，再补发期间的写入）；断线重连时，如果缺的数据还在主节点的复制积压缓冲区里，就只补发缺的部分。
 
-/**
- * 使用 LinkedHashMap 实现 LRU 缓存
- * 时间复杂度：O(1)
- */
-public class LRUCache<K, V> extends LinkedHashMap<K, V> {
+- 全量：从节点发 `PSYNC ? -1`，主节点回 `FULLRESYNC` 并生成 RDB；7.0 起默认无盘复制（RDB 直接经 socket 发送）
+- 传输期间的新写入缓存在从节点输出缓冲区，超过 `client-output-buffer-limit` 会断开并重新全量同步
+- 增量：`PSYNC <replid> <offset>`，offset 还在 `repl-backlog-size`（默认 1MB）内就只补发缺失命令；写多的实例应调大到几十 MB
+- PSYNC2（4.0+）保存上一任主节点的复制 ID，故障切换后其他从节点也能部分重同步
 
-    private final int capacity;
+**常见坑**：复制是异步的，从节点读到的可能是旧值，「写后立即读」要读主节点。
 
-    public LRUCache(int capacity) {
-        // true 表示按照访问顺序（access order）而不是插入顺序
-        super(capacity, 0.75F, true);
-        this.capacity = capacity;
-    }
+→ 详见 [Redis 集群](/cache/3_redis_cluster#二、主从复制)
 
-    @Override
-    protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-        // 当元素个数超过容量时，返回 true，自动移除最老的元素
-        return size() > capacity;
-    }
+### Q14：哨兵如何判断主节点下线并完成切换？quorum 和多数派有什么区别？
 
-    public static void main(String[] args) {
-        LRUCache<Integer, String> cache = new LRUCache<>(3);
+**一句话**：单个哨兵超时没收到回复判「主观下线」；认为下线的哨兵数达到 quorum 判「客观下线」；再由获得全部哨兵多数票的那个哨兵执行切换。
 
-        cache.put(1, "A");
-        cache.put(2, "B");
-        cache.put(3, "C");
-        System.out.println(cache); // {1=A, 2=B, 3=C}
+- quorum 只决定「什么时候算客观下线」；能不能切换，取决于能否拿到多数哨兵的授权
+- 网络分区时，少数派一侧的哨兵即使达到 quorum 也选不出 Leader，不会误切换
+- 选新主顺序：`replica-priority`（越小越优先）→ 复制偏移量（越大越新）→ run ID
+- 常见部署：1 主 2 从 + 3 个哨兵，quorum = 2，哨兵分布在不同主机或可用区
 
-        // 访问 key=1，会让 1 移到队尾
-        cache.get(1);
-        System.out.println(cache); // {2=B, 3=C, 1=A}
+**常见坑**：以为 Cluster 也靠哨兵切换。Cluster 是节点之间互相判定故障，由多数主节点投票选出新主，不需要哨兵。
 
-        // 插入新元素，触发淘汰最久未使用的 key=2
-        cache.put(4, "D");
-        System.out.println(cache); // {3=C, 1=A, 4=D}
-    }
-}
+→ 详见 [Redis 集群](/cache/3_redis_cluster#三、哨兵模式-sentinel)
 
-```
+### Q15：Cluster 如何分片？为什么是 16384 个槽？MOVED 和 ASK 有什么区别？
 
-- 次简单：HashMap + LinkedList
+**一句话**：`slot = CRC16(key) mod 16384`，每个主节点负责一部分槽，扩缩容就是迁移槽；它不是一致性哈希，槽与节点的映射由集群显式维护。
 
-```java
-package com.clarence.mdm.common.core.utils;
+| | MOVED | ASK |
+|--|-------|-----|
+| 含义 | 槽已经稳定归属另一个节点 | 槽正在迁移，这个 key 已迁到目标节点 |
+| 客户端动作 | 更新本地槽表并重发 | 先发 `ASKING` 再发原命令，不更新槽表 |
 
-import java.util.*;
+- 16384 的原因：心跳要带槽位图，16384 个槽是 2KB，65536 就是 8KB；集群建议不超过约 1000 个主节点，16384 已够均匀
+- 多 key 命令、事务、Lua 的 key 必须同槽，用 Hash Tag：`{user:1}:name`、`{user:1}:age`
+- Cluster 只有 0 号库，跨节点的 `KEYS` / `SCAN` 要逐个主节点执行
 
-/**
- * 使用 LinkedList + HashMap 实现 LRU 缓存<br>
- * 时间复杂度：O(n)
- *
- * @author ChenHan
- * @date 2025/10/10
- */
-class SimpleLRUCache<K, V> {
+→ 详见 [Redis 集群](/cache/3_redis_cluster#四、cluster-模式)
 
-    private final int capacity;
-    private Map<K, V> map;
-    private LinkedList<K> order;
+### Q16：Redis 会丢已确认的写吗？脑裂怎么发生，`min-replicas-to-write` 能杜绝吗？
 
-    public SimpleLRUCache(int capacity) {
-        this.capacity = capacity;
-        map = new HashMap<>();
-        order = new LinkedList<>();
-    }
+**一句话**：会。复制是异步的，主节点确认写入后宕机，没同步的写入随故障切换丢失；分区时旧主还在少数派一侧接受写入，恢复后降级为从节点并清空数据，这段写入全丢。
 
-    public V get(K key) {
-        if (!map.containsKey(key)) return null;
-        order.remove(key);   // O(n)
-        order.addLast(key);
-        return map.get(key);
-    }
+- `min-replicas-to-write 1` + `min-replicas-max-lag 10`：旧主失联后最多再接受约 10 秒写入，缩小窗口但不能消除
+- `WAIT` / `WAITAOF`（7.2+）等待副本确认，超时也不会回滚，同样只能降低概率
+- Redis 不是强一致系统，不能丢的数据以数据库为准，或在业务上做对账
 
-    public void put(K key, V value) {
-        if (map.containsKey(key)) order.remove(key);
-        else if (map.size() >= capacity) {
-            K oldest = order.removeFirst();
-            map.remove(oldest);
-        }
-        order.addLast(key);
-        map.put(key, value);
-    }
+**常见坑**：把 `min-replicas-to-write` 理解成「从节点同步成功才写入」，它只是限制失联后的写入时长。
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder("{");
-        for (int i = 0; i < order.size(); i++) {
-            K key = order.get(i);
-            sb.append(key).append("=").append(map.get(key));
-            if (i != order.size() - 1) sb.append(", ");
-        }
-        sb.append("}");
-        return sb.toString();
-    }
+→ 详见 [Redis 集群](/cache/3_redis_cluster#五、异步复制下的一致性)
 
-    public static void main(String[] args) {
-        SimpleLRUCache<Integer, String> cache = new SimpleLRUCache<>(3);
+## 五、缓存问题治理
 
-        cache.put(1, "A");
-        cache.put(2, "B");
-        cache.put(3, "C");
-        System.out.println(cache); // {1=A, 2=B, 3=C}
-
-        // 访问 key=1，会让 1 移到队尾
-        cache.get(1);
-        System.out.println(cache); // {2=B, 3=C, 1=A}
-
-        // 插入新元素，触发淘汰最久未使用的 key=2
-        cache.put(4, "D");
-        System.out.println(cache); // {3=C, 1=A, 4=D}
-    }
-}
-
-```
-
-- 标准写法：HashMap + 双向链表
-
-```java
-import java.util.HashMap;
-
-public class LRUCache<K, V> {
-
-    // 双向链表节点
-    private class Node {
-        K key;
-        V value;
-        Node prev, next;
-
-        Node(K k, V v) {
-            key = k;
-            value = v;
-        }
-    }
-
-    private final int capacity;
-    private HashMap<K, Node> map;
-    private Node head, tail;
-
-    public LRUCache(int capacity) {
-        this.capacity = capacity;
-        this.map = new HashMap<>();
-    }
-
-    // 获取元素
-    public V get(K key) {
-        Node node = map.get(key);
-        if (node == null) return null;
-        moveToTail(node); // 访问后移动到尾部
-        return node.value;
-    }
-
-    // 插入或更新元素
-    public void put(K key, V value) {
-        Node node = map.get(key);
-        if (node != null) {
-            node.value = value;
-            moveToTail(node);
-        } else {
-            node = new Node(key, value);
-            map.put(key, node);
-            addToTail(node);
-            if (map.size() > capacity) {
-                map.remove(head.key);
-                removeHead();
-            }
-        }
-    }
+### Q17：缓存穿透是什么？怎么解决？
 
-    // 将节点移动到尾部
-    private void moveToTail(Node node) {
-        if (node == tail) return;
-        removeNode(node);
-        addToTail(node);
-    }
+**一句话**：查的数据缓存里没有、数据库里也没有，每次都打到数据库，常见于恶意构造的 ID。解法是缓存空值、布隆过滤器前置拦截，再加参数校验和限流。
 
-    // 添加节点到尾部
-    private void addToTail(Node node) {
-        if (tail != null) {
-            tail.next = node;
-            node.prev = tail;
-            tail = node;
-        } else {
-            head = tail = node;
-        }
-    }
+- 缓存空值：TTL 要短（几十秒到几分钟），数据新建后要删掉这个空值 key
+- 区分「未命中」和「命中空值」，不要用 `null` 同时表示两者
+- 布隆过滤器：ID 空间大、攻击 ID 随机时用，Redis 8 可直接用 `BF.*`，或 Redisson `RBloomFilter`；它说「不存在」就一定不存在
+- 入口先校验 ID 格式与范围，持续的恶意流量交给限流
 
-    // 删除链表中的节点
-    private void removeNode(Node node) {
-        if (node.prev != null) node.prev.next = node.next;
-        else head = node.next;
+→ 详见 [缓存最佳实践](/cache/11_cache_rule#四、缓存穿透防护)
 
-        if (node.next != null) node.next.prev = node.prev;
-        else tail = node.prev;
+### Q18：缓存击穿是什么？互斥重建有哪些坑？什么时候用逻辑过期？
 
-        node.prev = node.next = null;
-    }
+**一句话**：某个热点 key 过期的瞬间，大量并发请求同时回源数据库。先在本 JVM 内合并回源，实例多、回源贵时再加跨实例互斥重建；极热且能容忍旧值的数据用逻辑过期。
 
-    // 删除头节点（最久未使用）
-    private void removeHead() {
-        if (head != null) {
-            Node next = head.next;
-            head.next = null;
-            if (next != null) next.prev = null;
-            head = next;
-            if (head == null) tail = null;
-        }
-    }
+- 单 JVM 合并：Caffeine `get(key, loader)`、`@Cacheable(sync = true)`，N 个实例仍各回源一次
+- 互斥重建的坑：`setIfAbsent` 返回 `Boolean` 可能为 null，用 `Boolean.TRUE.equals` 判断；解锁要随机 token + Lua 校验持有者；等待要有次数上限，超时降级
+- 逻辑过期：值里带过期时间，过期了先返回旧值，抢到锁的线程异步重建；物理 TTL 仍要设，并远大于逻辑过期时间
 
-    // 打印缓存状态
-    public void printCache() {
-        Node current = head;
-        System.out.print("{");
-        while (current != null) {
-            System.out.print(current.key + "=" + current.value);
-            current = current.next;
-            if (current != null) System.out.print(", ");
-        }
-        System.out.println("}");
-    }
+**常见坑**：没抢到锁的请求直接返回 null 或无限等待，前者让用户看到空数据，后者把线程池拖满。
 
-    // 测试
-    public static void main(String[] args) {
-        LRUCache<Integer, String> cache = new LRUCache<>(3);
+→ 详见 [缓存最佳实践](/cache/11_cache_rule#五、缓存击穿防护)
 
-        cache.put(1, "A");
-        cache.put(2, "B");
-        cache.put(3, "C");
-        cache.printCache(); // {1=A, 2=B, 3=C}
+### Q19：缓存雪崩是什么？Redis 整体挂了怎么办？
 
-        cache.get(1);        // 访问 key=1
-        cache.printCache(); // {2=B, 3=C, 1=A}
+**一句话**：大量 key 同时过期，或缓存服务整体不可用，请求集中压到数据库。前者靠 TTL 打散，后者靠高可用 + 本地缓存兜底 + 限流降级。
 
-        cache.put(4, "D");   // 超过容量，淘汰 key=2
-        cache.printCache(); // {3=C, 1=A, 4=D}
+- TTL 加随机抖动，批量预热的数据尤其要打散
+- 事前：哨兵或 Cluster 保证 Redis 高可用
+- 事中：热点数据用本地缓存（Caffeine）兜底；对数据库限流、降级，用 Sentinel 或 Resilience4j（Hystrix 早已停止维护）
+- 事后：开持久化的实例重启后快速加载数据；纯缓存实例重启要分批预热，避免预热本身压垮数据库
 
-        cache.get(3);        // 访问 key=3
-        cache.printCache(); // {1=A, 4=D, 3=C}
+→ 详见 [缓存最佳实践](/cache/11_cache_rule#六、缓存雪崩防护)、[缓存架构设计](/high-con/3_cache_architecture)
 
-        cache.put(5, "E");   // 淘汰 key=1
-        cache.printCache(); // {4=D, 3=C, 5=E}
-    }
-}
+### Q20：大 Key 如何发现与治理？
 
-```
+**一句话**：大 key 读写和删除都慢，会阻塞主线程、占满网卡，Cluster 下还让分片不均、槽迁移卡顿。用 `--bigkeys` / `--memkeys` 扫描发现，拆分、压缩，删除用 `UNLINK`。
 
-## 五、缓存穿透、缓存击穿、缓存雪崩和缓存刷新
+- 经验阈值：String 超过 10KB、集合元素超过 5000 个或总大小超过 10MB，按实例规格调整
+- 发现：`redis-cli --bigkeys -i 0.1`（按元素数）、`--memkeys`（按内存）、`MEMORY USAGE key`；建议在从节点或低峰执行
+- 治理：大集合按 ID 取模拆成多个 key，读取用 `HSCAN` / `SSCAN` 分批；大 String 压缩或只缓存需要的字段
+- 删除：`UNLINK` 后台释放；或开 `lazyfree-lazy-user-del yes` 让 `DEL` 也异步
 
-### 1、缓存穿透（Cache Penetration）：
+→ 详见 [Redis 实战](/cache/5_redis_practice#二、大-key)
 
-缓存穿透是指查询一个数据，如果这个<span style="color: red;">**数据在缓存中不存在并且数据库中也不存在**</span>
-，那么该请求会直接访问数据库。这种情况会导致每次请求都去查询数据库，从而绕过了缓存机制，影响系统的性能。
+### Q21：热 Key 如何发现与处理？为什么加分片不管用？
 
-**发生原因**：
+**一句话**：单个 key 永远只属于一个槽、一个主节点，加分片分散不了它。要在 Redis 之前挡住请求：本地缓存、多副本 key、读从节点。
 
-- 用户查询的数据在缓存和数据库中都没有，通常是由于缓存的空数据没有设置好（没有缓存失败的记录）或者数据库中并未存在数据。
+- 发现：`redis-cli --hotkeys`（需要 LFU 淘汰策略）、客户端埋点、代理层统计，或 Redis 8 的 `TOPK.*` 近似统计
+- 本地缓存：Caffeine 缓存热 key 几秒，先读本地、未命中再读 Redis
+- 多副本 key：`hot:product:1001:0` ~ `:7` 落在不同槽，读时随机选一个，写时更新或删除全部副本，容忍短暂不一致
+- 读从节点：读多写少、能接受复制延迟时分流
 
-**应对方案：**
+**常见坑**：副本 key 写成 `{hot:product:1001}:n`，Hash Tag 让所有副本落进同一个槽，打散失效。
 
-- **缓存空对象**： 对于查询结果为空的数据，可以将空数据（例如，返回空的 JSON 或者一个特殊的标志值）也缓存一段时间，
-  避免重复查询数据库。
+→ 详见 [Redis 实战](/cache/5_redis_practice#三、热-key)、[热点问题](/high-con/6_hotspot)
 
-- **布隆过滤器（Bloom Filter）**：通过布隆过滤器在查询缓存之前先过滤掉那些根本不存在的数据，避免无效查询直接到数据库。
+## 六、缓存一致性
 
-- **全局查询校验**：使用应用层或 API 层的校验来保证访问的数据必须经过有效性验证。
+### Q22：Cache Aside、Read / Write Through、Write Behind 有什么区别？
 
-### 2、缓存击穿（Cache Breakdown）：
+**一句话**：Cache Aside 由应用自己读缓存、写库后删缓存，是绝大多数业务的选择；Through 由缓存层代为读写数据库；Write Behind 只写缓存、异步批量落库，最快但可能丢数据。三种都只是最终一致。
 
-缓存击穿是指<span style="color: red;">**某一时刻，大量的请求同时访问某个缓存失效的数据**</span>
-（通常是在数据的缓存过期的瞬间），导致大量请求同时访问数据库，进而产生数据库的压力。
+| 维度 | Cache Aside | Read / Write Through | Write Behind |
+|------|-------------|----------------------|--------------|
+| 谁维护缓存 | 应用 | 缓存层 | 缓存层 |
+| 写路径 | 写库 → 删缓存 | 写缓存层 → 同步写库 | 写缓存 → 异步写库 |
+| 主要风险 | 并发下旧值回填 | 缓存层单点 | 宕机丢数据 |
 
-**发生原因**：
+- Spring Cache 的 `@Cacheable` + `@CacheEvict` 属于 Cache Aside
+- Caffeine `LoadingCache` 只是 Read Through，3.0 已移除 `CacheWriter`
+- Write Behind 适合计数、点赞、浏览量这类允许少量误差的数据
 
-- 因为缓存过期时间统一，导致缓存过期的瞬间会有多个请求同时访问，造成缓存失效瞬间的流量激增，影响数据库性能。
+→ 详见 [缓存一致性](/cache/10_cache_consistency#一、三种缓存模式)
 
-**应对方案：**
+### Q23：为什么是「先更新数据库再删缓存」？它还剩什么竞态？
 
-- **设置合理的缓存过期时间**：使用不易过期或者过期时间设置得较为分散，避免同一时刻缓存大量失效。
+**一句话**：删除是幂等的，乱序也不怕；新值由下一次读按数据库最新状态重建。其他三种顺序都有更大的窗口，这种只在少见的并发时序下出错。
 
-- **加锁机制（缓存重建时锁）**：当缓存失效时，第一个请求会去数据库查询并更新缓存，其他请求等待缓存更新，避免同一时刻多个请
-  求同时访问数据库。
+- 先更新库再**更新**缓存：两个并发写可能乱序，缓存留下旧值
+- 先删缓存再更新库：删完、提交前，读请求从库里读到旧值又写回缓存，窗口等于整个事务
+- 先改缓存再改库：库写失败或回滚，缓存里就是从未生效的数据
+- 残留竞态：读请求 A 未命中、读到旧值 → 写请求 B 更新并删缓存 → A 把旧值写回；读写分离、A 发生 GC 停顿时窗口会放大
 
-- **互斥锁（Mutex Lock）或 Redis 分布式锁**：通过加锁机制，确保只有一个请求去数据库查询数据，缓存中的数据可以在请求期间重建。
+**常见坑**：以为删缓存就能做到强一致；任何组合都只是缩小窗口，所以所有缓存 key 必须有 TTL 兜底。
 
-### 3、缓存雪崩（Cache Avalanche）:
+→ 详见 [缓存一致性](/cache/10_cache_consistency#二、cache-aside-的写顺序)
 
-缓存雪崩是指<span style="color: red;">**在同一时刻大量缓存过期或失效，导致大量请求直接访问数据库**</span>
-，最终造成数据库的压力过大，无法承载，系统可能出现崩溃。
+### Q24：为什么要在事务提交之后删缓存？删除失败怎么办？
 
-**发生原因**：
+**一句话**：「先更新数据库」指的是事务提交。在 `@Transactional` 方法里删缓存，删除发生在提交之前，提交前的窗口里旧值会被重新读回缓存；回滚时缓存也白删了。
 
-- 缓存的过期时间过于集中，导致缓存同时过期。
+- 做法：`@TransactionalEventListener(phase = AFTER_COMMIT)` 或 `TransactionSynchronization.afterCommit()`
+- 仍有两个缺口：删除失败（网络抖动）；提交后、删除前进程崩溃
+- 补法：删除失败进 MQ 重试；或由 binlog 订阅驱动删除；或把「待失效 key」和业务数据写进同一本地事务，由投递任务保证必达
+- 无论哪种，缓存 key 都要有 TTL 作为最后一道兜底
 
-- 配置不当的缓存策略或没有分布式缓存的协调，导致大量请求访问后端数据库。
+→ 详见 [缓存一致性](/cache/10_cache_consistency#三、删除时机-事务提交之后)
 
-**应对方案**：
+### Q25：延迟双删怎么做？延迟时间怎么定？
 
-- **避免缓存集中失效**：使用缓存的过期时间设置为随机值（例如，加上一些随机的时间范围），使得缓存过期时间不一致。
+**一句话**：提交后删一次，延迟一段时间再删一次，第二次专门清掉并发读请求回填的旧值。它只能降低、不能消除不一致。
 
-- **使用备用缓存（热点数据预热）**：对于重要数据，可以通过定时任务或者主动刷新策略提前预加载缓存，以避免数据库被打爆。
+- 延迟 > 读请求「读库 + 写缓存」的 P99 耗时 + 主从复制延迟（读从库时），常见几百毫秒到 1~2 秒，以监控为准
+- 用 MQ 延迟消息承载第二次删除，失败由 MQ 重试；RocketMQ 5.x 支持任意延迟
+- 不要在请求线程里 `sleep`，也不要用内存定时器或每次 `new Thread`：拖慢接口，进程重启第二次删除就丢了
 
-- **限流、降级机制**：使用熔断、限流、降级等策略，防止系统在数据库压力过大的时候还继续请求。
+**常见坑**：把延迟定成「事务提交所需时间」，真正要覆盖的是并发读请求从读库到写缓存的耗时。
 
-::: tip
-对于 Redis 挂掉了，请求全部走数据库，也属于缓存雪崩，我们可以有以下思路进行解决：
+→ 详见 [缓存一致性](/cache/10_cache_consistency#四、延迟双删)
 
-**事发前**：实现 Redis 的高可用（主从架构+Sentinel 或者 Redis Cluster），尽可能避免 Redis 挂掉这种情况。
+### Q26：binlog / CDC 订阅失效有什么优势？
 
-**事发中**：万一 Redis 真的挂了，我们可以设置本地缓存（ehcache）+ 限流（hystrix），尽量避免我们的数据库被干掉。
+**一句话**：由 Canal、Debezium、Flink CDC 订阅 binlog，把行变更转成待删除的 key，交给独立消费者删除。只有提交成功的变更才会进 binlog，天然满足「提交后删除」，还能重试和重放。
 
-**事发后**：Redis 持久化，重启后自动从磁盘上加载数据，快速恢复缓存数据。
-:::
+- 业务服务只写库，进程崩溃不影响删除；多个服务、批量脚本、手工 SQL 改同一张表都能失效
+- 以主键作为 MQ 分区键，保证同一 key 的变更有序；失败退避重试，超过次数进死信并告警
+- 代价：要运维 CDC 和 MQ，端到端延迟几十到几百毫秒
+- 推荐组合：所有 key 有 TTL + 提交后删一次（快）+ binlog 订阅再删一次（可靠）
 
-### 4、缓存刷新（Cache Refresh）：
+→ 详见 [缓存一致性](/cache/10_cache_consistency#五、binlog-cdc-订阅失效)
 
-缓存刷新是指缓存中的数据保持实时性的问题，需要保证缓存和数据库中的数据一致性或定期更新缓存数据。
+### Q27：用 Spring Cache 更新数据时，为什么用 `@CacheEvict` 而不是 `@CachePut`？
 
-**发生原因**：
+**一句话**：`@CachePut` 是「写库后写缓存」，两个并发更新的写库和写缓存可能交错，缓存里留下旧值且长期不过期；`@CacheEvict` 删除后由下一次读回填，配合 TTL 能收敛。
 
-- 缓存的更新和数据库中的数据不一致，可能会导致读取的缓存数据是过时的。
+- `@Cacheable(sync = true)`：同一 key 并发未命中时只放一个线程查库，只在单 JVM 内有效
+- `@CacheEvict` 和 `@Transactional` 在同一个方法上，要让删除发生在提交后（如 `RedisCacheManager` 开启 `transactionAware()`）
+- 注解基于代理，同类内部调用 `this.xxx()` 不走缓存
+- 序列化用 Jackson 3 的 JSON 序列化器，开启类型信息时要配受限的类型校验器，不要放开所有类型
 
-**应对方案**：
+→ 详见 [Redis 实战](/cache/5_redis_practice#_4、spring-cache-配置)
 
-- **主动更新缓存**：在对数据库数据进行写操作时，主动删除缓存或更新缓存中的相关数据，保持一致性。
+## 七、本地缓存与多级缓存
 
-- **设置合理的缓存过期时间**：定期失效缓存，以促使系统进行数据刷新。
+### Q28：Caffeine 的 W-TinyLFU 比 LRU 好在哪？
 
-- **双写策略（写缓存与写数据库）**：对于需要更新数据的操作，可以使用 "先更新缓存再更新数据库" 或者 "先更新数据库再更新缓存"
-  等方式来确保缓存及时刷新。
+**一句话**：LRU 只看最近访问，一次全表扫描就能把真正的热点挤出去；W-TinyLFU 用访问频率做准入，扫描流量很难进入主区，多数访问模式下命中率明显更高。
 
-- **定时刷新**：使用定时任务定期更新缓存数据，避免缓存内容过于陈旧。
+- 窗口区（约 1%）：新数据先进窗口，给突发热点积累频率的机会
+- TinyLFU 准入：窗口淘汰的候选者与主区淘汰候选者比频率，高的留下；频率用 Count-Min Sketch 近似统计，定期减半实现老化
+- 主区（分段 LRU）：试用区 + 保护区，再次命中晋升到保护区
+- 窗口比例按命中率自适应调整
 
-## 六、Redis 的常用数据结构有哪些？
+→ 详见 [Caffeine](/cache/7_caffeine#_1、w-tinylfu-结构)
 
-### 1. **String（字符串）**
+### Q29：Caffeine 的 `refreshAfterWrite` 和 `expireAfterWrite` 有什么区别？
 
-- 最基本、最常用的数据结构，支持普通的 `set/get` 操作。
+**一句话**：过期是删除，过期后访问要同步等加载；刷新不删除，到点后由下一次访问触发异步重载，重载完成前返回旧值，失败也保留旧值。
 
-- Value 可以是字符串，也可以是数字，适合用来做简单的缓存和计数功能。
+| 对比 | `expireAfterWrite` | `refreshAfterWrite` |
+|------|-------------------|---------------------|
+| 到点后 | 条目被移除 | 条目保留 |
+| 下一次访问 | 同步等待加载 | 立即返回旧值，后台重载 |
+| 前提 | 任意 Cache | 需要加载函数（`LoadingCache`） |
 
-- 应用示例：
+- 同时配置时让刷新间隔小于过期时间：常访问的靠刷新保鲜，久不访问的靠过期回收
+- 过期清理默认在读写时顺带进行，需要准时清理时配 `Scheduler.systemScheduler()`
 
-    - 缓存热点数据，如配置信息、Token、验证码等。
+**常见坑**：以为引入 Caffeine 后 Spring Boot 一定用它。类路径上同时有 Redis 时，Redis 在探测顺序里排在前面，要设 `spring.cache.type=caffeine`。
 
-    - 实现简单的计数器，比如文章阅读量、点赞数、限流等。
+→ 详见 [Caffeine](/cache/7_caffeine#三、过期与刷新)
 
-### 2. **Hash（哈希表）**
+### Q30：两级缓存（本地 + Redis）如何让多实例的本地缓存失效？
 
-- 以键值对（field-value）形式存储，适合存放对象类型的数据。
+**一句话**：写操作提交后删 Redis，再广播失效消息让所有实例删本地条目；广播都可能丢，所以本地缓存必须配短 TTL 兜底。
 
-- 可以直接对某个字段进行单独读取或修改，非常灵活。
+| 方案 | 延迟 | 丢失风险 |
+|------|------|---------|
+| Redis Pub/Sub | 毫秒级 | 断线、重启期间丢失 |
+| MQ 广播 | 毫秒到秒级 | 低，可补消费 |
+| Redis 服务端失效推送（`CLIENT TRACKING`） | 毫秒级 | 断线期间丢失 |
 
-- 应用示例：
+- 库存、价格、余额这类强一致数据不放本地缓存
+- JetCache `CacheType.BOTH` 默认不同步各实例的本地缓存，要配 `broadcastChannel`（编程式缓存还要 `syncLocal(true)`）
+- Redisson `RLocalCachedMap` 要把 `reconnectionStrategy` 设为 `CLEAR` 或 `LOAD`，否则断线期间的失效通知丢了也不知道
 
-    - 存储用户信息（如：以 CookieId 或 UserId 作为 Key，存储用户登录状态等）。
+→ 详见 [两级缓存（L1 + L2）](/cache/8_two_level_cache#三、多实例-l1-失效)、[JetCache](/cache/9_jetcache#五、多实例本地缓存同步)
 
-    - 实现轻量级的 Session 机制，结合设置过期时间（如 30 分钟失效），模拟类似 Session 的效果。
+## 八、Redisson 与分布式锁要点
 
-### 3. **List（列表）**
+### Q31：Redisson 看门狗多久续期一次？指定 leaseTime 会怎样？可重入锁在 Redis 里怎么存？
 
-- 一个链表结构，可以按照插入顺序排序，支持元素的插入、删除等操作。
+**一句话**：不传 leaseTime 时锁默认 30 秒过期，每 10 秒续期一次；一旦传了 leaseTime，看门狗就不工作，业务超时锁就提前释放。
 
-- 可以从两端推入或弹出元素（支持队列和栈的应用）。
+- 续期只看客户端进程是否存活，不看业务线程是否正常推进；进程崩溃后锁最多 30 秒释放
+- 可重入：锁是一个 Hash，field 为「实例 UUID:线程 ID」，value 是重入次数，减到 0 才删 key
+- 解锁前用 `isHeldByCurrentThread()` 判断，避免在超时、未拿到锁的分支里误解锁抛异常
+- GC 停顿、网络分区时锁仍可能过期，严格正确性要靠 fencing token（`RFencedLock`）或数据库条件更新
 
-- 应用示例：
+**常见坑**：以为看门狗能解决一切锁过期问题；停顿期间续期线程也停着，见 [分布式面试题解答](/interview/10_distributed#二、分布式锁)。
 
-    - 实现简单的消息队列系统（如：生产者-消费者模型）。
+→ 详见 [Redisson](/cache/6_redisson#_1、rlock-看门狗与-leasetime)、[分布式锁](/distributed/3_lock#_2、redisson-与看门狗)
 
-    - 基于 `lrange` 命令实现分页查询，提升大数据量场景下的读取效率。
+### Q32：MultiLock 和 Redlock 有什么区别？Redisson 的延迟队列能直接用于订单超时吗？
 
-### 4. **Set（集合）**
+**一句话**：MultiLock 是同时锁住多个资源、每一把都要成功；Redlock 是在多个独立主节点上拿到多数派。`RedissonRedLock` 已被官方标记废弃，推荐 `RLock` 或 `RFencedLock`。
 
-- 无序集合，元素具有唯一性（去重特性）。
+- Redlock 的争议核心：依赖时钟和网络延迟有界的假设，且没有 fencing token，详见分布式锁一文
+- 开源版 `RDelayedQueue` 已废弃，替代品 `RReliableQueue` 只在 PRO 版提供
+- `RDelayedQueue` 靠客户端定时搬运，没有存活的客户端就不会按时投递，`take()` 后失败也不会重投
+- 订单超时这类要可靠投递的场景，用 RocketMQ 5.x 定时消息 + 定时扫描兜底
 
-- 支持集合间的交集、并集、差集等操作。
-
-- 应用示例：
-
-    - 全局唯一性校验，比如防止用户重复签到、IP去重等。
-
-    - 社交系统中，计算共同好友（交集）、所有好友（并集）、特有好友（差集）等。
-
-### 5. **Sorted Set（有序集合）**
-
-- 类似 Set，但是每个元素都会关联一个权重（Score），元素按 Score 从小到大自动排序。
-
-- 既能去重，又能排序，功能更强大。
-
-- 应用示例：
-
-    - 实现排行榜系统，如游戏积分排行、文章热度排行，支持快速取出 Top N。
-
-    - 构建延时队列，使用 Score 作为时间戳，按时间顺序处理任务。
-
-**更多类型**： <RouteLink to="/cache/1_redis_base">缓存：Redis数据结构</RouteLink>
-
-## 七、本地缓存与分布式缓存
-
-### 1、本地缓存（Local Cache，如 Caffeine）
-
-**优势**：
-
-- 无需网络通信，访问速度极快。
-- 在高并发场景下能显著降低后端压力，提升系统性能。
-
-**劣势**：
-
-- 占用应用进程的堆内存，增加 GC 压力。
-- 容量受限于单机资源，缓存内容无法在多实例间共享。
-
----
-
-### 2、分布式缓存（Distributed Cache，如 Redis）
-
-**优势**：
-
-- 可横向扩展（通过集群方式），容量几乎无限。
-- 多个系统/服务可以共享同一份缓存数据。
-
-**劣势**：
-
-- 存在网络延迟，访问速度相对本地缓存较慢。
-- 数据需要序列化/反序列化，增加了额外开销。
-- 需要独立部署和维护分布式缓存系统（如 Redis 集群）。
-
----
-
-::: tip 使用建议
-
-- **本地缓存** 适合：
-    - 数据量较小
-    - 访问频率高且可预见
-    - 对延迟敏感的数据（例如热点数据）
-    - 特别适合缓存**不变对象**
-
-- **分布式缓存** 适合：
-    - 数据量较大
-    - 访问模式不可预测
-- 需要跨服务共享缓存的场景
-  :::
-
-## 八、Redis 的线程模型
-
-Todo
-
-## 九、Redis 的并发竞争问题?
-
-Todo
-
-## 十、了解 Redis 的事务吗？
-
-Todo
-
-## 十一、Redis 的选举算法和流程是怎样的
-
-Todo
-
-## 十二、Redis 的持久化机制
-
-Redis 提供了两种主要的持久化方式，用于在服务重启后恢复数据：
-
-### 1、RDB（Redis DataBase Snapshot）
-
-**定义**：
-
-- 将当前内存中的数据**在某个时间点**保存为一个二进制快照文件（`dump.rdb`）。
-- 是一种**周期性保存**的机制，不是实时写盘。
-
-**特点**：
-
-- 生成的文件紧凑，适合用于备份、灾难恢复。
-- 恢复数据速度快，适合大规模数据的冷启动。
-- 但是如果 Redis 异常宕机，最近一次保存之后的变更会**丢失**。
-
-**使用场景**：
-
-- 对数据完整性要求不极端（能接受少量数据丢失）。
-- 适合做**冷备份**、**主从复制**时初始同步。
-- 内存数据量大，需要快速恢复时。
-
-### 2、AOF（Append Only File）
-
-**定义**：
-
-- 将所有对 Redis 的写操作（命令）以追加方式记录到日志文件（`appendonly.aof`）。
-- 可以通过重新执行这些命令来恢复数据。
-
-**特点**：
-
-- 数据更安全，可配置成几乎**每次写操作都落盘**（`appendfsync always`）。
-- 文件体积会随着时间增长，但可以通过 AOF 重写（rewrite）机制压缩。
-- 恢复数据速度慢于 RDB（因为需要逐条 replay 命令）。
-
-**使用场景**：
-
-- 对数据一致性要求高（几乎不能丢数据）。
-- 用于业务系统中**数据敏感场景**（如金融、电商订单系统等）。
-- 需要实时持久化变化的缓存数据。
-
-### 3、RDB vs AOF
-
-| 项目    | RDB            | AOF                |
-|:------|:---------------|:-------------------|
-| 持久化时机 | 周期性快照          | 实时追加日志             |
-| 数据安全性 | 可能丢失最近一次保存后的数据 | 丢失极少（取决于 fsync 策略） |
-| 文件大小  | 通常较小           | 通常较大，但可压缩          |
-| 恢复速度  | 快              | 相对慢，需要逐条命令重放       |
-| 使用场景  | 备份、快速冷启动       | 数据一致性要求高的业务场景      |
-
----
-
-::: tip 建议
-
-- 如果对数据安全极度敏感 → 推荐使用 **AOF**。
-- 如果追求恢复速度、且能接受部分数据丢失 → 推荐使用 **RDB**。
-- **生产环境通常同时开启 RDB + AOF**，以兼顾性能与安全性。
-  :::
-
-## 十三、什么是缓存预热？
-
-新的缓存系统没有任何数据，在缓存重建数据的过程中，系统性能和数据负载都不太好，所以最好在系统上线之前就把缓存的热点数据加载到缓存
-中，这种缓存预加载手段就是缓存预热。
-
-## 十四、什么是缓存热备？
-
-缓存热备既当一个缓存服务器不可用时能实时切换到备用缓存服务器，不影响缓存使用。集群模式下，每个主节点都会有一个或多个从节点备用，
-一旦主节点挂掉，从节点会被哨兵提升为主节点使用。
-
-## 十五、怎么使用 Redis 实现消息队列？
-
-## 十六、Redis 热 Key 问题如何解决?
-
-热key 问题是指某些键因高频访问导致 Redis 性能瓶颈或集群压力过高。这类问题通常发生在一些热门数据频繁被访问时，可能导致
-Redis 服务器负载过重，甚至导致 Redis 崩溃。
-
-### 1、可预见的热Key 处理
-
-- **根据经验，提前预测**
-
-::: tip
-这种方法在大多数情况下还是比较有效的。比较常见的就是电商系统中，会在秒杀、抢购等业务开始前就能预测出热key。
-但是，这种方法局限性也很大，就是有些热key是完全没办法预测的，比如明星什么时候要官宣这种事情就无法预测。
-:::
-
-- **多级缓存处理**
-
-::: tip
-多级缓存是指在 Redis 前面加入一层本地缓存（如：Guava、Caffeine）。当 Redis 查询不到数据时，先从本地缓存中查找，如果本地缓存
-没有，再到 Redis 中查找。多级缓存可以有效减少 Redis 的访问压力，降低热key带来的性能瓶颈。
-:::
-
-- **热key备份**
-
-::: tip
-通过热key备份的策略，可以减少 Redis 的压力。对于某些重要且高频访问的热key，可以在多个 Redis 实例之间进行备份，从而分担请求压力。
-通过设置不同的 Redis 实例对不同的热key进行备份，可以实现负载均衡，避免单点压力过大。
-:::
-
-- **热key拆分**
-
-::: tip
-热key拆分是通过将一个热key拆分成多个子键进行访问，避免单个键造成 Redis 集群的性能瓶颈。例如，将某个用户的热key拆分成多个
-小键（如 user_id:1:part1, user_id:1:part2）来进行访问。这种方式能够减少对单一键的集中访问，分散压力。
-:::
-
-原文链接：[CSDN 博客 - Redis 热Key处理方法](https://blog.csdn.net/weixin_45433817/article/details/130814075)
-
----
-
-### 2、不可预见的热Key 处理
-
-有些热key的出现是无法预测的，如突发事件或某些特殊场景下的数据突然暴涨。对于这类热key，可以采用以下方法：
-
-- **动态监控与预警**  
-  可以通过监控 Redis 的访问情况，实时分析是否有单一热key的访问量异常增大。设置监控和报警机制，一旦出现异常流量时及时采取措施，
-  如快速切换缓存策略、增加 Redis 实例或通过拆分热key等方式进行处理。
-
-- **自动化热key检测与剖析**  
-  使用一些自动化工具，定期分析 Redis 的访问模式，并且通过访问日志对热key进行识别。常用的工具可以帮助开发人员发现热点数据并动态
-  调整策略，以降低 Redis 性能压力。
-
-- **分布式缓存处理**  
-  对于不可预见的热key问题，分布式缓存（如 Redis Cluster）能有效分担高频访问带来的压力。合理的分区策略和缓存分布可以帮助避免
-  单节点压力过大，并提高整体缓存效率。
-
-- **参考代码**  
-  参考代码：[https://gitee.com/jd-platform-opensource/hotkey](https://gitee.com/jd-platform-opensource/hotkey)  
-  该代码库提供了一个自动化检测和处理 Redis 热key的方案，可以根据实际需求进行二次开发和集成。
-
-## 十七、Redis大 Key 问题如何解决?
-
-## 十八、Redis 6.x 为什么要引入多线程?
-
-## 十九、Redis 说说分布式锁？
-
-- 点击查看  <RouteLink to="/distributed/3_lock">分布式锁：Redis 分布式锁</RouteLink>
+→ 详见 [Redisson](/cache/6_redisson#_3、公平锁、读写锁与联锁)、[订单系统设计](/scenario/5_order_system#四、超时关单)

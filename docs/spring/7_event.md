@@ -304,7 +304,7 @@ class InventoryManagement {
 }
 ```
 
-由于可能重投，监听器本身必须**幂等**，见 [幂等方案总结](/architecture/5_idempotence)。
+由于可能重投，监听器本身必须**幂等**，见 [幂等设计](/architecture/5_idempotence)。
 
 ---
 

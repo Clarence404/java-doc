@@ -152,7 +152,7 @@ try (HintManager hint = HintManager.getInstance()) {
 | 号段模式（Leaf-Segment） | DB 批量取号段，性能高，需双 Buffer 防抖动 |
 | UUID | 无序，作为 InnoDB 主键会导致页分裂，不推荐 |
 
-详见 [分布式 ID](/distributed/8_id_generator)。
+详见 [分布式 ID 生成](/distributed/8_id_generator)。
 
 ### 5、跨分片查询与事务
 

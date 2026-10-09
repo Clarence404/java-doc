@@ -35,7 +35,7 @@ description: 多级缓存分层、命中率叠加与一致性取舍、缓存预�
 - **按数据特征选层**：静态资源走 CDN；千人一面的热点数据可以放 Nginx / 本地缓存；千人千面的数据只能到 Redis
 - **每层都要有 TTL 兜底**：即使失效通知丢失，数据也能在可接受时间内自愈
 
-应用本地缓存 + Redis 的两级缓存实现与失效广播见 [两级缓存](/cache/8_two_level_cache)。
+应用本地缓存 + Redis 的两级缓存实现与失效广播见 [两级缓存（L1 + L2）](/cache/8_two_level_cache)。
 
 ---
 
@@ -118,7 +118,7 @@ public class HotItemWarmer implements ApplicationRunner {
 | **缓存击穿** | 单个热点 key 过期瞬间，大量请求并发重建 | 热门商品缓存到期 | 互斥锁 / SingleFlight 只允许一个请求回源；逻辑过期 + 异步刷新 |
 | **缓存雪崩** | 大量 key 同时失效或 Redis 整体不可用 | 批量预热 TTL 相同；Redis 宕机 | TTL 加随机抖动；多级缓存兜底；Redis 集群高可用；熔断降级 |
 
-详细方案与代码见 [缓存最佳实践](/cache/11_cache_rule)、[Redis 典型场景](/cache/4_redis_scenario)（布隆过滤器）与 [缓存一致性](/cache/10_cache_consistency)；热点 key 的 SingleFlight 实现见 [热点问题](./6_hotspot)。
+详细方案与代码见 [缓存最佳实践](/cache/11_cache_rule)、[Redis 典型应用场景](/cache/4_redis_scenario)（布隆过滤器）与 [缓存一致性](/cache/10_cache_consistency)；热点 key 的 SingleFlight 实现见 [热点问题](./6_hotspot)。
 
 ---
 

@@ -334,7 +334,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign 与 HTTP 
 
 - TCC 的空回滚、悬挂、幂等等细节见分布式答案页
 
-→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_4、模式选择)、[分布式面试题解答](/interview/10_distributed#四、分布式事务有哪些解决方案)
+→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_4、模式选择)、[分布式面试题解答](/interview/10_distributed#三、分布式事务)
 
 ## 五、消息与链路
 

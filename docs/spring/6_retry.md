@@ -239,7 +239,7 @@ public class PayService {
 
 `RetryListener`（`org.springframework.core.retry` 包，注意与注解 `@Retryable` 同名的 `Retryable` 接口也在该包）的方法都有默认实现，常用 `beforeRetry`、`onRetrySuccess`、`onRetryFailure`、`onRetryPolicyExhaustion`；多个监听器用 `CompositeRetryListener` 组合。需要完全自定义退避时，实现 `RetryPolicy` 或用 builder 的 `backOff(...)` 传入 `BackOff`。
 
-> 支付这类非幂等操作重试前必须确认下游支持幂等（同一订单号重复扣款只生效一次），超时后状态未知时走查询补偿，而不是盲目重试。幂等方案见 [幂等方案总结](/architecture/5_idempotence)。
+> 支付这类非幂等操作重试前必须确认下游支持幂等（同一订单号重复扣款只生效一次），超时后状态未知时走查询补偿，而不是盲目重试。幂等方案见 [幂等设计](/architecture/5_idempotence)。
 
 ---
 

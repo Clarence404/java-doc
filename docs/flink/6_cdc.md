@@ -261,7 +261,7 @@ export FLINK_HOME=/opt/flink
 1. **Source → Flink 状态**：CDC 源把已读到的 binlog 位点（以及快照阶段已完成的 chunk）存进 checkpoint，故障后从 checkpoint 恢复，变更事件**不丢不重地进入 Flink**——这一段由连接器保证。
 2. **Flink → 外部系统**：取决于 Sink。Paimon 这类「checkpoint 时提交」的 Sink 和开启事务的 Kafka Sink 能做到端到端精确一次；Doris / StarRocks / JDBC 这类按主键 upsert 的 Sink，故障后会重放 checkpoint 之后的数据，但同一主键重复写入结果不变，**效果上等价于精确一次**。
 
-因此 CDC 链路的落地原则是：**下游表一定要有主键，并按主键 upsert**。无主键的追加写（例如写成日志表）重放时会产生重复行。Kafka 事务的边界与消费端幂等见 [Kafka](/messaging/2_kafka) 与 [幂等方案总结](/architecture/5_idempotence)；Flink checkpoint 与两阶段提交的机制见 [状态与容错](./4_state_checkpoint)。
+因此 CDC 链路的落地原则是：**下游表一定要有主键，并按主键 upsert**。无主键的追加写（例如写成日志表）重放时会产生重复行。Kafka 事务的边界与消费端幂等见 [Kafka](/messaging/2_kafka) 与 [幂等设计](/architecture/5_idempotence)；Flink checkpoint 与两阶段提交的机制见 [状态与容错](./4_state_checkpoint)。
 
 ---
 

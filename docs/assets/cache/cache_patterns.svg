@@ -1,0 +1,84 @@
+<svg viewBox="0 0 720 346" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">三种缓存模式的写路径</text>
+  <text x="105" y="50" text-anchor="middle" class="lbl">模式（读路径）</text>
+  <text x="270" y="50" text-anchor="middle" class="lbl">调用方</text>
+  <text x="435" y="50" text-anchor="middle" class="lbl">写路径第 1 步</text>
+  <text x="625" y="50" text-anchor="middle" class="lbl">写路径第 2 步</text>
+
+  <!-- Cache Aside -->
+  <rect x="20" y="64" width="170" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="105" y="88" text-anchor="middle" class="name">Cache Aside</text>
+  <text x="105" y="108" text-anchor="middle" class="desc">读：应用查库并回填</text>
+  <rect x="220" y="64" width="100" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="270" y="88" text-anchor="middle" class="name">应用</text>
+  <text x="270" y="108" text-anchor="middle" class="desc">自己做两步</text>
+  <rect x="360" y="64" width="150" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="435" y="88" text-anchor="middle" class="name">更新数据库</text>
+  <text x="435" y="108" text-anchor="middle" class="desc">提交事务</text>
+  <rect x="550" y="64" width="150" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="625" y="88" text-anchor="middle" class="name">删除缓存</text>
+  <text x="625" y="108" text-anchor="middle" class="desc">一致性：最终一致</text>
+  <line x1="320" y1="94" x2="358" y2="94" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="510" y1="94" x2="548" y2="94" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Read/Write Through -->
+  <rect x="20" y="154" width="170" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="105" y="178" text-anchor="middle" class="name">Read/Write Through</text>
+  <text x="105" y="198" text-anchor="middle" class="desc">读：缓存层负责加载</text>
+  <rect x="220" y="154" width="100" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="270" y="178" text-anchor="middle" class="name">应用</text>
+  <text x="270" y="198" text-anchor="middle" class="desc">只访问缓存层</text>
+  <rect x="360" y="154" width="150" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="435" y="178" text-anchor="middle" class="name">写缓存层</text>
+  <text x="435" y="198" text-anchor="middle" class="desc">同步等待</text>
+  <rect x="550" y="154" width="150" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="625" y="178" text-anchor="middle" class="name">缓存层写数据库</text>
+  <text x="625" y="198" text-anchor="middle" class="desc">一致性：较好，非原子</text>
+  <line x1="320" y1="184" x2="358" y2="184" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="510" y1="184" x2="548" y2="184" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Write Behind -->
+  <rect x="20" y="244" width="170" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="105" y="268" text-anchor="middle" class="name">Write Behind</text>
+  <text x="105" y="288" text-anchor="middle" class="desc">读：缓存层负责加载</text>
+  <rect x="220" y="244" width="100" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="270" y="268" text-anchor="middle" class="name">应用</text>
+  <text x="270" y="288" text-anchor="middle" class="desc">只访问缓存层</text>
+  <rect x="360" y="244" width="150" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="435" y="268" text-anchor="middle" class="name">写缓存层</text>
+  <text x="435" y="288" text-anchor="middle" class="desc">立即返回</text>
+  <rect x="550" y="244" width="150" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="625" y="268" text-anchor="middle" class="name">异步批量落库</text>
+  <text x="625" y="288" text-anchor="middle" class="desc">一致性：弱，可能丢数据</text>
+  <line x1="320" y1="274" x2="358" y2="274" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="510" y1="274" x2="548" y2="274" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <text x="360" y="328" text-anchor="middle" class="lbl">三种模式都无法与数据库强一致，区别在于不一致窗口的大小与数据丢失风险</text>
+</svg>

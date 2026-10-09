@@ -293,7 +293,7 @@ limiter.acquire();
 
 | 功能 | 现状 | 替代方案 |
 |------|------|----------|
-| `CacheBuilder` / `LoadingCache` | Guava 官方文档建议改用 Caffeine，后者命中率（W-TinyLFU）与并发性能更好，也是 Spring Boot 的默认本地缓存 | [Caffeine](/cache/7_caffeine) |
+| `CacheBuilder` / `LoadingCache` | Guava 官方文档建议改用 Caffeine，后者命中率（W-TinyLFU）与并发性能更好，类路径上有 Caffeine 时 Spring Boot 会自动配置 `CaffeineCacheManager` | [Caffeine](/cache/7_caffeine) |
 | `EventBus` | Guava 官方文档已明确不推荐使用：基于反射分发、异常被吞掉、难以追踪调用关系 | Spring `ApplicationEventPublisher` + `@EventListener`，见 [事件机制](/spring/7_event)；或直接使用显式的监听器接口 |
 | `ListenableFuture` / `Futures` | JDK 8 起有 `CompletableFuture` | [CompletableFuture](./29_topic_completable_future) |
 | `Optional`（Guava 版） | JDK 8 已内置 | `java.util.Optional` |

@@ -1,0 +1,48 @@
+<svg viewBox="0 0 680 484" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="680" height="484" rx="8" fill="var(--bg)"/>
+  <text x="340" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">架构演进：部署单元与通信方式</text>
+  <rect x="40" y="44" width="600" height="60" rx="8" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="340" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">单体架构</text>
+  <text x="340" y="90" text-anchor="middle" font-size="12" fill="var(--fg)">一个部署单元，模块间进程内方法调用，共享一个数据库</text>
+  <line x1="340" y1="104" x2="340" y2="132" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="134" width="600" height="60" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="340" y="158" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">集群</text>
+  <text x="340" y="180" text-anchor="middle" font-size="12" fill="var(--fg)">同一应用部署多副本 + 负载均衡，副本之间没有业务调用</text>
+  <line x1="340" y1="194" x2="340" y2="222" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="224" width="600" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="340" y="248" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">垂直拆分（分布式）</text>
+  <text x="340" y="270" text-anchor="middle" font-size="12" fill="var(--fg)">按业务拆成多个应用，跨进程 RPC 协作，各自扩容与发布</text>
+  <line x1="340" y1="284" x2="340" y2="312" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="314" width="600" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="340" y="338" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">SOA</text>
+  <text x="340" y="360" text-anchor="middle" font-size="12" fill="var(--fg)">服务经 ESB 集成（智能管道：路由、转换、编排），侧重企业内复用</text>
+  <line x1="340" y1="374" x2="340" y2="402" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="404" width="600" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="340" y="428" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">微服务</text>
+  <text x="340" y="450" text-anchor="middle" font-size="12" fill="var(--fg)">按业务能力 / 限界上下文拆分，独立部署与数据，REST / gRPC / MQ 轻量通信</text>
+</svg>

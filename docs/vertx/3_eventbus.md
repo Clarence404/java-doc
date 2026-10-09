@@ -244,7 +244,7 @@ SockJS 的 `POST` 传输需要读取请求体，桥接路径之前要挂好 `Bod
 | 进程重启 | 内存中所有在途消息丢失 |
 | consumer 处理太慢 | 消息在 consumer 缓冲区堆积；暂停（`pause()`）期间缓冲上限默认 1000 条（`MessageConsumerOptions#setMaxBufferedMessages`），超出部分丢弃 |
 
-因此 Event Bus 的语义可以归纳为**至多一次（at-most-once）**。官方建议：consumer 要幂等，发送方在故障恢复后重试——这就把它变成了业务层的至少一次，幂等的通用做法见 [幂等方案总结](/architecture/5_idempotence)。
+因此 Event Bus 的语义可以归纳为**至多一次（at-most-once）**。官方建议：consumer 要幂等，发送方在故障恢复后重试——这就把它变成了业务层的至少一次，幂等的通用做法见 [幂等设计](/architecture/5_idempotence)。
 
 ### 2、顺序
 

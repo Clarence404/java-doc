@@ -1,0 +1,48 @@
+<svg viewBox="0 0 800 322" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="800" height="322" rx="8" fill="var(--bg)"/>
+
+  <text x="400" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">可靠延迟队列：ready / processing 两个 ZSet</text>
+  <rect x="20" y="50" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="100" y="76" text-anchor="middle" font-weight="600" fill="var(--fg)">生产者</text>
+  <text x="100" y="98" text-anchor="middle" font-size="12" fill="var(--p)">ZADD 执行时间</text>
+  <line x1="180" y1="82" x2="218" y2="82" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="220" y="50" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="300" y="76" text-anchor="middle" font-weight="600" fill="var(--fg)">ready ZSet</text>
+  <text x="300" y="98" text-anchor="middle" font-size="12" fill="var(--b)">score = 执行时间</text>
+  <line x1="380" y1="82" x2="418" y2="82" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="420" y="50" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="500" y="76" text-anchor="middle" font-weight="600" fill="var(--fg)">processing ZSet</text>
+  <text x="500" y="98" text-anchor="middle" font-size="12" fill="var(--y)">score = 处理截止时间</text>
+  <line x1="580" y1="82" x2="618" y2="82" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="620" y="50" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="700" y="76" text-anchor="middle" font-weight="600" fill="var(--fg)">消费者</text>
+  <text x="700" y="98" text-anchor="middle" font-size="12" fill="var(--g)">处理成功后 ZREM 确认</text>
+  <rect x="220" y="170" width="360" height="64" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="400" y="196" text-anchor="middle" font-weight="600" fill="var(--fg)">超时回收（定时任务）</text>
+  <text x="400" y="218" text-anchor="middle" font-size="12" fill="var(--r)">processing 中超过截止时间的任务移回 ready，重新投递</text>
+  <line x1="500" y1="114" x2="500" y2="168" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <line x1="300" y1="170" x2="300" y2="116" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="262" width="760" height="40" rx="8" fill="var(--card)" stroke="var(--border)"/>
+  <text x="400" y="288" text-anchor="middle" font-size="12" fill="var(--fg)">ready → processing 由 Lua 原子搬移，多实例不会重复领取；两个 key 用同一个 Hash Tag 保证同槽</text>
+</svg>

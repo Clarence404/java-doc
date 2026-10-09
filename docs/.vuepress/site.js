@@ -128,7 +128,7 @@ export const GROUPS = [
             },
             {name: '系统架构', dir: 'architecture', interview: ['15_architecture'], desc: '架构模式 / DDD / 幂等 / 对象存储 / 权限系统'},
             {
-                name: '业务场景', dir: 'scenario',
+                name: '业务场景', dir: 'scenario', interview: ['16_scenario'],
                 desc: '秒杀 / 订单 / 短链 / 排行榜 / Feed 流 / 搜索 / 红包 / LBS',
                 sidebar: [
                     {text: '通用问题', from: 1},

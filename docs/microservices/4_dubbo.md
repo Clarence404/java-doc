@@ -255,7 +255,7 @@ Consumer 在本地从地址列表中选择 Provider（`@DubboReference(loadbalan
 | `forking` | 并行调用多台，取最先返回的结果 | 实时性要求高、能容忍资源浪费 |
 | `broadcast` | 逐台调用全部节点，任一失败即失败 | 通知所有节点刷新本地缓存 |
 
-**默认 failover + retries 是写操作的经典大坑**：超时不等于失败，Provider 可能已经执行成功，重试会造成重复扣款或重复下单。写接口要么 `cluster = "failfast"`，要么把幂等做扎实（见 [幂等方案总结](/architecture/5_idempotence)）。
+**默认 failover + retries 是写操作的经典大坑**：超时不等于失败，Provider 可能已经执行成功，重试会造成重复扣款或重复下单。写接口要么 `cluster = "failfast"`，要么把幂等做扎实（见 [幂等设计](/architecture/5_idempotence)）。
 
 ---
 

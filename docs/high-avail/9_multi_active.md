@@ -138,7 +138,7 @@ public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 设计要点：
 
 - **单元内闭环**：单元型数据的读写、服务调用都不出单元；跨单元调用只允许出现在少数异步、非核心场景
-- **全局 ID 带单元信息或全局唯一**：避免两地生成相同主键，见 [分布式 ID](/distributed/8_id_generator)
+- **全局 ID 带单元信息或全局唯一**：避免两地生成相同主键，见 [分布式 ID 生成](/distributed/8_id_generator)
 - **强一致场景走中心**：如扣减库存，由中心单元处理或在各单元预分配库存额度
 - **未登录流量**：按就近路由，登录后再按 userId 落到归属单元
 

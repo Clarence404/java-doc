@@ -1,184 +1,157 @@
 ---
-description: Cookie-Session、JWT、Redis Session、选型建议
+description: 多实例会话问题、粘性会话、Spring Session + Redis、Redis 键结构、JWT 取舍、选型
 ---
 
 # 分布式会话
 
-> 分布式场景下，多个服务实例无法共享本地内存中的 Session，需要统一的会话管理方案。
+> **本篇目标**：理解多实例部署下会话丢失的原因，能用 Spring Boot 4 + Spring Session 把会话放进 Redis 并配置正确，知道默认与索引两种存储结构的区别，以及服务端会话与 JWT 怎么选。
+>
+> **前置阅读**：[分布式架构](./1_distributed)
 
 ---
 
-## 一、Session 的问题根源
+## 一、问题与解法
 
-传统 Web 应用将 Session 存储在 **服务器内存**中，单机没问题。部署多实例后：
+Servlet 容器默认把 Session 放在**本实例内存**里。部署多实例后，用户第一次请求落到实例 A 并建立会话，第二次请求被负载均衡转到实例 B，B 找不到这个会话，用户被要求重新登录。
 
-```
-用户第一次请求 → 实例 A 创建 Session
-用户第二次请求 → 负载均衡到实例 B → B 没有该 Session → 认证失败
-```
+| 解法 | 做法 | 问题 |
+|------|------|------|
+| 粘性会话（Sticky Session） | 负载均衡按 IP 或 Cookie 把同一用户固定到同一实例 | 实例重启或宕机会话就丢；负载不均；扩缩容时会话迁移 |
+| 会话复制 | 实例之间互相同步会话（如 Tomcat 集群复制） | 网络与内存开销随实例数增长，不适合大规模 |
+| **集中存储** | 会话存到 Redis 等外部存储，所有实例共享 | 多一次 Redis 访问；Redis 要高可用 |
+| 无状态令牌 | 用户信息放进签名令牌（JWT），服务端不存会话 | 难以主动失效，见第三节 |
 
-**三种解法：**
-1. **粘性会话（Sticky Session）**：同一用户始终路由到同一实例（Nginx ip_hash），治标不治本，实例宕机会话丢失
-2. **Session 复制**：各实例间同步 Session，网络开销大，不推荐
-3. **集中存储（主流方案）**：Session 存 Redis，各实例共享读取
+集中存储是服务端会话的主流做法：
 
----
-
-## 二、Cookie-Session 模式
-
-### 2.1 工作流程
-
-```
-1. 用户登录 → 服务端创建 Session，存入内存/Redis，返回 Set-Cookie: JSESSIONID=xxx
-2. 浏览器后续请求自动携带 Cookie: JSESSIONID=xxx
-3. 服务端通过 ID 查找 Session，获取用户信息
-```
-
-### 2.2 特点
-
-| 优点 | 缺点 |
-|------|------|
-| 服务端完全控制会话生命周期 | 依赖 Cookie，跨域麻烦 |
-| 可随时强制下线（删 Session） | 移动端 / 小程序不友好 |
-| 实现简单成熟 | 分布式下需集中存储 |
+![集中式 Session：任意实例都能读到会话](../assets/distributed/session-sharing.svg)
 
 ---
 
-## 三、JWT（JSON Web Token）
+## 二、Spring Session + Redis
 
-### 3.1 结构
+Spring Session 用一个过滤器（`SessionRepositoryFilter`）替换容器的 `HttpSession` 实现，把会话读写转到 Redis、JDBC 等存储。业务代码照常使用 `HttpSession`，无需改动。
 
-JWT 由三部分组成，`.` 分隔：
+### 1、依赖与配置（Spring Boot 4）
 
-```
-Header.Payload.Signature
-```
-
-| 部分 | 内容 |
-|------|------|
-| Header | 算法类型（HS256 / RS256）、token 类型 |
-| Payload | 用户信息（userId、roles、exp 过期时间等），Base64 编码，**可解码，不可存敏感信息** |
-| Signature | `HMAC(Base64(Header) + "." + Base64(Payload), secret)` |
-
-### 3.2 工作流程
-
-```
-1. 用户登录 → 服务端生成 JWT，返回给客户端
-2. 客户端存储（localStorage / Cookie）
-3. 后续请求携带：Authorization: Bearer <token>
-4. 服务端验证签名 + 过期时间，无需查库或 Redis
-```
-
-### 3.3 优缺点
-
-| 优点 | 缺点 |
-|------|------|
-| **无状态**，服务端不存储，天然支持分布式 | **无法主动失效**，token 未过期就一直有效 |
-| 跨域友好，适合前后端分离 / 移动端 | Payload 可被解码，不能存敏感信息 |
-| 减少数据库查询 | token 体积较大（含用户信息） |
-| 支持跨服务传递用户信息 | 密钥泄露风险较高 |
-
-### 3.4 无法主动失效的解决方案
-
-JWT 最大痛点：用户退出登录 / 修改密码后，旧 token 在过期前仍有效。
-
-**常见缓解方案：**
-
-1. **短有效期 + Refresh Token**：Access Token 有效期 15min，Refresh Token 有效期 7 天存 Redis，过期需重新登录
-2. **黑名单**：退出时将 token 存入 Redis 黑名单，每次请求校验，牺牲了无状态优势
-3. **版本号**：用户信息里加 tokenVersion，修改密码时版本+1，旧 token 携带旧版本号校验失败
-
-::: tip 建议
-对安全要求高（需要强制下线、踢人、密码修改即时失效）的系统，慎用纯 JWT 方案，或配合 Redis 黑名单使用。
-:::
-
----
-
-## 四、Redis Session
-
-### 4.1 方案原理
-
-将 Session 数据存入 Redis，服务端只保存 Session ID（通过 Cookie 传递）。所有实例共享同一个 Redis，实现 Session 共享。
-
-```
-用户请求 → 携带 Cookie(sessionId) → 任意实例 → 查 Redis → 获取 Session
-```
-
-### 4.2 Spring Session 集成
-
-Spring Session 是 Spring 官方提供的 Session 管理抽象，支持 Redis、JDBC、Hazelcast 等后端存储，**对业务代码透明**，无需改动 `HttpSession` 使用方式。
-
-**Maven 依赖：**
 ```xml
-<dependency>
-    <groupId>org.springframework.session</groupId>
-    <artifactId>spring-session-data-redis</artifactId>
-</dependency>
+<!-- Boot 4 按模块拆分了自动配置，用 Session 专用 starter（会带上 Spring Data Redis） -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-data-redis</artifactId>
+    <artifactId>spring-boot-starter-session-data-redis</artifactId>
 </dependency>
 ```
 
-**配置：**
 ```yaml
 spring:
+  data:
+    redis:                      # Boot 3.0 起是 spring.data.redis.*，不是 spring.redis.*
+      host: redis.internal
+      port: 6379
+      password: ${REDIS_PASSWORD}
   session:
-    # Spring Boot 3 已移除 store-type，classpath 中存在 spring-session-data-redis 即自动配置
-    timeout: 30m
-    redis:
-      namespace: spring:session
-  redis:
-    host: localhost
-    port: 6379
+    timeout: 30m                # 会话空闲超时，默认取 server.servlet.session.timeout
+    data:
+      redis:                    # Boot 4 由 spring.session.redis.* 改名而来
+        namespace: myapp:session
+        flush-mode: on-save     # on-save：请求结束时写回；immediate：每次 setAttribute 立即写
+        repository-type: default  # default 或 indexed，见下文
+
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        secure: true
+        same-site: lax
 ```
 
-**启用注解（Spring Boot 自动配置，通常无需手动加）：**
-```java
-@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1800)
-```
+几点注意：
 
-**业务代码无需改动，直接用 `HttpSession`：**
+- 引入上面的 starter 后 Boot 会自动配置，**不需要** `@EnableRedisHttpSession`。一旦手动加上 `@Enable*HttpSession`，Boot 的会话自动配置会退让，上面 `spring.session.*` 的属性全部失效，超时等参数只能写在注解里。Boot 3.x 则是 `spring-boot-starter-data-redis` + `spring-session-data-redis`，属性前缀为 `spring.session.redis.*`
+- Spring Session 的 Cookie 名默认是 `SESSION`，Boot 会把 `server.servlet.session.cookie.*` 应用到它
+- 会话属性默认用 JDK 序列化，放进会话的对象要实现 `Serializable`，且类结构变化后旧会话可能反序列化失败。改用 JSON 时定义名为 `springSessionDefaultRedisSerializer` 的 `RedisSerializer<Object>` Bean；会话里存有 Spring Security 对象时，还要为 ObjectMapper 注册 Spring Security 提供的 Jackson 模块
+
+### 2、登录示例
+
 ```java
-@GetMapping("/login")
-public String login(HttpSession session, String username) {
-    session.setAttribute("user", username);
-    return "ok";
+@PostMapping("/login")
+public ResponseEntity<Void> login(@RequestBody @Valid LoginRequest req, HttpServletRequest request) {
+    User user = authService.authenticate(req.username(), req.password());
+    HttpSession session = request.getSession();
+    request.changeSessionId();                       // 登录后更换会话 ID，防会话固定攻击
+    session.setAttribute("userId", user.getId());
+    return ResponseEntity.noContent().build();
 }
 ```
 
-### 4.3 Redis 中的存储结构
+登录用 POST 并把凭据放在请求体里，不要把用户名密码放进 URL。使用 Spring Security 时，认证成功后默认就会更换会话 ID，不需要手写。
 
-Spring Session 在 Redis 中使用以下三个 key：
+### 3、Redis 中的存储结构
 
-```
-spring:session:sessions:<sessionId>          # Hash，存 Session 属性
-spring:session:sessions:expires:<sessionId>  # String，TTL 控制
-spring:session:expirations:<时间戳>           # Set，过期清理索引
-```
+Spring Session 3.0 起有两种 Redis 仓库：
 
----
+| 仓库 | 启用方式 | Redis 中的 key | 能力 |
+|------|----------|----------------|------|
+| `RedisSessionRepository`（默认） | `repository-type: default` | `<namespace>:sessions:<sessionId>`，一个带 TTL 的 Hash | 简单高效；没有会话过期 / 删除事件，不能按用户名查会话 |
+| `RedisIndexedSessionRepository` | `repository-type: indexed` 或 `@EnableRedisIndexedHttpSession` | 会话 Hash、用于触发过期事件的 `sessions:expires:<id>`、按分钟分桶的过期集合、按用户名建立的索引集合 | 发布 `SessionCreated / Deleted / Expired` 事件；支持 `FindByIndexNameSessionRepository` 按用户名查询与踢人；依赖 Redis 键空间通知 |
 
-## 五、三种方案对比
-
-| 维度 | Cookie-Session（内存） | Cookie-Session（Redis） | JWT |
-|------|----------------------|------------------------|-----|
-| 存储位置 | 服务端内存 | Redis | 客户端 |
-| 分布式支持 | ❌ 需 Sticky Session | ✅ 天然支持 | ✅ 天然支持 |
-| 主动失效 | ✅ 删 Session | ✅ 删 Redis key | ⚠️ 需额外机制 |
-| 服务端压力 | 内存占用 | Redis 查询 | 无（验签即可） |
-| 跨域 | ⚠️ 麻烦 | ⚠️ 麻烦 | ✅ 友好 |
-| 移动端 / 小程序 | ⚠️ 不友好 | ⚠️ 不友好 | ✅ 友好 |
-| 安全性 | 高（服务端控制） | 高（服务端控制） | 中（密钥管理） |
-| 实现复杂度 | 低 | 低（Spring Session） | 中 |
+只需要共享会话时用默认仓库。需要「查看某用户所有在线会话、强制下线」或并发会话控制时用 indexed，它会多写几个 key，并要求 Redis 开启键空间通知（托管 Redis 可能禁用 `CONFIG` 命令，此时需提前在服务端配置好）。
 
 ---
 
-## 六、选型建议
+## 三、JWT 的取舍
 
-```
-传统 Web（后端渲染 / 管理后台）   →  Redis Session（Spring Session），简单可靠
-前后端分离 / 移动端 / 小程序      →  JWT（短有效期 + Refresh Token）
-高安全要求（金融 / 即时下线）     →  Redis Session 或 JWT + 黑名单
-微服务跨服务传递用户信息          →  JWT（无需每个服务都查 Redis）
-```
+JWT 把用户标识和过期时间等声明放进令牌，用签名防篡改，服务端验签即可，不需要查会话存储。结构、签名算法与吊销方案的细节见 [JWT 令牌机制](/security/1_jwt)，这里只讲它与服务端会话的区别：
+
+- **优点**：无状态，天然支持多实例与跨服务传递身份；适合移动端、第三方 API 调用
+- **缺点**：签发后在过期前一直有效，退出登录、修改密码、封号都无法立即生效。常见缓解是短有效期 Access Token + 可吊销的 Refresh Token，或在 Redis 维护黑名单 / 令牌版本号，但这又引回了服务端状态
+- **存放位置**：放在 `localStorage` 会被 XSS 读取。浏览器场景优先放在 `HttpOnly + Secure + SameSite` 的 Cookie 中，同时做好 CSRF 防护
+
+在微服务内部，常见做法是网关校验外部令牌（会话或 JWT），再以内部令牌或请求头把用户身份传给下游服务。
+
+---
+
+## 四、方案对比
+
+| 维度 | 内存会话 | Spring Session + Redis | JWT |
+|------|----------|------------------------|-----|
+| 状态存放 | 实例内存 | Redis | 客户端 |
+| 多实例 | 需要粘性会话 | 支持 | 支持 |
+| 主动失效 / 踢人 | 支持（仅本实例） | 支持（删除会话；按用户踢人需 indexed） | 需要黑名单或版本号 |
+| 每次请求开销 | 本地内存 | 一次 Redis 访问 | 验签 |
+| 跨域 / 移动端 | 依赖 Cookie | 依赖 Cookie，也可用 `X-Auth-Token` 头传会话 ID | 方便 |
+| 实现复杂度 | 低 | 低 | 中（密钥管理、续期、吊销） |
+
+---
+
+## 五、选型建议
+
+| 场景 | 方案 | 理由 |
+|------|------|------|
+| 服务端渲染、管理后台 | Spring Session + Redis | 简单，可随时失效 |
+| 浏览器访问的前后端分离应用 | Spring Session + Redis，或放在 HttpOnly Cookie 中的短期令牌 | 同域下 Cookie 会话足够安全简单 |
+| 移动端、开放 API | 短期 JWT + Refresh Token | 不依赖 Cookie，服务端无状态 |
+| 需要即时下线、并发登录控制 | Spring Session（indexed）或 JWT + 黑名单 | 必须有服务端状态 |
+| 微服务间传递身份 | 网关验证后向下游传内部令牌或身份头 | 下游不必各自访问会话存储 |
+
+---
+
+## 小结
+
+- 多实例丢会话的根因是会话存在实例内存里；粘性会话治标不治本，主流是集中存储
+- Spring Boot 4 下 Redis 连接用 `spring.data.redis.*`，Spring Session 用 `spring.session.data.redis.*`
+- 不要手动加 `@EnableRedisHttpSession`，否则 Boot 的会话属性全部失效
+- 默认仓库只存一个带 TTL 的 Hash，没有过期事件和按用户名索引；需要踢人用 indexed
+- 登录后更换会话 ID，Cookie 设置 HttpOnly、Secure、SameSite
+- JWT 无状态但难以即时失效，细节以 [JWT 令牌机制](/security/1_jwt) 为准
+
+## 参考资料
+
+- Spring Session 参考文档：[https://docs.spring.io/spring-session/reference/](https://docs.spring.io/spring-session/reference/)
+- Spring Session Redis 配置：[https://docs.spring.io/spring-session/reference/configuration/redis.html](https://docs.spring.io/spring-session/reference/configuration/redis.html)
+- Spring Boot Spring Session：[https://docs.spring.io/spring-boot/reference/web/spring-session.html](https://docs.spring.io/spring-boot/reference/web/spring-session.html)
+- Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
+- Spring Security Session Management：[https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html](https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html)
+- RFC 7519 JSON Web Token：[https://datatracker.ietf.org/doc/html/rfc7519](https://datatracker.ietf.org/doc/html/rfc7519)
+
+> 下一篇：[分布式调度](./6_job_scheduler) —— 多实例下定时任务如何只执行一次，分片、错过触发与幂等，以及 XXL-JOB、ElasticJob、PowerJob 的选型。

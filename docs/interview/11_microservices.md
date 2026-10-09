@@ -199,7 +199,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 记日志这类旁路调用：`failsafe`（出错直接忽略）
 - 发通知这类：`failback`（失败后在后台重发）
 
-→ 详见 [Dubbo](/microservices/4_dubbo#_2、集群容错策略)、[幂等方案总结](/architecture/5_idempotence)
+→ 详见 [Dubbo](/microservices/4_dubbo#_2、集群容错策略)、[幂等设计](/architecture/5_idempotence)
 
 ### Q16：Dubbo SPI 与 Java SPI 有什么区别？`@Adaptive`、`@Activate` 做什么？
 
@@ -270,7 +270,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：Saga 没有隔离性，中间状态别人看得到，要靠「处理中」这类状态设计和补偿幂等兜底。
 
-→ 详见 [微服务设计模式](/microservices/2_patterns#_4、saga)、[分布式事务](/distributed/4_transaction#六、saga-事务-长事务补偿机制)
+→ 详见 [微服务设计模式](/microservices/2_patterns#_4、saga)、[分布式事务](/distributed/4_transaction#四、saga)
 
 ### Q22：消费者驱动契约测试解决什么问题？
 
@@ -293,7 +293,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 资金类、要先预留资源：TCC（先冻结，再确认或取消）
 - 普通数据库增删改、要同步一致、并发不高：Seata AT
 
-→ 详见 [分布式事务](/distributed/4_transaction#九、方案选型总结)、[分布式面试题解答](/interview/10_distributed#四、分布式事务有哪些解决方案)
+→ 详见 [分布式事务](/distributed/4_transaction#九、方案选型)、[分布式面试题解答](/interview/10_distributed#三、分布式事务)
 
 ### Q24：微服务接口如何实现幂等？
 
@@ -305,7 +305,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 状态机 / 乐观锁（`WHERE status = ?` 或版本号）：状态流转、扣减类操作
 - Redis `SET NX`：高并发快速判重，但要有数据库兜底
 
-→ 详见 [幂等方案总结](/architecture/5_idempotence)、[系统架构面试题解答](/interview/15_architecture#五、接口幂等性如何设计)
+→ 详见 [幂等设计](/architecture/5_idempotence)、[系统架构面试题解答](/interview/15_architecture#三、幂等设计)
 
 ### Q25：服务间如何传递认证信息与上下文（用户身份、灰度标记、traceId）？
 

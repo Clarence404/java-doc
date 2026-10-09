@@ -109,7 +109,7 @@ public class AsyncConfig {
 public void sendOrderNotice(Long orderId) { ... }
 ```
 
-MQ 异步、受理 + 异步回执、Write-Behind 等系统级模式见 [异步与削峰](/high-con/4_async_peak_shaving)；幂等设计见 [幂等性](/architecture/5_idempotence)。
+MQ 异步、受理 + 异步回执、Write-Behind 等系统级模式见 [异步与削峰](/high-con/4_async_peak_shaving)；幂等设计见 [幂等设计](/architecture/5_idempotence)。
 
 ---
 

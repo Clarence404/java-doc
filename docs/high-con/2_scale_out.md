@@ -43,7 +43,7 @@ description: 垂直 vs 水平扩展、Session 外置、服务拆分、HPA 与指
 | 本地文件（上传、导出） | 其他实例读不到 | 对象存储（OSS / S3 / MinIO） |
 | 本地内存计数、限流 | 多实例各算各的，总量失控 | Redis 计数 / 分布式限流 |
 | 本地定时任务 | 多实例重复执行 | 分布式调度（XXL-JOB）或分布式锁 |
-| 本地缓存 | 实例间数据不一致 | 允许短暂不一致 + 广播失效（见[两级缓存](/cache/8_two_level_cache)） |
+| 本地缓存 | 实例间数据不一致 | 允许短暂不一致 + 广播失效（见[两级缓存（L1 + L2）](/cache/8_two_level_cache)） |
 | WebSocket 长连接 | 消息需要推到持有连接的实例 | 连接注册表 + MQ 广播 / 路由（见[接入层架构](./1_access_layer)） |
 
 Session 外置的完整方案对比（粘性会话、Session 复制、集中存储、Token）见 [分布式会话](/distributed/5_session)。

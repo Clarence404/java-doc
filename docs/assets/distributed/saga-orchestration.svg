@@ -1,0 +1,49 @@
+<svg viewBox="0 0 680 270" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="680" height="270" rx="8" fill="var(--bg)"/>
+  <text x="340" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">Saga 编排：T3 失败后逆序补偿</text>
+  <rect x="20" y="50" width="180" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="110" y="74" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">T1 订单服务</text>
+  <text x="110" y="96" text-anchor="middle" font-size="12" fill="var(--fg)">创建订单（待支付）</text>
+  <rect x="250" y="50" width="180" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="340" y="74" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">T2 库存服务</text>
+  <text x="340" y="96" text-anchor="middle" font-size="12" fill="var(--fg)">扣减库存</text>
+  <rect x="480" y="50" width="180" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="570" y="74" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">T3 支付服务</text>
+  <text x="570" y="96" text-anchor="middle" font-size="12" fill="var(--fg)">扣款失败，本地回滚</text>
+  <line x1="200" y1="80" x2="248" y2="80" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="430" y1="80" x2="478" y2="80" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="250" y="150" width="180" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="340" y="174" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">C2 库存服务</text>
+  <text x="340" y="196" text-anchor="middle" font-size="12" fill="var(--fg)">回补库存</text>
+  <rect x="20" y="150" width="180" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="110" y="174" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">C1 订单服务</text>
+  <text x="110" y="196" text-anchor="middle" font-size="12" fill="var(--fg)">订单置为已取消</text>
+  <path d="M570,110 L570,180.0 L432,180.0" fill="none" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <line x1="250" y1="180" x2="202" y2="180" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <text x="340" y="240" text-anchor="middle" font-size="12" fill="var(--muted)">编排器（Orchestrator）持久化每一步状态；补偿只针对已完成的步骤，必须幂等并重试到成功</text>
+</svg>

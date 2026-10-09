@@ -1,0 +1,73 @@
+<svg viewBox="0 0 680 484" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">秒杀下单链路</text>
+
+  <!-- 1. 接入层 -->
+  <rect class="layer" x="20" y="44" width="640" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="40" y="70" fill="var(--p)">接入层</text>
+  <text class="sub" x="40" y="88">CDN / Nginx / 网关</text>
+  <text class="desc" x="650" y="70" text-anchor="end">静态页走 CDN，按用户与接口总量分层限流</text>
+  <text class="desc" x="650" y="88" text-anchor="end">校验一次性下单 token，拦截提前刷接口的脚本</text>
+
+  <line class="arr" x1="340" y1="104" x2="340" y2="132"/>
+
+  <!-- 2. 秒杀服务 -->
+  <rect class="layer" x="20" y="134" width="640" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="40" y="160" fill="var(--b)">秒杀服务</text>
+  <text class="sub" x="40" y="178">Redis 预扣</text>
+  <text class="desc" x="650" y="160" text-anchor="end">本地售罄标记（短 TTL，回补时广播清除）</text>
+  <text class="desc" x="650" y="178" text-anchor="end">一个 Lua 脚本：限购校验 + 扣库存 + 记已购</text>
+
+  <line class="arr" x1="340" y1="194" x2="340" y2="222"/>
+
+  <!-- 3. MQ -->
+  <rect class="layer" x="20" y="224" width="640" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="40" y="250" fill="var(--y)">RocketMQ</text>
+  <text class="sub" x="40" y="268">异步下单</text>
+  <text class="desc" x="650" y="250" text-anchor="end">同步发送 + 重试，最终失败执行回补脚本</text>
+  <text class="desc" x="650" y="268" text-anchor="end">定时对账：已购集合与订单表比对，补偿差异</text>
+
+  <line class="arr" x1="340" y1="284" x2="340" y2="312"/>
+
+  <!-- 4. 订单服务 -->
+  <rect class="layer" x="20" y="314" width="640" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="40" y="340" fill="var(--g)">订单服务</text>
+  <text class="sub" x="40" y="358">本地事务落库</text>
+  <text class="desc" x="650" y="340" text-anchor="end">插订单（唯一约束）+ DB 条件扣库存，同一事务</text>
+  <text class="desc" x="650" y="358" text-anchor="end">重复消息撞唯一键即视为已处理</text>
+
+  <line class="arr" x1="340" y1="374" x2="340" y2="402"/>
+
+  <!-- 5. 支付 / 关单 -->
+  <rect class="layer" x="20" y="404" width="640" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="40" y="430" fill="var(--r)">支付 / 超时关单</text>
+  <text class="sub" x="40" y="448">定时消息触发</text>
+  <text class="desc" x="650" y="430" text-anchor="end">状态条件更新关单，成功才回补库存</text>
+  <text class="desc" x="650" y="448" text-anchor="end">回补 Redis 库存与已购集合，广播清除售罄标记</text>
+</svg>

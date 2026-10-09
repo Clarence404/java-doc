@@ -174,7 +174,7 @@ public class LoginRiskJob {
 - **CEP 默认按事件时间**：同一用户的事件在进入 NFA 前按时间戳排序，乱序容忍度由水位线决定；不需要严格时序时可调用 `inProcessingTime()` 降低延迟。
 - **`within` 是状态边界**：超过 5 分钟的部分匹配会被清理，状态不会无限增长；没有 `within` 的模式加上 `timesOrMore` 会让状态失控。
 - **跳过策略**：`skipPastLastEvent()` 保证一次撞库只告警一次，默认的 `noSkip()` 会把「4 次失败 + 成功」拆成多次匹配重复告警。
-- **告警幂等**：Sink 是至少一次，作业重启可能重复告警。下游风控服务以 `userId + ts` 去重；要精确一次可改为 `EXACTLY_ONCE` 并设置 `setTransactionalIdPrefix`，下游以 `read_committed` 消费。消费端幂等的做法见 [幂等方案总结](/architecture/5_idempotence)。
+- **告警幂等**：Sink 是至少一次，作业重启可能重复告警。下游风控服务以 `userId + ts` 去重；要精确一次可改为 `EXACTLY_ONCE` 并设置 `setTransactionalIdPrefix`，下游以 `read_committed` 消费。消费端幂等的做法见 [幂等设计](/architecture/5_idempotence)。
 - **规则动态化**：CEP 模式编译进作业，修改阈值要重新发布。规则频繁变化时，把阈值类规则写成「广播规则流 + `KeyedBroadcastProcessFunction` + 状态计数」，或交给专门的规则引擎，CEP 只负责结构稳定的时序模式。
 - **超时也是信号**：「连续失败但 5 分钟内没成功」可以在 `PatternProcessFunction` 上实现 `TimedOutPartialMatchHandler`，把超时的部分匹配输出到侧输出流，用于识别暴力破解尝试。
 

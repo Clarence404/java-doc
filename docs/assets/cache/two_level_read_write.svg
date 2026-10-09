@@ -1,0 +1,79 @@
+<svg viewBox="0 0 720 442" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .head  { font-size: 13px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">两级缓存的读路径与写路径</text>
+  <text x="180" y="52" text-anchor="middle" class="head">读路径：L1 → L2 → DB</text>
+  <text x="540" y="52" text-anchor="middle" class="head">写路径：提交后失效</text>
+
+  <!-- 读路径 -->
+  <rect x="60" y="66" width="240" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="180" y="90" text-anchor="middle" class="name">查 L1（Caffeine）</text>
+  <text x="180" y="110" text-anchor="middle" class="desc">命中直接返回，无网络开销</text>
+
+  <rect x="60" y="156" width="240" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="180" y="180" text-anchor="middle" class="name">查 L2（Redis）</text>
+  <text x="180" y="200" text-anchor="middle" class="desc">命中后回填 L1</text>
+
+  <rect x="60" y="246" width="240" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="180" y="270" text-anchor="middle" class="name">查数据库</text>
+  <text x="180" y="290" text-anchor="middle" class="desc">同 key 在本 JVM 内只回源一次</text>
+
+  <rect x="60" y="336" width="240" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="180" y="360" text-anchor="middle" class="name">回填 L2 与 L1</text>
+  <text x="180" y="380" text-anchor="middle" class="desc">不存在时缓存空值（短 TTL）</text>
+
+  <line x1="180" y1="126" x2="180" y2="154" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="190" y="145" class="desc">未命中</text>
+  <line x1="180" y1="216" x2="180" y2="244" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="190" y="235" class="desc">未命中</text>
+  <line x1="180" y1="306" x2="180" y2="334" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 写路径 -->
+  <rect x="420" y="66" width="240" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="540" y="90" text-anchor="middle" class="name">更新数据库并提交事务</text>
+  <text x="540" y="110" text-anchor="middle" class="desc">数据库是唯一可信来源</text>
+
+  <rect x="420" y="156" width="240" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="540" y="180" text-anchor="middle" class="name">AFTER_COMMIT：删除 L2</text>
+  <text x="540" y="200" text-anchor="middle" class="desc">失败重试，或由 binlog 订阅兜底</text>
+
+  <rect x="420" y="246" width="240" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="540" y="270" text-anchor="middle" class="name">广播失效消息</text>
+  <text x="540" y="290" text-anchor="middle" class="desc">Pub/Sub、MQ 广播或 Redis 失效推送</text>
+
+  <rect x="420" y="336" width="240" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="540" y="360" text-anchor="middle" class="name">各实例删除本地 L1</text>
+  <text x="540" y="380" text-anchor="middle" class="desc">消息丢失时靠 L1 短 TTL 兜底</text>
+
+  <line x1="540" y1="126" x2="540" y2="154" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="540" y1="216" x2="540" y2="244" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="540" y1="306" x2="540" y2="334" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <text x="360" y="422" text-anchor="middle" class="lbl">读路径负责回填，写路径只删除不回写；所有失效都在事务提交之后发生</text>
+</svg>

@@ -161,7 +161,7 @@ orders.forEach(o -> o.setItems(itemMap.getOrDefault(o.getId(), List.of())));
 
 - 连接池参数与容量估算见 [池化技术](./7_pooling)：**连接池过大不会让数据库更快**。
 - SQL 已充分优化后单库仍无法支撑，就需要缓存、读写分离、分库分表等**扩展性方案**，属于高并发范畴，见 [数据层扩展](/high-con/5_data_scaling) 与 [分库分表与中间件](/database/5_practice/2_sharding)。
-- 读多写少的数据优先考虑缓存，见 [缓存架构设计](/high-con/3_cache_architecture)、[两级缓存](/cache/8_two_level_cache) 与 [缓存一致性](/cache/10_cache_consistency)。
+- 读多写少的数据优先考虑缓存，见 [缓存架构设计](/high-con/3_cache_architecture)、[两级缓存（L1 + L2）](/cache/8_two_level_cache) 与 [缓存一致性](/cache/10_cache_consistency)。
 
 ---
 

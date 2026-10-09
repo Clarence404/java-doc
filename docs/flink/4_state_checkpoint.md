@@ -265,7 +265,7 @@ Checkpoint 只保证 **Flink 内部状态**精确一次。要让外部系统看�
 | 引擎 | Checkpoint 开启，`EXACTLY_ONCE` 模式 | 对齐或非对齐 Checkpoint |
 | Sink | **事务写入**（两阶段提交）或**幂等写入** | KafkaSink 事务、主键 upsert |
 
-精确一次与幂等的通用理论见 [Kafka](/messaging/2_kafka) 的事务一节与 [幂等方案总结](/architecture/5_idempotence)。
+精确一次与幂等的通用理论见 [Kafka](/messaging/2_kafka) 的事务一节与 [幂等设计](/architecture/5_idempotence)。
 
 ### 1、两阶段提交 Sink
 

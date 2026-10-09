@@ -1,228 +1,234 @@
 ---
-description: Cache Aside 等模式对比、延迟双删、Binlog 订阅
+description: 三种缓存模式、写顺序与竞态、提交后删除、延迟双删、binlog 订阅失效、方案选型
 ---
 
 # 缓存一致性
 
-参考文章：
+> **本篇目标**：分清三种缓存模式各自的一致性边界，理解「先更新数据库再删缓存」为什么是默认做法、它还剩下什么竞态，掌握提交后删除、延迟双删、binlog / CDC 订阅失效这几种手段的适用条件，能为不同数据选出合适的组合。
+>
+> **前置阅读**：[Redis 基础](./1_redis_base)、[两级缓存（L1 + L2）](./8_two_level_cache)、[消息队列基础](/messaging/1_basics)
 
-- [https://mp.weixin.qq.com/s/idAReeR2Fqe6O6_ayq6AkA?scene=1](https://mp.weixin.qq.com/s/idAReeR2Fqe6O6_ayq6AkA?scene=1)
-- [https://cloud.tencent.com/developer/article/1932934](https://cloud.tencent.com/developer/article/1932934)
+先给结论：**缓存与数据库之间不存在低成本的强一致**。缓存写入与数据库写入不在同一个事务里，任何模式都只能把不一致的窗口压小、并保证它最终收敛。工程上的目标是：不一致窗口足够小、有上限（TTL 兜底），且不会因为一次失败而永久不一致。
 
-## 一、经典场景对比
-
-```mermaid
-flowchart TD
-%% 第一行：Cache Aside 居中
-    subgraph CA["Cache Aside（旁路缓存）"]
-        direction TB
-        CA1[应用读取数据] --> CA2{缓存命中?}
-        CA2 -- 是 --> CA3[返回缓存数据]
-        CA2 -- 否 --> CA4[查询数据库]
-        CA4 --> CA5[写入缓存]
-        CA5 --> CA6[返回数据]
-        CA7[应用更新数据] --> CA8[更新数据库]
-        CA8 --> CA9[删除缓存]
-    end
-
-%% 第二行：Read/Write Through（读写穿透）
-subgraph RW["Read/Write Through（读写穿透）"]
-direction TB
-RW1[应用读取数据] --> RW2{缓存命中?}
-RW2 -- 是 --> RW3[返回缓存数据]
-RW2 -- 否 --> RW4[缓存从数据库加载并写回]
-RW4 --> RW5[返回数据]
-RW6[应用更新数据] --> RW7[更新缓存]
-RW7 --> RW8[缓存自动写数据库（同步）]
-end
-
-%% 第二行：Write Behind（写回缓存）
-subgraph WB["Write Behind（写回缓存）"]
-direction TB
-WB1[应用读取数据] --> WB2{缓存命中?}
-WB2 -- 是 --> WB3[返回缓存数据]
-WB2 -- 否 --> WB4[缓存从数据库加载并写回]
-WB4 --> WB5[返回数据]
-WB6[应用更新数据] --> WB7[更新缓存]
-WB7 --> WB8[异步批量写入数据库]
-end
-
-%% 布局关系
-CA --> RW
-CA --> WB
-
-```
-
-## 二、各方案优缺点对比
-
-### 1、三种方案核心区别
-
-#### 读操作时：
-
-* **Cache Aside（旁路缓存）**
-
-    * 由应用自己实现缓存回填逻辑；
-    * 典型流程：**先查缓存，未命中则查DB并写入缓存**；
-    * 读多写少的业务最适合，例如配置类数据、详情页、排行榜。
-
-* **Read/Write Through（读写穿透）**
-
-    * 缓存层（框架）封装了数据库的访问逻辑；
-    * 应用只操作缓存，缓存自己负责数据加载和回写；
-    * Spring Cache、Caffeine、Guava 等均可实现这种模式。
-
-* **Write Behind（写回缓存）**
-
-    * 读时同上，但写入时是**先写缓存，异步批量刷入数据库**；
-    * 常用于高吞吐、低一致性场景（如日志、计数、推荐系统）。
+本篇是缓存与数据库一致性的主文档；本地缓存的多实例失效见 [两级缓存（L1 + L2）](./8_two_level_cache)，穿透、击穿、雪崩的防护见 [缓存最佳实践](./11_cache_rule)。
 
 ---
 
-#### 写操作时：
+## 一、三种缓存模式
 
-* **Cache Aside（旁路缓存）**
+![三种缓存模式的写路径](../assets/cache/cache_patterns.svg)
 
-    * 一般流程：**先更新数据库，再删除缓存**（防止脏数据）。
-    * 优点是灵活、可控；缺点是要自己实现一致性控制。
-    * 延迟双删、MQ通知机制常用于此模式增强一致性。
+### 1、Cache Aside（旁路缓存）
 
-* **Read/Write Through**
+- **读**：应用先查缓存，未命中查数据库，再把结果回填缓存
+- **写**：应用先更新数据库，再**删除**缓存
+- 缓存逻辑由应用自己控制，是互联网业务中绝大多数场景的选择
+- Spring Cache 的 `@Cacheable` + `@CacheEvict` 也属于 Cache Aside，只是回填和删除由代理完成，应用仍然自己写数据库
 
-    * 写时先更新缓存，再由缓存同步写数据库；
-    * 应用无需关心数据库细节，适合中小规模系统；
-    * 一致性好，但写路径较长，性能略低。
+### 2、Read / Write Through（读写穿透）
 
-* **Write Behind**
+- 应用只和缓存层打交道，缓存层负责从数据库加载（Read Through）和同步写数据库（Write Through）
+- 典型实现：JCache（JSR-107）的 `CacheLoader` / `CacheWriter`（`setReadThrough` / `setWriteThrough`）、Ehcache、Hazelcast 的 `MapStore`
+- Caffeine / Guava 的 `LoadingCache` 只是 Read Through；Caffeine 3.0 已移除 `CacheWriter`，不提供 Write Through
+- 写缓存与写数据库仍然不是原子的，多实例部署时各自的缓存层之间也需要失效机制，因此同样是最终一致
 
-    * 写操作仅更新缓存，由异步线程批量落库；
-    * 适合对"实时一致性"要求不高的业务；
-    * 如果缓存宕机或写队列丢失，可能造成数据丢失。
+### 3、Write Behind（写回）
 
----
+- 写操作只更新缓存并立即返回，由后台批量、异步地写入数据库
+- 典型实现：Hazelcast `MapStore` 的写延迟模式、Ehcache / JCache 的写回模式、「Redis 计数器 + 定时落库」；数据库的 Buffer Pool、操作系统的 Page Cache 也是同一思想
+- 写吞吐最高，但缓存宕机或写队列丢失会**丢数据**，需要持久化队列、WAL 或幂等重放来保障
+- 适合计数、点赞、浏览量、埋点等允许少量误差、可重算的数据
 
-### 2、各方案优缺点（详细维度）
+### 4、对比
 
-| 对比维度       | Cache Aside（旁路缓存） | Read/Write Through（读写穿透） | Write Behind（写回缓存）   |
-|------------|-------------------|--------------------------|----------------------|
-| **读性能**    | 高（缓存命中快）          | 高（同样命中缓存）                | 高                    |
-| **写性能**    | 中（双操作：DB+缓存）      | 中（写DB同步）                 | ✅ 高（异步写DB）           |
-| **一致性**    | ✅ 强一致（可控制）        | ✅ 强一致                    | ⚠️ 弱一致（有延迟）          |
-| **实现复杂度**  | ⚠️ 高（应用维护缓存逻辑）    | ✅ 中（框架负责）                | ⚠️ 高（需异步队列保障）        |
-| **容错性**    | ✅ 好（应用可自定义补偿）     | 一般（受限于框架）                | 差（需防数据丢失）            |
-| **开发成本**   | 高                 | 低                        | 高                    |
-| **适用业务场景** | Web系统、微服务读多写少     | 配置缓存、系统参数                | 日志、计数、埋点、统计          |
-| **典型实现**   | Redis + 自定义代码     | Spring Cache、Guava Cache | Kafka + Redis Buffer |
-| **风险点**    | 并发更新时的脏缓存         | 框架抽象过深                   | 异步丢失、批量写延迟           |
-
----
-
-### 3、补充维度说明
-
-#### 缓存与数据库的强一致性保证
-
-* **Cache Aside**
-  可通过"延迟双删 + MQ异步删除 + 分布式锁"达到最终一致。
-  典型实现方式最灵活，也是互联网架构的默认首选。
-
-* **Read/Write Through**
-  由缓存层自动保证一致性（单体/小系统下可靠）；
-  但在分布式部署下，缓存与DB之间可能仍有延迟。
-
-* **Write Behind**
-  为了保证可靠落库，通常会在缓存层维护异步队列（batch写入DB）、WAL日志、宕机恢复机制。
+| 维度 | Cache Aside | Read / Write Through | Write Behind |
+|------|-------------|----------------------|--------------|
+| 谁维护缓存 | 应用 | 缓存层 | 缓存层 |
+| 写路径 | 写数据库 → 删缓存 | 写缓存层 → 同步写数据库 | 写缓存 → 异步批量写数据库 |
+| 与数据库的一致性 | 最终一致，窗口小 | 最终一致，窗口较小 | 弱一致，可能丢数据 |
+| 写性能 | 中 | 中（同步写库） | 高 |
+| 主要风险 | 并发下旧值回填、删除失败 | 缓存层成为单点、抽象过深 | 宕机丢数据、落库延迟 |
+| 适用 | 绝大多数读多写少业务 | 有成熟缓存中间件、读写模式统一 | 计数、统计、埋点 |
 
 ---
 
-### 4、补充：失效与更新策略
+## 二、Cache Aside 的写顺序
 
-| 策略            | Cache Aside | Read/Write Through | Write Behind |
-|---------------|-------------|--------------------|--------------|
-| **TTL（过期时间）** | 可自定义，灵活     | 由框架控制              | 可选           |
-| **主动刷新**      | 应用可触发       | 框架触发               | 不常用          |
-| **被动淘汰**      | 支持（LRU/LFU） | 支持                 | 支持           |
-| **缓存重建来源**    | DB          | DB                 | 缓存内部或DB      |
+### 1、四种写法对比
+
+| 写法 | 问题 | 结论 |
+|------|------|------|
+| 先更新数据库，再**更新**缓存 | 并发写会乱序：A 写库、B 写库、B 写缓存、A 写缓存，缓存最终是 A 的旧值；写入的值可能从来不会被读，浪费计算 | 不推荐 |
+| 先更新缓存，再更新数据库 | 数据库写失败或事务回滚，缓存里就是从未生效过的数据 | 不推荐 |
+| 先**删**缓存，再更新数据库 | 删除后、事务提交前，读请求从数据库读到旧值并回填；窗口等于整个事务时长，很容易发生 | 不推荐 |
+| 先更新数据库，再**删**缓存 | 仍有竞态（见下文），但需要多个条件同时满足，窗口很小 | **默认做法** |
+
+**为什么删而不是更新**：删除是幂等的，多个写请求的删除顺序乱了也没关系；新值由下一次读请求按数据库的最新状态重建（懒加载），不会出现「旧值后写覆盖新值」。缓存值需要复杂计算或聚合时，删除也避免了每次写都重算。
+
+### 2、仍然存在的竞态
+
+![「先更新数据库，再删缓存」仍存在的竞态](../assets/cache/cache_aside_race.svg)
+
+1. 读请求 A 发现缓存未命中（刚过期或刚被删）
+2. A 从数据库读到旧值 v1
+3. 写请求 B 把数据更新为 v2 并提交
+4. B 删除缓存（此时缓存本来就是空的）
+5. A 把旧值 v1 写回缓存，直到 TTL 过期前都读到旧值
+
+要发生这个竞态，B 的「更新 + 删除」必须完整地落在 A 的「读库」与「写缓存」之间。正常情况下读库加写缓存只需几毫秒，概率很低；但两种情况会显著放大窗口：
+
+- **读写分离**：A 从从库读，主从复制延迟期间读到的都是旧值
+- **A 在读库后发生 GC 停顿或线程调度延迟**
+
+延迟双删、binlog 订阅删除就是为了收拾这类残留。
 
 ---
 
-### 5、总结一句话（强化记忆）
+## 三、删除时机：事务提交之后
 
-| 模式                     | 核心特征      | 一句话记忆         |
-|------------------------|-----------|---------------|
-| **Cache Aside**        | 应用控制缓存逻辑  | "查不到我再查DB"    |
-| **Read/Write Through** | 缓存代理数据库操作 | "你只找我，我帮你查DB" |
-| **Write Behind**       | 缓存异步写回数据库 | "我先记着，之后再写DB" |
-
----
-
-### 6、优缺点对比小结
-
-> * 互联网系统 90% 使用 **Cache Aside（旁路缓存）**。
-> * 如果你使用 Spring Cache / Guava / Caffeine，这些其实是 **Read/Write Through** 的典型实现。
-> * Write Behind 适合统计、日志、埋点等"可延迟一致性"的场景。
-
-## 三、Cache Aside 模式下的一致性问题与优化策略
-
-### 1、写操作的经典顺序问题
-
-在 **Cache Aside（旁路缓存）** 模式中，最核心的问题是：
-**更新数据库与缓存之间的顺序如何安排**，否则容易导致缓存与数据库数据不一致。
-
-| 顺序                 | 操作流程                | 问题                  |
-|--------------------|---------------------|---------------------|
-| ① 先更新数据库 → 再更新缓存   | DB成功后立刻写缓存          | 若两次操作非原子，缓存可能被旧数据覆盖 |
-| ② 先更新缓存 → 再更新数据库   | DB失败时缓存脏数据          | 容易出现数据不一致           |
-| ✅ ③ 先更新数据库 → 再删除缓存 | 最推荐方案，更新时不写缓存，而是删缓存 | 可确保下次读取时缓存重建        |
-
-**推荐的标准做法：**
-```
-写数据：
-1. 更新数据库
-2. 删除缓存
-```
-
-### 2、延迟双删策略（解决并发问题）
+「先更新数据库，再删缓存」中的「更新数据库」指的是**事务提交**。在 `@Transactional` 方法内部删除缓存，删除实际发生在提交之前，提交前的窗口里其他请求会把旧值重新回填；事务回滚时缓存又被白白删除。
 
 ```java
-public void updateData(String key, Object newValue) {
-    // 1. 更新数据库
-    updateDatabase(newValue);
-    // 2. 删除缓存
-    redis.delete(key);
-    // 3. 延迟再删一次（保证旧缓存被删除）
-    executor.schedule(() -> redis.delete(key), 500, TimeUnit.MILLISECONDS);
+@Transactional
+public void updatePrice(long skuId, BigDecimal price) {
+    skuMapper.updatePrice(skuId, price);
+    String key = "sku:info:" + skuId;
+    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+        @Override
+        public void afterCommit() {
+            redis.delete(key);           // 提交成功后才删除；回滚则不执行
+        }
+    });
 }
 ```
 
-> 延迟时间（如500ms）应略大于一次数据库更新 + 缓存重建的耗时。
+等价的写法是发布领域事件，用 `@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)` 处理，完整示例见 [两级缓存（L1 + L2）](./8_two_level_cache)。Spring Cache 的 `@CacheEvict` 与事务同在一个方法时有同样的问题，处理方式见 [Cache 抽象](/spring/5_cache)。
 
-### 3、异步删除方案（消息队列通知）
+`afterCommit` 仍有两个缺口：
 
-```mermaid
-sequenceDiagram
-    participant ServiceA as 服务A（写操作）
-    participant DB as 数据库
-    participant MQ as 消息队列
-    participant ServiceB as 服务B（读操作）
-    participant Redis as 缓存
-    ServiceA ->> DB: 更新数据库
-    ServiceA ->> MQ: 发送删除缓存消息(key)
-    MQ -->> ServiceB: 接收到消息
-    ServiceB ->> Redis: 删除对应缓存
+- **删除失败**：Redis 超时、网络抖动，删除没有生效，缓存一直是旧值直到 TTL
+- **提交后、删除前进程崩溃**：删除根本没有执行
+
+缺口的补法是对删除做可靠重试：要么用延迟消息再删一次（第四节），要么由 binlog 订阅驱动删除（第五节），要么把「待失效的 key」和业务数据写进同一个本地事务，由投递任务保证必达（本地消息表，见 [消息队列基础](/messaging/1_basics)）。无论哪种，**缓存都必须设置 TTL**，作为最后一道兜底。
+
+---
+
+## 四、延迟双删
+
+### 1、做法与原理
+
+事务提交后删除一次缓存，**延迟一段时间后再删一次**。第二次删除用来清掉第二节竞态中被读请求回填的旧值。
+
+### 2、延迟时间怎么定
+
+延迟必须大于「并发读请求从读库到写回缓存」的最长耗时，再加上主从复制延迟（读从库时）：
+
+- 延迟 > 读请求读库 + 写缓存的 P99 耗时 + 主从复制延迟
+- 常见取值在几百毫秒到 1–2 秒之间，应以监控数据为准；复制延迟可能突增，因此它只能**降低**而不能消除不一致
+
+### 3、实现：用延迟消息，不要用内存定时器
+
+- 不要在请求线程里 `Thread.sleep` 后再删，会直接拖慢接口
+- 不要用 `ScheduledExecutorService` 之类的内存定时器：进程重启时第二次删除丢失，删除失败也没有重试
+- 用 MQ 的延迟消息承载第二次删除，消费失败由 MQ 重试
+
+```java
+@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+public void onSkuChanged(SkuChanged event) {
+    String key = "sku:info:" + event.skuId();
+    rocketMQTemplate.syncSendDelayTimeSeconds("cache-evict", key, 1);   // 先登记 1 秒后的第二次删除（RocketMQ 5.x）
+    redis.delete(key);                                                   // 第一次删除；失败也有延迟消息兜底
+}
+
+@Component
+@RocketMQMessageListener(topic = "cache-evict", consumerGroup = "cache-evict-consumer")
+public class CacheEvictConsumer implements RocketMQListener<String> {
+
+    private final StringRedisTemplate redis;
+
+    public CacheEvictConsumer(StringRedisTemplate redis) {
+        this.redis = redis;
+    }
+
+    @Override
+    public void onMessage(String key) {
+        redis.delete(key);           // 删除是幂等的；抛异常时由 RocketMQ 重试
+    }
+}
 ```
 
-### 4、缓存穿透 / 击穿 / 雪崩
+RocketMQ 4.x 只支持固定延迟级别，5.x 支持任意延迟，见 [RocketMQ](/messaging/3_rocketmq)。
 
-| 问题类型 | 场景 | 解决方案 |
-|---------|------|---------|
-| **缓存穿透** | 查询不存在的数据，每次都打到DB | 布隆过滤器预过滤；缓存空值（短TTL）|
-| **缓存击穿** | 热点key过期瞬间，大量请求同时打DB | 互斥锁（只允许一个请求重建）；逻辑过期（不设TTL，异步刷新）|
-| **缓存雪崩** | 大量key同时过期 | 过期时间加随机抖动；多级缓存兜底；集群部署 |
+---
 
-### 5、Cache Aside 模式小结
+## 五、binlog / CDC 订阅失效
 
-| 策略        | 优点       | 缺点      | 适用场景      |
-|-----------|----------|---------|-----------|
-| 先更新DB再删缓存 | 简单可靠     | 存在短暂不一致 | 大多数场景     |
-| 延迟双删      | 减少并发读旧数据 | 实现稍复杂   | 高并发读多写少   |
-| 消息队列异步删   | 多实例一致    | 引入MQ依赖  | 分布式系统     |
-| Redis通知   | 无需MQ     | 功能有限    | 小型系统或辅助通知 |
+![基于 binlog / CDC 的缓存失效链路](../assets/cache/cache_binlog_invalidation.svg)
+
+由 CDC 组件订阅 MySQL binlog，把行变更转成「待删除的缓存 key」，由独立的消费者执行删除：
+
+1. 业务服务只写数据库，不再负责删缓存
+2. CDC 组件（Canal、Debezium、Flink CDC）解析 binlog 中的行变更
+3. 按表与主键映射出缓存 key，以主键为分区键发到 MQ，保证同一 key 的变更有序
+4. 失效消费者删除缓存，失败退避重试，超过次数进入死信并告警
+
+**优点**：
+
+- **只有提交成功的变更才会进入 binlog**，天然满足「提交后删除」，回滚不会误删
+- 业务进程崩溃不影响删除，失败的删除可以重试、重放，不会漏删
+- 与业务代码解耦：多个服务、批量脚本、手工 SQL 改了同一张表，缓存都能失效
+
+**代价**：要运维 CDC 组件与 MQ，端到端延迟通常在几十到几百毫秒，期间仍是旧值；表结构到缓存 key 的映射需要维护。
+
+**推荐组合**：应用在 `afterCommit` 中先删一次（快），binlog 订阅再删一次（可靠）。binlog 那次删除天然晚于提交，相当于一个由基础设施保证的延迟双删。
+
+binlog 参数、Canal 与 Debezium 的选型与部署见 [CDC 工具](/database/5_practice/0_cdc_tools)，基于 Flink 的 CDC 管道见 [Flink CDC](/flink/6_cdc)。
+
+---
+
+## 六、更强的一致性
+
+确实需要接近强一致的少数数据，有以下手段，代价都很高：
+
+- **按 key 读写互斥**：读写同一 key 时加分布式读写锁（如 Redisson `RReadWriteLock`），回填与更新串行化；读请求也要加锁，吞吐大幅下降
+- **lease 机制**：读未命中时由缓存发放一个 lease 令牌，删除会使令牌失效，持过期令牌的回填被拒绝（Facebook 的 Memcache 论文中的做法），可以消除旧值回填；Redis 没有内置，需要用 Lua 自行实现
+- **不缓存或直读主库**：余额、库存扣减等以数据库为准，缓存只用于展示；扣减用数据库条件更新或 Lua 原子操作，不依赖缓存一致性
+
+---
+
+## 七、方案选型
+
+| 方案 | 不一致窗口 | 可靠性 | 复杂度 | 适用 |
+|------|-----------|--------|--------|------|
+| 只靠 TTL 过期 | 最长一个 TTL | 必然收敛 | 最低 | 允许分钟级旧数据，如排行榜、推荐 |
+| 提交后删除 | 毫秒级，残留竞态 | 删除失败或崩溃会漏删 | 低 | 默认做法 |
+| 提交后删除 + 延迟双删 | 约等于延迟时长 | 依赖延迟消息重试 | 中 | 读写分离、高并发热点 |
+| binlog / CDC 订阅删除 | CDC 端到端延迟 | 高，可重放 | 中高（需运维 CDC） | 核心数据、多入口写同一张表 |
+| 本地消息表投递失效消息 | 投递延迟 | 高 | 中 | 没有 CDC 基础设施时 |
+| 读写锁 / lease | 接近强一致 | 高 | 高，吞吐下降 | 极少数关键数据 |
+
+常用落地组合：**所有 key 设置 TTL + 提交后删除 + binlog 订阅兜底删除**；读从库的场景再加延迟双删。
+
+---
+
+## 小结
+
+- 缓存与数据库之间没有低成本的强一致，所有模式都是最终一致，区别在窗口大小与丢失风险
+- Cache Aside 是默认模式；Spring Cache 属于 Cache Aside，Caffeine `LoadingCache` 只是 Read Through，Caffeine 3 没有 Write Through
+- 写操作是「先更新数据库，再删除缓存」，删除而不是更新，并且在**事务提交之后**执行
+- 残留竞态是读请求把读到的旧值在删除之后回填，读从库会放大窗口
+- 延迟双删的延迟要大于读库加写缓存耗时与主从延迟之和，用延迟消息实现，不用内存定时器
+- binlog / CDC 订阅删除只处理已提交的变更、可重试可重放，是可靠失效的首选兜底
+- 所有缓存 key 必须有 TTL，作为最后一道兜底
+
+## 参考资料
+
+- Microsoft Azure Architecture Center · Cache-Aside pattern：[https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside](https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside)
+- Scaling Memcache at Facebook（NSDI 2013，lease 机制）：[https://www.usenix.org/conference/nsdi13/technical-sessions/presentation/nishtala](https://www.usenix.org/conference/nsdi13/technical-sessions/presentation/nishtala)
+- Ehcache 文档 · Cache Usage Patterns：[https://www.ehcache.org/documentation/3.10/caching-patterns.html](https://www.ehcache.org/documentation/3.10/caching-patterns.html)
+- Spring Framework 文档 · Transaction-bound Events：[https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html)
+- Debezium 文档 · MySQL Connector：[https://debezium.io/documentation/reference/stable/connectors/mysql.html](https://debezium.io/documentation/reference/stable/connectors/mysql.html)
+- Canal GitHub：[https://github.com/alibaba/canal](https://github.com/alibaba/canal)
+- RocketMQ 文档 · 定时 / 延时消息：[https://rocketmq.apache.org/docs/featureBehavior/02delaymessage/](https://rocketmq.apache.org/docs/featureBehavior/02delaymessage/)
+
+> 下一篇：[缓存最佳实践](./11_cache_rule) —— Key / Value / TTL 规范、穿透与击穿防护代码、禁止事项与监控指标。
