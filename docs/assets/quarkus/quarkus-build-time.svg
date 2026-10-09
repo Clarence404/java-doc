@@ -1,0 +1,47 @@
+<svg viewBox="0 0 760 484" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .row { fill:var(--card); stroke-width:1.5; }
+    .tag { font-weight:700; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .ef { fill:var(--fg); font-size:12px; }
+    .ar { stroke:var(--muted); stroke-width:1.5; fill:none; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="380" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Quarkus 构建期增强：把启动工作挪到构建期</text>
+  <rect class="row" x="20" y="44" width="720" height="60" rx="6" ry="6" stroke="var(--muted)"/>
+  <text x="34" y="70" class="tag" fill="var(--muted)">编译</text>
+  <text x="34" y="88" class="sub">javac：源码 → 字节码</text>
+  <text x="726" y="70" text-anchor="end" class="ef">产物：应用 classes + 依赖 jar</text>
+  <text x="726" y="88" text-anchor="end" class="sub">此时与普通 Java 项目无差别</text>
+  <line class="ar" x1="380" y1="104" x2="380" y2="132" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="134" width="720" height="60" rx="6" ry="6" stroke="var(--p)"/>
+  <text x="34" y="160" class="tag" fill="var(--p)">构建期增强（Augmentation）</text>
+  <text x="34" y="178" class="sub">各扩展 deployment 模块执行 @BuildStep</text>
+  <text x="726" y="160" text-anchor="end" class="ef">建立 Jandex 索引、解析注解、确定 Bean 图</text>
+  <text x="726" y="178" text-anchor="end" class="sub">读取构建期配置，裁剪未使用的 Bean 与扩展功能</text>
+  <line class="ar" x1="380" y1="194" x2="380" y2="222" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="224" width="720" height="60" rx="6" ry="6" stroke="var(--b)"/>
+  <text x="34" y="250" class="tag" fill="var(--b)">生成字节码</text>
+  <text x="34" y="268" class="sub">Recorder 把初始化调用录制成字节码</text>
+  <text x="726" y="250" text-anchor="end" class="ef">预生成代理、注入代码与反射替代实现</text>
+  <text x="726" y="268" text-anchor="end" class="sub">运行期不再需要扫描与动态代理</text>
+  <line class="ar" x1="380" y1="284" x2="380" y2="312" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="314" width="720" height="60" rx="6" ry="6" stroke="var(--y)"/>
+  <text x="34" y="340" class="tag" fill="var(--y)">打包</text>
+  <text x="34" y="358" class="sub">quarkus-app/ 快速启动布局</text>
+  <text x="726" y="340" text-anchor="end" class="ef">JVM 模式：quarkus-run.jar</text>
+  <text x="726" y="358" text-anchor="end" class="sub">原生模式：交给 native-image 继续编译</text>
+  <line class="ar" x1="380" y1="374" x2="380" y2="402" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="404" width="720" height="60" rx="6" ry="6" stroke="var(--g)"/>
+  <text x="34" y="430" class="tag" fill="var(--g)">运行期启动</text>
+  <text x="34" y="448" class="sub">只回放录制好的初始化步骤</text>
+  <text x="726" y="430" text-anchor="end" class="ef">无类路径扫描、无注解解析</text>
+  <text x="726" y="448" text-anchor="end" class="sub">启动快、常驻内存低，元数据类不进入运行期</text>
+</svg>

@@ -1,0 +1,54 @@
+<svg viewBox="0 0 720 236" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">Flink CDC 无锁增量快照（单个 chunk）</text>
+  <rect x="20" y="44" width="146" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="93" y="70" text-anchor="middle" class="name">① 记录 LOW 位点</text>
+  <text x="93" y="90" text-anchor="middle" class="desc">读 chunk 前的 binlog 位置</text>
+  <rect x="198" y="44" width="146" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="271" y="70" text-anchor="middle" class="name">② 读取 chunk</text>
+  <text x="271" y="90" text-anchor="middle" class="desc">按主键范围 SELECT</text>
+  <rect x="376" y="44" width="146" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="449" y="70" text-anchor="middle" class="name">③ 记录 HIGH 位点</text>
+  <text x="449" y="90" text-anchor="middle" class="desc">读完后的 binlog 位置</text>
+  <rect x="554" y="44" width="146" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="627" y="70" text-anchor="middle" class="name">④ 合并修正</text>
+  <text x="627" y="90" text-anchor="middle" class="desc">回放 LOW~HIGH 的变更</text>
+  <line x1="166" y1="74" x2="196" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="344" y1="74" x2="374" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="522" y1="74" x2="552" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="360" y="124" text-anchor="middle" class="lbl">每个 chunk 都走 ①~④，得到与 HIGH 位点一致的数据；chunk 之间并行读取</text>
+  <rect x="20" y="136" width="320" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="180" y="162" text-anchor="middle" class="name">快照阶段：多 chunk 并行</text>
+  <text x="180" y="182" text-anchor="middle" class="desc">以 chunk 为粒度记 checkpoint，失败断点续读</text>
+  <rect x="380" y="136" width="320" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="540" y="162" text-anchor="middle" class="name">增量阶段：单个 binlog reader</text>
+  <text x="540" y="182" text-anchor="middle" class="desc">从各 chunk 的 HIGH 位点之后继续读 binlog</text>
+  <line x1="340" y1="166" x2="378" y2="166" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="360" y="222" text-anchor="middle" class="lbl">全程不加全局读锁（FTWRL），也不需要 RELOAD 权限</text>
+</svg>

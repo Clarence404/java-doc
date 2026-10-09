@@ -1,0 +1,51 @@
+<svg viewBox="0 0 720 196" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">反压定位：找第一个「忙但不被反压」的算子</text>
+  <rect x="20" y="44" width="112" height="60" rx="6" fill="var(--fg)" fill-opacity="0.12" stroke="var(--fg)" stroke-width="1.5"/>
+  <text x="76" y="70" text-anchor="middle" class="name">Source</text>
+  <text x="76" y="90" text-anchor="middle" class="desc">backpressured 高</text>
+  <rect x="162" y="44" width="112" height="60" rx="6" fill="var(--fg)" fill-opacity="0.12" stroke="var(--fg)" stroke-width="1.5"/>
+  <text x="218" y="70" text-anchor="middle" class="name">Map</text>
+  <text x="218" y="90" text-anchor="middle" class="desc">backpressured 高</text>
+  <rect x="304" y="44" width="112" height="60" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="360" y="70" text-anchor="middle" class="name">Window</text>
+  <text x="360" y="90" text-anchor="middle" class="desc">busy 接近 100%</text>
+  <rect x="446" y="44" width="112" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="502" y="70" text-anchor="middle" class="name">Sink</text>
+  <text x="502" y="90" text-anchor="middle" class="desc">idle 高</text>
+  <rect x="588" y="44" width="112" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="644" y="70" text-anchor="middle" class="name">外部存储</text>
+  <text x="644" y="90" text-anchor="middle" class="desc">写入正常</text>
+  <line x1="132" y1="74" x2="160" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="274" y1="74" x2="302" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="416" y1="74" x2="444" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="558" y1="74" x2="586" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="360" y="132" text-anchor="middle" class="lbl">反压沿数据流反向传播：Window 是瓶颈，上游被它拖住，下游在等数据</text>
+  <text x="360" y="156" text-anchor="middle" class="lbl">Web UI 颜色：黑 = 被反压　红 = 忙　蓝 = 空闲（取各子任务最大值）</text>
+</svg>

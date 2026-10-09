@@ -235,56 +235,7 @@ curl -X POST http://localhost:8083/connectors \
 
 ## 六、Flink CDC
 
-不需要额外部署 Canal Server 或 Kafka Connect，直接在 Flink 作业内读取数据库变更并进行流式计算。
-
-```xml
-<dependency>
-  <groupId>com.ververica</groupId>
-  <artifactId>flink-connector-mysql-cdc</artifactId>
-  <version>3.1.0</version>
-</dependency>
-```
-
-```java
-MySqlSource<String> source = MySqlSource.<String>builder()
-    .hostname("localhost")
-    .port(3306)
-    .databaseList("mydb")
-    .tableList("mydb.orders")
-    .username("root")
-    .password("123456")
-    .deserializer(new JsonDebeziumDeserializationSchema())
-    .build();
-
-StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-env.addSource(source)
-   .filter(row -> row.contains("\"op\":\"u\""))  // 只处理 UPDATE
-   .print();
-env.execute("orders-cdc");
-```
-
-也可用 Flink SQL（更简洁）：
-
-```sql
-CREATE TABLE orders_cdc (
-  id         BIGINT,
-  user_id    BIGINT,
-  amount     DECIMAL(10, 2),
-  status     STRING,
-  PRIMARY KEY (id) NOT ENFORCED
-) WITH (
-  'connector'  = 'mysql-cdc',
-  'hostname'   = 'localhost',
-  'port'       = '3306',
-  'username'   = 'root',
-  'password'   = '123456',
-  'database-name' = 'mydb',
-  'table-name'    = 'orders'
-);
-
--- 实时同步到 Kafka
-INSERT INTO orders_kafka SELECT * FROM orders_cdc;
-```
+不需要额外部署 Canal Server 或 Kafka Connect，直接在 Flink 作业内以无锁增量快照完成「全量 + binlog 增量」读取，既可接 Flink SQL 做实时计算，也可用 YAML 管道整库同步到 Doris / Paimon / Kafka。源配置、管道定义、Schema 演进与精确一次详见 [Flink CDC](/flink/6_cdc)。
 
 ---
 

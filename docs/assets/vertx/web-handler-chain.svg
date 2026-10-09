@@ -1,0 +1,66 @@
+<svg viewBox="0 0 700 504" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .tag { font-size: 13px; font-weight: 600; }
+    .item { font-size: 12px; }
+    .sub { font-size: 11px; fill: var(--muted); }
+    .lbl { font-size: 11px; fill: var(--muted); }
+    .rowlbl { font-size: 12px; font-weight: 600; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="350" y="24" text-anchor="middle" class="title">Vert.x Web 请求处理链</text>
+  <rect x="20" y="40" width="420" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="230" y="64" text-anchor="middle" class="tag" style="fill:var(--b)">Router</text>
+  <text x="230" y="84" text-anchor="middle" class="sub">按注册顺序匹配 method + path</text>
+  <line x1="230" y1="100" x2="230" y2="134" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="440" y1="70" x2="498" y2="70" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="469" y="64" text-anchor="middle" class="lbl">404</text>
+  <rect x="20" y="136" width="420" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="230" y="160" text-anchor="middle" class="tag" style="fill:var(--b)">BodyHandler</text>
+  <text x="230" y="180" text-anchor="middle" class="sub">读取请求体，默认上限 10 MB</text>
+  <line x1="230" y1="196" x2="230" y2="230" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="440" y1="166" x2="498" y2="166" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="469" y="160" text-anchor="middle" class="lbl">413</text>
+  <rect x="20" y="232" width="420" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="230" y="256" text-anchor="middle" class="tag" style="fill:var(--b)">JWTAuthHandler</text>
+  <text x="230" y="276" text-anchor="middle" class="sub">校验 Bearer Token，写入 ctx.user()</text>
+  <line x1="230" y1="292" x2="230" y2="326" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="440" y1="262" x2="498" y2="262" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="469" y="256" text-anchor="middle" class="lbl">401</text>
+  <rect x="20" y="328" width="420" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="230" y="352" text-anchor="middle" class="tag" style="fill:var(--b)">ValidationHandler</text>
+  <text x="230" y="372" text-anchor="middle" class="sub">按 JSON Schema 校验参数与请求体</text>
+  <line x1="230" y1="388" x2="230" y2="422" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="440" y1="358" x2="498" y2="358" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="469" y="352" text-anchor="middle" class="lbl">400</text>
+  <rect x="20" y="424" width="420" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="230" y="448" text-anchor="middle" class="tag" style="fill:var(--g)">业务 Handler</text>
+  <text x="230" y="468" text-anchor="middle" class="sub">ctx.json(...) 或 ctx.fail(...)</text>
+  <line x1="440" y1="454" x2="498" y2="454" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="469" y="448" text-anchor="middle" class="lbl">500</text>
+  <rect x="500" y="40" width="180" height="444" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="590" y="230" text-anchor="middle" class="tag" style="fill:var(--r)">失败处理</text>
+  <text x="590" y="256" text-anchor="middle" class="item">failureHandler</text>
+  <text x="590" y="276" text-anchor="middle" class="item">errorHandler(code)</text>
+  <text x="590" y="302" text-anchor="middle" class="sub">统一错误响应体</text>
+  <text x="590" y="320" text-anchor="middle" class="sub">记录日志与 traceId</text>
+</svg>

@@ -1,0 +1,39 @@
+<svg viewBox="0 0 760 250" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .row { fill:var(--card); stroke-width:1.5; }
+    .tag { font-weight:700; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .ef { fill:var(--fg); font-size:12px; }
+    .ar { stroke:var(--muted); stroke-width:1.5; fill:none; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="380" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Quarkus REST 端点的执行线程选择</text>
+  <rect class="row" x="20" y="44" width="720" height="60" rx="6" ry="6" stroke="var(--muted)"/>
+  <text x="380" y="70" text-anchor="middle" class="tag" fill="var(--fg)">HTTP 请求到达 Vert.x Event Loop（I/O 线程）</text>
+  <text x="380" y="88" text-anchor="middle" class="sub">Quarkus REST 在构建期按方法签名与注解决定每个端点的执行线程</text>
+  <line class="ar" x1="134" y1="104" x2="134" y2="132" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="134" width="228" height="96" rx="6" ry="6" stroke="var(--g)"/>
+  <text x="134" y="160" text-anchor="middle" class="tag" fill="var(--g)">I/O 线程（事件循环）</text>
+  <text x="134" y="182" text-anchor="middle" class="sub">返回 Uni / Multi / CompletionStage</text>
+  <text x="134" y="200" text-anchor="middle" class="sub">或显式标注 @NonBlocking</text>
+  <text x="134" y="218" text-anchor="middle" class="sub">禁止任何阻塞调用</text>
+  <line class="ar" x1="380" y1="104" x2="380" y2="132" marker-end="url(#arr)"/>
+  <rect class="row" x="266" y="134" width="228" height="96" rx="6" ry="6" stroke="var(--b)"/>
+  <text x="380" y="160" text-anchor="middle" class="tag" fill="var(--b)">Worker 线程池</text>
+  <text x="380" y="182" text-anchor="middle" class="sub">同步返回值（POJO / Response）</text>
+  <text x="380" y="200" text-anchor="middle" class="sub">@Blocking 或 @Transactional</text>
+  <text x="380" y="218" text-anchor="middle" class="sub">池大小限制并发阻塞数</text>
+  <line class="ar" x1="626" y1="104" x2="626" y2="132" marker-end="url(#arr)"/>
+  <rect class="row" x="512" y="134" width="228" height="96" rx="6" ry="6" stroke="var(--p)"/>
+  <text x="626" y="160" text-anchor="middle" class="tag" fill="var(--p)">虚拟线程</text>
+  <text x="626" y="182" text-anchor="middle" class="sub">@RunOnVirtualThread</text>
+  <text x="626" y="200" text-anchor="middle" class="sub">仅对阻塞签名的端点生效</text>
+  <text x="626" y="218" text-anchor="middle" class="sub">适合大量阻塞 I/O</text>
+</svg>

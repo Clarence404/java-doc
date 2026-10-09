@@ -1,0 +1,53 @@
+<svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .tag { font-size: 13px; font-weight: 600; }
+    .item { font-size: 12px; }
+    .sub { font-size: 11px; fill: var(--muted); }
+    .lbl { font-size: 11px; fill: var(--muted); }
+    .rowlbl { font-size: 12px; font-weight: 600; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="350" y="24" text-anchor="middle" class="title">Vert.x 集群架构</text>
+  <rect x="20" y="40" width="180" height="80" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="110" y="64" text-anchor="middle" class="tag" style="fill:var(--b)">Vert.x 节点 A</text>
+  <text x="110" y="84" text-anchor="middle" class="sub">Verticle × N</text>
+  <text x="110" y="102" text-anchor="middle" class="sub">Event Bus 端口</text>
+  <line x1="110" y1="120" x2="110" y2="158" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="260" y="40" width="180" height="80" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="350" y="64" text-anchor="middle" class="tag" style="fill:var(--b)">Vert.x 节点 B</text>
+  <text x="350" y="84" text-anchor="middle" class="sub">Verticle × N</text>
+  <text x="350" y="102" text-anchor="middle" class="sub">Event Bus 端口</text>
+  <line x1="350" y1="120" x2="350" y2="158" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="500" y="40" width="180" height="80" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="590" y="64" text-anchor="middle" class="tag" style="fill:var(--b)">Vert.x 节点 C</text>
+  <text x="590" y="84" text-anchor="middle" class="sub">Verticle × N</text>
+  <text x="590" y="102" text-anchor="middle" class="sub">Event Bus 端口</text>
+  <line x1="590" y1="120" x2="590" y2="158" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="200" y1="80" x2="258" y2="80" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="229" y="74" text-anchor="middle" class="lbl">TCP</text>
+  <line x1="440" y1="80" x2="498" y2="80" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="469" y="74" text-anchor="middle" class="lbl">TCP</text>
+  <rect x="20" y="160" width="660" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="350" y="184" text-anchor="middle" class="tag" style="fill:var(--p)">Cluster Manager：Hazelcast / Infinispan / Ignite</text>
+  <text x="350" y="204" text-anchor="middle" class="sub">成员发现与故障检测、订阅表（地址到节点）、AsyncMap / 分布式锁 / 计数器</text>
+</svg>

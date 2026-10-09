@@ -1,0 +1,70 @@
+<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .tag { font-size: 13px; font-weight: 600; }
+    .item { font-size: 12px; }
+    .sub { font-size: 11px; fill: var(--muted); }
+    .lbl { font-size: 11px; fill: var(--muted); }
+    .rowlbl { font-size: 12px; font-weight: 600; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="350" y="24" text-anchor="middle" class="title">Event Bus 三种通信模式</text>
+  <text x="20" y="66" text-anchor="start" class="rowlbl">send</text>
+  <text x="20" y="84" text-anchor="start" class="rowlbl">点对点</text>
+  <rect x="130" y="40" width="150" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="205" y="64" text-anchor="middle" class="tag" style="fill:var(--b)">Sender</text>
+  <text x="205" y="84" text-anchor="middle" class="sub">eventBus.send()</text>
+  <line x1="280" y1="70" x2="328" y2="70" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="330" y="40" width="150" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="405" y="64" text-anchor="middle" class="tag" style="fill:var(--p)">order.created</text>
+  <text x="405" y="84" text-anchor="middle" class="sub">地址（字符串）</text>
+  <line x1="480" y1="70" x2="528" y2="70" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="530" y="40" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="605" y="64" text-anchor="middle" class="tag" style="fill:var(--g)">3 个 Consumer</text>
+  <text x="605" y="84" text-anchor="middle" class="sub">轮询投递给其中 1 个</text>
+  <text x="20" y="166" text-anchor="start" class="rowlbl">publish</text>
+  <text x="20" y="184" text-anchor="start" class="rowlbl">广播</text>
+  <rect x="130" y="140" width="150" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="205" y="164" text-anchor="middle" class="tag" style="fill:var(--b)">Sender</text>
+  <text x="205" y="184" text-anchor="middle" class="sub">eventBus.publish()</text>
+  <line x1="280" y1="170" x2="328" y2="170" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="330" y="140" width="150" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="405" y="164" text-anchor="middle" class="tag" style="fill:var(--p)">order.created</text>
+  <text x="405" y="184" text-anchor="middle" class="sub">地址（字符串）</text>
+  <line x1="480" y1="170" x2="528" y2="170" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="530" y="140" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="605" y="164" text-anchor="middle" class="tag" style="fill:var(--g)">3 个 Consumer</text>
+  <text x="605" y="184" text-anchor="middle" class="sub">每个 Consumer 都收到</text>
+  <text x="20" y="266" text-anchor="start" class="rowlbl">request</text>
+  <text x="20" y="284" text-anchor="start" class="rowlbl">请求响应</text>
+  <rect x="130" y="240" width="150" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="205" y="264" text-anchor="middle" class="tag" style="fill:var(--b)">Sender</text>
+  <text x="205" y="284" text-anchor="middle" class="sub">eventBus.request()</text>
+  <line x1="280" y1="270" x2="328" y2="270" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="330" y="240" width="150" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="405" y="264" text-anchor="middle" class="tag" style="fill:var(--p)">user.query</text>
+  <text x="405" y="284" text-anchor="middle" class="sub">地址（字符串）</text>
+  <line x1="480" y1="270" x2="528" y2="270" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="530" y="240" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="605" y="264" text-anchor="middle" class="tag" style="fill:var(--g)">1 个 Consumer</text>
+  <text x="605" y="284" text-anchor="middle" class="sub">message.reply(...)</text>
+</svg>

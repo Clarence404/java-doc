@@ -1,0 +1,81 @@
+<svg viewBox="0 0 720 334" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">逻辑图与物理执行：算子链</text>
+
+  <!-- 逻辑图 -->
+  <rect x="20" y="44" width="130" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="85" y="68" text-anchor="middle" class="name">Source</text>
+  <text x="85" y="88" text-anchor="middle" class="desc">并行度 2</text>
+  <rect x="200" y="44" width="130" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="265" y="68" text-anchor="middle" class="name">map</text>
+  <text x="265" y="88" text-anchor="middle" class="desc">并行度 2</text>
+  <rect x="380" y="44" width="130" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="445" y="68" text-anchor="middle" class="name">window</text>
+  <text x="445" y="88" text-anchor="middle" class="desc">并行度 2</text>
+  <rect x="570" y="44" width="130" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="635" y="68" text-anchor="middle" class="name">Sink</text>
+  <text x="635" y="88" text-anchor="middle" class="desc">并行度 1</text>
+
+  <line x1="150" y1="74" x2="198" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="175" y="66" text-anchor="middle" class="lbl">forward</text>
+  <line x1="330" y1="74" x2="378" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="355" y="66" text-anchor="middle" class="lbl">keyBy</text>
+  <line x1="510" y1="74" x2="568" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="539" y="66" text-anchor="middle" class="lbl">rebalance</text>
+
+  <text x="360" y="134" text-anchor="middle" class="lbl">物理执行：forward 且并行度相同的算子链成一个 Task，由同一个线程执行</text>
+
+  <!-- 物理执行 -->
+  <rect x="20" y="150" width="310" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="175" y="174" text-anchor="middle" class="name">Source[1] → map[1]</text>
+  <text x="175" y="194" text-anchor="middle" class="desc">算子链：方法调用传递，无序列化</text>
+  <rect x="20" y="230" width="310" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="175" y="254" text-anchor="middle" class="name">Source[2] → map[2]</text>
+  <text x="175" y="274" text-anchor="middle" class="desc">算子链：方法调用传递，无序列化</text>
+
+  <rect x="380" y="150" width="130" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="445" y="174" text-anchor="middle" class="name">window[1]</text>
+  <text x="445" y="194" text-anchor="middle" class="desc">key 哈希 0</text>
+  <rect x="380" y="230" width="130" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="445" y="254" text-anchor="middle" class="name">window[2]</text>
+  <text x="445" y="274" text-anchor="middle" class="desc">key 哈希 1</text>
+
+  <rect x="570" y="190" width="130" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="635" y="214" text-anchor="middle" class="name">Sink[1]</text>
+  <text x="635" y="234" text-anchor="middle" class="desc">汇总写出</text>
+
+  <line x1="330" y1="180" x2="378" y2="180" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="330" y1="260" x2="378" y2="260" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="330" y1="180" x2="378" y2="258" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="330" y1="260" x2="378" y2="182" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="510" y1="180" x2="568" y2="206" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="510" y1="260" x2="568" y2="234" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <text x="360" y="314" text-anchor="middle" class="lbl">keyBy 是全连接重分区：跨 Task 传输需要序列化与网络缓冲，也是 barrier 对齐发生的地方</text>
+</svg>

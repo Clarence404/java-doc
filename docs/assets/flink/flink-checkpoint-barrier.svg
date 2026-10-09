@@ -1,0 +1,67 @@
+<svg viewBox="0 0 720 310" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">Checkpoint：barrier 注入、对齐与异步快照</text>
+
+  <rect x="20" y="44" width="200" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="120" y="68" text-anchor="middle" class="name">CheckpointCoordinator</text>
+  <text x="120" y="88" text-anchor="middle" class="desc">JobMaster 内：触发 / 收集 ack</text>
+
+  <rect x="500" y="44" width="200" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="600" y="68" text-anchor="middle" class="name">Checkpoint 存储</text>
+  <text x="600" y="88" text-anchor="middle" class="desc">S3 / HDFS / OSS</text>
+
+  <line x1="85" y1="104" x2="85" y2="148" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="93" y="131" class="lbl">向所有 Source 注入 barrier n</text>
+
+  <rect x="20" y="150" width="130" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="85" y="174" text-anchor="middle" class="name">Source 1</text>
+  <text x="85" y="194" text-anchor="middle" class="desc">记录 offset</text>
+  <rect x="20" y="230" width="130" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="85" y="254" text-anchor="middle" class="name">Source 2</text>
+  <text x="85" y="274" text-anchor="middle" class="desc">记录 offset</text>
+
+  <rect x="290" y="190" width="150" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="365" y="214" text-anchor="middle" class="name">窗口算子</text>
+  <text x="365" y="234" text-anchor="middle" class="desc">两个输入通道</text>
+
+  <rect x="550" y="190" width="150" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="625" y="214" text-anchor="middle" class="name">Sink</text>
+  <text x="625" y="234" text-anchor="middle" class="desc">预提交事务</text>
+
+  <line x1="150" y1="180" x2="288" y2="208" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="150" y1="260" x2="288" y2="234" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="440" y1="220" x2="548" y2="220" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="494" y="212" text-anchor="middle" class="lbl">转发 barrier</text>
+
+  <path d="M365,190 V140 H580 V106" fill="none" stroke="var(--g)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <path d="M625,190 V106" fill="none" stroke="var(--g)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="470" y="132" text-anchor="middle" class="lbl">异步上传状态</text>
+
+  <text x="365" y="276" text-anchor="middle" class="desc">对齐：先到 barrier 的通道暂停读取，等齐后做快照</text>
+</svg>

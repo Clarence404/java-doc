@@ -1,0 +1,43 @@
+<svg viewBox="0 0 720 224" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">Flink SQL 四种 Join 的状态占用</text>
+  <rect x="20" y="44" width="330" height="60" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="185" y="70" text-anchor="middle" class="name">Regular Join：两侧全量入状态</text>
+  <text x="185" y="90" text-anchor="middle" class="desc">状态无界，必须配 TTL；输出可能是更新流</text>
+  <rect x="370" y="44" width="330" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="535" y="70" text-anchor="middle" class="name">Interval Join：只留时间区间</text>
+  <text x="535" y="90" text-anchor="middle" class="desc">水位线越过区间后清理，输出只追加</text>
+  <rect x="20" y="124" width="330" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="185" y="150" text-anchor="middle" class="name">Temporal Join：维表版本入状态</text>
+  <text x="185" y="170" text-anchor="middle" class="desc">按主键保留版本，水位线推进时清理旧版本</text>
+  <rect x="370" y="124" width="330" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="535" y="150" text-anchor="middle" class="name">Lookup Join：几乎无状态</text>
+  <text x="535" y="170" text-anchor="middle" class="desc">逐条查外部库，靠缓存与异步扛 QPS</text>
+  <text x="360" y="210" text-anchor="middle" class="lbl">颜色从红到绿：状态从大到小；结果确定性从高到低（Lookup 结果取决于查询时刻）</text>
+</svg>

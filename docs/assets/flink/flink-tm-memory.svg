@@ -1,0 +1,56 @@
+<svg viewBox="0 0 720 440" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">TaskManager 内存模型（taskmanager.memory.*）</text>
+  <rect x="20" y="44" width="680" height="34" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="36" y="66" text-anchor="start" class="name">Framework Heap</text>
+  <text x="684" y="66" text-anchor="end" class="desc">framework.heap.size，默认 128m</text>
+  <rect x="20" y="86" width="680" height="34" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="36" y="108" text-anchor="start" class="name">Task Heap</text>
+  <text x="684" y="108" text-anchor="end" class="desc">task.heap.size，算子与用户对象（HashMap 状态在这）</text>
+  <rect x="20" y="128" width="680" height="34" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="36" y="150" text-anchor="start" class="name">Managed Memory</text>
+  <text x="684" y="150" text-anchor="end" class="desc">managed.fraction=0.4：RocksDB / ForSt、排序、Python</text>
+  <rect x="20" y="170" width="680" height="34" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="36" y="192" text-anchor="start" class="name">Framework Off-Heap</text>
+  <text x="684" y="192" text-anchor="end" class="desc">framework.off-heap.size，默认 128m</text>
+  <rect x="20" y="212" width="680" height="34" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="36" y="234" text-anchor="start" class="name">Task Off-Heap</text>
+  <text x="684" y="234" text-anchor="end" class="desc">task.off-heap.size，用户代码的直接内存，默认 0</text>
+  <rect x="20" y="254" width="680" height="34" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="36" y="276" text-anchor="start" class="name">Network</text>
+  <text x="684" y="276" text-anchor="end" class="desc">network.fraction=0.1，min 64m：算子间数据缓冲</text>
+  <rect x="20" y="296" width="680" height="34" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="36" y="318" text-anchor="start" class="name">JVM Metaspace</text>
+  <text x="684" y="318" text-anchor="end" class="desc">jvm-metaspace.size，默认 256m</text>
+  <rect x="20" y="338" width="680" height="34" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="36" y="360" text-anchor="start" class="name">JVM Overhead</text>
+  <text x="684" y="360" text-anchor="end" class="desc">jvm-overhead.fraction=0.1，限制在 [192m, 1g]</text>
+  <text x="360" y="396" text-anchor="middle" class="lbl">蓝 = JVM 堆　绿 = 堆外（Flink 管理）　黄 = JVM 自身开销</text>
+  <text x="360" y="418" text-anchor="middle" class="lbl">Total Flink Memory = 前 6 项；Total Process Memory = 全部 8 项 = 容器内存</text>
+</svg>

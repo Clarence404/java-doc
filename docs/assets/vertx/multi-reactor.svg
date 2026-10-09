@@ -1,0 +1,53 @@
+<svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .tag { font-size: 13px; font-weight: 600; }
+    .item { font-size: 12px; }
+    .sub { font-size: 11px; fill: var(--muted); }
+    .lbl { font-size: 11px; fill: var(--muted); }
+    .rowlbl { font-size: 12px; font-weight: 600; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="24" text-anchor="middle" class="title">Vert.x 多 Reactor 线程模型</text>
+  <rect x="20" y="40" width="200" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="120" y="64" text-anchor="middle" class="tag" style="fill:var(--b)">Event Loop 0</text>
+  <text x="120" y="84" text-anchor="middle" class="sub">Verticle A#1 / Verticle B#1</text>
+  <rect x="240" y="40" width="200" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="340" y="64" text-anchor="middle" class="tag" style="fill:var(--b)">Event Loop 1</text>
+  <text x="340" y="84" text-anchor="middle" class="sub">Verticle A#2 / HTTP 连接</text>
+  <rect x="460" y="40" width="200" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="560" y="64" text-anchor="middle" class="tag" style="fill:var(--b)">Event Loop N-1</text>
+  <text x="560" y="84" text-anchor="middle" class="sub">默认 N = 2 × CPU 核数</text>
+  <rect x="20" y="140" width="310" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="175" y="164" text-anchor="middle" class="tag" style="fill:var(--y)">Worker 池（默认 20 个平台线程）</text>
+  <text x="175" y="184" text-anchor="middle" class="sub">executeBlocking / WORKER Verticle</text>
+  <rect x="350" y="140" width="310" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="505" y="164" text-anchor="middle" class="tag" style="fill:var(--g)">虚拟线程（JDK 21+）</text>
+  <text x="505" y="184" text-anchor="middle" class="sub">VIRTUAL_THREAD Verticle / Future.await()</text>
+  <line x1="120" y1="100" x2="120" y2="138" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="128" y="124" text-anchor="start" class="lbl">卸载阻塞调用</text>
+  <line x1="560" y1="100" x2="560" y2="138" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="552" y="124" text-anchor="end" class="lbl">同步风格编写</text>
+  <rect x="20" y="240" width="640" height="60" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="340" y="264" text-anchor="middle" class="tag" style="fill:var(--r)">阻塞线程检查器</text>
+  <text x="340" y="284" text-anchor="middle" class="sub">每 1s 巡检一次：Event Loop 单次执行超过 2s、Worker 超过 60s 即打印告警</text>
+</svg>

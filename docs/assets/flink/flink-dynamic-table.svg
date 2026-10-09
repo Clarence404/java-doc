@@ -1,0 +1,66 @@
+<svg viewBox="0 0 720 308" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">流、动态表与 changelog</text>
+  <rect x="20" y="44" width="112" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="76" y="70" text-anchor="middle" class="name">Kafka 流</text>
+  <text x="76" y="90" text-anchor="middle" class="desc">append-only</text>
+  <rect x="162" y="44" width="112" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="218" y="70" text-anchor="middle" class="name">动态表</text>
+  <text x="218" y="90" text-anchor="middle" class="desc">流的表视图</text>
+  <rect x="304" y="44" width="112" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="70" text-anchor="middle" class="name">连续查询</text>
+  <text x="360" y="90" text-anchor="middle" class="desc">GROUP BY user</text>
+  <rect x="446" y="44" width="112" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="502" y="70" text-anchor="middle" class="name">结果动态表</text>
+  <text x="502" y="90" text-anchor="middle" class="desc">随输入持续更新</text>
+  <rect x="588" y="44" width="112" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="644" y="70" text-anchor="middle" class="name">Sink</text>
+  <text x="644" y="90" text-anchor="middle" class="desc">upsert / retract</text>
+  <line x1="132" y1="74" x2="160" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="274" y1="74" x2="302" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="416" y1="74" x2="444" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="558" y1="74" x2="586" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="360" y="124" text-anchor="middle" class="lbl">下例：按用户计数，同一用户第二次出现时结果行被更新</text>
+  <rect x="20" y="136" width="320" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="180" y="162" text-anchor="middle" class="name">输入事件（只追加）</text>
+  <text x="180" y="182" text-anchor="middle" class="desc">(Mary,/home)  (Bob,/cart)  (Mary,/prod)</text>
+  <rect x="380" y="136" width="320" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="540" y="162" text-anchor="middle" class="name">输出 changelog</text>
+  <text x="540" y="182" text-anchor="middle" class="desc">+I[Mary,1]  +I[Bob,1]  -U[Mary,1]  +U[Mary,2]</text>
+  <line x1="340" y1="166" x2="378" y2="166" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="228" width="213" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="126.5" y="254" text-anchor="middle" class="name">Append 流</text>
+  <text x="126.5" y="274" text-anchor="middle" class="desc">只有 +I：过滤、投影、窗口聚合</text>
+  <rect x="253" y="228" width="213" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="359.5" y="254" text-anchor="middle" class="name">Retract 流</text>
+  <text x="359.5" y="274" text-anchor="middle" class="desc">-U / +U 成对：先撤回再插入</text>
+  <rect x="486" y="228" width="214" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="593" y="254" text-anchor="middle" class="name">Upsert 流</text>
+  <text x="593" y="274" text-anchor="middle" class="desc">按主键 +U / -D，省掉 -U</text>
+</svg>

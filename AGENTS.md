@@ -18,6 +18,7 @@ docs/
 ├── devops/         DevOps：Git 工作流 / CI/CD / Code Review / 团队规范
 ├── distributed/    分布式理论 / 锁 / 事务 / 会话
 ├── engineering/    工程效率：构建 / 工具链 / 代码质量 / 线上诊断 / API 规范
+├── flink/          Flink：DataStream / 时间与窗口 / 状态与容错 / SQL / CDC / 部署调优
 ├── high-avail/     高可用：SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线
 ├── high-con/       高并发：水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划
 ├── high-perf/      高性能：指标 / 方法论 / 基准测试 / 池化与异步 / IO 与数据库优化 / Profiler
@@ -31,12 +32,14 @@ docs/
 ├── observability/  可观测性：日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry
 ├── patterns/       设计模式（23 种 GoF）
 ├── protocols/      网络协议：网络通信 / IoT / 远程调用 / 安全 / 文件 / 数据库 / 邮件 / 分布式
+├── quarkus/        Quarkus：构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / 其他 Java 框架
 ├── scenario/       业务场景：秒杀 / 订单 / 短链 / Feed / 搜索等系统设计案例
 ├── security/       应用安全：认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任
 ├── spring/         Spring Framework / WebFlux / Security
 ├── spring-boot/    Spring Boot：自动配置 / Web / 数据访问 / 日志 / 测试 / 版本演进 / 启动优化
 ├── spring-cloud/   Spring Cloud：注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream
-└── testing/        测试工程：单元测试 / Mock / 集成测试 / TDD
+├── testing/        测试工程：单元测试 / Mock / 集成测试 / TDD
+└── vertx/          Vert.x：Event Loop / Verticle / Event Bus / Web / 响应式数据访问
 ```
 
 ---
@@ -55,6 +58,9 @@ docs/
 | Spring Cloud | `docs/spring-cloud/` | 注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream |
 | 测试工程 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD |
 | Netty | `docs/netty/` | IO 模型 / Reactor / 核心组件 / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优 |
+| Vert.x | `docs/vertx/` | Event Loop / Verticle / Event Bus / Web / 响应式数据访问 / 集群 |
+| Quarkus | `docs/quarkus/` | 构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / Spring 迁移 / 其他 Java 框架 |
+| Flink | `docs/flink/` | DataStream / 时间与窗口 / 状态与容错 / Flink SQL / CDC / 部署调优 |
 | 分布式 | `docs/distributed/` | CAP / Raft / 分布式锁 / 事务 |
 | 高并发 | `docs/high-con/` | 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划 |
 | 高可用 | `docs/high-avail/` | SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线 |
@@ -80,7 +86,7 @@ docs/
 
 ```
 基础层：  Java 特性 → JVM → 数据结构与算法 → 网络协议
-框架层：  Spring → Spring Boot → Netty
+框架层：  Spring → Spring Boot → Netty → Vert.x → Quarkus → Flink
 数据层：  数据库 → 缓存 → 消息队列
 分布式层：分布式理论 → 微服务 → Spring Cloud
 三高层：  高性能 → 高并发 → 高可用

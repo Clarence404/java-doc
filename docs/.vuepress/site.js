@@ -64,7 +64,7 @@ export const GROUPS = [
         ],
     },
     {
-        name: '框架生态', tagline: 'Spring 全家桶与高性能网络编程', modules: [
+        name: '框架生态', tagline: 'Spring 全家桶、网络与响应式框架、实时计算', modules: [
             {
                 name: 'Spring', dir: 'spring', interview: ['5_spring'],
                 desc: 'IoC / AOP / Bean 生命周期 / 事务 / MVC / Security',
@@ -77,6 +77,9 @@ export const GROUPS = [
             },
             {name: 'Spring Boot', dir: 'spring-boot', interview: ['5_spring'], desc: '自动配置 / Web / 数据访问 / 日志 / 测试 / Actuator / 版本演进 / 启动优化'},
             {name: 'Netty', dir: 'netty', interview: ['6_netty'], desc: 'IO 模型 / Reactor / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优'},
+            {name: 'Vert.x', dir: 'vertx', desc: 'Event Loop / Verticle / Event Bus / Web / 响应式数据访问 / 集群'},
+            {name: 'Quarkus', dir: 'quarkus', desc: '构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / Spring 迁移 / 其他框架'},
+            {name: 'Flink', dir: 'flink', interview: ['6_flink'], desc: 'DataStream / 时间与窗口 / 状态与容错 / Flink SQL / CDC / 部署调优'},
         ],
     },
     {
