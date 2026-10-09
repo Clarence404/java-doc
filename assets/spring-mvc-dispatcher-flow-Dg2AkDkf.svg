@@ -1,0 +1,90 @@
+<svg viewBox="0 0 960 360" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 12px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+  <text x="480" y="26" text-anchor="middle" class="title">DispatcherServlet 请求处理流程</text>
+  <rect x="20" y="44" width="200" height="72" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="120" y="74" text-anchor="middle" class="name">客户端</text>
+  <text x="120" y="96" text-anchor="middle" class="desc">HTTP 请求</text>
+  <rect x="260" y="44" width="200" height="72" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="360" y="68" text-anchor="middle" class="name">Filter 链</text>
+  <text x="360" y="86" text-anchor="middle" class="desc">Servlet 容器层</text>
+  <text x="360" y="102" text-anchor="middle" class="desc">编码、CORS、Security</text>
+  <rect x="500" y="44" width="200" height="72" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="600" y="68" text-anchor="middle" class="name">DispatcherServlet</text>
+  <text x="600" y="86" text-anchor="middle" class="desc">doDispatch() 统一入口</text>
+  <text x="600" y="102" text-anchor="middle" class="desc">前端控制器</text>
+  <rect x="740" y="44" width="200" height="72" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="840" y="68" text-anchor="middle" class="name">HandlerMapping</text>
+  <text x="840" y="86" text-anchor="middle" class="desc">匹配 @RequestMapping</text>
+  <text x="840" y="102" text-anchor="middle" class="desc">返回 HandlerExecutionChain</text>
+  <rect x="740" y="156" width="200" height="72" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="840" y="180" text-anchor="middle" class="name">preHandle</text>
+  <text x="840" y="198" text-anchor="middle" class="desc">拦截器正序执行</text>
+  <text x="840" y="214" text-anchor="middle" class="desc">返回 false 则中断</text>
+  <rect x="500" y="156" width="200" height="72" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="600" y="180" text-anchor="middle" class="name">HandlerAdapter</text>
+  <text x="600" y="198" text-anchor="middle" class="desc">参数解析、数据绑定、校验</text>
+  <text x="600" y="214" text-anchor="middle" class="desc">反射调用 Controller 方法</text>
+  <rect x="260" y="156" width="200" height="72" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="360" y="180" text-anchor="middle" class="name">返回值处理</text>
+  <text x="360" y="198" text-anchor="middle" class="desc">ReturnValueHandler</text>
+  <text x="360" y="214" text-anchor="middle" class="desc">MessageConverter 写响应体</text>
+  <rect x="20" y="156" width="200" height="72" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="120" y="180" text-anchor="middle" class="name">postHandle</text>
+  <text x="120" y="198" text-anchor="middle" class="desc">拦截器逆序执行</text>
+  <text x="120" y="214" text-anchor="middle" class="desc">@ResponseBody 时响应已写出</text>
+  <rect x="20" y="268" width="200" height="72" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="120" y="292" text-anchor="middle" class="name">视图渲染</text>
+  <text x="120" y="310" text-anchor="middle" class="desc">仅 ModelAndView</text>
+  <text x="120" y="326" text-anchor="middle" class="desc">ViewResolver → View</text>
+  <rect x="260" y="268" width="200" height="72" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="360" y="292" text-anchor="middle" class="name">afterCompletion</text>
+  <text x="360" y="310" text-anchor="middle" class="desc">逆序执行，总会回调</text>
+  <text x="360" y="326" text-anchor="middle" class="desc">适合清理 ThreadLocal</text>
+  <rect x="500" y="268" width="200" height="72" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="600" y="298" text-anchor="middle" class="name">响应返回</text>
+  <text x="600" y="320" text-anchor="middle" class="desc">经 Filter 链回到客户端</text>
+  <rect x="740" y="268" width="200" height="72" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="840" y="292" text-anchor="middle" class="name">HandlerExceptionResolver</text>
+  <text x="840" y="310" text-anchor="middle" class="desc">@ExceptionHandler 处理</text>
+  <text x="840" y="326" text-anchor="middle" class="desc">输出 ProblemDetail 等错误体</text>
+  <line x1="220" y1="80" x2="258" y2="80" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="460" y1="80" x2="498" y2="80" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="700" y1="80" x2="738" y2="80" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="840" y1="116" x2="840" y2="154" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="740" y1="192" x2="702" y2="192" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="500" y1="192" x2="462" y2="192" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="260" y1="192" x2="222" y2="192" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="120" y1="228" x2="120" y2="266" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="220" y1="304" x2="258" y2="304" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="460" y1="304" x2="498" y2="304" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M660,228 V248 H840 V266" fill="none" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr-r)"/>
+  <text x="750" y="243" text-anchor="middle" class="lbl">抛出异常</text>
+</svg>

@@ -1,0 +1,70 @@
+<svg viewBox="0 0 820 472" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 12px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+  <text x="410" y="26" text-anchor="middle" class="title">三级缓存解决 A 与 B 的字段 / setter 循环依赖</text>
+  <rect x="20" y="44" width="360" height="72" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="200" y="68" text-anchor="middle" class="name">1. 创建 A</text>
+  <text x="200" y="86" text-anchor="middle" class="desc">实例化 A（尚未填充属性）</text>
+  <text x="200" y="102" text-anchor="middle" class="desc">addSingletonFactory：ObjectFactory 入三级缓存</text>
+  <rect x="440" y="44" width="360" height="72" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="620" y="68" text-anchor="middle" class="name">2. 填充 A 的属性</text>
+  <text x="620" y="86" text-anchor="middle" class="desc">发现依赖 B，调用 getBean(B)</text>
+  <text x="620" y="102" text-anchor="middle" class="desc">A 处于「正在创建中」</text>
+  <rect x="440" y="156" width="360" height="72" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="620" y="180" text-anchor="middle" class="name">3. 创建 B</text>
+  <text x="620" y="198" text-anchor="middle" class="desc">实例化 B，填充属性时 getBean(A)</text>
+  <text x="620" y="214" text-anchor="middle" class="desc">一级、二级缓存均未命中 A</text>
+  <rect x="20" y="156" width="360" height="72" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="200" y="180" text-anchor="middle" class="name">4. 取 A 的早期引用</text>
+  <text x="200" y="198" text-anchor="middle" class="desc">三级工厂 → getEarlyBeanReference</text>
+  <text x="200" y="214" text-anchor="middle" class="desc">需要代理则提前生成；结果移入二级缓存</text>
+  <rect x="20" y="268" width="360" height="72" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="200" y="292" text-anchor="middle" class="name">5. B 初始化完成</text>
+  <text x="200" y="310" text-anchor="middle" class="desc">B 持有 A 的早期引用（或其代理）</text>
+  <text x="200" y="326" text-anchor="middle" class="desc">B 放入一级缓存，返回给 A</text>
+  <rect x="440" y="268" width="360" height="72" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="620" y="292" text-anchor="middle" class="name">6. A 初始化完成</text>
+  <text x="620" y="310" text-anchor="middle" class="desc">已提前代理则不再重复代理</text>
+  <text x="620" y="326" text-anchor="middle" class="desc">A 放入一级缓存，清理二、三级缓存</text>
+  <line x1="380" y1="80" x2="438" y2="80" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="620" y1="116" x2="620" y2="154" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="440" y1="192" x2="382" y2="192" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="200" y1="228" x2="200" y2="266" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="380" y1="304" x2="438" y2="304" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="380" width="250" height="72" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="145" y="410" text-anchor="middle" class="name">一级 singletonObjects</text>
+  <text x="145" y="432" text-anchor="middle" class="desc">完整的单例 Bean</text>
+  <rect x="285" y="380" width="250" height="72" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="410" y="410" text-anchor="middle" class="name">二级 earlySingletonObjects</text>
+  <text x="410" y="432" text-anchor="middle" class="desc">早期引用，保证多方拿到同一对象</text>
+  <rect x="550" y="380" width="250" height="72" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="675" y="410" text-anchor="middle" class="name">三级 singletonFactories</text>
+  <text x="675" y="432" text-anchor="middle" class="desc">ObjectFactory，按需生成早期引用</text>
+</svg>

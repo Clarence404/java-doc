@@ -1,0 +1,101 @@
+<svg viewBox="0 0 700 470" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .layer-bg{fill:var(--bg);stroke:var(--border);stroke-width:1;}
+    .label-p{fill:var(--p);font-weight:700;}
+    .label-b{fill:var(--b);font-weight:700;}
+    .label-g{fill:var(--g);font-weight:700;}
+    .label-y{fill:var(--y);font-weight:700;}
+    .arrow{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="350" y="22" text-anchor="middle" font-size="14" font-weight="700">Spring Batch 核心架构</text>
+
+  <!-- JobOperator -->
+  <rect class="card" x="20" y="40" width="140" height="60" rx="6"/>
+  <text x="90" y="64" text-anchor="middle" class="label-p">JobOperator</text>
+  <text x="90" y="84" text-anchor="middle" class="muted" font-size="11">启动 / 停止 / 重启 Job</text>
+
+  <!-- JobRepository -->
+  <rect class="card" x="540" y="40" width="140" height="60" rx="6"/>
+  <text x="610" y="64" text-anchor="middle" class="label-y">JobRepository</text>
+  <text x="610" y="84" text-anchor="middle" class="muted" font-size="11">持久化执行状态</text>
+
+  <!-- JobOperator → JobRepository dashed -->
+  <path d="M160,70 L540,70" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="4,3" fill="none"/>
+
+  <!-- JobOperator → Job -->
+  <line x1="90" y1="100" x2="90" y2="128" class="arrow"/>
+  <!-- JobRepository → Job（虚线记录状态） -->
+  <line x1="610" y1="100" x2="610" y2="128" class="arrow" stroke-dasharray="5,3"/>
+
+  <!-- Job box -->
+  <rect class="layer-bg" x="20" y="130" width="660" height="76" rx="8"/>
+  <text x="90" y="152" text-anchor="middle" class="label-p" font-size="12">Job</text>
+  <!-- Steps inside Job -->
+  <rect class="card" x="36" y="162" width="100" height="32" rx="4"/>
+  <text x="86" y="182" text-anchor="middle" font-size="11">Step 1</text>
+  <line x1="136" y1="178" x2="168" y2="178" class="arrow"/>
+  <rect class="card" x="170" y="162" width="100" height="32" rx="4"/>
+  <text x="220" y="182" text-anchor="middle" font-size="11">Step 2</text>
+  <line x1="270" y1="178" x2="302" y2="178" class="arrow"/>
+  <rect class="card" x="304" y="162" width="100" height="32" rx="4"/>
+  <text x="354" y="182" text-anchor="middle" font-size="11">Step N</text>
+  <text x="520" y="182" text-anchor="middle" class="muted" font-size="11">可串联 / 条件分支 / 并行</text>
+
+  <!-- Step detail box -->
+  <rect class="layer-bg" x="20" y="236" width="660" height="124" rx="8"/>
+  <text x="350" y="256" text-anchor="middle" class="label-b" font-size="12">Step（Chunk 模式）</text>
+
+  <!-- chunk dashed group -->
+  <rect fill="none" stroke="var(--g)" stroke-width="1" stroke-dasharray="4,3" x="32" y="258" width="512" height="78" rx="4"/>
+
+  <!-- Reader -->
+  <rect class="card" x="40" y="266" width="140" height="62" rx="6"/>
+  <text x="110" y="286" text-anchor="middle" class="label-g">ItemReader</text>
+  <text x="110" y="304" text-anchor="middle" class="muted" font-size="11">DB / CSV / JSON / MQ</text>
+
+  <line x1="180" y1="297" x2="216" y2="297" class="arrow"/>
+  <text x="198" y="284" text-anchor="middle" class="muted" font-size="10">chunk</text>
+
+  <!-- Processor -->
+  <rect class="card" x="218" y="266" width="140" height="62" rx="6"/>
+  <text x="288" y="286" text-anchor="middle" class="label-y">ItemProcessor</text>
+  <text x="288" y="304" text-anchor="middle" class="muted" font-size="11">过滤 / 转换（可选）</text>
+
+  <line x1="358" y1="297" x2="394" y2="297" class="arrow"/>
+  <text x="376" y="284" text-anchor="middle" class="muted" font-size="10">list</text>
+
+  <!-- Writer -->
+  <rect class="card" x="396" y="266" width="140" height="62" rx="6"/>
+  <text x="466" y="286" text-anchor="middle" class="label-b">ItemWriter</text>
+  <text x="466" y="304" text-anchor="middle" class="muted" font-size="11">DB / 文件 / 外部系统</text>
+
+  <!-- Tasklet note -->
+  <rect class="card" x="560" y="266" width="110" height="62" rx="6"/>
+  <text x="615" y="286" text-anchor="middle" font-size="11">Tasklet</text>
+  <text x="615" y="301" text-anchor="middle" class="muted" font-size="10">简单任务</text>
+  <text x="615" y="315" text-anchor="middle" class="muted" font-size="10">（无 R/P/W）</text>
+
+  <!-- chunkSize annotation -->
+  <text x="288" y="348" text-anchor="middle" class="muted" font-size="10">每批读取 chunkSize 条 → 处理 → 批量写入（按 chunk 提交事务）</text>
+
+  <!-- Step → DB arrow -->
+  <line x1="350" y1="360" x2="350" y2="388" class="arrow"/>
+
+  <!-- DB / storage layer -->
+  <rect class="layer-bg" x="20" y="390" width="660" height="60" rx="8"/>
+  <text x="350" y="412" text-anchor="middle" class="label-y" font-size="12">JobRepository 元数据表（JDBC 存储）</text>
+  <text x="350" y="432" text-anchor="middle" class="muted" font-size="11">BATCH_JOB_INSTANCE · BATCH_JOB_EXECUTION · BATCH_STEP_EXECUTION</text>
+</svg>

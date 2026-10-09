@@ -1,0 +1,71 @@
+<svg viewBox="0 0 760 844" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .row { fill:var(--card); stroke-width:1.5; }
+    .tag { font-weight:700; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .ef { fill:var(--fg); font-size:12px; }
+    .ar { stroke:var(--muted); stroke-width:1.5; fill:none; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="380" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">SpringApplication.run() 启动流程与事件</text>
+  <rect class="row" x="20" y="44" width="720" height="60" rx="6" ry="6" stroke="var(--muted)"/>
+  <text x="34" y="70" class="tag" fill="var(--muted)">new SpringApplication()</text>
+  <text x="34" y="88" class="sub">推断应用类型，从 spring.factories 加载初始化器与监听器</text>
+  <text x="726" y="70" text-anchor="end" class="ef">不发布事件</text>
+  <text x="726" y="88" text-anchor="end" class="sub">SERVLET / REACTIVE / NONE</text>
+  <line class="ar" x1="380" y1="104" x2="380" y2="132" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="134" width="720" height="60" rx="6" ry="6" stroke="var(--p)"/>
+  <text x="34" y="160" class="tag" fill="var(--p)">listeners.starting()</text>
+  <text x="34" y="178" class="sub">创建 BootstrapContext，获取 SpringApplicationRunListener</text>
+  <text x="726" y="160" text-anchor="end" class="ef">ApplicationStartingEvent</text>
+  <text x="726" y="178" text-anchor="end" class="sub">此时还没有 Environment 和 Bean</text>
+  <line class="ar" x1="380" y1="194" x2="380" y2="222" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="224" width="720" height="60" rx="6" ry="6" stroke="var(--p)"/>
+  <text x="34" y="250" class="tag" fill="var(--p)">prepareEnvironment()</text>
+  <text x="34" y="268" class="sub">创建 Environment，加载命令行、环境变量与配置文件</text>
+  <text x="726" y="250" text-anchor="end" class="ef">ApplicationEnvironmentPreparedEvent</text>
+  <text x="726" y="268" text-anchor="end" class="sub">ConfigData 在此加载 application.yml</text>
+  <line class="ar" x1="380" y1="284" x2="380" y2="312" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="314" width="720" height="60" rx="6" ry="6" stroke="var(--muted)"/>
+  <text x="34" y="340" class="tag" fill="var(--muted)">printBanner() / createApplicationContext()</text>
+  <text x="34" y="358" class="sub">打印 Banner，ApplicationContextFactory 按应用类型建容器</text>
+  <text x="726" y="340" text-anchor="end" class="ef">不发布事件</text>
+  <text x="726" y="358" text-anchor="end" class="sub">容器已创建但尚未刷新</text>
+  <line class="ar" x1="380" y1="374" x2="380" y2="402" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="404" width="720" height="60" rx="6" ry="6" stroke="var(--b)"/>
+  <text x="34" y="430" class="tag" fill="var(--b)">prepareContext()</text>
+  <text x="34" y="448" class="sub">执行 ApplicationContextInitializer，注册主配置类</text>
+  <text x="726" y="430" text-anchor="end" class="ef">ApplicationContextInitializedEvent</text>
+  <text x="726" y="448" text-anchor="end" class="sub">随后发布 ApplicationPreparedEvent</text>
+  <line class="ar" x1="380" y1="464" x2="380" y2="492" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="494" width="720" height="60" rx="6" ry="6" stroke="var(--g)"/>
+  <text x="34" y="520" class="tag" fill="var(--g)">refreshContext()</text>
+  <text x="34" y="538" class="sub">解析配置类与自动配置，创建 Web 服务器，实例化单例 Bean</text>
+  <text x="726" y="520" text-anchor="end" class="ef">WebServerInitializedEvent</text>
+  <text x="726" y="538" text-anchor="end" class="sub">以及 ContextRefreshedEvent</text>
+  <line class="ar" x1="380" y1="554" x2="380" y2="582" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="584" width="720" height="60" rx="6" ry="6" stroke="var(--g)"/>
+  <text x="34" y="610" class="tag" fill="var(--g)">listeners.started()</text>
+  <text x="34" y="628" class="sub">容器刷新完成，Runner 尚未执行</text>
+  <text x="726" y="610" text-anchor="end" class="ef">ApplicationStartedEvent</text>
+  <text x="726" y="628" text-anchor="end" class="sub">LivenessState.CORRECT</text>
+  <line class="ar" x1="380" y1="644" x2="380" y2="672" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="674" width="720" height="60" rx="6" ry="6" stroke="var(--y)"/>
+  <text x="34" y="700" class="tag" fill="var(--y)">callRunners()</text>
+  <text x="34" y="718" class="sub">按 @Order 执行 ApplicationRunner 与 CommandLineRunner</text>
+  <text x="726" y="700" text-anchor="end" class="ef">不发布事件</text>
+  <text x="726" y="718" text-anchor="end" class="sub">Runner 抛异常会导致启动失败</text>
+  <line class="ar" x1="380" y1="734" x2="380" y2="762" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="764" width="720" height="60" rx="6" ry="6" stroke="var(--g)"/>
+  <text x="34" y="790" class="tag" fill="var(--g)">listeners.ready()</text>
+  <text x="34" y="808" class="sub">启动完成，可以接收流量</text>
+  <text x="726" y="790" text-anchor="end" class="ef">ApplicationReadyEvent</text>
+  <text x="726" y="808" text-anchor="end" class="sub">ReadinessState.ACCEPTING_TRAFFIC</text>
+</svg>

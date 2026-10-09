@@ -1,0 +1,1 @@
+var e=`/java-doc/assets/sca-stack-CPttY5fr.svg`;export{e as t};
