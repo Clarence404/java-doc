@@ -1,0 +1,71 @@
+<svg viewBox="0 0 780 472" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 12px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+  <text x="390" y="26" text-anchor="middle" class="title">单例 Bean 生命周期</text>
+  <rect x="20" y="44" width="340" height="72" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="190" y="68" text-anchor="middle" class="name">1. 实例化</text>
+  <text x="190" y="86" text-anchor="middle" class="desc">createBeanInstance：构造器 / 工厂方法</text>
+  <text x="190" y="102" text-anchor="middle" class="desc">此前 InstantiationAwareBPP 可短路返回</text>
+  <rect x="420" y="44" width="340" height="72" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="590" y="68" text-anchor="middle" class="name">2. 属性填充</text>
+  <text x="590" y="86" text-anchor="middle" class="desc">populateBean → postProcessProperties</text>
+  <text x="590" y="102" text-anchor="middle" class="desc">@Autowired / @Value / @Resource 注入</text>
+  <rect x="420" y="156" width="340" height="72" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="590" y="180" text-anchor="middle" class="name">3. Aware 回调</text>
+  <text x="590" y="198" text-anchor="middle" class="desc">invokeAwareMethods</text>
+  <text x="590" y="214" text-anchor="middle" class="desc">BeanName / BeanClassLoader / BeanFactoryAware</text>
+  <rect x="20" y="156" width="340" height="72" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="190" y="180" text-anchor="middle" class="name">4. 初始化前</text>
+  <text x="190" y="198" text-anchor="middle" class="desc">BPP#postProcessBeforeInitialization</text>
+  <text x="190" y="214" text-anchor="middle" class="desc">ApplicationContextAware、@PostConstruct</text>
+  <rect x="20" y="268" width="340" height="72" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="190" y="292" text-anchor="middle" class="name">5. 初始化</text>
+  <text x="190" y="310" text-anchor="middle" class="desc">invokeInitMethods</text>
+  <text x="190" y="326" text-anchor="middle" class="desc">afterPropertiesSet → 自定义 init-method</text>
+  <rect x="420" y="268" width="340" height="72" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="590" y="292" text-anchor="middle" class="name">6. 初始化后</text>
+  <text x="590" y="310" text-anchor="middle" class="desc">BPP#postProcessAfterInitialization</text>
+  <text x="590" y="326" text-anchor="middle" class="desc">AbstractAutoProxyCreator 生成 AOP 代理</text>
+  <rect x="420" y="380" width="340" height="72" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="590" y="404" text-anchor="middle" class="name">7. 就绪</text>
+  <text x="590" y="422" text-anchor="middle" class="desc">放入一级缓存 singletonObjects</text>
+  <text x="590" y="438" text-anchor="middle" class="desc">全部单例就绪后回调 SmartInitializingSingleton</text>
+  <rect x="20" y="380" width="340" height="72" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="190" y="404" text-anchor="middle" class="name">8. 销毁</text>
+  <text x="190" y="422" text-anchor="middle" class="desc">容器关闭时（prototype 不回调）</text>
+  <text x="190" y="438" text-anchor="middle" class="desc">@PreDestroy → destroy() → destroy-method</text>
+  <line x1="360" y1="80" x2="418" y2="80" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="590" y1="116" x2="590" y2="154" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="420" y1="192" x2="362" y2="192" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="190" y1="228" x2="190" y2="266" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="360" y1="304" x2="418" y2="304" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="590" y1="340" x2="590" y2="378" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="420" y1="416" x2="362" y2="416" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

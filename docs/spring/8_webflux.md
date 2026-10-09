@@ -868,4 +868,4 @@ void delayedWithVirtualTime() {
 - 重试会重新订阅上游，只用于幂等操作；`WebClient` 的连接异常是 `WebClientRequestException` 而不是 `IOException`
 - 调试优先用 `checkpoint` 与 reactor-tools，`Hooks.onOperatorDebug` 仅限本地；测试用 `StepVerifier` 与虚拟时间
 
-> 下一篇：[Security](./9_security) —— 认证、授权与过滤器链，WebFlux 下同样基于响应式 Security 链路实现。
+> 下一篇：[Spring Security](./9_security) —— 认证、授权与过滤器链，WebFlux 下同样基于响应式 Security 链路实现。

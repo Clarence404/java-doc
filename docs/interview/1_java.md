@@ -464,7 +464,7 @@ JDK 26（JEP 500）起，反射修改 `final` 字段会打印警告，后续版�
 - `methodProxy.invoke(proxy, args)`：再次进入代理，**无限递归**直到栈溢出
 
 - JDK 代理的 handler 里用 `method.invoke` 时要捕获 `InvocationTargetException` 并抛出 `getCause()`；handler 抛出接口未声明的受检异常时，调用方收到 `UndeclaredThrowableException`
-- Spring AOP 的自调用失效与解决方式见 [开发总结 - Spring](/interview/5_spring) 的 `@Transactional` 自调用一题
+- Spring AOP 的自调用失效与解决方式见 [开发总结 - Spring 与 Spring Boot](/interview/5_spring) 的 `@Transactional` 自调用一题
 
 → 详见 [动态代理](/java/16_topic_proxy#二、cglib-动态代理)
 

@@ -1,0 +1,47 @@
+<svg viewBox="0 0 680 504" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="680" height="504" rx="8" fill="var(--bg)"/>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Nacos 2.x+ 配置动态刷新链路</text>
+  <rect x="40" y="44" width="600" height="44" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="340" y="71" text-anchor="middle" font-size="12" fill="var(--fg)">① 控制台或 OpenAPI 发布配置，Nacos Server 持久化并计算 MD5</text>
+  <line x1="340" y1="88" x2="340" y2="118" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="120" width="600" height="44" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="340" y="147" text-anchor="middle" font-size="12" fill="var(--fg)">② Server 通过 gRPC 长连接向订阅该 dataId 的客户端推送变更通知</text>
+  <line x1="340" y1="164" x2="340" y2="194" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="196" width="600" height="44" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="340" y="223" text-anchor="middle" font-size="12" fill="var(--fg)">③ 客户端按 dataId 拉取最新内容，校验 MD5，回调已注册的 Listener</text>
+  <line x1="340" y1="240" x2="340" y2="270" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="272" width="600" height="44" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="340" y="299" text-anchor="middle" font-size="12" fill="var(--fg)">④ NacosContextRefresher 收到回调，发布 RefreshEvent</text>
+  <line x1="340" y1="316" x2="340" y2="346" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="348" width="600" height="44" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="340" y="375" text-anchor="middle" font-size="12" fill="var(--fg)">⑤ ContextRefresher 重建配置源、刷新 Environment，发布 EnvironmentChangeEvent</text>
+  <line x1="186" y1="392" x2="186" y2="422" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="494" y1="392" x2="494" y2="422" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="424" width="292" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="186" y="448" text-anchor="middle" font-size="12" font-weight="600" fill="var(--fg)">ConfigurationPropertiesRebinder</text>
+  <text x="186" y="470" text-anchor="middle" font-size="12" fill="var(--fg)">原地重新绑定 @ConfigurationProperties</text>
+  <rect x="348" y="424" width="292" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="494" y="448" text-anchor="middle" font-size="12" font-weight="600" fill="var(--fg)">RefreshScope.refreshAll()</text>
+  <text x="494" y="470" text-anchor="middle" font-size="12" fill="var(--fg)">销毁 @RefreshScope Bean，下次访问重建</text>
+</svg>

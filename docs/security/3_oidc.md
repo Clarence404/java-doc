@@ -6,7 +6,7 @@ description: id_token、授权码 + PKCE 流程、Discovery、Front/Back-Channel
 
 > OIDC（OpenID Connect）基于 OAuth2 构建，在授权层之上增加了标准的身份认证协议。OAuth2 协议基础见 → [OAuth2](/security/2_oauth2)；SSO 原理与选型见 → [单点登录](/security/4_sso)；JWT 令牌格式见 → [JWT](/security/1_jwt)
 >
-> Spring Boot 对接 OIDC / Keycloak（依赖、配置、角色映射、Back-Channel Logout）见 → [SSO 单点登录（Spring）](/spring/11_single_sign_on)
+> Spring Boot 对接 OIDC / Keycloak（依赖、配置、角色映射、Back-Channel Logout）见 → [Spring SSO 接入](/spring/11_single_sign_on)
 
 ---
 
@@ -106,4 +106,4 @@ OIDC 定义了两种单点注销方式：
 | 对 SP 要求 | SP 提供注销 URL，浏览器可访问 | SP 提供可被 IdP 访问的内网端点 |
 | 适用场景 | 简单演示 / 老系统兼容 | **生产环境推荐** |
 
-> Spring Security 开启 Back-Channel Logout 的配置见 → [SSO 单点登录（Spring）· 单点登出配置](/spring/11_single_sign_on)；SLO 方案整体选型见 → [单点登录](/security/4_sso)
+> Spring Security 开启 Back-Channel Logout 的配置见 → [Spring SSO 接入](/spring/11_single_sign_on)；SLO 方案整体选型见 → [单点登录](/security/4_sso)

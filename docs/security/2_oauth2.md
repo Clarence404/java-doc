@@ -85,5 +85,5 @@ Token 直接返回到浏览器 URL，安全性差，OAuth2.1 中已废弃，SPA 
 
 > [!warning]
 > 待补充：Token 吊销（Revocation）机制、多租户场景
->
-> Spring Authorization Server 实战属于 Spring 模块，后续补充到 → [SSO 单点登录（Spring）](/spring/11_single_sign_on)
+
+> Spring Authorization Server 实战（Spring Security 7 内置：两条过滤器链、JDBC 存储、PKCE 与客户端凭证、签名密钥）见 → [Spring SSO 接入](/spring/11_single_sign_on)

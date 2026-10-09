@@ -1,0 +1,62 @@
+<svg viewBox="0 0 780 392" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 12px; fill: var(--muted); }
+    .note  { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="350" y="24" text-anchor="middle" class="title">Spring Boot 配置源优先级：上层覆盖下层</text>
+
+  <!-- 测试与开发工具 -->
+  <rect x="20" y="40" width="660" height="64" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="350" y="62" text-anchor="middle" class="name">测试与开发工具</text>
+  <text x="185" y="88" text-anchor="middle" class="desc">DevTools 全局设置</text>
+  <text x="515" y="88" text-anchor="middle" class="desc">@TestPropertySource / @DynamicPropertySource</text>
+
+  <!-- 启动参数 -->
+  <rect x="20" y="116" width="660" height="84" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="350" y="138" text-anchor="middle" class="name">启动时传入（进程级）</text>
+  <text x="185" y="162" text-anchor="middle" class="desc">1. 命令行参数 --key=value</text>
+  <text x="515" y="162" text-anchor="middle" class="desc">2. SPRING_APPLICATION_JSON</text>
+  <text x="185" y="184" text-anchor="middle" class="desc">3. Java 系统属性 -Dkey=value</text>
+  <text x="515" y="184" text-anchor="middle" class="desc">4. 操作系统环境变量 KEY_NAME</text>
+
+  <!-- 配置文件 -->
+  <rect x="20" y="212" width="660" height="84" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="350" y="234" text-anchor="middle" class="name">配置数据文件（含 spring.config.import 导入的内容）</text>
+  <text x="185" y="258" text-anchor="middle" class="desc">1. jar 外 application-{profile}.yml</text>
+  <text x="515" y="258" text-anchor="middle" class="desc">2. jar 外 application.yml</text>
+  <text x="185" y="280" text-anchor="middle" class="desc">3. jar 内 application-{profile}.yml</text>
+  <text x="515" y="280" text-anchor="middle" class="desc">4. jar 内 application.yml</text>
+
+  <!-- 兜底 -->
+  <rect x="20" y="308" width="660" height="64" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="350" y="330" text-anchor="middle" class="name">代码内兜底</text>
+  <text x="185" y="356" text-anchor="middle" class="desc">@PropertySource</text>
+  <text x="515" y="356" text-anchor="middle" class="desc">SpringApplication.setDefaultProperties</text>
+
+  <!-- 右侧方向箭头 -->
+  <line x1="712" y1="40" x2="712" y2="370" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="722" y="211" class="note">高到低</text>
+</svg>

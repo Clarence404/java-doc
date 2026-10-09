@@ -1,0 +1,44 @@
+<svg viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="680" height="400" rx="8" fill="var(--bg)"/>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Seata AT 模式两阶段流程</text>
+  <rect x="40" y="44" width="600" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="340" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">TM：@GlobalTransactional 开启全局事务</text>
+  <text x="340" y="90" text-anchor="middle" font-size="12" fill="var(--fg)">向 TC（seata-server）申请全局 XID，XID 随 RPC 调用透传给各参与方</text>
+  <line x1="340" y1="104" x2="340" y2="134" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="136" width="600" height="60" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="340" y="160" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">一阶段：各 RM 执行业务 SQL</text>
+  <text x="340" y="182" text-anchor="middle" font-size="12" fill="var(--fg)">生成前后镜像写入 undo_log，提交前向 TC 注册分支并获取全局锁，与业务 SQL 同一本地事务提交</text>
+  <line x1="340" y1="196" x2="340" y2="226" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="228" width="600" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="340" y="252" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">TM 按业务结果决议</text>
+  <text x="340" y="274" text-anchor="middle" font-size="12" fill="var(--fg)">方法正常返回则向 TC 发起全局提交，抛出异常则发起全局回滚</text>
+  <line x1="186" y1="288" x2="186" y2="318" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="494" y1="288" x2="494" y2="318" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="320" width="292" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="186" y="344" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">二阶段提交</text>
+  <text x="186" y="366" text-anchor="middle" font-size="12" fill="var(--fg)">异步删除 undo_log，释放全局锁</text>
+  <rect x="348" y="320" width="292" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="494" y="344" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">二阶段回滚</text>
+  <text x="494" y="366" text-anchor="middle" font-size="12" fill="var(--fg)">校验后镜像，按前镜像补偿，释放全局锁</text>
+</svg>

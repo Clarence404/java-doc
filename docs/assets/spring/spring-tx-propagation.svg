@@ -1,0 +1,62 @@
+<svg viewBox="0 0 950 314" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 12px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+  <text x="475" y="26" text-anchor="middle" class="title">REQUIRED / REQUIRES_NEW / NESTED 对比</text>
+  <rect x="20" y="44" width="290" height="250" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="165" y="68" text-anchor="middle" class="name">REQUIRED（默认）</text>
+  <rect x="35" y="84" width="260" height="120" rx="4" fill="var(--b)" fill-opacity="0.08" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="165" y="106" text-anchor="middle" class="desc">外层事务 T1 · 连接 C1</text>
+  <rect x="55" y="120" width="220" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="165" y="144" text-anchor="middle" class="name">内层方法加入 T1</text>
+  <text x="165" y="164" text-anchor="middle" class="desc">同一连接、同一事务</text>
+  <text x="165" y="234" text-anchor="middle" class="desc">内层抛异常 → T1 被标记 rollback-only</text>
+  <text x="165" y="256" text-anchor="middle" class="desc">外层 catch 后提交会抛</text>
+  <text x="165" y="278" text-anchor="middle" class="desc">UnexpectedRollbackException</text>
+  <rect x="330" y="44" width="290" height="250" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="475" y="68" text-anchor="middle" class="name">REQUIRES_NEW</text>
+  <rect x="345" y="84" width="260" height="120" rx="4" fill="var(--b)" fill-opacity="0.08" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="475" y="106" text-anchor="middle" class="desc">外层事务 T1 · 连接 C1（挂起）</text>
+  <rect x="365" y="120" width="220" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="475" y="144" text-anchor="middle" class="name">新事务 T2 · 连接 C2</text>
+  <text x="475" y="164" text-anchor="middle" class="desc">独立提交或回滚</text>
+  <text x="475" y="234" text-anchor="middle" class="desc">同时占用两个连接</text>
+  <text x="475" y="256" text-anchor="middle" class="desc">T2 回滚不影响 T1（需在外层 catch）</text>
+  <text x="475" y="278" text-anchor="middle" class="desc">T2 已提交，T1 回滚也不撤销 T2</text>
+  <rect x="640" y="44" width="290" height="250" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="785" y="68" text-anchor="middle" class="name">NESTED</text>
+  <rect x="655" y="84" width="260" height="120" rx="4" fill="var(--b)" fill-opacity="0.08" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="785" y="106" text-anchor="middle" class="desc">外层事务 T1 · 连接 C1</text>
+  <rect x="675" y="120" width="220" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="785" y="144" text-anchor="middle" class="name">保存点 SP1</text>
+  <text x="785" y="164" text-anchor="middle" class="desc">同一连接 C1</text>
+  <text x="785" y="234" text-anchor="middle" class="desc">内层失败只回滚到 SP1，外层可继续</text>
+  <text x="785" y="256" text-anchor="middle" class="desc">外层回滚 → 内层工作一并回滚</text>
+  <text x="785" y="278" text-anchor="middle" class="desc">依赖 JDBC Savepoint 支持</text>
+</svg>

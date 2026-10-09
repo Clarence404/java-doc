@@ -8,7 +8,7 @@ description: 三方票据模型、方案对比与选型、Session 共享、CAS�
 > * CAS 官网：[https://apereo.github.io/cas/](https://apereo.github.io/cas/)
 > * Keycloak：[https://www.keycloak.org/](https://www.keycloak.org/)　MaxKey：[https://maxkey.top/](https://maxkey.top/)
 
-> 本文聚焦 SSO 原理、方案对比与选型（与框架无关）。OIDC 协议见 → [OIDC](/security/3_oidc)；OAuth2 协议见 → [OAuth2](/security/2_oauth2)；Spring 生态接入配置见 → [SSO 单点登录（Spring）](/spring/11_single_sign_on)；Sa-Token SSO 见 → [安全框架对比](/spring/10_auth_framework)
+> 本文聚焦 SSO 原理、方案对比与选型（与框架无关）。OIDC 协议见 → [OIDC](/security/3_oidc)；OAuth2 协议见 → [OAuth2](/security/2_oauth2)；Spring 生态接入配置（含 Sa-Token SSO）见 → [Spring SSO 接入](/spring/11_single_sign_on)
 
 单点登录（Single Sign-On）指用户只需登录一次，即可访问多个相互信任的系统，无需重复认证。
 
@@ -215,8 +215,8 @@ Apereo 基金会维护，是传统企业 SSO 的主流协议，适合 Java 应�
 
 ## 十、Java 框架落地
 
-- **Spring Security**（LDAP / CAS Client / SAML2 SP / OIDC Client / Keycloak）→ [SSO 单点登录（Spring）](/spring/11_single_sign_on)
-- **Sa-Token SSO**（同域 / 跨域 ticket 模式）→ [安全框架对比 · Sa-Token](/spring/10_auth_framework)
+- **Spring Security**（LDAP / CAS Client / SAML2 SP / OIDC Client / Keycloak / Spring Authorization Server）→ [Spring SSO 接入](/spring/11_single_sign_on)
+- **Sa-Token SSO**（同域 / 跨域 ticket 模式）→ [Spring SSO 接入](/spring/11_single_sign_on)
 
 ---
 

@@ -1,73 +1,42 @@
 # 微服务总览
 
-> 微服务概念起源：[Microservices - Martin Fowler](https://martinfowler.com/articles/microservices.html)
+微服务（Microservices）是一种把单一应用拆成一组围绕业务能力构建、可独立部署、通过轻量级协议通信的小服务的架构风格。这一术语由 James Lewis 与 Martin Fowler 在 2014 年的文章中系统阐述。本模块讲与具体框架无关的架构层问题：微服务带来什么、代价是什么、何时以及如何从单体迁移、常用的微服务设计模式，以及服务治理的两条实现路线——SDK 侵入式的 Dubbo / Spring Cloud 与基础设施化的服务网格。Spring Cloud 各组件的具体用法在 [Spring Cloud](/spring-cloud/0_overview) 模块展开。
+
+版本基线：**Spring Boot 4.x / Spring Cloud 2025.1.x**；服务网格以 **Istio 1.24+**（Ambient 模式 GA）为准；Dubbo 以 **3.3** 为准，基于 Spring Boot 3.5，Boot 4 适配以官方发布为准。
+
+> 参考资料：
+> * Microservices（James Lewis & Martin Fowler）：[https://martinfowler.com/articles/microservices.html](https://martinfowler.com/articles/microservices.html)
+> * Microservice Architecture（Chris Richardson）：[https://microservices.io/](https://microservices.io/)
 
 ---
 
-## 一、什么是微服务
-
-微服务架构是一种将单一应用拆分为一组**小的、独立部署的服务**的架构风格，每个服务：
-- 围绕业务能力构建，职责单一
-- 拥有自己的进程和独立数据库
-- 通过轻量级 API（REST / gRPC / 消息队列）与其他服务通信
-- 可独立开发、测试、部署、扩展
-
-![单体应用 vs 微服务架构](../assets/microservices/monolith-vs-microservices.svg)
-
----
-
-## 二、微服务 vs SOA
-
-| 对比 | SOA | 微服务 |
-|------|-----|--------|
-| 通信 | 重量级 ESB（企业服务总线）| 轻量级 REST / gRPC / MQ |
-| 服务粒度 | 粗粒度，面向企业集成 | 细粒度，面向业务能力 |
-| 数据管理 | 共享数据库常见 | 每服务独立数据库 |
-| 部署 | 统一部署 | 独立部署 |
-| 目标 | 企业系统集成 | 快速迭代、独立扩展 |
-
-微服务可理解为"去掉 ESB 和 WS-* 重量级协议的 SOA"。
-
----
-
-## 三、核心原则
-
-| 原则 | 说明 |
-|------|------|
-| **单一职责** | 每个服务只做一件事，边界清晰 |
-| **自治性** | 独立开发、独立部署、独立扩展，团队对服务全权负责 |
-| **去中心化** | 各服务自己管理数据，避免中央共享数据库 |
-| **故障隔离** | 一个服务挂掉不影响其他服务（熔断、降级保障）|
-| **弹性扩展** | 按需对单个服务扩缩容，不需要整体扩展 |
-
----
-
-## 四、适用场景
-
-**适合微服务的情况：**
-- 团队规模超过 8 人，不同团队负责不同业务域
-- 业务复杂，各模块迭代节奏差异大
-- 需要独立扩展（如秒杀服务需要弹性扩容，而其他服务不需要）
-- 需要技术异构（不同服务可选不同技术栈）
-
-**不适合的情况（先别拆）：**
-- 团队小、业务简单，单体完全够用
-- 业务边界不清晰，过早拆分会造成"分布式单体"（服务间强耦合）
-- 没有容器化和 CI/CD 基础设施，微服务运维成本极高
-
----
-
-## 五、相关章节导航
+## 一、模块导航
 
 <ModuleNav />
 
-**Spring Cloud 技术实现（独立模块）**
+---
 
-| 主题 | 链接 |
-|------|------|
-| 核心组件全景 | [Spring Cloud 总览](../spring-cloud/0_overview.md) |
-| 服务注册与发现 | [服务注册与发现](../spring-cloud/1_service_registry.md) |
-| API 网关 | [API 网关](../spring-cloud/2_api_gateway.md) |
-| 服务间通信 | [服务间通信](../spring-cloud/3_communication.md) |
-| 配置中心 | [配置中心](../spring-cloud/4_config_center.md) |
-| 服务治理 | [服务治理](../spring-cloud/5_service_governance.md) |
+## 二、推荐阅读路径
+
+1. [微服务优势与挑战](./1_pros_and_cons)：微服务的定义与原则、与 SOA 的区别、优势与代价、何时拆分，以及绞杀者模式等单体迁移策略
+2. [微服务设计模式](./2_patterns)：拆分、通信、数据、可靠性、可观测与部署六类模式的目录，每个模式给出适用场景与主文档链接
+3. [服务网格](./3_service_mesh)：Istio 的控制面与数据面、流量管理、mTLS、Sidecar 与 Ambient 两种数据面，以及与 Spring Cloud 的取舍
+4. [Dubbo](./4_dubbo)：RPC 服务框架的调用流程、Triple 协议、负载均衡与集群容错、SPI 扩展机制，以及与 Spring Cloud 的选型
+
+[面试高频题](./99_interview) 只列题目，答案在 [开发总结 - 微服务与 Spring Cloud](/interview/11_spring_cloud)。
+
+---
+
+## 三、关联模块
+
+- [Spring Cloud 总览](/spring-cloud/0_overview)：注册发现、网关、服务通信、配置中心、服务治理的 Spring 实现
+- [Spring Cloud · 服务通信](/spring-cloud/3_communication)：HTTP Service Clients、OpenFeign、gRPC 与异步消息
+- [Spring Cloud Alibaba](/spring-cloud/6_alibaba)：Nacos、Sentinel、Seata 与版本对齐
+- [系统架构 · DDD 领域驱动设计](/architecture/3_ddd)：用限界上下文划定服务边界
+- [系统架构 · 架构模式与风格](/architecture/2_arch_patterns)：CQRS、Event Sourcing、六边形架构
+- [分布式 · 分布式事务](/distributed/4_transaction)：TCC、Saga、本地消息表、Seata
+- [高可用 · 熔断](/high-avail/5_circuit_breaking)：熔断器状态机与系统级容错策略
+- [可观测性 · 链路追踪](/observability/3_tracing)：跨服务调用链的追踪与排障
+- [云原生 · Kubernetes](/cloud-native/6_kubernetes)：微服务与服务网格的运行底座
+- [网络协议 · 远程调用协议](/protocols/3_rpc_protocols)：gRPC、REST、Dubbo 协议的横向对比
+- [开发总结 - 微服务与 Spring Cloud](/interview/11_spring_cloud)：本模块高频问题的答案汇总

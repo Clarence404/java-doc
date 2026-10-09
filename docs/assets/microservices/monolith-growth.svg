@@ -1,0 +1,38 @@
+<svg viewBox="0 0 680 140" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12" role="img" aria-label="单体应用从早期到大泥球的演变">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .pan { rx:8; ry:8; fill:var(--bg); stroke-width:1.5; }
+    .ttl { font-weight:700; font-size:13px; }
+    .sub { font-size:11px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect class="box" x="20" y="20" width="240" height="100" stroke="var(--g)"/>
+  <text class="ttl" x="140" y="46" text-anchor="middle" fill="var(--g)">早期单体</text>
+  <text x="140" y="74" text-anchor="middle" fill="var(--fg)" font-size="12">易开发 · 易部署</text>
+  <text x="140" y="96" text-anchor="middle" fill="var(--fg)" font-size="12">IDE 友好 · 启动快</text>
+  <line class="arr" x1="260" y1="70" x2="418" y2="70"/>
+  <text class="sub" x="339" y="62" text-anchor="middle">业务扩张</text>
+  <rect class="box" x="420" y="20" width="240" height="100" stroke="var(--r)"/>
+  <text class="ttl" x="540" y="46" text-anchor="middle" fill="var(--r)">膨胀后的「大泥球」</text>
+  <text x="480" y="74" text-anchor="middle" fill="var(--fg)" font-size="11">启动缓慢</text>
+  <text x="600" y="74" text-anchor="middle" fill="var(--fg)" font-size="11">改动需全量部署</text>
+  <text x="480" y="96" text-anchor="middle" fill="var(--fg)" font-size="11">单点故障拖垮全局</text>
+  <text x="600" y="96" text-anchor="middle" fill="var(--fg)" font-size="11">新人理解成本高</text>
+</svg>

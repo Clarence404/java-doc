@@ -1,0 +1,49 @@
+<svg viewBox="0 0 680 544" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="680" height="544" rx="8" fill="var(--bg)"/>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Gateway Server WebFlux 请求处理链路</text>
+  <rect x="40" y="44" width="480" height="40" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="280" y="69" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">客户端请求</text>
+  <line x1="280" y1="84" x2="280" y2="114" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="116" width="480" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="280" y="140" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">RoutePredicateHandlerMapping</text>
+  <text x="280" y="162" text-anchor="middle" font-size="12" fill="var(--fg)">按 Predicate（Path / Header / Method / Weight）匹配 Route</text>
+  <line x1="280" y1="176" x2="280" y2="206" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="208" width="480" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="280" y="232" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">FilteringWebHandler</text>
+  <text x="280" y="254" text-anchor="middle" font-size="12" fill="var(--fg)">GlobalFilter 与路由的 GatewayFilter 合并，按 Order 排序成链</text>
+  <line x1="280" y1="268" x2="280" y2="298" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="300" width="480" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="280" y="324" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">Pre 逻辑</text>
+  <text x="280" y="346" text-anchor="middle" font-size="12" fill="var(--fg)">鉴权、限流、改写路径与请求头、灰度标记</text>
+  <line x1="280" y1="360" x2="280" y2="390" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="392" width="480" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="280" y="416" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">路由转发</text>
+  <text x="280" y="438" text-anchor="middle" font-size="12" fill="var(--fg)">ReactiveLoadBalancerClientFilter 解析 lb://，NettyRoutingFilter 转发</text>
+  <line x1="280" y1="452" x2="280" y2="482" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="484" width="480" height="40" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="280" y="509" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">下游服务实例</text>
+  <path d="M520,504 L600,504 L600,64 L522,64" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="560" y="284" text-anchor="middle" font-size="12" fill="var(--muted)">响应逆序</text>
+  <text x="560" y="302" text-anchor="middle" font-size="12" fill="var(--muted)">执行 Post</text>
+</svg>

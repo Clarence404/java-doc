@@ -1,0 +1,79 @@
+<svg viewBox="0 0 920 424" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 12px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+  <text x="460" y="26" text-anchor="middle" class="title">AbstractApplicationContext.refresh() 十二步</text>
+  <rect x="20" y="44" width="260" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="150" y="70" text-anchor="middle" class="name">prepareRefresh</text>
+  <text x="150" y="90" text-anchor="middle" class="desc">1. 记录启动时间、校验必需属性</text>
+  <rect x="330" y="44" width="260" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="460" y="70" text-anchor="middle" class="name">obtainFreshBeanFactory</text>
+  <text x="460" y="90" text-anchor="middle" class="desc">2. 获取 BeanFactory 实例</text>
+  <rect x="640" y="44" width="260" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="770" y="70" text-anchor="middle" class="name">prepareBeanFactory</text>
+  <text x="770" y="90" text-anchor="middle" class="desc">3. 注册类加载器、内置 BPP、环境 Bean</text>
+  <rect x="640" y="144" width="260" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="770" y="170" text-anchor="middle" class="name">postProcessBeanFactory</text>
+  <text x="770" y="190" text-anchor="middle" class="desc">4. 子类扩展：Web 容器注册作用域</text>
+  <rect x="330" y="144" width="260" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="460" y="170" text-anchor="middle" class="name">invokeBeanFactoryPostProcessors</text>
+  <text x="460" y="190" text-anchor="middle" class="desc">5. 解析配置类、扫描组件、注册定义</text>
+  <rect x="20" y="144" width="260" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="150" y="170" text-anchor="middle" class="name">registerBeanPostProcessors</text>
+  <text x="150" y="190" text-anchor="middle" class="desc">6. 按优先级排序并注册 BPP</text>
+  <rect x="20" y="244" width="260" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="150" y="270" text-anchor="middle" class="name">initMessageSource</text>
+  <text x="150" y="290" text-anchor="middle" class="desc">7. 初始化国际化 MessageSource</text>
+  <rect x="330" y="244" width="260" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="460" y="270" text-anchor="middle" class="name">initApplicationEventMulticaster</text>
+  <text x="460" y="290" text-anchor="middle" class="desc">8. 初始化事件广播器</text>
+  <rect x="640" y="244" width="260" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="770" y="270" text-anchor="middle" class="name">onRefresh</text>
+  <text x="770" y="290" text-anchor="middle" class="desc">9. 子类扩展：Boot 在此创建内嵌 Web 服务器</text>
+  <rect x="640" y="344" width="260" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="770" y="370" text-anchor="middle" class="name">registerListeners</text>
+  <text x="770" y="390" text-anchor="middle" class="desc">10. 注册监听器、发布早期事件</text>
+  <rect x="330" y="344" width="260" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="460" y="370" text-anchor="middle" class="name">finishBeanFactoryInitialization</text>
+  <text x="460" y="390" text-anchor="middle" class="desc">11. 实例化全部非懒加载单例</text>
+  <rect x="20" y="344" width="260" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="150" y="370" text-anchor="middle" class="name">finishRefresh</text>
+  <text x="150" y="390" text-anchor="middle" class="desc">12. 发布 ContextRefreshedEvent</text>
+  <line x1="280" y1="74" x2="328" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="590" y1="74" x2="638" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="770" y1="104" x2="770" y2="142" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="640" y1="174" x2="592" y2="174" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="330" y1="174" x2="282" y2="174" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="150" y1="204" x2="150" y2="242" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="280" y1="274" x2="328" y2="274" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="590" y1="274" x2="638" y2="274" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="770" y1="304" x2="770" y2="342" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="640" y1="374" x2="592" y2="374" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="330" y1="374" x2="282" y2="374" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

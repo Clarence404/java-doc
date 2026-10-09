@@ -1,15 +1,21 @@
 ---
-description: 负载均衡与灰度路由、限流熔断、超时重试、优雅上下线、服务版本兼容
+description: 负载均衡与灰度路由、熔断限流、Framework 7 容错注解、超时重试、优雅上下线、版本兼容
 ---
 
 # 服务治理
+
+> **本篇目标**：掌握 Spring Cloud LoadBalancer 的接入、内置策略与自定义，能实现按请求头的灰度路由并把标记逐跳透传，能用 Resilience4j、Sentinel 或 Framework 7 内置注解为调用加上熔断、重试与并发限制。
+>
+> **前置阅读**：[服务通信](./3_communication)
 
 > 参考资料：
 > * Spring Cloud LoadBalancer：[https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/loadbalancer.html](https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/loadbalancer.html)
 > * Resilience4j：[https://resilience4j.readme.io/docs](https://resilience4j.readme.io/docs)
 > * Sentinel：[https://sentinelguard.io/zh-cn/docs/introduction.html](https://sentinelguard.io/zh-cn/docs/introduction.html)
+> * Spring Cloud CircuitBreaker：[https://docs.spring.io/spring-cloud-circuitbreaker/reference/](https://docs.spring.io/spring-cloud-circuitbreaker/reference/)
+> * Spring Framework Resilience Features：[https://docs.spring.io/spring-framework/reference/core/resilience.html](https://docs.spring.io/spring-framework/reference/core/resilience.html)
 
-本篇讲 Spring Cloud 中服务治理能力的**框架落地**：Spring Cloud LoadBalancer 的配置与自定义、灰度路由、Resilience4j 接入。各项手段的原理、选型与阈值怎么定，见 [高可用](/high-avail/0_overview) 模块。
+本篇讲 Spring Cloud 中服务治理能力的**框架落地**：Spring Cloud LoadBalancer 的配置与自定义、灰度路由、Resilience4j 与 Framework 7 内置容错的接入。各项手段的原理、选型与阈值怎么定，见 [高可用总览](/high-avail/0_overview)。
 
 ---
 
@@ -21,11 +27,11 @@ description: 负载均衡与灰度路由、限流熔断、超时重试、优雅�
 
 | 环节 | Spring Cloud 落地 | 原理与策略 |
 |------|------------------|-----------|
-| 负载均衡 | Spring Cloud LoadBalancer | [高可用 - 负载均衡](/high-avail/3_load_balancing) |
-| 限流 | Sentinel、Gateway `RequestRateLimiter` | [高可用 - 限流与过载保护](/high-avail/7_rate_limiting) |
-| 熔断降级 | Resilience4j、Sentinel | [高可用 - 熔断](/high-avail/5_circuit_breaking)、[降级](/high-avail/6_degradation) |
-| 超时重试与隔离 | OpenFeign 超时、Resilience4j Retry / Bulkhead | [高可用 - 超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead) |
-| 健康检查与上下线 | Actuator 探针、优雅停机 | [高可用 - 冗余与故障转移](/high-avail/2_redundancy_failover)、[优雅上下线与变更](/high-avail/8_graceful_release) |
+| 负载均衡 | Spring Cloud LoadBalancer | [负载均衡](/high-avail/3_load_balancing) |
+| 限流 | Sentinel、Gateway `RequestRateLimiter` | [限流与过载保护](/high-avail/7_rate_limiting) |
+| 熔断降级 | Resilience4j、Sentinel | [熔断](/high-avail/5_circuit_breaking)、[降级](/high-avail/6_degradation) |
+| 超时重试与隔离 | OpenFeign 超时、Resilience4j Retry / Bulkhead | [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead) |
+| 健康检查与上下线 | Actuator 探针、优雅停机 | [冗余与故障转移](/high-avail/2_redundancy_failover)、[优雅上下线与变更](/high-avail/8_graceful_release) |
 
 ---
 
@@ -70,7 +76,9 @@ spring:
 | 同实例优先 | `configurations: same-instance-preference` | 重试时优先选择上次的实例 |
 | 基于请求的粘滞 | `configurations: request-based-sticky-session` | 按 Cookie 中的实例 ID 路由 |
 | Hint 路由 | 构建器 `withHints()` | 按请求头与实例元数据 `hint` 匹配 |
-| 加权 | 构建器 `withWeighted()`（较新版本提供，使用前确认版本） | 按实例元数据 `weight` 加权 |
+| 加权 | `configurations: weighted` 或构建器 `withWeighted()`（Spring Cloud Commons 4.1 / 2023.0 起） | 按实例元数据 `weight` 加权，缺省为 1 |
+| 子集 | `configurations: subset` | 确定性子集算法，每个调用方只连部分实例，降低大集群下的连接数 |
+| API 版本 | `configurations: api-version`（Commons 5.0 起） | 按 Framework 7 API 版本匹配实例元数据 `API_VERSION`，见本文第六节 |
 
 指定某个服务使用随机策略：
 
@@ -122,7 +130,7 @@ public class GovernanceLoadBalancerConfig {
 
 @Configuration
 @LoadBalancerClients(defaultConfiguration = GovernanceLoadBalancerConfig.class)
-public class LoadBalancerClientsConfig {
+public class GovernanceLoadBalancerClientsConfig {
 }
 ```
 
@@ -218,7 +226,7 @@ public class GrayLoadBalancerClientsConfig {
 }
 ```
 
-`RequestDataContext` 由 Gateway、`WebClient`、`RestTemplate` 与 OpenFeign 的负载均衡集成负责构造，请求头可以直接读到。
+`RequestDataContext` 由各负载均衡集成负责构造：Gateway、`@LoadBalanced WebClient.Builder`、`@LoadBalanced RestClient.Builder`、HTTP Service Clients 与 OpenFeign，请求头可以直接读到。`RestTemplate` 的集成仍可用，但 `RestTemplate` 已在 Framework 7.1 中废弃，新代码用 `RestClient`。
 
 ### 5、灰度标记透传
 
@@ -243,12 +251,15 @@ public class GrayHeaderInterceptor implements RequestInterceptor {
 }
 ```
 
-- `RequestContextHolder` 绑定在请求线程上，切换到线程池执行时会丢失，异步场景需要用 TransmittableThreadLocal 或链路追踪的 Baggage 传递
+- HTTP Service Clients / `RestClient` 用 `ClientHttpRequestInterceptor` 做同样的事，写法见 [服务通信](./3_communication)
+- `RequestContextHolder` 绑定在请求线程上，切换到线程池执行时会丢失，异步场景需要用 TransmittableThreadLocal、Micrometer Context Propagation 或链路追踪的 Baggage 传递，见 [虚拟线程](/java/30_topic_virtual_thread) 与 [链路追踪](/observability/3_tracing)
 - MQ 消息同样要把标记写进消息头，消费端按标记选择灰度或稳定的消费组
 
 ---
 
 ## 三、限流与熔断
+
+### 1、Resilience4j 与 Sentinel
 
 **Spring Cloud 中常用两套方案：Resilience4j（配合 Spring Cloud CircuitBreaker 抽象）与 Sentinel。** 选型取决于是否需要控制台与动态规则。
 
@@ -259,24 +270,40 @@ public class GrayHeaderInterceptor implements RequestInterceptor {
 | 可观测 | 通过 Micrometer 暴露指标 | 自带控制台实时监控 |
 | 适合 | 规则相对固定、希望轻量无外部组件 | 需要运营期动态调整规则、国内 Alibaba 技术栈 |
 
-Resilience4j 注解接入（依赖 `resilience4j-spring-boot3` 与 `spring-boot-starter-aop`）：
+Boot 4 下通过 Spring Cloud CircuitBreaker 5.0 接入 Resilience4j，依赖 `spring-cloud-starter-circuitbreaker-resilience4j`，用框架无关的 `CircuitBreakerFactory` 编程式调用，以后换实现不改业务代码：
 
 ```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
+import org.springframework.stereotype.Service;
+
 @Service
-@Slf4j
 public class InventoryFacade {
 
-    @CircuitBreaker(name = "inventory", fallbackMethod = "queryFallback")
-    public Stock query(Long skuId) {
-        return inventoryClient.query(skuId);
+    private static final Logger log = LoggerFactory.getLogger(InventoryFacade.class);
+
+    private final InventoryClient inventoryClient;
+    private final CircuitBreaker circuitBreaker;
+
+    public InventoryFacade(InventoryClient inventoryClient, CircuitBreakerFactory<?, ?> factory) {
+        this.inventoryClient = inventoryClient;
+        this.circuitBreaker = factory.create("inventory");    // 对应下方配置中的实例名
     }
 
-    private Stock queryFallback(Long skuId, Throwable e) {
-        log.warn("库存查询降级 skuId={}, cause={}", skuId, e.toString());
-        return Stock.unknown(skuId);
+    public Stock query(Long skuId) {
+        return circuitBreaker.run(
+            () -> inventoryClient.query(skuId),
+            e -> {
+                log.warn("库存查询降级 skuId={}, cause={}", skuId, e.toString());
+                return Stock.unknown(skuId);
+            });
     }
 }
 ```
+
+偏好 `@CircuitBreaker(name = "inventory", fallbackMethod = "...")` 注解写法时，需要 Resilience4j 自身的 Spring Boot 集成模块（Boot 3.x 为 `resilience4j-spring-boot3`，Boot 4 以 Resilience4j 官方发布的兼容版本为准）和 AOP 支持（Boot 4 为 `spring-boot-starter-aspectj`，Boot 3.x 为 `spring-boot-starter-aop`）。
 
 ```yaml
 resilience4j:
@@ -293,15 +320,62 @@ resilience4j:
         permitted-number-of-calls-in-half-open-state: 5
 ```
 
-- 熔断阈值怎么定、Sentinel 与 Resilience4j 的详细对比见 [高可用 - 熔断](/high-avail/5_circuit_breaking)
+- 熔断阈值怎么定、Sentinel 与 Resilience4j 的详细对比见 [熔断](/high-avail/5_circuit_breaking)
 - Sentinel 的资源定义、规则类型、Nacos 规则持久化与 OpenFeign 集成见 [Spring Cloud Alibaba](./6_alibaba)
-- 限流算法与阈值见 [高可用 - 限流与过载保护](/high-avail/7_rate_limiting)
+- 限流算法与阈值见 [限流与过载保护](/high-avail/7_rate_limiting)
+
+### 2、Framework 7 内置容错注解
+
+**规则简单、不需要熔断状态机时，Spring Framework 7 自带的 `@Retryable` 与 `@ConcurrencyLimit` 就够用，不必引入额外依赖。** 用 `@EnableResilientMethods` 开启：
+
+```java
+import org.springframework.context.annotation.Configuration;
+import org.springframework.resilience.annotation.EnableResilientMethods;
+
+@Configuration
+@EnableResilientMethods
+public class ResilienceConfig {
+}
+```
+
+```java
+import org.springframework.resilience.annotation.ConcurrencyLimit;
+import org.springframework.resilience.annotation.Retryable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+
+@Service
+public class QuoteService {
+
+    private final QuoteClient quoteClient;
+
+    public QuoteService(QuoteClient quoteClient) {
+        this.quoteClient = quoteClient;
+    }
+
+    // 只对幂等的查询重试：最多重试 3 次，初始间隔 200ms，指数退避
+    @Retryable(includes = {ResourceAccessException.class, HttpServerErrorException.class},
+               maxRetries = 3, delay = 200, multiplier = 2)
+    public Quote query(String symbol) {
+        return quoteClient.query(symbol);
+    }
+
+    // 限制同时调用下游的并发数，相当于信号量舱壁
+    @ConcurrencyLimit(10)
+    public Report generate(Long id) {
+        return quoteClient.report(id);
+    }
+}
+```
+
+Framework 7 的 `RetryTemplate` 也移入了 spring-core，编程式重试不再需要 Spring Retry。三套方案的分工：简单重试与并发限制用 Framework 内置；需要熔断、慢调用统计用 Resilience4j；需要控制台动态调规则、热点参数限流用 Sentinel。重试的详细用法见 [Retry 重试](/spring/6_retry)。
 
 ---
 
 ## 四、超时与重试
 
-OpenFeign 默认超时（连接 10s、读取 60s）远大于合理值，必须按服务显式配置；Spring Cloud OpenFeign 默认使用 `Retryer.NEVER_RETRY` 不重试，需要重试时只对幂等接口开启，并控制重试放大。超时取值、分层超时推导、退避与重试预算见 [高可用 - 超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)，Feign 的超时配置项见 [服务通信](./3_communication)。
+OpenFeign 默认超时（连接 10s、读取 60s）远大于合理值，必须按服务显式配置；Spring Cloud OpenFeign 默认使用 `Retryer.NEVER_RETRY` 不重试，需要重试时只对幂等接口开启，并控制重试放大。超时取值、分层超时推导、退避与重试预算见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)，Feign 的超时配置项见 [服务通信](./3_communication)。
 
 ---
 
@@ -311,15 +385,54 @@ OpenFeign 默认超时（连接 10s、读取 60s）远大于合理值，必须�
 
 ![优雅上下线流程](../assets/spring-cloud/graceful-online-offline.svg)
 
-停机顺序、`server.shutdown: graceful`、K8s `preStop`、预热与权重爬升的完整说明见 [高可用 - 优雅上下线与变更](/high-avail/8_graceful_release)。
+停机顺序、`server.shutdown: graceful`、K8s `preStop`、预热与权重爬升的完整说明见 [优雅上下线与变更](/high-avail/8_graceful_release)。
 
 ---
 
 ## 六、服务版本与兼容性
 
+微服务独立发布，新旧版本必然并存一段时间，接口必须向后兼容：
+
 | 策略 | 说明 |
 |------|------|
-| **语义版本（SemVer）** | Major.Minor.Patch，破坏性变更升 Major |
-| **API 版本** | URL 路径版本（`/v1/`，`/v2/`），并行运行新旧版本 |
-| **向后兼容** | 新增字段不删除旧字段；Protobuf 字段编号不变 |
-| **Consumer-Driven Contract** | 用 Pact 等工具确保 Provider 变更不破坏 Consumer |
+| **向后兼容** | 只新增字段、不删除或改语义；Protobuf 字段编号不复用 |
+| **API 版本** | 破坏性变更发新版本，新旧版本并行运行，调用方逐步迁移 |
+| **契约测试** | 用 Spring Cloud Contract 或 Pact 让 Provider 变更在 CI 中就能发现对 Consumer 的破坏 |
+
+Framework 7 内置了 API 版本控制，服务端用 `@GetMapping(path = "/orders/{id}", version = "2")` 声明版本，Boot 4 通过 `spring.mvc.apiversion.*` 配置版本从请求头、查询参数、路径或媒体类型中读取，配置方式见 [Spring Boot 版本演进](/spring-boot/11_versions)。客户端侧，Spring Cloud LoadBalancer 5.0 的 `api-version` 配置可以按请求携带的版本，只选元数据 `API_VERSION` 匹配的实例，让 v1、v2 实例同名注册、按版本分流：
+
+```yaml
+spring:
+  cloud:
+    loadbalancer:
+      configurations: api-version
+      clients:
+        order-service:
+          api-version:
+            header: X-API-Version                    # 从该请求头读取版本
+            fallback-to-available-instances: true    # 无匹配实例时回落到全部实例，默认返回空列表
+---
+# v2 实例
+spring:
+  cloud:
+    nacos:
+      discovery:
+        metadata:
+          API_VERSION: "2"
+```
+
+版本号放在路径还是请求头、何时废弃旧版本等约定见 [API 设计规范](/engineering/7_api_design_rule)。
+
+---
+
+## 小结
+
+- Spring Cloud LoadBalancer 是客户端负载均衡，Ribbon 已在 2020.0 移除；生产引入 Caffeine 做实例缓存，缓存 TTL 计入下线感知延迟
+- 内置能力用 `configurations` 或 `ServiceInstanceListSupplier` 构建器组合：区域优先、Hint、加权（Commons 4.1 起）、子集、API 版本（5.0 起）
+- 自定义策略的配置类不加 `@Configuration`、不放在扫描路径下，通过 `@LoadBalancerClient(s)` 指定
+- 灰度路由：等值匹配用 Hint，复杂规则实现 `ReactorServiceInstanceLoadBalancer`；灰度标记必须逐跳透传，线程切换时显式传递上下文
+- 熔断降级用 Spring Cloud CircuitBreaker + Resilience4j 或 Sentinel；简单重试与并发限制用 Framework 7 的 `@Retryable` / `@ConcurrencyLimit`
+- 超时、重试、优雅上下线的原理与参数推导在高可用模块，本篇只做框架落地
+- 接口版本兼容：只增不删、契约测试，破坏性变更用 Framework 7 API 版本控制并配合 LoadBalancer 按版本选实例
+
+> 下一篇：[Spring Cloud Alibaba](./6_alibaba) —— 国内最常用的落地组合：版本对齐、Sentinel 规则与持久化、Seata AT 模式。

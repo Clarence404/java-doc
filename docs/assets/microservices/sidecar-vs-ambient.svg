@@ -1,0 +1,52 @@
+<svg viewBox="0 0 680 310" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12" role="img" aria-label="Istio Sidecar 模式与 Ambient 模式对比">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .pan { rx:8; ry:8; fill:var(--bg); stroke-width:1.5; }
+    .ttl { font-weight:700; font-size:13px; }
+    .sub { font-size:11px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect class="pan" x="20" y="20" width="310" height="270" stroke="var(--p)"/>
+  <text class="ttl" x="175" y="42" text-anchor="middle" fill="var(--p)">Sidecar 模式</text>
+  <rect class="box" x="36" y="58" width="278" height="64" stroke="var(--p)"/>
+  <text x="175" y="84" text-anchor="middle" fill="var(--fg)" font-size="12">Pod：app + Envoy Sidecar</text>
+  <text class="sub" x="175" y="106" text-anchor="middle">L4 与 L7 全部在 Pod 内处理</text>
+  <rect class="box" x="36" y="140" width="278" height="64" stroke="var(--p)"/>
+  <text x="175" y="166" text-anchor="middle" fill="var(--fg)" font-size="12">Pod：app + Envoy Sidecar</text>
+  <text class="sub" x="175" y="188" text-anchor="middle">每个 Pod 独立一份代理</text>
+  <text class="sub" x="175" y="250" text-anchor="middle">代理资源随 Pod 数线性增长</text>
+  <text class="sub" x="175" y="270" text-anchor="middle">升级 Envoy 需滚动重启业务 Pod</text>
+  <rect class="pan" x="350" y="20" width="310" height="270" stroke="var(--g)"/>
+  <text class="ttl" x="505" y="42" text-anchor="middle" fill="var(--g)">Ambient 模式</text>
+  <rect class="box" x="366" y="58" width="134" height="36" stroke="var(--g)"/>
+  <text x="433" y="81" text-anchor="middle" fill="var(--fg)" font-size="12">Pod：app</text>
+  <rect class="box" x="510" y="58" width="134" height="36" stroke="var(--g)"/>
+  <text x="577" y="81" text-anchor="middle" fill="var(--fg)" font-size="12">Pod：app</text>
+  <line class="arr" x1="433" y1="94" x2="433" y2="126"/>
+  <line class="arr" x1="577" y1="94" x2="577" y2="126"/>
+  <rect class="box" x="366" y="128" width="278" height="60" stroke="var(--b)"/>
+  <text class="ttl" x="505" y="152" text-anchor="middle" fill="var(--b)">ztunnel（每节点一个）</text>
+  <text class="sub" x="505" y="172" text-anchor="middle">L4：mTLS、L4 授权、遥测</text>
+  <line class="arr" x1="505" y1="188" x2="505" y2="220" stroke-dasharray="5 4"/>
+  <text class="sub" x="515" y="208" text-anchor="start">需要 L7 时</text>
+  <rect class="box" x="366" y="222" width="278" height="60" stroke="var(--y)"/>
+  <text class="ttl" x="505" y="246" text-anchor="middle" fill="var(--y)">waypoint（可选，Envoy）</text>
+  <text class="sub" x="505" y="266" text-anchor="middle">按命名空间 / 服务启用 L7 能力</text>
+</svg>

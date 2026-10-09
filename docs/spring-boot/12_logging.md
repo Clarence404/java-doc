@@ -1,5 +1,5 @@
 ---
-description: SLF4J 门面与桥接、Boot 日志配置、结构化日志、异步 Appender、MDC 与 traceId、性能与安全、滚动保留
+description: SLF4J 门面与桥接、Boot 日志配置、结构化日志、异步 Appender、MDC 与 traceId、滚动保留
 ---
 
 # 日志
@@ -56,7 +56,7 @@ Spring Boot 4.0 的两个日志 Starter 依赖如下（取自 4.0.0 源码）：
 ```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-web</artifactId>
+    <artifactId>spring-boot-starter-webmvc</artifactId>   <!-- Boot 3.x 为 spring-boot-starter-web -->
     <exclusions>
         <exclusion>
             <groupId>org.springframework.boot</groupId>

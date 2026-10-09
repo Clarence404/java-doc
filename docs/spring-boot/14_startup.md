@@ -1,5 +1,5 @@
 ---
-description: 启动耗时度量、懒加载与裁剪、CDS / AOT 缓存、Spring AOT 与 Native Image、CRaC、容器镜像构建
+description: 启动耗时度量、懒加载与裁剪、CDS / AOT 缓存、AOT 与 Native Image、CRaC、镜像构建
 ---
 
 # 启动与部署优化

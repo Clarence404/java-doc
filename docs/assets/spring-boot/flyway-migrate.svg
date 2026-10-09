@@ -1,0 +1,50 @@
+<svg viewBox="0 0 760 574" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .row { fill:var(--card); stroke-width:1.5; }
+    .tag { font-weight:700; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .ef { fill:var(--fg); font-size:12px; }
+    .ar { stroke:var(--muted); stroke-width:1.5; fill:none; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="380" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Flyway migrate 执行过程</text>
+  <rect class="row" x="20" y="44" width="720" height="60" rx="6" ry="6" stroke="var(--p)"/>
+  <text x="34" y="70" class="tag" fill="var(--p)">获取迁移锁</text>
+  <text x="34" y="88" class="sub">MySQL 命名锁、PostgreSQL advisory lock 等数据库级锁</text>
+  <text x="726" y="70" text-anchor="end" class="ef">多实例同时启动时串行执行</text>
+  <text x="726" y="88" text-anchor="end" class="sub">无需额外的分布式锁</text>
+  <line class="ar" x1="380" y1="104" x2="380" y2="132" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="134" width="720" height="60" rx="6" ry="6" stroke="var(--b)"/>
+  <text x="34" y="160" class="tag" fill="var(--b)">读取 flyway_schema_history</text>
+  <text x="34" y="178" class="sub">不存在则创建；已有库首次接入需 baseline</text>
+  <text x="726" y="160" text-anchor="end" class="ef">已执行版本、校验和、是否成功</text>
+  <line class="ar" x1="380" y1="194" x2="380" y2="222" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="224" width="720" height="60" rx="6" ry="6" stroke="var(--b)"/>
+  <text x="34" y="250" class="tag" fill="var(--b)">扫描 locations</text>
+  <text x="34" y="268" class="sub">默认 classpath:db/migration，以及 JavaMigration Bean</text>
+  <text x="726" y="250" text-anchor="end" class="ef">V / R 脚本按版本号排序</text>
+  <line class="ar" x1="380" y1="284" x2="380" y2="312" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="314" width="720" height="60" rx="6" ry="6" stroke="var(--y)"/>
+  <text x="34" y="340" class="tag" fill="var(--y)">validate</text>
+  <text x="34" y="358" class="sub">比对已执行脚本的 checksum 与描述</text>
+  <text x="726" y="340" text-anchor="end" class="ef">脚本被改过则启动失败</text>
+  <text x="726" y="358" text-anchor="end" class="sub">validate-on-migrate 默认开启</text>
+  <line class="ar" x1="380" y1="374" x2="380" y2="402" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="404" width="720" height="60" rx="6" ry="6" stroke="var(--r)"/>
+  <text x="34" y="430" class="tag" fill="var(--r)">执行待迁移脚本</text>
+  <text x="34" y="448" class="sub">每个脚本默认一个事务，按版本号依次执行</text>
+  <text x="726" y="430" text-anchor="end" class="ef">MySQL 的 DDL 会隐式提交</text>
+  <text x="726" y="448" text-anchor="end" class="sub">失败时可能留下半完成的变更</text>
+  <line class="ar" x1="380" y1="464" x2="380" y2="492" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="494" width="720" height="60" rx="6" ry="6" stroke="var(--g)"/>
+  <text x="34" y="520" class="tag" fill="var(--g)">写入历史记录并释放锁</text>
+  <text x="34" y="538" class="sub">记录版本、耗时、校验和与执行结果</text>
+  <text x="726" y="520" text-anchor="end" class="ef">失败记录需修复后 repair</text>
+</svg>

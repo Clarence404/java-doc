@@ -1,0 +1,59 @@
+<svg viewBox="0 0 760 664" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .row { fill:var(--card); stroke-width:1.5; }
+    .tag { font-weight:700; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .ef { fill:var(--fg); font-size:12px; }
+    .ar { stroke:var(--muted); stroke-width:1.5; fill:none; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="380" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">自动配置的加载链路</text>
+  <rect class="row" x="20" y="44" width="720" height="60" rx="6" ry="6" stroke="var(--p)"/>
+  <text x="34" y="70" class="tag" fill="var(--p)">@EnableAutoConfiguration</text>
+  <text x="34" y="88" class="sub">由 @SpringBootApplication 引入</text>
+  <text x="726" y="70" text-anchor="end" class="ef">AutoConfigurationImportSelector</text>
+  <text x="726" y="88" text-anchor="end" class="sub">DeferredImportSelector：等用户配置类解析完再执行</text>
+  <line class="ar" x1="380" y1="104" x2="380" y2="132" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="134" width="720" height="60" rx="6" ry="6" stroke="var(--b)"/>
+  <text x="34" y="160" class="tag" fill="var(--b)">读取候选列表</text>
+  <text x="34" y="178" class="sub">ImportCandidates.load() 扫描所有 jar</text>
+  <text x="726" y="160" text-anchor="end" class="ef">AutoConfiguration.imports</text>
+  <text x="726" y="178" text-anchor="end" class="sub">Boot 4 每个模块 jar 各带一份</text>
+  <line class="ar" x1="380" y1="194" x2="380" y2="222" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="224" width="720" height="60" rx="6" ry="6" stroke="var(--muted)"/>
+  <text x="34" y="250" class="tag" fill="var(--muted)">去重与排除</text>
+  <text x="34" y="268" class="sub">exclude / excludeName / spring.autoconfigure.exclude</text>
+  <text x="726" y="250" text-anchor="end" class="ef">排除了非自动配置类会直接报错</text>
+  <text x="726" y="268" text-anchor="end" class="sub">防止排除项写错被静默忽略</text>
+  <line class="ar" x1="380" y1="284" x2="380" y2="312" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="314" width="720" height="60" rx="6" ry="6" stroke="var(--y)"/>
+  <text x="34" y="340" class="tag" fill="var(--y)">快速过滤</text>
+  <text x="34" y="358" class="sub">AutoConfigurationImportFilter 读预编译元数据，不加载类</text>
+  <text x="726" y="340" text-anchor="end" class="ef">OnClass / OnBean / OnWebApplication</text>
+  <text x="726" y="358" text-anchor="end" class="sub">大部分候选在这一步被淘汰</text>
+  <line class="ar" x1="380" y1="374" x2="380" y2="402" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="404" width="720" height="60" rx="6" ry="6" stroke="var(--muted)"/>
+  <text x="34" y="430" class="tag" fill="var(--muted)">排序</text>
+  <text x="34" y="448" class="sub">@AutoConfiguration(before / after)、@AutoConfigureOrder</text>
+  <text x="726" y="430" text-anchor="end" class="ef">保证依赖的自动配置先处理</text>
+  <text x="726" y="448" text-anchor="end" class="sub">例如数据源先于 JPA</text>
+  <line class="ar" x1="380" y1="464" x2="380" y2="492" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="494" width="720" height="60" rx="6" ry="6" stroke="var(--g)"/>
+  <text x="34" y="520" class="tag" fill="var(--g)">完整条件判定</text>
+  <text x="34" y="538" class="sub">ConfigurationClassParser 逐个评估 @Conditional</text>
+  <text x="726" y="520" text-anchor="end" class="ef">类级与 @Bean 方法级条件</text>
+  <text x="726" y="538" text-anchor="end" class="sub">@ConditionalOnMissingBean 让位给用户 Bean</text>
+  <line class="ar" x1="380" y1="554" x2="380" y2="582" marker-end="url(#arr)"/>
+  <rect class="row" x="20" y="584" width="720" height="60" rx="6" ry="6" stroke="var(--g)"/>
+  <text x="34" y="610" class="tag" fill="var(--g)">注册 BeanDefinition</text>
+  <text x="34" y="628" class="sub">通过判定的配置类与 @Bean 方法进入容器</text>
+  <text x="726" y="610" text-anchor="end" class="ef">--debug 输出条件评估报告</text>
+  <text x="726" y="628" text-anchor="end" class="sub">Actuator /conditions 同样可查</text>
+</svg>

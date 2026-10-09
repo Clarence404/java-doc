@@ -1,0 +1,50 @@
+<svg viewBox="0 0 680 276" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12" role="img" aria-label="BFF：为不同客户端提供专属聚合层">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .pan { rx:8; ry:8; fill:var(--bg); stroke-width:1.5; }
+    .ttl { font-weight:700; font-size:13px; }
+    .sub { font-size:11px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect class="box" x="20" y="20" width="190" height="36" stroke="var(--muted)"/>
+  <text x="115" y="43" text-anchor="middle" fill="var(--fg)" font-size="12">移动端 App</text>
+  <line class="arr" x1="115" y1="56" x2="115" y2="94"/>
+  <rect class="box" x="245" y="20" width="190" height="36" stroke="var(--muted)"/>
+  <text x="340" y="43" text-anchor="middle" fill="var(--fg)" font-size="12">Web 前端</text>
+  <line class="arr" x1="340" y1="56" x2="340" y2="94"/>
+  <rect class="box" x="470" y="20" width="190" height="36" stroke="var(--muted)"/>
+  <text x="565" y="43" text-anchor="middle" fill="var(--fg)" font-size="12">第三方开发者</text>
+  <line class="arr" x1="565" y1="56" x2="565" y2="94"/>
+  <rect class="box" x="20" y="96" width="190" height="60" stroke="var(--b)"/>
+  <text class="ttl" x="115" y="120" text-anchor="middle" fill="var(--b)">BFF-Mobile</text>
+  <text class="sub" x="115" y="140" text-anchor="middle">裁剪字段 · 适配弱网</text>
+  <line class="arr" x1="115" y1="156" x2="115" y2="194"/>
+  <rect class="box" x="245" y="96" width="190" height="60" stroke="var(--p)"/>
+  <text class="ttl" x="340" y="120" text-anchor="middle" fill="var(--p)">BFF-Web</text>
+  <text class="sub" x="340" y="140" text-anchor="middle">聚合多服务 · 页面定制</text>
+  <line class="arr" x1="340" y1="156" x2="340" y2="194"/>
+  <rect class="box" x="470" y="96" width="190" height="60" stroke="var(--y)"/>
+  <text class="ttl" x="565" y="120" text-anchor="middle" fill="var(--y)">开放 API 网关</text>
+  <text class="sub" x="565" y="140" text-anchor="middle">OAuth2 · 配额与限流</text>
+  <line class="arr" x1="565" y1="156" x2="565" y2="194"/>
+  <rect class="box" x="20" y="196" width="640" height="60" stroke="var(--g)"/>
+  <text class="ttl" x="340" y="220" text-anchor="middle" fill="var(--g)">领域微服务</text>
+  <text class="sub" x="340" y="242" text-anchor="middle">用户服务 · 商品服务 · 订单服务 · 支付服务</text>
+</svg>

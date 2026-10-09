@@ -56,7 +56,7 @@ export const GROUPS = [
                 ],
             },
             {
-                name: '数据结构与算法', nav: 'DSA', dir: 'algorithms',
+                name: '数据结构与算法', nav: '算法', dir: 'algorithms',
                 desc: '复杂度 / 数据结构 / 基础算法 / 算法技巧 / 刷题实战',
                 subdirs: {'1_data_structures': '数据结构', '2_algorithms': '基础算法', '3_patterns': '算法技巧', '4_practice': '刷题实战'},
             },
@@ -75,7 +75,7 @@ export const GROUPS = [
                     {text: '批处理与集成', from: 12},
                 ],
             },
-            {name: 'Spring Boot', dir: 'spring-boot', desc: '自动配置 / Web / 数据访问 / 日志 / 测试 / Actuator / 版本演进 / 启动优化'},
+            {name: 'Spring Boot', dir: 'spring-boot', interview: ['5_spring'], desc: '自动配置 / Web / 数据访问 / 日志 / 测试 / Actuator / 版本演进 / 启动优化'},
             {name: 'Netty', dir: 'netty', interview: ['6_netty'], desc: 'IO 模型 / Reactor / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优'},
         ],
     },

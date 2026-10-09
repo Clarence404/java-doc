@@ -6,7 +6,7 @@ description: RBAC / ABAC / DAC / MAC、权限数据库设计、OPA、数据权�
 
 > 本文聚焦认证授权基础概念与权限模型（与框架无关）。JWT 格式见 → [JWT](/security/1_jwt)；OAuth2 协议见 → [OAuth2](/security/2_oauth2)；OIDC 协议见 → [OIDC](/security/3_oidc)；SSO 实现方案见 → [单点登录](/security/4_sso)
 >
-> 权限系统整体架构（PEP / PDP 部署、网关与服务鉴权分工、权限缓存、数据权限拦截实现）见 → [权限系统架构设计](/architecture/6_access_control)；Spring Security / Sa-Token 框架实现见 → [Spring Security](/spring/9_security) / [认证框架](/spring/10_auth_framework)
+> 权限系统整体架构（PEP / PDP 部署、网关与服务鉴权分工、权限缓存、数据权限拦截实现）见 → [权限系统架构设计](/architecture/6_access_control)；Spring Security / Sa-Token 框架实现见 → [Spring Security](/spring/9_security) / [安全框架对比](/spring/10_auth_framework)
 
 ---
 

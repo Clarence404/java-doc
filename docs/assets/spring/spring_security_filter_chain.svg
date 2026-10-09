@@ -1,0 +1,91 @@
+<svg viewBox="0 0 760 454" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .panel{fill:var(--bg);stroke:var(--border);stroke-width:1.2;}
+    .hl{fill:var(--card);stroke:var(--p);stroke-width:1.5;}
+    .label-p{fill:var(--p);font-weight:700;}
+    .label-b{fill:var(--b);font-weight:700;}
+    .label-g{fill:var(--g);font-weight:700;}
+    .label-y{fill:var(--y);font-weight:700;}
+    .label-r{fill:var(--r);font-weight:700;}
+    .arrow{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="26" text-anchor="middle" font-size="14" font-weight="700">Spring Security 7 Servlet 过滤器链</text>
+
+  <!-- 左列：Servlet 容器中的链路 -->
+  <rect class="card" x="20" y="50" width="200" height="60" rx="6"/>
+  <text x="120" y="76" text-anchor="middle" class="label-b">HTTP 请求</text>
+  <text x="120" y="96" text-anchor="middle" class="muted" font-size="11">Authorization: Bearer …</text>
+
+  <line x1="120" y1="110" x2="120" y2="156" class="arrow"/>
+
+  <rect class="card" x="20" y="158" width="200" height="60" rx="6"/>
+  <text x="120" y="184" text-anchor="middle" class="label-b">DelegatingFilterProxy</text>
+  <text x="120" y="204" text-anchor="middle" class="muted" font-size="11">桥接 Servlet 容器与 Spring</text>
+
+  <line x1="120" y1="218" x2="120" y2="264" class="arrow"/>
+
+  <rect class="card" x="20" y="266" width="200" height="60" rx="6"/>
+  <text x="120" y="292" text-anchor="middle" class="label-p">FilterChainProxy</text>
+  <text x="120" y="312" text-anchor="middle" class="muted" font-size="11">按 securityMatcher 选链</text>
+
+  <line x1="220" y1="296" x2="258" y2="296" class="arrow"/>
+
+  <line x1="120" y1="326" x2="120" y2="372" class="arrow"/>
+  <text x="128" y="354" class="muted" font-size="11">整条链放行后</text>
+
+  <rect class="card" x="20" y="374" width="200" height="60" rx="6"/>
+  <text x="120" y="400" text-anchor="middle" class="label-g">DispatcherServlet</text>
+  <text x="120" y="420" text-anchor="middle" class="muted" font-size="11">进入 Controller</text>
+
+  <!-- 右侧：SecurityFilterChain -->
+  <rect class="panel" x="260" y="50" width="480" height="384" rx="8"/>
+  <text x="500" y="74" text-anchor="middle" class="label-p">SecurityFilterChain（默认顺序节选）</text>
+
+  <rect class="card" x="276" y="90" width="220" height="60" rx="6"/>
+  <text x="386" y="116" text-anchor="middle" font-weight="700">1 SecurityContextHolderFilter</text>
+  <text x="386" y="136" text-anchor="middle" class="muted" font-size="11">从 Repository 加载安全上下文</text>
+
+  <rect class="card" x="504" y="90" width="220" height="60" rx="6"/>
+  <text x="614" y="116" text-anchor="middle" font-weight="700">2 HeaderWriterFilter</text>
+  <text x="614" y="136" text-anchor="middle" class="muted" font-size="11">写入安全响应头</text>
+
+  <rect class="card" x="276" y="158" width="220" height="60" rx="6"/>
+  <text x="386" y="184" text-anchor="middle" font-weight="700">3 CorsFilter</text>
+  <text x="386" y="204" text-anchor="middle" class="muted" font-size="11">处理跨域预检</text>
+
+  <rect class="card" x="504" y="158" width="220" height="60" rx="6"/>
+  <text x="614" y="184" text-anchor="middle" font-weight="700">4 CsrfFilter</text>
+  <text x="614" y="204" text-anchor="middle" class="muted" font-size="11">校验 CSRF Token</text>
+
+  <rect class="card" x="276" y="226" width="220" height="60" rx="6"/>
+  <text x="386" y="252" text-anchor="middle" font-weight="700">5 LogoutFilter</text>
+  <text x="386" y="272" text-anchor="middle" class="muted" font-size="11">处理登出请求</text>
+
+  <rect class="card" x="504" y="226" width="220" height="60" rx="6"/>
+  <text x="614" y="252" text-anchor="middle" class="label-b">6 认证过滤器</text>
+  <text x="614" y="272" text-anchor="middle" class="muted" font-size="11">BearerToken / 表单 / 自定义 JWT</text>
+
+  <rect class="card" x="276" y="294" width="220" height="60" rx="6"/>
+  <text x="386" y="320" text-anchor="middle" font-weight="700" font-size="12">7 AnonymousAuthenticationFilter</text>
+  <text x="386" y="340" text-anchor="middle" class="muted" font-size="11">未认证时填充匿名身份</text>
+
+  <rect class="card" x="504" y="294" width="220" height="60" rx="6"/>
+  <text x="614" y="320" text-anchor="middle" class="label-y">8 ExceptionTranslationFilter</text>
+  <text x="614" y="340" text-anchor="middle" class="muted" font-size="11">异常转为 401 / 403</text>
+
+  <rect class="hl" x="276" y="362" width="448" height="60" rx="6"/>
+  <text x="500" y="388" text-anchor="middle" class="label-r">9 AuthorizationFilter</text>
+  <text x="500" y="408" text-anchor="middle" class="muted" font-size="11">交给 AuthorizationManager 判定：requestMatchers 规则 / 自定义 access(...)</text>
+</svg>

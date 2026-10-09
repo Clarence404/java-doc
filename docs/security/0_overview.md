@@ -39,7 +39,7 @@
 ## 五、关联模块
 
 - Spring Security 实现细节（JWT 集成、RBAC 集成、动态权限）→ [spring/9_security](../spring/9_security)
-- 认证框架（Sa-Token / Shiro，含 Sa-Token SSO）→ [spring/10_auth_framework](../spring/10_auth_framework)
-- Spring 生态 SSO 接入（LDAP / CAS / SAML2 / OIDC / Keycloak）→ [spring/11_single_sign_on](../spring/11_single_sign_on)
+- 认证框架（Spring Security / Sa-Token / Shiro 对比与选型）→ [安全框架对比](../spring/10_auth_framework)
+- Spring 生态 SSO 接入（LDAP / CAS / SAML2 / OIDC / Keycloak / Spring Authorization Server / Sa-Token SSO）→ [Spring SSO 接入](../spring/11_single_sign_on)
 - 权限系统架构设计（PEP / PDP、权限缓存、数据权限拦截）→ [architecture/6_access_control](../architecture/6_access_control)
 - 安全通信协议（TLS / mTLS）→ [protocols/4_security_protocols](../protocols/4_security_protocols)

@@ -1,0 +1,60 @@
+<svg viewBox="0 0 720 418" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .layer-bg{fill:var(--bg);stroke:var(--border);stroke-width:1;}
+    .label-p{fill:var(--p);font-weight:700;}
+    .label-b{fill:var(--b);font-weight:700;}
+    .label-g{fill:var(--g);font-weight:700;}
+    .label-y{fill:var(--y);font-weight:700;}
+    .label-r{fill:var(--r);font-weight:700;}
+    .arrow{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+    .code{font-family:Consolas,'JetBrains Mono',monospace;}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="150" y="34" text-anchor="middle" class="label-p" font-size="13">Spring Integration</text>
+  <text x="570" y="34" text-anchor="middle" class="label-y" font-size="13">Apache Camel</text>
+  <rect class="card" x="20" y="56" width="260" height="60" rx="6"/>
+  <text x="150" y="80" text-anchor="middle" class="code" font-size="12">Files.inboundAdapter(dir)</text>
+  <text x="150" y="100" text-anchor="middle" class="muted" font-size="11">轮询目录，产生 File 消息</text>
+  <rect class="card" x="440" y="56" width="260" height="60" rx="6"/>
+  <text x="570" y="80" text-anchor="middle" class="code" font-size="12">from(&quot;file:/data/input&quot;)</text>
+  <text x="570" y="100" text-anchor="middle" class="muted" font-size="11">file 组件 URI</text>
+  <text x="360" y="91" text-anchor="middle" class="muted" font-size="12">入口</text>
+  <line x1="150" y1="116" x2="150" y2="148" class="arrow"/>
+  <line x1="570" y1="116" x2="570" y2="148" class="arrow"/>
+  <rect class="card" x="20" y="150" width="260" height="60" rx="6"/>
+  <text x="150" y="174" text-anchor="middle" class="code" font-size="12">Files.splitter()</text>
+  <text x="150" y="194" text-anchor="middle" class="muted" font-size="11">按行流式拆分</text>
+  <rect class="card" x="440" y="150" width="260" height="60" rx="6"/>
+  <text x="570" y="174" text-anchor="middle" class="code" font-size="12">.split(body().tokenize(&quot;
+&quot;))</text>
+  <text x="570" y="194" text-anchor="middle" class="muted" font-size="11">.streaming() 流式拆分</text>
+  <text x="360" y="185" text-anchor="middle" class="muted" font-size="12">拆分</text>
+  <line x1="150" y1="210" x2="150" y2="242" class="arrow"/>
+  <line x1="570" y1="210" x2="570" y2="242" class="arrow"/>
+  <rect class="card" x="20" y="244" width="260" height="60" rx="6"/>
+  <text x="150" y="268" text-anchor="middle" class="code" font-size="12">.transform(String.class, ...)</text>
+  <text x="150" y="288" text-anchor="middle" class="muted" font-size="11">CSV 行 → UserRecord</text>
+  <rect class="card" x="440" y="244" width="260" height="60" rx="6"/>
+  <text x="570" y="268" text-anchor="middle" class="code" font-size="12">.bean(UserLineMapper.class)</text>
+  <text x="570" y="288" text-anchor="middle" class="muted" font-size="11">行 → Map</text>
+  <text x="360" y="279" text-anchor="middle" class="muted" font-size="12">转换</text>
+  <line x1="150" y1="304" x2="150" y2="336" class="arrow"/>
+  <line x1="570" y1="304" x2="570" y2="336" class="arrow"/>
+  <rect class="card" x="20" y="338" width="260" height="60" rx="6"/>
+  <text x="150" y="362" text-anchor="middle" class="code" font-size="12">.handle(UserRecord.class, ...)</text>
+  <text x="150" y="382" text-anchor="middle" class="muted" font-size="11">调用 Repository 入库</text>
+  <rect class="card" x="440" y="338" width="260" height="60" rx="6"/>
+  <text x="570" y="362" text-anchor="middle" class="code" font-size="12">.to(&quot;sql:INSERT ...&quot;)</text>
+  <text x="570" y="382" text-anchor="middle" class="muted" font-size="11">sql 组件入库</text>
+  <text x="360" y="373" text-anchor="middle" class="muted" font-size="12">出口</text>
+</svg>

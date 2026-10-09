@@ -154,16 +154,18 @@ end
 ```yaml
 spring:
   cloud:
-    gateway:
-      routes:
-        - id: order-service
-          uri: lb://order-service     # lb:// 表示从注册中心负载均衡
-          predicates:
-            - Path=/api/order/**
-          filters:
-            - StripPrefix=1           # 去掉路径前缀
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 100   # 每秒令牌数
-                redis-rate-limiter.burstCapacity: 200   # 最大突发
+    gateway:  # Spring Cloud 2025.0+ 前缀；2024.0 及更早为 spring.cloud.gateway.routes
+      server:
+        webflux:
+          routes:
+            - id: order-service
+              uri: lb://order-service     # lb:// 表示从注册中心负载均衡
+              predicates:
+                - Path=/api/order/**
+              filters:
+                - StripPrefix=1           # 去掉路径前缀
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 100   # 每秒令牌数
+                    redis-rate-limiter.burstCapacity: 200   # 最大突发
 ```

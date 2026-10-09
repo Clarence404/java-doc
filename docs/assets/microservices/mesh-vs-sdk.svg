@@ -1,0 +1,51 @@
+<svg viewBox="0 0 680 254" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12" role="img" aria-label="SDK 模式与 Sidecar 模式对比">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .pan { rx:8; ry:8; fill:var(--bg); stroke-width:1.5; }
+    .ttl { font-weight:700; font-size:13px; }
+    .sub { font-size:11px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text class="ttl" x="20" y="30" text-anchor="start" fill="var(--fg)">SDK 模式（Spring Cloud / Dubbo）</text>
+  <rect class="box" x="20" y="42" width="260" height="60" stroke="var(--b)"/>
+  <text class="ttl" x="150" y="66" text-anchor="middle" fill="var(--b)">order-service</text>
+  <text class="sub" x="150" y="86" text-anchor="middle">业务代码 + 治理 SDK</text>
+  <line class="arr" x1="280" y1="72" x2="398" y2="72"/>
+  <text class="sub" x="339" y="64" text-anchor="middle">HTTP / RPC</text>
+  <rect class="box" x="400" y="42" width="260" height="60" stroke="var(--b)"/>
+  <text class="ttl" x="530" y="66" text-anchor="middle" fill="var(--b)">payment-service</text>
+  <text class="sub" x="530" y="86" text-anchor="middle">业务代码 + 治理 SDK</text>
+  <text class="ttl" x="20" y="142" text-anchor="start" fill="var(--fg)">Sidecar 模式（Service Mesh）</text>
+  <rect class="box" x="20" y="154" width="150" height="60" stroke="var(--b)"/>
+  <text class="ttl" x="95" y="178" text-anchor="middle" fill="var(--b)">order-service</text>
+  <text class="sub" x="95" y="198" text-anchor="middle">纯业务代码</text>
+  <rect class="box" x="180" y="154" width="100" height="60" stroke="var(--g)"/>
+  <text class="ttl" x="230" y="178" text-anchor="middle" fill="var(--g)">Envoy</text>
+  <text class="sub" x="230" y="198" text-anchor="middle">Sidecar</text>
+  <line class="arr" x1="280" y1="184" x2="398" y2="184"/>
+  <text class="sub" x="339" y="176" text-anchor="middle">mTLS</text>
+  <rect class="box" x="400" y="154" width="100" height="60" stroke="var(--g)"/>
+  <text class="ttl" x="450" y="178" text-anchor="middle" fill="var(--g)">Envoy</text>
+  <text class="sub" x="450" y="198" text-anchor="middle">Sidecar</text>
+  <rect class="box" x="510" y="154" width="150" height="60" stroke="var(--b)"/>
+  <text class="ttl" x="585" y="178" text-anchor="middle" fill="var(--b)">payment-service</text>
+  <text class="sub" x="585" y="198" text-anchor="middle">纯业务代码</text>
+  <text class="sub" x="340" y="238" text-anchor="middle">同一 Pod 内，出入流量被透明拦截到 Envoy，治理能力随代理配置下发</text>
+</svg>

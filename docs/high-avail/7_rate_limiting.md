@@ -237,21 +237,23 @@ public class LocalRateLimiter {
 ```yaml
 spring:
   cloud:
-    gateway:
-      routes:
-        - id: order-service
-          uri: lb://order-service
-          predicates:
-            - Path=/api/orders/**
-          filters:
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 100   # 每秒补充 100 个令牌
-                redis-rate-limiter.burstCapacity: 200   # 桶容量，即允许的突发上限
-                redis-rate-limiter.requestedTokens: 1   # 每个请求消耗的令牌数
-                key-resolver: "#{@userKeyResolver}"     # 限流维度
-                deny-empty-key: true                    # key 为空时拒绝（默认 true）
-                empty-key-status: FORBIDDEN             # key 为空时返回的状态码（默认 403）
+    gateway:  # Spring Cloud 2025.0+ 前缀；2024.0 及更早为 spring.cloud.gateway.routes
+      server:
+        webflux:
+          routes:
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/api/orders/**
+              filters:
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 100   # 每秒补充 100 个令牌
+                    redis-rate-limiter.burstCapacity: 200   # 桶容量，即允许的突发上限
+                    redis-rate-limiter.requestedTokens: 1   # 每个请求消耗的令牌数
+                    key-resolver: "#{@userKeyResolver}"     # 限流维度
+                    deny-empty-key: true                    # key 为空时拒绝（默认 true）
+                    empty-key-status: FORBIDDEN             # key 为空时返回的状态码（默认 403）
 ```
 
 ```java

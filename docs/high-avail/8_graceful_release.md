@@ -8,7 +8,7 @@ description: 优雅停机、K8s preStop、滚动参数与 PDB、服务预热、�
 >
 > **前置阅读**：[限流与过载保护](./7_rate_limiting)
 
-相关：[发布策略](/devops/5_release_strategy) · [冗余与故障转移 - K8s 探针](./2_redundancy_failover) · [Kubernetes](/cloud-native/6_kubernetes) · [Flyway 数据迁移](/spring-boot/4_flyway)
+相关：[发布策略](/devops/5_release_strategy) · [冗余与故障转移 - K8s 探针](./2_redundancy_failover) · [Kubernetes](/cloud-native/6_kubernetes) · [数据库版本迁移](/spring-boot/4_flyway)
 
 发布是频率最高的"计划内故障"：每次滚动发布都要让实例下线再上线。如果下线时直接杀进程、上线时冷启动直接接满流量，每次发布都会产生一批 502、连接重置和 RT 毛刺。高可用的变更管理要做到两点：**实例级的上下线无损**，以及**变更级的风险可控**。
 
@@ -224,7 +224,7 @@ K8s 滚动、蓝绿、Ingress 金丝雀的具体配置与上线 SOP 见 [发布�
 | 权限过大 | 任何人都能改生产配置 | 审批流、双人复核、操作审计 |
 | 功能开关失控 | 开关长期不清理，组合状态无法预测 | 开关设置负责人与到期时间，定期清理 |
 
-数据库结构变更遵循**先扩展后收缩（Expand-Contract）**：先加列 / 加表并兼容新旧代码，代码全量切换后再删除旧列，保证任一时刻回滚代码都不需要回滚表结构。迁移脚本管理见 [Flyway 数据迁移](/spring-boot/4_flyway)。
+数据库结构变更遵循**先扩展后收缩（Expand-Contract）**：先加列 / 加表并兼容新旧代码，代码全量切换后再删除旧列，保证任一时刻回滚代码都不需要回滚表结构。迁移脚本管理见 [数据库版本迁移](/spring-boot/4_flyway)。
 
 ---
 
