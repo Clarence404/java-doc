@@ -64,7 +64,7 @@ RocketMQ 诞生于阿里交易场景，强项是**业务消息**：事务消息�
 
 读写路径上的关键优化：
 
-- **mmap + PageCache**：CommitLog 与 ConsumeQueue 用 `MappedByteBuffer` 映射到内存，写入先落 PageCache，热数据的读取直接命中内存；零拷贝原理见 [Netty · ByteBuf 与内存管理](/netty/5_bytebuf)
+- **mmap + PageCache**：CommitLog 与 ConsumeQueue 用 `MappedByteBuffer` 映射到内存，写入先落 PageCache，热数据的读取直接命中内存；零拷贝原理见 [Netty · ByteBuf 与内存管理](/netty/6_bytebuf)
 - **消费是两次查找**：先读 ConsumeQueue 拿到偏移，再到 CommitLog 取消息体；ConsumeQueue 条目很小，基本常驻 PageCache
 - **刷盘策略**：
 

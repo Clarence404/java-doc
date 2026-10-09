@@ -149,14 +149,19 @@ ES（查询）+ ClickHouse（分析）+ HDFS（归档）
 ### 4.3 实时计算——Flink
 
 ```java
-// 统计最近 1 分钟每个商品的下单量（滑动窗口）
-DataStream<Order> orders = env.addSource(kafkaSource);
+// 统计最近 1 分钟每个商品的下单量（滑动窗口，Flink 2.x API）
+DataStream<Order> orders = env.fromSource(kafkaSource,
+        WatermarkStrategy.<Order>forBoundedOutOfOrderness(Duration.ofSeconds(5))
+                .withTimestampAssigner((o, ts) -> o.getCreateTime()),
+        "orders");
 orders
     .keyBy(Order::getProductId)
-    .window(SlidingEventTimeWindows.of(Time.minutes(1), Time.seconds(10)))
+    .window(SlidingEventTimeWindows.of(Duration.ofMinutes(1), Duration.ofSeconds(10)))
     .aggregate(new CountAggregator())
-    .addSink(redisSink);
+    .sinkTo(redisSink);
 ```
+
+Flink 的时间语义、窗口、状态与精确一次等原理见 [Flink 总览](/flink/0_overview)。
 
 ---
 

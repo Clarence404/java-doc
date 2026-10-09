@@ -29,7 +29,7 @@ description: Netty 方向题目清单
 - **ChannelPipeline 中入站和出站事件的传播方向？`ctx.write()` 和 `channel.write()` 有什么区别？**
 - **什么样的 Handler 可以加 `@Sharable`？**
 - **为什么不能在 EventLoop 线程里执行阻塞操作？业务逻辑应该放在哪里执行？**  
-  → 详见 <RouteLink to="/netty/3_netty_desc">Netty 入门</RouteLink>、<RouteLink to="/netty/4_core_components">核心组件</RouteLink>
+  → 详见 <RouteLink to="/netty/3_netty_desc">Netty 入门</RouteLink>、<RouteLink to="/netty/4_channel_eventloop">Channel 与 EventLoop</RouteLink>、<RouteLink to="/netty/5_pipeline_handler">Pipeline 与 Handler</RouteLink>
 
 ## 四、ByteBuf 与内存
 
@@ -37,7 +37,7 @@ description: Netty 方向题目清单
 - **ByteBuf 的引用计数是怎么回事？什么情况下需要手动 `release`？**
 - **如何排查 Netty 的内存泄漏？**
 - **Netty 的零拷贝体现在哪些地方？和操作系统层面的零拷贝有什么区别？**  
-  → 详见 <RouteLink to="/netty/5_bytebuf">ByteBuf 与内存管理</RouteLink>
+  → 详见 <RouteLink to="/netty/6_bytebuf">ByteBuf 与内存管理</RouteLink>
 
 ## 五、粘包拆包与协议设计
 
@@ -45,7 +45,7 @@ description: Netty 方向题目清单
 - **Netty 有哪些解决粘包拆包的解码器？`ByteToMessageDecoder` 是如何处理半包的？**
 - **`LengthFieldBasedFrameDecoder` 的五个参数如何配置？**
 - **设计一个私有协议需要哪些字段？一条连接上如何让请求和响应一一对应？**  
-  → 详见 <RouteLink to="/netty/6_stick_split">粘包与拆包</RouteLink>、<RouteLink to="/netty/7_custom_protocol">自定义私有协议</RouteLink>
+  → 详见 <RouteLink to="/netty/7_stick_split">粘包与拆包</RouteLink>、<RouteLink to="/netty/8_custom_protocol">自定义私有协议</RouteLink>
 
 ## 六、长连接与推送
 
@@ -53,7 +53,7 @@ description: Netty 方向题目清单
 - **客户端断线重连应该如何实现？**
 - **WebSocket、SSE、HTTP 长轮询的区别？各适合什么场景？**
 - **WebSocket 服务集群部署时，如何把消息推送到连接在其他节点上的用户？**  
-  → 详见 <RouteLink to="/netty/8_heartbeat">心跳与连接管理</RouteLink>、<RouteLink to="/netty/9_websocket">WebSocket</RouteLink>、<RouteLink to="/netty/10_sse">SSE</RouteLink>
+  → 详见 <RouteLink to="/netty/9_heartbeat">心跳与连接管理</RouteLink>、<RouteLink to="/netty/10_websocket">WebSocket</RouteLink>、<RouteLink to="/netty/11_sse">SSE</RouteLink>
 
 ## 七、生产实践
 
@@ -61,7 +61,7 @@ description: Netty 方向题目清单
 - **对端消费很慢时，一直 `writeAndFlush` 会有什么问题？如何做背压？**
 - **Netty 服务如何优雅停机？**
 - **Netty 开发中有哪些常见的坑？**  
-  → 详见 <RouteLink to="/netty/11_production">生产实践与调优</RouteLink>
+  → 详见 <RouteLink to="/netty/12_production">生产实践与调优</RouteLink>
 
 ---
 

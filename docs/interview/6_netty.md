@@ -169,7 +169,7 @@ Linux 长期缺少成熟的网络异步 IO，所以 Linux 上的高性能网络�
 6. `ctx.writeAndFlush()` 出站向 Head 方向经过编码器
 7. `write` 进入 `ChannelOutboundBuffer`，`flush` 写入 Socket；Socket 写满时注册写事件等待可写
 
-→ 详见 [Netty 入门](/netty/3_netty_desc)、[核心组件](/netty/4_core_components)
+→ 详见 [Netty 入门](/netty/3_netty_desc)、[Channel 与 EventLoop](/netty/4_channel_eventloop)、[Pipeline 与 Handler](/netty/5_pipeline_handler)
 
 ### 10、EventLoop 的工作机制？为什么 Channel 要绑定固定的 EventLoop？
 
@@ -181,7 +181,7 @@ Linux 长期缺少成熟的网络异步 IO，所以 Linux 上的高性能网络�
 - **代价**：一个 EventLoop 服务多个 Channel，任何阻塞都拖慢它名下所有连接
 - **外部线程操作 Channel**：`inEventLoop()` 判断，不在则 `execute()` 投递；`write` / `writeAndFlush` 内部已做此判断，任意线程调用都安全
 
-→ 详见 [核心组件](/netty/4_core_components)
+→ 详见 [Channel 与 EventLoop](/netty/4_channel_eventloop)
 
 ### 11、Pipeline 中入站 / 出站事件的传播方向？`ctx.write()` 和 `channel.write()` 的区别？
 
@@ -197,7 +197,7 @@ Linux 长期缺少成熟的网络异步 IO，所以 Linux 上的高性能网络�
 - 异常沿入站方向传播，链尾没人处理只打一条警告、不关连接 → 链尾放统一异常处理 Handler
 - 出站 `write` 失败不触发 `exceptionCaught`，只标记在 `ChannelFuture` 上
 
-→ 详见 [核心组件](/netty/4_core_components)
+→ 详见 [Pipeline 与 Handler](/netty/5_pipeline_handler)
 
 ### 12、什么样的 Handler 可以加 `@Sharable`？
 
@@ -212,7 +212,7 @@ Linux 长期缺少成熟的网络异步 IO，所以 Linux 上的高性能网络�
 - 未标注却被重复添加 → `ChannelPipelineException`（"is not a @Sharable handler"）
 - 共享实例会被多个 EventLoop 线程并发调用；连接级数据放 Channel 的 `AttributeKey`
 
-→ 详见 [核心组件](/netty/4_core_components)
+→ 详见 [Pipeline 与 Handler](/netty/5_pipeline_handler)
 
 ### 13、为什么不能在 EventLoop 线程里阻塞？业务逻辑放在哪执行？
 
@@ -230,7 +230,7 @@ Linux 长期缺少成熟的网络异步 IO，所以 Linux 上的高性能网络�
 Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty 会抛 `BlockingOperationException`，一律改用 `addListener`。交给业务线程的若是 `ByteBuf`，要先 `retain()` 并在业务线程释放。
 :::
 
-→ 详见 [核心组件](/netty/4_core_components)
+→ 详见 [Channel 与 EventLoop](/netty/4_channel_eventloop)
 
 ## 四、ByteBuf 与内存
 
@@ -249,7 +249,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 - 三个区域：可丢弃 `[0, readerIndex)`、可读 `[readerIndex, writerIndex)`、可写 `[writerIndex, capacity)`
 - `read*` / `write*` 移动指针，`get*` / `set*` 不移动；`slice` / `duplicate` 共享内存，`copy` 才复制
 
-→ 详见 [ByteBuf 与内存管理](/netty/5_bytebuf)
+→ 详见 [ByteBuf 与内存管理](/netty/6_bytebuf)
 
 ### 15、ByteBuf 的引用计数是怎么回事？什么时候需要手动 `release`？
 
@@ -268,7 +268,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 - 计数为 0 后再访问抛 `IllegalReferenceCountException`
 - `SimpleChannelInboundHandler` 自动释放，不要把 msg 保存或交给其他线程，确需时先 `retain()`
 
-→ 详见 [ByteBuf 与内存管理](/netty/5_bytebuf)
+→ 详见 [ByteBuf 与内存管理](/netty/6_bytebuf)
 
 ### 16、如何排查 Netty 的内存泄漏？
 
@@ -287,7 +287,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 3. 常见原因：Adapter 消费后未释放、提前 `return` 分支漏释放、异步处理异常路径漏释放、`retain` 未配对
 4. 监控 `PooledByteBufAllocatorMetric.usedDirectMemory()`：只涨不跌即泄漏或写缓冲积压
 
-→ 详见 [ByteBuf 与内存管理](/netty/5_bytebuf)、[生产实践与调优](/netty/11_production)
+→ 详见 [ByteBuf 与内存管理](/netty/6_bytebuf)、[生产实践与调优](/netty/12_production)
 
 ### 17、Netty 的零拷贝体现在哪？和操作系统零拷贝有什么区别？
 
@@ -305,7 +305,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 启用 TLS（`SslHandler`）后数据必须在用户态加密，无法用 `FileRegion`，改用 `ChunkedWriteHandler` + `ChunkedFile`。
 :::
 
-→ 详见 [ByteBuf 与内存管理](/netty/5_bytebuf)
+→ 详见 [ByteBuf 与内存管理](/netty/6_bytebuf)
 
 ## 五、粘包拆包与协议设计
 
@@ -323,7 +323,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 
 - 关掉 Nagle（`TCP_NODELAY`，Netty 默认已开）也解决不了，**唯一可靠的办法是在应用层定义消息边界**：定长、分隔符、长度字段（主流）
 
-→ 详见 [粘包与拆包](/netty/6_stick_split)
+→ 详见 [粘包与拆包](/netty/7_stick_split)
 
 ### 19、Netty 有哪些解决粘包拆包的解码器？`ByteToMessageDecoder` 如何处理半包？
 
@@ -346,7 +346,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 - 自写 `decode` 约定：数据不够时不能读字节（或 `mark` / `reset` 回退）；产出消息却没读字节会抛 `DecoderException`
 - `maxFrameLength` 是安全防线，超限抛 `TooLongFrameException`，应直接关连接；发送端用 `LengthFieldPrepender` 配套
 
-→ 详见 [粘包与拆包](/netty/6_stick_split)
+→ 详见 [粘包与拆包](/netty/7_stick_split)
 
 ### 20、`LengthFieldBasedFrameDecoder` 的五个参数如何配置？
 
@@ -370,7 +370,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 
 - 常见错误：`maxFrameLength` 只按 Payload 上限设置，导致最大合法消息被拒；2 字节长度按无符号读，最大 65535
 
-→ 详见 [自定义私有协议](/netty/7_custom_protocol)
+→ 详见 [自定义私有协议](/netty/8_custom_protocol)
 
 ### 21、设计私有协议需要哪些字段？一条连接上如何让请求和响应一一对应？
 
@@ -396,7 +396,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 - 必须有超时清理（否则在途表无限增长）；`channelInactive` 时让所有在途请求快速失败
 - `complete` 在 EventLoop 线程执行，调用方回调有慢逻辑要用 `thenApplyAsync(fn, bizExecutor)`
 
-→ 详见 [自定义私有协议](/netty/7_custom_protocol)
+→ 详见 [自定义私有协议](/netty/8_custom_protocol)
 
 ## 六、长连接与推送
 
@@ -415,7 +415,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 - **位置**：放在业务 Handler 之前、Pipeline 前部；有计时状态，每个 Channel `new` 一个
 - **常用方案**：客户端写空闲发 PING，服务端读空闲超时关闭连接；服务端超时 ≈ 客户端心跳间隔 × 3；任何业务消息都算心跳
 
-→ 详见 [心跳与连接管理](/netty/8_heartbeat)
+→ 详见 [心跳与连接管理](/netty/9_heartbeat)
 
 ### 23、客户端断线重连应该如何实现？
 
@@ -433,7 +433,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 
 - 客户端可统计连续未收到 PONG 的次数（如 3 次），超限主动断开交给重连逻辑
 
-→ 详见 [心跳与连接管理](/netty/8_heartbeat)
+→ 详见 [心跳与连接管理](/netty/9_heartbeat)
 
 ### 24、WebSocket、SSE、HTTP 长轮询的区别？各适合什么场景？
 
@@ -452,7 +452,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 - SSE 注意：HTTP/1.1 下同域名浏览器并发连接约 6 个，SSE 长期占用一个，启用 HTTP/2 可缓解；反向代理需关闭响应缓冲
 - WebSocket 注意：`Sec-WebSocket-Accept` 只做协议确认、不是鉴权，鉴权在握手阶段做并校验 `Origin`；Netty 中 `WebSocketServerProtocolHandler` 自动处理握手、Ping/Pong、Close
 
-→ 详见 [WebSocket](/netty/9_websocket)、[SSE](/netty/10_sse)
+→ 详见 [WebSocket](/netty/10_websocket)、[SSE](/netty/11_sse)
 
 ### 25、WebSocket 集群部署时，如何推送到连在其他节点上的用户？
 
@@ -468,7 +468,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 - Spring 体系可用 STOMP `enableStompBrokerRelay` 中转到外部 Broker
 - Nginx 需 `proxy_http_version 1.1`、透传 `Upgrade` / `Connection`，`proxy_read_timeout` 大于心跳间隔；粘性会话非必需（SockJS 降级除外）
 
-→ 详见 [WebSocket](/netty/9_websocket)
+→ 详见 [WebSocket](/netty/10_websocket)
 
 ## 七、生产实践
 
@@ -493,7 +493,7 @@ Handler 中不要 `future.sync()` / `await()`：等于让线程等自己，Netty
 
 - `option()` 作用于监听 Channel，`childOption()` 作用于每个子连接，写错位置不生效
 
-→ 详见 [生产实践与调优](/netty/11_production)
+→ 详见 [生产实践与调优](/netty/12_production)
 
 ### 27、对端消费很慢时一直 `writeAndFlush` 会怎样？如何做背压？
 
@@ -512,7 +512,7 @@ if (!ch.isWritable()) {
 ch.writeAndFlush(msg);
 ```
 
-→ 详见 [生产实践与调优](/netty/11_production)
+→ 详见 [生产实践与调优](/netty/12_production)
 
 ### 28、Netty 服务如何优雅停机？
 
@@ -529,7 +529,7 @@ ch.writeAndFlush(msg);
 - `shutdownGracefully(quietPeriod, timeout, unit)`：静默期内有新任务则重新计时，超时强制关闭；默认 2s / 15s；方法异步，需要等待时 `.syncUninterruptibly()`
 - Spring 中用 `SmartLifecycle` 接入生命周期；K8s 下 `preStop` 与 `terminationGracePeriodSeconds` 要覆盖停机耗时
 
-→ 详见 [生产实践与调优](/netty/11_production)
+→ 详见 [生产实践与调优](/netty/12_production)
 
 ### 29、Netty 开发中有哪些常见的坑？
 
@@ -552,4 +552,4 @@ ch.writeAndFlush(msg);
 | 未设心跳 | 半开连接只增不减 | `IdleStateHandler` + 应用层心跳 |
 | JDK epoll 空轮询 bug | CPU 100% | Netty 已规避（超 512 次重建 Selector），了解即可 |
 
-→ 详见 [生产实践与调优](/netty/11_production)
+→ 详见 [生产实践与调优](/netty/12_production)

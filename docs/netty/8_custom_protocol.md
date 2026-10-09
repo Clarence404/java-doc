@@ -6,7 +6,7 @@ description: 帧格式与字段设计、LengthFieldBasedFrameDecoder、编解码
 
 > **本篇目标**：从零设计一个二进制私有协议，完成帧格式、编解码器、Pipeline 组装，并实现 RPC 核心的请求-响应匹配。
 >
-> **前置阅读**：[粘包与拆包](./6_stick_split)
+> **前置阅读**：[粘包与拆包](./7_stick_split)
 
 上一篇解决了"消息从哪结束"的问题，这一篇往前再走一步：**一条消息里应该放什么、怎么编码、收到后怎么交给正确的调用方。** 这正是 Dubbo、RocketMQ 等框架底层通信协议在做的事情。
 
@@ -16,7 +16,7 @@ description: 帧格式与字段设计、LengthFieldBasedFrameDecoder、编解码
 
 ### 1、先选边界方案
 
-[粘包与拆包](./6_stick_split)中介绍的三种方案，在私有协议中的取舍如下：
+[粘包与拆包](./7_stick_split)中介绍的三种方案，在私有协议中的取舍如下：
 
 | 方案 | 原理 | 适用场景 |
 |------|------|---------|
@@ -279,10 +279,10 @@ public class ServerChannelInitializer extends ChannelInitializer<SocketChannel> 
 - `ChannelInitializer` 本身已标注 `@Sharable`，同一个实例可以直接传给 `childHandler()`，无需再加注解
 - `businessHandler` 作为共享实例，**必须标注 `@Sharable` 且不能持有连接相关的成员变量**；连接级数据放到 Channel 的 `AttributeKey` 中
 
-传播方向与 `ctx.write` / `channel.write` 的区别见 [核心组件 · Pipeline](./4_core_components)。
+传播方向与 `ctx.write` / `channel.write` 的区别见 [Pipeline 与 Handler](./5_pipeline_handler)。
 
 ::: tip 心跳保活
-长连接必须配合心跳：客户端在写空闲时发送 PING，服务端回复 PONG，并在读空闲超时后关闭连接。`IdleStateHandler` 的参数选择、客户端与服务端的分工、断线重连等完整方案见 [心跳与连接管理](./8_heartbeat)。
+长连接必须配合心跳：客户端在写空闲时发送 PING，服务端回复 PONG，并在读空闲超时后关闭连接。`IdleStateHandler` 的参数选择、客户端与服务端的分工、断线重连等完整方案见 [心跳与连接管理](./9_heartbeat)。
 :::
 
 ---
@@ -401,4 +401,4 @@ public class RpcResponseHandler extends SimpleChannelInboundHandler<RpcResponse>
 - Pipeline 按"空闲检测 → 拆帧 → 解码 → 编码 → 心跳 → 业务"组装，共享的 Handler 必须无状态并标注 `@Sharable`
 - `requestId` + 在途 Future 表是 RPC 单连接多路复用的核心，务必做好超时与断线清理
 
-> 下一篇：[心跳与连接管理](./8_heartbeat) —— 长连接如何发现"假死"的对端，以及断线后如何自动重连。
+> 下一篇：[心跳与连接管理](./9_heartbeat) —— 长连接如何发现"假死"的对端，以及断线后如何自动重连。

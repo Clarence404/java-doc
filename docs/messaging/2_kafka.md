@@ -324,7 +324,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);
 | **批量与压缩** | 生产者按分区攒批（`batch.size` / `linger.ms`），整批压缩（lz4 / zstd），Broker 原样存储，消费者解压 |
 | **分区并行** | 多分区分布在多个 Broker 上，生产与消费都能水平扩展 |
 
-**零拷贝的前提**：Broker 要原样转发磁盘上的字节。启用 **TLS 后数据必须在用户态加密，sendfile 不再生效**，CPU 与内存拷贝开销会明显上升，容量评估时要考虑。应用层（Netty）的零拷贝是另一层概念，见 [Netty · ByteBuf 与内存管理](/netty/5_bytebuf)。
+**零拷贝的前提**：Broker 要原样转发磁盘上的字节。启用 **TLS 后数据必须在用户态加密，sendfile 不再生效**，CPU 与内存拷贝开销会明显上升，容量评估时要考虑。应用层（Netty）的零拷贝是另一层概念，见 [Netty · ByteBuf 与内存管理](/netty/6_bytebuf)。
 
 ---
 

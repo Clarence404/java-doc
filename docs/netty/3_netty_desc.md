@@ -155,7 +155,7 @@ public final class EchoClient {
 ```
 
 ::: tip 为什么要加 LineBasedFrameDecoder
-TCP 是字节流，没有消息边界，一次读到的数据可能是半行，也可能是多行。`LineBasedFrameDecoder` 按换行符把字节流切成完整的一行再往后传。去掉它，Demo 在本机通常也能跑通，但在真实网络下会出现消息错乱，详见 [粘包与拆包](./6_stick_split)。
+TCP 是字节流，没有消息边界，一次读到的数据可能是半行，也可能是多行。`LineBasedFrameDecoder` 按换行符把字节流切成完整的一行再往后传。去掉它，Demo 在本机通常也能跑通，但在真实网络下会出现消息错乱，详见 [粘包与拆包](./7_stick_split)。
 :::
 
 ### 3、一次请求在 Netty 中怎么流动
@@ -170,7 +170,7 @@ TCP 是字节流，没有消息边界，一次读到的数据可能是半行，�
 6. **写回**：Handler 调用 `ctx.writeAndFlush()`，写事件从当前 Handler 位置**向链头方向**传播，经过 `StringEncoder` 编码成 `ByteBuf`
 7. **出站与 flush**：`write` 先把数据放进该 Channel 的发送缓冲队列，`flush` 再真正写入 Socket；如果 Socket 发送缓冲区已满，Netty 会注册写事件，等可写时继续发送
 
-入站走"链头 → 链尾"，出站走"链尾 → 链头"。Pipeline 的传播规则和常见坑在 [核心组件深入](./4_core_components) 中详细展开。
+入站走"链头 → 链尾"，出站走"链尾 → 链头"。Pipeline 的传播规则和常见坑在 [Pipeline 与 Handler](./5_pipeline_handler) 中详细展开。
 
 ## 四、核心组件速览
 
@@ -178,12 +178,12 @@ TCP 是字节流，没有消息边界，一次读到的数据可能是半行，�
 
 | 组件 | 是什么 | 作用 | 详见 |
 |------|--------|------|------|
-| `Channel` | 通道，对一个网络连接的抽象 | 提供 `read`、`write`、`bind`、`connect`、`close` 等统一操作 | [核心组件深入](./4_core_components) |
-| `EventLoop` / `EventLoopGroup` | 事件循环 / 事件循环组 | 一个 EventLoop 是一个线程，处理所绑定 Channel 的 IO 事件和任务；Group 是一组 EventLoop | [核心组件深入](./4_core_components) |
-| `ChannelFuture` | 异步操作的结果 | IO 操作立即返回 Future，通过 `addListener` 获取完成结果 | [核心组件深入](./4_core_components) |
-| `ChannelPipeline` | 流水线，Handler 组成的双向链表 | 每个 Channel 一条，负责入站 / 出站事件的传播 | [核心组件深入](./4_core_components) |
-| `ChannelHandler` / `ChannelHandlerContext` | 处理器 / 处理器上下文 | Handler 处理事件；Context 表示 Handler 在 Pipeline 中的位置，用于继续传播事件 | [核心组件深入](./4_core_components) |
-| `ByteBuf` | Netty 的字节容器 | 读写双指针、可扩容、支持池化与堆外内存 | [ByteBuf 与内存管理](./5_bytebuf) |
+| `Channel` | 通道，对一个网络连接的抽象 | 提供 `read`、`write`、`bind`、`connect`、`close` 等统一操作 | [Channel 与 EventLoop](./4_channel_eventloop) |
+| `EventLoop` / `EventLoopGroup` | 事件循环 / 事件循环组 | 一个 EventLoop 是一个线程，处理所绑定 Channel 的 IO 事件和任务；Group 是一组 EventLoop | [Channel 与 EventLoop](./4_channel_eventloop) |
+| `ChannelFuture` | 异步操作的结果 | IO 操作立即返回 Future，通过 `addListener` 获取完成结果 | [Channel 与 EventLoop](./4_channel_eventloop) |
+| `ChannelPipeline` | 流水线，Handler 组成的双向链表 | 每个 Channel 一条，负责入站 / 出站事件的传播 | [Pipeline 与 Handler](./5_pipeline_handler) |
+| `ChannelHandler` / `ChannelHandlerContext` | 处理器 / 处理器上下文 | Handler 处理事件；Context 表示 Handler 在 Pipeline 中的位置，用于继续传播事件 | [Pipeline 与 Handler](./5_pipeline_handler) |
+| `ByteBuf` | Netty 的字节容器 | 读写双指针、可扩容、支持池化与堆外内存 | [ByteBuf 与内存管理](./6_bytebuf) |
 | `Bootstrap` / `ServerBootstrap` | 引导类 | 把线程组、Channel 类型、参数、Handler 组装起来并启动 | 本篇第五节 |
 
 ## 五、Bootstrap 常用配置
@@ -213,19 +213,19 @@ TCP 是字节流，没有消息边界，一次读到的数据可能是半行，�
 |------|---------|------|------|
 | `SO_BACKLOG` | 服务端 `option` | 已完成三次握手、等待 accept 的连接队列长度 | 实际值还受系统 `net.core.somaxconn` 限制；突发建连多时需调大 |
 | `TCP_NODELAY` | `childOption` / 客户端 `option` | 关闭 Nagle 算法，小包立即发送 | 对延迟敏感的场景应开启，Netty 在多数平台默认已开启 |
-| `SO_KEEPALIVE` | `childOption` / 客户端 `option` | 开启 TCP 层保活探测 | Linux 默认空闲 2 小时才探测，不能代替应用层心跳，见 [心跳与连接管理](./8_heartbeat) |
+| `SO_KEEPALIVE` | `childOption` / 客户端 `option` | 开启 TCP 层保活探测 | Linux 默认空闲 2 小时才探测，不能代替应用层心跳，见 [心跳与连接管理](./9_heartbeat) |
 | `CONNECT_TIMEOUT_MILLIS` | 客户端 `option` | 建立连接的超时时间 | 默认 30 秒，客户端通常要调小 |
 
-完整的参数调优、原生 epoll 传输、线程数配置见 [生产实践与调优](./11_production)。
+完整的参数调优、原生 epoll 传输、线程数配置见 [生产实践与调优](./12_production)。
 
 ## 六、Netty 为什么快（总览）
 
 **Netty 的性能来自"线程模型 + 内存管理 + 传输层"三方面的共同设计**，每一点都在后续文章中单独展开：
 
 - **主从 Reactor 线程模型**：少量线程处理大量连接，accept 与读写分离 → [Reactor 模型](./2_reactor)
-- **无锁串行化**：Channel 绑定单个 EventLoop，同一连接上的处理不需要加锁，也没有线程切换 → [核心组件深入](./4_core_components)
-- **池化直接内存与零拷贝**：`PooledByteBufAllocator` 复用内存、减少 GC；堆外内存减少一次拷贝；`CompositeByteBuf`、`FileRegion` 避免多余的数据复制 → [ByteBuf 与内存管理](./5_bytebuf)
-- **原生 epoll 传输**：绕过 JDK Selector，使用 ET 模式并支持更多 Socket 参数 → [生产实践与调优](./11_production)
+- **无锁串行化**：Channel 绑定单个 EventLoop，同一连接上的处理不需要加锁，也没有线程切换 → [Channel 与 EventLoop](./4_channel_eventloop)
+- **池化直接内存与零拷贝**：`PooledByteBufAllocator` 复用内存、减少 GC；堆外内存减少一次拷贝；`CompositeByteBuf`、`FileRegion` 避免多余的数据复制 → [ByteBuf 与内存管理](./6_bytebuf)
+- **原生 epoll 传输**：绕过 JDK Selector，使用 ET 模式并支持更多 Socket 参数 → [生产实践与调优](./12_production)
 
 ## 小结
 
@@ -235,4 +235,4 @@ TCP 是字节流，没有消息边界，一次读到的数据可能是半行，�
 - 请求流动路径：boss accept → 注册到 worker EventLoop → 入站解码 → 业务 Handler → 出站编码 → flush 写入 Socket
 - `option()` 作用于监听 Channel，`childOption()` 作用于每个客户端连接
 
-> 下一篇：[核心组件深入](./4_core_components) —— 深入 Channel、EventLoop 与 Pipeline，弄清事件传播规则和线程模型细节。
+> 下一篇：[Channel 与 EventLoop](./4_channel_eventloop) —— 深入连接与线程两个核心抽象，弄清 EventLoop 的线程模型细节。

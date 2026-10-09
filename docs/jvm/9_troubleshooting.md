@@ -129,7 +129,7 @@ jmap -clstats <pid>
 
 - 监控 `BufferPoolMXBean`（JMX 中 `java.nio:type=BufferPool,name=direct`）的使用量曲线
 - 用 NMT 查看堆外内存增长：`jcmd <pid> VM.native_memory summary.diff`，直接内存计入 `Other`
-- Netty 场景开启泄漏检测（`-Dio.netty.leakDetection.level=paranoid`，仅测试环境），见 [ByteBuf 与内存管理](/netty/5_bytebuf)
+- Netty 场景开启泄漏检测（`-Dio.netty.leakDetection.level=paranoid`，仅测试环境），见 [ByteBuf 与内存管理](/netty/6_bytebuf)
 
 ---
 

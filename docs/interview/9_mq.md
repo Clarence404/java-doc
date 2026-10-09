@@ -305,7 +305,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 - **sendfile**：数据完全不进用户态，Broker 无法加工内容；**开启 TLS 后必须在用户态加密，sendfile 失效**，CPU 开销明显上升
 - **顺序写**：Kafka 每个分区一组分段日志；RocketMQ 所有 Topic 共用一个 CommitLog，Topic 再多也是单文件顺序写，ConsumeQueue 只存定长索引
 - **PageCache**：不占 JVM 堆，刚写入的数据通常直接从缓存读到；持久性靠副本，而不是每条 fsync
-- 应用层（Netty `CompositeByteBuf`、`FileRegion`）的零拷贝是另一层概念，见 [Netty · ByteBuf 与内存管理](/netty/5_bytebuf)
+- 应用层（Netty `CompositeByteBuf`、`FileRegion`）的零拷贝是另一层概念，见 [Netty · ByteBuf 与内存管理](/netty/6_bytebuf)
 
 → 详见 [Kafka](/messaging/2_kafka)、[RocketMQ](/messaging/3_rocketmq)
 

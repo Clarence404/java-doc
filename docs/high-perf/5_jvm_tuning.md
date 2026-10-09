@@ -56,7 +56,7 @@ description: 收集器选型、降低分配速率、堆与容器内存、JIT 预
 | 集合、StringBuilder 预分配 | 避免扩容时的数组复制与废弃数组 | [代码级优化](./6_code_optimization) |
 | 减少中间对象 | 避免无谓的字符串拼接、`String.format`、多层 DTO 转换 | [代码级优化](./6_code_optimization) |
 | 流式处理 | 大结果集分页 / 游标读取，不一次性加载到内存 | [数据访问性能](./10_db_performance) |
-| 复用缓冲区 | IO 场景复用 `byte[]` / `ByteBuffer`，Netty 使用池化 ByteBuf | [ByteBuf 与内存管理](/netty/5_bytebuf) |
+| 复用缓冲区 | IO 场景复用 `byte[]` / `ByteBuffer`，Netty 使用池化 ByteBuf | [ByteBuf 与内存管理](/netty/6_bytebuf) |
 | 避免大数组 | G1 中超过 Region 一半大小的对象是 Humongous 对象，分配和回收代价高 | [GC 调优](/jvm/6_gc_tuning) |
 
 ::: tip 逃逸分析

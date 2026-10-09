@@ -153,7 +153,7 @@ buf.compact();                // 保留半包，继续写入
 
 **为什么堆缓冲区多一次拷贝**：GC 可能移动堆上的数组，而系统调用需要地址稳定的内存，所以 JDK 先把数据拷到一块临时直接缓冲区再做 IO。这些临时缓冲区按线程缓存，大 Buffer 加上大量线程会让堆外内存悄悄膨胀，可用 `-Djdk.nio.maxCachedBufferSize` 限制单个缓存的大小。
 
-直接缓冲区不是「越多越快」：分配一次的成本远高于堆分配，释放又依赖 GC 触发 `Cleaner`，频繁创建小的直接缓冲区反而更慢，还容易 `OutOfMemoryError: Direct buffer memory`。正确用法是少量、大块、复用（Netty 用池化的 `PooledByteBufAllocator`，见 [ByteBuf](/netty/5_bytebuf)）。直接内存的 JVM 视角见 [JVM 内存结构 · 直接内存](/jvm/1_memory#_6、直接内存)。
+直接缓冲区不是「越多越快」：分配一次的成本远高于堆分配，释放又依赖 GC 触发 `Cleaner`，频繁创建小的直接缓冲区反而更慢，还容易 `OutOfMemoryError: Direct buffer memory`。正确用法是少量、大块、复用（Netty 用池化的 `PooledByteBufAllocator`，见 [ByteBuf](/netty/6_bytebuf)）。直接内存的 JVM 视角见 [JVM 内存结构 · 直接内存](/jvm/1_memory#_6、直接内存)。
 
 ### 4、Selector（选择器）
 
@@ -224,7 +224,7 @@ try (FileChannel file = FileChannel.open(path, StandardOpenOption.READ)) {
 
 - 在 Linux 上，目标是 `SocketChannel` 时走 `sendfile`；单次调用最多传输约 2 GB，大文件必须循环
 - 数据不经过用户态，应用无法修改内容。**开启 TLS 后必须在用户态加密，sendfile 失效**，Kafka、Netty 的 HTTPS 文件下载都受此影响，见 [Kafka](/messaging/2_kafka) 与 [IO 与网络优化](/high-perf/9_io_network)
-- Netty 的 `DefaultFileRegion` 底层就是 `transferTo`，见 [ByteBuf](/netty/5_bytebuf)
+- Netty 的 `DefaultFileRegion` 底层就是 `transferTo`，见 [ByteBuf](/netty/6_bytebuf)
 
 ### 2、map（mmap）
 

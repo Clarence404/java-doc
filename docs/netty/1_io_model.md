@@ -156,7 +156,7 @@ Java AIO（NIO.2）在 Windows 上基于 IOCP，是真正的异步；但在 Linu
 | 典型使用 | select / poll 兼容语义、JDK NIO | Nginx、Netty 原生 epoll 传输 |
 
 ::: tip Netty 的实际选择
-默认的 NIO 传输（`NioEventLoopGroup`，基于 JDK `Selector`）是 **LT** 模式；换用 `netty-transport-native-epoll`（`EpollEventLoopGroup`）后使用 **ET** 模式，并在读取时循环读到 `EAGAIN`。这是原生传输吞吐更高的原因之一，生产配置见 [生产实践与调优](./11_production)。
+默认的 NIO 传输（`NioEventLoopGroup`，基于 JDK `Selector`）是 **LT** 模式；换用 `netty-transport-native-epoll`（`EpollEventLoopGroup`）后使用 **ET** 模式，并在读取时循环读到 `EAGAIN`。这是原生传输吞吐更高的原因之一，生产配置见 [生产实践与调优](./12_production)。
 :::
 
 ## 四、总结：用两个阶段给五种模型归类

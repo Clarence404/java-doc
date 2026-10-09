@@ -6,7 +6,7 @@ description: 读写指针、堆内与直接内存、池化、引用计数、泄�
 
 > **本篇目标**：掌握 ByteBuf 的结构与 API，理解池化与引用计数，能写出不泄漏内存的 Handler，并能定位泄漏问题。
 >
-> **前置阅读**：[核心组件：Channel、EventLoop 与 Pipeline](./4_core_components)
+> **前置阅读**：[Pipeline 与 Handler](./5_pipeline_handler)
 
 Pipeline 中流动的原始数据都是 `ByteBuf`。它是 Netty 高性能的关键之一，也是新手最容易踩坑的地方——**用错一次 `release()`，轻则报错，重则堆外内存慢慢泄漏直到进程崩溃**。
 
@@ -353,4 +353,4 @@ ctx.writeAndFlush(frame);
 - 测试环境用 `-Dio.netty.leakDetection.level=paranoid` 尽早暴露泄漏，按 `#1` 访问记录定位
 - 零拷贝分两层：OS 级 `FileRegion` / sendfile，Netty 用户态的 Composite / wrap / slice
 
-> 下一篇：[粘包与拆包](./6_stick_split) —— TCP 只保证字节流，一条完整的消息从哪开始、到哪结束，要靠我们自己界定。
+> 下一篇：[粘包与拆包](./7_stick_split) —— TCP 只保证字节流，一条完整的消息从哪开始、到哪结束，要靠我们自己界定。

@@ -6,7 +6,7 @@ description: 握手与帧格式、Netty 与 Spring 两种实现、集群部署�
 
 > **本篇目标**：理解 WebSocket 的握手与帧格式，能用 Netty 和 Spring 分别实现服务端，并解决集群部署下的消息推送问题。
 >
-> **前置阅读**：[心跳与连接管理](./8_heartbeat)
+> **前置阅读**：[心跳与连接管理](./9_heartbeat)
 
 WebSocket 是浏览器与服务端之间的全双工长连接协议。前面学到的编解码、心跳、会话管理，在这里都会用上；新的问题是：浏览器怎么升级协议，以及用户连在不同节点时消息怎么送达。
 
@@ -29,7 +29,7 @@ WebSocket 是浏览器与服务端之间的全双工长连接协议。前面学�
 | 断线重连 | 天然（每次都是新请求） | 浏览器自动重连 | 需自行实现 |
 | 适用场景 | 兼容性优先、低频更新 | 通知、日志流、AI 流式输出 | 聊天、游戏、协同编辑 |
 
-SSE 的细节见下一篇 [SSE（Server-Sent Events）](./10_sse)。
+SSE 的细节见下一篇 [SSE（Server-Sent Events）](./11_sse)。
 
 ### 2、握手：从 HTTP 升级为 WebSocket
 
@@ -244,7 +244,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
 说明：
 
-- **`ChannelGroup` 会在 Channel 关闭时自动移除**，无需在 `channelInactive` 中手动 remove；定向推送所需的"用户 → Channel"会话表见 [心跳与连接管理 → 连接管理](./8_heartbeat)。
+- **`ChannelGroup` 会在 Channel 关闭时自动移除**，无需在 `channelInactive` 中手动 remove；定向推送所需的"用户 → Channel"会话表见 [心跳与连接管理 → 连接管理](./9_heartbeat)。
 - **`SimpleChannelInboundHandler` 会自动 release 帧**，若要把帧转交给其他线程处理，需先 `frame.retain()`。
 - **大消息会被拆成分片**：若业务需要完整消息，可在协议处理器之后加 `WebSocketFrameAggregator`。
 
@@ -257,7 +257,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 | 客户端应用层心跳（推荐） | 浏览器每 30s 发 `"ping"` 文本，服务端回 `"pong"` | 浏览器 WebSocket API 不支持主动发 Ping 帧 |
 | 服务端发 Ping 帧 | 服务端写空闲时发 `PingWebSocketFrame` | 浏览器会自动回 Pong，但 JS 层感知不到，客户端无法据此判断断线 |
 
-服务端读空闲时间取客户端心跳间隔的 3 倍左右，理由见 [心跳与连接管理](./8_heartbeat)。
+服务端读空闲时间取客户端心跳间隔的 3 倍左右，理由见 [心跳与连接管理](./9_heartbeat)。
 
 客户端示例：
 
@@ -468,7 +468,7 @@ server {
 
 - **粘性会话不是必需的**：WebSocket 建立后始终走同一条 TCP 连接，不存在"请求被分到别的节点"的问题；但 SockJS 的 HTTP 降级传输会发起多次请求，此时需要粘性会话。
 - **负载可能不均**：长连接一旦建立不会重新分配，新节点上线后只能分到新连接。可以在发布时让部分客户端断开重连，逐步摊平。
-- **节点下线**：先发送 Close 帧（1001）通知客户端，再停止服务，客户端重连会被分到其他节点。停机细节见 [生产实践与调优](./11_production)。
+- **节点下线**：先发送 Close 帧（1001）通知客户端，再停止服务，客户端重连会被分到其他节点。停机细节见 [生产实践与调优](./12_production)。
 
 ---
 
@@ -494,4 +494,4 @@ HTTP 升级与 TCP 基础可参考 [网络通信协议](/protocols/1_network_pro
 - Spring 中注意 `sendMessage` 非线程安全、`Origin` 必须校验；STOMP 适合订阅 / 发布场景。
 - 集群推送三选一：Redis Pub/Sub 广播、MQ 广播、路由表定向转发；Nginx 需透传升级头并调大 `proxy_read_timeout`。
 
-> 下一篇：[SSE（Server-Sent Events）](./10_sse) —— 只需服务端单向推送时，更轻量的 HTTP 流式方案。
+> 下一篇：[SSE（Server-Sent Events）](./11_sse) —— 只需服务端单向推送时，更轻量的 HTTP 流式方案。

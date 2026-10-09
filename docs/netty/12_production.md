@@ -6,7 +6,7 @@ description: 线程模型与原生传输、关键参数、写水位与背压、�
 
 > **本篇目标**：掌握 Netty 服务上线前必须确认的线程模型、关键参数、背压、内存、优雅停机与监控，并避开最常见的坑。
 >
-> **前置阅读**：[SSE（Server-Sent Events）](./10_sse)
+> **前置阅读**：[SSE（Server-Sent Events）](./11_sse)
 
 前面各篇解决了"能跑起来"，本篇解决"跑得稳"。内容按上线检查的顺序组织：先配线程和参数，再防住写爆内存，最后做好停机和监控。
 
@@ -24,7 +24,7 @@ description: 线程模型与原生传输、关键参数、写水位与背压、�
 | workerGroup | 默认（CPU 核数 × 2） | 可用 `-Dio.netty.eventLoopThreads` 调整；纯 IO 场景一般无需改动 |
 | 业务线程池 | 按业务耗时单独评估 | 数据库、RPC、复杂计算等阻塞操作不能在 EventLoop 中执行 |
 
-业务线程池的两种接入方式（`addLast(executorGroup, handler)` 与在 Handler 中手动提交）及其取舍，见 [核心组件](./4_core_components)。
+业务线程池的两种接入方式（`addLast(executorGroup, handler)` 与在 Handler 中手动提交）及其取舍，见 [Channel 与 EventLoop](./4_channel_eventloop)。
 
 ::: warning 容器环境
 容器内获取到的 CPU 核数取决于 JDK 版本与 cgroup 配置，可能与宿主机不一致。上线前确认 `Runtime.getRuntime().availableProcessors()` 的实际值，必要时显式指定 worker 线程数。
@@ -96,7 +96,7 @@ ServerBootstrap b = new ServerBootstrap()
 | `SO_BACKLOG` | option | 已完成三次握手、等待 accept 的队列长度 | 默认取系统 `somaxconn`；建议显式设置（如 1024），实际生效值为它与内核 `net.core.somaxconn` 的较小者 |
 | `SO_REUSEADDR` | option | 允许重启时立即绑定仍处于 TIME_WAIT 的端口 | 各平台默认不同，建议显式开启 |
 | `TCP_NODELAY` | childOption | 关闭 Nagle 算法，小包立即发送 | Netty 在非 Android 平台默认开启；为免歧义建议显式设为 `true` |
-| `SO_KEEPALIVE` | childOption | TCP 层保活探测 | 默认关闭；可开启兜底，但不能替代 [应用层心跳](./8_heartbeat) |
+| `SO_KEEPALIVE` | childOption | TCP 层保活探测 | 默认关闭；可开启兜底，但不能替代 [应用层心跳](./9_heartbeat) |
 | `SO_RCVBUF` / `SO_SNDBUF` | childOption | 内核收发缓冲区大小 | 一般不设置，交给操作系统自动调节；手动设置后 Linux 会关闭该连接的自动调节 |
 | `CONNECT_TIMEOUT_MILLIS` | option（客户端） | 建连超时 | 默认 30s，客户端建议按业务调小（如 3～5s） |
 | `WRITE_BUFFER_WATER_MARK` | childOption | 出站缓冲区高 / 低水位，决定 `isWritable()` | 默认低 32KB、高 64KB，按单连接吞吐调整 |
@@ -246,7 +246,7 @@ ch.pipeline().addFirst(new FlushConsolidationHandler(256, true));
 -Dio.netty.leakDetection.level=PARANOID
 ```
 
-日志中出现 `LEAK: ByteBuf.release() was not called before it's garbage-collected` 即表示存在泄漏。引用计数规则与排查方法见 [ByteBuf](./5_bytebuf)。
+日志中出现 `LEAK: ByteBuf.release() was not called before it's garbage-collected` 即表示存在泄漏。引用计数规则与排查方法见 [ByteBuf](./6_bytebuf)。
 
 ### 3、监控池化内存
 
@@ -394,7 +394,7 @@ public static void registerPendingTasks(MeterRegistry registry, EventLoopGroup g
 
 | # | 问题 | 现象 | 正确做法 |
 |---|------|------|----------|
-| 1 | 在 EventLoop 中执行阻塞操作（DB、RPC、`Thread.sleep`） | 同一 EventLoop 上所有连接一起卡顿 | 交给业务线程池，见 [核心组件](./4_core_components) |
+| 1 | 在 EventLoop 中执行阻塞操作（DB、RPC、`Thread.sleep`） | 同一 EventLoop 上所有连接一起卡顿 | 交给业务线程池，见 [Channel 与 EventLoop](./4_channel_eventloop) |
 | 2 | 在 EventLoop 线程中调用 `future.sync()` / `await()` | 自己等自己，Netty 直接抛出 `BlockingOperationException` | 改用 `addListener` 异步回调 |
 | 3 | 忘记 `release` ByteBuf | 直接内存持续上涨，出现 LEAK 日志 | 遵循"谁最后使用谁释放"，或用 `SimpleChannelInboundHandler` |
 | 4 | 重复 `release` | `IllegalReferenceCountException` | 向后传递消息后不要再释放 |
@@ -403,7 +403,7 @@ public static void registerPendingTasks(MeterRegistry registry, EventLoopGroup g
 | 7 | 带状态的 Handler 标注 `@Sharable` 并共享 | 多个连接状态互相串扰 | 有状态就不共享；共享 Handler 只放无状态逻辑 |
 | 8 | 不检查 `isWritable()` 就持续推送 | 慢客户端导致直接内存 OOM | 写前检查，配合写水位与降级策略 |
 | 9 | 解码器未设置 `maxFrameLength` 或设置过大 | 恶意超大长度字段耗尽内存 | 按协议上限显式设置，超限直接断开 |
-| 10 | 每次重连都新建 `EventLoopGroup` | 线程数随重连次数不断增加 | 全局复用一个 Group，见 [心跳与连接管理](./8_heartbeat) |
+| 10 | 每次重连都新建 `EventLoopGroup` | 线程数随重连次数不断增加 | 全局复用一个 Group，见 [心跳与连接管理](./9_heartbeat) |
 | 11 | 未实现 `exceptionCaught` | 异常到达 Pipeline 尾部仅打印警告，连接不会被关闭，逐渐泄漏 | 在最后一个 Handler 中记录日志并按需 `close()` |
 | 12 | 未设置心跳，半开连接无人清理 | 连接数只增不减、推送失败无报错 | `IdleStateHandler` + 应用层心跳 |
 | 13 | JDK NIO epoll 空轮询 bug | `select` 不阻塞，CPU 100% | Netty 已规避：空轮询次数超过阈值（默认 512）自动重建 Selector，了解即可 |

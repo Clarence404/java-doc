@@ -6,7 +6,7 @@ description: 数据格式、SseEmitter 与 WebFlux、Netty 原生实现、反向
 
 > **本篇目标**：掌握 SSE 的数据格式与三种服务端实现（Spring MVC、WebFlux、Netty），并能正确处理超时、心跳和反向代理缓冲。
 >
-> **前置阅读**：[WebSocket](./9_websocket)
+> **前置阅读**：[WebSocket](./10_websocket)
 
 SSE 是基于普通 HTTP 响应的服务端单向推送：服务端不结束响应，而是持续往里写"事件"。它不需要协议升级，天然兼容现有的 HTTP 基础设施，是通知、进度、AI 流式输出等场景的首选。
 
@@ -215,7 +215,7 @@ public SseEmitter subscribe(@AuthenticationPrincipal UserPrincipal user) {
 
 ::: tip
 - **多标签页 / 多端**：同一用户需要多个连接时，把 value 换成 `Set<SseEmitter>`（如 `ConcurrentHashMap.newKeySet()`）。
-- **集群部署**：注册表只在本机内存，跨节点推送与 WebSocket 相同，见 [WebSocket → 集群部署与消息推送](./9_websocket)。
+- **集群部署**：注册表只在本机内存，跨节点推送与 WebSocket 相同，见 [WebSocket → 集群部署与消息推送](./10_websocket)。
 - **同一 emitter 不要并发 send**：多个线程可能同时推送时，对单个 emitter 加锁或串行化。
 :::
 
@@ -384,7 +384,7 @@ public class SseHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
 - `HttpServerCodec` 看到 `Transfer-Encoding: chunked` 后，会把后续每个 `HttpContent` 编码为一个分块。
 - 定时任务运行在该 Channel 的 EventLoop 上，与 IO 操作同线程，不存在并发写问题。
-- 生产中通常把数据源换成消息订阅，并结合 [生产实践与调优](./11_production) 中的写水位检查，避免慢客户端撑爆出站缓冲区。
+- 生产中通常把数据源换成消息订阅，并结合 [生产实践与调优](./12_production) 中的写水位检查，避免慢客户端撑爆出站缓冲区。
 
 ---
 
@@ -435,4 +435,4 @@ location /sse/ {
 - Netty 原生实现需在 `channelInactive` 中取消 `ScheduledFuture`；WebFlux 断开时自动取消订阅。
 - 上线前检查代理：关闭 `proxy_buffering` 与 gzip、调大 `proxy_read_timeout`；HTTP/1.1 下注意浏览器同域 6 连接限制。
 
-> 下一篇：[生产实践与调优](./11_production) —— 线程模型、关键参数、背压与优雅停机，把 Netty 服务真正推上生产。
+> 下一篇：[生产实践与调优](./12_production) —— 线程模型、关键参数、背压与优雅停机，把 Netty 服务真正推上生产。

@@ -151,7 +151,7 @@ public class UserController {
 }
 ```
 
-控制器只负责**返回** `Mono` / `Flux`，由框架订阅；不要在控制器里自己 `subscribe()` 或 `block()`。SSE 的协议格式、心跳与反向代理配置见 [SSE](/netty/10_sse)。
+控制器只负责**返回** `Mono` / `Flux`，由框架订阅；不要在控制器里自己 `subscribe()` 或 `block()`。SSE 的协议格式、心跳与反向代理配置见 [SSE](/netty/11_sse)。
 
 ### 2、函数式路由模型
 

@@ -6,7 +6,7 @@ description: 成因与复现、四种界定方案、Netty 内置帧解码器及�
 
 > **本篇目标**：理解 TCP 粘包 / 拆包的成因，掌握 Netty 内置帧解码器的用法与工作原理。
 >
-> **前置阅读**：[ByteBuf 与内存管理](./5_bytebuf)
+> **前置阅读**：[ByteBuf 与内存管理](./6_bytebuf)
 
 **TCP 是字节流协议，只保证字节有序、可靠地到达，不保证消息边界。** "一条消息"是应用层的概念，TCP 并不知道——所以粘包与拆包是所有基于 TCP 的应用都必须处理的问题，而不是 bug。
 
@@ -130,7 +130,7 @@ pipeline.addLast(new LengthFieldBasedFrameDecoder(
 对于上面的复现示例，只需在服务端 `PrintHandler` 前加一个分隔符解码器（以 `;` 为分隔符），就能稳定地收到 100 条独立消息。
 
 ::: tip
-`LengthFieldBasedFrameDecoder` 五个参数的完整推导与帧格式设计，见 [自定义私有协议 · 二、LengthFieldBasedFrameDecoder 参数详解](./7_custom_protocol#二、lengthfieldbasedframedecoder-参数详解)。
+`LengthFieldBasedFrameDecoder` 五个参数的完整推导与帧格式设计，见 [自定义私有协议 · 二、LengthFieldBasedFrameDecoder 参数详解](./8_custom_protocol#二、lengthfieldbasedframedecoder-参数详解)。
 :::
 
 ---
@@ -191,7 +191,7 @@ protected void initChannel(SocketChannel ch) {
 }
 ```
 
-两端使用同样的配置后，业务 Handler 直接收发 `String`，完全不用关心边界。出站方向的执行顺序是 `StringEncoder → LengthFieldPrepender`（Tail → Head），原因见 [核心组件 · Pipeline](./4_core_components)。
+两端使用同样的配置后，业务 Handler 直接收发 `String`，完全不用关心边界。出站方向的执行顺序是 `StringEncoder → LengthFieldPrepender`（Tail → Head），原因见 [Pipeline 与 Handler](./5_pipeline_handler)。
 
 ::: tip UDP 为什么没有这个问题
 UDP 是面向数据报的协议，每个数据报都有天然边界：发送方发一个，接收方就收到一个完整的（或者丢失）。所以帧解码器只存在于 TCP 场景。
@@ -207,4 +207,4 @@ UDP 是面向数据报的协议，每个数据报都有天然边界：发送方�
 - 帧解码器基于 `ByteToMessageDecoder` 的累积缓冲区：追加 → 循环解码 → 半包留待下次
 - 一定要设置合理的 `maxFrameLength` 防御恶意超长帧；发送端用 `LengthFieldPrepender` 配套
 
-> 下一篇：[自定义私有协议](./7_custom_protocol) —— 从零设计一个带魔数、版本、类型和长度字段的二进制协议，并实现完整的编解码。
+> 下一篇：[自定义私有协议](./8_custom_protocol) —— 从零设计一个带魔数、版本、类型和长度字段的二进制协议，并实现完整的编解码。

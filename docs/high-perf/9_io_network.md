@@ -29,7 +29,7 @@ description: 零拷贝与 IO 模型的选用、Keep-Alive / HTTP/2、压缩、�
 | 文件直传 | `sendfile` / `FileChannel.transferTo()` | 文件内容不加工、直接发往 Socket | Kafka 消费发送、Nginx 静态文件、Netty `FileRegion` |
 
 - 两种方案都要求数据**不经过用户态加工**。开启 TLS 后数据必须在用户态加密，`sendfile` 失效：**Kafka 开启 TLS 后 Broker 无法用 sendfile 向消费者发送数据**，吞吐会明显下降；Netty 启用 `SslHandler` 后也要改用 `ChunkedWriteHandler` 分块发送。
-- 直接内存（`allocateDirect`）和 Netty 的 `CompositeByteBuf` 属于**用户态少拷贝**，不是操作系统零拷贝，两者的区别见 [ByteBuf 与内存管理](/netty/5_bytebuf)。
+- 直接内存（`allocateDirect`）和 Netty 的 `CompositeByteBuf` 属于**用户态少拷贝**，不是操作系统零拷贝，两者的区别见 [ByteBuf 与内存管理](/netty/6_bytebuf)。
 - 拷贝次数与原理见 [IO / NIO 专题](/java/18_topic_io)。
 
 ---

@@ -6,7 +6,7 @@ description: 半开连接、IdleStateHandler、心跳方案、断线重连、在
 
 > **本篇目标**：掌握用 `IdleStateHandler` 实现应用层心跳、断线重连与在线连接管理，让长连接"断了能发现、发现了能恢复"。
 >
-> **前置阅读**：[自定义私有协议](./7_custom_protocol)
+> **前置阅读**：[自定义私有协议](./8_custom_protocol)
 
 长连接服务的难点不在"连上"，而在"连着"。本篇依次回答三个问题：怎么发现连接已经坏了（心跳），坏了之后怎么恢复（重连），成千上万条连接怎么管（会话表）。
 
@@ -135,7 +135,7 @@ protected void initChannel(SocketChannel ch) {
 
 ### 3、服务端：读空闲关闭 + 回复 PONG
 
-以下沿用 [自定义私有协议](./7_custom_protocol) 中的 `ProtocolMessage`，约定 `0x10` 为 PING、`0x11` 为 PONG。
+以下沿用 [自定义私有协议](./8_custom_protocol) 中的 `ProtocolMessage`，约定 `0x10` 为 PING、`0x11` 为 PONG。
 
 ```java
 @Slf4j
@@ -417,7 +417,7 @@ public class SessionCleanupHandler extends ChannelInboundHandlerAdapter {
 ```
 
 ::: tip 多节点部署
-会话表只存在于本机内存，集群中用户可能连在任意节点上。跨节点推送的方案见 [WebSocket → 集群部署与消息推送](./9_websocket)，无状态化思路见 [水平扩展与无状态化](/high-con/2_scale_out)。
+会话表只存在于本机内存，集群中用户可能连在任意节点上。跨节点推送的方案见 [WebSocket → 集群部署与消息推送](./10_websocket)，无状态化思路见 [水平扩展与无状态化](/high-con/2_scale_out)。
 :::
 
 ### 3、单机能撑多少连接
@@ -431,7 +431,7 @@ public class SessionCleanupHandler extends ChannelInboundHandlerAdapter {
 | 心跳与推送频率 | 连接数 × 心跳频率决定了基础负载 | 适当拉长心跳间隔，合并推送 |
 | 端口 | 服务端以四元组区分连接，**不受 65535 端口限制**；只有客户端（或压测机）连同一目标时受本地端口数约束 | 压测机扩大 `ip_local_port_range` 或使用多个源 IP |
 
-具体的内核参数、内存与监控配置见 [生产实践与调优](./11_production)。
+具体的内核参数、内存与监控配置见 [生产实践与调优](./12_production)。
 
 ---
 
@@ -443,4 +443,4 @@ public class SessionCleanupHandler extends ChannelInboundHandlerAdapter {
 - 断线重连在连接失败和 `channelInactive` 时触发，指数退避 + 随机抖动 + 上限，复用 `Bootstrap` 与 `EventLoopGroup`。
 - 连接管理用 `ChannelGroup` 做广播、`ConcurrentHashMap` + `AttributeKey` 做定向推送，并在 `channelInactive` 中两参数 `remove` 清理。
 
-> 下一篇：[WebSocket](./9_websocket) —— 把心跳与连接管理用到浏览器长连接上，并解决集群推送问题。
+> 下一篇：[WebSocket](./10_websocket) —— 把心跳与连接管理用到浏览器长连接上，并解决集群推送问题。

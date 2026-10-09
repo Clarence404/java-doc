@@ -125,7 +125,7 @@ ServerBootstrap bootstrap = new ServerBootstrap()
 
 ## 四、EventLoop：Reactor 在 Netty 中的落地
 
-每个从 Reactor 在 Netty 里就是一个 `EventLoop`（事件循环）。先记住两条结论，细节在 [核心组件深入](./4_core_components) 展开：
+每个从 Reactor 在 Netty 里就是一个 `EventLoop`（事件循环）。先记住两条结论，细节在 [Channel 与 EventLoop](./4_channel_eventloop) 展开：
 
 - **EventLoop = 单线程 + 任务队列**：一个线程循环执行"等待 IO 事件 → 处理 IO 事件 → 执行队列中的任务"
 - **Channel 终身绑定一个 EventLoop**：同一连接上的所有事件都在同一线程串行处理，Handler 内部无需加锁
