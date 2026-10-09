@@ -8,11 +8,6 @@ description: 核心注解、CacheManager 配置、Jackson 3 序列化、SpEL Key
 >
 > **前置阅读**：[AOP](./2_aop)
 
-> 参考资料：
-> * Spring Framework Cache Abstraction：[https://docs.spring.io/spring-framework/reference/integration/cache.html](https://docs.spring.io/spring-framework/reference/integration/cache.html)
-> * Spring Boot Caching：[https://docs.spring.io/spring-boot/reference/io/caching.html](https://docs.spring.io/spring-boot/reference/io/caching.html)
-> * Spring Data Redis 升级说明（Jackson 3）：[https://docs.spring.io/spring-data/redis/reference/upgrading.html](https://docs.spring.io/spring-data/redis/reference/upgrading.html)
-
 Spring Cache 是一层**基于 AOP 的缓存抽象**：业务方法上加注解，代理在方法调用前后读写 `Cache`，具体存储由 `CacheManager` 决定（Redis、Caffeine、JCache 等）。本篇只讲 Spring 侧的用法；Redis 本身、本地缓存原理、一致性策略见 [缓存总览](/cache/0_overview)。
 
 ---
@@ -313,5 +308,11 @@ Caffeine 存的是对象引用，调用方修改返回对象会直接改掉缓�
 - cacheName 已是 Key 前缀，key 里不要重复写前缀；按参数名写 SpEL 依赖 `-parameters`
 - 常见坑：自调用失效、热点击穿用 `sync = true`（仅进程内）、TTL 加抖动防雪崩、事务内删缓存的时机
 - 两级缓存不在 Spring Cache 内实现，见缓存模块
+
+## 参考资料
+
+- Spring Framework Cache Abstraction：[https://docs.spring.io/spring-framework/reference/integration/cache.html](https://docs.spring.io/spring-framework/reference/integration/cache.html)
+- Spring Boot Caching：[https://docs.spring.io/spring-boot/reference/io/caching.html](https://docs.spring.io/spring-boot/reference/io/caching.html)
+- Spring Data Redis 升级说明（Jackson 3）：[https://docs.spring.io/spring-data/redis/reference/upgrading.html](https://docs.spring.io/spring-data/redis/reference/upgrading.html)
 
 > 下一篇：[Retry 重试](./6_retry) —— Framework 7 内置 `@Retryable` 与并发限制，远程调用失败如何按退避策略自动重试。

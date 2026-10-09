@@ -8,13 +8,6 @@ description: 线程状态、线程创建、中断协议、wait / notify、守护
 >
 > **前置阅读**：[JMM 内存模型](./22_topic_jmm)
 
-> 参考资料：
-> * `java.lang.Thread` API（JDK 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Thread.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Thread.html)
-> * Java Thread Primitive Deprecation：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/doc-files/threadPrimitiveDeprecation.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/doc-files/threadPrimitiveDeprecation.html)
-> * JEP 444 Virtual Threads：[https://openjdk.org/jeps/444](https://openjdk.org/jeps/444)
-> * JEP 506 Scoped Values：[https://openjdk.org/jeps/506](https://openjdk.org/jeps/506)
-> * TransmittableThreadLocal：[https://github.com/alibaba/transmittable-thread-local](https://github.com/alibaba/transmittable-thread-local)
-
 ---
 
 ## 一、线程的生命周期
@@ -393,5 +386,13 @@ void handle(Request req) {
 - 守护线程不阻止 JVM 退出、`finally` 不保证执行；虚拟线程总是守护线程
 - ThreadLocal 的值存在线程的 `ThreadLocalMap` 中，key 弱引用、value 强引用；线程池中必须在 `finally` 中 `remove()`
 - 跨线程传递：`InheritableThreadLocal` 只在创建线程时复制，线程池用 TTL，JDK 25 的虚拟线程场景用 `ScopedValue`
+
+## 参考资料
+
+- `java.lang.Thread` API（JDK 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Thread.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Thread.html)
+- Java Thread Primitive Deprecation：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/doc-files/threadPrimitiveDeprecation.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/doc-files/threadPrimitiveDeprecation.html)
+- JEP 444 Virtual Threads：[https://openjdk.org/jeps/444](https://openjdk.org/jeps/444)
+- JEP 506 Scoped Values：[https://openjdk.org/jeps/506](https://openjdk.org/jeps/506)
+- TransmittableThreadLocal：[https://github.com/alibaba/transmittable-thread-local](https://github.com/alibaba/transmittable-thread-local)
 
 > 下一篇：[synchronized](./24_topic_synchronized) —— 从字节码到 HotSpot 的锁实现，以及偏向锁移除、新轻量级锁和虚拟线程带来的变化。

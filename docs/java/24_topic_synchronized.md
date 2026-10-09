@@ -8,13 +8,6 @@ description: Monitor 语义、字节码、锁实现演进、ObjectMonitor、锁�
 >
 > **前置阅读**：[JMM 内存模型](./22_topic_jmm)、[线程基础](./23_topic_thread_basics)
 
-> 参考资料：
-> * JLS 17.1 Synchronization：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html#jls-17.1](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html#jls-17.1)
-> * JEP 374 Deprecate and Disable Biased Locking：[https://openjdk.org/jeps/374](https://openjdk.org/jeps/374)
-> * JEP 491 Synchronize Virtual Threads without Pinning：[https://openjdk.org/jeps/491](https://openjdk.org/jeps/491)
-> * JEP 519 Compact Object Headers：[https://openjdk.org/jeps/519](https://openjdk.org/jeps/519)
-> * JEP 390 Warnings for Value-Based Classes：[https://openjdk.org/jeps/390](https://openjdk.org/jeps/390)
-
 ---
 
 ## 一、语义：锁的是对象的 monitor
@@ -307,5 +300,13 @@ JDK 16（JEP 390）起：
 - C2 通过逃逸分析做锁消除，并对相邻同步块做锁粗化
 - JDK 21 ~ 23 中在 `synchronized` 内阻塞会钉住虚拟线程的载体线程，JDK 24（JEP 491）解决；用 JFR `jdk.VirtualThreadPinned` 排查剩余情况
 - 不要在 `Integer`、`String` 字面量等值类型类或共享对象上同步，锁对象用 `private final` 专用对象
+
+## 参考资料
+
+- JLS 17.1 Synchronization：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html#jls-17.1](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html#jls-17.1)
+- JEP 374 Deprecate and Disable Biased Locking：[https://openjdk.org/jeps/374](https://openjdk.org/jeps/374)
+- JEP 491 Synchronize Virtual Threads without Pinning：[https://openjdk.org/jeps/491](https://openjdk.org/jeps/491)
+- JEP 519 Compact Object Headers：[https://openjdk.org/jeps/519](https://openjdk.org/jeps/519)
+- JEP 390 Warnings for Value-Based Classes：[https://openjdk.org/jeps/390](https://openjdk.org/jeps/390)
 
 > 下一篇：[显式锁（Lock）](./25_topic_lock) —— AQS、ReentrantLock、读写锁与 StampedLock，看可中断、可超时的锁如何实现。

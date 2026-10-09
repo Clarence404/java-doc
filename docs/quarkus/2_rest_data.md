@@ -8,15 +8,6 @@ description: REST 执行模型、@Blocking 与虚拟线程、REST Client、Panac
 >
 > **前置阅读**：[Quarkus 概览](./1_basics)、[虚拟线程](/java/30_topic_virtual_thread)
 
-> 参考资料：
-> * Quarkus REST：[https://quarkus.io/guides/rest](https://quarkus.io/guides/rest)
-> * REST Client：[https://quarkus.io/guides/rest-client](https://quarkus.io/guides/rest-client)
-> * Hibernate ORM with Panache：[https://quarkus.io/guides/hibernate-orm-panache](https://quarkus.io/guides/hibernate-orm-panache)
-> * Hibernate Reactive with Panache：[https://quarkus.io/guides/hibernate-reactive-panache](https://quarkus.io/guides/hibernate-reactive-panache)
-> * 事务：[https://quarkus.io/guides/transaction](https://quarkus.io/guides/transaction)
-> * 虚拟线程：[https://quarkus.io/guides/virtual-threads](https://quarkus.io/guides/virtual-threads)
-> * Quarkus Data（原 Panache Next）：[https://quarkus.io/blog/introducing-quarkus-data/](https://quarkus.io/blog/introducing-quarkus-data/)
-
 ---
 
 ## 一、Quarkus REST 与执行模型
@@ -422,5 +413,15 @@ public class ReactiveOrderService {
 - Panache 有 Active Record 与 Repository 两种风格，前者代码少、后者便于测试与分层；N+1 与 Schema 管理的问题与原生 Hibernate 相同
 - `@Transactional` 语义与 Spring 相近，自调用同样失效；分批提交用 `QuarkusTransaction`
 - Hibernate Reactive 只在全链路非阻塞、并发连接极高时才值得引入
+
+## 参考资料
+
+- Quarkus REST：[https://quarkus.io/guides/rest](https://quarkus.io/guides/rest)
+- REST Client：[https://quarkus.io/guides/rest-client](https://quarkus.io/guides/rest-client)
+- Hibernate ORM with Panache：[https://quarkus.io/guides/hibernate-orm-panache](https://quarkus.io/guides/hibernate-orm-panache)
+- Hibernate Reactive with Panache：[https://quarkus.io/guides/hibernate-reactive-panache](https://quarkus.io/guides/hibernate-reactive-panache)
+- 事务：[https://quarkus.io/guides/transaction](https://quarkus.io/guides/transaction)
+- 虚拟线程：[https://quarkus.io/guides/virtual-threads](https://quarkus.io/guides/virtual-threads)
+- Quarkus Data（原 Panache Next）：[https://quarkus.io/blog/introducing-quarkus-data/](https://quarkus.io/blog/introducing-quarkus-data/)
 
 > 下一篇：[原生镜像与云原生部署](./3_native) —— 把应用编译成原生可执行文件、打成容器镜像并部署到 Kubernetes，看看构建期增强在部署侧的收益与代价。

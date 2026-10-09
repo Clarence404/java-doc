@@ -8,13 +8,6 @@ description: springdoc 3.x 集成与分组、注解、Knife4j（Boot 3）、Secu
 >
 > **前置阅读**：[Web 开发](./2_web_dev)
 
-> 参考资料：
-> * springdoc-openapi：[https://springdoc.org/](https://springdoc.org/)
-> * springdoc-openapi FAQ（版本兼容表）：[https://springdoc.org/faq.html](https://springdoc.org/faq.html)
-> * OpenAPI Specification：[https://spec.openapis.org/oas/latest.html](https://spec.openapis.org/oas/latest.html)
-> * Spring REST Docs：[https://spring.io/projects/spring-restdocs](https://spring.io/projects/spring-restdocs)
-> * Knife4j：[https://doc.xiaominfo.com/](https://doc.xiaominfo.com/)
-
 方案选型（springdoc、Spring REST Docs、手写 OpenAPI 等）、文档导出与 CI 集成、接口文档规范见 [API 文档](/engineering/5_api_doc)；本篇只讲 Boot 侧集成。
 
 ---
@@ -312,5 +305,13 @@ springdoc:
 - 参数注解写在参数上，校验注解会自动反映到文档；敏感字段 `WRITE_ONLY`、不写真实示例
 - Knife4j 只作为 Boot 3 项目的可选 UI；Boot 4 用 Swagger UI 或 Scalar
 - 文档路径单独一条 SecurityFilterChain；生产环境用 `springdoc.api-docs.enabled=false` 关闭，推荐默认关闭、开发测试环境开启
+
+## 参考资料
+
+- springdoc-openapi：[https://springdoc.org/](https://springdoc.org/)
+- springdoc-openapi FAQ（版本兼容表）：[https://springdoc.org/faq.html](https://springdoc.org/faq.html)
+- OpenAPI Specification：[https://spec.openapis.org/oas/latest.html](https://spec.openapis.org/oas/latest.html)
+- Spring REST Docs：[https://spring.io/projects/spring-restdocs](https://spring.io/projects/spring-restdocs)
+- Knife4j：[https://doc.xiaominfo.com/](https://doc.xiaominfo.com/)
 
 > 下一篇：[Spring Boot 版本演进](./11_versions) —— 2.x、3.x、4.x 每一代改了什么基线，以及一个老项目怎样一步步升级到 4.x。

@@ -8,11 +8,6 @@ description: 服务拆分、网关 / BFF / 服务发现、数据管理、可靠�
 >
 > **前置阅读**：[微服务优势与挑战](./1_pros_and_cons)
 
-> 参考资料：
-> * Microservice Architecture 模式目录（Chris Richardson）：[https://microservices.io/patterns/](https://microservices.io/patterns/)
-> * Spring Cloud OpenFeign：[https://spring.io/projects/spring-cloud-openfeign](https://spring.io/projects/spring-cloud-openfeign)
-> * Spring Framework REST Clients（HTTP Service Clients）：[https://docs.spring.io/spring-framework/reference/integration/rest-clients.html](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
-
 微服务设计模式与 GoF 设计模式（见 [设计模式总览](/patterns/0_overview)）不在同一层面：GoF 解决类与对象的组织问题，微服务模式解决**分布式系统架构层面**的问题——服务怎么拆、怎么通信、数据怎么管、失败怎么兜底。本篇是一份模式目录：每个模式说清「解决什么问题、何时使用」，已有主文档的模式只给一句话和链接。
 
 | 类别 | 模式 |
@@ -190,5 +185,11 @@ Spring Cloud OpenFeign 已进入功能完备（feature-complete）状态，只�
 - 通信：网关管南北向，BFF 按客户端定制聚合；同步调用新项目用 HTTP Service Clients，OpenFeign 只做存量维护；能异步就用 MQ 解耦
 - 数据：Database per Service 是前提，跨服务查询用 API Composition 或 CQRS，跨服务事务用 Saga，「写库 + 发消息」原子性用 Outbox
 - 可靠性靠超时、重试、隔离、熔断、限流的组合；可观测性靠分布式追踪与健康检查；接口兼容靠契约测试
+
+## 参考资料
+
+- Microservice Architecture 模式目录（Chris Richardson）：[https://microservices.io/patterns/](https://microservices.io/patterns/)
+- Spring Cloud OpenFeign：[https://spring.io/projects/spring-cloud-openfeign](https://spring.io/projects/spring-cloud-openfeign)
+- Spring Framework REST Clients（HTTP Service Clients）：[https://docs.spring.io/spring-framework/reference/integration/rest-clients.html](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
 
 > 下一篇：[服务网格](./3_service_mesh) —— 把服务治理从 SDK 下沉到基础设施层，看 Istio 的 Sidecar 与 Ambient 两种数据面。

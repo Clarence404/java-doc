@@ -8,11 +8,6 @@ description: 异常层次、受检与非受检、try-with-resources、中断与�
 >
 > **前置阅读**：[版本演进](./2_version)
 
-> 参考资料：
-> * JLS §11 Exceptions：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-11.html](https://docs.oracle.com/javase/specs/jls/se21/html/jls-11.html)
-> * Java Tutorials - Exceptions：[https://docs.oracle.com/javase/tutorial/essential/exceptions/](https://docs.oracle.com/javase/tutorial/essential/exceptions/)
-> * JEP 358 Helpful NullPointerExceptions：[https://openjdk.org/jeps/358](https://openjdk.org/jeps/358)
-
 本文以 JDK 21 / 25 为基线，与 JDK 8 / 17 不同之处单独标注。
 
 ---
@@ -322,5 +317,11 @@ public class FastFailException extends RuntimeException {
 - 跨线程异常不会自动回到调用方：`submit` 的异常在 `Future` 里，`CompletableFuture` 的异常被 `CompletionException` 包装
 - 业务异常继承 `RuntimeException`，`@Transactional` 默认只对它和 `Error` 回滚
 - 堆栈采集是主要开销；高频无堆栈异常用四参构造器关闭 `writableStackTrace`，注意 `OmitStackTraceInFastThrow` 导致的堆栈丢失
+
+## 参考资料
+
+- JLS §11 Exceptions：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-11.html](https://docs.oracle.com/javase/specs/jls/se21/html/jls-11.html)
+- Java Tutorials - Exceptions：[https://docs.oracle.com/javase/tutorial/essential/exceptions/](https://docs.oracle.com/javase/tutorial/essential/exceptions/)
+- JEP 358 Helpful NullPointerExceptions：[https://openjdk.org/jeps/358](https://openjdk.org/jeps/358)
 
 > 下一篇：[String](./11_topic_string) —— 最常用的类：不可变的实现、Compact Strings、拼接的编译方式与常用 API。

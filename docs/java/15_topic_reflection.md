@@ -8,13 +8,6 @@ description: 成员查找、record / sealed 反射、模块强封装、JEP 416�
 >
 > **前置阅读**：[泛型](./14_topic_generics)
 
-> 参考资料：
-> * `java.lang.reflect` API（JDK 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/package-summary.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/package-summary.html)
-> * JEP 416 用方法句柄重新实现核心反射：[https://openjdk.org/jeps/416](https://openjdk.org/jeps/416)
-> * JEP 396 / JEP 403 强封装 JDK 内部：[https://openjdk.org/jeps/396](https://openjdk.org/jeps/396) / [https://openjdk.org/jeps/403](https://openjdk.org/jeps/403)
-> * JEP 371 隐藏类：[https://openjdk.org/jeps/371](https://openjdk.org/jeps/371)
-> * JEP 500 让 final 名副其实（准备阶段）：[https://openjdk.org/jeps/500](https://openjdk.org/jeps/500)
-
 反射是在运行时以对象形式访问类结构（类、字段、方法、构造器、注解、泛型签名）并据此创建实例、读写字段、调用方法的能力。Spring 的依赖注入、Jackson 的序列化、MyBatis 的结果映射、JUnit 的测试发现都建立在它之上。业务代码很少直接写反射，但排查框架问题、写通用组件时绕不开。
 
 ---
@@ -278,5 +271,13 @@ Native Image 在构建期做封闭世界分析，运行时**只能**反射构建
 - JDK 18（JEP 416）起反射基于方法句柄实现：常量调用点更快，非常量的字段访问反而变慢；性能问题用 JMH 量化，首要手段是缓存成员对象
 - MethodHandle 只有在 `static final` + `invokeExact` 时才接近直接调用；VarHandle 取代 `Unsafe` 做字段的原子访问
 - 隐藏类承载 Lambda 等运行时生成的类；Native Image 下所有反射目标都要在构建期登记
+
+## 参考资料
+
+- `java.lang.reflect` API（JDK 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/package-summary.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/package-summary.html)
+- JEP 416 用方法句柄重新实现核心反射：[https://openjdk.org/jeps/416](https://openjdk.org/jeps/416)
+- JEP 396 / JEP 403 强封装 JDK 内部：[https://openjdk.org/jeps/396](https://openjdk.org/jeps/396) / [https://openjdk.org/jeps/403](https://openjdk.org/jeps/403)
+- JEP 371 隐藏类：[https://openjdk.org/jeps/371](https://openjdk.org/jeps/371)
+- JEP 500 让 final 名副其实（准备阶段）：[https://openjdk.org/jeps/500](https://openjdk.org/jeps/500)
 
 > 下一篇：[动态代理](./16_topic_proxy) —— 反射加上运行时生成类，就得到了 AOP、RPC 客户端、Mapper 接口背后的动态代理。

@@ -8,12 +8,6 @@ description: Flyway 原理与命名、Boot 4 依赖、迁移锁、Liquibase 与�
 >
 > **前置阅读**：[数据访问](./3_data_access)
 
-> 参考资料：
-> * Spring Boot Database Initialization：[https://docs.spring.io/spring-boot/how-to/data-initialization.html](https://docs.spring.io/spring-boot/how-to/data-initialization.html)
-> * Flyway 官方文档：[https://documentation.red-gate.com/flyway](https://documentation.red-gate.com/flyway)
-> * Liquibase 官方文档：[https://docs.liquibase.com/](https://docs.liquibase.com/)
-> * Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
-
 ---
 
 ## 一、为什么需要数据库版本管理
@@ -268,5 +262,12 @@ liquibase rollback-count --count=1    # 回滚最近一个 changeSet
 - 多实例并发迁移由 Flyway 的数据库锁或 Liquibase 的锁表串行化，不需要分布式锁；要关注的是大表 DDL、滚动发布兼容性与启动耗时
 - `clean` 在生产永远禁用；已执行脚本不可修改，修正通过新版本完成
 - Liquibase 用 changeSet + `rollback` + `context` 管理变更，回滚通过 CLI 执行，生产上更常用向前修复
+
+## 参考资料
+
+- Spring Boot Database Initialization：[https://docs.spring.io/spring-boot/how-to/data-initialization.html](https://docs.spring.io/spring-boot/how-to/data-initialization.html)
+- Flyway 官方文档：[https://documentation.red-gate.com/flyway](https://documentation.red-gate.com/flyway)
+- Liquibase 官方文档：[https://docs.liquibase.com/](https://docs.liquibase.com/)
+- Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 
 > 下一篇：[中间件集成](./5_middleware) —— Redis、Kafka、RabbitMQ、Elasticsearch、MongoDB 的 Starter、关键配置与 Boot 4 变化。

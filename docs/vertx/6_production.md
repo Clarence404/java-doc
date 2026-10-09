@@ -8,14 +8,6 @@ description: 集群管理器、配置、Micrometer 与链路、健康检查、�
 >
 > **前置阅读**：[Event Bus](./3_eventbus)、[响应式数据访问](./5_data)
 
-> 参考资料：
-> * Hazelcast Cluster Manager：[https://vertx.io/docs/vertx-hazelcast/java/](https://vertx.io/docs/vertx-hazelcast/java/)
-> * Vert.x Config：[https://vertx.io/docs/vertx-config/java/](https://vertx.io/docs/vertx-config/java/)
-> * Vert.x Micrometer Metrics：[https://vertx.io/docs/vertx-micrometer-metrics/java/](https://vertx.io/docs/vertx-micrometer-metrics/java/)
-> * Vert.x OpenTelemetry：[https://vertx.io/docs/vertx-opentelemetry/java/](https://vertx.io/docs/vertx-opentelemetry/java/)
-> * Vert.x JUnit 5：[https://vertx.io/docs/vertx-junit5/java/](https://vertx.io/docs/vertx-junit5/java/)
-> * Vert.x Application Launcher（Preview）：[https://vertx.io/docs/vertx-launcher-application/java/](https://vertx.io/docs/vertx-launcher-application/java/)
-
 ---
 
 ## 一、集群
@@ -331,5 +323,14 @@ public static void main(String[] args) {
 - 测试用 vertx-junit5，断言包进 `ctx.verify`；客户端存为字段避免被回收
 - 推荐自写 `main()`，关闭钩子里 `vertx.close()`，`stop()` 中 `server.shutdown()` 优雅停机
 - 调优先看指标：实例数等于核数、原生传输、阻塞池隔离、连接池与等待队列上限
+
+## 参考资料
+
+- Hazelcast Cluster Manager：[https://vertx.io/docs/vertx-hazelcast/java/](https://vertx.io/docs/vertx-hazelcast/java/)
+- Vert.x Config：[https://vertx.io/docs/vertx-config/java/](https://vertx.io/docs/vertx-config/java/)
+- Vert.x Micrometer Metrics：[https://vertx.io/docs/vertx-micrometer-metrics/java/](https://vertx.io/docs/vertx-micrometer-metrics/java/)
+- Vert.x OpenTelemetry：[https://vertx.io/docs/vertx-opentelemetry/java/](https://vertx.io/docs/vertx-opentelemetry/java/)
+- Vert.x JUnit 5：[https://vertx.io/docs/vertx-junit5/java/](https://vertx.io/docs/vertx-junit5/java/)
+- Vert.x Application Launcher（Preview）：[https://vertx.io/docs/vertx-launcher-application/java/](https://vertx.io/docs/vertx-launcher-application/java/)
 
 > 返回：[Vert.x 总览](./0_overview)

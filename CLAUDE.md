@@ -113,7 +113,7 @@ docs/
 - 文件夹命名：全小写，多单词使用连字符（kebab-case），如 `cloud-native`、`spring-boot`
 - 图片存放：`docs/assets/<模块名>/`
 - 待补充内容用 VuePress `warning` callout 标记：`> [!warning] 待补充`
-- 参考链接放文章顶部，便于溯源
+- 文章开头只保留「本篇目标 / 前置阅读」引用块；参考资料统一放在文末 `## 参考资料` 小节（位于 `## 小结` 之后、「> 下一篇」导航行之前），避免开头篇幅过大
 - 站点部署：GitHub Actions → `.github/workflows/deploy-docs.yml`
 - 规范文件同步：`CLAUDE.md` 与 `AGENTS.md` 内容保持完全一致（AGENTS.md 供其他 AI 编码工具读取），修改其中一个时必须同步更新另一个
 

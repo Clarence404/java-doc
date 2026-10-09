@@ -8,12 +8,6 @@ description: 注册发现核心概念、注册中心对比、Nacos 2.x+ gRPC 机
 >
 > **前置阅读**：[Spring Cloud 总览](./0_overview)
 
-> 参考资料：
-> * Nacos 官方文档：[https://nacos.io/docs/latest/what-is-nacos/](https://nacos.io/docs/latest/what-is-nacos/)
-> * Spring Cloud Alibaba Nacos Discovery：[https://sca.aliyun.com/docs/2025.x/user-guide/nacos/overview/](https://sca.aliyun.com/docs/2025.x/user-guide/nacos/overview/)
-> * Spring Cloud Commons（DiscoveryClient / ServiceRegistry）：[https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/common-abstractions.html](https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/common-abstractions.html)
-> * Consul：[https://developer.hashicorp.com/consul/docs](https://developer.hashicorp.com/consul/docs)
-
 微服务实例的 IP 和端口随扩缩容、重启、故障迁移不断变化，硬编码地址不可行。注册发现解决两件事：**地址动态感知**（调用方按服务名拿到当前可用实例）和**自动上下线**（实例故障或退出后不再被路由到）。
 
 ---
@@ -164,5 +158,12 @@ spring:
 - AP / CP 由实例的 `ephemeral` 决定：临时实例走 Distro（AP），持久实例走 JRaft（CP）并由服务端主动探测
 - 保护阈值防止健康实例过少时流量集中雪崩；客户端本地缓存保证 Server 全挂时已有实例仍可调用
 - Nacos 3.x 要求 JDK 17、控制台端口独立、默认开启鉴权，客户端需配置用户名密码
+
+## 参考资料
+
+- Nacos 官方文档：[https://nacos.io/docs/latest/what-is-nacos/](https://nacos.io/docs/latest/what-is-nacos/)
+- Spring Cloud Alibaba Nacos Discovery：[https://sca.aliyun.com/docs/2025.x/user-guide/nacos/overview/](https://sca.aliyun.com/docs/2025.x/user-guide/nacos/overview/)
+- Spring Cloud Commons（DiscoveryClient / ServiceRegistry）：[https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/common-abstractions.html](https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/common-abstractions.html)
+- Consul：[https://developer.hashicorp.com/consul/docs](https://developer.hashicorp.com/consul/docs)
 
 > 下一篇：[API 网关](./2_api_gateway) —— 统一入口上的路由、鉴权、限流与灰度，以及 Gateway Server WebFlux 与 Server MVC 的选择。

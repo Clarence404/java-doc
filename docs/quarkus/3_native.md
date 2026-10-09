@@ -8,15 +8,6 @@ description: 原生构建、反射登记、类初始化时机、容器镜像、K
 >
 > **前置阅读**：[Quarkus 概览](./1_basics)、[JIT 编译](/jvm/7_jit)、[启动与部署优化](/spring-boot/14_startup)
 
-> 参考资料：
-> * 构建原生可执行文件：[https://quarkus.io/guides/building-native-image](https://quarkus.io/guides/building-native-image)
-> * 原生应用编写技巧：[https://quarkus.io/guides/writing-native-applications-tips](https://quarkus.io/guides/writing-native-applications-tips)
-> * 最低 Mandrel / GraalVM 版本说明：[https://quarkus.io/blog/mandrel-25-minimum-version/](https://quarkus.io/blog/mandrel-25-minimum-version/)
-> * 容器镜像：[https://quarkus.io/guides/container-image](https://quarkus.io/guides/container-image)
-> * 部署到 Kubernetes：[https://quarkus.io/guides/deploying-to-kubernetes](https://quarkus.io/guides/deploying-to-kubernetes)
-> * SmallRye Health：[https://quarkus.io/guides/smallrye-health](https://quarkus.io/guides/smallrye-health)
-> * Micrometer：[https://quarkus.io/guides/telemetry-micrometer](https://quarkus.io/guides/telemetry-micrometer)
-
 GraalVM Native Image 的通用原理（静态分析、闭世界假设、AOT 编译）见 [JIT 编译](/jvm/7_jit)，Spring Boot 的原生方案与 CDS / AOT 缓存对比见 [启动与部署优化](/spring-boot/14_startup)。本篇只讲 Quarkus 特有的部分。
 
 ---
@@ -280,5 +271,15 @@ public class PaymentGatewayHealthCheck implements HealthCheck {
 - 容器镜像用 Jib 扩展最省事，JVM 模式的 `quarkus-app/` 布局天然分层，不要改成 uber-jar
 - Kubernetes 扩展生成清单作为起点，健康检查分 live / ready / started，存活探针不查外部依赖
 - 原生模式适合冷启动敏感与高密度部署，长期运行的高吞吐服务通常留在 JVM 模式
+
+## 参考资料
+
+- 构建原生可执行文件：[https://quarkus.io/guides/building-native-image](https://quarkus.io/guides/building-native-image)
+- 原生应用编写技巧：[https://quarkus.io/guides/writing-native-applications-tips](https://quarkus.io/guides/writing-native-applications-tips)
+- 最低 Mandrel / GraalVM 版本说明：[https://quarkus.io/blog/mandrel-25-minimum-version/](https://quarkus.io/blog/mandrel-25-minimum-version/)
+- 容器镜像：[https://quarkus.io/guides/container-image](https://quarkus.io/guides/container-image)
+- 部署到 Kubernetes：[https://quarkus.io/guides/deploying-to-kubernetes](https://quarkus.io/guides/deploying-to-kubernetes)
+- SmallRye Health：[https://quarkus.io/guides/smallrye-health](https://quarkus.io/guides/smallrye-health)
+- Micrometer：[https://quarkus.io/guides/telemetry-micrometer](https://quarkus.io/guides/telemetry-micrometer)
 
 > 下一篇：[响应式与消息](./4_reactive) —— Mutiny、Kafka 响应式消息与事件总线，以及虚拟线程能在多大程度上替代响应式写法。

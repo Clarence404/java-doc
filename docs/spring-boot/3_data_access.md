@@ -8,13 +8,6 @@ description: 持久化选型、JdbcClient、JPA 实体与 Repository、MyBatis-P
 >
 > **前置阅读**：[事务管理](/spring/4_transaction)、[MySQL 概览](/database/1_mysql/0_overview)
 
-> 参考资料：
-> * Spring Boot SQL Databases：[https://docs.spring.io/spring-boot/reference/data/sql.html](https://docs.spring.io/spring-boot/reference/data/sql.html)
-> * Spring Data JPA：[https://docs.spring.io/spring-data/jpa/reference/](https://docs.spring.io/spring-data/jpa/reference/)
-> * JdbcClient：[https://docs.spring.io/spring-framework/reference/data-access/jdbc/core.html](https://docs.spring.io/spring-framework/reference/data-access/jdbc/core.html)
-> * MyBatis-Plus：[https://baomidou.com/](https://baomidou.com/)
-> * dynamic-datasource：[https://github.com/baomidou/dynamic-datasource](https://github.com/baomidou/dynamic-datasource)
-
 ---
 
 ## 一、持久化方案选型
@@ -536,5 +529,13 @@ p2.getTotal();
 - Boot 自动开启注解事务并按依赖选择事务管理器，多数据源时需要显式指定事务管理器
 - dynamic-datasource 在 Boot 4 使用 `dynamic-datasource-spring-boot4-starter`；外层事务开启后 `@DS` 切换无效，跨库写入需要分布式事务
 - Spring Data 页码从 0 开始，MyBatis-Plus 从 1 开始；深分页改用游标
+
+## 参考资料
+
+- Spring Boot SQL Databases：[https://docs.spring.io/spring-boot/reference/data/sql.html](https://docs.spring.io/spring-boot/reference/data/sql.html)
+- Spring Data JPA：[https://docs.spring.io/spring-data/jpa/reference/](https://docs.spring.io/spring-data/jpa/reference/)
+- JdbcClient：[https://docs.spring.io/spring-framework/reference/data-access/jdbc/core.html](https://docs.spring.io/spring-framework/reference/data-access/jdbc/core.html)
+- MyBatis-Plus：[https://baomidou.com/](https://baomidou.com/)
+- dynamic-datasource：[https://github.com/baomidou/dynamic-datasource](https://github.com/baomidou/dynamic-datasource)
 
 > 下一篇：[数据库版本迁移](./4_flyway) —— 用 Flyway 或 Liquibase 把表结构变更纳入版本管理，并安全地随应用发布。

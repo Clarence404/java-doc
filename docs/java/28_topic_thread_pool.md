@@ -8,12 +8,6 @@ description: 执行流程、ctl 与 Worker、队列与拒绝策略、异常处�
 >
 > **前置阅读**：[线程基础](./23_topic_thread_basics)、[集合框架](./21_topic_collection)（BlockingQueue 一节）
 
-> 参考资料：
-> * JDK 25 API：[ThreadPoolExecutor](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html)
-> * JDK 25 API：[ExecutorService](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ExecutorService.html)、[ForkJoinPool](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ForkJoinPool.html)
-> * [程序员老猫 - 背会了常见的几个线程池用法，结果被问翻](https://mp.weixin.qq.com/s/xWbSPHJG_TztJpM4Pv9knw)
-> * [程序员追风 - 线程池灵魂 8 连问](https://mp.weixin.qq.com/s/7ub5RhxfuklzYsa84tGAzQ)
-
 线程池解决两件事：**复用**线程以省去创建销毁开销，用有界的线程数和队列给并发**设上限**。池化的通用原理见 [池化技术](/high-perf/7_pooling)，线程数怎么估算、动态线程池怎么落地见 [并发参数调优](/high-con/7_concurrency_tuning)；本篇只讲 JDK 线程池本身。
 
 ---
@@ -728,5 +722,12 @@ for (int i = 0; i < 2; i++) {
 - 动态调参注意 core / max 的先后顺序，队列容量不能改
 - `commonPool` 全局共享且并行度受容器 CPU 限额影响，阻塞 IO 不要放进去；虚拟线程不池化，限流改用 `Semaphore`
 - Spring 中显式指定 `@Async` 执行器，`TaskDecorator` 传 MDC 时恢复原上下文而不是清空
+
+## 参考资料
+
+- JDK 25 API：[ThreadPoolExecutor](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html)
+- JDK 25 API：[ExecutorService](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ExecutorService.html)、[ForkJoinPool](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/ForkJoinPool.html)
+- [程序员老猫 - 背会了常见的几个线程池用法，结果被问翻](https://mp.weixin.qq.com/s/xWbSPHJG_TztJpM4Pv9knw)
+- [程序员追风 - 线程池灵魂 8 连问](https://mp.weixin.qq.com/s/7ub5RhxfuklzYsa84tGAzQ)
 
 > 下一篇：[CompletableFuture](./29_topic_completable_future) —— 在线程池之上编排异步任务：回调线程、组合、异常传播与超时。

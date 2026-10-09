@@ -8,13 +8,6 @@ description: CAS 硬件基础、VarHandle、Atomic 类族、ABA 与版本戳、L
 >
 > **前置阅读**：[JMM 内存模型](./22_topic_jmm)、[显式锁（Lock）](./25_topic_lock)
 
-> 参考资料：
-> * java.util.concurrent.atomic 包说明（Java SE 25）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/atomic/package-summary.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/atomic/package-summary.html)
-> * VarHandle（Java SE 25 API）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/invoke/VarHandle.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/invoke/VarHandle.html)
-> * JEP 193 — Variable Handles：[https://openjdk.org/jeps/193](https://openjdk.org/jeps/193)
-> * JEP 471 — Deprecate the Memory-Access Methods in sun.misc.Unsafe for Removal：[https://openjdk.org/jeps/471](https://openjdk.org/jeps/471)
-> * JEP 498 — Warn upon Use of Memory-Access Methods in sun.misc.Unsafe：[https://openjdk.org/jeps/498](https://openjdk.org/jeps/498)
-
 `volatile` 只保证可见性和有序性，`count++` 这类「读-改-写」仍然不是原子的。加锁可以解决，但对单个变量来说代价偏重。`java.util.concurrent.atomic` 包用 CAS 提供了**不阻塞线程**的单变量原子更新，它也是 AQS、`ConcurrentHashMap`、线程池等 JUC 组件的底层基础。
 
 ---
@@ -333,5 +326,13 @@ long max = maxLatency.get();          // 汇总
 - ABA 用 `AtomicStampedReference` 解决，但它按 `==` 比较引用，期望值必须是 `get()` 拿到的那个对象，装箱的大整数会让 CAS 静默失败
 - `LongAdder` = `base` + `@Contended` 的 `Cell[]`，竞争时分散更新、读时汇总；`sum()` 不是原子快照，不能用于 ID 生成
 - 原子类没有公平性概念；`synchronized` 是非公平锁
+
+## 参考资料
+
+- java.util.concurrent.atomic 包说明（Java SE 25）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/atomic/package-summary.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/atomic/package-summary.html)
+- VarHandle（Java SE 25 API）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/invoke/VarHandle.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/invoke/VarHandle.html)
+- JEP 193 — Variable Handles：[https://openjdk.org/jeps/193](https://openjdk.org/jeps/193)
+- JEP 471 — Deprecate the Memory-Access Methods in sun.misc.Unsafe for Removal：[https://openjdk.org/jeps/471](https://openjdk.org/jeps/471)
+- JEP 498 — Warn upon Use of Memory-Access Methods in sun.misc.Unsafe：[https://openjdk.org/jeps/498](https://openjdk.org/jeps/498)
 
 > 下一篇：[同步工具类](./27_topic_juc_tools) —— 线程之间如何「等齐」与「限流」：CountDownLatch、CyclicBarrier、Semaphore、Phaser。

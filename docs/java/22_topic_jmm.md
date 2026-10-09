@@ -8,12 +8,6 @@ description: 可见性来源、happens-before、volatile、锁的内存语义、
 >
 > **前置阅读**：[集合框架](./21_topic_collection)
 
-> 参考资料：
-> * JLS 第 17 章 Threads and Locks：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html)
-> * java.util.concurrent 内存一致性说明：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/package-summary.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/package-summary.html)
-> * JSR-133 FAQ：[https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html](https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html)
-> * JEP 193 Variable Handles：[https://openjdk.org/jeps/193](https://openjdk.org/jeps/193)
-
 JMM（Java Memory Model）是 JLS 第 17 章定义的一套规则：给定一段多线程程序，**一次读操作允许看到哪些写操作的值**。它不描述 CPU 缓存怎么工作，而是给出一个与硬件无关的契约——只要程序按规则同步（没有数据竞争），它的行为就和「所有操作按某种交错顺序依次执行」一样（顺序一致性，DRF-SC 保证）。
 
 ---
@@ -345,5 +339,12 @@ class Publisher {
 - final 字段在构造完成后对所有线程可见（this 不逸出为前提）；安全发布靠静态初始化、volatile、锁、并发容器或 final
 - DCL 必须 volatile，但静态单例优先用 Holder 或枚举
 - VarHandle 提供 plain / opaque / acquire-release / volatile 四档语义，是 JUC 的底层工具
+
+## 参考资料
+
+- JLS 第 17 章 Threads and Locks：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html](https://docs.oracle.com/javase/specs/jls/se21/html/jls-17.html)
+- java.util.concurrent 内存一致性说明：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/package-summary.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/package-summary.html)
+- JSR-133 FAQ：[https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html](https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html)
+- JEP 193 Variable Handles：[https://openjdk.org/jeps/193](https://openjdk.org/jeps/193)
 
 > 下一篇：[线程基础](./23_topic_thread_basics) —— 线程的状态、创建、中断与协作，以及 ThreadLocal 的上下文传递。

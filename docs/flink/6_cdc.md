@@ -8,13 +8,6 @@ description: 无锁增量快照、MySQL CDC 源、YAML 管道与 Schema 演进�
 >
 > **前置阅读**：[状态与容错](./4_state_checkpoint)、[Flink SQL 与 Table API](./5_sql)
 
-> 参考资料：
-> * Flink CDC 文档（3.6）：[https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/](https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/)
-> * MySQL CDC 源连接器：[https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/connectors/flink-sources/mysql-cdc/](https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/connectors/flink-sources/mysql-cdc/)
-> * 数据管道定义：[https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/core-concept/data-pipeline/](https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/core-concept/data-pipeline/)
-> * Schema 演进：[https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/core-concept/schema-evolution/](https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/core-concept/schema-evolution/)
-> * GitHub Releases：[https://github.com/apache/flink-cdc/releases](https://github.com/apache/flink-cdc/releases)
-
 CDC 的通用概念、binlog 原理以及 Canal / Debezium / Flink CDC 的横向选型见 [CDC 工具](/database/5_practice/0_cdc_tools)；本篇是「用 Flink 做 CDC」的主文档。
 
 ---
@@ -298,5 +291,13 @@ export FLINK_HOME=/opt/flink
 - Schema 演进默认 `lenient`，不丢数据；`drop.column` 通常排除；新增表要区分「只同步增量」与「补全量」两种开关
 - Sink：Paimon 精确一次，Doris / StarRocks 靠主键 upsert 幂等；Kafka Sink 默认全写 0 号分区，必须改为 `hash-by-key`
 - 下游一定要有主键并按主键 upsert，这是 CDC 链路「效果上精确一次」的前提
+
+## 参考资料
+
+- Flink CDC 文档（3.6）：[https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/](https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/)
+- MySQL CDC 源连接器：[https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/connectors/flink-sources/mysql-cdc/](https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/connectors/flink-sources/mysql-cdc/)
+- 数据管道定义：[https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/core-concept/data-pipeline/](https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/core-concept/data-pipeline/)
+- Schema 演进：[https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/core-concept/schema-evolution/](https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/core-concept/schema-evolution/)
+- GitHub Releases：[https://github.com/apache/flink-cdc/releases](https://github.com/apache/flink-cdc/releases)
 
 > 下一篇：[部署与运维](./7_deployment) —— 把作业跑上 Kubernetes，算清内存、并行度与 slot，排查反压、checkpoint 失败和数据倾斜。

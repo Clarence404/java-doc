@@ -8,12 +8,6 @@ description: 微服务定义与原则、与 SOA 的区别、单体瓶颈、优�
 >
 > **前置阅读**：[微服务总览](./0_overview)
 
-> 参考资料：
-> * Microservices（James Lewis & Martin Fowler）：[https://martinfowler.com/articles/microservices.html](https://martinfowler.com/articles/microservices.html)
-> * Refactoring a monolith into microservices（Chris Richardson）：[https://microservices.io/refactoring/](https://microservices.io/refactoring/)
-> * StranglerFigApplication（Martin Fowler）：[https://martinfowler.com/bliki/StranglerFigApplication.html](https://martinfowler.com/bliki/StranglerFigApplication.html)
-> * MonolithFirst（Martin Fowler）：[https://martinfowler.com/bliki/MonolithFirst.html](https://martinfowler.com/bliki/MonolithFirst.html)
-
 微服务首先是一种**组织与交付方式**，其次才是技术架构：它用分布式系统的复杂度，换取团队独立交付、按需扩展和故障隔离的能力。这笔交易是否划算，取决于团队规模、业务边界和基础设施成熟度。
 
 ---
@@ -155,5 +149,12 @@ Chris Richardson 在「Refactoring a monolith into microservices」中总结了�
 - 优势是独立部署、独立扩展、故障隔离、团队自治；代价是分布式复杂性、数据一致性、排障、运维与测试成本
 - 拆分看信号而不是人数：发布互相阻塞、节奏差异大、扩展需求不同时考虑拆；边界模糊、基础设施不足时先别拆
 - 迁移坚持渐进式：停止往单体加功能、前后端分离、用绞杀者模式逐个抽取服务，数据迁移单独规划
+
+## 参考资料
+
+- Microservices（James Lewis & Martin Fowler）：[https://martinfowler.com/articles/microservices.html](https://martinfowler.com/articles/microservices.html)
+- Refactoring a monolith into microservices（Chris Richardson）：[https://microservices.io/refactoring/](https://microservices.io/refactoring/)
+- StranglerFigApplication（Martin Fowler）：[https://martinfowler.com/bliki/StranglerFigApplication.html](https://martinfowler.com/bliki/StranglerFigApplication.html)
+- MonolithFirst（Martin Fowler）：[https://martinfowler.com/bliki/MonolithFirst.html](https://martinfowler.com/bliki/MonolithFirst.html)
 
 > 下一篇：[微服务设计模式](./2_patterns) —— 拆分、通信、数据、可靠性、部署等常用模式的目录与选用场景。

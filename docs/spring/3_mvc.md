@@ -8,14 +8,6 @@ description: DispatcherServlet 流程、参数校验、消息转换、ProblemDet
 >
 > **前置阅读**：[IoC 容器](./1_ioc)、[AOP](./2_aop)
 
-> 参考资料：
-> * Spring Framework 参考文档 - Spring Web MVC：[https://docs.spring.io/spring-framework/reference/web/webmvc.html](https://docs.spring.io/spring-framework/reference/web/webmvc.html)
-> * 错误响应（RFC 9457）：[https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-rest-exceptions.html](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-rest-exceptions.html)
-> * 参数校验：[https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-validation.html](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-validation.html)
-> * 消息转换器配置：[https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-config/message-converters.html](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-config/message-converters.html)
-> * API 版本：[https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-config/api-version.html](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-config/api-version.html)
-> * Introducing Jackson 3 support in Spring：[https://spring.io/blog/2025/10/07/introducing-jackson-3-support-in-spring/](https://spring.io/blog/2025/10/07/introducing-jackson-3-support-in-spring/)
-
 本篇讲 Spring MVC 的框架机制。Boot 下的 Web 开发实践（参数校验注解、分组与自定义校验、CORS、HTTP 客户端）见 [Web 开发](/spring-boot/2_web_dev)；响应式栈见 [WebFlux](./8_webflux)。Spring 6 起 Servlet API 全部是 `jakarta.servlet.*`，Framework 7 要求 Servlet 6.1（Jakarta EE 11），Boot 4 内嵌 Tomcat 或 Jetty（Undertow 已移除）。在 Boot 4 中引入 Spring MVC 的 starter 是 `spring-boot-starter-webmvc`（Boot 3.x 为 `spring-boot-starter-web`）。
 
 ---
@@ -506,5 +498,14 @@ public class AccountController {
 - Framework 7 / Boot 4 默认 Jackson 3，转换器为 `JacksonJsonHttpMessageConverter`；Boot 中用 `spring.jackson.*` 或 `JsonMapperBuilderCustomizer` 定制，不要自己 new Mapper；纯 Spring 用 `configureMessageConverters(HttpMessageConverters.ServerBuilder)`
 - 统一异常处理推荐继承 `ResponseEntityExceptionHandler` 输出 `ProblemDetail`，校验异常覆写父类方法，兜底异常不泄露内部信息
 - Framework 7 内置 API 版本控制，`@GetMapping(version = "1.2+")` 声明版本
+
+## 参考资料
+
+- Spring Framework 参考文档 - Spring Web MVC：[https://docs.spring.io/spring-framework/reference/web/webmvc.html](https://docs.spring.io/spring-framework/reference/web/webmvc.html)
+- 错误响应（RFC 9457）：[https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-rest-exceptions.html](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-rest-exceptions.html)
+- 参数校验：[https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-validation.html](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-validation.html)
+- 消息转换器配置：[https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-config/message-converters.html](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-config/message-converters.html)
+- API 版本：[https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-config/api-version.html](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-config/api-version.html)
+- Introducing Jackson 3 support in Spring：[https://spring.io/blog/2025/10/07/introducing-jackson-3-support-in-spring/](https://spring.io/blog/2025/10/07/introducing-jackson-3-support-in-spring/)
 
 > 下一篇：[事务管理](./4_transaction) —— Web 层之下，看 `@Transactional` 如何通过 AOP 管理事务边界，以及传播行为与失效场景。

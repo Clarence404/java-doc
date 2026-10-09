@@ -8,12 +8,6 @@ description: spring.config.import 接入、gRPC 推送刷新、@RefreshScope 与
 >
 > **前置阅读**：[注册发现](./1_service_registry)
 
-> 参考资料：
-> * Spring Cloud Alibaba Nacos Config：[https://sca.aliyun.com/docs/2025.x/user-guide/nacos/overview/](https://sca.aliyun.com/docs/2025.x/user-guide/nacos/overview/)
-> * Spring Cloud Commons（Environment Changes / Refresh Scope）：[https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/application-context-services.html](https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/application-context-services.html)
-> * Spring Boot 外部化配置（Importing Additional Data）：[https://docs.spring.io/spring-boot/reference/features/external-config.html](https://docs.spring.io/spring-boot/reference/features/external-config.html)
-> * Apollo：[https://www.apolloconfig.com/](https://www.apolloconfig.com/)
-
 配置写在包里，变更就要重新打包发布。配置中心解决四件事：
 
 | 问题 | 解决方式 |
@@ -246,5 +240,12 @@ Nacos 1.x 与 2.x+ 的差异：
 - `@ConfigurationProperties` 不需要 `@RefreshScope`；`@Value` 需要；`@RefreshScope` 会重跑初始化逻辑，慎用于持有资源的 Bean
 - 监听变更优先用 `EnvironmentChangeEvent`，需要原始内容时用 `NacosConfigManager` 注册原生监听器
 - namespace 隔离环境、group 分业务、dataId 分文件；敏感配置交给 Vault / K8s Secret / KMS
+
+## 参考资料
+
+- Spring Cloud Alibaba Nacos Config：[https://sca.aliyun.com/docs/2025.x/user-guide/nacos/overview/](https://sca.aliyun.com/docs/2025.x/user-guide/nacos/overview/)
+- Spring Cloud Commons（Environment Changes / Refresh Scope）：[https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/application-context-services.html](https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/application-context-services.html)
+- Spring Boot 外部化配置（Importing Additional Data）：[https://docs.spring.io/spring-boot/reference/features/external-config.html](https://docs.spring.io/spring-boot/reference/features/external-config.html)
+- Apollo：[https://www.apolloconfig.com/](https://www.apolloconfig.com/)
 
 > 下一篇：[服务治理](./5_service_governance) —— 负载均衡、灰度路由、限流熔断在 Spring Cloud 中的落地。

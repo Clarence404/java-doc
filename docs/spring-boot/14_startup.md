@@ -8,14 +8,6 @@ description: 启动耗时度量、懒加载与裁剪、CDS / AOT 缓存、AOT �
 >
 > **前置阅读**：[启动流程与自动配置](./1_spring_boot)、[Spring Boot 版本演进](./11_versions)
 
-> 参考资料：
-> * SpringApplication（启动跟踪 / 懒加载 / 虚拟线程）：[https://docs.spring.io/spring-boot/reference/features/spring-application.html](https://docs.spring.io/spring-boot/reference/features/spring-application.html)
-> * AOT Cache：[https://docs.spring.io/spring-boot/reference/packaging/aot-cache.html](https://docs.spring.io/spring-boot/reference/packaging/aot-cache.html)
-> * Spring Framework JVM AOT Cache：[https://docs.spring.io/spring-framework/reference/integration/aot-cache.html](https://docs.spring.io/spring-framework/reference/integration/aot-cache.html)
-> * GraalVM Native Image 支持：[https://docs.spring.io/spring-boot/reference/packaging/native-image/introducing-graalvm-native-images.html](https://docs.spring.io/spring-boot/reference/packaging/native-image/introducing-graalvm-native-images.html)
-> * Checkpoint and Restore：[https://docs.spring.io/spring-framework/reference/integration/checkpoint-restore.html](https://docs.spring.io/spring-framework/reference/integration/checkpoint-restore.html)
-> * Dockerfiles：[https://docs.spring.io/spring-boot/reference/packaging/container-images/dockerfiles.html](https://docs.spring.io/spring-boot/reference/packaging/container-images/dockerfiles.html)
-
 一个典型 Spring Boot 服务的启动时间由三块组成：**JVM 加载和链接成千上万个类**、**Spring 解析配置并创建 Bean**、**JIT 把热点代码编译到峰值**。本篇的各种手段，本质都是把其中某一块挪到构建期，或者干脆跳过。
 
 ---
@@ -435,5 +427,14 @@ ENTRYPOINT ["java", "-XX:AOTCache=app.aot", "-XX:MaxRAMPercentage=75", "-jar", "
 - CRaC 从进程快照恢复，能做到恢复即峰值，但依赖特定 JDK 与 Linux，快照包含敏感数据
 - 虚拟线程开关改变运行期并发模型，不直接缩短启动
 - 镜像用分层解压或 Buildpacks（`BP_JVM_AOTCACHE_ENABLED` / `BP_JVM_CDS_ENABLED`）构建，内存用 `MaxRAMPercentage` 按比例设置
+
+## 参考资料
+
+- SpringApplication（启动跟踪 / 懒加载 / 虚拟线程）：[https://docs.spring.io/spring-boot/reference/features/spring-application.html](https://docs.spring.io/spring-boot/reference/features/spring-application.html)
+- AOT Cache：[https://docs.spring.io/spring-boot/reference/packaging/aot-cache.html](https://docs.spring.io/spring-boot/reference/packaging/aot-cache.html)
+- Spring Framework JVM AOT Cache：[https://docs.spring.io/spring-framework/reference/integration/aot-cache.html](https://docs.spring.io/spring-framework/reference/integration/aot-cache.html)
+- GraalVM Native Image 支持：[https://docs.spring.io/spring-boot/reference/packaging/native-image/introducing-graalvm-native-images.html](https://docs.spring.io/spring-boot/reference/packaging/native-image/introducing-graalvm-native-images.html)
+- Checkpoint and Restore：[https://docs.spring.io/spring-framework/reference/integration/checkpoint-restore.html](https://docs.spring.io/spring-framework/reference/integration/checkpoint-restore.html)
+- Dockerfiles：[https://docs.spring.io/spring-boot/reference/packaging/container-images/dockerfiles.html](https://docs.spring.io/spring-boot/reference/packaging/container-images/dockerfiles.html)
 
 > 返回：[Spring Boot 总览](./0_overview)

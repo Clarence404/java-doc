@@ -8,13 +8,6 @@ description: 实时 GMV 大屏、CEP 实时风控、Kafka / Paimon 实时数仓�
 >
 > **前置阅读**：[Flink SQL 与 Table API](./5_sql)、[Flink CDC](./6_cdc)、[部署与运维](./7_deployment)
 
-> 参考资料：
-> * FlinkCEP（2.3）：[https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/libs/cep/](https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/libs/cep/)
-> * 窗口 TVF：[https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/sql/reference/queries/window-tvf/](https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/sql/reference/queries/window-tvf/)
-> * Join：[https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/sql/reference/queries/joins/](https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/sql/reference/queries/joins/)
-> * Apache Paimon：[https://paimon.apache.org/docs/master/](https://paimon.apache.org/docs/master/)
-> * Flink CDC Pipeline 连接器：[https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/connectors/pipeline-connectors/overview/](https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/connectors/pipeline-connectors/overview/)
-
 示例基于 Flink 2.2 + `flink-connector-kafka:5.0.0-2.2` + Flink CDC 3.6；CEP 需要单独引入 `flink-cep`（不在 Flink 发行包里）。
 
 ---
@@ -358,5 +351,13 @@ DataStream<EnrichedOrder> enriched = orders
 - 实时数仓：ODS 用 Flink CDC 整库入湖，DWD / DWS 用 Flink SQL 流式加工；Kafka 换秒级延迟，Paimon 换可查询、可回溯与低成本，常见做法是两者组合
 - Paimon 下游要流读时配置 `changelog-producer`，汇总层可用聚合合并引擎写入即合并
 - 维表关联：大维表用 Lookup + 缓存 + 异步，按事件时间关联用 Temporal Join，小维表用 Broadcast State；维度晚到用 `lookup_miss` 重试或侧输出补偿
+
+## 参考资料
+
+- FlinkCEP（2.3）：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/libs/cep/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/libs/cep/)
+- 窗口 TVF：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/window-tvf/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/window-tvf/)
+- Join：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/joins/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/joins/)
+- Apache Paimon：[https://paimon.apache.org/docs/master/](https://paimon.apache.org/docs/master/)
+- Flink CDC Pipeline 连接器：[https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/connectors/pipeline-connectors/overview/](https://nightlies.apache.org/flink/flink-cdc-docs-release-3.6/docs/connectors/pipeline-connectors/overview/)
 
 > 返回：[Flink 总览](./0_overview)

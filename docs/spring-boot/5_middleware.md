@@ -8,15 +8,6 @@ description: Redis、Kafka、RabbitMQ、ES、MongoDB 的 Starter 与配置、Jac
 >
 > **前置阅读**：[启动流程与自动配置](./1_spring_boot)
 
-> 参考资料：
-> * Spring Boot NoSQL：[https://docs.spring.io/spring-boot/reference/data/nosql.html](https://docs.spring.io/spring-boot/reference/data/nosql.html)
-> * Spring Boot Messaging：[https://docs.spring.io/spring-boot/reference/messaging/index.html](https://docs.spring.io/spring-boot/reference/messaging/index.html)
-> * Spring Data Redis 4.0 升级说明：[https://docs.spring.io/spring-data/redis/reference/upgrading.html](https://docs.spring.io/spring-data/redis/reference/upgrading.html)
-> * Spring for Apache Kafka：[https://docs.spring.io/spring-kafka/reference/](https://docs.spring.io/spring-kafka/reference/)
-> * Spring AMQP：[https://docs.spring.io/spring-amqp/reference/](https://docs.spring.io/spring-amqp/reference/)
-> * Spring Data Elasticsearch：[https://docs.spring.io/spring-data/elasticsearch/reference/](https://docs.spring.io/spring-data/elasticsearch/reference/)
-> * Spring Data MongoDB：[https://docs.spring.io/spring-data/mongodb/reference/](https://docs.spring.io/spring-data/mongodb/reference/)
-
 ---
 
 ## 一、总览
@@ -459,5 +450,15 @@ public class OrderAnalyticsService {
 - RabbitMQ：自动 ACK + 本地重试 + 死信，死信交换机与队列必须声明
 - Elasticsearch：Boot 4 使用 elasticsearch-java 9.x 与 `Rest5Client`，range 查询按字段类型写 `number` / `date`
 - MongoDB：Boot 4 连接配置改为 `spring.mongodb.*`，Spring Data 专属配置仍在 `spring.data.mongodb.*`；按日聚合注意时区
+
+## 参考资料
+
+- Spring Boot NoSQL：[https://docs.spring.io/spring-boot/reference/data/nosql.html](https://docs.spring.io/spring-boot/reference/data/nosql.html)
+- Spring Boot Messaging：[https://docs.spring.io/spring-boot/reference/messaging/index.html](https://docs.spring.io/spring-boot/reference/messaging/index.html)
+- Spring Data Redis 4.0 升级说明：[https://docs.spring.io/spring-data/redis/reference/upgrading.html](https://docs.spring.io/spring-data/redis/reference/upgrading.html)
+- Spring for Apache Kafka：[https://docs.spring.io/spring-kafka/reference/](https://docs.spring.io/spring-kafka/reference/)
+- Spring AMQP：[https://docs.spring.io/spring-amqp/reference/](https://docs.spring.io/spring-amqp/reference/)
+- Spring Data Elasticsearch：[https://docs.spring.io/spring-data/elasticsearch/reference/](https://docs.spring.io/spring-data/elasticsearch/reference/)
+- Spring Data MongoDB：[https://docs.spring.io/spring-data/mongodb/reference/](https://docs.spring.io/spring-data/mongodb/reference/)
 
 > 下一篇：[配置管理](./6_config) —— 配置源优先级、Profile、属性绑定与配置加密。

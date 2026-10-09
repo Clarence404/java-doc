@@ -8,13 +8,6 @@ description: Lambda 实现原理、函数式接口与方法引用、Stream 惰�
 >
 > **前置阅读**：[Java 总览](./0_overview)
 
-> 参考资料：
-> * JLS §15.27 Lambda Expressions：[https://docs.oracle.com/javase/specs/jls/se25/html/jls-15.html#jls-15.27](https://docs.oracle.com/javase/specs/jls/se25/html/jls-15.html#jls-15.27)
-> * `java.util.stream` 包文档：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/package-summary.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/package-summary.html)
-> * `LambdaMetafactory` API：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/invoke/LambdaMetafactory.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/invoke/LambdaMetafactory.html)
-> * JEP 371 Hidden Classes：[https://openjdk.org/jeps/371](https://openjdk.org/jeps/371)
-> * javac 文档（`-proc` 与注解处理）：[https://docs.oracle.com/en/java/javase/25/docs/specs/man/javac.html](https://docs.oracle.com/en/java/javase/25/docs/specs/man/javac.html)
-
 版本基线：JDK 21 / 25 LTS，JDK 8 / 17 的差异单独标出。泛型见 [泛型](./14_topic_generics)，反射见 [反射](./15_topic_reflection)，本篇不重复。
 
 ---
@@ -544,5 +537,13 @@ Gradle 的 `annotationProcessor` 依赖配置本来就走处理器路径，不�
 - 并行流跑在 JVM 共享的 commonPool 上（并行度 CPU 核数 − 1，调用线程也参与），只适合大数据量、可均匀拆分、纯 CPU 计算；阻塞 IO 绝不要放进并行流
 - Optional 只做返回值；默认值需要计算时用 `orElseGet`
 - 注解靠元注解定义保留期与位置；JDK 反射不识别元注解组合，Spring 用 `MergedAnnotations` 实现；注解处理器只能生成新文件，Lombok 修改 AST 是特例；JDK 23 起必须显式声明处理器路径
+
+## 参考资料
+
+- JLS §15.27 Lambda Expressions：[https://docs.oracle.com/javase/specs/jls/se25/html/jls-15.html#jls-15.27](https://docs.oracle.com/javase/specs/jls/se25/html/jls-15.html#jls-15.27)
+- `java.util.stream` 包文档：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/package-summary.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/package-summary.html)
+- `LambdaMetafactory` API：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/invoke/LambdaMetafactory.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/invoke/LambdaMetafactory.html)
+- JEP 371 Hidden Classes：[https://openjdk.org/jeps/371](https://openjdk.org/jeps/371)
+- javac 文档（`-proc` 与注解处理）：[https://docs.oracle.com/en/java/javase/25/docs/specs/man/javac.html](https://docs.oracle.com/en/java/javase/25/docs/specs/man/javac.html)
 
 > 下一篇：[版本演进](./2_version) —— 从 JDK 8 到 27，按升级路径梳理各版本的关键特性与迁移坑点。

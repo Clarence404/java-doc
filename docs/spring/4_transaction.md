@@ -8,12 +8,6 @@ description: "@Transactional 原理、传播行为、回滚规则、只读与超
 >
 > **前置阅读**：[AOP](./2_aop)、[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
 
-> 参考资料：
-> * Spring Framework 参考文档 - 事务管理：[https://docs.spring.io/spring-framework/reference/data-access/transaction.html](https://docs.spring.io/spring-framework/reference/data-access/transaction.html)
-> * 使用 @Transactional：[https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html)
-> * 事务传播：[https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html)
-> * 编程式事务：[https://docs.spring.io/spring-framework/reference/data-access/transaction/programmatic.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/programmatic.html)
-
 ---
 
 ## 一、@Transactional 的工作原理
@@ -323,5 +317,12 @@ public void process(Long taskId) {
 - 默认只回滚 `RuntimeException` 和 `Error`；6.2+ 推荐 `@EnableTransactionManagement(rollbackOn = ALL_EXCEPTIONS)`
 - 编程式事务自己 new `TransactionTemplate` 定制，不要用 `@Bean` 覆盖全局实例；副作用放到提交之后
 - 6.0 起 `protected` / 包可见方法在 CGLIB 代理下也能开启事务，`private` / `final` / `static` 仍然不行
+
+## 参考资料
+
+- Spring Framework 参考文档 - 事务管理：[https://docs.spring.io/spring-framework/reference/data-access/transaction.html](https://docs.spring.io/spring-framework/reference/data-access/transaction.html)
+- 使用 @Transactional：[https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html)
+- 事务传播：[https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html)
+- 编程式事务：[https://docs.spring.io/spring-framework/reference/data-access/transaction/programmatic.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/programmatic.html)
 
 > 下一篇：[Cache 抽象](./5_cache) —— 同样基于 AOP 的缓存注解，以及 CacheManager、Redis 序列化与常见陷阱。

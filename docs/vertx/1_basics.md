@@ -8,13 +8,6 @@ description: 工具包定位、与 Netty 关系、Vert.x 5 变化、与 WebFlux 
 >
 > **前置阅读**：[Reactor 模型](/netty/2_reactor)、[WebFlux](/spring/8_webflux)
 
-> 参考资料：
-> * 官方文档：[https://vertx.io/docs/](https://vertx.io/docs/)
-> * What's new in Vert.x 5：[https://vertx.io/blog/whats-new-in-vert-x-5/](https://vertx.io/blog/whats-new-in-vert-x-5/)
-> * Vert.x 4 到 5 迁移指南：[https://vertx.io/docs/guides/vertx-5-migration-guide/](https://vertx.io/docs/guides/vertx-5-migration-guide/)
-> * Vert.x 5.1 / 5.2 发布说明：[https://vertx.io/blog/whats-new-in-vert-x-5-1/](https://vertx.io/blog/whats-new-in-vert-x-5-1/)、[https://vertx.io/blog/whats-new-in-vert-x-5-2/](https://vertx.io/blog/whats-new-in-vert-x-5-2/)
-> * Quarkus Vert.x Reference：[https://quarkus.io/guides/vertx-reference](https://quarkus.io/guides/vertx-reference)
-
 Eclipse Vert.x 是一套运行在 JVM 上的**事件驱动、非阻塞的工具包（toolkit）**。它在 Netty 之上补齐了一个后端服务需要的大部分能力——HTTP 服务端与客户端、路由、响应式数据库客户端、消息、集群、指标与链路——但不规定应用怎么组织、不带依赖注入容器、不扫描注解。用一句话概括：**Netty 给你 Channel 和 ByteBuf，Vert.x 给你 Router 和 Pool，Spring 给你一整套编程模型**。
 
 ---
@@ -259,5 +252,13 @@ public class MainVerticle extends VerticleBase {
 - Vert.x 5 删除回调 API 只保留 Future，新增 `VerticleBase`、`Vertx.builder()`，`executeBlocking` 改收 `Callable`，Vert.x Sync 由虚拟线程取代，最低 JDK 11
 - 与 Netty 是上下层关系，与 Quarkus 也是上下层关系（Quarkus 底层用 Vert.x），与 WebFlux 是同层竞品
 - 连接密集、网关、IoT、实时推送用 Vert.x；CRUD 业务优先 Spring Boot + 虚拟线程；私有协议直接用 Netty
+
+## 参考资料
+
+- 官方文档：[https://vertx.io/docs/](https://vertx.io/docs/)
+- What's new in Vert.x 5：[https://vertx.io/blog/whats-new-in-vert-x-5/](https://vertx.io/blog/whats-new-in-vert-x-5/)
+- Vert.x 4 到 5 迁移指南：[https://vertx.io/docs/guides/vertx-5-migration-guide/](https://vertx.io/docs/guides/vertx-5-migration-guide/)
+- Vert.x 5.1 / 5.2 发布说明：[https://vertx.io/blog/whats-new-in-vert-x-5-1/](https://vertx.io/blog/whats-new-in-vert-x-5-1/)、[https://vertx.io/blog/whats-new-in-vert-x-5-2/](https://vertx.io/blog/whats-new-in-vert-x-5-2/)
+- Quarkus Vert.x Reference：[https://quarkus.io/guides/vertx-reference](https://quarkus.io/guides/vertx-reference)
 
 > 下一篇：[Event Loop 与 Verticle](./2_core) —— 理解多 Reactor 线程模型、黄金法则与 Future 组合，这是写对 Vert.x 代码的基础。

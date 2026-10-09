@@ -8,12 +8,6 @@ description: HTTP Service Clients、负载均衡 RestClient、OpenFeign、gRPC �
 >
 > **前置阅读**：[注册发现](./1_service_registry)
 
-> 参考资料：
-> * Spring Framework HTTP Service Clients：[https://docs.spring.io/spring-framework/reference/integration/rest-clients.html](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
-> * Spring Cloud LoadBalancer：[https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/loadbalancer.html](https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/loadbalancer.html)
-> * Spring Cloud OpenFeign：[https://docs.spring.io/spring-cloud-openfeign/reference/](https://docs.spring.io/spring-cloud-openfeign/reference/)
-> * gRPC：[https://grpc.io/docs/](https://grpc.io/docs/)
-
 ---
 
 ## 一、通信模式
@@ -318,5 +312,12 @@ Dubbo 3 的 Triple 协议基于 HTTP/2、兼容 gRPC，同时保留高性能的 
 - `RequestContextHolder` 是线程绑定的，异步与线程池场景要显式传递请求头
 - gRPC 消除了 HTTP 层队头阻塞，TCP 层仍有；Protobuf 收益需实测；Dubbo 3 Triple 兼容 gRPC，当前基于 Boot 3.5
 - 非核心链路用消息异步化，细节在消息队列模块与 Spring Cloud Stream
+
+## 参考资料
+
+- Spring Framework HTTP Service Clients：[https://docs.spring.io/spring-framework/reference/integration/rest-clients.html](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
+- Spring Cloud LoadBalancer：[https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/loadbalancer.html](https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/loadbalancer.html)
+- Spring Cloud OpenFeign：[https://docs.spring.io/spring-cloud-openfeign/reference/](https://docs.spring.io/spring-cloud-openfeign/reference/)
+- gRPC：[https://grpc.io/docs/](https://grpc.io/docs/)
 
 > 下一篇：[配置中心](./4_config_center) —— 用 `spring.config.import` 接入 Nacos Config，理解 gRPC 推送下的配置刷新链路。

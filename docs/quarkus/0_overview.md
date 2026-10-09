@@ -4,11 +4,6 @@ Quarkus 是 Red Hat 主导的云原生 Java 框架，它和 Spring Boot 解决�
 
 版本基线：**Quarkus 3.40 LTS**（维护到 2027-09-30），**JDK 21 / 25**（Quarkus 3 的 JVM 模式支持 JDK 17–25），原生构建使用 **Mandrel / GraalVM 25**。Quarkus 4.0 已于 2026-10-01 发布 Beta1，最低要求 Java 21，并升级到 Vert.x 5、Jackson 3 和 Hibernate ORM 8，计划 11 月底 GA。本模块以 3.40 LTS 为准，Quarkus 4 的变化在文中单独标出。
 
-> 参考资料：
-> * Quarkus 官方指南：[https://quarkus.io/guides/](https://quarkus.io/guides/)
-> * Quarkus 版本与支持周期：[https://quarkus.io/releases](https://quarkus.io/releases)
-> * Quarkus 3.40 发布说明：[https://quarkus.io/blog/quarkus-3-40-released/](https://quarkus.io/blog/quarkus-3-40-released/)
-
 ---
 
 ## 一、学习路线
@@ -48,3 +43,9 @@ Quarkus 是 Red Hat 主导的云原生 Java 框架，它和 Spring Boot 解决�
 - [Kubernetes](/cloud-native/6_kubernetes)：Kubernetes 扩展生成的部署清单与健康探针，更多内容见 [云原生总览](/cloud-native/0_overview)
 - [指标监控](/observability/2_metrics) / [OpenTelemetry](/observability/5_opentelemetry)：Micrometer 指标与链路追踪，更多内容见 [可观测性总览](/observability/0_overview)
 - [Flink 总览](/flink/0_overview)：同属框架生态，面向流计算而非在线服务
+
+## 参考资料
+
+- Quarkus 官方指南：[https://quarkus.io/guides/](https://quarkus.io/guides/)
+- Quarkus 版本与支持周期：[https://quarkus.io/releases](https://quarkus.io/releases)
+- Quarkus 3.40 发布说明：[https://quarkus.io/blog/quarkus-3-40-released/](https://quarkus.io/blog/quarkus-3-40-released/)

@@ -4,12 +4,6 @@ Flink 是有状态的分布式流计算引擎，国内实时数仓、实时风�
 
 版本基线：**Flink 2.2.x**（`flink-connector-kafka:5.0.0-2.2`）、**Flink CDC 3.6**、**JDK 17**（Java 21 为实验性支持）。Flink 2.3 已于 2026 年 6 月发布，但 Kafka 等外部连接器还没有适配 2.3 的版本，依赖这些连接器的作业建议暂时停留在 2.2.x。Flink 2.0 移除了 DataSet API、Scala API、`SourceFunction` / `SinkFunction`、Per-Job 模式和 `flink-conf.yaml`，也不再支持 Java 8。与 1.x 行为不同的地方，文中会单独标出。
 
-> 参考资料：
-> * Flink 官方文档（稳定版）：[https://nightlies.apache.org/flink/flink-docs-stable/](https://nightlies.apache.org/flink/flink-docs-stable/)
-> * Flink 2.2 文档：[https://nightlies.apache.org/flink/flink-docs-release-2.2/](https://nightlies.apache.org/flink/flink-docs-release-2.2/)
-> * Flink CDC 文档：[https://nightlies.apache.org/flink/flink-cdc-docs-stable/](https://nightlies.apache.org/flink/flink-cdc-docs-stable/)
-> * Flink Kubernetes Operator 文档：[https://nightlies.apache.org/flink/flink-kubernetes-operator-docs-stable/](https://nightlies.apache.org/flink/flink-kubernetes-operator-docs-stable/)
-
 ---
 
 ## 一、学习路线
@@ -63,3 +57,10 @@ Flink 是有状态的分布式流计算引擎，国内实时数仓、实时风�
 - [海量数据处理](/scenario/2_big_data)：离线与实时计算在大数据场景中的整体位置
 - [Vert.x 总览](/vertx/0_overview) / [Quarkus 总览](/quarkus/0_overview)：同属框架生态，面向在线服务而非流计算
 - [开发总结 - Flink](/interview/6_flink)：本模块高频问题的答案汇总
+
+## 参考资料
+
+- Flink 官方文档（稳定版）：[https://nightlies.apache.org/flink/flink-docs-stable/](https://nightlies.apache.org/flink/flink-docs-stable/)
+- Flink 2.2 文档：[https://nightlies.apache.org/flink/flink-docs-release-2.2/](https://nightlies.apache.org/flink/flink-docs-release-2.2/)
+- Flink CDC 文档：[https://nightlies.apache.org/flink/flink-cdc-docs-stable/](https://nightlies.apache.org/flink/flink-cdc-docs-stable/)
+- Flink Kubernetes Operator 文档：[https://nightlies.apache.org/flink/flink-kubernetes-operator-docs-stable/](https://nightlies.apache.org/flink/flink-kubernetes-operator-docs-stable/)

@@ -8,13 +8,6 @@ description: Router 与 Handler 链、请求体、参数校验、JWT 认证、�
 >
 > **前置阅读**：[Event Loop 与 Verticle](./2_core)
 
-> 参考资料：
-> * Vert.x Web：[https://vertx.io/docs/vertx-web/java/](https://vertx.io/docs/vertx-web/java/)
-> * Vert.x Web Validation：[https://vertx.io/docs/vertx-web-validation/java/](https://vertx.io/docs/vertx-web-validation/java/)
-> * Vert.x Auth JWT：[https://vertx.io/docs/vertx-auth-jwt/java/](https://vertx.io/docs/vertx-auth-jwt/java/)
-> * Vert.x Web Client：[https://vertx.io/docs/vertx-web-client/java/](https://vertx.io/docs/vertx-web-client/java/)
-> * Vert.x OpenAPI Router（Preview）：[https://vertx.io/docs/vertx-web-openapi-router/java/](https://vertx.io/docs/vertx-web-openapi-router/java/)
-
 ---
 
 ## 一、Router 与 Handler 链
@@ -411,5 +404,13 @@ public Future<?> start() {
 - `JWTAuthHandler` 认证（401）+ `AuthorizationHandler` 授权（403）；`failureHandler` 与 `errorHandler(code)` 配合统一错误响应，异步失败要显式 `ctx::fail`
 - WebClient 创建一次复用；连接池默认 5、等待队列无界，必须调整；不加 `expecting` 时 4xx / 5xx 不会失败
 - SSE 用分块响应并在 `closeHandler` 中清理资源；Vert.x 5 拆分 WebSocket 握手；OpenAPI Router 按 `operationId` 绑定，仍为 Preview
+
+## 参考资料
+
+- Vert.x Web：[https://vertx.io/docs/vertx-web/java/](https://vertx.io/docs/vertx-web/java/)
+- Vert.x Web Validation：[https://vertx.io/docs/vertx-web-validation/java/](https://vertx.io/docs/vertx-web-validation/java/)
+- Vert.x Auth JWT：[https://vertx.io/docs/vertx-auth-jwt/java/](https://vertx.io/docs/vertx-auth-jwt/java/)
+- Vert.x Web Client：[https://vertx.io/docs/vertx-web-client/java/](https://vertx.io/docs/vertx-web-client/java/)
+- Vert.x OpenAPI Router（Preview）：[https://vertx.io/docs/vertx-web-openapi-router/java/](https://vertx.io/docs/vertx-web-openapi-router/java/)
 
 > 下一篇：[响应式数据访问](./5_data) —— 用响应式 SQL、Redis 与 Kafka 客户端，让数据访问也不阻塞 Event Loop。

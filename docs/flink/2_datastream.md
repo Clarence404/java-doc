@@ -8,12 +8,6 @@ description: Source API、转换算子、ProcessFunction、定时器、侧输出
 >
 > **前置阅读**：[Flink 概览](./1_basics)
 
-> 参考资料：
-> * DataStream API 概览：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/overview/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/overview/)
-> * Kafka 连接器：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/connectors/datastream/kafka/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/connectors/datastream/kafka/)
-> * 异步 I/O：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/asyncio/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/asyncio/)
-> * 类型与序列化：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/fault-tolerance/serialization/types_serialization/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/fault-tolerance/serialization/types_serialization/)
-
 一个 DataStream 作业永远是同一个骨架：**创建环境 → 定义 Source → 一串转换 → 定义 Sink → `execute()`**。代码只是在 Client 端「描述」一张数据流图，直到 `execute()` 才真正提交运行；所以在算子函数里写的代码会被序列化后发到 TaskManager 上执行，这是很多坑的根源。
 
 ![典型 DataStream 作业拓扑](../assets/flink/flink-datastream-pipeline.svg)
@@ -510,5 +504,12 @@ public class UserAmountJob {
 - 维表关联用异步 I/O：必须用真正的异步客户端、覆盖 `timeout()` 降级、用 `capacity` 控制并发，并加本地缓存
 - 精确一次 KafkaSink 要设置 `transactionalIdPrefix` 与事务超时，下游读 `read_committed`，数据在 Checkpoint 完成后才可见
 - 用 POJO / record 做数据类型，设置 `pipeline.generic-types: false` 杜绝 Kryo 回退；Lambda 泛型用 `.returns(...)` 声明
+
+## 参考资料
+
+- DataStream API 概览：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/overview/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/overview/)
+- Kafka 连接器：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/connectors/datastream/kafka/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/connectors/datastream/kafka/)
+- 异步 I/O：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/asyncio/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/asyncio/)
+- 类型与序列化：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/fault-tolerance/serialization/types_serialization/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/fault-tolerance/serialization/types_serialization/)
 
 > 下一篇：[时间、水位线与窗口](./3_time_window) —— 事件时间与水位线如何处理乱序和迟到数据，以及各类窗口与 Join 的选择。

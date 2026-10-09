@@ -8,11 +8,6 @@ description: KRaft 架构、可靠性配置、死信与幂等消费、事务、�
 >
 > **前置阅读**：[消息队列基础](./1_basics)
 
-> 参考资料：
-> * 官方文档：[https://kafka.apache.org/documentation/](https://kafka.apache.org/documentation/)
-> * Spring for Apache Kafka：[https://spring.io/projects/spring-kafka](https://spring.io/projects/spring-kafka)
-> * Debezium：[https://debezium.io/documentation/](https://debezium.io/documentation/)
-
 Kafka 本质是一个**分布式、分区、多副本的提交日志**：消息按分区顺序追加、按 offset 读取、按保留策略删除，消费不删消息。这一点决定了它的大部分行为——高吞吐、可回放、分区内有序，以及「offset 是累计提交的」。
 
 ---
@@ -566,5 +561,11 @@ curl http://connect:8083/connectors/mysql-cdc-connector/status
 - 分区内天然串行，`concurrency` 不必为 1；乱序来自消费端异步化、关闭幂等的重试、扩分区与非阻塞重试
 - Rebalance 优化：心跳不超过会话超时的 1/3、控制单批耗时、经典协议用 Cooperative Sticky + 静态成员，4.0 起可用 KIP-848 新协议
 - 扩分区在线执行，但会改变 key 的分区映射；TLS 会让 sendfile 零拷贝失效
+
+## 参考资料
+
+- 官方文档：[https://kafka.apache.org/documentation/](https://kafka.apache.org/documentation/)
+- Spring for Apache Kafka：[https://spring.io/projects/spring-kafka](https://spring.io/projects/spring-kafka)
+- Debezium：[https://debezium.io/documentation/](https://debezium.io/documentation/)
 
 > 下一篇：[RocketMQ](./3_rocketmq) —— 事务消息、定时消息、顺序消息开箱即用，看看业务型消息队列如何设计。

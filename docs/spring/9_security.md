@@ -8,13 +8,6 @@ description: 过滤器链、Resource Server 校验 JWT、自定义 JWT 过滤器
 >
 > **前置阅读**：[MVC](./3_mvc)、[JWT 令牌机制](/security/1_jwt)
 
-> 参考资料：
-> * Spring Security Reference：[https://docs.spring.io/spring-security/reference/](https://docs.spring.io/spring-security/reference/)
-> * Servlet Architecture：[https://docs.spring.io/spring-security/reference/servlet/architecture.html](https://docs.spring.io/spring-security/reference/servlet/architecture.html)
-> * OAuth 2.0 Resource Server JWT：[https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html)
-> * Authorization Architecture：[https://docs.spring.io/spring-security/reference/servlet/authorization/architecture.html](https://docs.spring.io/spring-security/reference/servlet/authorization/architecture.html)
-> * Spring Boot Security：[https://docs.spring.io/spring-boot/reference/web/spring-security.html](https://docs.spring.io/spring-boot/reference/web/spring-security.html)
-
 本篇只讲 Spring Security 的配置与代码，版本基线为 Spring Security 7（Spring Boot 4）。JWT 结构、签名算法、续期与吊销见 [JWT 令牌机制](/security/1_jwt)；OAuth2 / OIDC 协议见 [OAuth2](/security/2_oauth2)、[OIDC](/security/3_oidc)；权限模型见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)。
 
 ---
@@ -591,5 +584,13 @@ public class DynamicAuthorizationManager implements AuthorizationManager<Request
 - 方法级权限用 `@PreAuthorize`，注意自调用失效；权限码多时用元注解模板
 - 动态 URL 权限实现 `AuthorizationManager<RequestAuthorizationContext>`，规则缓存在内存，通过 `access(...)` 接入
 - `SecurityContextHolder` 默认 ThreadLocal，异步与虚拟线程需要用 `DelegatingSecurityContext*` 包装执行器
+
+## 参考资料
+
+- Spring Security Reference：[https://docs.spring.io/spring-security/reference/](https://docs.spring.io/spring-security/reference/)
+- Servlet Architecture：[https://docs.spring.io/spring-security/reference/servlet/architecture.html](https://docs.spring.io/spring-security/reference/servlet/architecture.html)
+- OAuth 2.0 Resource Server JWT：[https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html)
+- Authorization Architecture：[https://docs.spring.io/spring-security/reference/servlet/authorization/architecture.html](https://docs.spring.io/spring-security/reference/servlet/authorization/architecture.html)
+- Spring Boot Security：[https://docs.spring.io/spring-boot/reference/web/spring-security.html](https://docs.spring.io/spring-boot/reference/web/spring-security.html)
 
 > 下一篇：[安全框架对比](./10_auth_framework) —— Spring Security、Shiro 与 Sa-Token 的取舍，以及 Sa-Token 的权限与 SSO 用法。

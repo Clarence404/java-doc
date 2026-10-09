@@ -8,11 +8,6 @@ description: Binder 抽象、函数式编程模型、StreamBridge、消费组 / 
 >
 > **前置阅读**：[消息队列基础](/messaging/1_basics)
 
-> 参考资料：
-> * Spring Cloud Stream 参考文档：[https://docs.spring.io/spring-cloud-stream/reference/](https://docs.spring.io/spring-cloud-stream/reference/)
-> * Spring Cloud Function：[https://docs.spring.io/spring-cloud-function/reference/](https://docs.spring.io/spring-cloud-function/reference/)
-> * Kafka Binder：[https://docs.spring.io/spring-cloud-stream/reference/kafka/kafka-binder/usage.html](https://docs.spring.io/spring-cloud-stream/reference/kafka/kafka-binder/usage.html)
-
 Kafka、RocketMQ、RabbitMQ 本身的原理、可靠投递与幂等消费见 [消息队列总览](/messaging/0_overview)，本篇只讲 Spring 的编程模型。
 
 ---
@@ -231,5 +226,11 @@ spring:
 - 消费 Binding 必须配置 group；分区抽象保证同一业务键有序，Kafka Binder 下交给 Kafka 原生分区
 - 重试耗尽进死信：Kafka 用 `enable-dlq`，RabbitMQ 用 `auto-bind-dlq`；消费逻辑必须幂等
 - 用得标准选 Stream，依赖 MQ 独有特性选原生客户端
+
+## 参考资料
+
+- Spring Cloud Stream 参考文档：[https://docs.spring.io/spring-cloud-stream/reference/](https://docs.spring.io/spring-cloud-stream/reference/)
+- Spring Cloud Function：[https://docs.spring.io/spring-cloud-function/reference/](https://docs.spring.io/spring-cloud-function/reference/)
+- Kafka Binder：[https://docs.spring.io/spring-cloud-stream/reference/kafka/kafka-binder/usage.html](https://docs.spring.io/spring-cloud-stream/reference/kafka/kafka-binder/usage.html)
 
 > 返回：[Spring Cloud 总览](./0_overview)

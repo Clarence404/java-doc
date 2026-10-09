@@ -8,13 +8,6 @@ description: Lombok、MapStruct、Hutool、Guava 的用法与坑点、JDK 版本
 >
 > **前置阅读**：[Lambda、Stream 与注解](./1_advanced)（注解处理器原理）
 
-> 参考资料：
-> * Lombok：[https://projectlombok.org/](https://projectlombok.org/)，变更日志 [https://projectlombok.org/changelog](https://projectlombok.org/changelog)
-> * MapStruct 参考文档：[https://mapstruct.org/documentation/stable/reference/html/](https://mapstruct.org/documentation/stable/reference/html/)
-> * MapStruct FAQ（与 Lombok 配合）：[https://mapstruct.org/faq/](https://mapstruct.org/faq/)
-> * Hutool：[https://github.com/dromara/hutool](https://github.com/dromara/hutool)
-> * Guava：[https://github.com/google/guava](https://github.com/google/guava)
-
 IDE 插件与日常软件工具见 [开发工具](/engineering/2_dev_tools)，依赖版本管理见 [依赖治理](/engineering/6_dependency_governance)。本文的版本号以撰写时（2026-10）Maven Central 的版本为例，使用时以最新发布为准。
 
 ---
@@ -345,5 +338,13 @@ limiter.acquire();
 - `BeanUtils.copyProperties` 基于反射且静默跳过类型不匹配的字段，层间映射用 MapStruct
 - 密码不能用 MD5 / SHA 存储，用 BCrypt / Argon2；日期用 `java.time` 而不是 `DateUtil`
 - Guava Cache 改用 Caffeine，EventBus 改用 Spring 事件；不可变集合、字符串拼接、溢出检查等 JDK 已内置
+
+## 参考资料
+
+- Lombok：[https://projectlombok.org/](https://projectlombok.org/)，变更日志 [https://projectlombok.org/changelog](https://projectlombok.org/changelog)
+- MapStruct 参考文档：[https://mapstruct.org/documentation/stable/reference/html/](https://mapstruct.org/documentation/stable/reference/html/)
+- MapStruct FAQ（与 Lombok 配合）：[https://mapstruct.org/faq/](https://mapstruct.org/faq/)
+- Hutool：[https://github.com/dromara/hutool](https://github.com/dromara/hutool)
+- Guava：[https://github.com/google/guava](https://github.com/google/guava)
 
 > 返回：[Java 总览](./0_overview)

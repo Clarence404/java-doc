@@ -8,12 +8,6 @@ description: AQS 结构与流程、公平 / 非公平锁、Condition、读写锁
 >
 > **前置阅读**：[synchronized](./24_topic_synchronized)、[JMM 内存模型](./22_topic_jmm)
 
-> 参考资料：
-> * AbstractQueuedSynchronizer（Java SE 25 API）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/locks/AbstractQueuedSynchronizer.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/locks/AbstractQueuedSynchronizer.html)
-> * java.util.concurrent.locks 包说明：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/locks/package-summary.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/locks/package-summary.html)
-> * Doug Lea, The java.util.concurrent Synchronizer Framework：[https://gee.cs.oswego.edu/dl/papers/aqs.pdf](https://gee.cs.oswego.edu/dl/papers/aqs.pdf)
-> * JEP 491 — Synchronize Virtual Threads without Pinning：[https://openjdk.org/jeps/491](https://openjdk.org/jeps/491)
-
 `synchronized` 是 JVM 内置的监视器锁，加解锁由字节码和运行时完成；`java.util.concurrent.locks` 里的锁则是**纯 Java 代码**，几乎全部建立在 AQS 之上。理解了 AQS，`ReentrantLock`、读写锁、`Semaphore`、`CountDownLatch` 的行为就都能推出来。`synchronized` 的对象头、锁升级与版本差异见 [synchronized](./24_topic_synchronized)，本篇不再重复。
 
 ---
@@ -410,5 +404,12 @@ AQS 的阻塞与唤醒最终都落在 `LockSupport.park()` / `unpark(thread)` �
 - 读写锁 state 高 16 位读、低 16 位写；支持写锁降级为读锁，读锁升级为写锁在单线程下就会死锁
 - `StampedLock` 乐观读要先拷贝到局部变量再 `validate`；它不可重入、不支持 `Condition`、普通 `readLock/writeLock` 不响应中断
 - 虚拟线程：JDK 21–23 用 `ReentrantLock` 规避 `synchronized` 钉住载体线程，JDK 24+（JEP 491）后两者都不会因锁阻塞而钉住
+
+## 参考资料
+
+- AbstractQueuedSynchronizer（Java SE 25 API）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/locks/AbstractQueuedSynchronizer.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/locks/AbstractQueuedSynchronizer.html)
+- java.util.concurrent.locks 包说明：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/locks/package-summary.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/locks/package-summary.html)
+- Doug Lea, The java.util.concurrent Synchronizer Framework：[https://gee.cs.oswego.edu/dl/papers/aqs.pdf](https://gee.cs.oswego.edu/dl/papers/aqs.pdf)
+- JEP 491 — Synchronize Virtual Threads without Pinning：[https://openjdk.org/jeps/491](https://openjdk.org/jeps/491)
 
 > 下一篇：[原子类（Atomic）](./26_topic_atomic) —— 不加锁也能保证单变量的原子更新：CAS、VarHandle 与 LongAdder。

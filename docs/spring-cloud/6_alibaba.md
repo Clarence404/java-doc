@@ -8,13 +8,6 @@ description: 版本对齐、Nacos 部署要点、Sentinel 资源与规则、规�
 >
 > **前置阅读**：[服务治理](./5_service_governance)
 
-> 参考资料：
-> * Spring Cloud Alibaba：[https://sca.aliyun.com/](https://sca.aliyun.com/)
-> * 版本说明：[https://sca.aliyun.com/docs/2025.x/overview/version-explain/](https://sca.aliyun.com/docs/2025.x/overview/version-explain/)
-> * Sentinel：[https://sentinelguard.io/zh-cn/docs/introduction.html](https://sentinelguard.io/zh-cn/docs/introduction.html)
-> * Apache Seata：[https://seata.apache.org/](https://seata.apache.org/)
-> * Nacos：[https://nacos.io/docs/latest/what-is-nacos/](https://nacos.io/docs/latest/what-is-nacos/)
-
 前几篇讲各项能力的抽象层与选型，本篇讲国内最常用的一套落地组合：Nacos + Sentinel + Seata。
 
 ---
@@ -423,5 +416,13 @@ TCC 的空回滚、悬挂、幂等控制与各模式的完整对比见 [分布�
 - Seata 2.x 归属 Apache，包名 `org.apache.seata`；AT 模式一阶段写 `undo_log` 并取全局锁，二阶段异步删日志或按前镜像补偿
 - AT 全局层面默认读未提交，需要时用 `SELECT ... FOR UPDATE`；绕过数据源代理的写入会导致回滚失败
 - 分布式事务能不用就不用，模式选择与理论在分布式模块
+
+## 参考资料
+
+- Spring Cloud Alibaba：[https://sca.aliyun.com/](https://sca.aliyun.com/)
+- 版本说明：[https://sca.aliyun.com/docs/2025.x/overview/version-explain/](https://sca.aliyun.com/docs/2025.x/overview/version-explain/)
+- Sentinel：[https://sentinelguard.io/zh-cn/docs/introduction.html](https://sentinelguard.io/zh-cn/docs/introduction.html)
+- Apache Seata：[https://seata.apache.org/](https://seata.apache.org/)
+- Nacos：[https://nacos.io/docs/latest/what-is-nacos/](https://nacos.io/docs/latest/what-is-nacos/)
 
 > 下一篇：[Spring Cloud Stream](./7_stream) —— 用 Binder 抽象屏蔽具体 MQ，函数式模型下的消费组、分区与死信。

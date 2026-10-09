@@ -8,13 +8,6 @@ description: 类演进兼容规则、Externalizable、record、反序列化过�
 >
 > **前置阅读**：[IO 与 NIO](./18_topic_io)
 
-> 参考资料：
-> * Java 对象序列化规范（JDK 21）：[https://docs.oracle.com/en/java/javase/21/docs/specs/serialization/](https://docs.oracle.com/en/java/javase/21/docs/specs/serialization/)
-> * JEP 290 反序列化过滤：[https://openjdk.org/jeps/290](https://openjdk.org/jeps/290)
-> * JEP 415 上下文相关的反序列化过滤器：[https://openjdk.org/jeps/415](https://openjdk.org/jeps/415)
-> * Jackson 3.0 发布说明：[https://github.com/FasterXML/jackson/wiki/Jackson-Release-3.0](https://github.com/FasterXML/jackson/wiki/Jackson-Release-3.0)
-> * Dubbo 序列化文档：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/serialization/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/serialization/)
-
 序列化把对象变成字节，用于网络传输（RPC、MQ）、持久化（缓存、文件）和进程间传递。选型时看四件事：**体积与速度、跨语言、类演进兼容、安全**。Java 原生序列化在这四项上都不占优，JDK 团队自己也把它视为遗留机制，新代码应优先用 JSON 或 Protobuf；但它仍出现在 RMI、Session 复制、部分缓存客户端中，规则必须清楚。
 
 ---
@@ -302,5 +295,13 @@ try (ObjectInputStream in = new ObjectInputStream(input)) {
 - 原生反序列化不可信数据是 RCE 入口，用 `jdk.serialFilter` 白名单（JDK 9 / 8u121），JDK 17 起可用过滤器工厂按上下文配置
 - 框架选型：对外 JSON，跨语言 RPC 用 Protobuf，Java 内部高性能用 Kryo（注意注册与线程安全）；Dubbo 默认序列化在 3.2 是 fastjson2，3.3 起回到 hessian2
 - Spring Boot 4 默认 Jackson 3：包名改为 `tools.jackson`，`java.time` 内置，日期默认输出字符串，异常变为非受检
+
+## 参考资料
+
+- Java 对象序列化规范（JDK 21）：[https://docs.oracle.com/en/java/javase/21/docs/specs/serialization/](https://docs.oracle.com/en/java/javase/21/docs/specs/serialization/)
+- JEP 290 反序列化过滤：[https://openjdk.org/jeps/290](https://openjdk.org/jeps/290)
+- JEP 415 上下文相关的反序列化过滤器：[https://openjdk.org/jeps/415](https://openjdk.org/jeps/415)
+- Jackson 3.0 发布说明：[https://github.com/FasterXML/jackson/wiki/Jackson-Release-3.0](https://github.com/FasterXML/jackson/wiki/Jackson-Release-3.0)
+- Dubbo 序列化文档：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/serialization/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/serialization/)
 
 > 下一篇：[SPI 机制](./20_topic_spi) —— 框架如何在运行时发现第三方实现：ServiceLoader、Dubbo 扩展点与 Spring Boot 自动配置。

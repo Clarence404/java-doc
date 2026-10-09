@@ -8,11 +8,6 @@ description: 回调线程与默认执行器、任务组合、异常传播、join
 >
 > **前置阅读**：[线程基础](./23_topic_thread_basics)、[线程池](./28_topic_thread_pool)
 
-> 参考资料：
-> * JDK 25 API：[CompletableFuture](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CompletableFuture.html)、[CompletionStage](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CompletionStage.html)
-> * JEP 266（JDK 9 新增超时与延迟执行器等 API）：[https://openjdk.org/jeps/266](https://openjdk.org/jeps/266)
-> * [捡田螺的小男孩 - 实现异步的 9 种方式](https://mp.weixin.qq.com/s/eTQwT-zFgHgNVJ_nNAZidw)
-
 `Future` 只能阻塞 `get()`，不能在完成时触发后续动作，也不能组合多个结果。`CompletableFuture`（JDK 8）同时实现了 `Future` 和 `CompletionStage`：既是一个可以被**手动完成**的结果容器，又能在完成时**触发回调链**。后面所有规则都从这两个身份推出来。
 
 ---
@@ -388,5 +383,11 @@ try (ExecutorService vt = Executors.newVirtualThreadPerTaskExecutor()) {
 - `orTimeout` / `completeOnTimeout` 只完成 Future，`cancel(true)` 不中断线程；真正止损靠客户端超时
 - MDC / ThreadLocal 通过包装执行器传递，执行后恢复原上下文
 - JDK 21+ 的请求内并行可以用虚拟线程 + 阻塞写法，回调式 API 仍适合 `CompletableFuture`
+
+## 参考资料
+
+- JDK 25 API：[CompletableFuture](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CompletableFuture.html)、[CompletionStage](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CompletionStage.html)
+- JEP 266（JDK 9 新增超时与延迟执行器等 API）：[https://openjdk.org/jeps/266](https://openjdk.org/jeps/266)
+- [捡田螺的小男孩 - 实现异步的 9 种方式](https://mp.weixin.qq.com/s/eTQwT-zFgHgNVJ_nNAZidw)
 
 > 下一篇：[虚拟线程](./30_topic_virtual_thread) —— JDK 21 的轻量线程：挂载与卸载、钉住问题的版本演进、ScopedValue 与结构化并发。

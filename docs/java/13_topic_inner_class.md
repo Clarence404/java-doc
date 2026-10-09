@@ -8,12 +8,6 @@ description: 静态嵌套类与内部类、JDK 16 放宽、嵌套访问控制、
 >
 > **前置阅读**：[枚举](./12_topic_enum)
 
-> 参考资料：
-> * JLS §8.1.3 Inner Classes and Enclosing Instances：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.1.3](https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.1.3)
-> * JEP 181 Nest-Based Access Control：[https://openjdk.org/jeps/181](https://openjdk.org/jeps/181)
-> * JEP 395 Records（含内部类静态成员放宽）：[https://openjdk.org/jeps/395](https://openjdk.org/jeps/395)
-> * JDK-8271623 Omit enclosing instance fields from inner classes that don't use it：[https://bugs.openjdk.org/browse/JDK-8271623](https://bugs.openjdk.org/browse/JDK-8271623)
-
 本文以 JDK 21 / 25 为基线，与 JDK 8 / 17 不同之处单独标注。
 
 ---
@@ -314,5 +308,12 @@ scheduler.schedule(() -> auditOrder(orderId), 30, TimeUnit.MINUTES);
 - JDK 11 起嵌套访问控制取代了 `access$000` 桥接方法，巢内成员直接互访 private 成员
 - Lambda 不是匿名类的语法糖：`this` 指向外围实例，只在用到时捕获外部实例，运行时生成隐藏类
 - 服务端泄漏来自「长生命周期容器引用了捕获大对象的回调」：注册与注销成对出现、只捕获需要的数据、避免双括号初始化；弱引用不是通用解法
+
+## 参考资料
+
+- JLS §8.1.3 Inner Classes and Enclosing Instances：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.1.3](https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.1.3)
+- JEP 181 Nest-Based Access Control：[https://openjdk.org/jeps/181](https://openjdk.org/jeps/181)
+- JEP 395 Records（含内部类静态成员放宽）：[https://openjdk.org/jeps/395](https://openjdk.org/jeps/395)
+- JDK-8271623 Omit enclosing instance fields from inner classes that don't use it：[https://bugs.openjdk.org/browse/JDK-8271623](https://bugs.openjdk.org/browse/JDK-8271623)
 
 > 下一篇：[泛型](./14_topic_generics) —— 类型擦除、通配符与 PECS，以及擦除带来的各种限制。

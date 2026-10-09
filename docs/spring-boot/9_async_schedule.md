@@ -8,12 +8,6 @@ description: "@Async 执行器与异常、@Scheduled 线程与 Cron、ShedLock /
 >
 > **前置阅读**：[线程池](/java/28_topic_thread_pool)
 
-> 参考资料：
-> * Spring Boot Task Execution and Scheduling：[https://docs.spring.io/spring-boot/reference/features/task-execution-and-scheduling.html](https://docs.spring.io/spring-boot/reference/features/task-execution-and-scheduling.html)
-> * Spring Framework Task Execution and Scheduling：[https://docs.spring.io/spring-framework/reference/integration/scheduling.html](https://docs.spring.io/spring-framework/reference/integration/scheduling.html)
-> * ShedLock：[https://github.com/lukas-krecan/ShedLock](https://github.com/lukas-krecan/ShedLock)
-> * XXL-JOB：[https://www.xuxueli.com/xxl-job/](https://www.xuxueli.com/xxl-job/)
-
 本篇以 Spring Boot 4.x 为基线，执行器相关行为在 3.5 已基本定型，3.x 的差异在正文中标出。
 
 ---
@@ -514,5 +508,12 @@ spring:
 - `@Scheduled` 默认只有 1 个调度线程，用 `spring.task.scheduling.pool.size` 调大，长任务交给业务线程池；cron 是 6 段，记得写 `zone`
 - 多实例「只跑一次」用 ShedLock；需要管理台、分片、重试用 XXL-JOB 等平台，`xxl-job-core` 需要手动声明 `XxlJobSpringExecutor`
 - 虚拟线程开关只影响 Boot 自动配置的组件；对下游的并发上限改用 `@ConcurrencyLimit`、`Semaphore` 或连接池，JDK 25 是推荐的生产基线
+
+## 参考资料
+
+- Spring Boot Task Execution and Scheduling：[https://docs.spring.io/spring-boot/reference/features/task-execution-and-scheduling.html](https://docs.spring.io/spring-boot/reference/features/task-execution-and-scheduling.html)
+- Spring Framework Task Execution and Scheduling：[https://docs.spring.io/spring-framework/reference/integration/scheduling.html](https://docs.spring.io/spring-framework/reference/integration/scheduling.html)
+- ShedLock：[https://github.com/lukas-krecan/ShedLock](https://github.com/lukas-krecan/ShedLock)
+- XXL-JOB：[https://www.xuxueli.com/xxl-job/](https://www.xuxueli.com/xxl-job/)
 
 > 下一篇：[接口文档](./10_api_doc) —— 用 springdoc-openapi 从代码生成 OpenAPI 文档，并控制好分组、鉴权与生产环境开关。

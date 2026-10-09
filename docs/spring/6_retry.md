@@ -8,12 +8,6 @@ description: 核心 @Retryable、退避与抖动、@ConcurrencyLimit、RetryTemp
 >
 > **前置阅读**：[AOP](./2_aop)
 
-> 参考资料：
-> * Spring Framework Resilience Features：[https://docs.spring.io/spring-framework/reference/core/resilience.html](https://docs.spring.io/spring-framework/reference/core/resilience.html)
-> * `@Retryable` Javadoc：[https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/resilience/annotation/Retryable.html](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/resilience/annotation/Retryable.html)
-> * Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
-> * Spring Retry（已归档）：[https://github.com/spring-projects/spring-retry](https://github.com/spring-projects/spring-retry)
-
 本篇只讲 Spring 中**怎么写**重试。哪些错误该重试、指数退避与抖动的原理、重试放大与重试预算见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)；熔断见 [熔断](/high-avail/5_circuit_breaking)。
 
 ---
@@ -394,5 +388,12 @@ public class RemoteService {
 - `@ConcurrencyLimit` 是单实例并发闸门，特别适合给虚拟线程下的下游调用限流
 - 重试要包住事务、只重试幂等操作与瞬时错误、只在一层重试；持续故障交给熔断
 - Spring Retry 已归档：`maxAttempts` 含首次调用，`random` 抖动需配合 `multiplier` 或 `maxDelay`，`@CircuitBreaker` 的 `openTimeout` 是统计窗口、`resetTimeout` 是打开时长
+
+## 参考资料
+
+- Spring Framework Resilience Features：[https://docs.spring.io/spring-framework/reference/core/resilience.html](https://docs.spring.io/spring-framework/reference/core/resilience.html)
+- `@Retryable` Javadoc：[https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/resilience/annotation/Retryable.html](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/resilience/annotation/Retryable.html)
+- Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
+- Spring Retry（已归档）：[https://github.com/spring-projects/spring-retry](https://github.com/spring-projects/spring-retry)
 
 > 下一篇：[事件机制](./7_event) —— 用事件把业务主流程与后续动作解耦，并理解事务事件的执行时机与可靠性边界。

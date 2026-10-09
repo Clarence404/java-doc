@@ -8,15 +8,6 @@ description: 2.x / 3.x / 4.x 基线对照、各版本核心特性、支持周期
 >
 > **前置阅读**：[启动流程与自动配置](./1_spring_boot)
 
-> 参考资料：
-> * Spring Boot 4.0 Release Notes：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Release-Notes](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Release-Notes)
-> * Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
-> * Spring Boot 3.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide)
-> * Spring Framework 7.0 Release Notes：[https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-7.0-Release-Notes](https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-7.0-Release-Notes)
-> * Spring Framework 6.0 Release Notes：[https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-6.0-Release-Notes](https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-6.0-Release-Notes)
-> * 支持周期：[https://spring.io/projects/spring-boot#support](https://spring.io/projects/spring-boot#support)
-> * OpenRewrite Spring 配方：[https://docs.openrewrite.org/recipes/java/spring](https://docs.openrewrite.org/recipes/java/spring)
-
 Spring Boot 的大版本总是跟着 Spring Framework 的大版本走：Boot 2.x 对应 Framework 5.x，Boot 3.x 对应 6.x，Boot 4.x 对应 7.x。每次大版本升级的核心都是**基线抬升**（Java、Jakarta EE、Servlet、Hibernate、Jackson），新特性反而是次要的——基线决定了你的依赖能不能编译、能不能启动。JDK 本身的版本特性见 [Java 版本演进](/java/2_version)。
 
 ---
@@ -450,5 +441,15 @@ public UrlHandlerFilter urlHandlerFilter() {
 - 4.0：Java 17 起步（推荐 25）、Jakarta EE 11 / Servlet 6.1、模块化 starter 与改名、Jackson 3（`tools.jackson`）、JSpecify、API 版本控制、`@ImportHttpServices`、`@Retryable` / `@ConcurrencyLimit` 进入核心框架；Undertow、`@MockBean`、尾斜杠匹配被删除
 - 截至 2026-10，2.x 与 3.x 的 OSS 支持已全部结束；新项目用 4.x
 - 升级路线 2.7 → 3.5 → 4.x 不跳级，每步先清废弃警告，借助 properties-migrator 与 OpenRewrite，自动化改完必须靠测试与灰度兜底
+
+## 参考资料
+
+- Spring Boot 4.0 Release Notes：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Release-Notes](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Release-Notes)
+- Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
+- Spring Boot 3.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Migration-Guide)
+- Spring Framework 7.0 Release Notes：[https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-7.0-Release-Notes](https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-7.0-Release-Notes)
+- Spring Framework 6.0 Release Notes：[https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-6.0-Release-Notes](https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-6.0-Release-Notes)
+- 支持周期：[https://spring.io/projects/spring-boot#support](https://spring.io/projects/spring-boot#support)
+- OpenRewrite Spring 配方：[https://docs.openrewrite.org/recipes/java/spring](https://docs.openrewrite.org/recipes/java/spring)
 
 > 下一篇：[日志](./12_logging) —— 从日志门面到结构化日志，看看 Spring Boot 应用的日志该怎么配、怎么采集。

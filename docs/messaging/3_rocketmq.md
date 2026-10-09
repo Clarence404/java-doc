@@ -8,11 +8,6 @@ description: 4.x 与 5.x 差异、架构、存储结构、高可用、消息类�
 >
 > **前置阅读**：[消息队列基础](./1_basics)
 
-> 参考资料：
-> * 官方文档：[https://rocketmq.apache.org/docs/](https://rocketmq.apache.org/docs/)
-> * rocketmq-spring：[https://github.com/apache/rocketmq-spring](https://github.com/apache/rocketmq-spring)
-> * rocketmq-clients（5.x 新 SDK）：[https://github.com/apache/rocketmq-clients](https://github.com/apache/rocketmq-clients)
-
 RocketMQ 诞生于阿里交易场景，强项是**业务消息**：事务消息、延迟消息、顺序消息、消息轨迹与按 Key 查询都是开箱即用。和 [Kafka](./2_kafka) 相比，它的吞吐稍逊，但在「订单、支付、库存」这类对可靠性和业务语义要求高的场景更顺手。
 
 ---
@@ -419,5 +414,11 @@ public class OrderPointsDlqHandler implements RocketMQListener<MessageExt> {
 - 事务消息 = 半消息 + 本地事务 + 回查；回查结果不确定时必须返回 `UNKNOWN`，`txId` 与业务数据同事务落库
 - 并发消费重试 16 次后进 `%DLQ%{group}`；顺序消费本地挂起重试、整队列阻塞，务必设上限；广播消费不重试
 - 幂等用 `MessageExt` 取业务键，去重记录与业务写入放在同一个本地事务
+
+## 参考资料
+
+- 官方文档：[https://rocketmq.apache.org/docs/](https://rocketmq.apache.org/docs/)
+- rocketmq-spring：[https://github.com/apache/rocketmq-spring](https://github.com/apache/rocketmq-spring)
+- rocketmq-clients（5.x 新 SDK）：[https://github.com/apache/rocketmq-clients](https://github.com/apache/rocketmq-clients)
 
 > 下一篇：[RabbitMQ](./4_rabbitmq) —— 从 Exchange 路由模型到仲裁队列，看另一种以灵活路由见长的 MQ。

@@ -8,13 +8,6 @@ description: 调用流程、Boot 3.5 接入、Triple 协议、负载均衡与容
 >
 > **前置阅读**：[远程调用协议](/protocols/3_rpc_protocols)、[服务通信](/spring-cloud/3_communication)
 
-> 参考资料：
-> * Dubbo 官方文档：[https://cn.dubbo.apache.org/zh-cn/overview/home/](https://cn.dubbo.apache.org/zh-cn/overview/home/)
-> * Triple 3.3 新特性：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/protocol/triple-3.3/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/protocol/triple-3.3/)
-> * Dubbo SPI 扩展：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/spi/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/spi/)
-> * 序列化类检查：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/tasks/security/class-check/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/tasks/security/class-check/)
-> * GitHub Releases：[https://github.com/apache/dubbo/releases](https://github.com/apache/dubbo/releases)
-
 版本基线：**Dubbo 3.3.x**（本文写作时 3.3 线最新为 3.3.6），**基于 Spring Boot 3.5，Boot 4 适配以官方发布为准**。Dubbo 的 Spring Boot Starter 目前面向 Boot 3.x，本站其他模块以 Boot 4 为基线，引入 Dubbo 的服务需要停留在 Boot 3.5，升级前先确认官方发布说明。
 
 ---
@@ -431,5 +424,13 @@ Spring Cloud OpenFeign 已进入功能完备状态，只做维护；Spring 生�
 - Triple 是 Dubbo 3 推荐协议：与 gRPC 互通，3.3 起支持 HTTP/1.1、HTTP/2、HTTP/3 与 REST 访问
 - 默认 `failover` 会重试，写接口必须改 `failfast` 或保证幂等
 - Dubbo SPI 在原生 SPI 基础上增加按名获取、依赖注入、Wrapper、`@Adaptive` 与 `@Activate`，自定义负载均衡、过滤器都通过它接入
+
+## 参考资料
+
+- Dubbo 官方文档：[https://cn.dubbo.apache.org/zh-cn/overview/home/](https://cn.dubbo.apache.org/zh-cn/overview/home/)
+- Triple 3.3 新特性：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/protocol/triple-3.3/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/protocol/triple-3.3/)
+- Dubbo SPI 扩展：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/spi/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/spi/)
+- 序列化类检查：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/tasks/security/class-check/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/tasks/security/class-check/)
+- GitHub Releases：[https://github.com/apache/dubbo/releases](https://github.com/apache/dubbo/releases)
 
 > 返回：[微服务总览](./0_overview)

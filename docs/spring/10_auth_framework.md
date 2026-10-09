@@ -8,12 +8,6 @@ description: Security / Sa-Token / Shiro 对比、Sa-Token 鉴权与封禁、Shi
 >
 > **前置阅读**：[Spring Security](./9_security)
 
-> 参考资料：
-> * Sa-Token 官方文档：[https://sa-token.com/doc.html](https://sa-token.com/doc.html)
-> * Apache Shiro：[https://shiro.apache.org/documentation.html](https://shiro.apache.org/documentation.html)
-> * Apache Shiro 3.0.0 发布说明：[https://shiro.apache.org/blog/2026/06/apache-shiro-300-released.html](https://shiro.apache.org/blog/2026/06/apache-shiro-300-released.html)
-> * Spring Security：[https://docs.spring.io/spring-security/reference/](https://docs.spring.io/spring-security/reference/)
-
 本篇只讲框架选型与 API 用法。权限模型（RBAC / ABAC）见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)；OAuth2 / JWT 见 [OAuth2](/security/2_oauth2) / [JWT 令牌机制](/security/1_jwt)；SSO 原理见 [单点登录](/security/4_sso)，Sa-Token SSO 的接入代码见 [Spring SSO 接入](./11_single_sign_on)。
 
 ---
@@ -404,5 +398,12 @@ public class ShiroConfig {
 - 封禁不等于踢下线，封禁后要 `kickout`；WebFlux 用 reactor starter + `SaReactorFilter`
 - Shiro 接入只需声明 `Realm` 与 `ShiroFilterChainDefinition`，密码比对交给 `CredentialsMatcher`
 - 一个应用只用一个安全框架；Shiro 迁移 Spring Security 按「Realm → UserDetailsService / AuthorizationManager」映射，密码用 `DelegatingPasswordEncoder` 平滑过渡
+
+## 参考资料
+
+- Sa-Token 官方文档：[https://sa-token.com/doc.html](https://sa-token.com/doc.html)
+- Apache Shiro：[https://shiro.apache.org/documentation.html](https://shiro.apache.org/documentation.html)
+- Apache Shiro 3.0.0 发布说明：[https://shiro.apache.org/blog/2026/06/apache-shiro-300-released.html](https://shiro.apache.org/blog/2026/06/apache-shiro-300-released.html)
+- Spring Security：[https://docs.spring.io/spring-security/reference/](https://docs.spring.io/spring-security/reference/)
 
 > 下一篇：[Spring SSO 接入](./11_single_sign_on) —— LDAP、CAS、SAML2、OIDC、Keycloak 与自建授权服务器的 Spring 接入配置。

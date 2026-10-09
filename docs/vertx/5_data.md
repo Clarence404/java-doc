@@ -8,13 +8,6 @@ description: Pool API、查询与批量、事务、连接池与流水线、Redis
 >
 > **前置阅读**：[Event Loop 与 Verticle](./2_core)、[池化技术](/high-perf/7_pooling)
 
-> 参考资料：
-> * Reactive PostgreSQL Client：[https://vertx.io/docs/vertx-pg-client/java/](https://vertx.io/docs/vertx-pg-client/java/)
-> * Reactive MySQL Client：[https://vertx.io/docs/vertx-mysql-client/java/](https://vertx.io/docs/vertx-mysql-client/java/)
-> * `PoolOptions` API：[https://vertx.io/docs/apidocs/io/vertx/sqlclient/PoolOptions.html](https://vertx.io/docs/apidocs/io/vertx/sqlclient/PoolOptions.html)
-> * Vert.x Redis Client：[https://vertx.io/docs/vertx-redis-client/java/](https://vertx.io/docs/vertx-redis-client/java/)
-> * Vert.x Kafka Client：[https://vertx.io/docs/vertx-kafka-client/java/](https://vertx.io/docs/vertx-kafka-client/java/)
-
 ---
 
 ## 一、为什么需要响应式客户端
@@ -371,5 +364,13 @@ Vert.x 5 中旧版 JDBC API 已进入日落状态（5.x 可用、6.x 移除）�
 - Redis 客户端支持四种部署模式，Vert.x 5 订阅需显式注册 `EventBusHandler`；订阅连接独占
 - Kafka 消费关闭自动提交、处理成功再提交，得到至少一次语义；生产者用 `createShared` 复用
 - 必须用 JDBC 时用 `JDBCPool`、虚拟线程或命名 Worker 池，绝不放在 Event Loop
+
+## 参考资料
+
+- Reactive PostgreSQL Client：[https://vertx.io/docs/vertx-pg-client/java/](https://vertx.io/docs/vertx-pg-client/java/)
+- Reactive MySQL Client：[https://vertx.io/docs/vertx-mysql-client/java/](https://vertx.io/docs/vertx-mysql-client/java/)
+- `PoolOptions` API：[https://vertx.io/docs/apidocs/io/vertx/sqlclient/PoolOptions.html](https://vertx.io/docs/apidocs/io/vertx/sqlclient/PoolOptions.html)
+- Vert.x Redis Client：[https://vertx.io/docs/vertx-redis-client/java/](https://vertx.io/docs/vertx-redis-client/java/)
+- Vert.x Kafka Client：[https://vertx.io/docs/vertx-kafka-client/java/](https://vertx.io/docs/vertx-kafka-client/java/)
 
 > 下一篇：[集群与生产实践](./6_production) —— 集群、配置、指标、链路、测试、打包与调优，把 Vert.x 服务稳定地跑在生产环境。

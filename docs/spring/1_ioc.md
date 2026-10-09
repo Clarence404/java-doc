@@ -8,12 +8,6 @@ description: refresh 流程、依赖注入与类型转换、Bean 定义来源、
 >
 > **前置阅读**：[Spring 总览](./0_overview)、[反射](/java/15_topic_reflection)
 
-> 参考资料：
-> * Spring Framework 参考文档 - IoC 容器：[https://docs.spring.io/spring-framework/reference/core/beans.html](https://docs.spring.io/spring-framework/reference/core/beans.html)
-> * 作用域：[https://docs.spring.io/spring-framework/reference/core/beans/factory-scopes.html](https://docs.spring.io/spring-framework/reference/core/beans/factory-scopes.html)
-> * 容器扩展点：[https://docs.spring.io/spring-framework/reference/core/beans/factory-extension.html](https://docs.spring.io/spring-framework/reference/core/beans/factory-extension.html)
-> * 基于 Java 的配置：[https://docs.spring.io/spring-framework/reference/core/beans/java.html](https://docs.spring.io/spring-framework/reference/core/beans/java.html)
-
 **IoC（控制反转）** 指对象的创建和依赖装配不再由业务代码 `new` 出来，而是交给容器；**DI（依赖注入）** 是 IoC 的实现方式：容器创建对象时把它依赖的对象注入进去。业务代码只声明「我需要什么」，由容器决定「给你哪个实现」。
 
 ---
@@ -569,5 +563,12 @@ public class DynamicDispatcher {
 - 单例依赖 prototype 用 `ObjectProvider` / `@Lookup`，依赖 request / session 作用域用作用域代理
 - 生命周期：实例化 → 属性填充 → Aware → 初始化前（含 `@PostConstruct`）→ 初始化 → 初始化后（生成 AOP 代理）→ 就绪 → 销毁
 - Boot 2.6+ 默认禁止循环依赖，首选重构，其次 `@Lazy` / `ObjectProvider`；三级缓存的意义是只在出现循环时才提前生成代理，二级缓存保证早期引用唯一
+
+## 参考资料
+
+- Spring Framework 参考文档 - IoC 容器：[https://docs.spring.io/spring-framework/reference/core/beans.html](https://docs.spring.io/spring-framework/reference/core/beans.html)
+- 作用域：[https://docs.spring.io/spring-framework/reference/core/beans/factory-scopes.html](https://docs.spring.io/spring-framework/reference/core/beans/factory-scopes.html)
+- 容器扩展点：[https://docs.spring.io/spring-framework/reference/core/beans/factory-extension.html](https://docs.spring.io/spring-framework/reference/core/beans/factory-extension.html)
+- 基于 Java 的配置：[https://docs.spring.io/spring-framework/reference/core/beans/java.html](https://docs.spring.io/spring-framework/reference/core/beans/java.html)
 
 > 下一篇：[AOP](./2_aop) —— 在 IoC 容器之上，看 Spring 如何用代理把事务、日志、权限等横切逻辑织入 Bean。

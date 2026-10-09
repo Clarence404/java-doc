@@ -8,13 +8,6 @@ description: SLF4J 门面与桥接、Boot 日志配置、结构化日志、异�
 >
 > **前置阅读**：[配置管理](./6_config)
 
-> 参考资料：
-> * Spring Boot Logging：[https://docs.spring.io/spring-boot/reference/features/logging.html](https://docs.spring.io/spring-boot/reference/features/logging.html)
-> * Spring Boot Tracing（日志关联 ID）：[https://docs.spring.io/spring-boot/reference/actuator/tracing.html](https://docs.spring.io/spring-boot/reference/actuator/tracing.html)
-> * SLF4J 手册：[https://www.slf4j.org/manual.html](https://www.slf4j.org/manual.html)
-> * Logback AsyncAppender：[https://logback.qos.ch/manual/appenders-async-sift.html](https://logback.qos.ch/manual/appenders-async-sift.html)
-> * Log4j2 异步日志：[https://logging.apache.org/log4j/2.x/manual/async.html](https://logging.apache.org/log4j/2.x/manual/async.html)
-
 本篇只讲**应用侧**：日志怎么打、怎么配、怎么输出。日志被采集之后的 Fluent Bit / Filebeat、Elasticsearch、Loki 等平台侧内容见 [可观测性](/observability/0_overview) 与 [日志体系](/observability/1_logging)。
 
 ---
@@ -429,5 +422,13 @@ Log4j2 对应属性为 `logging.log4j2.rollingpolicy.*`（`max-file-size`、`max
 - 运行时调级别用 `/actuator/loggers`，用完恢复，端点必须鉴权
 - 用占位符而非拼接，昂贵参数加级别判断，异常对象作为最后一个参数，避免重复打印与大对象日志
 - Log4Shell 说明日志框架是攻击面；密码、Token 不入日志，PII 先脱敏；容器只输出 stdout，文件部署务必设置 `total-size-cap`
+
+## 参考资料
+
+- Spring Boot Logging：[https://docs.spring.io/spring-boot/reference/features/logging.html](https://docs.spring.io/spring-boot/reference/features/logging.html)
+- Spring Boot Tracing（日志关联 ID）：[https://docs.spring.io/spring-boot/reference/actuator/tracing.html](https://docs.spring.io/spring-boot/reference/actuator/tracing.html)
+- SLF4J 手册：[https://www.slf4j.org/manual.html](https://www.slf4j.org/manual.html)
+- Logback AsyncAppender：[https://logback.qos.ch/manual/appenders-async-sift.html](https://logback.qos.ch/manual/appenders-async-sift.html)
+- Log4j2 异步日志：[https://logging.apache.org/log4j/2.x/manual/async.html](https://logging.apache.org/log4j/2.x/manual/async.html)
 
 > 下一篇：[Spring Boot 测试](./13_testing) —— 切片测试、Mock 与 Testcontainers，让 Boot 应用的每一层都能被快速、可靠地验证。

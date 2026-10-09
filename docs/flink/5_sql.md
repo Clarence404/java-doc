@@ -8,15 +8,7 @@ description: 动态表与 changelog、连接器 DDL、窗口 TVF、四种 Join�
 >
 > **前置阅读**：[时间、水位线与窗口](./3_time_window)、[状态与容错](./4_state_checkpoint)
 
-> 参考资料：
-> * Flink SQL 参考（2.3）：[https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/sql/reference/queries/overview/](https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/sql/reference/queries/overview/)
-> * 窗口 TVF：[https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/sql/reference/queries/window-tvf/](https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/sql/reference/queries/window-tvf/)
-> * Join：[https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/sql/reference/queries/joins/](https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/sql/reference/queries/joins/)
-> * SQL Hints：[https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/sql/reference/queries/hints/](https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/sql/reference/queries/hints/)
-> * Table 配置项：[https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/dev/table/config/](https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/dev/table/config/)
-> * Upsert Kafka 连接器：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/connectors/table/upsert-kafka/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/connectors/table/upsert-kafka/)
-
-**版本基线**：Flink 2.3.0 于 2026 年 6 月发布；Kafka、JDBC 等外部连接器按 Flink 小版本单独发布，截至本文 Maven Central 上最新的是 `flink-connector-kafka:5.0.0-2.2`、`flink-connector-jdbc-core:4.1.0-2.2`。生产上建议「Flink 版本跟着连接器走」——本文示例以 **Flink 2.2 + 对应连接器** 为准，SQL 语法在 2.3 上同样适用。
+版本基线同模块总览：示例以 **Flink 2.2 + 对应连接器** 为准（见 [Flink 概览](./1_basics)），SQL 语法在 2.3 上同样适用。
 
 ---
 
@@ -381,5 +373,14 @@ public class SqlOnStreamJob {
 - Top-N 与去重必须按固定模式写；保留第一条的去重最省，无排名输出优化能大幅减少写放大
 - `table.exec.state.ttl` 默认 0 即永不清理，配合 `STATE_TTL` 提示按表设置；TTL 是用正确性换资源
 - mini-batch、两阶段聚合、distinct 拆分是聚合倾斜的三件套；需要复杂逻辑时用 `toChangelogStream` 与 DataStream 混用
+
+## 参考资料
+
+- Flink SQL 参考（2.2）：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/overview/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/overview/)
+- 窗口 TVF：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/window-tvf/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/window-tvf/)
+- Join：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/joins/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/joins/)
+- SQL Hints：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/hints/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/hints/)
+- Table 配置项：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/config/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/config/)
+- Upsert Kafka 连接器：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/connectors/table/upsert-kafka/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/connectors/table/upsert-kafka/)
 
 > 下一篇：[Flink CDC](./6_cdc) —— 不锁表地全量 + 增量同步数据库，再用一份 YAML 把整库实时搬进 Doris、Paimon 或 Kafka。

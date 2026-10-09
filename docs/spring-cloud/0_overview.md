@@ -4,11 +4,6 @@ Spring Cloud 是 Spring 生态里的微服务工具集：在 Spring Boot 之上�
 
 版本基线：**Spring Cloud 2025.1.x（Oakwood，基于 Spring Boot 4 / Spring Framework 7，各子项目统一为 5.0.x；2025.1.2 起支持 Boot 4.1）+ Spring Cloud Alibaba 2025.1.0.0**。Boot 3.5 对应 Spring Cloud 2025.0（Northfields）与 SCA 2025.0.0.0，文中涉及差异处单独标出。
 
-> 参考资料：
-> * Spring Cloud：[https://spring.io/projects/spring-cloud](https://spring.io/projects/spring-cloud)
-> * Spring Cloud 2025.1（Oakwood）发布说明：[https://spring.io/blog/2025/11/25/spring-cloud-2025-1-0-aka-oakwood-has-been-released](https://spring.io/blog/2025/11/25/spring-cloud-2025-1-0-aka-oakwood-has-been-released)
-> * Spring Cloud Alibaba 版本说明：[https://sca.aliyun.com/docs/2025.x/overview/version-explain/](https://sca.aliyun.com/docs/2025.x/overview/version-explain/)
-
 ---
 
 ## 一、模块导航
@@ -82,3 +77,9 @@ Spring Cloud 是 Spring 生态里的微服务工具集：在 Spring Boot 之上�
 - [可观测性 · 链路追踪](/observability/3_tracing)：Micrometer Tracing 与 OpenTelemetry
 - [Spring Boot · 版本演进](/spring-boot/11_versions)：Boot 4 / Framework 7 的升级要点
 - [开发总结 - 微服务与 Spring Cloud](/interview/11_spring_cloud)：本模块高频问题的答案汇总
+
+## 参考资料
+
+- Spring Cloud：[https://spring.io/projects/spring-cloud](https://spring.io/projects/spring-cloud)
+- Spring Cloud 2025.1（Oakwood）发布说明：[https://spring.io/blog/2025/11/25/spring-cloud-2025-1-0-aka-oakwood-has-been-released](https://spring.io/blog/2025/11/25/spring-cloud-2025-1-0-aka-oakwood-has-been-released)
+- Spring Cloud Alibaba 版本说明：[https://sca.aliyun.com/docs/2025.x/overview/version-explain/](https://sca.aliyun.com/docs/2025.x/overview/version-explain/)

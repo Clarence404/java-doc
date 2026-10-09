@@ -8,14 +8,6 @@ description: Mono/Flux、执行模型与冷热流、线程调度、背压、Cont
 >
 > **前置阅读**：[MVC](./3_mvc)、[Reactor 模型](/netty/2_reactor)
 
-> 参考资料：
-> * 官方文档：[https://docs.spring.io/spring-framework/reference/web/webflux.html](https://docs.spring.io/spring-framework/reference/web/webflux.html)
-> * Project Reactor：[https://projectreactor.io/docs/core/release/reference/](https://projectreactor.io/docs/core/release/reference/)
-> * Reactor 调度器：[https://projectreactor.io/docs/core/release/reference/coreFeatures/schedulers.html](https://projectreactor.io/docs/core/release/reference/coreFeatures/schedulers.html)
-> * Reactor 上下文传播：[https://projectreactor.io/docs/core/release/reference/advanced-contextPropagation.html](https://projectreactor.io/docs/core/release/reference/advanced-contextPropagation.html)
-> * BlockHound：[https://github.com/reactor/BlockHound](https://github.com/reactor/BlockHound)
-> * R2DBC 规范：[https://r2dbc.io/spec/1.0.0.RELEASE/spec/html/](https://r2dbc.io/spec/1.0.0.RELEASE/spec/html/)
-
 版本基线：Spring Boot 4.x / Spring Framework 7.x（Boot 4.0 依赖 Reactor 2025.0，即 reactor-core 3.8.x），Java 21 / 25。与版本相关的特性在文中单独标注。
 
 ---
@@ -867,5 +859,14 @@ void delayedWithVirtualTime() {
 - ThreadLocal 在响应式链路中不可靠，用 Reactor Context；Boot 3.2+ 设置 `spring.reactor.context-propagation=auto` 让 traceId 等自动恢复到 MDC
 - 重试会重新订阅上游，只用于幂等操作；`WebClient` 的连接异常是 `WebClientRequestException` 而不是 `IOException`
 - 调试优先用 `checkpoint` 与 reactor-tools，`Hooks.onOperatorDebug` 仅限本地；测试用 `StepVerifier` 与虚拟时间
+
+## 参考资料
+
+- 官方文档：[https://docs.spring.io/spring-framework/reference/web/webflux.html](https://docs.spring.io/spring-framework/reference/web/webflux.html)
+- Project Reactor：[https://projectreactor.io/docs/core/release/reference/](https://projectreactor.io/docs/core/release/reference/)
+- Reactor 调度器：[https://projectreactor.io/docs/core/release/reference/coreFeatures/schedulers.html](https://projectreactor.io/docs/core/release/reference/coreFeatures/schedulers.html)
+- Reactor 上下文传播：[https://projectreactor.io/docs/core/release/reference/advanced-contextPropagation.html](https://projectreactor.io/docs/core/release/reference/advanced-contextPropagation.html)
+- BlockHound：[https://github.com/reactor/BlockHound](https://github.com/reactor/BlockHound)
+- R2DBC 规范：[https://r2dbc.io/spec/1.0.0.RELEASE/spec/html/](https://r2dbc.io/spec/1.0.0.RELEASE/spec/html/)
 
 > 下一篇：[Spring Security](./9_security) —— 认证、授权与过滤器链，WebFlux 下同样基于响应式 Security 链路实现。

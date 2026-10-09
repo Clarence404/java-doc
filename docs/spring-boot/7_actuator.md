@@ -8,12 +8,6 @@ description: 端点暴露与访问控制、健康检查、存活 / 就绪探针�
 >
 > **前置阅读**：[配置管理](./6_config)
 
-> 参考资料：
-> * Spring Boot Actuator：[https://docs.spring.io/spring-boot/reference/actuator/index.html](https://docs.spring.io/spring-boot/reference/actuator/index.html)
-> * Actuator Endpoints：[https://docs.spring.io/spring-boot/reference/actuator/endpoints.html](https://docs.spring.io/spring-boot/reference/actuator/endpoints.html)
-> * Actuator Metrics：[https://docs.spring.io/spring-boot/reference/actuator/metrics.html](https://docs.spring.io/spring-boot/reference/actuator/metrics.html)
-> * Micrometer：[https://docs.micrometer.io/micrometer/reference/](https://docs.micrometer.io/micrometer/reference/)
-
 本篇以 Spring Boot 4.x 为基线，3.x 的差异在对应位置标出。指标与链路在平台侧的采集、存储与告警见 [指标监控](/observability/2_metrics) 与 [链路追踪](/observability/3_tracing)，本篇只讲应用侧。
 
 ---
@@ -473,5 +467,12 @@ Boot 3.x 中 `EndpointRequest` 位于 `org.springframework.boot.actuate.autoconf
 - 自定义端点 id 用小写，可选参数用 JSpecify 的 `@Nullable`，写操作需要 `unrestricted`
 - 业务指标：注入 `MeterRegistry`、构造器创建 Meter、同名同键、标签低基数；Observation 一次埋点产出指标与 Span
 - Prometheus 开关是 `management.prometheus.metrics.export.enabled`；管理端点走独立端口并用 `EndpointRequest` 鉴权
+
+## 参考资料
+
+- Spring Boot Actuator：[https://docs.spring.io/spring-boot/reference/actuator/index.html](https://docs.spring.io/spring-boot/reference/actuator/index.html)
+- Actuator Endpoints：[https://docs.spring.io/spring-boot/reference/actuator/endpoints.html](https://docs.spring.io/spring-boot/reference/actuator/endpoints.html)
+- Actuator Metrics：[https://docs.spring.io/spring-boot/reference/actuator/metrics.html](https://docs.spring.io/spring-boot/reference/actuator/metrics.html)
+- Micrometer：[https://docs.micrometer.io/micrometer/reference/](https://docs.micrometer.io/micrometer/reference/)
 
 > 下一篇：[自定义 Starter](./8_custom_starter) —— 把通用能力封装成可插拔的自动配置，理解 Boot 是如何装配那上百个组件的。

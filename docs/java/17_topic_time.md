@@ -8,12 +8,6 @@ description: Date 痛点、类型模型、时区与夏令时、格式化、JDBC 
 >
 > **前置阅读**：[动态代理](./16_topic_proxy)
 
-> 参考资料：
-> * `java.time` 包文档（JDK 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/package-summary.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/package-summary.html)
-> * Java Tutorials - Date Time（含遗留代码互操作）：[https://docs.oracle.com/javase/tutorial/datetime/](https://docs.oracle.com/javase/tutorial/datetime/)
-> * IANA Time Zone Database：[https://www.iana.org/time-zones](https://www.iana.org/time-zones)
-> * MySQL 日期时间类型：[https://dev.mysql.com/doc/refman/8.4/en/datetime.html](https://dev.mysql.com/doc/refman/8.4/en/datetime.html)
-
 Java 8 引入的 `java.time`（JSR 310）用一组**不可变、线程安全、语义明确**的类型取代了 `java.util.Date` 和 `Calendar`。真正难的不是 API，而是想清楚每个值表达的是什么：是时间线上的一个时刻，还是某地墙上挂钟显示的时间。
 
 ---
@@ -313,5 +307,12 @@ Jackson 3（Spring Boot 4 默认使用）把 java.time 支持内置进了 databi
 - 不依赖 JVM 默认时区，注入 `Clock` 提升可测试性；测耗时用 `System.nanoTime()`
 - JDBC 4.2 直接支持 java.time；MySQL `TIMESTAMP` 有 2038 上限，驱动要显式配置连接时区；Jackson 2 需要 `JavaTimeModule`，Jackson 3 已内置
 - 过去的事件存 UTC 时刻，未来的本地事件存 `LocalDateTime` + IANA 时区，纯日期存 `LocalDate`
+
+## 参考资料
+
+- `java.time` 包文档（JDK 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/package-summary.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/package-summary.html)
+- Java Tutorials - Date Time（含遗留代码互操作）：[https://docs.oracle.com/javase/tutorial/datetime/](https://docs.oracle.com/javase/tutorial/datetime/)
+- IANA Time Zone Database：[https://www.iana.org/time-zones](https://www.iana.org/time-zones)
+- MySQL 日期时间类型：[https://dev.mysql.com/doc/refman/8.4/en/datetime.html](https://dev.mysql.com/doc/refman/8.4/en/datetime.html)
 
 > 下一篇：[IO 与 NIO](./18_topic_io) —— 从时间 API 转到 IO：流的分类、NIO 的 Buffer / Channel / Selector，以及零拷贝。

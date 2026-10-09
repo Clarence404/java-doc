@@ -4,11 +4,6 @@ Spring Framework 是 Java 后端的基础框架：IoC 容器负责创建与装�
 
 版本基线：**Spring Framework 7.x / Spring Boot 4.x / Spring Security 7 / JDK 17+（推荐 21 / 25）**，与 Framework 6.x / Boot 3.x 行为不同的地方在文中单独标出。
 
-> 参考资料：
-> * Spring Framework 参考文档：[https://docs.spring.io/spring-framework/reference/](https://docs.spring.io/spring-framework/reference/)
-> * Spring Framework 项目页：[https://spring.io/projects/spring-framework](https://spring.io/projects/spring-framework)
-> * 各项目版本亮点：[https://spring.io/projects/release-highlights/](https://spring.io/projects/release-highlights/)
-
 ---
 
 ## 一、模块导航
@@ -93,3 +88,9 @@ Spring Boot 不是 Framework 的替代品：它在 Framework 之上提供依赖�
 | 7.1 | 2026 | `RestTemplate` 标记废弃，推荐 `RestClient`（对应 Boot 4.1） |
 
 Spring Boot 各版本的升级清单与支持周期见 [Spring Boot 版本演进](/spring-boot/11_versions)。
+
+## 参考资料
+
+- Spring Framework 参考文档：[https://docs.spring.io/spring-framework/reference/](https://docs.spring.io/spring-framework/reference/)
+- Spring Framework 项目页：[https://spring.io/projects/spring-framework](https://spring.io/projects/spring-framework)
+- 各项目版本亮点：[https://spring.io/projects/release-highlights/](https://spring.io/projects/release-highlights/)

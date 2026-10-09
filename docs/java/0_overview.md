@@ -4,11 +4,6 @@
 
 版本基线：**JDK 21 / 25 LTS**，与 JDK 8 / 17 行为不同的地方在文中单独标出。
 
-> 参考资料：
-> * Java SE API 文档：[https://docs.oracle.com/en/java/javase/](https://docs.oracle.com/en/java/javase/)
-> * Java 语言规范（JLS）：[https://docs.oracle.com/javase/specs/](https://docs.oracle.com/javase/specs/)
-> * OpenJDK：[https://openjdk.org/](https://openjdk.org/)
-
 ---
 
 ## 一、模块导航
@@ -74,3 +69,9 @@
 - [Spring Boot · 异步任务与定时任务](/spring-boot/9_async_schedule)：在 Spring Boot 中使用线程池与虚拟线程
 - [设计模式总览](/patterns/0_overview)：单例、代理等模式的完整实现
 - [开发总结 - Java](/interview/1_java) / [开发总结 - Java 并发](/interview/2_concurrent)：本模块高频问题的答案汇总
+
+## 参考资料
+
+- Java SE API 文档：[https://docs.oracle.com/en/java/javase/](https://docs.oracle.com/en/java/javase/)
+- Java 语言规范（JLS）：[https://docs.oracle.com/javase/specs/](https://docs.oracle.com/javase/specs/)
+- OpenJDK：[https://openjdk.org/](https://openjdk.org/)

@@ -8,12 +8,6 @@ description: Exchange 四种类型、发布确认与回退、手动 ACK 与重�
 >
 > **前置阅读**：[消息队列基础](./1_basics)
 
-> 参考资料：
-> * 官方文档：[https://www.rabbitmq.com/docs](https://www.rabbitmq.com/docs)
-> * Quorum Queues：[https://www.rabbitmq.com/docs/quorum-queues](https://www.rabbitmq.com/docs/quorum-queues)
-> * Streams：[https://www.rabbitmq.com/docs/streams](https://www.rabbitmq.com/docs/streams)
-> * Spring AMQP：[https://spring.io/projects/spring-amqp](https://spring.io/projects/spring-amqp)
-
 RabbitMQ 是 AMQP 0-9-1 协议的经典实现，强项是**灵活路由**和**低延迟**（通常亚毫秒到毫秒级），适合业务事件通知、任务分发、延迟关单这类"消息量中等、路由规则多"的场景；吞吐和海量堆积能力不如 Kafka / RocketMQ。
 
 ---
@@ -488,5 +482,12 @@ requeue、消费者崩溃、连接断开、生产者重发都会造成重投。�
 * 4.0 起镜像队列已移除，**Quorum 队列（Raft）是复制队列的标准选择**；Stream（3.9+）提供只追加日志与按 offset 回放。
 * 延迟消息：TTL + DLX 要按延迟时长分队列以避开队头阻塞；延迟插件灵活但单节点存储、不复制，不适合大量消息。
 * 延迟低（通常亚毫秒到毫秒级）、路由灵活，但吞吐与堆积能力不如 Kafka / RocketMQ。
+
+## 参考资料
+
+- 官方文档：[https://www.rabbitmq.com/docs](https://www.rabbitmq.com/docs)
+- Quorum Queues：[https://www.rabbitmq.com/docs/quorum-queues](https://www.rabbitmq.com/docs/quorum-queues)
+- Streams：[https://www.rabbitmq.com/docs/streams](https://www.rabbitmq.com/docs/streams)
+- Spring AMQP：[https://spring.io/projects/spring-amqp](https://spring.io/projects/spring-amqp)
 
 > 下一篇：[其他 MQ](./5_other_mq) —— 三大 MQ 之外最常被比较的 Pulsar，以及其他常见消息系统的定位。

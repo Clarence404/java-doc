@@ -8,14 +8,6 @@ description: Operator 部署、内存模型、slot、反压、checkpoint 失败�
 >
 > **前置阅读**：[状态与容错](./4_state_checkpoint)、[Flink SQL 与 Table API](./5_sql)
 
-> 参考资料：
-> * Flink Kubernetes Operator（1.16）：[https://nightlies.apache.org/flink/flink-kubernetes-operator-docs-stable/](https://nightlies.apache.org/flink/flink-kubernetes-operator-docs-stable/)
-> * TaskManager 内存配置：[https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/deployment/memory/mem_setup_tm/](https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/deployment/memory/mem_setup_tm/)
-> * 配置项参考：[https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/deployment/config/](https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/deployment/config/)
-> * 反压监控：[https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/ops/monitoring/back_pressure/](https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/ops/monitoring/back_pressure/)
-> * Metric Reporters：[https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/deployment/metric_reporters/](https://nightlies.apache.org/flink/flink-docs-release-2.3/docs/deployment/metric_reporters/)
-> * Flink 2.0 Release Notes：[https://nightlies.apache.org/flink/flink-docs-release-2.3/release-notes/flink-2.0/](https://nightlies.apache.org/flink/flink-docs-release-2.3/release-notes/flink-2.0/)
-
 Kubernetes 本身的概念与运维见 [Kubernetes](/cloud-native/6_kubernetes)，指标平台见 [指标监控](/observability/2_metrics)；本篇只讲 Flink 特有的部分。
 
 ---
@@ -329,5 +321,14 @@ metrics.reporter.prom.port: 9249
 - 倾斜用两阶段聚合打散热点 key，加并行度无效；SQL 作业打开 mini-batch 与两阶段聚合
 - 监控以消费积压和水位线延迟为核心，Prometheus Reporter 直接抓取 9249 端口
 - 升级靠 savepoint：每个有状态算子设 `uid()`，状态避免 Kryo，最大并行度不变；1.x 到 2.x 不保证状态兼容
+
+## 参考资料
+
+- Flink Kubernetes Operator（1.16）：[https://nightlies.apache.org/flink/flink-kubernetes-operator-docs-stable/](https://nightlies.apache.org/flink/flink-kubernetes-operator-docs-stable/)
+- TaskManager 内存配置：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/deployment/memory/mem_setup_tm/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/deployment/memory/mem_setup_tm/)
+- 配置项参考：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/deployment/config/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/deployment/config/)
+- 反压监控：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/monitoring/back_pressure/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/monitoring/back_pressure/)
+- Metric Reporters：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/deployment/metric_reporters/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/deployment/metric_reporters/)
+- Flink 2.0 Release Notes：[https://nightlies.apache.org/flink/flink-docs-release-2.2/release-notes/flink-2.0/](https://nightlies.apache.org/flink/flink-docs-release-2.2/release-notes/flink-2.0/)
 
 > 下一篇：[实战场景](./8_scenarios) —— 实时 GMV 大屏、CEP 风控、实时数仓分层和维表关联，把前面的知识串成完整方案。

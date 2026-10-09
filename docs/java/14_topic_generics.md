@@ -8,12 +8,6 @@ description: 类型擦除与 Signature、桥方法、通配符与 PECS、堆污�
 >
 > **前置阅读**：[内部类](./13_topic_inner_class)
 
-> 参考资料：
-> * JLS 第 4.5–4.8 节（参数化类型、类型擦除、可具化类型）：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-4.html](https://docs.oracle.com/javase/specs/jls/se21/html/jls-4.html)
-> * Java Tutorials - Generics：[https://docs.oracle.com/javase/tutorial/java/generics/](https://docs.oracle.com/javase/tutorial/java/generics/)
-> * JVMS 4.7.9 Signature 属性：[https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.9](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.9)
-> * JEP 394 instanceof 模式匹配：[https://openjdk.org/jeps/394](https://openjdk.org/jeps/394)
-
 泛型（Java 5 引入）让类、接口和方法带上类型参数，在**编译期**完成类型检查并自动插入强制转换。Java 选择了「擦除式」实现以兼容老字节码：运行时对象不知道自己的类型实参，但**声明处**的泛型签名会写进 class 文件，框架正是靠这一点在运行时还原 `List<User>` 这样的类型。
 
 ---
@@ -346,5 +340,12 @@ System.out.println(t);   // java.util.Map<java.lang.String, java.util.List<java.
 - 通配符不能写入的根因是编译期的通配符捕获，不是擦除；PECS：读用 extends，写用 super，既读又写用 T
 - 泛型数组与泛型可变参数会导致堆污染，`@SafeVarargs` 只在方法不存储、不暴露数组时使用
 - 运行时拿完整泛型类型靠匿名子类固化签名，生产中直接用 Jackson `TypeReference`、Spring `ParameterizedTypeReference` / `ResolvableType`
+
+## 参考资料
+
+- JLS 第 4.5–4.8 节（参数化类型、类型擦除、可具化类型）：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-4.html](https://docs.oracle.com/javase/specs/jls/se21/html/jls-4.html)
+- Java Tutorials - Generics：[https://docs.oracle.com/javase/tutorial/java/generics/](https://docs.oracle.com/javase/tutorial/java/generics/)
+- JVMS 4.7.9 Signature 属性：[https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.9](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.9)
+- JEP 394 instanceof 模式匹配：[https://openjdk.org/jeps/394](https://openjdk.org/jeps/394)
 
 > 下一篇：[反射](./15_topic_reflection) —— 泛型签名之外，看运行时如何读取和调用类的全部成员，以及 JDK 18 后反射的实现变化。

@@ -8,12 +8,6 @@ description: Server WebFlux 与 MVC、请求链路、OAuth2 鉴权、限流、CO
 >
 > **前置阅读**：[注册发现](./1_service_registry)
 
-> 参考资料：
-> * Spring Cloud Gateway 参考文档：[https://docs.spring.io/spring-cloud-gateway/reference/](https://docs.spring.io/spring-cloud-gateway/reference/)
-> * Spring Cloud 2025.1（Oakwood）发布说明：[https://spring.io/blog/2025/11/25/spring-cloud-2025-1-0-aka-oakwood-has-been-released](https://spring.io/blog/2025/11/25/spring-cloud-2025-1-0-aka-oakwood-has-been-released)
-> * Spring Security OAuth2 Resource Server（Reactive）：[https://docs.spring.io/spring-security/reference/reactive/oauth2/resource-server/jwt.html](https://docs.spring.io/spring-security/reference/reactive/oauth2/resource-server/jwt.html)
-> * Kubernetes Gateway API：[https://gateway-api.sigs.k8s.io/](https://gateway-api.sigs.k8s.io/)
-
 没有网关时，客户端要知道每个服务的地址，鉴权、限流、跨域、日志在每个服务里各写一遍。网关把这些横切关注点收敛到统一入口：
 
 | 维度 | 无网关 | 有网关 |
@@ -374,5 +368,12 @@ spring:
 - CORS 只在网关处理一次，带凭证时不能使用通配来源
 - 路由 `metadata` 不参与选实例；灰度用 `Weight` 断言分流到独立服务，或用 LoadBalancer Hint / 自定义负载均衡器按请求头选实例
 - Java 业务网关选 Spring Cloud Gateway，K8s 与服务网格环境优先考虑 Envoy 系网关，两者常分层组合
+
+## 参考资料
+
+- Spring Cloud Gateway 参考文档：[https://docs.spring.io/spring-cloud-gateway/reference/](https://docs.spring.io/spring-cloud-gateway/reference/)
+- Spring Cloud 2025.1（Oakwood）发布说明：[https://spring.io/blog/2025/11/25/spring-cloud-2025-1-0-aka-oakwood-has-been-released](https://spring.io/blog/2025/11/25/spring-cloud-2025-1-0-aka-oakwood-has-been-released)
+- Spring Security OAuth2 Resource Server（Reactive）：[https://docs.spring.io/spring-security/reference/reactive/oauth2/resource-server/jwt.html](https://docs.spring.io/spring-security/reference/reactive/oauth2/resource-server/jwt.html)
+- Kubernetes Gateway API：[https://gateway-api.sigs.k8s.io/](https://gateway-api.sigs.k8s.io/)
 
 > 下一篇：[服务通信](./3_communication) —— 网关之后的服务间调用：HTTP Service Clients、OpenFeign、gRPC 与 Dubbo 如何选。

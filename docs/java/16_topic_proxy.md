@@ -8,12 +8,6 @@ description: JDK Proxy、CGLIB invokeSuper、ByteBuddy、Spring 默认代理、�
 >
 > **前置阅读**：[反射](./15_topic_reflection)
 
-> 参考资料：
-> * `java.lang.reflect.Proxy`（JDK 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/Proxy.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/Proxy.html)
-> * `InvocationHandler`（含 `invokeDefault`）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/InvocationHandler.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/InvocationHandler.html)
-> * Spring Framework - Proxying Mechanisms：[https://docs.spring.io/spring-framework/reference/core/aop/proxying.html](https://docs.spring.io/spring-framework/reference/core/aop/proxying.html)
-> * Byte Buddy：[https://bytebuddy.net/](https://bytebuddy.net/)
-
 动态代理是在运行时生成一个新类，让它「长得像」目标类型（实现相同接口或继承目标类），再把每次方法调用分派给一段统一的拦截逻辑。Spring AOP、`@Transactional`、MyBatis 的 Mapper 接口、OpenFeign / Dubbo 客户端、Hibernate 延迟加载都建立在它之上。代理模式本身的意图、静态代理写法见 [代理模式](/patterns/12_structural_proxy)，本篇只讲 JVM 层面的实现机制。
 
 ---
@@ -232,5 +226,12 @@ GraalVM Native Image 不能在运行时生成类：JDK 动态代理需要在构�
 - 原版 cglib 已停止维护，用 Spring 内嵌分支或 ByteBuddy；`final` 类和方法无法被拦截
 - Spring Framework 默认有接口用 JDK 代理；Spring Boot 2.0 起 `spring.aop.proxy-target-class=true`，默认 CGLIB；`AopContext.currentProxy()` 依赖 `exposeProxy = true`
 - JDK 9+ 用 `-Djdk.proxy.ProxyGenerator.saveGeneratedFiles=true` 导出代理类；Native Image 下代理要在构建期登记或生成
+
+## 参考资料
+
+- `java.lang.reflect.Proxy`（JDK 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/Proxy.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/Proxy.html)
+- `InvocationHandler`（含 `invokeDefault`）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/InvocationHandler.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/reflect/InvocationHandler.html)
+- Spring Framework - Proxying Mechanisms：[https://docs.spring.io/spring-framework/reference/core/aop/proxying.html](https://docs.spring.io/spring-framework/reference/core/aop/proxying.html)
+- Byte Buddy：[https://bytebuddy.net/](https://bytebuddy.net/)
 
 > 下一篇：[日期与时间](./17_topic_time) —— 从反射与代理回到日常 API：java.time 的类型模型、时区与夏令时，以及时间在数据库和 JSON 中如何存取。

@@ -8,11 +8,6 @@ description: 事件发布与监听、同步与异步、条件监听、事务事�
 >
 > **前置阅读**：[事务管理](./4_transaction)
 
-> 参考资料：
-> * Spring Framework - Standard and Custom Events：[https://docs.spring.io/spring-framework/reference/core/beans/context-introduction.html#context-functionality-events](https://docs.spring.io/spring-framework/reference/core/beans/context-introduction.html#context-functionality-events)
-> * Spring Framework - Transaction-bound Events：[https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html)
-> * Spring Modulith - Working with Application Events：[https://docs.spring.io/spring-modulith/reference/events.html](https://docs.spring.io/spring-modulith/reference/events.html)
-
 ---
 
 ## 一、核心概念
@@ -426,5 +421,11 @@ class NotificationListener {
 - `@TransactionalEventListener` 默认 AFTER_COMMIT，无事务时默认不执行；AFTER_COMMIT 里写库必须 `REQUIRES_NEW`（6.1 起启动校验）
 - 进程内事件是至多一次：崩溃或监听失败就丢；不能丢的事件用 Outbox、Spring Modulith 事件发布注册表或事务消息，并保证监听器幂等
 - 一次性初始化用 `ApplicationReadyEvent`，`ContextRefreshedEvent` 可能触发多次
+
+## 参考资料
+
+- Spring Framework - Standard and Custom Events：[https://docs.spring.io/spring-framework/reference/core/beans/context-introduction.html#context-functionality-events](https://docs.spring.io/spring-framework/reference/core/beans/context-introduction.html#context-functionality-events)
+- Spring Framework - Transaction-bound Events：[https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html)
+- Spring Modulith - Working with Application Events：[https://docs.spring.io/spring-modulith/reference/events.html](https://docs.spring.io/spring-modulith/reference/events.html)
 
 > 下一篇：[WebFlux](./8_webflux) —— 从阻塞式 Servlet 到响应式编程，看 Reactor 如何用少量线程处理大量并发。

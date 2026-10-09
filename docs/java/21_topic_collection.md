@@ -8,12 +8,6 @@ description: Sequenced 集合、不可变集合、HashMap 树化与扩容、Conc
 >
 > **前置阅读**：[SPI 机制](./20_topic_spi)；红黑树原理见 [树 · 红黑树](/algorithms/1_data_structures/3_tree#四、红黑树-red-black-tree)
 
-> 参考资料：
-> * Collections Framework 概览（JDK 25）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/doc-files/coll-overview.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/doc-files/coll-overview.html)
-> * JEP 431 Sequenced Collections：[https://openjdk.org/jeps/431](https://openjdk.org/jeps/431)
-> * JEP 269 集合便捷工厂方法：[https://openjdk.org/jeps/269](https://openjdk.org/jeps/269)
-> * HashMap / ConcurrentHashMap 源码（OpenJDK）：[https://github.com/openjdk/jdk/tree/master/src/java.base/share/classes/java/util](https://github.com/openjdk/jdk/tree/master/src/java.base/share/classes/java/util)
-
 ---
 
 ## 一、集合体系总览
@@ -477,5 +471,12 @@ Hashtable 是 JDK 1.0 的遗留类。单线程用 HashMap，多线程用 Concurr
 - ConcurrentHashMap（JDK 8+）：空桶 CAS、非空桶 `synchronized` 锁桶首，扩容是多线程分段协作、逐桶加锁，并非无锁；计数用 `baseCount + CounterCell`，`size()` 是估计值
 - CHM 禁止 null 是为了消除并发下的二义性；复合操作用 `putIfAbsent / compute / merge`，函数里不要改同一个 Map
 - TreeMap 适合排序和范围查询，`subMap` 默认左闭右开；并发有序用 `ConcurrentSkipListMap`，它不允许 null value
+
+## 参考资料
+
+- Collections Framework 概览（JDK 25）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/doc-files/coll-overview.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/doc-files/coll-overview.html)
+- JEP 431 Sequenced Collections：[https://openjdk.org/jeps/431](https://openjdk.org/jeps/431)
+- JEP 269 集合便捷工厂方法：[https://openjdk.org/jeps/269](https://openjdk.org/jeps/269)
+- HashMap / ConcurrentHashMap 源码（OpenJDK）：[https://github.com/openjdk/jdk/tree/master/src/java.base/share/classes/java/util](https://github.com/openjdk/jdk/tree/master/src/java.base/share/classes/java/util)
 
 > 下一篇：[JMM 内存模型](./22_topic_jmm) —— 从集合的线程安全问题深入一层：多线程下变量的可见性、有序性由什么规则保证。

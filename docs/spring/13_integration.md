@@ -8,13 +8,6 @@ description: EIP 概念、Channel、Java DSL 文件与 HTTP 流、错误处理�
 >
 > **前置阅读**：[消息队列基础](/messaging/1_basics)、[Spring Batch 批处理](./12_batch)
 
-> 参考资料：
-> * Spring Integration 官方文档：[https://docs.spring.io/spring-integration/reference/](https://docs.spring.io/spring-integration/reference/)
-> * Spring Integration 7.0 变化：[https://docs.spring.io/spring-integration/reference/changes-6.5-7.0.html](https://docs.spring.io/spring-integration/reference/changes-6.5-7.0.html)
-> * Enterprise Integration Patterns：[https://www.enterpriseintegrationpatterns.com/](https://www.enterpriseintegrationpatterns.com/)
-> * Apache Camel 用户手册：[https://camel.apache.org/manual/](https://camel.apache.org/manual/)
-> * Camel Spring Boot：[https://camel.apache.org/camel-spring-boot/latest/](https://camel.apache.org/camel-spring-boot/latest/)
-
 Spring Integration 是企业集成模式（EIP）的 Spring 实现，用于构建**消息驱动的集成流**，把文件、FTP、HTTP、数据库、MQ 等不同系统和协议连接起来。Boot 4 对应 Spring Integration 7.x。
 
 日常 CRUD 业务不需要它；它适合多系统协议适配、异步数据管道、遗留系统对接这类「搬运 + 转换 + 路由」的场景。
@@ -376,5 +369,13 @@ public class UserImportRoute extends RouteBuilder {
 - 异步流的异常进入 `errorChannel`；端点重试用 `RequestHandlerRetryAdvice`（7.x 基于 Spring Framework 核心 `RetryPolicy`）
 - 内存中的 QueueChannel、聚合分组、文件去重记录在重启后都会丢失，需要可靠性时换成 JDBC / Redis 存储
 - Spring Cloud Stream 构建于 Spring Integration 之上，专注服务间消息；Camel 组件最多、运行时更多样，适合大量异构系统集成；Camel 4.19+ 才支持 Boot 4
+
+## 参考资料
+
+- Spring Integration 官方文档：[https://docs.spring.io/spring-integration/reference/](https://docs.spring.io/spring-integration/reference/)
+- Spring Integration 7.0 变化：[https://docs.spring.io/spring-integration/reference/changes-6.5-7.0.html](https://docs.spring.io/spring-integration/reference/changes-6.5-7.0.html)
+- Enterprise Integration Patterns：[https://www.enterpriseintegrationpatterns.com/](https://www.enterpriseintegrationpatterns.com/)
+- Apache Camel 用户手册：[https://camel.apache.org/manual/](https://camel.apache.org/manual/)
+- Camel Spring Boot：[https://camel.apache.org/camel-spring-boot/latest/](https://camel.apache.org/camel-spring-boot/latest/)
 
 > 返回：[Spring 总览](./0_overview)

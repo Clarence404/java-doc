@@ -8,11 +8,6 @@ description: 编译产物与初始化、业务枚举、EnumSet / EnumMap、switc
 >
 > **前置阅读**：[String](./11_topic_string)
 
-> 参考资料：
-> * JLS §8.9 Enum Classes：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.9](https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.9)
-> * Java Object Serialization Specification §1.12 Serialization of Enum Constants：[https://docs.oracle.com/en/java/javase/21/docs/specs/serialization/serial-arch.html](https://docs.oracle.com/en/java/javase/21/docs/specs/serialization/serial-arch.html)
-> * JEP 441 Pattern Matching for switch：[https://openjdk.org/jeps/441](https://openjdk.org/jeps/441)
-
 本文以 JDK 21 / 25 为基线，与 JDK 8 / 17 不同之处单独标注。
 
 ---
@@ -291,5 +286,11 @@ public enum OrderStatus {
 - switch 表达式对枚举做穷举检查，JDK 21 起未知常量抛 `MatchException`，支持限定名常量与 sealed 接口混用
 - 序列化只写 `name()`，反序列化走 `valueOf`，自定义的 `readResolve` 等方法被忽略；反射不能创建枚举实例
 - 持久化与接口传输用 code，不用 ordinal；JPA 默认是 ORDINAL，务必显式配置
+
+## 参考资料
+
+- JLS §8.9 Enum Classes：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.9](https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.9)
+- Java Object Serialization Specification §1.12 Serialization of Enum Constants：[https://docs.oracle.com/en/java/javase/21/docs/specs/serialization/serial-arch.html](https://docs.oracle.com/en/java/javase/21/docs/specs/serialization/serial-arch.html)
+- JEP 441 Pattern Matching for switch：[https://openjdk.org/jeps/441](https://openjdk.org/jeps/441)
 
 > 下一篇：[内部类](./13_topic_inner_class) —— 嵌套类的四种形态、编译器生成的外部引用，以及它们如何导致内存泄漏。

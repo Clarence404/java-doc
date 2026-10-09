@@ -8,13 +8,6 @@ description: CountDownLatch、CyclicBarrier、Semaphore、Phaser、Exchanger、�
 >
 > **前置阅读**：[显式锁（Lock）](./25_topic_lock)
 
-> 参考资料：
-> * CountDownLatch（Java SE 25 API）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CountDownLatch.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CountDownLatch.html)
-> * CyclicBarrier（Java SE 25 API）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CyclicBarrier.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CyclicBarrier.html)
-> * Semaphore（Java SE 25 API）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/Semaphore.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/Semaphore.html)
-> * Phaser（Java SE 25 API）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/Phaser.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/Phaser.html)
-> * JEP 505 — Structured Concurrency (Fifth Preview)：[https://openjdk.org/jeps/505](https://openjdk.org/jeps/505)
-
 锁解决的是「同一时刻只让一个（或一类）线程进入」，同步工具类解决的是线程之间的**协调**：等别人做完、大家到齐再走、同时最多放进 N 个。本文示例中的 `warmUp`、`compute`、`doPhase`、`callApi` 等为业务方法，`pool` 为已创建的 `ExecutorService`，`log` 为日志对象，`threads` 为并发线程数。
 
 ---
@@ -300,5 +293,13 @@ buffer = exchanger.exchange(buffer, 1, TimeUnit.SECONDS);   // 换回一个已�
 - `Semaphore` 的许可没有持有者，多释放会让许可超过初始值；`acquire` 放在 `try` 之外、`release` 放在 `finally`；它限的是并发数而不是 QPS，且只在单 JVM 内有效
 - `Phaser` 支持动态注册和多阶段，`Exchanger` 只用于两个线程交换数据
 - 扇出 / 扇入场景优先考虑 `CompletableFuture.allOf`、`invokeAll` 或虚拟线程 + `try-with-resources` 的 `ExecutorService`；结构化并发在 JDK 25 仍为预览
+
+## 参考资料
+
+- CountDownLatch（Java SE 25 API）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CountDownLatch.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CountDownLatch.html)
+- CyclicBarrier（Java SE 25 API）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CyclicBarrier.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CyclicBarrier.html)
+- Semaphore（Java SE 25 API）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/Semaphore.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/Semaphore.html)
+- Phaser（Java SE 25 API）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/Phaser.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/Phaser.html)
+- JEP 505 — Structured Concurrency (Fifth Preview)：[https://openjdk.org/jeps/505](https://openjdk.org/jeps/505)
 
 > 下一篇：[线程池](./28_topic_thread_pool) —— 线程从哪里来：ThreadPoolExecutor 的原理、参数、异常处理与虚拟线程。

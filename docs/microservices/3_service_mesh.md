@@ -8,15 +8,6 @@ description: Istio 架构、Sidecar 与 Ambient、流量管理、mTLS、可观�
 >
 > **前置阅读**：[微服务设计模式](./2_patterns)、[Kubernetes](/cloud-native/6_kubernetes)
 
-> 参考资料：
-> * Istio 官方文档：[https://istio.io/latest/docs/](https://istio.io/latest/docs/)
-> * Istio Ambient 模式：[https://istio.io/latest/docs/ambient/](https://istio.io/latest/docs/ambient/)
-> * Istio v1 API 介绍：[https://istio.io/latest/blog/2024/v1-apis/](https://istio.io/latest/blog/2024/v1-apis/)
-> * Istio 性能与可扩展性：[https://istio.io/latest/docs/ops/deployment/performance-and-scalability/](https://istio.io/latest/docs/ops/deployment/performance-and-scalability/)
-> * Kubernetes Gateway API：[https://gateway-api.sigs.k8s.io/](https://gateway-api.sigs.k8s.io/)
-> * Envoy 文档：[https://www.envoyproxy.io/docs/](https://www.envoyproxy.io/docs/)
-> * Linkerd 发布模型：[https://linkerd.io/releases/](https://linkerd.io/releases/)
-
 ---
 
 ## 一、什么是服务网格
@@ -306,5 +297,15 @@ istiod 作为 CA 为每个工作负载签发短期证书并自动轮转，证书
 - 配置用 `networking.istio.io/v1` 与 `security.istio.io/v1`；VirtualService 路由按顺序匹配，精确规则在前、兜底在后；负载均衡用 `LEAST_REQUEST`
 - 链路追踪仍需应用转发追踪头；网格与 SDK 组合使用时避免重试等能力重复配置
 - 选型：Java 单语言、需要业务语义级治理选 Spring Cloud，多语言、已上 Kubernetes、有平台团队选 Istio
+
+## 参考资料
+
+- Istio 官方文档：[https://istio.io/latest/docs/](https://istio.io/latest/docs/)
+- Istio Ambient 模式：[https://istio.io/latest/docs/ambient/](https://istio.io/latest/docs/ambient/)
+- Istio v1 API 介绍：[https://istio.io/latest/blog/2024/v1-apis/](https://istio.io/latest/blog/2024/v1-apis/)
+- Istio 性能与可扩展性：[https://istio.io/latest/docs/ops/deployment/performance-and-scalability/](https://istio.io/latest/docs/ops/deployment/performance-and-scalability/)
+- Kubernetes Gateway API：[https://gateway-api.sigs.k8s.io/](https://gateway-api.sigs.k8s.io/)
+- Envoy 文档：[https://www.envoyproxy.io/docs/](https://www.envoyproxy.io/docs/)
+- Linkerd 发布模型：[https://linkerd.io/releases/](https://linkerd.io/releases/)
 
 > 下一篇：[Dubbo](./4_dubbo) —— 另一条 SDK 路线：面向接口的 RPC 服务框架与 Triple 协议。

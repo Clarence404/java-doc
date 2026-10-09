@@ -8,12 +8,6 @@ description: 多 Reactor、黄金法则、三种 Verticle、executeBlocking、Co
 >
 > **前置阅读**：[Vert.x 概览](./1_basics)、[Reactor 模型](/netty/2_reactor)
 
-> 参考资料：
-> * Vert.x Core 手册：[https://vertx.io/docs/vertx-core/java/](https://vertx.io/docs/vertx-core/java/)
-> * `VertxOptions` API：[https://vertx.io/docs/apidocs/io/vertx/core/VertxOptions.html](https://vertx.io/docs/apidocs/io/vertx/core/VertxOptions.html)
-> * `ThreadingModel` API：[https://vertx.io/docs/apidocs/io/vertx/core/ThreadingModel.html](https://vertx.io/docs/apidocs/io/vertx/core/ThreadingModel.html)
-> * `Future` API：[https://vertx.io/docs/apidocs/io/vertx/core/Future.html](https://vertx.io/docs/apidocs/io/vertx/core/Future.html)
-
 ---
 
 ## 一、多 Reactor 线程模型
@@ -351,5 +345,12 @@ vertx.timer(3, TimeUnit.SECONDS).onSuccess(v -> log.info("timeout"));
 - `executeBlocking` 默认 `ordered=true` 会串行，独立任务传 `false`；不同阻塞任务用命名 `WorkerExecutor` 隔离
 - Future 组合：`compose` 串行、`Future.all/any/join` 并发；链尾必须处理失败，否则请求静默挂起
 - `setPeriodic` 不等上次执行结束，集群单点任务需要分布式锁
+
+## 参考资料
+
+- Vert.x Core 手册：[https://vertx.io/docs/vertx-core/java/](https://vertx.io/docs/vertx-core/java/)
+- `VertxOptions` API：[https://vertx.io/docs/apidocs/io/vertx/core/VertxOptions.html](https://vertx.io/docs/apidocs/io/vertx/core/VertxOptions.html)
+- `ThreadingModel` API：[https://vertx.io/docs/apidocs/io/vertx/core/ThreadingModel.html](https://vertx.io/docs/apidocs/io/vertx/core/ThreadingModel.html)
+- `Future` API：[https://vertx.io/docs/apidocs/io/vertx/core/Future.html](https://vertx.io/docs/apidocs/io/vertx/core/Future.html)
 
 > 下一篇：[Event Bus](./3_eventbus) —— Verticle 之间如何通过地址解耦通信，以及点对点、广播、请求响应三种模式的语义与陷阱。

@@ -8,11 +8,6 @@ description: 核心概念、通知类型与执行顺序、切点表达式、代�
 >
 > **前置阅读**：[IoC 容器](./1_ioc)、[动态代理](/java/16_topic_proxy)
 
-> 参考资料：
-> * Spring Framework 参考文档 - AOP：[https://docs.spring.io/spring-framework/reference/core/aop.html](https://docs.spring.io/spring-framework/reference/core/aop.html)
-> * 通知声明与执行顺序：[https://docs.spring.io/spring-framework/reference/core/aop/ataspectj/advice.html](https://docs.spring.io/spring-framework/reference/core/aop/ataspectj/advice.html)
-> * Spring Boot 参考文档 - AOP：[https://docs.spring.io/spring-boot/reference/features/aop.html](https://docs.spring.io/spring-boot/reference/features/aop.html)
-
 AOP（面向切面编程）把日志、事务、权限、缓存这类横切关注点从业务方法中剥离出来，集中写在切面里。Spring AOP 基于**运行时代理**：容器在 Bean 初始化之后（`postProcessAfterInitialization`）用代理对象替换原始 Bean，调用方拿到的是代理，代理先执行通知再调用目标方法。`@Transactional`、`@Async`、`@Cacheable`、`@Validated` 方法校验都建立在这套机制上。
 
 Spring Boot 4 中使用 `@Aspect` 需要引入 `spring-boot-starter-aspectj`（Boot 3.x 叫 `spring-boot-starter-aop`），类路径上有 AspectJ 时自动开启代理，无需再写 `@EnableAspectJAutoProxy`。
@@ -321,5 +316,11 @@ Spring AOP 复用了 AspectJ 的注解（`@Aspect`、`@Pointcut`）和切点表�
 - 切点优先用 `execution` / `within` / `@annotation` 等可静态匹配的指示符
 - 自调用不经过代理，首选拆分 Bean，其次 `ObjectProvider` / `@Lazy` 获取自身代理或 `AopContext`（需 `exposeProxy = true`）；直接注入自身在 Boot 2.6+ 会因循环依赖启动失败
 - 需要拦截自调用、非 Spring 对象或字段访问时才考虑 AspectJ 织入
+
+## 参考资料
+
+- Spring Framework 参考文档 - AOP：[https://docs.spring.io/spring-framework/reference/core/aop.html](https://docs.spring.io/spring-framework/reference/core/aop.html)
+- 通知声明与执行顺序：[https://docs.spring.io/spring-framework/reference/core/aop/ataspectj/advice.html](https://docs.spring.io/spring-framework/reference/core/aop/ataspectj/advice.html)
+- Spring Boot 参考文档 - AOP：[https://docs.spring.io/spring-boot/reference/features/aop.html](https://docs.spring.io/spring-boot/reference/features/aop.html)
 
 > 下一篇：[MVC](./3_mvc) —— 从 DispatcherServlet 出发，看一个 HTTP 请求如何被映射、绑定、校验、执行并转换成响应。

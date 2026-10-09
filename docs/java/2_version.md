@@ -8,12 +8,6 @@ description: JDK 8 到 27 关键特性、预览到正式的演进、移除与废
 >
 > **前置阅读**：[Lambda、Stream 与注解](./1_advanced)
 
-> 参考资料：
-> * OpenJDK 各版本项目页（含最终 JEP 列表）：[https://openjdk.org/projects/jdk/](https://openjdk.org/projects/jdk/)
-> * JEP 索引：[https://openjdk.org/jeps/0](https://openjdk.org/jeps/0)
-> * Oracle Java SE 支持路线图：[https://www.oracle.com/java/technologies/java-se-support-roadmap.html](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
-> * JDK 25 文档：[https://docs.oracle.com/en/java/javase/25/](https://docs.oracle.com/en/java/javase/25/)
-
 ![Java LTS 版本时间线](../assets/java/java-lts-timeline.svg)
 
 自 JDK 10 起 Java 每六个月发布一个版本（3 月、9 月），每两年指定一个 LTS（长期支持）版本。非 LTS 版本只维护到下一版发布，新特性通常以**预览（Preview，需 `--enable-preview`）**或**孵化（Incubator，独立的 `jdk.incubator.*` 模块）**形式在非 LTS 中迭代，定稿后才进入正式 API。本站版本基线为 **JDK 21 / 25 LTS**；截至 2026 年 10 月，最新版本是 JDK 27（2026-09 GA）。
@@ -622,5 +616,12 @@ JEP 500 对后端最值得关注：依赖注入、序列化、Mock 框架如果�
 - 25：Scoped Values、灵活构造器体、模块导入、紧凑源文件正式，紧凑对象头成为产品特性；结构化并发与原始类型模式匹配仍是预览
 - 26 / 27：HTTP/3、final 字段修改警告、G1 全面默认、紧凑对象头默认开启；结构化并发、原始类型模式、Lazy Constants 继续预览
 - 新项目选 JDK 25，用虚拟线程优先 24+；预览特性不进生产
+
+## 参考资料
+
+- OpenJDK 各版本项目页（含最终 JEP 列表）：[https://openjdk.org/projects/jdk/](https://openjdk.org/projects/jdk/)
+- JEP 索引：[https://openjdk.org/jeps/0](https://openjdk.org/jeps/0)
+- Oracle Java SE 支持路线图：[https://www.oracle.com/java/technologies/java-se-support-roadmap.html](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
+- JDK 25 文档：[https://docs.oracle.com/en/java/javase/25/](https://docs.oracle.com/en/java/javase/25/)
 
 > 下一篇：[异常体系](./10_topic_exception) —— 进入语言机制部分，从受检与非受检异常的设计讲到生产中的异常处理规范。

@@ -8,12 +8,6 @@ description: 时间语义、WatermarkStrategy、空闲与对齐、迟到数据�
 >
 > **前置阅读**：[DataStream API](./2_datastream)
 
-> 参考资料：
-> * 时间概念：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/concepts/time/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/concepts/time/)
-> * 生成水位线：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/event-time/generating_watermarks/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/event-time/generating_watermarks/)
-> * 窗口：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/windows/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/windows/)
-> * 双流 Join：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/joining/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/joining/)
-
 「统计每分钟的订单金额」这句话里的「每分钟」到底指什么？是订单**发生**的那一分钟，还是 Flink **收到**订单的那一分钟？网络抖动、App 离线补传、上游积压都会让二者相差几秒到几小时。只要结果需要和业务对账，答案就只能是前者——这就引出了事件时间和水位线。
 
 ---
@@ -245,5 +239,12 @@ DataStream<String> paid = orders.keyBy(OrderEvent::orderId)
 - 滚动、滑动、会话、全局四类窗口；按自然日统计设置 −8 小时偏移；滑动步长过小会让状态爆炸；`windowAll` 并行度为 1
 - 窗口函数首选「`AggregateFunction` 增量聚合 + `ProcessWindowFunction` 补窗口信息」；Evictor 会让增量聚合失效
 - 双流关联优先 Interval Join，注意区间大小决定状态大小；外连接用 `KeyedCoProcessFunction` 或 Flink SQL
+
+## 参考资料
+
+- 时间概念：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/concepts/time/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/concepts/time/)
+- 生成水位线：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/event-time/generating_watermarks/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/event-time/generating_watermarks/)
+- 窗口：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/windows/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/windows/)
+- 双流 Join：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/joining/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/joining/)
 
 > 下一篇：[状态与容错](./4_state_checkpoint) —— 状态如何存储、Checkpoint 如何做出一致性快照，以及怎样实现端到端精确一次。

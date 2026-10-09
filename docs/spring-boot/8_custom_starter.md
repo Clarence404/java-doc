@@ -8,11 +8,6 @@ description: 命名与模块、imports 注册、装配顺序、条件注解、�
 >
 > **前置阅读**：[启动流程与自动配置](./1_spring_boot)
 
-> 参考资料：
-> * Creating Your Own Auto-configuration：[https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html)
-> * Configuration Metadata：[https://docs.spring.io/spring-boot/specification/configuration-metadata/index.html](https://docs.spring.io/spring-boot/specification/configuration-metadata/index.html)
-> * Spring Data Redis 4.0 升级说明：[https://docs.spring.io/spring-data/redis/reference/4.0/upgrading.html](https://docs.spring.io/spring-data/redis/reference/4.0/upgrading.html)
-
 自定义 Starter 是检验自己是否理解自动配置的最好方式：写一遍就知道 Boot 启动时那上百个自动配置类是如何被找到、筛选和排序的。自动配置的加载流程（`AutoConfigurationImportSelector` 读取 imports 文件 → 条件过滤 → 排序注册，用户 Bean 优先）在 [启动流程与自动配置](./1_spring_boot) 中讲过，本篇只讲写 Starter 时需要关心的部分。
 
 ---
@@ -261,5 +256,11 @@ Spring Boot 测试的整体分层与切片测试见 [Spring Boot 测试](./13_te
 - 属性类只用 `@EnableConfigurationProperties` 登记；configuration-processor 生成 IDE 提示，autoconfigure-processor 生成条件预过滤元数据
 - Spring Data Redis 4 用 Jackson 3 的 `GenericJacksonJsonRedisSerializer`，默认不写类型信息，注意存量数据格式
 - 用 `ApplicationContextRunner` + `FilteredClassLoader` 覆盖默认装配、关闭开关、用户覆盖、缺少依赖四类分支
+
+## 参考资料
+
+- Creating Your Own Auto-configuration：[https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html)
+- Configuration Metadata：[https://docs.spring.io/spring-boot/specification/configuration-metadata/index.html](https://docs.spring.io/spring-boot/specification/configuration-metadata/index.html)
+- Spring Data Redis 4.0 升级说明：[https://docs.spring.io/spring-data/redis/reference/4.0/upgrading.html](https://docs.spring.io/spring-data/redis/reference/4.0/upgrading.html)
 
 > 下一篇：[异步任务与定时任务](./9_async_schedule) —— `@Async` 与 `@Scheduled` 的执行器配置、多实例调度和虚拟线程开关。

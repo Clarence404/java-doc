@@ -8,14 +8,6 @@ description: Mutiny 与 Reactor、Kafka 响应式消息、ack 与失败策略、
 >
 > **前置阅读**：[REST 与数据访问](./2_rest_data)、[WebFlux](/spring/8_webflux)、[Kafka](/messaging/2_kafka)
 
-> 参考资料：
-> * Mutiny：[https://smallrye.io/smallrye-mutiny/](https://smallrye.io/smallrye-mutiny/)
-> * Quarkus 中的 Mutiny：[https://quarkus.io/guides/mutiny-primer](https://quarkus.io/guides/mutiny-primer)
-> * Kafka 响应式消息：[https://quarkus.io/guides/kafka](https://quarkus.io/guides/kafka)
-> * Kafka Dev Services：[https://quarkus.io/guides/kafka-dev-services](https://quarkus.io/guides/kafka-dev-services)
-> * 事件总线：[https://quarkus.io/guides/reactive-event-bus](https://quarkus.io/guides/reactive-event-bus)
-> * 虚拟线程：[https://quarkus.io/guides/virtual-threads](https://quarkus.io/guides/virtual-threads)
-
 Reactor 的执行模型、背压、调度器等通用概念已在 [WebFlux](/spring/8_webflux) 中展开，Kafka 本身的可靠性配置、幂等消费、Exactly-Once 见 [Kafka](/messaging/2_kafka)。本篇聚焦 Quarkus 的做法。
 
 ---
@@ -311,5 +303,14 @@ public class InvoiceFacade {
 - `@Blocking` 默认保持顺序，提高吞吐优先加 `concurrency`；生产端要处理 `send` 的结果
 - 事件总线是进程内、非持久的，只用于应用内解耦与卸载阻塞工作
 - 请求-响应式业务优先同步写法 + 虚拟线程，流式与消息管道用 Mutiny
+
+## 参考资料
+
+- Mutiny：[https://smallrye.io/smallrye-mutiny/](https://smallrye.io/smallrye-mutiny/)
+- Quarkus 中的 Mutiny：[https://quarkus.io/guides/mutiny-primer](https://quarkus.io/guides/mutiny-primer)
+- Kafka 响应式消息：[https://quarkus.io/guides/kafka](https://quarkus.io/guides/kafka)
+- Kafka Dev Services：[https://quarkus.io/guides/kafka-dev-services](https://quarkus.io/guides/kafka-dev-services)
+- 事件总线：[https://quarkus.io/guides/reactive-event-bus](https://quarkus.io/guides/reactive-event-bus)
+- 虚拟线程：[https://quarkus.io/guides/virtual-threads](https://quarkus.io/guides/virtual-threads)
 
 > 下一篇：[从 Spring Boot 迁移](./5_from_spring) —— 概念一一对照、兼容扩展能帮多少、迁移步骤与坑，以及什么时候不值得迁。

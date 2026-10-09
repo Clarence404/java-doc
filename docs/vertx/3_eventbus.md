@@ -8,12 +8,6 @@ description: 地址、send / publish / request、编解码器、集群 Event Bus
 >
 > **前置阅读**：[Event Loop 与 Verticle](./2_core)
 
-> 参考资料：
-> * Vert.x Core 手册 Event Bus 章节：[https://vertx.io/docs/vertx-core/java/#event_bus](https://vertx.io/docs/vertx-core/java/#event_bus)
-> * `EventBus` API：[https://vertx.io/docs/apidocs/io/vertx/core/eventbus/EventBus.html](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/EventBus.html)
-> * `DeliveryOptions` API：[https://vertx.io/docs/apidocs/io/vertx/core/eventbus/DeliveryOptions.html](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/DeliveryOptions.html)
-> * `MessageCodec` API：[https://vertx.io/docs/apidocs/io/vertx/core/eventbus/MessageCodec.html](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/MessageCodec.html)
-
 Event Bus 是 Vert.x 的「神经系统」：每个 `Vertx` 实例有且只有一个 Event Bus，Verticle 之间不直接持有引用，而是往**地址**上发消息、在地址上注册 consumer。它让一个进程内的多个 Verticle 像 Actor 一样通过消息协作；加上 Cluster Manager 后，同一套 API 又能跨进程、跨机器通信。
 
 ---
@@ -318,5 +312,12 @@ bus.addInboundInterceptor(dc -> {
 - 集群 Event Bus 由 Cluster Manager 维护订阅表，消息走节点间 TCP 直连；`localConsumer` / `setLocalOnly` 限定本节点
 - 投递是尽力而为、至多一次，无持久化无重投；关键业务事件必须落持久化消息队列，consumer 要幂等
 - 拦截器忘记 `next()`、桥接不设白名单、传大对象是最常见的三个坑
+
+## 参考资料
+
+- Vert.x Core 手册 Event Bus 章节：[https://vertx.io/docs/vertx-core/java/#event_bus](https://vertx.io/docs/vertx-core/java/#event_bus)
+- `EventBus` API：[https://vertx.io/docs/apidocs/io/vertx/core/eventbus/EventBus.html](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/EventBus.html)
+- `DeliveryOptions` API：[https://vertx.io/docs/apidocs/io/vertx/core/eventbus/DeliveryOptions.html](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/DeliveryOptions.html)
+- `MessageCodec` API：[https://vertx.io/docs/apidocs/io/vertx/core/eventbus/MessageCodec.html](https://vertx.io/docs/apidocs/io/vertx/core/eventbus/MessageCodec.html)
 
 > 下一篇：[Vert.x Web 与 HTTP 客户端](./4_web) —— 用 Router 和 Handler 链构建 REST 服务，并用 WebClient 调用下游。

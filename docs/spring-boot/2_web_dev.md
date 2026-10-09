@@ -8,14 +8,6 @@ description: Web 自动装配、Jackson 3、两条校验路径、ProblemDetail�
 >
 > **前置阅读**：[MVC](/spring/3_mvc)
 
-> 参考资料：
-> * Spring Boot Servlet Web Applications：[https://docs.spring.io/spring-boot/reference/web/servlet.html](https://docs.spring.io/spring-boot/reference/web/servlet.html)
-> * Spring MVC：[https://docs.spring.io/spring-framework/reference/web/webmvc.html](https://docs.spring.io/spring-framework/reference/web/webmvc.html)
-> * Spring MVC Validation：[https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-validation.html](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-validation.html)
-> * CORS：[https://docs.spring.io/spring-framework/reference/web/webmvc-cors.html](https://docs.spring.io/spring-framework/reference/web/webmvc-cors.html)
-> * Spring Boot Calling REST Services：[https://docs.spring.io/spring-boot/reference/io/rest-client.html](https://docs.spring.io/spring-boot/reference/io/rest-client.html)
-> * Framework REST Clients：[https://docs.spring.io/spring-framework/reference/integration/rest-clients.html](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
-
 DispatcherServlet 的请求处理流程、统一返回结构、`@RestControllerAdvice` 全局异常处理和拦截器实现属于 Spring MVC 本身，统一在 [MVC](/spring/3_mvc) 讲解；本篇只讲 Boot 层面的装配、配置与工程实践。
 
 ---
@@ -593,5 +585,14 @@ public ProductApi productApi(RestClient.Builder builder) {
 - Filter 用 `@Component` 或 `FilterRegistrationBean` 注册，二选一；相对 Spring Security（-100）的顺序决定它在认证前还是认证后执行
 - CORS 携带凭证时必须用明确的来源白名单，`allowedOriginPatterns("*")` + 凭证等于对所有网站开放
 - 同步调用用 `RestClient`，接口化调用用 HTTP Service Clients（Boot 4 的 `@ImportHttpServices` + `spring.http.serviceclient.*`），`RestTemplate` 在 Framework 7.1 被废弃；所有客户端都要设超时
+
+## 参考资料
+
+- Spring Boot Servlet Web Applications：[https://docs.spring.io/spring-boot/reference/web/servlet.html](https://docs.spring.io/spring-boot/reference/web/servlet.html)
+- Spring MVC：[https://docs.spring.io/spring-framework/reference/web/webmvc.html](https://docs.spring.io/spring-framework/reference/web/webmvc.html)
+- Spring MVC Validation：[https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-validation.html](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-validation.html)
+- CORS：[https://docs.spring.io/spring-framework/reference/web/webmvc-cors.html](https://docs.spring.io/spring-framework/reference/web/webmvc-cors.html)
+- Spring Boot Calling REST Services：[https://docs.spring.io/spring-boot/reference/io/rest-client.html](https://docs.spring.io/spring-boot/reference/io/rest-client.html)
+- Framework REST Clients：[https://docs.spring.io/spring-framework/reference/integration/rest-clients.html](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
 
 > 下一篇：[数据访问](./3_data_access) —— 持久化方案选型、JPA 与 MyBatis-Plus 的正确用法、事务装配、多数据源与分页。

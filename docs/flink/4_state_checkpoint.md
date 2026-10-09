@@ -8,15 +8,6 @@ description: 状态类型与 TTL、状态后端与 ForSt、Checkpoint、Savepoin
 >
 > **前置阅读**：[DataStream API](./2_datastream)、[时间、水位线与窗口](./3_time_window)
 
-> 参考资料：
-> * 使用状态：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/fault-tolerance/state/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/fault-tolerance/state/)
-> * 状态后端：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/state_backends/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/state_backends/)
-> * 存算分离状态：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/disaggregated_state/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/disaggregated_state/)
-> * Checkpointing：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/fault-tolerance/checkpointing/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/fault-tolerance/checkpointing/)
-> * Savepoints：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/savepoints/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/savepoints/)
-> * 重启策略：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/task_failure_recovery/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/task_failure_recovery/)
-> * 论文 Lightweight Asynchronous Snapshots for Distributed Dataflows：[https://arxiv.org/abs/1506.08603](https://arxiv.org/abs/1506.08603)
-
 流计算的「有状态」指算子会记住历史：窗口里的累加器、去重用的已见 ID、定时器、Kafka 读到的 offset。Flink 把这些状态交给引擎托管——**算子只管读写，存储、快照、恢复、扩缩容时的重新分配都由引擎负责**。这是 Flink 能在故障后给出精确一次结果的基础。
 
 ---
@@ -343,5 +334,15 @@ Checkpoint 慢的直接后果是：超时失败 → 作业重启 → 积压 → 
 - 开启 Checkpoint 时默认指数退避重启；`tolerable-failed-checkpoints` 默认 0，一次超时即重启
 - 端到端精确一次 = 可重放 Source + Checkpoint + 事务或幂等 Sink；Kafka 事务 Sink 注意事务超时、唯一前缀、`read_committed` 与 Checkpoint 间隔带来的延迟；能幂等就不用事务
 - Checkpoint 慢先看 Start Delay / Alignment（反压）还是 Async Duration（状态大小与存储带宽），对症优化
+
+## 参考资料
+
+- 使用状态：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/fault-tolerance/state/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/fault-tolerance/state/)
+- 状态后端：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/state_backends/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/state_backends/)
+- 存算分离状态：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/disaggregated_state/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/disaggregated_state/)
+- Checkpointing：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/fault-tolerance/checkpointing/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/fault-tolerance/checkpointing/)
+- Savepoints：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/savepoints/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/savepoints/)
+- 重启策略：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/task_failure_recovery/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/ops/state/task_failure_recovery/)
+- 论文 Lightweight Asynchronous Snapshots for Distributed Dataflows：[https://arxiv.org/abs/1506.08603](https://arxiv.org/abs/1506.08603)
 
 > 下一篇：[Flink SQL 与 Table API](./5_sql) —— 用 SQL 表达流计算：动态表与 changelog、窗口 TVF、各类 Join、Top-N 与去重。

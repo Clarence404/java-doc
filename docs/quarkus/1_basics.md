@@ -8,14 +8,6 @@ description: 构建期增强、扩展、ArC 依赖注入、Dev Mode、Dev Servic
 >
 > **前置阅读**：[启动流程与自动配置](/spring-boot/1_spring_boot)、[Vert.x 概览](/vertx/1_basics)
 
-> 参考资料：
-> * 官方指南：[https://quarkus.io/guides/](https://quarkus.io/guides/)
-> * 版本与支持周期：[https://quarkus.io/releases](https://quarkus.io/releases)
-> * CDI 参考（ArC）：[https://quarkus.io/guides/cdi-reference](https://quarkus.io/guides/cdi-reference)
-> * Dev Services：[https://quarkus.io/guides/dev-services](https://quarkus.io/guides/dev-services)
-> * 配置参考：[https://quarkus.io/guides/config-reference](https://quarkus.io/guides/config-reference)
-> * Quarkus 4.0.0.Beta1 发布说明：[https://quarkus.io/blog/quarkus-4-0-0-beta1-released/](https://quarkus.io/blog/quarkus-4-0-0-beta1-released/)
-
 Quarkus 是 Red Hat 主导的 Java 框架，口号是「为容器与云原生而生」。它和 Spring Boot 解决的是同一类问题——写 REST 服务、访问数据库、接消息队列——但做法完全不同：**Spring Boot 在运行期完成的大部分框架工作（扫描、解析注解、生成代理、装配 Bean），Quarkus 挪到了构建期**。理解了这一点，Quarkus 的大部分特性和限制都能推导出来。
 
 ---
@@ -305,5 +297,14 @@ Quarkus 大量采用 Jakarta EE 与 MicroProfile 规范（CDI、Jakarta REST、J
 - Dev Mode 热重载 + 持续测试 + Dev Services 自动起容器，是 Quarkus 开发体验的三件套；CI 需要 Docker 或显式配置外部服务
 - 配置用 SmallRye Config 与 `%profile.` 前缀，注意构建期固化的属性运行时改不了
 - 当前生产推荐 3.40 LTS；Quarkus 4 最低 Java 21，基于 Vert.x 5
+
+## 参考资料
+
+- 官方指南：[https://quarkus.io/guides/](https://quarkus.io/guides/)
+- 版本与支持周期：[https://quarkus.io/releases](https://quarkus.io/releases)
+- CDI 参考（ArC）：[https://quarkus.io/guides/cdi-reference](https://quarkus.io/guides/cdi-reference)
+- Dev Services：[https://quarkus.io/guides/dev-services](https://quarkus.io/guides/dev-services)
+- 配置参考：[https://quarkus.io/guides/config-reference](https://quarkus.io/guides/config-reference)
+- Quarkus 4.0.0.Beta1 发布说明：[https://quarkus.io/blog/quarkus-4-0-0-beta1-released/](https://quarkus.io/blog/quarkus-4-0-0-beta1-released/)
 
 > 下一篇：[REST 与数据访问](./2_rest_data) —— 端点跑在哪个线程上、REST Client 与 Panache 怎么用，是 Quarkus 写业务代码的主线。

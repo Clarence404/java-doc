@@ -8,13 +8,6 @@ description: 负载均衡与灰度路由、熔断限流、Framework 7 容错注�
 >
 > **前置阅读**：[服务通信](./3_communication)
 
-> 参考资料：
-> * Spring Cloud LoadBalancer：[https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/loadbalancer.html](https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/loadbalancer.html)
-> * Resilience4j：[https://resilience4j.readme.io/docs](https://resilience4j.readme.io/docs)
-> * Sentinel：[https://sentinelguard.io/zh-cn/docs/introduction.html](https://sentinelguard.io/zh-cn/docs/introduction.html)
-> * Spring Cloud CircuitBreaker：[https://docs.spring.io/spring-cloud-circuitbreaker/reference/](https://docs.spring.io/spring-cloud-circuitbreaker/reference/)
-> * Spring Framework Resilience Features：[https://docs.spring.io/spring-framework/reference/core/resilience.html](https://docs.spring.io/spring-framework/reference/core/resilience.html)
-
 本篇讲 Spring Cloud 中服务治理能力的**框架落地**：Spring Cloud LoadBalancer 的配置与自定义、灰度路由、Resilience4j 与 Framework 7 内置容错的接入。各项手段的原理、选型与阈值怎么定，见 [高可用总览](/high-avail/0_overview)。
 
 ---
@@ -434,5 +427,13 @@ spring:
 - 熔断降级用 Spring Cloud CircuitBreaker + Resilience4j 或 Sentinel；简单重试与并发限制用 Framework 7 的 `@Retryable` / `@ConcurrencyLimit`
 - 超时、重试、优雅上下线的原理与参数推导在高可用模块，本篇只做框架落地
 - 接口版本兼容：只增不删、契约测试，破坏性变更用 Framework 7 API 版本控制并配合 LoadBalancer 按版本选实例
+
+## 参考资料
+
+- Spring Cloud LoadBalancer：[https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/loadbalancer.html](https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/loadbalancer.html)
+- Resilience4j：[https://resilience4j.readme.io/docs](https://resilience4j.readme.io/docs)
+- Sentinel：[https://sentinelguard.io/zh-cn/docs/introduction.html](https://sentinelguard.io/zh-cn/docs/introduction.html)
+- Spring Cloud CircuitBreaker：[https://docs.spring.io/spring-cloud-circuitbreaker/reference/](https://docs.spring.io/spring-cloud-circuitbreaker/reference/)
+- Spring Framework Resilience Features：[https://docs.spring.io/spring-framework/reference/core/resilience.html](https://docs.spring.io/spring-framework/reference/core/resilience.html)
 
 > 下一篇：[Spring Cloud Alibaba](./6_alibaba) —— 国内最常用的落地组合：版本对齐、Sentinel 规则与持久化、Seata AT 模式。

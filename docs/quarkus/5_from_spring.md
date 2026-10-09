@@ -8,14 +8,6 @@ description: Spring 与 Quarkus 概念对照、Spring 兼容扩展及其限制�
 >
 > **前置阅读**：[Quarkus 概览](./1_basics)、[REST 与数据访问](./2_rest_data)、[原生镜像与云原生部署](./3_native)
 
-> 参考资料：
-> * Spring DI 兼容层：[https://quarkus.io/guides/spring-di](https://quarkus.io/guides/spring-di)
-> * Spring Web 兼容层：[https://quarkus.io/guides/spring-web](https://quarkus.io/guides/spring-web)
-> * Spring Data JPA 兼容层：[https://quarkus.io/guides/spring-data-jpa](https://quarkus.io/guides/spring-data-jpa)
-> * 升级与迁移工具 `quarkus update`：[https://quarkus.io/guides/update-quarkus](https://quarkus.io/guides/update-quarkus)
-> * OpenRewrite 配方（添加 Spring 兼容扩展）：[https://docs.openrewrite.org/recipes/quarkus/spring/addspringcompatibilityextensions](https://docs.openrewrite.org/recipes/quarkus/spring/addspringcompatibilityextensions)
-> * Quarkiverse Nacos 配置扩展：[https://docs.quarkiverse.io/quarkus-config-extensions/dev/nacos.html](https://docs.quarkiverse.io/quarkus-config-extensions/dev/nacos.html)
-
 ---
 
 ## 一、概念对照
@@ -272,5 +264,14 @@ public class AuditInterceptor {
 - 迁移路径：评估依赖 → 兼容扩展跑通 → 逐模块替换为原生 API → 配置与测试迁移 → JVM 模式灰度 → 视收益原生化
 - AOP 改为基于注解绑定的 CDI 拦截器，自调用同样不生效；`@ApplicationScoped` 懒加载、Bean 被移除、构建期配置固化是高频坑
 - 冷启动与内存敏感的新服务值得用 Quarkus；深度依赖 Spring 生态或国内中间件的存量系统不建议迁移
+
+## 参考资料
+
+- Spring DI 兼容层：[https://quarkus.io/guides/spring-di](https://quarkus.io/guides/spring-di)
+- Spring Web 兼容层：[https://quarkus.io/guides/spring-web](https://quarkus.io/guides/spring-web)
+- Spring Data JPA 兼容层：[https://quarkus.io/guides/spring-data-jpa](https://quarkus.io/guides/spring-data-jpa)
+- 升级与迁移工具 `quarkus update`：[https://quarkus.io/guides/update-quarkus](https://quarkus.io/guides/update-quarkus)
+- OpenRewrite 配方（添加 Spring 兼容扩展）：[https://docs.openrewrite.org/recipes/quarkus/spring/addspringcompatibilityextensions](https://docs.openrewrite.org/recipes/quarkus/spring/addspringcompatibilityextensions)
+- Quarkiverse Nacos 配置扩展：[https://docs.quarkiverse.io/quarkus-config-extensions/dev/nacos.html](https://docs.quarkiverse.io/quarkus-config-extensions/dev/nacos.html)
 
 > 下一篇：[其他 Java 框架](./6_other_frameworks) —— Micronaut、Helidon、Solon、Javalin 各自的定位，以及与 Spring Boot、Quarkus、Vert.x 的选型对比。

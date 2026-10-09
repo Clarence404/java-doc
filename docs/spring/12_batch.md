@@ -8,12 +8,6 @@ description: Chunk 读写、Tasklet、流程控制、重启语义、分区扩展
 >
 > **前置阅读**：[事务管理](./4_transaction)
 
-> 参考资料：
-> * Spring Batch 官方文档：[https://docs.spring.io/spring-batch/reference/](https://docs.spring.io/spring-batch/reference/)
-> * Spring Batch 6.0 新特性：[https://docs.spring.io/spring-batch/reference/whatsnew.html](https://docs.spring.io/spring-batch/reference/whatsnew.html)
-> * Spring Batch 6.0 迁移指南：[https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide](https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide)
-> * Spring Boot 中的 Spring Batch：[https://docs.spring.io/spring-boot/reference/io/spring-batch.html](https://docs.spring.io/spring-boot/reference/io/spring-batch.html)
-
 Spring Batch 解决的是「大量数据、离线、可中断可恢复」的处理问题：数据迁移、日终对账、报表汇总、ETL。它不负责调度，只负责把一次批处理执行得**可靠、可观测、可重启**。
 
 ---
@@ -494,5 +488,12 @@ JobInstance 机制本身就能防止同一业务参数被重复执行成功，�
 - 条件分支中 `on()` 作用于上一个 Step，同一 Step 的多个分支用 `from()` 回到该 Step
 - 不用时间戳参数「保证唯一」；需要每次新实例时用 `RunIdIncrementer` + `startNextInstance`；进程被杀后用 `recover` 修复
 - 扩展顺序：多线程 Chunk → 并行流 → 分区 → 远程分块 / 分区；分页读取线程安全，游标读取单线程最快
+
+## 参考资料
+
+- Spring Batch 官方文档：[https://docs.spring.io/spring-batch/reference/](https://docs.spring.io/spring-batch/reference/)
+- Spring Batch 6.0 新特性：[https://docs.spring.io/spring-batch/reference/whatsnew.html](https://docs.spring.io/spring-batch/reference/whatsnew.html)
+- Spring Batch 6.0 迁移指南：[https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide](https://github.com/spring-projects/spring-batch/wiki/Spring-Batch-6.0-Migration-Guide)
+- Spring Boot 中的 Spring Batch：[https://docs.spring.io/spring-boot/reference/io/spring-batch.html](https://docs.spring.io/spring-boot/reference/io/spring-batch.html)
 
 > 下一篇：[Spring Integration](./13_integration) —— 用消息通道和企业集成模式连接文件、HTTP、MQ 等外部系统，并与 Apache Camel 对比。

@@ -8,12 +8,6 @@ description: 字节流 / 字符流、Buffer、Selector、零拷贝、Files API�
 >
 > **前置阅读**：[日期与时间](./17_topic_time)
 
-> 参考资料：
-> * java.nio 包文档（JDK 25）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/package-summary.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/package-summary.html)
-> * JEP 400 默认字符集 UTF-8：[https://openjdk.org/jeps/400](https://openjdk.org/jeps/400)
-> * JEP 444 虚拟线程：[https://openjdk.org/jeps/444](https://openjdk.org/jeps/444)
-> * JEP 454 外部函数与内存 API：[https://openjdk.org/jeps/454](https://openjdk.org/jeps/454)
-
 `java.io` 面向**流**：一次读写一个字节或字符，调用阻塞直到完成。`java.nio` 面向**缓冲区与通道**：数据先进 `Buffer`，再由 `Channel` 搬运，`Selector` 让一个线程同时等待多个通道。两套 API 并不互相替代。文件读写的首选是 `java.nio.file.Files`，网络服务通常交给 Netty，而 JDK 21 起虚拟线程又让「一连接一线程」的阻塞写法重新可用。
 
 ---
@@ -294,5 +288,12 @@ try (Stream<Path> walk = Files.walk(Path.of("src"))) {
 - Selector 在 Linux 上是 epoll，Windows 上 JDK 17 起是 wepoll；AIO 在 Linux 上只是模拟，很少使用
 - `transferTo` 对应 sendfile，要循环调用，TLS 下失效；`map` 对应 mmap，受 2 GB 和无法主动 unmap 限制，JDK 22 起可用 FFM 的 `MemorySegment` 替代
 - JDK 21 虚拟线程让 Socket 阻塞 IO 不再占用平台线程，普通业务可回到同步写法；文件 IO 仍会占用载体线程
+
+## 参考资料
+
+- java.nio 包文档（JDK 25）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/package-summary.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/nio/package-summary.html)
+- JEP 400 默认字符集 UTF-8：[https://openjdk.org/jeps/400](https://openjdk.org/jeps/400)
+- JEP 444 虚拟线程：[https://openjdk.org/jeps/444](https://openjdk.org/jeps/444)
+- JEP 454 外部函数与内存 API：[https://openjdk.org/jeps/454](https://openjdk.org/jeps/454)
 
 > 下一篇：[序列化](./19_topic_serialization) —— 对象如何变成字节：Java 原生序列化的兼容规则与安全风险，以及 JSON / Protobuf 等替代方案。

@@ -8,15 +8,6 @@ description: LDAP / CAS / SAML2 / OIDC 接入、Keycloak 登出、授权服务�
 >
 > **前置阅读**：[单点登录](/security/4_sso)、[OIDC](/security/3_oidc)、[Spring Security](./9_security)
 
-> 参考资料：
-> * Spring Security OAuth2 Login：[https://docs.spring.io/spring-security/reference/servlet/oauth2/login/index.html](https://docs.spring.io/spring-security/reference/servlet/oauth2/login/index.html)
-> * Spring Security OIDC Logout：[https://docs.spring.io/spring-security/reference/servlet/oauth2/login/logout.html](https://docs.spring.io/spring-security/reference/servlet/oauth2/login/logout.html)
-> * Spring Authorization Server：[https://docs.spring.io/spring-security/reference/servlet/oauth2/authorization-server/index.html](https://docs.spring.io/spring-security/reference/servlet/oauth2/authorization-server/index.html)
-> * Spring Security LDAP：[https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/ldap.html](https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/ldap.html)
-> * Spring Security SAML2：[https://docs.spring.io/spring-security/reference/servlet/saml2/index.html](https://docs.spring.io/spring-security/reference/servlet/saml2/index.html)
-> * Keycloak 文档：[https://www.keycloak.org/documentation](https://www.keycloak.org/documentation)
-> * Sa-Token SSO：[https://sa-token.com/doc.html](https://sa-token.com/doc.html)
-
 本篇只讲 Spring 生态下的接入配置。SSO 原理（三方票据模型、方案对比与选型、CAS 票据、单点登出、IAM 平台）见 [单点登录](/security/4_sso)；OIDC 协议见 [OIDC](/security/3_oidc)；OAuth2 协议见 [OAuth2](/security/2_oauth2)；JWT 见 [JWT 令牌机制](/security/1_jwt)。
 
 ---
@@ -703,5 +694,15 @@ public class SsoClientController {
 - 注销用 `OidcClientInitiatedLogoutSuccessHandler`（自动带 `id_token_hint`），接收登出用 `oidcLogout().backChannel()`，多实例需共享 `OidcSessionRegistry`
 - Spring Authorization Server 已并入 Spring Security 7，DSL 为 `oauth2AuthorizationServer(...)`；生产环境用 JDBC 存储、固定 issuer、固定并轮换签名密钥
 - Sa-Token SSO 按「同域 / 跨域同 Redis / 跨域 HTTP 校验」选模式，`allow-url` 必须是白名单
+
+## 参考资料
+
+- Spring Security OAuth2 Login：[https://docs.spring.io/spring-security/reference/servlet/oauth2/login/index.html](https://docs.spring.io/spring-security/reference/servlet/oauth2/login/index.html)
+- Spring Security OIDC Logout：[https://docs.spring.io/spring-security/reference/servlet/oauth2/login/logout.html](https://docs.spring.io/spring-security/reference/servlet/oauth2/login/logout.html)
+- Spring Authorization Server：[https://docs.spring.io/spring-security/reference/servlet/oauth2/authorization-server/index.html](https://docs.spring.io/spring-security/reference/servlet/oauth2/authorization-server/index.html)
+- Spring Security LDAP：[https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/ldap.html](https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/ldap.html)
+- Spring Security SAML2：[https://docs.spring.io/spring-security/reference/servlet/saml2/index.html](https://docs.spring.io/spring-security/reference/servlet/saml2/index.html)
+- Keycloak 文档：[https://www.keycloak.org/documentation](https://www.keycloak.org/documentation)
+- Sa-Token SSO：[https://sa-token.com/doc.html](https://sa-token.com/doc.html)
 
 > 下一篇：[Spring Batch 批处理](./12_batch) —— 分块读写、重启语义与分区扩展，用 Spring Batch 6 写可靠的批处理作业。

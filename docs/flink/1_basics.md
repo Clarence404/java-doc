@@ -8,13 +8,6 @@ description: 流与批、选型对比、JobManager / TaskManager / Slot、算子
 >
 > **前置阅读**：[Kafka](/messaging/2_kafka)（Flink 最常见的数据源与输出）
 
-> 参考资料：
-> * Flink 官方文档（稳定版）：[https://nightlies.apache.org/flink/flink-docs-stable/](https://nightlies.apache.org/flink/flink-docs-stable/)
-> * Flink 架构：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/concepts/flink-architecture/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/concepts/flink-architecture/)
-> * Flink 2.0 发布公告：[https://flink.apache.org/2025/03/24/apache-flink-2.0.0-a-new-era-of-real-time-data-processing/](https://flink.apache.org/2025/03/24/apache-flink-2.0.0-a-new-era-of-real-time-data-processing/)
-> * Flink 2.0 Release Notes：[https://nightlies.apache.org/flink/flink-docs-release-2.0/release-notes/flink-2.0/](https://nightlies.apache.org/flink/flink-docs-release-2.0/release-notes/flink-2.0/)
-> * 部署概览：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/deployment/overview/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/deployment/overview/)
-
 Flink 是一个**有状态的分布式流计算引擎**：数据一条条流过算子，算子把中间结果存在本地状态里，引擎周期性地把状态做成一致性快照（Checkpoint），故障时从快照恢复并重放数据源。「流是本体、批是有界的流」「状态是一等公民」「事件时间 + 水位线处理乱序」这三点决定了它和其他计算框架的差异。
 
 **版本基线**：本模块以 **Flink 2.2.x** 为准（Kafka 连接器 `flink-connector-kafka:5.0.0-2.2`），JDK 17（Java 21 为实验性支持）。Flink 2.3 已发布，但截至撰写时官方 Kafka 连接器文档仍注明尚无适配 2.3 的版本，生产上依赖 Kafka 的作业建议先停在 2.2.x。
@@ -265,5 +258,13 @@ Flink 2.0 于 2025 年 3 月发布，是 1.0 之后的第一个大版本，**与
 - 有状态算子必须设置稳定的 `uid()`，`maxParallelism` 首次上线就要定好
 - 生产用 Application 模式 + Flink Kubernetes Operator；Flink 2.0 已移除 Per-Job 模式
 - Flink 2.x 移除了 DataSet、Scala API、`SourceFunction` / `SinkFunction`、`Time` 类、`flink-conf.yaml`，不再支持 Java 8，与 1.x 状态不保证兼容；连接器版本必须与 Flink 主版本匹配
+
+## 参考资料
+
+- Flink 官方文档（稳定版）：[https://nightlies.apache.org/flink/flink-docs-stable/](https://nightlies.apache.org/flink/flink-docs-stable/)
+- Flink 架构：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/concepts/flink-architecture/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/concepts/flink-architecture/)
+- Flink 2.0 发布公告：[https://flink.apache.org/2025/03/24/apache-flink-2.0.0-a-new-era-of-real-time-data-processing/](https://flink.apache.org/2025/03/24/apache-flink-2.0.0-a-new-era-of-real-time-data-processing/)
+- Flink 2.0 Release Notes：[https://nightlies.apache.org/flink/flink-docs-release-2.0/release-notes/flink-2.0/](https://nightlies.apache.org/flink/flink-docs-release-2.0/release-notes/flink-2.0/)
+- 部署概览：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/deployment/overview/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/deployment/overview/)
 
 > 下一篇：[DataStream API](./2_datastream) —— 从 Source 到 Sink 写一个完整的 Kafka 实时聚合作业，掌握 ProcessFunction、侧输出、异步 I/O 与序列化的坑。

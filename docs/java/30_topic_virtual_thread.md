@@ -8,13 +8,6 @@ description: M:N 调度与挂载卸载、钉住与 JEP 491、诊断、ScopedValu
 >
 > **前置阅读**：[线程池](./28_topic_thread_pool)、[CompletableFuture](./29_topic_completable_future)
 
-> 参考资料：
-> * JEP 444 Virtual Threads（JDK 21 正式）：[https://openjdk.org/jeps/444](https://openjdk.org/jeps/444)
-> * JEP 491 Synchronize Virtual Threads without Pinning（JDK 24）：[https://openjdk.org/jeps/491](https://openjdk.org/jeps/491)
-> * JEP 506 Scoped Values（JDK 25 正式）：[https://openjdk.org/jeps/506](https://openjdk.org/jeps/506)
-> * JEP 505 / 525 Structured Concurrency（JDK 25 第五次预览 / JDK 26 第六次预览）：[https://openjdk.org/jeps/505](https://openjdk.org/jeps/505)、[https://openjdk.org/jeps/525](https://openjdk.org/jeps/525)
-> * Oracle 官方指南：[Virtual Threads](https://docs.oracle.com/en/java/javase/25/core/virtual-threads.html)
-
 ---
 
 ## 一、为什么需要虚拟线程
@@ -309,5 +302,13 @@ Spring Boot 3.2+、JDK 21+ 设置 `spring.threads.virtual.enabled=true`，Tomcat
 - `ScopedValue` 在 JDK 25 正式，是不可变、自动解绑的上下文传递方式，只通过 `StructuredTaskScope` 继承
 - 结构化并发在 JDK 25 / 26 仍是预览，API 每版都在变
 - CPU 密集型任务、需要池化限流语义的场景不用虚拟线程；JDK 25 LTS 是推荐的生产基线
+
+## 参考资料
+
+- JEP 444 Virtual Threads（JDK 21 正式）：[https://openjdk.org/jeps/444](https://openjdk.org/jeps/444)
+- JEP 491 Synchronize Virtual Threads without Pinning（JDK 24）：[https://openjdk.org/jeps/491](https://openjdk.org/jeps/491)
+- JEP 506 Scoped Values（JDK 25 正式）：[https://openjdk.org/jeps/506](https://openjdk.org/jeps/506)
+- JEP 505 / 525 Structured Concurrency（JDK 25 第五次预览 / JDK 26 第六次预览）：[https://openjdk.org/jeps/505](https://openjdk.org/jeps/505)、[https://openjdk.org/jeps/525](https://openjdk.org/jeps/525)
+- Oracle 官方指南：[Virtual Threads](https://docs.oracle.com/en/java/javase/25/core/virtual-threads.html)
 
 > 下一篇：[效率工具库](./98_dev_tool) —— 并发主线到此结束，最后看看 Lombok、MapStruct、Hutool、Guava 这些日常提效的工具库。

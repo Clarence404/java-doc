@@ -4,10 +4,6 @@
 
 版本基线：**Spring Boot 4.x / Spring Cloud 2025.1.x**；服务网格以 **Istio 1.24+**（Ambient 模式 GA）为准；Dubbo 以 **3.3** 为准，基于 Spring Boot 3.5，Boot 4 适配以官方发布为准。
 
-> 参考资料：
-> * Microservices（James Lewis & Martin Fowler）：[https://martinfowler.com/articles/microservices.html](https://martinfowler.com/articles/microservices.html)
-> * Microservice Architecture（Chris Richardson）：[https://microservices.io/](https://microservices.io/)
-
 ---
 
 ## 一、模块导航
@@ -40,3 +36,8 @@
 - [云原生 · Kubernetes](/cloud-native/6_kubernetes)：微服务与服务网格的运行底座
 - [网络协议 · 远程调用协议](/protocols/3_rpc_protocols)：gRPC、REST、Dubbo 协议的横向对比
 - [开发总结 - 微服务与 Spring Cloud](/interview/11_spring_cloud)：本模块高频问题的答案汇总
+
+## 参考资料
+
+- Microservices（James Lewis & Martin Fowler）：[https://martinfowler.com/articles/microservices.html](https://martinfowler.com/articles/microservices.html)
+- Microservice Architecture（Chris Richardson）：[https://microservices.io/](https://microservices.io/)

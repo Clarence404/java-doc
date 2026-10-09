@@ -4,11 +4,6 @@ Spring Boot 模块从启动流程与自动配置原理出发，覆盖 Web 开发
 
 版本基线：**Spring Boot 4.x / Spring Framework 7.x**（JDK 17 起步，推荐 21 / 25），3.x 的差异在文中单独标注。
 
-> 参考资料：
-> * Spring Boot 参考文档：[https://docs.spring.io/spring-boot/](https://docs.spring.io/spring-boot/)
-> * Spring Boot 项目页：[https://spring.io/projects/spring-boot](https://spring.io/projects/spring-boot)
-> * Spring Boot Release Notes：[https://github.com/spring-projects/spring-boot/wiki](https://github.com/spring-projects/spring-boot/wiki)
-
 ---
 
 ## 一、模块导航
@@ -38,3 +33,9 @@ Spring Boot 模块从启动流程与自动配置原理出发，覆盖 Web 开发
 - [可观测性总览](/observability/0_overview)：日志采集、指标与链路追踪平台
 - [版本演进](/java/2_version)：各 JDK 版本的语言与平台特性
 - [优雅上下线与变更](/high-avail/8_graceful_release)：优雅停机、服务预热与数据库变更的发布顺序
+
+## 参考资料
+
+- Spring Boot 参考文档：[https://docs.spring.io/spring-boot/](https://docs.spring.io/spring-boot/)
+- Spring Boot 项目页：[https://spring.io/projects/spring-boot](https://spring.io/projects/spring-boot)
+- Spring Boot Release Notes：[https://github.com/spring-projects/spring-boot/wiki](https://github.com/spring-projects/spring-boot/wiki)

@@ -8,11 +8,6 @@ description: ServiceLoader、TCCL、JPMS provides / uses、Dubbo 扩展点、自
 >
 > **前置阅读**：[序列化](./19_topic_serialization)；类加载器与双亲委派见 [类加载机制](/jvm/2_class_loading)
 
-> 参考资料：
-> * ServiceLoader API（JDK 25）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/ServiceLoader.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/ServiceLoader.html)
-> * Dubbo SPI 扩展：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/spi/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/spi/)
-> * Spring Boot 自动配置：[https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html)
-
 SPI（Service Provider Interface）是一种服务发现机制：框架只定义接口，第三方 jar 提供实现并在约定位置登记，框架运行时把实现找出来。JDBC 驱动、SLF4J 日志绑定、Dubbo 协议、Spring Boot 自动配置都是这个思路。
 
 ---
@@ -198,5 +193,11 @@ com.example.autoconfigure.MyAutoConfiguration
 - 原生 SPI 缺按名获取、排序、注入和条件激活；JPMS 用 `provides` / `uses` 在模块层声明服务
 - Dubbo 3 用 `@SPI` + `name=impl` 配置，经 `ApplicationModel` 获取扩展，支持 Adaptive、Activate、Wrapper
 - Spring Boot 2.7 引入 `AutoConfiguration.imports`，3.0 起自动配置只能在这里登记；`spring.factories` 仍承载其他扩展点
+
+## 参考资料
+
+- ServiceLoader API（JDK 25）：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/ServiceLoader.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/ServiceLoader.html)
+- Dubbo SPI 扩展：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/spi/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/reference-manual/spi/)
+- Spring Boot 自动配置：[https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html)
 
 > 下一篇：[集合框架](./21_topic_collection) —— List / Set / Queue / Map 的实现原理，重点是 HashMap 与 ConcurrentHashMap。

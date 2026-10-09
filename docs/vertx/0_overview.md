@@ -4,11 +4,6 @@ Eclipse Vert.x 是一套运行在 JVM 上的事件驱动、非阻塞工具包。
 
 版本基线：**Vert.x 5.2.x**（截至 2026 年 10 月最新为 5.2.1），**JDK 21 / 25**（Vert.x 5 最低要求 JDK 11）。Vert.x 5 删除了回调 API，只保留 Future，新增了 `VerticleBase`、`Vertx.builder()` 和虚拟线程 Verticle。4.5.x 线仍有维护补丁，但新项目应直接使用 5.x。与 4.x 行为不同的地方，文中会单独标出。
 
-> 参考资料：
-> * Vert.x 官方文档：[https://vertx.io/docs/](https://vertx.io/docs/)
-> * Vert.x 5 迁移指南：[https://vertx.io/docs/guides/vertx-5-migration-guide/](https://vertx.io/docs/guides/vertx-5-migration-guide/)
-> * What's new in Vert.x 5：[https://vertx.io/blog/whats-new-in-vert-x-5/](https://vertx.io/blog/whats-new-in-vert-x-5/)
-
 ---
 
 ## 一、学习路线
@@ -46,3 +41,9 @@ Eclipse Vert.x 是一套运行在 JVM 上的事件驱动、非阻塞工具包。
 - [Kubernetes](/cloud-native/6_kubernetes)：集群 Event Bus 的成员发现与部署，更多内容见 [云原生总览](/cloud-native/0_overview)
 - [指标监控](/observability/2_metrics) / [OpenTelemetry](/observability/5_opentelemetry)：Micrometer 指标与链路追踪的接入，更多内容见 [可观测性总览](/observability/0_overview)
 - [Flink 总览](/flink/0_overview)：同属框架生态，面向流计算而非在线服务
+
+## 参考资料
+
+- Vert.x 官方文档：[https://vertx.io/docs/](https://vertx.io/docs/)
+- Vert.x 5 迁移指南：[https://vertx.io/docs/guides/vertx-5-migration-guide/](https://vertx.io/docs/guides/vertx-5-migration-guide/)
+- What's new in Vert.x 5：[https://vertx.io/blog/whats-new-in-vert-x-5/](https://vertx.io/blog/whats-new-in-vert-x-5/)

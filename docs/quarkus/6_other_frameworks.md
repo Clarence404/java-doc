@@ -8,15 +8,6 @@ description: Micronaut、Helidon、Solon、Javalin 定位与现状、六种 Java
 >
 > **前置阅读**：[Quarkus 概览](./1_basics)、[从 Spring Boot 迁移](./5_from_spring)
 
-> 参考资料：
-> * Micronaut 发布公告：[https://micronaut.io/category/release-announcements/](https://micronaut.io/category/release-announcements/)
-> * Micronaut 5（Java 25 基线）：[https://micronaut.io/category/micronaut-5/](https://micronaut.io/category/micronaut-5/)
-> * Helidon 发布记录：[https://github.com/helidon-io/helidon/releases](https://github.com/helidon-io/helidon/releases)
-> * Solon 官网：[https://solon.noear.org/](https://solon.noear.org/)
-> * Solon 与 Spring Boot 对比：[https://solon.noear.org/article/compare-springboot](https://solon.noear.org/article/compare-springboot)
-> * Solon GitHub：[https://github.com/opensolon/solon](https://github.com/opensolon/solon)
-> * Javalin 发布记录：[https://github.com/javalin/javalin/releases](https://github.com/javalin/javalin/releases)
-
 版本信息截至 2026 年 10 月。这几个框架都在快速演进，落地前请以官方发布页为准。
 
 ---
@@ -236,5 +227,15 @@ Vert.x 的定位与模型见 [Vert.x 概览](/vertx/1_basics)。
 - Solon 是国产轻量框架，不依赖 Spring / Servlet / Jakarta EE，概念同 Spring、注解不同，支持 Java 8 起的各版本；性能数据为官方自述，信创适配需按项目要求自行验证
 - Javalin 是只管 Web 的极简框架，适合小工具与原型
 - 默认选 Spring Boot；冷启动和内存是硬指标时考虑 Quarkus / Micronaut；I/O 密集组件用 Vert.x / Netty；国产化与 Java 8 存量可评估 Solon
+
+## 参考资料
+
+- Micronaut 发布公告：[https://micronaut.io/category/release-announcements/](https://micronaut.io/category/release-announcements/)
+- Micronaut 5（Java 25 基线）：[https://micronaut.io/category/micronaut-5/](https://micronaut.io/category/micronaut-5/)
+- Helidon 发布记录：[https://github.com/helidon-io/helidon/releases](https://github.com/helidon-io/helidon/releases)
+- Solon 官网：[https://solon.noear.org/](https://solon.noear.org/)
+- Solon 与 Spring Boot 对比：[https://solon.noear.org/article/compare-springboot](https://solon.noear.org/article/compare-springboot)
+- Solon GitHub：[https://github.com/opensolon/solon](https://github.com/opensolon/solon)
+- Javalin 发布记录：[https://github.com/javalin/javalin/releases](https://github.com/javalin/javalin/releases)
 
 > 返回：[Quarkus 总览](./0_overview)

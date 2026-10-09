@@ -8,13 +8,6 @@ description: "@SpringBootTest、切片测试、@MockitoBean、Testcontainers、�
 >
 > **前置阅读**：[启动流程与自动配置](./1_spring_boot)
 
-> 参考资料：
-> * Spring Boot Testing：[https://docs.spring.io/spring-boot/reference/testing/index.html](https://docs.spring.io/spring-boot/reference/testing/index.html)
-> * Testing Spring Boot Applications：[https://docs.spring.io/spring-boot/reference/testing/spring-boot-applications.html](https://docs.spring.io/spring-boot/reference/testing/spring-boot-applications.html)
-> * Testcontainers 集成：[https://docs.spring.io/spring-boot/reference/testing/testcontainers.html](https://docs.spring.io/spring-boot/reference/testing/testcontainers.html)
-> * Spring TestContext Framework：[https://docs.spring.io/spring-framework/reference/testing/testcontext-framework.html](https://docs.spring.io/spring-framework/reference/testing/testcontext-framework.html)
-> * Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
-
 本篇只讲 Spring 与 Spring Boot 提供的测试支持。测试分层、覆盖率等通用原则见 [测试工程总览](/testing/0_overview)，Mockito 本身的用法见 [Mock 测试](/testing/2_mock)，Testcontainers 本身见 [Testcontainers](/testing/5_testcontainers)。
 
 版本基线：Spring Boot 4.x（Spring Framework 7.x，JUnit 6）。涉及 3.x 的差异会单独标出。
@@ -605,5 +598,13 @@ Spring TestContext 把加载过的 `ApplicationContext` 缓存在 JVM 静态变�
 - 测试事务默认回滚，但 `RANDOM_PORT`、`REQUIRES_NEW`、异步线程中的写入不回滚；JPA 断言前记得 `flush()`
 - 异步用 Awaitility 轮询断言，定时任务测逻辑不测调度器，日志用 `OutputCaptureExtension` 验证
 - 测试套件慢，多半是上下文缓存被打碎：统一 Mock、属性、profile，少用 `@DirtiesContext`，别让每个测试类单独 fork
+
+## 参考资料
+
+- Spring Boot Testing：[https://docs.spring.io/spring-boot/reference/testing/index.html](https://docs.spring.io/spring-boot/reference/testing/index.html)
+- Testing Spring Boot Applications：[https://docs.spring.io/spring-boot/reference/testing/spring-boot-applications.html](https://docs.spring.io/spring-boot/reference/testing/spring-boot-applications.html)
+- Testcontainers 集成：[https://docs.spring.io/spring-boot/reference/testing/testcontainers.html](https://docs.spring.io/spring-boot/reference/testing/testcontainers.html)
+- Spring TestContext Framework：[https://docs.spring.io/spring-framework/reference/testing/testcontext-framework.html](https://docs.spring.io/spring-framework/reference/testing/testcontext-framework.html)
+- Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 
 > 下一篇：[启动与部署优化](./14_startup) —— 测试跑稳之后，再看如何让应用启动更快、部署更稳。

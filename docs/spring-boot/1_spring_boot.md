@@ -8,13 +8,6 @@ description: 启动流程与生命周期事件、自动配置加载链路、条�
 >
 > **前置阅读**：[IoC 容器](/spring/1_ioc)
 
-> 参考资料：
-> * SpringApplication：[https://docs.spring.io/spring-boot/reference/features/spring-application.html](https://docs.spring.io/spring-boot/reference/features/spring-application.html)
-> * Creating Your Own Auto-configuration：[https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html)
-> * Embedded Web Servers：[https://docs.spring.io/spring-boot/how-to/webserver.html](https://docs.spring.io/spring-boot/how-to/webserver.html)
-> * Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
-> * GitHub：[https://github.com/spring-projects/spring-boot](https://github.com/spring-projects/spring-boot)
-
 版本基线：Spring Boot 4.x / Spring Framework 7.x，与 3.x 不同的地方单独标出。
 
 ---
@@ -296,5 +289,13 @@ spring:
 - `@ConditionalOnBean` 只在自动配置类里可靠；方法级条件不要引用可能缺失的类
 - 配置类优先用 record + 构造器绑定 + `@Validated`
 - Boot 4 移除 Undertow，Servlet 栈只剩 Tomcat 与 Jetty；开启虚拟线程后要给下游资源设并发上限
+
+## 参考资料
+
+- SpringApplication：[https://docs.spring.io/spring-boot/reference/features/spring-application.html](https://docs.spring.io/spring-boot/reference/features/spring-application.html)
+- Creating Your Own Auto-configuration：[https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html](https://docs.spring.io/spring-boot/reference/features/developing-auto-configuration.html)
+- Embedded Web Servers：[https://docs.spring.io/spring-boot/how-to/webserver.html](https://docs.spring.io/spring-boot/how-to/webserver.html)
+- Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
+- GitHub：[https://github.com/spring-projects/spring-boot](https://github.com/spring-projects/spring-boot)
 
 > 下一篇：[Web 开发](./2_web_dev) —— 参数绑定与校验、错误响应、Filter 注册、CORS 与新一代 HTTP 客户端。

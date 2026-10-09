@@ -8,13 +8,6 @@ description: 不可变与 Compact Strings、常量池与 ==、invokedynamic 拼�
 >
 > **前置阅读**：[异常体系](./10_topic_exception)
 
-> 参考资料：
-> * String API（Java SE 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html)
-> * JEP 254 Compact Strings：[https://openjdk.org/jeps/254](https://openjdk.org/jeps/254)
-> * JEP 280 Indify String Concatenation：[https://openjdk.org/jeps/280](https://openjdk.org/jeps/280)
-> * JEP 378 Text Blocks：[https://openjdk.org/jeps/378](https://openjdk.org/jeps/378)
-> * JEP 400 UTF-8 by Default：[https://openjdk.org/jeps/400](https://openjdk.org/jeps/400)
-
 本文以 JDK 21 / 25 为基线，与 JDK 8 / 17 不同之处单独标注。
 
 ---
@@ -317,5 +310,13 @@ Files.readString(path, Charset.forName("GBK"));
 - JDK 9 起单表达式 `+` 编译为 `invokedynamic`（StringConcatFactory），直接用 `+` 即可；循环内拼接仍用 `StringBuilder`，`StringBuffer` 属于遗留类
 - 文本块（15）、`strip` / `isBlank` / `lines` / `repeat`（11）、`formatted`（15）、`splitWithDelimiters`（21）是日常常用的新 API；字符串模板已撤回
 - JDK 18 起默认字符集为 UTF-8，但读写字节时仍应显式指定字符集
+
+## 参考资料
+
+- String API（Java SE 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html)
+- JEP 254 Compact Strings：[https://openjdk.org/jeps/254](https://openjdk.org/jeps/254)
+- JEP 280 Indify String Concatenation：[https://openjdk.org/jeps/280](https://openjdk.org/jeps/280)
+- JEP 378 Text Blocks：[https://openjdk.org/jeps/378](https://openjdk.org/jeps/378)
+- JEP 400 UTF-8 by Default：[https://openjdk.org/jeps/400](https://openjdk.org/jeps/400)
 
 > 下一篇：[枚举](./12_topic_enum) —— 带字段与行为的类型安全常量，以及它在序列化、持久化和 switch 中的特殊规则。

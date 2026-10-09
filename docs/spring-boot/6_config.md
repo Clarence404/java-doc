@@ -8,11 +8,6 @@ description: 配置优先级、松散绑定、@ConfigurationProperties、Profile
 >
 > **前置阅读**：[启动流程与自动配置](./1_spring_boot)
 
-> 参考资料：
-> * Spring Boot Externalized Configuration：[https://docs.spring.io/spring-boot/reference/features/external-config.html](https://docs.spring.io/spring-boot/reference/features/external-config.html)
-> * Spring Boot Profiles：[https://docs.spring.io/spring-boot/reference/features/profiles.html](https://docs.spring.io/spring-boot/reference/features/profiles.html)
-> * Spring Cloud Vault：[https://spring.io/projects/spring-cloud-vault](https://spring.io/projects/spring-cloud-vault)
-
 本篇以 Spring Boot 4.x 为基线；外部化配置的机制从 2.4 起基本稳定，3.x 与 4.x 的写法一致，个别差异在正文中标出。
 
 ---
@@ -325,5 +320,11 @@ Boot 本身只在启动时绑定配置，**运行时修改配置需要 Spring Cl
 - 多环境用 Profile 文件或 `on-profile` 多文档，`spring.profiles.active` 不能写在 Profile 专属文档里；分组和 `include` 组合环境
 - `spring.config.import` 统一接入额外文件、`configtree:` Secret、Nacos、Vault；`optional:` 控制缺失时是否启动失败
 - 密钥走运行时注入或密钥服务，Jasypt 只作兜底；动态刷新属于 Spring Cloud 的能力
+
+## 参考资料
+
+- Spring Boot Externalized Configuration：[https://docs.spring.io/spring-boot/reference/features/external-config.html](https://docs.spring.io/spring-boot/reference/features/external-config.html)
+- Spring Boot Profiles：[https://docs.spring.io/spring-boot/reference/features/profiles.html](https://docs.spring.io/spring-boot/reference/features/profiles.html)
+- Spring Cloud Vault：[https://spring.io/projects/spring-cloud-vault](https://spring.io/projects/spring-cloud-vault)
 
 > 下一篇：[Actuator 监控](./7_actuator) —— 健康检查、探针、指标与端点安全，让 Boot 应用在生产环境可观测、可运维。
