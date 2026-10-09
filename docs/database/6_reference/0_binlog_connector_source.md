@@ -1,675 +1,232 @@
 ---
-description: BinaryLogClient、connect 与事件监听、EventDeserializer、GTID 位点、保活与断线重连
+description: BinaryLogClient 连接流程、事件循环、checksum 与 TableMap、GTID 位点、保活重连
 ---
 
-# Binlog Connector 源码分析
+# mysql-binlog-connector-java 原理
 
-- Github: [https://github.com/shyiko/mysql-binlog-connector-java](https://github.com/shyiko/mysql-binlog-connector-java)
-- 该库的使用方式与 CDC 工具链对比见 [CDC 工具](../5_practice/0_cdc_tools)
+> **本篇目标**：读懂 `BinaryLogClient` 从握手到事件循环的主流程，理解反序列化中的两个有状态环节（checksum 与 TABLE_MAP）、GTID 何时计入位点、保活线程如何判定断线并重连，从而知道使用这个库时哪些事情必须自己做。
+>
+> **前置阅读**：[CDC 工具](../5_practice/0_cdc_tools)（库的定位与最小使用示例）、[MySQL 主从与高可用](../1_mysql/9_topic_replication)（binlog 与 GTID）
 
-## 一、核心类：BinaryLogClient
+mysql-binlog-connector-java 在应用进程里扮演一个 MySQL 副本：完成握手认证后发送 binlog dump 请求，把收到的二进制事件反序列化成 Java 对象交给监听器。它**只做协议与反序列化**：不做全量快照、不解析 DDL、不维护表结构历史、不持久化位点。原作者 shyiko 的仓库已归档，持续维护的是 osheroff 的分支，Maven 坐标为 `com.zendesk:mysql-binlog-connector-java`，包名仍是 `com.github.shyiko.mysql.binlog`。本文按该分支的当前源码讲解，使用示例统一放在 [CDC 工具](../5_practice/0_cdc_tools)。
 
-BinaryLogClient 是一个功能完整的 MySQL 二进制日志客户端，主要特点包括：
+---
 
-### 1、核心功能
+## 一、连接流程
 
-- 实时数据同步：监听 MySQL binlog 事件，获取数据库变更
-- 多数据库支持：支持 MySQL 和 MariaDB
-- GTID 支持：完整的全局事务标识符支持
-- SSL 安全连接：多种 SSL 模式支持
-- 自动重连：内置保活和重连机制
+![BinaryLogClient 连接、事件循环与保活重连](../../assets/database/binlog-client-flow.svg)
 
-### 2、架构设计
-
-- 事件驱动：基于监听器模式处理事件
-- 线程安全：使用 CopyOnWriteArrayList 和锁机制
-- 资源管理：完善的连接和线程生命周期管理
-- 错误处理：全面的异常处理和恢复机制
-
-### 3、使用场景
-
-- 数据同步和复制
-- 实时数据变更监控
-- 数据备份和恢复
-- 数据分析和审计
-- 这个客户端库为 Java 应用程序提供了与 MySQL 二进制日志交互的完整解决方案，是构建数据同步、实时监控等系统的重要基础组件。
-
-## 二、核心方法 connect
+`connect()` 的主干（精简）：
 
 ```java
-public void connect() throws IOException, IllegalStateException {
-    // 1. 获取连接锁，防止重复连接
+public void connect() throws IOException {
     if (!connectLock.tryLock()) {
         throw new IllegalStateException("BinaryLogClient is already connected");
     }
-
     try {
-        // 2. 建立网络连接
-        channel = openChannel();
-
-        // 3. 接收服务器问候包
-        GreetingPacket greetingPacket = receiveGreeting();
-
-        // 4. 解析数据库版本
-        resolveDatabaseVersion(greetingPacket);
-
-        // 5. 尝试升级到 SSL（如果需要）
-        tryUpgradeToSSL(greetingPacket);
-
-        // 6. 进行身份认证
-        new Authenticator(greetingPacket, channel, schema, username, password).authenticate();
-
-        // 7. 设置连接参数
-        setupConnection();
-
-        // 8. 请求二进制日志流
-        requestBinaryLogStream();
-
-        // 9. 开始监听事件
-        listenForEventPackets();
+        channel = openChannel();                          // TCP 连接
+        GreetingPacket greeting = receiveGreeting();      // 服务器问候包：版本、认证插件、盐
+        resolveDatabaseVersion(greeting);                 // 区分 MySQL / MariaDB
+        tryUpgradeToSSL(greeting);                        // 按 SSLMode 升级 TLS
+        new Authenticator(greeting, channel, schema, username, password).authenticate();
+        setupConnection();                                // checksum、心跳周期、GTID 初始位点
+        requestBinaryLogStream();                         // COM_BINLOG_DUMP 或 COM_BINLOG_DUMP_GTID
+        connected = true;
+        lifecycleListeners.forEach(l -> l.onConnect(this));
+        if (keepAlive && !isKeepAliveThreadRunning()) {
+            spawnKeepAliveThread();
+        }
+        listenForEventPackets();                          // 阻塞读取，直到断开
     } finally {
         connectLock.unlock();
     }
 }
 ```
 
-## 三、listenForEventPackets 方法
+几个容易误解的点：
 
-`listenForEventPackets()` 是 `BinaryLogClient` 的核心方法，负责持续监听 MySQL 服务器发送的二进制日志事件包。
+- `onConnect` 在 dump 请求**发出之后**才触发，此时服务器已经开始推送事件
+- `connect()` 会一直阻塞在事件循环里；在 Spring 等容器中要放到独立线程，或使用 `connect(timeout)`，它在后台线程连接并等待连接成功后返回
+- `setupConnection` 会查询服务器的 `binlog_checksum` 并执行 `SET @master_binlog_checksum = @@global.binlog_checksum`；设置了 `heartbeatInterval` 时还会设置 `@master_heartbeat_period`，让服务器在空闲时定期发送 HEARTBEAT 事件
 
-### 1. 方法概述
+### 1、两种订阅方式
 
-```java
-private void listenForEventPackets() throws IOException {
-    ByteArrayInputStream inputStream = channel.getInputStream();
-    boolean completeShutdown = false;
-    // ... 事件监听循环
-}
-```
+| 方式 | 设置 | dump 命令 | 特点 |
+|------|------|---------|------|
+| 文件名 + 位置 | `setBinlogFilename` + `setBinlogPosition` | `COM_BINLOG_DUMP` | 位置只对当前服务器有效，主从切换后失效 |
+| GTID | `setGtidSet(...)` | `COM_BINLOG_DUMP_GTID` | 全局唯一，切换到新的源后仍可续传 |
 
-**作用**：
-- 持续读取 MySQL 服务器发送的 binlog 事件包
-- 解析事件并通知注册的监听器
-- 处理各种异常情况
-- 维护连接状态和位置信息
+`setGtidSet` 传入任何非 null 值（包括空字符串）都会进入 GTID 模式；空字符串表示从最早可用的 binlog 开始。两者同时设置时默认以 GTID 为准，开启 `useBinlogFilenamePositionInGtidMode` 才会用文件位置作为起点。`setBlocking(false)` 时 dump 请求不再等待新事件，服务器发完现有 binlog 后返回 EOF 包，客户端随即完整关闭，适合一次性回放。
 
-### 2. 主要处理流程
+---
 
-#### 2.1 初始化阶段
-```java
-ByteArrayInputStream inputStream = channel.getInputStream();
-boolean completeShutdown = false;
-```
-- 获取网络通道的输入流
-- 初始化关闭标志
+## 二、事件循环
 
-#### 2.2 主循环 - 持续监听事件
+`listenForEventPackets` 的核心逻辑（精简）：
+
 ```java
 while (inputStream.peek() != -1) {
-    // 处理每个数据包
+    int packetLength = inputStream.readInteger(3);
+    inputStream.skip(1);                                  // 序列号
+    int marker = inputStream.read();
+    if (marker == 0xFF) {                                 // ERR 包：抛出 ServerException
+        ErrorPacket error = new ErrorPacket(inputStream.read(packetLength - 1));
+        throw new ServerException(error.getErrorMessage(), error.getErrorCode(), error.getSqlState());
+    }
+    if (marker == 0xFE && !blocking) {                    // 非阻塞模式下 binlog 已读完
+        completeShutdown = true;
+        break;
+    }
+    Event event;
+    try {
+        event = eventDeserializer.nextEvent(packetLength == MAX_PACKET_LENGTH
+                ? new ByteArrayInputStream(readPacketSplitInChunks(inputStream, packetLength - 1))
+                : inputStream);
+    } catch (Exception e) {
+        // 网络类异常（EOF、Socket）直接抛出；数据类异常通知 onEventDeserializationFailure 后跳过该事件
+        ...
+    }
+    if (isConnected()) {
+        eventLastSeen = System.currentTimeMillis();
+        handleEvent(event);  // updateGtidSet → notifyEventListeners → updateClientBinlogFilenameAndPosition
+    }
 }
 ```
-
-**循环条件**：`inputStream.peek() != -1` 表示还有数据可读
-
-#### 2.3 数据包解析
-
-**步骤1：读取数据包头部**
-```java
-int packetLength = inputStream.readInteger(3);  // 读取3字节的数据包长度
-inputStream.skip(1);                            // 跳过1字节的序列号
-int marker = inputStream.read();                // 读取1字节的标记
-```
-
-**MySQL 协议数据包格式**：
 
 ![MySQL 协议包格式](../../assets/database/mysql-packet-format.svg)
 
-**步骤2：处理特殊标记**
-
-**错误包处理 (0xFF)**：
-```java
-if (marker == 0xFF) {
-    ErrorPacket errorPacket = new ErrorPacket(inputStream.read(packetLength - 1));
-    throw new ServerException(errorPacket.getErrorMessage(), errorPacket.getErrorCode(),
-        errorPacket.getSqlState());
-}
-```
-
-**EOF 包处理 (0xFE)**：
-```java
-if (marker == 0xFE && !blocking) {
-    completeShutdown = true;
-    break;
-}
-```
-- 在非阻塞模式下，EOF 包表示服务器主动断开连接
-
-#### 2.4 事件反序列化
-
-```java
-Event event;
-try {
-    event = eventDeserializer.nextEvent(packetLength == MAX_PACKET_LENGTH ?
-        new ByteArrayInputStream(readPacketSplitInChunks(inputStream, packetLength - 1)) :
-        inputStream);
-    if (event == null) {
-        throw new EOFException();
-    }
-} catch (Exception e) {
-    // 处理反序列化异常
-}
-```
-
-**关键逻辑**：
-- 如果数据包长度等于 `MAX_PACKET_LENGTH` (16777215)，说明数据被分片
-- 需要调用 `readPacketSplitInChunks()` 重新组装数据
-- 否则直接使用原始输入流
-
-#### 2.5 大包分片处理
-
-```java
-private byte[] readPacketSplitInChunks(ByteArrayInputStream inputStream, int packetLength) throws IOException {
-    byte[] result = inputStream.read(packetLength);
-    int chunkLength;
-    do {
-        chunkLength = inputStream.readInteger(3);  // 读取下一个分片长度
-        inputStream.skip(1);                       // 跳过序列号
-        result = Arrays.copyOf(result, result.length + chunkLength);  // 扩展结果数组
-        inputStream.fill(result, result.length - chunkLength, chunkLength);  // 填充数据
-    } while (chunkLength == Packet.MAX_LENGTH);  // 如果长度等于最大值，说明还有更多分片
-    return result;
-}
-```
-
-**分片重组逻辑**：
-- MySQL 协议限制单个数据包最大 16MB
-- 超过限制的数据会被分成多个包
-- 需要重新组装成完整的数据
-
-#### 2.6 事件处理
-
-```java
-if (isConnected()) {
-    eventLastSeen = System.currentTimeMillis();           // 更新最后事件时间
-    updateGtidSet(event);                                 // 更新 GTID 信息
-    notifyEventListeners(event);                          // 通知事件监听器
-    updateClientBinlogFilenameAndPosition(event);         // 更新位置信息
-}
-```
-
-**处理步骤**：
-1. **时间戳更新**：用于保活机制检测
-2. **GTID 更新**：维护全局事务标识符状态
-3. **事件通知**：调用所有注册的事件监听器
-4. **位置更新**：更新当前 binlog 文件名和位置
-
-### 3. 异常处理机制
-
-#### 3.1 反序列化异常
-```java
-} catch (Exception e) {
-    Throwable cause = e instanceof EventDataDeserializationException ? e.getCause() : e;
-    if (cause instanceof EOFException || cause instanceof SocketException) {
-        throw e;  // 重新抛出网络相关异常
-    }
-    if (isConnected()) {
-        for (LifecycleListener lifecycleListener : lifecycleListeners) {
-            lifecycleListener.onEventDeserializationFailure(this, e);
-        }
-    }
-    continue;  // 跳过当前事件，继续处理下一个
-}
-```
-
-**处理策略**：
-- 网络异常：重新抛出，终止连接
-- 数据异常：通知监听器，跳过当前事件
-- 继续处理：不中断整个监听循环
-
-#### 3.2 通信异常
-```java
-} catch (Exception e) {
-    if (isConnected()) {
-        for (LifecycleListener lifecycleListener : lifecycleListeners) {
-            lifecycleListener.onCommunicationFailure(this, e);
-        }
-    }
-}
-```
-
-### 4. 资源清理
-
-```java
-} finally {
-    if (isConnected()) {
-        if (completeShutdown) {
-            // 完全关闭（包括保活线程）
-            disconnect();
-        } else {
-            // 只关闭网络连接
-            disconnectChannel();  
-        }
-    }
-}
-```
-
-**清理策略**：
-- **完全关闭**：服务器主动断开时，关闭所有资源
-- **部分关闭**：网络异常时，只关闭网络连接，保活线程会尝试重连
-
-### 5. 方法特点
-
-#### 5.1 阻塞性
-- 方法会阻塞直到连接断开
-- 在 `connect()` 方法中调用，是连接过程的核心
-
-#### 5.2 容错性
-- 单个事件解析失败不会终止整个监听
-- 网络异常会触发重连机制
-
-#### 5.3 实时性
-- 持续监听，实时处理事件
-- 立即通知监听器，无缓冲延迟
-
-### 6. 使用场景
-
-```java
-// 在 connect() 方法中的调用
-public void connect() throws IOException, IllegalStateException {
-    // ... 连接建立逻辑
-    try {
-        // ... 其他初始化
-        listenForEventPackets();  // 开始监听事件（阻塞）
-    } finally {
-        connectLock.unlock();
-    }
-}
-```
-
-### 7. 总结
-
-`listenForEventPackets()` 方法实现了：
-
-1. **持续监听**：循环读取 MySQL 事件包
-2. **协议解析**：处理 MySQL 二进制日志协议
-3. **事件分发**：将解析的事件通知给监听器
-4. **状态维护**：更新 GTID、位置等状态信息
-5. **异常处理**：优雅处理各种异常情况
-6. **资源管理**：确保连接和资源正确清理
-
-这是整个 `BinaryLogClient` 的核心，负责将 MySQL 的二进制日志事件转换为 Java 对象并分发给应用程序。
-
-## 四、EventDeserializer 事件反序列化
-
-`eventDeserializer.nextEvent(inputStream)` 把原始字节流还原为 `Event` 对象，核心逻辑（精简）：
-
-```java
-public Event nextEvent(ByteArrayInputStream inputStream) throws IOException {
-    // 1. 反序列化事件头（EventHeaderV4：timestamp、eventType、serverId、
-    //    eventLength、nextPosition、flags，共 19 字节）
-    EventHeader eventHeader = eventHeaderDeserializer.deserialize(inputStream);
-
-    // 2. 按事件类型从注册表中选择对应的 EventDataDeserializer
-    EventDataDeserializer dataDeserializer =
-        getEventDataDeserializer(eventHeader.getEventType());
-
-    // 3. 反序列化事件体（若开启了 checksum，先剥离末尾 4 字节 CRC32）
-    return new Event(eventHeader, deserializeEventData(inputStream, eventHeader, dataDeserializer));
-}
-```
-
-### 1、两个关键的"有状态"处理
-
-- **checksum 自适应**：连接后收到的第一个 `FORMAT_DESCRIPTION` 事件声明了 binlog 的 checksum 算法（NONE / CRC32），反序列化器据此决定后续每个事件是否要剥掉末尾 4 字节校验和——这就是为什么不能跳过 FORMAT_DESCRIPTION 事件
-- **TableMap 缓存**：`TABLE_MAP` 事件携带表的列类型元数据，反序列化器内部按 `tableId` 缓存；后续 `WRITE/UPDATE/DELETE_ROWS` 事件只带 tableId 和裸数据，必须查这份缓存才能按列类型解出字段值（第五节使用示例里应用层再缓存一份 `TableMapEventData` 是同样的道理——binlog 里**没有列名**，列名要自己查 `information_schema`）
-
-### 2、兼容模式与跳过策略
-
-```java
-EventDeserializer eventDeserializer = new EventDeserializer();
-
-// 类型映射调整：DATETIME 默认反序列化为 java.util.Date（时区敏感），
-// 建议改为 long（epoch millis）由应用层自行处理时区
-eventDeserializer.setCompatibilityMode(
-    EventDeserializer.CompatibilityMode.DATE_AND_TIME_AS_LONG,
-    EventDeserializer.CompatibilityMode.CHAR_AND_BINARY_AS_BYTE_ARRAY);
-
-// 不关心的事件类型可替换为空反序列化器，跳过解析开销
-eventDeserializer.setEventDataDeserializer(EventType.XID,
-    new NullEventDataDeserializer());
-
-client.setEventDeserializer(eventDeserializer);
-```
-
-反序列化失败抛出 `EventDataDeserializationException`（包含事件头信息便于定位位点），`listenForEventPackets` 捕获后通知 `onEventDeserializationFailure` 并**跳过该事件继续**（见第三节 3.1），不会中断整个监听。
+- **分片包**：MySQL 协议单个包最大 16MB - 1，长度等于该值说明后面还有续包，`readPacketSplitInChunks` 把它们拼成一个完整事件
+- **事务压缩**：开启 `binlog_transaction_compression` 时，一个 TRANSACTION_PAYLOAD 事件里压着整个事务的事件，反序列化器解压后逐个吐出，循环会把它们依次处理完
+- **反序列化失败不中断循环**：异常包装为 `EventDataDeserializationException`（携带事件头便于定位位点），通知监听器后跳过；跳过意味着丢了这条事件，生产中应在 `onEventDeserializationFailure` 里告警甚至停止消费
+- **监听器同步执行**：`notifyEventListeners` 在读取线程里依次调用所有监听器，慢处理会直接拖慢读取，并让服务器端的发送缓冲堆积；重活应投递到队列
+- **退出时的清理**：`completeShutdown` 为真时调用 `disconnect()` 连同保活线程一起关闭；通信异常时只关闭网络通道，保活线程仍在，会在下一个检查周期发起重连
 
 ---
 
-## 五、GTID 位点管理
+## 三、反序列化中的状态
 
-### 1、两种订阅模式
+`EventDeserializer.nextEvent` 先解析 19 字节的事件头（时间戳、类型、serverId、长度、下一事件位置、标志），再按事件类型选择对应的 `EventDataDeserializer` 解析事件体。它不是无状态的：
 
-| 模式 | 设置方式 | 底层命令 | 断点续传精度 |
-|------|---------|---------|-------------|
-| 文件名 + 位点 | `setBinlogFilename()` + `setBinlogPosition()` | `COM_BINLOG_DUMP` | 依赖具体文件，主从切换后失效 |
-| **GTID** | `setGtidSet("uuid:1-100")`（空串 = 从当前开始）| `COM_BINLOG_DUMP_GTID` | 全局唯一，**主从切换仍有效** |
+### 1、checksum
 
-### 2、位点推进逻辑（updateGtidSet）
+每个 binlog 文件开头的 FORMAT_DESCRIPTION 事件声明了 checksum 算法。反序列化器据此决定后续事件末尾是否有 4 字节 CRC32 需要剥掉。漏掉这个事件，后面的事件体长度就全部错位。
 
-第三节主循环中每个事件都会经过 `updateGtidSet(event)`，其推进规则很讲究：
+### 2、TABLE_MAP 缓存
+
+ROWS 事件（WRITE / UPDATE / DELETE_ROWS）只带 `tableId` 和按列类型编码的裸数据，列类型、长度、精度都在它前面的 TABLE_MAP 事件里。反序列化器内部按 `tableId` 缓存 TABLE_MAP，解析行数据时查表。因此：
+
+- 从事务中间某个位置开始订阅、跳过了 TABLE_MAP，后续 ROWS 事件就无法解析
+- `tableId` 不是永久不变的，表被重新打开或 DDL 后会变化，应用层缓存要以最新的 TABLE_MAP 为准
+
+### 3、列名
+
+行数据是按列序号排列的数组，不带列名。MySQL 8.0.1 起设置 `binlog_row_metadata=FULL` 后，TABLE_MAP 事件会附带列名、主键、有无符号、字符集等元数据，库通过 `TableMapEventData.getEventMetadata().getColumnNames()` 暴露。默认的 `MINIMAL` 下没有列名，只能去 `information_schema.columns` 查询；但这样查到的是**当前**表结构，处理积压的旧事件时如果中间发生过加列、调整列顺序的 DDL，列就会对错位置，而且查询结果被缓存后不会随 DDL 失效。能开 `FULL` 就开 `FULL`。
+
+### 4、兼容模式
+
+```java
+EventDeserializer deserializer = new EventDeserializer();
+deserializer.setCompatibilityMode(
+        EventDeserializer.CompatibilityMode.DATE_AND_TIME_AS_LONG,
+        EventDeserializer.CompatibilityMode.CHAR_AND_BINARY_AS_BYTE_ARRAY);
+client.setEventDeserializer(deserializer);
+```
+
+- `DATE_AND_TIME_AS_LONG`：日期时间解析为毫秒数，避免默认的 `java.util.Date` 受 JVM 时区影响；注意 DATETIME 本身不带时区，会被**当作 UTC** 换算成毫秒数，应用层要按业务时区还原，TIMESTAMP 则是真正的 UTC 时间点
+- `CHAR_AND_BINARY_AS_BYTE_ARRAY`：字符串列以字节数组返回，由应用按列字符集解码，避免默认按平台编码解码导致乱码
+- 不关心的事件类型可以用 `setEventDataDeserializer(type, new NullEventDataDeserializer())` 跳过解析；但 GTID、XID、QUERY 参与位点推进，不要跳过
+
+---
+
+## 四、GTID 位点推进
+
+`handleEvent` 先调用 `updateGtidSet`，再通知监听器，所以监听器在收到 XID 事件时，`client.getGtidSet()` 已经包含了刚提交的事务。推进规则（精简）：
+
+```java
+protected void updateGtidSet(Event event) {
+    if (gtidSet == null) {
+        return;                                    // 未启用 GTID 模式
+    }
+    switch (event.getHeader().getEventType()) {
+        case GTID -> gtid = ((GtidEventData) event.getData()).getMySqlGtid();     // 暂存，不入集合
+        case XID -> { commitGtid(); tx = false; }                                // DML 事务提交
+        case QUERY -> commitGtid(((QueryEventData) event.getData()).getSql());
+        case ANNOTATE_ROWS -> commitGtid(((AnnotateRowsEventData) event.getData()).getRowsQuery());
+        case MARIADB_GTID -> gtid = event.getData().toString();                  // MariaDB 的 GTID 格式
+        case MARIADB_GTID_LIST -> gtid = ((MariadbGtidListEventData) event.getData()).getMariaGTIDSet().toString();
+        default -> { }
+    }
+}
+```
+
+`commitGtid(sql)` 对 QUERY 事件的判断是：`BEGIN` 标记事务开始；`COMMIT` / `ROLLBACK` 提交暂存的 GTID；事务之外的其他语句视为自动提交的 DDL，直接提交。
+
+这个设计保证 **GTID 只在事务完成时计入位点**：如果在事务中途断线，重连后从该事务开头重新投递，事务不会被截断，但已处理过的前半部分会**重复投递**。文件名与位置则按每个事件头的 `nextPosition` 推进，遇到 ROTATE 事件切换文件，两套位点并行维护。
+
+### 1、位点持久化由使用方负责
+
+库只在内存中维护位点，进程重启后从哪里继续，完全取决于 `connect()` 前设置了什么。没有设置时，文件模式从服务器当前最新位置开始，中间的变更就丢了。正确做法是在事务边界（XID 或 DDL 对应的 QUERY）处把 `getGtidSet()` 写入外部存储，并让下游按主键或业务键幂等。完整写法见 [CDC 工具](../5_practice/0_cdc_tools) 的示例。
+
+---
+
+## 五、保活与断线重连
+
+`keepAlive` 默认开启，`connect()` 成功后会拉起一个保活线程，每隔 `keepAliveInterval`（默认 1 分钟）检查一次：
 
 ```java
 // 精简逻辑
-private void updateGtidSet(Event event) {
-    switch (event.getHeader().getEventType()) {
-        case GTID:   // 事务开始：只暂存当前 gtid，不立即加入 gtidSet
-            gtid = ((GtidEventData) event.getData()).getGtid();
-            break;
-        case XID:    // 事务提交（DML）：此时才把暂存的 gtid 并入 gtidSet
-            commitGtid();
-            break;
-        case QUERY:  // COMMIT / DDL 语句：同样触发提交
-            if (/* sql 是 COMMIT 或 DDL */) commitGtid();
-            break;
-    }
-}
-```
-
-> **关键设计**：GTID 在**事务完成时**才计入位点。若在事务中途崩溃重连，该事务会完整重放，保证事务不被"腰斩"——代价是可能重复投递，所以**下游消费必须幂等**。
-
-同时，`ROTATE` 事件会重置 `binlogFilename` / `binlogPosition`，其余事件按 header 的 `nextPosition` 推进——文件位点和 GTID 两套状态是并行维护的。
-
-### 3、位点持久化是使用方的责任
-
-库本身**不落盘任何位点**，重启后从哪继续完全取决于你 `connect()` 前 set 了什么。生产实践：
-
-```java
-client.registerEventListener(event -> {
-    handleLogEvent(event);
-    if (event.getHeader().getEventType() == EventType.XID) {
-        // 事务边界处持久化位点（DB / Redis / ZK），而不是每个事件都存
-        savePosition(client.getGtidSet(), client.getBinlogFilename(), client.getBinlogPosition());
-    }
-});
-```
-
-这正是 Canal / Debezium 在这个库（或同类实现）之上做的核心增值之一：位点管理 + 全量/增量切换。
-
----
-
-## 六、保活与断线重连
-
-### 1、keepalive 线程
-
-`connect()` 时默认（`keepAlive = true`）会额外拉起一个守护线程：
-
-```java
-// 精简逻辑：每 keepAliveInterval（默认 1 分钟）检查一次
-threadExecutor.scheduleAtFixedRate(() -> {
-    boolean connectionLost = false;
-    if (System.currentTimeMillis() - eventLastSeen > keepAliveInterval) {
-        connectionLost = !channel.isOpen() || !ping();   // 长时间没事件 → 主动探测
+while (!keepAliveThreadExecutor.isShutdown()) {
+    Thread.sleep(keepAliveInterval);
+    boolean connectionLost;
+    if (heartbeatInterval > 0) {
+        // 开了服务器心跳：超过 keepAliveInterval 没收到任何事件（包括 HEARTBEAT）就判定断线
+        connectionLost = System.currentTimeMillis() - eventLastSeen > keepAliveInterval;
+    } else {
+        // 没开心跳：每个周期发一次 PING，写失败才判定断线
+        try {
+            channel.write(new PingCommand());
+            connectionLost = false;
+        } catch (IOException e) {
+            connectionLost = true;
+        }
     }
     if (connectionLost) {
-        terminateConnect();   // 关闭旧连接（第三节 finally 里的"部分关闭"）
-        connect(connectTimeout);  // 用内存中的 gtidSet / 文件位点重新订阅
+        terminateConnect(useNonGracefulDisconnect);
+        connect(connectTimeout);       // 失败则等下一个周期再试
     }
-}, ..., keepAliveInterval, MILLISECONDS);
+}
 ```
 
-这里用到了第三节 2.6 维护的 `eventLastSeen` 时间戳：**低流量库长时间无事件是正常的**，所以先 ping 探活而不是直接重连。
+| 配置 | 默认值 | 说明 |
+|------|------|------|
+| `keepAlive` | `true` | 是否启动保活线程 |
+| `keepAliveInterval` | 60000 ms | 检查周期；开启心跳时也是「多久没事件算断线」的阈值 |
+| `heartbeatInterval` | 0（不开启） | 开启后服务器空闲时按此周期发 HEARTBEAT；必须**小于** `keepAliveInterval`，否则空闲的库会被误判为断线而反复重连 |
+| `connectTimeout` | 3000 ms | 重连时 `connect(timeout)` 的等待时间 |
+| `serverId` | 65535 | 必须在复制拓扑内唯一，见下文 |
 
-### 2、重连语义与注意事项
+重连用的是**内存中**最新的 GTID 集合或文件位置，所以单纯的网络闪断不会丢位点；进程重启则依赖自己持久化的位点。
 
-| 项 | 说明 |
-|----|------|
-| 恢复位点 | 用**内存中**最新的 gtidSet / filename+position，重连本身不丢位点 |
-| 重复投递 | GTID 模式从未完成事务的开头重放 → 下游需幂等（与第五节呼应）|
-| 进程重启 | 内存位点消失，必须靠自己持久化的位点恢复，否则从当前最新开始（**丢数据**）|
-| `serverId` | 必须全局唯一：两个客户端用相同 serverId 连同一主库，后连的会把先连的踢下线，表现为"莫名其妙反复重连" |
-| 事件监听器阻塞 | `notifyEventListeners` 是同步调用，监听器里做慢操作（写库、调接口）会阻塞整个接收循环，反压到 MySQL 端；重活应投递到队列异步处理 |
+### 1、serverId 冲突
 
-```java
-// 相关配置
-client.setKeepAlive(true);                    // 默认开启
-client.setKeepAliveInterval(TimeUnit.MINUTES.toMillis(1));
-client.setHeartbeatInterval(TimeUnit.SECONDS.toMillis(30)); // 让 MySQL 主动发心跳事件，
-                                              // 低流量场景防止误判死链
-```
-
-> `heartbeatInterval` 与 `keepAliveInterval` 配合：前者让服务端定期发 `HEARTBEAT` 事件刷新 `eventLastSeen`，后者是客户端兜底探测，`heartbeat < keepAlive` 才能避免无谓重连。
+每个客户端都以副本身份注册，`serverId` 必须与所有真实副本和其他 CDC 客户端都不同。默认值是 65535，同一个库上部署两个都不设置 `serverId` 的实例，服务器会让后连接的那个顶掉先连接的；两边的保活线程又会各自重连，表现为周期性的断线重连和重复投递。
 
 ---
 
-## 七、完整流程图
+## 小结
 
-```mermaid
-graph TD
-    A[客户端启动] --> B[注册监听器]
-    B --> C[调用 connect]
-    C --> D[建立网络连接]
-    D --> E[身份认证]
-    E --> F[触发 onConnect]
-    F --> G[开始监听事件]
-    G --> H[接收数据包]
-    H --> I{解析事件}
-    I -->|成功| J[触发 onEvent]
-    I -->|失败| K[触发 onEventDeserializationFailure]
-    J --> L[更新位置信息]
-    L --> H
-    K --> H
-    H --> M{连接状态}
-    M -->|正常| H
-    M -->|异常| N[触发 onCommunicationFailure]
-    M -->|断开| O[触发 onDisconnect]
-    N --> P[尝试重连]
-    P --> D
-    O --> Q[结束]
+- 库只负责协议与反序列化：快照、DDL 解析、表结构历史、位点持久化、事务组装都要使用方自己做，或者直接用 Canal / Debezium 这类上层工具
+- `connect()` 依次完成握手认证、`setupConnection`、dump 请求，然后才触发 `onConnect` 并阻塞在事件循环里
+- 反序列化依赖 FORMAT_DESCRIPTION（checksum）与 TABLE_MAP（列类型）两份状态；列名需要 `binlog_row_metadata=FULL`
+- GTID 在 XID、COMMIT 或自动提交的 DDL 处才计入集合，断线重连会从未完成事务的开头重放，下游必须幂等
+- 保活线程开心跳时按「超时无事件」判定，未开时按 PING 失败判定；`heartbeatInterval` 要小于 `keepAliveInterval`
+- `serverId` 默认 65535，多个实例必须显式设置不同的值
 
-```
+## 参考资料
 
-## 八、使用方法
+- mysql-binlog-connector-java：[https://github.com/osheroff/mysql-binlog-connector-java](https://github.com/osheroff/mysql-binlog-connector-java)
+- MySQL 源码文档：复制协议：[https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_replication.html](https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_replication.html)
+- MySQL binlog 事件格式：[https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_replication_binlog_event.html](https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_replication_binlog_event.html)
+- binlog_row_metadata：[https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html](https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html)
 
-### 1、简化处理方案
-
-```java
-package com.clarence.mdm.model.binlog;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.shyiko.mysql.binlog.BinaryLogClient;
-import com.github.shyiko.mysql.binlog.event.*;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-@Slf4j
-@Configuration
-public class BinlogListenerConfig {
-
-    @Value("${binlog.host}")
-    private String host;
-
-    @Value("${binlog.port}")
-    private int port;
-
-    @Value("${binlog.username}")
-    private String username;
-
-    @Value("${binlog.password}")
-    private String password;
-
-    @Value("${binlog.server-id}")
-    private long serverId;
-
-    private BinaryLogClient client;
-
-    @Resource
-    private JdbcTemplate jdbcTemplate;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private final Map<Long, TableMapEventData> tableMap = new ConcurrentHashMap<>();
-    private final Map<String, List<String>> tableColumnsCache = new ConcurrentHashMap<>();
-
-    @PostConstruct
-    public void start() {
-        client = new BinaryLogClient(host, port, username, password);
-        client.setServerId(serverId);
-
-        // 注册事件监听器
-        client.registerEventListener(this::handleLogEvent);
-
-        log.info("启动 Binlog 监听 ({}:{}) ...", host, port);
-
-        // 使用独立线程避免阻塞 Spring 启动
-        Thread thread = new Thread(() -> {
-            try {
-                client.connect();
-            } catch (Exception e) {
-                log.error("Binlog 连接失败", e);
-            }
-        }, "binlog-listener-thread");
-        thread.setDaemon(true);
-        thread.start();
-    }
-
-    /**
-     * 处理日志事件
-     *
-     * @param event 事件
-     */
-    private void handleLogEvent(Event event) {
-        EventData data = event.getData();
-        if (data == null) return;
-
-        // 先处理 TableMapEventData，缓存 tableId -> TableMapEventData
-        if (data instanceof TableMapEventData tableMapEvent) {
-            tableMap.put(tableMapEvent.getTableId(), tableMapEvent);
-            log.debug("缓存 TableMapEventData -> tableId={} db={} table={}",
-                    tableMapEvent.getTableId(),
-                    tableMapEvent.getDatabase(),
-                    tableMapEvent.getTable());
-            return; // 直接返回，不需要其他处理
-        }
-
-        try {
-            if (data instanceof WriteRowsEventData writeData) {
-                TableMapEventData tableInfo = tableMap.get(writeData.getTableId());
-                // tableMap 还没收到 TableMapEventData
-                if (tableInfo == null) return;
-                for (Serializable[] row : writeData.getRows()) {
-                    Map<String, Object> rowMap = rowToMap(tableInfo, row);
-                    String json = objectMapper.writeValueAsString(Map.of(
-                            "eventType", "INSERT",
-                            "database", tableInfo.getDatabase(),
-                            "table", tableInfo.getTable(),
-                            "row", rowMap
-                    ));
-                    log.info("Binlog write listener, publish JSON -> {}", json);
-                }
-            } else if (data instanceof UpdateRowsEventData updateData) {
-                TableMapEventData tableInfo = tableMap.get(updateData.getTableId());
-                if (tableInfo == null) return;
-                for (var row : updateData.getRows()) {
-                    Map<String, Object> beforeMap = rowToMap(tableInfo, row.getKey());
-                    Map<String, Object> afterMap = rowToMap(tableInfo, row.getValue());
-                    String json = objectMapper.writeValueAsString(Map.of(
-                            "eventType", "UPDATE",
-                            "database", tableInfo.getDatabase(),
-                            "table", tableInfo.getTable(),
-                            "before", beforeMap,
-                            "after", afterMap
-                    ));
-                    log.info("Binlog update listener, publish JSON -> {}", json);
-                }
-            } else if (data instanceof DeleteRowsEventData deleteData) {
-                TableMapEventData tableInfo = tableMap.get(deleteData.getTableId());
-                if (tableInfo == null) return;
-                for (Serializable[] row : deleteData.getRows()) {
-                    Map<String, Object> rowMap = rowToMap(tableInfo, row);
-                    String json = objectMapper.writeValueAsString(Map.of(
-                            "eventType", "DELETE",
-                            "database", tableInfo.getDatabase(),
-                            "table", tableInfo.getTable(),
-                            "row", rowMap
-                    ));
-                    log.info("Binlog delete listener, publish JSON -> {}", json);
-                }
-            } else if (data instanceof QueryEventData queryData) {
-                String sql = queryData.getSql().trim();
-                if (sql.equalsIgnoreCase("BEGIN") || sql.equalsIgnoreCase("COMMIT")) {
-                    log.info("[TRANSACTION] -> {}", sql);
-                } else {
-                    // 去掉客户端注释
-                    String pureSql = sql.replaceAll("^/\\*.*?\\*/\\s*", "");
-                    String upper = pureSql.toUpperCase();
-                    if (upper.startsWith("CREATE") || upper.startsWith("ALTER") || upper.startsWith("DROP")) {
-                        log.info("[DDL] Listener-> {}", pureSql);
-                    } else {
-                        log.info("[OTHER QUERY] Listener-> {}", pureSql);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.error("处理 binlog 事件出错", e);
-        }
-    }
-
-    private Map<String, Object> rowToMap(TableMapEventData tableInfo, Serializable[] row) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        if (tableInfo == null || row == null) return map;
-
-        // 获取列名
-        List<String> columns = tableColumnsCache.computeIfAbsent(
-                tableInfo.getDatabase() + "." + tableInfo.getTable(),
-                k -> queryColumnNames(tableInfo.getDatabase(), tableInfo.getTable())
-        );
-
-        for (int i = 0; i < row.length; i++) {
-            String colName = i < columns.size() ? columns.get(i) : "col" + i;
-            map.put(colName, row[i]);
-        }
-        return map;
-    }
-
-    /**
-     * 查询表的列名列表（按 ordinal_position 排序）
-     * @param dbName 数据库名
-     * @param tableName 表名
-     * @return 列名列表
-     */
-    public List<String> queryColumnNames(String dbName, String tableName) {
-        String sql = "SELECT COLUMN_NAME FROM information_schema.columns " +
-                "WHERE table_schema = ? AND table_name = ? " +
-                "ORDER BY ORDINAL_POSITION";
-        return jdbcTemplate.queryForList(sql, String.class, dbName, tableName);
-    }
-
-    @PreDestroy
-    public void stop() throws Exception {
-        if (client != null) {
-            client.disconnect();
-            log.info("Binlog 监听已停止");
-        }
-    }
-}
-
-```
-
-### 2、代码时序图
-
-![img.png](../../assets/database/mbcj_usage.png)
-
-> 上面的简化示例没有做**位点持久化**和**幂等消费**，仅适合演示/开发环境；
-> 生产环境要么按第五、六节补齐这两块，要么直接使用 [Canal / Debezium / Flink CDC](../5_practice/0_cdc_tools)。
+> 下一篇：[数据库选型参考](./1_selection_guide) —— 按场景对比关系型、分析型、搜索、时序、文档、向量等存储，给出常见组合与选型误区。

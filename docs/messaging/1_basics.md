@@ -233,7 +233,7 @@ try {
 2. 投递任务扫描 `NEW` 状态的消息发送到 MQ，成功后标记为 `SENT`；失败则累加重试次数下次再发
 3. 消费端幂等，因为投递任务可能重复发送
 
-投递任务可以是定时轮询（多实例时用 `SELECT ... FOR UPDATE SKIP LOCKED`（MySQL 8.0+ / PostgreSQL）或分片避免重复扫描），也可以用 CDC 订阅 binlog 推送，见 [数据库 · CDC 工具](/database/5_practice/0_cdc_tools)。它不依赖 MQ 的特殊能力，任何 MQ 都能用。
+投递任务可以是定时轮询（多实例时用 `SELECT ... FOR UPDATE SKIP LOCKED`（MySQL 8.0+ / PostgreSQL）或分片避免重复扫描），也可以用 CDC 订阅 binlog 推送，见 [CDC 工具](/database/5_practice/0_cdc_tools)。它不依赖 MQ 的特殊能力，任何 MQ 都能用。
 
 ### 2、事务消息（RocketMQ）
 

@@ -467,7 +467,7 @@ Kafka Connect 是 Kafka 自带的**数据管道框架**，通过配置而不是�
 
 ### 2、Debezium：MySQL CDC → Kafka
 
-Debezium 是最常用的 CDC Source Connector，读取 MySQL binlog（需 `binlog_format=ROW`）把行变更写入 Kafka。CDC 工具的整体对比见 [数据库 · CDC 工具](/database/5_practice/0_cdc_tools)。以下为 Debezium 2.x 及以后的属性名：
+Debezium 是最常用的 CDC Source Connector，读取 MySQL binlog（需 `binlog_format=ROW`）把行变更写入 Kafka。CDC 工具的整体对比见 [CDC 工具](/database/5_practice/0_cdc_tools)。以下为 Debezium 2.x 及以后的属性名：
 
 ```json
 {

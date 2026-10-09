@@ -1,0 +1,54 @@
+<svg viewBox="0 0 780 476" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .txt   { font-size: 12px; }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+  <text x="390.0" y="24" text-anchor="middle" class="title">间隙锁死锁：先查不存在的行再插入（RR，已有 id 10 和 20）</text>
+  <text x="230" y="56" text-anchor="middle" class="name" style="fill:var(--b)">事务 A</text>
+  <text x="590" y="56" text-anchor="middle" class="name" style="fill:var(--p)">事务 B</text>
+  <text x="36" y="107" text-anchor="middle" class="name" style="fill:var(--muted)">T1</text>
+  <rect x="70" y="72" width="320" height="60" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="230.0" y="97" text-anchor="middle" class="txt">SELECT * FROM t WHERE id = 15 FOR UPDATE</text>
+  <text x="230.0" y="116" text-anchor="middle" class="desc">id=15 不存在，获得间隙锁 (10, 20)</text>
+  <text x="36" y="183" text-anchor="middle" class="name" style="fill:var(--muted)">T2</text>
+  <rect x="430" y="148" width="320" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="590.0" y="173" text-anchor="middle" class="txt">SELECT * FROM t WHERE id = 15 FOR UPDATE</text>
+  <text x="590.0" y="192" text-anchor="middle" class="desc">间隙锁互相兼容，同样获得 (10, 20)</text>
+  <text x="36" y="259" text-anchor="middle" class="name" style="fill:var(--muted)">T3</text>
+  <rect x="70" y="224" width="320" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="230.0" y="249" text-anchor="middle" class="txt">INSERT INTO t (id, c) VALUES (15, 'a')</text>
+  <text x="230.0" y="268" text-anchor="middle" class="desc">插入意向锁与 B 的间隙锁冲突，等待</text>
+  <text x="36" y="335" text-anchor="middle" class="name" style="fill:var(--muted)">T4</text>
+  <rect x="430" y="300" width="320" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="590.0" y="325" text-anchor="middle" class="txt">INSERT INTO t (id, c) VALUES (15, 'b')</text>
+  <text x="590.0" y="344" text-anchor="middle" class="desc">插入意向锁与 A 的间隙锁冲突，等待</text>
+  <rect x="70" y="376" width="680" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="410" y="401" text-anchor="middle" class="name" style="fill:var(--r)">A 等 B 的间隙锁、B 等 A 的间隙锁，形成等待环</text>
+  <text x="410" y="420" text-anchor="middle" class="desc">InnoDB 检测到死锁，回滚代价较小的一方（ERROR 1213），另一方插入成功</text>
+</svg>

@@ -1,96 +1,68 @@
-<svg viewBox="0 0 728 358" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+<svg viewBox="0 0 728 248" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif" font-size="12">
   <style>
     :root {
       --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
-      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
     }
     :root[data-theme="dark"] {
       --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
-      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
     }
     @media (prefers-color-scheme: dark) {
-      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
-              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
     }
     .outer { rx:8; ry:8; fill:var(--card); stroke-width:2; }
     .inner { rx:4; ry:4; fill:var(--card); stroke-width:1; }
     .arr   { stroke-width:2; fill:none; marker-end:url(#a); }
   </style>
   <defs>
-    <marker id="a" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
-      <polygon points="0 0,7 2.5,0 5" fill="var(--muted)"/>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
     </marker>
   </defs>
 
   <!-- Title -->
-  <text x="364" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">MySQL 主从复制原理</text>
+  <text x="364" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">MySQL 主从复制原理（8.4 术语）</text>
 
-  <!-- ===== Master ===== -->
+  <!-- ===== Source ===== -->
   <rect class="outer" x="14" y="38" width="206" height="190" stroke="var(--b)"/>
-  <text x="117" y="60" text-anchor="middle" fill="var(--b)" font-weight="700" font-size="13">主库（Master）</text>
+  <text x="117" y="60" text-anchor="middle" fill="var(--b)" font-weight="700" font-size="13">源库（Source）</text>
 
-  <!-- Step 1 -->
   <rect class="inner" x="28" y="68" width="178" height="32" stroke="var(--muted)"/>
-  <text x="117" y="88" text-anchor="middle" fill="var(--fg)" font-size="11">① 执行写操作（DML / DDL）</text>
+  <text x="117" y="88" text-anchor="middle" fill="var(--fg)" font-size="11">① 事务提交（DML / DDL）</text>
 
-  <!-- Step 2: 2-line, height=46 -->
   <rect class="inner" x="28" y="106" width="178" height="60" stroke="var(--y)"/>
   <text x="117" y="124" text-anchor="middle" fill="var(--y)" font-weight="600" font-size="11">② 写入 binlog</text>
-  <text x="117" y="142" text-anchor="middle" fill="var(--muted)" font-size="10">（ROW / STATEMENT / MIXED）</text>
+  <text x="117" y="142" text-anchor="middle" fill="var(--muted)" font-size="10">ROW 格式，事务带 GTID</text>
 
-  <!-- Step 3 -->
   <rect class="inner" x="28" y="174" width="178" height="32" stroke="var(--muted)"/>
-  <text x="117" y="194" text-anchor="middle" fill="var(--fg)" font-size="11">③ Binlog Dump Thread 推送</text>
+  <text x="117" y="194" text-anchor="middle" fill="var(--fg)" font-size="11">③ Binlog Dump 线程发送</text>
 
   <!-- ===== Network ===== -->
-  <rect class="outer" x="244" y="72" width="240" height="136" stroke="var(--border)"/>
+  <rect class="outer" x="250" y="72" width="228" height="136" stroke="var(--border)"/>
   <text x="364" y="94" text-anchor="middle" fill="var(--muted)" font-weight="700" font-size="11">网络传输（TCP）</text>
-  <text x="364" y="116" text-anchor="middle" fill="var(--fg)" font-size="11">④ IO Thread 主动连接主库</text>
-  <text x="364" y="134" text-anchor="middle" fill="var(--fg)" font-size="11">接收 binlog 事件流</text>
+  <text x="364" y="116" text-anchor="middle" fill="var(--fg)" font-size="11">④ 接收线程（Receiver）</text>
+  <text x="364" y="134" text-anchor="middle" fill="var(--fg)" font-size="11">原 I/O 线程，按 GTID 拉取事件</text>
   <text x="364" y="170" text-anchor="middle" fill="var(--g)" font-weight="600" font-size="11">⑤ 写入 relay log（中继日志）</text>
-  <text x="364" y="188" text-anchor="middle" fill="var(--muted)" font-size="10">保存到从库本地磁盘</text>
+  <text x="364" y="188" text-anchor="middle" fill="var(--muted)" font-size="10">保存到副本本地磁盘</text>
 
-  <!-- Arrows: horizontal, aligned to center of outer boxes -->
-  <line class="arr" x1="220" y1="133" x2="242" y2="133" stroke="var(--y)"/>
-  <line class="arr" x1="484" y1="133" x2="506" y2="133" stroke="var(--g)"/>
+  <line class="arr" x1="220" y1="133" x2="248" y2="133" stroke="var(--y)"/>
+  <line class="arr" x1="478" y1="133" x2="506" y2="133" stroke="var(--g)"/>
 
-  <!-- ===== Slave ===== -->
+  <!-- ===== Replica ===== -->
   <rect class="outer" x="508" y="38" width="206" height="190" stroke="var(--g)"/>
-  <text x="611" y="60" text-anchor="middle" fill="var(--g)" font-weight="700" font-size="13">从库（Slave / Replica）</text>
+  <text x="611" y="60" text-anchor="middle" fill="var(--g)" font-weight="700" font-size="13">副本（Replica）</text>
 
-  <!-- relay log -->
   <rect class="inner" x="522" y="68" width="178" height="32" stroke="var(--g)"/>
   <text x="611" y="88" text-anchor="middle" fill="var(--g)" font-weight="600" font-size="11">relay log（中继日志）</text>
 
-  <!-- SQL Thread: 2-line, height=46 -->
   <rect class="inner" x="522" y="106" width="178" height="60" stroke="var(--p)"/>
-  <text x="611" y="124" text-anchor="middle" fill="var(--p)" font-weight="600" font-size="11">⑥ SQL Thread 重放</text>
-  <text x="611" y="142" text-anchor="middle" fill="var(--muted)" font-size="10">将 relay log 应用到从库数据</text>
+  <text x="611" y="124" text-anchor="middle" fill="var(--p)" font-weight="600" font-size="11">⑥ 协调线程（Coordinator）</text>
+  <text x="611" y="142" text-anchor="middle" fill="var(--muted)" font-size="10">按事务依赖分发给 Worker</text>
 
-  <!-- Sync done -->
   <rect class="inner" x="522" y="174" width="178" height="32" stroke="var(--muted)"/>
-  <text x="611" y="194" text-anchor="middle" fill="var(--fg)" font-size="11">从库数据与主库保持同步</text>
-
-  <!-- ===== HA Comparison ===== -->
-  <rect class="outer" x="14" y="246" width="700" height="98" stroke="var(--border)"/>
-  <text x="364" y="268" text-anchor="middle" fill="var(--fg)" font-weight="700" font-size="12">高可用方案对比</text>
-
-  <!-- Dividers -->
-  <line x1="251" y1="278" x2="251" y2="336" stroke="var(--border)" stroke-width="1"/>
-  <line x1="484" y1="278" x2="484" y2="336" stroke="var(--border)" stroke-width="1"/>
-
-  <!-- MHA -->
-  <text x="130" y="292" text-anchor="middle" fill="var(--b)" font-weight="600" font-size="12">MHA：主库故障自动切换</text>
-  <text x="130" y="310" text-anchor="middle" fill="var(--muted)" font-size="11">需额外节点，适合传统主从</text>
-  <text x="130" y="326" text-anchor="middle" fill="var(--muted)" font-size="10">切换时间 &lt; 30s</text>
-
-  <!-- MGR -->
-  <text x="367" y="292" text-anchor="middle" fill="var(--p)" font-weight="600" font-size="12">MGR（组复制）</text>
-  <text x="367" y="310" text-anchor="middle" fill="var(--muted)" font-size="11">多主模式，Paxos 协议，高一致</text>
-  <text x="367" y="326" text-anchor="middle" fill="var(--muted)" font-size="10">原生支持，配置较复杂</text>
-
-  <!-- InnoDB Cluster -->
-  <text x="604" y="292" text-anchor="middle" fill="var(--g)" font-weight="600" font-size="12">InnoDB Cluster</text>
-  <text x="604" y="310" text-anchor="middle" fill="var(--muted)" font-size="11">MGR + MySQL Shell，官方推荐</text>
-  <text x="604" y="326" text-anchor="middle" fill="var(--muted)" font-size="10">需 MySQL 8.0+</text>
+  <text x="611" y="194" text-anchor="middle" fill="var(--fg)" font-size="11">⑦ Worker 并行回放（默认 4）</text>
 </svg>

@@ -1,0 +1,50 @@
+<svg viewBox="0 0 680 262" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .arrow { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#arr); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="340" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">InnoDB 聚簇索引 vs PostgreSQL 堆表</text>
+
+  <!-- 左：InnoDB -->
+  <text x="175" y="48" text-anchor="middle" font-weight="700" fill="var(--fg)">MySQL InnoDB</text>
+  <rect class="box" x="20" y="60" width="310" height="60" rx="6" stroke="var(--p)"/>
+  <text x="175" y="82" text-anchor="middle" font-weight="600" fill="var(--p)">二级索引 idx_users_name</text>
+  <text x="175" y="104" text-anchor="middle" font-size="11" fill="var(--fg)">叶子：name → 主键 id</text>
+
+  <line class="arrow" x1="175" y1="120" x2="175" y2="158"/>
+  <text x="185" y="143" font-size="10" fill="var(--muted)">按主键回表</text>
+
+  <rect class="box" x="20" y="160" width="310" height="60" rx="6" stroke="var(--g)"/>
+  <text x="175" y="182" text-anchor="middle" font-weight="600" fill="var(--g)">聚簇索引（主键 B+ 树）</text>
+  <text x="175" y="204" text-anchor="middle" font-size="11" fill="var(--fg)">叶子：主键 → 整行数据（表即索引）</text>
+
+  <text x="175" y="244" text-anchor="middle" font-size="11" fill="var(--muted)">二级索引查询 = 两次 B+ 树查找</text>
+
+  <!-- 右：PostgreSQL -->
+  <text x="505" y="48" text-anchor="middle" font-weight="700" fill="var(--fg)">PostgreSQL</text>
+  <rect class="box" x="350" y="60" width="150" height="60" rx="6" stroke="var(--p)"/>
+  <text x="425" y="82" text-anchor="middle" font-weight="600" fill="var(--p)">主键索引 pkey</text>
+  <text x="425" y="104" text-anchor="middle" font-size="11" fill="var(--fg)">id → ctid</text>
+
+  <rect class="box" x="510" y="60" width="150" height="60" rx="6" stroke="var(--p)"/>
+  <text x="585" y="82" text-anchor="middle" font-weight="600" fill="var(--p)">二级索引 name</text>
+  <text x="585" y="104" text-anchor="middle" font-size="11" fill="var(--fg)">name → ctid</text>
+
+  <line class="arrow" x1="425" y1="120" x2="425" y2="158"/>
+  <line class="arrow" x1="585" y1="120" x2="585" y2="158"/>
+
+  <rect class="box" x="350" y="160" width="310" height="60" rx="6" stroke="var(--g)"/>
+  <text x="505" y="182" text-anchor="middle" font-weight="600" fill="var(--g)">堆表 Heap（行无序存放）</text>
+  <text x="505" y="204" text-anchor="middle" font-size="11" fill="var(--fg)">按 ctid（页号, 行号）直接定位行版本</text>
+
+  <text x="505" y="244" text-anchor="middle" font-size="11" fill="var(--muted)">所有索引地位相同；非 HOT 更新要改全部索引</text>
+</svg>

@@ -26,7 +26,7 @@
   <rect class="box" x="126" y="50" width="110" height="111" stroke="var(--b)"/>
   <text x="181" y="72" text-anchor="middle" fill="var(--b)" font-weight="700">协调节点</text>
   <text x="181" y="112" text-anchor="middle" fill="var(--fg)" font-size="10">路由计算</text>
-  <text x="181" y="126" text-anchor="middle" fill="var(--fg)" font-size="10">shard = hash(id) % n</text>
+  <text x="181" y="126" text-anchor="middle" fill="var(--fg)" font-size="10">hash(routing) % 分片数</text>
   <text x="181" y="149" text-anchor="middle" fill="var(--muted)" font-size="9">转发到 Primary Shard</text>
 
   <line class="arr" x1="236" y1="109" x2="260" y2="109" stroke="var(--muted)"/>
@@ -34,10 +34,10 @@
   <!-- 3: Primary Shard -->
   <rect class="box" x="262" y="42" width="130" height="131" stroke="var(--g)"/>
   <text x="327" y="62" text-anchor="middle" fill="var(--g)" font-weight="700">Primary Shard</text>
-  <text x="327" y="102" text-anchor="middle" fill="var(--fg)" font-size="10">①写 Translog（WAL）</text>
-  <text x="327" y="116" text-anchor="middle" fill="var(--fg)" font-size="10">②写 In-memory Buffer</text>
+  <text x="327" y="102" text-anchor="middle" fill="var(--fg)" font-size="10">①写 In-memory Buffer</text>
+  <text x="327" y="116" text-anchor="middle" fill="var(--fg)" font-size="10">②追加 Translog（WAL）</text>
   <text x="327" y="130" text-anchor="middle" fill="var(--fg)" font-size="10">③同步到 Replica Shard</text>
-  <text x="327" y="161" text-anchor="middle" fill="var(--muted)" font-size="9">多数确认后响应成功</text>
+  <text x="327" y="161" text-anchor="middle" fill="var(--muted)" font-size="9">in-sync 副本写完后响应</text>
 
   <!-- Parallel: replica -->
   <line class="arr" x1="392" y1="102" x2="406" y2="60" stroke="var(--muted)"/>
@@ -68,8 +68,8 @@
   <text x="282" y="282" text-anchor="middle" fill="var(--muted)" font-size="9">内存 Segment → 可搜索</text>
 
   <rect x="362" y="245" width="160" height="10" rx="3" fill="var(--b)" opacity="0.5"/>
-  <text x="442" y="269" text-anchor="middle" fill="var(--b)" font-size="10">flush（默认 30min / 512MB）</text>
-  <text x="442" y="282" text-anchor="middle" fill="var(--muted)" font-size="9">Translog 清空 + 段持久化到磁盘</text>
+  <text x="442" y="269" text-anchor="middle" fill="var(--b)" font-size="10">flush（Translog 过大 / 定期）</text>
+  <text x="442" y="282" text-anchor="middle" fill="var(--muted)" font-size="9">Lucene commit 段落盘 + 截断 Translog</text>
 
   <rect x="522" y="245" width="160" height="10" rx="3" fill="var(--p)" opacity="0.5"/>
   <text x="602" y="269" text-anchor="middle" fill="var(--p)" font-size="10">merge（后台）</text>

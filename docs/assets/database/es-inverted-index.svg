@@ -79,5 +79,5 @@
   <text x="20" y="241" fill="var(--b)" font-size="11">{ "query": { "match": {</text>
   <text x="20" y="257" fill="var(--b)" font-size="11">    "content": "分布式搜索" } } }</text>
   <text x="140" y="277" text-anchor="middle" fill="var(--muted)" font-size="10">分词 → 查 Term → 取交集 PostingList</text>
-  <text x="140" y="291" text-anchor="middle" fill="var(--muted)" font-size="10">→ 按 TF-IDF / BM25 打分排序</text>
+  <text x="140" y="291" text-anchor="middle" fill="var(--muted)" font-size="10">→ 按 BM25 相关性打分排序</text>
 </svg>

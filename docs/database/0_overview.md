@@ -1,41 +1,77 @@
 # 数据库总览
 
-数据库模块用于沉淀 Java 后端常见的数据存储知识，覆盖关系型数据库、NoSQL、搜索、备份恢复、分库分表、连接池与选型实践。
+数据库模块整理 Java 后端常用的数据存储知识：以 MySQL 为主线讲清索引、事务与锁、执行流程、InnoDB 与复制，再对比 PostgreSQL，然后覆盖国产与分布式关系库、ORM、各类 NoSQL，最后落到 CDC、备份恢复、分库分表、连接池与 JDBC 驱动等工程实践。缓存、系统级的分库分表策略、分布式事务和 Spring 数据访问在各自模块展开，这里只讲数据库本身。
+
+版本基线：**MySQL 8.4 LTS** 为主，文中单独标出与 **9.7 LTS**（2026 年 4 月 GA，之后的版本改用 `YY.M` 日历版本号，如 26.7）及 **8.0**（2026 年 4 月随 8.0.46 停止维护）的差异；**PostgreSQL 18**（兼顾 17）；**MariaDB** 以 12.3 / 11.8 LTS 为准；**Connector/J 9.x**、**HikariCP 7.x**、**ShardingSphere 5.5.x**；Debezium 3.x 运行在 Kafka 4（KRaft）上。
+
+---
 
 ## 一、模块地图
 
 | 方向 | 内容 | 适合关注 |
 |------|------|----------|
-| MySQL 专题 | 基础、版本特性、MariaDB、避坑、索引、事务与锁、执行流程、EXPLAIN、InnoDB、主从高可用 | Java 后端主力 OLTP 场景 |
-| PostgreSQL 专题 | 基础、版本特性、MVCC、索引、高级 SQL、复制与高可用 | 复杂 SQL、JSONB、GIS、分析型查询 |
-| 关系型生态 | Oracle、达梦、人大金仓、分布式数据库（TiDB / OceanBase）、ORM 框架 | 企业数据库迁移、水平扩展与持久层选型 |
-| NoSQL 生态 | 列式、时序、文档、搜索、图数据库 | 多模型存储与特定场景优化 |
-| 运维架构 | CDC、备份恢复、分库分表、连接池 | 数据可靠性、扩展性与应用接入 |
-| 选型源码 | mysql-binlog-connector-java 源码、数据库选型参考 | 原理阅读与技术方案决策 |
+| **MySQL** | 基础、版本特性、MariaDB、避坑、索引、事务与锁、执行流程、EXPLAIN、InnoDB、主从与高可用 | Java 后端主力 OLTP 场景 |
+| **PostgreSQL** | 基础、版本特性、MVCC、索引、高级 SQL、复制与高可用 | 复杂 SQL、JSONB、GIS、分析型查询 |
+| **关系库生态** | Oracle、达梦、人大金仓、分布式数据库（TiDB / OceanBase）、ORM 框架 | 国产化迁移、水平扩展与持久层选型 |
+| **NoSQL** | 列式与 OLAP、时序、文档、搜索、图数据库 | 多模型存储与特定场景优化 |
+| **架构运维** | CDC、备份恢复、分库分表、连接池 | 数据可靠性、扩展性与应用接入 |
+| **参考延伸** | Binlog Connector 源码、数据库选型、MySQL JDBC 驱动 | 原理阅读与技术方案决策 |
+
+---
+
+## 二、模块导航
 
 <ModuleNav />
 
-## 二、推荐阅读路径
+---
 
-1. 先读 [MySQL 概览](./1_mysql/0_overview)，建立范式、视图、存储过程、优化、复制与运维基础。
-2. 再读 [MySQL 索引专项](./1_mysql/4_topic_index) 和 [事务与锁专项](./1_mysql/5_topic_transaction)，补齐高频性能与并发问题。
-3. 对比 [PostgreSQL 概览](./2_postgresql/0_overview)，理解 PostgreSQL 与 MySQL 在类型系统、MVCC、索引和高级 SQL 上的差异。
-4. 数据量到达单机瓶颈时，看 [分布式数据库](./3_relational/1_distributed_db)（TiDB / OceanBase）；再进入 [NoSQL 生态](./4_nosql/0_column_db)，按业务场景补充列式、时序、文档、搜索与图数据库。
-5. 最后看 [备份恢复](./5_practice/1_backup_recovery)、[分库分表](./5_practice/2_sharding)、[连接池](./5_practice/3_connection_pool) 和 [数据库选型](./6_reference/1_selection_guide)，形成工程落地能力。
+## 三、推荐阅读路径
 
-## 三、选型原则
+1. [MySQL 基础](./1_mysql/0_overview)：范式、视图、存储过程、账号与传输安全，以及 MySQL 核心专项的导读
+2. [MySQL 索引](./1_mysql/4_topic_index) 和 [MySQL 事务与锁](./1_mysql/5_topic_transaction)：补齐最高频的性能与并发问题，再按需读执行流程、EXPLAIN、InnoDB 与复制
+3. [MySQL 版本特性](./1_mysql/1_feature) 与 [MySQL 避坑指南](./1_mysql/3_fallible_point)：确认生产版本的行为差异和常见雷区
+4. [PostgreSQL 基础](./2_postgresql/0_overview)：对比 PostgreSQL 与 MySQL 在类型系统、MVCC、索引和高级 SQL 上的差异
+5. 单机到瓶颈时读 [分布式数据库](./3_relational/1_distributed_db)（TiDB / OceanBase）；分析、时序、文档、搜索等场景从 [列式与 OLAP 数据库](./4_nosql/0_column_db) 开始按需选读
+6. 工程落地读 [CDC 工具](./5_practice/0_cdc_tools)、[数据备份与恢复](./5_practice/1_backup_recovery)、[分库分表与中间件](./5_practice/2_sharding)、[数据库连接池](./5_practice/3_connection_pool) 和 [MySQL JDBC 驱动](./6_reference/2_jdbc_driver)
+7. 做技术决策时看 [数据库选型参考](./6_reference/1_selection_guide)
+
+[高频面试题](./99_interview) 只列题目，答案在 [数据库面试题解答](/interview/7_db)。
+
+---
+
+## 四、选型原则
 
 | 问题 | 优先判断 |
 |------|----------|
-| 是否需要强事务与复杂关联查询 | 优先 MySQL / PostgreSQL 等关系型数据库 |
-| 是否读多写少且需要全文检索 | 优先 Elasticsearch / OpenSearch / Solr 等搜索引擎 |
-| 是否数据量巨大且需要水平扩展 | 评估分库分表、TiDB、OceanBase 等方案 |
-| 是否以时间序列指标为核心 | 评估 Prometheus、InfluxDB 或云厂商时序数据库 |
-| 是否文档结构变化频繁 | 评估 MongoDB 等文档数据库 |
+| 需要强事务与复杂关联查询 | MySQL / PostgreSQL 等关系型数据库 |
+| 全文检索、多条件组合搜索 | Elasticsearch / OpenSearch，数据以关系库为准、异步同步 |
+| 单机容量或写入到瓶颈 | 先读写分离与分库分表，再评估 TiDB、OceanBase；系统级扩展策略见 [数据层扩展](/high-con/5_data_scaling) |
+| 以时间序列写入与聚合为核心 | InfluxDB 3、TDengine、TimescaleDB 等时序数据库；监控指标存储用 Prometheus |
+| 大规模聚合分析 | ClickHouse、Apache Doris、StarRocks 等列式 OLAP |
+| 文档结构变化频繁 | MongoDB 等文档数据库 |
 
-## 四、工程实践关注点
+工程上的几条底线：
 
-- 数据库不是只看功能，还要看备份恢复、观测、权限、变更流程和容量规划。
-- 业务早期优先保持模型简单，避免过早引入分库分表和多种异构数据库。
-- 生产环境必须明确 RPO / RTO、慢 SQL 治理、连接池上限、索引变更流程和数据回滚方案。
-- 涉及跨库一致性时，优先从业务补偿、Outbox、Saga、幂等设计角度解决，谨慎依赖强一致分布式事务。
+- 业务早期保持模型简单，不要过早引入分库分表和多种异构数据库
+- 上生产前明确 RPO / RTO、备份与恢复演练、慢 SQL 治理、连接池上限和索引变更流程
+- 跨库一致性优先用本地事务 + Outbox、Saga、幂等来解决，详见 [分布式事务](/distributed/4_transaction)
+
+---
+
+## 五、关联模块
+
+- [缓存总览](/cache/0_overview)：Redis / Caffeine 与数据库组合使用，缓存一致性在 [缓存一致性](/cache/10_cache_consistency) 展开
+- [高并发总览](/high-con/0_overview)：读写分离、分库分表等系统级扩展策略
+- [分布式总览](/distributed/0_overview)：跨库事务、分布式锁与分布式 ID
+- [数据访问](/spring-boot/3_data_access)：Spring Boot 中的数据源、JPA、MyBatis-Plus 与多数据源配置
+- [事务管理](/spring/4_transaction)：Spring 声明式事务、传播行为与失效场景
+- [Flink CDC](/flink/6_cdc)：基于 binlog 的实时同步与入湖
+- [数据访问性能](/high-perf/10_db_performance)：连接池、批量与 SQL 层面的性能优化方法
+- [数据库面试题解答](/interview/7_db)：本模块高频问题的答案汇总
+
+## 参考资料
+
+- MySQL 8.4 参考手册：[https://dev.mysql.com/doc/refman/8.4/en/](https://dev.mysql.com/doc/refman/8.4/en/)
+- MySQL 9.7 参考手册：[https://dev.mysql.com/doc/refman/9.7/en/](https://dev.mysql.com/doc/refman/9.7/en/)
+- PostgreSQL 文档：[https://www.postgresql.org/docs/current/](https://www.postgresql.org/docs/current/)
+- MariaDB 文档：[https://mariadb.com/docs/server](https://mariadb.com/docs/server)

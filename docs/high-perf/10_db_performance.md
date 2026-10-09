@@ -8,7 +8,7 @@ description: 慢 SQL 治理闭环、N+1、深分页方案对比、批量写
 >
 > **前置阅读**：[IO 与网络优化](./9_io_network)
 
-> 参考：[MySQL 索引](/database/1_mysql/4_topic_index) · [SQL 执行流程](/database/1_mysql/6_topic_execution) · [EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain) · [MySQL JDBC 驱动要点](/database/6_reference/2_jdbc_driver) · [数据库连接池](/database/5_practice/3_connection_pool)
+> 参考：[MySQL 索引](/database/1_mysql/4_topic_index) · [SQL 执行流程](/database/1_mysql/6_topic_execution) · [EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain) · [MySQL JDBC 驱动](/database/6_reference/2_jdbc_driver) · [数据库连接池](/database/5_practice/3_connection_pool)
 
 在典型业务系统中，数据库往往是链路上最慢、最难扩展的一环。本篇讲应用侧的治理方法与方案选型，MySQL 内部原理见上方链接。
 
@@ -61,7 +61,7 @@ description: 慢 SQL 治理闭环、N+1、深分页方案对比、批量写
 | 条件 | 说明 |
 |------|------|
 | 批量 API | `addBatch()` / `executeBatch()`，或 MyBatis `ExecutorType.BATCH`、JPA `hibernate.jdbc.batch_size` |
-| 驱动改写 | MySQL URL 添加 `rewriteBatchedStatements=true`，否则驱动仍逐条发送，原理见 [MySQL JDBC 驱动要点](/database/6_reference/2_jdbc_driver) |
+| 驱动改写 | MySQL URL 添加 `rewriteBatchedStatements=true`，否则驱动仍逐条发送，原理见 [MySQL JDBC 驱动](/database/6_reference/2_jdbc_driver) |
 | 事务分批 | 一批在一个事务中提交，而不是每条自动提交 |
 
 ```java
@@ -144,7 +144,7 @@ orders.forEach(o -> o.setItems(itemMap.getOrDefault(o.getId(), List.of())));
 | 问题 | 表现 | 处理 |
 |------|------|------|
 | `SELECT *` | 多传输无用列、无法使用覆盖索引 | 只查询需要的列 |
-| 大结果集一次性加载 | 内存暴涨甚至 OOM | 分页或流式读取（JDBC `fetchSize`、MyBatis `Cursor`），驱动的读取模式见 [MySQL JDBC 驱动要点](/database/6_reference/2_jdbc_driver) |
+| 大结果集一次性加载 | 内存暴涨甚至 OOM | 分页或流式读取（JDBC `fetchSize`、MyBatis `Cursor`），驱动的读取模式见 [MySQL JDBC 驱动](/database/6_reference/2_jdbc_driver) |
 | 长事务 | 连接长期占用、锁等待、主从延迟 | 事务内不做 RPC 和耗时计算，缩小事务范围 |
 | 大 `IN` 列表 | SQL 过长、执行计划变差 | 分批，每批几百个；原因见下方说明 |
 | `COUNT(*)` 大表 | 分页总数查询很慢 | 缓存总数、估算值，或不展示总页数 |
@@ -160,7 +160,7 @@ orders.forEach(o -> o.setItems(itemMap.getOrDefault(o.getId(), List.of())));
 ## 六、连接池与更大规模的扩展
 
 - 连接池参数与容量估算见 [池化技术](./7_pooling)：**连接池过大不会让数据库更快**。
-- SQL 已充分优化后单库仍无法支撑，就需要缓存、读写分离、分库分表等**扩展性方案**，属于高并发范畴，见 [数据层扩展](/high-con/5_data_scaling) 与 [分库分表](/database/5_practice/2_sharding)。
+- SQL 已充分优化后单库仍无法支撑，就需要缓存、读写分离、分库分表等**扩展性方案**，属于高并发范畴，见 [数据层扩展](/high-con/5_data_scaling) 与 [分库分表与中间件](/database/5_practice/2_sharding)。
 - 读多写少的数据优先考虑缓存，见 [缓存架构设计](/high-con/3_cache_architecture)、[两级缓存](/cache/8_two_level_cache) 与 [缓存一致性](/cache/10_cache_consistency)。
 
 ---

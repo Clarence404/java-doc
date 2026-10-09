@@ -37,7 +37,7 @@
   <rect class="box" x="250" y="222" width="200" height="92" stroke="var(--b)"/>
   <text x="350" y="246" text-anchor="middle" fill="var(--b)" font-weight="700">TiDB Server</text>
   <text x="350" y="264" text-anchor="middle" fill="var(--fg)" font-size="10">无状态 SQL 解析层</text>
-  <text x="350" y="280" text-anchor="middle" fill="var(--fg)" font-size="10">兼容 MySQL 5.7 协议</text>
+  <text x="350" y="280" text-anchor="middle" fill="var(--fg)" font-size="10">兼容 MySQL 8.0 协议</text>
   <text x="350" y="298" text-anchor="middle" fill="var(--fg)" font-size="10">查询优化 / 执行计划</text>
 
   <!-- TiDB → 存储层（对称斜箭头） -->
@@ -47,7 +47,7 @@
   <!-- 存储层：TiKV / TiFlash 左右对称 -->
   <rect class="box" x="60" y="356" width="270" height="76" stroke="var(--g)"/>
   <text x="195" y="378" text-anchor="middle" fill="var(--g)" font-weight="700">TiKV（行存 / OLTP）</text>
-  <text x="195" y="396" text-anchor="middle" fill="var(--fg)" font-size="10">Raft 协议 3 副本强一致，Region 96MB</text>
+  <text x="195" y="396" text-anchor="middle" fill="var(--fg)" font-size="10">Raft 3 副本强一致，Region 256 MiB（8.4+）</text>
   <text x="195" y="412" text-anchor="middle" fill="var(--fg)" font-size="10">RocksDB 底层，Percolator 2PC 分布式事务</text>
 
   <rect class="box" x="370" y="356" width="270" height="76" stroke="var(--p)"/>

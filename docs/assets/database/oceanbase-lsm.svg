@@ -44,8 +44,8 @@
   <!-- Major SSTable -->
   <rect class="box" x="500" y="40" width="210" height="84" stroke="var(--g)"/>
   <text x="605" y="62" text-anchor="middle" fill="var(--g)" font-weight="700">Major SSTable（基线）</text>
-  <text x="605" y="78" text-anchor="middle" fill="var(--fg)" font-size="10">高度压缩（行列混存）</text>
-  <text x="605" y="112" text-anchor="middle" fill="var(--fg)" font-size="10">字典/RLE/列式压缩，省 70%+ 空间</text>
+  <text x="605" y="78" text-anchor="middle" fill="var(--fg)" font-size="10">编码压缩（微块内行列混存）</text>
+  <text x="605" y="112" text-anchor="middle" fill="var(--fg)" font-size="10">字典 / RLE / 差值等编码 + 通用压缩</text>
 
   <!-- Compression detail -->
   <rect x="10" y="144" width="700" height="96" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
@@ -58,8 +58,8 @@
   <text x="334" y="186" text-anchor="middle" fill="var(--b)" font-weight="600" font-size="10">Minor SSTable（行存增量）</text>
 
   <rect x="442" y="170" width="258" height="28" rx="4" fill="var(--g)" opacity="0.15" stroke="var(--g)" stroke-width="1"/>
-  <text x="571" y="186" text-anchor="middle" fill="var(--g)" font-weight="600" font-size="10">Major SSTable（列存基线）</text>
+  <text x="571" y="186" text-anchor="middle" fill="var(--g)" font-weight="600" font-size="10">Major SSTable（基线；4.3+ 可为列存）</text>
 
   <text x="360" y="213" text-anchor="middle" fill="var(--fg)" font-size="10">OLTP 点查：先查 MemTable → Minor SSTable → Major SSTable（读路径合并）</text>
-  <text x="360" y="228" text-anchor="middle" fill="var(--muted)" font-size="10">OLAP 扫描：直接命中 Major SSTable 列存部分，SIMD 向量化加速；Major Compaction 后存储空间可节省 70%~90%</text>
+  <text x="360" y="228" text-anchor="middle" fill="var(--muted)" font-size="10">OLAP 扫描：4.3+ 列存表 / 列存副本按列读基线，向量化执行；Major Compaction 时重新编码压缩基线</text>
 </svg>

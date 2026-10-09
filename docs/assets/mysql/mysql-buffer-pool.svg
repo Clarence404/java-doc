@@ -30,7 +30,7 @@
 
   <!-- Buffer Pool 容器 -->
   <rect x="20" y="44" width="680" height="244" rx="10" fill="var(--bg)" stroke="var(--p)" stroke-width="1.5"/>
-  <text class="box-title" x="360" y="68" text-anchor="middle">Buffer Pool（innodb_buffer_pool_size，建议物理内存 60%~70%）</text>
+  <text class="box-title" x="360" y="68" text-anchor="middle">Buffer Pool（innodb_buffer_pool_size，专用服务器常取内存 50%~75%）</text>
 
   <!-- Free List -->
   <rect x="40" y="84" width="640" height="48" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
@@ -61,7 +61,7 @@
   <!-- Double Write Buffer -->
   <rect x="20" y="334" width="300" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
   <text class="box-title" x="170" y="358" text-anchor="middle">Double Write Buffer</text>
-  <text class="desc" x="170" y="380" text-anchor="middle">先顺序写共享区域，防部分页写失效</text>
+  <text class="desc" x="170" y="380" text-anchor="middle">8.0.20 起独立 .dblwr 文件，先顺序写一份</text>
 
   <!-- 落盘箭头 -->
   <line x1="320" y1="364" x2="398" y2="364" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bp)"/>
@@ -70,5 +70,5 @@
   <!-- 磁盘 -->
   <rect x="400" y="334" width="300" height="60" rx="8" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
   <text class="box-title" x="550" y="358" text-anchor="middle">磁盘数据文件</text>
-  <text class="desc" x="550" y="380" text-anchor="middle">*.ibd 独立表空间 / ibdata 系统表空间</text>
+  <text class="desc" x="550" y="380" text-anchor="middle">*.ibd 表空间文件（页写回原位置）</text>
 </svg>

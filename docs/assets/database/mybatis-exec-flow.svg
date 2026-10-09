@@ -91,5 +91,5 @@
   <rect x="502" y="222" width="224" height="60" rx="5" fill="var(--card)" stroke="var(--border)" stroke-width="1"/>
   <text x="616" y="240" text-anchor="middle" fill="var(--fg)" font-weight="700" font-size="10">一级缓存（SqlSession 级）</text>
   <text x="616" y="254" text-anchor="middle" fill="var(--muted)" font-size="9">默认开启；同一 Session 重复查询命中</text>
-  <text x="616" y="264" text-anchor="middle" fill="var(--muted)" font-size="9">二级缓存（Mapper 级）需 @CacheNamespace</text>
+  <text x="616" y="264" text-anchor="middle" fill="var(--muted)" font-size="9">二级缓存需 &lt;cache/&gt; 或 @CacheNamespace</text>
 </svg>

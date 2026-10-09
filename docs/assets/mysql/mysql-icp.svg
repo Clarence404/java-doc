@@ -28,7 +28,7 @@
   <text x="360" y="36" text-anchor="middle" font-size="11" fill="var(--muted)">联合索引 idx_name_age(name, age)，查询：WHERE name LIKE 'A%' AND age = 18</text>
 
   <!-- ===== LEFT: 无 ICP ===== -->
-  <text class="ttl" x="180" y="60" text-anchor="middle" fill="var(--r)">❌ 无 ICP（5.6 之前）</text>
+  <text class="ttl" x="180" y="60" text-anchor="middle" fill="var(--r)">无 ICP（5.6 之前）</text>
 
   <rect class="box" x="30" y="72" width="300" height="78" stroke="var(--b)"/>
   <text x="180" y="94" text-anchor="middle" fill="var(--b)" font-weight="600" font-size="11">存储引擎（InnoDB）</text>
@@ -54,7 +54,7 @@
   <line x1="360" y1="50" x2="360" y2="444" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="5,3"/>
 
   <!-- ===== RIGHT: 有 ICP ===== -->
-  <text class="ttl" x="540" y="60" text-anchor="middle" fill="var(--g)">✅ 有 ICP（MySQL 5.6+）</text>
+  <text class="ttl" x="540" y="60" text-anchor="middle" fill="var(--g)">有 ICP（MySQL 5.6+）</text>
 
   <rect class="box" x="390" y="72" width="300" height="78" stroke="var(--b)"/>
   <text x="540" y="94" text-anchor="middle" fill="var(--b)" font-weight="600" font-size="11">存储引擎（InnoDB）</text>
