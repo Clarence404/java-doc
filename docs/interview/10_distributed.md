@@ -159,7 +159,7 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 - 用锁代替幂等：锁只挡并发，挡不住锁释放后的重复请求，重复提交要靠唯一约束或状态机
 - 防超卖用 Lua 判断后 `DECR`，或 `UPDATE ... SET n = n - 1 WHERE id = ? AND n > 0`
 
-→ 详见 [分布式锁](/distributed/3_lock#七、常见坑)、[秒杀系统设计](/scenario/4_seckill)
+→ 详见 [分布式锁](/distributed/3_lock#七、常见坑)、[秒杀](/scenario/4_seckill)
 
 ## 三、分布式事务
 

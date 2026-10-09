@@ -441,4 +441,4 @@ description: Redis 数据类型与编码、线程模型与持久化、过期与�
 - `RDelayedQueue` 靠客户端定时搬运，没有存活的客户端就不会按时投递，`take()` 后失败也不会重投
 - 订单超时这类要可靠投递的场景，用 RocketMQ 5.x 定时消息 + 定时扫描兜底
 
-→ 详见 [Redisson](/cache/6_redisson#_3、公平锁、读写锁与联锁)、[订单系统设计](/scenario/5_order_system#四、超时关单)
+→ 详见 [Redisson](/cache/6_redisson#_3、公平锁、读写锁与联锁)、[订单](/scenario/5_order_system#四、超时关单)

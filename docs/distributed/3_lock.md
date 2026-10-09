@@ -277,7 +277,7 @@ try (Client client = Client.builder().endpoints("http://etcd1:2379").build()) {
 2. **tryLock 失败后仍然 unlock**：没拿到锁也在 finally 里调用 `unlock()`，Redisson 会抛 `IllegalMonitorStateException`。检查返回值，或用 `isHeldByCurrentThread()` 判断
 3. **锁粒度过粗**：用一把全局锁保护所有订单，所有请求串行。key 要细到资源 ID，如 `lock:order:{orderId}`
 4. **leaseTime 短于业务耗时**：指定 leaseTime 会关闭看门狗，业务没执行完锁就过期。不确定耗时就不要指定 leaseTime，同时给业务本身设超时
-5. **用锁当秒杀防超卖的主手段**：一把锁把所有扣库存请求串行化，吞吐被锁的往返时间限制。库存扣减应使用原子操作：Redis Lua 判断库存后 `DECR`，或数据库条件更新 `UPDATE stock SET n = n - 1 WHERE id = ? AND n > 0`，详见 [秒杀系统设计](/scenario/4_seckill)
+5. **用锁当秒杀防超卖的主手段**：一把锁把所有扣库存请求串行化，吞吐被锁的往返时间限制。库存扣减应使用原子操作：Redis Lua 判断库存后 `DECR`，或数据库条件更新 `UPDATE stock SET n = n - 1 WHERE id = ? AND n > 0`，详见 [秒杀](/scenario/4_seckill)
 6. **用锁代替幂等**：锁只保证同一时刻不并发，挡不住锁释放后的重复请求。重复提交、重复消费要靠唯一约束或状态机，见 [幂等设计](/architecture/5_idempotence)
 
 ---

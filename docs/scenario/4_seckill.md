@@ -2,7 +2,7 @@
 description: 分层拦截、防刷、Lua 原子预扣、MQ 可靠投递与对账、幂等落库、超时关单、容量评估
 ---
 
-# 秒杀系统设计
+# 秒杀
 
 > **本篇目标**：把限流、热点、削峰、消息可靠性这些单点知识组合成一条完整的秒杀链路，做到不超卖、不少卖、重复消息不重复下单，并清楚每一环失败后怎么补偿。
 >
@@ -250,7 +250,7 @@ public class SeckillOrderService {
 
 下单后 15 分钟未支付就关单，订单关闭成功后才回补库存：
 
-1. 订单建成并提交后，发送 15 分钟的定时消息（RocketMQ 5.x 支持任意时延；4.x 只有 18 个固定级别，15 分钟不在其中），具体写法见 [订单系统设计](./5_order_system#四、超时关单) 的超时关单一节
+1. 订单建成并提交后，发送 15 分钟的定时消息（RocketMQ 5.x 支持任意时延；4.x 只有 18 个固定级别，15 分钟不在其中），具体写法见 [订单](./5_order_system#四、超时关单) 的超时关单一节
 2. 消费时先调用支付平台关单接口，再用 `UPDATE ... SET status = 'CANCELLED' WHERE id = ? AND status = 'PENDING_PAYMENT'` 关单，影响行数为 1 才继续
 3. 同一事务里回补 DB 库存；提交后执行 Redis 回补脚本，并广播清除售罄标记
 4. 重复的关单消息会因条件更新影响 0 行而直接结束，不会重复回补
@@ -289,4 +289,4 @@ public class SeckillOrderService {
 - RocketMQ 消费重试：[https://rocketmq.apache.org/docs/featureBehavior/10consumerretrypolicy](https://rocketmq.apache.org/docs/featureBehavior/10consumerretrypolicy)
 - Caffeine：[https://github.com/ben-manes/caffeine](https://github.com/ben-manes/caffeine)
 
-> 下一篇：[订单系统设计](./5_order_system) —— 订单状态机、下单幂等、支付回调、超时关单、分布式事务与退款。
+> 下一篇：[订单](./5_order_system) —— 订单状态机、下单幂等、支付回调、超时关单、分布式事务与退款。

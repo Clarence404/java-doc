@@ -30,7 +30,7 @@ Long rank = redis.opsForZSet().reverseRank("rank:game:202610", userId);
 
 - **同分排序**：score 相同按成员字典序排列，不是按先到先得。需要「同分先达到者靠前」时把时间编进 score，例如 `score = 积分 × 10^10 + (9999999999 - 秒级时间戳)`；score 是 double，整数部分不能超过 2^53，要按积分上限核算位数
 - **数据量**：ZSet 的增删查都是 O(log N)，百万成员没有问题；真正的风险是大 key 的删除、迁移和全量读取，按周期分 key（如按月）并给过期时间，删除用 `UNLINK`
-- 分榜、合榜、实时与离线结合的完整设计见 [排行榜 & 积分系统设计](/scenario/7_rank_system)
+- 分榜、合榜、实时与离线结合的完整设计见 [排行榜和积分](/scenario/7_rank_system)
 
 ---
 
@@ -250,7 +250,7 @@ if (records != null) {
 - **分布式会话**：Spring Session 把 Session 存进 Redis，或用 Redis 存 Token 实现主动失效、踢人下线，见 [分布式会话](/distributed/5_session)
 - **分布式锁**：`SET key uuid NX PX` 加锁、Lua 比对后删除解锁，长任务要续期或用 fencing token，见 [分布式锁](/distributed/3_lock)
 - **计数器 / UV**：精确计数用 `INCR` / `HINCRBY`，海量去重计数用 HyperLogLog，见 [Redis 基础](./1_redis_base)
-- **附近的人**：GEO 命令，完整设计见 [附近的人 & LBS 地理位置设计](/scenario/12_geo_nearby)
+- **附近的人**：GEO 命令，完整设计见 [附近的人](/scenario/12_geo_nearby)
 
 ---
 

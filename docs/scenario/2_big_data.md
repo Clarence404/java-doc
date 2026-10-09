@@ -1,14 +1,14 @@
 ---
-description: 存储扩展、深分页与预计算、日志链路、Top K、去重、UV 统计、大文件交集
+description: 存储扩展、深分页与预计算、日志链路与 ES 写入、Flink 实时聚合、HyperLogLog UV 统计
 ---
 
-# 海量数据处理
+# 海量数据架构选型
 
-> **本篇目标**：遇到「存不下、查不快、算不完、写不进」时，知道该把问题交给哪类方案，并能正确估算布隆过滤器、HyperLogLog 这类结构的内存与误差。
+> **本篇目标**：遇到「存不下、查不快、算不完、写不进」时，知道该把问题交给哪类方案，并知道 HyperLogLog 这类概率结构的内存与误差。
 >
 > **前置阅读**：[数据层扩展](/high-con/5_data_scaling)、[分库分表与中间件](/database/5_practice/2_sharding)
 
-本篇只做组合与选型：分库分表、冷热分离、OLAP 存储、Flink 各有主文档，这里一句话带过并给出链接，重点放在几类经典的海量数据问题上。
+本篇只做组合与选型：分库分表、冷热分离、OLAP 存储、Flink 各有主文档，这里一句话带过并给出链接；分桶、Top K、位图这类算法题见 [海量数据算法题](./3_massive_data)。
 
 ---
 
@@ -143,52 +143,9 @@ Flink 2.0 删除了 `SinkFunction`，基于它的 Bahir Redis 连接器已不能
 
 ## 五、经典海量数据问题
 
-### 1、10 亿个数中的 Top K
+「两个大文件找相同 URL」「海量文本找高频词」「5 亿个数找中位数」这类单机离线题，套路是哈希分桶、堆、位图、布隆过滤器与外部排序的组合，题目、思路与内存估算统一见 [海量数据算法题](./3_massive_data)。本节只保留需要依赖线上存储的 UV 统计。
 
-维护一个大小为 K 的小顶堆，比堆顶大就替换，时间 O(N log K)、空间 O(K)：
-
-```java
-PriorityQueue<Integer> minHeap = new PriorityQueue<>(k);
-for (int num : dataStream) {
-    if (minHeap.size() < k) {
-        minHeap.offer(num);
-    } else if (num > minHeap.peek()) {
-        minHeap.poll();
-        minHeap.offer(num);
-    }
-}
-```
-
-分布式时每台机器先求本地 Top K，再汇总 N × K 个数求全局 Top K。
-
-### 2、10 亿 URL 去重
-
-**先分清是否允许误判。**
-
-**允许少量漏判（如爬虫判断是否已抓取）**：布隆过滤器。位数组大小 `m = -n·ln p / (ln 2)²`，哈希函数个数 `k = (m / n)·ln 2`：
-
-| 元素数 n | 误判率 p | 位数组 | 哈希函数 |
-|----------|----------|--------|----------|
-| 1000 万 | 0.1% | 约 1.44 亿 bit ≈ 17MB | 10 |
-| 10 亿 | 0.1% | 约 144 亿 bit ≈ 1.7GB | 10 |
-| 10 亿 | 1% | 约 96 亿 bit ≈ 1.1GB | 7 |
-
-```java
-BloomFilter<String> filter = BloomFilter.create(
-        Funnels.stringFunnel(StandardCharsets.UTF_8),
-        1_000_000_000L,   // 预期元素数量
-        0.001);           // 误判率 0.1%，约占 1.7GB 内存
-if (!filter.mightContain(url)) {   // false 表示一定没见过
-    filter.put(url);
-    crawl(url);
-}
-```
-
-布隆过滤器的误判方向是「没见过的说成见过」：新 URL 有 p 的概率被当成重复而丢掉。所以它只适合允许漏掉少量数据的场景。
-
-**必须精确去重**：哈希分治。按 `hash(url) % 1000` 把数据拆成 1000 个小文件，相同 URL 必然落进同一个文件，再逐个文件用 HashSet 去重。需要在线精确去重时，用数据库唯一键或 Redis Set 分片。
-
-### 3、海量 UV 统计
+### 1、海量 UV 统计
 
 Redis HyperLogLog 每个 key 最多约 12KB，统计亿级基数，标准误差约 0.81%：
 
@@ -200,14 +157,6 @@ PFMERGE uv:week uv:20261003 uv:20261004 uv:20261005
 
 结果是估算值，需要精确值（如计费）时用 Bitmap（用户 ID 连续时）或离线精确去重。
 
-### 4、两个大文件求交集
-
-**哈希分治**：两个文件用同一个哈希函数各自拆成 N 个小文件，相同的行必然落在编号相同的一对小文件里；逐对把小的那个读进 HashSet，扫描另一个求交集，最后汇总。
-
-**外排序 + 归并**：两个文件各自外部排序，再用双指针同步扫描，相等即为交集。不需要额外内存放 HashSet，适合重复行多或单个分桶仍然放不下的情况。
-
-**位图**：数据是整数且范围有限（如 0～40 亿）时，各用一个 bit 数组标记（40 亿 bit 约 477MB），两个位图做 AND。
-
 ---
 
 ## 小结
@@ -216,17 +165,14 @@ PFMERGE uv:week uv:20261003 uv:20261004 uv:20261005
 - 深分页优先游标分页；必须跳页时子查询先定位主键，外层仍要 `ORDER BY`
 - MySQL 没有物化视图，汇总表只算增量区间，并用唯一键让任务可重跑
 - Flink 2.x 只有 Sink V2，没有官方 Redis 连接器，结果先写 Kafka / JDBC 或自定义 Sink
-- 布隆过滤器 10 亿元素、0.1% 误判率约需 1.7GB，误判会丢掉新数据；精确去重用哈希分治
 - HyperLogLog 每个 key 约 12KB、误差约 0.81%，只适合允许误差的基数统计
-- 大文件交集用哈希分治或外排序归并，整数且范围有限时用位图
+- 大文件交集、Top K、中位数等单机离线题见 [海量数据算法题](./3_massive_data)
 
 ## 参考资料
 
-- Guava BloomFilter：[https://guava.dev/releases/snapshot-jre/api/docs/com/google/common/hash/BloomFilter.html](https://guava.dev/releases/snapshot-jre/api/docs/com/google/common/hash/BloomFilter.html)
 - Redis HyperLogLog：[https://redis.io/docs/latest/develop/data-types/probabilistic/hyperloglogs/](https://redis.io/docs/latest/develop/data-types/probabilistic/hyperloglogs/)
 - MySQL INSERT ... ON DUPLICATE KEY UPDATE：[https://dev.mysql.com/doc/refman/8.4/en/insert-on-duplicate.html](https://dev.mysql.com/doc/refman/8.4/en/insert-on-duplicate.html)
 - Elasticsearch Tune for indexing speed：[https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/indexing-speed](https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/indexing-speed)
 - Flink DataStream API：[https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/overview/](https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/overview/)
-- advanced-java 海量数据处理：[https://gitee.com/Doocs/advanced-java](https://gitee.com/Doocs/advanced-java)
 
-> 下一篇：[秒杀系统设计](./4_seckill) —— 分层限流、Redis 原子预扣、MQ 异步下单与超时关单的完整链路。
+> 下一篇：[海量数据算法题](./3_massive_data) —— 哈希分桶、堆、位图、布隆过滤器与外部排序，九类经典题的思路与内存估算。

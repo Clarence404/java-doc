@@ -166,17 +166,9 @@ try (HintManager hint = HintManager.getInstance()) {
 
 ### 6、扩容迁移
 
-**分片数从 N 扩到 2N 是分库分表中最复杂的操作**，常见的平滑迁移流程：
+**分片数从 N 扩到 2N 是分库分表中最复杂的操作**，策略上要做到两点：迁移按「双写 → 历史数据迁移 → 校验对账 → 灰度切读 → 停旧写」平滑推进，每一步都有开关可回退；第一次拆分时就规划足够的逻辑分片（如 1024 张表），让扩容只搬整张表而不是重新哈希每一行。各步做法、ShardingSphere 迁移作业、预分配逻辑分片与倍数扩容的细节见 [分库分表与中间件 · 平滑迁移与扩容](/database/5_practice/2_sharding#八、平滑迁移与扩容)。
 
-1. **双写**：新旧两套分片同时写（以旧库为准），可通过应用双写或 Binlog 同步（Canal / DTS）
-2. **历史数据迁移**：全量拷贝历史数据到新分片，增量由双写 / Binlog 追平
-3. **校验**：对比新旧数据行数与抽样内容，修复差异
-4. **灰度切读**：按比例把读流量切到新分片，观察一段时间
-5. **切写**：以新库为准，停止写旧库，保留回滚窗口后下线
-
-**降低扩容频率的技巧**：一开始就规划足够的逻辑分片（如 1024 张表分布在 8 个库），扩容时只把整张表迁到新库，而不是重新哈希每一行。
-
-ShardingSphere 内置迁移工具见 [分库分表与中间件](/database/5_practice/2_sharding)，Binlog 同步工具见 [CDC 工具](/database/5_practice/0_cdc_tools)。分布式数据库（TiDB、OceanBase）可以免去应用层分片，代价是运维体系与成本，见 [分布式数据库](/database/3_relational/1_distributed_db)。
+Binlog 同步工具见 [CDC 工具](/database/5_practice/0_cdc_tools)。分布式数据库（TiDB、OceanBase）可以免去应用层分片，代价是运维体系与成本，见 [分布式数据库](/database/3_relational/1_distributed_db)。
 
 ---
 

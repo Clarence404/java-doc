@@ -2,7 +2,7 @@
 description: 推模式、拉模式、推拉结合、收件箱游标分页、可靠扇出、在线推送
 ---
 
-# Feed 流 & 消息推送系统设计
+# Feed 流和消息推送
 
 > **本篇目标**：在推、拉、推拉结合三种模式间做取舍，用 ZSet 收件箱 + 游标分页实现不重不漏的 Feed，用本地消息表 + MQ 做可靠扇出，并理清在线推送的整体链路。
 >
@@ -160,7 +160,7 @@ CREATE TABLE content (
 
 - `idx_author_time` 支撑「某作者的最新内容」，也是收件箱超出 1000 条后的回源查询
 - 删除和审核下线不去扫粉丝收件箱，读取详情时按 `status` 过滤即可
-- 内容的全文检索见 [搜索系统设计](./9_search_system)
+- 内容的全文检索见 [搜索](./9_search_system)
 
 ---
 
@@ -208,4 +208,4 @@ CREATE TABLE content (
 - Redis Pub/Sub：[https://redis.io/docs/latest/develop/interact/pubsub/](https://redis.io/docs/latest/develop/interact/pubsub/)
 - Kafka Topic 命名规则（`kafka-topics.sh` 与 Topic 配置）：[https://kafka.apache.org/documentation/#basic_ops_add_topic](https://kafka.apache.org/documentation/#basic_ops_add_topic)
 
-> 下一篇：[搜索系统设计](./9_search_system) —— 商品搜索的 Mapping、查询、MySQL → ES 同步与零停机重建。
+> 下一篇：[搜索](./9_search_system) —— 商品搜索的 Mapping、查询、MySQL → ES 同步与零停机重建。

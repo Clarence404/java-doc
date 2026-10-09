@@ -230,7 +230,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 回调可能不来：定时主动查单，与回调走同一个幂等入口
 - 锁会因租约过期失效，锁内仍要有条件更新作为真正的判断
 
-→ 详见 [幂等设计](/architecture/5_idempotence#九、业务案例-下单与支付回调)、[订单系统设计](/scenario/5_order_system#三、支付回调)
+→ 详见 [幂等设计](/architecture/5_idempotence#九、业务案例-下单与支付回调)、[订单](/scenario/5_order_system#三、支付回调)
 
 ## 四、访问控制
 

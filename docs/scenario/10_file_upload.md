@@ -2,7 +2,7 @@
 description: 分片直传、断点续传、秒传校验、STS 与预签名、上传后处理、对象存储选型
 ---
 
-# 大文件上传 & 对象存储
+# 大文件上传
 
 > **本篇目标**：基于 S3 分片上传协议实现浏览器直传对象存储，做到可并发、可续传、秒传不泄露他人文件，凭证最小权限，上传后可靠地校验与处理。
 >
@@ -416,4 +416,4 @@ https://cdn.example.com/images/photo.jpg?x-oss-process=image/crop,w_200,h_200
 - 阿里云 OSS 使用 STS 临时凭证：[https://help.aliyun.com/zh/oss/developer-reference/use-temporary-access-credentials-provided-by-sts-to-access-oss](https://help.aliyun.com/zh/oss/developer-reference/use-temporary-access-credentials-provided-by-sts-to-access-oss)
 - MinIO 仓库（维护状态说明）：[https://github.com/minio/minio](https://github.com/minio/minio)
 
-> 下一篇：[抢红包系统设计](./11_red_packet) —— 金额预分配、Lua 原子抢、可靠入账与过期退款。
+> 下一篇：[抢红包](./11_red_packet) —— 金额预分配、Lua 原子抢、可靠入账与过期退款。

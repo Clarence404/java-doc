@@ -2,7 +2,7 @@
 description: 状态机与条件更新、下单幂等与库存预占、支付回调、超时关单、按流程选分布式事务、退款
 ---
 
-# 订单系统设计
+# 订单
 
 > **本篇目标**：设计一个经得起重试、并发和故障的订单系统：状态流转只靠条件更新，下单、支付回调、关单、退款都可以安全重放，跨服务的一致性按流程选定一种方案。
 >
@@ -80,7 +80,7 @@ SET available = available - #{quantity}, reserved = reserved + #{quantity}
 WHERE sku_id = #{skuId} AND available >= #{quantity};
 ```
 
-只用 `available >= quantity` 条件就能防超卖，不需要再加 version：版本号会让库存充足的并发请求也失败。库存热点（单个 SKU 被集中抢购）见 [秒杀系统设计](./4_seckill)。
+只用 `available >= quantity` 条件就能防超卖，不需要再加 version：版本号会让库存充足的并发请求也失败。库存热点（单个 SKU 被集中抢购）见 [秒杀](./4_seckill)。
 
 ### 3、订单服务：唯一约束兜底
 
@@ -387,4 +387,4 @@ public void execute(String refundNo) {
 - Spring Framework Transaction-bound Events：[https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html)
 - Apache Seata：[https://seata.apache.org/docs/overview/what-is-seata](https://seata.apache.org/docs/overview/what-is-seata)
 
-> 下一篇：[短链接系统设计](./6_shorturl) —— 短码生成、存储与缓存、跳转与统计、高可用。
+> 下一篇：[短链接](./6_shorturl) —— 短码生成、存储与缓存、跳转与统计、高可用。

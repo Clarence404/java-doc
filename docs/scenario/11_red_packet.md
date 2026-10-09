@@ -2,11 +2,11 @@
 description: 二倍均值分配、发红包本地事务扣款、Lua 原子抢、事务消息可靠入账、对账后退款
 ---
 
-# 抢红包系统设计
+# 抢红包
 
 > **本篇目标**：设计一个资金守恒的抢红包系统：金额怎么分、发红包怎么扣款、高并发下怎么原子地抢、抢到后怎么可靠入账、过期后怎么不多不少地退款。
 >
-> **前置阅读**：[秒杀系统设计](./4_seckill)、[消息队列基础](/messaging/1_basics)、[RocketMQ](/messaging/3_rocketmq)（事务消息一节）
+> **前置阅读**：[秒杀](./4_seckill)、[消息队列基础](/messaging/1_basics)、[RocketMQ](/messaging/3_rocketmq)（事务消息一节）
 
 红包和秒杀一样是「固定份数、瞬时高并发」，但它是**资金**：任何一步出错都可能凭空多出或少掉钱。本篇的设计目标是一条不变式：**发出总额 = 已领取总额 + 已退款总额**，并且每一项都能对账。金额单位统一为「分」，用 `long`。
 
@@ -353,7 +353,7 @@ public void refund(long packetId) {
 | 超时处理 | 未支付关单、回补库存 | 过期关闭、对账后退还未领金额 |
 | 防超卖 | Redis 预扣 + 数据库条件更新 | Lua 弹出份额 + 唯一键 |
 
-秒杀的削峰、限流与库存设计见 [秒杀系统设计](./4_seckill)。
+秒杀的削峰、限流与库存设计见 [秒杀](./4_seckill)。
 
 ---
 
@@ -374,4 +374,4 @@ public void refund(long packetId) {
 - Redis Cluster 规范（哈希标签）：[https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/](https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/)
 - ShedLock：[https://github.com/lukas-krecan/ShedLock](https://github.com/lukas-krecan/ShedLock)
 
-> 下一篇：[附近的人 & LBS 地理位置设计](./12_geo_nearby) —— Redis GEO、Geohash 九宫格、过期清理、司机派单与位置隐私。
+> 下一篇：[附近的人](./12_geo_nearby) —— Redis GEO、Geohash 九宫格、过期清理、司机派单与位置隐私。

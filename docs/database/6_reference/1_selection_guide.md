@@ -136,7 +136,7 @@ MySQL 9.x 社区版只有 `VECTOR` 类型与 `STRING_TO_VECTOR`、`VECTOR_DIM` �
 |------|------|------|
 | 商品、订单、用户 | MySQL + ShardingSphere | 按用户或订单分片 |
 | 商品搜索 | Elasticsearch | CDC 同步商品库 |
-| 库存热点扣减 | Redis Lua 原子扣减 + 数据库最终落账 | 见 [秒杀系统设计](/scenario/4_seckill) |
+| 库存热点扣减 | Redis Lua 原子扣减 + 数据库最终落账 | 见 [秒杀](/scenario/4_seckill) |
 | 用户行为日志 | Kafka → ClickHouse / Doris | 实时分析 |
 | 订单报表 | Doris / StarRocks | 多表 Join 报表 |
 

@@ -1,0 +1,57 @@
+<svg viewBox="0 0 760 226" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12" role="img" aria-label="分库分表不停机迁移五步：双写、历史迁移、校验对账、灰度切读、停旧写">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .pan { rx:8; ry:8; fill:var(--bg); stroke-width:1.5; }
+    .ttl { font-weight:700; font-size:13px; }
+    .sub { font-size:11px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="380" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">不停机迁移五步</text>
+  <rect class="box" x="30" y="44" width="116" height="72" stroke="var(--p)"/>
+  <text class="ttl" x="88" y="68" text-anchor="middle" fill="var(--p)">① 双写</text>
+  <text class="sub" x="88" y="88" text-anchor="middle">应用双写或 CDC</text>
+  <text class="sub" x="88" y="104" text-anchor="middle">旧库为主写</text>
+  <line class="arr" x1="146" y1="80" x2="174" y2="80"/>
+  <rect class="box" x="176" y="44" width="116" height="72" stroke="var(--p)"/>
+  <text class="ttl" x="234" y="68" text-anchor="middle" fill="var(--p)">② 历史迁移</text>
+  <text class="sub" x="234" y="88" text-anchor="middle">按主键分批拷贝</text>
+  <text class="sub" x="234" y="104" text-anchor="middle">限速，增量追平</text>
+  <line class="arr" x1="292" y1="80" x2="320" y2="80"/>
+  <rect class="box" x="322" y="44" width="116" height="72" stroke="var(--y)"/>
+  <text class="ttl" x="380" y="68" text-anchor="middle" fill="var(--y)">③ 校验对账</text>
+  <text class="sub" x="380" y="88" text-anchor="middle">分段 checksum</text>
+  <text class="sub" x="380" y="104" text-anchor="middle">差异以旧库修复</text>
+  <line class="arr" x1="438" y1="80" x2="466" y2="80"/>
+  <rect class="box" x="468" y="44" width="116" height="72" stroke="var(--b)"/>
+  <text class="ttl" x="526" y="68" text-anchor="middle" fill="var(--b)">④ 灰度切读</text>
+  <text class="sub" x="526" y="88" text-anchor="middle">1% → 10% → 100%</text>
+  <text class="sub" x="526" y="104" text-anchor="middle">读结果双边比对</text>
+  <line class="arr" x1="584" y1="80" x2="612" y2="80"/>
+  <rect class="box" x="614" y="44" width="116" height="72" stroke="var(--g)"/>
+  <text class="ttl" x="672" y="68" text-anchor="middle" fill="var(--g)">⑤ 停旧写</text>
+  <text class="sub" x="672" y="88" text-anchor="middle">秒级停写追平</text>
+  <text class="sub" x="672" y="104" text-anchor="middle">切新库为主写</text>
+  <rect class="pan" x="30" y="146" width="554" height="60" stroke="var(--b)"/>
+  <text x="307" y="172" text-anchor="middle" fill="var(--b)" font-weight="700">数据以旧库为准</text>
+  <text class="sub" x="307" y="190" text-anchor="middle">每一步都由开关控制，出问题关掉开关即回到旧库</text>
+  <rect class="pan" x="614" y="146" width="116" height="60" stroke="var(--g)"/>
+  <text x="672" y="172" text-anchor="middle" fill="var(--g)" font-weight="700">以新库为准</text>
+  <text class="sub" x="672" y="190" text-anchor="middle">新 → 旧反向同步</text>
+</svg>

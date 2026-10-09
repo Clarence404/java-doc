@@ -1,5 +1,5 @@
 ---
-description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL、分库分表、NoSQL、连接池与 CDC
+description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL、分库分表与迁移扩容、NoSQL、连接池与 CDC
 ---
 
 # 数据库面试题解答
@@ -537,7 +537,21 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [分库分表与中间件](/database/5_practice/2_sharding#二、两种接入形态)
 
-### Q38：TiDB 的数据如何分片与复制？事务和 MySQL 有什么不同？
+### Q38：分库分表如何不停机迁移？以后扩容怎么做？
+
+**一句话**：迁移按「双写 → 历史数据迁移 → 校验对账 → 灰度切读 → 停旧写」五步走，每一步都能回退；扩容的关键是一开始就预分配足够多的逻辑分片，以后只搬整个库，不重新哈希每一行。
+
+- 双写优先用 CDC 订阅旧库 binlog（数据库变更日志）写新库，而不是业务代码写两遍；先记下 binlog 位点再拷全量，拷贝期间的修改不会丢
+- 校验：按主键区间比较行数和 checksum，不一致的段再逐行比对，差异以旧库为准修复
+- 切换：读按用户哈希灰度放量；最后短暂停写，等增量追平再切写，并开启新库到旧库的反向同步，方便回滚
+- 预分配：比如 32 库 × 32 表 = 1024 张逻辑表，初期 4 台实例每台放 8 个库，扩容只改数据源地址，路由规则不变
+- 没有预分配时按倍数扩（N → 2N），每个旧分片只迁一半；4 → 5 这种非倍数扩容要搬 80% 的数据
+
+**常见坑**：库和表都用 `h % 32` 路由，库下标永远等于表下标，每个库只有 1 张表有数据；表下标应取 `(h / 32) % 32`。
+
+→ 详见 [分库分表与中间件](/database/5_practice/2_sharding#八、平滑迁移与扩容)、[数据层扩展](/high-con/5_data_scaling)
+
+### Q39：TiDB 的数据如何分片与复制？事务和 MySQL 有什么不同？
 
 **一句话**：TiDB 分三层：TiDB Server 负责计算 SQL，TiKV 负责存数据，PD 负责调度。数据按主键范围切成一个个 Region（默认 256 MiB），每个 Region 有多个副本用 Raft 协议保持一致，PD 负责拆分和搬迁 Region。
 
@@ -550,7 +564,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [分布式数据库](/database/3_relational/1_distributed_db#一、tidb)
 
-### Q39：分库分表和分布式数据库怎么选？TiDB、OceanBase、Aurora / PolarDB 有什么区别？
+### Q40：分库分表和分布式数据库怎么选？TiDB、OceanBase、Aurora / PolarDB 有什么区别？
 
 **一句话**：分库分表复用成熟的 MySQL，成本低，但跨分片 JOIN、事务、扩容都要业务和中间件自己扛；分布式数据库把这些做进了数据库内部，对业务透明，代价是新的运维体系和更多资源。分片键清楚、查询模式稳定就分库分表；要跨分片强一致事务或透明扩容就选分布式数据库。
 
@@ -563,11 +577,11 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **常见坑**：单表千万级、单库扛得住时，先优化索引、归档和加缓存，不急着上分库分表或分布式数据库。
 
-→ 详见 [分布式数据库](/database/3_relational/1_distributed_db#三、tidb-与-oceanbase-选型对比)、[分库分表与中间件](/database/5_practice/2_sharding#八、选型建议)
+→ 详见 [分布式数据库](/database/3_relational/1_distributed_db#三、tidb-与-oceanbase-选型对比)、[分库分表与中间件](/database/5_practice/2_sharding#九、选型建议)
 
 ## 九、NoSQL 与选型
 
-### Q40：MongoDB 如何建模？多文档事务有哪些限制？
+### Q41：MongoDB 如何建模？多文档事务有哪些限制？
 
 **一句话**：一起读的数据就放一起：一对一、一对少量且一起读写的子数据直接内嵌（订单和订单项），一对大量、多对多或要单独访问的用引用（用户和订单）。单个文档的写入本身是原子的，能内嵌就能避开多文档事务。
 
@@ -578,7 +592,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [文档数据库](/database/4_nosql/2_document_db#二、文档建模)
 
-### Q41：Elasticsearch 为什么能快速全文检索？写入后为什么不能立刻搜到？
+### Q42：Elasticsearch 为什么能快速全文检索？写入后为什么不能立刻搜到？
 
 **一句话**：ES 用的是倒排索引，就像书后面的索引页：从「词」直接查到「包含它的文档列表」，不用逐篇扫描。写入的数据先在内存里，要等 refresh（默认每 1 秒一次）生成新的段文件后才能被搜到，所以叫「近实时」。
 
@@ -591,7 +605,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [搜索数据库](/database/4_nosql/3_search_db#_3、倒排索引)、[搜索数据库](/database/4_nosql/3_search_db#_1、写入链路)
 
-### Q42：ES 深分页怎么做？数据如何从数据库同步到 ES？
+### Q43：ES 深分页怎么做？数据如何从数据库同步到 ES？
 
 **一句话**：`from + size` 默认最多翻到第 10000 条，越往后越慢；翻页用 `search_after` 配合 PIT（固定一个时间点的视图），`scroll` 只用于离线导出。同步数据时以数据库为准，通过 CDC 或消息队列捕获变更，再写入 ES。
 
@@ -604,7 +618,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [搜索数据库](/database/4_nosql/3_search_db#_3、深分页)、[搜索数据库](/database/4_nosql/3_search_db#六、数据同步)
 
-### Q43：HBase、ClickHouse、Doris / StarRocks 有什么区别？ClickHouse 为什么不适合频繁更新？
+### Q44：HBase、ClickHouse、Doris / StarRocks 有什么区别？ClickHouse 为什么不适合频繁更新？
 
 **一句话**：HBase 是按行键排序的超大 KV 存储，擅长海量数据按 key 随机读写；ClickHouse、Doris、StarRocks 是列式分析数据库，每列单独存、压缩率高，擅长大范围统计。ClickHouse 每次写入都生成一个不可修改的数据块，改和删只能打标记或重写整块，所以不适合频繁更新。
 
@@ -619,7 +633,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [列式与 OLAP 数据库](/database/4_nosql/0_column_db#四、选型对比)
 
-### Q44：时序数据为什么不用 MySQL 存？什么时候需要图数据库？
+### Q45：时序数据为什么不用 MySQL 存？什么时候需要图数据库？
 
 **一句话**：时序数据写得多、按时间追加、按时间段统计、过期按时间整批删。MySQL 扛不住这么高频的写入，按时间删数据要 DELETE 海量行，压缩也差；时序数据库在这些方面都专门做了优化。图数据库适合查多层关系，比如「朋友的朋友的朋友」，关系型数据库每多一层就多一次 JOIN。
 
@@ -638,7 +652,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 ## 十、连接池、CDC 与备份
 
-### Q45：连接池大小怎么设？`maxLifetime`、`keepaliveTime` 与 `wait_timeout` 是什么关系？
+### Q46：连接池大小怎么设？`maxLifetime`、`keepaliveTime` 与 `wait_timeout` 是什么关系？
 
 **一句话**：连接池不是越大越好。经验公式「数据库 CPU 核数 × 2 + 磁盘数」算的是数据库那边总共需要的活跃连接数，要分给所有应用实例。`maxLifetime` 要比数据库和防火墙的空闲超时都短，否则池里会留着已经被断开的连接。
 
@@ -651,7 +665,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [数据库连接池](/database/5_practice/3_connection_pool#_4、池大小估算)、[高并发面试题解答](/interview/13_high_con#q37-数据库连接池是不是越大越好-水平扩容时要注意什么)
 
-### Q46：PostgreSQL 为什么需要 PgBouncer？transaction 模式有什么限制？
+### Q47：PostgreSQL 为什么需要 PgBouncer？transaction 模式有什么限制？
 
 **一句话**：PG 每个连接是一个进程，开销大，一般只能开几百个连接，微服务实例一多就不够用。PgBouncer 把大量客户端连接复用到少量真实连接上；生产常用 transaction 模式，事务结束就归还连接，代价是不能用会话级的状态。
 
@@ -668,7 +682,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [数据库连接池](/database/5_practice/3_connection_pool#五、pgbouncer)
 
-### Q47：基于 binlog 的 CDC 原理是什么？Canal、Debezium、Flink CDC 怎么选？
+### Q48：基于 binlog 的 CDC 原理是什么？Canal、Debezium、Flink CDC 怎么选？
 
 **一句话**：CDC 工具把自己伪装成一个从库，从 MySQL 拉取 binlog，解析出每行改前改后的数据，转成事件发给下游。前提是 binlog 为 ROW 格式、账号有复制权限、`server_id` 不和别的从库重复。
 
@@ -686,7 +700,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [CDC 工具](/database/5_practice/0_cdc_tools#一、工具对比)、[Flink CDC](/flink/6_cdc)
 
-### Q48：如何设计 MySQL / PostgreSQL 的备份与时间点恢复（PITR）？
+### Q49：如何设计 MySQL / PostgreSQL 的备份与时间点恢复（PITR）？
 
 **一句话**：备份方案由两个目标决定：最多能丢多少数据（RPO）、最多多久恢复（RTO）。基本做法是「定期全量备份 + 持续归档日志」：全量提供起点，再用 binlog / WAL 把数据补到任意时间点。没做过恢复演练的备份等于没有备份。
 

@@ -1,0 +1,41 @@
+<svg viewBox="0 0 680 304" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12" role="img" aria-label="按业务键保证接口调用顺序的三道防线：同 key 路由、实例内按 key 串行、数据层版本号兜底">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .pan { rx:8; ry:8; fill:var(--bg); stroke-width:1.5; }
+    .ttl { font-weight:700; font-size:13px; }
+    .sub { font-size:11px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">按业务键保证调用顺序：三道防线</text>
+  <rect class="pan" x="20" y="44" width="640" height="60" stroke="var(--b)"/>
+  <text class="ttl" x="340" y="66" text-anchor="middle" fill="var(--b)">入口：同一业务键路由到同一处</text>
+  <text x="180" y="88" text-anchor="middle" fill="var(--fg)">一致性哈希负载均衡</text>
+  <text x="500" y="88" text-anchor="middle" fill="var(--fg)">MQ 分区键 + 单分区单线程</text>
+  <line class="arr" x1="340" y1="104" x2="340" y2="132"/>
+  <rect class="pan" x="20" y="134" width="640" height="60" stroke="var(--p)"/>
+  <text class="ttl" x="340" y="156" text-anchor="middle" fill="var(--p)">实例内：按业务键分通道串行</text>
+  <text x="180" y="178" text-anchor="middle" fill="var(--fg)">hash(key) % N 选通道</text>
+  <text x="500" y="178" text-anchor="middle" fill="var(--fg)">每个通道单线程执行</text>
+  <line class="arr" x1="340" y1="194" x2="340" y2="222"/>
+  <rect class="pan" x="20" y="224" width="640" height="60" stroke="var(--g)"/>
+  <text class="ttl" x="340" y="246" text-anchor="middle" fill="var(--g)">数据层：版本号 / 状态机兜底</text>
+  <text x="180" y="268" text-anchor="middle" fill="var(--fg)">WHERE last_seq &lt; :seq</text>
+  <text x="500" y="268" text-anchor="middle" fill="var(--fg)">非法状态迁移直接拒绝</text>
+</svg>

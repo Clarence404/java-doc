@@ -141,7 +141,7 @@ GEODIST stores beijing shanghai km
 GEOSEARCH stores FROMLONLAT 116.40 39.90 BYRADIUS 5 km ASC COUNT 20   # 附近 5km
 ```
 
-附近的人 / 门店的完整设计（分片、分页、精度）见 [附近的人 & LBS 地理位置设计](/scenario/12_geo_nearby)。
+附近的人 / 门店的完整设计（分片、分页、精度）见 [附近的人](/scenario/12_geo_nearby)。
 
 ### 4、Stream
 

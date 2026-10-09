@@ -14,9 +14,9 @@
 
 ## 二、推荐阅读路径
 
-1. 先读 [秒杀系统设计](./4_seckill)、[订单系统设计](./5_order_system)，这两个场景最能串联三高、缓存、MQ 与分布式事务
-2. 再读 [短链接系统设计](./6_shorturl)、[排行榜 & 积分系统设计](./7_rank_system)、[Feed 流 & 消息推送系统设计](./8_feed_stream)、[搜索系统设计](./9_search_system)，覆盖读多写少、写扩散与检索问题
-3. 然后按需阅读 [海量数据处理](./2_big_data)、[大文件上传 & 对象存储](./10_file_upload)、[抢红包系统设计](./11_red_packet)、[附近的人 & LBS 地理位置设计](./12_geo_nearby)
+1. 先读 [秒杀](./4_seckill)、[订单](./5_order_system)，这两个场景最能串联三高、缓存、MQ 与分布式事务
+2. 再读 [短链接](./6_shorturl)、[排行榜和积分](./7_rank_system)、[Feed 流和消息推送](./8_feed_stream)、[搜索](./9_search_system)，覆盖读多写少、写扩散与检索问题
+3. 然后按需阅读 [海量数据架构选型](./2_big_data)、[海量数据算法题](./3_massive_data)、[大文件上传](./10_file_upload)、[抢红包](./11_red_packet)、[附近的人](./12_geo_nearby)、[商品详情页](./13_product_detail)
 4. 幂等是贯穿所有场景的基础能力，统一看 [幂等设计](/architecture/5_idempotence)
 
 [高频面试题](./99_interview) 只列题目，答案在 [业务场景面试题解答](/interview/16_scenario)。

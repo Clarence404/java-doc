@@ -2,7 +2,7 @@
 description: Redis GEO、过期成员清理、可见性控制、门店同步、司机派单防并发、Geohash 九宫格、位置隐私
 ---
 
-# 附近的人 & LBS 地理位置设计
+# 附近的人
 
 > **本篇目标**：用 Redis GEO 实现附近的人、附近门店与司机匹配，处理过期成员、不可见用户和派单并发，理解 Geohash 的边界问题，并把位置隐私做到不能被反推。
 >
@@ -303,4 +303,4 @@ public List<String> nineCells(double lat, double lng, int precision) {
 - MySQL 空间便捷函数（ST_Distance_Sphere）：[https://dev.mysql.com/doc/refman/8.4/en/spatial-convenience-functions.html](https://dev.mysql.com/doc/refman/8.4/en/spatial-convenience-functions.html)
 - geohash-java：[https://github.com/kungfoo/geohash-java](https://github.com/kungfoo/geohash-java)
 
-> 返回：[业务场景总览](./0_overview)
+> 下一篇：[商品详情页](./13_product_detail) —— 静动分离、三级缓存、变更消息重建、热点预热与降级兜底。

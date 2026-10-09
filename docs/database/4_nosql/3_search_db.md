@@ -327,7 +327,7 @@ OpenSearch 通过 k-NN 插件和 Neural Search 提供类似能力；Solr 从 9.0
 
 - CDC 工具（Canal、Debezium 等）的原理与选型见 [CDC 工具](../5_practice/0_cdc_tools)
 - 用 Flink CDC 做多表关联后写 ES 见 [Flink CDC](/flink/6_cdc)
-- 商品搜索的完整业务设计（同步链路、全量重建、别名切换）见 [搜索系统设计](/scenario/9_search_system)
+- 商品搜索的完整业务设计（同步链路、全量重建、别名切换）见 [搜索](/scenario/9_search_system)
 - Spring Boot 中接入 Elasticsearch 见 [中间件集成](/spring-boot/5_middleware)
 
 ---

@@ -35,7 +35,7 @@
 - 分布式锁（Redis / Redlock / ZooKeeper 对比）→ [分布式锁](/distributed/3_lock)
 - 分布式会话 → [分布式会话](/distributed/5_session)
 - 限流算法与 Redis + Lua 实现 → [限流与过载保护](/high-avail/7_rate_limiting)
-- 排行榜系统设计 → [排行榜 & 积分系统设计](/scenario/7_rank_system)
+- 排行榜系统设计 → [排行榜和积分](/scenario/7_rank_system)
 - Redis Stream / List 做队列时的可靠性对比 → [消息队列总览](/messaging/0_overview)
 - 幂等方案 → [幂等设计](/architecture/5_idempotence)
 - Spring Cache 抽象 → [Cache 抽象](/spring/5_cache)

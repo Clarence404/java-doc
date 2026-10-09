@@ -339,7 +339,7 @@ PROPERTIES (
 - 多表 JOIN 的报表 / BI、需要实时更新、团队熟悉 MySQL → Doris 或 StarRocks
 - 数据量不大（千万行级）的报表 → 先用 MySQL / PostgreSQL 只读副本
 
-OLAP 在整体架构中的位置（读写分离到异构存储、冷热分层）见 [数据层扩展](/high-con/5_data_scaling) 和 [海量数据处理](/scenario/2_big_data)。
+OLAP 在整体架构中的位置（读写分离到异构存储、冷热分层）见 [数据层扩展](/high-con/5_data_scaling) 和 [海量数据架构选型](/scenario/2_big_data)。
 
 ---
 

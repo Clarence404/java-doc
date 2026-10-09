@@ -2,7 +2,7 @@
 description: ZSet 实时榜、日周月榜、同分先到先得、分片合并、积分账户与流水
 ---
 
-# 排行榜 & 积分系统设计
+# 排行榜和积分
 
 > **本篇目标**：用 Redis ZSet 落地实时榜与日 / 周 / 月榜，处理同分排序、超大榜单与历史归档，并设计一个余额不错、流水可对账、与榜单最终一致的积分系统。
 >
@@ -313,4 +313,4 @@ CREATE TABLE point_batch (
 - Redis Lua API（Lua 与 Redis 类型转换）：[https://redis.io/docs/latest/develop/programmability/lua-api/](https://redis.io/docs/latest/develop/programmability/lua-api/)
 - Spring Transaction-bound Events：[https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html)
 
-> 下一篇：[Feed 流 & 消息推送系统设计](./8_feed_stream) —— 推模式、拉模式与推拉结合，收件箱存储与游标分页。
+> 下一篇：[Feed 流和消息推送](./8_feed_stream) —— 推模式、拉模式与推拉结合，收件箱存储与游标分页。

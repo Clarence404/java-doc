@@ -8,7 +8,7 @@ description: 对象模型与一致性、块 / 文件 / 对象对比、存储类�
 >
 > **前置阅读**：[数据安全](/security/7_data_security)（加密与密钥管理部分，可选）
 
-对象存储是图片、视频、附件、备份、日志归档、数据湖的默认落点。业务侧最常见的问题不是「怎么调 API」，而是文件流量压在应用服务上、对象权限误设为公开、存储费用和外网流量失控。上传业务流程（分片、断点续传、秒传）见 [大文件上传 & 对象存储](/scenario/10_file_upload)，本篇讲对象存储本身。
+对象存储是图片、视频、附件、备份、日志归档、数据湖的默认落点。业务侧最常见的问题不是「怎么调 API」，而是文件流量压在应用服务上、对象权限误设为公开、存储费用和外网流量失控。上传业务流程（分片、断点续传、秒传）见 [大文件上传](/scenario/10_file_upload)，本篇讲对象存储本身。
 
 ---
 
@@ -109,7 +109,7 @@ Amazon S3 从 2020 年 12 月起对所有对象的 PUT / DELETE 提供**强读�
 
 - **有效期**：SigV4 预签名 URL 最长 7 天，上传 URL 建议 5～15 分钟，下载分享按场景设定为分钟级到小时级
 - **限制内容**：预签名 PUT 可以把 Content-Type 签入签名；需要限制文件大小区间时用 POST Policy（`content-length-range`）或带策略的 STS 临时凭证
-- **大文件**：服务端调用 `CreateMultipartUpload`，为每个分片签发 `UploadPart` 的预签名 URL，客户端并发上传后由服务端 `CompleteMultipartUpload`；断点续传与秒传的业务设计见 [大文件上传 & 对象存储](/scenario/10_file_upload)
+- **大文件**：服务端调用 `CreateMultipartUpload`，为每个分片签发 `UploadPart` 的预签名 URL，客户端并发上传后由服务端 `CompleteMultipartUpload`；断点续传与秒传的业务设计见 [大文件上传](/scenario/10_file_upload)
 - **孤儿对象**：签发了 URL 但从未确认的上传，先放在 `tmp/` 前缀下，确认后再登记为正式文件，`tmp/` 由生命周期规则定期删除
 
 ---

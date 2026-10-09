@@ -54,7 +54,7 @@ Flink 是有状态的分布式流计算引擎，国内实时数仓、实时风�
 - [幂等设计](/architecture/5_idempotence)：Sink 端幂等写入与消费端去重的通用做法
 - [Kubernetes](/cloud-native/6_kubernetes)：Flink on Kubernetes 用到的基础概念，更多内容见 [云原生总览](/cloud-native/0_overview)
 - [指标监控](/observability/2_metrics)：Prometheus 指标与告警体系，更多内容见 [可观测性总览](/observability/0_overview)
-- [海量数据处理](/scenario/2_big_data)：离线与实时计算在大数据场景中的整体位置
+- [海量数据架构选型](/scenario/2_big_data)：离线与实时计算在大数据场景中的整体位置
 - [Vert.x 总览](/vertx/0_overview) / [Quarkus 总览](/quarkus/0_overview)：同属框架生态，面向在线服务而非流计算
 - [Flink 面试题解答](/interview/6_flink)：本模块高频问题的答案汇总
 

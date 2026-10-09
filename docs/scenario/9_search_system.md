@@ -2,7 +2,7 @@
 description: MySQL 全文检索边界、商品 Mapping、Java API Client、CDC 同步、零停机重建、热词
 ---
 
-# 搜索系统设计
+# 搜索
 
 > **本篇目标**：判断什么时候需要专用搜索引擎，设计一个商品搜索：索引 Mapping、组合查询、MySQL → ES 的可靠同步、不丢增量的零停机重建、搜索建议与热词，以及相关性调优。
 >
@@ -335,4 +335,4 @@ POST /products/_search
 - ZUNIONSTORE：[https://redis.io/docs/latest/commands/zunionstore/](https://redis.io/docs/latest/commands/zunionstore/)
 - IK 分词插件：[https://github.com/infinilabs/analysis-ik](https://github.com/infinilabs/analysis-ik)
 
-> 下一篇：[大文件上传 & 对象存储](./10_file_upload) —— 分片直传、断点续传、秒传校验与对象存储选型。
+> 下一篇：[大文件上传](./10_file_upload) —— 分片直传、断点续传、秒传校验与对象存储选型。
