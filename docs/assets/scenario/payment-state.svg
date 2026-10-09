@@ -1,0 +1,69 @@
+<svg viewBox="0 0 860 310" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; }
+    .sub { fill:var(--muted); }
+    .lbl { fill:var(--fg); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+    .bus { stroke:var(--muted); stroke-width:1.6; fill:none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="430" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">交易单状态机</text>
+  <rect class="box" x="20" y="50" width="160" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="100" y="76" text-anchor="middle" font-size="13" fill="var(--y)">待支付</text>
+  <text class="sub" x="100" y="95" text-anchor="middle" font-size="11">WAITING</text>
+  <rect class="box" x="240" y="50" width="160" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="320" y="76" text-anchor="middle" font-size="13" fill="var(--b)">支付中</text>
+  <text class="sub" x="320" y="95" text-anchor="middle" font-size="11">PAYING</text>
+  <rect class="box" x="460" y="50" width="160" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="540" y="76" text-anchor="middle" font-size="13" fill="var(--g)">支付成功</text>
+  <text class="sub" x="540" y="95" text-anchor="middle" font-size="11">SUCCESS</text>
+  <rect class="box" x="20" y="200" width="160" height="60" rx="8" stroke="var(--muted)"/>
+  <text class="name" x="100" y="226" text-anchor="middle" font-size="13" fill="var(--muted)">已关闭</text>
+  <text class="sub" x="100" y="245" text-anchor="middle" font-size="11">CLOSED</text>
+  <rect class="box" x="240" y="200" width="160" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="320" y="226" text-anchor="middle" font-size="13" fill="var(--r)">支付失败</text>
+  <text class="sub" x="320" y="245" text-anchor="middle" font-size="11">FAILED</text>
+  <rect class="box" x="460" y="200" width="160" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="540" y="226" text-anchor="middle" font-size="13" fill="var(--p)">部分退款</text>
+  <text class="sub" x="540" y="245" text-anchor="middle" font-size="11">PART_REFUND</text>
+  <rect class="box" x="680" y="200" width="160" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="760" y="226" text-anchor="middle" font-size="13" fill="var(--p)">全额退款</text>
+  <text class="sub" x="760" y="245" text-anchor="middle" font-size="11">FULL_REFUND</text>
+  <line class="arr" x1="180" y1="80" x2="238" y2="80"/>
+  <text class="lbl" x="209" y="72" text-anchor="middle" font-size="11">下单成功</text>
+  <line class="arr" x1="400" y1="80" x2="458" y2="80"/>
+  <text class="lbl" x="429" y="72" text-anchor="middle" font-size="11">确认支付</text>
+  <line class="arr" x1="100" y1="110" x2="100" y2="198"/>
+  <text class="lbl" x="108" y="160" text-anchor="start" font-size="11">超时</text>
+  <line class="arr" x1="270" y1="110" x2="172" y2="198"/>
+  <text class="lbl" x="250" y="150" text-anchor="start" font-size="11">渠道关单</text>
+  <line class="arr" x1="320" y1="110" x2="320" y2="198"/>
+  <text class="lbl" x="328" y="160" text-anchor="start" font-size="11">渠道失败</text>
+  <line class="arr" x1="540" y1="110" x2="540" y2="198"/>
+  <text class="lbl" x="548" y="160" text-anchor="start" font-size="11">部分退款</text>
+  <line class="arr" x1="620" y1="95" x2="722" y2="198"/>
+  <text class="lbl" x="684" y="140" text-anchor="start" font-size="11">全额退款</text>
+  <line class="arr" x1="620" y1="230" x2="678" y2="230"/>
+  <text class="lbl" x="649" y="222" text-anchor="middle" font-size="11">退完</text>
+  <text class="sub" x="430" y="292" text-anchor="middle" font-size="11">下单请求超时但用户已付款时，通知可把「待支付」直接改为「支付成功」；退款另建退款单，交易单只累计已退金额</text>
+</svg>

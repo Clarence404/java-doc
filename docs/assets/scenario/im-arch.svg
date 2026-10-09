@@ -1,0 +1,61 @@
+<svg viewBox="0 0 680 414" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">即时通讯整体架构</text>
+
+  <rect class="layer" x="20" y="44" width="640" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="40" y="70" fill="var(--p)">客户端</text>
+  <text class="sub" x="40" y="88">App / Web / PC 多端</text>
+  <text class="desc" x="650" y="70" text-anchor="end">发送时生成 clientMsgId，超时用同一个 ID 重发</text>
+  <text class="desc" x="650" y="88" text-anchor="end">本地保存每个会话的同步位点</text>
+  <line class="arr" x1="340" y1="104" x2="340" y2="132"/>
+
+  <rect class="layer" x="20" y="134" width="640" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="40" y="160" fill="var(--b)">接入层</text>
+  <text class="sub" x="40" y="178">长连接网关集群</text>
+  <text class="desc" x="650" y="160" text-anchor="end">TCP / WebSocket 长连接、鉴权、心跳、编解码</text>
+  <text class="desc" x="650" y="178" text-anchor="end">不做业务，下行推送也从这里写回连接</text>
+  <line class="arr" x1="340" y1="194" x2="340" y2="222"/>
+
+  <rect class="layer" x="20" y="224" width="640" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="40" y="250" fill="var(--g)">逻辑层</text>
+  <text class="sub" x="40" y="268">消息 / 会话 / 群组服务</text>
+  <text class="desc" x="650" y="250" text-anchor="end">去重、分配会话内 seq、落库、回 ACK</text>
+  <text class="desc" x="650" y="268" text-anchor="end">查路由后把消息投递到接收方所在网关</text>
+  <line class="arr" x1="176" y1="284" x2="176" y2="312"/>
+  <line class="arr" x1="504" y1="284" x2="504" y2="312"/>
+
+  <rect class="layer" x="20" y="314" width="312" height="80" rx="8" stroke="var(--y)"/>
+  <text x="176" y="340" text-anchor="middle" font-weight="600" font-size="13" fill="var(--y)">路由层</text>
+  <text class="sub" x="176" y="360" text-anchor="middle">Redis：userId → 设备 → 所在网关</text>
+  <text class="sub" x="176" y="380" text-anchor="middle">建连写入、心跳续期、断开按归属删除</text>
+
+  <rect class="layer" x="348" y="314" width="312" height="80" rx="8" stroke="var(--r)"/>
+  <text x="504" y="340" text-anchor="middle" font-weight="600" font-size="13" fill="var(--r)">存储层</text>
+  <text class="sub" x="504" y="360" text-anchor="middle">MySQL 按会话分片，Redis 存 seq 与位点</text>
+  <text class="sub" x="504" y="380" text-anchor="middle">冷数据归档到 HBase / 对象存储</text>
+</svg>

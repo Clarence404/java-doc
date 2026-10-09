@@ -1,0 +1,71 @@
+<svg viewBox="0 0 680 574" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">点赞计数写入链路</text>
+
+  <rect class="layer" x="20" y="44" width="640" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="40" y="70" fill="var(--p)">点赞服务</text>
+  <text class="sub" x="40" y="88">写关系表</text>
+  <text class="desc" x="650" y="70" text-anchor="end">插入 like_record，唯一约束拦住重复点赞</text>
+  <text class="desc" x="650" y="88" text-anchor="end">取消点赞删除记录，业务代码不直接发 MQ</text>
+  <line class="arr" x1="340" y1="104" x2="340" y2="132"/>
+
+  <rect class="layer" x="20" y="134" width="640" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="40" y="160" fill="var(--b)">CDC</text>
+  <text class="sub" x="40" y="178">Debezium / Canal</text>
+  <text class="desc" x="650" y="160" text-anchor="end">只读取已提交事务的 binlog</text>
+  <text class="desc" x="650" y="178" text-anchor="end">INSERT 转为 +1，DELETE 转为 -1</text>
+  <line class="arr" x1="340" y1="194" x2="340" y2="222"/>
+
+  <rect class="layer" x="20" y="224" width="640" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="40" y="250" fill="var(--g)">Kafka</text>
+  <text class="sub" x="40" y="268">以 targetId 为 key</text>
+  <text class="desc" x="650" y="250" text-anchor="end">同一对象的事件进同一分区</text>
+  <text class="desc" x="650" y="268" text-anchor="end">由同一个消费者按顺序处理</text>
+  <line class="arr" x1="340" y1="284" x2="340" y2="312"/>
+
+  <rect class="layer" x="20" y="314" width="640" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="40" y="340" fill="var(--y)">计数消费者</text>
+  <text class="sub" x="40" y="358">批量消费</text>
+  <text class="desc" x="650" y="340" text-anchor="end">跳过 offset 不大于已落库位点的消息</text>
+  <text class="desc" x="650" y="358" text-anchor="end">一批内按 targetId 合并增量</text>
+  <line class="arr" x1="340" y1="374" x2="340" y2="402"/>
+
+  <rect class="layer" x="20" y="404" width="640" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="40" y="430" fill="var(--g)">MySQL 计数表</text>
+  <text class="sub" x="40" y="448">一个本地事务</text>
+  <text class="desc" x="650" y="430" text-anchor="end">like_cnt = like_cnt + delta</text>
+  <text class="desc" x="650" y="448" text-anchor="end">同一事务更新消费位点，重复消息不会重复累加</text>
+  <line class="arr" x1="340" y1="464" x2="340" y2="492"/>
+
+  <rect class="layer" x="20" y="494" width="640" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="40" y="520" fill="var(--r)">Redis 计数</text>
+  <text class="sub" x="40" y="538">事务提交后</text>
+  <text class="desc" x="650" y="520" text-anchor="end">key 存在时 HINCRBY 增量</text>
+  <text class="desc" x="650" y="538" text-anchor="end">更新失败就删除 key，下次读取从计数表重建</text>
+
+</svg>

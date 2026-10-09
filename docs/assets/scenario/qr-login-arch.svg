@@ -1,0 +1,70 @@
+<svg viewBox="0 0 680 394" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">扫码登录整体架构</text>
+
+  <rect class="layer" x="20" y="44" width="300" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="170" y="70" text-anchor="middle" fill="var(--p)">PC 浏览器（未登录）</text>
+  <text class="sub" x="170" y="88" text-anchor="middle">展示二维码，等待结果，换取 PC 会话</text>
+
+  <rect class="layer" x="360" y="44" width="300" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="510" y="70" text-anchor="middle" fill="var(--g)">手机 App（已登录）</text>
+  <text class="sub" x="510" y="88" text-anchor="middle">携带手机令牌扫码、确认或取消</text>
+
+  <line class="arr" x1="170" y1="104" x2="170" y2="132"/>
+  <line class="arr" x1="510" y1="104" x2="510" y2="132"/>
+
+  <rect class="layer" x="20" y="134" width="640" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="40" y="160" fill="var(--b)">接入网关</text>
+  <text class="sub" x="40" y="178">HTTPS / 长轮询 / WebSocket</text>
+  <text class="desc" x="650" y="160" text-anchor="end">按 IP 与设备限流生成二维码</text>
+  <text class="desc" x="650" y="178" text-anchor="end">校验手机令牌，透传客户端 IP</text>
+
+  <line class="arr" x1="340" y1="194" x2="340" y2="222"/>
+
+  <rect class="layer" x="20" y="224" width="640" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="40" y="250" fill="var(--y)">扫码登录服务</text>
+  <text class="sub" x="40" y="268">无状态，多实例</text>
+  <text class="desc" x="650" y="250" text-anchor="end">生成 qrId，Lua 原子迁移状态</text>
+  <text class="desc" x="650" y="268" text-anchor="end">状态变化后通知等待中的 PC</text>
+
+  <line class="arr" x1="120" y1="284" x2="120" y2="312"/>
+  <line class="arr" x1="340" y1="284" x2="340" y2="312"/>
+  <line class="arr" x1="560" y1="284" x2="560" y2="312"/>
+
+  <rect class="layer" x="20" y="314" width="200" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="120" y="340" text-anchor="middle" fill="var(--r)">Redis</text>
+  <text class="sub" x="120" y="358" text-anchor="middle">qr:{qrId} 状态 + TTL</text>
+
+  <rect class="layer" x="240" y="314" width="200" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="340" y="340" text-anchor="middle" fill="var(--p)">风控服务</text>
+  <text class="sub" x="340" y="358" text-anchor="middle">IP 归属地、异地与频次判断</text>
+
+  <rect class="layer" x="460" y="314" width="200" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="560" y="340" text-anchor="middle" fill="var(--g)">认证中心</text>
+  <text class="sub" x="560" y="358" text-anchor="middle">签发 PC 会话令牌</text>
+</svg>

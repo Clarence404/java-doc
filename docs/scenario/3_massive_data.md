@@ -562,4 +562,4 @@ static double median(IntSource src, long n) {
 - Count–min sketch：[https://en.wikipedia.org/wiki/Count%E2%80%93min_sketch](https://en.wikipedia.org/wiki/Count%E2%80%93min_sketch)
 - JDK 21 API：[PriorityQueue](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/PriorityQueue.html)
 
-> 下一篇：[秒杀](./4_seckill) —— 分层限流、Redis 原子预扣、MQ 异步下单与超时关单的完整链路。
+> 下一篇：[海量数据对账](./3_reconcile) —— 摘要比对与排序归并、游标分批拉取与断点续跑、跨日在途与差错处理。

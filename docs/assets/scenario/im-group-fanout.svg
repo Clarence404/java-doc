@@ -1,0 +1,60 @@
+<svg viewBox="0 0 680 422" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">群聊：写扩散与读扩散</text>
+
+  <text x="175" y="58" text-anchor="middle" font-weight="700" font-size="13" fill="var(--p)">写扩散（单聊、小群）</text>
+  <rect class="layer" x="20" y="72" width="310" height="60" rx="8" stroke="var(--p)"/>
+  <text x="175" y="98" text-anchor="middle" font-weight="600" fill="var(--fg)">发送群消息</text>
+  <text class="sub" x="175" y="116" text-anchor="middle">消息体只存一份，同一事务写 outbox</text>
+  <line class="arr" x1="175" y1="132" x2="175" y2="160"/>
+  <rect class="layer" x="20" y="162" width="310" height="60" rx="8" stroke="var(--p)"/>
+  <text x="175" y="188" text-anchor="middle" font-weight="600" fill="var(--fg)">按成员扇出</text>
+  <text class="sub" x="175" y="206" text-anchor="middle">每个成员的收件箱各写一条索引</text>
+  <line class="arr" x1="175" y1="222" x2="175" y2="250"/>
+  <rect class="layer" x="20" y="252" width="310" height="60" rx="8" stroke="var(--p)"/>
+  <text x="175" y="278" text-anchor="middle" font-weight="600" fill="var(--fg)">成员同步</text>
+  <text class="sub" x="175" y="296" text-anchor="middle">只读自己的收件箱，一个位点拉全部会话</text>
+  <rect class="layer" x="20" y="342" width="310" height="60" rx="8" stroke="var(--border)"/>
+  <text class="desc" x="175" y="368" text-anchor="middle">写放大 = 群人数，读最简单</text>
+  <text class="sub" x="175" y="386" text-anchor="middle">500 人群一条消息写 500 条索引</text>
+
+  <text x="505" y="58" text-anchor="middle" font-weight="700" font-size="13" fill="var(--b)">读扩散（大群）</text>
+  <rect class="layer" x="350" y="72" width="310" height="60" rx="8" stroke="var(--b)"/>
+  <text x="505" y="98" text-anchor="middle" font-weight="600" fill="var(--fg)">发送群消息</text>
+  <text class="sub" x="505" y="116" text-anchor="middle">只写群的消息时间线，群 seq 加 1</text>
+  <line class="arr" x1="505" y1="132" x2="505" y2="160"/>
+  <rect class="layer" x="350" y="162" width="310" height="60" rx="8" stroke="var(--b)"/>
+  <text x="505" y="188" text-anchor="middle" font-weight="600" fill="var(--fg)">通知在线成员</text>
+  <text class="sub" x="505" y="206" text-anchor="middle">合并推送「有新消息」，不保证送达</text>
+  <line class="arr" x1="505" y1="222" x2="505" y2="250"/>
+  <rect class="layer" x="350" y="252" width="310" height="60" rx="8" stroke="var(--b)"/>
+  <text x="505" y="278" text-anchor="middle" font-weight="600" fill="var(--fg)">成员同步</text>
+  <text class="sub" x="505" y="296" text-anchor="middle">按每个群的位点读群时间线</text>
+  <rect class="layer" x="350" y="342" width="310" height="60" rx="8" stroke="var(--border)"/>
+  <text class="desc" x="505" y="368" text-anchor="middle">写一次，读时按群逐个比对位点</text>
+  <text class="sub" x="505" y="386" text-anchor="middle">10 万人群一条消息也只写 1 条</text>
+</svg>

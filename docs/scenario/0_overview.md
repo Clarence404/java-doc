@@ -16,8 +16,10 @@
 
 1. 先读 [秒杀](./4_seckill)、[订单](./5_order_system)，这两个场景最能串联三高、缓存、MQ 与分布式事务
 2. 再读 [短链接](./6_shorturl)、[排行榜和积分](./7_rank_system)、[Feed 流和消息推送](./8_feed_stream)、[搜索](./9_search_system)，覆盖读多写少、写扩散与检索问题
-3. 然后按需阅读 [海量数据架构选型](./2_big_data)、[海量数据算法题](./3_massive_data)、[大文件上传](./10_file_upload)、[抢红包](./11_red_packet)、[附近的人](./12_geo_nearby)、[商品详情页](./13_product_detail)
-4. 幂等是贯穿所有场景的基础能力，统一看 [幂等设计](/architecture/5_idempotence)
+3. 交易链路的周边：[购物车](./19_cart) → [优惠券和营销](./15_coupon) → [支付系统](./14_payment)，与订单一起串起从加购、用券、下单到支付对账的完整链路
+4. 实时与高频写：[即时通讯](./16_im)、[计数系统](./17_counter)、[扫码登录](./18_qr_login)，覆盖长连接与位点同步、计数合并与热点、跨设备授权
+5. 然后按需阅读 [海量数据架构选型](./2_big_data)、[海量数据算法题](./3_massive_data)、[海量数据对账](./3_reconcile)、[海量数据导入导出](./3_sheet_export)、[大文件上传](./10_file_upload)、[抢红包](./11_red_packet)、[附近的人](./12_geo_nearby)、[商品详情页](./13_product_detail)
+6. 幂等是贯穿所有场景的基础能力，统一看 [幂等设计](/architecture/5_idempotence)
 
 [高频面试题](./99_interview) 只列题目，答案在 [业务场景面试题解答](/interview/16_scenario)。
 

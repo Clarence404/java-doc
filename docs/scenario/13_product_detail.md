@@ -465,4 +465,4 @@ L2 的 key 设 7 天长 TTL 并由重建服务维护，未命中只发生在新�
 - Spring for Apache Kafka 批量监听：[https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html](https://docs.spring.io/spring-kafka/reference/kafka/receiving-messages/listener-annotation.html)
 - Redis Scripting with Lua：[https://redis.io/docs/latest/develop/programmability/eval-intro/](https://redis.io/docs/latest/develop/programmability/eval-intro/)
 
-> 返回：[业务场景总览](./0_overview)
+> 下一篇：[支付系统](./14_payment) —— 支付单与交易单、回调幂等、查单与关单、退款与日终对账。

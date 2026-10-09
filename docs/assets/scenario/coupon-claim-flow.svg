@@ -1,0 +1,71 @@
+<svg viewBox="0 0 680 484" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .lbl { fill:var(--fg); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">高并发领券链路</text>
+
+  <rect class="layer" x="20" y="44" width="420" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="40" y="70" fill="var(--p)">用户领券</text>
+  <text class="sub" x="40" y="88">领券中心</text>
+  <text class="desc" x="430" y="70" text-anchor="end">携带登录态与设备指纹</text>
+  <text class="desc" x="430" y="88" text-anchor="end">点击后按钮置灰</text>
+  <line class="arr" x1="230" y1="104" x2="230" y2="132"/>
+
+  <rect class="layer" x="20" y="134" width="420" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="40" y="160" fill="var(--b)">网关与风控</text>
+  <text class="sub" x="40" y="178">前置拦截</text>
+  <text class="desc" x="430" y="160" text-anchor="end">按用户、IP 限流</text>
+  <text class="desc" x="430" y="178" text-anchor="end">高风险请求直接拒绝</text>
+  <line class="arr" x1="230" y1="194" x2="230" y2="222"/>
+
+  <rect class="layer" x="20" y="224" width="420" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="40" y="250" fill="var(--r)">Redis Lua</text>
+  <text class="sub" x="40" y="268">一次原子执行</text>
+  <text class="desc" x="430" y="250" text-anchor="end">有库存且未达限领</text>
+  <text class="desc" x="430" y="268" text-anchor="end">扣库存、计数、写待落库</text>
+  <line class="arr" x1="230" y1="284" x2="230" y2="312"/>
+
+  <line class="arr" x1="440" y1="254" x2="478" y2="254"/>
+  <text class="lbl" x="459" y="248" text-anchor="middle">扫描</text>
+  <rect class="layer" x="480" y="224" width="180" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="570" y="250" text-anchor="middle" fill="var(--y)">补发任务</text>
+  <text class="sub" x="570" y="268" text-anchor="middle">超 1 分钟未落库则重发</text>
+  <line class="arr" x1="570" y1="284" x2="570" y2="312"/>
+
+  <rect class="layer" x="20" y="314" width="640" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="40" y="340" fill="var(--g)">MQ 领券消息</text>
+  <text class="sub" x="40" y="358">RocketMQ</text>
+  <text class="desc" x="650" y="340" text-anchor="end">消息带券 ID、模板、用户、领取序号</text>
+  <text class="desc" x="650" y="358" text-anchor="end">发送失败不回补库存，交给补发任务</text>
+  <line class="arr" x1="340" y1="374" x2="340" y2="402"/>
+
+  <rect class="layer" x="20" y="404" width="640" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="40" y="430" fill="var(--p)">落库消费者</text>
+  <text class="sub" x="40" y="448">MySQL</text>
+  <text class="desc" x="650" y="430" text-anchor="end">券 ID 主键与发放键唯一约束去重</text>
+  <text class="desc" x="650" y="448" text-anchor="end">提交后删除 Redis 待落库记录</text>
+</svg>

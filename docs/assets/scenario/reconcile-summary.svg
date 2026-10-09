@@ -1,0 +1,57 @@
+<svg viewBox="0 0 720 324" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">先比分片摘要，再比明细</text>
+  <rect class="box" x="20" y="44" width="152" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="96" y="70" text-anchor="middle" fill="var(--g)">10-08 · 商户 A</text>
+  <text class="sub" x="96" y="88" text-anchor="middle">三项一致，跳过</text>
+  <rect class="box" x="196" y="44" width="152" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="272" y="70" text-anchor="middle" fill="var(--g)">10-08 · 商户 B</text>
+  <text class="sub" x="272" y="88" text-anchor="middle">三项一致，跳过</text>
+  <rect class="box" x="372" y="44" width="152" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="448" y="70" text-anchor="middle" fill="var(--r)">10-08 · 商户 C</text>
+  <text class="sub" x="448" y="88" text-anchor="middle">count 差 1，比明细</text>
+  <rect class="box" x="548" y="44" width="152" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="624" y="70" text-anchor="middle" fill="var(--g)">10-08 · 商户 D</text>
+  <text class="sub" x="624" y="88" text-anchor="middle">三项一致，跳过</text>
+  <line class="arr" x1="448" y1="104" x2="448" y2="142"/>
+  <rect class="box" x="20" y="144" width="680" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="360" y="170" text-anchor="middle" fill="var(--b)">只拉商户 C 的明细：两边按交易号排序后归并比对</text>
+  <text class="sub" x="360" y="188" text-anchor="middle">双指针同步前进：哪边交易号小就先输出哪边的「单边记录」，相等则比较金额与状态</text>
+  <line class="arr" x1="128" y1="204" x2="128" y2="242"/>
+  <line class="arr" x1="360" y1="204" x2="360" y2="242"/>
+  <line class="arr" x1="592" y1="204" x2="592" y2="242"/>
+  <rect class="box" x="20" y="244" width="216" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="128" y="270" text-anchor="middle" fill="var(--y)">只在内部有</text>
+  <text class="sub" x="128" y="288" text-anchor="middle">短款或在途，次日二次对账</text>
+  <rect class="box" x="252" y="244" width="216" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="360" y="270" text-anchor="middle" fill="var(--y)">只在渠道有</text>
+  <text class="sub" x="360" y="288" text-anchor="middle">长款，查单后补单或退款</text>
+  <rect class="box" x="484" y="244" width="216" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="592" y="270" text-anchor="middle" fill="var(--r)">两边都有但不同</text>
+  <text class="sub" x="592" y="288" text-anchor="middle">金额不一致、状态不一致</text>
+</svg>

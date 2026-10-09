@@ -1,0 +1,65 @@
+<svg viewBox="0 0 720 724" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">海量数据对账流程</text>
+  <rect class="box" x="20" y="44" width="330" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="185" y="70" text-anchor="middle" fill="var(--p)">① 内部流水</text>
+  <text class="sub" x="185" y="88" text-anchor="middle">订单库、支付流水（读从库或离线库）</text>
+  <rect class="box" x="370" y="44" width="330" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="535" y="70" text-anchor="middle" fill="var(--p)">① 渠道账单</text>
+  <text class="sub" x="535" y="88" text-anchor="middle">微信、支付宝、银行对账文件（T+1 下载）</text>
+  <line class="arr" x1="185" y1="104" x2="185" y2="142"/>
+  <line class="arr" x1="535" y1="104" x2="535" y2="142"/>
+  <rect class="box" x="20" y="144" width="680" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="360" y="170" text-anchor="middle" fill="var(--b)">② 拉取与标准化</text>
+  <text class="sub" x="360" y="188" text-anchor="middle">游标分批拉取，字段映射、金额统一为分、状态归一，过滤与对账无关的流水</text>
+  <line class="arr" x1="360" y1="204" x2="360" y2="242"/>
+  <rect class="box" x="20" y="244" width="680" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="360" y="270" text-anchor="middle" fill="var(--b)">③ 分片</text>
+  <text class="sub" x="360" y="288" text-anchor="middle">按 日期 + 商户 + hash(交易号) % N 切成小片，片与片互不相干，可并行、可单独重跑</text>
+  <line class="arr" x1="360" y1="304" x2="360" y2="342"/>
+  <rect class="box" x="20" y="344" width="680" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="360" y="370" text-anchor="middle" fill="var(--g)">④ 比对</text>
+  <text class="sub" x="360" y="388" text-anchor="middle">先比分片摘要（count + sum + 哈希），只有摘要不一致的分片才拉明细逐条比对</text>
+  <line class="arr" x1="360" y1="404" x2="360" y2="442"/>
+  <rect class="box" x="20" y="444" width="680" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="360" y="470" text-anchor="middle" fill="var(--y)">⑤ 差错登记</text>
+  <text class="sub" x="360" y="488" text-anchor="middle">长款、短款、金额不一致、状态不一致写入差错表，唯一键防止重跑时重复登记</text>
+  <line class="arr" x1="185" y1="504" x2="185" y2="542"/>
+  <line class="arr" x1="535" y1="504" x2="535" y2="542"/>
+  <rect class="box" x="20" y="544" width="330" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="185" y="570" text-anchor="middle" fill="var(--g)">⑥ 自动处理</text>
+  <text class="sub" x="185" y="588" text-anchor="middle">补单、冲正、退款（幂等）；在途数据次日二次对账</text>
+  <rect class="box" x="370" y="544" width="330" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="535" y="570" text-anchor="middle" fill="var(--r)">⑥ 人工处理</text>
+  <text class="sub" x="535" y="588" text-anchor="middle">无法自动判定的差错进入复核队列，复核后调账或挂账</text>
+  <line class="arr" x1="185" y1="604" x2="185" y2="642"/>
+  <line class="arr" x1="535" y1="604" x2="535" y2="642"/>
+  <rect class="box" x="20" y="644" width="680" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="360" y="670" text-anchor="middle" fill="var(--p)">⑦ 报表与告警</text>
+  <text class="sub" x="360" y="688" text-anchor="middle">对账结果、差错笔数与金额、处理进度；差错率或差错金额超过阈值时告警</text>
+</svg>
