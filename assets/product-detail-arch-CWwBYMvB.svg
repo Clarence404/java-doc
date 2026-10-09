@@ -1,0 +1,71 @@
+<svg viewBox="0 0 680 574" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">商品详情页整体架构</text>
+
+  <rect class="layer" x="20" y="44" width="640" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="40" y="70" fill="var(--p)">用户端</text>
+  <text class="sub" x="40" y="88">浏览器 / App</text>
+  <text class="desc" x="650" y="70" text-anchor="end">先取 HTML 骨架与图片（静态部分）</text>
+  <text class="desc" x="650" y="88" text-anchor="end">再并发请求 base 与 dynamic 接口（动态部分）</text>
+  <line class="arr" x1="340" y1="104" x2="340" y2="132"/>
+
+  <rect class="layer" x="20" y="134" width="640" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="40" y="160" fill="var(--b)">CDN</text>
+  <text class="sub" x="40" y="178">静态部分</text>
+  <text class="desc" x="650" y="160" text-anchor="end">HTML 骨架、图片、JS/CSS、商品描述</text>
+  <text class="desc" x="650" y="178" text-anchor="end">长 TTL，内容变更时主动刷新</text>
+  <line class="arr" x1="340" y1="194" x2="340" y2="222"/>
+
+  <rect class="layer" x="20" y="224" width="640" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="40" y="250" fill="var(--g)">Nginx + OpenResty</text>
+  <text class="sub" x="40" y="268">lua_shared_dict（L0）</text>
+  <text class="desc" x="650" y="250" text-anchor="end">base 接口命中即返回，TTL 5 秒</text>
+  <text class="desc" x="650" y="268" text-anchor="end">未命中与 dynamic 接口转发到聚合服务</text>
+  <line class="arr" x1="340" y1="284" x2="340" y2="312"/>
+
+  <rect class="layer" x="20" y="314" width="640" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="40" y="340" fill="var(--y)">详情聚合服务</text>
+  <text class="sub" x="40" y="358">Caffeine（L1）</text>
+  <text class="desc" x="650" y="340" text-anchor="end">base：L1 未命中再查 Redis，变更时广播失效</text>
+  <text class="desc" x="650" y="358" text-anchor="end">dynamic：并发调用各服务，超时即降级</text>
+  <line class="arr" x1="340" y1="374" x2="340" y2="402"/>
+
+  <rect class="layer" x="20" y="404" width="640" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="40" y="430" fill="var(--r)">Redis Cluster</text>
+  <text class="sub" x="40" y="448">分布式缓存（L2）</text>
+  <text class="desc" x="650" y="430" text-anchor="end">按数据源拆 key：基础信息 / 促销 / 评价摘要</text>
+  <text class="desc" x="650" y="448" text-anchor="end">由重建服务根据变更消息写入</text>
+  <line class="arr" x1="340" y1="464" x2="340" y2="492"/>
+
+  <rect class="layer" x="20" y="494" width="640" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="40" y="520" fill="var(--p)">业务服务</text>
+  <text class="sub" x="40" y="538">商品 / 价格 / 库存 / 促销 / 评价</text>
+  <text class="desc" x="650" y="520" text-anchor="end">各类数据的唯一事实源</text>
+  <text class="desc" x="650" y="538" text-anchor="end">只承接缓存回源与 dynamic 请求</text>
+
+</svg>
