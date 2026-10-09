@@ -1,0 +1,69 @@
+<svg viewBox="0 0 720 286" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">Caffeine 的 W-TinyLFU 淘汰结构</text>
+
+  <!-- 第一行 y=56..116 -->
+  <rect x="20" y="56" width="110" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="75" y="80" text-anchor="middle" class="name">新条目</text>
+  <text x="75" y="100" text-anchor="middle" class="desc">首次写入</text>
+
+  <rect x="170" y="56" width="150" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="245" y="80" text-anchor="middle" class="name">窗口区 Window LRU</text>
+  <text x="245" y="100" text-anchor="middle" class="desc">约 1%，比例自适应</text>
+
+  <rect x="360" y="56" width="160" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="440" y="80" text-anchor="middle" class="name">TinyLFU 准入</text>
+  <text x="440" y="100" text-anchor="middle" class="desc">候选者比频率，高者留下</text>
+
+  <!-- 主区容器 -->
+  <rect x="550" y="44" width="160" height="184" rx="6" fill="none" stroke="var(--p)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <rect x="560" y="56" width="140" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="630" y="80" text-anchor="middle" class="name">试用区</text>
+  <text x="630" y="100" text-anchor="middle" class="desc">probation</text>
+  <rect x="560" y="156" width="140" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="630" y="180" text-anchor="middle" class="name">保护区</text>
+  <text x="630" y="200" text-anchor="middle" class="desc">protected</text>
+
+  <!-- 第二行：频率草图 -->
+  <rect x="360" y="156" width="160" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="440" y="180" text-anchor="middle" class="name">Count-Min Sketch</text>
+  <text x="440" y="200" text-anchor="middle" class="desc">4 bit 计数，定期减半</text>
+
+  <!-- 箭头 -->
+  <line x1="130" y1="86" x2="168" y2="86" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="320" y1="86" x2="358" y2="86" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="520" y1="86" x2="558" y2="86" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="440" y1="116" x2="440" y2="154" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="434" y="140" text-anchor="end" class="desc">查询频率</text>
+  <line x1="630" y1="116" x2="630" y2="154" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="624" y="140" text-anchor="end" class="desc">再次命中</text>
+
+  <text x="630" y="246" text-anchor="middle" class="lbl">主区 SLRU（约 99%）</text>
+  <text x="250" y="266" text-anchor="middle" class="lbl">窗口淘汰的候选者与主区淘汰候选者比较频率，扫描流量难以挤掉热点</text>
+</svg>

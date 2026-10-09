@@ -1,0 +1,71 @@
+<svg viewBox="0 0 774 290" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="774" height="290" rx="8" fill="var(--bg)"/>
+
+  <text x="387" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Redis 线程模型演进：命令执行始终只在主线程</text>
+  <rect x="20" y="46" width="170" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="105" y="72" text-anchor="middle" font-weight="600" fill="var(--fg)">单线程模型</text>
+  <text x="105" y="94" text-anchor="middle" font-size="12" fill="var(--muted)">6.0 以前</text>
+  <rect x="214" y="46" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="294" y="72" text-anchor="middle" font-weight="600" fill="var(--fg)">读取 + 解析</text>
+  <text x="294" y="94" text-anchor="middle" font-size="12" fill="var(--b)">主线程</text>
+  <line x1="374" y1="78" x2="402" y2="78" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="404" y="46" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="484" y="72" text-anchor="middle" font-weight="600" fill="var(--fg)">执行命令</text>
+  <text x="484" y="94" text-anchor="middle" font-size="12" fill="var(--b)">主线程</text>
+  <line x1="564" y1="78" x2="592" y2="78" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="594" y="46" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="674" y="72" text-anchor="middle" font-weight="600" fill="var(--fg)">写回响应</text>
+  <text x="674" y="94" text-anchor="middle" font-size="12" fill="var(--b)">主线程</text>
+  <line x1="190" y1="78" x2="212" y2="78" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="20" y="126" width="170" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="105" y="152" text-anchor="middle" font-weight="600" fill="var(--fg)">6.x / 7.x I/O 线程</text>
+  <text x="105" y="174" text-anchor="middle" font-size="12" fill="var(--muted)">io-threads &gt; 1</text>
+  <rect x="214" y="126" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="294" y="152" text-anchor="middle" font-weight="600" fill="var(--fg)">读取 + 解析</text>
+  <text x="294" y="174" text-anchor="middle" font-size="12" fill="var(--b)">默认仍在主线程</text>
+  <line x1="374" y1="158" x2="402" y2="158" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="404" y="126" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="484" y="152" text-anchor="middle" font-weight="600" fill="var(--fg)">执行命令</text>
+  <text x="484" y="174" text-anchor="middle" font-size="12" fill="var(--b)">主线程</text>
+  <line x1="564" y1="158" x2="592" y2="158" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="594" y="126" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="674" y="152" text-anchor="middle" font-weight="600" fill="var(--fg)">写回响应</text>
+  <text x="674" y="174" text-anchor="middle" font-size="12" fill="var(--g)">I/O 线程并行</text>
+  <line x1="190" y1="158" x2="212" y2="158" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="20" y="206" width="170" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="105" y="232" text-anchor="middle" font-weight="600" fill="var(--fg)">8.0 异步 I/O 线程</text>
+  <text x="105" y="254" text-anchor="middle" font-size="12" fill="var(--muted)">io-threads &gt; 1</text>
+  <rect x="214" y="206" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="294" y="232" text-anchor="middle" font-weight="600" fill="var(--fg)">读取 + 解析</text>
+  <text x="294" y="254" text-anchor="middle" font-size="12" fill="var(--g)">I/O 线程（按客户端分配）</text>
+  <line x1="374" y1="238" x2="402" y2="238" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="404" y="206" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="484" y="232" text-anchor="middle" font-weight="600" fill="var(--fg)">执行命令</text>
+  <text x="484" y="254" text-anchor="middle" font-size="12" fill="var(--b)">主线程</text>
+  <line x1="564" y1="238" x2="592" y2="238" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="594" y="206" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="674" y="232" text-anchor="middle" font-weight="600" fill="var(--fg)">写回响应</text>
+  <text x="674" y="254" text-anchor="middle" font-size="12" fill="var(--g)">I/O 线程</text>
+  <line x1="190" y1="238" x2="212" y2="238" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="3 3"/>
+</svg>

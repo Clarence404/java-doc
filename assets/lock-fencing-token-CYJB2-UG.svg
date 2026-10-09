@@ -1,0 +1,55 @@
+<svg viewBox="0 0 680 340" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="680" height="340" rx="8" fill="var(--bg)"/>
+  <text x="340" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="var(--fg)">租约过期与 Fencing Token</text>
+  <rect x="20" y="44" width="120" height="36" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="80" y="67" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">客户端 A</text>
+  <line x1="80" y1="80" x2="80" y2="320" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <rect x="200" y="44" width="120" height="36" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="260" y="67" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">锁服务</text>
+  <line x1="260" y1="80" x2="260" y2="320" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <rect x="380" y="44" width="120" height="36" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="440" y="67" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">客户端 B</text>
+  <line x1="440" y1="80" x2="440" y2="320" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <rect x="540" y="44" width="120" height="36" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="600" y="67" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">存储</text>
+  <line x1="600" y1="80" x2="600" y2="320" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <line x1="260" y1="110" x2="82" y2="110" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="171" y="104" text-anchor="middle" font-size="12" fill="var(--fg)">加锁成功 token=33</text>
+  <rect x="20" y="126" width="120" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="80" y="150" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">STW 停顿</text>
+  <text x="80" y="172" text-anchor="middle" font-size="12" fill="var(--fg)">租约在此期间过期</text>
+  <line x1="260" y1="160" x2="438" y2="160" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="350" y="154" text-anchor="middle" font-size="12" fill="var(--fg)">锁过期，B 加锁 token=34</text>
+  <line x1="440" y1="210" x2="598" y2="210" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="520" y="204" text-anchor="middle" font-size="12" fill="var(--fg)">写入 token=34，接受</text>
+  <line x1="80" y1="250" x2="598" y2="250" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <text x="340" y="244" text-anchor="middle" font-size="12" fill="var(--fg)">A 恢复后仍以为持锁，写入 token=33</text>
+  <rect x="540" y="260" width="120" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="600" y="284" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">33 小于 34</text>
+  <text x="600" y="306" text-anchor="middle" font-size="12" fill="var(--fg)">拒绝写入</text>
+</svg>

@@ -1,0 +1,1 @@
+var e=`/java-doc/assets/snowflake-id-CBBN3YEm.svg`;export{e as t};

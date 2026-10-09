@@ -1,0 +1,52 @@
+<svg viewBox="0 0 760 370" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="760" height="370" rx="8" fill="var(--bg)"/>
+
+  <text x="380" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Cluster 重定向：MOVED 与 ASK</text>
+  <rect x="20" y="40" width="350" height="310" rx="10" fill="none" stroke="var(--b)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="195" y="60" text-anchor="middle" font-weight="700" fill="var(--b)">MOVED：槽已归属其他节点</text>
+  <rect x="40" y="76" width="310" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="195" y="102" text-anchor="middle" font-weight="600" fill="var(--fg)">① 客户端发送 GET foo 到节点 A</text>
+  <text x="195" y="124" text-anchor="middle" font-size="12" fill="var(--muted)">本地槽表过期，以为 slot 12182 在 A</text>
+  <line x1="195" y1="140" x2="195" y2="172" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="174" width="310" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="195" y="200" text-anchor="middle" font-weight="600" fill="var(--fg)">② A 返回 -MOVED 12182 nodeC:6379</text>
+  <text x="195" y="222" text-anchor="middle" font-size="12" fill="var(--muted)">该槽已稳定归属节点 C</text>
+  <line x1="195" y1="238" x2="195" y2="270" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="40" y="272" width="310" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="195" y="298" text-anchor="middle" font-weight="600" fill="var(--fg)">③ 客户端更新槽表，重发到 C</text>
+  <text x="195" y="320" text-anchor="middle" font-size="12" fill="var(--muted)">之后该槽的请求直接发往 C</text>
+  <rect x="390" y="40" width="350" height="310" rx="10" fill="none" stroke="var(--y)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="565" y="60" text-anchor="middle" font-weight="700" fill="var(--y)">ASK：槽正在从 A 迁往 B</text>
+  <rect x="410" y="76" width="310" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="565" y="102" text-anchor="middle" font-weight="600" fill="var(--fg)">① 客户端发送 GET k 到源节点 A</text>
+  <text x="565" y="124" text-anchor="middle" font-size="12" fill="var(--muted)">k 所在的槽迁移中，k 已迁到 B</text>
+  <line x1="565" y1="140" x2="565" y2="172" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="410" y="174" width="310" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="565" y="200" text-anchor="middle" font-weight="600" fill="var(--fg)">② A 返回 -ASK slot nodeB:6379</text>
+  <text x="565" y="222" text-anchor="middle" font-size="12" fill="var(--muted)">仅本次请求临时重定向</text>
+  <line x1="565" y1="238" x2="565" y2="270" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="410" y="272" width="310" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="565" y="298" text-anchor="middle" font-weight="600" fill="var(--fg)">③ 客户端向 B 先发 ASKING 再发 GET k</text>
+  <text x="565" y="320" text-anchor="middle" font-size="12" fill="var(--muted)">不更新槽表，下次仍先找 A</text>
+</svg>
