@@ -19,7 +19,7 @@
 3. [服务网格](./3_service_mesh)：Istio 的控制面与数据面、流量管理、mTLS、Sidecar 与 Ambient 两种数据面，以及与 Spring Cloud 的取舍
 4. [Dubbo](./4_dubbo)：RPC 服务框架的调用流程、Triple 协议、负载均衡与集群容错、SPI 扩展机制，以及与 Spring Cloud 的选型
 
-[高频面试题](./99_interview) 只列题目，答案在 [微服务与 Spring Cloud 面试题解答](/interview/11_spring_cloud)。
+[高频面试题](./99_interview) 只列题目，答案在 [微服务面试题解答](/interview/11_microservices)。
 
 ---
 
@@ -35,7 +35,7 @@
 - [可观测性 · 链路追踪](/observability/3_tracing)：跨服务调用链的追踪与排障
 - [云原生 · Kubernetes](/cloud-native/6_kubernetes)：微服务与服务网格的运行底座
 - [网络协议 · 远程调用协议](/protocols/3_rpc_protocols)：gRPC、REST、Dubbo 协议的横向对比
-- [微服务与 Spring Cloud 面试题解答](/interview/11_spring_cloud)：本模块高频问题的答案汇总
+- [微服务面试题解答](/interview/11_microservices)：本模块高频问题的答案汇总
 
 ## 参考资料
 

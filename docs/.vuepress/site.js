@@ -76,7 +76,7 @@ export const GROUPS = [
                     {text: '批处理与集成', from: 12},
                 ],
             },
-            {name: 'Spring Boot', dir: 'spring-boot', interview: ['5_spring'], desc: '自动配置 / Web / 数据访问 / 日志 / 测试 / Actuator / 版本演进 / 启动优化'},
+            {name: 'Spring Boot', dir: 'spring-boot', interview: ['5_spring_boot'], desc: '自动配置 / Web / 数据访问 / 日志 / 测试 / Actuator / 版本演进 / 启动优化'},
             {name: 'Netty', dir: 'netty', interview: ['6_netty'], desc: 'IO 模型 / Reactor / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优'},
             {name: 'Vert.x', dir: 'vertx', desc: 'Event Loop / Verticle / Event Bus / Web / 响应式数据访问 / 集群'},
             {name: 'Quarkus', dir: 'quarkus', desc: '构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / Spring 迁移 / 其他框架'},
@@ -104,7 +104,7 @@ export const GROUPS = [
     {
         name: '分布式架构', tagline: '分布式理论到微服务落地', modules: [
             {name: '分布式', dir: 'distributed', interview: ['10_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID'},
-            {name: '微服务', dir: 'microservices', interview: ['11_spring_cloud'], desc: '服务拆分 / 设计模式 / 服务网格 / Dubbo'},
+            {name: '微服务', dir: 'microservices', interview: ['11_microservices'], desc: '服务拆分 / 设计模式 / 服务网格 / Dubbo'},
             {name: 'Spring Cloud', dir: 'spring-cloud', interview: ['11_spring_cloud'], desc: 'Nacos / Gateway / OpenFeign / Sentinel / Seata'},
         ],
     },

@@ -22,7 +22,7 @@ Spring Cloud 是 Spring 生态里的微服务工具集：在 Spring Boot 之上�
 6. [Spring Cloud Alibaba](./6_alibaba)：版本对齐、Sentinel 规则与持久化、Seata AT 模式
 7. [Spring Cloud Stream](./7_stream)：Binder 抽象、函数式模型、消费组与分区、重试与死信
 
-[高频面试题](./99_interview) 只列题目，答案在 [微服务与 Spring Cloud 面试题解答](/interview/11_spring_cloud)。
+[高频面试题](./99_interview) 只列题目，答案在 [Spring Cloud 面试题解答](/interview/11_spring_cloud)。
 
 ---
 
@@ -76,7 +76,7 @@ Spring Cloud 是 Spring 生态里的微服务工具集：在 Spring Boot 之上�
 - [消息队列总览](/messaging/0_overview)：Kafka / RocketMQ / RabbitMQ 本体
 - [可观测性 · 链路追踪](/observability/3_tracing)：Micrometer Tracing 与 OpenTelemetry
 - [Spring Boot · 版本演进](/spring-boot/11_versions)：Boot 4 / Framework 7 的升级要点
-- [微服务与 Spring Cloud 面试题解答](/interview/11_spring_cloud)：本模块高频问题的答案汇总
+- [Spring Cloud 面试题解答](/interview/11_spring_cloud)：本模块高频问题的答案汇总
 
 ## 参考资料
 

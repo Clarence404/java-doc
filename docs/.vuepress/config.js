@@ -46,7 +46,8 @@ function readFrontmatter(content) {
 const fileNum = name => parseInt(name.match(/^(\d+)/)?.[1] ?? '0');
 const byFileOrder = (a, b) => {
     const oa = a.startsWith('0_overview') ? -1 : fileNum(a), ob = b.startsWith('0_overview') ? -1 : fileNum(b);
-    return oa - ob || a.localeCompare(b);
+    // 编号相同时按去掉 .md 的文件名排序，较短的在前（如 5_spring 在 5_spring_boot 之前）
+    return oa - ob || a.replace(/\.md$/, '').localeCompare(b.replace(/\.md$/, ''));
 };
 
 function getSidebarFromDir(dirPath, {stripSuffix} = {}) {
