@@ -1,0 +1,70 @@
+<svg viewBox="0 0 760 340" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; }
+    .sub { fill:var(--muted); }
+    .lbl { fill:var(--fg); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+    .bus { stroke:var(--muted); stroke-width:1.6; fill:none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">日终对账流程</text>
+  <rect class="box" x="20" y="50" width="220" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="130" y="76" text-anchor="middle" font-size="13" fill="var(--b)">下载渠道账单</text>
+  <text class="sub" x="130" y="95" text-anchor="middle" font-size="11">次日拉取，失败重试</text>
+  <rect class="box" x="270" y="50" width="220" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="380" y="76" text-anchor="middle" font-size="13" fill="var(--b)">解析入库</text>
+  <text class="sub" x="380" y="95" text-anchor="middle" font-size="11">渠道明细表，按账单日分区</text>
+  <rect class="box" x="520" y="50" width="220" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="630" y="76" text-anchor="middle" font-size="13" fill="var(--p)">逐笔比对</text>
+  <text class="sub" x="630" y="95" text-anchor="middle" font-size="11">按渠道流水号关联本地交易</text>
+  <line class="arr" x1="240" y1="80" x2="268" y2="80"/>
+  <line class="arr" x1="490" y1="80" x2="518" y2="80"/>
+  <path class="bus" d="M630,110 V125"/>
+  <path class="bus" d="M101,125 H659"/>
+  <path class="arr" d="M101,125 V153"/>
+  <rect class="box" x="20" y="155" width="162" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="101" y="181" text-anchor="middle" font-size="13" fill="var(--g)">对平</text>
+  <text class="sub" x="101" y="200" text-anchor="middle" font-size="11">两边一致，标记已对账</text>
+  <line class="arr" x1="101" y1="215" x2="101" y2="258"/>
+  <path class="arr" d="M287,125 V153"/>
+  <rect class="box" x="206" y="155" width="162" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="287" y="181" text-anchor="middle" font-size="13" fill="var(--y)">长款</text>
+  <text class="sub" x="287" y="200" text-anchor="middle" font-size="11">渠道有，本地无或未成功</text>
+  <line class="arr" x1="287" y1="215" x2="287" y2="258"/>
+  <path class="arr" d="M473,125 V153"/>
+  <rect class="box" x="392" y="155" width="162" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="473" y="181" text-anchor="middle" font-size="13" fill="var(--r)">短款</text>
+  <text class="sub" x="473" y="200" text-anchor="middle" font-size="11">本地成功，渠道无</text>
+  <line class="arr" x1="473" y1="215" x2="473" y2="258"/>
+  <path class="arr" d="M659,125 V153"/>
+  <rect class="box" x="578" y="155" width="162" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="659" y="181" text-anchor="middle" font-size="13" fill="var(--r)">金额 / 状态不符</text>
+  <text class="sub" x="659" y="200" text-anchor="middle" font-size="11">同一笔两边不一致</text>
+  <line class="arr" x1="659" y1="215" x2="659" y2="258"/>
+  <rect class="box" x="20" y="260" width="162" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="101" y="286" text-anchor="middle" font-size="13" fill="var(--g)">对账报表</text>
+  <text class="sub" x="101" y="305" text-anchor="middle" font-size="11">对平率 · 差错笔数</text>
+  <rect class="box" x="206" y="260" width="534" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="473" y="286" text-anchor="middle" font-size="13" fill="var(--y)">差错池</text>
+  <text class="sub" x="473" y="305" text-anchor="middle" font-size="11">自动：查单补单 · 原路退款 · 跨日差异次日复核；处理不了转人工调账</text>
+</svg>
