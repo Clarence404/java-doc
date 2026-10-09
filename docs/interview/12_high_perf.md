@@ -2,7 +2,7 @@
 description: 指标与方法论、Profiler、JVM 层、池化、异步批量、数据访问
 ---
 
-# 开发总结 - 高性能
+# 高性能面试题解答
 
 > 精华提炼，细节详见 [高性能模块](/high-perf/0_overview)；题目清单见 [高性能面试题](/high-perf/99_interview)，本页按清单的分组与顺序作答。
 > 三高另外两页：[高并发](./13_high_con) · [高可用](./14_high_avail)。
@@ -474,7 +474,7 @@ ProductDetailVO vo = CompletableFuture.allOf(productF, priceF, reviewF)
 - Hibernate 使用 `GenerationType.IDENTITY` 主键时无法批量插入
 - MyBatis `foreach` 拼超长 SQL 解析开销大，大批量优先用 BATCH 执行器
 
-→ 详见 [数据访问性能](/high-perf/10_db_performance)、[MySQL JDBC 驱动要点](/database/6_reference/2_jdbc_driver)
+→ 详见 [数据访问性能](/high-perf/10_db_performance)、[MySQL JDBC 驱动](/database/6_reference/2_jdbc_driver)
 
 ### Q28：什么是 N+1 查询问题？如何发现和解决？
 

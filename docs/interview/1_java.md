@@ -2,10 +2,10 @@
 description: Lambda 与 Stream、版本特性、异常、String、泛型、反射与代理、IO、序列化、集合
 ---
 
-# 开发总结 - Java
+# Java 面试题解答
 
-> 精华提炼，细节详见 [Java 总览](/java/0_overview)；题目清单见 [Java 面试题](/java/99_interview)，本页按清单「综合与版本 / 语言机制 / IO 与数据」三组的分组与顺序作答，「并发」一组见 [开发总结 - Java 并发](/interview/2_concurrent)。
-> 版本基线：JDK 21 / 25 LTS（26、27 为非 LTS），与 JDK 8 / 17 行为不同之处在答案中单独标注。类加载与双亲委派见 [开发总结 - JVM](/interview/3_jvm)。
+> 精华提炼，细节详见 [Java 总览](/java/0_overview)；题目清单见 [Java 面试题](/java/99_interview)，本页按清单「综合与版本 / 语言机制 / IO 与数据」三组的分组与顺序作答，「并发」一组见 [Java 并发面试题解答](/interview/2_concurrent)。
+> 版本基线：JDK 21 / 25 LTS（26、27 为非 LTS），与 JDK 8 / 17 行为不同之处在答案中单独标注。类加载与双亲委派见 [JVM 面试题解答](/interview/3_jvm)。
 
 ## 一、综合与版本
 
@@ -73,7 +73,7 @@ description: Lambda 与 Stream、版本特性、异常、String、泛型、反�
 - 引用了 `this` 或实例成员的 Lambda 体编译为**实例**私有方法，否则为**静态**私有方法
 - **effectively final 的原因**：捕获的是局部变量的**值的拷贝**（作为参数传给生成类的字段），原变量之后再改，Lambda 内看不到；为避免这种语义歧义和跨线程的数据竞争，语言直接禁止。需要累加时用 `AtomicInteger`、数组单元或改写成 `reduce` / `collect`
 - **受检异常**：`Function`、`Consumer` 等接口的抽象方法没有声明 `throws`，Lambda 内抛受检异常无法编译。做法是在 Lambda 内捕获后包装成 `UncheckedIOException` 等非受检异常，或自定义声明了 `throws` 的函数式接口
-- 为什么选 `invokedynamic` 而不是编译成内部类，见 [开发总结 - JVM](/interview/3_jvm) Q18
+- 为什么选 `invokedynamic` 而不是编译成内部类，见 [JVM 面试题解答](/interview/3_jvm) Q18
 
 → 详见 [Lambda、Stream 与注解](/java/1_advanced#_2、底层实现-invokedynamic-lambdametafactory)、[内部类](/java/13_topic_inner_class#七、lambda-与匿名类的区别)
 
@@ -324,7 +324,7 @@ try (var in = Files.newInputStream(src); var out = Files.newOutputStream(dst)) {
 
 **`intern()` 的风险**：字符串常量池是 JVM 内部的哈希表（JDK 7 起在堆中），对取值不受控的字符串（用户输入、订单号）调用 `intern` 会让表持续膨胀、查找变慢，增加 GC 扫描负担。需要规范化时优先用业务常量、`Map` 或 Guava `Interner`；只为省内存可开启字符串去重 `-XX:+UseStringDeduplication`。
 
-→ 详见 [String](/java/11_topic_string#二、常量池与)、[开发总结 - JVM](/interview/3_jvm)
+→ 详见 [String](/java/11_topic_string#二、常量池与)、[JVM 面试题解答](/interview/3_jvm)
 
 ### Q16：枚举的本质是什么？一定是 final 吗？为什么枚举单例能防反射和序列化破坏？`ordinal()` 能持久化吗？
 
@@ -421,7 +421,7 @@ public static <T> void copy(List<? super T> dest, List<? extends T> src)
 | 典型场景 | 老式 JDBC 驱动注册依赖静态块 | 框架按需加载、延迟初始化 |
 
 - 反射调用的业务异常被包在 `InvocationTargetException` 里，必须 `getCause()` 解包再处理
-- 类加载的各阶段与双亲委派见 [开发总结 - JVM](/interview/3_jvm) Q10–Q15
+- 类加载的各阶段与双亲委派见 [JVM 面试题解答](/interview/3_jvm) Q10–Q15
 
 → 详见 [反射](/java/15_topic_reflection#二、成员查找语义)
 
@@ -464,7 +464,7 @@ JDK 26（JEP 500）起，反射修改 `final` 字段会打印警告，后续版�
 - `methodProxy.invoke(proxy, args)`：再次进入代理，**无限递归**直到栈溢出
 
 - JDK 代理的 handler 里用 `method.invoke` 时要捕获 `InvocationTargetException` 并抛出 `getCause()`；handler 抛出接口未声明的受检异常时，调用方收到 `UndeclaredThrowableException`
-- Spring AOP 的自调用失效与解决方式见 [开发总结 - Spring 与 Spring Boot](/interview/5_spring) 的 `@Transactional` 自调用一题
+- Spring AOP 的自调用失效与解决方式见 [Spring 与 Spring Boot 面试题解答](/interview/5_spring) 的 `@Transactional` 自调用一题
 
 → 详见 [动态代理](/java/16_topic_proxy#二、cglib-动态代理)
 

@@ -22,7 +22,7 @@ docs/
 ├── high-avail/     高可用：SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线
 ├── high-con/       高并发：水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划
 ├── high-perf/      高性能：指标 / 方法论 / 基准测试 / 池化与异步 / IO 与数据库优化 / Profiler
-├── interview/      开发总结（各方向高频问题汇总）
+├── interview/      面试题解（各方向答案页「X 面试题解答」）
 ├── iot/            物联网：基础 / 协议 / 开源平台
 ├── java/           Java 语言：语言机制 / IO / 集合 / 并发 / 版本特性
 ├── jvm/            JVM 原理与调优
@@ -104,9 +104,9 @@ docs/
 - 文件命名：`数字_主题.md`，数字前缀决定侧边栏顺序，全部使用下划线分隔
 - 模块入口：每个模块的 `0_overview.md` 为总览页，标题统一为「X 总览」（X 为 `site.js` 中的模块名，西文名后加空格，如「JVM 总览」「数据库总览」）（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；导航表统一写 `<ModuleNav />`，由各文章的 frontmatter `description` 自动生成，不再手写
 - 文章 frontmatter：每篇文章开头写一行 `description`（覆盖内容，「、」或「 / 」分隔的要点，15–60 字，不加句号），供总览页导航表与网页 meta 使用；侧边栏、导航表中的显示名取 `# 标题`；若标题以所在分组名开头，侧边栏自动去掉该前缀（如 MySQL 组内「MySQL 索引」显示为「索引」），H1 本身保持完整（用于页面标题与搜索）；标题不加「专项 - 」之类的修饰前缀，概述类页面统一叫「概览」
-- 面试题：模块内 `99_interview.md` 只列题目清单，答案统一写在 `docs/interview/` 的对应答案页，两边互相链接
+- 面试题：题目和答案只写在 `docs/interview/` 的答案页（H1「X 面试题解答」，分组 `##` + 题目 `### Q<n>：`）；模块内 `99_interview.md`（H1「高频面试题」）不手写题目，只放 `<InterviewList page="9_mq" />`，构建时从答案页自动生成可点击的题单（一页对应多个模块时加 `groups="1-10"` 取部分分组）
 - 站点目录：除文章本身外，所有配置只在 `docs/.vuepress/site.js` 维护（模块、分组、名称、侧边栏分组、子目录、答案页对应关系、首页推荐博客 / 页脚）；导航栏、侧边栏、面包屑、总览页导航表和首页都由它与文章自动生成，不在其他文件重复维护
-- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / scenario / patterns / cloud-native）在 `site.js` 对应模块的 `sidebar` 字段里写每组的起始编号 `from`，编号 ≥ `from` 的文章自动归入该组（`0_overview`、90 号以后的附录与 `99_interview` 不分组；interview 另用 `stripPrefix` 去掉标题中的「开发总结 - 」前缀）；ai / algorithms / database 按子目录自动分组，子目录在 `subdirs` 登记
+- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / scenario / patterns / cloud-native）在 `site.js` 对应模块的 `sidebar` 字段里写每组的起始编号 `from`，编号 ≥ `from` 的文章自动归入该组（`0_overview`、90 号以后的附录与 `99_interview` 不分组；interview 另用 `stripSuffix` 去掉标题末尾的「面试题解答」）；ai / algorithms / database 按子目录自动分组，子目录在 `subdirs` 登记
 - 面包屑名称：目录没有 README 时主题会自动生成目录页，模块目录用 `site.js` 的 `name`，子目录的中文名登记在模块的 `subdirs` 字段；新增子目录时同步添加，否则面包屑会显示首字母大写的目录名
 - 首页：`docs/README.md` 使用 `layout: HomeLayout`（杂志式 Bento 首页），实现在 `.vuepress/components/home/HomeEditorial.vue`；内容全部来自 `site.js`（模块、分组、推荐博客、页脚）与文章（开发总结速查取答案页的标题与 description）；文章数 / 题数 / 答案页数 / SVG 数由 `.vuepress/plugins/homeStats.js` 在构建时自动统计；分组配色按分组数量从品牌渐变自动取色
 - 模块边界：同一主题只保留一个主文档，其他模块用一句话概括 + 链接，不重复展开；三高模块写系统级策略，具体技术细节链接到 cache / database / messaging / jvm 等模块
@@ -148,7 +148,8 @@ description: 要点一、要点二、要点三
 | 模块 `subdirs`（可选） | `site.js` | 子目录分组：中文名（同时用于面包屑）、组内分段 |
 | 侧边栏分组展开 | 自动 | 所有分组默认收起，只展开当前页面所在的分组 |
 | 侧边栏条目文字与顺序 | Markdown 文件 | 第一个 `# 标题`（以分组名开头时自动去掉该前缀）；顺序取文件名数字前缀 |
-| 开发总结「对应题目清单」 | `site.js` | 模块的 `interview` 字段（本模块题单对应的答案页） |
+| 面试题解「对应题目清单」 | `site.js` | 模块的 `interview` 字段（本模块题单对应的答案页） |
+| 模块题单（`99_interview`） | 答案页 | `<InterviewList page="…" />` 读取答案页的分组与题目自动生成 |
 | 总览页导航表「覆盖内容」 | Markdown 文件 | frontmatter `description` |
 | 文章数 / 题数 / 答案页数 / SVG 数 | `.vuepress/plugins/homeStats.js` | 构建时扫描 `docs/` 自动统计，首页使用 |
 | 首页推荐博客、页脚 | `site.js` 的 `REFS` / `FOOTER` | 首页 |
@@ -162,7 +163,7 @@ description: 要点一、要点二、要点三
 | 新增子目录 | 在 `site.js` 该模块的 `subdirs` 登记中文名，否则面包屑显示首字母大写的目录名，且不会成为侧边栏分组 |
 | 新增一个模块 | 新建 `docs/<dir>/0_overview.md`（导航表写 `<ModuleNav />`），在 `site.js` 对应分组加一条（`name` / `dir` / `desc`）；本文件的「项目结构」「模块索引」仅为概览，以 `site.js` 为准 |
 | 模块改名 | 改 `site.js` 的 `name`（导航短名改 `nav`）；总览页 `0_overview.md` 的 `# 标题`属于文章内容，按需同步 |
-| 新增答案页 | 在 `docs/interview/` 新建并编号（带 `description`），在 `site.js` 对应模块的 `interview` 字段加上该文件名；如需新分组，改 `site.js` 中 `SUMMARY.sidebar` |
+| 新增答案页 | 在 `docs/interview/` 新建并编号（带 `description`，H1「X 面试题解答」），在 `site.js` 对应模块的 `interview` 字段加上该文件名；模块的 `99_interview.md` 写 `<InterviewList page="文件名" />`；如需新分组，改 `site.js` 中 `SUMMARY.sidebar` |
 | 调整首页推荐博客 / 页脚 | 改 `site.js` 的 `REFS` / `FOOTER` |
 | 新增一个分组（方向） | `site.js` 的 `GROUPS` 加一项，配色自动生成 |
 

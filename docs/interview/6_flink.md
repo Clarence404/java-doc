@@ -2,7 +2,7 @@
 description: 选型与架构、DataStream、水位线与窗口、状态与 Checkpoint、精确一次、SQL 与 CDC、部署调优
 ---
 
-# 开发总结 - Flink
+# Flink 面试题解答
 
 > 精华提炼，细节详见 [Flink 总览](/flink/0_overview)；题目清单见 [Flink 面试题](/flink/99_interview)，本页按清单的分组与顺序作答。
 > 版本基线：Flink 2.2.x（2.3 已发布，外部连接器尚未适配）、Flink CDC 3.6、JDK 17（Java 21 为实验性支持）；与 1.x 不同之处在答案中单独标注。

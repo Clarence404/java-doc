@@ -47,7 +47,7 @@ const rows = computed(() => {
     walk(navData[dir.value] ?? [], '');
     return out;
 });
-// 开发总结的答案页带「对应题目清单」（由 site.js 各模块的 interview 字段反推）
+// 面试题解的答案页带「对应题目清单」（由 site.js 各模块的 interview 字段反推）
 const hasLists = computed(() => rows.value.some((r) => r.lists));
 </script>
 

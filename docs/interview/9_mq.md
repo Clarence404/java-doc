@@ -2,7 +2,7 @@
 description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷贝与积压、事务消息与本地消息表、高可用
 ---
 
-# 开发总结 - 消息队列
+# 消息队列面试题解答
 
 > 精华提炼，细节详见 [消息队列总览](/messaging/0_overview)；题目清单见 [消息队列面试题](/messaging/99_interview)，本页按清单的分组与顺序作答。
 > 版本基线：Kafka 4.x、RocketMQ 5.x（兼顾 4.x）、RabbitMQ 4.x。
@@ -388,7 +388,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 3. 投递可能重复，**消费端必须幂等**
 
 - 多实例扫表用 `SELECT ... FOR UPDATE SKIP LOCKED`（MySQL 8.0+ / PostgreSQL）或按分片扫描，避免重复投递
-- 也可以用 CDC（如 Debezium 读 binlog）推送 outbox 表，见 [数据库 · CDC 工具](/database/5_practice/0_cdc_tools)
+- 也可以用 CDC（如 Debezium 读 binlog）推送 outbox 表，见 [CDC 工具](/database/5_practice/0_cdc_tools)
 - `@TransactionalEventListener` 只在有活动事务时生效，没有事务时事件默认被丢弃（除非 `fallbackExecution = true`）
 
 → 详见 [消息队列基础](/messaging/1_basics)

@@ -55,7 +55,7 @@
 
 24. [效率工具库](./98_dev_tool)：Lombok、MapStruct、Hutool、Guava 的用法、坑点与 JDK 内置替代
 
-[面试高频题](./99_interview) 只列题目，答案在 [开发总结 - Java](/interview/1_java) 与 [开发总结 - Java 并发](/interview/2_concurrent)。
+[高频面试题](./99_interview) 只列题目，答案在 [Java 面试题解答](/interview/1_java) 与 [Java 并发面试题解答](/interview/2_concurrent)。
 
 ---
 
@@ -68,7 +68,7 @@
 - [高性能 · 池化技术](/high-perf/7_pooling)：线程池、连接池的池化原理与取舍
 - [Spring Boot · 异步任务与定时任务](/spring-boot/9_async_schedule)：在 Spring Boot 中使用线程池与虚拟线程
 - [设计模式总览](/patterns/0_overview)：单例、代理等模式的完整实现
-- [开发总结 - Java](/interview/1_java) / [开发总结 - Java 并发](/interview/2_concurrent)：本模块高频问题的答案汇总
+- [Java 面试题解答](/interview/1_java) / [Java 并发面试题解答](/interview/2_concurrent)：本模块高频问题的答案汇总
 
 ## 参考资料
 

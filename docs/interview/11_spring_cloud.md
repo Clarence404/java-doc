@@ -2,10 +2,10 @@
 description: 拆分迁移、服务网格、Dubbo、微服务模式、Nacos、配置刷新、网关、Feign、Sentinel、Seata
 ---
 
-# 开发总结 - 微服务与 Spring Cloud
+# 微服务与 Spring Cloud 面试题解答
 
 > 精华提炼，细节详见 [微服务总览](/microservices/0_overview) 与 [Spring Cloud 总览](/spring-cloud/0_overview)；题目清单见 [微服务面试题](/microservices/99_interview) 与 [Spring Cloud 面试题](/spring-cloud/99_interview)，本页按清单的分组与顺序作答：一至五组对应微服务题单，六至十组对应 Spring Cloud 题单。
-> 版本基线：Spring Boot 4.x、Spring Cloud 2025.1.x（Oakwood）、Spring Cloud Alibaba 2025.1.0.0（Nacos 3.x、Sentinel 1.8.9、Seata 2.5 / Apache Seata）、Istio 1.24+、Dubbo 3.3（基于 Spring Boot 3.5）。熔断、降级、限流的策略与阈值见 [开发总结 - 高可用](/interview/14_high_avail)，分布式事务理论见 [开发总结 - 分布式](/interview/10_distributed)。
+> 版本基线：Spring Boot 4.x、Spring Cloud 2025.1.x（Oakwood）、Spring Cloud Alibaba 2025.1.0.0（Nacos 3.x、Sentinel 1.8.9、Seata 2.5 / Apache Seata）、Istio 1.24+、Dubbo 3.3（基于 Spring Boot 3.5）。熔断、降级、限流的策略与阈值见 [高可用面试题解答](/interview/14_high_avail)，分布式事务理论见 [分布式面试题解答](/interview/10_distributed)。
 
 ## 一、拆分与演进
 
@@ -307,7 +307,7 @@ Dubbo 3 的**应用级服务发现**：注册中心按应用而不是按接口�
 | 资金类、需要资源预留 | TCC |
 | 关系库常规 CRUD、要求同步一致、并发不高 | Seata AT |
 
-→ 详见 [分布式事务](/distributed/4_transaction#九、方案选型总结)、[开发总结 - 分布式](/interview/10_distributed#四、分布式事务有哪些解决方案)
+→ 详见 [分布式事务](/distributed/4_transaction#九、方案选型总结)、[分布式面试题解答](/interview/10_distributed#四、分布式事务有哪些解决方案)
 
 ### Q24：微服务接口如何实现幂等？
 
@@ -321,7 +321,7 @@ Dubbo 3 的**应用级服务发现**：注册中心按应用而不是按接口�
 | 状态机 / 乐观锁（`WHERE status = ?` / 版本号） | 状态流转、扣减类操作 |
 | Redis `SET NX` | 高并发下的快速判重，需配合持久化兜底 |
 
-→ 详见 [幂等方案总结](/architecture/5_idempotence)、[开发总结 - 系统架构](/interview/15_architecture#五、接口幂等性如何设计)
+→ 详见 [幂等方案总结](/architecture/5_idempotence)、[系统架构面试题解答](/interview/15_architecture#五、接口幂等性如何设计)
 
 ### Q25：服务间如何传递认证信息与上下文（用户身份、灰度标记、traceId）？
 
@@ -502,7 +502,7 @@ Dubbo 3 的**应用级服务发现**：注册中心按应用而不是按接口�
 
 - 实例列表缓存 TTL 计入下线感知延迟；算法原理见高可用答案页
 
-→ 详见 [服务治理](/spring-cloud/5_service_governance#二、负载均衡-spring-cloud-loadbalancer)、[开发总结 - 高可用](/interview/14_high_avail#q16-服务端负载均衡与客户端负载均衡-spring-cloud-loadbalancer-有什么区别)
+→ 详见 [服务治理](/spring-cloud/5_service_governance#二、负载均衡-spring-cloud-loadbalancer)、[高可用面试题解答](/interview/14_high_avail#q16-服务端负载均衡与客户端负载均衡-spring-cloud-loadbalancer-有什么区别)
 
 ### Q38：API 网关的作用是什么？Route、Predicate、Filter 分别是什么，请求如何流转？
 
@@ -594,7 +594,7 @@ Dubbo 3 的**应用级服务发现**：注册中心按应用而不是按接口�
 | 重试 | 只对幂等接口、只在一层；Framework 7 `@Retryable` 或 Resilience4j Retry |
 | 优雅上下线 | 先注销、等调用方刷新实例列表、再停机 |
 
-→ 详见 [服务治理](/spring-cloud/5_service_governance#一、服务治理全景)、[开发总结 - 高可用](/interview/14_high_avail#五、熔断)
+→ 详见 [服务治理](/spring-cloud/5_service_governance#一、服务治理全景)、[高可用面试题解答](/interview/14_high_avail#五、熔断)
 
 ### Q44：Sentinel 的核心原理（Slot 链、滑动窗口）是什么？
 
@@ -622,7 +622,7 @@ Dubbo 3 的**应用级服务发现**：注册中心按应用而不是按接口�
 - **数据流向是单向的**：只有 Nacos → 应用；开源控制台默认把规则推到应用内存、不写回 Nacos，控制台改的规则重启后丢失，还可能被 Nacos 的下一次推送覆盖
 - 两种做法：约定只在 Nacos 改规则、控制台只看监控；或改造 Dashboard 实现 `DynamicRuleProvider` / `DynamicRulePublisher`，形成「控制台 → Nacos → 应用」
 
-→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_5、规则持久化-nacos-数据源)、[开发总结 - 高可用](/interview/14_high_avail#q31-sentinel-规则持久化到-nacos-后-控制台修改的规则为什么重启会丢失)
+→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_5、规则持久化-nacos-数据源)、[高可用面试题解答](/interview/14_high_avail#q31-sentinel-规则持久化到-nacos-后-控制台修改的规则为什么重启会丢失)
 
 ### Q46：Framework 7 的 `@Retryable` / `@ConcurrencyLimit` 与 Resilience4j、Sentinel 如何分工？
 
@@ -683,7 +683,7 @@ Dubbo 3 的**应用级服务发现**：注册中心按应用而不是按接口�
 | Saga | 中，每步写补偿 | 无隔离，靠补偿与业务设计 |
 | XA | 无，依赖数据库 XA | 数据库锁持续到二阶段结束 |
 
-→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_4、模式选择)、[开发总结 - 分布式](/interview/10_distributed#四、分布式事务有哪些解决方案)
+→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_4、模式选择)、[分布式面试题解答](/interview/10_distributed#四、分布式事务有哪些解决方案)
 
 ## 十、消息与链路
 

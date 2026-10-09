@@ -2,7 +2,7 @@
 description: 内存结构、类加载、GC 原理与收集器、JIT、调优与排查
 ---
 
-# 开发总结 - JVM
+# JVM 面试题解答
 
 > 精华提炼，细节详见 [JVM 总览](/jvm/0_overview)。以 JDK 21 LTS 为基准，兼顾 JDK 8 / 17 与 25。
 

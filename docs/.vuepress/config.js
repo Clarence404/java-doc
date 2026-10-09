@@ -21,7 +21,7 @@ const navbarDropdown = [summaryNav, ...GROUPS.map(g => ({text: g.name, children:
 
 // ============================================================
 // 侧边栏：全部由目录与文章 frontmatter 自动生成，新增文章只需新建 .md
-//   条目文字：第一个 # 标题（interview 去掉「开发总结 - 」前缀）
+//   条目文字：第一个 # 标题（interview 去掉「 面试题解答」后缀）
 //   条目顺序：0_overview 在最前，其余按文件名数字前缀，99_interview 在最后
 //   分组：site.js 中模块的 sidebar 只写每组起始编号 from，编号 ≥ from 的文章归入该组（90 号以后为附录，不分组）
 //   子目录：site.js 中登记了 subdirs 的模块，每个子目录自动成为一个可折叠分组
@@ -49,7 +49,7 @@ const byFileOrder = (a, b) => {
     return oa - ob || a.localeCompare(b);
 };
 
-function getSidebarFromDir(dirPath, {stripPrefix} = {}) {
+function getSidebarFromDir(dirPath, {stripSuffix} = {}) {
     if (!fs.existsSync(dirPath)) {
         console.warn(`Warning: Directory ${dirPath} does not exist. Skipping sidebar generation.`);
         return [];
@@ -62,7 +62,7 @@ function getSidebarFromDir(dirPath, {stripPrefix} = {}) {
         const heading = content.match(/^# (.+)/m)?.[1] ?? file;
         const link = '/' + path.relative(docsRoot, filePath).replace(/\\/g, '/').replace(/\.md$/, '');
         NAV_DESC[link] = fm.description ?? '';
-        const title = stripPrefix && heading.startsWith(stripPrefix) ? heading.slice(stripPrefix.length) : heading;
+        const title = stripSuffix && heading.endsWith(stripSuffix) ? heading.slice(0, -stripSuffix.length).trim() : heading;
         return {text: title, link};
     });
 }
@@ -127,9 +127,9 @@ function stripGroupPrefix(items, ancestors = []) {
     });
 }
 
-const sidebarOf = ({dir, sidebar, subdirs, stripPrefix}) => {
+const sidebarOf = ({dir, sidebar, subdirs, stripSuffix}) => {
     if (subdirs) return stripGroupPrefix(getSubdirSidebar(dir, subdirs));
-    const items = getSidebarFromDir(dirOf(dir), {stripPrefix});
+    const items = getSidebarFromDir(dirOf(dir), {stripSuffix});
     return stripGroupPrefix(sidebar ? groupItems(items, sidebar) : items);
 };
 
@@ -158,7 +158,25 @@ function writeModuleNav(app) {
         ? {text: i.text, children: withDesc(i.children)}
         : {text: i.text, link: i.link, description: desc[i.link] ?? NAV_DESC[i.link] ?? '', ...(ANSWER_LISTS[i.link] ? {lists: ANSWER_LISTS[i.link]} : {})}));
     const nav = Object.fromEntries(ALL_MODULES.map(m => [m.dir, withDesc(SIDEBAR[`/${m.dir}/`])]));
-    return app.writeTemp('module-nav.js', `export default ${JSON.stringify(nav)};\n`);
+    return Promise.all([
+        app.writeTemp('module-nav.js', `export default ${JSON.stringify(nav)};\n`),
+        writeInterviewData(app),
+    ]);
+}
+
+// 答案页（interview/*.md）的分组与题目：<InterviewList page="9_mq" /> 据此生成题单，题目链接到答案锚点
+function writeInterviewData(app) {
+    const data = {};
+    for (const p of app.pages) {
+        const rel = p.filePathRelative ?? '';
+        if (!rel.startsWith('interview/') || rel.endsWith('0_overview.md')) continue;
+        const groups = (p.headers ?? []).filter(h => h.level === 2).map(h => ({
+            title: h.title, slug: h.slug,
+            questions: (h.children ?? []).filter(c => c.level === 3).map(c => ({title: c.title, slug: c.slug})),
+        }));
+        data[rel.slice('interview/'.length, -3)] = {title: p.title, path: '/' + rel.replace(/\.md$/, ''), groups};
+    }
+    return app.writeTemp('interview-data.js', `export default ${JSON.stringify(data)};\n`);
 }
 
 // 新增 / 删除文章后重算侧边栏，覆盖主题数据临时文件（客户端通过 HMR 的 updateThemeData 即时生效）

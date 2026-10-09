@@ -2,7 +2,7 @@
 description: IO 模型、Reactor、ByteBuf、粘包拆包、心跳、生产调优
 ---
 
-# 开发总结 - Netty
+# Netty 面试题解答
 
 > 精华提炼，细节详见 [Netty 总览](/netty/0_overview)
 

@@ -97,4 +97,4 @@
 - 分库分表中间件配置 → [数据库](/database/0_overview)
 - 长连接网关实现 → [Netty](/netty/0_overview)
 - 秒杀、订单、Feed 等完整案例 → [业务场景](/scenario/0_overview)
-- 答案汇总 → [开发总结 - 高并发](/interview/13_high_con)
+- 答案汇总 → [高并发面试题解答](/interview/13_high_con)

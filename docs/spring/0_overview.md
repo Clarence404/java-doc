@@ -41,7 +41,7 @@ Spring Framework 是 Java 后端的基础框架：IoC 容器负责创建与装�
 12. [Spring Batch 批处理](./12_batch)：Job / Step、分块读写与重启
 13. [Spring Integration](./13_integration)：消息通道、集成 DSL 与 Camel 对比
 
-**题目清单（99）**：[面试高频题](./99_interview)，答案见 [开发总结 - Spring 与 Spring Boot](/interview/5_spring)。
+**题目清单（99）**：[高频面试题](./99_interview)，答案见 [Spring 与 Spring Boot 面试题解答](/interview/5_spring)。
 
 ---
 
@@ -53,7 +53,7 @@ Spring Framework 是 Java 后端的基础框架：IoC 容器负责创建与装�
 - [Java · 虚拟线程](/java/30_topic_virtual_thread)：Framework 6.1 / Boot 3.2 起的虚拟线程支持
 - [数据库 · MySQL 事务与锁](/database/1_mysql/5_topic_transaction)：隔离级别、MVCC 与锁，事务管理的数据库侧
 - [应用安全](/security/0_overview)：JWT、OAuth2、OIDC、SSO 的协议原理
-- [开发总结 - Spring 与 Spring Boot](/interview/5_spring)：本模块高频问题的答案汇总
+- [Spring 与 Spring Boot 面试题解答](/interview/5_spring)：本模块高频问题的答案汇总
 
 ---
 

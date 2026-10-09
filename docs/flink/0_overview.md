@@ -43,7 +43,7 @@ Flink 是有状态的分布式流计算引擎，国内实时数仓、实时风�
 - **要做数据库实时同步、数据入湖**：重点读 [Flink CDC](./6_cdc)，CDC 的通用概念和工具对比见 [CDC 工具](/database/5_practice/0_cdc_tools)。
 - **准备上线或排查线上问题**：直接看 [部署与运维](./7_deployment) 的排查步骤和常见问题表。
 
-[面试高频题](./99_interview) 只列题目，答案在 [开发总结 - Flink](/interview/6_flink)。
+[高频面试题](./99_interview) 只列题目，答案在 [Flink 面试题解答](/interview/6_flink)。
 
 ---
 
@@ -56,7 +56,7 @@ Flink 是有状态的分布式流计算引擎，国内实时数仓、实时风�
 - [指标监控](/observability/2_metrics)：Prometheus 指标与告警体系，更多内容见 [可观测性总览](/observability/0_overview)
 - [海量数据处理](/scenario/2_big_data)：离线与实时计算在大数据场景中的整体位置
 - [Vert.x 总览](/vertx/0_overview) / [Quarkus 总览](/quarkus/0_overview)：同属框架生态，面向在线服务而非流计算
-- [开发总结 - Flink](/interview/6_flink)：本模块高频问题的答案汇总
+- [Flink 面试题解答](/interview/6_flink)：本模块高频问题的答案汇总
 
 ## 参考资料
 

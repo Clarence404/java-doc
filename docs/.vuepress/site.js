@@ -5,7 +5,7 @@
 //   - 面包屑名称（模块目录与 subdirs 子目录）
 //   - 侧边栏（按目录自动读取；sidebar 按起始编号分组；subdirs 让子目录成为分组）
 //   - 首页（模块的 name / desc / stub，分组的 name / tagline），以及首页的推荐博客、页脚
-//   - 开发总结：答案页的分组（SUMMARY.sidebar）与「对应题目清单」（模块的 interview 字段）
+//   - 面试题解：答案页的分组（SUMMARY.sidebar）与「对应题目清单」（模块的 interview 字段）
 //
 // 新增模块：在所属分组的 modules 中加一项，dir 为 docs/ 下的目录名，入口页为 <dir>/0_overview.md
 // 模块字段：
@@ -15,14 +15,15 @@
 //   desc     首页星表中的一行简介
 //   stub     首页「编写中」徽标文字，可选
 //   sidebar  按起始编号分组的侧边栏，可选：[{text, from}]，编号 ≥ from 的文章归入该组（0_overview 与 90 号以后的附录、99_interview 不分组）
-//   interview 本模块 99_interview 题单的答案页（docs/interview/ 下的文件名），用于开发总结导航表的「对应题目清单」列
+//   interview 本模块 99_interview 题单的答案页（docs/interview/ 下的文件名），用于面试题解导航表的「对应题目清单」列；
+//            题单页本身写 <InterviewList page="9_mq" />，由答案页自动生成（一页对应多个模块时加 groups="1-10"）
 //   subdirs  子目录分组，可选：{'1_mysql': 'MySQL'} 或 {'1_mysql': {title, sidebar?}}；title 同时用于面包屑
 
-// 开发总结（导航栏第一项，不参与首页的分组卡片）
+// 面试题解（导航栏第一项，不参与首页的分组卡片）
 export const SUMMARY = {
-    name: '开发总结',
+    name: '面试题解',
     dir: 'interview',
-    stripPrefix: '开发总结 - ',
+    stripSuffix: '面试题解答',
     sidebar: [
         {text: '基础体系', from: 1},
         {text: '框架生态', from: 5},

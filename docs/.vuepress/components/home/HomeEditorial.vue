@@ -78,13 +78,13 @@ const statList = [
     {n: GOF, u: '种', t: '设计模式', s: 'GoF 全集'},
 ];
 
-/* ---------- 开发总结：直接取开发总结目录的侧边栏分组（分组名与 GROUPS 同名） ---------- */
+/* ---------- 面试题解：直接取面试题解目录的侧边栏分组（分组名与 GROUPS 同名） ---------- */
 let pageNo = 0;
 const digest = (navData.interview || [])
     .filter((n) => n.children && groups.some((g) => g.name === n.text))
     .map((n) => ({name: n.text, pages: n.children.filter((c) => c.link).map((c) => ({text: c.text, link: c.link, no: pad(++pageNo)}))}));
 
-/* ---------- Bento 排版：首行 = 开发总结 + 第一组；其余每行 3 格（12 栏按文章数分 5/4/3），末行不足时自动改为 2 格 ---------- */
+/* ---------- Bento 排版：首行 = 面试题解 + 第一组；其余每行 3 格（12 栏按文章数分 5/4/3），末行不足时自动改为 2 格 ---------- */
 const lead = groups[0];
 const items = [...groups.slice(1).map((g) => ({kind: 'g', g, w: g.arts})), {kind: 'gd', w: Infinity}];
 const rows = [];
@@ -248,7 +248,7 @@ onBeforeUnmount(() => { if (io) io.disconnect(); });
         </header>
 
         <div class="bento">
-          <!-- 00 开发总结 -->
+          <!-- 00 面试题解 -->
           <article class="cell cell--iv" :style="{'--c': colors[0], '--c2': colors[colors.length - 1], '--i': 0}" data-reveal aria-labelledby="ed-t-00">
             <span class="gridlines" aria-hidden="true"></span>
             <div class="iv__top">
@@ -276,7 +276,7 @@ onBeforeUnmount(() => { if (io) io.disconnect(); });
             </div>
           </article>
 
-          <!-- 第一组：与开发总结同排的大格 -->
+          <!-- 第一组：与面试题解同排的大格 -->
           <article v-if="lead" :id="`ed-g-${lead.no}`" class="cell cell--xl cell--lead" :class="{'cell--tint': lead === hotGroup}"
                    :style="cellStyle(lead, {'--i': 1})" data-reveal :aria-labelledby="`ed-t-${lead.no}`">
             <span class="cell__wm" aria-hidden="true">{{ lead.arts }}</span>

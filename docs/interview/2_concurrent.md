@@ -2,10 +2,10 @@
 description: 线程与中断、volatile、锁与 AQS、CAS、并发容器、ThreadLocal、线程池、虚拟线程
 ---
 
-# 开发总结 - Java 并发
+# Java 并发面试题解答
 
-> 精华提炼，细节详见 [Java 总览](/java/0_overview) 的并发部分；题目清单见 [Java 面试题](/java/99_interview)，本页按清单第四组「并发」的顺序作答，其余三组见 [开发总结 - Java](/interview/1_java)。
-> 版本基线：JDK 21 / 25 LTS，JDK 8 / 17 的差异单独标注。JMM 规则、DCL、虚拟线程挂载原理另见 [开发总结 - JVM](/interview/3_jvm) Q42–Q51，本页不重复展开。
+> 精华提炼，细节详见 [Java 总览](/java/0_overview) 的并发部分；题目清单见 [Java 面试题](/java/99_interview)，本页按清单第四组「并发」的顺序作答，其余三组见 [Java 面试题解答](/interview/1_java)。
+> 版本基线：JDK 21 / 25 LTS，JDK 8 / 17 的差异单独标注。JMM 规则、DCL、虚拟线程挂载原理另见 [JVM 面试题解答](/interview/3_jvm) Q42–Q51，本页不重复展开。
 
 ## 四、并发
 
@@ -78,7 +78,7 @@ public void run() {
 | 阻塞 | 不阻塞 | 竞争时阻塞 |
 | 适用 | 状态标志、一写多读的引用（整体替换不可变对象）、DCL | 读改写、多个变量的不变式 |
 
-计数用 `AtomicInteger` / `LongAdder`。happens-before 规则、DCL 的细节见 [开发总结 - JVM](/interview/3_jvm) Q42–Q45。
+计数用 `AtomicInteger` / `LongAdder`。happens-before 规则、DCL 的细节见 [JVM 面试题解答](/interview/3_jvm) Q42–Q45。
 
 → 详见 [JMM 内存模型](/java/22_topic_jmm#四、volatile-的精确语义)
 
@@ -359,7 +359,7 @@ cache.computeIfAbsent(key, k -> new LongAdder()).increment();      // 高并发�
 
 文件 IO 等部分系统调用不算钉住，但会占住载体线程，调度器会临时增加载体线程补偿。
 
-**诊断**：JFR 事件 `jdk.VirtualThreadPinned`（默认开启，阻塞超过 20 ms 记录）；`jcmd <pid> Thread.dump_to_file -format=json` 导出包含虚拟线程的线程转储（`jstack` 只列平台线程）。`-Djdk.tracePinnedThreads` 在 JDK 24 已移除。生产基线推荐 JDK 25 LTS。挂载 / 卸载原理见 [开发总结 - JVM](/interview/3_jvm) Q48–Q51。
+**诊断**：JFR 事件 `jdk.VirtualThreadPinned`（默认开启，阻塞超过 20 ms 记录）；`jcmd <pid> Thread.dump_to_file -format=json` 导出包含虚拟线程的线程转储（`jstack` 只列平台线程）。`-Djdk.tracePinnedThreads` 在 JDK 24 已移除。生产基线推荐 JDK 25 LTS。挂载 / 卸载原理见 [JVM 面试题解答](/interview/3_jvm) Q48–Q51。
 
 → 详见 [虚拟线程](/java/30_topic_virtual_thread#四、使用原则)
 
@@ -420,4 +420,4 @@ grep -A 30 "Found one Java-level deadlock" dump.txt
 
 ---
 
-高并发系统层面的设计（多级缓存、MQ 削峰、热点治理、分库分表、无状态扩展、线程池与连接池调优）见 [开发总结 - 高并发](/interview/13_high_con)。
+高并发系统层面的设计（多级缓存、MQ 削峰、热点治理、分库分表、无状态扩展、线程池与连接池调优）见 [高并发面试题解答](/interview/13_high_con)。

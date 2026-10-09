@@ -2,7 +2,7 @@
 description: 架构设计、DDD、幂等、权限系统
 ---
 
-# 开发总结 - 系统架构
+# 系统架构面试题解答
 
 > 精华提炼，细节详见 [architecture/](../architecture/0_overview)、[microservices/](../microservices/0_overview)
 

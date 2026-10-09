@@ -1,9 +1,36 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {slugify} from '@mdit-vue/shared';
+
+// 解析题单页中的 <InterviewList page="9_mq" groups="1-10" />
+export function interviewListRefs(content) {
+    return [...content.matchAll(/<InterviewList\b([^>]*)\/?>/g)].map(m => ({
+        page: m[1].match(/page="([^"]+)"/)?.[1],
+        groups: m[1].match(/groups="([^"]+)"/)?.[1] ?? '',
+    })).filter(r => r.page);
+}
+
+// 答案页的分组（##）与题目数（###），按 groups 范围截取；slug 与 VuePress 标题锚点一致
+export function answerGroups(docsDir, {page, groups}) {
+    const file = path.join(docsDir, 'interview', `${page}.md`);
+    if (!fs.existsSync(file)) return [];
+    const out = [];
+    for (const line of fs.readFileSync(file, 'utf-8').split(/\r?\n/)) {
+        if (line.startsWith('## ')) {
+            const title = line.slice(3).trim();
+            out.push({title, slug: slugify(title), questions: 0});
+        } else if (line.startsWith('### ') && out.length) {
+            out[out.length - 1].questions++;
+        }
+    }
+    if (!groups) return out;
+    const [from, to] = groups.split('-').map(Number);
+    return out.slice(from - 1, to || from);
+}
 
 // 首页数字的统计规则：
 //   文章数 = 模块目录下（含子目录）的 .md，去掉 README、0_overview 总览页和 99_interview 题单
-//   题数   = 99_interview.md 中以「- **」开头的题目行
+//   题数   = 99_interview.md 中 <InterviewList> 引用的答案页分组里的题目（### 标题）；旧式题单数「- **」开头的行
 //   答案页 = docs/interview/ 下除 0_ 总览外的 .md
 //   图解   = docs/assets/ 下的 .svg
 const SKIP_DIRS = new Set(['.vuepress', 'assets', 'interview', 'public']);
@@ -31,9 +58,14 @@ export function computeHomeStats(docsDir) {
         const dir = path.join(docsDir, entry.name);
         const articles = listFiles(dir, '.md').filter(isArticle).length;
         const qFile = path.join(dir, '99_interview.md');
-        const questions = fs.existsSync(qFile)
-            ? fs.readFileSync(qFile, 'utf-8').split('\n').filter((l) => QUESTION_LINE.test(l)).length
-            : 0;
+        let questions = 0;
+        if (fs.existsSync(qFile)) {
+            const content = fs.readFileSync(qFile, 'utf-8');
+            const refs = interviewListRefs(content);
+            questions = refs.length
+                ? refs.reduce((n, r) => n + answerGroups(docsDir, r).reduce((m, g) => m + g.questions, 0), 0)
+                : content.split('\n').filter((l) => QUESTION_LINE.test(l)).length;
+        }
         modules[entry.name] = {articles, questions};
     }
     const answerPages = fs.readdirSync(path.join(docsDir, 'interview'))

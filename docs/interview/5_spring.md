@@ -2,10 +2,10 @@
 description: IoC、生命周期、AOP、事务、MVC、WebFlux、Security、自动配置、启动、配置、测试、版本演进
 ---
 
-# 开发总结 - Spring 与 Spring Boot
+# Spring 与 Spring Boot 面试题解答
 
 > 精华提炼，细节详见 [Spring 总览](/spring/0_overview) 与 [Spring Boot 总览](/spring-boot/0_overview)；题目清单见 [Spring 面试题](/spring/99_interview) 与 [Spring Boot 面试题](/spring-boot/99_interview)，本页按清单的分组与顺序作答：一至十组对应 Spring 题单，十一至十八组对应 Spring Boot 题单。
-> 版本基线：Spring Framework 7.x / Spring Boot 4.x / Spring Security 7（JDK 17+，推荐 21 / 25），与 Framework 5.x–6.x、Boot 2.x–3.x 不同之处在答案中单独标注。JDK 动态代理与 CGLIB 的实现细节见 [开发总结 - Java](/interview/1_java)。
+> 版本基线：Spring Framework 7.x / Spring Boot 4.x / Spring Security 7（JDK 17+，推荐 21 / 25），与 Framework 5.x–6.x、Boot 2.x–3.x 不同之处在答案中单独标注。JDK 动态代理与 CGLIB 的实现细节见 [Java 面试题解答](/interview/1_java)。
 
 ## 一、IoC 与 DI
 
@@ -1089,7 +1089,7 @@ MySQL 的 DDL 会隐式提交、无法回滚：一个脚本里三条 `ALTER TABL
 - Boot 4 起探针分组默认开启（3.x 只在检测到 K8s 时自动开启）；`add-additional-paths=true` 在业务端口提供 `/livez`、`/readyz`
 - 共享依赖要不要进就绪分组同样要谨慎，系统级取舍见高可用答案页
 
-→ 详见 [Actuator 监控](/spring-boot/7_actuator#四、存活-就绪探针与健康分组)、[开发总结 - 高可用](/interview/14_high_avail#q9-k8s-的-liveness-和-readiness-探针有什么区别-为什么探针不建议检查数据库等共享依赖)
+→ 详见 [Actuator 监控](/spring-boot/7_actuator#四、存活-就绪探针与健康分组)、[高可用面试题解答](/interview/14_high_avail#q9-k8s-的-liveness-和-readiness-探针有什么区别-为什么探针不建议检查数据库等共享依赖)
 
 ### Q78：如何用 Micrometer 写自定义业务指标？如何避免高基数？Observation API 做什么？
 
