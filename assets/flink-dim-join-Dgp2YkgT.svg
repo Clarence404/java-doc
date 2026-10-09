@@ -1,0 +1,63 @@
+<svg viewBox="0 0 720 312" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">维表关联的三种做法</text>
+  <rect x="20" y="52" width="200" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="120" y="78" text-anchor="middle" class="name">订单流</text>
+  <text x="120" y="98" text-anchor="middle" class="desc">每条事件带 proc_time</text>
+  <rect x="260" y="52" width="200" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="78" text-anchor="middle" class="name">Lookup Join</text>
+  <text x="360" y="98" text-anchor="middle" class="desc">异步 + 缓存，按 key 查</text>
+  <rect x="500" y="52" width="200" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="600" y="78" text-anchor="middle" class="name">MySQL / HBase / Redis</text>
+  <text x="600" y="98" text-anchor="middle" class="desc">外部维表，实时查询</text>
+  <line x1="220" y1="82" x2="258" y2="82" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="500" y1="82" x2="462" y2="82" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="136" width="200" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="120" y="162" text-anchor="middle" class="name">订单流</text>
+  <text x="120" y="182" text-anchor="middle" class="desc">带事件时间与水位线</text>
+  <rect x="260" y="136" width="200" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="162" text-anchor="middle" class="name">Temporal Join</text>
+  <text x="360" y="182" text-anchor="middle" class="desc">状态内保存维表版本</text>
+  <rect x="500" y="136" width="200" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="600" y="162" text-anchor="middle" class="name">维表 changelog</text>
+  <text x="600" y="182" text-anchor="middle" class="desc">Flink CDC / upsert-kafka</text>
+  <line x1="220" y1="166" x2="258" y2="166" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="500" y1="166" x2="462" y2="166" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="220" width="200" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="120" y="246" text-anchor="middle" class="name">事件流</text>
+  <text x="120" y="266" text-anchor="middle" class="desc">keyBy 后的主数据流</text>
+  <rect x="260" y="220" width="200" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="246" text-anchor="middle" class="name">Broadcast State</text>
+  <text x="360" y="266" text-anchor="middle" class="desc">每个并行实例一份全量</text>
+  <rect x="500" y="220" width="200" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="600" y="246" text-anchor="middle" class="name">规则 / 小维表</text>
+  <text x="600" y="266" text-anchor="middle" class="desc">广播流，变更推送</text>
+  <line x1="220" y1="250" x2="258" y2="250" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="500" y1="250" x2="462" y2="250" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

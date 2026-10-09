@@ -1,0 +1,72 @@
+<svg viewBox="0 0 720 270" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">有界乱序 5s：水位线推进与 10s 滚动窗口触发</text>
+
+  <!-- 事件按到达顺序 -->
+  <rect x="20" y="44" width="100" height="76" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="70" y="66" text-anchor="middle" class="name">事件 t=3s</text>
+  <text x="70" y="86" text-anchor="middle" class="desc">WM = -2s</text>
+  <text x="70" y="104" text-anchor="middle" class="desc">进入 [0,10)</text>
+
+  <rect x="134" y="44" width="100" height="76" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="184" y="66" text-anchor="middle" class="name">事件 t=7s</text>
+  <text x="184" y="86" text-anchor="middle" class="desc">WM = 2s</text>
+  <text x="184" y="104" text-anchor="middle" class="desc">进入 [0,10)</text>
+
+  <rect x="248" y="44" width="100" height="76" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="298" y="66" text-anchor="middle" class="name">事件 t=12s</text>
+  <text x="298" y="86" text-anchor="middle" class="desc">WM = 7s</text>
+  <text x="298" y="104" text-anchor="middle" class="desc">进入 [10,20)</text>
+
+  <rect x="362" y="44" width="100" height="76" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="412" y="66" text-anchor="middle" class="name">事件 t=6s</text>
+  <text x="412" y="86" text-anchor="middle" class="desc">WM 仍为 7s</text>
+  <text x="412" y="104" text-anchor="middle" class="desc">乱序，未迟到</text>
+
+  <rect x="476" y="44" width="100" height="76" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="526" y="66" text-anchor="middle" class="name">事件 t=16s</text>
+  <text x="526" y="86" text-anchor="middle" class="desc">WM = 11s</text>
+  <text x="526" y="104" text-anchor="middle" class="desc">触发 [0,10)</text>
+
+  <rect x="590" y="44" width="110" height="76" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="645" y="66" text-anchor="middle" class="name">事件 t=4s</text>
+  <text x="645" y="86" text-anchor="middle" class="desc">WM 仍为 11s</text>
+  <text x="645" y="104" text-anchor="middle" class="desc">迟到</text>
+
+  <!-- 到达顺序轴 -->
+  <line x1="20" y1="140" x2="698" y2="140" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="360" y="160" text-anchor="middle" class="lbl">到达顺序（处理时间）→ 水位线 ≈ 已见最大事件时间 − 5s</text>
+
+  <!-- 结果 -->
+  <rect x="20" y="180" width="680" height="70" rx="4" fill="var(--p)" fill-opacity="0.08" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="190" y="206" text-anchor="middle" class="name">窗口 [0s, 10s) 输出</text>
+  <text x="190" y="228" text-anchor="middle" class="desc">包含 3s、7s、6s 三条，乱序的 6s 没有丢</text>
+  <text x="530" y="206" text-anchor="middle" class="name">t=4s 的处理</text>
+  <text x="530" y="228" text-anchor="middle" class="desc">默认丢弃；allowedLateness 内会再次触发；或进侧输出</text>
+</svg>

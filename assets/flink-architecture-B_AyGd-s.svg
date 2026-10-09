@@ -1,0 +1,84 @@
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">Flink 运行时架构</text>
+
+  <!-- Client -->
+  <rect x="20" y="44" width="150" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="95" y="68" text-anchor="middle" class="name">Client</text>
+  <text x="95" y="88" text-anchor="middle" class="desc">生成 JobGraph</text>
+
+  <line x1="170" y1="74" x2="218" y2="74" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="195" y="66" text-anchor="middle" class="lbl">提交</text>
+
+  <!-- JobManager -->
+  <rect x="220" y="44" width="480" height="110" rx="4" fill="var(--p)" fill-opacity="0.08" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="460" y="64" text-anchor="middle" class="name">JobManager</text>
+  <rect x="232" y="76" width="144" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="304" y="100" text-anchor="middle" class="name">Dispatcher</text>
+  <text x="304" y="120" text-anchor="middle" class="desc">REST 入口 / Web UI</text>
+  <rect x="388" y="76" width="144" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="460" y="100" text-anchor="middle" class="name">ResourceManager</text>
+  <text x="460" y="120" text-anchor="middle" class="desc">申请与分配 Slot</text>
+  <rect x="544" y="76" width="144" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="616" y="100" text-anchor="middle" class="name">JobMaster</text>
+  <text x="616" y="120" text-anchor="middle" class="desc">调度单个作业</text>
+
+  <!-- 部署 Task -->
+  <line x1="335" y1="154" x2="335" y2="198" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="343" y="180" class="lbl">部署 Task</text>
+  <line x1="585" y1="154" x2="585" y2="198" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="593" y="180" class="lbl">部署 Task</text>
+
+  <!-- TaskManager 1 -->
+  <rect x="220" y="200" width="230" height="120" rx="4" fill="var(--b)" fill-opacity="0.08" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="335" y="220" text-anchor="middle" class="name">TaskManager 1</text>
+  <rect x="232" y="232" width="97" height="72" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="280" y="260" text-anchor="middle" class="name">Slot 1</text>
+  <text x="280" y="282" text-anchor="middle" class="desc">Source→Map</text>
+  <rect x="341" y="232" width="97" height="72" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="389" y="260" text-anchor="middle" class="name">Slot 2</text>
+  <text x="389" y="282" text-anchor="middle" class="desc">Window→Sink</text>
+
+  <!-- TaskManager 2 -->
+  <rect x="470" y="200" width="230" height="120" rx="4" fill="var(--b)" fill-opacity="0.08" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="585" y="220" text-anchor="middle" class="name">TaskManager 2</text>
+  <rect x="482" y="232" width="97" height="72" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="530" y="260" text-anchor="middle" class="name">Slot 1</text>
+  <text x="530" y="282" text-anchor="middle" class="desc">Source→Map</text>
+  <rect x="591" y="232" width="97" height="72" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="639" y="260" text-anchor="middle" class="name">Slot 2</text>
+  <text x="639" y="282" text-anchor="middle" class="desc">Window→Sink</text>
+
+  <!-- 状态存储 -->
+  <rect x="20" y="230" width="150" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="95" y="254" text-anchor="middle" class="name">Checkpoint 存储</text>
+  <text x="95" y="274" text-anchor="middle" class="desc">S3 / HDFS / OSS</text>
+  <line x1="220" y1="260" x2="172" y2="260" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="196" y="252" text-anchor="middle" class="lbl">快照</text>
+</svg>

@@ -1,0 +1,59 @@
+<svg viewBox="0 0 730 224" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="365" y="24" text-anchor="middle" class="title">Flink CDC 3.x 数据管道</text>
+  <rect x="20" y="94" width="100" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="70" y="120" text-anchor="middle" class="name">MySQL</text>
+  <text x="70" y="140" text-anchor="middle" class="desc">全量 + binlog</text>
+  <rect x="150" y="44" width="420" height="160" rx="6" fill="none" stroke="var(--p)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="360" y="66" text-anchor="middle" class="lbl">YAML Pipeline（一个 Flink 作业）</text>
+  <rect x="162" y="94" width="112" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="218" y="120" text-anchor="middle" class="name">Source</text>
+  <text x="218" y="140" text-anchor="middle" class="desc">快照 + 增量</text>
+  <rect x="304" y="94" width="112" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="360" y="120" text-anchor="middle" class="name">Transform</text>
+  <text x="360" y="140" text-anchor="middle" class="desc">投影 / 过滤 / 路由</text>
+  <rect x="446" y="94" width="112" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="502" y="120" text-anchor="middle" class="name">Schema 协调</text>
+  <text x="502" y="140" text-anchor="middle" class="desc">DDL 同步下游</text>
+  <line x1="274" y1="124" x2="302" y2="124" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="416" y1="124" x2="444" y2="124" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="120" y1="124" x2="148" y2="124" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="610" y="44" width="100" height="34" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="660" y="66" text-anchor="middle" class="lbl">Doris</text>
+  <line x1="558" y1="124" x2="608" y2="61" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="610" y="86" width="100" height="34" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="660" y="108" text-anchor="middle" class="lbl">StarRocks</text>
+  <line x1="558" y1="124" x2="608" y2="103" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="610" y="128" width="100" height="34" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="660" y="150" text-anchor="middle" class="lbl">Paimon</text>
+  <line x1="558" y1="124" x2="608" y2="145" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="610" y="170" width="100" height="34" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="660" y="192" text-anchor="middle" class="lbl">Kafka</text>
+  <line x1="558" y1="124" x2="608" y2="187" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>
