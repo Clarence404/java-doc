@@ -4,7 +4,8 @@ description: 指标类型、Prometheus、Grafana、业务指标
 
 # 指标监控
 
-> [!warning] 待补充
+::: warning 待补充
+:::
 
 ## 学习目标
 

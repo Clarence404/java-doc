@@ -4,7 +4,8 @@ description: 降低服务间接口变更风险
 
 # 契约测试
 
-> [!warning] 待补充
+::: warning 待补充
+:::
 
 ## 大纲
 

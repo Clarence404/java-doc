@@ -113,7 +113,7 @@ docs/
 - 模块边界：同一主题只保留一个主文档，其他模块用一句话概括 + 链接，不重复展开；三高模块写系统级策略，具体技术细节链接到 cache / database / messaging / jvm 等模块
 - 文件夹命名：全小写，多单词使用连字符（kebab-case），如 `cloud-native`、`spring-boot`
 - 图片存放：`docs/assets/<模块名>/`
-- 待补充内容用 VuePress `warning` callout 标记：`> [!warning] 待补充`
+- 提示框：带标题的用容器写法 `::: warning 待补充` … `:::`（类型 tip / warning / danger / info）；`> [!tip]` 只能单独成行、不能在同一行写标题，否则不渲染；待补充内容用 `::: warning 待补充`
 - 文章开头只保留「本篇目标 / 前置阅读」引用块；参考资料统一放在文末 `## 参考资料` 小节（位于 `## 小结` 之后、「> 下一篇」导航行之前），避免开头篇幅过大
 - 站点部署：GitHub Actions → `.github/workflows/deploy-docs.yml`
 - 规范文件同步：`CLAUDE.md` 与 `AGENTS.md` 内容保持完全一致（AGENTS.md 供其他 AI 编码工具读取），修改其中一个时必须同步更新另一个

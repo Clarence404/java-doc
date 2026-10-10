@@ -4,7 +4,8 @@ description: Trace / Span、上下文传播、SkyWalking、Jaeger
 
 # 链路追踪
 
-> [!warning] 待补充
+::: warning 待补充
+:::
 
 ## 学习目标
 
