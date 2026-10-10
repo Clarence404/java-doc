@@ -160,4 +160,12 @@ protected void initChannel(SocketChannel ch) {
 - 中间 Handler 继承 `ChannelInboundHandlerAdapter` 并继续传播，消费消息的业务 Handler 用 `SimpleChannelInboundHandler`（自动释放）
 - 无状态 Handler 才能 `@Sharable` 共享；解码器和有状态 Handler 每个连接 `new` 一个
 
+## 参考资料
+
+- Pipeline 结构与入站 / 出站传播：[ChannelPipeline (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelPipeline.html)
+- Handler 接口与 @Sharable：[ChannelHandler (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelHandler.html)
+- Handler 上下文：[ChannelHandlerContext (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelHandlerContext.html)
+- 自动释放消息的入站 Handler：[SimpleChannelInboundHandler (Netty API)](https://netty.io/4.1/api/io/netty/channel/SimpleChannelInboundHandler.html)
+- 引用计数与消息释放规则：[Reference counted objects](https://netty.io/wiki/reference-counted-objects.html)
+
 > 下一篇：[ByteBuf 与内存管理](./6_bytebuf) —— Pipeline 里流动的数据长什么样，以及如何避免内存泄漏。

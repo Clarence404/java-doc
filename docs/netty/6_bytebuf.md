@@ -351,4 +351,13 @@ ctx.writeAndFlush(frame);
 - 测试环境用 `-Dio.netty.leakDetection.level=paranoid` 尽早暴露泄漏，按 `#1` 访问记录定位
 - 零拷贝分两层：OS 级 `FileRegion` / sendfile，Netty 用户态的 Composite / wrap / slice
 
+## 参考资料
+
+- ByteBuf 读写指针与 API：[ByteBuf (Netty API)](https://netty.io/4.1/api/io/netty/buffer/ByteBuf.html)
+- 引用计数与泄漏排查：[Reference counted objects](https://netty.io/wiki/reference-counted-objects.html)
+- 泄漏检测级别：[ResourceLeakDetector (Netty API)](https://netty.io/4.1/api/io/netty/util/ResourceLeakDetector.html)
+- 池化分配器：[PooledByteBufAllocator (Netty API)](https://netty.io/4.1/api/io/netty/buffer/PooledByteBufAllocator.html)
+- 用户态零拷贝：组合缓冲区：[CompositeByteBuf (Netty API)](https://netty.io/4.1/api/io/netty/buffer/CompositeByteBuf.html)
+- OS 级零拷贝：FileRegion 与 sendfile：[FileRegion (Netty API)](https://netty.io/4.1/api/io/netty/channel/FileRegion.html)
+
 > 下一篇：[粘包与拆包](./7_stick_split) —— TCP 只保证字节流，一条完整的消息从哪开始、到哪结束，要靠我们自己界定。

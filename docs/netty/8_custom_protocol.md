@@ -399,4 +399,12 @@ public class RpcResponseHandler extends SimpleChannelInboundHandler<RpcResponse>
 - Pipeline 按"空闲检测 → 拆帧 → 解码 → 编码 → 心跳 → 业务"组装，共享的 Handler 必须无状态并标注 `@Sharable`
 - `requestId` + 在途 Future 表是 RPC 单连接多路复用的核心，务必做好超时与断线清理
 
+## 参考资料
+
+- 编码器基类：[MessageToByteEncoder (Netty API)](https://netty.io/4.1/api/io/netty/handler/codec/MessageToByteEncoder.html)
+- 解码器基类：[ByteToMessageDecoder (Netty API)](https://netty.io/4.1/api/io/netty/handler/codec/ByteToMessageDecoder.html)
+- 按长度字段切帧：[LengthFieldBasedFrameDecoder (Netty API)](https://netty.io/4.1/api/io/netty/handler/codec/LengthFieldBasedFrameDecoder.html)
+- Handler 共享与 @Sharable：[ChannelHandler (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelHandler.html)
+- 异步结果与超时处理：[ChannelFuture (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelFuture.html)
+
 > 下一篇：[心跳与连接管理](./9_heartbeat) —— 长连接如何发现"假死"的对端，以及断线后如何自动重连。

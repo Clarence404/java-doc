@@ -277,4 +277,13 @@ attach 随时可能不可用，关键现场要靠启动参数预留：`-XX:+Heap
 - JFR 开销低、可常开，JDK 11 起开源；JMC、VisualVM 需单独下载
 - 容器中 attach 失败多半是用户、PID 命名空间或 `/tmp` 不一致，进入容器执行 jcmd 或使用 jattach
 
+## 参考资料
+
+- 官方诊断工具总览：[Diagnostic Tools — Java Troubleshooting Guide](https://docs.oracle.com/en/java/javase/21/troubleshoot/diagnostic-tools.html)
+- jcmd 命令参考：[The jcmd Command](https://docs.oracle.com/en/java/javase/21/docs/specs/man/jcmd.html)
+- JFR 开源：[JEP 328: Flight Recorder](https://openjdk.org/jeps/328)
+- MAT 官方站点：[Eclipse Memory Analyzer (MAT)](https://eclipse.dev/mat/)
+- VisualVM 官方站点：[VisualVM](https://visualvm.github.io/)
+- jattach 项目：[jattach — GitHub](https://github.com/jattach/jattach)
+
 > 下一篇：[故障排查](./9_troubleshooting) —— 把这些工具串成流程，逐类处理 OOM、CPU 飙高、死锁与类加载问题。

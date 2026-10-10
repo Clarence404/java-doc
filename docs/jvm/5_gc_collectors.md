@@ -224,4 +224,13 @@ G1 记录每个 Region 的存活对象比例和历史回收耗时，每次在 `M
 - **Shenandoah** 自 JDK 13 起用 LRB 取代 Brooks 指针，同样是并发整理
 - 小配额容器可能被自动选为 Serial，生产环境**显式指定收集器**
 
+## 参考资料
+
+- 官方收集器介绍与选型：[Available Collectors](https://docs.oracle.com/en/java/javase/21/gctuning/available-collectors.html)
+- G1 并行 Full GC：[JEP 307: Parallel Full GC for G1](https://openjdk.org/jeps/307)
+- CMS 移除：[JEP 363: Remove the Concurrent Mark Sweep (CMS) Garbage Collector](https://openjdk.org/jeps/363)
+- 分代 ZGC：[JEP 439: Generational ZGC](https://openjdk.org/jeps/439)
+- 分代 ZGC 成为默认：[JEP 474: ZGC: Generational Mode by Default](https://openjdk.org/jeps/474)
+- Shenandoah：[JEP 189: Shenandoah: A Low-Pause-Time Garbage Collector](https://openjdk.org/jeps/189)
+
 > 下一篇：[GC 调优](./6_gc_tuning) —— 有了收集器，如何设定目标、读 GC 日志、调整参数。

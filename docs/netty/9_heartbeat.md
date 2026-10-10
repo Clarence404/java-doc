@@ -441,4 +441,12 @@ public class SessionCleanupHandler extends ChannelInboundHandlerAdapter {
 - 断线重连在连接失败和 `channelInactive` 时触发，指数退避 + 随机抖动 + 上限，复用 `Bootstrap` 与 `EventLoopGroup`。
 - 连接管理用 `ChannelGroup` 做广播、`ConcurrentHashMap` + `AttributeKey` 做定向推送，并在 `channelInactive` 中两参数 `remove` 清理。
 
+## 参考资料
+
+- 空闲检测 Handler：[IdleStateHandler (Netty API)](https://netty.io/4.1/api/io/netty/handler/timeout/IdleStateHandler.html)
+- TCP keepalive 参数：[tcp(7) — Linux manual page](https://man7.org/linux/man-pages/man7/tcp.7.html)
+- 连接分组与广播：[ChannelGroup (Netty API)](https://netty.io/4.1/api/io/netty/channel/group/ChannelGroup.html)
+- Channel 属性绑定：[AttributeKey (Netty API)](https://netty.io/4.1/api/io/netty/util/AttributeKey.html)
+- 断线重连所用的异步监听：[ChannelFuture (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelFuture.html)
+
 > 下一篇：[WebSocket](./10_websocket) —— 把心跳与连接管理用到浏览器长连接上，并解决集群推送问题。

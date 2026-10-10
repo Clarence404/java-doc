@@ -178,4 +178,12 @@ Linux 长期缺少成熟的网络异步 IO，所以 Linux 上的高性能网络�
 - EventLoop 是单线程 + 任务队列，Channel 终身绑定一个 EventLoop，所以 EventLoop 线程绝不能阻塞
 - Reactor 建立在同步多路复用之上，Proactor 建立在异步 IO 之上
 
+## 参考资料
+
+- Reactor 模式原始论文（Douglas C. Schmidt）：[Reactor: An Object Behavioral Pattern for Demultiplexing and Dispatching Handles for Synchronous Events](https://www.dre.vanderbilt.edu/~schmidt/PDF/reactor-siemens.pdf)
+- Proactor 模式原始论文：[Proactor: An Object Behavioral Pattern for Demultiplexing and Dispatching Handlers for Asynchronous Events](https://www.dre.vanderbilt.edu/~schmidt/PDF/Proactor.pdf)
+- 单线程 / 多线程 / 主从 Reactor 的经典讲解（Doug Lea）：[Scalable IO in Java](https://gee.cs.oswego.edu/dl/cpjslides/nio.pdf)
+- Netty 线程组 API：[EventLoopGroup (Netty API)](https://netty.io/4.1/api/io/netty/channel/EventLoopGroup.html)
+- Netty NIO 事件循环实现：[NioEventLoopGroup (Netty API)](https://netty.io/4.1/api/io/netty/channel/nio/NioEventLoopGroup.html)
+
 > 下一篇：[Netty 入门](./3_netty_desc) —— 看 Netty 如何把主从 Reactor 封装成几十行就能跑起来的服务端。

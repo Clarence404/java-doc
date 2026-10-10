@@ -292,4 +292,13 @@ for (Order o : orders) {
 - 缩小临界区、把 IO 移出锁；不要用异常做流程控制；日志用占位符 + 异步 Appender
 - 每项改动都用 JMH 或压测验证收益
 
+## 参考资料
+
+- 验证优化效果的微基准框架：[OpenJDK JMH](https://github.com/openjdk/jmh)
+- 集合类与容量：[Java SE 21: Java Collections Framework](https://docs.oracle.com/en/java/javase/21/core/java-collections-framework.html)
+- 高并发计数：[Java SE 21 API: LongAdder](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/atomic/LongAdder.html)
+- 参数化日志的性能：[SLF4J FAQ](https://www.slf4j.org/faq.html)
+- 异步日志：[Log4j 2: Asynchronous Loggers](https://logging.apache.org/log4j/2.x/manual/async.html)
+- Stream 的语义与并行流：[Java SE 21 API: java.util.stream](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/stream/package-summary.html)
+
 > 下一篇：[池化技术](./7_pooling) —— 连接、线程等昂贵资源如何复用，池子为什么不是越大越好。

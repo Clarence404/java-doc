@@ -333,4 +333,13 @@ Optional<Product> p = merger.submit(productId).get(200, TimeUnit.MILLISECONDS);
 - 批量化摊薄固定开销，批大小以压测为准、大批量分批提交
 - 请求合并的等待是"窗口 + 加载耗时"，只适合高 QPS 且下游支持批量的场景
 
+## 参考资料
+
+- 并行编排 API：[Java SE 21 API: CompletableFuture](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/CompletableFuture.html)
+- gRPC 对冲请求：[gRPC: Request Hedging](https://grpc.io/docs/guides/request-hedging/)
+- gRPC 重试、对冲与重试预算设计：[gRFC A6: gRPC Retry Design](https://github.com/grpc/proposal/blob/master/A6-client-retries.md)
+- JDBC 批量重写：[MySQL Connector/J: Performance Extensions](https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-performance-extensions.html)
+- 请求合并（Netflix 官方 Wiki）：[Hystrix: How To Use - Request Collapsing](https://github.com/Netflix/Hystrix/wiki/How-To-Use)
+- 批量加载与去重：[graphql/dataloader](https://github.com/graphql/dataloader)
+
 > 下一篇：[IO 与网络优化](./9_io_network) —— 少拷贝、少等待、少传输、少往返。

@@ -154,4 +154,12 @@ degrade:
 - `sentinel-datasource-nacos` 只从 Nacos 拉规则，控制台改规则要持久化需改造 Dashboard
 - 降级逻辑要有业务价值、不依赖故障源、可观测、定期演练
 
+## 参考资料
+
+- Sentinel 熔断降级官方文档：[Sentinel 熔断降级](https://sentinelguard.io/zh-cn/docs/circuit-breaking.html)
+- Sentinel 规则动态管理与推送：[Sentinel 动态规则扩展](https://sentinelguard.io/zh-cn/docs/dynamic-rule-configuration.html)
+- Nacos 配置中心官方文档：[什么是 Nacos](https://nacos.io/docs/latest/what-is-nacos/)
+- Resilience4j fallback 与熔断：[Resilience4j CircuitBreaker](https://resilience4j.readme.io/docs/circuitbreaker)
+- Hystrix fallback 机制（Netflix 官方 Wiki）：[Hystrix: How it Works](https://github.com/Netflix/Hystrix/wiki/How-it-Works)
+
 > 下一篇：[限流与过载保护](./7_rate_limiting) —— 从上游入口控制流量，在容量不足时有选择地拒绝请求。

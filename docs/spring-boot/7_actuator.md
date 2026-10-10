@@ -193,12 +193,12 @@ management:
     health:
       group:
         readiness:
-          include: readinessState,db,redis   # 就绪：依赖不可用就先摘流量
+          include: readinessState   # 就绪：只看本实例能否接流量（预热完成、未在停机）
         liveness:
-          include: livenessState             # 存活：只看应用自身，不放外部依赖
+          include: livenessState    # 存活：只看应用自身
 ```
 
-**外部依赖不要放进存活探针**：数据库抖动时，存活失败会让所有 Pod 被同时重启，把一次依赖故障放大成全量重启。
+**数据库、Redis 这类多个实例共享的依赖，两个探针都不要放**：放进存活探针，依赖一抖动所有 Pod 会被同时重启；放进就绪探针，所有实例会同时被摘流量，Service 后面一个可用端点都没有，局部故障被放大成整体不可用。依赖故障交给超时、熔断与降级处理，详见 [冗余与故障转移](/high-avail/2_redundancy_failover)。
 
 ### 3、K8s 配置示例
 

@@ -227,4 +227,12 @@ public class BusinessHandler extends SimpleChannelInboundHandler<Request> {
 - **EventLoop 单线程 + 任务队列**，Channel 终身绑定一个 EventLoop，换来串行无锁和消息有序
 - 外部线程操作 Channel 时把任务投递给它的 EventLoop；慢业务交给业务线程池，不要阻塞 EventLoop
 
+## 参考资料
+
+- Channel 接口：[Channel (Netty API)](https://netty.io/4.1/api/io/netty/channel/Channel.html)
+- 异步结果与监听器：[ChannelFuture (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelFuture.html)
+- EventLoopGroup 接口：[EventLoopGroup (Netty API)](https://netty.io/4.1/api/io/netty/channel/EventLoopGroup.html)
+- Netty 4 线程模型变化说明：[New and Noteworthy in 4.0](https://netty.io/wiki/new-and-noteworthy-in-4.0.html)
+- 业务线程池与 EventExecutorGroup：[EventExecutorGroup (Netty API)](https://netty.io/4.1/api/io/netty/util/concurrent/EventExecutorGroup.html)
+
 > 下一篇：[Pipeline 与 Handler](./5_pipeline_handler) —— 消息在连接上如何被一层层处理，以及 Handler 的编写规则。

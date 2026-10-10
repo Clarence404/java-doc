@@ -10,7 +10,7 @@ description: IO 模型、Reactor、ByteBuf、粘包拆包、心跳、生产调�
 
 ## 一、IO 模型
 
-### 1、一次网络读分哪两个阶段？五种 IO 模型区别在哪？
+### Q1：一次网络读分哪两个阶段？五种 IO 模型区别在哪？
 
 **一句话**：一次 `read` 分两步：先**等数据到达**内核缓冲区，再把数据**从内核拷到程序内存**。五种 IO 模型的区别，就在于这两步里程序线程是在干等还是去做别的事。
 
@@ -27,7 +27,7 @@ description: IO 模型、Reactor、ByteBuf、粘包拆包、心跳、生产调�
 
 → 详见 [IO 模型](/netty/1_io_model)
 
-### 2、BIO、NIO、AIO 的区别？为什么说 Java NIO 是"同步非阻塞"？
+### Q2：BIO、NIO、AIO 的区别？为什么说 Java NIO 是"同步非阻塞"？
 
 **一句话**：BIO 一个连接占一个线程，全程阻塞；NIO 一个线程借助 Selector 照看很多连接；AIO 由内核把数据读好再回调。NIO 的数据还是程序线程自己调 `read` 拷的，所以叫「同步非阻塞」。
 
@@ -42,7 +42,7 @@ description: IO 模型、Reactor、ByteBuf、粘包拆包、心跳、生产调�
 
 → 详见 [IO 模型](/netty/1_io_model)
 
-### 3、select、poll、epoll 的区别？epoll 为什么高效？
+### Q3：select、poll、epoll 的区别？epoll 为什么高效？
 
 **一句话**：select / poll 每次调用都要把所有连接交给内核、内核再挨个检查一遍；epoll 把「登记连接」和「等待事件」拆开，连接只登记一次，内核在数据到达时主动把就绪的连接放进一个列表，等待时只取这个列表。
 
@@ -57,7 +57,7 @@ description: IO 模型、Reactor、ByteBuf、粘包拆包、心跳、生产调�
 
 → 详见 [IO 模型](/netty/1_io_model)
 
-### 4、epoll 的 LT 和 ET 有什么区别？Netty 用哪种？
+### Q4：epoll 的 LT 和 ET 有什么区别？Netty 用哪种？
 
 **一句话**：LT（水平触发）只要缓冲区里还有没读完的数据，每次都提醒你；ET（边缘触发）只在新数据到来时提醒一次，必须一口气读到读不出为止。Netty 的 NIO 传输是 LT，原生 epoll 传输是 ET。
 
@@ -75,7 +75,7 @@ description: IO 模型、Reactor、ByteBuf、粘包拆包、心跳、生产调�
 
 ## 二、Reactor 模型
 
-### 5、Reactor 有哪三种模式？各有什么优缺点？
+### Q5：Reactor 有哪三种模式？各有什么优缺点？
 
 **一句话**：按「有几个 Reactor（事件分发线程）、业务在哪个线程跑」分成三种，演进方向是把「接新连接、读写数据、跑业务」逐步拆给不同的线程。
 
@@ -87,7 +87,7 @@ description: IO 模型、Reactor、ByteBuf、粘包拆包、心跳、生产调�
 
 → 详见 [Reactor 模型](/netty/2_reactor)
 
-### 6、Netty 用哪种 Reactor？BossGroup 和 WorkerGroup 各做什么？
+### Q6：Netty 用哪种 Reactor？BossGroup 和 WorkerGroup 各做什么？
 
 **一句话**：Netty 用两个线程组实现主从 Reactor：BossGroup 只负责接收新连接，WorkerGroup 负责已建立连接的读写和 Pipeline 处理。
 
@@ -99,7 +99,7 @@ description: IO 模型、Reactor、ByteBuf、粘包拆包、心跳、生产调�
 
 → 详见 [Reactor 模型](/netty/2_reactor)
 
-### 7、Reactor 和 Proactor 有什么区别？
+### Q7：Reactor 和 Proactor 有什么区别？
 
 **一句话**：Reactor 在「数据可以读了」时通知程序自己去读；Proactor 在「数据已经读好了」时把结果交给程序。前者基于多路复用，后者基于异步 IO。
 
@@ -117,7 +117,7 @@ description: IO 模型、Reactor、ByteBuf、粘包拆包、心跳、生产调�
 
 ## 三、Netty 入门与核心组件
 
-### 8、原生 JDK NIO 有哪些问题？Netty 如何解决？
+### Q8：原生 JDK NIO 有哪些问题？Netty 如何解决？
 
 **一句话**：JDK NIO 只给了最底层的能力，线程模型、拆包、心跳、协议都得自己写，还有 epoll 空轮询 bug；Netty 把这些都封装好了。
 
@@ -131,7 +131,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [Netty 入门](/netty/3_netty_desc)
 
-### 9、Netty 的核心组件有哪些？一次请求如何流动？
+### Q9：Netty 的核心组件有哪些？一次请求如何流动？
 
 **一句话**：Channel 是连接，EventLoop 是干活的线程，Pipeline 是处理流水线，Handler 是流水线上的一个个工位；另外 `ByteBuf` 装字节，`ChannelFuture` 拿异步结果，`Bootstrap` 负责组装启动。
 
@@ -142,7 +142,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [Netty 入门](/netty/3_netty_desc)、[Channel 与 EventLoop](/netty/4_channel_eventloop)、[Pipeline 与 Handler](/netty/5_pipeline_handler)
 
-### 10、EventLoop 的工作机制？为什么 Channel 要绑定固定的 EventLoop？
+### Q10：EventLoop 的工作机制？为什么 Channel 要绑定固定的 EventLoop？
 
 **一句话**：一个 EventLoop 就是一个线程 + 一个 Selector + 一个任务队列，在死循环里轮流处理 IO 事件和排队的任务。Channel 终身绑定一个 EventLoop，换来的是**不用加锁**和**消息有序**。
 
@@ -153,7 +153,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [Channel 与 EventLoop](/netty/4_channel_eventloop)
 
-### 11、Pipeline 中入站 / 出站事件的传播方向？`ctx.write()` 和 `channel.write()` 的区别？
+### Q11：Pipeline 中入站 / 出站事件的传播方向？`ctx.write()` 和 `channel.write()` 的区别？
 
 **一句话**：入站事件（读到数据）从 Head 往 Tail 走，出站操作（写数据）从 Tail 往 Head 走。`ctx.write()` 从**当前 Handler** 往前走，`channel.write()` 从**链尾**开始走完所有出站 Handler。
 
@@ -165,7 +165,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [Pipeline 与 Handler](/netty/5_pipeline_handler)
 
-### 12、什么样的 Handler 可以加 `@Sharable`？
+### Q12：什么样的 Handler 可以加 `@Sharable`？
 
 **一句话**：只有**不保存任何连接相关数据**、且线程安全的 Handler，才能加 `@Sharable` 让多个连接共用一个实例。`@Sharable` 只是一个声明，Netty 不会替你保证线程安全。
 
@@ -178,7 +178,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [Pipeline 与 Handler](/netty/5_pipeline_handler)
 
-### 13、为什么不能在 EventLoop 线程里阻塞？业务逻辑放在哪执行？
+### Q13：为什么不能在 EventLoop 线程里阻塞？业务逻辑放在哪执行？
 
 **一句话**：一个 EventLoop 同时服务成百上千个连接，在里面同步查库、同步调 RPC、`sleep` 或做重计算，它名下所有连接都会一起卡住。慢逻辑交给业务线程池，处理完用 `ctx.writeAndFlush()` 写回，Netty 会自动切回 EventLoop。
 
@@ -195,7 +195,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 ## 四、ByteBuf 与内存
 
-### 14、ByteBuf 相比 NIO ByteBuffer 有哪些优势？
+### Q14：ByteBuf 相比 NIO ByteBuffer 有哪些优势？
 
 **一句话**：ByteBuf 读和写各有一个指针，不用 `flip()` 切换；还能自动扩容、池化复用、按引用计数及时回收，又好用又高效。
 
@@ -211,7 +211,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [ByteBuf 与内存管理](/netty/6_bytebuf)
 
-### 15、ByteBuf 的引用计数是怎么回事？什么时候需要手动 `release`？
+### Q15：ByteBuf 的引用计数是怎么回事？什么时候需要手动 `release`？
 
 **一句话**：池化的内存不能等 GC 回收，所以用计数管理：创建时为 1，`retain()` 加 1，`release()` 减 1，减到 0 就还回池里。原则是**谁最后用，谁释放**。
 
@@ -224,7 +224,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [ByteBuf 与内存管理](/netty/6_bytebuf)
 
-### 16、如何排查 Netty 的内存泄漏？
+### Q16：如何排查 Netty 的内存泄漏？
 
 **一句话**：靠 Netty 自带的泄漏检测：ByteBuf 被 GC 回收时计数还没归零，就打一条 `LEAK:` 日志。测试环境调到最严格级别复现，按日志里的访问记录找到出问题的 Handler。
 
@@ -235,7 +235,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [ByteBuf 与内存管理](/netty/6_bytebuf)、[生产实践与调优](/netty/12_production)
 
-### 17、Netty 的零拷贝体现在哪？和操作系统零拷贝有什么区别？
+### Q17：Netty 的零拷贝体现在哪？和操作系统零拷贝有什么区别？
 
 **一句话**：分两层。操作系统层是真零拷贝：`FileRegion` 底层用 `sendfile`，文件数据从内核直接到网卡，不经过程序内存；Netty 自己这一层是「少拷贝」：在 JVM 里尽量不做多余的内存复制。
 
@@ -250,7 +250,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 ## 五、粘包拆包与协议设计
 
-### 18、什么是 TCP 粘包 / 拆包？原因是什么？为什么 UDP 没有？
+### Q18：什么是 TCP 粘包 / 拆包？原因是什么？为什么 UDP 没有？
 
 **一句话**：TCP 传的是一串连续的字节，只保证有序、不丢，不管消息从哪到哪。粘包是几条消息被一次读到，拆包是一条消息被分几次读到；UDP 一个数据报就是一条消息，天然有边界。
 
@@ -263,7 +263,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [粘包与拆包](/netty/7_stick_split)
 
-### 19、Netty 有哪些解决粘包拆包的解码器？`ByteToMessageDecoder` 如何处理半包？
+### Q19：Netty 有哪些解决粘包拆包的解码器？`ByteToMessageDecoder` 如何处理半包？
 
 **一句话**：内置四种拆帧解码器，放在 Pipeline 最前面。它们都继承 `ByteToMessageDecoder`，处理半包的办法是：把收到的数据攒在一个缓冲区里，够一帧就切出来，不够就先留着，等下次数据到了再拼。
 
@@ -275,7 +275,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [粘包与拆包](/netty/7_stick_split)
 
-### 20、`LengthFieldBasedFrameDecoder` 的五个参数如何配置？
+### Q20：`LengthFieldBasedFrameDecoder` 的五个参数如何配置？
 
 **一句话**：五个参数说清楚四件事：长度字段在哪、占几个字节、它的值代表多长、切出来后要不要去掉帧头。核心公式：**整帧长度 = lengthFieldOffset + lengthFieldLength + 长度字段的值 + lengthAdjustment**。
 
@@ -289,7 +289,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [自定义私有协议](/netty/8_custom_protocol)
 
-### 21、设计私有协议需要哪些字段？一条连接上如何让请求和响应一一对应？
+### Q21：设计私有协议需要哪些字段？一条连接上如何让请求和响应一一对应？
 
 **一句话**：帧头的每个字段都在回答「接收方要知道什么才能正确处理这条消息」：魔数、版本、消息类型、长度是必备的，RPC 还要请求 ID 和序列化方式。请求和响应靠帧头里的请求 ID 对上。
 
@@ -302,7 +302,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 ## 六、长连接与推送
 
-### 22、有了 TCP keepalive 为什么还要应用层心跳？`IdleStateHandler` 的作用？
+### Q22：有了 TCP keepalive 为什么还要应用层心跳？`IdleStateHandler` 的作用？
 
 **一句话**：对方宕机、断网时连接可能悄无声息地断掉（半开连接）。TCP keepalive 默认空闲 2 小时才探测，而且只能确认对方系统还在，发现不了进程卡死，所以要自己做应用层心跳。`IdleStateHandler` 不发心跳，只负责计时，空闲超时就发出一个事件。
 
@@ -318,7 +318,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [心跳与连接管理](/netty/9_heartbeat)
 
-### 23、客户端断线重连应该如何实现？
+### Q23：客户端断线重连应该如何实现？
 
 **一句话**：在连接失败和连接断开（`channelInactive`）两个时机触发重连，用 `eventLoop().schedule()` 延迟执行，间隔逐次翻倍、加随机抖动、设上限，并复用同一个 `Bootstrap` 和线程组。
 
@@ -331,7 +331,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [心跳与连接管理](/netty/9_heartbeat)
 
-### 24、WebSocket、SSE、HTTP 长轮询的区别？各适合什么场景？
+### Q24：WebSocket、SSE、HTTP 长轮询的区别？各适合什么场景？
 
 **一句话**：要双向实时通信选 WebSocket；只需要服务端往下推，优先 SSE，更简单，浏览器还会自动重连；长轮询只作兼容兜底。
 
@@ -347,7 +347,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [WebSocket](/netty/10_websocket)、[SSE](/netty/11_sse)
 
-### 25、WebSocket 集群部署时，如何推送到连在其他节点上的用户？
+### Q25：WebSocket 集群部署时，如何推送到连在其他节点上的用户？
 
 **一句话**：用户连在哪台机器上，只有那台机器知道。办法有两种：**广播给所有节点，谁持有这个连接谁下发**；或者**记一张「用户 → 节点」路由表，直接发给对应节点**。
 
@@ -364,7 +364,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 ## 七、生产实践
 
-### 26、Netty 服务上线前需要调整哪些参数？
+### Q26：Netty 服务上线前需要调整哪些参数？
 
 **一句话**：大多数保持默认，重点确认线程数、Linux 原生传输、连接队列长度、`TCP_NODELAY`、客户端连接超时和写水位；拿不准默认值的一律显式设置，同时限制直接内存。
 
@@ -378,7 +378,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 → 详见 [生产实践与调优](/netty/12_production)
 
-### 27、对端消费很慢时一直 `writeAndFlush` 会怎样？如何做背压？
+### Q27：对端消费很慢时一直 `writeAndFlush` 会怎样？如何做背压？
 
 **一句话**：`writeAndFlush` 不会阻塞也不会拒绝，对方收得慢时数据就在 Netty 的发送缓冲区里无限堆积，最后撑爆直接内存。写水位只是一个信号，业务必须自己在写之前检查 `isWritable()`。
 
@@ -393,7 +393,7 @@ if (!ch.isWritable()) { ReferenceCountUtil.release(msg); return false; }   // �
 
 → 详见 [生产实践与调优](/netty/12_production)
 
-### 28、Netty 服务如何优雅停机？
+### Q28：Netty 服务如何优雅停机？
 
 **一句话**：先把流量摘掉、关掉监听端口不再接新连接，再通知已有连接下线并等在途请求处理完，最后按 boss → worker → 业务线程池的顺序关闭。
 
@@ -404,7 +404,7 @@ if (!ch.isWritable()) { ReferenceCountUtil.release(msg); return false; }   // �
 
 → 详见 [生产实践与调优](/netty/12_production)
 
-### 29、Netty 开发中有哪些常见的坑？
+### Q29：Netty 开发中有哪些常见的坑？
 
 **一句话**：集中在四类：阻塞了 EventLoop、ByteBuf 没释放或重复释放、Pipeline 和 Handler 用错、长连接没治理（不控写速度、不设心跳、不限帧长度）。
 

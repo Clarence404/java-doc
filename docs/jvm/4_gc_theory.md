@@ -238,4 +238,11 @@ ZGC 不使用 SATB，它的并发标记与并发重定位依靠染色指针和�
 - `DisableExplicitGC` 可能导致 **Direct buffer memory OOM**，要避免显式 Full GC 应改用 `ExplicitGCInvokesConcurrent`
 - 并发标记的漏标需要两个条件同时成立：**增量更新**（CMS）破坏条件一，**SATB**（G1、Shenandoah）破坏条件二
 
+## 参考资料
+
+- HotSpot GC 基础与分代：[HotSpot Virtual Machine Garbage Collection Tuning Guide](https://docs.oracle.com/en/java/javase/21/gctuning/introduction-garbage-collection-tuning.html)
+- HotSpot 分代实现与 GC 触发：[Garbage Collector Implementation](https://docs.oracle.com/en/java/javase/21/gctuning/garbage-collector-implementation.html)
+- 引用类型：[java.lang.ref (Java SE 21 API)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/ref/package-summary.html)
+- 显式 GC 相关参数：[The java Command](https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html)
+
 > 下一篇：[GC 收集器](./5_gc_collectors) —— 从 Serial 到分代 ZGC，看这些理论如何落到每一款收集器上。

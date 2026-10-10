@@ -194,4 +194,12 @@ Resilience4j 注解叠加时，默认执行顺序由外到内为 `Retry → Circ
 - 选型先比较 Sentinel 与 Resilience4j：Resilience4j 是受 Hystrix 启发的独立项目，同时提供信号量与线程池两种隔离
 - Feign + Sentinel 的资源名形如 `GET:http://order-service/api/orders/{id}`，框架代码集中在 Spring Cloud Alibaba 篇
 
+## 参考资料
+
+- 熔断器模式概念：[Martin Fowler: CircuitBreaker](https://martinfowler.com/bliki/CircuitBreaker.html)
+- Sentinel 熔断降级官方文档：[Sentinel 熔断降级](https://sentinelguard.io/zh-cn/docs/circuit-breaking.html)
+- Resilience4j 熔断器官方文档：[Resilience4j CircuitBreaker](https://resilience4j.readme.io/docs/circuitbreaker)
+- Hystrix 工作原理（Netflix 官方 Wiki）：[Hystrix: How it Works](https://github.com/Netflix/Hystrix/wiki/How-it-Works)
+- Spring Cloud 熔断抽象：[Spring Cloud Circuit Breaker](https://docs.spring.io/spring-cloud-circuitbreaker/reference/)
+
 > 下一篇：[降级](./6_degradation) —— 熔断之后返回什么，以及如何主动放弃非核心功能保住主链路。

@@ -190,4 +190,13 @@ Java AIO（NIO.2）在 Windows 上基于 IOCP，是真正的异步；但在 Linu
 - JDK NIO 使用 LT 模式，Netty 原生 epoll 传输使用 ET 模式
 - 只有 AIO 是异步 IO，Java NIO 与 Netty 都是同步非阻塞 + 多路复用
 
+## 参考资料
+
+- select(2) 系统调用手册：[select(2) — Linux manual page](https://man7.org/linux/man-pages/man2/select.2.html)
+- poll(2) 系统调用手册：[poll(2) — Linux manual page](https://man7.org/linux/man-pages/man2/poll.2.html)
+- epoll 原理与 LT / ET 触发模式：[epoll(7) — Linux manual page](https://man7.org/linux/man-pages/man7/epoll.7.html)
+- Java NIO 多路复用器：[Selector (Java SE 21 API)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/channels/Selector.html)
+- Java AIO 异步通道：[AsynchronousChannel (Java SE 21 API)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/channels/AsynchronousChannel.html)
+- Netty 原生 epoll 传输：[Netty Native Transports](https://netty.io/wiki/native-transports.html)
+
 > 下一篇：[Reactor 模型](./2_reactor) —— 多路复用拿到了就绪事件，接下来要用什么线程结构去处理它们。

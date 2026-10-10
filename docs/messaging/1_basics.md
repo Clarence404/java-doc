@@ -280,4 +280,13 @@ TCC、Saga 等完整的分布式事务方案见 [分布式 · 分布式事务](/
 - 积压先扩容、隔离毒丸、降级止血，再查消费能力与下游瓶颈
 - 失败走**退避重试 + 死信**；跨库一致性用**本地消息表或事务消息**，不要在 DB 事务里直接发消息
 
+## 参考资料
+
+- 消息模型与通道模式：[Enterprise Integration Patterns: Messaging Patterns](https://www.enterpriseintegrationpatterns.com/patterns/messaging/)
+- Kafka 投递语义：[Kafka Documentation: Message Delivery Semantics](https://kafka.apache.org/documentation/#semantics)
+- RabbitMQ 可靠性（确认、持久化）：[RabbitMQ: Reliability Guide](https://www.rabbitmq.com/docs/reliability)
+- RabbitMQ 死信：[RabbitMQ: Dead Letter Exchanges](https://www.rabbitmq.com/docs/dlx)
+- RocketMQ 事务消息：[RocketMQ: Transaction Message](https://rocketmq.apache.org/docs/featureBehavior/04transactionmessage/)
+- 本地消息表（事务发件箱）：[Pattern: Transactional Outbox](https://microservices.io/patterns/data/transactional-outbox.html)
+
 > 下一篇：[Kafka](./2_kafka) —— 以分区日志为核心的事件流平台，看它如何把吞吐、持久化与回放做到极致。

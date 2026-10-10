@@ -94,4 +94,13 @@ Kafka 社区也在补齐"队列语义"：KIP-932（Share Group，即 Queues for 
 - Kafka 用 Share Group 补齐逐条确认的队列语义，生产使用前要确认版本状态
 - Redis Stream、NATS、Artemis、MQTT Broker、云托管服务各有细分场景，通用业务 MQ 仍以三大 MQ 为主
 
+## 参考资料
+
+- Pulsar 架构（存算分离）：[Pulsar: Architecture Overview](https://pulsar.apache.org/docs/next/concepts-architecture-overview/)
+- Pulsar 订阅模式与确认：[Pulsar: Messaging Concepts](https://pulsar.apache.org/docs/next/concepts-messaging/)
+- Kafka Share Group：[KIP-932: Queues for Kafka](https://cwiki.apache.org/confluence/display/KAFKA/KIP-932%3A+Queues+for+Kafka)
+- Redis Stream：[Redis Streams — Redis Docs](https://redis.io/docs/latest/develop/data-types/streams/)
+- NATS 官方文档：[NATS Docs](https://docs.nats.io/)
+- ActiveMQ Artemis：[Apache ActiveMQ Artemis](https://activemq.apache.org/components/artemis/)
+
 > 下一篇：[MQ 选型](./6_selection) —— 把三大 MQ 的差异收拢到一张表里，按场景给出选型建议与常见误区。

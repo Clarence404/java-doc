@@ -87,4 +87,11 @@ MQ 选型真正起作用的往往不是"谁性能最高"，而是**消息语义*
 - Pulsar 适合多租户、跨地域复制的平台型场景，普通业务项目仍以三大 MQ 为主（见 [其他 MQ](./5_other_mq)）
 - 选型先看语义硬需求，再看量级，最后看团队与生态；无论选哪种，消费幂等与可靠投递都要业务自己兜底
 
+## 参考资料
+
+- Kafka 官方文档：[Apache Kafka Documentation](https://kafka.apache.org/documentation/)
+- RocketMQ 官方文档：[Apache RocketMQ Docs](https://rocketmq.apache.org/docs/)
+- RabbitMQ 官方文档：[RabbitMQ Documentation](https://www.rabbitmq.com/docs)
+- Pulsar 官方文档：[Apache Pulsar Docs](https://pulsar.apache.org/docs/)
+
 > 学完本模块，可到面试题解复习：[消息队列面试题解答](/interview/9_mq) —— 高频问题与标准答案汇总。

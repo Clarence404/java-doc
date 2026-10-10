@@ -232,4 +232,12 @@ public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 - 数据同步要处理复制回环、写冲突、主键冲突和延迟；计划内切流先禁写、再追平、后切路由
 - 跨地域调度用带健康检查的 GSLB / HTTPDNS，精确路由在网关；没有常态化演练的多活只是昂贵的冷备
 
+## 参考资料
+
+- RPO / RTO 与业务连续性：[AWS: Business Continuity Plan (BCP)](https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/business-continuity-plan-bcp.html)
+- 备份恢复、主备、多活等容灾方案对比：[AWS: Disaster Recovery Options in the Cloud](https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html)
+- MySQL 复制官方文档：[MySQL 8.4 Reference Manual: Replication](https://dev.mysql.com/doc/refman/8.4/en/replication.html)
+- 基于 binlog 的增量订阅：[alibaba/canal](https://github.com/alibaba/canal)
+- 跨机房数据同步：[alibaba/otter](https://github.com/alibaba/otter)
+
 > 下一篇：[混沌工程](./10_chaos_engineering) —— 主动注入故障，验证冗余、熔断、降级和切流预案真的有效。

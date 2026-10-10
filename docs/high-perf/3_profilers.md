@@ -143,4 +143,13 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr
 - 按问题选事件：CPU 高用 `cpu`，CPU 低但慢用 `wall`，GC 频繁用 `alloc`，锁竞争用 `lock`
 - JFR 适合常驻录制、事后回溯；JProfiler 适合测试环境深度分析
 
+## 参考资料
+
+- async-profiler 官方仓库与文档：[async-profiler](https://github.com/async-profiler/async-profiler)
+- 火焰图原作者说明：[Brendan Gregg: Flame Graphs](https://www.brendangregg.com/flamegraphs.html)
+- JFR 进入 OpenJDK：[JEP 328: Flight Recorder](https://openjdk.org/jeps/328)
+- JFR 启动与 dump 命令：[Java SE 21: The jcmd Command](https://docs.oracle.com/en/java/javase/21/docs/specs/man/jcmd.html)
+- JFR 文件分析工具：[JDK Mission Control](https://www.oracle.com/java/technologies/jdk-mission-control.html)
+- JProfiler 官方站点：[ej-technologies JProfiler](https://www.ej-technologies.com/jprofiler)
+
 > 下一篇：[基准测试（JMH）](./4_benchmark) —— Profiler 找到热点后，用 JMH 可靠地比较不同实现。

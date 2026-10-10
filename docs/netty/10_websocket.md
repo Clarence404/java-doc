@@ -492,4 +492,12 @@ HTTP 升级与 TCP 基础可参考 [HTTP](/protocols/2_http) 与 [TCP 与 UDP](/
 - Spring 中注意 `sendMessage` 非线程安全、`Origin` 必须校验；STOMP 适合订阅 / 发布场景。
 - 集群推送三选一：Redis Pub/Sub 广播、MQ 广播、路由表定向转发；Nginx 需透传升级头并调大 `proxy_read_timeout`。
 
+## 参考资料
+
+- WebSocket 协议规范（握手、帧格式、Ping / Pong）：[RFC 6455: The WebSocket Protocol](https://www.rfc-editor.org/rfc/rfc6455)
+- Netty WebSocket 协议处理器：[WebSocketServerProtocolHandler (Netty API)](https://netty.io/4.1/api/io/netty/handler/codec/http/websocketx/WebSocketServerProtocolHandler.html)
+- Spring WebSocket / STOMP / SockJS：[Spring Framework Reference: WebSockets](https://docs.spring.io/spring-framework/reference/web/websocket.html)
+- Nginx 代理 WebSocket：[NGINX: WebSocket proxying](https://nginx.org/en/docs/http/websocket.html)
+- Redis 发布订阅：[Redis Pub/Sub](https://redis.io/docs/latest/develop/interact/pubsub/)
+
 > 下一篇：[SSE（Server-Sent Events）](./11_sse) —— 只需服务端单向推送时，更轻量的 HTTP 流式方案。

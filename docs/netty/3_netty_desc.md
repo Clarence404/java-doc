@@ -235,4 +235,12 @@ TCP 是字节流，没有消息边界，一次读到的数据可能是半行，�
 - 请求流动路径：boss accept → 注册到 worker EventLoop → 入站解码 → 业务 Handler → 出站编码 → flush 写入 Socket
 - `option()` 作用于监听 Channel，`childOption()` 作用于每个客户端连接
 
+## 参考资料
+
+- Netty 官网：[Netty Project](https://netty.io/)
+- 官方入门教程：[Netty User Guide for 4.x](https://netty.io/wiki/user-guide-for-4.x.html)
+- 服务端启动器 API：[ServerBootstrap (Netty API)](https://netty.io/4.1/api/io/netty/bootstrap/ServerBootstrap.html)
+- Channel 参数选项：[ChannelOption (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelOption.html)
+- Netty 源码仓库：[netty/netty — GitHub](https://github.com/netty/netty)
+
 > 下一篇：[Channel 与 EventLoop](./4_channel_eventloop) —— 深入连接与线程两个核心抽象，弄清 EventLoop 的线程模型细节。

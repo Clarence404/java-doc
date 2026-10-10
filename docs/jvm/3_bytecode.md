@@ -178,4 +178,13 @@ javac 编译时做两件事：把 Lambda 体生成为本类的私有方法（如
 - Lambda 首次执行 `invokedynamic` 时由 `LambdaMetafactory` 生成实现类并链接调用点，之后直接复用；函数式方法本身经 `invokeinterface` 调用
 - 执行引擎默认混合模式：解释器保证启动，JIT 负责峰值性能
 
+## 参考资料
+
+- JVM 规范：Class 文件格式：[JVMS §4 The class File Format](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html)
+- JVM 规范：栈帧：[JVMS §2.6 Frames](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-2.html#jvms-2.6)
+- JVM 规范：指令集：[JVMS §6 The Java Virtual Machine Instruction Set](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-6.html)
+- invokedynamic 的来源：[JSR 292: Supporting Dynamically Typed Languages on the Java Platform](https://jcp.org/en/jsr/detail?id=292)
+- Lambda 实现类的生成：[LambdaMetafactory (Java SE 21 API)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/invoke/LambdaMetafactory.html)
+- 隐藏类：[JEP 371: Hidden Classes](https://openjdk.org/jeps/371)
+
 > 下一篇：[GC 原理](./4_gc_theory) —— 对象不再被使用后，JVM 如何判断它已死亡、又用哪些算法回收内存。

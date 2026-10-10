@@ -116,7 +116,7 @@ management:
   endpoint:
     health:
       probes:
-        enabled: true            # 暴露 /actuator/health/liveness 与 /readiness（K8s 环境下自动开启）
+        enabled: true            # 暴露 /actuator/health/liveness 与 /readiness（Boot 4 起默认开启）
         add-additional-paths: true   # 同时在主端口暴露 /livez、/readyz
       group:
         readiness:
@@ -302,5 +302,14 @@ min-replicas-max-lag 10
 - 健康检查主动与被动结合；liveness 只查进程自身，readiness 只查本实例能否接流量，二者都不应包含 DB、Redis 等共享依赖
 - 自动切换依赖多数派，必须配合 fencing 等手段防脑裂；注册中心有感知延迟，调用方要用超时、重试其他实例与熔断兜底
 - 依赖治理：梳理强弱依赖并用故障注入验证，为每个依赖写好预案，非核心依赖异步化
+
+## 参考资料
+
+- Kubernetes 存活、就绪与启动探针：[Configure Liveness, Readiness and Startup Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
+- Keepalived 官方文档（VRRP 故障转移）：[Keepalived User Guide](https://keepalived.readthedocs.io/en/latest/)
+- VRRP 协议规范：[RFC 5798: Virtual Router Redundancy Protocol Version 3](https://www.rfc-editor.org/rfc/rfc5798)
+- Raft 选主与日志复制原始论文：[In Search of an Understandable Consensus Algorithm](https://raft.github.io/raft.pdf)
+- Redis Sentinel 官方文档：[High availability with Redis Sentinel](https://redis.io/docs/latest/operate/oss_and_stack/management/sentinel/)
+- MySQL 复制官方文档：[MySQL 8.4 Reference Manual: Replication](https://dev.mysql.com/doc/refman/8.4/en/replication.html)
 
 > 下一篇：[负载均衡](./3_load_balancing) —— 有了多个实例，如何把请求分得均匀，并把故障实例及时摘掉。

@@ -257,4 +257,13 @@ JDK 21 不可用。与 AppCDS、CRaC 的选型对比见 [JVM 层性能策略](/h
 - 逃逸分析在 HotSpot 中通过标量替换消除分配、同步消除去掉锁，没有真正的栈上分配
 - Code Cache 满会停止编译；缩短启动与预热可选 AOT 缓存（JDK 24+）、Native Image 等，Graal JIT 需用 GraalVM 发行版
 
+## 参考资料
+
+- JIT 相关参数（分层编译、Code Cache）：[The java Command](https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html)
+- 分段代码缓存：[JEP 197: Segmented Code Cache](https://openjdk.org/jeps/197)
+- Graal JIT 与 jaotc 的移除：[JEP 410: Remove the Experimental AOT and JIT Compiler](https://openjdk.org/jeps/410)
+- AOT 类加载与链接：[JEP 483: Ahead-of-Time Class Loading & Linking](https://openjdk.org/jeps/483)
+- AOT 命令行易用性：[JEP 514: Ahead-of-Time Command-Line Ergonomics](https://openjdk.org/jeps/514)
+- GraalVM Native Image：[Native Image — GraalVM Reference Manual](https://www.graalvm.org/latest/reference-manual/native-image/)
+
 > 下一篇：[诊断工具](./8_monitoring_tools) —— 从 jcmd、jstack、jmap 到 JFR 与 NMT，看清运行中的 JVM。

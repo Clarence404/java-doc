@@ -137,4 +137,11 @@ ActiveMQ（Classic）属于早期 MQ，吞吐明显低于上表中的 MQ，新�
 - Little 定律 `L = λW`：RT 上升会吃掉容量，降低 RT 等价于扩容
 - 组件量级只用于发现数量级错误，最终以压测为准
 
+## 参考资料
+
+- USE 方法（资源利用率、饱和度、错误）：[Brendan Gregg: The USE Method](https://www.brendangregg.com/usemethod.html)
+- 直方图与分位数的计算与误差：[Prometheus: Histograms and Summaries](https://prometheus.io/docs/practices/histograms/)
+- 应用侧分位数与 SLO 直方图：[Micrometer: Histograms and Percentiles](https://docs.micrometer.io/micrometer/reference/concepts/histogram-quantiles.html)
+- 高精度延迟记录：[HdrHistogram](https://github.com/HdrHistogram/HdrHistogram)
+
 > 下一篇：[性能分析方法论](./2_methodology) —— 有了指标，下一步是用 USE / RED 与自顶向下流程找到瓶颈。

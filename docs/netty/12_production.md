@@ -416,4 +416,13 @@ public static void registerPendingTasks(MeterRegistry registry, EventLoopGroup g
 - 内存与停机：限制直接内存、测试环境 `PARANOID` 泄漏检测；停机先关端口、通知连接，再依次 `shutdownGracefully`。
 - 上线前对照监控指标与常见坑表逐项检查。
 
+## 参考资料
+
+- 原生传输：[Netty Native Transports](https://netty.io/wiki/native-transports.html)
+- 连接参数：[ChannelOption (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelOption.html)
+- 写水位线：[WriteBufferWaterMark (Netty API)](https://netty.io/4.1/api/io/netty/channel/WriteBufferWaterMark.html)
+- flush 合并：[FlushConsolidationHandler (Netty API)](https://netty.io/4.1/api/io/netty/handler/flush/FlushConsolidationHandler.html)
+- 泄漏检测级别：[ResourceLeakDetector (Netty API)](https://netty.io/4.1/api/io/netty/util/ResourceLeakDetector.html)
+- 优雅停机 shutdownGracefully：[EventExecutorGroup (Netty API)](https://netty.io/4.1/api/io/netty/util/concurrent/EventExecutorGroup.html)
+
 > 回到 [模块总览](./0_overview) 查看完整学习路径，或前往 [Netty 面试题解答](/interview/6_netty) 复习高频问题。

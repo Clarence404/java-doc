@@ -189,4 +189,13 @@ GC 参数细节见 [GC 调优](/jvm/6_gc_tuning)，工具见 [JVM 诊断工具](
 - 冷启动毛刺用"预热流量 + 就绪后置 + 预热权重"解决；AppCDS 缩短启动，CRaC / Leyden 按成熟度谨慎选用
 - 常开 GC 日志，先确认 GC 与 P99 相关再调优，每次只改一个参数
 
+## 参考资料
+
+- 收集器选择与调优：[HotSpot Virtual Machine Garbage Collection Tuning Guide (Java 21)](https://docs.oracle.com/en/java/javase/21/gctuning/)
+- 分代 ZGC：[JEP 439: Generational ZGC](https://openjdk.org/jeps/439)
+- -Xlog 统一日志与 MaxRAMPercentage 等参数：[Java SE 21: The java Command](https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html)
+- 堆外内存排查：[Java SE 21: Native Memory Tracking](https://docs.oracle.com/en/java/javase/21/vm/native-memory-tracking.html)
+- AOT 类加载与链接（Leyden）：[JEP 483: Ahead-of-Time Class Loading & Linking](https://openjdk.org/jeps/483)
+- 检查点恢复：[OpenJDK Project CRaC](https://openjdk.org/projects/crac/)
+
 > 下一篇：[代码级优化](./6_code_optimization) —— 回到代码本身：对象、集合、字符串、锁等热点路径上的具体手段。

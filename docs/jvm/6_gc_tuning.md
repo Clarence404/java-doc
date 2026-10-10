@@ -308,4 +308,12 @@ java -Xms4g -Xmx4g \
 - OOM 后用 **`ExitOnOutOfMemoryError`** 退出并由编排系统重启；容器中用 **`MaxRAMPercentage`** 并给堆外留余量
 - ZGC 重点是给足堆空间，JDK 23+ 只需 `-XX:+UseZGC`
 
+## 参考资料
+
+- G1 调优官方指南：[Garbage-First (G1) Garbage Collector Tuning](https://docs.oracle.com/en/java/javase/21/gctuning/garbage-first-garbage-collector-tuning.html)
+- ZGC 官方指南：[The Z Garbage Collector](https://docs.oracle.com/en/java/javase/21/gctuning/z-garbage-collector.html)
+- JVM 参数参考（含 MaxRAMPercentage、OOM 相关参数）：[The java Command](https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html)
+- 统一日志 -Xlog：[JEP 158: Unified JVM Logging](https://openjdk.org/jeps/158)
+- 分代 ZGC 成为默认：[JEP 474: ZGC: Generational Mode by Default](https://openjdk.org/jeps/474)
+
 > 下一篇：[JIT 编译](./7_jit) —— GC 管内存，JIT 管执行速度：热点代码如何被编译成机器码。

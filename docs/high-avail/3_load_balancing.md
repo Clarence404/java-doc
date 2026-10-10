@@ -137,4 +137,12 @@ SCL 的常用能力：
 - 会话保持是补丁，优先无状态化
 - 微服务间多用客户端负载均衡，SCL 内置区域优先与 Hint 路由；灰度路由需要全链路透传标记
 
+## 参考资料
+
+- Nginx 负载均衡入门：[Using nginx as HTTP load balancer](https://nginx.org/en/docs/http/load_balancing.html)
+- Nginx upstream 模块参数（max_fails、least_conn 等）：[Module ngx_http_upstream_module](https://nginx.org/en/docs/http/ngx_http_upstream_module.html)
+- P2C 原始论文：[The Power of Two Choices in Randomized Load Balancing](https://www.eecs.harvard.edu/~michaelm/postscripts/tpds2001.pdf)
+- Spring Cloud LoadBalancer 官方文档：[Spring Cloud LoadBalancer](https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/loadbalancer.html)
+- Kubernetes 水平自动扩缩容：[Horizontal Pod Autoscaling](https://kubernetes.io/docs/concepts/workloads/autoscaling/horizontal-pod-autoscale/)
+
 > 下一篇：[超时、重试与隔离](./4_timeout_retry_bulkhead) —— 实例选好了，调用下游时如何不被慢依赖拖垮。

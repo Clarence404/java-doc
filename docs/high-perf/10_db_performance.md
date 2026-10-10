@@ -175,4 +175,13 @@ orders.forEach(o -> o.setItems(itemMap.getOrDefault(o.getId(), List.of())));
 - N+1 用 `IN` 批量查询 + 内存组装解决，靠 SQL 条数统计发现
 - 大 IN 列表分批，避免超过 `eq_range_index_dive_limit` 后执行计划变差
 
+## 参考资料
+
+- MySQL 慢查询日志：[MySQL 8.4 Reference Manual: The Slow Query Log](https://dev.mysql.com/doc/refman/8.4/en/slow-query-log.html)
+- EXPLAIN 输出解读：[MySQL 8.4 Reference Manual: EXPLAIN Output Format](https://dev.mysql.com/doc/refman/8.4/en/explain-output.html)
+- LIMIT 查询优化：[MySQL 8.4 Reference Manual: LIMIT Query Optimization](https://dev.mysql.com/doc/refman/8.4/en/limit-optimization.html)
+- rewriteBatchedStatements 等批量参数：[MySQL Connector/J: Performance Extensions](https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-performance-extensions.html)
+- Hibernate 抓取策略与批量处理：[Hibernate ORM 6.6 User Guide](https://docs.hibernate.org/orm/6.6/userguide/html_single/)
+- MyBatis 映射文件（foreach、关联查询）：[MyBatis 3: Mapper XML Files](https://mybatis.org/mybatis-3/sqlmap-xml.html)
+
 > 下一篇：[端到端优化案例](./11_case_study) —— 把前面各篇的方法串成一次完整的接口优化。

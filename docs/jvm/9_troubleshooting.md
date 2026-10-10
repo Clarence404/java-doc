@@ -328,4 +328,12 @@ Arthas 的 `sc -d <类名>` 可查看已加载类的来源 jar 与类加载器�
 - CPU 高先分清业务、GC、JIT 线程；死锁线程 BLOCKED 不耗 CPU，用 `jstack -l` 检测
 - `NoClassDefFoundError` 分"运行期缺类"和"静态初始化失败"两种，后者要往前找 `ExceptionInInitializerError`
 
+## 参考资料
+
+- 内存泄漏与各类 OOM 排查：[Troubleshoot Memory Leaks — Java Troubleshooting Guide](https://docs.oracle.com/en/java/javase/21/troubleshoot/troubleshooting-memory-leaks.html)
+- 通用排查方法（死锁、挂起、CPU）：[General Java Troubleshooting](https://docs.oracle.com/en/java/javase/21/troubleshoot/general-java-troubleshooting.html)
+- 线程转储与死锁检测：[The jstack Command](https://docs.oracle.com/en/java/javase/21/docs/specs/man/jstack.html)
+- OOM 相关启动参数：[The java Command](https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html)
+- 容器内存限制与 OOMKilled：[Resource Management for Pods and Containers — Kubernetes](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+
 > 返回：[JVM 总览](./0_overview) —— 回顾模块全貌与推荐阅读路径。

@@ -244,4 +244,13 @@ WebApp ClassLoader 的查找顺序：JDK 类先交给上层加载，防止应用
 - JDK 9+ 加载器为 Bootstrap / Platform / Application，委派前先按模块定位加载器；类的唯一性 = 全限定名 + 类加载器
 - 双亲委派保证核心类安全与唯一；SPI 借 TCCL 反向加载，Tomcat 以"先自己后父亲"实现应用隔离
 
+## 参考资料
+
+- JVM 规范：加载、链接与初始化：[JVMS §5 Loading, Linking, and Initializing](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-5.html)
+- 语言规范：类的初始化时机：[JLS §12 Execution](https://docs.oracle.com/javase/specs/jls/se21/html/jls-12.html)
+- 类加载器 API 与委派模型：[ClassLoader (Java SE 21 API)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/ClassLoader.html)
+- 模块系统与加载器调整：[JEP 261: Module System](https://openjdk.org/jeps/261)
+- SPI 加载机制：[ServiceLoader (Java SE 21 API)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html)
+- Tomcat 类加载器体系：[Apache Tomcat 10.1 Class Loader How-To](https://tomcat.apache.org/tomcat-10.1-doc/class-loader-howto.html)
+
 > 下一篇：[字节码执行](./3_bytecode) —— 类加载完成后，方法里的字节码长什么样、JVM 又是如何执行它的。

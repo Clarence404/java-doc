@@ -182,4 +182,13 @@ List<OrderVO> vos = orders.stream()
 - 压缩和序列化都是 CPU 与带宽的交换，小响应和已压缩内容不压缩
 - 减少往返次数往往比优化单次调用收益更大
 
+## 参考资料
+
+- Linux sendfile 系统调用：[sendfile(2) — Linux manual page](https://man7.org/linux/man-pages/man2/sendfile.2.html)
+- Java 零拷贝 API（transferTo / map）：[FileChannel (Java SE 21 API)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/channels/FileChannel.html)
+- HTTP/2 协议规范：[RFC 9113: HTTP/2](https://www.rfc-editor.org/rfc/rfc9113)
+- HTTP/3 协议规范：[RFC 9114: HTTP/3](https://www.rfc-editor.org/rfc/rfc9114)
+- Brotli 压缩格式：[RFC 7932: Brotli Compressed Data Format](https://www.rfc-editor.org/rfc/rfc7932)
+- Protobuf 官方文档：[Protocol Buffers Documentation](https://protobuf.dev/)
+
 > 下一篇：[数据访问性能](./10_db_performance) —— 慢 SQL 治理闭环、深分页、批量写与 N+1。

@@ -214,4 +214,12 @@ System.out.println(s4 == "abc");  // JDK 7+ 为 true；JDK 6 复制到永久代�
 - 对象分配走 TLAB → Eden 共享区 → Young GC；TLAB 大小自适应
 - 晋升看年龄阈值、动态年龄（累计超过 `TargetSurvivorRatio`）与大对象规则；`PretenureSizeThreshold` 只对 Serial / ParNew 有效，G1 用 Humongous 对象
 
+## 参考资料
+
+- JVM 规范：运行时数据区：[JVMS §2 The Structure of the Java Virtual Machine](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-2.html)
+- HotSpot 分代与内存管理：[HotSpot Virtual Machine Garbage Collection Tuning Guide](https://docs.oracle.com/en/java/javase/21/gctuning/introduction-garbage-collection-tuning.html)
+- 永久代移除与元空间：[JEP 122: Remove the Permanent Generation](https://openjdk.org/jeps/122)
+- 紧凑对象头（实验）：[JEP 450: Compact Object Headers (Experimental)](https://openjdk.org/jeps/450)
+- 紧凑对象头转正：[JEP 519: Compact Object Headers](https://openjdk.org/jeps/519)
+
 > 下一篇：[类加载机制](./2_class_loading) —— 元空间里的类元数据是怎么来的：类从 `.class` 文件到可用 `Class` 对象的全过程。

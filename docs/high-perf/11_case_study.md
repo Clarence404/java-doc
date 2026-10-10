@@ -221,4 +221,13 @@ description: 把前面各篇串起来：基线 → 火焰图 → 逐层优化 �
 - 本例收益最大的是 N+1 批量化和把 RPC 移出事务，都属于"减少等待"
 - 不做没有数据支撑的优化，GC 调参就是反例；全模块内容回顾见 [模块总览](./0_overview)
 
+## 参考资料
+
+- 火焰图采样工具：[async-profiler](https://github.com/async-profiler/async-profiler)
+- 使用 JFR 排查性能问题：[Oracle: Troubleshoot Performance Issues Using JFR](https://docs.oracle.com/en/java/javase/21/troubleshoot/troubleshoot-performance-issues-using-jfr.html)
+- 微基准测试框架：[OpenJDK JMH](https://github.com/openjdk/jmh)
+- 并行调用与 orTimeout 语义：[Java SE 21 API: CompletableFuture](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/CompletableFuture.html)
+- JDBC 批量重写参数：[MySQL Connector/J: Performance Extensions](https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-performance-extensions.html)
+- 本地缓存：[ben-manes/caffeine](https://github.com/ben-manes/caffeine)
+
 > 下一篇：[高并发总览](/high-con/0_overview) —— 单个请求够快之后，接下来解决流量大时系统如何扛得住。

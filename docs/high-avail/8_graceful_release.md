@@ -238,4 +238,13 @@ K8s 滚动、蓝绿、Ingress 金丝雀的具体配置与上线 SOP 见 [发布�
 - 预热完成再就绪，再用权重逐步放量；注意注册中心的注册时机早于就绪
 - 变更三板斧：可灰度、可监控、可回滚；配置变更同样要灰度，表结构变更先扩展后收缩
 
+## 参考资料
+
+- Spring Boot 优雅停机：[Spring Boot Reference: Graceful Shutdown](https://docs.spring.io/spring-boot/reference/web/graceful-shutdown.html)
+- Pod 终止流程与 terminationGracePeriodSeconds：[Kubernetes: Pod Lifecycle](https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/)
+- preStop 钩子：[Kubernetes: Container Lifecycle Hooks](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/)
+- 滚动更新参数 maxSurge / maxUnavailable：[Kubernetes: Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+- PodDisruptionBudget 配置：[Kubernetes: Specifying a Disruption Budget for your Application](https://kubernetes.io/docs/tasks/run-application/configure-pdb/)
+- Actuator 存活 / 就绪探针端点：[Spring Boot Reference: Actuator Endpoints](https://docs.spring.io/spring-boot/reference/actuator/endpoints.html)
+
 > 下一篇：[多活与容灾](./9_multi_active) —— 实例级的故障有了应对，接下来是机房和地域级的故障。

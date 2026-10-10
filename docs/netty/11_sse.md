@@ -433,4 +433,12 @@ location /sse/ {
 - Netty 原生实现需在 `channelInactive` 中取消 `ScheduledFuture`；WebFlux 断开时自动取消订阅。
 - 上线前检查代理：关闭 `proxy_buffering` 与 gzip、调大 `proxy_read_timeout`；HTTP/1.1 下注意浏览器同域 6 连接限制。
 
+## 参考资料
+
+- SSE 规范（事件格式、EventSource、重连）：[HTML Standard: Server-sent events](https://html.spec.whatwg.org/multipage/server-sent-events.html)
+- 浏览器端用法：[MDN: Using server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)
+- Spring MVC SseEmitter：[Spring Framework Reference: Asynchronous Requests](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-async.html)
+- Spring WebFlux 流式响应：[Spring Framework Reference: WebFlux @ResponseBody](https://docs.spring.io/spring-framework/reference/web/webflux/controller/ann-methods/responsebody.html)
+- Nginx proxy_buffering / proxy_read_timeout：[NGINX: ngx_http_proxy_module](https://nginx.org/en/docs/http/ngx_http_proxy_module.html)
+
 > 下一篇：[生产实践与调优](./12_production) —— 线程模型、关键参数、背压与优雅停机，把 Netty 服务真正推上生产。
