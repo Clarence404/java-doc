@@ -4,15 +4,15 @@ description: 无锁增量快照、MySQL CDC 源、YAML 管道与 Schema 演进�
 
 # Flink CDC
 
-> **本篇目标**：搞清楚 Flink CDC 3.x 的两种用法（CDC 源连接器与 YAML 数据管道），理解无锁增量快照如何做到「全量 + 增量」无缝衔接，能正确配置 MySQL 源（binlog、server-id、分块），把整库同步到 Doris / StarRocks / Paimon / Kafka，并知道精确一次在哪一段成立、哪些坑最常见。
->
-> **前置阅读**：[状态与容错](./4_state_checkpoint)、[Flink SQL 与 Table API](./5_sql)
+> 前置阅读：[状态与容错](./4_state_checkpoint)、[Flink SQL 与 Table API](./5_sql)
 
-CDC 的通用概念、binlog 原理以及 Canal / Debezium / Flink CDC 的横向选型见 [CDC 工具](/database/5_practice/0_cdc_tools)；本篇是「用 Flink 做 CDC」的主文档。
+本篇是「用 Flink 做 CDC」的主文档，基于 Flink CDC 3.x 讲 CDC 源连接器与 YAML 数据管道两种用法、无锁增量快照的「全量 + 增量」衔接、MySQL 源配置、整库同步到 Doris / StarRocks / Paimon / Kafka，以及精确一次的边界与常见坑。
 
 ---
 
 ## 一、Flink CDC 3.x 是什么
+
+CDC 的通用概念、binlog 原理以及 Canal / Debezium / Flink CDC 的横向选型见 [CDC 工具](/database/5_practice/0_cdc_tools)。
 
 ### 1、从连接器到数据集成框架
 

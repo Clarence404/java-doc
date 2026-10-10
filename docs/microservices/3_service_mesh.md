@@ -4,9 +4,9 @@ description: Istio 架构、Sidecar 与 Ambient、流量管理、mTLS、可观�
 
 # 服务网格
 
-> **本篇目标**：理解服务网格把服务治理下沉到基础设施层的思路，掌握 Istio 的控制面 / 数据面结构、Sidecar 与 Ambient 两种数据面的差异，能写出正确的流量路由与 mTLS 配置，并能在 Spring Cloud、Dubbo 与服务网格之间做取舍。
->
-> **前置阅读**：[微服务设计模式](./2_patterns)、[Kubernetes](/cloud-native/6_kubernetes)
+> 前置阅读：[微服务设计模式](./2_patterns)、[Kubernetes](/cloud-native/6_kubernetes)
+
+服务网格把服务治理从应用代码下沉到基础设施层。本篇讲 Istio 的控制面 / 数据面结构、Sidecar 与 Ambient 两种数据面、流量路由与 mTLS 配置，以及 Spring Cloud、Dubbo 与服务网格之间的取舍。
 
 ---
 

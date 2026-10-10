@@ -4,11 +4,9 @@ description: 文件协议对比、FTP 主动与被动模式、JSch 安全接入 
 
 # 文件协议
 
-> **本篇目标**：分清常见文件传输与文件共享协议的安全性和适用场景，理解 FTP 主动、被动模式为什么难过防火墙，能用 JSch 写出校验主机公钥、不泄漏连接的 SFTP 客户端，并用 Spring Integration 实现定时拉取文件。
->
-> **前置阅读**：[TCP 与 UDP](./1_tcp_udp)、[HTTPS 与 TLS](./3_https_tls)
+> 前置阅读：[TCP 与 UDP](./1_tcp_udp)、[HTTPS 与 TLS](./3_https_tls)
 
-后端碰到文件协议，多数是和银行、物流、政务等外部系统做批量文件交换（对账单、订单文件），或者挂载共享存储。系统内部的文件存取优先用对象存储（S3 / MinIO），见 [对象存储](/architecture/4_object_storage)，本篇讲的是对接外部系统时绕不开的那些协议。
+后端碰到文件协议，多数是和银行、物流、政务等外部系统做批量文件交换，或者挂载共享存储。本篇讲常见协议的安全性与适用场景、FTP 主被动模式、用 JSch 写安全的 SFTP 客户端，以及用 Spring Integration 定时拉取文件。
 
 ---
 
@@ -220,6 +218,7 @@ class SftpInboundConfig {
 - FTP 主动模式由服务端连回客户端，被动模式由客户端连服务端的随机端口，公网场景只能用被动模式
 - JSch 用 `com.github.mwiede` 维护分支；必须加载 `known_hosts` 并开启 `StrictHostKeyChecking=yes`，Channel 建立失败时也要释放 Session
 - Spring Integration 6 起 SFTP 基于 Apache MINA SSHD，用 `CachingSessionFactory` 复用会话，多实例部署要换共享的 `MetadataStore` 防止重复处理
+- 系统内部的文件存取优先用对象存储（S3 / MinIO），见 [对象存储](/architecture/4_object_storage)。
 
 ## 参考资料
 

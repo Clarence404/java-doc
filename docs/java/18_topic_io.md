@@ -4,11 +4,9 @@ description: 字节流 / 字符流、Buffer、Selector、零拷贝、Files API�
 
 # IO 与 NIO
 
-> **本篇目标**：分清 `java.io` 与 `java.nio` 的分工，写出编码正确、不泄漏文件句柄的读写代码；掌握 Buffer 的状态切换、Selector 多路复用和零拷贝 API 的真实边界，并知道虚拟线程（JDK 21）出现后阻塞 IO 该怎么选。
->
-> **前置阅读**：[日期与时间](./17_topic_time)
+> 前置阅读：[日期与时间](./17_topic_time)
 
-`java.io` 面向**流**：一次读写一个字节或字符，调用阻塞直到完成。`java.nio` 面向**缓冲区与通道**：数据先进 `Buffer`，再由 `Channel` 搬运，`Selector` 让一个线程同时等待多个通道。两套 API 并不互相替代。文件读写的首选是 `java.nio.file.Files`，网络服务通常交给 Netty，而 JDK 21 起虚拟线程又让「一连接一线程」的阻塞写法重新可用。
+`java.io` 面向阻塞的**流**，`java.nio` 面向**缓冲区与通道**并用 `Selector` 实现多路复用，两者并不互相替代。本篇讲两者分工、编码正确且不泄漏句柄的读写、Buffer 状态切换、Selector 与零拷贝的边界，以及虚拟线程（JDK 21）出现后阻塞 IO 的选择。
 
 ---
 

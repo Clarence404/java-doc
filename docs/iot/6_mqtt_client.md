@@ -4,11 +4,9 @@ description: HiveMQ 客户端、持久会话与重连、共享订阅、Spring In
 
 # MQTT 客户端
 
-> **本篇目标**：用维护中的 Java 客户端接入 MQTT 5，配好持久会话、自动重连和共享订阅；在 Spring Boot 中用 Spring Integration 的 v5 适配器收发消息，并按 Topic 把遥测、OTA 状态路由到各自的处理器。
->
-> **前置阅读**：[通信协议](./1_protocol)（MQTT 的 QoS、保留消息、遗嘱、会话语义）
+> 前置阅读：[通信协议](./1_protocol)
 
-协议语义在 [通信协议](./1_protocol) 已经讲过，EMQX 的部署与授权模式见 [平台选型](./2_platform)。本篇只讲 Java 侧怎么写：独立进程（网关、采集器、压测工具）用 HiveMQ MQTT Client，Spring Boot 业务服务用 Spring Integration MQTT。版本基线：JDK 21、Spring Boot 4.x（依赖管理带 Spring Integration 7.x）、HiveMQ MQTT Client 1.4.0、Paho mqttv5 1.2.5。
+本篇讲 Java 侧怎么接入 MQTT 5：独立进程（网关、采集器、压测工具）用 HiveMQ MQTT Client，Spring Boot 业务服务用 Spring Integration MQTT，并配好持久会话、自动重连、共享订阅和按 Topic 路由。版本基线：JDK 21、Spring Boot 4.x（依赖管理带 Spring Integration 7.x）、HiveMQ MQTT Client 1.4.0、Paho mqttv5 1.2.5。
 
 ---
 
@@ -352,6 +350,8 @@ public class TelemetryHandler {
 ---
 
 ## 四、工程要点
+
+EMQX 的部署与授权模式见 [平台选型](./2_platform)。
 
 ### 1、clientId 与会话
 

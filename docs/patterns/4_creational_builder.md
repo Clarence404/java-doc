@@ -4,9 +4,9 @@ description: Director 与流式建造者、防御性复制、record 替代、Lom
 
 # 建造者模式
 
-> **本篇目标**：分清 GoF 建造者（带 Director）与《Effective Java》流式建造者，能手写一个真正不可变的建造者，知道什么时候用 record 就够、Lombok `@Builder` 该怎么搭配注解。
->
-> **前置阅读**：[工厂模式](./2_creational_factory)、[内部类](/java/13_topic_inner_class)
+> 前置阅读：[工厂模式](./2_creational_factory)、[内部类](/java/13_topic_inner_class)
+
+建造者模式有带 Director 的 GoF 版本和《Effective Java》的流式版本。本篇讲如何写出真正不可变的建造者，以及 record 与 Lombok `@Builder` 的取舍和搭配。
 
 ---
 

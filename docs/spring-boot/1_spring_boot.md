@@ -4,11 +4,9 @@ description: 启动流程与生命周期事件、自动配置加载链路、条�
 
 # 启动流程与自动配置
 
-> **本篇目标**：说清 `SpringApplication.run()` 每一步做了什么、各个生命周期事件在什么时机发布；理解自动配置从 `AutoConfiguration.imports` 到条件判定的完整链路，以及 Boot 4 模块化带来的变化；能正确绑定配置属性、选择和调优内嵌 Web 服务器。
->
-> **前置阅读**：[IoC 容器](/spring/1_ioc)
+> 前置阅读：[IoC 容器](/spring/1_ioc)
 
-版本基线：Spring Boot 4.x / Spring Framework 7.x，与 3.x 不同的地方单独标出。
+`SpringApplication.run()` 与自动配置是 Spring Boot 的核心机制。本篇讲启动的每一步与生命周期事件、自动配置从 `AutoConfiguration.imports` 到条件判定的链路、Boot 4 模块化的变化、配置属性绑定与内嵌 Web 服务器，版本基线为 Spring Boot 4.x / Spring Framework 7.x，与 3.x 不同处单独标出。
 
 ---
 

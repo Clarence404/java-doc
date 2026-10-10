@@ -4,9 +4,9 @@ description: M:N 调度与挂载卸载、钉住与 JEP 491、诊断、ScopedValu
 
 # 虚拟线程
 
-> **本篇目标**：理解虚拟线程为什么能廉价地阻塞（载体线程、挂载与卸载、Continuation），掌握"不池化、用信号量限流"的使用方式，清楚钉住问题在 JDK 21–23 与 JDK 24+ 的差别和诊断手段，并知道 `ScopedValue`、结构化并发的现状与它们的边界。
->
-> **前置阅读**：[线程池](./28_topic_thread_pool)、[CompletableFuture](./29_topic_completable_future)
+> 前置阅读：[线程池](./28_topic_thread_pool)、[CompletableFuture](./29_topic_completable_future)
+
+虚拟线程（JDK 21 正式发布）是由 JVM 调度、可以廉价阻塞的轻量线程。本篇讲载体线程、挂载与卸载、Continuation 原理，不池化、用信号量限流的用法，钉住问题在 JDK 21–23 与 JDK 24+ 的差别和诊断，以及 `ScopedValue`、结构化并发的现状。
 
 ---
 

@@ -4,11 +4,9 @@ description: AiServices、ChatMemory、Tools、结构化输出与护栏、RAG、
 
 # LangChain4j
 
-> **本篇目标**：用 LangChain4j 1.x 的 AiServices 写声明式 AI 服务，掌握对话记忆、工具调用、流式输出、结构化输出与护栏、RAG、MCP 客户端的用法，知道 Agent 编排该选 `langchain4j-agentic` 还是 LangGraph4j，以及和 Spring AI 怎么取舍。
->
-> **前置阅读**：[Spring AI](./0_spring_ai)、[Function Calling（工具调用）](../1_concepts/2_function_calling)
+> 前置阅读：[Spring AI](./0_spring_ai)、[Function Calling（工具调用）](../1_concepts/2_function_calling)
 
-LangChain4j 是独立于 Spring 的 Java LLM 框架，最有特色的是 AiServices：用一个 Java 接口描述 AI 能力，框架生成代理实现。本篇以 1.22.0（2026-10）为基线，示例代码用 JDK 21（框架最低要求 JDK 17）。它的模块分两类：核心与主流厂商模块版本号形如 `1.22.0`，处于实验阶段的模块（MCP、Agentic、Spring Boot Starter、部分文档解析器等）版本号形如 `1.22.0-beta32`，统一用 BOM 管理即可。
+LangChain4j 是独立于 Spring 的 Java LLM 框架，最有特色的是用 Java 接口声明 AI 能力、由框架生成实现的 AiServices。本篇以 1.22.0（2026-10，示例 JDK 21，最低 JDK 17）为基线，讲记忆、工具、流式与结构化输出、护栏、RAG、MCP 客户端、Agent 编排选型及与 Spring AI 的取舍。
 
 ---
 
@@ -29,6 +27,8 @@ LangChain4j 是独立于 Spring 的 Java LLM 框架，最有特色的是 AiServi
 ---
 
 ## 二、快速接入
+
+它的模块分两类：核心与主流厂商模块版本号形如 `1.22.0`，处于实验阶段的模块（MCP、Agentic、Spring Boot Starter、部分文档解析器等）版本号形如 `1.22.0-beta32`，统一用 BOM 管理即可。
 
 ### 1、依赖
 

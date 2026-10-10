@@ -4,11 +4,9 @@ description: jcmd、jps / jstack / jmap / jhsdb / jstat、NMT、JFR / JMC、MAT�
 
 # 诊断工具
 
-> **本篇目标**：掌握 JDK 自带的命令行与图形化诊断工具，知道每个问题该用哪个工具、在生产和容器中怎样安全地使用。
->
-> **前置阅读**：[JIT 编译](./7_jit)
+> 前置阅读：[JIT 编译](./7_jit)
 
-**JDK 9+ 首选 `jcmd`**：一个命令覆盖了 jstack、jmap、jinfo 的大部分功能，还能控制 JFR、查看 NMT。其余工具按场景补充。调优目标与 GC 日志分析见 [GC 调优](./6_gc_tuning)，完整的排查流程见 [故障排查](./9_troubleshooting)。
+JDK 自带一组命令行与图形化诊断工具，**JDK 9+ 首选 `jcmd`**，它覆盖了 jstack、jmap、jinfo 的大部分功能，还能控制 JFR、查看 NMT。本篇讲每个问题该用哪个工具，以及在生产和容器中如何安全使用。
 
 ---
 
@@ -270,6 +268,8 @@ attach 随时可能不可用，关键现场要靠启动参数预留：`-XX:+Heap
 ---
 
 ## 小结
+
+调优目标与 GC 日志分析见 [GC 调优](./6_gc_tuning)，完整的排查流程见 [故障排查](./9_troubleshooting)。
 
 - JDK 9+ 以 `jcmd` 为诊断总入口，`jmap -heap` 已移除，改用 `jcmd GC.heap_info` 或 `jhsdb jmap --heap`
 - 线程问题用 `Thread.print` / `jstack` 连续抓多次；GC 趋势用 `jstat`；堆内容用 heap dump + MAT 看 Retained Heap 和 GC Roots 引用链

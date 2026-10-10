@@ -4,11 +4,9 @@ description: 质量门禁全景、Spotless 格式化、Checkstyle、SpotBugs / P
 
 # 代码质量
 
-> **本篇目标**：在 Maven 构建里搭一套分层的代码质量门禁：Spotless 统一格式、Checkstyle 管规范、SpotBugs / PMD 找缺陷、ArchUnit 守架构、JaCoCo 采集覆盖率，最后由 Sonar 质量门禁决定 PR 能否合并；并约定一套统一的覆盖率阈值口径。
->
-> **前置阅读**：[构建工具](./1_build_tools)、[单元测试](/testing/1_unit_test)
+> 前置阅读：[构建工具](./1_build_tools)、[单元测试](/testing/1_unit_test)
 
-本篇是 Sonar、JaCoCo、格式化与静态分析工具配置的主文档。流水线怎么编排（触发条件、Job 依赖、分支保护）见 [CI/CD](/devops/2_ci_cd)，评审清单见 [Code Review](/devops/3_code_review)，代码坏味道示例见 [开发规范](/devops/4_dev_standards)，依赖漏洞与许可证扫描见 [依赖治理](./6_dependency_governance)。插件版本以 2026 年 10 月 Maven Central 为准，基线 JDK 21、Spring Boot 4。
+代码质量门禁用自动化工具在合并前拦住格式、规范、缺陷与架构问题，本篇是 Sonar、JaCoCo、格式化与静态分析工具配置的主文档。内容包括 Spotless、Checkstyle、SpotBugs / PMD、ArchUnit、JaCoCo 与 Sonar 质量门禁的分层搭建和统一的覆盖率阈值口径，插件版本以 2026 年 10 月 Maven Central 为准，基线 JDK 21、Spring Boot 4。
 
 ---
 
@@ -496,6 +494,8 @@ class ArchitectureTest {
 
 下面是 GitHub Actions 中构建、测试、分析一步完成的关键步骤，完整工作流（触发、权限、Action 固定到 SHA）见 [CI/CD](/devops/2_ci_cd)：
 
+流水线怎么编排（触发条件、Job 依赖、分支保护）见 [CI/CD](/devops/2_ci_cd)。
+
 ```yaml
 steps:
   - uses: actions/checkout@v7
@@ -563,6 +563,8 @@ steps:
 - JaCoCo 用 0.8.14+ 以支持 Java 25，自定义 `argLine` 时保留 `@{argLine}`
 - Sonar 产品已更名为 SonarQube Server / Community Build / Cloud / for IDE；CI 中 `fetch-depth: 0` 加 `sonar.qualitygate.wait=true`，再用分支保护阻断合并
 - 技术债的核心思路是冻结存量、卡住增量，再按「改动频繁 + 复杂度高」排期偿还
+
+评审清单见 [Code Review](/devops/3_code_review)，代码坏味道示例见 [开发规范](/devops/4_dev_standards)，依赖漏洞与许可证扫描见 [依赖治理](./6_dependency_governance)。
 
 ## 参考资料
 

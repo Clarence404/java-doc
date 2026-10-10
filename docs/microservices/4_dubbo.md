@@ -4,11 +4,9 @@ description: 调用流程、Boot 3.5 接入、Triple 协议、负载均衡与容
 
 # Dubbo
 
-> **本篇目标**：理解 Dubbo 作为 RPC 服务框架的定位与调用流程，能在 Spring Boot 中用 Nacos 搭起 Provider / Consumer，掌握 Triple 协议、负载均衡、集群容错与 SPI 扩展机制，并能在 Dubbo 与 Spring Cloud 之间做选型。
->
-> **前置阅读**：[RPC 协议](/protocols/5_rpc_protocols)、[服务通信](/spring-cloud/3_communication)
+> 前置阅读：[RPC 协议](/protocols/5_rpc_protocols)、[服务通信](/spring-cloud/3_communication)
 
-版本基线：**Dubbo 3.3.x**（本文写作时 3.3 线最新为 3.3.6），**基于 Spring Boot 3.5，Boot 4 适配以官方发布为准**。Dubbo 的 Spring Boot Starter 目前面向 Boot 3.x，本站其他模块以 Boot 4 为基线，引入 Dubbo 的服务需要停留在 Boot 3.5，升级前先确认官方发布说明。
+Dubbo 是 RPC 服务框架，本篇讲它的调用流程、Spring Boot + Nacos 搭建、Triple 协议、负载均衡、集群容错、SPI 扩展与选型。版本基线为 **Dubbo 3.3.x**（写作时最新 3.3.6），其 Starter 面向 Boot 3.x，引入 Dubbo 的服务需停留在 **Spring Boot 3.5**，Boot 4 适配以官方发布为准。
 
 ---
 

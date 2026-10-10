@@ -4,11 +4,9 @@ description: RTO / RPO、mysqldump、XtraBackup 增量、binlog PITR、PG 增量
 
 # 数据备份与恢复
 
-> **本篇目标**：能按 RPO / RTO 设计备份策略，写出可直接执行的 MySQL（mysqldump、MySQL Shell、XtraBackup、binlog）与 PostgreSQL（pg_dump、pg_basebackup 增量、WAL 归档）备份恢复命令，并建立恢复演练机制。
->
-> **前置阅读**：[MySQL 主从与高可用](../1_mysql/9_topic_replication)（binlog 与 GTID）
+> 前置阅读：[MySQL 主从与高可用](../1_mysql/9_topic_replication)
 
-复制解决的是「机器坏了还能继续服务」，备份解决的是「数据被删错、被勒索加密之后还能找回来」：`DELETE` 会被同步到所有副本，只有备份能回到误操作之前。本篇以 MySQL 8.4 LTS 与 PostgreSQL 18 为基线；冗余切换、多活与异地容灾的系统级方案见 [冗余与故障转移](/high-avail/2_redundancy_failover) 与 [多活与容灾](/high-avail/9_multi_active)。
+复制解决「机器坏了还能服务」，备份解决「数据被删错、被勒索加密后还能找回」：`DELETE` 会同步到所有副本，只有备份能回到误操作之前。本篇以 MySQL 8.4 LTS 与 PostgreSQL 18 为基线，讲按 RPO / RTO 设计备份策略、两种数据库的备份恢复命令与恢复演练。
 
 ---
 
@@ -250,6 +248,8 @@ recovery_target_action = 'promote'
 ---
 
 ## 五、备份策略设计
+
+冗余切换、多活与异地容灾的系统级方案见 [冗余与故障转移](/high-avail/2_redundancy_failover) 与 [多活与容灾](/high-avail/9_multi_active)。
 
 ### 1、全量 + 日志策略
 

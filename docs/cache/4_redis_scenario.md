@@ -4,11 +4,9 @@ description: 排行榜、布隆过滤器、签到统计、可靠延迟队列、L
 
 # Redis 典型应用场景
 
-> **本篇目标**：掌握几种常见业务场景的 Redis 数据结构选型与正确写法，重点是延迟队列和 Stream 队列在消费失败时如何不丢任务。
->
-> **前置阅读**：[Redis 基础](./1_redis_base)、[Redis 核心原理](./2_redis_core)（Lua 脚本）
+> 前置阅读：[Redis 基础](./1_redis_base)、[Redis 核心原理](./2_redis_core)
 
-本篇只讲 Redis 层面的实现。限流、分布式会话、分布式锁有各自的主文档，见文末第六节的索引。示例基于 Spring Boot 4 / Spring Data Redis 4，`redis` 指注入的 `StringRedisTemplate`。
+Redis 的数据结构可以直接支撑排行榜、签到、延迟队列等常见业务场景。本篇只讲 Redis 层面的实现，重点是延迟队列和 Stream 在消费失败时如何不丢任务，示例基于 Spring Boot 4 / Spring Data Redis 4（`redis` 指注入的 `StringRedisTemplate`）。
 
 ---
 
@@ -243,6 +241,8 @@ if (records != null) {
 ---
 
 ## 六、其他场景索引
+
+限流、分布式会话、分布式锁有各自的主文档，索引如下。
 
 以下场景常用 Redis 实现，但主文档在其他模块，这里只给结论：
 

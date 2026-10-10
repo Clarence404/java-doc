@@ -4,17 +4,15 @@ description: "@SpringBootTest、切片测试、@MockitoBean、Testcontainers、�
 
 # Spring Boot 测试
 
-> **本篇目标**：在 Spring Boot 4.x 项目里按「单元 → 切片 → 全量」分层写测试，会用 MockMvcTester / RestTestClient / @MockitoBean / @ServiceConnection，避开事务回滚与上下文缓存的坑，让测试套件既可信又跑得快。
->
-> **前置阅读**：[启动流程与自动配置](./1_spring_boot)
+> 前置阅读：[启动流程与自动配置](./1_spring_boot)
 
-本篇只讲 Spring 与 Spring Boot 提供的测试支持。测试分层、覆盖率等通用原则见 [测试工程总览](/testing/0_overview)，Mockito 本身的用法见 [Mock 测试](/testing/2_mock)，Testcontainers 本身见 [Testcontainers](/testing/5_testcontainers)。
-
-版本基线：Spring Boot 4.x（Spring Framework 7.x，JUnit 6）。涉及 3.x 的差异会单独标出。
+Spring 与 Spring Boot 提供了从切片到全量上下文的测试支持。本篇讲按「单元 → 切片 → 全量」分层写测试，MockMvcTester / RestTestClient / @MockitoBean / @ServiceConnection 的用法，以及事务回滚与上下文缓存的坑，版本基线为 Spring Boot 4.x（Spring Framework 7.x，JUnit 6），3.x 差异单独标出。
 
 ---
 
 ## 一、测试依赖与分层
+
+测试分层、覆盖率等通用原则见 [测试工程总览](/testing/0_overview)，Mockito 本身的用法见 [Mock 测试](/testing/2_mock)，Testcontainers 本身见 [Testcontainers](/testing/5_testcontainers)。
 
 ### 1、spring-boot-starter-test 里有什么
 

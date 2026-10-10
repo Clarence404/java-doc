@@ -4,9 +4,9 @@ description: Redis 锁与 Redisson、Fencing Token、Redlock 争议、ZooKeeper 
 
 # 分布式锁
 
-> **本篇目标**：写出正确的 Redis 锁（加锁带 owner 与过期时间、解锁先校验 owner），理解看门狗能解决什么、解决不了什么，知道「效率锁」与「正确性锁」的区别以及 Fencing Token 的用法，能在 Redis、ZooKeeper、etcd 之间做选型。
->
-> **前置阅读**：[分布式理论](./2_theorem)
+> 前置阅读：[分布式理论](./2_theorem)
+
+分布式锁用于让多个进程互斥地访问共享资源。本篇讲正确的 Redis 锁写法、看门狗的能力边界、效率锁与正确性锁及 Fencing Token，以及 Redis、ZooKeeper、etcd 的选型。
 
 ---
 

@@ -4,11 +4,9 @@ description: 冷热判断标准、分批归档迁移、CDC 异步归档、分区
 
 # 数据冷热分离
 
-> **本篇目标**：按访问特征划分冷热数据，掌握三种落地方式（分批归档迁移、基于 binlog 的 CDC 异步归档、分区表交换分区）的正确写法与边界，能为冷数据选择存储并设计查询路由。
->
-> **前置阅读**：[数据层扩展](/high-con/5_data_scaling)、[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
+> 前置阅读：[数据层扩展](/high-con/5_data_scaling)、[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
 
-冷热分离把访问频率差异很大的数据分层存放：热数据留在高性能的主库，冷数据迁到成本更低的存储。主表变小后，索引更容易装进内存，备份、DDL、主从同步都更快。它是数据层扩展的手段之一，与读写分离、分库分表的取舍见 [数据层扩展](/high-con/5_data_scaling)。
+冷热分离把访问频率差异很大的数据分层存放，热数据留在主库、冷数据迁到低成本存储，让主表变小、索引与运维都更轻。本篇讲冷热划分、三种落地方式（分批归档、binlog CDC 异步归档、分区表交换分区）、冷数据存储选择与查询路由。
 
 ---
 
@@ -166,6 +164,8 @@ ALTER TABLE orders DROP PARTITION p202401;
 - 不要业务双写热库与 MQ；用 binlog CDC 或 Outbox 异步归档，消费者按主键幂等写入，并忽略清理产生的删除
 - 分区表用 `RANGE COLUMNS` 保证分区裁剪；先 `EXCHANGE PARTITION` 再 `DROP PARTITION`，后者会直接删数据
 - 冷存储按用途选择：归档实例、OLAP 列存、对象存储湖表、时序库；查询层按时间或 ID 路由
+
+冷热分离是数据层扩展的手段之一，与读写分离、分库分表的取舍见 [数据层扩展](/high-con/5_data_scaling)。
 
 ## 参考资料
 

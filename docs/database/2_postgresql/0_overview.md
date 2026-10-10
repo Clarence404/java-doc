@@ -4,11 +4,9 @@ description: 与 MySQL 的差异、版本支持、Docker 与 JDBC 接入、Schem
 
 # PostgreSQL 基础
 
-> **本篇目标**：站在 MySQL 开发者的角度认识 PostgreSQL，知道两者在类型、存储结构、事务语义和权限模型上的关键差异，能用 Docker 起一个 PG 18 实例、用 JDBC 接入，并掌握日常排查用的 psql 命令与系统视图。
->
-> **前置阅读**：[MySQL 基础](../1_mysql/0_overview)
+> 前置阅读：[MySQL 基础](../1_mysql/0_overview)
 
-PostgreSQL 起源于 1986 年加州大学伯克利分校的 POSTGRES 项目，是功能最完整的开源关系型数据库之一。本篇只讲入门与日常使用，MVCC、索引、高级 SQL、复制分别在本组后续文章展开。
+PostgreSQL 起源于 1986 年加州大学伯克利分校的 POSTGRES 项目，是功能最完整的开源关系型数据库之一。本篇从 MySQL 开发者视角讲两者的关键差异、用 Docker 起 PG 18 并用 JDBC 接入，以及日常排查用的 psql 命令与系统视图。
 
 ---
 
@@ -263,6 +261,8 @@ PG 的很多能力来自扩展（extension），`CREATE EXTENSION` 即可在当�
 ---
 
 ## 小结
+
+MVCC、索引、高级 SQL、复制分别在本组后续文章展开。
 
 - 18 是当前主线，14～18 受支持，13 及更早已停止支持；14 将在 2026-11 停止支持
 - 与 MySQL 最大的差异：堆表无聚簇索引、旧版本留在表内靠 VACUUM 回收、RR 是快照隔离、DDL 可回滚、每连接一个进程

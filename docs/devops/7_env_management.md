@@ -4,11 +4,9 @@ description: 多环境分层、trunk-based 晋级、Boot 4 配置、Nacos、密�
 
 # 环境管理
 
-> **本篇目标**：定下 dev / test / staging / prod 四个环境各自的用途、触发方式与准入门槛；在 trunk-based 流程下让同一个镜像 digest 逐级晋级；用 Profile、Nacos 命名空间和 Kustomize overlay 承载环境差异，密钥交给专门的密钥系统；写出能随配置中心实时生效的功能开关；守住测试数据与集群层面的隔离边界。
->
-> **前置阅读**：[配置管理](/spring-boot/6_config)、[Kubernetes](/cloud-native/6_kubernetes)、[制品与版本管理](./6_artifact_version)
+> 前置阅读：[配置管理](/spring-boot/6_config)、[Kubernetes](/cloud-native/6_kubernetes)、[制品与版本管理](./6_artifact_version)
 
-多环境要解决的核心矛盾是：**环境之间要尽量一致，才能让测试结论可信；又必须严格隔离，才能让测试不伤及生产**。本篇是全站多环境划分的主文档，其他模块只引用这里的结论。Spring Boot 的配置加载顺序与 Profile 语法见 [配置管理](/spring-boot/6_config)，Nacos 接入与刷新原理见 [配置中心](/spring-cloud/4_config_center)，加密与密钥体系见 [数据安全](/security/7_data_security)。
+多环境的核心矛盾是：**环境之间要尽量一致，才能让测试结论可信；又必须严格隔离，才能让测试不伤及生产**。本篇是全站多环境划分的主文档，讲四环境分层、digest 逐级晋级、配置与密钥、功能开关，以及测试数据与集群隔离。
 
 ---
 

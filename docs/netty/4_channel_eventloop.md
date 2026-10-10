@@ -4,11 +4,17 @@ description: Channel 生命周期与 AttributeKey、ChannelFuture 异步结果�
 
 # Channel 与 EventLoop
 
-> **本篇目标**：理解 Netty 中"连接"与"线程"这两个核心抽象：Channel 如何表示一条连接，IO 结果如何通过 ChannelFuture 异步返回，EventLoop 如何以单线程串行处理连接，以及慢业务为什么必须交给业务线程池。
->
-> **前置阅读**：[Netty 入门](./3_netty_desc)
+> 前置阅读：[Netty 入门](./3_netty_desc)
 
-上一篇用 Echo 示例跑通了 Netty，接下来两篇把示例里出现的组件逐个拆开。先记住一句话：**Channel 是连接，EventLoop 是干活的线程，Pipeline 是处理流水线，Handler 是流水线上的工位。** 本篇讲前两个，[Pipeline 与 Handler](./5_pipeline_handler) 讲后两个。
+**Channel 是连接，EventLoop 是干活的线程，Pipeline 是处理流水线，Handler 是流水线上的工位。** 本篇讲前两个：Channel 如何表示连接、IO 结果如何通过 ChannelFuture 异步返回、EventLoop 如何单线程串行处理连接，以及慢业务为什么必须交给业务线程池。
+
+---
+
+## 一、Channel：连接的抽象
+
+**Channel 把"一条连接"封装成统一对象**：不论底层是 NIO、epoll 还是 UDP，上层都用同一套 `read / write / bind / connect / close` API。
+
+四个核心组件的关系如下，Pipeline 与 Handler 见 [Pipeline 与 Handler](./5_pipeline_handler)：
 
 | 组件 | 一句话定位 | 对应关系 | 所在篇 |
 |------|-----------|---------|-------|
@@ -16,12 +22,6 @@ description: Channel 生命周期与 AttributeKey、ChannelFuture 异步结果�
 | `EventLoop` | 单线程事件循环，负责若干 Channel 的全部 IO 与任务 | 1 个 EventLoop 服务 N 个 Channel | 本篇 |
 | `ChannelPipeline` | Handler 组成的双向链表（责任链） | 1 条 Pipeline 串起 N 个 Handler | [下一篇](./5_pipeline_handler) |
 | `ChannelHandler` | 处理入站事件 / 拦截出站操作的业务单元 | 通过 `ChannelHandlerContext` 挂在 Pipeline 上 | [下一篇](./5_pipeline_handler) |
-
----
-
-## 一、Channel：连接的抽象
-
-**Channel 把"一条连接"封装成统一对象**：不论底层是 NIO、epoll 还是 UDP，上层都用同一套 `read / write / bind / connect / close` API。
 
 ### 1、常见实现
 

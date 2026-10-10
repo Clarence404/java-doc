@@ -4,11 +4,9 @@ description: PR 规模与流程、CODEOWNERS 与规则集、PR 模板、检查�
 
 # Code Review
 
-> **本篇目标**：把 Code Review 从「看心情点 Approve」变成一套可执行的团队流程：知道 PR 该多大、多久响应，能用 CODEOWNERS 和规则集把「谁必须批准」落到仓库配置里，会用统一的 PR 模板和检查清单，评论写得清楚且分得出轻重，并正确看待 AI 辅助 Review 的位置。
->
-> **前置阅读**：[Git 工作流](./1_git_workflow)、[CI/CD](./2_ci_cd)
+> 前置阅读：[Git 工作流](./1_git_workflow)、[CI/CD](./2_ci_cd)
 
-本站统一采用主干开发 / GitHub Flow：所有改动都从短命分支发 PR 合入 `main`，PR 是唯一的入口，所以 Review 就是主干质量的最后一道人工关口。本篇是 **PR 模板与 Review 检查清单的唯一出处**，其他页面引用这里；具体的代码坏味道正反例集中在 [开发规范](./4_dev_standards)，这里只列检查项。
+在主干开发下 PR 是合入 `main` 的唯一入口，Code Review 就是主干质量的最后一道人工关口。本篇讲 PR 大小与响应时限、CODEOWNERS 与规则集、PR 模板与检查清单、评论写法和 AI 辅助 Review，是 **PR 模板与 Review 检查清单的唯一出处**。
 
 ---
 
@@ -157,6 +155,8 @@ Closes #
 ## 五、Reviewer 检查清单（全站统一版本）
 
 按「影响从大到小」看：先确认方向对，再看细节。下面每一项对应的代码正反例见 [开发规范](./4_dev_standards)。
+
+具体的代码坏味道正反例集中在 [开发规范](./4_dev_standards)，这里只列检查项。
 
 ### 1、设计与正确性（阻塞级）
 

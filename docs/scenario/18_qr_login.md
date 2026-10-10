@@ -4,11 +4,9 @@ description: 二维码状态机、Lua 原子迁移、长轮询 / WebSocket 推�
 
 # 扫码登录
 
-> **本篇目标**：设计一个 PC 端扫码登录，做到二维码状态迁移原子且可重复请求、PC 能及时拿到结果而不把轮询压力压到 Redis 上、PC 拿到的是新签发的会话而不是手机令牌，并清楚钓鱼扫码、二维码泄露这些攻击各靠哪一环挡住。
->
-> **前置阅读**：[分布式会话](/distributed/5_session)、[JWT 令牌机制](/security/1_jwt)、[WebSocket](/netty/10_websocket)、[Redis 典型应用场景](/cache/4_redis_scenario)
+> 前置阅读：[分布式会话](/distributed/5_session)、[JWT 令牌机制](/security/1_jwt)、[WebSocket](/netty/10_websocket)
 
-扫码登录把「输入账号密码」换成「用已经登录的手机替 PC 做担保」：PC 展示一个一次性二维码，手机扫码并确认后，服务端给 PC 签发一个新的会话。它本质上是一个**跨设备的授权流程**，核心是三件事：二维码状态怎么安全地流转、PC 怎么知道状态变了、PC 最终拿到什么凭证。
+扫码登录是一个**跨设备的授权流程**：PC 展示一次性二维码，已登录的手机扫码确认后，服务端给 PC 签发新会话。本篇讲二维码状态的原子流转、PC 及时获知结果、PC 最终拿到的凭证，以及钓鱼扫码、二维码泄露等攻击的防御。
 
 ---
 
@@ -437,6 +435,7 @@ WebSocket 的集群推送、连接管理见 [WebSocket](/netty/10_websocket)，�
 - 推送与轮询只返回状态；会话由 PC 通过 `exchange` 领取，领取即删除 key，并校验申请时下发的绑定 Cookie
 - 手机令牌不交给 PC：PC 拿独立的 Web 会话，可单独下线、按 Web 策略过期，敏感操作仍要二次验证
 - 钓鱼扫码靠确认页展示设备与位置、异地加强校验、只认 App 内扫码和登录通知来防，绑定 Cookie 防的是 qrId 泄露
+- 二维码状态存储等 Redis 用法可参考 [Redis 典型应用场景](/cache/4_redis_scenario)。
 
 ## 参考资料
 

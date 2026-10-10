@@ -4,17 +4,15 @@ description: 测试边界、依赖替代、测试数据隔离、Flaky 治理、S
 
 # 集成测试
 
-> **本篇目标**：分清集成测试与单元测试、端到端测试的边界，知道哪些依赖该用真实容器、哪些该用替身；能为 order-service 写出数据互不干扰、不依赖时间和顺序的集成测试，用 Surefire / Failsafe 把单元测试和集成测试分开跑，并在 CI 中稳定运行。
->
-> **前置阅读**：[单元测试](./1_unit_test)、[Spring Boot 测试](/spring-boot/13_testing)
+> 前置阅读：[单元测试](./1_unit_test)、[Spring Boot 测试](/spring-boot/13_testing)
 
-本篇是集成测试的「策略篇」：测什么、数据怎么管、为什么不稳定、构建里怎么跑。具体工具的用法交给对应文章：Spring Boot 的 `@SpringBootTest`、切片测试、`@ServiceConnection` 见 [Spring Boot 测试](/spring-boot/13_testing)，容器本身的生命周期、等待策略和复用见 [Testcontainers](./5_testcontainers)，服务之间的接口兼容见 [契约测试](./6_contract_test)。
-
-版本基线：JDK 21、Spring Boot 4.x（Spring Framework 7、JUnit 6）、Testcontainers 2.x、Maven Surefire / Failsafe 3.6。示例统一用 order-service：下单写 PostgreSQL、订单缓存放 Redis、消费 Kafka 上的支付成功事件、调用第三方支付网关。
+本篇是集成测试的策略篇：测什么、依赖怎么替代、数据怎么管、为什么不稳定、构建与 CI 里怎么跑。版本基线：JDK 21、Spring Boot 4.x（Spring Framework 7、JUnit 6）、Testcontainers 2.x、Maven Surefire / Failsafe 3.6。
 
 ---
 
 ## 一、集成测试测什么
+
+示例统一用 order-service：下单写 PostgreSQL、订单缓存放 Redis、消费 Kafka 上的支付成功事件、调用第三方支付网关。
 
 ### 1、三种测试的分工
 
@@ -61,6 +59,8 @@ Spring 项目里，集成测试通常是 `@SpringBootTest` 加载完整上下文
 推荐顺序：**真实容器优先，内存替身只用于确实没有差异的场景，共享环境不用于自动化测试**。
 
 H2 的问题不是「偶尔不兼容」，而是它会让你回避数据库特性：为了让测试通过，团队开始避免用 PostgreSQL 的 `jsonb`、部分索引、`SKIP LOCKED`，或者在 Flyway 脚本里写两套方言。用容器后这些顾虑都没有了。容器的启动、复用与提速技巧见 [Testcontainers](./5_testcontainers)。
+
+Spring Boot 的 `@SpringBootTest`、切片测试、`@ServiceConnection` 见 [Spring Boot 测试](/spring-boot/13_testing)，容器本身的生命周期、等待策略和复用见 [Testcontainers](./5_testcontainers)，服务之间的接口兼容见 [契约测试](./6_contract_test)。
 
 ---
 

@@ -4,15 +4,15 @@ description: CountDownLatch、CyclicBarrier、Semaphore、Phaser、Exchanger、�
 
 # 同步工具类
 
-> **本篇目标**：弄清 `CountDownLatch`、`CyclicBarrier`、`Semaphore`、`Phaser`、`Exchanger` 各自的底层实现与语义差异，写出不会永久阻塞、不会泄漏许可的生产代码，并知道在 JDK 21 / 25 上哪些场景可以用 `CompletableFuture` 或虚拟线程替代它们。
->
-> **前置阅读**：[显式锁（Lock）](./25_topic_lock)
+> 前置阅读：[显式锁（Lock）](./25_topic_lock)
 
-锁解决的是「同一时刻只让一个（或一类）线程进入」，同步工具类解决的是线程之间的**协调**：等别人做完、大家到齐再走、同时最多放进 N 个。本文示例中的 `warmUp`、`compute`、`doPhase`、`callApi` 等为业务方法，`pool` 为已创建的 `ExecutorService`，`log` 为日志对象，`threads` 为并发线程数。
+锁解决「同一时刻只让一个线程进入」，同步工具类解决线程之间的**协调**：等别人做完、大家到齐再走、同时最多放进 N 个。本篇讲 `CountDownLatch`、`CyclicBarrier`、`Semaphore`、`Phaser`、`Exchanger` 的实现与语义差异、生产写法，以及 JDK 21 / 25 上的替代方案。
 
 ---
 
 ## 一、总览
+
+本文示例中的 `warmUp`、`compute`、`doPhase`、`callApi` 等为业务方法，`pool` 为已创建的 `ExecutorService`，`log` 为日志对象，`threads` 为并发线程数。
 
 | 工具 | 底层实现 | 状态含义 |
 |------|----------|----------|

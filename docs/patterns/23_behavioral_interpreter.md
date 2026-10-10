@@ -4,9 +4,9 @@ description: record 语法树、解析与解释分离、正则与 SpEL、SpEL �
 
 # 解释器模式
 
-> **本篇目标**：理解解释器模式「文法规则对应类、语法树递归求值」的结构，用 record 和 sealed 接口写出布尔表达式解释器及配套的小型解析器，认识 `Pattern`、SpEL 等现成的解释器，并知道对不可信输入求值 SpEL 时必须使用 `SimpleEvaluationContext`。
->
-> **前置阅读**：[组合模式](./8_structural_composite)、[访问者模式](./22_behavioral_visitor)
+> 前置阅读：[组合模式](./8_structural_composite)、[访问者模式](./22_behavioral_visitor)
+
+解释器模式让文法规则对应类、在语法树上递归求值。本篇用 record 与 sealed 接口写一个布尔表达式解释器和解析器，并介绍 `Pattern`、SpEL 等现成解释器及 `SimpleEvaluationContext` 的安全用法。
 
 ---
 

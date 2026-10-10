@@ -4,11 +4,9 @@ description: 版本对齐、Nacos 部署要点、Sentinel 资源与规则、规�
 
 # Spring Cloud Alibaba
 
-> **本篇目标**：能按官方版本说明对齐 Spring Boot / Spring Cloud / Spring Cloud Alibaba，掌握 Sentinel 的资源定义、规则配置、OpenFeign 集成与 Nacos 规则持久化，理解 Seata AT 模式的两阶段机制与生产配置。
->
-> **前置阅读**：[服务治理](./5_service_governance)
+> 前置阅读：[服务治理](./5_service_governance)
 
-前几篇讲各项能力的抽象层与选型，本篇讲国内最常用的一套落地组合：Nacos + Sentinel + Seata。
+Nacos + Sentinel + Seata 是国内最常用的 Spring Cloud 落地组合。本篇讲版本对齐、Sentinel 的资源定义、规则配置、OpenFeign 集成与 Nacos 持久化，以及 Seata AT 模式的两阶段机制与生产配置。
 
 ---
 

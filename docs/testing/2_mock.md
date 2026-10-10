@@ -4,13 +4,9 @@ description: 测试替身分类、Mockito 5 打桩与验证、ArgumentCaptor、�
 
 # Mock 测试
 
-> **本篇目标**：分清 Dummy / Stub / Spy / Mock / Fake 各自适合什么；会用 Mockito 5 写打桩、参数捕获、交互验证，理解严格桩报错在提醒什么；知道什么时候不该 Mock（值对象、自己的简单协作者、仓储），知道 `mockStatic` / `mockConstruction` 为什么是设计坏味道；在 JDK 21+ 上把 Mockito 以 agent 方式挂载；用 WireMock 测试调用外部 HTTP 的适配器。
->
-> **前置阅读**：[单元测试](./1_unit_test)
+> 前置阅读：[单元测试](./1_unit_test)
 
-本篇讲 Mockito 本身和测试替身的取舍。Spring 上下文里的 `@MockitoBean`、切片测试和上下文缓存见 [Spring Boot 测试](/spring-boot/13_testing)，真实数据库与中间件的集成测试见 [集成测试](./3_integration_test) 和 [Testcontainers](./5_testcontainers)。
-
-版本基线（2026 年 10 月）：JDK 21、Spring Boot 4.x、Mockito 5.x（Boot 4.0 管理的是 5.20，Maven Central 上最新为 5.24）、WireMock 3.13。
+本篇讲 Mockito 本身和测试替身的取舍：打桩、参数捕获、交互验证、严格桩、什么时候不该 Mock、JDK 21+ 挂载 agent，以及用 WireMock 测试外部 HTTP。版本基线（2026 年 10 月）：JDK 21、Spring Boot 4.x、Mockito 5.x（Boot 4.0 管理的是 5.20，Maven Central 上最新为 5.24）、WireMock 3.13。
 
 ---
 
@@ -996,6 +992,8 @@ WireMock 只能证明「客户端按我理解的协议工作」。对方接口�
 Spring 上下文里替换 Bean 用 Spring Framework 的 `@MockitoBean` / `@MockitoSpyBean`（`org.springframework.test.context.bean.override.mockito` 包）。Spring Boot 的 `@MockBean` / `@SpyBean` 在 Boot 3.4 废弃、**Boot 4.0 已删除**，升级时改注解和 import 即可。
 
 使用原则只有一条：**能不用就不用**。上面所有测试都没有启动 Spring，直接 `new` 被测对象并传入 `@Mock`，毫秒级完成。只有在切片测试（`@WebMvcTest` 里 Mock Controller 依赖的 Service）或必须启动上下文的集成测试里才用 `@MockitoBean`，而且它会参与上下文缓存键，Mock 组合不统一会让测试套件反复启动上下文。具体用法、共享 Mock 的组合注解、缓存问题都在 [Spring Boot 测试](/spring-boot/13_testing) 第三、四、八节，这里不重复。
+
+Spring 上下文里的 `@MockitoBean`、切片测试和上下文缓存见 [Spring Boot 测试](/spring-boot/13_testing)，真实数据库与中间件的集成测试见 [集成测试](./3_integration_test) 和 [Testcontainers](./5_testcontainers)。
 
 ---
 

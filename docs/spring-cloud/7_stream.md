@@ -4,11 +4,9 @@ description: Binder 抽象、函数式编程模型、StreamBridge、消费组 / 
 
 # Spring Cloud Stream
 
-> **本篇目标**：理解 Spring Cloud Stream 的 Binder 抽象与函数式编程模型，能写出生产可用的生产者、处理器与消费者配置（消费组、分区、重试与死信），并判断什么场景该用 Stream、什么场景该直连 MQ 原生客户端。
->
-> **前置阅读**：[消息队列基础](/messaging/1_basics)
+> 前置阅读：[消息队列基础](/messaging/1_basics)
 
-Kafka、RocketMQ、RabbitMQ 本身的原理、可靠投递与幂等消费见 [消息队列总览](/messaging/0_overview)，本篇只讲 Spring 的编程模型。
+Spring Cloud Stream 用 Binder 抽象和函数式编程模型屏蔽具体 MQ 的差异。本篇讲生产者、处理器与消费者的生产配置（消费组、分区、重试与死信），以及何时该用 Stream、何时直连 MQ 原生客户端。
 
 ---
 
@@ -30,6 +28,8 @@ Kafka、RocketMQ、RabbitMQ 本身的原理、可靠投递与幂等消费见 [�
 | 换 MQ | 重写消息层 | 换依赖与配置 |
 | 消费组 / 重试 / 死信 | 各 MQ 各自配置 | 统一配置模型，Binder 专属能力另配 |
 | 精细特性（事务消息、顺序、精确一次） | 全量可用 | 取决于 Binder 支持程度 |
+
+Kafka、RocketMQ、RabbitMQ 本身的原理、可靠投递与幂等消费见 [消息队列总览](/messaging/0_overview)。
 
 ---
 

@@ -4,15 +4,15 @@ description: 执行流程、ctl 与 Worker、队列与拒绝策略、异常处�
 
 # 线程池
 
-> **本篇目标**：读懂 `ThreadPoolExecutor` 的执行流程、`ctl` 状态与 `Worker` 复用机制，能写出参数合理、异常可见、可监控、能优雅关闭的生产级线程池，并知道 Fork/Join、虚拟线程与它的分工。
->
-> **前置阅读**：[线程基础](./23_topic_thread_basics)、[集合框架](./21_topic_collection)（BlockingQueue 一节）
+> 前置阅读：[线程基础](./23_topic_thread_basics)、[集合框架](./21_topic_collection)
 
-线程池解决两件事：**复用**线程以省去创建销毁开销，用有界的线程数和队列给并发**设上限**。池化的通用原理见 [池化技术](/high-perf/7_pooling)，线程数怎么估算、动态线程池怎么落地见 [并发参数调优](/high-con/7_concurrency_tuning)；本篇只讲 JDK 线程池本身。
+线程池解决两件事：**复用**线程以省去创建销毁开销，用有界的线程数和队列给并发**设上限**。本篇讲 `ThreadPoolExecutor` 的执行流程、`ctl` 状态与 `Worker` 复用、生产级线程池的配置 / 异常 / 监控 / 关闭，以及 Fork/Join、虚拟线程与它的分工。
 
 ---
 
 ## 一、ThreadPoolExecutor 底层原理
+
+池化的通用原理见 [池化技术](/high-perf/7_pooling)，线程数怎么估算、动态线程池怎么落地见 [并发参数调优](/high-con/7_concurrency_tuning)；本篇只讲 JDK 线程池本身。
 
 ### 1、类继承视图
 

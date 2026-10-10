@@ -4,13 +4,9 @@ description: 垂直 vs 水平扩展、Session 外置、服务拆分、HPA 与指
 
 # 水平扩展与无状态化
 
-> **本篇目标**：让系统容量可以通过加机器线性提升——应用无状态、流量可均匀分发、扩缩容自动化、有状态部分可分片。
->
-> **前置阅读**：[接入层架构](./1_access_layer)
+> 前置阅读：[接入层架构](./1_access_layer)
 
-> 参考链接：[Kubernetes HPA 官方文档](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/) · [The Twelve-Factor App](https://12factor.net/zh_cn/)
-
-水平扩展是高并发的第一原则：**流量翻倍时，靠加机器而不是重写系统来扛**。前提有三个：服务无状态、流量能均匀分发到各实例、有状态组件能分片。
+水平扩展是高并发的第一原则：**流量翻倍时，靠加机器而不是重写系统来扛**。本篇讲容量线性提升的前提——服务无状态、流量均匀分发、有状态组件可分片，以及自动扩缩容。
 
 ---
 
@@ -210,5 +206,10 @@ K8s 基础与 Deployment 配置见 [Kubernetes](/cloud-native/6_kubernetes)。
 - HPA 目标值（如 CPU 60%）要低于规划水位（70%），给扩容生效留出缓冲；JVM 服务不要用内存指标扩容
 - 扩容应用前先核算下游连接数，否则压力只是转移到数据库
 - 有状态组件靠分片扩展，路由策略决定扩容时的迁移成本
+
+## 参考资料
+
+- [Kubernetes HPA 官方文档](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
+- [The Twelve-Factor App](https://12factor.net/zh_cn/)
 
 > 下一篇：[缓存架构设计](./3_cache_architecture) —— 应用可以扩了，接下来让读流量尽量不落到数据库。

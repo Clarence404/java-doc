@@ -4,11 +4,9 @@ description: ID Token、登录流程与校验、nonce、Discovery 与 JWKS、Use
 
 # OIDC
 
-> **本篇目标**：理解 OIDC 在 OAuth 2 之上加了什么；分清 ID Token 与 Access Token 的用途和校验方式；走通授权码 + PKCE 的登录流程，知道 state、nonce、PKCE 各防什么；会用 Discovery 与 JWKS 自动对接 IdP，并用 Spring Boot 的 `oauth2Login` 完成 OIDC 登录与登出。
->
-> **前置阅读**：[OAuth2](./2_oauth2)（角色、授权码 + PKCE）、[JWT 令牌机制](./1_jwt)（JWT 结构与签名）
+> 前置阅读：[OAuth2](./2_oauth2)、[JWT 令牌机制](./1_jwt)
 
-OIDC（OpenID Connect）是建立在 OAuth 2 之上的**身份认证层**：OAuth 2 回答"这个客户端能访问什么"，OIDC 回答"当前登录的用户是谁"。本篇以 OpenID Connect Core 1.0（含 2023 年 12 月的勘误集 2）为准，配套规范包括 Discovery 1.0、RP-Initiated / Front-Channel / Back-Channel Logout 1.0；框架代码以 Spring Boot 4 / Spring Security 7 为准。多个系统共用一次登录的整体方案见 [单点登录](./4_sso)。
+OIDC（OpenID Connect）是建立在 OAuth 2 之上的**身份认证层**：OAuth 2 回答"这个客户端能访问什么"，OIDC 回答"当前登录的用户是谁"。本篇以 OpenID Connect Core 1.0（含 2023 年 12 月的勘误集 2）及 Discovery 1.0、RP-Initiated / Front-Channel / Back-Channel Logout 1.0 为准，框架代码以 Spring Boot 4 / Spring Security 7 为准。
 
 ---
 
@@ -209,6 +207,8 @@ UserInfo 返回的 `sub` **必须与 ID Token 的 `sub` 一致**，不一致说�
 ## 七、会话与登出
 
 OIDC 的登出分三类：**RP 发起登出**（RP-Initiated Logout，RP 把浏览器重定向到 OP 的 `end_session_endpoint`，带 `id_token_hint` 和 `post_logout_redirect_uri`，结束 OP 上的全局会话）、**前端通道登出**（Front-Channel Logout，OP 在浏览器里用隐藏 iframe 依次加载各 RP 的登出地址，受第三方 Cookie 限制影响越来越不可靠）和**后端通道登出**（Back-Channel Logout，OP 直接向各 RP 的登出端点 POST 一个签名的 `logout_token`，RP 据其中的 `sid` / `sub` 销毁本地会话，生产环境推荐）。这三者在多系统场景下怎么组合、各自的坑和"短会话 + 静默续期"的降级方案，统一在 [单点登录](./4_sso) 中讲解。
+
+多个系统共用一次登录的整体方案见 [单点登录](./4_sso)。
 
 ---
 

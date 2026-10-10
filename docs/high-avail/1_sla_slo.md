@@ -4,13 +4,7 @@ description: 几个 9、SLA / SLO / SLI、错误预算、燃烧速率告警、MT
 
 # 可用性度量
 
-> **本篇目标**：用 SLI / SLO / 错误预算把"多可用才够"变成可计算、可告警、可约束发布的数字，并会估算串并联系统的可用率。
-
-参考链接：[Google SRE Book - Service Level Objectives](https://sre.google/sre-book/service-level-objectives/) · [SRE Workbook - Alerting on SLOs](https://sre.google/workbook/alerting-on-slos/)
-
-相关：[指标监控](/observability/2_metrics) · [告警体系](/observability/4_alerting)
-
-高可用首先是一个**可度量**的目标。没有度量，"系统很稳定"只是感觉；有了 SLO 和错误预算，稳定性投入与迭代速度之间才有可量化的取舍依据。
+高可用首先是一个**可度量**的目标，有了 SLO 和错误预算，稳定性投入与迭代速度之间才有可量化的取舍依据。本篇讲如何用 SLI / SLO / 错误预算把"多可用才够"变成可计算、可告警、可约束发布的数字，以及串并联系统的可用率估算。
 
 ## 一、几个 9 与停机时间
 
@@ -217,5 +211,10 @@ sum(rate(http_server_requests_seconds_bucket{le="0.3"}[5m]))
 - 用多窗口燃烧速率告警代替固定错误率阈值
 - 可用率 = MTBF / (MTBF + MTTR)，降低 MTTR 往往比提高 MTBF 更划算
 - 串联拉低可用率、并联提升可用率，但并联要求副本跨故障域、故障相互独立
+
+## 参考资料
+
+- [Google SRE Book - Service Level Objectives](https://sre.google/sre-book/service-level-objectives/)
+- [SRE Workbook - Alerting on SLOs](https://sre.google/workbook/alerting-on-slos/)
 
 > 下一篇：[冗余与故障转移](./2_redundancy_failover) —— 知道了目标，先从消除单点、让备份能自动顶上做起。

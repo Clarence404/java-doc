@@ -4,15 +4,15 @@ description: 烘焙镜像与启动初始化、cloud-init 模块与阶段、Terra
 
 # cloud-init 与 Packer
 
-> **本篇目标**：分清「把软件烘焙进镜像」和「开机时再初始化」各自适合什么，能写出一份让新机器开机即跑起 Java 服务的 `#cloud-config`，会用 Packer 构建带 JDK 和监控 Agent 的版本化镜像，并理解 Packer、Terraform、cloud-init、Ansible 四者如何分工。
->
-> **前置阅读**：[Terraform](./11_terraform)、[Ansible](./12_ansible)
+> 前置阅读：[Terraform](./11_terraform)、[Ansible](./12_ansible)
 
-上两篇里，Terraform 负责把机器造出来，Ansible 负责登上去配置。但还有两个问题没解决：机器刚创建、Ansible 还没连上之前，谁来建用户、装 JDK？每台机器都从零装一遍软件，扩容 20 台时慢不慢、装出来的是否完全一致？本篇的两个工具分别回答这两个问题。版本基线为 2026 年 10 月的 cloud-init 26.2 和 Packer 1.16。
+cloud-init 负责机器开机时的初始化，Packer 负责把软件提前烘焙进版本化镜像，二者补上了 Terraform 造机器与 Ansible 做配置之间的空档。本篇讲两种初始化思路、`#cloud-config` 实战、Packer 镜像构建与四个工具的分工，版本基线为 2026 年 10 月的 cloud-init 26.2 和 Packer 1.16。
 
 ---
 
 ## 一、烘焙还是现炸：两种初始化思路
+
+上两篇里，Terraform 负责把机器造出来，Ansible 负责登上去配置。但还有两个问题没解决：机器刚创建、Ansible 还没连上之前，谁来建用户、装 JDK？每台机器都从零装一遍软件，扩容 20 台时慢不慢、装出来的是否完全一致？本篇的两个工具分别回答这两个问题。
 
 | | 烘焙（Bake）：黄金镜像 | 现炸（Fry）：启动时初始化 |
 |---|---|---|

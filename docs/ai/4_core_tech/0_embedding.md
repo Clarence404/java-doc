@@ -4,11 +4,9 @@ description: Embedding 原理、模型选型、相似度与归一化、维度与
 
 # Embedding 向量化
 
-> **本篇目标**：理解 Embedding 把文本变成向量的意义，能按语言、部署方式、许可证选出合适的模型，算清维度带来的存储与调用成本，并在 Spring AI 和 LangChain4j 中完成接入。
->
-> **前置阅读**：[大模型选型](../1_concepts/0_model)（Token 与上下文的概念）
+> 前置阅读：[大模型选型](../1_concepts/0_model)
 
-Embedding 是 RAG、语义搜索、推荐去重的地基：检索质量的上限，很大程度上在选模型和切块那一刻就定了。本篇代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0；向量怎么存、怎么建索引见下一篇 [向量数据库](./1_vector_db)。
+Embedding 把文本映射成向量，是 RAG、语义搜索、推荐去重的地基。本篇讲 Embedding 的意义、模型选型、维度带来的存储与调用成本，以及 Spring AI 与 LangChain4j 接入，代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0。
 
 ---
 
@@ -284,6 +282,8 @@ EmbeddingModel localModel = new AllMiniLmL6V2EmbeddingModel();
 - 余弦相似度是默认选择；归一化与否要按模型和推理框架确认，截断维度后必须重新归一化
 - 存储量 = 条数 × 维度 × 字节数，调用费用 = 总 Token × 单价；Matryoshka 缩短维度是最直接的降本手段
 - Spring AI 2.0 用 `spring.ai.<厂商>.embedding.model` 指定模型，LangChain4j 用 BOM 管理版本
+
+向量怎么存、怎么建索引见下一篇 [向量数据库](./1_vector_db)。
 
 ## 参考资料
 

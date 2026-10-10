@@ -4,11 +4,9 @@ description: EXPLAIN 字段与 ANALYZE、type 与 Extra、慢 SQL 定位、files
 
 # EXPLAIN 与 SQL 优化
 
-> **本篇目标**：能逐字段读懂 `EXPLAIN` 输出，用 `EXPLAIN ANALYZE` 对比预估与实际，按慢日志、`sys` schema、Optimizer Trace 的顺序定位慢 SQL，并理解 MySQL 8.4 下 filesort、COUNT 与 Hash Join 的真实行为。
->
-> **前置阅读**：[SQL 执行流程](./6_topic_execution)、[MySQL 索引](./4_topic_index)
+> 前置阅读：[SQL 执行流程](./6_topic_execution)、[MySQL 索引](./4_topic_index)
 
-本篇以 MySQL 8.4 LTS 为基准。8.0 已于 2026 年 4 月停止官方支持，文中 8.0 的差异只用于理解存量系统。
+本篇讲 `EXPLAIN` 与 `EXPLAIN ANALYZE` 的读法、按慢日志 / `sys` schema / Optimizer Trace 定位慢 SQL，以及 filesort、COUNT 与 Hash Join 的真实行为。以 MySQL 8.4 LTS 为基准，8.0 已于 2026 年 4 月停止官方支持，文中 8.0 的差异只用于理解存量系统。
 
 ---
 

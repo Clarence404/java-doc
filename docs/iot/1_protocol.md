@@ -4,11 +4,9 @@ description: MQTT 会话与 5.0、CoAP / LwM2M、LoRaWAN、NB-IoT、Modbus、OPC
 
 # 通信协议
 
-> **本篇目标**：讲清 MQTT 的 QoS、会话、保留消息、遗嘱和 5.0 新特性各自解决什么问题，知道 CoAP、LwM2M、LoRaWAN、NB-IoT、Zigbee、Modbus、OPC UA 分别用在哪一层、什么场景，能按场景做协议选型。
->
-> **前置阅读**：[TCP 与 UDP](/protocols/1_tcp_udp)（MQTT 跑在 TCP 上，CoAP 跑在 UDP 上）
+> 前置阅读：[TCP 与 UDP](/protocols/1_tcp_udp)
 
-本篇只讲协议语义和选型。Java 客户端代码见 [MQTT 客户端](./6_mqtt_client) 和 [Modbus 采集](./7_modbus)，Broker 部署见 [平台选型](./2_platform)，TLS 与双向证书见 [HTTPS 与 TLS](/protocols/3_https_tls)。
+本篇讲 MQTT 的 QoS、会话、保留消息、遗嘱和 5.0 新特性各自解决什么问题，以及 CoAP、LwM2M、LoRaWAN、NB-IoT、Zigbee、Modbus、OPC UA 分别用在哪一层、什么场景，帮助按场景做协议选型。
 
 ---
 
@@ -27,6 +25,8 @@ IoT 协议按所处层次分为三类，一个系统往往三类都会用到：�
 ## 二、MQTT
 
 **MQTT（Message Queuing Telemetry Transport）**：基于发布 / 订阅模型的轻量级消息协议，运行在 TCP 之上（也可以跑在 WebSocket 上），由 OASIS 标准化，现行版本是 3.1.1 和 5.0。发布方和订阅方互不感知，全部经由 Broker 按 Topic 转发，这是它适合海量设备接入的根本原因。
+
+Java 客户端代码见 [MQTT 客户端](./6_mqtt_client)，Broker 部署见 [平台选型](./2_platform)，TLS 与双向证书见 [HTTPS 与 TLS](/protocols/3_https_tls)。
 
 ![MQTT 发布 / 订阅模型](../assets/iot/mqtt-pubsub.svg)
 
@@ -219,6 +219,8 @@ NB-IoT 终端常用 CoAP / LwM2M 或 MQTT 上报，进入 PSM 后设备不可达
 ## 七、Modbus
 
 **Modbus**：1979 年由 Modicon 提出的工业通信协议，至今仍是 PLC、仪表、变频器最常见的接口。
+
+Java 采集代码见 [Modbus 采集](./7_modbus)。
 
 | 变体 | 传输介质 | 说明 |
 |------|---------|------|

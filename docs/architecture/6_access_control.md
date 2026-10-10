@@ -4,11 +4,9 @@ description: PEP / PDP 部署 / 网关与服务鉴权分工 / 权限缓存刷新
 
 # 权限系统架构设计
 
-> **本篇目标**：弄清权限系统在分布式架构中「放在哪、怎么缓存、怎么拦数据」：PEP / PDP / PAP / PIP 的分工与部署形态，网关与服务的鉴权边界，权限变更后的缓存刷新，以及用 MyBatis-Plus 统一追加数据权限条件。
->
-> **前置阅读**：[权限模型：RBAC 与 ABAC](/security/5_rbac_abac)、[Spring Security](/spring/9_security)
+> 前置阅读：[权限模型：RBAC 与 ABAC](/security/5_rbac_abac)、[Spring Security](/spring/9_security)
 
-权限模型本身（RBAC / ABAC / DAC / MAC、5 张表、OPA 策略、选型）见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)；Spring Security 接线代码（UserDetailsService、`@PreAuthorize`、动态权限）见 [Spring Security](/spring/9_security)。本篇只讲架构层面的取舍。
+权限系统在分布式架构中要回答「放在哪、怎么缓存、怎么拦数据」。本篇讲 PEP / PDP / PAP / PIP 的分工与部署、网关与服务的鉴权边界、权限缓存刷新和基于 MyBatis-Plus 的数据权限拦截。
 
 ---
 
@@ -172,6 +170,8 @@ public class MybatisPlusConfig {
 - 服务间调用不默认信任内网：透传用户 Token，或用 Client Credentials / mTLS 按服务身份鉴权
 - 权限数据必须缓存，关键是变更后多快生效：TTL 兜底，主动失效或广播失效做到秒级，按角色维度缓存降低失效范围
 - 数据权限在 SQL 层统一追加条件：MyBatis-Plus `DataPermissionInterceptor` 通过 `MybatisPlusInterceptor` 注册并放在分页之前；无用户上下文时显式报错或声明跳过
+
+权限模型本身（RBAC / ABAC / DAC / MAC、5 张表、OPA 策略、选型）见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)；Spring Security 接线代码（UserDetailsService、`@PreAuthorize`、动态权限）见 [Spring Security](/spring/9_security)。
 
 ## 参考资料
 

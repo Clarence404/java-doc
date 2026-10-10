@@ -4,15 +4,9 @@ description: 集群架构、核心对象、资源与 QoS、探针与滚动更新
 
 # Kubernetes
 
-> **本篇目标**：看懂 Kubernetes 集群由哪些组件组成、各自负责什么；会用 Deployment / Service / ConfigMap / StatefulSet / Job 描述一个 Java 服务；理解 requests/limits 与 QoS、探针、滚动更新、HPA、集群 DNS 和存储的工作方式；能写出一份可上线的 Spring Boot 部署清单，并按固定流程排查常见 Pod 故障。
->
-> **前置阅读**：[Docker](./5_docker)（镜像与容器的基本概念）
+> 前置阅读：[Docker](./5_docker)
 
-Kubernetes（K8s）是声明式的容器编排系统：你提交"期望状态"（要跑几个副本、用哪个镜像、暴露什么端口），控制器持续把集群的实际状态调谐到期望状态。本篇以 **Kubernetes 1.37**（2026-08-26 发布）为基线，容器运行时以 containerd 为例。探针设计与优雅停机的完整论证在 [冗余与故障转移](/high-avail/2_redundancy_failover) 和 [优雅上下线与变更](/high-avail/8_graceful_release)，JVM 容器内存参数在 [GC 调优](/jvm/6_gc_tuning)，本篇只讲 Kubernetes 一侧怎么配。
-
-::: tip 版本节奏
-Kubernetes 每年发布 3 个小版本，每个小版本约有 14 个月补丁支持（1 年 + 2 个月升级缓冲）。托管集群（EKS / GKE / AKS / ACK / TKE）通常滞后上游 1～2 个小版本，写清单前先用 `kubectl version` 确认服务端版本。
-:::
+Kubernetes（K8s）是声明式的容器编排系统：你提交"期望状态"（要跑几个副本、用哪个镜像、暴露什么端口），控制器持续把集群的实际状态调谐到期望状态。本篇以 **Kubernetes 1.37**（2026-08-26 发布）为基线、containerd 为运行时，讲集群架构、核心对象、资源与探针、弹性伸缩、网络与存储，以及一份可上线的 Spring Boot 部署清单。
 
 ---
 
@@ -187,6 +181,8 @@ Namespace 用来按团队或环境隔离资源，配额（ResourceQuota）、默
 
 ## 三、资源模型与 QoS
 
+JVM 容器内存参数见 [GC 调优](/jvm/6_gc_tuning)，这里只讲 Kubernetes 一侧怎么配。
+
 ### 1、requests 与 limits
 
 | 字段 | 作用于 | CPU 超出时 | 内存超出时 |
@@ -227,6 +223,8 @@ JVM 参数推荐通过 `JAVA_TOOL_OPTIONS` 环境变量传入，JVM 启动时会
 ---
 
 ## 四、探针、滚动更新与优雅终止
+
+探针设计与优雅停机的完整论证在 [冗余与故障转移](/high-avail/2_redundancy_failover) 和 [优雅上下线与变更](/high-avail/8_graceful_release)，这里只讲 Kubernetes 一侧怎么配。
 
 ### 1、三种探针
 
@@ -604,6 +602,10 @@ Java 进程内部的问题（CPU 飙高、线程阻塞、内存泄漏）用 Arth
 | 自建工具 | kubeadm（官方）、Sealos | 自有机房或云主机上自建集群，需要自己维护升级和 etcd 备份 |
 | 托管服务 | EKS、GKE、AKS、阿里云 ACK、腾讯云 TKE | 生产首选，控制平面由云厂商维护，见 [云计算概览](./13_cloud_overview) |
 | 多集群管理平台 | Rancher | 统一管理多个集群的权限、监控和应用分发 |
+
+::: tip 版本节奏
+Kubernetes 每年发布 3 个小版本，每个小版本约有 14 个月补丁支持（1 年 + 2 个月升级缓冲）。托管集群（EKS / GKE / AKS / ACK / TKE）通常滞后上游 1～2 个小版本，写清单前先用 `kubectl version` 确认服务端版本。
+:::
 
 ::: warning KubeSphere 开源版已停止分发
 KubeSphere 于 2025 年 8 月宣布停止开源版的下载分发与免费技术支持，转向商业版本，部分社区镜像仓库也随之下线。新项目不建议再基于其开源版搭建平台，已有部署需要评估迁移。

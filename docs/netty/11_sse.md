@@ -4,11 +4,9 @@ description: 数据格式、SseEmitter 与 WebFlux、Netty 原生实现、反向
 
 # SSE（Server-Sent Events）
 
-> **本篇目标**：掌握 SSE 的数据格式与三种服务端实现（Spring MVC、WebFlux、Netty），并能正确处理超时、心跳和反向代理缓冲。
->
-> **前置阅读**：[WebSocket](./10_websocket)
+> 前置阅读：[WebSocket](./10_websocket)
 
-SSE 是基于普通 HTTP 响应的服务端单向推送：服务端不结束响应，而是持续往里写"事件"。它不需要协议升级，天然兼容现有的 HTTP 基础设施，是通知、进度、AI 流式输出等场景的首选。
+SSE 是基于普通 HTTP 响应的服务端单向推送，无需协议升级，是通知、进度、AI 流式输出等场景的首选。本篇讲它的数据格式、Spring MVC / WebFlux / Netty 三种实现，以及超时、心跳和反向代理缓冲的处理。
 
 ---
 

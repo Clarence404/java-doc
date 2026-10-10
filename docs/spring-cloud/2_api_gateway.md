@@ -4,11 +4,17 @@ description: Server WebFlux 与 MVC、请求链路、OAuth2 鉴权、限流、CO
 
 # API 网关
 
-> **本篇目标**：掌握 Spring Cloud Gateway 在 2025.x 的两种形态与新的依赖、配置前缀，理解请求在网关内的处理链路，能写出统一鉴权、限流、跨域与灰度路由的生产配置，并能在 Spring Cloud Gateway 与 Envoy 系网关之间做选型。
->
-> **前置阅读**：[注册发现](./1_service_registry)
+> 前置阅读：[注册发现](./1_service_registry)
 
-没有网关时，客户端要知道每个服务的地址，鉴权、限流、跨域、日志在每个服务里各写一遍。网关把这些横切关注点收敛到统一入口：
+网关把鉴权、限流、跨域、日志等横切关注点收敛到统一入口，免去客户端直连各服务、每个服务各写一遍。本篇讲 Spring Cloud Gateway 2025.x 的两种形态、请求链路，以及鉴权、限流、跨域、灰度路由的生产配置与网关选型。
+
+---
+
+## 一、两种形态：Server WebFlux 与 Server MVC
+
+**Spring Cloud 2025.0 起，Gateway 拆成两个独立的服务端实现，2025.1 删除了旧的 `spring-cloud-starter-gateway` 等 artifact，配置前缀同步改名。**
+
+没有网关与有网关的对比：
 
 | 维度 | 无网关 | 有网关 |
 |------|-------|-------|
@@ -16,14 +22,6 @@ description: Server WebFlux 与 MVC、请求链路、OAuth2 鉴权、限流、CO
 | 鉴权 / 限流 / CORS | 每个服务各自实现，口径不一 | 网关统一处理，服务只关心业务 |
 | 灰度与流量调度 | 难以在入口统一控制 | 按请求头、用户、权重切流 |
 | 监控 | 分散在各服务 | 入口统一埋点、统一访问日志 |
-
-网关在架构中的位置与 BFF 模式见 [微服务设计模式](/microservices/2_patterns)。
-
----
-
-## 一、两种形态：Server WebFlux 与 Server MVC
-
-**Spring Cloud 2025.0 起，Gateway 拆成两个独立的服务端实现，2025.1 删除了旧的 `spring-cloud-starter-gateway` 等 artifact，配置前缀同步改名。**
 
 | 维度 | Gateway Server WebFlux | Gateway Server MVC |
 |------|----------------------|--------------------|
@@ -356,6 +354,8 @@ spring:
 | 适合 | Java 微服务体系，鉴权逻辑与业务耦合较深 | 企业 API 管理 | 高性能流量网关 | 运行在 K8s 上、已使用或计划使用服务网格 |
 
 常见分层：入口用 Nginx / APISIX / Envoy 做流量网关（TLS 终止、WAF、全局限流），其后用 Spring Cloud Gateway 做业务网关（鉴权、聚合、灰度）。服务网格中东西向流量的治理见 [服务网格](/microservices/3_service_mesh)。
+
+网关在架构中的位置与 BFF 模式见 [微服务设计模式](/microservices/2_patterns)。
 
 ---
 

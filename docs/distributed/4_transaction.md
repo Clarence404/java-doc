@@ -4,11 +4,9 @@ description: 2PC 与 XA、TCC、Saga、本地消息表、RocketMQ 事务消息�
 
 # 分布式事务
 
-> **本篇目标**：理解 2PC / XA、TCC、Saga、本地消息表、事务消息、最大努力通知各自的一致性保证与代价，掌握 Seata AT 的全局锁与隔离级别、TCC 的空回滚 / 幂等 / 悬挂处理，能为具体业务选出合适的方案。
->
-> **前置阅读**：[分布式理论](./2_theorem)、[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
+> 前置阅读：[分布式理论](./2_theorem)、[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
 
-本篇是分布式事务原理与 Seata 机制的主文档。Seata 在 Spring Cloud 中的依赖与配置见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba)，消息投递与消费幂等的中间件细节见 [消息队列基础](/messaging/1_basics)。
+本篇是分布式事务原理与 Seata 机制的主文档，对比 2PC / XA、TCC、Saga、本地消息表、事务消息与最大努力通知的一致性保证与代价，并讲 Seata AT 全局锁、TCC 空回滚 / 幂等 / 悬挂处理与方案选型。
 
 ---
 

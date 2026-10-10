@@ -4,11 +4,9 @@ description: 方法与状态码、缓存、Cookie 与会话、长连接、HTTP/2
 
 # HTTP
 
-> **本篇目标**：讲清 HTTP 的语义层（方法、状态码、头部、缓存、Cookie）和传输层的演进（1.1 长连接 → 2 多路复用 → 3 基于 QUIC），知道每一代解决了什么、还剩什么问题，能在 Java 服务里正确设置缓存头、Cookie 和 HTTP 客户端。
->
-> **前置阅读**：[TCP 与 UDP](./1_tcp_udp)（握手、重传与队头阻塞）
+> 前置阅读：[TCP 与 UDP](./1_tcp_udp)
 
-HTTP 的语义（方法、状态码、头部、缓存）由 RFC 9110 / 9111 统一定义，与版本无关；HTTP/1.1、HTTP/2、HTTP/3 只是把同一套语义用不同方式搬上网络（RFC 9112 / 9113 / 9114）。所以本篇先讲语义，再讲三代传输方式。HTTPS 的握手与证书放在下一篇；REST 接口的 URL 与状态码约定见 [API 设计规范](/engineering/7_api_design_rule)。
+HTTP 的语义（方法、状态码、头部、缓存）由 RFC 9110 / 9111 统一定义，HTTP/1.1、2、3 只是不同的传输方式（RFC 9112 / 9113 / 9114）。本篇先讲语义与 Cookie，再讲三代传输的演进，以及在 Java 服务中正确设置缓存头、Cookie 和 HTTP 客户端。
 
 ---
 
@@ -379,6 +377,7 @@ public class HttpClientDemo {
 - HTTP/2 用二进制帧和流在一条 TCP 上多路复用，消除了 HTTP 层队头阻塞，但 TCP 层仍在；Server Push 已被 103 Early Hints 取代
 - HTTP/3 基于 QUIC：流独立、内置 TLS 1.3、0-RTT（可重放，只用于幂等请求）、连接迁移
 - JDK 11+ 的 `HttpClient` 默认协商 HTTP/2，要复用实例并显式设置超时
+- HTTPS 的握手与证书放在下一篇；REST 接口的 URL 与状态码约定见 [API 设计规范](/engineering/7_api_design_rule)。
 
 ## 参考资料
 

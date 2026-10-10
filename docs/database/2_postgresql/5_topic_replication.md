@@ -4,9 +4,9 @@ description: 进程模型与连接池、流复制与同步级别、复制槽、�
 
 # PostgreSQL 复制与高可用
 
-> **本篇目标**：理解 PG 每连接一进程的模型为什么必须配连接池，掌握基于 WAL 的流复制、`synchronous_commit` 各级别的真实含义、复制槽的风险，了解逻辑复制的能力边界，以及 Patroni、CloudNativePG 等故障切换方案的选择。
->
-> **前置阅读**：[MySQL 主从与高可用](../1_mysql/9_topic_replication)、[MVCC 与 VACUUM](./2_topic_mvcc)
+> 前置阅读：[MySQL 主从与高可用](../1_mysql/9_topic_replication)、[MVCC 与 VACUUM](./2_topic_mvcc)
+
+本篇讲 PG 每连接一进程模型为何必须配连接池、基于 WAL 的流复制与 `synchronous_commit` 各级别含义、复制槽风险、逻辑复制边界，以及 Patroni、CloudNativePG 等故障切换方案。
 
 ---
 

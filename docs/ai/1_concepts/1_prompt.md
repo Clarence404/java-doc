@@ -4,11 +4,9 @@ description: 基本原则、System Prompt、Few-shot、推理模型、结构化�
 
 # Prompt 工程
 
-> **本篇目标**：掌握写 Prompt 的基本原则和 System Prompt、Few-shot 的写法，知道推理模型该用参数而不是「一步一步思考」来控制推理深度，会用原生结构化输出拿到可靠的 JSON，理解直接与间接提示注入以及分层防护手段。
->
-> **前置阅读**：[大模型选型](./0_model)
+> 前置阅读：[大模型选型](./0_model)
 
-示例代码基于 Spring Boot 4 + Spring AI 2.0.x 与 LangChain4j 1.x，模型型号统一放在配置里，用 `${MODEL_ID}` 占位，具体取值见各厂商模型页。
+Prompt 工程决定了模型输出的质量与稳定性。本篇讲 Prompt 基本原则、System Prompt 与 Few-shot、推理模型的参数控制、原生结构化输出和提示注入防护，示例基于 Spring Boot 4 + Spring AI 2.0.x 与 LangChain4j 1.x，模型型号用 `${MODEL_ID}` 占位。
 
 ---
 

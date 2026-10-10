@@ -4,11 +4,9 @@ description: 启动耗时度量、懒加载与裁剪、CDS / AOT 缓存、AOT �
 
 # 启动与部署优化
 
-> **本篇目标**：知道 Spring Boot 应用的启动时间花在哪里、怎么量；能按场景在 CDS、AOT 缓存、CRaC、Native Image 之间做选择，并把它们落到容器镜像里。
->
-> **前置阅读**：[启动流程与自动配置](./1_spring_boot)、[Spring Boot 版本演进](./11_versions)
+> 前置阅读：[启动流程与自动配置](./1_spring_boot)、[Spring Boot 版本演进](./11_versions)
 
-一个典型 Spring Boot 服务的启动时间由三块组成：**JVM 加载和链接成千上万个类**、**Spring 解析配置并创建 Bean**、**JIT 把热点代码编译到峰值**。本篇的各种手段，本质都是把其中某一块挪到构建期，或者干脆跳过。
+一个典型 Spring Boot 服务的启动时间由**JVM 加载和链接类**、**Spring 解析配置并创建 Bean**、**JIT 把热点代码编译到峰值**三块组成，各种优化手段本质上都是把其中某一块挪到构建期，或者干脆跳过。本篇讲启动时间怎么量，以及 CDS、AOT 缓存、CRaC、Native Image 的选择与容器镜像落地。
 
 ---
 

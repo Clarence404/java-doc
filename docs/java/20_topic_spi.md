@@ -4,11 +4,9 @@ description: ServiceLoader、TCCL、JPMS provides / uses、Dubbo 扩展点、自
 
 # SPI 机制
 
-> **本篇目标**：理解 SPI 的「接口在框架、实现在外部」思想，掌握 `ServiceLoader` 的加载过程（懒实例化、`stream()` 按类型筛选、线程上下文类加载器），以及 JPMS、Dubbo、Spring Boot 各自的 SPI 变体，能写出自己的可插拔扩展点。
->
-> **前置阅读**：[序列化](./19_topic_serialization)；类加载器与双亲委派见 [类加载机制](/jvm/2_class_loading)
+> 前置阅读：[序列化](./19_topic_serialization)、[类加载机制](/jvm/2_class_loading)
 
-SPI（Service Provider Interface）是一种服务发现机制：框架只定义接口，第三方 jar 提供实现并在约定位置登记，框架运行时把实现找出来。JDBC 驱动、SLF4J 日志绑定、Dubbo 协议、Spring Boot 自动配置都是这个思路。
+SPI（Service Provider Interface）是框架只定义接口、第三方 jar 提供实现并在约定位置登记、运行时再把实现找出来的服务发现机制，JDBC、SLF4J、Dubbo、Spring Boot 自动配置都是这个思路。本篇讲 `ServiceLoader` 的加载过程，以及 JPMS、Dubbo、Spring Boot 的 SPI 变体与自定义扩展点。
 
 ---
 

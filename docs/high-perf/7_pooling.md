@@ -4,13 +4,9 @@ description: 连接池原理、HTTP 连接池、对象池
 
 # 池化技术
 
-> **本篇目标**：理解池化的收益与代价，掌握连接池容量的估算与校验方法，能配好 HTTP 连接池并判断什么对象不该池化。
->
-> **前置阅读**：[代码级优化](./6_code_optimization)
+> 前置阅读：[代码级优化](./6_code_optimization)
 
-> 参考：[HikariCP - About Pool Sizing](https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing)、[Apache HttpClient 5](https://hc.apache.org/httpcomponents-client-5.4.x/)、[Apache Commons Pool](https://commons.apache.org/proper/commons-pool/)
-
-池化的本质是**用空间换时间**：预先创建一批代价高昂的资源并反复复用，把"创建 + 销毁"的成本从每次请求中移除，同时给资源总量设上限。
+池化的本质是**用空间换时间**：预先创建一批代价高昂的资源并反复复用，同时给资源总量设上限。本篇讲池化的收益与代价、连接池容量的估算与校验、HTTP 连接池配置，以及什么对象不该池化。
 
 ---
 
@@ -209,5 +205,11 @@ try {
 - 盯住 `pending` 指标和泄漏检测，事务内不做 RPC
 - HTTP 客户端全局单例，注意 `MaxConnPerRoute` 默认 5 和 Keep-Alive 超时的大小关系
 - 线程池与 Redis 池参数见 high-con，普通小对象不要池化
+
+## 参考资料
+
+- [HikariCP - About Pool Sizing](https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing)
+- [Apache HttpClient 5](https://hc.apache.org/httpcomponents-client-5.4.x/)
+- [Apache Commons Pool](https://commons.apache.org/proper/commons-pool/)
 
 > 下一篇：[异步与批量](./8_async_batch) —— 缩短关键路径、摊薄固定开销的两类手段。

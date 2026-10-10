@@ -4,11 +4,9 @@ description: OWASP API Top 10、调用方认证、HMAC 签名与防重放、API 
 
 # API 安全
 
-> **本篇目标**：知道一个对外 API 最常见的风险在哪（OWASP API Security Top 10 2023）；能为不同调用方选认证方式，写出正确的 HMAC 签名 + 时间戳 + nonce 防重放校验；会存放和轮换 API Key；能在代码里挡住越权访问（BOLA）和批量赋值；会在 Spring Security 7 里配好资源服务器、CORS 与安全响应头，并收敛错误信息和运维端点。
->
-> **前置阅读**：[JWT 令牌机制](./1_jwt)、[OAuth2](./2_oauth2)、[Spring Security](/spring/9_security)（过滤器链与认证流程）
+> 前置阅读：[JWT 令牌机制](./1_jwt)、[OAuth2](./2_oauth2)、[Spring Security](/spring/9_security)
 
-API 安全要回答三个问题：**调用方是谁**（认证）、**它能动哪些数据**（授权）、**它能用多少资源**（限流与资源限制）。本篇以 Spring Boot 4 / Spring Security 7 为基线。过滤器链与认证流程的原理在 [Spring Security](/spring/9_security)，限流算法在 [限流与过载保护](/high-avail/7_rate_limiting)，TLS 在 [HTTPS 与 TLS](/protocols/3_https_tls)，本篇只讲 API 这一层怎么做。
+API 安全要回答三个问题：**调用方是谁**（认证）、**它能动哪些数据**（授权）、**它能用多少资源**（限流与资源限制）。本篇对照 OWASP API Security Top 10 2023，讲认证选型、HMAC 签名防重放、API Key 存储轮换、越权与批量赋值防护，以及 Spring Security 7 的资源服务器、CORS 与安全响应头配置，以 Spring Boot 4 / Spring Security 7 为基线。
 
 ---
 
@@ -445,6 +443,8 @@ Spring Boot 默认让 Jackson 忽略未知字段，所以多传的 `role` 不会
 
 ## 六、输入校验与资源限制
 
+限流算法见 [限流与过载保护](/high-avail/7_rate_limiting)。
+
 ### 参数校验
 
 Spring Framework 6.1 起，控制器内置了方法参数校验：参数上直接写 `@Min`、`@NotBlank` 等约束即可生效。**不要再在控制器类上加 `@Validated`**，否则会额外走一层 AOP 代理校验，抛出的异常类型也变成 `ConstraintViolationException`。
@@ -573,6 +573,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
 一个典型的 API 过滤器链（Spring Security 7，lambda DSL）：
 
+过滤器链与认证流程的原理见 [Spring Security](/spring/9_security)。
+
 ```java
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -658,6 +660,8 @@ Spring Security 默认会写出以下响应头，一般不需要改：
 - **日志脱敏**：请求日志里不打印密码、Token、Secret、完整手机号和证件号，规则与实现统一见 [数据安全](./7_data_security)
 - **API 资产**：所有对外接口登记在网关和接口文档里，老版本有明确的下线时间，测试环境不对公网开放
 - **TLS**：全程 HTTPS，通常在网关 / Ingress 终止 TLS，服务间按需启用 mTLS。协议版本、证书链与 Spring Boot 的 SSL Bundle 配置统一见 [HTTPS 与 TLS](/protocols/3_https_tls)
+
+TLS 见 [HTTPS 与 TLS](/protocols/3_https_tls)。
 
 ---
 

@@ -4,11 +4,9 @@ description: 主干开发与 GitHub Flow、分支保护规则集、Conventional 
 
 # Git 工作流
 
-> **本篇目标**：按全站统一的「主干开发 / GitHub Flow」组织分支：能说清为什么不再用 Git Flow 的 `develop` 分支，能给 `main` 配好规则集与 CODEOWNERS，能用 Conventional Commits 写出可生成变更日志的提交信息，并把提交校验做成随仓库分发、CI 兜底的门禁。
->
-> **前置阅读**：Git 基础命令（`add` / `commit` / `push` / `merge` / `rebase`）；[DevOps 总览](./0_overview)
+> 前置阅读：[DevOps 总览](./0_overview)
 
-分支模型决定了 CI 怎么触发、环境怎么晋级、版本怎么发布，所以它是本模块其余各篇的前提。本篇示例以 GitHub 为主，GitLab 的对应功能在文中点出；命令基于 Git 2.23 以上（`git switch` / `git restore` 自该版本引入），当前稳定版为 2.56。
+分支模型决定了 CI 怎么触发、环境怎么晋级、版本怎么发布，本篇按全站统一的主干开发 / GitHub Flow 讲分支组织、`main` 规则集与 CODEOWNERS、Conventional Commits 与提交校验门禁。示例以 GitHub 为主（GitLab 对应功能文中点出），命令基于 Git 2.23 以上，当前稳定版为 2.56。
 
 ---
 

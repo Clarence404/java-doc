@@ -4,11 +4,9 @@ description: 分片直传、断点续传、秒传校验、STS 与预签名、上
 
 # 大文件上传
 
-> **本篇目标**：基于 S3 分片上传协议实现浏览器直传对象存储，做到可并发、可续传、秒传不泄露他人文件，凭证最小权限，上传后可靠地校验与处理。
->
-> **前置阅读**：[对象存储](/architecture/4_object_storage)
+> 前置阅读：[对象存储](/architecture/4_object_storage)
 
-对象存储的概念、存储类型与 SDK 基本用法见 [对象存储](/architecture/4_object_storage)，本篇只讲上传这条链路。示例用 AWS SDK for Java 2.x 的 S3 客户端：阿里云 OSS、腾讯云 COS、Ceph RGW 等都兼容 S3 分片上传协议，换 `endpointOverride` 即可对接。
+大文件上传通常基于 S3 分片上传协议由浏览器直传对象存储，示例用 AWS SDK for Java 2.x，OSS、COS、Ceph RGW 等兼容 S3 的服务换 `endpointOverride` 即可对接。本篇讲并发分片、断点续传、安全秒传、最小权限凭证，以及上传后的校验与处理。
 
 ---
 
@@ -404,6 +402,7 @@ https://cdn.example.com/images/photo.jpg?x-oss-process=image/crop,w_200,h_200
 - 优先用预签名 URL；必须用 STS 时附带会话策略限定前缀
 - 中转上传时校验参数、规范化路径、不用客户端文件名
 - MinIO 社区版已停止维护，私有化存储要重新评估
+- 对象存储的概念、存储类型与 SDK 基本用法见 [对象存储](/architecture/4_object_storage)，本篇只讲了上传这条链路。
 
 ## 参考资料
 

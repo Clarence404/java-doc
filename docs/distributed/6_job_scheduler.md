@@ -4,15 +4,15 @@ description: 重复执行、ShedLock、分片与错过触发、幂等、XXL-JOB�
 
 # 分布式调度
 
-> **本篇目标**：理解多实例部署后定时任务会遇到的问题（重复执行、单点、任务量过大），掌握「只执行一次、分片、错过触发、阻塞与超时、幂等」这些核心概念，能在 ShedLock、Quartz 集群、XXL-JOB、ElasticJob、PowerJob 与数据工作流调度器之间做选型。
->
-> **前置阅读**：[分布式锁](./3_lock)
+> 前置阅读：[分布式锁](./3_lock)
 
-单实例内的定时任务（`@Scheduled`、`ScheduledThreadPoolExecutor`）见 [异步任务与定时任务](/spring-boot/9_async_schedule)，本篇只讲多实例与调度平台。
+多实例部署后，定时任务会遇到重复执行、单点和任务量过大的问题。本篇讲只执行一次、分片、错过触发、阻塞与超时、幂等等核心概念，以及 ShedLock、Quartz 集群、XXL-JOB、ElasticJob、PowerJob 与数据工作流调度器的选型。
 
 ---
 
 ## 一、多实例下的定时任务问题
+
+单实例内的定时任务（`@Scheduled`、`ScheduledThreadPoolExecutor`）见 [异步任务与定时任务](/spring-boot/9_async_schedule)，本篇只讲多实例与调度平台。
 
 应用部署三个实例，每个实例里的 `@Scheduled` 都会按时触发，同一任务被执行三次。随之而来的问题：
 

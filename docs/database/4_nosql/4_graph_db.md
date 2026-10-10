@@ -4,13 +4,15 @@ description: 适用场景、属性图模型、Neo4j 与 Cypher、NebulaGraph、I
 
 # 图数据库
 
-> **本篇目标**：理解图数据库在多跳关系查询上相对关系型 JOIN 的真正优势与边界，掌握 Neo4j（Cypher）和 NebulaGraph（nGQL）的基本用法，了解 ISO GQL 标准和 Apache AGE 等基于 PostgreSQL 的方案，能判断什么时候值得引入图数据库。
->
-> **前置阅读**：[文档数据库](./2_document_db)、[PostgreSQL 高级 SQL](../2_postgresql/4_topic_advanced_sql)（递归 CTE）。NoSQL 通常分为键值（Redis，见 [Redis 基础](../../cache/1_redis_base)）、文档、宽列和图四大类，本篇是最后一类。
+> 前置阅读：[文档数据库](./2_document_db)、[PostgreSQL 高级 SQL](../2_postgresql/4_topic_advanced_sql)
+
+图数据库擅长多跳关系查询，本篇讲它相对关系型 JOIN 的优势与边界、Neo4j（Cypher）与 NebulaGraph（nGQL）的基本用法、ISO GQL 标准与 Apache AGE，以及何时值得引入图数据库。
 
 ---
 
 ## 一、为什么需要图数据库
+
+NoSQL 通常分为键值（Redis，见 [Redis 基础](../../cache/1_redis_base)）、文档、宽列和图四大类，本篇是最后一类。
 
 ### 1、多跳关系的代价
 

@@ -4,11 +4,9 @@ description: 地址、send / publish / request、编解码器、集群 Event Bus
 
 # Event Bus
 
-> **本篇目标**：掌握 Event Bus 的地址模型与三种通信模式，能为自定义类型写编解码器，理解本地与集群 Event Bus 的差别以及「尽力而为、至多一次」的投递语义，知道哪些场景该用 Event Bus、哪些场景必须换成真正的消息队列。
->
-> **前置阅读**：[Event Loop 与 Verticle](./2_core)
+> 前置阅读：[Event Loop 与 Verticle](./2_core)
 
-Event Bus 是 Vert.x 的「神经系统」：每个 `Vertx` 实例有且只有一个 Event Bus，Verticle 之间不直接持有引用，而是往**地址**上发消息、在地址上注册 consumer。它让一个进程内的多个 Verticle 像 Actor 一样通过消息协作；加上 Cluster Manager 后，同一套 API 又能跨进程、跨机器通信。
+Event Bus 是 Vert.x 的消息总线：Verticle 之间不直接持有引用，而是往地址上发消息，加上 Cluster Manager 后同一套 API 还能跨进程通信。本篇讲地址模型与三种通信模式、自定义编解码器、本地与集群的差别和「至多一次」的投递语义，以及何时该换成真正的消息队列。
 
 ---
 

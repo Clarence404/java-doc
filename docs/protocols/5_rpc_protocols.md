@@ -4,16 +4,9 @@ description: RPC 组成要素、Protobuf 编码、gRPC 帧格式与四种调用�
 
 # RPC 协议
 
-> **本篇目标**：知道一次远程调用由哪几部分组成，读懂 Protobuf 的编码规则和 gRPC 在 HTTP/2 上的帧格式，掌握四种调用方式、截止时间、状态码与长连接负载均衡这些落地要点，能用 Spring Boot 接入 gRPC，并了解 Thrift、SOAP 的定位。
->
-> **前置阅读**：[HTTP](./2_http)（HTTP/2 的流与帧）
+> 前置阅读：[HTTP](./2_http)
 
-RPC（Remote Procedure Call）让调用远程服务像调用本地方法一样：调用方拿到一个桩（Stub），桩负责把参数编码、发出去、等结果、再解码回来。本篇只讲协议本身：
-
-- REST 风格的 URL、状态码、版本约定见 [API 设计规范](/engineering/7_api_design_rule)
-- 服务间调用怎么选（HTTP Service Clients / OpenFeign / gRPC / Dubbo / 异步消息）见 [服务通信](/spring-cloud/3_communication)
-- Dubbo 与 Triple 协议见 [Dubbo](/microservices/4_dubbo)
-- AMQP 是消息协议而不是 RPC：RabbitMQ 经典用法是 AMQP 0-9-1，AMQP 1.0 是另一套协议，见 [RabbitMQ](/messaging/4_rabbitmq)
+RPC（Remote Procedure Call）让调用方通过桩（Stub）像调用本地方法一样调用远程服务。本篇讲 RPC 的组成、Protobuf 编码与 gRPC 帧格式、调用方式 / 截止时间 / 状态码 / 负载均衡等要点、Spring Boot 接入 gRPC，以及 Thrift、SOAP 的定位。
 
 ---
 
@@ -399,6 +392,10 @@ SOAP 是 W3C 标准的 XML 消息协议，配套用 WSDL 描述接口，通常�
 - HTTP/2 长连接会让 L4 负载均衡失效，用客户端负载均衡或 L7 代理按请求分发
 - Spring Boot 4.1 起自带 gRPC starter，4.0 用 Spring gRPC 1.0，3.x 存量项目可用社区 starter
 - Thrift 主要存在于存量大数据组件，SOAP 主要用于对接银行、政务等老系统
+- REST 风格的 URL、状态码、版本约定见 [API 设计规范](/engineering/7_api_design_rule)
+- 服务间调用怎么选（HTTP Service Clients / OpenFeign / gRPC / Dubbo / 异步消息）见 [服务通信](/spring-cloud/3_communication)
+- Dubbo 与 Triple 协议见 [Dubbo](/microservices/4_dubbo)
+- AMQP 是消息协议而不是 RPC：RabbitMQ 经典用法是 AMQP 0-9-1，AMQP 1.0 是另一套协议，见 [RabbitMQ](/messaging/4_rabbitmq)
 
 ## 参考资料
 

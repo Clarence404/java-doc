@@ -4,17 +4,17 @@ description: JDK 8 到 27 关键特性、预览到正式的演进、移除与废
 
 # 版本演进
 
-> **本篇目标**：按升级路径（8 → 11 → 17 → 21 → 25 → 26/27）梳理每个版本对后端开发真正有影响的特性，分清哪些已正式发布、哪些仍是预览，掌握各阶段升级最常踩的兼容性坑，并能给新老项目做版本选型。
->
-> **前置阅读**：[Lambda、Stream 与注解](./1_advanced)
+> 前置阅读：[Lambda、Stream 与注解](./1_advanced)
 
-![Java LTS 版本时间线](../assets/java/java-lts-timeline.svg)
-
-自 JDK 10 起 Java 每六个月发布一个版本（3 月、9 月），每两年指定一个 LTS（长期支持）版本。非 LTS 版本只维护到下一版发布，新特性通常以**预览（Preview，需 `--enable-preview`）**或**孵化（Incubator，独立的 `jdk.incubator.*` 模块）**形式在非 LTS 中迭代，定稿后才进入正式 API。本站版本基线为 **JDK 21 / 25 LTS**；截至 2026 年 10 月，最新版本是 JDK 27（2026-09 GA）。
+自 JDK 10 起 Java 每六个月发布一个版本、每两年指定一个 LTS，本站版本基线为 **JDK 21 / 25 LTS**，截至 2026 年 10 月最新版本是 JDK 27（2026-09 GA）。本篇按 8 → 11 → 17 → 21 → 25 → 26/27 的升级路径梳理对后端有影响的特性、正式与预览之分、各阶段的兼容性坑和版本选型。
 
 ---
 
 ## 一、Java 8 核心特性（起点）
+
+![Java LTS 版本时间线](../assets/java/java-lts-timeline.svg)
+
+非 LTS 版本只维护到下一版发布，新特性通常以**预览（Preview，需 `--enable-preview`）**或**孵化（Incubator，独立的 `jdk.incubator.*` 模块）**形式在非 LTS 中迭代，定稿后才进入正式 API。
 
 Java 8（2014）引入了函数式编程，是迄今影响最大的一次语言升级：
 

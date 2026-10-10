@@ -4,13 +4,9 @@ description: 两级缓存架构、Lettuce 配置、方法注解、QuickConfig �
 
 # JetCache
 
-> **本篇目标**：会用 JetCache 的方法注解和 `CacheManager.getOrCreateCache(QuickConfig)` 搭建本地 + 远程两级缓存，正确配置 Lettuce 与多实例本地缓存同步，并知道它相对 Spring Cache 的取舍。
->
-> **前置阅读**：[Caffeine](./7_caffeine)、[两级缓存（L1 + L2）](./8_two_level_cache)
+> 前置阅读：[Caffeine](./7_caffeine)、[两级缓存（L1 + L2）](./8_two_level_cache)
 
-JetCache 是阿里巴巴开源的 Java 缓存框架，在 Spring Cache 风格的注解之上，补充了两级缓存、自动刷新、空值缓存、加载合并与统计等能力，并提供编程式 API。
-
-**版本基线**：JetCache 2.7.x（写作时最新稳定版为 2.7.8，2.8 处于 RC 阶段）。2.7 起 `@CreateCache` 与 `@EnableCreateCacheAnnotation` 已废弃；在 Spring Boot 4 上使用前，先在官方 Release 与 Issue 中确认兼容性。
+JetCache 是阿里巴巴开源的 Java 缓存框架，在 Spring Cache 风格的注解之上补充了两级缓存、自动刷新、空值缓存、加载合并与统计等能力，并提供编程式 API。本篇以 JetCache 2.7.x 为基线（写作时最新稳定版为 2.7.8，2.8 处于 RC 阶段），讲注解与编程式 API、多实例本地缓存同步，以及它相对 Spring Cache 的取舍。
 
 ---
 
@@ -33,6 +29,8 @@ JetCache 是阿里巴巴开源的 Java 缓存框架，在 Spring Cache 风格的
 ---
 
 ## 二、接入与配置
+
+2.7 起 `@CreateCache` 与 `@EnableCreateCacheAnnotation` 已废弃；在 Spring Boot 4 上使用前，先在官方 Release 与 Issue 中确认兼容性。
 
 ### 1、依赖
 

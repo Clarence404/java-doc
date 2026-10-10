@@ -4,13 +4,9 @@ description: 指标类型、RED / USE、自定义指标与基数控制、Prometh
 
 # 指标监控
 
-> **本篇目标**：理解 Prometheus 的指标模型和 Counter / Gauge / Histogram / Summary 四种类型，以及它们在 Micrometer 中的对应；会按 RED / USE / 四个黄金信号列出一个 Java 服务该看的指标；能写出不会引发基数爆炸的自定义指标；会配置抓取任务和 ServiceMonitor，用 PromQL 正确地算 QPS、错误率和 P99，并用 recording rules 与 Grafana 看板把它们沉淀下来。
->
-> **前置阅读**：[日志体系](./1_logging)（可观测性三大信号的分工）、[Actuator 监控](/spring-boot/7_actuator)（应用侧接入 Micrometer 与暴露 `/actuator/prometheus`）
+> 前置阅读：[日志体系](./1_logging)、[Actuator 监控](/spring-boot/7_actuator)
 
-指标（Metrics）是按时间采样的数值，体积小、可聚合、适合做趋势和告警；日志回答"这一次发生了什么"，链路回答"这一次慢在哪里"，指标回答"整体现在怎么样、和平时比有没有变化"。本篇以 **Prometheus 3.x**（当前最新 3.15，长期支持线 3.13 LTS）和 **Spring Boot 4.x 自带的 Micrometer** 为基线，示例统一用 `order-service`（订单服务）。
-
-边界说明：应用侧依赖、端点暴露与 `MeterRegistry` 基础用法见 [Actuator 监控](/spring-boot/7_actuator) 第六节；平均值与分位数、Little 定律见 [性能指标](/high-perf/1_metrics)；USE / RED 的排查用法见 [性能分析方法论](/high-perf/2_methodology)；Prometheus 本地 TSDB 与长期存储见 [时序数据库](/database/4_nosql/1_time_series_db) 第四节；SLO 与燃烧速率告警见 [可用性度量](/high-avail/1_sla_slo)；告警规则与 Alertmanager 见 [告警体系](./4_alerting)。本篇只讲平台侧的指标设计、采集与查询。
+指标是按时间采样的数值，体积小、可聚合，回答"整体现在怎么样、和平时比有没有变化"。本篇以 **Prometheus 3.x**（当前最新 3.15，长期支持线 3.13 LTS）和 **Spring Boot 4.x 自带的 Micrometer** 为基线，讲平台侧的指标模型与类型、指标清单、基数控制、抓取配置、PromQL 与看板，示例统一用 `order-service`。
 
 ---
 
@@ -508,6 +504,8 @@ histogram_quantile(0.99,
 - 用户 ID、订单号、原始路径不能作标签；应用侧用 `MeterFilter` 和 `max-uri-tags` 限制，抓取侧用 `sample_limit` 和 `metric_relabel_configs` 兜底
 - Kubernetes 中用 ServiceMonitor 声明抓取目标；批任务用 Pushgateway，统一 OpenTelemetry 的场景可用 `--web.enable-otlp-receiver` 直接推 OTLP
 - PromQL 记住四条：先 rate 后 sum、`histogram_quantile` 保留 `le`、比例用速率之和相除、窗口至少 4 倍抓取间隔；高频查询沉淀为 recording rules，看板按 RED → 资源 → 依赖 → 业务排布并纳入版本管理
+
+相关内容：应用侧依赖、端点暴露与 `MeterRegistry` 基础用法见 [Actuator 监控](/spring-boot/7_actuator) 第六节；平均值与分位数、Little 定律见 [性能指标](/high-perf/1_metrics)；USE / RED 的排查用法见 [性能分析方法论](/high-perf/2_methodology)；Prometheus 本地 TSDB 与长期存储见 [时序数据库](/database/4_nosql/1_time_series_db) 第四节；SLO 与燃烧速率告警见 [可用性度量](/high-avail/1_sla_slo)；告警规则与 Alertmanager 见 [告警体系](./4_alerting)。
 
 ## 参考资料
 

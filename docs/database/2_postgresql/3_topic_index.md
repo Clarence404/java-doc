@@ -4,9 +4,9 @@ description: 堆表与 ctid、六种索引访问方法、覆盖索引与 Index O
 
 # PostgreSQL 索引类型
 
-> **本篇目标**：理解 PG 堆表 + 索引的存储结构与 InnoDB 聚簇索引的差别，掌握 B-tree、Hash、GIN、GiST、SP-GiST、BRIN 六种索引访问方法的适用场景，会用部分索引、表达式索引、覆盖索引，并能在线建索引、发现无用索引和处理索引膨胀。
->
-> **前置阅读**：[MySQL 索引](../1_mysql/4_topic_index)、[MVCC 与 VACUUM](./2_topic_mvcc)
+> 前置阅读：[MySQL 索引](../1_mysql/4_topic_index)、[MVCC 与 VACUUM](./2_topic_mvcc)
+
+PG 采用堆表 + 独立索引的结构，与 InnoDB 聚簇索引不同，本篇讲 B-tree、Hash、GIN、GiST、SP-GiST、BRIN 的适用场景，部分 / 表达式 / 覆盖索引，以及在线建索引、无用索引发现与索引膨胀处理。
 
 ---
 

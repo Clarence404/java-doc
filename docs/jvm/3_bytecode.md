@@ -4,9 +4,9 @@ description: Class 文件结构、栈帧、方法调用指令、静态分派与�
 
 # 字节码执行
 
-> **本篇目标**：能读懂 `javap` 输出，理解栈帧结构、五条方法调用指令与分派机制，以及 Lambda 背后的 `invokedynamic`。
->
-> **前置阅读**：[类加载机制](./2_class_loading)
+> 前置阅读：[类加载机制](./2_class_loading)
+
+字节码是 JVM 执行的指令集，读懂它是理解语言特性底层实现的基础。本篇讲 `javap` 输出的读法、栈帧结构、五条方法调用指令与分派机制，以及 Lambda 背后的 `invokedynamic`。
 
 ---
 

@@ -4,9 +4,9 @@ description: Monitor 语义、字节码、锁实现演进、ObjectMonitor、锁�
 
 # synchronized
 
-> **本篇目标**：说清 `synchronized` 在语言层面保证什么，在字节码和 HotSpot 中如何实现；能按 JDK 版本区分偏向锁、栈锁、新轻量级锁和 ObjectMonitor，知道 JDK 21–25 中与虚拟线程、对象头相关的变化。
->
-> **前置阅读**：[JMM 内存模型](./22_topic_jmm)、[线程基础](./23_topic_thread_basics)
+> 前置阅读：[JMM 内存模型](./22_topic_jmm)、[线程基础](./23_topic_thread_basics)
+
+`synchronized` 是 JVM 内置的监视器锁。本篇讲它在语言层面的保证、字节码与 HotSpot 实现，按 JDK 版本区分偏向锁、栈锁、新轻量级锁和 ObjectMonitor，以及 JDK 21–25 中与虚拟线程、对象头相关的变化。
 
 ---
 

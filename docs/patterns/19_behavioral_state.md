@@ -4,9 +4,9 @@ description: sealed + record 状态、枚举转换表、持久化与并发、状
 
 # 状态模式
 
-> **本篇目标**：用 sealed 接口 + record 写出完整可运行的状态模式，会用枚举转换表表达可持久化的订单状态机，知道数据库里改状态必须用条件更新，了解 Spring Statemachine 已停止开源维护，并分清状态模式与策略模式。
->
-> **前置阅读**：[版本演进](/java/2_version)（Record、Sealed 类、switch 模式匹配）
+> 前置阅读：[版本演进](/java/2_version)
+
+状态模式让对象在内部状态改变时改变行为。本篇用 sealed 接口 + record 写完整的状态模式，讲可持久化的枚举转换表订单状态机、数据库条件更新、Spring Statemachine 已停止开源维护的现状，以及状态模式与策略模式的区别。
 
 ---
 

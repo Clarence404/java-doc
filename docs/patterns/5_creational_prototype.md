@@ -4,9 +4,9 @@ description: 原型角色与注册表、clone 浅拷贝与深拷贝、复制构�
 
 # 原型模式
 
-> **本篇目标**：理解原型模式「复制已配置好的对象」的意图，分清浅拷贝和深拷贝，知道为什么《Effective Java》建议用复制构造方法代替 `Cloneable`，并认清 Spring `scope=prototype` 与原型模式的区别。
->
-> **前置阅读**：[序列化](/java/19_topic_serialization)（序列化与深拷贝一节）
+> 前置阅读：[序列化](/java/19_topic_serialization)
+
+原型模式通过复制已配置好的对象来创建新对象。本篇讲浅拷贝与深拷贝、为何推荐复制构造方法代替 `Cloneable`，以及 Spring `scope=prototype` 与原型模式的区别。
 
 ---
 

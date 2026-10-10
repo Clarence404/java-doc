@@ -4,11 +4,9 @@ description: 端点暴露与访问控制、健康检查、存活 / 就绪探针�
 
 # Actuator 监控
 
-> **本篇目标**：掌握 Boot 4 下 Actuator 的暴露与访问模型，用好内置健康检查和存活 / 就绪探针，写出能编译、标签规范的 Micrometer 业务指标，并把管理端点安全地开放给运维与监控系统。
->
-> **前置阅读**：[配置管理](./6_config)
+> 前置阅读：[配置管理](./6_config)
 
-本篇以 Spring Boot 4.x 为基线，3.x 的差异在对应位置标出。指标与链路在平台侧的采集、存储与告警见 [指标监控](/observability/2_metrics) 与 [链路追踪](/observability/3_tracing)，本篇只讲应用侧。
+Actuator 为 Spring Boot 应用提供健康检查、指标等管理端点。本篇以 Spring Boot 4.x 为基线（3.x 差异在对应位置标出），讲暴露与访问模型、健康检查与存活 / 就绪探针、Micrometer 业务指标，以及管理端点的安全开放。
 
 ---
 
@@ -280,6 +278,8 @@ public class LocalCacheEndpoint {
 ## 六、指标：Micrometer 与 Prometheus
 
 ![指标链路](../assets/spring-boot/actuator-metrics-pipeline.svg)
+
+指标与链路在平台侧的采集、存储与告警见 [指标监控](/observability/2_metrics) 与 [链路追踪](/observability/3_tracing)。
 
 ### 1、接入 Prometheus
 

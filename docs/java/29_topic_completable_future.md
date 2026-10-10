@@ -4,11 +4,9 @@ description: 回调线程与默认执行器、任务组合、异常传播、join
 
 # CompletableFuture
 
-> **本篇目标**：搞清楚每个回调由哪个线程执行、异常如何沿链传播，能用 `CompletableFuture` 写出线程池隔离、异常可见、有超时预算且能传递 traceId 的并行编排代码，并知道 JDK 21+ 下什么时候改用虚拟线程。
->
-> **前置阅读**：[线程基础](./23_topic_thread_basics)、[线程池](./28_topic_thread_pool)
+> 前置阅读：[线程基础](./23_topic_thread_basics)、[线程池](./28_topic_thread_pool)
 
-`Future` 只能阻塞 `get()`，不能在完成时触发后续动作，也不能组合多个结果。`CompletableFuture`（JDK 8）同时实现了 `Future` 和 `CompletionStage`：既是一个可以被**手动完成**的结果容器，又能在完成时**触发回调链**。后面所有规则都从这两个身份推出来。
+`CompletableFuture`（JDK 8）同时实现了 `Future` 和 `CompletionStage`，既是可**手动完成**的结果容器，又能在完成时**触发回调链**。本篇讲回调的执行线程、异常传播、线程池隔离 / 超时预算 / traceId 传递的编排写法，以及 JDK 21+ 下何时改用虚拟线程。
 
 ---
 

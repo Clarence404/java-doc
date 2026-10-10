@@ -4,15 +4,15 @@ description: L1 + L2 读写流程、提交后失效、多实例 L1 失效方案�
 
 # 两级缓存（L1 + L2）
 
-> **本篇目标**：掌握「本地缓存 L1 + Redis L2」的读写流程，知道失效为什么必须在事务提交之后、多实例 L1 有哪几种失效方式及各自的丢失风险，并能写出一个可用的两级缓存实现。
->
-> **前置阅读**：[Caffeine](./7_caffeine)、[Redis 基础](./1_redis_base)、[缓存架构设计](/high-con/3_cache_architecture)
+> 前置阅读：[Caffeine](./7_caffeine)、[Redis 基础](./1_redis_base)、[缓存架构设计](/high-con/3_cache_architecture)
 
-两级缓存在系统架构中的位置、多级缓存命中率的计算见 [缓存架构设计](/high-con/3_cache_architecture)；缓存与数据库之间的一致性方案（Cache Aside、延迟双删、binlog 失效）见 [缓存一致性](./10_cache_consistency)。本篇聚焦两级缓存自身的实现与 L1 失效。
+两级缓存用本地缓存 L1 挡住热点读、Redis L2 做共享层，难点在多实例下 L1 的失效。本篇聚焦两级缓存自身的读写流程、提交后失效、多实例 L1 的几种失效方式与一个可用的实现。
 
 ---
 
 ## 一、为什么需要两级缓存
+
+两级缓存在系统架构中的位置、多级缓存命中率的计算见 [缓存架构设计](/high-con/3_cache_architecture)；缓存与数据库之间的一致性方案（Cache Aside、延迟双删、binlog 失效）见 [缓存一致性](./10_cache_consistency)。
 
 | 维度 | L1（本地缓存，Caffeine） | L2（分布式缓存，Redis） |
 |------|------------------------|------------------------|

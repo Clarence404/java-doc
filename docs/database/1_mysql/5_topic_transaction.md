@@ -4,15 +4,15 @@ description: ACID、隔离级别、MVCC、加锁规则、死锁排查、redo / u
 
 # MySQL 事务与锁
 
-> **本篇目标**：弄清 InnoDB 如何用 undo、redo、MVCC 和锁实现 ACID，能说出 RC 与 RR 在读和加锁上的区别，按规则推断一条语句会加哪些锁并用 `performance_schema.data_locks` 验证，能复现、排查和预防死锁，理解 redo 与 binlog 两阶段提交和崩溃恢复。
->
-> **前置阅读**：[MySQL 索引](./4_topic_index)（行锁加在索引上）
+> 前置阅读：[MySQL 索引](./4_topic_index)
 
-本文以 MySQL 8.4 LTS 为基线。Spring 声明式事务与传播行为见 [事务管理](/spring/4_transaction)，跨库、跨服务的事务见 [分布式事务](/distributed/4_transaction)；本文只讲单个 InnoDB 实例内的事务。
+InnoDB 用 undo、redo、MVCC 和锁实现 ACID，本篇讲隔离级别、加锁规则与死锁排查、redo 与 binlog 两阶段提交及崩溃恢复，范围限于单个 InnoDB 实例内的事务。以 MySQL 8.4 LTS 为基线。
 
 ---
 
 ## 一、事务 ACID
+
+Spring 声明式事务与传播行为见 [事务管理](/spring/4_transaction)，跨库、跨服务的事务见 [分布式事务](/distributed/4_transaction)。
 
 | 特性 | 含义 | InnoDB 实现手段 |
 |------|------|----------------|

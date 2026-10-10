@@ -4,13 +4,15 @@ description: 实验原则、ChaosBlade / Chaos Mesh、故障注入实战与检�
 
 # 混沌工程
 
-> **本篇目标**：掌握混沌工程的实验流程与原则，能用 ChaosBlade 与 Chaos Mesh 注入常见故障，并验证熔断、降级、故障转移等预案是否真的生效。
->
-> **前置阅读**：[多活与容灾](./9_multi_active)
->
-> **参考**：[Principles of Chaos Engineering](https://principlesofchaos.org) · [ChaosBlade](https://github.com/chaosblade-io/chaosblade) · [Chaos Mesh](https://chaos-mesh.org/docs/)
+> 前置阅读：[多活与容灾](./9_multi_active)
 
-前面各篇讲的冗余、熔断、降级、切流，平时都不执行，只在故障时才走到。没被验证过的预案，真出事时往往失效。**混沌工程（Chaos Engineering）通过在可控范围内主动注入故障，提前发现系统的脆弱点，并验证高可用措施确实有效。**
+**混沌工程（Chaos Engineering）通过在可控范围内主动注入故障，提前发现系统的脆弱点，并验证冗余、熔断、降级、切流等平时不执行的预案确实有效。** 本篇讲实验流程与原则，以及如何用 ChaosBlade 与 Chaos Mesh 注入常见故障。
+
+---
+
+## 一、实验流程
+
+**每次实验都从一个可证伪的稳态假设开始，以修复加固结束，形成闭环。**
 
 | 对比 | 传统测试 | 混沌工程 |
 |------|---------|---------|
@@ -18,12 +20,6 @@ description: 实验原则、ChaosBlade / Chaos Mesh、故障注入实战与检�
 | 输入 | 构造的正常 / 异常输入 | 真实世界会发生的故障（宕机、延迟、丢包、资源耗尽） |
 | 环境 | 测试环境 | 从预发逐步推进到生产 |
 | 结果判定 | 用例通过 / 失败 | 稳态指标是否偏离假设 |
-
----
-
-## 一、实验流程
-
-**每次实验都从一个可证伪的稳态假设开始，以修复加固结束，形成闭环。**
 
 ![混沌工程实验流程](../assets/high-avail/chaos-engineering-flow.svg)
 
@@ -282,5 +278,11 @@ kubectl delete schedule pod-kill-order-every-10m -n production  # 删除 CR 即�
 - Chaos Mesh 用 CRD 声明实验，2.x 起周期性实验使用 `Schedule` CRD，编排用 `Workflow`
 - 实验场景应覆盖实例宕机、慢下游、依赖不可用、流量洪峰、发布中断和机房故障
 - 每个发现的弱点都要形成改进项并重跑验证，演练常态化后才能真正降低故障影响
+
+## 参考资料
+
+- [Principles of Chaos Engineering](https://principlesofchaos.org)
+- [ChaosBlade](https://github.com/chaosblade-io/chaosblade)
+- [Chaos Mesh](https://chaos-mesh.org/docs/)
 
 > 下一篇：[故障应急与复盘](./11_incident_response) —— 故障真的发生时，如何快速止血、恢复，并通过复盘避免再次发生。

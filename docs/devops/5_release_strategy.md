@@ -4,11 +4,9 @@ description: 滚动、蓝绿、金丝雀、Argo Rollouts、功能开关与暗发
 
 # 发布策略
 
-> **本篇目标**：分清滚动、蓝绿、金丝雀、功能开关和暗发布各自解决什么问题，能写出可以直接 apply 的 Kubernetes 清单（Deployment、Gateway API HTTPRoute、Istio、Argo Rollouts），按检查单上线、按预案回滚，并用 DORA 指标衡量发布能力。
->
-> **前置阅读**：[Kubernetes](/cloud-native/6_kubernetes)、[优雅上下线与变更](/high-avail/8_graceful_release)
+> 前置阅读：[Kubernetes](/cloud-native/6_kubernetes)、[优雅上下线与变更](/high-avail/8_graceful_release)
 
-发布策略回答的是「新版本怎么替换旧版本、出了问题怎么退回去」。本篇是站内发布配置的主文档：优雅停机、PDB、服务预热这些「单个实例怎么平滑上下线」的细节放在 [优雅上下线与变更](/high-avail/8_graceful_release)，这里只讲「整批实例与流量怎么切换」。示例以 2026 年 10 月为基准：Kubernetes 1.37、Gateway API v1、Istio `networking.istio.io/v1`、Argo Rollouts 1.10、Spring Boot 4。
+发布策略回答「新版本怎么替换旧版本、出了问题怎么退回去」，本篇讲滚动、蓝绿、金丝雀、功能开关与暗发布的 Kubernetes 落地、上线检查单、回滚与 DORA 度量。示例以 2026 年 10 月为基准：Kubernetes 1.37、Gateway API v1、Istio `networking.istio.io/v1`、Argo Rollouts 1.10、Spring Boot 4。
 
 ---
 

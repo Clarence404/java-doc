@@ -4,9 +4,7 @@ description: HCL、State 与锁、Module、多环境、Terraform vs OpenTofu / P
 
 # Terraform
 
-> **本篇目标**：能读懂和写出一份可 `plan` 通过的 HCL 配置，理解 State 和状态锁为什么是多人协作的前提，会用 Module 和目录拆分管理多环境，并能在 Terraform、OpenTofu、Pulumi 之间做选型。
->
-> **前置阅读**：[云计算概览](./13_cloud_overview)（VPC、ECS 等 IaaS 概念）、[Linux 概览](./1_linux)
+> 前置阅读：[云计算概览](./13_cloud_overview)、[Linux 概览](./1_linux)
 
 Terraform 是 **IaC（Infrastructure as Code，基础设施即代码）** 工具：用 HCL 描述云上的服务器、网络、数据库、DNS，再由 Terraform 调用云厂商 API 把描述变成真实资源，并记录资源现状。本篇以 Terraform 1.16（2026 年 10 月的稳定版）和 OpenTofu 1.13 为基线，示例使用阿里云 Provider。
 

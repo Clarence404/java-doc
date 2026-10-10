@@ -4,11 +4,9 @@ description: Exchange 四种类型、发布确认与回退、手动 ACK 与重�
 
 # RabbitMQ
 
-> **本篇目标**：理解 RabbitMQ 的 Exchange 路由模型，能在 Spring Boot 中正确配置发布确认、消费重试与死信，掌握 4.x 下的 Quorum 队列与 Streams，以及延迟消息的两种实现与各自的坑。
->
-> **前置阅读**：[消息队列基础](./1_basics)
+> 前置阅读：[消息队列基础](./1_basics)
 
-RabbitMQ 是 AMQP 0-9-1 协议的经典实现，强项是**灵活路由**和**低延迟**（通常亚毫秒到毫秒级），适合业务事件通知、任务分发、延迟关单这类"消息量中等、路由规则多"的场景；吞吐和海量堆积能力不如 Kafka / RocketMQ。
+RabbitMQ 是 AMQP 0-9-1 的经典实现，强项是**灵活路由**和**低延迟**，适合消息量中等、路由规则多的业务事件与任务分发场景。本篇讲 Exchange 路由模型、Spring Boot 中的发布确认 / 消费重试 / 死信、4.x 的 Quorum 队列与 Streams，以及延迟消息的两种实现。
 
 ---
 

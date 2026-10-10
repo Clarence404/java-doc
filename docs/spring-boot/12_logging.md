@@ -4,11 +4,9 @@ description: SLF4J 门面与桥接、Boot 日志配置、结构化日志、异�
 
 # 日志
 
-> **本篇目标**：理清 SLF4J 门面、实现与桥接器的关系，能在 Spring Boot 中正确配置级别、文件、Profile 差异化与结构化 JSON 输出，理解异步日志的取舍，让 traceId 在线程池与响应式链路中不丢失，并避开性能与安全上的常见坑。
->
-> **前置阅读**：[配置管理](./6_config)
+> 前置阅读：[配置管理](./6_config)
 
-本篇只讲**应用侧**：日志怎么打、怎么配、怎么输出。日志被采集之后的 Fluent Bit / Filebeat、Elasticsearch、Loki 等平台侧内容见 [可观测性](/observability/0_overview) 与 [日志体系](/observability/1_logging)。
+日志是应用排障的第一手资料。本篇讲应用侧的 SLF4J 门面、实现与桥接器，Spring Boot 中的级别、文件、Profile 与结构化 JSON 配置，异步日志取舍、traceId 在线程池与响应式链路中的传递，以及性能与安全上的常见坑。
 
 ---
 
@@ -422,6 +420,8 @@ Log4j2 对应属性为 `logging.log4j2.rollingpolicy.*`（`max-file-size`、`max
 - 运行时调级别用 `/actuator/loggers`，用完恢复，端点必须鉴权
 - 用占位符而非拼接，昂贵参数加级别判断，异常对象作为最后一个参数，避免重复打印与大对象日志
 - Log4Shell 说明日志框架是攻击面；密码、Token 不入日志，PII 先脱敏；容器只输出 stdout，文件部署务必设置 `total-size-cap`
+
+日志被采集之后的 Fluent Bit / Filebeat、Elasticsearch、Loki 等平台侧内容见 [可观测性](/observability/0_overview) 与 [日志体系](/observability/1_logging)。
 
 ## 参考资料
 

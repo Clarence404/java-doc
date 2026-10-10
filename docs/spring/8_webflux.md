@@ -4,11 +4,9 @@ description: Mono/Flux、执行模型与冷热流、线程调度、背压、Cont
 
 # WebFlux
 
-> **本篇目标**：理解 Spring WebFlux 与 Project Reactor 的执行模型、线程模型和背压，能写出不阻塞事件循环、上下文不丢失、可调试可测试的响应式代码，并判断什么时候不该用 WebFlux。
->
-> **前置阅读**：[MVC](./3_mvc)、[Reactor 模型](/netty/2_reactor)
+> 前置阅读：[MVC](./3_mvc)、[Reactor 模型](/netty/2_reactor)
 
-版本基线：Spring Boot 4.x / Spring Framework 7.x（Boot 4.0 依赖 Reactor 2025.0，即 reactor-core 3.8.x），Java 21 / 25。与版本相关的特性在文中单独标注。
+Spring WebFlux 是基于 Project Reactor 的非阻塞 Web 栈。本篇讲执行模型、线程模型、背压与上下文传播，以及调试测试和适用场景，版本基线为 Spring Boot 4.x / Spring Framework 7.x（Reactor 2025.0，即 reactor-core 3.8.x）、Java 21 / 25。
 
 ---
 

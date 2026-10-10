@@ -4,15 +4,9 @@ description: async-profiler 与火焰图、JFR、JProfiler、工具选择
 
 # 性能分析工具
 
-> **本篇目标**：会用 async-profiler 抓火焰图并读懂它，会用 JFR 做常驻录制，知道不同场景该选哪个 Profiler。
->
-> **前置阅读**：[性能分析方法论](./2_methodology)
+> 前置阅读：[性能分析方法论](./2_methodology)
 
-本篇聚焦采样型 / 图形化 Profiler。命令行诊断工具见：
-
-- JDK 自带工具（jps / jstack / jmap / jstat / MAT 等）→ [JVM 诊断工具](/jvm/8_monitoring_tools)
-- Arthas 在线诊断（dashboard / trace / watch / jad / ognl 等）→ [线上诊断](/engineering/4_diagnosis)
-- 按故障类型排查及常见问题速查表 → [JVM 故障排查](/jvm/9_troubleshooting)
+本篇聚焦采样型 / 图形化 Profiler：用 async-profiler 抓火焰图并读懂它，用 JFR 做常驻录制，并说明不同场景该选哪个 Profiler。
 
 ---
 
@@ -119,6 +113,12 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr
 ---
 
 ## 五、如何选择
+
+命令行诊断工具见：
+
+- JDK 自带工具（jps / jstack / jmap / jstat / MAT 等）→ [JVM 诊断工具](/jvm/8_monitoring_tools)
+- Arthas 在线诊断（dashboard / trace / watch / jad / ognl 等）→ [线上诊断](/engineering/4_diagnosis)
+- 按故障类型排查及常见问题速查表 → [JVM 故障排查](/jvm/9_troubleshooting)
 
 | 工具 | 开销 | 生产可用 | 分析维度 | 优势 | 局限 |
 |------|------|----------|----------|------|------|

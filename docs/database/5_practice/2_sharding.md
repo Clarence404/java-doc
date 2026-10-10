@@ -4,11 +4,9 @@ description: ShardingSphere 5.5 接入形态、分片规则、读写分离、分
 
 # 分库分表与中间件
 
-> **本篇目标**：掌握 ShardingSphere 5.5 的两种接入形态，能用 JDBC 驱动 + YAML 写出分库分表、绑定表、广播表、读写分离规则，选对内置分片算法与主键生成器；掌握不停机迁移五步、预分配逻辑分片与倍数扩容，做到业务不停完成数据搬迁。
->
-> **前置阅读**：[数据层扩展](/high-con/5_data_scaling)（分片键、扩容、非分片键查询等系统级策略）
+> 前置阅读：[数据层扩展](/high-con/5_data_scaling)
 
-分库分表要不要做、分片键怎么选、跨分片分页与聚合怎么处理，这些系统级策略统一见 [数据层扩展](/high-con/5_data_scaling)；本篇讲中间件落地与平滑迁移、扩容的具体做法，以 Apache ShardingSphere 5.5.x 为基线。
+本篇以 Apache ShardingSphere 5.5.x 为基线，讲两种接入形态、分库分表 / 绑定表 / 广播表 / 读写分离规则、内置分片算法与主键生成器，以及不停机迁移与倍数扩容的具体做法。
 
 ---
 
@@ -224,6 +222,8 @@ try (HintManager hintManager = HintManager.getInstance()) {
 ---
 
 ## 七、ShardingSphere 中的跨分片问题
+
+分库分表要不要做、分片键怎么选、跨分片分页与聚合怎么处理，这些系统级策略统一见 [数据层扩展](/high-con/5_data_scaling)。
 
 ### 1、跨分片查询的执行方式
 

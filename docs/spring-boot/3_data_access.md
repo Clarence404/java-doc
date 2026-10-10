@@ -4,9 +4,9 @@ description: 持久化选型、JdbcClient、JPA 实体与 Repository、MyBatis-P
 
 # 数据访问
 
-> **本篇目标**：能按场景在 JdbcClient、Spring Data JPA、MyBatis-Plus 之间做选择；写出没有反模式的 JPA 实体与 Repository；在 Boot 4 上正确引入 MyBatis-Plus 与多数据源组件；理解 Boot 自动装配的事务管理器、多数据源下事务与路由的冲突，以及两种分页的差异。
->
-> **前置阅读**：[事务管理](/spring/4_transaction)、[MySQL 基础](/database/1_mysql/0_overview)
+> 前置阅读：[事务管理](/spring/4_transaction)、[MySQL 基础](/database/1_mysql/0_overview)
+
+Spring Boot 的数据访问可以选 JdbcClient、Spring Data JPA 或 MyBatis-Plus。本篇讲按场景选型、无反模式的 JPA 实体与 Repository、Boot 4 上的 MyBatis-Plus 与多数据源、事务管理器与路由的冲突，以及两种分页的差异。
 
 ---
 

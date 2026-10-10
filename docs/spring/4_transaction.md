@@ -4,9 +4,9 @@ description: "@Transactional 原理、传播行为、回滚规则、只读与超
 
 # 事务管理
 
-> **本篇目标**：理解 `@Transactional` 从代理到连接绑定的完整机制，能按业务选对传播行为，配置合理的回滚规则，在需要时使用编程式事务，并能逐条排查事务失效。
->
-> **前置阅读**：[AOP](./2_aop)、[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
+> 前置阅读：[AOP](./2_aop)、[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
+
+Spring 声明式事务通过 `@Transactional` 代理把数据库连接绑定到当前线程。本篇讲它的工作机制、传播行为、回滚规则、编程式事务，以及事务失效的逐条排查。
 
 ---
 

@@ -4,11 +4,9 @@ description: Lambda 实现原理、函数式接口与方法引用、Stream 惰�
 
 # Lambda、Stream 与注解
 
-> **本篇目标**：讲清 Lambda 从 javac 脱糖到 `invokedynamic` 链接的完整过程，掌握函数式接口、方法引用、Stream 的求值模型与并行流的适用边界，写出符合规范的 Optional 代码，并理解注解从定义、运行时读取到编译期处理的全链路（含 JDK 23 注解处理默认行为的变化）。
->
-> **前置阅读**：[Java 总览](./0_overview)
+> 前置阅读：[Java 总览](./0_overview)
 
-版本基线：JDK 21 / 25 LTS，JDK 8 / 17 的差异单独标出。泛型见 [泛型](./14_topic_generics)，反射见 [反射](./15_topic_reflection)，本篇不重复。
+本篇讲 Lambda 从 javac 脱糖到 `invokedynamic` 链接的过程、函数式接口与方法引用、Stream 求值模型与并行流、Optional 规范写法，以及注解从定义、运行时读取到编译期处理的全链路（含 JDK 23 的变化）。版本基线为 JDK 21 / 25 LTS，JDK 8 / 17 的差异单独标出。
 
 ---
 
@@ -529,6 +527,8 @@ Gradle 的 `annotationProcessor` 依赖配置本来就走处理器路径，不�
 ---
 
 ## 小结
+
+泛型见 [泛型](./14_topic_generics)，反射见 [反射](./15_topic_reflection)，本篇不重复。
 
 - Lambda 由 javac 脱糖为私有方法 + `invokedynamic`，首次执行时由 `LambdaMetafactory` 生成隐藏类并链接 CallSite；它不是匿名内部类，`this` 指外围实例，不生成 `.class` 文件
 - 捕获的局部变量必须 effectively final；非捕获 Lambda 可复用实例，但规范不保证同一性

@@ -4,13 +4,9 @@ description: 微基准的陷阱、JMH 注解与示例、结果解读
 
 # 基准测试（JMH）
 
-> **本篇目标**：理解手写计时循环为什么不可信，会用 JMH 写出可靠的微基准并正确解读结果。
->
-> **前置阅读**：[性能分析工具](./3_profilers)
+> 前置阅读：[性能分析工具](./3_profilers)
 
-参考：[OpenJDK JMH](https://github.com/openjdk/jmh)、[JMH Samples](https://github.com/openjdk/jmh/tree/master/jmh-samples/src/main/java/org/openjdk/jmh/samples)
-
-JMH（Java Microbenchmark Harness）是 OpenJDK 项目提供的微基准测试框架，用来可靠地测量**方法级、代码片段级**的性能差异。Profiler 告诉你"哪里慢"，JMH 回答"换一种写法能快多少"。
+JMH（Java Microbenchmark Harness）是 OpenJDK 提供的微基准测试框架，用来可靠地测量**方法级、代码片段级**的性能差异：Profiler 告诉你"哪里慢"，JMH 回答"换一种写法能快多少"。本篇讲手写计时循环为什么不可信，以及如何用 JMH 写出可靠的微基准并正确解读结果。
 
 ---
 
@@ -266,5 +262,10 @@ JMH 回答"**A 写法比 B 写法快多少**"，压测回答"**系统能扛多�
 - JMH 用 Warmup、Fork、Blackhole、`@State` 解决这些问题，正式测试至少 `@Fork(2)`
 - 解读结果看误差区间是否重叠、看随 `@Param` 规模变化的趋势，用 `-prof gc` 解释差异
 - 微基准收益要按耗时占比折算，系统级结论以压测为准
+
+## 参考资料
+
+- [OpenJDK JMH](https://github.com/openjdk/jmh)
+- [JMH Samples](https://github.com/openjdk/jmh/tree/master/jmh-samples/src/main/java/org/openjdk/jmh/samples)
 
 > 下一篇：[JVM 层性能策略](./5_jvm_tuning) —— 从代码片段上升到运行时：收集器、分配速率、容器内存与 JIT 预热。

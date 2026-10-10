@@ -4,11 +4,9 @@ description: SemVer 与 SNAPSHOT、Nexus / Harbor、digest 部署、cosign 签�
 
 # 制品与版本管理
 
-> **本篇目标**：分清 SemVer 与 Maven SNAPSHOT 的边界，用 CI 友好版本号替代 release 插件；配好 Nexus 与 Harbor（凭证不落盘、tag 不可变、Chart 走 OCI）；部署时用镜像 digest 而不是 tag；给镜像加上 cosign keyless 签名和 SLSA 溯源证明，并在集群准入时校验，做到线上任意一个 Pod 都能追溯到具体提交。
->
-> **前置阅读**：[CI/CD](./2_ci_cd)、[Docker](/cloud-native/5_docker)
+> 前置阅读：[CI/CD](./2_ci_cd)、[Docker](/cloud-native/5_docker)
 
-制品（artifact）是 CI 产出、CD 消费的东西：Jar、镜像、Helm Chart。本篇回答三个问题：**版本号怎么定、制品放哪里、怎么证明线上跑的就是那次构建的产物**。Maven 依赖冲突的调解机制见 [构建工具](/engineering/1_build_tools)，依赖漏洞扫描、License 合规与 SBOM 生成见 [依赖治理](/engineering/6_dependency_governance)，本篇不重复。
+制品（artifact）是 CI 产出、CD 消费的东西：Jar、镜像、Helm Chart。本篇讲版本号规范、Nexus 与 Harbor 仓库、按 digest 部署，以及 cosign 签名与 SLSA 溯源，让线上任意 Pod 都能追溯到具体提交。
 
 ---
 
@@ -138,6 +136,8 @@ VERSION="${GITHUB_REF_NAME#v}"           # v1.3.0 → 1.3.0
 ---
 
 ## 三、Maven 私服（Nexus）
+
+Maven 依赖冲突的调解机制见 [构建工具](/engineering/1_build_tools)。
 
 Nexus 里常用三种仓库：
 

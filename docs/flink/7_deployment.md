@@ -4,15 +4,15 @@ description: Operator 部署、内存模型、slot、反压、checkpoint 失败�
 
 # 部署与运维
 
-> **本篇目标**：能用 Flink Kubernetes Operator 以 Application 模式部署作业，算清 TaskManager 内存和 slot，按指标定位反压、checkpoint 失败与数据倾斜，接好 Prometheus 监控，并用 savepoint 安全地升级作业。
->
-> **前置阅读**：[状态与容错](./4_state_checkpoint)、[Flink SQL 与 Table API](./5_sql)
+> 前置阅读：[状态与容错](./4_state_checkpoint)、[Flink SQL 与 Table API](./5_sql)
 
-Kubernetes 本身的概念与运维见 [Kubernetes](/cloud-native/6_kubernetes)，指标平台见 [指标监控](/observability/2_metrics)；本篇只讲 Flink 特有的部分。
+本篇讲 Flink 生产部署与运维中 Flink 特有的部分：用 Kubernetes Operator 以 Application 模式部署、TaskManager 内存与 slot、按指标定位反压 / checkpoint 失败 / 数据倾斜、Prometheus 监控，以及用 savepoint 安全升级作业。
 
 ---
 
 ## 一、部署模式与 Kubernetes Operator
+
+Kubernetes 本身的概念与运维见 [Kubernetes](/cloud-native/6_kubernetes)。
 
 ### 1、Application 模式是默认选择
 

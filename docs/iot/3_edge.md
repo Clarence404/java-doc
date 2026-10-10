@@ -4,11 +4,9 @@ description: 云边分工、EdgeX Foundry 部署、KubeEdge 云边协同与设�
 
 # 边缘计算
 
-> **本篇目标**：搞清哪些事该放在边缘做、哪些该放在云端做；能用 EdgeX Foundry 搭一个边缘数据采集栈，用 KubeEdge 把 Kubernetes 延伸到边缘节点；能在 Java 里用 ONNX Runtime 做边缘推理，并安全地更新模型。
->
-> **前置阅读**：[平台选型](./2_platform)、[Kubernetes](/cloud-native/6_kubernetes)
+> 前置阅读：[平台选型](./2_platform)、[Kubernetes](/cloud-native/6_kubernetes)
 
-版本基线：EdgeX Foundry **4.0**（REST API v3），KubeEdge **1.23**，ONNX Runtime **1.31**。
+边缘计算把部分计算和决策放到靠近设备的位置完成，本篇讲哪些事该放在边缘、哪些该放在云端。内容包括用 EdgeX Foundry **4.0**（REST API v3）搭边缘采集栈、用 KubeEdge **1.23** 做云边协同、用 ONNX Runtime **1.31** 在 Java 里做边缘推理与模型更新。
 
 ---
 

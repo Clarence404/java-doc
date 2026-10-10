@@ -4,9 +4,9 @@ description: MongoDB 8、文档建模、索引、聚合、副本集、分片、�
 
 # 文档数据库
 
-> **本篇目标**：以 MongoDB 8.x 为基线，掌握文档建模（内嵌还是引用）、索引与聚合、副本集与分片集群的工作方式，弄清多文档事务的版本边界与代价，能判断一个业务该用 MongoDB 还是 MySQL。
->
-> **前置阅读**：[MySQL 索引](../1_mysql/4_topic_index)（复合索引与最左前缀）、[列式与 OLAP 数据库](./0_column_db)
+> 前置阅读：[MySQL 索引](../1_mysql/4_topic_index)、[列式与 OLAP 数据库](./0_column_db)
+
+本篇以 MongoDB 8.x 为基线，讲文档建模（内嵌还是引用）、索引与聚合、副本集与分片集群、多文档事务的版本边界与代价，以及何时该用 MongoDB 而不是 MySQL。
 
 ---
 

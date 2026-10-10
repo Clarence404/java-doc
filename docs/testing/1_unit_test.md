@@ -4,11 +4,9 @@ description: JUnit 6 编程模型、参数化与嵌套测试、AssertJ、FIRST �
 
 # 单元测试
 
-> **本篇目标**：用 JUnit 6 + AssertJ 给一个订单计价服务写出完整的单元测试：会用生命周期、`@Nested`、参数化测试、假设与超时、自定义扩展；知道好的单元测试长什么样，能把时间和随机数变成可控输入，用测试数据构建器消除重复；理解覆盖率能说明什么、不能说明什么，会用 PIT 检验断言是否有力。
->
-> **前置阅读**：[测试工程总览](./0_overview)
+> 前置阅读：[测试工程总览](./0_overview)
 
-单元测试是测试金字塔的底座：不启动 Spring、不连数据库、不发网络请求，毫秒级跑完，失败时能直接指出哪条规则坏了。本篇所有示例围绕同一个订单计价服务 `PriceCalculator` 展开，代码在 JDK 21、JUnit 6.1.3、AssertJ 3.27.7 下编译并全部通过。Mockito 的用法在 [Mock 测试](./2_mock)，Spring 的切片测试在 [Spring Boot 测试](/spring-boot/13_testing)。
+单元测试是测试金字塔的底座：不启动 Spring、不连数据库、不发网络请求，毫秒级跑完。本篇围绕订单计价服务 `PriceCalculator`，讲 JUnit 6 与 AssertJ 的用法、可控的时间与随机数、测试数据构建器和覆盖率与变异测试，示例基于 JDK 21、JUnit 6.1.3、AssertJ 3.27.7。
 
 ---
 
@@ -1017,6 +1015,8 @@ void allowsZeroPriceGiftLine() {
 - 好测试遵循 FIRST 与 AAA，名字说清条件和期望，测试里不写逻辑，不测私有方法
 - 测试数据构建器让每个测试只出现它关心的字段
 - 覆盖率只说明哪些代码没被执行；PIT 能揪出「执行了但没验证」的边界，适合在核心模块上定期运行
+
+Mockito 的用法在 [Mock 测试](./2_mock)，Spring 的切片测试在 [Spring Boot 测试](/spring-boot/13_testing)。
 
 ---
 

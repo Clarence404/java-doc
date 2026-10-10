@@ -4,15 +4,15 @@ description: ZSet 实时榜、日周月榜、同分先到先得、分片合并�
 
 # 排行榜和积分
 
-> **本篇目标**：用 Redis ZSet 落地实时榜与日 / 周 / 月榜，处理同分排序、超大榜单与历史归档，并设计一个余额不错、流水可对账、与榜单最终一致的积分系统。
->
-> **前置阅读**：[Redis 基础](/cache/1_redis_base)（ZSet 一节）、[Redis 典型应用场景](/cache/4_redis_scenario)
+> 前置阅读：[Redis 基础](/cache/1_redis_base)、[Redis 典型应用场景](/cache/4_redis_scenario)
 
-ZSet 的命令与底层结构（跳表 + listpack）见 [Redis 基础](/cache/1_redis_base)，本篇只讲排行榜和积分的设计取舍。示例基于 Redis 7.x / 8.x 与 Spring Data Redis，`redis` 指 `StringRedisTemplate`。
+排行榜和积分是 Redis ZSet 最典型的落地场景。本篇讲实时榜与日 / 周 / 月榜、同分排序、超大榜单与历史归档，以及余额不错、流水可对账、与榜单最终一致的积分系统，示例基于 Redis 7.x / 8.x 与 Spring Data Redis（`redis` 指 `StringRedisTemplate`）。
 
 ---
 
 ## 一、实时排行榜
+
+ZSet 的命令与底层结构（跳表 + listpack）见 [Redis 基础](/cache/1_redis_base)。
 
 ### 1、命令速查
 

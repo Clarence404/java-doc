@@ -4,11 +4,9 @@ description: Iterable 与 Iterator、fail-fast 与 CME、分页迭代器、内�
 
 # 迭代器模式
 
-> **本篇目标**：理解迭代器模式的角色以及 Java `Iterable` / `Iterator` 如何对应它们，能写出可用于 for-each 和 Stream 的自定义迭代器，知道 fail-fast、游标查询等实际使用中的坑。
->
-> **前置阅读**：[命令模式](./14_behavioral_command)、[集合框架](/java/21_topic_collection)
+> 前置阅读：[命令模式](./14_behavioral_command)、[集合框架](/java/21_topic_collection)
 
-迭代器模式（Iterator）提供一种**顺序访问聚合对象中元素**的方式，而不暴露聚合的内部结构。数组、链表、树、分页查询结果，内部结构完全不同，但对外都可以用「还有没有下一个、取下一个」两个操作遍历。Java 把这个模式直接做进了语言：所有集合都实现 `Iterable`，for-each 循环就是迭代器的语法糖。
+迭代器模式（Iterator）提供一种顺序访问聚合元素而不暴露内部结构的方式，Java 把它直接做进了语言：集合实现 `Iterable`，for-each 就是迭代器的语法糖。本篇讲角色与 `Iterable` / `Iterator` 的对应、可用于 for-each 和 Stream 的自定义迭代器，以及 fail-fast、游标查询等坑。
 
 ---
 

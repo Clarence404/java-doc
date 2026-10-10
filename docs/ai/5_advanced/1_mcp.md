@@ -4,11 +4,9 @@ description: MCP 能力模型、规范演进、Streamable HTTP、Java 客户端�
 
 # MCP 协议
 
-> **本篇目标**：理解 MCP 的角色划分与能力模型，掌握规范从 HTTP+SSE 到 Streamable HTTP、再到无状态的演进，能用 Spring AI 和 LangChain4j 接入 MCP Server、用 Spring AI 写一个 MCP Server，并知道远程 MCP 的认证要求与工具投毒等安全风险。
->
-> **前置阅读**：[Function Calling（工具调用）](../1_concepts/2_function_calling)、[AI Agent 智能体](./0_agent)
+> 前置阅读：[Function Calling（工具调用）](../1_concepts/2_function_calling)、[AI Agent 智能体](./0_agent)
 
-本篇以 MCP 规范 2026-07-28 版本为基线，代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0。MCP 迭代很快，属性名与传输细节以官方文档为准。
+MCP 是连接 AI 应用与外部工具、数据源的开放协议。本篇以 MCP 规范 2026-07-28 版本与 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0 为基线，讲角色与能力模型、传输演进、客户端接入与 Server 开发、认证与安全风险，属性名与传输细节以官方文档为准。
 
 ---
 

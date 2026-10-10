@@ -4,11 +4,9 @@ description: 协议流程、各家差异、tool_choice、strict 模式、@Tool �
 
 # Function Calling（工具调用）
 
-> **本篇目标**：讲清 Function Calling 的两轮协议和各家格式差异，正确使用 `tool_choice`、并行调用和 strict 模式，会用 Spring AI 与 LangChain4j 的 `@Tool` 定义工具，并按最小权限、人工确认、不信任工具输出的原则设计工具。
->
-> **前置阅读**：[Prompt 工程](./1_prompt)
+> 前置阅读：[Prompt 工程](./1_prompt)
 
-本篇是 Function Calling 的主文档，[Spring AI](../2_frameworks/0_spring_ai)、[LangChain4j](../2_frameworks/1_langchain4j)、[AI Agent 智能体](../5_advanced/0_agent)、[MCP 协议](../5_advanced/1_mcp) 中涉及工具调用协议的部分都以本篇为准。
+Function Calling 让模型以结构化方式请求调用外部工具，是 Agent 与 MCP 的基础协议。本篇讲两轮协议与各家格式差异、`tool_choice` / 并行调用 / strict 模式、Spring AI 与 LangChain4j 的 `@Tool` 写法，以及工具设计的安全原则。
 
 ---
 
@@ -300,6 +298,8 @@ Assistant assistant = AiServices.builder(Assistant.class)
 - `tool_choice` 的 `required` / `any` 只保证至少调一个工具，锁定工具要用指定写法，且部分模型不支持强制调用；strict 模式保证参数符合 Schema
 - Spring AI 用 `@Tool` + `@ToolParam` + `ToolContext`，LangChain4j 用 `@Tool` + `@P` + `AiServices`，两者都要限制循环轮数
 - 工具设计按最小权限、身份不由模型决定、副作用人工确认、工具输出不可信四条原则
+
+本篇是 Function Calling 的主文档，[Spring AI](../2_frameworks/0_spring_ai)、[LangChain4j](../2_frameworks/1_langchain4j)、[AI Agent 智能体](../5_advanced/0_agent)、[MCP 协议](../5_advanced/1_mcp) 中涉及工具调用协议的部分都以本篇为准。
 
 ## 参考资料
 

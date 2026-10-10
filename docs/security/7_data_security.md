@@ -4,11 +4,9 @@ description: 数据分级与合规、密码哈希、AES-GCM、信封加密与 KM
 
 # 数据安全
 
-> **本篇目标**：能给系统里的数据分级，知道《个人信息保护法》和 GDPR 对技术侧的要求；会用 Argon2id / bcrypt 存密码并平滑升级算法；写出正确的 AES-GCM 加解密；理解信封加密和 KMS、Vault / OpenBao 的分工，能设计密钥轮换；会做审计日志、字段级加密 + 盲索引查询，以及日志和接口输出的脱敏。
->
-> **前置阅读**：[API 安全](./6_api_security)、[HTTPS 与 TLS](/protocols/3_https_tls)（传输加密部分）
+> 前置阅读：[API 安全](./6_api_security)、[HTTPS 与 TLS](/protocols/3_https_tls)
 
-数据安全要覆盖数据的整个生命周期：**采集时分级、传输时加密、存储时加密、使用时脱敏、操作时审计、删除时可证明**。传输加密见 [HTTPS 与 TLS](/protocols/3_https_tls)，JWT 签名密钥的轮换见 [JWT 令牌机制](./1_jwt)，本篇只讲存储与使用环节。代码基线为 JDK 21、Spring Boot 4 / Spring Security 7、Jackson 3。
+数据安全要覆盖数据的整个生命周期：**采集时分级、传输时加密、存储时加密、使用时脱敏、操作时审计、删除时可证明**。本篇讲存储与使用环节的数据分级与合规、密码哈希、AES-GCM、信封加密与密钥轮换、审计日志、字段级加密与脱敏，代码基线为 JDK 21、Spring Boot 4 / Spring Security 7、Jackson 3。
 
 ---
 
@@ -41,6 +39,8 @@ PIPL 所说的敏感个人信息包括生物识别、宗教信仰、特定身份
 ---
 
 ## 二、加密算法与密码哈希
+
+传输加密见 [HTTPS 与 TLS](/protocols/3_https_tls)。
 
 ### 对称加密：首选 AES-GCM
 
@@ -156,6 +156,8 @@ public class PasswordConfig {
 ## 三、密钥管理
 
 加密做得再好，密钥和密文放在一起就等于没加密。密钥管理要回答：密钥放在哪、谁能用、多久换一次、泄露了怎么办。
+
+JWT 签名密钥的轮换见 [JWT 令牌机制](./1_jwt)。
 
 ### 密钥生命周期
 

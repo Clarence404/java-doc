@@ -4,13 +4,9 @@ description: 同步转异步模式、削峰填谷与消费速率、用户侧排�
 
 # 异步与削峰
 
-> **本篇目标**：把可延迟的工作移出请求链路，把瞬时写洪峰摊平到下游能承受的速率，并保证异步之后数据最终一致。
->
-> **前置阅读**：[缓存架构设计](./3_cache_architecture)
+> 前置阅读：[缓存架构设计](./3_cache_architecture)
 
-> 参考链接：[RocketMQ 事务消息](https://rocketmq.apache.org/zh/docs/featureBehavior/04transactionmessage) · [Kafka 官方文档](https://kafka.apache.org/documentation/)
-
-缓存解决"读"的扩展，异步解决"写"和"重"的扩展：**主链路只做必须同步完成的步骤，其余工作交给队列按下游能力匀速处理。**
+缓存解决"读"的扩展，异步解决"写"和"重"的扩展：**主链路只做必须同步完成的步骤，其余工作交给队列按下游能力匀速处理**。本篇讲同步转异步、削峰填谷、用户侧排队与流量整形，以及异步之后如何保证数据最终一致。
 
 ---
 
@@ -251,5 +247,10 @@ public class OutboxRelayJob {
 - 秒杀类场景在用户侧用令牌和排队先把请求量压下来
 - 整形让超出部分排队，限流让超出部分失败，两者组合使用
 - 异步之后靠本地消息表 / 事务消息 + 幂等消费 + 对账保证最终一致，中继任务要防多实例重复投递
+
+## 参考资料
+
+- [RocketMQ 事务消息](https://rocketmq.apache.org/zh/docs/featureBehavior/04transactionmessage)
+- [Kafka 官方文档](https://kafka.apache.org/documentation/)
 
 > 下一篇：[数据层扩展](./5_data_scaling) —— 削峰之后落到存储的流量，如何靠读写分离与分库分表承接。

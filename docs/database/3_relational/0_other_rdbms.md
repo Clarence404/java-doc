@@ -4,11 +4,15 @@ description: Oracle 与 SQL Server 方言差异、达梦、人大金仓、openGa
 
 # 其他 RDBMS
 
-> **本篇目标**：掌握 Oracle、SQL Server 与 MySQL 在分页、自增、空字符串、布尔、隔离级别上的关键差异，能为达梦、人大金仓、openGauss 选对驱动与连接串，并避开大小写、认证等常见接入坑。
->
-> **前置阅读**：[MySQL 基础](../1_mysql/0_overview)、[PostgreSQL 基础](../2_postgresql/0_overview)
+> 前置阅读：[MySQL 基础](../1_mysql/0_overview)、[PostgreSQL 基础](../2_postgresql/0_overview)
 
-本篇以 MySQL 8.4 为对照基线，各产品版本基线如下：
+本篇以 MySQL 8.4 为对照基线，讲 Oracle、SQL Server 在分页、自增、空字符串、布尔、隔离级别上的差异，以及达梦、人大金仓、openGauss 的驱动选择与常见接入坑。
+
+---
+
+## 一、Oracle
+
+各产品的版本基线如下：
 
 | 产品 | 版本基线 | 说明 |
 |------|---------|------|
@@ -17,10 +21,6 @@ description: Oracle 与 SQL Server 方言差异、达梦、人大金仓、openGa
 | 达梦 DM | DM8 | |
 | 人大金仓 KingbaseES | V9 | |
 | openGauss | 6.0 / 7.0 LTS | 商业版为华为 GaussDB |
-
----
-
-## 一、Oracle
 
 - 官网：[oracle.com/database](https://www.oracle.com/database/)
 - 企业级 RDBMS，金融、电信、政府核心系统中常见

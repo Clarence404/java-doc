@@ -4,11 +4,9 @@ description: Pipeline 结构与事件传播、三个传播陷阱、动态增删 
 
 # Pipeline 与 Handler
 
-> **本篇目标**：掌握消息在一条连接上的处理路径：Pipeline 如何串起 Handler、入站与出站事件各往哪个方向走、最容易踩的三个传播陷阱，以及 Handler 的基类选择、生命周期和共享规则。
->
-> **前置阅读**：[Channel 与 EventLoop](./4_channel_eventloop)
+> 前置阅读：[Channel 与 EventLoop](./4_channel_eventloop)
 
-上一篇讲了连接（Channel）和线程（EventLoop）。每个 Channel 都拥有一条 **ChannelPipeline**，从 Socket 读到的数据、要写出去的数据都沿着它流动，流水线上的每个工位就是一个 **ChannelHandler**。Pipeline 上的所有回调默认都运行在该 Channel 绑定的 EventLoop 线程上，所以上一篇"不要阻塞 EventLoop"的规则在这里同样适用。
+每个 Channel 拥有一条 **ChannelPipeline**，读写数据都沿它流动，流水线上的工位就是 **ChannelHandler**，回调默认运行在该 Channel 绑定的 EventLoop 线程上。本篇讲 Pipeline 如何串起 Handler、入站与出站事件的方向、三个传播陷阱，以及 Handler 的基类选择、生命周期和共享规则。
 
 ---
 

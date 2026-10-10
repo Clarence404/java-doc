@@ -4,11 +4,9 @@ description: IDEA 快捷键与调试、远程调试、HTTP Client / Bruno、插�
 
 # 开发工具
 
-> **本篇目标**：把 IntelliJ IDEA 用顺手（高频快捷键、断点技巧、JDWP 远程调试），用可以进 Git 的 `.http` 文件或 Bruno 取代散落在个人电脑上的接口集合，并用 SDKMAN / mise 在多 JDK 之间按项目切换。
->
-> **前置阅读**：[构建工具](./1_build_tools)
+> 前置阅读：[构建工具](./1_build_tools)
 
-本篇只讲 IDE 和桌面工具本身。Lombok、MapStruct 等库的用法见 [效率工具库](/java/98_dev_tool)，代码质量插件的规则与门禁见 [代码质量](./3_code_quality)，AI 编码助手见 [AI 工具](/ai/6_tools/0_ai_tools)。版本以 2026 年 10 月为准：IntelliJ IDEA 2026.x、JDK 21（25 为最新 LTS）。
+IDE 和桌面工具决定日常开发是否顺手。本篇讲 IntelliJ IDEA 快捷键、断点与 JDWP 远程调试，用 `.http` 文件或 Bruno 管理接口集合，以及用 SDKMAN / mise 切换多 JDK，版本以 2026 年 10 月为准：IntelliJ IDEA 2026.x、JDK 21（25 为最新 LTS）。
 
 ---
 
@@ -116,6 +114,8 @@ log.debug("$MSG$: {}", $VAR$);$END$
 ## 二、插件
 
 先确认是不是已经内置，再装插件：
+
+代码质量插件的规则与门禁见 [代码质量](./3_code_quality)。
 
 - **Lombok**：2020.3 起内置支持，无需安装插件（库本身仍要引依赖，见 [效率工具库](/java/98_dev_tool)）
 - **按 URL 找 Controller**：Ultimate 的 Endpoints 工具窗口可按路径搜索 Spring MVC / WebFlux 接口，RestfulTool 类插件已多年未适配新版 IDE
@@ -360,6 +360,8 @@ jenv enable-plugin export                 # 让 JAVA_HOME 跟随切换，Maven /
 
 IDE 内的 AI 助手（JetBrains AI Assistant、GitHub Copilot 等）和命令行 Agent（Claude Code 等）已是日常工具。生成的代码同样要过格式化、静态分析和测试这道门禁，不因为是 AI 写的就放宽；选型与用法见 [AI 工具](/ai/6_tools/0_ai_tools)。
 
+AI 编码助手详见 [AI 工具](/ai/6_tools/0_ai_tools)。
+
 ---
 
 ## 小结
@@ -370,6 +372,8 @@ IDE 内的 AI 助手（JetBrains AI Assistant、GitHub Copilot 等）和命令�
 - 接口样例优先放进仓库：`.http` 文件（`ijhttp` 跑 CI）或 Bruno；密码等敏感值放私有环境文件或 CI Secret
 - Lombok 支持已内置，SonarLint 已更名 SonarQube for IDE，团队必装插件用 Required Plugins 声明
 - SDKMAN 的 Identifier 要用 `sdk list java` 里的完整写法；版本文件提交到仓库，与构建工具的 Toolchains 配合
+
+Lombok、MapStruct 等库的用法见 [效率工具库](/java/98_dev_tool)。
 
 ## 参考资料
 

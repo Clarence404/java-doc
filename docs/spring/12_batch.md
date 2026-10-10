@@ -4,11 +4,9 @@ description: Chunk 读写、Tasklet、流程控制、重启语义、分区扩展
 
 # Spring Batch 批处理
 
-> **本篇目标**：理解 Spring Batch 的 Job / Step / Chunk 模型与元数据，能在 Spring Boot 4（Spring Batch 6）中正确配置 JDBC 作业仓库，写出可跳过、可重试、可重启的批处理作业，并知道数据量变大时如何用多线程与分区扩展。
->
-> **前置阅读**：[事务管理](./4_transaction)
+> 前置阅读：[事务管理](./4_transaction)
 
-Spring Batch 解决的是「大量数据、离线、可中断可恢复」的处理问题：数据迁移、日终对账、报表汇总、ETL。它不负责调度，只负责把一次批处理执行得**可靠、可观测、可重启**。
+Spring Batch 处理「大量数据、离线、可中断可恢复」的任务，只负责把批处理执行得可靠、可观测、可重启，不负责调度。本篇基于 Spring Boot 4（Spring Batch 6），讲 Job / Step / Chunk 模型、JDBC 作业仓库、跳过 / 重试 / 重启，以及多线程与分区扩展。
 
 ---
 

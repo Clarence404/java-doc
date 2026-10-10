@@ -4,12 +4,17 @@ description: 线程池、Web 容器、数据库 / Redis 连接池、OS 参数、
 
 # 并发参数调优
 
-> **本篇目标**：理清一个请求依次经过的各层"容量阀门"，会估算线程数、配置 Web 容器与客户端连接池、调整 OS 参数，并按数据驱动的流程调优。
->
-> **前置阅读**：[热点问题](./6_hotspot)
->
-> **参考链接**：[HikariCP - About Pool Sizing](https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing) · [Spring Boot 服务器配置项](https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.server)
-一个请求从进入服务器到返回，依次经过 **OS 连接队列 → Web 容器线程 → 业务线程池 → 连接池（DB / Redis / HTTP）**。任何一层与流量不匹配都会成为瓶颈：配小了请求排队、资源闲置；配大了上下文切换、内存暴涨、把下游压垮。**调优的目标是让各层容量逐级匹配，并且每一层都有上限。**
+> 前置阅读：[热点问题](./6_hotspot)
+
+一个请求依次经过 **OS 连接队列 → Web 容器线程 → 业务线程池 → 连接池（DB / Redis / HTTP）**，任何一层与流量不匹配都会成为瓶颈，**调优的目标是让各层容量逐级匹配，并且每一层都有上限**。本篇讲线程数估算、Web 容器与客户端连接池配置、OS 参数调整，以及数据驱动的调优流程。
+
+---
+
+## 一、线程池参数调优
+
+**线程数先用公式估一个起点，再用压测找到最优点，上线后用动态线程池微调。** `ThreadPoolExecutor` 的构造参数、执行流程、队列与拒绝策略见 [线程池](/java/28_topic_thread_pool)。
+
+各层的关键参数与本篇位置：
 
 | 层 | 关键参数 | 本篇位置 |
 |----|---------|---------|
@@ -18,12 +23,6 @@ description: 线程池、Web 容器、数据库 / Redis 连接池、OS 参数、
 | 数据库连接池 | 全局连接数上限 | 第三节 |
 | Redis 客户端 | 连接模型与池 | 第四节 |
 | OS | 文件描述符、连接队列、本地端口 | 第五节 |
-
----
-
-## 一、线程池参数调优
-
-**线程数先用公式估一个起点，再用压测找到最优点，上线后用动态线程池微调。** `ThreadPoolExecutor` 的构造参数、执行流程、队列与拒绝策略见 [线程池](/java/28_topic_thread_pool)。
 
 ### 1、线程数估算
 
@@ -232,5 +231,10 @@ ss -ant | awk '{print $1}' | sort | uniq -c
 - Tomcat 看 `threads.max`、`max-connections`、`accept-count` 三道闸；开启虚拟线程后 `max-connections` 仍生效，并发要靠下游池限制
 - 数据库连接池只需守住全局上限 `Σ maximumPoolSize ≤ max_connections × 80%`，扩容前重新核算；Lettuce 默认共享连接，池只服务阻塞命令与事务
 - OS 层重点是 nofile、`somaxconn`、本地端口范围（`10000 65535` + 保留端口）；TIME_WAIT 多先修连接复用
+
+## 参考资料
+
+- [HikariCP - About Pool Sizing](https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing)
+- [Spring Boot 服务器配置项](https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.server)
 
 > 下一篇：[容量评估与规划](./8_capacity_planning) —— 各层参数确定之后，回答"要扛多少流量、需要多少机器、如何验证与守住水位"。

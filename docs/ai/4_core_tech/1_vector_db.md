@@ -4,11 +4,9 @@ description: HNSW / IVF / 量化、过滤检索、pgvector、向量库选型、S
 
 # 向量数据库
 
-> **本篇目标**：讲清 ANN 索引（HNSW、IVF、量化）在召回率、延迟、内存之间怎么取舍，掌握 pgvector 的建表、索引与过滤查询，能在 pgvector、Milvus、Qdrant、Redis、Elasticsearch 之间做选型，并用 Spring AI 2.0 的 `VectorStore` 完成存取。
->
-> **前置阅读**：[Embedding 向量化](./0_embedding)（维度、距离度量、归一化）
+> 前置阅读：[Embedding 向量化](./0_embedding)
 
-本篇是站内向量检索原理的主文档，数据库层面的全量选型对比见 [数据库选型参考](/database/6_reference/1_selection_guide)，全文检索引擎本身见 [搜索数据库](/database/4_nosql/3_search_db)。代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1。
+向量数据库用 ANN 索引在海量向量中快速找出最相近的结果，本篇是站内向量检索原理的主文档。内容覆盖 HNSW / IVF / 量化的取舍、pgvector 建表索引与过滤查询、主流向量库选型和 Spring AI 2.0 `VectorStore` 存取，代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1。
 
 ---
 
@@ -280,6 +278,8 @@ public class KnowledgeStore {
 - pgvector 的 HNSW 对 `vector` 最多 2000 维，更高维度用 `halfvec` 或缩短维度；操作符类必须与查询距离一致
 - 选型先看现有组件：PG 用 pgvector，ES 用 ES，Redis 用 Redis；独立部署选 Qdrant，亿级以上选 Milvus
 - Spring AI 2.0 用 `spring-ai-starter-vector-store-*` 与 `SearchRequest.builder()`，过滤条件用 `FilterExpressionBuilder` 构造，租户条件来自服务端
+
+数据库层面的全量选型对比见 [数据库选型参考](/database/6_reference/1_selection_guide)，全文检索引擎本身见 [搜索数据库](/database/4_nosql/3_search_db)。
 
 ## 参考资料
 

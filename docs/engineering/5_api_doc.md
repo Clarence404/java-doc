@@ -4,11 +4,9 @@ description: OpenAPI 3.1、代码优先与契约优先、客户端生成、CI �
 
 # API 文档
 
-> **本篇目标**：在代码优先和契约优先之间做出选择，把 OpenAPI 规范当作构建产物管理。规范在构建期生成并提交入库，CI 负责 lint 和破坏性变更检测，再由同一份规范生成 HTML 文档、客户端 SDK 和 Mock 服务。
->
-> **前置阅读**：[接口文档](/spring-boot/10_api_doc)、[API 设计规范](./7_api_design_rule)
+> 前置阅读：[接口文档](/spring-boot/10_api_doc)、[API 设计规范](./7_api_design_rule)
 
-springdoc 的依赖、注解、分组、Security 放行和按环境关闭，统一放在 [接口文档](/spring-boot/10_api_doc) 里讲，本篇不重复。本篇只讲工程层面的问题：一份 OpenAPI 规范从哪里来，怎样保证它和代码一致，团队拿它做什么。工具版本以 2026 年 10 月为准：springdoc-openapi 3.1.x（Boot 4）、springdoc-openapi-maven-plugin 1.5、openapi-generator 7.26、Redocly CLI 2.x、Spectral 6.x。
+OpenAPI 规范是描述 HTTP 接口契约的标准格式，本篇把它当作构建产物管理，讲规范从哪里来、怎样保证它和代码一致、团队拿它做什么。工具版本以 2026 年 10 月为准：springdoc-openapi 3.1.x（Boot 4）、springdoc-openapi-maven-plugin 1.5、openapi-generator 7.26、Redocly CLI 2.x、Spectral 6.x。
 
 ---
 
@@ -71,6 +69,8 @@ springdoc-openapi 3.x 默认输出 3.1（`springdoc.api-docs.version` 默认值�
 ---
 
 ## 四、代码优先：构建期生成规范
+
+springdoc 的依赖、注解、分组、Security 放行和按环境关闭见 [接口文档](/spring-boot/10_api_doc)，这里不重复。
 
 ### 1、Maven：spring-boot-maven-plugin + springdoc 插件
 

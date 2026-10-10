@@ -4,11 +4,9 @@ description: 核心 @Retryable、退避与抖动、@ConcurrencyLimit、RetryTemp
 
 # Retry 重试
 
-> **本篇目标**：掌握 Spring Framework 7 内置的弹性能力（`@Retryable`、`@ConcurrencyLimit`、`RetryTemplate`），能为远程调用写出次数、退避、抖动、异常范围都清晰可控的重试，理解它与事务、幂等、熔断的配合，并能把 Boot 3 项目中的 Spring Retry 迁移过来。
->
-> **前置阅读**：[AOP](./2_aop)
+> 前置阅读：[AOP](./2_aop)
 
-本篇只讲 Spring 中**怎么写**重试。哪些错误该重试、指数退避与抖动的原理、重试放大与重试预算见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)；熔断见 [熔断](/high-avail/5_circuit_breaking)。
+Spring Framework 7 内置了 `@Retryable`、`@ConcurrencyLimit`、`RetryTemplate` 等弹性能力。本篇讲在 Spring 中怎么写次数、退避、抖动、异常范围可控的重试，它与事务、幂等、熔断的配合，以及从 Spring Retry 迁移。
 
 ---
 
@@ -22,6 +20,8 @@ description: 核心 @Retryable、退避与抖动、@ConcurrencyLimit、RetryTemp
 | Reactor `retryWhen(Retry.backoff(...))` | WebFlux | 响应式链路内部的重试，见 [WebFlux](./8_webflux) |
 
 > Framework 7 的核心重试只解决「重试」和「并发限制」，**没有熔断**。熔断、降级仍用 Resilience4j 或 Sentinel，见 [服务治理 · 限流与熔断](/spring-cloud/5_service_governance)。
+
+哪些错误该重试、指数退避与抖动的原理、重试放大与重试预算见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)；熔断见 [熔断](/high-avail/5_circuit_breaking)。
 
 ---
 

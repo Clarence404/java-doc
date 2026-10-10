@@ -4,11 +4,9 @@ description: TiDB 架构与事务、OceanBase 多副本与多租户、选型对�
 
 # 分布式数据库
 
-> **本篇目标**：理解 TiDB 与 OceanBase 如何在保留 SQL 与 ACID 的前提下水平扩展（Region / Raft、Percolator、Paxos 日志流、多租户），知道它们与 MySQL 的兼容差异，能在 NewSQL 与 Aurora、PolarDB 这类存算分离云数据库之间做选型。
->
-> **前置阅读**：[MySQL 基础](../1_mysql/0_overview)、[其他 RDBMS](./0_other_rdbms)
+> 前置阅读：[MySQL 基础](../1_mysql/0_overview)、[其他 RDBMS](./0_other_rdbms)
 
-TiDB、OceanBase 属于 **NewSQL / 分布式关系型数据库**：对外提供 SQL 与 ACID 事务，内部把数据切片并用多副本共识协议复制，从而可以像 NoSQL 一样加节点扩容。版本基线：TiDB 8.5 LTS，OceanBase 4.x。应用层分库分表与分布式数据库的系统级取舍见 [数据层扩展](/high-con/5_data_scaling)，分布式事务的通用理论见 [分布式事务](/distributed/4_transaction)。
+TiDB、OceanBase 属于 NewSQL / 分布式关系型数据库：对外提供 SQL 与 ACID 事务，内部切片并用多副本共识协议复制，从而能加节点扩容。本篇讲两者的实现、与 MySQL 的兼容差异及与 Aurora、PolarDB 的选型，版本基线为 TiDB 8.5 LTS 与 OceanBase 4.x。
 
 ---
 
@@ -174,6 +172,8 @@ CREATE TENANT biz_tenant
 ---
 
 ## 三、TiDB 与 OceanBase 选型对比
+
+应用层分库分表与分布式数据库的系统级取舍见 [数据层扩展](/high-con/5_data_scaling)，分布式事务的通用理论见 [分布式事务](/distributed/4_transaction)。
 
 | 维度 | TiDB | OceanBase |
 |------|------|-----------|

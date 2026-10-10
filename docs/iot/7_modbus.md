@@ -4,11 +4,9 @@ description: 寄存器与功能码、TCP 与 RTU、digitalpetri modbus 与 j2mod
 
 # Modbus 采集
 
-> **本篇目标**：用维护中的 Java 库完成 Modbus TCP 与 RTU 采集，掌握长连接轮询、点表驱动、批量读取和数值解码，避开有符号数、字节序、地址偏移这些最常见的坑。
->
-> **前置阅读**：[通信协议](./1_protocol)（Modbus 的变体、主从模型与功能码）
+> 前置阅读：[通信协议](./1_protocol)
 
-PLC、电表、变频器、温湿度变送器这类工业设备大多只会说 Modbus。平台侧通常由一个采集服务（或边缘网关）充当主站，按固定周期轮询从站寄存器，把原始数值换算成工程量后上报 MQTT。本篇以 JDK 21 为基线，示例库为 digitalpetri modbus 2.1.6，备选 j2mod 3.4.0。
+PLC、电表、变频器这类工业设备大多只会说 Modbus，平台侧通常由采集服务（或边缘网关）充当主站，周期轮询从站寄存器并换算成工程量后上报 MQTT。本篇讲 Modbus TCP 与 RTU 采集、点表驱动与批量读取、数值解码和常见坑，以 JDK 21 为基线，示例库为 digitalpetri modbus 2.1.6，备选 j2mod 3.4.0。
 
 ---
 

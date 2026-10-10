@@ -4,11 +4,9 @@ description: RBAC0–3 与角色爆炸、ABAC、ReBAC、模型选型、OPA / Reg
 
 # 权限模型：RBAC 与 ABAC
 
-> **本篇目标**：掌握 RBAC（含 RBAC0–3 分级与角色爆炸问题）、ABAC、ReBAC 三种授权模型的思路与边界，能按业务特点选型；会用 OPA（Rego v1）和 jCasbin 把策略从代码里抽出来，并接入 Spring Security 7 的 URL 授权与方法级授权。
->
-> **前置阅读**：[JWT 令牌机制](/security/1_jwt)（权限信息怎么随令牌传递）、[Spring Security](/spring/9_security)（过滤器链与 `@PreAuthorize`）
+> 前置阅读：[JWT 令牌机制](/security/1_jwt)、[Spring Security](/spring/9_security)
 
-认证（Authentication）回答「你是谁」，授权（Authorization）回答「你能对什么资源做什么操作」。本篇只讲授权模型和策略引擎本身。权限系统在分布式架构中的部署（PEP / PDP / PAP / PIP 分工、网关与服务的鉴权边界、权限缓存刷新、数据权限 SQL 拦截）见 [权限系统架构设计](/architecture/6_access_control)；Spring Security 的完整接线代码（加载权限、动态 URL 权限、注解模板）见 [Spring Security](/spring/9_security)。
+认证（Authentication）回答「你是谁」，授权（Authorization）回答「你能对什么资源做什么操作」。本篇讲 RBAC（含 RBAC0–3 与角色爆炸）、ABAC、ReBAC 三种授权模型的思路与选型，以及用 OPA（Rego v1）和 jCasbin 抽离策略并接入 Spring Security 7。
 
 ---
 
@@ -478,6 +476,8 @@ enforcer.enforce("bob", "/api/orders/1001", "DELETE");     // false：staff 只�
 
 URL 级授权只能看到路径和身份，涉及具体业务对象的判断放在方法级更合适。Spring Security 7 的方法安全全部基于 `AuthorizationManager`：`@EnableMethodSecurity` 开启后，`@PreAuthorize` 由 `PreAuthorizeAuthorizationManager` 在方法执行前求值；7.0 还新增了 `AuthorizationManagerFactory`，统一创建 `hasRole`、`hasAuthority` 等判定，需要全局修改角色前缀或信任解析器时声明一个该类型的 Bean。
 
+Spring Security 的完整接线代码（加载权限、动态 URL 权限、注解模板）见 [Spring Security](/spring/9_security)。
+
 把三种模型接到方法上：
 
 ```java
@@ -547,6 +547,8 @@ public class DocumentAuthorization {
 - 实际系统通常组合使用：RBAC 管功能权限，ABAC 管条件与数据权限，ReBAC 管对象级分享
 - OPA 1.0 起默认 Rego v1，`if` / `contains` 必写；接入 Spring Security 时作为 `AuthorizationManager`，超时要短并且失败即拒绝；`time.clock` 默认 UTC
 - jCasbin 用模型文件切换 ACL / RBAC / ABAC，适合进程内授权；方法级授权用 `@PreAuthorize` 委托 Bean 处理业务对象判断
+
+权限系统在分布式架构中的部署（PEP / PDP / PAP / PIP 分工、网关与服务的鉴权边界、权限缓存刷新、数据权限 SQL 拦截）见 [权限系统架构设计](/architecture/6_access_control)。
 
 ---
 

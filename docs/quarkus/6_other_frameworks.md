@@ -4,11 +4,9 @@ description: Micronaut、Helidon、Solon、Javalin 定位与现状、六种 Java
 
 # 其他 Java 框架
 
-> **本篇目标**：了解 Spring Boot 与 Quarkus 之外常被拿来比较的 Java 后端框架——Micronaut、Helidon、Solon、Javalin——各自解决什么问题、代价是什么、当前版本状态如何；最后用一张表把六种框架放在一起，选型时心里有数。
->
-> **前置阅读**：[Quarkus 概览](./1_basics)、[从 Spring Boot 迁移](./5_from_spring)
+> 前置阅读：[Quarkus 概览](./1_basics)、[从 Spring Boot 迁移](./5_from_spring)
 
-版本信息截至 2026 年 10 月。这几个框架都在快速演进，落地前请以官方发布页为准。
+除 Spring Boot 与 Quarkus 外，Micronaut、Helidon、Solon、Javalin 也常被拿来比较。本篇介绍它们各自解决的问题、代价与版本状态（截至 2026 年 10 月，落地前以官方发布页为准），最后用一张表横向对比六种框架。
 
 ---
 

@@ -4,11 +4,9 @@ description: 日志分类与级别策略、JSON 字段规范、traceId 关联、
 
 # 日志体系
 
-> **本篇目标**：从平台视角搭建日志体系——区分日志类别并制定级别策略，统一结构化字段，让日志与链路通过 traceId 互相跳转；理解 Kubernetes 下从 stdout 到存储的采集链路，能在 Loki 与 Elasticsearch 之间做出选型并控制标签基数，用 LogQL 完成日常排障查询，并通过分级保留、源头控量和管道脱敏控制成本与合规风险。
->
-> **前置阅读**：[日志](/spring-boot/12_logging)（应用侧：SLF4J / Logback、结构化日志、MDC 与 traceId）、[可观测性总览](./0_overview)
+> 前置阅读：[日志](/spring-boot/12_logging)、[可观测性总览](./0_overview)
 
-应用侧的内容——日志怎么打、Logback 怎么配、Boot 结构化日志的三种格式、异步 Appender、MDC 跨线程传递——已经在 [日志](/spring-boot/12_logging) 中讲完，本篇不再重复，只讲日志**离开应用之后**的事情：格式约定、采集、存储、查询、保留与治理。示例统一以 Kubernetes 上运行的 `order-service`（命名空间 `order`）为对象。
+本篇从平台视角讲日志**离开应用之后**的事情：日志分类与级别策略、结构化字段与 traceId 关联、Kubernetes 下的采集链路、Loki 与 Elasticsearch 选型、LogQL 查询，以及保留、控量与脱敏。示例统一以 Kubernetes 上运行的 `order-service`（命名空间 `order`）为对象。
 
 ---
 

@@ -4,9 +4,9 @@ description: 多 Reactor、黄金法则、三种 Verticle、executeBlocking、Co
 
 # Event Loop 与 Verticle
 
-> **本篇目标**：理解 Vert.x 的多 Reactor 线程模型与「不要阻塞 Event Loop」这条黄金法则背后的原因；掌握标准、Worker、虚拟线程三种 Verticle 的取舍，学会用 `executeBlocking`、Context 与 Future 组合写出不阻塞、不丢错误的异步代码。
->
-> **前置阅读**：[Vert.x 概览](./1_basics)、[Reactor 模型](/netty/2_reactor)
+> 前置阅读：[Vert.x 概览](./1_basics)、[Reactor 模型](/netty/2_reactor)
+
+Vert.x 采用多 Reactor 线程模型，核心法则是不要阻塞 Event Loop。本篇讲标准、Worker、虚拟线程三种 Verticle 的取舍，以及用 `executeBlocking`、Context 与 Future 组合写出不阻塞、不丢错误的异步代码。
 
 ---
 

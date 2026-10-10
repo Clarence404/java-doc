@@ -4,11 +4,9 @@ description: TLS 1.3 握手、前向保密、证书链校验、SNI / ALPN / HSTS
 
 # HTTPS 与 TLS
 
-> **本篇目标**：讲清 HTTPS 如何同时解决窃听、篡改和冒充三个问题，能画出 TLS 1.3 握手并说明它比 TLS 1.2 快在哪里、安全在哪里，理解证书链怎么校验、mTLS 多了哪几步，并能在 Spring Boot 里用 SSL Bundle 配好服务端、客户端证书，遇到 `PKIX path building failed` 知道从哪查。
->
-> **前置阅读**：[HTTP](./2_http)
+> 前置阅读：[HTTP](./2_http)
 
-HTTPS 就是跑在 TLS 之上的 HTTP，默认端口 443。TLS 当前主流版本是 1.3（RFC 8446）和 1.2（RFC 5246），更早的 SSL 3.0、TLS 1.0 / 1.1 都已被正式废弃（RFC 7568、RFC 8996），不应再启用。OAuth2、JWT 这类应用层认证协议不在本篇范围，见第九节的链接。
+HTTPS 就是跑在 TLS 之上的 HTTP，主流版本为 TLS 1.3（RFC 8446）和 1.2（RFC 5246），SSL 3.0、TLS 1.0 / 1.1 已被废弃（RFC 7568、RFC 8996）。本篇讲 TLS 1.3 握手、证书链校验、mTLS，以及 Spring Boot SSL Bundle 配置与 `PKIX path building failed` 排查。
 
 ---
 
@@ -329,6 +327,7 @@ TLS 解决的是传输通道的安全和服务端（mTLS 时还有客户端）�
 - SNI 选证书，ALPN 协商 h2，HSTS 防止降级；mTLS 多了 `CertificateRequest` 和客户端的 `Certificate` / `CertificateVerify`
 - Java 里 keystore 回答“我是谁”，truststore 回答“我信谁”；Spring Boot 用 SSL Bundle 统一配置并支持热加载
 - 遇到 PKIX 错误，先看对端下发了哪些证书，再修 truststore，绝不信任所有证书
+- OAuth2、JWT 这类应用层认证协议不在本篇范围，见第九节的链接。
 
 ## 参考资料
 

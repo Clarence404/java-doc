@@ -4,11 +4,9 @@ description: Apache Pulsar 存算分离与订阅模式、与 Kafka 的差异、K
 
 # 其他 MQ
 
-> **本篇目标**：了解 Kafka / RocketMQ / RabbitMQ 之外最常被拿来比较的 Pulsar，知道它解决什么问题、代价是什么；对其他常见消息系统有一个定位上的认识，选型时不漏项。
->
-> **前置阅读**：[Kafka](./2_kafka)、[RocketMQ](./3_rocketmq)、[RabbitMQ](./4_rabbitmq)
+> 前置阅读：[Kafka](./2_kafka)、[RocketMQ](./3_rocketmq)、[RabbitMQ](./4_rabbitmq)
 
-三大 MQ 覆盖了绝大多数业务场景，但在平台化、多租户、跨地域复制等需求下，Pulsar 常被放进候选名单；另外还有一批轻量或专用的消息系统，各自占据某个细分场景。本篇先讲 Pulsar，再做一份速览，下一篇统一做选型。
+在平台化、多租户、跨地域复制等需求下，Pulsar 常被放进三大 MQ 之外的候选名单。本篇先讲 Pulsar 解决什么问题、代价是什么，再速览其他常见消息系统的定位，下一篇统一做选型。
 
 ---
 

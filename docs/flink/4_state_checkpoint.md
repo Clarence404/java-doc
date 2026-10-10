@@ -4,11 +4,9 @@ description: 状态类型与 TTL、状态后端与 ForSt、Checkpoint、Savepoin
 
 # 状态与容错
 
-> **本篇目标**：理解 Flink 状态的分类与存储方式，能为作业选择状态后端、配置 TTL；理解 Checkpoint 基于 barrier 的一致性快照原理，区分 Checkpoint 与 Savepoint；掌握两阶段提交与幂等 Sink 实现端到端精确一次的条件，并能定位和优化 Checkpoint 耗时过长的问题。
->
-> **前置阅读**：[DataStream API](./2_datastream)、[时间、水位线与窗口](./3_time_window)
+> 前置阅读：[DataStream API](./2_datastream)、[时间、水位线与窗口](./3_time_window)
 
-流计算的「有状态」指算子会记住历史：窗口里的累加器、去重用的已见 ID、定时器、Kafka 读到的 offset。Flink 把这些状态交给引擎托管——**算子只管读写，存储、快照、恢复、扩缩容时的重新分配都由引擎负责**。这是 Flink 能在故障后给出精确一次结果的基础。
+Flink 把算子记住的历史（累加器、已见 ID、定时器、Kafka offset）交给引擎托管——**算子只管读写，存储、快照、恢复、扩缩容时的重新分配都由引擎负责**，这是故障后仍能精确一次的基础。本篇讲状态分类、状态后端与 TTL、基于 barrier 的 Checkpoint 与 Savepoint、端到端精确一次的条件，以及 Checkpoint 耗时过长的排查。
 
 ---
 

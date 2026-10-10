@@ -4,9 +4,9 @@ description: Redis、Kafka、RabbitMQ、ES、MongoDB 的 Starter 与配置、Jac
 
 # 中间件集成
 
-> **本篇目标**：掌握 Spring Boot 接入常见中间件的「胶水层」：用哪个 Starter、哪些配置项必须写、Boot 4 / Jackson 3 带来了哪些类名与配置变化，以及各自最容易踩的集成坑。中间件本身的原理、可靠性与调优在对应模块展开，本篇只给链接。
->
-> **前置阅读**：[启动流程与自动配置](./1_spring_boot)
+> 前置阅读：[启动流程与自动配置](./1_spring_boot)
+
+Spring Boot 接入中间件主要是 Starter 与配置这一层「胶水」。本篇讲用哪个 Starter、哪些配置项必须写、Boot 4 / Jackson 3 带来的类名与配置变化，以及各自最容易踩的集成坑。
 
 ---
 
@@ -450,6 +450,8 @@ public class OrderAnalyticsService {
 - RabbitMQ：自动 ACK + 本地重试 + 死信，死信交换机与队列必须声明
 - Elasticsearch：Boot 4 使用 elasticsearch-java 9.x 与 `Rest5Client`，range 查询按字段类型写 `number` / `date`
 - MongoDB：Boot 4 连接配置改为 `spring.mongodb.*`，Spring Data 专属配置仍在 `spring.data.mongodb.*`；按日聚合注意时区
+
+中间件本身的原理、可靠性与调优在对应模块展开，本篇只给链接。
 
 ## 参考资料
 

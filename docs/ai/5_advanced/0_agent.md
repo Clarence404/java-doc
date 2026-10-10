@@ -4,11 +4,9 @@ description: ReAct 循环、记忆隔离、多 Agent 编排、护栏与人工确
 
 # AI Agent 智能体
 
-> **本篇目标**：分清「工作流」和「Agent」，理解 ReAct 循环、记忆与规划，能用 LangChain4j 和 Spring AI 写出按用户隔离记忆、带调用上限的 Agent，掌握多 Agent 编排模式，并为有副作用的工具加上最小权限与人工确认。
->
-> **前置阅读**：[Function Calling（工具调用）](../1_concepts/2_function_calling)（工具定义与两轮调用流程）
+> 前置阅读：[Function Calling（工具调用）](../1_concepts/2_function_calling)
 
-代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0。工具调用的协议细节只在 Function Calling 篇展开，本篇关注把工具调用组织成「能自主完成任务、又不会失控」的系统。
+Agent 让 LLM 作为决策核心循环调用工具、自主完成任务。本篇讲工作流与 Agent 的区别、ReAct 循环、记忆与规划、LangChain4j / Spring AI 实现、多 Agent 编排与工具安全，代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0。
 
 ---
 
@@ -390,6 +388,8 @@ Agent 读取的网页、邮件、文档、工具返回值都可能夹带指令�
 - 记忆必须按会话隔离：LangChain4j 用 `chatMemoryProvider` + `@MemoryId`，Spring AI 用 `CONVERSATION_ID`
 - 多 Agent 优先选链式、路由、并行这类确定性模式，确实需要动态拆分时再用编排者-执行者或 supervisor
 - 护栏四件套：调用上限与超时、工具最小权限、副作用操作人工确认、全链路可观测
+
+工具调用的协议细节只在 Function Calling 篇展开，本篇关注把工具调用组织成「能自主完成任务、又不会失控」的系统。
 
 ## 参考资料
 

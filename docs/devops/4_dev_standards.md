@@ -4,11 +4,17 @@ description: 命名、类与 Lombok / record、注释、异常、日志、并发
 
 # 开发规范
 
-> **本篇目标**：给出一份 Java 21 团队可直接采用的编码规约，每条都配正例与反例：命名与注释怎么写、Lombok 和 record 怎么选才不出编译错误、异常体系与全局处理怎么搭、日志 / 并发 / 金额 / 数据访问有哪些硬性规定，以及哪些写法应直接禁止。
->
-> **前置阅读**：[Code Review](./3_code_review)
+> 前置阅读：[Code Review](./3_code_review)
 
-规约的来源是《阿里巴巴 Java 开发手册（黄山版）》和 Google Java Style Guide，结合 JDK 21（JDK 25 的差异会注明）与 Spring Boot 4 做了取舍。本篇是全站**代码坏味道正反例**的出处，[Code Review](./3_code_review) 的检查清单逐条对应这里。与其他模块的分工：
+开发规范是一份 Java 21 团队可直接采用的编码规约，来源是《阿里巴巴 Java 开发手册（黄山版）》和 Google Java Style Guide，结合 JDK 21（JDK 25 的差异会注明）与 Spring Boot 4 做了取舍。本篇覆盖命名与注释、Lombok 与 record、异常体系、日志 / 并发 / 金额 / 数据访问的硬性规定和禁止事项，每条都配正例与反例。
+
+---
+
+## 一、规约怎么落地
+
+规约分两类，处理方式不同：
+
+本篇是全站**代码坏味道正反例**的出处，[Code Review](./3_code_review) 的检查清单逐条对应这里。与其他模块的分工：
 
 | 主题 | 本篇只写 | 完整内容 |
 |------|----------|----------|
@@ -16,12 +22,6 @@ description: 命名、类与 Lombok / record、注释、异常、日志、并发
 | 日志 | 编码层面的硬性规定 | [日志](/spring-boot/12_logging)：门面、配置、结构化日志、MDC |
 | REST 与统一响应 | 不展开 | [API 设计规范](/engineering/7_api_design_rule)：URL、状态码、响应体、分页、版本 |
 | 异常机制 | 业务异常体系 | [Java 异常](/java/10_topic_exception) |
-
----
-
-## 一、规约怎么落地
-
-规约分两类，处理方式不同：
 
 - **机器能判断的交给工具**：缩进、import 顺序、行宽、大括号位置、未使用变量，由格式化工具和静态检查在 CI 中强制，不靠人记、也不在 Review 里讨论，配置见 [代码质量](/engineering/3_code_quality)
 - **需要理解语义的交给人**：命名是否达意、异常是否该捕获、事务边界是否正确，由作者自检和 [Code Review](./3_code_review) 把关

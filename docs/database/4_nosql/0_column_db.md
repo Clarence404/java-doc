@@ -4,11 +4,13 @@ description: 宽列 HBase、ClickHouse / Doris / StarRocks、MergeTree、分布�
 
 # 列式与 OLAP 数据库
 
-> **本篇目标**：分清「宽列存储」（HBase、Cassandra）与「列式 OLAP」（ClickHouse、Doris、StarRocks）这两类常被混称为「列式数据库」的产品，掌握 HBase 的 RowKey 设计和 ClickHouse 的 MergeTree、分布式表、去重与更新语义，能按场景选型。
->
-> **前置阅读**：[MySQL 索引](../1_mysql/4_topic_index)（B+ 树与 LSM 的对比视角）、[数据库选型参考](../6_reference/1_selection_guide)
+> 前置阅读：[MySQL 索引](../1_mysql/4_topic_index)、[数据库选型参考](../6_reference/1_selection_guide)
 
-「列式数据库」这个词常被用来指两类差别很大的产品：
+「列式数据库」常被混指宽列存储（HBase、Cassandra）与列式 OLAP（ClickHouse、Doris、StarRocks）两类差别很大的产品。本篇分开讲 HBase 的 RowKey 设计与 ClickHouse 的 MergeTree、分布式表、去重与更新语义，并按场景给出选型。
+
+---
+
+## 一、HBase：宽列存储
 
 | 类别 | 代表 | 存储方式 | 擅长 |
 |------|------|----------|------|
@@ -16,10 +18,6 @@ description: 宽列 HBase、ClickHouse / Doris / StarRocks、MergeTree、分布�
 | 列式 OLAP | ClickHouse、Apache Doris、StarRocks | 每列单独存储、压缩，向量化执行 | 大范围扫描与聚合分析 |
 
 HBase 的「列族」只决定哪些列放进同一组文件，每个列族内部仍是按行键排列的 KV，它并不是分析型列存。两者解决的问题完全不同，下面分开讲。
-
----
-
-## 一、HBase：宽列存储
 
 ### 1、定位与版本
 

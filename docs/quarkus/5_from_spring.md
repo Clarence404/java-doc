@@ -4,9 +4,9 @@ description: Spring 与 Quarkus 概念对照、Spring 兼容扩展及其限制�
 
 # 从 Spring Boot 迁移
 
-> **本篇目标**：建立 Spring Boot 与 Quarkus 的概念对照，清楚 Spring 兼容扩展能帮到什么程度、在哪里会失效；掌握一条可落地的迁移路径和常见坑，并能判断一个服务到底值不值得迁移。
->
-> **前置阅读**：[Quarkus 概览](./1_basics)、[REST 与数据访问](./2_rest_data)、[原生镜像与云原生部署](./3_native)
+> 前置阅读：[Quarkus 概览](./1_basics)、[REST 与数据访问](./2_rest_data)、[原生镜像与云原生部署](./3_native)
+
+从 Spring Boot 迁移到 Quarkus，关键是理解两者的概念对应和「构建期确定」带来的差异。本篇讲概念对照、Spring 兼容扩展的能力边界、可落地的迁移路径与常见坑，以及如何判断一个服务值不值得迁移。
 
 ---
 

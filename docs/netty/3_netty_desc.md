@@ -4,9 +4,9 @@ description: 原生 NIO 的痛点、Netty 的定位与架构、第一个 Echo �
 
 # Netty 入门
 
-> **本篇目标**：知道 Netty 解决了原生 NIO 的哪些问题，能写出并读懂一个完整的 Echo 服务端 / 客户端，说清一次请求在 Netty 中怎么流动。
->
-> **前置阅读**：[Reactor 模型](./2_reactor)
+> 前置阅读：[Reactor 模型](./2_reactor)
+
+Netty 是对原生 NIO 的封装，解决了其 API 繁琐和诸多坑点。本篇讲 Netty 解决了哪些问题、一个完整的 Echo 服务端 / 客户端，以及一次请求在 Netty 中怎么流动。
 
 ## 一、为什么需要 Netty
 

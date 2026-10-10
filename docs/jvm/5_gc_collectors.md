@@ -4,11 +4,9 @@ description: Serial / Parallel / CMS / G1 / ZGC（含分代 ZGC）/ Shenandoah �
 
 # GC 收集器
 
-> **本篇目标**：认清 HotSpot 各款收集器的工作方式、适用场景与 JDK 版本演进，能按业务目标选出合适的收集器。
->
-> **前置阅读**：[GC 原理](./4_gc_theory)
+> 前置阅读：[GC 原理](./4_gc_theory)
 
-收集器的演进主线是**把越来越多的 GC 工作从 STW 挪到并发阶段**：Serial 全程停顿 → Parallel 多线程停顿 → CMS 并发标记 → G1 可预测停顿 → ZGC / Shenandoah 并发整理、停顿与堆大小无关。
+收集器的演进主线是**把越来越多的 GC 工作从 STW 挪到并发阶段**：Serial 全程停顿 → Parallel 多线程停顿 → CMS 并发标记 → G1 可预测停顿 → ZGC / Shenandoah 并发整理。本篇讲 HotSpot 各款收集器的工作方式、适用场景与 JDK 版本演进，以及按业务目标选型。
 
 ---
 

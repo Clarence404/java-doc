@@ -4,11 +4,9 @@ description: SMTP 与端口、IMAP / POP3、MIME 结构与编码、SPF / DKIM / 
 
 # 邮件协议
 
-> **本篇目标**：理解一封邮件从应用发出到收件人读取经过的协议和端口，读懂 SMTP 会话、MIME 多段结构与编码，掌握 SPF、DKIM、DMARC 三件套的作用与对齐规则，能在 Spring Boot 4 中正确发送 HTML 邮件、附件邮件，并用 Jakarta Mail 收取邮件。
->
-> **前置阅读**：[DNS](./4_dns)（MX 与 TXT 记录）、[HTTPS 与 TLS](./3_https_tls)
+> 前置阅读：[DNS](./4_dns)、[HTTPS 与 TLS](./3_https_tls)
 
-应用后端和邮件打交道通常只有两件事：用 SMTP 发系统通知（注册验证、密码重置、账单），偶尔用 IMAP 收件做邮件工单。发信能不能进收件箱，一半看代码，一半看域名的 DNS 配置。
+应用后端和邮件打交道通常是用 SMTP 发系统通知、偶尔用 IMAP 收件，能否进收件箱一半看代码、一半看域名 DNS 配置。本篇讲 SMTP 会话、MIME 结构、SPF / DKIM / DMARC，以及在 Spring Boot 4 中发送邮件和用 Jakarta Mail 收件。
 
 ---
 

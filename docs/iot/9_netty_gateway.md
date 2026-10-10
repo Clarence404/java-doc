@@ -4,11 +4,9 @@ description: 带 CRC 的私有协议帧、跳字节重新同步、心跳与鉴�
 
 # Netty 接入网关
 
-> **本篇目标**：用 Netty 4.2 搭一个面向私有 TCP 协议设备的接入网关，处理带 CRC 的帧解码与重新同步、设备鉴权、心跳、连接注册与下行路由，并把 MQTT、Modbus 等其他协议统一成一种消息格式交给下游。
->
-> **前置阅读**：[自定义私有协议](/netty/8_custom_protocol)、[心跳与连接管理](/netty/9_heartbeat)
+> 前置阅读：[自定义私有协议](/netty/8_custom_protocol)、[心跳与连接管理](/netty/9_heartbeat)
 
-很多存量设备（DTU、充电桩、工控终端）不支持 MQTT，只会通过 TCP 发自定义二进制帧。这时平台需要一个自研接入网关：维持设备长连接，把各种协议翻译成统一的消息格式。`LengthFieldBasedFrameDecoder` 的参数、编解码器体系、`IdleStateHandler` 的原理在 Netty 模块已经讲过，本篇只讲 IoT 场景特有的部分。版本基线：JDK 21、Netty 4.2、Spring Boot 4.x。
+很多存量设备（DTU、充电桩、工控终端）只会通过 TCP 发自定义二进制帧，平台需要一个自研接入网关维持长连接，并把各种协议翻译成统一的消息格式。本篇只讲 IoT 场景特有的部分：带 CRC 的帧解码、鉴权与心跳、连接注册与下行路由、多协议适配，版本基线为 JDK 21、Netty 4.2、Spring Boot 4.x。
 
 ---
 
@@ -28,6 +26,8 @@ description: 带 CRC 的私有协议帧、跳字节重新同步、心跳与鉴�
 ---
 
 ## 二、带 CRC 的私有协议帧
+
+`LengthFieldBasedFrameDecoder` 的参数、编解码器体系见 [自定义私有协议](/netty/8_custom_protocol)，`IdleStateHandler` 的原理见 [心跳与连接管理](/netty/9_heartbeat)。
 
 ### 1、帧格式
 

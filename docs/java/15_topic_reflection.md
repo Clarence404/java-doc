@@ -4,11 +4,9 @@ description: 成员查找、record / sealed 反射、模块强封装、JEP 416�
 
 # 反射
 
-> **本篇目标**：掌握 Class / Field / Method / Constructor 的查找与调用语义，理解模块系统对反射的限制（JDK 9 → 16 → 17 的变化），知道 JDK 18 之后反射的实现与性能特征，并能在 MethodHandle、VarHandle、字节码生成之间做取舍。
->
-> **前置阅读**：[泛型](./14_topic_generics)
+> 前置阅读：[泛型](./14_topic_generics)
 
-反射是在运行时以对象形式访问类结构（类、字段、方法、构造器、注解、泛型签名）并据此创建实例、读写字段、调用方法的能力。Spring 的依赖注入、Jackson 的序列化、MyBatis 的结果映射、JUnit 的测试发现都建立在它之上。业务代码很少直接写反射，但排查框架问题、写通用组件时绕不开。
+反射是在运行时以对象形式访问类结构并据此创建实例、读写字段、调用方法的能力，Spring、Jackson、MyBatis、JUnit 都建立在它之上。本篇讲 Class / Field / Method / Constructor 的调用语义、模块系统对反射的限制（JDK 9 → 16 → 17）、JDK 18 之后的实现与性能，以及与 MethodHandle、VarHandle、字节码生成的取舍。
 
 ---
 

@@ -4,11 +4,9 @@ description: 过滤器链、Resource Server 校验 JWT、自定义 JWT 过滤器
 
 # Spring Security
 
-> **本篇目标**：理解 Spring Security 7 的过滤器链与授权架构，能为前后端分离的 API 写出无状态的安全配置：用 OAuth2 Resource Server 签发与校验 JWT、用 `@PreAuthorize` 做方法级权限、用 `AuthorizationManager` 实现数据库驱动的动态 URL 权限。
->
-> **前置阅读**：[MVC](./3_mvc)、[JWT 令牌机制](/security/1_jwt)
+> 前置阅读：[MVC](./3_mvc)、[JWT 令牌机制](/security/1_jwt)
 
-本篇只讲 Spring Security 的配置与代码，版本基线为 Spring Security 7（Spring Boot 4）。JWT 结构、签名算法、续期与吊销见 [JWT 令牌机制](/security/1_jwt)；OAuth2 / OIDC 协议见 [OAuth2](/security/2_oauth2)、[OIDC](/security/3_oidc)；权限模型见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)。
+本篇讲 Spring Security 7（Spring Boot 4）的过滤器链与授权架构，以及前后端分离 API 的无状态安全配置。内容包括 OAuth2 Resource Server 校验 JWT、`@PreAuthorize` 方法级权限和 `AuthorizationManager` 动态 URL 权限。
 
 ---
 
@@ -321,6 +319,8 @@ public class AuthController {
 
 后续请求携带 `Authorization: Bearer <token>`，`BearerTokenAuthenticationFilter` 校验通过后，`Authentication` 是 `JwtAuthenticationToken`：`getName()` 为 userId（`sub`），`getPrincipal()` 为 `Jwt`，权限来自 Token 中的 `authorities`。**整个过程不查数据库**，这才是无状态 JWT 的意义；代价是权限变更要等 Token 过期才生效，所以访问 Token 有效期要短，配合刷新 Token 使用。
 
+JWT 结构、签名算法、续期与吊销见 [JWT 令牌机制](/security/1_jwt)；OAuth2 / OIDC 协议见 [OAuth2](/security/2_oauth2)、[OIDC](/security/3_oidc)。
+
 ---
 
 ## 五、自定义 JWT 过滤器（JJWT 方案）
@@ -554,6 +554,8 @@ public class DynamicAuthorizationManager implements AuthorizationManager<Request
 - 「未配置规则时放行还是拒绝」是安全策略选择：默认拒绝更安全，但每个新接口都要先配规则
 - 用户拥有哪些权限码来自 Token（第四节），所以给用户调整角色后要等 Token 刷新才生效；需要即时生效时在这里改为按 userId 查缓存中的最新权限
 - 权限缓存刷新与网关 / 服务的鉴权分工见 [权限系统架构设计](/architecture/6_access_control)
+
+权限模型见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)。
 
 ---
 

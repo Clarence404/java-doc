@@ -4,11 +4,9 @@ description: 实时 GMV 大屏、CEP 实时风控、Kafka / Paimon 实时数仓�
 
 # 实战场景
 
-> **本篇目标**：把前面的 DataStream、窗口、状态、SQL、CDC 与运维知识串成四个可落地的方案——实时 GMV 大屏、CEP 实时风控、实时数仓分层、维表关联，每个方案给出架构、关键代码与设计取舍。
->
-> **前置阅读**：[Flink SQL 与 Table API](./5_sql)、[Flink CDC](./6_cdc)、[部署与运维](./7_deployment)
+> 前置阅读：[Flink SQL 与 Table API](./5_sql)、[Flink CDC](./6_cdc)、[部署与运维](./7_deployment)
 
-示例基于 Flink 2.2 + `flink-connector-kafka:5.0.0-2.2` + Flink CDC 3.6；CEP 需要单独引入 `flink-cep`（不在 Flink 发行包里）。
+本篇把前面的知识串成实时 GMV 大屏、CEP 实时风控、实时数仓分层、维表关联四个可落地方案，每个给出架构、关键代码与设计取舍。示例基于 Flink 2.2 + `flink-connector-kafka:5.0.0-2.2` + Flink CDC 3.6；CEP 需要单独引入 `flink-cep`（不在 Flink 发行包里）。
 
 ---
 

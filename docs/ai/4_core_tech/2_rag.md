@@ -4,11 +4,9 @@ description: RAG 流程、切块、混合检索与 Rerank、效果评估、权�
 
 # RAG 检索增强生成
 
-> **本篇目标**：掌握 RAG 从文档入库到回答生成的完整链路，知道切块、混合检索、Rerank、Query 改写各解决什么问题，能用 Spring AI 和 LangChain4j 落地，并会评估效果、按用户权限过滤检索结果、防范文档里的注入指令。
->
-> **前置阅读**：[Embedding 向量化](./0_embedding)、[向量数据库](./1_vector_db)
+> 前置阅读：[Embedding 向量化](./0_embedding)、[向量数据库](./1_vector_db)
 
-代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0。RAG、微调与 Prompt 工程三者的对比只在 [模型微调](../5_advanced/2_fine_tuning) 维护一份，本篇不重复。
+RAG（检索增强生成）先从知识库检索相关片段再交给模型作答。本篇讲从入库到生成的完整链路、切块 / 混合检索 / Rerank / Query 改写、Spring AI 与 LangChain4j 落地、效果评估与权限和注入防护，代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0。
 
 ---
 
@@ -418,6 +416,8 @@ RAG 的问题要么出在检索（没找到对的片段），要么出在生成�
 - Spring AI 用 `QuestionAnswerAdvisor` 起步，`RetrievalAugmentationAdvisor` 做模块化 RAG；LangChain4j 用 `ContentRetriever` / `RetrievalAugmentor`
 - 用评估集分别衡量检索（Recall@K、MRR）与生成（忠实度、相关性），每次改动都回归
 - 检索内容一律视为数据而非指令，权限在检索阶段过滤，回答带引用
+
+RAG、微调与 Prompt 工程三者的对比只在 [模型微调](../5_advanced/2_fine_tuning) 维护一份，本篇不重复。
 
 ## 参考资料
 

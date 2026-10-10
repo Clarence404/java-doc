@@ -4,11 +4,9 @@ description: 负载均衡与灰度路由、熔断限流、Framework 7 容错注�
 
 # 服务治理
 
-> **本篇目标**：掌握 Spring Cloud LoadBalancer 的接入、内置策略与自定义，能实现按请求头的灰度路由并把标记逐跳透传，能用 Resilience4j、Sentinel 或 Framework 7 内置注解为调用加上熔断、重试与并发限制。
->
-> **前置阅读**：[服务通信](./3_communication)
+> 前置阅读：[服务通信](./3_communication)
 
-本篇讲 Spring Cloud 中服务治理能力的**框架落地**：Spring Cloud LoadBalancer 的配置与自定义、灰度路由、Resilience4j 与 Framework 7 内置容错的接入。各项手段的原理、选型与阈值怎么定，见 [高可用总览](/high-avail/0_overview)。
+本篇讲 Spring Cloud 中服务治理能力的框架落地。内容包括 Spring Cloud LoadBalancer 的接入与自定义、按请求头的灰度路由与标记透传，以及用 Resilience4j、Sentinel 或 Framework 7 内置注解实现熔断、重试与并发限制。
 
 ---
 
@@ -25,6 +23,8 @@ description: 负载均衡与灰度路由、熔断限流、Framework 7 容错注�
 | 熔断降级 | Resilience4j、Sentinel | [熔断](/high-avail/5_circuit_breaking)、[降级](/high-avail/6_degradation) |
 | 超时重试与隔离 | OpenFeign 超时、Resilience4j Retry / Bulkhead | [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead) |
 | 健康检查与上下线 | Actuator 探针、优雅停机 | [冗余与故障转移](/high-avail/2_redundancy_failover)、[优雅上下线与变更](/high-avail/8_graceful_release) |
+
+各项手段的原理、选型与阈值怎么定，见 [高可用总览](/high-avail/0_overview)。
 
 ---
 

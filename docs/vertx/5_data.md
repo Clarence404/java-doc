@@ -4,9 +4,9 @@ description: Pool API、查询与批量、事务、连接池与流水线、Redis
 
 # 响应式数据访问
 
-> **本篇目标**：掌握 Vert.x 5 响应式 SQL 客户端的 Pool API、查询、批量、事务与游标，理解连接池参数与流水线对吞吐的影响；会用 Redis 与 Kafka 客户端，并清楚在什么情况下仍然应该使用 JDBC。
->
-> **前置阅读**：[Event Loop 与 Verticle](./2_core)、[池化技术](/high-perf/7_pooling)
+> 前置阅读：[Event Loop 与 Verticle](./2_core)、[池化技术](/high-perf/7_pooling)
+
+Vert.x 5 提供响应式 SQL、Redis、Kafka 客户端，避免在 Event Loop 上阻塞等待 IO。本篇讲 SQL 客户端的 Pool API、查询、批量、事务与游标、连接池与流水线参数，以及何时仍应使用 JDBC。
 
 ---
 

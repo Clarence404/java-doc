@@ -4,9 +4,9 @@ description: 角色与唯一性范围、五种实现对比、序列化与反射�
 
 # 单例模式
 
-> **本篇目标**：掌握单例的五种写法和各自的取舍，知道「唯一」只在一个 ClassLoader 内成立、Spring 单例 Bean 与 GoF 单例不是一回事，能写出抵御序列化与反射破坏的单例。
->
-> **前置阅读**：[JMM 内存模型](/java/22_topic_jmm)（双重检查锁一节）、[类加载机制](/jvm/2_class_loading)
+> 前置阅读：[JMM 内存模型](/java/22_topic_jmm)、[类加载机制](/jvm/2_class_loading)
+
+单例模式保证一个类只有一个实例并提供全局访问点。本篇讲五种写法与取舍、「唯一」只在一个 ClassLoader 内成立、Spring 单例 Bean 与 GoF 单例的区别，以及抵御序列化与反射破坏的写法。
 
 ---
 

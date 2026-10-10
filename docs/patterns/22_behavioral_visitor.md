@@ -4,9 +4,9 @@ description: 定义与角色、record 元素示例、双分派、JDK 与框架�
 
 # 访问者模式
 
-> **本篇目标**：写出可编译的访问者模式，讲清它依赖的双分派机制，认识 `FileVisitor`、`ElementVisitor`、ASM 等真实用例，并知道 JDK 21 的 sealed 接口 + 模式匹配 `switch` 在多数业务场景下可以替代访问者。
->
-> **前置阅读**：[组合模式](./8_structural_composite)、[版本演进](/java/2_version)（Record、Sealed 类、switch 模式匹配）
+> 前置阅读：[组合模式](./8_structural_composite)、[版本演进](/java/2_version)
+
+访问者模式把对元素的操作移到访问者类中，依赖双分派实现。本篇讲可编译的写法、`FileVisitor` / `ElementVisitor` / ASM 等真实用例，以及 JDK 21 sealed 接口 + 模式匹配 `switch` 的替代方案。
 
 ---
 

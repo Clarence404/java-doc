@@ -4,11 +4,9 @@ description: Security / Sa-Token / Shiro 对比、Sa-Token 鉴权与封禁、Shi
 
 # 安全框架对比
 
-> **本篇目标**：看清 Spring Security、Sa-Token、Apache Shiro 三者的定位与当前版本状态，能在 Spring Boot 4 中正确接入 Sa-Token（含拦截器、异常处理、WebFlux），了解 Shiro 3 的接入方式，并能根据项目约束做出选型、规划迁移。
->
-> **前置阅读**：[Spring Security](./9_security)
+> 前置阅读：[Spring Security](./9_security)
 
-本篇只讲框架选型与 API 用法。权限模型（RBAC / ABAC）见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)；OAuth2 / JWT 见 [OAuth2](/security/2_oauth2) / [JWT 令牌机制](/security/1_jwt)；SSO 原理见 [单点登录](/security/4_sso)，Sa-Token SSO 的接入代码见 [Spring SSO 接入](./11_single_sign_on)。
+Spring Security、Sa-Token、Apache Shiro 是 Java 后端常见的三种认证授权框架。本篇对比三者的定位与版本状态，讲 Sa-Token 在 Spring Boot 4 中的接入、Shiro 3 的接入方式，以及选型与迁移。
 
 ---
 
@@ -29,6 +27,8 @@ description: Security / Sa-Token / Shiro 对比、Sa-Token 鉴权与封禁、Shi
 | 社区状态 | 活跃（Spring 生态） | 活跃（国内社区为主） | 维护节奏慢，1.x / 2.x 已 EOL |
 
 一句话：**Spring Security 能力最全、与 Spring 生态绑定最深；Sa-Token 上手最快、API 最直白；Shiro 适合非 Spring 或遗留项目。**
+
+权限模型（RBAC / ABAC）见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)；OAuth2 / JWT 见 [OAuth2](/security/2_oauth2) / [JWT 令牌机制](/security/1_jwt)；SSO 原理见 [单点登录](/security/4_sso)，Sa-Token SSO 的接入代码见 [Spring SSO 接入](./11_single_sign_on)。
 
 ---
 

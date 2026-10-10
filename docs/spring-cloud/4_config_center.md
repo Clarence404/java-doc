@@ -4,9 +4,13 @@ description: spring.config.import 接入、gRPC 推送刷新、@RefreshScope 与
 
 # 配置中心
 
-> **本篇目标**：能在 Spring Boot 4 / Spring Cloud 2025.1 中用 `spring.config.import` 接入 Nacos Config，讲清配置变更从 Nacos 到 Bean 的完整刷新链路，分清 `@RefreshScope` 与 `@ConfigurationProperties` 重绑定的行为差异，并规划好环境隔离与配置分层。
->
-> **前置阅读**：[注册发现](./1_service_registry)
+> 前置阅读：[注册发现](./1_service_registry)
+
+配置中心让配置脱离安装包，实现动态刷新、环境隔离、集中管理与敏感信息保护。本篇基于 Spring Boot 4 / Spring Cloud 2025.1，讲 Nacos Config 接入、刷新链路、`@RefreshScope` 与 `@ConfigurationProperties` 重绑定的差异，以及环境隔离与配置分层。
+
+---
+
+## 一、主流方案对比
 
 配置写在包里，变更就要重新打包发布。配置中心解决四件事：
 
@@ -16,12 +20,6 @@ description: spring.config.import 接入、gRPC 推送刷新、@RefreshScope 与
 | **环境隔离** | dev / test / prod 配置分离，防止误用 |
 | **集中管理** | 统一维护、变更审计、历史版本回滚、灰度发布配置 |
 | **敏感信息保护** | 密码、密钥不进代码仓库，按权限访问 |
-
-Boot 自身的配置加载顺序、Profile 与 `@ConfigurationProperties` 校验见 Spring Boot 模块的 [配置管理](/spring-boot/6_config)，本篇只讲配置中心。
-
----
-
-## 一、主流方案对比
 
 | 组件 | 特点 | 适用场景 |
 |------|------|---------|
@@ -176,6 +174,8 @@ public class PricingRuleListener {
     }
 }
 ```
+
+Boot 自身的配置加载顺序、Profile 与 `@ConfigurationProperties` 校验见 Spring Boot 模块的 [配置管理](/spring-boot/6_config)。
 
 ---
 

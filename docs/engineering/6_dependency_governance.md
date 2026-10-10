@@ -4,17 +4,17 @@ description: BOM 策略、Enforcer 约束、Renovate / Dependabot、漏洞扫描
 
 # 依赖治理
 
-> **本篇目标**：建立一套可落地的依赖治理闭环：用 BOM 与 Version Catalog 统一版本来源，用 maven-enforcer 与依赖锁定在构建期拦截冲突，用 Renovate / Dependabot 持续升级，用 Dependency-Check / OSV-Scanner / Trivy 扫描漏洞并规范抑制，用 License 检查与 CycloneDX SBOM 满足合规与供应链要求。
->
-> **前置阅读**：[构建工具](./1_build_tools)（作用域、依赖调解、BOM 导入的机制）
+> 前置阅读：[构建工具](./1_build_tools)
 
-一个 Spring Boot 服务的运行时类路径上通常有 150 个以上的 jar，其中绝大多数是传递依赖。依赖治理要回答四个问题：**版本谁说了算、冲突怎么提前发现、漏洞和许可证风险怎么持续兜底、出事时能不能马上说清「我们用了什么」**。调解规则等机制见 [构建工具](./1_build_tools)，本篇只讲治理策略；制品签名与溯源见 [制品与版本管理](/devops/6_artifact_version)。版本以 2026 年 10 月为准：Spring Boot 4.1.1、Spring Cloud 2025.1.3、Dependency-Check 13.0.0、maven-enforcer-plugin 3.6.3。
+依赖治理要回答版本谁说了算、冲突怎么提前发现、漏洞和许可证风险怎么持续兜底、出事时能否马上说清「我们用了什么」。本篇用 BOM 与 Version Catalog、maven-enforcer、Renovate / Dependabot、漏洞扫描、License 检查与 CycloneDX SBOM 搭建治理闭环，版本以 2026 年 10 月为准：Spring Boot 4.1.1、Spring Cloud 2025.1.3、Dependency-Check 13.0.0、maven-enforcer-plugin 3.6.3。
 
 ---
 
 ## 一、治理闭环
 
 ![依赖治理闭环](../assets/engineering/dependency-governance-loop.svg)
+
+一个 Spring Boot 服务的运行时类路径上通常有 150 个以上的 jar，其中绝大多数是传递依赖。
 
 | 环节 | 目的 | Maven | Gradle |
 |------|------|-------|--------|
@@ -497,6 +497,8 @@ Actuator 端点的安全暴露方式见 [Actuator 监控](/spring-boot/7_actuato
 ### 3、依赖完整性校验
 
 扫描解决的是「已知漏洞」，完整性校验解决的是「下载到的 jar 是不是真的那一个」：
+
+制品签名与溯源见 [制品与版本管理](/devops/6_artifact_version)。
 
 - **Gradle 依赖校验**：生成 `gradle/verification-metadata.xml`，记录每个依赖的 SHA-256，之后任何哈希不匹配都会让构建失败。升级依赖时重新生成并在 PR 中评审差异
 

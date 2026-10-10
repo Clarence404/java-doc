@@ -4,13 +4,9 @@ description: 客户端对比、锁 API 与看门狗、限流器、延迟队列�
 
 # Redisson
 
-> **本篇目标**：会用 Redisson 的锁、限流器、延迟队列与本地缓存 Map 这几类常用对象，知道每个 API 的语义边界（看门狗何时生效、`leaseTime` 的风险、`trySetRate` 只设置一次等），并能在 Spring Boot 4 下正确接入。
->
-> **前置阅读**：[Redis 基础](./1_redis_base)、[Redis 实战](./5_redis_practice)、[分布式锁](/distributed/3_lock)
+> 前置阅读：[Redis 基础](./1_redis_base)、[Redis 实战](./5_redis_practice)、[分布式锁](/distributed/3_lock)
 
-Redisson 是基于 Redis 的 **Java 分布式对象库**：除了基础读写，还把锁、信号量、限流器、队列、带本地缓存的 Map 等封装成 Java 对象，底层用 Lua 脚本和 Pub/Sub 保证原子性与通知。本篇只讲 Redisson 的 API 用法与语义；分布式锁的原理、Redlock 争议、fencing token 的必要性见 [分布式锁](/distributed/3_lock)。
-
-**版本基线**：Redisson 4.x（Spring Boot Starter 写作时为 4.8.0，支持 Spring Boot 1.3 – 4.1），服务端 Redis 8.x / Valkey 8.x。
+Redisson 是基于 Redis 的 **Java 分布式对象库**，把锁、信号量、限流器、队列、带本地缓存的 Map 等封装成 Java 对象，底层用 Lua 脚本和 Pub/Sub 保证原子性与通知。本篇讲这些 API 的用法与语义边界，版本基线为 Redisson 4.x（Spring Boot Starter 写作时为 4.8.0，支持 Spring Boot 1.3 – 4.1）、服务端 Redis 8.x / Valkey 8.x。
 
 ---
 
@@ -30,6 +26,8 @@ Redisson 是基于 Redis 的 **Java 分布式对象库**：除了基础读写，
 ---
 
 ## 二、分布式锁 API
+
+分布式锁的原理、Redlock 争议、fencing token 的必要性见 [分布式锁](/distributed/3_lock)，这里只讲 Redisson 的 API 用法与语义。
 
 ### 1、RLock：看门狗与 leaseTime
 

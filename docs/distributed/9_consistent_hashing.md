@@ -4,9 +4,9 @@ description: 哈希环、虚拟节点、Java 实现、Jump Hash 等变体、Redi
 
 # 一致性哈希
 
-> **本篇目标**：理解一致性哈希为什么能让扩缩容只迁移约 1/N 的数据，会用虚拟节点解决倾斜并写出可用的实现；了解 Jump Hash、Rendezvous、Maglev、有界负载等变体，分清 Redis Cluster 槽位与 Kafka 分区路由和一致性哈希的区别。
->
-> **前置阅读**：[分布式理论](./2_theorem)
+> 前置阅读：[分布式理论](./2_theorem)
+
+一致性哈希让节点扩缩容时只迁移约 1/N 的数据。本篇讲哈希环、虚拟节点与 Java 实现，对比 Jump Hash、Rendezvous、Maglev、有界负载等变体，并分清 Redis Cluster 槽位、Kafka 分区路由与一致性哈希的区别。
 
 ---
 

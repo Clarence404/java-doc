@@ -4,11 +4,9 @@ description: MySQL 全文检索边界、商品 Mapping、Java API Client、CDC �
 
 # 搜索
 
-> **本篇目标**：判断什么时候需要专用搜索引擎，设计一个商品搜索：索引 Mapping、组合查询、MySQL → ES 的可靠同步、不丢增量的零停机重建、搜索建议与热词，以及相关性调优。
->
-> **前置阅读**：[搜索数据库](/database/4_nosql/3_search_db)、[CDC 工具](/database/5_practice/0_cdc_tools)
+> 前置阅读：[搜索数据库](/database/4_nosql/3_search_db)、[CDC 工具](/database/5_practice/0_cdc_tools)
 
-Elasticsearch 的概念、倒排索引、分析器、深分页、别名等机制在 [搜索数据库](/database/4_nosql/3_search_db) 中讲解，本篇只讲商品搜索这个业务怎么落地。示例基于 Elasticsearch 9.x 与官方 Java 客户端 `co.elastic.clients:elasticsearch-java` 9.x（旧的 `RestHighLevelClient` 在 7.15 废弃，8.x 起不再提供）。
+商品搜索要先判断什么时候需要专用搜索引擎，再解决索引、查询、同步与相关性问题。本篇讲 Mapping、组合查询、MySQL → ES 可靠同步、零停机重建、搜索建议与相关性调优，示例基于 Elasticsearch 9.x 与官方 Java 客户端 `co.elastic.clients:elasticsearch-java` 9.x（旧的 `RestHighLevelClient` 在 7.15 废弃，8.x 起不再提供）。
 
 ---
 
@@ -39,6 +37,8 @@ LIMIT 20;
 ## 二、商品索引设计
 
 业务始终通过别名 `products` 访问，物理索引带版本号（`products_v1`），方便后面零停机重建：
+
+Elasticsearch 的概念、倒排索引、分析器、深分页、别名等机制见 [搜索数据库](/database/4_nosql/3_search_db)。
 
 ```http
 PUT /products_v1

@@ -4,11 +4,9 @@ description: Key / Value / TTL 规范、穿透与击穿防护、逻辑过期、�
 
 # 缓存最佳实践
 
-> **本篇目标**：形成一份可直接落地的缓存规范清单：Key、Value、TTL 怎么定，穿透与击穿的防护代码怎么写才正确（空值处理、锁的持有者校验、等待超时降级），逻辑过期在什么条件下使用，以及哪些命令禁止使用、哪些指标需要监控。
->
-> **前置阅读**：[Redis 实战](./5_redis_practice)、[缓存一致性](./10_cache_consistency)
+> 前置阅读：[Redis 实战](./5_redis_practice)、[缓存一致性](./10_cache_consistency)
 
-本篇是缓存模块的规范清单，也是穿透、击穿防护代码的主文档；缓存架构层面的预热、多级缓存与三大问题的整体策略见 [缓存架构设计](/high-con/3_cache_architecture)，热点 key 的探测与治理见 [热点问题](/high-con/6_hotspot)。
+本篇是缓存模块的规范清单，也是穿透、击穿防护代码的主文档。内容覆盖 Key / Value / TTL 规范、穿透击穿雪崩的防护写法、禁止事项与监控告警。
 
 ---
 
@@ -240,6 +238,8 @@ public Optional<User> getUser(long id) {
 - 逻辑过期返回旧值、异步重建，物理 TTL 仍要设置且远大于逻辑过期
 - 一致性：提交后删缓存 + 重试 + binlog 兜底 + TTL
 - 禁止 `KEYS`、同步删大 key、`WATCH` 实现复杂逻辑；用 `SCAN`、`UNLINK`、Lua
+
+缓存架构层面的预热、多级缓存与三大问题的整体策略见 [缓存架构设计](/high-con/3_cache_architecture)，热点 key 的探测与治理见 [热点问题](/high-con/6_hotspot)。
 
 ## 参考资料
 

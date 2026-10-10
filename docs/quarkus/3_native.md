@@ -4,11 +4,9 @@ description: 原生构建、反射登记、类初始化时机、容器镜像、K
 
 # 原生镜像与云原生部署
 
-> **本篇目标**：掌握 Quarkus 原生镜像的构建方式与常见坑（反射、资源、类初始化时机），能用扩展一键生成容器镜像与 Kubernetes 清单，接好健康检查与指标，并能根据业务场景在 JVM 模式与原生模式之间做出取舍。
->
-> **前置阅读**：[Quarkus 概览](./1_basics)、[JIT 编译](/jvm/7_jit)、[启动与部署优化](/spring-boot/14_startup)
+> 前置阅读：[Quarkus 概览](./1_basics)、[JIT 编译](/jvm/7_jit)、[启动与部署优化](/spring-boot/14_startup)
 
-GraalVM Native Image 的通用原理（静态分析、闭世界假设、AOT 编译）见 [JIT 编译](/jvm/7_jit)，Spring Boot 的原生方案与 CDS / AOT 缓存对比见 [启动与部署优化](/spring-boot/14_startup)。本篇只讲 Quarkus 特有的部分。
+Quarkus 可以借助 GraalVM / Mandrel 构建原生镜像，并一键生成容器镜像与 Kubernetes 清单。本篇讲原生构建的方式与反射、资源、类初始化等常见坑，健康检查与指标，以及 JVM 模式与原生模式的取舍。
 
 ---
 
@@ -271,6 +269,7 @@ public class PaymentGatewayHealthCheck implements HealthCheck {
 - 容器镜像用 Jib 扩展最省事，JVM 模式的 `quarkus-app/` 布局天然分层，不要改成 uber-jar
 - Kubernetes 扩展生成清单作为起点，健康检查分 live / ready / started，存活探针不查外部依赖
 - 原生模式适合冷启动敏感与高密度部署，长期运行的高吞吐服务通常留在 JVM 模式
+- GraalVM Native Image 的通用原理（静态分析、闭世界假设、AOT 编译）见 [JIT 编译](/jvm/7_jit)，Spring Boot 的原生方案与 CDS / AOT 缓存对比见 [启动与部署优化](/spring-boot/14_startup)，本篇只讲了 Quarkus 特有的部分。
 
 ## 参考资料
 

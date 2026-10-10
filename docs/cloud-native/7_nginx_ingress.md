@@ -4,15 +4,15 @@ description: Nginx 反向代理、Ingress 与 pathType、ingress-nginx 退役迁
 
 # Nginx、Ingress 与 Gateway API
 
-> **本篇目标**：能写出一个可用的 Nginx 反向代理配置，掌握 Kubernetes Ingress 的资源模型与 `pathType` 匹配规则，了解社区 ingress-nginx 退役的影响，并能用 Gateway API（GatewayClass / Gateway / HTTPRoute）搭出一套南北向入口、从 Ingress 平滑迁移过去。
->
-> **前置阅读**：[Kubernetes](./6_kubernetes)（Pod、Service、Deployment）
+> 前置阅读：[Kubernetes](./6_kubernetes)
 
-南北向流量指从集群外部进入集群的流量。本篇以 2026 年 10 月为基线：Kubernetes 官方已冻结 Ingress API、推荐改用 Gateway API；社区版 ingress-nginx 控制器已在 2026 年 3 月停止维护。入口分层（DNS、CDN、LVS / SLB）这类系统级架构见 [接入层架构](/high-con/1_access_layer)，TLS 握手与证书链原理见 [HTTPS 与 TLS](/protocols/3_https_tls)。
+南北向流量指从集群外部进入集群的流量，入口方案正在从 Ingress 转向 Gateway API。本篇以 2026 年 10 月为基线讲 Nginx 反向代理、Ingress 与 Gateway API 及迁移：Kubernetes 官方已冻结 Ingress API、推荐改用 Gateway API，社区版 ingress-nginx 控制器已在 2026 年 3 月停止维护。
 
 ---
 
 ## 一、南北向入口的位置
+
+入口分层（DNS、CDN、LVS / SLB）这类系统级架构见 [接入层架构](/high-con/1_access_layer)，TLS 握手与证书链原理见 [HTTPS 与 TLS](/protocols/3_https_tls)。
 
 一个请求从公网到达 Pod，通常要经过这几跳：
 

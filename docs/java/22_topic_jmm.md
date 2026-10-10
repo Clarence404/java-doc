@@ -4,11 +4,9 @@ description: 可见性来源、happens-before、volatile、锁的内存语义、
 
 # JMM 内存模型
 
-> **本篇目标**：建立与现代硬件和 JIT 相符的 JMM 心智模型，能用 happens-before 判断一段并发代码是否正确，说清 `volatile`、`synchronized`、`final` 各自保证了什么、没保证什么。
->
-> **前置阅读**：[集合框架](./21_topic_collection)
+> 前置阅读：[集合框架](./21_topic_collection)
 
-JMM（Java Memory Model）是 JLS 第 17 章定义的一套规则：给定一段多线程程序，**一次读操作允许看到哪些写操作的值**。它不描述 CPU 缓存怎么工作，而是给出一个与硬件无关的契约——只要程序按规则同步（没有数据竞争），它的行为就和「所有操作按某种交错顺序依次执行」一样（顺序一致性，DRF-SC 保证）。
+JMM（Java Memory Model）是 JLS 第 17 章定义的规则，规定一次读操作允许看到哪些写操作的值，只要程序没有数据竞争，其行为就等同于顺序一致（DRF-SC 保证）。本篇讲 happens-before 的判断方法，以及 `volatile`、`synchronized`、`final` 各自保证了什么、没保证什么。
 
 ---
 

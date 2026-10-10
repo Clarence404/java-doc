@@ -4,11 +4,9 @@ description: Lombok、MapStruct、Hutool、Guava 的用法与坑点、JDK 版本
 
 # 效率工具库
 
-> **本篇目标**：掌握 Lombok、MapStruct、Hutool、Guava 在后端项目中的正确用法，避开 Lombok 与新 JDK 的兼容问题、Lombok + MapStruct 的构建配置坑、过时的 API 推荐（Guava Cache、EventBus、MD5 存密码等），并知道哪些需求 JDK 本身已经能满足。
->
-> **前置阅读**：[Lambda、Stream 与注解](./1_advanced)（注解处理器原理）
+> 前置阅读：[Lambda、Stream 与注解](./1_advanced)
 
-IDE 插件与日常软件工具见 [开发工具](/engineering/2_dev_tools)，依赖版本管理见 [依赖治理](/engineering/6_dependency_governance)。本文的版本号以撰写时（2026-10）Maven Central 的版本为例，使用时以最新发布为准。
+本篇讲 Lombok、MapStruct、Hutool、Guava 的正确用法、新 JDK 兼容与构建配置坑、过时 API，以及哪些需求 JDK 本身已能满足。版本号以撰写时（2026-10）Maven Central 的版本为例，使用时以最新发布为准。
 
 ---
 
@@ -331,6 +329,8 @@ limiter.acquire();
 ---
 
 ## 小结
+
+IDE 插件与日常软件工具见 [开发工具](/engineering/2_dev_tools)，依赖版本管理见 [依赖治理](/engineering/6_dependency_governance)。
 
 - Lombok 通过改写 javac 内部 AST 工作，每个新 JDK 都需要对应版本（JDK 21 → 1.18.30，JDK 25 → 1.18.40）；JDK 23 起必须在 `annotationProcessorPaths` 中显式声明
 - 实体类不用 `@Data`，有继承用 `callSuper = true`，builder 默认值加 `@Builder.Default`；简单不可变 DTO 优先 `record`

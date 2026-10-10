@@ -4,11 +4,9 @@ description: 配置优先级、松散绑定、@ConfigurationProperties、Profile
 
 # 配置管理
 
-> **本篇目标**：弄清 Spring Boot 外部化配置的完整优先级与查找路径，能用 `@ConfigurationProperties`（含 record 与校验）安全地绑定配置，正确组织多环境 Profile 与 `spring.config.import`，并知道敏感配置和动态刷新该交给谁。
->
-> **前置阅读**：[启动流程与自动配置](./1_spring_boot)
+> 前置阅读：[启动流程与自动配置](./1_spring_boot)
 
-本篇以 Spring Boot 4.x 为基线；外部化配置的机制从 2.4 起基本稳定，3.x 与 4.x 的写法一致，个别差异在正文中标出。
+Spring Boot 的外部化配置机制从 2.4 起基本稳定，3.x 与 4.x 的写法一致。本篇以 Spring Boot 4.x 为基线，讲配置优先级与查找路径、`@ConfigurationProperties`（含 record 与校验）、多环境 Profile 与 `spring.config.import`，以及敏感配置和动态刷新的归属，个别差异在正文中标出。
 
 ---
 

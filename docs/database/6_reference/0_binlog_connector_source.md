@@ -4,15 +4,15 @@ description: BinaryLogClient 连接流程、事件循环、checksum 与 TableMap
 
 # mysql-binlog-connector-java 原理
 
-> **本篇目标**：读懂 `BinaryLogClient` 从握手到事件循环的主流程，理解反序列化中的两个有状态环节（checksum 与 TABLE_MAP）、GTID 何时计入位点、保活线程如何判定断线并重连，从而知道使用这个库时哪些事情必须自己做。
->
-> **前置阅读**：[CDC 工具](../5_practice/0_cdc_tools)（库的定位与最小使用示例）、[MySQL 主从与高可用](../1_mysql/9_topic_replication)（binlog 与 GTID）
+> 前置阅读：[CDC 工具](../5_practice/0_cdc_tools)、[MySQL 主从与高可用](../1_mysql/9_topic_replication)
 
-mysql-binlog-connector-java 在应用进程里扮演一个 MySQL 副本：完成握手认证后发送 binlog dump 请求，把收到的二进制事件反序列化成 Java 对象交给监听器。它**只做协议与反序列化**：不做全量快照、不解析 DDL、不维护表结构历史、不持久化位点。原作者 shyiko 的仓库已归档，持续维护的是 osheroff 的分支，Maven 坐标为 `com.zendesk:mysql-binlog-connector-java`，包名仍是 `com.github.shyiko.mysql.binlog`。本文按该分支的当前源码讲解，使用示例统一放在 [CDC 工具](../5_practice/0_cdc_tools)。
+mysql-binlog-connector-java 在应用进程里扮演一个 MySQL 副本，**只做协议与反序列化**，不做全量快照、不解析 DDL、不维护表结构历史、不持久化位点。本篇按 osheroff 持续维护分支（坐标 `com.zendesk:mysql-binlog-connector-java`，包名仍是 `com.github.shyiko.mysql.binlog`）的当前源码，讲握手与事件循环、有状态的反序列化、GTID 位点推进与保活重连。
 
 ---
 
 ## 一、连接流程
+
+原作者 shyiko 的仓库已归档；使用示例统一放在 [CDC 工具](../5_practice/0_cdc_tools)。
 
 ![BinaryLogClient 连接、事件循环与保活重连](../../assets/database/binlog-client-flow.svg)
 

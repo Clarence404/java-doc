@@ -4,11 +4,9 @@ description: AQS 结构与流程、公平 / 非公平锁、Condition、读写锁
 
 # 显式锁（Lock）
 
-> **本篇目标**：看懂 JDK 14 之后的 AQS 实现（state + 同步队列 + 条件队列），掌握 `ReentrantLock`、`Condition`、`ReentrantReadWriteLock`、`StampedLock` 的正确用法与坑，能在 JDK 21 / 25 上（含虚拟线程）合理选择 `synchronized` 还是 `Lock`。
->
-> **前置阅读**：[synchronized](./24_topic_synchronized)、[JMM 内存模型](./22_topic_jmm)
+> 前置阅读：[synchronized](./24_topic_synchronized)、[JMM 内存模型](./22_topic_jmm)
 
-`synchronized` 是 JVM 内置的监视器锁，加解锁由字节码和运行时完成；`java.util.concurrent.locks` 里的锁则是**纯 Java 代码**，几乎全部建立在 AQS 之上。理解了 AQS，`ReentrantLock`、读写锁、`Semaphore`、`CountDownLatch` 的行为就都能推出来。`synchronized` 的对象头、锁升级与版本差异见 [synchronized](./24_topic_synchronized)，本篇不再重复。
+`java.util.concurrent.locks` 里的锁是几乎全部建立在 AQS 之上的纯 Java 实现，理解了 AQS，`ReentrantLock`、读写锁、`Semaphore`、`CountDownLatch` 的行为都能推出来。本篇讲 JDK 14 之后的 AQS 实现、各类显式锁的用法与坑，以及 JDK 21 / 25 上（含虚拟线程）`synchronized` 与 `Lock` 的选择。
 
 ---
 
@@ -366,6 +364,8 @@ public void moveIfAtOrigin(double newX, double newY) {
 ---
 
 ## 七、synchronized 与 ReentrantLock 对比
+
+`synchronized` 的对象头、锁升级与版本差异见 [synchronized](./24_topic_synchronized)，本篇不再重复。
 
 | | `synchronized` | `ReentrantLock` |
 |--|----------------|-----------------|

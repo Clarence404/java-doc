@@ -4,11 +4,9 @@ description: 无 Agent 架构、Inventory、Playbook、幂等与 Handler、Role�
 
 # Ansible
 
-> **本篇目标**：理解 Ansible 无 Agent 的工作方式和它与 Terraform 的分工，能写出一份把 Java 应用部署到一组虚机的 Playbook，并掌握幂等、Handler、Role、Vault、滚动发布这些工程化要点。
->
-> **前置阅读**：[Terraform](./11_terraform)、[Linux 概览](./1_linux)
+> 前置阅读：[Terraform](./11_terraform)、[Linux 概览](./1_linux)
 
-Ansible 是 Red Hat 主导的配置管理与自动化工具，用 YAML 描述「机器应该是什么状态」。本篇以 2026 年 10 月的 ansible-core 2.21 和社区包 ansible 14 为基线；所有模块都写全限定名（FQCN，如 `ansible.builtin.copy`），这是官方推荐写法，也能避免与第三方集合的同名模块冲突。
+Ansible 是 Red Hat 主导的配置管理与自动化工具，用 YAML 描述「机器应该是什么状态」。本篇以 2026 年 10 月的 ansible-core 2.21 和社区包 ansible 14 为基线，讲无 Agent 架构、与 Terraform 的分工、部署 Java 应用的 Playbook 与 Role 及幂等、Vault、滚动发布等工程化要点。
 
 ---
 
@@ -45,6 +43,8 @@ Ansible 是 Red Hat 主导的配置管理与自动化工具，用 YAML 描述「
 ---
 
 ## 三、快速上手
+
+下文所有模块都写全限定名（FQCN，如 `ansible.builtin.copy`），这是官方推荐写法，也能避免与第三方集合的同名模块冲突。
 
 ### 1、安装
 

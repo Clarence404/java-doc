@@ -4,17 +4,15 @@ description: MyBatis 缓存、分页、Mapper 代理、TypeHandler、插件、�
 
 # ORM 框架
 
-> **本篇目标**：讲清 MyBatis 两级缓存、分页插件、Mapper 代理、执行器、TypeHandler 与插件链的工作原理，掌握 MyBatis-Plus 多租户插件与数据源路由的机制，理解 Hibernate 的持久化上下文、脏检查与 N+1 的成因，并能在 MyBatis 与 JPA 之间做选择。
->
-> **前置阅读**：[事务管理](/spring/4_transaction)、[数据访问](/spring-boot/3_data_access)
+> 前置阅读：[事务管理](/spring/4_transaction)、[数据访问](/spring-boot/3_data_access)
 
-本篇讲框架原理；在 Spring Boot 中引入依赖、写实体与 Repository、配置 MyBatis-Plus 与多数据源等用法见 [数据访问](/spring-boot/3_data_access)。
-
-版本基线：MyBatis 3.5.19；mybatis-spring-boot-starter 3.0.x 对应 Boot 3.2–3.5，4.0.x 对应 Boot 4.0；MyBatis-Plus 3.5.17；Hibernate ORM 7.x（实现 Jakarta Persistence 3.2，Boot 4 默认）。
+本篇讲 MyBatis 两级缓存、分页插件、Mapper 代理、执行器、TypeHandler 与插件链的原理，MyBatis-Plus 多租户与数据源路由，以及 Hibernate 持久化上下文、脏检查与 N+1。版本基线：MyBatis 3.5.19（mybatis-spring-boot-starter 3.0.x 对应 Boot 3.2–3.5，4.0.x 对应 Boot 4.0）、MyBatis-Plus 3.5.17、Hibernate ORM 7.x（实现 Jakarta Persistence 3.2，Boot 4 默认）。
 
 ---
 
 ## 一、MyBatis 缓存
+
+本篇讲框架原理；在 Spring Boot 中引入依赖、写实体与 Repository、配置 MyBatis-Plus 与多数据源等用法见 [数据访问](/spring-boot/3_data_access)。
 
 ### 1、一级缓存（SqlSession 级）
 

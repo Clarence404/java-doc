@@ -4,11 +4,9 @@ description: Maven 生命周期与作用域、依赖调解、Wrapper 与 mvnd、
 
 # 构建工具
 
-> **本篇目标**：讲清 Maven 的生命周期、作用域与依赖调解机制，能写出可直接运行的 Maven / Gradle 9 构建配置（Wrapper、surefire / failsafe 分工、Spring Boot 插件、Version Catalog、配置缓存），并搭出分层清晰的多模块工程。
->
-> **前置阅读**：[工程效率总览](./0_overview)
+> 前置阅读：[工程效率总览](./0_overview)
 
-本篇是构建机制的主文档：生命周期、作用域、依赖调解规则都在这里讲；BOM 选型、版本约束、漏洞扫描、自动升级、License 与 SBOM 等依赖「治理」放在 [依赖治理](./6_dependency_governance)；JaCoCo、Sonar 与格式化插件放在 [代码质量](./3_code_quality)。版本以 2026 年 10 月为准：Maven 3.9.16、Gradle 9.8、Spring Boot 4.1.x、JDK 21。
+构建工具负责把源码编译、测试、打包成可交付产物，本篇是构建机制的主文档。内容包括 Maven 生命周期、作用域与依赖调解，Maven / Gradle 9 构建配置与多模块工程，版本以 2026 年 10 月为准：Maven 3.9.16、Gradle 9.8、Spring Boot 4.1.x、JDK 21。
 
 ---
 
@@ -146,6 +144,8 @@ mvn dependency:analyze
 
 BOM（Bill of Materials）是只包含 `dependencyManagement` 的 POM，通过 `type=pom` + `scope=import` 导入后，它管理的构件都不用再写版本。导入**必须写在 `<dependencyManagement>` 里**：
 
+BOM 选型、版本约束、漏洞扫描、自动升级、License 与 SBOM 等依赖治理见 [依赖治理](./6_dependency_governance)。
+
 ```xml
 <dependencyManagement>
   <dependencies>
@@ -195,6 +195,8 @@ mvnd 适合本地反复构建的大型多模块工程；CI 每次都是全新环
 ### 3、单元测试与集成测试分开跑
 
 surefire 默认只运行 `**/Test*.java`、`**/*Test.java`、`**/*Tests.java`、`**/*TestCase.java`，`*IT.java` 本来就不会被它执行，不需要额外排除。集成测试交给 failsafe，它在 `integration-test` 阶段运行 `*IT.java`，并在 `verify` 阶段才判定失败，保证 `post-integration-test` 的清理动作一定执行：
+
+JaCoCo、Sonar 与格式化插件见 [代码质量](./3_code_quality)。
 
 ```xml
 <build>

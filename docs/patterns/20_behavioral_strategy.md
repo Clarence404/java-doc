@@ -4,9 +4,9 @@ description: 定义与角色、Comparator 与 lambda、枚举策略、Spring 注
 
 # 策略模式
 
-> **本篇目标**：理解策略模式「算法可互换、由客户端选择」的结构，会用 lambda 和枚举写轻量策略，会在 Spring 里通过注入 `List` / `Map` 自动组装策略表消除 if-else，非 Spring 环境下写出安全的策略工厂。
->
-> **前置阅读**：[状态模式](./19_behavioral_state)
+> 前置阅读：[状态模式](./19_behavioral_state)
+
+策略模式把一组可互换的算法封装起来、由客户端选择。本篇讲 lambda 与枚举写法、Spring 中注入 `List` / `Map` 组装策略表，以及非 Spring 环境下的策略工厂。
 
 ---
 

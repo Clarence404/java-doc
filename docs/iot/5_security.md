@@ -4,13 +4,9 @@ description: IoT 威胁模型、一机一密、X.509 与 mTLS、EMQX 5.x 认证�
 
 # 设备安全
 
-> **本篇目标**：掌握 IoT 设备从身份到数据的整套防护——一机一密与 X.509 证书怎么发、EMQX 5.x 的认证和 Topic 授权怎么配、越权与暴力破解怎么发现，以及零信任在设备网络中怎么落地。
->
-> **前置阅读**：[HTTPS 与 TLS](/protocols/3_https_tls)（证书链与 mTLS）、[零信任架构](/security/9_zero_trust)、[通信协议](./1_protocol)
+> 前置阅读：[HTTPS 与 TLS](/protocols/3_https_tls)、[零信任架构](/security/9_zero_trust)、[通信协议](./1_protocol)
 
-TLS 握手、证书链校验等通用原理见 [HTTPS 与 TLS](/protocols/3_https_tls)，零信任的通用原则见 [零信任架构](/security/9_zero_trust)，本篇只讲设备侧特有的做法。
-
-版本基线：配置均为 EMQX 5.x 语法（HOCON 配置、`${clientid}` 占位符、API Key 调用 REST API），6.x 沿用同一套语法；4.x 的 `%c` / `%u` 写法与 `acl.conf` 旧格式不再适用。EMQX 5.9 起的许可变化见 [平台选型](./2_platform)。
+本篇讲 IoT 设备从身份到数据的整套防护：一机一密与 X.509 证书、EMQX 5.x 的认证与 Topic 授权、越权与暴力破解的发现，以及零信任在设备网络中的落地。配置均为 EMQX 5.x 语法（HOCON 配置、`${clientid}` 占位符、API Key 调用 REST API），6.x 沿用同一套语法，4.x 的 `%c` / `%u` 写法与 `acl.conf` 旧格式不再适用。
 
 ---
 
@@ -256,6 +252,8 @@ mqtt {
 ---
 
 ## 四、Topic 授权（EMQX ACL）
+
+EMQX 5.9 起的许可变化见 [平台选型](./2_platform)。
 
 ### 1、认证与授权的分工
 

@@ -4,17 +4,15 @@ description: 工作原理与 Ryuk、2.x 依赖与包名、JUnit 集成、等待�
 
 # Testcontainers
 
-> **本篇目标**：理解 Testcontainers 如何通过 Docker API 为测试拉起真实的 PostgreSQL、Redis、Kafka、LocalStack，掌握 2.x 的依赖与包名、JUnit 扩展的容器生命周期、等待策略；能用单例容器和容器复用把套件提速，并在 GitHub Actions、GitLab CI 等环境里让 Docker 可用。
->
-> **前置阅读**：[集成测试](./3_integration_test)、[Docker](/cloud-native/5_docker)
+> 前置阅读：[集成测试](./3_integration_test)、[Docker](/cloud-native/5_docker)
 
-本篇只讲 Testcontainers 本身，示例不依赖 Spring，用纯 JUnit + JDBC / 客户端库演示。在 Spring Boot 里用 `@ServiceConnection` 自动注入连接信息、把容器声明成 Bean 共享、开发期用容器启动应用，见 [Spring Boot 测试 · Testcontainers 集成](/spring-boot/13_testing#五、testcontainers-集成)；集成测试该测什么、数据怎么隔离、Surefire / Failsafe 怎么分，见 [集成测试](./3_integration_test)。
-
-版本基线：JDK 21、JUnit 6、Testcontainers **2.0.5**（Spring Boot 4.0 / 4.1 的依赖管理同为 2.0.5）。示例沿用 order-service：订单写 PostgreSQL、状态缓存放 Redis、事件发到 Kafka、发票存 S3。
+Testcontainers 通过 Docker API 为测试拉起真实的 PostgreSQL、Redis、Kafka、LocalStack。本篇用纯 JUnit 讲 2.x 的依赖与包名、容器生命周期、等待策略、单例与复用提速以及 CI 中的 Docker 配置，版本基线为 JDK 21、JUnit 6、Testcontainers **2.0.5**（Spring Boot 4.0 / 4.1 的依赖管理同为 2.0.5）。
 
 ---
 
 ## 一、为什么用真实容器
+
+示例沿用 order-service：订单写 PostgreSQL、状态缓存放 Redis、事件发到 Kafka、发票存 S3。
 
 集成测试要回答的问题是「我的代码和这个中间件配合得对不对」，替身回答不了这个问题。
 
@@ -184,6 +182,8 @@ class JdbcOrderRepositoryTest {
 | 单例（第八节） | 第一次用到时 | JVM 退出时由 Ryuk 清理 | 多个测试类共享 |
 
 `@Testcontainers(parallel = true)` 可以让同一类中的多个容器并行启动，缩短等待；它不改变上表的生命周期。官方说明扩展**不支持与 JUnit 的并行测试执行同时使用**，并行跑测试类时改用单例容器或进程级并行（见 [集成测试 · 并行执行](./3_integration_test#七、并行执行)）。
+
+在 Spring Boot 里用 `@ServiceConnection` 自动注入连接信息、把容器声明成 Bean 共享、开发期用容器启动应用，见 [Spring Boot 测试 · Testcontainers 集成](/spring-boot/13_testing#五、testcontainers-集成)。
 
 ---
 
@@ -460,6 +460,8 @@ class NetworkExample {
 | 事务回滚 | 测试在事务中执行，结束回滚 | 只适用于被测代码与测试共用一个连接 / 事务的场景，Spring 中的陷阱见 [Spring Boot 测试](/spring-boot/13_testing#六、事务回滚语义与陷阱) |
 
 清表的写法见下一节的 `OrderQueryIT`。Kafka 主题无法「清空」，用每个测试独立的主题名或消费组，或者只断言带本测试唯一键的消息。数据策略的完整讨论（Flyway 建表、种子数据、并发隔离）见 [集成测试 · 测试数据管理](./3_integration_test#四、测试数据管理)。
+
+集成测试该测什么、数据怎么隔离、Surefire / Failsafe 怎么分，见 [集成测试](./3_integration_test)。
 
 ---
 

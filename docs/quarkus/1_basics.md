@@ -4,11 +4,9 @@ description: 构建期增强、扩展、ArC 依赖注入、Dev Mode、Dev Servic
 
 # Quarkus 概览
 
-> **本篇目标**：理解 Quarkus 为什么启动快、内存省（构建期增强），掌握扩展、ArC 依赖注入、开发模式、Dev Services、配置体系这几块日常开发绕不开的基础，并清楚当前的版本线与它和 Vert.x 的关系。
->
-> **前置阅读**：[启动流程与自动配置](/spring-boot/1_spring_boot)、[Vert.x 概览](/vertx/1_basics)
+> 前置阅读：[启动流程与自动配置](/spring-boot/1_spring_boot)、[Vert.x 概览](/vertx/1_basics)
 
-Quarkus 是 Red Hat 主导的 Java 框架，口号是「为容器与云原生而生」。它和 Spring Boot 解决的是同一类问题——写 REST 服务、访问数据库、接消息队列——但做法完全不同：**Spring Boot 在运行期完成的大部分框架工作（扫描、解析注解、生成代理、装配 Bean），Quarkus 挪到了构建期**。理解了这一点，Quarkus 的大部分特性和限制都能推导出来。
+Quarkus 是 Red Hat 主导的 Java 框架，核心是把 Spring Boot 在运行期做的扫描、注解解析、代理生成、Bean 装配**挪到构建期**，因此启动快、内存省。本篇讲扩展、ArC 依赖注入、开发模式、Dev Services、配置体系，以及版本线与它和 Vert.x 的关系。
 
 ---
 

@@ -4,13 +4,9 @@ description: 测试类型、开放与闭合模型、协调遗漏、k6 场景与�
 
 # 性能测试
 
-> **本篇目标**：分清冒烟、负载、压力、浸泡、尖峰、断点六类测试各自回答什么问题；理解开放模型与闭合模型的差别，以及闭合模型为什么会因「协调遗漏」把长尾测得偏乐观；以 order-service 为例，用 k6 写出带场景、预热和阈值的压测脚本，再给出 Gatling Java DSL 与 JMeter 命令行的等价写法；最后把压测接进 CI，并知道结果出来后去哪里找瓶颈。
->
-> **前置阅读**：[性能指标](/high-perf/1_metrics)、[性能分析方法论](/high-perf/2_methodology)、[集成测试](./3_integration_test)
+> 前置阅读：[性能指标](/high-perf/1_metrics)、[性能分析方法论](/high-perf/2_methodology)、[集成测试](./3_integration_test)
 
-本篇讲接口级、服务级的压测怎么设计、怎么执行、怎么判定通过。相关主题由其他文章负责：方法级的微基准用 JMH，见 [基准测试（JMH）](/high-perf/4_benchmark)；压测结果怎么换算成机器数、全链路压测与影子库怎么做，见 [容量评估与规划](/high-con/8_capacity_planning)；定位瓶颈的方法与工具见 [性能分析方法论](/high-perf/2_methodology) 和 [性能分析工具](/high-perf/3_profilers)。
-
-工具版本以 2026 年 10 月为准：k6 2.3（2.0 于 2026 年 5 月发布；1.0 于 2025 年 5 月发布，起原生支持 TypeScript 脚本），Gatling 3.16（Maven 插件 4.21），JMeter 5.6.3。示例统一压测 order-service 的两个接口：`POST /api/orders` 下单（成功返回 201 和订单 JSON），`GET /api/orders/{id}` 查单（成功返回 200）。
+本篇讲接口级、服务级压测怎么设计、执行和判定通过：六类性能测试、开放与闭合负载模型，以及 k6、Gatling、JMeter 的写法与 CI 集成。工具版本以 2026 年 10 月为准：k6 2.3（2.0 于 2026 年 5 月发布；1.0 于 2025 年 5 月发布，起原生支持 TypeScript 脚本），Gatling 3.16（Maven 插件 4.21），JMeter 5.6.3。
 
 ---
 
@@ -35,6 +31,8 @@ description: 测试类型、开放与闭合模型、协调遗漏、k6 场景与�
 - **「基线」是结果，不是测试类型**。同一套负载测试在固定环境下跑出的 P95 / P99、吞吐和资源使用率，存档后就是基线，后续版本拿来对比（见第七节）。
 - **压力测试的重点在退化方式**，不只是找崩溃点。线上更关心的是超载时限流有没有生效、线程池有没有被拖死、撤压后能否自己恢复，这些与 [限流](/high-avail/7_rate_limiting)、[熔断](/high-avail/5_circuit_breaking)、[降级](/high-avail/6_degradation) 的配置直接相关。
 - **断点测试的结果用于容量规划**，但容量点不是崩溃点，而是「P99 达标且 CPU ≤ 70%」时的负载，换算方法见 [容量评估与规划](/high-con/8_capacity_planning) 第二节。
+
+方法级的微基准用 JMH，见 [基准测试（JMH）](/high-perf/4_benchmark)。
 
 ---
 
@@ -114,6 +112,8 @@ histogram_quantile(
 ---
 
 ## 四、k6 实战：order-service 压测
+
+示例统一压测 order-service 的两个接口：`POST /api/orders` 下单（成功返回 201 和订单 JSON），`GET /api/orders/{id}` 查单（成功返回 200）。
 
 k6 用 Go 实现，脚本用 JavaScript 或 TypeScript 编写，单机可以模拟大量 VU，资源占用低，阈值失败时以非零退出码结束，天然适合 CI。本篇以 k6 为主要示例。
 
@@ -571,6 +571,8 @@ jobs:
 | P99 周期性尖刺 | GC 停顿、定时任务、日志刷盘 | GC 日志与 JFR 录制，见 [JVM 层性能策略](/high-perf/5_jvm_tuning) |
 
 线上环境无法重启或加参数时，用 Arthas 的 `trace`、`profiler` 等命令在运行中定位，见 [线上诊断](/engineering/4_diagnosis)。找到瓶颈并调整后，按同一条件重跑压测验证效果，各层并发参数的调整方法见 [并发参数调优](/high-con/7_concurrency_tuning)，容量换算见 [容量评估与规划](/high-con/8_capacity_planning)。
+
+压测结果怎么换算成机器数、全链路压测与影子库怎么做，见 [容量评估与规划](/high-con/8_capacity_planning)；定位瓶颈的方法与工具见 [性能分析方法论](/high-perf/2_methodology) 和 [性能分析工具](/high-perf/3_profilers)。
 
 ---
 

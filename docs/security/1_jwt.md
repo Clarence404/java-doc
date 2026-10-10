@@ -4,11 +4,9 @@ description: 结构与签名算法、RFC 8725 校验清单、双 Token 轮换与
 
 # JWT 令牌机制
 
-> **本篇目标**：看懂 JWT 的三段结构和常见声明；会在 HS256 / RS256 / ES256 / Ed25519 之间做选择，知道 alg=none 与算法混淆攻击怎么防；能按 RFC 8725 列出资源服务的校验清单并用 Spring Security 7 落地；会设计带轮换与重用检测的 Access Token + Refresh Token；掌握吊销、kid + JWKS 密钥轮换和浏览器端的 Token 存放方式。
->
-> **前置阅读**：[HTTP](/protocols/2_http)（Cookie 与 Authorization 头）、[分布式会话](/distributed/5_session)（服务端会话与无状态令牌的取舍）
+> 前置阅读：[HTTP](/protocols/2_http)、[分布式会话](/distributed/5_session)
 
-JWT（JSON Web Token，RFC 7519）是一种**令牌格式**，不是认证协议：它可以承载 OAuth2 的访问令牌、OIDC 的 ID Token，也可以是自家登录接口签发的会话凭证。本篇是站内 JWT 的主文档，覆盖结构、算法、校验、双 Token、吊销、密钥轮换与存储；OAuth2 的授权流程见 [OAuth2](./2_oauth2)，Spring Security 过滤器链与 `JwtEncoder` 签发的写法见 [Spring Security](/spring/9_security)。代码基线为 Spring Boot 4 / Spring Security 7，签发示例直接使用 Spring Security 内置的 Nimbus JOSE + JWT 库。
+JWT（JSON Web Token，RFC 7519）是一种**令牌格式**，不是认证协议：它可以承载 OAuth2 的访问令牌、OIDC 的 ID Token，也可以是自家登录接口签发的会话凭证。本篇是站内 JWT 的主文档，覆盖结构、算法、校验、双 Token、吊销、密钥轮换与存储，代码基线为 Spring Boot 4 / Spring Security 7，签发示例直接使用内置的 Nimbus JOSE + JWT 库。
 
 ---
 
@@ -117,6 +115,8 @@ Spring Security 的 `NimbusJwtDecoder` 默认只接受 RS256，需要其他算�
 ---
 
 ## 五、校验清单与 Spring Security 实现
+
+OAuth2 的授权流程见 [OAuth2](./2_oauth2)，Spring Security 过滤器链与 `JwtEncoder` 签发的写法见 [Spring Security](/spring/9_security)。
 
 ### 1、RFC 8725 校验清单
 

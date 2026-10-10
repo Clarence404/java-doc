@@ -4,9 +4,9 @@ description: Sequenced 集合、不可变集合、HashMap 树化与扩容、Conc
 
 # 集合框架
 
-> **本篇目标**：建立 Collection 与 Map 两大体系的全景，掌握 JDK 9–21 新增的不可变集合与 Sequenced 集合；讲清 HashMap 的哈希、树化、扩容拆分，ConcurrentHashMap（JDK 8+）的 CAS + `synchronized` 桶锁与协作扩容，能按场景选对集合并避开复合操作、fail-fast 等坑。
->
-> **前置阅读**：[SPI 机制](./20_topic_spi)；红黑树原理见 [树 · 红黑树](/algorithms/1_data_structures/3_tree#四、红黑树-red-black-tree)
+> 前置阅读：[SPI 机制](./20_topic_spi)、[树 · 红黑树](/algorithms/1_data_structures/3_tree#四、红黑树-red-black-tree)
+
+集合框架分为 Collection 与 Map 两大体系，是日常开发用得最多的 JDK 组件。本篇讲 JDK 9–21 新增的不可变集合与 Sequenced 集合、HashMap 的哈希 / 树化 / 扩容、ConcurrentHashMap（JDK 8+）的 CAS + `synchronized` 桶锁与协作扩容，以及选型与常见坑。
 
 ---
 

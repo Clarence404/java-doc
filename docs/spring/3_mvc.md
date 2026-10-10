@@ -4,15 +4,15 @@ description: DispatcherServlet 流程、参数校验、消息转换、ProblemDet
 
 # MVC
 
-> **本篇目标**：理解 Spring MVC 处理一个请求的完整链路和每个组件的扩展方式，能用 `ProblemDetail` 写出标准的统一异常处理，正确处理 6.1+ 的方法参数校验，并在 Framework 7 / Jackson 3 下正确定制消息转换。
->
-> **前置阅读**：[IoC 容器](./1_ioc)、[AOP](./2_aop)
+> 前置阅读：[IoC 容器](./1_ioc)、[AOP](./2_aop)
 
-本篇讲 Spring MVC 的框架机制。Boot 下的 Web 开发实践（参数校验注解、分组与自定义校验、CORS、HTTP 客户端）见 [Web 开发](/spring-boot/2_web_dev)；响应式栈见 [WebFlux](./8_webflux)。Spring 6 起 Servlet API 全部是 `jakarta.servlet.*`，Framework 7 要求 Servlet 6.1（Jakarta EE 11），Boot 4 内嵌 Tomcat 或 Jetty（Undertow 已移除）。在 Boot 4 中引入 Spring MVC 的 starter 是 `spring-boot-starter-webmvc`（Boot 3.x 为 `spring-boot-starter-web`）。
+本篇讲 Spring MVC 的框架机制：请求处理链路与组件扩展、`ProblemDetail` 统一异常处理、6.1+ 方法参数校验，以及 Framework 7 / Jackson 3 下的消息转换。Framework 7 要求 Servlet 6.1（Jakarta EE 11），Boot 4 内嵌 Tomcat 或 Jetty（Undertow 已移除），starter 为 `spring-boot-starter-webmvc`（Boot 3.x 为 `spring-boot-starter-web`）。
 
 ---
 
 ## 一、DispatcherServlet 请求处理流程
+
+Spring 6 起 Servlet API 全部是 `jakarta.servlet.*`。
 
 ### 1、处理流程
 
@@ -164,6 +164,8 @@ Spring MVC 有两级校验，抛出的异常不同，**两种都要处理**：
 Framework 6.1（Boot 3.2）之前，`@PathVariable` / `@RequestParam` 上的约束需要在 Controller 类上加 `@Validated`，靠 AOP 的 `MethodValidationPostProcessor` 生效，失败时抛 `jakarta.validation.ConstraintViolationException`。**6.1 起应去掉 Controller 类上的 `@Validated`**，否则方法校验走 AOP 代理而不是内置支持，抛出的异常类型变成 `ConstraintViolationException`，`ResponseEntityExceptionHandler` 不处理它，会落入兜底的 500。`@Validated` 留给 Service 层的方法校验和分组校验。
 
 两种异常的处理代码见第五节。校验注解、嵌套校验、分组校验和自定义约束见 [Web 开发](/spring-boot/2_web_dev)。
+
+Boot 下的 Web 开发实践（参数校验注解、分组与自定义校验、CORS、HTTP 客户端）见 [Web 开发](/spring-boot/2_web_dev)。
 
 ---
 
@@ -498,6 +500,8 @@ public class AccountController {
 - Framework 7 / Boot 4 默认 Jackson 3，转换器为 `JacksonJsonHttpMessageConverter`；Boot 中用 `spring.jackson.*` 或 `JsonMapperBuilderCustomizer` 定制，不要自己 new Mapper；纯 Spring 用 `configureMessageConverters(HttpMessageConverters.ServerBuilder)`
 - 统一异常处理推荐继承 `ResponseEntityExceptionHandler` 输出 `ProblemDetail`，校验异常覆写父类方法，兜底异常不泄露内部信息
 - Framework 7 内置 API 版本控制，`@GetMapping(version = "1.2+")` 声明版本
+
+响应式栈见 [WebFlux](./8_webflux)。
 
 ## 参考资料
 

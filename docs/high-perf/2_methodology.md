@@ -4,13 +4,9 @@ description: USE / RED 方法、自顶向下定位、Amdahl 定律、瓶颈信�
 
 # 性能分析方法论
 
-> **本篇目标**：掌握 USE / RED 方法与自顶向下的瓶颈定位流程，用 Amdahl 定律决定优化顺序，并建立可验证的优化闭环。
->
-> **前置阅读**：[性能指标](./1_metrics)
+> 前置阅读：[性能指标](./1_metrics)
 
-参考：[Brendan Gregg - The USE Method](https://www.brendangregg.com/usemethod.html)、[Tom Wilkie - The RED Method](https://grafana.com/blog/2018/08/02/the-red-method-how-to-instrument-your-services/)、[Dean & Barroso - The Tail at Scale](https://dl.acm.org/doi/10.1145/2408776.2408794)
-
-性能分析最常见的错误是"凭经验猜"：看到慢就加缓存、看到 CPU 高就调 GC。方法论的价值在于给出**可重复的排查路径**，让每一步都有数据支撑。
+性能分析最常见的错误是"凭经验猜"，方法论的价值在于给出**可重复的排查路径**，让每一步都有数据支撑。本篇讲 USE / RED 方法、自顶向下的瓶颈定位流程、用 Amdahl 定律决定优化顺序，以及可验证的优化闭环。
 
 ---
 
@@ -198,5 +194,11 @@ USE 的优点是**覆盖完整、不遗漏**，适合"系统整体变慢但不�
 - Amdahl 定律决定优化顺序：先优化占比最大的部分，微基准收益要乘以占比
 - 长尾要单独治理：减少扇出、对冲请求（仅幂等读）、超时预算逐跳传递
 - 优化是闭环：基线 → 假设 → 单变量实验 → 验证 → 固化
+
+## 参考资料
+
+- [Brendan Gregg - The USE Method](https://www.brendangregg.com/usemethod.html)
+- [Tom Wilkie - The RED Method](https://grafana.com/blog/2018/08/02/the-red-method-how-to-instrument-your-services/)
+- [Dean & Barroso - The Tail at Scale](https://dl.acm.org/doi/10.1145/2408776.2408794)
 
 > 下一篇：[性能分析工具](./3_profilers) —— 方法确定后，用 async-profiler、JFR 拿到热点的直接证据。

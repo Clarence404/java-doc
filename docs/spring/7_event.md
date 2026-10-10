@@ -4,9 +4,9 @@ description: 事件发布与监听、同步与异步、条件监听、事务事�
 
 # 事件机制
 
-> **本篇目标**：掌握 Spring 事件的发布、监听、异步与排序，理解 `@TransactionalEventListener` 各阶段的执行时机与 AFTER_COMMIT 写库陷阱，清楚进程内事件「至多一次」的可靠性边界，知道什么时候该升级到 Outbox、Spring Modulith 或消息队列。
->
-> **前置阅读**：[事务管理](./4_transaction)
+> 前置阅读：[事务管理](./4_transaction)
+
+Spring 事件是进程内的发布-订阅机制，用于解耦主流程与后续动作。本篇讲事件的发布、监听、异步与排序，`@TransactionalEventListener` 的执行时机与陷阱，以及「至多一次」的可靠性边界与升级到 Outbox、Spring Modulith 或消息队列的时机。
 
 ---
 

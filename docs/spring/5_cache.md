@@ -4,11 +4,9 @@ description: 核心注解、CacheManager 配置、Jackson 3 序列化、SpEL Key
 
 # Cache 抽象
 
-> **本篇目标**：掌握 Spring Cache 抽象的注解语义与 SpEL Key 写法，能在 Spring Boot 4 下正确配置 Redis / Caffeine 的 CacheManager（序列化、TTL、空值策略），并避开自调用失效、击穿、Key 冗余等常见坑。
->
-> **前置阅读**：[AOP](./2_aop)
+> 前置阅读：[AOP](./2_aop)
 
-Spring Cache 是一层**基于 AOP 的缓存抽象**：业务方法上加注解，代理在方法调用前后读写 `Cache`，具体存储由 `CacheManager` 决定（Redis、Caffeine、JCache 等）。本篇只讲 Spring 侧的用法；Redis 本身、本地缓存原理、一致性策略见 [缓存总览](/cache/0_overview)。
+Spring Cache 是一层基于 AOP 的缓存抽象：方法上加注解，代理在调用前后读写 `Cache`，存储由 `CacheManager` 决定。本篇讲注解语义与 SpEL Key、Spring Boot 4 下 Redis / Caffeine 的 CacheManager 配置，以及自调用失效、击穿等常见坑。
 
 ---
 
@@ -152,6 +150,8 @@ public CacheManager caffeineCacheManager() {
 ### 5、两级缓存
 
 Spring Cache 本身没有两级缓存实现。需要 Caffeine + Redis 组合时，直接用 JetCache、Redisson 等现成方案，或自定义 `Cache` / `CacheManager` 包装两层并处理 L1 失效广播。读写流程、多实例 L1 一致性与完整实现见 [两级缓存（L1 + L2）](/cache/8_two_level_cache)。
+
+Redis 本身、本地缓存原理、一致性策略见 [缓存总览](/cache/0_overview)。
 
 ---
 

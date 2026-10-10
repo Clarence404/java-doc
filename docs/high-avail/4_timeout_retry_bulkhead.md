@@ -4,13 +4,9 @@ description: 分层超时、指数退避与抖动、重试放大控制（重试�
 
 # 超时、重试与隔离
 
-> **本篇目标**：给每一次远程调用设好超时，只在该重试的地方有限重试并控制放大，用舱壁隔离把慢依赖的影响圈在局部。
->
-> **前置阅读**：[负载均衡](./3_load_balancing)
+> 前置阅读：[负载均衡](./3_load_balancing)
 
-参考链接：[Google SRE - Handling Overload](https://sre.google/sre-book/handling-overload/) · [Google SRE - Addressing Cascading Failures](https://sre.google/sre-book/addressing-cascading-failures/) · [Resilience4j 文档](https://resilience4j.readme.io/docs)
-
-雪崩通常不是从"下游挂了"开始，而是从"下游变慢"开始：调用方线程一直等，线程池被占满，自己也变慢，再拖垮上游。三件事按顺序解决这个问题：**超时**限制每次等待的上限，**重试**消化短暂故障，**隔离**让一个依赖耗尽的只是它自己的资源。重试的前提是幂等，见 [幂等设计](/architecture/5_idempotence)。
+雪崩通常从"下游变慢"开始：调用方线程一直等，线程池被占满，自己也变慢，再拖垮上游。本篇按顺序讲三件事：**超时**限制每次等待的上限，**重试**消化短暂故障并控制放大，**隔离**让一个依赖耗尽的只是它自己的资源。
 
 ---
 
@@ -73,7 +69,7 @@ spring:
 
 ## 二、重试
 
-**重试只用来消化短暂故障（网络抖动、实例切换），而且只对幂等操作开启。** 对持续故障重试只会放大流量，让下游更难恢复。
+**重试只用来消化短暂故障（网络抖动、实例切换），而且只对幂等操作开启。** 对持续故障重试只会放大流量，让下游更难恢复。重试的前提是幂等，见 [幂等设计](/architecture/5_idempotence)。
 
 ### 1、哪些错误可以重试
 
@@ -274,5 +270,11 @@ resilience4j:
 - 重试只对幂等操作和短暂故障开启，用指数退避加随机抖动，在线请求的重试等待控制在百毫秒级
 - 控制重试放大：只在一层重试、单请求限次、重试预算、deadline 传播，并满足 `T_上游 ≥ T × (N + 1) + B + S`
 - 用线程池或信号量给每个依赖划配额，配额按 QPS × P99 估算
+
+## 参考资料
+
+- [Google SRE - Handling Overload](https://sre.google/sre-book/handling-overload/)
+- [Google SRE - Addressing Cascading Failures](https://sre.google/sre-book/addressing-cascading-failures/)
+- [Resilience4j 文档](https://resilience4j.readme.io/docs)
 
 > 下一篇：[熔断](./5_circuit_breaking) —— 下游持续失败时，连超时都不必再等，直接快速失败。

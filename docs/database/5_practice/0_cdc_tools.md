@@ -4,11 +4,9 @@ description: binlog 前置配置、binlog-connector、Canal、Debezium 3.x、Fli
 
 # CDC 工具
 
-> **本篇目标**：知道 CDC 对 MySQL 的前置要求（MySQL 8.4 下的账号与 binlog 配置），能用 mysql-binlog-connector-java、Canal、Debezium 写出可运行的最小接入，读懂 Debezium 的事件结构，并按场景在四类工具之间做选型。
->
-> **前置阅读**：[MySQL 主从与高可用](../1_mysql/9_topic_replication)（binlog 格式与 GTID）
+> 前置阅读：[MySQL 主从与高可用](../1_mysql/9_topic_replication)
 
-CDC（Change Data Capture，变更数据捕获）通过订阅数据库的**变更日志**（MySQL binlog、PostgreSQL WAL 逻辑解码）实时获取 INSERT / UPDATE / DELETE，用于数据同步、缓存刷新、搜索索引更新、Outbox 消息投递与实时数仓。相比定时轮询，它不给业务表加查询压力，也能拿到删除与变更前的值。
+CDC（Change Data Capture，变更数据捕获）通过订阅 MySQL binlog、PostgreSQL WAL 等变更日志实时获取增删改，不给业务表加查询压力，也能拿到删除与变更前的值。本篇讲 MySQL 8.4 下的账号与 binlog 前置配置、mysql-binlog-connector-java / Canal / Debezium 的最小接入、Debezium 事件结构与工具选型。
 
 ---
 

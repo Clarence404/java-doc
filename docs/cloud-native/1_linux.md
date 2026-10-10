@@ -4,9 +4,7 @@ description: Unix 渊源与 GPL、常用命令、systemd 与日志、权限、�
 
 # Linux 概览
 
-> **本篇目标**：了解 Linux 从 Unix、GNU、Minix 一路演化而来的脉络，掌握后端部署和排障最常用的那部分 Linux：systemd 服务管理与 journalctl 日志、文件权限、进程信号、文件描述符限制，以及按资源定位问题的排查命令。
->
-> **前置阅读**：无
+Linux 是后端服务最主要的运行环境。本篇从 Unix、GNU、Minix 的演化讲起，覆盖 systemd 与 journalctl、文件权限、进程信号、文件描述符限制，以及按资源定位问题的排查命令。
 
 ---
 

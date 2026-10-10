@@ -4,9 +4,9 @@ description: 元组可见性、HOT 更新、RR 快照隔离与 SSI、表膨胀�
 
 # MVCC 与 VACUUM
 
-> **本篇目标**：理解 PostgreSQL 把旧版本留在堆表里的 MVCC 实现，能按快照判断一个元组是否可见，知道 PG 的 RR / SERIALIZABLE 与 InnoDB 的语义差别，并能配置 autovacuum、监控表膨胀与 XID 回卷风险、定位阻止清理的长事务。
->
-> **前置阅读**：[MySQL 事务与锁](../1_mysql/5_topic_transaction)、[PostgreSQL 基础](./0_overview)
+> 前置阅读：[MySQL 事务与锁](../1_mysql/5_topic_transaction)、[PostgreSQL 基础](./0_overview)
+
+PostgreSQL 把旧版本元组留在堆表里实现 MVCC，本篇讲快照可见性判断、RR / SERIALIZABLE 与 InnoDB 的语义差别，以及 autovacuum 配置、表膨胀与 XID 回卷监控、阻止清理的长事务定位。
 
 ---
 

@@ -4,9 +4,9 @@ description: REST 执行模型、@Blocking 与虚拟线程、REST Client、Panac
 
 # REST 与数据访问
 
-> **本篇目标**：搞清楚 Quarkus REST 端点到底跑在哪个线程上、什么时候该用 `@Blocking` / `@RunOnVirtualThread`，能写出带校验、异常映射、OpenAPI 文档的接口，会用 REST Client 调下游，并用 Hibernate ORM with Panache 完成常规的数据访问与事务控制。
->
-> **前置阅读**：[Quarkus 概览](./1_basics)、[虚拟线程](/java/30_topic_virtual_thread)
+> 前置阅读：[Quarkus 概览](./1_basics)、[虚拟线程](/java/30_topic_virtual_thread)
+
+Quarkus REST 同时支持阻塞与非阻塞端点，配合 Hibernate ORM with Panache 完成数据访问。本篇讲端点线程模型与 `@Blocking` / `@RunOnVirtualThread`、校验与异常映射、OpenAPI、REST Client，以及 Panache 的数据访问与事务控制。
 
 ---
 

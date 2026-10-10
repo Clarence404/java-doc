@@ -4,13 +4,15 @@ description: 云原生栈中的位置、Sidecar 与 Ambient 安装、平台前�
 
 # Service Mesh
 
-> **本篇目标**：从运维角度了解服务网格在 Kubernetes 上怎么装、装之前要确认什么、怎么升级；概念、流量管理与选型取舍见主文 [服务网格](/microservices/3_service_mesh)。
->
-> **前置阅读**：[Kubernetes](./6_kubernetes)、[Nginx、Ingress 与 Gateway API](./7_nginx_ingress)
+> 前置阅读：[Kubernetes](./6_kubernetes)、[Nginx、Ingress 与 Gateway API](./7_nginx_ingress)
+
+服务网格把服务间通信的治理下沉到基础设施层。本篇从运维角度讲它在 Kubernetes 上怎么装、装之前要确认什么、怎么升级。
 
 ---
 
 ## 一、在云原生栈中的位置
+
+概念、流量管理与选型取舍见主文 [服务网格](/microservices/3_service_mesh)。
 
 - **南北向流量**（集群外 → 集群内）：由 Ingress 或 Gateway API 的网关负责，见 [Nginx、Ingress 与 Gateway API](./7_nginx_ingress)
 - **东西向流量**（服务 → 服务）：由服务网格接管，提供 mTLS、重试超时、流量切分与统一遥测

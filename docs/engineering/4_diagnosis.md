@@ -4,11 +4,9 @@ description: Arthas 附着与容器排障、按症状选命令、watch / trace /
 
 # 线上诊断
 
-> **本篇目标**：能在物理机、容器和 Kubernetes 里把 Arthas 附着到运行中的 JVM，按症状选对命令，在 Spring Boot fat jar 上正确使用 ognl / vmtool / logger（带类加载器），会做可回滚的热修复，并守住生产诊断的安全边界。
->
-> **前置阅读**：[诊断工具](/jvm/8_monitoring_tools)、[故障排查](/jvm/9_troubleshooting)
+> 前置阅读：[诊断工具](/jvm/8_monitoring_tools)、[故障排查](/jvm/9_troubleshooting)
 
-JDK 自带的 jcmd / jstack / jmap、JFR 与 MAT 的用法在 [诊断工具](/jvm/8_monitoring_tools)，按 OOM、CPU 高、死锁等故障类型的排查流程在 [故障排查](/jvm/9_troubleshooting)，火焰图与 Profiler 选型在 [性能分析工具](/high-perf/3_profilers)。本篇只讲这些工具补不上的部分：**不重启、不改代码，在方法级别观察和干预线上 JVM**，主角是 Arthas。版本以 2026 年 10 月为准：Arthas 4.3.5、JDK 21（JDK 25 同样适用）、Spring Boot 4。
+Arthas 能在不重启、不改代码的前提下，在方法级别观察和干预线上 JVM。本篇讲它在物理机、容器与 Kubernetes 中的附着、按症状选命令、fat jar 上的类加载器用法、可回滚的热修复和生产诊断的安全边界，版本以 2026 年 10 月为准：Arthas 4.3.5、JDK 21（JDK 25 同样适用）、Spring Boot 4。
 
 ---
 
@@ -312,6 +310,8 @@ retransform --classPattern com.example.order.OrderService
 ### 1、profiler：内置 async-profiler
 
 Arthas 内置了 async-profiler，附着后即可采样火焰图，不用单独部署：
+
+火焰图与 Profiler 选型见 [性能分析工具](/high-perf/3_profilers)。
 
 ```bash
 profiler start                                   # 默认采样 CPU

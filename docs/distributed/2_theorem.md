@@ -4,9 +4,9 @@ description: CAP 与 PACELC、BASE、一致性模型、Quorum、FLP、Paxos、Ra
 
 # 分布式理论
 
-> **本篇目标**：准确理解 CAP（以及更实用的 PACELC）在说什么，分清各种一致性模型，掌握 Paxos、Raft、ZAB 的核心流程与 Gossip 的适用场景，能据此判断常见中间件的一致性行为。
->
-> **前置阅读**：[分布式架构](./1_distributed)
+> 前置阅读：[分布式架构](./1_distributed)
+
+分布式理论描述多节点系统在一致性、可用性与延迟之间的取舍。本篇讲 CAP 与 PACELC、各种一致性模型、Paxos / Raft / ZAB 的核心流程与 Gossip，并用它们判断常见中间件的一致性行为。
 
 ---
 

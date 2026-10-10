@@ -4,11 +4,9 @@ description: 不可变与 Compact Strings、常量池与 ==、invokedynamic 拼�
 
 # String
 
-> **本篇目标**：理解 String 不可变的实现与 Compact Strings 的内存布局，弄清 `==`、常量折叠、`+` 拼接在 JDK 9 之后的编译方式，掌握文本块与 JDK 11–21 新增的常用 API，避免编码问题。
->
-> **前置阅读**：[异常体系](./10_topic_exception)
+> 前置阅读：[异常体系](./10_topic_exception)
 
-本文以 JDK 21 / 25 为基线，与 JDK 8 / 17 不同之处单独标注。
+本篇讲 String 的不可变实现与 Compact Strings、`==` 与拼接的编译方式、文本块与 JDK 11–21 新增 API 以及编码问题，以 JDK 21 / 25 为基线，与 JDK 8 / 17 不同之处单独标注。
 
 ---
 

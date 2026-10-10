@@ -4,11 +4,9 @@ description: CAS 硬件基础、VarHandle、Atomic 类族、ABA 与版本戳、L
 
 # 原子类（Atomic）
 
-> **本篇目标**：理解 CAS 在硬件和 JVM 层面怎样实现、有什么代价，会用 `Atomic*`、`VarHandle`、字段更新器写无锁代码，弄清 ABA 问题与 `AtomicStampedReference` 的引用相等陷阱，并能在 `AtomicLong`、`LongAdder` 和锁之间做出选择。
->
-> **前置阅读**：[JMM 内存模型](./22_topic_jmm)、[显式锁（Lock）](./25_topic_lock)
+> 前置阅读：[JMM 内存模型](./22_topic_jmm)、[显式锁（Lock）](./25_topic_lock)
 
-`volatile` 只保证可见性和有序性，`count++` 这类「读-改-写」仍然不是原子的。加锁可以解决，但对单个变量来说代价偏重。`java.util.concurrent.atomic` 包用 CAS 提供了**不阻塞线程**的单变量原子更新，它也是 AQS、`ConcurrentHashMap`、线程池等 JUC 组件的底层基础。
+`java.util.concurrent.atomic` 包用 CAS 提供不阻塞线程的单变量原子更新，解决 `volatile` 无法保证的「读-改-写」原子性，也是 AQS、`ConcurrentHashMap` 等 JUC 组件的底层基础。本篇讲 CAS 的实现与代价、`Atomic*` / `VarHandle` / 字段更新器、ABA 问题，以及 `AtomicLong`、`LongAdder` 与锁的选择。
 
 ---
 

@@ -4,11 +4,9 @@ description: 类演进兼容规则、Externalizable、record、反序列化过�
 
 # 序列化
 
-> **本篇目标**：掌握 Java 原生序列化的类演进规则和常见陷阱（新增字段不走初始化器、record 走规范构造器），会用反序列化过滤器堵住安全漏洞；能在 Kryo / Protobuf / Hessian / JSON 之间做选择，并了解 Jackson 3（Spring Boot 4 默认）带来的变化。
->
-> **前置阅读**：[IO 与 NIO](./18_topic_io)
+> 前置阅读：[IO 与 NIO](./18_topic_io)
 
-序列化把对象变成字节，用于网络传输（RPC、MQ）、持久化（缓存、文件）和进程间传递。选型时看四件事：**体积与速度、跨语言、类演进兼容、安全**。Java 原生序列化在这四项上都不占优，JDK 团队自己也把它视为遗留机制，新代码应优先用 JSON 或 Protobuf；但它仍出现在 RMI、Session 复制、部分缓存客户端中，规则必须清楚。
+序列化把对象变成字节，用于网络传输、持久化和进程间传递，选型看体积与速度、跨语言、类演进兼容和安全四件事。本篇讲 Java 原生序列化的演进规则、陷阱与反序列化过滤器，以及 Kryo / Protobuf / Hessian / JSON 的选择和 Jackson 3（Spring Boot 4 默认）的变化。
 
 ---
 

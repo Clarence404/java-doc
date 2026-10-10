@@ -4,9 +4,13 @@ description: UPSERT 与 RETURNING、JSONB、递归 CTE、窗口函数与 FILTER�
 
 # PostgreSQL 高级 SQL
 
-> **本篇目标**：掌握 Java 开发中最常用的 PostgreSQL SQL 能力：`ON CONFLICT` 实现 UPSERT、`RETURNING` 取回写入结果、JSONB 与数组、递归 CTE、窗口函数、内置全文检索，以及“每组取一行”和任务队列的标准写法。
->
-> **前置阅读**：[PostgreSQL 基础](./0_overview)、[PostgreSQL 索引类型](./3_topic_index)
+> 前置阅读：[PostgreSQL 基础](./0_overview)、[PostgreSQL 索引类型](./3_topic_index)
+
+本篇讲 Java 开发中最常用的 PostgreSQL SQL 能力：`ON CONFLICT` UPSERT 与 `RETURNING`、JSONB 与数组、递归 CTE、窗口函数、内置全文检索，以及“每组取一行”和任务队列的标准写法。
+
+---
+
+## 一、UPSERT、RETURNING 与 MERGE
 
 本篇示例使用下面两张表，标准 SQL 部分（CTE、窗口函数）与 MySQL 8.0 基本通用，重点关注 PG 特有的写法。
 
@@ -24,10 +28,6 @@ CREATE TABLE order_ext (
   info     JSONB
 );
 ```
-
----
-
-## 一、UPSERT、RETURNING 与 MERGE
 
 ### 1、INSERT ... ON CONFLICT
 

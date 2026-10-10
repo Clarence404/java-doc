@@ -4,17 +4,17 @@ description: HikariCP 参数与池大小估算、Druid 配置与监控、PgBounc
 
 # 数据库连接池
 
-> **本篇目标**：掌握 HikariCP 的核心参数与默认值，能按数据库服务器的能力估算池大小，会配置 Druid 并规避其安全风险，理解 PostgreSQL 为什么需要 PgBouncer，能排查连接泄漏，并写出可编译的读写分离路由数据源。
->
-> **前置阅读**：[池化技术](/high-perf/7_pooling)（池化的通用原理）、[MySQL JDBC 驱动](../6_reference/2_jdbc_driver)
+> 前置阅读：[池化技术](/high-perf/7_pooling)、[MySQL JDBC 驱动](../6_reference/2_jdbc_driver)
 
-本篇是连接池参数与配置的主文档。池化为什么能提升性能、连接数为什么不是越大越好的通用论证见 [池化技术](/high-perf/7_pooling)；Spring Boot 中 `DataSource` 自动配置的整体机制见 [数据访问](/spring-boot/3_data_access)。
+本篇是连接池参数与配置的主文档，讲 HikariCP 核心参数与池大小估算、Druid 配置及其安全风险、PostgreSQL 为何需要 PgBouncer、连接泄漏排查，以及读写分离路由数据源。
 
 ---
 
 ## 一、为什么需要连接池
 
 建立一个数据库连接要经过 TCP 握手、TLS 协商、认证与会话初始化，耗时从几毫秒到几十毫秒不等，数据库侧也要为每个连接分配线程（MySQL）或进程（PostgreSQL）与内存。连接池**预先建立并复用连接**，同时给并发访问数据库设上限：
+
+池化为什么能提升性能、连接数为什么不是越大越好的通用论证见 [池化技术](/high-perf/7_pooling)；Spring Boot 中 `DataSource` 自动配置的整体机制见 [数据访问](/spring-boot/3_data_access)。
 
 | 问题 | 连接池的处理 |
 |------|----------|

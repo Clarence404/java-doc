@@ -4,11 +4,9 @@ description: URL 与方法、状态码、统一响应与 Problem Details、分�
 
 # API 设计规范
 
-> **本篇目标**：掌握一套可以直接落地的 REST 接口约定，覆盖 URL 与方法、状态码、数据格式、成功响应结构、RFC 9457 错误响应、分页、Spring Framework 7 内置版本控制，以及基于 Deprecation / Sunset 响应头的废弃流程。
->
-> **前置阅读**：[HTTP](/protocols/2_http)
+> 前置阅读：[HTTP](/protocols/2_http)
 
-本篇是站内 REST 约定和统一响应结构的主文档，其他模块只引用、不重复。HTTP 方法、状态码本身的语义见 [HTTP](/protocols/2_http)，接口签名、限流和防重放见 [API 安全](/security/6_api_security)，规范怎样生成和接受 CI 检查见 [API 文档](./5_api_doc)。代码基于 Spring Boot 4 / Spring Framework 7，JSON 由 Jackson 3 处理。
+本篇是站内 REST 约定和统一响应结构的主文档，覆盖 URL 与方法、状态码、数据格式、成功响应、RFC 9457 错误响应、分页、版本控制与废弃流程。代码基于 Spring Boot 4 / Spring Framework 7，JSON 由 Jackson 3 处理。
 
 ---
 
@@ -348,11 +346,13 @@ Spring Data 的 `Pageable` 参数解析默认**页码从 0 开始**，参数名�
 
 ## 七、幂等
 
-创建订单、发起支付这类非幂等的写接口，由客户端生成幂等键，放在 `Idempotency-Key` 请求头里（IETF 草案 draft-ietf-httpapi-idempotency-key-header 使用的名称，Stripe 等平台同样用这个名字）。服务端收到请求后，先用 `SET key PROCESSING NX EX` **原子地占位**，再执行业务，完成后把结果写回同一个 key。重复请求遇到 `PROCESSING` 返回 409，遇到已完成则直接重放首次结果。同一个 key 搭配不同的请求体，应返回 422。千万不要写成「先 GET 查一下，没有再执行」：两个并发请求会同时查不到，然后各创建一笔订单。占位状态机、唯一约束兜底和支付回调等完整方案见 [幂等设计](/architecture/5_idempotence)。
+创建订单、发起支付这类非幂等的写接口，由客户端生成幂等键，放在 `Idempotency-Key` 请求头里（IETF 草案 draft-ietf-httpapi-idempotency-key-header 使用的名称，Stripe 等平台同样用这个名字）。服务端收到请求后，先用 `SET key PROCESSING NX EX` **原子地占位**，再执行业务，完成后把结果写回同一个 key。重复请求遇到 `PROCESSING` 返回 409，遇到已完成则直接重放首次结果。同一个 key 搭配不同的请求体，应返回 422。千万不要写成「先 GET 查一下，没有再执行」：两个并发请求会同时查不到，然后各创建一笔订单。占位状态机、唯一约束兜底和支付回调等完整方案见 [幂等设计](/architecture/5_idempotence)。接口签名、限流和防重放见 [API 安全](/security/6_api_security)。
 
 ---
 
 ## 八、版本管理
+
+规范怎样生成和接受 CI 检查见 [API 文档](./5_api_doc)。
 
 ### 1、版本号放在哪
 

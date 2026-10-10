@@ -4,13 +4,9 @@ description: EMQX 转发 Kafka、Flink 2.x 告警与离线检测、TDengine 超�
 
 # 数据处理
 
-> **本篇目标**：搭起一条可落地的 IoT 数据链路——设备经 MQTT 上报，EMQX 规则引擎转发到 Kafka，Flink 2.x 做清洗、窗口聚合、离线检测与连续超温告警，结果写入 TDengine 超表，再用降采样控制存储、用 Grafana 出看板和告警。
->
-> **前置阅读**：[时序数据库](/database/4_nosql/1_time_series_db)（TSDB 原理与选型）、[Flink 总览](/flink/0_overview)、[通信协议](./1_protocol)
+> 前置阅读：[时序数据库](/database/4_nosql/1_time_series_db)、[Flink 总览](/flink/0_overview)、[通信协议](./1_protocol)
 
-时序数据库本身的存储模型、InfluxDB / TimescaleDB / IoTDB 的对比放在 [时序数据库](/database/4_nosql/1_time_series_db)，Flink API 的完整讲解放在 [Flink](/flink/0_overview) 模块。本篇只讲 IoT 场景特有的建模与链路设计。
-
-版本基线：EMQX 5.x（5.9 起为统一的 BSL 1.1 版本，许可说明见 [平台选型](./2_platform)），Flink 2.2.x + `flink-connector-kafka:5.0.0-2.2`，TDengine 3.3.x / 3.4.x + `taos-jdbcdriver` 3.9.x，Grafana 统一告警（Grafana Alerting），JDK 21 / Spring Boot 4。
+本篇搭一条可落地的 IoT 数据链路：设备经 MQTT 上报，EMQX 规则引擎转发到 Kafka，Flink 做清洗、窗口聚合与告警，结果写入 TDengine 超表，再用降采样控制存储、用 Grafana 出看板和告警。版本基线：EMQX 5.x、Flink 2.2.x + `flink-connector-kafka:5.0.0-2.2`、TDengine 3.3.x / 3.4.x + `taos-jdbcdriver` 3.9.x、JDK 21 / Spring Boot 4。
 
 ---
 
@@ -53,6 +49,8 @@ description: EMQX 转发 Kafka、Flink 2.x 告警与离线检测、TDengine 超�
 ---
 
 ## 二、MQTT 到 Kafka：EMQX 规则引擎
+
+EMQX 5.9 起为统一的 BSL 1.1 版本，许可说明见 [平台选型](./2_platform)。
 
 ### 1、Topic 与消息约定
 
@@ -107,6 +105,8 @@ EMQX 内置 TDengine Sink，规则输出可以直接拼成 `INSERT` 语句写入
 ---
 
 ## 三、TDengine 超表建模
+
+时序数据库本身的存储模型、InfluxDB / TimescaleDB / IoTDB 的对比见 [时序数据库](/database/4_nosql/1_time_series_db)，本篇只讲 IoT 场景特有的建模。
 
 ### 1、超表与子表
 
@@ -249,6 +249,8 @@ public class TelemetryWriter {
 ## 四、Flink 2.x 实时处理
 
 本节代码基于 Flink 2.2.x：`SourceFunction` / `SinkFunction` 与 `Time` 类已在 2.0 删除，统一使用 `KafkaSource` + `fromSource`、Sink V2 与 `java.time.Duration`。API 细节见 [DataStream API](/flink/2_datastream)，水位线与窗口见 [时间、水位线与窗口](/flink/3_time_window)。
+
+Flink API 的完整讲解见 [Flink](/flink/0_overview) 模块。
 
 ### 1、读取 Kafka 与事件时间
 
@@ -561,6 +563,8 @@ CREATE STREAM IF NOT EXISTS iot_db_5m.s_sensors_5m
 ---
 
 ## 六、可视化与告警
+
+告警使用 Grafana 统一告警（Grafana Alerting）。
 
 ### 1、Grafana 看板
 

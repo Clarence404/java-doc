@@ -4,17 +4,15 @@ description: 核心概念、通知类型与执行顺序、切点表达式、代�
 
 # AOP
 
-> **本篇目标**：能写出正确的 `@Aspect` 切面，说清同一切面内与多个切面之间的通知执行顺序，理解 Spring 如何选择代理类型，并能定位和修复自调用导致的 `@Transactional`、`@Async`、`@Cacheable` 失效。
->
-> **前置阅读**：[IoC 容器](./1_ioc)、[动态代理](/java/16_topic_proxy)
+> 前置阅读：[IoC 容器](./1_ioc)、[动态代理](/java/16_topic_proxy)
 
-AOP（面向切面编程）把日志、事务、权限、缓存这类横切关注点从业务方法中剥离出来，集中写在切面里。Spring AOP 基于**运行时代理**：容器在 Bean 初始化之后（`postProcessAfterInitialization`）用代理对象替换原始 Bean，调用方拿到的是代理，代理先执行通知再调用目标方法。`@Transactional`、`@Async`、`@Cacheable`、`@Validated` 方法校验都建立在这套机制上。
-
-Spring Boot 4 中使用 `@Aspect` 需要引入 `spring-boot-starter-aspectj`（Boot 3.x 叫 `spring-boot-starter-aop`），类路径上有 AspectJ 时自动开启代理，无需再写 `@EnableAspectJAutoProxy`。
+Spring AOP 基于运行时代理，把日志、事务、权限、缓存等横切关注点集中写在切面里，`@Transactional`、`@Async`、`@Cacheable` 都建立在它之上。本篇讲 `@Aspect` 写法、通知执行顺序、代理类型选择，以及自调用导致注解失效的定位与修复。
 
 ---
 
 ## 一、核心概念
+
+容器在 Bean 初始化之后（`postProcessAfterInitialization`）用代理对象替换原始 Bean，调用方拿到的是代理，代理先执行通知再调用目标方法。Spring Boot 4 中使用 `@Aspect` 需要引入 `spring-boot-starter-aspectj`（Boot 3.x 叫 `spring-boot-starter-aop`），类路径上有 AspectJ 时自动开启代理，无需再写 `@EnableAspectJAutoProxy`。
 
 | 概念 | 说明 |
 |------|------|

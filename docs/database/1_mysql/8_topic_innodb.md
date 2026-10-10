@@ -4,11 +4,9 @@ description: 表空间与页、行格式、Buffer Pool、Double Write、刷脏�
 
 # InnoDB 存储结构
 
-> **本篇目标**：建立 InnoDB 从表空间、段、区、页到行的存储层次，弄清四种行格式与行溢出规则，理解 Buffer Pool 的冷热分离、Double Write 与刷脏机制，并掌握 MySQL 8.4 LTS 中与存储相关的默认值变化。
->
-> **前置阅读**：[MySQL 索引](./4_topic_index)、[MySQL 事务与锁](./5_topic_transaction)
+> 前置阅读：[MySQL 索引](./4_topic_index)、[MySQL 事务与锁](./5_topic_transaction)
 
-本篇以 MySQL 8.4 LTS 为基准，8.0 的差异单独标注。
+本篇讲 InnoDB 从表空间、段、区、页到行的存储层次，四种行格式与行溢出规则，以及 Buffer Pool、Double Write 与刷脏机制。以 MySQL 8.4 LTS 为基准，8.0 的差异单独标注。
 
 ---
 

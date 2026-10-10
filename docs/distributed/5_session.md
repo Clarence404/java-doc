@@ -4,9 +4,9 @@ description: 多实例会话问题、粘性会话、Spring Session + Redis、Red
 
 # 分布式会话
 
-> **本篇目标**：理解多实例部署下会话丢失的原因，能用 Spring Boot 4 + Spring Session 把会话放进 Redis 并配置正确，知道默认与索引两种存储结构的区别，以及服务端会话与 JWT 怎么选。
->
-> **前置阅读**：[分布式架构](./1_distributed)
+> 前置阅读：[分布式架构](./1_distributed)
+
+多实例部署下，存在单机内存里的会话会随请求落到不同实例而丢失。本篇讲用 Spring Boot 4 + Spring Session 把会话放进 Redis、默认与索引两种存储结构的区别，以及服务端会话与 JWT 的选择。
 
 ---
 

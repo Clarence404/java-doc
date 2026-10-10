@@ -4,15 +4,9 @@ description: JDBC 分层、MySQL 握手与认证、PostgreSQL 消息格式、Red
 
 # 数据库协议
 
-> **本篇目标**：知道 JDBC 调用最终变成了什么样的网络报文，读懂 MySQL 的连接握手、`caching_sha2_password` 认证和 TLS 升级过程，了解 PostgreSQL 的消息格式与扩展查询协议，以及 Redis RESP2 与 RESP3 的区别，遇到连接、认证类报错时能定位到协议层面的原因。
->
-> **前置阅读**：[TCP 与 UDP](./1_tcp_udp)、[HTTPS 与 TLS](./3_https_tls)
+> 前置阅读：[TCP 与 UDP](./1_tcp_udp)、[HTTPS 与 TLS](./3_https_tls)
 
-数据库协议都是跑在 TCP 上的私有二进制协议，没有统一标准，Java 通过 JDBC 驱动把它们屏蔽掉。本篇只讲协议本身，相关内容见：
-
-- 连接池参数、池大小估算、`Communications link failure` 排查见 [数据库连接池](/database/5_practice/3_connection_pool)
-- Connector/J 的 URL 参数、批量写入、超时体系见 [MySQL JDBC 驱动](/database/6_reference/2_jdbc_driver)
-- Redis Pipeline、事务、Lua 的用法见 [Redis 核心原理](/cache/2_redis_core)
+数据库协议都是跑在 TCP 上的私有二进制协议，Java 通过 JDBC 驱动把它们屏蔽掉。本篇讲 MySQL 握手、`caching_sha2_password` 认证与 TLS 升级，PostgreSQL 消息格式与扩展查询协议，以及 Redis RESP2 与 RESP3 的区别。
 
 ---
 
@@ -188,6 +182,9 @@ Redis 6.0 引入 RESP3，连接默认仍是 RESP2，客户端发 `HELLO 3` 后�
 - Connector/J 默认客户端预编译，线上发的还是 `COM_QUERY`；结果集结尾在协商 `CLIENT_DEPRECATE_EOF` 后是 OK 包
 - PostgreSQL 消息是 1 字节类型 + 4 字节长度；认证默认 SCRAM-SHA-256，pgjdbc 默认用 Parse / Bind / Execute 的扩展查询协议
 - RESP2 只有五种类型，RESP3 通过 `HELLO 3` 开启，增加了 Map、Set、Double、Push 等类型，客户端缓存的失效通知依赖 Push
+- 连接池参数、池大小估算、`Communications link failure` 排查见 [数据库连接池](/database/5_practice/3_connection_pool)
+- Connector/J 的 URL 参数、批量写入、超时体系见 [MySQL JDBC 驱动](/database/6_reference/2_jdbc_driver)
+- Redis Pipeline、事务、Lua 的用法见 [Redis 核心原理](/cache/2_redis_core)
 
 ## 参考资料
 

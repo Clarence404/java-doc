@@ -4,11 +4,9 @@ description: 何时微调、SFT / DPO / LoRA / QLoRA、数据准备、评估、J
 
 # 模型微调
 
-> **本篇目标**：判断一个需求该用 Prompt、RAG 还是微调，理解 SFT、DPO、LoRA、QLoRA 的区别，掌握训练数据的准备与评估方法，并知道微调后的模型怎样部署、怎样从 Java 应用调用。
->
-> **前置阅读**：[RAG 检索增强生成](../4_core_tech/2_rag)
+> 前置阅读：[RAG 检索增强生成](../4_core_tech/2_rag)
 
-微调的训练环节基本在 Python 生态里完成，本篇只给出必要的命令与配置，重点放在决策、数据、评估和 Java 侧的落地。Prompt 工程、RAG、微调三者的对比只在本篇维护。
+微调是用自有数据继续训练模型以改变其行为与输出格式的手段，训练环节基本在 Python 生态完成。本篇讲 Prompt / RAG / 微调的选择、SFT / DPO / LoRA / QLoRA 的区别、数据准备与评估，以及微调模型的部署与 Java 侧调用。
 
 ---
 
@@ -245,6 +243,8 @@ public class CodeReviewService {
 - LoRA 只训练低秩旁路，QLoRA 进一步以 4 bit 加载基座降低显存，部署时可合并或动态加载适配器
 - 数据质量和格式一致性决定成败；评估要同时看 loss、业务指标、通用能力与安全回归
 - Java 侧通过 Ollama 或 OpenAI 兼容接口调用微调模型，模型 ID 走配置，灰度上线并保留降级
+
+Prompt 工程、RAG、微调三者的对比只在本篇维护。
 
 ## 参考资料
 

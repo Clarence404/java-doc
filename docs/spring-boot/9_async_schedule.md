@@ -4,11 +4,9 @@ description: "@Async 执行器与异常、@Scheduled 线程与 Cron、ShedLock /
 
 # 异步任务与定时任务
 
-> **本篇目标**：搞清 `@Async` 和 `@Scheduled` 到底跑在哪个执行器上，能用 `spring.task.*` 或自定义 Bean 配出有界、可观测、可优雅关闭的线程池，避开单线程调度、自调用失效、多实例重复执行等常见坑，并知道虚拟线程开关改变了什么。
->
-> **前置阅读**：[线程池](/java/28_topic_thread_pool)
+> 前置阅读：[线程池](/java/28_topic_thread_pool)
 
-本篇以 Spring Boot 4.x 为基线，执行器相关行为在 3.5 已基本定型，3.x 的差异在正文中标出。
+`@Async` 和 `@Scheduled` 的行为取决于它们背后的执行器。本篇以 Spring Boot 4.x 为基线（执行器行为在 3.5 已基本定型，3.x 差异在正文中标出），讲 `spring.task.*` 与自定义线程池、单线程调度、自调用失效、多实例重复执行等坑，以及虚拟线程开关改变了什么。
 
 ---
 

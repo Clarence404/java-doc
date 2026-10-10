@@ -4,11 +4,9 @@ description: ChatClient、Advisor、对话记忆、Tool Calling、结构化输�
 
 # Spring AI
 
-> **本篇目标**：在 Spring Boot 4 项目里用 Spring AI 2.0 接入大模型，掌握 ChatClient、Advisor 链、对话记忆、Tool Calling、结构化输出这几个核心 API，知道 RAG、MCP、可观测性从哪里接入，以及从 1.x 升级要改什么。
->
-> **前置阅读**：[Function Calling（工具调用）](../1_concepts/2_function_calling)、[Spring Boot 总览](/spring-boot/0_overview)
+> 前置阅读：[Function Calling（工具调用）](../1_concepts/2_function_calling)、[Spring Boot 总览](/spring-boot/0_overview)
 
-Spring AI 是 Spring 官方的 AI 集成框架，用 Spring 的方式（自动配置、Bean、配置属性）把大模型、向量库、工具调用接进应用。本篇以 Spring AI 2.0.x（截至 2026-10 最新为 2.0.1）为基线，它支持 Spring Boot 4.0.x 与 4.1.x，示例代码用 JDK 21；还在 Spring Boot 3.5 上的项目用 1.1.x 线，两条线的差异见第九节。
+Spring AI 是 Spring 官方的 AI 集成框架，用自动配置、Bean、配置属性的方式把大模型、向量库、工具调用接进应用。本篇以 Spring AI 2.0.x（截至 2026-10 最新为 2.0.1，支持 Spring Boot 4.0.x / 4.1.x，示例用 JDK 21）为基线，讲 ChatClient、Advisor、对话记忆、Tool Calling、结构化输出及从 1.x（Spring Boot 3.5 线）升级的要点。
 
 ---
 

@@ -4,9 +4,9 @@ description: 线程模型与 I/O 线程、RDB / Multi-Part AOF、淘汰与过期
 
 # Redis 核心原理
 
-> **本篇目标**：理解 Redis 的线程模型和 Redis 8 的 I/O 线程，掌握 RDB / AOF 的默认配置与取舍、淘汰与过期机制，能写出正确的原子 Lua 脚本。
->
-> **前置阅读**：[Redis 基础](./1_redis_base)
+> 前置阅读：[Redis 基础](./1_redis_base)
+
+Redis 的性能与可靠性取决于线程模型、持久化和内存回收这几块核心机制。本篇讲线程模型与 Redis 8 的 I/O 线程、RDB / AOF 的默认配置与取舍、淘汰与过期机制，以及原子 Lua 脚本的正确写法。
 
 ---
 

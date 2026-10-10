@@ -4,11 +4,9 @@ description: 边缘请求链路、代理模式、缓存规则、WAF 与限流、
 
 # Cloudflare 边缘服务
 
-> **本篇目标**：理解 Cloudflare 作为流量入口层的工作方式，能正确配置代理模式、缓存规则、WAF 与限流，会用 Workers、R2、Tunnel、Pages 解决常见问题，并清楚它在中国大陆的访问限制与源站保护做法。
->
-> **前置阅读**：[国内云平台](./14_cloud_domestic)、[国际云平台](./15_cloud_global)、[DNS](/protocols/4_dns)、[HTTP](/protocols/2_http)
+> 前置阅读：[国内云平台](./14_cloud_domestic)、[国际云平台](./15_cloud_global)、[DNS](/protocols/4_dns)
 
-Cloudflare 不卖虚拟机，它是一张覆盖全球数百个城市的边缘网络：把域名的 DNS 交给它并开启代理后，用户请求先到最近的边缘节点，经过防护、规则与缓存处理，必要时才回到源站。因此它通常**叠加在云厂商或 VPS 之上**，作为入口层使用，也可以用 Workers、R2、Pages 独立承载轻量应用。
+Cloudflare 不卖虚拟机，它是一张覆盖全球数百个城市的边缘网络，通常**叠加在云厂商或 VPS 之上**作为入口层：用户请求先到最近的边缘节点，经过防护、规则与缓存处理，必要时才回到源站。本篇讲代理模式、缓存规则、WAF 与限流、Workers / R2 / Tunnel / Pages，以及中国大陆访问限制与源站保护做法。
 
 ---
 
@@ -44,6 +42,8 @@ Cloudflare 作为**权威 DNS** 免费可用，接入方式是把域名注册商
 ---
 
 ## 三、CDN 与缓存规则
+
+HTTP 缓存头等协议基础见 [HTTP](/protocols/2_http)。
 
 默认情况下，Cloudflare 只缓存按扩展名识别的静态文件（JS、CSS、图片、字体等），**HTML 和 API 响应默认不缓存**，同时遵循源站的 `Cache-Control`。需要调整时使用 **Cache Rules**：
 

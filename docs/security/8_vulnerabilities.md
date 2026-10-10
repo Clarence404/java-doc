@@ -4,11 +4,9 @@ description: OWASP Top 10:2025、注入、XSS、CSRF、SSRF、反序列化、XXE
 
 # 常见漏洞与防护
 
-> **本篇目标**：对照 OWASP Top 10:2025 认识 Java Web 服务最常见的漏洞；对每一类漏洞说清攻击原理，并给出可直接用在 Spring Boot 4 / Spring Security 7 项目里的防护写法；在 CSRF 上确定一个全站一致的立场。
->
-> **前置阅读**：[JWT 令牌机制](./1_jwt)、[API 安全](./6_api_security)、[Spring Security](/spring/9_security)
+> 前置阅读：[JWT 令牌机制](./1_jwt)、[API 安全](./6_api_security)、[Spring Security](/spring/9_security)
 
-本篇以 JDK 21、Spring Boot 4、Spring Security 7、Jackson 3 为基线。漏洞的共同根源只有两类：**把数据当成了代码**（注入、XSS、反序列化、XXE），以及**把"能连上"当成了"被授权"**（越权、CSRF、SSRF）。防护的思路也就对应两条：数据与代码分离、每次访问都显式校验身份与权限。
+Java Web 服务的漏洞根源只有两类：**把数据当成了代码**（注入、XSS、反序列化、XXE），以及**把"能连上"当成了"被授权"**（越权、CSRF、SSRF），防护对应数据与代码分离、每次访问都显式校验身份与权限。本篇对照 OWASP Top 10:2025 讲各类漏洞的原理与防护写法，并确定全站一致的 CSRF 立场，以 JDK 21、Spring Boot 4、Spring Security 7、Jackson 3 为基线。
 
 ---
 

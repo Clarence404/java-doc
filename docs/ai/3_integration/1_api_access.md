@@ -4,11 +4,15 @@ description: 官方 Java SDK、OpenAI 兼容协议、流式、重试限流、Pro
 
 # API 直接接入
 
-> **本篇目标**：用各厂商的官方 Java SDK 直接调用云端大模型，掌握同步与流式调用、OpenAI 兼容协议接入国内厂商、错误分类与重试限流、Prompt Caching 和成本估算，并知道什么时候该用官方 SDK、什么时候用 Spring AI / LangChain4j。
->
-> **前置阅读**：[大模型选型](../1_concepts/0_model)、[Spring AI](../2_frameworks/0_spring_ai)
+> 前置阅读：[大模型选型](../1_concepts/0_model)、[Spring AI](../2_frameworks/0_spring_ai)
 
-模型型号、价格、上下文长度变化很快，本文只介绍模型家族与选择思路，具体型号和价格以各厂商官方页面为准；代码中的型号一律从配置或环境变量读取。截至 2026-10 的 SDK 基线：
+直接用厂商官方 Java SDK 调用云端大模型，能用上各家特有能力。本篇讲同步与流式调用、OpenAI 兼容协议接入国内厂商、错误重试与限流、Prompt Caching 与成本估算，SDK 基线为 2026-10，型号与价格以官方页面为准、代码中一律从配置读取。
+
+---
+
+## 一、接入方式怎么选
+
+截至 2026-10 的 SDK 基线：
 
 | 厂商 | Maven 坐标 | 版本 |
 |------|-----------|------|
@@ -17,10 +21,6 @@ description: 官方 Java SDK、OpenAI 兼容协议、流式、重试限流、Pro
 | Google Gemini | `com.google.genai:google-genai` | 1.76.0 |
 
 这几个 SDK 发版频繁，新项目以 Maven Central 上的最新版本为准。
-
----
-
-## 一、接入方式怎么选
 
 | 方式 | 适合场景 | 代价 |
 |------|----------|------|

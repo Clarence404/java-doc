@@ -4,15 +4,15 @@ description: JDK Proxy、CGLIB invokeSuper、ByteBuddy、Spring 默认代理、�
 
 # 动态代理
 
-> **本篇目标**：理解 JDK 动态代理和 CGLIB 在运行时各生成了什么类、调用如何被分派，写出能正确传递异常的代理代码，分清 `invoke` 与 `invokeSuper`，并知道 Spring 默认选择哪种代理、如何把生成的类导出来排查问题。
->
-> **前置阅读**：[反射](./15_topic_reflection)
+> 前置阅读：[反射](./15_topic_reflection)
 
-动态代理是在运行时生成一个新类，让它「长得像」目标类型（实现相同接口或继承目标类），再把每次方法调用分派给一段统一的拦截逻辑。Spring AOP、`@Transactional`、MyBatis 的 Mapper 接口、OpenFeign / Dubbo 客户端、Hibernate 延迟加载都建立在它之上。代理模式本身的意图、静态代理写法见 [代理模式](/patterns/12_structural_proxy)，本篇只讲 JVM 层面的实现机制。
+动态代理是在运行时生成一个实现相同接口或继承目标类的新类，把每次方法调用分派给统一的拦截逻辑，Spring AOP、`@Transactional`、MyBatis Mapper、Feign / Dubbo 客户端都建立在它之上。本篇讲 JDK 动态代理与 CGLIB 生成的类和调用分派、异常传递、`invoke` 与 `invokeSuper` 的区别，以及 Spring 的代理选择与排查方法。
 
 ---
 
 ## 一、JDK 动态代理
+
+代理模式本身的意图、静态代理写法见 [代理模式](/patterns/12_structural_proxy)，本篇只讲 JVM 层面的实现机制。
 
 ### 1、写一个正确的 InvocationHandler
 

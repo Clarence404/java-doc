@@ -4,19 +4,9 @@ description: 限流算法、限流放在哪一层、阈值怎么定、分布式�
 
 # 限流与过载保护
 
-> **本篇目标**：掌握四种限流算法与分布式实现，知道限流放在哪一层、阈值怎么定、被限流时返回什么，并能在固定阈值失效时用过载保护兜底。
->
-> **前置阅读**：[降级](./6_degradation)
->
-> **参考**：[Google SRE Book - Handling Overload](https://sre.google/sre-book/handling-overload/) · [Sentinel 系统自适应保护](https://sentinelguard.io/zh-cn/docs/system-adaptive-protection.html)
+> 前置阅读：[降级](./6_degradation)
 
-熔断和降级保护的是"下游出问题时的我"，限流保护的是"上游流量太大时的我"。请求量超过承载能力时，放任流量进来只会耗尽线程池、连接池，让所有请求一起超时。**限流的目标是以可控的方式拒绝超量请求，让系统在满负荷下仍按容量上限正常服务。**
-
-| 手段 | 触发依据 | 解决的问题 |
-|------|---------|-----------|
-| 限流 | 预先设定的 QPS / 并发阈值 | 已知容量下，挡住超出部分 |
-| 过载保护 | 系统实时状态（CPU、延迟、并发、排队时间） | 容量临时下降（依赖变慢、GC、机器差异）时固定阈值失效 |
-| 按优先级卸载 | 请求重要程度 | 必须丢请求时，先丢不重要的 |
+熔断和降级保护的是"下游出问题时的我"，限流保护的是"上游流量太大时的我"：以可控的方式拒绝超量请求，让系统在满负荷下仍按容量上限正常服务。本篇讲四种限流算法与分布式实现、限流放在哪一层、阈值怎么定、被限流时返回什么，以及固定阈值失效时的过载保护。
 
 ---
 
@@ -309,6 +299,12 @@ FlowRuleManager.loadRules(Collections.singletonList(rule));
 
 **固定阈值只在"容量不变"时成立。** 依赖变慢、Full GC、宿主机争抢都会让真实容量临时下降，此时 QPS 阈值还没到，系统已经过载。过载保护根据系统的实时状态决定是否放行。
 
+| 手段 | 触发依据 | 解决的问题 |
+|------|---------|-----------|
+| 限流 | 预先设定的 QPS / 并发阈值 | 已知容量下，挡住超出部分 |
+| 过载保护 | 系统实时状态（CPU、延迟、并发、排队时间） | 容量临时下降（依赖变慢、GC、机器差异）时固定阈值失效 |
+| 按优先级卸载 | 请求重要程度 | 必须丢请求时，先丢不重要的 |
+
 ### 1、并发数限流与 Little 定律
 
 **限制并发数比限制 QPS 更能自适应延迟变化。** 由 Little 定律 `并发数 = 吞吐量 × 平均响应时间`（推导见 [性能指标](/high-perf/1_metrics)）：
@@ -424,5 +420,10 @@ public class PriorityLoadSheddingFilter extends OncePerRequestFilter {
 - 阈值 = 压测拐点 × 安全系数，上线后按命中数据调整；被限流返回 429 / 503 + `Retry-After`，客户端退避而非立即重试
 - 分布式限流注意唯一 member、Redis 服务端时间与 Redis 故障时的降级；网关空 key 用 `deny-empty-key`，不要兜底成共享 key
 - 容量会变，固定阈值会失效：用并发数限流、系统自适应保护、按优先级卸载和客户端节流兜底
+
+## 参考资料
+
+- [Google SRE Book - Handling Overload](https://sre.google/sre-book/handling-overload/)
+- [Sentinel 系统自适应保护](https://sentinelguard.io/zh-cn/docs/system-adaptive-protection.html)
 
 > 下一篇：[优雅上下线与变更](./8_graceful_release) —— 发布是最频繁的计划内故障，如何让每次上下线都无损。

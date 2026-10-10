@@ -4,9 +4,9 @@ description: Router 与 Handler 链、请求体、参数校验、JWT 认证、�
 
 # Vert.x Web 与 HTTP 客户端
 
-> **本篇目标**：能用 Vert.x Web 搭出一个结构清晰的 REST 服务——路由组织、请求体限制、参数校验、JWT 认证与授权、统一错误处理；能用 WebClient 安全地调用下游（超时、状态码校验、连接池、负载均衡），并了解 SSE / WebSocket 与契约优先的 OpenAPI Router。
->
-> **前置阅读**：[Event Loop 与 Verticle](./2_core)
+> 前置阅读：[Event Loop 与 Verticle](./2_core)
+
+Vert.x Web 提供路由与 Handler 链，用于搭建 REST 服务。本篇讲路由组织、请求体限制、参数校验、JWT 认证授权、统一错误处理、WebClient 调用下游，以及 SSE / WebSocket 与 OpenAPI Router。
 
 ---
 

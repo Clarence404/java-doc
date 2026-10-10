@@ -4,11 +4,9 @@ description: Hyper-V 与 VMware 共存、网络模式、固定 IP、磁盘扩容
 
 # 虚拟化工具
 
-> **本篇目标**：在 Windows 上把 Hyper-V、VMware Workstation、VirtualBox、WSL 2 配置好并让它们共存，掌握三种网络模式、固定 IP 和磁盘扩容等日常操作。
->
-> **前置阅读**：[虚拟化概览](./3_virtual)
+> 前置阅读：[虚拟化概览](./3_virtual)
 
-本篇只讲操作。Type-1 / Type-2 的区别、虚拟机与容器的对比见 [虚拟化概览](./3_virtual)。
+Windows 上常用的本地虚拟化工具有 Hyper-V、VMware Workstation、VirtualBox 和 WSL 2。本篇只讲操作：让它们共存，以及三种网络模式、固定 IP、磁盘扩容等日常配置。
 
 ---
 

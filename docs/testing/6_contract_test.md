@@ -4,13 +4,9 @@ description: 消费者驱动契约、Spring Cloud Contract、Pact 与 Broker、c
 
 # 契约测试
 
-> **本篇目标**：理解契约测试在端到端测试和 Mock 之间解决的问题，掌握消费者驱动契约（CDC）的工作流程；能用 Spring Cloud Contract 写生产者契约、生成测试和桩，用 Stub Runner 做消费者测试；能用 Pact JVM 写消费者测试与提供方验证，借助 Pact Broker 和 can-i-deploy 在部署前拦住不兼容的改动。
->
-> **前置阅读**：[Mock 测试](./2_mock)、[集成测试](./3_integration_test)、[微服务设计模式](/microservices/2_patterns)
+> 前置阅读：[Mock 测试](./2_mock)、[集成测试](./3_integration_test)、[微服务设计模式](/microservices/2_patterns)
 
-本篇只讲服务之间的接口兼容。服务内部与数据库、中间件的配合见 [集成测试](./3_integration_test) 和 [Testcontainers](./5_testcontainers)；OpenAPI 规范本身、代码生成和 oasdiff 破坏性变更检查见 [API 文档](/engineering/5_api_doc)。
-
-版本基线：JDK 21、Spring Boot 4.0（Spring Framework 7、JUnit 6）、Spring Cloud Contract **5.0.3**、Pact JVM **4.7.5**、pact-broker-cli 0.9。示例中 billing-service（账单服务）调用 order-service 的 `GET /api/orders/{id}` 查询订单，并消费 order-service 发出的 OrderCreated 事件。
+契约测试在端到端测试和 Mock 之间保证服务之间的接口兼容。本篇讲消费者驱动契约流程、Spring Cloud Contract 与 Pact JVM 的用法以及 Pact Broker 与 can-i-deploy，版本基线为 JDK 21、Spring Boot 4.0、Spring Cloud Contract **5.0.3**、Pact JVM **4.7.5**、pact-broker-cli 0.9。
 
 ---
 
@@ -32,6 +28,8 @@ description: 消费者驱动契约、Spring Cloud Contract、Pact 与 Broker、c
 
 契约测试不验证业务逻辑正不正确（那是提供方自己单元测试的事），只验证**请求和响应的结构与语义约定**：路径、方法、请求头、状态码、字段名和类型、哪些字段必有。
 
+服务内部与数据库、中间件的配合见 [集成测试](./3_integration_test) 和 [Testcontainers](./5_testcontainers)。
+
 ---
 
 ## 二、消费者驱动契约
@@ -51,6 +49,8 @@ CDC 带来的一个重要性质：**契约只包含消费者真正用到的字�
 
 - **Spring Cloud Contract**：契约文件放在**提供方仓库**，由提供方生成测试和桩，消费者下载桩来测试。消费者通过给提供方仓库提 PR 来「驱动」契约
 - **Pact**：契约由**消费者测试生成**，发布到 Pact Broker，提供方从 Broker 拉取验证。更贴近 CDC 的原意，也支持多语言
+
+本篇示例中 billing-service（账单服务）调用 order-service 的 `GET /api/orders/{id}` 查询订单，并消费 order-service 发出的 OrderCreated 事件。
 
 ---
 
@@ -721,6 +721,8 @@ OpenAPI 规范和契约测试经常被放在一起比较，它们回答的是不
 | 适用 | 对外开放的 API、消费者不可控 | 内部服务之间、消费者可协作 |
 
 两者可以叠加：用 OpenAPI 作为接口文档与代码生成的来源，在 CI 中用 oasdiff 拦截结构性破坏（见 [API 文档 · CI 中的规范检查](/engineering/5_api_doc#六、ci-中的规范检查)），同时对内部调用方用 CDC 守住真实依赖。PactFlow 的双向契约测试（Bi-Directional Contract Testing）把这两者结合：提供方上传 OpenAPI 规范与自测结果，消费者上传 Pact 契约，由平台比对二者是否兼容，适合提供方不愿或不能运行 Pact 验证的场景。版本号与废弃策略见 [API 设计规范](/engineering/7_api_design_rule)。
+
+OpenAPI 规范本身、代码生成和 oasdiff 破坏性变更检查见 [API 文档](/engineering/5_api_doc)。
 
 ---
 

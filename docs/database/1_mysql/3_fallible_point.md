@@ -4,11 +4,9 @@ description: 大事务与批量删除、锁范围与间隙锁死锁、字符集�
 
 # MySQL 避坑指南
 
-> **本篇目标**：认清线上最常见的 MySQL 雷区：锁范围超预期、间隙锁死锁、字符集与排序规则不一致、NULL 语义、时区错乱、大表 DDL 被 MDL 堵死，并掌握对应的正确写法和排查手段。本篇也是 Online DDL 的主文档。
->
-> **前置阅读**：[MySQL 基础](./0_overview)、[MySQL 事务与锁](./5_topic_transaction)
+> 前置阅读：[MySQL 基础](./0_overview)、[MySQL 事务与锁](./5_topic_transaction)
 
-本篇以 MySQL 8.4 LTS 为基线，默认隔离级别为可重复读（RR）。
+本篇整理线上最常见的 MySQL 雷区（锁范围、间隙锁死锁、字符集与排序规则、NULL、时区、大表 DDL 与 MDL）及正确写法，也是 Online DDL 的主文档。以 MySQL 8.4 LTS 为基线，默认隔离级别为可重复读（RR）。
 
 ---
 

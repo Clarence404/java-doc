@@ -4,19 +4,17 @@ description: 三方票据模型、两层会话、CAS / SAML / OIDC 对比、跨�
 
 # 单点登录
 
-> **本篇目标**：讲清所有 SSO 方案共用的三方票据模型，以及 IdP 全局会话与应用本地会话的关系；能对比 CAS、SAML 2.0、OIDC 的票据形式与适用场景并完成选型；知道跨域名 SSO 和前后端分离（BFF）怎么做；掌握单点登出（SLO）前端通道与后端通道的区别；会设计网关的令牌中继（Token Relay）。
->
-> **前置阅读**：[OAuth2](/security/2_oauth2)（授权码流程）、[OIDC](/security/3_oidc)（ID Token 与 Discovery）
+> 前置阅读：[OAuth2](/security/2_oauth2)、[OIDC](/security/3_oidc)
 
-单点登录（Single Sign-On，SSO）指用户在一个认证中心登录一次，就能访问多个相互信任的系统。参与方有三个：**认证中心**（Identity Provider，IdP，负责验证身份、签发票据）、**业务系统**（CAS 和 SAML 里叫 Service Provider，SP；OIDC 里叫 Relying Party，RP）、以及在两者之间来回跳转的**浏览器**。
-
-本篇只讲原理与选型，与具体框架无关。Spring Security 对接 LDAP / CAS / SAML2 / OIDC、Keycloak 实战、Spring Authorization Server 和 Sa-Token SSO 的配置代码见 [Spring SSO 接入](/spring/11_single_sign_on)；同一主域下的多实例会话共享见 [分布式会话](/distributed/5_session)。
+单点登录（Single Sign-On，SSO）指用户在一个认证中心登录一次，就能访问多个相互信任的系统。本篇讲与具体框架无关的原理与选型：三方票据模型、两层会话、CAS / SAML 2.0 / OIDC 对比、跨域与前后端分离、单点登出与网关令牌中继。
 
 ---
 
 ## 一、三方票据模型
 
 所有 SSO 方案的骨架都一样：
+
+参与方有三个：**认证中心**（Identity Provider，IdP，负责验证身份、签发票据）、**业务系统**（CAS 和 SAML 里叫 Service Provider，SP；OIDC 里叫 Relying Party，RP）、以及在两者之间来回跳转的**浏览器**。
 
 1. 用户访问子系统 A，A 发现没有本地会话，把浏览器重定向到认证中心
 2. 认证中心验证身份（或发现已有全局会话直接放行），在**认证中心自己的域名**下种下全局会话 Cookie，并签发一次性**票据**
@@ -267,6 +265,8 @@ spring:
 - 跨域名 SSO 靠顶层跳转到 IdP 实现，注意 SameSite 对跨站 POST 回调的影响；前后端分离优先用 BFF，令牌不进浏览器
 - 单点登出优先后端通道，记录 `sid` / ST 与本地会话的映射并放进共享存储，再用短会话兜底
 - 网关作为 OAuth2 客户端登录，用 `TokenRelay` 把 Access Token 转给下游，下游作为资源服务器校验
+
+Spring Security 对接 LDAP / CAS / SAML2 / OIDC、Keycloak 实战、Spring Authorization Server 和 Sa-Token SSO 的配置代码见 [Spring SSO 接入](/spring/11_single_sign_on)；同一主域下的多实例会话共享见 [分布式会话](/distributed/5_session)。
 
 ---
 

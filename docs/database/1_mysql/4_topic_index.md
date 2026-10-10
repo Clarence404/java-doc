@@ -4,11 +4,9 @@ description: B+ 树、聚簇与二级索引、Change Buffer、覆盖索引、最
 
 # MySQL 索引
 
-> **本篇目标**：理解 InnoDB 为什么用 B+ 树、聚簇索引与二级索引如何配合回表，掌握最左前缀、ICP、Skip Scan、Index Merge 等优化器行为，能判断一条 SQL 为什么没走索引，并写出正确的深度分页与索引设计方案。
->
-> **前置阅读**：[MySQL 基础](./0_overview)
+> 前置阅读：[MySQL 基础](./0_overview)
 
-本文以 MySQL 8.4 LTS 为基线，涉及 8.0 与 8.4 默认值不同的地方会单独标出。执行计划各字段的读法见 [EXPLAIN 与 SQL 优化](./7_topic_explain)，Buffer Pool 与页结构见 [InnoDB 存储结构](./8_topic_innodb)。
+索引决定了 SQL 能否高效执行，本篇讲 InnoDB 的 B+ 树、聚簇与二级索引、最左前缀与 ICP 等优化器行为、索引失效与深度分页。以 MySQL 8.4 LTS 为基线，8.0 与 8.4 默认值不同的地方单独标出。
 
 ---
 
@@ -68,6 +66,8 @@ SELECT * FROM t_article WHERE MATCH(title) AGAINST('数据库' IN NATURAL LANGUA
 ---
 
 ## 三、聚簇索引与二级索引
+
+Buffer Pool 与页结构见 [InnoDB 存储结构](./8_topic_innodb)。
 
 ### 1、聚簇索引（Clustered Index）
 
@@ -358,6 +358,8 @@ SELECT * FROM t_order WHERE id > ? ORDER BY id LIMIT 1000;
 ## 十、索引设计原则
 
 **该建索引的：**
+
+执行计划各字段的读法见 [EXPLAIN 与 SQL 优化](./7_topic_explain)。
 
 - WHERE / JOIN ON / ORDER BY / GROUP BY 中的高频列
 - 区分度高的列（`COUNT(DISTINCT col) / COUNT(*)` 越接近 1 越好）

@@ -4,11 +4,9 @@ description: LDAP / CAS / SAML2 / OIDC 接入、Keycloak 登出、授权服务�
 
 # Spring SSO 接入
 
-> **本篇目标**：能在 Spring Boot 4 / Spring Security 7 中完成 LDAP、CAS、SAML2、OIDC 四类单点登录接入，正确处理 Keycloak 的角色映射与单点登出，用 Spring Authorization Server 自建认证中心，并掌握 Sa-Token SSO 的接入方式。
->
-> **前置阅读**：[单点登录](/security/4_sso)、[OIDC](/security/3_oidc)、[Spring Security](./9_security)
+> 前置阅读：[单点登录](/security/4_sso)、[OIDC](/security/3_oidc)、[Spring Security](./9_security)
 
-本篇只讲 Spring 生态下的接入配置。SSO 原理（三方票据模型、方案对比与选型、CAS 票据、单点登出、IAM 平台）见 [单点登录](/security/4_sso)；OIDC 协议见 [OIDC](/security/3_oidc)；OAuth2 协议见 [OAuth2](/security/2_oauth2)；JWT 见 [JWT 令牌机制](/security/1_jwt)。
+本篇讲 Spring Boot 4 / Spring Security 7 下 LDAP、CAS、SAML2、OIDC 四类单点登录的接入配置。还包括 Keycloak 的角色映射与单点登出、用 Spring Authorization Server 自建认证中心，以及 Sa-Token SSO 接入。
 
 ---
 
@@ -24,6 +22,8 @@ description: LDAP / CAS / SAML2 / OIDC 接入、Keycloak 登出、授权服务�
 | 自建认证中心 | `spring-boot-starter-security-oauth2-authorization-server` | OAuth2 / OIDC 授权服务器 | 自家各子系统 |
 
 > Boot 4 起 OAuth2 相关 starter 统一加上 `security-` 前缀，旧名 `spring-boot-starter-oauth2-client` 等仍可用但已废弃。
+
+SSO 原理（三方票据模型、方案对比与选型、CAS 票据、单点登出、IAM 平台）见 [单点登录](/security/4_sso)；OIDC 协议见 [OIDC](/security/3_oidc)；OAuth2 协议见 [OAuth2](/security/2_oauth2)；JWT 见 [JWT 令牌机制](/security/1_jwt)。
 
 ---
 

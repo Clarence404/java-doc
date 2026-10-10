@@ -4,11 +4,9 @@ description: Helm 4 基线、Chart 模板、升级回滚、多环境 values、OC
 
 # Helm
 
-> **本篇目标**：理解 Chart、Release、revision 的关系，会用 Helm 4 安装和升级第三方 Chart，能为自己的 Java 服务写一个结构规范的 Chart，掌握升级时 values 合并与回滚的语义，并能把 Chart 推送到 OCI 仓库供 CI/CD 使用。
->
-> **前置阅读**：[Kubernetes](./6_kubernetes)（Deployment、Service、ConfigMap）
+> 前置阅读：[Kubernetes](./6_kubernetes)
 
-在 Kubernetes 上部署一个应用，通常要写 Deployment、Service、ConfigMap、HPA、HTTPRoute 等一组 YAML，而且 dev / staging / prod 每套环境只差副本数、镜像版本、资源规格这几个值。Helm 是 Kubernetes 的包管理器：把这组 YAML 写成参数化模板打成一个 **Chart**，一条命令完成安装、升级、回滚，并在集群里记录每次变更的历史。
+Helm 是 Kubernetes 的包管理器：把 Deployment、Service、ConfigMap 等一组 YAML 写成参数化模板打成 **Chart**，一条命令完成安装、升级、回滚，并在集群里记录每次变更的历史。本篇基于 Helm 4 讲第三方 Chart 的使用、自定义 Chart 编写、values 合并与回滚语义、多环境配置和 OCI 发布。
 
 ---
 

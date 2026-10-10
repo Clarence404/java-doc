@@ -4,9 +4,9 @@ description: Flyway 原理与命名、Boot 4 依赖、迁移锁、Liquibase 与�
 
 # 数据库版本迁移
 
-> **本篇目标**：理解 Flyway 的执行过程与命名规则，在 Boot 4 上正确引入 Flyway / Liquibase（starter 与数据库模块），知道多实例并发迁移由谁保证、真正要担心的是什么；掌握 Liquibase 的 changelog、上下文与回滚；能把表结构变更安全地纳入滚动发布。
->
-> **前置阅读**：[数据访问](./3_data_access)
+> 前置阅读：[数据访问](./3_data_access)
+
+Flyway 与 Liquibase 把表结构变更纳入版本管理。本篇讲 Flyway 的执行过程与命名规则、Boot 4 上的引入方式、多实例并发迁移、Liquibase 的 changelog / 上下文 / 回滚，以及如何把表结构变更安全纳入滚动发布。
 
 ---
 

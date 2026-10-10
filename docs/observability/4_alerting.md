@@ -4,11 +4,9 @@ description: 好告警标准、Prometheus 告警规则、Alertmanager 路由抑�
 
 # 告警体系
 
-> **本篇目标**：以 order-service 为例，从「什么样的告警值得发」出发，写出一组可直接上线的 Prometheus 告警规则并用 promtool 做单元测试；再用 Alertmanager 的路由树、分组、抑制和静默把告警送到对的人，接入钉钉 / 飞书 / 企业微信与邮件；最后讲降噪手段、典型误报与漏报，以及 Grafana Alerting 与 Alertmanager 怎么选。
->
-> **前置阅读**：[指标监控](./2_metrics)、[Actuator 监控](/spring-boot/7_actuator)、[可用性度量](/high-avail/1_sla_slo)
+> 前置阅读：[指标监控](./2_metrics)、[Actuator 监控](/spring-boot/7_actuator)、[可用性度量](/high-avail/1_sla_slo)
 
-本篇只讲「告警怎么定义、怎么投递」。边界划分如下：SLO、错误预算和燃烧速率的计算见 [可用性度量](/high-avail/1_sla_slo)；故障分级（P0–P3）、On-call 排班、升级路径和复盘见 [故障应急与复盘](/high-avail/11_incident_response)；应用侧如何暴露 `/actuator/prometheus` 指标见 [Actuator 监控](/spring-boot/7_actuator) 第六节；Prometheus 长期存储与高可用见 [时序数据库](/database/4_nosql/1_time_series_db)。版本以 2026 年 10 月为准：Prometheus 3.x、Alertmanager 0.34。
+本篇以 order-service 为例讲告警怎么定义、怎么投递：好告警的标准、Prometheus 告警规则与 promtool 测试、Alertmanager 路由与 IM 接入、降噪手段，以及 Grafana Alerting 与 Alertmanager 怎么选。版本以 2026 年 10 月为准：Prometheus 3.x、Alertmanager 0.34。
 
 ---
 
@@ -778,6 +776,8 @@ Grafana 自带告警功能（Grafana 11 起移除了旧版告警，只保留统�
 - 钉钉、飞书、企业微信群机器人通过 webhook 适配器接入，适配器失败要返回 5xx 让 Alertmanager 重试
 - critical 告警以 SLO 燃烧速率为准，用告警质量数据持续清理噪声；Watchdog 心跳保证告警链路本身可被监控
 - 核心告警用 Prometheus + Alertmanager 管成代码，Grafana Alerting 补充其他数据源
+
+相关内容：SLO、错误预算和燃烧速率的计算见 [可用性度量](/high-avail/1_sla_slo)；故障分级（P0–P3）、On-call 排班、升级路径和复盘见 [故障应急与复盘](/high-avail/11_incident_response)；应用侧如何暴露 `/actuator/prometheus` 指标见 [Actuator 监控](/spring-boot/7_actuator) 第六节；Prometheus 长期存储与高可用见 [时序数据库](/database/4_nosql/1_time_series_db)。
 
 ## 参考资料
 

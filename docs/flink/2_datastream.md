@@ -4,17 +4,15 @@ description: Source API、转换算子、ProcessFunction、定时器、侧输出
 
 # DataStream API
 
-> **本篇目标**：掌握 Flink 2.x DataStream API 的完整开发链路——从 KafkaSource 读数据、用 ProcessFunction 处理脏数据与定时逻辑、用异步 I/O 关联维表，到 KafkaSink 精确一次写出，并避开类型推断、Kryo 回退、阻塞调用等常见坑。
->
-> **前置阅读**：[Flink 概览](./1_basics)
+> 前置阅读：[Flink 概览](./1_basics)
 
-一个 DataStream 作业永远是同一个骨架：**创建环境 → 定义 Source → 一串转换 → 定义 Sink → `execute()`**。代码只是在 Client 端「描述」一张数据流图，直到 `execute()` 才真正提交运行；所以在算子函数里写的代码会被序列化后发到 TaskManager 上执行，这是很多坑的根源。
-
-![典型 DataStream 作业拓扑](../assets/flink/flink-datastream-pipeline.svg)
+一个 DataStream 作业永远是同一个骨架：**创建环境 → 定义 Source → 一串转换 → 定义 Sink → `execute()`**，算子函数里的代码会被序列化后发到 TaskManager 上执行，这是很多坑的根源。本篇基于 Flink 2.x 走完从 KafkaSource 读取、ProcessFunction 与定时器、异步 I/O 关联维表到 KafkaSink 精确一次写出的完整链路，并梳理类型推断、Kryo 回退等常见坑。
 
 ---
 
 ## 一、执行环境
+
+![典型 DataStream 作业拓扑](../assets/flink/flink-datastream-pipeline.svg)
 
 ```java
 // 本地 IDE 运行时自动创建 MiniCluster；提交到集群时连接集群

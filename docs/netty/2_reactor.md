@@ -4,9 +4,9 @@ description: 单线程、单 Reactor 多线程、主从 Reactor，以及 Reactor
 
 # Reactor 模型
 
-> **本篇目标**：能画出三种 Reactor 模式的线程结构，说清 Netty 的 BossGroup / WorkerGroup 分别对应什么，以及 Reactor 与 Proactor 的区别。
->
-> **前置阅读**：[IO 模型](./1_io_model)
+> 前置阅读：[IO 模型](./1_io_model)
+
+Reactor 是基于 IO 多路复用组织事件处理线程的模式。本篇讲三种 Reactor 模式的线程结构、Netty 的 BossGroup / WorkerGroup 对应关系，以及 Reactor 与 Proactor 的区别。
 
 ## 一、为什么需要 Reactor
 

@@ -4,11 +4,9 @@ description: 域名层级、递归与迭代、记录类型、TTL 与缓存、DoH
 
 # DNS
 
-> **本篇目标**：讲清一个域名从输入到拿到 IP 经过哪些服务器、哪几层缓存，能解释「改了解析为什么迟迟不生效」，并能处理 Kubernetes ndots、JVM DNS 缓存这类后端常见问题。
->
-> **前置阅读**：[TCP 与 UDP](./1_tcp_udp)
+> 前置阅读：[TCP 与 UDP](./1_tcp_udp)
 
-DNS 把域名翻译成 IP 等记录，是几乎所有网络请求的第一步。本篇以 RFC 1034 / 1035 为基础，传输与安全部分参考 RFC 7766、RFC 7858、RFC 8484；用 DNS 做机房级流量调度属于接入层设计，本篇只讲 DNS 本身能提供什么，架构取舍见 [接入层架构](/high-con/1_access_layer)。
+DNS 把域名翻译成 IP 等记录，是几乎所有网络请求的第一步，本篇以 RFC 1034 / 1035 为基础，传输与安全部分参考 RFC 7766、7858、8484。内容包括解析链路与多层缓存、解析变更为何迟迟不生效，以及 Kubernetes ndots、JVM DNS 缓存等后端常见问题。
 
 ---
 
@@ -243,6 +241,7 @@ public class DnsCacheDemo {
 - DNS 负载均衡适合机房级粗调度，受缓存影响切换慢、无法精确控制
 - Kubernetes 默认 `ndots:5` 会放大外部域名查询，用 FQDN 或调小 ndots；连接池要设最大存活时间才能感知 DNS 变更
 - JVM 不遵守 DNS 记录的 TTL，用 `networkaddress.cache.*` 安全属性控制，要在首次解析前设置
+- 用 DNS 做机房级流量调度属于接入层设计，架构取舍见 [接入层架构](/high-con/1_access_layer)。
 
 ## 参考资料
 

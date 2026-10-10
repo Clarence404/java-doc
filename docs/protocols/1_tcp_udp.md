@@ -4,11 +4,9 @@ description: 三次握手、四次挥手、TIME_WAIT / CLOSE_WAIT、滑动窗口
 
 # TCP 与 UDP
 
-> **本篇目标**：讲清 TCP 建连、断连的每一步和状态变化，能定位 TIME_WAIT / CLOSE_WAIT 堆积、半连接队列溢出这类线上问题，理解流量控制与拥塞控制的区别，并知道什么时候该用 UDP。
->
-> **前置阅读**：[IO 模型](/netty/1_io_model)（Socket 读写与内核缓冲区）
+> 前置阅读：[IO 模型](/netty/1_io_model)
 
-TCP 是绝大多数后端通信（HTTP/1.1、HTTP/2、MySQL、Redis、Kafka、gRPC）的底座。本篇以 RFC 9293（2022 年合并修订后的 TCP 标准）为基线，Linux 行为以主流 5.x / 6.x 内核为准；粘包拆包、应用层心跳等编程问题放在 [Netty](/netty/0_overview) 模块。
+TCP 是绝大多数后端通信（HTTP/1.1、HTTP/2、MySQL、Redis、Kafka、gRPC）的底座，本篇以 RFC 9293 为基线、Linux 行为以 5.x / 6.x 内核为准。内容包括建连断连与状态变化、TIME_WAIT / CLOSE_WAIT 与队列溢出排查、流量控制与拥塞控制，以及何时使用 UDP。
 
 ---
 
@@ -350,6 +348,7 @@ TCP 实现在操作系统内核里，改进要等内核和中间网络设备一�
 - 流量控制看接收方的 `rwnd`，拥塞控制看网络的 `cwnd`；Linux 默认 CUBIC，长距离有丢包的链路可以考虑 BBR
 - Nagle 与延迟确认叠加会多出约 40 ms 时延，时延敏感场景开 `TCP_NODELAY`；TCP keepalive 只能兜底，长连接以应用层心跳为准
 - UDP 无连接、保留边界、无拥塞控制，适合 DNS、音视频和 QUIC
+- 粘包拆包、应用层心跳等编程问题放在 [Netty](/netty/0_overview) 模块。
 
 ## 参考资料
 

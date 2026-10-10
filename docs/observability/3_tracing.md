@@ -4,13 +4,9 @@ description: Trace / Span、W3C 传播、Boot 接入、异步与 Kafka 透传、
 
 # 链路追踪
 
-> **本篇目标**：理解 Trace、Span、上下文传播三者的关系，能看懂 W3C `traceparent` 头；会在 Spring Boot 4 中用 Micrometer Tracing 接入链路追踪，并保证 traceId 跨线程池、`@Async`、虚拟线程和 Kafka 不断链；分清头部采样与尾部采样的取舍；能为团队选出合适的追踪后端，并用 traceId 把日志、指标、链路串成一条排障路径。
->
-> **前置阅读**：[日志](/spring-boot/12_logging)（traceId 写入 MDC 的应用侧配置）、[指标监控](./2_metrics)（RED 指标与 exemplars）
+> 前置阅读：[日志](/spring-boot/12_logging)、[指标监控](./2_metrics)
 
-指标告诉你"下单接口 P99 变慢了"，日志告诉你"某个请求报了什么错"，但一个请求穿过网关、订单、库存、消息队列之后，到底慢在哪一跳、错误从哪里开始传播，只有链路追踪能回答。本篇以 **Spring Boot 4.x 自带的 Micrometer Tracing** 和 **OpenTelemetry** 为基线，示例统一使用 `order-service`（订单）→ `inventory-service`（库存）→ Kafka 主题 `order-created` → `notification-service`（通知）这条下单链路。
-
-边界说明：应用侧 traceId 写入日志、`logging.pattern.correlation` 与 `ContextPropagatingTaskDecorator` 的基础配置见 [日志](/spring-boot/12_logging#五、mdc-与-traceid-传递)；Observation API 一次埋点同时产出指标和 Span 见 [Actuator 监控](/spring-boot/7_actuator)；OpenTelemetry 的组件、Java agent 与 Collector 配置见 [OpenTelemetry](./5_opentelemetry)。本篇讲链路追踪本身：模型、传播、接入、采样、后端与排障。
+链路追踪回答一个请求穿过多个服务和消息队列后慢在哪一跳、错误从哪里开始传播。本篇以 **Spring Boot 4.x 自带的 Micrometer Tracing** 和 **OpenTelemetry** 为基线，讲模型、上下文传播、接入、采样、后端选型与排障，示例使用 `order-service` → `inventory-service` → Kafka 主题 `order-created` → `notification-service` 这条下单链路。
 
 ---
 
@@ -395,6 +391,8 @@ TraceQL 示例（Tempo）：
 - 头部采样便宜但会漏掉错误和慢请求；尾部采样能全留异常链路，代价是全量上报和按 traceID 路由的 Collector
 - 后端优先选能接收 OTLP 的 Tempo 或 Jaeger v2，应用经 Collector 上报，换后端不动代码
 - 用 exemplars、trace-id 跳转把指标、链路、日志串成一条路径，前提是字段命名统一
+
+相关内容：应用侧 traceId 写入日志、`logging.pattern.correlation` 与 `ContextPropagatingTaskDecorator` 的基础配置见 [日志](/spring-boot/12_logging#五、mdc-与-traceid-传递)；Observation API 一次埋点同时产出指标和 Span 见 [Actuator 监控](/spring-boot/7_actuator)；OpenTelemetry 的组件、Java agent 与 Collector 配置见 [OpenTelemetry](./5_opentelemetry)。
 
 ## 参考资料
 
