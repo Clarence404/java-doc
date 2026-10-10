@@ -1,0 +1,78 @@
+<svg viewBox="0 0 760 402" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-alert-route" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="380" y="24" text-anchor="middle">告警从规则到通知：评估、分组、抑制、静默、路由</text>
+
+  <rect x="130" y="40" width="230" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="245" y="64" text-anchor="middle">Prometheus 告警规则</text>
+  <text class="desc" x="245" y="86" text-anchor="middle">expr 命中 → pending → 满 for → firing</text>
+  <rect x="400" y="40" width="230" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="515" y="64" text-anchor="middle">Loki Ruler</text>
+  <text class="desc" x="515" y="86" text-anchor="middle">LogQL 日志告警，同样推给 AM</text>
+
+  <line x1="245" y1="104" x2="245" y2="138" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-alert-route)"/>
+  <line x1="515" y1="104" x2="515" y2="138" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-alert-route)"/>
+
+  <rect x="20" y="140" width="720" height="130" rx="10" fill="var(--bg)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="380" y="162" text-anchor="middle">Alertmanager（集群部署，gossip 同步静默与通知状态）</text>
+
+  <rect x="40" y="176" width="146" height="76" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="113" y="200" text-anchor="middle">分组</text>
+  <text class="desc" x="113" y="220" text-anchor="middle">group_by 合并同类</text>
+  <text class="desc" x="113" y="238" text-anchor="middle">group_wait 等待凑批</text>
+  <rect x="216" y="176" width="146" height="76" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="289" y="200" text-anchor="middle">抑制</text>
+  <text class="desc" x="289" y="220" text-anchor="middle">inhibit_rules</text>
+  <text class="desc" x="289" y="238" text-anchor="middle">根因告警压制症状</text>
+  <rect x="392" y="176" width="146" height="76" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="465" y="200" text-anchor="middle">静默</text>
+  <text class="desc" x="465" y="220" text-anchor="middle">silences</text>
+  <text class="desc" x="465" y="238" text-anchor="middle">变更窗口临时屏蔽</text>
+  <rect x="568" y="176" width="146" height="76" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="641" y="200" text-anchor="middle">路由</text>
+  <text class="desc" x="641" y="220" text-anchor="middle">route 树按标签匹配</text>
+  <text class="desc" x="641" y="238" text-anchor="middle">repeat_interval 重复</text>
+  <line x1="186" y1="214" x2="214" y2="214" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-alert-route)"/>
+  <line x1="362" y1="214" x2="390" y2="214" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-alert-route)"/>
+  <line x1="538" y1="214" x2="566" y2="214" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-alert-route)"/>
+
+  <line x1="130" y1="270" x2="130" y2="304" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-alert-route)"/>
+  <line x1="380" y1="270" x2="380" y2="304" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-alert-route)"/>
+  <line x1="630" y1="270" x2="630" y2="304" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-alert-route)"/>
+
+  <rect x="20" y="306" width="220" height="76" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="130" y="330" text-anchor="middle">critical：立即呼叫</text>
+  <text class="desc" x="130" y="350" text-anchor="middle">值班电话 / 短信 + 值班群</text>
+  <text class="desc" x="130" y="368" text-anchor="middle">repeat_interval 1h</text>
+  <rect x="270" y="306" width="220" height="76" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="380" y="330" text-anchor="middle">warning：团队工作群</text>
+  <text class="desc" x="380" y="350" text-anchor="middle">钉钉 / 飞书 / 企微 经适配器</text>
+  <text class="desc" x="380" y="368" text-anchor="middle">repeat_interval 4h</text>
+  <rect x="520" y="306" width="220" height="76" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="630" y="330" text-anchor="middle">info：邮件 / 工单</text>
+  <text class="desc" x="630" y="350" text-anchor="middle">email_configs</text>
+  <text class="desc" x="630" y="368" text-anchor="middle">工作时间处理，不打扰值班</text>
+</svg>

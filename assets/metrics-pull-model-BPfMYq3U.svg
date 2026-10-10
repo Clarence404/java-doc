@@ -1,0 +1,75 @@
+<svg viewBox="0 0 780 288" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="390" y="24" text-anchor="middle" class="title">Prometheus 拉模型：服务发现 → 定时抓取 → 存储与规则 → 查询与告警</text>
+
+  <rect x="20" y="44" width="190" height="64" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="115" y="70" text-anchor="middle" class="name">order-service × N</text>
+  <text x="115" y="90" text-anchor="middle" class="desc">/actuator/prometheus</text>
+
+  <rect x="20" y="124" width="190" height="64" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="115" y="150" text-anchor="middle" class="name">node_exporter</text>
+  <text x="115" y="170" text-anchor="middle" class="desc">主机 CPU / 内存 / 磁盘 / 网络</text>
+
+  <rect x="20" y="204" width="190" height="64" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="115" y="230" text-anchor="middle" class="name">中间件 exporter</text>
+  <text x="115" y="250" text-anchor="middle" class="desc">mysqld / redis / kafka</text>
+
+  <rect x="270" y="44" width="250" height="224" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="395" y="70" text-anchor="middle" class="name">Prometheus</text>
+  <text x="395" y="100" text-anchor="middle" class="desc">服务发现：kubernetes_sd / ServiceMonitor</text>
+  <text x="395" y="128" text-anchor="middle" class="desc">按 scrape_interval 抓取，生成 up 指标</text>
+  <text x="395" y="156" text-anchor="middle" class="desc">本地 TSDB（默认保留 15 天）</text>
+  <text x="395" y="184" text-anchor="middle" class="desc">规则评估：recording / alerting</text>
+  <text x="395" y="212" text-anchor="middle" class="desc">可选：OTLP 接收（推模式）</text>
+  <text x="395" y="248" text-anchor="middle" class="desc">箭头方向 = 数据流向</text>
+
+  <rect x="580" y="44" width="190" height="64" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="675" y="70" text-anchor="middle" class="name">Grafana</text>
+  <text x="675" y="90" text-anchor="middle" class="desc">PromQL 查询、看板</text>
+
+  <rect x="580" y="124" width="190" height="64" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="675" y="150" text-anchor="middle" class="name">Alertmanager</text>
+  <text x="675" y="170" text-anchor="middle" class="desc">分组、抑制、通知</text>
+
+  <rect x="580" y="204" width="190" height="64" rx="6" fill="var(--r)" fill-opacity="0.08" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="675" y="230" text-anchor="middle" class="name">长期存储</text>
+  <text x="675" y="250" text-anchor="middle" class="desc">Thanos / VictoriaMetrics</text>
+
+  <line x1="210" y1="76" x2="268" y2="76" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="210" y1="156" x2="268" y2="156" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="210" y1="236" x2="268" y2="236" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="239" y="70" text-anchor="middle" class="lbl">被拉取</text>
+
+  <line x1="520" y1="76" x2="578" y2="76" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="549" y="70" text-anchor="middle" class="lbl">查询</text>
+  <line x1="520" y1="156" x2="578" y2="156" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="549" y="150" text-anchor="middle" class="lbl">推送告警</text>
+  <line x1="520" y1="236" x2="578" y2="236" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="549" y="230" text-anchor="middle" class="lbl">远程写</text>
+</svg>

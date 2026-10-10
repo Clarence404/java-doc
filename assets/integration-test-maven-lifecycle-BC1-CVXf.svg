@@ -1,0 +1,76 @@
+<svg viewBox="0 0 800 238" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .tag { font-size: 13px; font-weight: 700; }
+    .muted { fill: var(--muted); }
+    .box-n { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+    .box-p { fill: var(--p); fill-opacity: 0.10; stroke: var(--p); stroke-width: 1.5; }
+    .box-b { fill: var(--b); fill-opacity: 0.10; stroke: var(--b); stroke-width: 1.5; }
+    .box-g { fill: var(--g); fill-opacity: 0.10; stroke: var(--g); stroke-width: 1.5; }
+    .box-r { fill: var(--r); fill-opacity: 0.10; stroke: var(--r); stroke-width: 1.5; }
+    .box-y { fill: var(--y); fill-opacity: 0.10; stroke: var(--y); stroke-width: 1.5; stroke-dasharray: 5 3; }
+    .box-m { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 3; }
+    .t-p { fill: var(--p); } .t-b { fill: var(--b); } .t-g { fill: var(--g); } .t-r { fill: var(--r); } .t-y { fill: var(--y); }
+    .arrow { stroke: var(--fg); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <text class="title" x="400" y="26" text-anchor="middle">mvn verify：Surefire 跑单元测试，Failsafe 跑集成测试</text>
+
+  <rect class="box-n" x="20" y="50" width="170" height="64" rx="8"/>
+  <text class="tag" x="105" y="76" text-anchor="middle">compile</text>
+  <text class="muted" x="105" y="100" text-anchor="middle">编译主代码</text>
+
+  <rect class="box-b" x="214" y="50" width="170" height="64" rx="8"/>
+  <text class="tag t-b" x="299" y="76" text-anchor="middle">test</text>
+  <text x="299" y="100" text-anchor="middle">Surefire 跑 *Test</text>
+
+  <rect class="box-n" x="408" y="50" width="170" height="64" rx="8"/>
+  <text class="tag" x="493" y="76" text-anchor="middle">package</text>
+  <text class="muted" x="493" y="100" text-anchor="middle">打出 jar</text>
+
+  <rect class="box-n" x="602" y="50" width="170" height="64" rx="8"/>
+  <text class="tag" x="687" y="76" text-anchor="middle">pre-integration-test</text>
+  <text class="muted" x="687" y="100" text-anchor="middle">准备外部环境（可选）</text>
+
+  <line class="arrow" x1="190" y1="82" x2="212" y2="82"/>
+  <line class="arrow" x1="384" y1="82" x2="406" y2="82"/>
+  <line class="arrow" x1="578" y1="82" x2="600" y2="82"/>
+  <line class="arrow" x1="687" y1="114" x2="687" y2="152"/>
+
+  <rect class="box-g" x="602" y="154" width="170" height="64" rx="8"/>
+  <text class="tag t-g" x="687" y="180" text-anchor="middle">integration-test</text>
+  <text x="687" y="204" text-anchor="middle">Failsafe 跑 *IT，先记下</text>
+
+  <rect class="box-n" x="408" y="154" width="170" height="64" rx="8"/>
+  <text class="tag" x="493" y="180" text-anchor="middle">post-integration-test</text>
+  <text class="muted" x="493" y="204" text-anchor="middle">清理外部环境</text>
+
+  <rect class="box-g" x="214" y="154" width="170" height="64" rx="8"/>
+  <text class="tag t-g" x="299" y="180" text-anchor="middle">verify</text>
+  <text x="299" y="204" text-anchor="middle">有失败才让构建失败</text>
+
+  <line class="arrow" x1="602" y1="186" x2="580" y2="186"/>
+  <line class="arrow" x1="408" y1="186" x2="386" y2="186"/>
+
+  <text class="muted" x="105" y="180" text-anchor="middle">mvn test 只走到 test</text>
+  <text class="muted" x="105" y="204" text-anchor="middle">mvn verify 走完全程</text>
+</svg>

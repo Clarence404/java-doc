@@ -1,0 +1,79 @@
+<svg viewBox="0 0 760 330" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .tag { font-size: 13px; font-weight: 700; }
+    .muted { fill: var(--muted); }
+    .box-p { fill: var(--p); fill-opacity: 0.10; stroke: var(--p); stroke-width: 1.5; }
+    .box-b { fill: var(--b); fill-opacity: 0.10; stroke: var(--b); stroke-width: 1.5; }
+    .box-g { fill: var(--g); fill-opacity: 0.10; stroke: var(--g); stroke-width: 1.5; }
+    .box-r { fill: var(--r); fill-opacity: 0.08; stroke: var(--r); stroke-width: 1.5; stroke-dasharray: 5 3; }
+    .t-p { fill: var(--p); } .t-b { fill: var(--b); } .t-g { fill: var(--g); } .t-r { fill: var(--r); }
+    .arrow { stroke: var(--fg); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    .arrowG { stroke: var(--g); stroke-width: 1.5; fill: none; marker-end: url(#arrowG); }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrowG" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--g)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="380" y="24" text-anchor="middle">Testcontainers 运行时：测试 JVM、Docker 引擎与容器</text>
+
+  <rect class="box-p" x="20" y="44" width="200" height="200" rx="8"/>
+  <text class="tag t-p" x="120" y="70" text-anchor="middle">测试 JVM</text>
+  <text x="120" y="100" text-anchor="middle">JUnit 6 + Testcontainers 扩展</text>
+  <text x="120" y="126" text-anchor="middle">按镜像与配置创建容器</text>
+  <text x="120" y="152" text-anchor="middle">等待策略判定「已就绪」</text>
+  <text x="120" y="178" text-anchor="middle">被测代码：JDBC / Kafka 客户端</text>
+  <text class="muted" x="120" y="204" text-anchor="middle">读取 getHost() 与</text>
+  <text class="muted" x="120" y="226" text-anchor="middle">getMappedPort() 组装地址</text>
+
+  <rect class="box-b" x="300" y="44" width="170" height="200" rx="8"/>
+  <text class="tag t-b" x="385" y="70" text-anchor="middle">Docker 引擎</text>
+  <text x="385" y="104" text-anchor="middle">拉取镜像</text>
+  <text x="385" y="134" text-anchor="middle">创建并启动容器</text>
+  <text x="385" y="164" text-anchor="middle">打上会话标签</text>
+  <text x="385" y="194" text-anchor="middle">容器端口映射到</text>
+  <text x="385" y="216" text-anchor="middle">主机随机端口</text>
+
+  <line class="arrow" x1="220" y1="144" x2="298" y2="144"/>
+  <text class="muted" x="259" y="134" text-anchor="middle">Docker API</text>
+
+  <rect class="box-r" x="550" y="44" width="190" height="60" rx="8"/>
+  <text class="tag t-r" x="645" y="66" text-anchor="middle">Ryuk</text>
+  <text x="645" y="88" text-anchor="middle">JVM 断开后删除同标签容器</text>
+
+  <rect class="box-g" x="550" y="114" width="190" height="60" rx="8"/>
+  <text class="tag t-g" x="645" y="136" text-anchor="middle">PostgreSQL</text>
+  <text x="645" y="158" text-anchor="middle">5432 映射为 54321 等</text>
+
+  <rect class="box-g" x="550" y="184" width="190" height="60" rx="8"/>
+  <text class="tag t-g" x="645" y="206" text-anchor="middle">Kafka（KRaft）</text>
+  <text x="645" y="228" text-anchor="middle">9092 映射为 55001 等</text>
+
+  <line class="arrow" x1="470" y1="74" x2="548" y2="74"/>
+  <line class="arrow" x1="470" y1="144" x2="548" y2="144"/>
+  <line class="arrow" x1="470" y1="214" x2="548" y2="214"/>
+  <text class="muted" x="509" y="134" text-anchor="middle">启动</text>
+
+  <path class="arrowG" d="M645,244 L645,284 L120,284 L120,246"/>
+  <text class="t-g" x="382" y="304" text-anchor="middle">测试直连主机随机端口，不经过 Docker API</text>
+</svg>

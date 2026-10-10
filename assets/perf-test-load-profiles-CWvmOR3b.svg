@@ -1,0 +1,73 @@
+<svg viewBox="0 0 850 246" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+
+  <text class="title" x="425" y="26" text-anchor="middle">六种性能测试的负载形态（横轴时间，纵轴负载；虚线为预期峰值）</text>
+  <rect x="22" y="46" width="126" height="180" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="85" y="72" text-anchor="middle">冒烟 Smoke</text>
+  <line x1="35" y1="92" x2="35" y2="168" stroke="var(--muted)" stroke-width="1"/>
+  <line x1="35" y1="168" x2="135" y2="168" stroke="var(--muted)" stroke-width="1"/>
+  <line x1="35" y1="124" x2="135" y2="124" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
+  <polyline points="35,168 40,156 130,156 135,168" fill="none" stroke="var(--g)" stroke-width="2" stroke-linejoin="round"/>
+  <text class="desc" x="85" y="192" text-anchor="middle">极低负载跑通脚本</text>
+  <text class="desc" x="85" y="210" text-anchor="middle">1–5 VU，几分钟</text>
+  <rect x="158" y="46" width="126" height="180" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="221" y="72" text-anchor="middle">负载 Load</text>
+  <line x1="171" y1="92" x2="171" y2="168" stroke="var(--muted)" stroke-width="1"/>
+  <line x1="171" y1="168" x2="271" y2="168" stroke="var(--muted)" stroke-width="1"/>
+  <line x1="171" y1="124" x2="271" y2="124" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
+  <polyline points="171,168 196,124 251,124 271,168" fill="none" stroke="var(--b)" stroke-width="2" stroke-linejoin="round"/>
+  <text class="desc" x="221" y="192" text-anchor="middle">按预期峰值加压</text>
+  <text class="desc" x="221" y="210" text-anchor="middle">验证 SLO 是否达标</text>
+  <rect x="294" y="46" width="126" height="180" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="357" y="72" text-anchor="middle">压力 Stress</text>
+  <line x1="307" y1="92" x2="307" y2="168" stroke="var(--muted)" stroke-width="1"/>
+  <line x1="307" y1="168" x2="407" y2="168" stroke="var(--muted)" stroke-width="1"/>
+  <line x1="307" y1="124" x2="407" y2="124" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
+  <polyline points="307,168 317,138 332,138 337,124 352,124 357,110 372,110 377,98 392,98 407,168" fill="none" stroke="var(--y)" stroke-width="2" stroke-linejoin="round"/>
+  <text class="desc" x="357" y="192" text-anchor="middle">阶梯加压超过峰值</text>
+  <text class="desc" x="357" y="210" text-anchor="middle">看降级与恢复</text>
+  <rect x="430" y="46" width="126" height="180" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="493" y="72" text-anchor="middle">浸泡 Soak</text>
+  <line x1="443" y1="92" x2="443" y2="168" stroke="var(--muted)" stroke-width="1"/>
+  <line x1="443" y1="168" x2="543" y2="168" stroke="var(--muted)" stroke-width="1"/>
+  <line x1="443" y1="124" x2="543" y2="124" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
+  <polyline points="443,168 451,132 537,132 543,168" fill="none" stroke="var(--p)" stroke-width="2" stroke-linejoin="round"/>
+  <text class="desc" x="493" y="192" text-anchor="middle">中等负载持续数小时</text>
+  <text class="desc" x="493" y="210" text-anchor="middle">查泄漏与性能衰减</text>
+  <rect x="566" y="46" width="126" height="180" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="629" y="72" text-anchor="middle">尖峰 Spike</text>
+  <line x1="579" y1="92" x2="579" y2="168" stroke="var(--muted)" stroke-width="1"/>
+  <line x1="579" y1="168" x2="679" y2="168" stroke="var(--muted)" stroke-width="1"/>
+  <line x1="579" y1="124" x2="679" y2="124" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
+  <polyline points="579,168 589,154 619,154 624,96 634,96 639,154 669,154 679,168" fill="none" stroke="var(--r)" stroke-width="2" stroke-linejoin="round"/>
+  <text class="desc" x="629" y="192" text-anchor="middle">瞬间拉到数倍峰值</text>
+  <text class="desc" x="629" y="210" text-anchor="middle">验证弹性与限流</text>
+  <rect x="702" y="46" width="126" height="180" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="765" y="72" text-anchor="middle">断点 Breakpoint</text>
+  <line x1="715" y1="92" x2="715" y2="168" stroke="var(--muted)" stroke-width="1"/>
+  <line x1="715" y1="168" x2="815" y2="168" stroke="var(--muted)" stroke-width="1"/>
+  <line x1="715" y1="124" x2="815" y2="124" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3"/>
+  <polyline points="715,168 805,96" fill="none" stroke="var(--fg)" stroke-width="2" stroke-linejoin="round"/>
+  <circle cx="805" cy="96" r="4" fill="var(--r)"/>
+  <text class="desc" x="765" y="192" text-anchor="middle">持续线性加压</text>
+  <text class="desc" x="765" y="210" text-anchor="middle">直到出错得出上限</text>
+</svg>
