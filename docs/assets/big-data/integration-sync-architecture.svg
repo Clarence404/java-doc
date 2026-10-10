@@ -1,0 +1,79 @@
+<svg viewBox="0 0 820 414" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="410" y="24" text-anchor="middle" class="title">数据集成架构：离线批量 + 实时增量，源端与目标端对账</text>
+
+  <rect x="20" y="54" width="170" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="105" y="80" text-anchor="middle" class="name">第三方 / 运营 API</text>
+  <text x="105" y="100" text-anchor="middle" class="desc">物流、广告投放，按天拉取</text>
+
+  <rect x="20" y="144" width="170" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="105" y="170" text-anchor="middle" class="name">MySQL 订单库</text>
+  <text x="105" y="190" text-anchor="middle" class="desc">order_info / order_item</text>
+
+  <rect x="20" y="234" width="170" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="105" y="260" text-anchor="middle" class="name">埋点日志</text>
+  <text x="105" y="280" text-anchor="middle" class="desc">App / Web 行为事件</text>
+
+  <rect x="270" y="54" width="250" height="100" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="395" y="80" text-anchor="middle" class="name">离线同步</text>
+  <text x="395" y="104" text-anchor="middle" class="desc">DataX / SeaTunnel（调度触发）</text>
+  <text x="395" y="124" text-anchor="middle" class="desc">T+1 全量 / 按 update_time 增量</text>
+
+  <rect x="270" y="194" width="250" height="100" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="395" y="220" text-anchor="middle" class="name">实时同步</text>
+  <text x="395" y="244" text-anchor="middle" class="desc">Debezium + Kafka Connect</text>
+  <text x="395" y="264" text-anchor="middle" class="desc">Flink CDC（全量快照 + binlog）</text>
+
+  <line x1="190" y1="84" x2="268" y2="84" stroke="var(--fg)" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="190" y1="164" x2="268" y2="135" stroke="var(--fg)" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="190" y1="184" x2="268" y2="213" stroke="var(--fg)" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="190" y1="264" x2="268" y2="264" stroke="var(--fg)" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <rect x="600" y="54" width="200" height="100" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="700" y="80" text-anchor="middle" class="name">湖表 ODS / DWD</text>
+  <text x="700" y="104" text-anchor="middle" class="desc">Iceberg / Paimon / Hive</text>
+  <text x="700" y="124" text-anchor="middle" class="desc">分区覆盖、主键 MERGE</text>
+
+  <rect x="600" y="194" width="200" height="100" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="700" y="220" text-anchor="middle" class="name">OLAP 库</text>
+  <text x="700" y="244" text-anchor="middle" class="desc">Doris / StarRocks</text>
+  <text x="700" y="264" text-anchor="middle" class="desc">主键模型 upsert，直接服务</text>
+
+  <line x1="520" y1="104" x2="598" y2="104" stroke="var(--fg)" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="520" y1="220" x2="598" y2="145" stroke="var(--fg)" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="520" y1="244" x2="598" y2="244" stroke="var(--fg)" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="700" y1="154" x2="700" y2="192" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 3"/>
+
+  <line x1="105" y1="294" x2="105" y2="332" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <line x1="700" y1="294" x2="700" y2="332" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 3"/>
+
+  <rect x="20" y="334" width="780" height="60" rx="6" fill="var(--r)" fill-opacity="0.08" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="410" y="360" text-anchor="middle" class="name">一致性校验与对账</text>
+  <text x="410" y="380" text-anchor="middle" class="desc">源端与目标端按同一时间窗统计：行数、金额汇总、分桶校验和；差异告警并按分区重跑</text>
+</svg>

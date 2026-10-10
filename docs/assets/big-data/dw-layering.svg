@@ -1,0 +1,60 @@
+<svg viewBox="0 0 880 580" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .sec { font-size:12px; font-weight:700; fill:var(--p); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-bd-dw" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="440" y="26" text-anchor="middle">电商订单数仓分层：ODS → DWD → DWS → ADS，DIM 为公共维度</text>
+  <rect x="20" y="50" width="620" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="330" y="74" text-anchor="middle">数据源</text>
+  <text class="desc" x="330" y="96" text-anchor="middle">业务库 orders / order_item / user / product · 埋点日志 · 第三方文件</text>
+  <line x1="330" y1="110" x2="330" y2="138" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-dw)"/>
+  <rect x="20" y="140" width="620" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="330" y="164" text-anchor="middle">ODS 贴源层</text>
+  <text class="desc" x="330" y="186" text-anchor="middle">结构与源系统一致、按天分区、保留原始数据 · ods_order_info_inc</text>
+  <line x1="330" y1="200" x2="330" y2="228" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-dw)"/>
+  <rect x="20" y="230" width="620" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="330" y="254" text-anchor="middle">DWD 明细层</text>
+  <text class="desc" x="330" y="276" text-anchor="middle">清洗、去重、统一口径、维度退化，最细粒度事实 · dwd_trade_order_detail_inc</text>
+  <line x1="330" y1="290" x2="330" y2="318" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-dw)"/>
+  <rect x="20" y="320" width="620" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="330" y="344" text-anchor="middle">DWS 汇总层</text>
+  <text class="desc" x="330" y="366" text-anchor="middle">按主题 + 统计粒度 + 时间周期轻度汇总 · dws_trade_user_order_1d</text>
+  <line x1="330" y1="380" x2="330" y2="408" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-dw)"/>
+  <rect x="20" y="410" width="620" height="60" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="330" y="434" text-anchor="middle">ADS 应用层</text>
+  <text class="desc" x="330" y="456" text-anchor="middle">面向具体报表或接口的结果数据，可导出到 OLAP · ads_trade_gmv_1d</text>
+  <line x1="330" y1="470" x2="330" y2="498" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-dw)"/>
+  <rect x="20" y="500" width="620" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="330" y="524" text-anchor="middle">数据应用</text>
+  <text class="desc" x="330" y="546" text-anchor="middle">BI 报表 · 数据服务 API · 运营后台 · 推荐与风控特征</text>
+  <rect x="680" y="230" width="180" height="150" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="770" y="262" text-anchor="middle">DIM 公共维度层</text>
+  <text class="desc" x="770" y="292" text-anchor="middle">dim_user_zip</text>
+  <text class="desc" x="770" y="317" text-anchor="middle">dim_product_full</text>
+  <text class="desc" x="770" y="342" text-anchor="middle">dim_date</text>
+  <path d="M640 170 L770 170 L770 228" fill="none" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-dw)"/>
+  <line x1="680" y1="260" x2="642" y2="260" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-dw)"/>
+  <line x1="680" y1="350" x2="642" y2="350" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-dw)"/>
+</svg>

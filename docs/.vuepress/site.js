@@ -164,13 +164,15 @@ export const GROUPS = [
         ],
     },
     {
-        name: '垂直领域', tagline: 'IoT 与 AI，拓展技术边界', modules: [
+        name: '垂直领域', tagline: 'IoT、AI、大数据与音视频，拓展技术边界', modules: [
             {name: 'IoT', dir: 'iot', interview: ['24_iot'], desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / OTA'},
             {
                 name: 'AI', dir: 'ai', interview: ['25_ai'],
                 desc: 'Spring AI / LangChain4j / RAG / Agent / MCP / 本地模型',
                 subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 工具生态'},
             },
+            {name: '大数据', dir: 'big-data', interview: ['26_bigdata'], desc: '数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 数据治理 / 实时数仓'},
+            {name: '音视频', dir: 'media', interview: ['27_media'], desc: '编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入'},
         ],
     },
 ];

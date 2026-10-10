@@ -1,0 +1,80 @@
+<svg viewBox="0 0 800 354" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <text x="400" y="24" text-anchor="middle" class="title">NAT 穿透：STUN 拿到映射地址后双向打洞，打不通再走 TURN 中继</text>
+
+  <rect x="190" y="44" width="130" height="64" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="255" y="70" text-anchor="middle" class="name">STUN</text>
+  <text x="255" y="90" text-anchor="middle" class="desc">UDP 3478</text>
+
+  <rect x="480" y="44" width="130" height="64" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="545" y="70" text-anchor="middle" class="name">TURN</text>
+  <text x="545" y="90" text-anchor="middle" class="desc">中继端口 49152+</text>
+
+  <rect x="20" y="150" width="130" height="80" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="85" y="182" text-anchor="middle" class="name">主播 A</text>
+  <text x="85" y="204" text-anchor="middle" class="desc">192.168.1.10</text>
+
+  <rect x="190" y="150" width="130" height="80" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="255" y="182" text-anchor="middle" class="name">NAT A</text>
+  <text x="255" y="204" text-anchor="middle" class="desc">203.0.113.5:50000</text>
+
+  <rect x="480" y="150" width="130" height="80" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="545" y="182" text-anchor="middle" class="name">NAT B</text>
+  <text x="545" y="204" text-anchor="middle" class="desc">198.51.100.7:60000</text>
+
+  <rect x="650" y="150" width="130" height="80" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="715" y="182" text-anchor="middle" class="name">观众 B</text>
+  <text x="715" y="204" text-anchor="middle" class="desc">10.0.0.20</text>
+
+  <line x1="152" y1="190" x2="188" y2="190" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr)"/>
+  <line x1="612" y1="190" x2="648" y2="190" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr)"/>
+
+  <line x1="322" y1="190" x2="478" y2="190" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr)"/>
+  <text x="400" y="184" text-anchor="middle" class="lbl">双方同时发包打洞</text>
+  <text x="400" y="208" text-anchor="middle" class="lbl">对称型 NAT 常失败</text>
+
+  <line x1="255" y1="148" x2="255" y2="110" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr)"/>
+  <text x="265" y="134" class="lbl">探测映射地址</text>
+  <line x1="545" y1="148" x2="545" y2="110" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr)"/>
+  <text x="535" y="134" text-anchor="end" class="lbl">中继兜底</text>
+
+  <rect x="20" y="270" width="246" height="64" rx="6" fill="var(--g)" fill-opacity="0.08" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="143" y="296" text-anchor="middle" class="name">host 候选</text>
+  <text x="143" y="316" text-anchor="middle" class="desc">本机网卡地址，同一内网直连</text>
+
+  <rect x="277" y="270" width="246" height="64" rx="6" fill="var(--b)" fill-opacity="0.08" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="400" y="296" text-anchor="middle" class="name">srflx 候选</text>
+  <text x="400" y="316" text-anchor="middle" class="desc">STUN 反射的公网映射，打洞后 P2P</text>
+
+  <rect x="534" y="270" width="246" height="64" rx="6" fill="var(--y)" fill-opacity="0.08" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="657" y="296" text-anchor="middle" class="name">relay 候选</text>
+  <text x="657" y="316" text-anchor="middle" class="desc">TURN 分配的中继地址，必定可达</text>
+</svg>

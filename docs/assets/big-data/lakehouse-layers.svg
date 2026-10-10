@@ -1,0 +1,59 @@
+<svg viewBox="0 0 720 484" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">湖仓分层：存储、格式、目录、引擎彼此解耦</text>
+
+  <rect x="20" y="44" width="680" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="70" text-anchor="middle" class="name">计算与查询引擎</text>
+  <text x="360" y="90" text-anchor="middle" class="desc">Spark 批处理 / Flink 流处理 / Trino 交互查询 / Doris、StarRocks 湖上分析</text>
+
+  <line x1="360" y1="104" x2="360" y2="132" stroke="var(--fg)" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <rect x="20" y="134" width="680" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="360" y="160" text-anchor="middle" class="name">Catalog（目录服务）</text>
+  <text x="360" y="180" text-anchor="middle" class="desc">表名 → 当前元数据位置；原子提交、权限、凭证下发（REST / HMS / Polaris / Gravitino）</text>
+
+  <line x1="360" y1="194" x2="360" y2="222" stroke="var(--fg)" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <rect x="20" y="224" width="680" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="360" y="250" text-anchor="middle" class="name">表格式（Table Format）</text>
+  <text x="360" y="270" text-anchor="middle" class="desc">快照、清单、Schema 与分区演进、ACID（Iceberg / Paimon / Hudi / Delta）</text>
+
+  <line x1="360" y1="284" x2="360" y2="312" stroke="var(--fg)" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <rect x="20" y="314" width="680" height="60" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="360" y="340" text-anchor="middle" class="name">文件格式（File Format）</text>
+  <text x="360" y="360" text-anchor="middle" class="desc">列式文件 + 统计信息（Parquet / ORC），删除文件与索引（Puffin 等）</text>
+
+  <line x1="360" y1="374" x2="360" y2="402" stroke="var(--fg)" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <rect x="20" y="404" width="680" height="60" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="360" y="430" text-anchor="middle" class="name">对象存储 / 分布式文件系统</text>
+  <text x="360" y="450" text-anchor="middle" class="desc">S3 兼容对象存储、HDFS；廉价、海量、无原子重命名</text>
+
+</svg>

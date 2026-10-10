@@ -12,6 +12,7 @@ docs/
 ├── ai/             AI：框架 / RAG / Agent / MCP / API 接入 / 工具
 ├── algorithms/     数据结构与算法
 ├── architecture/   系统架构 / DDD / 幂等 / 访问控制
+├── big-data/       大数据：数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 治理 / 实时数仓
 ├── cache/          缓存：Redis / Caffeine
 ├── cloud-native/   云原生：Linux / Docker / Kubernetes / VPS
 ├── database/       数据库：MySQL / 列存 / 分布式 / 时序 / 文档 / 搜索
@@ -26,6 +27,7 @@ docs/
 ├── iot/            物联网：基础 / 协议 / 开源平台
 ├── java/           Java 语言：语言机制 / IO / 集合 / 并发 / 版本特性
 ├── jvm/            JVM 原理与调优
+├── media/          音视频：编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入
 ├── messaging/      消息队列：Kafka / RocketMQ / RabbitMQ
 ├── microservices/  微服务：概念 / 拆分 / 组件 / 模式
 ├── netty/          IO 模型 / Reactor / 核心组件 / ByteBuf / 编解码与私有协议 / 心跳 / WebSocket / SSE / 生产调优
@@ -79,6 +81,8 @@ docs/
 | 应用安全 | `docs/security/` | 认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任 |
 | IoT | `docs/iot/` | 物联网架构 / 协议 / 开源平台 |
 | AI | `docs/ai/` | Function Calling / Spring AI / LangChain4j / RAG / Agent / MCP / API 接入 / AI 工具 |
+| 大数据 | `docs/big-data/` | 数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP 与数据服务 / 数据治理 / 实时数仓 |
+| 音视频 | `docs/media/` | 编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入 |
 
 ---
 
@@ -93,7 +97,7 @@ docs/
 架构层：  设计模式 → 系统架构 → 业务场景
 研发效能：测试工程 → DevOps → 工程效率
 运维保障：云原生 → 可观测性 → 应用安全
-新兴层：  IoT → AI
+新兴层：  IoT → AI → 大数据 → 音视频
 面试：    interview/ 各专题汇总复习
 ```
 
@@ -114,7 +118,7 @@ docs/
 - 文件夹命名：全小写，多单词使用连字符（kebab-case），如 `cloud-native`、`spring-boot`
 - 图片存放：`docs/assets/<模块名>/`
 - 提示框：带标题的用容器写法 `::: warning 待补充` … `:::`（类型 tip / warning / danger / info）；`> [!tip]` 只能单独成行、不能在同一行写标题，否则不渲染；待补充内容用 `::: warning 待补充`
-- 文章开头只保留「本篇目标 / 前置阅读」引用块；参考资料统一放在文末 `## 参考资料` 小节（位于 `## 小结` 之后、「> 下一篇」导航行之前），避免开头篇幅过大
+- 文章开头（H1 之后）只有两样：一行前置阅读引用 `> 前置阅读：[A](..)、[B](..)`（只放链接，最多 3 个，不加括号说明，没有可省略），以及最多 2 句的引言（是什么 + 本篇讲什么与版本基线）；不写「本篇目标」（讲什么交给 frontmatter `description` 和右侧目录），「某某内容见哪里」的指路句放进对应章节或小结，开头不放提示框；参考资料统一放在文末 `## 参考资料` 小节（位于 `## 小结` 之后、「> 下一篇」导航行之前）
 - 站点部署：GitHub Actions → `.github/workflows/deploy-docs.yml`
 - 规范文件同步：`CLAUDE.md` 与 `AGENTS.md` 内容保持完全一致（AGENTS.md 供其他 AI 编码工具读取），修改其中一个时必须同步更新另一个
 

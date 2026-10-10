@@ -1,0 +1,61 @@
+<svg viewBox="0 0 760 290" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .item { font-size:12px; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-spark-arch" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="380" y="24" text-anchor="middle">Spark 运行架构：Driver 负责计划与调度，Executor 执行 Task</text>
+  <rect x="20" y="44" width="250" height="200" rx="10" fill="var(--bg)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="145" y="66" text-anchor="middle">Driver（运行 main 方法）</text>
+  <rect x="36" y="80" width="218" height="44" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="item" x="145" y="106" text-anchor="middle">SparkSession · 生成执行计划</text>
+  <rect x="36" y="136" width="218" height="44" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="item" x="145" y="162" text-anchor="middle">DAGScheduler · 切分 Stage</text>
+  <rect x="36" y="192" width="218" height="44" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="item" x="145" y="218" text-anchor="middle">TaskScheduler · 派发 Task</text>
+  <rect x="340" y="44" width="400" height="64" rx="10" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="540" y="68" text-anchor="middle">集群管理器</text>
+  <text class="desc" x="540" y="90" text-anchor="middle">YARN / Kubernetes / Standalone，按需启动与回收 Executor</text>
+  <rect x="340" y="150" width="128" height="94" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="404" y="174" text-anchor="middle">Executor 1</text>
+  <text class="desc" x="404" y="198" text-anchor="middle">并行跑 Task</text>
+  <text class="desc" x="404" y="222" text-anchor="middle">缓存与 Shuffle 文件</text>
+  <line x1="404" y1="108" x2="404" y2="148" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-spark-arch)"/>
+  <rect x="476" y="150" width="128" height="94" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="540" y="174" text-anchor="middle">Executor 2</text>
+  <text class="desc" x="540" y="198" text-anchor="middle">并行跑 Task</text>
+  <text class="desc" x="540" y="222" text-anchor="middle">缓存与 Shuffle 文件</text>
+  <line x1="540" y1="108" x2="540" y2="148" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-spark-arch)"/>
+  <rect x="612" y="150" width="128" height="94" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="676" y="174" text-anchor="middle">Executor N</text>
+  <text class="desc" x="676" y="198" text-anchor="middle">并行跑 Task</text>
+  <text class="desc" x="676" y="222" text-anchor="middle">缓存与 Shuffle 文件</text>
+  <line x1="676" y1="108" x2="676" y2="148" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-spark-arch)"/>
+  <line x1="270" y1="76" x2="338" y2="76" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-spark-arch)"/>
+  <text class="desc" x="304" y="70" text-anchor="middle">申请资源</text>
+  <line x1="272" y1="197" x2="338" y2="197" stroke="var(--b)" stroke-width="1.5" marker-start="url(#arrow-spark-arch)" marker-end="url(#arrow-spark-arch)"/>
+  <text class="desc" x="305" y="190" text-anchor="middle">派发 Task</text>
+  <text class="desc" x="305" y="212" text-anchor="middle">回传结果</text>
+  <text class="desc" x="380" y="270" text-anchor="middle">Driver 与每个 Executor 都直接通信（图中只画出一组）；Executor 之间通过 Shuffle 交换数据</text>
+</svg>

@@ -1,0 +1,92 @@
+<svg viewBox="0 0 1010 310" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .sec { font-size:12px; font-weight:700; fill:var(--p); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-bd-rtdw" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="505" y="22" text-anchor="middle">实时数仓链路：埋点 → Kafka → Flink SQL → Paimon 分层 → StarRocks → 查询服务</text>
+
+  <rect x="20" y="60" width="120" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="80" y="86" text-anchor="middle">埋点 SDK</text>
+  <text class="desc" x="80" y="106" text-anchor="middle">App / H5 / 小程序</text>
+  <text class="desc" x="80" y="124" text-anchor="middle">批量上报 · 重试</text>
+  <line x1="140" y1="100" x2="168" y2="100" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-rtdw)"/>
+
+  <rect x="170" y="60" width="120" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="230" y="86" text-anchor="middle">采集网关</text>
+  <text class="desc" x="230" y="106" text-anchor="middle">Spring Boot 4</text>
+  <text class="desc" x="230" y="124" text-anchor="middle">补 server_ts · 校验</text>
+  <line x1="290" y1="100" x2="318" y2="100" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-rtdw)"/>
+
+  <rect x="320" y="60" width="120" height="80" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="380" y="86" text-anchor="middle">Kafka</text>
+  <text class="desc" x="380" y="106" text-anchor="middle">topic app_event</text>
+  <text class="desc" x="380" y="124" text-anchor="middle">key = device_id</text>
+  <line x1="440" y1="100" x2="484" y2="100" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-rtdw)"/>
+
+  <rect x="474" y="36" width="520" height="120" rx="10" fill="none" stroke="var(--g)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text class="sec" x="734" y="54" text-anchor="middle">Paimon 湖仓（s3://mall-lake）· 层间由 Flink 2.2 SQL 流式加工</text>
+
+  <rect x="486" y="66" width="150" height="68" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="561" y="86" text-anchor="middle">ODS</text>
+  <text class="desc" x="561" y="104" text-anchor="middle">ods_app_event_inc</text>
+  <text class="desc" x="561" y="120" text-anchor="middle">追加表 · 原样落地</text>
+  <line x1="636" y1="100" x2="660" y2="100" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-rtdw)"/>
+
+  <rect x="662" y="66" width="150" height="68" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="737" y="86" text-anchor="middle">DWD</text>
+  <text class="desc" x="737" y="104" text-anchor="middle">dwd_traffic_app_event_inc</text>
+  <text class="desc" x="737" y="120" text-anchor="middle">清洗 · first-row 去重</text>
+  <line x1="812" y1="100" x2="836" y2="100" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-rtdw)"/>
+
+  <rect x="838" y="66" width="150" height="68" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="913" y="86" text-anchor="middle">DWS</text>
+  <text class="desc" x="913" y="104" text-anchor="middle">dws_trade_sku_event_1d</text>
+  <text class="desc" x="913" y="120" text-anchor="middle">dws_trade_site_event_1min</text>
+
+  <line x1="913" y1="134" x2="913" y2="208" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-rtdw)"/>
+  <text class="label" x="903" y="186" text-anchor="end">外部 Catalog 读取 · 每分钟刷新</text>
+
+  <rect x="838" y="210" width="150" height="80" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="913" y="236" text-anchor="middle">StarRocks 4.x</text>
+  <text class="desc" x="913" y="256" text-anchor="middle">Paimon 外部 Catalog</text>
+  <text class="desc" x="913" y="274" text-anchor="middle">异步物化视图（ADS）</text>
+  <line x1="838" y1="250" x2="792" y2="250" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-rtdw)"/>
+
+  <rect x="640" y="210" width="150" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="715" y="236" text-anchor="middle">查询服务</text>
+  <text class="desc" x="715" y="256" text-anchor="middle">Spring Boot 4</text>
+  <text class="desc" x="715" y="274" text-anchor="middle">JdbcClient · 本地缓存</text>
+  <line x1="640" y1="250" x2="592" y2="250" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-rtdw)"/>
+
+  <rect x="440" y="210" width="150" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="515" y="236" text-anchor="middle">数据消费方</text>
+  <text class="desc" x="515" y="256" text-anchor="middle">实时大屏 · 运营后台</text>
+  <text class="desc" x="515" y="274" text-anchor="middle">商品排行接口</text>
+
+  <rect x="20" y="210" width="390" height="80" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text class="box-title" x="215" y="236" text-anchor="middle">延迟监控（每层一个观测点）</text>
+  <text class="desc" x="215" y="256" text-anchor="middle">Kafka pendingRecords · checkpoint 时长与失败数</text>
+  <text class="desc" x="215" y="274" text-anchor="middle">Paimon $snapshots · MV 刷新状态 · 新鲜度 Gauge</text>
+</svg>

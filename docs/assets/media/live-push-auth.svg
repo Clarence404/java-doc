@@ -1,0 +1,55 @@
+<svg viewBox="0 0 700 356" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <text x="350" y="24" text-anchor="middle" class="title">推流鉴权：业务服务签发带过期时间的签名地址，源站回调校验</text>
+
+  <rect x="30" y="44" width="160" height="40" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="110" y="69" text-anchor="middle" class="name">主播 App</text>
+  <rect x="270" y="44" width="160" height="40" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="350" y="69" text-anchor="middle" class="name">直播业务服务</text>
+  <rect x="510" y="44" width="160" height="40" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="590" y="69" text-anchor="middle" class="name">源站 SRS</text>
+
+  <line x1="110" y1="84" x2="110" y2="336" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="350" y1="84" x2="350" y2="336" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="590" y1="84" x2="590" y2="336" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 4"/>
+  <line x1="110" y1="122" x2="348" y2="122" stroke="var(--fg)" stroke-width="1.5"  marker-end="url(#arr)"/>
+  <text x="229" y="116" text-anchor="middle" class="lbl">1. 申请开播（登录态）</text>
+  <line x1="350" y1="162" x2="112" y2="162" stroke="var(--fg)" stroke-width="1.5"  marker-end="url(#arr)"/>
+  <text x="231" y="156" text-anchor="middle" class="lbl">2. 返回推流地址 ?expire=&amp;sign=</text>
+  <line x1="110" y1="202" x2="588" y2="202" stroke="var(--fg)" stroke-width="1.5"  marker-end="url(#arr)"/>
+  <text x="349" y="196" text-anchor="middle" class="lbl">3. RTMP 推流，参数原样带上</text>
+  <line x1="590" y1="242" x2="352" y2="242" stroke="var(--fg)" stroke-width="1.5"  marker-end="url(#arr)"/>
+  <text x="471" y="236" text-anchor="middle" class="lbl">4. on_publish 回调</text>
+  <line x1="350" y1="282" x2="588" y2="282" stroke="var(--fg)" stroke-width="1.5"  marker-end="url(#arr)"/>
+  <text x="469" y="276" text-anchor="middle" class="lbl">5. 验签 + 校验房间 → {&quot;code&quot;:0}</text>
+  <line x1="590" y1="322" x2="112" y2="322" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr)"/>
+  <text x="351" y="316" text-anchor="middle" class="lbl">6. 非 0 则源站断开推流</text>
+</svg>

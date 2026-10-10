@@ -1,0 +1,62 @@
+<svg viewBox="0 0 760 280" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .sec { font-size:12px; font-weight:700; fill:var(--p); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-bd-gov-loop" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="380" y="26" text-anchor="middle">数据治理闭环：标准先行，元数据串联，质量与安全守门，度量驱动改进</text>
+
+  <rect x="30" y="50" width="200" height="70" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="130" y="78" text-anchor="middle">1 数据标准</text>
+  <text class="desc" x="130" y="102" text-anchor="middle">命名规范 · 字段标准 · 指标口径</text>
+  <line x1="230" y1="85" x2="278" y2="85" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-gov-loop)"/>
+
+  <rect x="280" y="50" width="200" height="70" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="380" y="78" text-anchor="middle">2 元数据与血缘</text>
+  <text class="desc" x="380" y="102" text-anchor="middle">数据目录 · Owner · OpenLineage</text>
+  <line x1="480" y1="85" x2="528" y2="85" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-gov-loop)"/>
+
+  <rect x="530" y="50" width="200" height="70" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="630" y="78" text-anchor="middle">3 数据质量</text>
+  <text class="desc" x="630" y="102" text-anchor="middle">质量规则 · 调度门禁 · 告警</text>
+  <line x1="630" y1="120" x2="630" y2="188" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-gov-loop)"/>
+
+  <rect x="530" y="190" width="200" height="70" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="630" y="218" text-anchor="middle">4 安全与合规</text>
+  <text class="desc" x="630" y="242" text-anchor="middle">分级分类 · 权限 · 脱敏 · 审计</text>
+  <line x1="530" y1="225" x2="482" y2="225" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-gov-loop)"/>
+
+  <rect x="280" y="190" width="200" height="70" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="380" y="218" text-anchor="middle">5 生命周期与成本</text>
+  <text class="desc" x="380" y="242" text-anchor="middle">冷热分层 · 过期清理 · 无用表下线</text>
+  <line x1="280" y1="225" x2="232" y2="225" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-gov-loop)"/>
+
+  <rect x="30" y="190" width="200" height="70" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="130" y="218" text-anchor="middle">6 度量与改进</text>
+  <text class="desc" x="130" y="242" text-anchor="middle">健康分 · 问题工单 · 定期复盘</text>
+  <line x1="130" y1="190" x2="130" y2="122" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-gov-loop)"/>
+
+  <text class="sec" x="380" y="152" text-anchor="middle">从核心链路（GMV、订单明细）起步，每张表有 Owner</text>
+  <text class="desc" x="380" y="172" text-anchor="middle">问题回流到标准与规则，下一轮覆盖更多表</text>
+</svg>

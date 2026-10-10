@@ -1,0 +1,78 @@
+<svg viewBox="0 0 800 364" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="400" y="24" text-anchor="middle" class="title">WebRTC 建连：信令交换 SDP 与候选，STUN 探测地址，TURN 兜底中继</text>
+
+  <rect x="20" y="44" width="180" height="276" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="110" y="70" text-anchor="middle" class="name">浏览器 A（主叫）</text>
+  <text x="110" y="124" text-anchor="middle" class="desc">getUserMedia 采集</text>
+  <text x="110" y="150" text-anchor="middle" class="desc">RTCPeerConnection</text>
+  <text x="110" y="232" text-anchor="middle" class="desc">ICE 收集与连通性检查</text>
+  <text x="110" y="258" text-anchor="middle" class="desc">DTLS 握手 → SRTP</text>
+
+  <rect x="600" y="44" width="180" height="276" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="690" y="70" text-anchor="middle" class="name">浏览器 B（被叫）</text>
+  <text x="690" y="124" text-anchor="middle" class="desc">getUserMedia 采集</text>
+  <text x="690" y="150" text-anchor="middle" class="desc">RTCPeerConnection</text>
+  <text x="690" y="232" text-anchor="middle" class="desc">ICE 收集与连通性检查</text>
+  <text x="690" y="258" text-anchor="middle" class="desc">DTLS 握手 → SRTP</text>
+
+  <rect x="310" y="44" width="180" height="64" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="400" y="70" text-anchor="middle" class="name">信令服务</text>
+  <text x="400" y="90" text-anchor="middle" class="desc">Spring WebSocket</text>
+
+  <rect x="310" y="150" width="180" height="64" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="400" y="176" text-anchor="middle" class="name">STUN</text>
+  <text x="400" y="196" text-anchor="middle" class="desc">告诉客户端公网映射地址</text>
+
+  <rect x="310" y="256" width="180" height="64" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="400" y="282" text-anchor="middle" class="name">TURN（coturn）</text>
+  <text x="400" y="302" text-anchor="middle" class="desc">直连失败时中继媒体</text>
+
+  <line x1="202" y1="76" x2="308" y2="76" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr)"/>
+  <text x="255" y="70" text-anchor="middle" class="lbl">SDP / 候选</text>
+  <line x1="492" y1="76" x2="598" y2="76" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr)"/>
+  <text x="545" y="70" text-anchor="middle" class="lbl">SDP / 候选</text>
+
+  <line x1="202" y1="182" x2="308" y2="182" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr)"/>
+  <text x="255" y="176" text-anchor="middle" class="lbl">Binding 请求</text>
+  <text x="255" y="200" text-anchor="middle" class="lbl">srflx 地址</text>
+  <line x1="492" y1="182" x2="598" y2="182" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr)"/>
+  <text x="545" y="176" text-anchor="middle" class="lbl">Binding 请求</text>
+  <text x="545" y="200" text-anchor="middle" class="lbl">srflx 地址</text>
+
+  <line x1="202" y1="288" x2="308" y2="288" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr)"/>
+  <text x="255" y="282" text-anchor="middle" class="lbl">SRTP</text>
+  <line x1="492" y1="288" x2="598" y2="288" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr)"/>
+  <text x="545" y="282" text-anchor="middle" class="lbl">SRTP</text>
+
+  <text x="400" y="346" text-anchor="middle" class="desc">ICE 连通性检查成功时，媒体在 A、B 之间直接传输，不经过信令服务与 TURN</text>
+</svg>

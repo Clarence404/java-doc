@@ -1,0 +1,60 @@
+<svg viewBox="0 0 860 290" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .sec { font-size:12px; font-weight:700; fill:var(--p); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-bd-gov-gate" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="430" y="26" text-anchor="middle">调度中的质量门禁：强规则失败阻断下游，弱规则失败只告警</text>
+
+  <rect x="20" y="60" width="220" height="70" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="130" y="88" text-anchor="middle">上游任务</text>
+  <text class="desc" x="130" y="112" text-anchor="middle">产出 dwd_trade_order_detail_inc</text>
+  <line x1="240" y1="95" x2="318" y2="95" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-gov-gate)"/>
+  <text class="label" x="279" y="88" text-anchor="middle">产出</text>
+
+  <rect x="320" y="60" width="220" height="70" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="430" y="88" text-anchor="middle">质量检查任务</text>
+  <text class="desc" x="430" y="112" text-anchor="middle">按规则集逐条执行 SQL 断言</text>
+  <line x1="540" y1="95" x2="618" y2="95" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-gov-gate)"/>
+  <text class="label" x="579" y="88" text-anchor="middle">放行</text>
+
+  <rect x="620" y="60" width="220" height="70" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="730" y="88" text-anchor="middle">下游任务</text>
+  <text class="desc" x="730" y="112" text-anchor="middle">DWS 汇总 / ADS 报表 / 数据服务</text>
+
+  <line x1="325" y1="130" x2="325" y2="188" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-gov-gate)"/>
+  <text class="label" x="317" y="164" text-anchor="end">强规则失败</text>
+  <line x1="535" y1="130" x2="535" y2="188" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-gov-gate)"/>
+  <text class="label" x="543" y="164">弱规则失败</text>
+
+  <rect x="230" y="190" width="190" height="80" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="325" y="216" text-anchor="middle">任务失败，阻断下游</text>
+  <text class="desc" x="325" y="238" text-anchor="middle">电话 / IM 告警 Owner</text>
+  <text class="desc" x="325" y="256" text-anchor="middle">修复数据后重跑检查</text>
+
+  <rect x="440" y="190" width="190" height="80" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="535" y="216" text-anchor="middle">任务成功，记录问题</text>
+  <text class="desc" x="535" y="238" text-anchor="middle">IM 告警 · 生成问题单</text>
+  <text class="desc" x="535" y="256" text-anchor="middle">下游照常运行</text>
+</svg>
