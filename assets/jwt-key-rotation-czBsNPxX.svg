@@ -1,0 +1,70 @@
+<svg viewBox="0 0 770 274" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .lane { font-size:12px; font-weight:700; fill:var(--p); }
+  </style>
+  <defs>
+    <marker id="arrow-jwt-key" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="385" y="26" text-anchor="middle">签名密钥轮换：kid + JWKS</text>
+
+  <text class="lane" x="20" y="54">公钥分发</text>
+  <rect x="20" y="64" width="222" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="131" y="88" text-anchor="middle">授权服务器</text>
+  <text class="desc" x="131" y="110" text-anchor="middle">私钥在 KMS，JWS 头写入 kid</text>
+
+  <rect x="274" y="64" width="222" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="385" y="88" text-anchor="middle">JWKS 端点</text>
+  <text class="desc" x="385" y="110" text-anchor="middle">/.well-known/jwks.json，只含公钥</text>
+
+  <rect x="528" y="64" width="222" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="639" y="88" text-anchor="middle">资源服务</text>
+  <text class="desc" x="639" y="110" text-anchor="middle">缓存 JWKS，按 kid 选公钥验签</text>
+
+  <line x1="242" y1="96" x2="272" y2="96" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-jwt-key)"/>
+  <line x1="496" y1="96" x2="526" y2="96" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-jwt-key)"/>
+
+  <text class="lane" x="20" y="164">轮换四步</text>
+  <rect x="20" y="174" width="160" height="80" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="100" y="198" text-anchor="middle">1 发布新公钥</text>
+  <text class="desc" x="100" y="218" text-anchor="middle">JWKS = {k1, k2}</text>
+  <text class="desc" x="100" y="236" text-anchor="middle">仍用 k1 签发</text>
+
+  <rect x="210" y="174" width="160" height="80" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="290" y="198" text-anchor="middle">2 切换签发</text>
+  <text class="desc" x="290" y="218" text-anchor="middle">新 Token 用 k2 签名</text>
+  <text class="desc" x="290" y="236" text-anchor="middle">k1 只用于验签</text>
+
+  <rect x="400" y="174" width="160" height="80" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="480" y="198" text-anchor="middle">3 等旧 Token 过期</text>
+  <text class="desc" x="480" y="218" text-anchor="middle">至少等最长 Token TTL</text>
+  <text class="desc" x="480" y="236" text-anchor="middle">再加 JWKS 缓存 TTL</text>
+
+  <rect x="590" y="174" width="160" height="80" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="670" y="198" text-anchor="middle">4 下线旧钥</text>
+  <text class="desc" x="670" y="218" text-anchor="middle">JWKS = {k2}</text>
+  <text class="desc" x="670" y="236" text-anchor="middle">销毁 k1 私钥</text>
+
+  <line x1="180" y1="214" x2="208" y2="214" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-jwt-key)"/>
+  <line x1="370" y1="214" x2="398" y2="214" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-jwt-key)"/>
+  <line x1="560" y1="214" x2="588" y2="214" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-jwt-key)"/>
+</svg>

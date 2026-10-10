@@ -1,0 +1,66 @@
+<svg viewBox="0 0 800 344" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .lane { font-size:12px; font-weight:700; fill:var(--p); }
+  </style>
+  <defs>
+    <marker id="arrow-sec-sign" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="400" y="26" text-anchor="middle">HMAC 签名与防重放：客户端签名，服务端三步校验</text>
+  <rect x="20" y="50" width="240" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="140" y="76" text-anchor="middle">1 构造规范串</text>
+  <text class="desc" x="140" y="96" text-anchor="middle">方法 + 路径 + 排序后的 query</text>
+  <text class="desc" x="140" y="112" text-anchor="middle">+ ts + nonce + SHA-256(body)</text>
+  <rect x="280" y="50" width="240" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="400" y="76" text-anchor="middle">2 HMAC-SHA256</text>
+  <text class="desc" x="400" y="96" text-anchor="middle">用 secret 对规范串签名</text>
+  <text class="desc" x="400" y="112" text-anchor="middle">结果转十六进制</text>
+  <rect x="540" y="50" width="240" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="660" y="76" text-anchor="middle">3 发送请求</text>
+  <text class="desc" x="660" y="96" text-anchor="middle">签名放 X-Signature 头</text>
+  <text class="desc" x="660" y="112" text-anchor="middle">ts、nonce 一并放头里</text>
+  <line x1="260" y1="90" x2="278" y2="90" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-sign)"/>
+  <line x1="520" y1="90" x2="538" y2="90" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-sign)"/>
+  <line x1="660" y1="130" x2="660" y2="162" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-sign)"/>
+  <rect x="20" y="164" width="760" height="44" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="desc" x="400" y="191" text-anchor="middle">HTTP 请求：X-Access-Key、X-Timestamp、X-Nonce、X-Signature 四个头 + 原始 body</text>
+  <line x1="107" y1="208" x2="107" y2="242" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-sign)"/>
+  <rect x="20" y="244" width="175" height="80" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="107.5" y="270" text-anchor="middle">4 时间窗校验</text>
+  <text class="desc" x="107.5" y="290" text-anchor="middle">|now − ts| ≤ 300 s</text>
+  <text class="desc" x="107.5" y="306" text-anchor="middle">超出窗口直接拒绝</text>
+  <rect x="215" y="244" width="175" height="80" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="302.5" y="270" text-anchor="middle">5 重算签名</text>
+  <text class="desc" x="302.5" y="290" text-anchor="middle">按 access key 取 secret</text>
+  <text class="desc" x="302.5" y="306" text-anchor="middle">MessageDigest.isEqual 比较</text>
+  <rect x="410" y="244" width="175" height="80" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="497.5" y="270" text-anchor="middle">6 nonce 去重</text>
+  <text class="desc" x="497.5" y="290" text-anchor="middle">Redis SET NX EX 600</text>
+  <text class="desc" x="497.5" y="306" text-anchor="middle">已存在即判定重放</text>
+  <rect x="605" y="244" width="175" height="80" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="692.5" y="270" text-anchor="middle">7 放行</text>
+  <text class="desc" x="692.5" y="290" text-anchor="middle">进入业务处理</text>
+  <text class="desc" x="692.5" y="306" text-anchor="middle">任一步失败返回 401</text>
+  <line x1="195" y1="284" x2="213" y2="284" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-sign)"/>
+  <line x1="390" y1="284" x2="408" y2="284" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-sign)"/>
+  <line x1="585" y1="284" x2="603" y2="284" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-sign)"/>
+</svg>

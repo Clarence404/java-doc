@@ -1,0 +1,69 @@
+<svg viewBox="0 0 810 282" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .lane { font-size:12px; font-weight:700; fill:var(--p); }
+  </style>
+  <defs>
+    <marker id="arrow-sec-envelope" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="405" y="26" text-anchor="middle">信封加密：主密钥不出 KMS，数据密钥加密后随密文存放</text>
+  <text class="lane" x="20" y="50">加密</text>
+  <rect x="20" y="60" width="170" height="80" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="105" y="86" text-anchor="middle">KMS GenerateDataKey</text>
+  <text class="desc" x="105" y="106" text-anchor="middle">返回明文 DEK</text>
+  <text class="desc" x="105" y="122" text-anchor="middle">和 CMK 加密后的 DEK</text>
+  <rect x="220" y="60" width="170" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="305" y="86" text-anchor="middle">应用内存</text>
+  <text class="desc" x="305" y="106" text-anchor="middle">明文 DEK 加密数据</text>
+  <text class="desc" x="305" y="122" text-anchor="middle">AES-256-GCM</text>
+  <rect x="420" y="60" width="170" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="505" y="86" text-anchor="middle">丢弃明文 DEK</text>
+  <text class="desc" x="505" y="106" text-anchor="middle">只保留加密后的 DEK</text>
+  <text class="desc" x="505" y="122" text-anchor="middle">用完即从内存清除</text>
+  <rect x="620" y="60" width="170" height="80" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="705" y="86" text-anchor="middle">落库</text>
+  <text class="desc" x="705" y="106" text-anchor="middle">密文 + IV</text>
+  <text class="desc" x="705" y="122" text-anchor="middle">+ 加密后的 DEK</text>
+  <line x1="190" y1="100" x2="218" y2="100" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-envelope)"/>
+  <line x1="390" y1="100" x2="418" y2="100" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-envelope)"/>
+  <line x1="590" y1="100" x2="618" y2="100" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-envelope)"/>
+  <text class="lane" x="20" y="172">解密</text>
+  <rect x="20" y="182" width="170" height="80" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="105" y="208" text-anchor="middle">读出记录</text>
+  <text class="desc" x="105" y="228" text-anchor="middle">取出密文</text>
+  <text class="desc" x="105" y="244" text-anchor="middle">和加密后的 DEK</text>
+  <rect x="220" y="182" width="170" height="80" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="305" y="208" text-anchor="middle">KMS Decrypt</text>
+  <text class="desc" x="305" y="228" text-anchor="middle">用 CMK 解开 DEK</text>
+  <text class="desc" x="305" y="244" text-anchor="middle">鉴权 + 审计日志</text>
+  <rect x="420" y="182" width="170" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="505" y="208" text-anchor="middle">应用内存</text>
+  <text class="desc" x="505" y="228" text-anchor="middle">明文 DEK 解密数据</text>
+  <text class="desc" x="505" y="244" text-anchor="middle">可短时缓存 DEK</text>
+  <rect x="620" y="182" width="170" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="705" y="208" text-anchor="middle">返回明文</text>
+  <text class="desc" x="705" y="228" text-anchor="middle">交给业务使用</text>
+  <text class="desc" x="705" y="244" text-anchor="middle">不写日志</text>
+  <line x1="190" y1="222" x2="218" y2="222" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-envelope)"/>
+  <line x1="390" y1="222" x2="418" y2="222" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-envelope)"/>
+  <line x1="590" y1="222" x2="618" y2="222" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-envelope)"/>
+</svg>

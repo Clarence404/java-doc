@@ -1,0 +1,65 @@
+<svg viewBox="0 0 864 266" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .lane { font-size:12px; font-weight:700; fill:var(--p); }
+  </style>
+  <defs>
+    <marker id="arrow-sec-keylife" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="432" y="26" text-anchor="middle">密钥生命周期与轮换重叠期</text>
+  <rect x="20" y="50" width="92" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="66" y="76" text-anchor="middle">生成</text>
+  <text class="desc" x="66" y="96" text-anchor="middle">CSPRNG 或 HSM</text>
+  <rect x="142" y="50" width="92" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="188" y="76" text-anchor="middle">存储</text>
+  <text class="desc" x="188" y="96" text-anchor="middle">KMS / Vault</text>
+  <rect x="264" y="50" width="92" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="310" y="76" text-anchor="middle">分发</text>
+  <text class="desc" x="310" y="96" text-anchor="middle">按身份授权</text>
+  <rect x="386" y="50" width="92" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="432" y="76" text-anchor="middle">使用</text>
+  <text class="desc" x="432" y="96" text-anchor="middle">最小权限</text>
+  <rect x="508" y="50" width="92" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="554" y="76" text-anchor="middle">轮换</text>
+  <text class="desc" x="554" y="96" text-anchor="middle">定期或泄露时</text>
+  <rect x="630" y="50" width="92" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="676" y="76" text-anchor="middle">撤销</text>
+  <text class="desc" x="676" y="96" text-anchor="middle">停止加密</text>
+  <rect x="752" y="50" width="92" height="64" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="798" y="76" text-anchor="middle">销毁</text>
+  <text class="desc" x="798" y="96" text-anchor="middle">不可恢复</text>
+  <line x1="112" y1="82" x2="140" y2="82" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-keylife)"/>
+  <line x1="234" y1="82" x2="262" y2="82" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-keylife)"/>
+  <line x1="356" y1="82" x2="384" y2="82" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-keylife)"/>
+  <line x1="478" y1="82" x2="506" y2="82" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-keylife)"/>
+  <line x1="600" y1="82" x2="628" y2="82" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-keylife)"/>
+  <line x1="722" y1="82" x2="750" y2="82" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-sec-keylife)"/>
+  <text class="lane" x="20" y="150">轮换时新旧密钥并存</text>
+  <rect x="20" y="164" width="380" height="36" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="desc" x="210" y="187" text-anchor="middle">v1：加密 + 解密</text>
+  <rect x="410" y="164" width="290" height="36" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="desc" x="555" y="187" text-anchor="middle">v1：只解密（重叠期，存量数据重加密）</text>
+  <rect x="710" y="164" width="134" height="36" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="desc" x="777" y="187" text-anchor="middle">v1：销毁</text>
+  <rect x="410" y="210" width="434" height="36" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="desc" x="627" y="233" text-anchor="middle">v2：加密 + 解密（轮换后的新版本）</text>
+</svg>

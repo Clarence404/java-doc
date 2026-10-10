@@ -1,0 +1,56 @@
+<svg viewBox="0 0 760 656" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171; }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0.5 L6,3.5 L0,6.5 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <rect width="760" height="656" fill="var(--bg)"/>
+  <text x="380" y="22" font-size="14" font-weight="700" text-anchor="middle" fill="var(--fg)">OIDC 登录流程（授权码 + PKCE）</text>
+  <rect x="35" y="36" width="150" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="110.0" y="60" font-size="12" font-weight="700" text-anchor="middle" fill="var(--p)">浏览器</text>
+  <text x="110.0" y="76" font-size="10" text-anchor="middle" fill="var(--p)">End-User</text>
+  <rect x="305" y="36" width="150" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380.0" y="60" font-size="12" font-weight="700" text-anchor="middle" fill="var(--b)">应用后端</text>
+  <text x="380.0" y="76" font-size="10" text-anchor="middle" fill="var(--b)">Relying Party</text>
+  <rect x="575" y="36" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="650.0" y="60" font-size="12" font-weight="700" text-anchor="middle" fill="var(--g)">认证中心</text>
+  <text x="650.0" y="76" font-size="10" text-anchor="middle" fill="var(--g)">OpenID Provider</text>
+  <line x1="110" y1="96" x2="110" y2="630" stroke="var(--p)" stroke-width="1" stroke-dasharray="4,4" opacity="0.45"/>
+  <line x1="380" y1="96" x2="380" y2="630" stroke="var(--b)" stroke-width="1" stroke-dasharray="4,4" opacity="0.45"/>
+  <line x1="650" y1="96" x2="650" y2="630" stroke="var(--g)" stroke-width="1" stroke-dasharray="4,4" opacity="0.45"/>
+  <text x="245.0" y="146" font-size="10" text-anchor="middle" fill="var(--muted)">① 访问受保护页面（未登录）</text>
+  <line x1="110" y1="152" x2="380" y2="152" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="245.0" y="191" font-size="10" text-anchor="middle" fill="var(--muted)">② 302 到 /authorize：scope=openid</text>
+  <text x="245.0" y="204" font-size="10" text-anchor="middle" fill="var(--muted)">state、nonce、code_challenge</text>
+  <line x1="380" y1="210" x2="110" y2="210" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="380.0" y="262" font-size="10" text-anchor="middle" fill="var(--muted)">③ 浏览器跟随跳转，用户在认证中心登录（已有会话则跳过）</text>
+  <line x1="110" y1="268" x2="650" y2="268" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="380.0" y="320" font-size="10" text-anchor="middle" fill="var(--muted)">④ 302 回 redirect_uri，携带 code + state</text>
+  <line x1="650" y1="326" x2="110" y2="326" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="245.0" y="378" font-size="10" text-anchor="middle" fill="var(--muted)">⑤ 带 code 访问回调地址，RP 核对 state</text>
+  <line x1="110" y1="384" x2="380" y2="384" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="515.0" y="423" font-size="10" text-anchor="middle" fill="var(--muted)">⑥ POST /token（后端直连）</text>
+  <text x="515.0" y="436" font-size="10" text-anchor="middle" fill="var(--muted)">code + code_verifier + 客户端认证</text>
+  <line x1="380" y1="442" x2="650" y2="442" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="515.0" y="494" font-size="10" text-anchor="middle" fill="var(--muted)">⑦ id_token + access_token（+ refresh_token）</text>
+  <line x1="650" y1="500" x2="380" y2="500" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="250" y="516" width="260" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380" y="540" font-size="10" text-anchor="middle" fill="var(--fg)">⑧ 用 JWKS 公钥验签，校验 iss / aud / exp / nonce</text>
+  <text x="380" y="558" font-size="10" text-anchor="middle" fill="var(--fg)">通过后建立本地会话，登录完成</text>
+  <text x="515.0" y="612" font-size="10" text-anchor="middle" fill="var(--muted)">⑨ 可选：GET /userinfo（Bearer access_token）</text>
+  <line x1="380" y1="618" x2="650" y2="618" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>
