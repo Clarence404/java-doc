@@ -1,0 +1,57 @@
+<svg viewBox="0 0 760 230" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .item { font-size:12px; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-spark-dag" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="380" y="24" text-anchor="middle">一次 write 触发的 Job：在 Shuffle 处切分为两个 Stage</text>
+  <rect x="20" y="44" width="340" height="140" rx="10" fill="var(--bg)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="190" y="66" text-anchor="middle">Stage 1：窄依赖，同一 Task 内流水线执行</text>
+  <rect x="34" y="90" width="86" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="77" y="114" text-anchor="middle">读取 ODS</text>
+  <text class="desc" x="77" y="136" text-anchor="middle">dt 分区裁剪</text>
+  <rect x="148" y="90" width="86" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="191" y="114" text-anchor="middle">filter</text>
+  <text class="desc" x="191" y="136" text-anchor="middle">PAID 订单</text>
+  <rect x="262" y="90" width="86" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="305" y="114" text-anchor="middle">广播 Join</text>
+  <text class="desc" x="305" y="136" text-anchor="middle">关联类目维表</text>
+  <line x1="120" y1="120" x2="146" y2="120" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-spark-dag)"/>
+  <line x1="234" y1="120" x2="260" y2="120" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-spark-dag)"/>
+  <text class="desc" x="190" y="170" text-anchor="middle">数据不落盘、不走网络</text>
+  <line x1="360" y1="114" x2="418" y2="114" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arrow-spark-dag)"/>
+  <text class="desc" x="389" y="106" text-anchor="middle">Shuffle</text>
+  <text class="desc" x="389" y="130" text-anchor="middle">宽依赖</text>
+  <rect x="420" y="44" width="320" height="140" rx="10" fill="var(--bg)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="580" y="66" text-anchor="middle">Stage 2：按 key 重分区后聚合并写出</text>
+  <rect x="436" y="90" width="130" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="501" y="114" text-anchor="middle">聚合</text>
+  <text class="desc" x="501" y="136" text-anchor="middle">groupBy 省份、类目</text>
+  <rect x="594" y="90" width="130" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="659" y="114" text-anchor="middle">写出</text>
+  <text class="desc" x="659" y="136" text-anchor="middle">partitionBy dt</text>
+  <line x1="566" y1="120" x2="592" y2="120" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-spark-dag)"/>
+  <text class="desc" x="580" y="170" text-anchor="middle">Task 数 = Shuffle 分区数（AQE 可合并）</text>
+  <text class="desc" x="380" y="210" text-anchor="middle">DAGScheduler 从 write 往回看，每遇到一次 Exchange（Shuffle）就切出一个新 Stage，每个分区对应一个 Task</text>
+</svg>

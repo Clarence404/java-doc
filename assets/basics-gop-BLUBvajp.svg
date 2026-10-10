@@ -1,0 +1,87 @@
+<svg viewBox="0 0 760 264" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:12px; fill:var(--fg); }
+  </style>
+  <defs>
+    <marker id="arrow-media-gop" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="380" y="24" text-anchor="middle">I / P / B 帧与 GOP：B 帧让解码顺序不同于显示顺序</text>
+  <line x1="130" y1="52" x2="660" y2="52" stroke="var(--y)" stroke-width="1.5"/>
+  <line x1="130" y1="52" x2="130" y2="58" stroke="var(--y)" stroke-width="1.5"/>
+  <line x1="660" y1="52" x2="660" y2="58" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="label" x="395" y="44" text-anchor="middle">一个 GOP（10 帧，从 I 帧到下一个 I 帧之前）</text>
+  <text class="desc" x="692" y="44" text-anchor="middle">下个 GOP</text>
+  <text class="label" x="20" y="89">显示顺序 PTS</text>
+  <rect x="130" y="62" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.8"/>
+  <text class="box-title" x="152" y="89" text-anchor="middle">I0</text>
+  <rect x="184" y="62" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="box-title" x="206" y="89" text-anchor="middle">B1</text>
+  <rect x="238" y="62" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="box-title" x="260" y="89" text-anchor="middle">B2</text>
+  <rect x="292" y="62" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.8"/>
+  <text class="box-title" x="314" y="89" text-anchor="middle">P3</text>
+  <rect x="346" y="62" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="box-title" x="368" y="89" text-anchor="middle">B4</text>
+  <rect x="400" y="62" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="box-title" x="422" y="89" text-anchor="middle">B5</text>
+  <rect x="454" y="62" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.8"/>
+  <text class="box-title" x="476" y="89" text-anchor="middle">P6</text>
+  <rect x="508" y="62" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="box-title" x="530" y="89" text-anchor="middle">B7</text>
+  <rect x="562" y="62" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="box-title" x="584" y="89" text-anchor="middle">B8</text>
+  <rect x="616" y="62" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.8"/>
+  <text class="box-title" x="638" y="89" text-anchor="middle">P9</text>
+  <rect x="670" y="62" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.8" stroke-dasharray="4 3"/>
+  <text class="box-title" x="692" y="89" text-anchor="middle">I10</text>
+  <text class="label" x="20" y="163">解码顺序 DTS</text>
+  <rect x="130" y="136" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.8"/>
+  <text class="box-title" x="152" y="163" text-anchor="middle">I0</text>
+  <rect x="184" y="136" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.8"/>
+  <text class="box-title" x="206" y="163" text-anchor="middle">P3</text>
+  <rect x="238" y="136" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="box-title" x="260" y="163" text-anchor="middle">B1</text>
+  <rect x="292" y="136" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="box-title" x="314" y="163" text-anchor="middle">B2</text>
+  <rect x="346" y="136" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.8"/>
+  <text class="box-title" x="368" y="163" text-anchor="middle">P6</text>
+  <rect x="400" y="136" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="box-title" x="422" y="163" text-anchor="middle">B4</text>
+  <rect x="454" y="136" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="box-title" x="476" y="163" text-anchor="middle">B5</text>
+  <rect x="508" y="136" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.8"/>
+  <text class="box-title" x="530" y="163" text-anchor="middle">P9</text>
+  <rect x="562" y="136" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="box-title" x="584" y="163" text-anchor="middle">B7</text>
+  <rect x="616" y="136" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="box-title" x="638" y="163" text-anchor="middle">B8</text>
+  <rect x="670" y="136" width="44" height="44" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.8" stroke-dasharray="4 3"/>
+  <text class="box-title" x="692" y="163" text-anchor="middle">I10</text>
+  <text class="desc" x="380" y="124" text-anchor="middle">编码器先发 P3，解码器拿到 P3 后才能还原 B1、B2</text>
+  <rect x="130" y="204" width="12" height="12" rx="2" fill="none" stroke="var(--r)" stroke-width="1.8"/>
+  <text class="label" x="148" y="215">I 帧：完整画面，可独立解码</text>
+  <rect x="340" y="204" width="12" height="12" rx="2" fill="none" stroke="var(--b)" stroke-width="1.8"/>
+  <text class="label" x="358" y="215">P 帧：只参考前面的帧</text>
+  <rect x="550" y="204" width="12" height="12" rx="2" fill="none" stroke="var(--g)" stroke-width="1.8"/>
+  <text class="label" x="568" y="215">B 帧：参考前后两个方向</text>
+  <text class="desc" x="380" y="244" text-anchor="middle">帧下标即显示顺序；直播低延迟场景通常关闭 B 帧（-bf 0），解码顺序与显示顺序一致</text>
+</svg>

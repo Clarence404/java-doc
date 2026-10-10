@@ -1,0 +1,74 @@
+<svg viewBox="0 0 914 288" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <text x="457" y="24" text-anchor="middle" class="title">点播处理流水线：直传 → 事件驱动编排 → 并行处理 → 鉴权分发</text>
+  <rect x="20" y="124" width="130" height="64" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="85" y="150" text-anchor="middle" class="name">客户端</text>
+  <text x="85" y="170" text-anchor="middle" class="desc">分片直传</text>
+  <rect x="206" y="124" width="130" height="64" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="271" y="150" text-anchor="middle" class="name">对象存储</text>
+  <text x="271" y="170" text-anchor="middle" class="desc">source/ 原始文件</text>
+  <rect x="392" y="44" width="130" height="224" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="457" y="70" text-anchor="middle" class="name">编排服务（Java）</text>
+  <text x="457" y="100" text-anchor="middle" class="desc">消费 MQ 任务</text>
+  <text x="457" y="128" text-anchor="middle" class="desc">任务状态机</text>
+  <text x="457" y="156" text-anchor="middle" class="desc">失败重试 / 补偿</text>
+  <text x="457" y="184" text-anchor="middle" class="desc">转码回调入库</text>
+  <text x="457" y="212" text-anchor="middle" class="desc">审核结果上架</text>
+  <rect x="578" y="44" width="130" height="64" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="643" y="70" text-anchor="middle" class="name">转码</text>
+  <text x="643" y="90" text-anchor="middle" class="desc">多码率 HLS + AES</text>
+  <rect x="578" y="124" width="130" height="64" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="643" y="150" text-anchor="middle" class="name">截帧</text>
+  <text x="643" y="170" text-anchor="middle" class="desc">封面 / 雪碧图</text>
+  <rect x="578" y="204" width="130" height="64" rx="6" fill="var(--r)" fill-opacity="0.08" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="643" y="230" text-anchor="middle" class="name">内容审核</text>
+  <text x="643" y="250" text-anchor="middle" class="desc">第三方异步回调</text>
+  <rect x="764" y="44" width="130" height="224" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="829" y="70" text-anchor="middle" class="name">分发与播放</text>
+  <text x="829" y="100" text-anchor="middle" class="desc">hls/ 产物与封面</text>
+  <text x="829" y="128" text-anchor="middle" class="desc">CDN 签名 URL</text>
+  <text x="829" y="156" text-anchor="middle" class="desc">密钥服务鉴权</text>
+  <text x="829" y="184" text-anchor="middle" class="desc">播放器 hls.js</text>
+  <text x="829" y="212" text-anchor="middle" class="desc">审核通过才可见</text>
+  <line x1="150" y1="156" x2="204" y2="156" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="178" y="150" text-anchor="middle" class="lbl">预签名</text>
+  <line x1="336" y1="156" x2="390" y2="156" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="364" y="150" text-anchor="middle" class="lbl">事件</text>
+  <line x1="522" y1="76" x2="576" y2="76" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="550" y="70" text-anchor="middle" class="lbl">任务</text>
+  <line x1="522" y1="156" x2="576" y2="156" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="550" y="150" text-anchor="middle" class="lbl">任务</text>
+  <line x1="522" y1="236" x2="576" y2="236" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="550" y="230" text-anchor="middle" class="lbl">提交</text>
+  <line x1="708" y1="76" x2="762" y2="76" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="736" y="70" text-anchor="middle" class="lbl">产物</text>
+  <line x1="708" y1="156" x2="762" y2="156" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="736" y="150" text-anchor="middle" class="lbl">图片</text>
+  <line x1="708" y1="236" x2="762" y2="236" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="736" y="230" text-anchor="middle" class="lbl">结论</text>
+</svg>

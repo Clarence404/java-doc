@@ -1,0 +1,68 @@
+<svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .sec { font-size:12px; font-weight:700; fill:var(--p); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-bd-lk" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="440" y="26" text-anchor="middle">Lambda 与 Kappa：两套链路合并 vs 一套流处理加重放</text>
+  <text class="sec" x="20" y="56">Lambda：批处理层保证准确，速度层保证实时，服务层合并两份结果</text>
+  <rect x="20" y="110" width="130" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="85" y="134" text-anchor="middle">数据源</text>
+  <text class="desc" x="85" y="156" text-anchor="middle">业务库 / 日志</text>
+  <line x1="150" y1="125" x2="208" y2="101" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-lk)"/>
+  <line x1="150" y1="155" x2="208" y2="179" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-lk)"/>
+  <rect x="210" y="70" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="310" y="94" text-anchor="middle">批处理层</text>
+  <text class="desc" x="310" y="116" text-anchor="middle">全量数据 → Spark 每日重算</text>
+  <rect x="210" y="150" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="310" y="174" text-anchor="middle">速度层</text>
+  <text class="desc" x="310" y="196" text-anchor="middle">Kafka → Flink 增量计算</text>
+  <line x1="410" y1="101" x2="468" y2="125" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-lk)"/>
+  <line x1="410" y1="179" x2="468" y2="155" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-lk)"/>
+  <rect x="470" y="110" width="170" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="555" y="134" text-anchor="middle">服务层</text>
+  <text class="desc" x="555" y="156" text-anchor="middle">批视图 + 实时视图合并</text>
+  <line x1="640" y1="140" x2="698" y2="140" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-lk)"/>
+  <rect x="700" y="110" width="160" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="780" y="134" text-anchor="middle">查询</text>
+  <text class="desc" x="780" y="156" text-anchor="middle">报表 / 接口</text>
+  <text class="sec" x="20" y="256">Kappa：只有一条流处理链路，需要重算时从日志起点重放</text>
+  <rect x="20" y="280" width="130" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="85" y="304" text-anchor="middle">数据源</text>
+  <text class="desc" x="85" y="326" text-anchor="middle">业务库 / 日志</text>
+  <line x1="150" y1="310" x2="208" y2="310" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-lk)"/>
+  <rect x="210" y="280" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="310" y="304" text-anchor="middle">日志存储</text>
+  <text class="desc" x="310" y="326" text-anchor="middle">Kafka 长保留 · 可重放</text>
+  <line x1="410" y1="310" x2="468" y2="310" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-lk)"/>
+  <rect x="470" y="280" width="170" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="555" y="304" text-anchor="middle">流处理</text>
+  <text class="desc" x="555" y="326" text-anchor="middle">Flink 一套代码</text>
+  <line x1="640" y1="310" x2="698" y2="310" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-lk)"/>
+  <rect x="700" y="280" width="160" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="780" y="304" text-anchor="middle">服务层</text>
+  <text class="desc" x="780" y="326" text-anchor="middle">OLAP / 湖仓表</text>
+  <path d="M555 340 C555 380, 310 380, 310 342" fill="none" stroke="var(--b)" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrow-bd-lk)"/>
+  <text class="label" x="432" y="398" text-anchor="middle">重算：启动新版本作业，从最早位点重新消费</text>
+</svg>

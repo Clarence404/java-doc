@@ -1,0 +1,71 @@
+<svg viewBox="0 0 760 454" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="a-origin-edge" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+    <marker id="a-origin-edge-s" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="380" y="24" text-anchor="middle">源站 + 边缘 + CDN：推流进源站，播放按协议分发</text>
+  <rect x="150" y="44" width="220" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="260" y="70" text-anchor="middle">主播端</text>
+  <text class="desc" x="260" y="90" text-anchor="middle">OBS / App：RTMP、SRT、WHIP</text>
+  <line x1="260" y1="104" x2="260" y2="148" stroke="var(--b)" stroke-width="1.5" marker-end="url(#a-origin-edge)"/>
+  <rect x="20" y="150" width="480" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="260" y="176" text-anchor="middle">源站集群（Origin）</text>
+  <text class="desc" x="260" y="196" text-anchor="middle">接收推流、转封装、DVR 录制、HLS 切片</text>
+  <line x1="94" y1="214" x2="94" y2="258" stroke="var(--b)" stroke-width="1.5" marker-end="url(#a-origin-edge)"/>
+  <line x1="260" y1="214" x2="260" y2="258" stroke="var(--b)" stroke-width="1.5" marker-end="url(#a-origin-edge)"/>
+  <line x1="426" y1="214" x2="426" y2="258" stroke="var(--b)" stroke-width="1.5" marker-end="url(#a-origin-edge)"/>
+  <rect x="20" y="260" width="148" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="94" y="286" text-anchor="middle">边缘节点 A</text>
+  <text class="desc" x="94" y="306" text-anchor="middle">回源拉流，观众共享一路</text>
+  <rect x="186" y="260" width="148" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="260" y="286" text-anchor="middle">边缘节点 B</text>
+  <text class="desc" x="260" y="306" text-anchor="middle">源站故障切换下一个</text>
+  <rect x="352" y="260" width="148" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="426" y="286" text-anchor="middle">CDN</text>
+  <text class="desc" x="426" y="306" text-anchor="middle">缓存 m3u8 与切片</text>
+  <line x1="94" y1="324" x2="94" y2="368" stroke="var(--b)" stroke-width="1.5" marker-end="url(#a-origin-edge)"/>
+  <line x1="260" y1="324" x2="260" y2="368" stroke="var(--b)" stroke-width="1.5" marker-end="url(#a-origin-edge)"/>
+  <line x1="426" y1="324" x2="426" y2="368" stroke="var(--b)" stroke-width="1.5" marker-end="url(#a-origin-edge)"/>
+  <rect x="20" y="370" width="148" height="64" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="94" y="396" text-anchor="middle">观众</text>
+  <text class="desc" x="94" y="416" text-anchor="middle">HTTP-FLV 秒级延迟</text>
+  <rect x="186" y="370" width="148" height="64" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="260" y="396" text-anchor="middle">观众</text>
+  <text class="desc" x="260" y="416" text-anchor="middle">WebRTC（WHEP）</text>
+  <rect x="352" y="370" width="148" height="64" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="426" y="396" text-anchor="middle">观众</text>
+  <text class="desc" x="426" y="416" text-anchor="middle">HLS 浏览器与 App</text>
+  <rect x="580" y="150" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="660" y="176" text-anchor="middle">直播业务服务</text>
+  <text class="desc" x="660" y="196" text-anchor="middle">Spring Boot</text>
+  <line x1="502" y1="182" x2="578" y2="182" stroke="var(--b)" stroke-width="1.5" marker-start="url(#a-origin-edge-s)" marker-end="url(#a-origin-edge)"/>
+  <text class="desc" x="540" y="177" text-anchor="middle">http_hooks</text>
+  <text class="desc" x="540" y="197" text-anchor="middle">HTTP API</text>
+  <line x1="660" y1="214" x2="660" y2="258" stroke="var(--b)" stroke-width="1.5" marker-end="url(#a-origin-edge)"/>
+  <rect x="580" y="260" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="660" y="286" text-anchor="middle">对象存储</text>
+  <text class="desc" x="660" y="306" text-anchor="middle">on_dvr 后异步归档</text>
+</svg>

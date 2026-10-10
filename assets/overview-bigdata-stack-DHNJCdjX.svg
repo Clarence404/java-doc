@@ -1,0 +1,63 @@
+<svg viewBox="0 0 880 490" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-bd-stack" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="440" y="26" text-anchor="middle">大数据技术栈：采集 → 存储 → 计算 → 服务，调度与治理贯穿全程</text>
+
+  <rect x="20" y="50" width="700" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="370" y="74" text-anchor="middle">数据源</text>
+  <text class="desc" x="370" y="96" text-anchor="middle">业务库 MySQL · 埋点 / 服务日志 · Kafka 消息 · 第三方文件</text>
+  <line x1="370" y1="110" x2="370" y2="138" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-stack)"/>
+
+  <rect x="20" y="140" width="700" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="370" y="164" text-anchor="middle">数据集成</text>
+  <text class="desc" x="370" y="186" text-anchor="middle">批量同步：DataX · SeaTunnel　|　实时同步：Flink CDC · Debezium · Kafka Connect</text>
+  <line x1="370" y1="200" x2="370" y2="228" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-stack)"/>
+
+  <rect x="20" y="230" width="700" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="370" y="254" text-anchor="middle">存储：数据湖与湖仓</text>
+  <text class="desc" x="370" y="276" text-anchor="middle">对象存储 S3 / OSS / MinIO 或 HDFS ＋ 表格式 Iceberg · Paimon · Hudi · Hive 表</text>
+  <line x1="370" y1="290" x2="370" y2="318" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-stack)"/>
+
+  <rect x="20" y="320" width="700" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="370" y="344" text-anchor="middle">计算引擎</text>
+  <text class="desc" x="370" y="366" text-anchor="middle">批处理：Spark 4.x · Hive　|　流处理：Flink 2.x　|　资源：YARN 或 Kubernetes</text>
+  <line x1="370" y1="380" x2="370" y2="408" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bd-stack)"/>
+
+  <rect x="20" y="410" width="700" height="60" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="370" y="434" text-anchor="middle">查询与数据服务</text>
+  <text class="desc" x="370" y="456" text-anchor="middle">OLAP：Doris · StarRocks · Trino · ClickHouse　|　数据服务 API · BI 报表</text>
+
+  <rect x="736" y="50" width="124" height="200" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text class="box-title" x="798" y="90" text-anchor="middle">任务调度</text>
+  <text class="desc" x="798" y="125" text-anchor="middle">DolphinScheduler</text>
+  <text class="desc" x="798" y="150" text-anchor="middle">Airflow</text>
+  <text class="desc" x="798" y="175" text-anchor="middle">依赖 · 重试 · 补数</text>
+
+  <rect x="736" y="270" width="124" height="200" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text class="box-title" x="798" y="310" text-anchor="middle">数据治理</text>
+  <text class="desc" x="798" y="345" text-anchor="middle">元数据 · 血缘</text>
+  <text class="desc" x="798" y="370" text-anchor="middle">数据质量</text>
+  <text class="desc" x="798" y="395" text-anchor="middle">权限 · 安全</text>
+</svg>

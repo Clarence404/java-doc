@@ -1,0 +1,69 @@
+<svg viewBox="0 0 880 340" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .sec { font-size:12px; font-weight:700; fill:var(--p); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-bd-ss" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="440" y="26" text-anchor="middle">星型模型 vs 雪花模型</text>
+  <rect x="10" y="44" width="425" height="276" rx="10" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="sec" x="222" y="66" text-anchor="middle">星型：维度表直接挂在事实表上</text>
+  <rect x="170" y="84" width="120" height="40" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="desc" x="230" y="109" text-anchor="middle">dim_user</text>
+  <rect x="20" y="174" width="100" height="40" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="desc" x="70" y="199" text-anchor="middle">dim_product</text>
+  <rect x="165" y="164" width="130" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="230" y="188" text-anchor="middle">事实表</text>
+  <text class="desc" x="230" y="210" text-anchor="middle">fct_order_detail</text>
+  <rect x="340" y="174" width="90" height="40" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="desc" x="385" y="199" text-anchor="middle">dim_date</text>
+  <rect x="170" y="264" width="120" height="40" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="desc" x="230" y="289" text-anchor="middle">dim_shop</text>
+  <line x1="230" y1="124" x2="230" y2="164" stroke="var(--muted)" stroke-width="1.5"/>
+  <line x1="120" y1="194" x2="165" y2="194" stroke="var(--muted)" stroke-width="1.5"/>
+  <line x1="295" y1="194" x2="340" y2="194" stroke="var(--muted)" stroke-width="1.5"/>
+  <line x1="230" y1="224" x2="230" y2="264" stroke="var(--muted)" stroke-width="1.5"/>
+  <rect x="445" y="44" width="425" height="276" rx="10" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="sec" x="657" y="66" text-anchor="middle">雪花：维度表再拆出子维度表</text>
+  <rect x="580" y="84" width="120" height="40" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="desc" x="640" y="109" text-anchor="middle">dim_user</text>
+  <rect x="740" y="84" width="120" height="40" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="desc" x="800" y="109" text-anchor="middle">dim_region</text>
+  <rect x="455" y="174" width="90" height="40" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="desc" x="500" y="199" text-anchor="middle">dim_date</text>
+  <rect x="575" y="164" width="130" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="640" y="188" text-anchor="middle">事实表</text>
+  <text class="desc" x="640" y="210" text-anchor="middle">fct_order_detail</text>
+  <rect x="740" y="174" width="110" height="40" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="desc" x="795" y="199" text-anchor="middle">dim_product</text>
+  <rect x="580" y="264" width="120" height="40" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="desc" x="640" y="289" text-anchor="middle">dim_shop</text>
+  <rect x="735" y="264" width="120" height="40" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="desc" x="795" y="289" text-anchor="middle">dim_category</text>
+  <line x1="640" y1="124" x2="640" y2="164" stroke="var(--muted)" stroke-width="1.5"/>
+  <line x1="700" y1="104" x2="740" y2="104" stroke="var(--muted)" stroke-width="1.5"/>
+  <line x1="545" y1="194" x2="575" y2="194" stroke="var(--muted)" stroke-width="1.5"/>
+  <line x1="705" y1="194" x2="740" y2="194" stroke="var(--muted)" stroke-width="1.5"/>
+  <line x1="640" y1="224" x2="640" y2="264" stroke="var(--muted)" stroke-width="1.5"/>
+  <line x1="795" y1="214" x2="795" y2="264" stroke="var(--muted)" stroke-width="1.5"/>
+</svg>

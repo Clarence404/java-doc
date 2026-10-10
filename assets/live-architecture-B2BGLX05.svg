@@ -1,0 +1,83 @@
+<svg viewBox="0 0 980 424" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <text x="490" y="30" text-anchor="middle" class="title">直播系统架构：媒体流走流媒体集群与 CDN，Java 服务负责控制面</text>
+  <rect x="20" y="60" width="130" height="64" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="85" y="86" text-anchor="middle" class="name">主播端</text>
+  <text x="85" y="106" text-anchor="middle" class="desc">OBS / App 推流</text>
+  <rect x="220" y="60" width="150" height="64" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="295" y="86" text-anchor="middle" class="name">接入源站</text>
+  <text x="295" y="106" text-anchor="middle" class="desc">SRS 集群</text>
+  <rect x="440" y="60" width="150" height="64" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="515" y="86" text-anchor="middle" class="name">转码集群</text>
+  <text x="515" y="106" text-anchor="middle" class="desc">FFmpeg 多码率</text>
+  <rect x="660" y="60" width="120" height="64" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="720" y="86" text-anchor="middle" class="name">CDN 边缘</text>
+  <text x="720" y="106" text-anchor="middle" class="desc">HLS / FLV 分发</text>
+  <rect x="850" y="60" width="110" height="64" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="905" y="86" text-anchor="middle" class="name">观众播放器</text>
+  <text x="905" y="106" text-anchor="middle" class="desc">按网速切码率</text>
+  <line x1="150" y1="92" x2="218" y2="92" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="185" y="86" text-anchor="middle" class="lbl">RTMP / SRT</text>
+  <line x1="370" y1="92" x2="438" y2="92" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="405" y="86" text-anchor="middle" class="lbl">拉流</text>
+  <line x1="590" y1="92" x2="658" y2="92" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="625" y="86" text-anchor="middle" class="lbl">回源</text>
+  <line x1="780" y1="92" x2="848" y2="92" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="815" y="86" text-anchor="middle" class="lbl">就近拉流</text>
+  <rect x="20" y="200" width="350" height="64" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="195" y="226" text-anchor="middle" class="name">直播业务服务（Java）</text>
+  <text x="195" y="246" text-anchor="middle" class="desc">开播、推流鉴权回调、房间状态、录制任务</text>
+  <rect x="440" y="200" width="150" height="64" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="515" y="226" text-anchor="middle" class="name">对象存储</text>
+  <text x="515" y="246" text-anchor="middle" class="desc">录制切片 / 回放</text>
+  <rect x="660" y="200" width="300" height="64" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="810" y="226" text-anchor="middle" class="name">流质量监控</text>
+  <text x="810" y="246" text-anchor="middle" class="desc">码率、帧率、断流 → 主备切换</text>
+  <line x1="85" y1="200" x2="85" y2="126" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="95" y="166" class="lbl">签发推流地址</text>
+  <line x1="295" y1="124" x2="295" y2="198" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="305" y="166" class="lbl">on_publish 回调</text>
+  <line x1="515" y1="124" x2="515" y2="198" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="525" y="166" class="lbl">录制 HLS</text>
+  <line x1="720" y1="124" x2="720" y2="198" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="730" y="166" class="lbl">质量日志</text>
+  <rect x="20" y="340" width="300" height="64" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="170" y="366" text-anchor="middle" class="name">弹幕 / 礼物</text>
+  <text x="170" y="386" text-anchor="middle" class="desc">IM 长连接，按房间广播</text>
+  <rect x="340" y="340" width="300" height="64" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="490" y="366" text-anchor="middle" class="name">在线人数 / 热门榜</text>
+  <text x="490" y="386" text-anchor="middle" class="desc">Redis 计数与排序</text>
+  <rect x="660" y="340" width="300" height="64" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="810" y="366" text-anchor="middle" class="name">连麦</text>
+  <text x="810" y="386" text-anchor="middle" class="desc">WebRTC SFU 合流后转推源站</text>
+  <line x1="170" y1="264" x2="170" y2="338" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="180" y="306" class="lbl">房间事件</text>
+</svg>
