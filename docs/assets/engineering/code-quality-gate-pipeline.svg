@@ -1,0 +1,81 @@
+<svg viewBox="0 0 760 380" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-cq-gate" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="380" y="26" text-anchor="middle">PR 流水线中的质量门禁：mvn verify + Sonar 分析</text>
+
+  <rect x="20" y="46" width="116" height="80" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="78" y="70" text-anchor="middle">validate</text>
+  <text class="desc" x="78" y="92" text-anchor="middle">Spotless check</text>
+  <text class="desc" x="78" y="110" text-anchor="middle">Checkstyle</text>
+
+  <rect x="171" y="46" width="116" height="80" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="229" y="70" text-anchor="middle">compile</text>
+  <text class="desc" x="229" y="92" text-anchor="middle">javac</text>
+  <text class="desc" x="229" y="110" text-anchor="middle">Error Prone（可选）</text>
+
+  <rect x="322" y="46" width="116" height="80" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="380" y="70" text-anchor="middle">test</text>
+  <text class="desc" x="380" y="92" text-anchor="middle">JUnit / ArchUnit</text>
+  <text class="desc" x="380" y="110" text-anchor="middle">JaCoCo 采集</text>
+
+  <rect x="473" y="46" width="116" height="80" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="531" y="70" text-anchor="middle">verify</text>
+  <text class="desc" x="531" y="92" text-anchor="middle">SpotBugs / PMD</text>
+  <text class="desc" x="531" y="110" text-anchor="middle">JaCoCo 报告</text>
+
+  <rect x="624" y="46" width="116" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="682" y="70" text-anchor="middle">Sonar 分析</text>
+  <text class="desc" x="682" y="92" text-anchor="middle">上传问题与覆盖率</text>
+  <text class="desc" x="682" y="110" text-anchor="middle">等待门禁结果</text>
+
+  <line x1="136" y1="86" x2="169" y2="86" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cq-gate)"/>
+  <line x1="287" y1="86" x2="320" y2="86" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cq-gate)"/>
+  <line x1="438" y1="86" x2="471" y2="86" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cq-gate)"/>
+  <line x1="589" y1="86" x2="622" y2="86" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cq-gate)"/>
+
+  <line x1="682" y1="126" x2="682" y2="164" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cq-gate)"/>
+
+  <rect x="20" y="166" width="720" height="90" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="380" y="190" text-anchor="middle">Quality Gate（Sonar way，只看新代码）</text>
+  <text class="desc" x="196" y="214" text-anchor="middle">新问题数 = 0</text>
+  <text class="desc" x="564" y="214" text-anchor="middle">新增安全热点全部评审</text>
+  <text class="desc" x="196" y="236" text-anchor="middle">新代码覆盖率 ≥ 80%</text>
+  <text class="desc" x="564" y="236" text-anchor="middle">新代码重复率 ≤ 3%</text>
+
+  <line x1="196" y1="256" x2="196" y2="294" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cq-gate)"/>
+  <text class="label" x="206" y="280">通过</text>
+  <line x1="564" y1="256" x2="564" y2="294" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cq-gate)"/>
+  <text class="label" x="574" y="280">失败</text>
+
+  <rect x="20" y="296" width="352" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="196" y="320" text-anchor="middle">检查项变绿，允许合并 PR</text>
+  <text class="desc" x="196" y="342" text-anchor="middle">合并后在 main 上再跑一次，更新基线</text>
+
+  <rect x="388" y="296" width="352" height="64" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="564" y="320" text-anchor="middle">Job 失败，分支保护阻断合并</text>
+  <text class="desc" x="564" y="342" text-anchor="middle">在 Sonar 的 PR 视图里逐条修复后重新推送</text>
+</svg>

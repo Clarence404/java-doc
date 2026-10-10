@@ -141,8 +141,8 @@ export const GROUPS = [
     {
         name: '研发效能', tagline: '测试工程、DevOps 与工程效率', modules: [
             {name: '测试工程', dir: 'testing', desc: '测试分层 / 单元与集成测试 / 性能测试（部分篇章仍在编写）', stub: '编写中'},
-            {name: 'DevOps', dir: 'devops', desc: 'Git 工作流 / CI/CD / Code Review / 发布策略'},
-            {name: '工程效率', dir: 'engineering', desc: '构建工具 / 开发工具 / 代码质量 / Arthas 诊断 / API 规范'},
+            {name: 'DevOps', dir: 'devops', desc: 'Git 工作流 / CI/CD / Code Review / 开发规范 / 发布策略 / 制品与环境'},
+            {name: '工程效率', dir: 'engineering', desc: '构建工具 / 开发工具 / 代码质量 / Arthas 诊断 / 依赖治理 / API 文档与规范'},
         ],
     },
     {
@@ -154,7 +154,7 @@ export const GROUPS = [
                     {text: '操作系统', from: 1},
                     {text: '虚拟化', from: 3},
                     {text: '容器编排', from: 5},
-                    {text: 'IaC 自动化', from: 11},
+                    {text: 'IaC 基建', from: 11},
                     {text: '云平台', from: 13},
                 ],
             },

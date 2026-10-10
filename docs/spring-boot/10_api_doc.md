@@ -33,7 +33,7 @@ springdoc-openapi 是社区项目，不属于 Spring 官方，但已是 Spring B
 ```xml
 <properties>
     <!-- 按 springdoc 官网兼容表选择与 Boot 版本对应的最新补丁版本 -->
-    <springdoc.version>3.0.3</springdoc.version>
+    <springdoc.version>3.1.1</springdoc.version>
 </properties>
 
 <dependency>

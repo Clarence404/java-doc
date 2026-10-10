@@ -1,0 +1,49 @@
+<svg viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-bom" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="400" y="26" text-anchor="middle">Maven 版本来源的优先级（自上而下由高到低）</text>
+
+  <rect x="90" y="56" width="690" height="44" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="106" y="83">依赖上直接写的 version</text>
+  <text class="desc" x="770" y="83" text-anchor="end">只对这条直接依赖生效，覆盖 dependencyManagement</text>
+  <rect x="90" y="112" width="690" height="44" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="106" y="139">本 POM 显式的 dependencyManagement</text>
+  <text class="desc" x="770" y="139" text-anchor="end">含父 POM 继承来的条目，压过 import 的 BOM</text>
+  <rect x="90" y="168" width="690" height="44" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="106" y="195">先声明的 import BOM</text>
+  <text class="desc" x="770" y="195" text-anchor="end">两个 BOM 管理同一构件时，先 import 的生效</text>
+  <rect x="90" y="224" width="690" height="44" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="106" y="251">后声明的 import BOM</text>
+  <text class="desc" x="770" y="251" text-anchor="end">只补充前面没有管理到的构件</text>
+  <rect x="90" y="280" width="690" height="44" rx="8" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text class="box-title" x="106" y="307">传递依赖的调解结果</text>
+  <text class="desc" x="770" y="307" text-anchor="end">都没管到时，才按最短路径 / 先声明决定</text>
+
+  <text class="label" x="50" y="46" text-anchor="middle">高</text>
+  <line x1="50" y1="58" x2="50" y2="322" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-bom)"/>
+  <text class="label" x="50" y="342" text-anchor="middle">低</text>
+</svg>

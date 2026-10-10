@@ -1,0 +1,63 @@
+<svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .label { font-size: 14px; font-weight: 700; }
+    .sub { fill: var(--muted); font-size: 12px; }
+    .lane { fill: var(--muted); font-size: 12px; }
+    .card { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+    .box-b { fill: var(--b); fill-opacity: 0.10; stroke: var(--b); stroke-width: 1.5; }
+    .box-g { fill: var(--g); fill-opacity: 0.10; stroke: var(--g); stroke-width: 1.5; }
+    .box-p { fill: var(--p); fill-opacity: 0.10; stroke: var(--p); stroke-width: 1.5; }
+    .arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; marker-end: url(#arr); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text class="title" x="380" y="28" text-anchor="middle">DevOps 生命周期与本模块覆盖的环节</text>
+  <rect class="box-p" x="15" y="50" width="160" height="70" rx="8"/>
+  <text class="label" x="95" y="78" text-anchor="middle">计划</text>
+  <text class="sub" x="95" y="100" text-anchor="middle">Jira / Issues</text>
+  <rect class="box-b" x="205" y="50" width="160" height="70" rx="8"/>
+  <text class="label" x="285" y="78" text-anchor="middle">编码</text>
+  <text class="sub" x="285" y="100" text-anchor="middle">Git 工作流 / 开发规范</text>
+  <rect class="box-b" x="395" y="50" width="160" height="70" rx="8"/>
+  <text class="label" x="475" y="78" text-anchor="middle">构建</text>
+  <text class="sub" x="475" y="100" text-anchor="middle">Maven / Gradle</text>
+  <rect class="box-b" x="585" y="50" width="160" height="70" rx="8"/>
+  <text class="label" x="665" y="78" text-anchor="middle">测试与评审</text>
+  <text class="sub" x="665" y="100" text-anchor="middle">CI / Code Review</text>
+  <rect class="box-g" x="585" y="170" width="160" height="70" rx="8"/>
+  <text class="label" x="665" y="198" text-anchor="middle">发布</text>
+  <text class="sub" x="665" y="220" text-anchor="middle">制品库 / 版本号</text>
+  <rect class="box-g" x="395" y="170" width="160" height="70" rx="8"/>
+  <text class="label" x="475" y="198" text-anchor="middle">部署</text>
+  <text class="sub" x="475" y="220" text-anchor="middle">K8s / Argo CD / 灰度</text>
+  <rect class="box-p" x="205" y="170" width="160" height="70" rx="8"/>
+  <text class="label" x="285" y="198" text-anchor="middle">运营</text>
+  <text class="sub" x="285" y="220" text-anchor="middle">Prometheus / OTel</text>
+  <line class="arrow" x1="175" y1="85" x2="203" y2="85"/>
+  <line class="arrow" x1="365" y1="85" x2="393" y2="85"/>
+  <line class="arrow" x1="555" y1="85" x2="583" y2="85"/>
+  <line class="arrow" x1="665" y1="120" x2="665" y2="168"/>
+  <line class="arrow" x1="585" y1="205" x2="557" y2="205"/>
+  <line class="arrow" x1="395" y1="205" x2="367" y2="205"/>
+  <path class="arrow" d="M205,205 H95 V122"/>
+  <text class="sub" x="150" y="198" text-anchor="middle">度量与反馈</text>
+</svg>

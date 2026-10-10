@@ -424,7 +424,7 @@ sudo systemctl restart docker
 
 ### 3、私有仓库与离线环境
 
-- **Harbor**：CNCF 毕业项目，提供项目级权限、漏洞扫描、镜像签名、复制和对 Docker Hub 的代理缓存，是企业私有仓库的常用选择；制品版本与保留策略见 [制品管理](/devops/6_artifact_version)
+- **Harbor**：CNCF 毕业项目，提供项目级权限、漏洞扫描、镜像签名、复制和对 Docker Hub 的代理缓存，是企业私有仓库的常用选择；制品版本与保留策略见 [制品与版本管理](/devops/6_artifact_version)
 - **完全离线**：在能联网的机器上 `docker save`，拷贝后 `docker load`（见第三节），或把镜像推送到内网 Harbor 后统一分发
 
 ---

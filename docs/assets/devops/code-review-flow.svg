@@ -1,0 +1,70 @@
+<svg viewBox="0 0 760 226" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .tag { font-size: 13px; font-weight: 700; }
+    .muted { fill: var(--muted); }
+    .box-p { fill: var(--p); fill-opacity: 0.10; stroke: var(--p); stroke-width: 1.5; }
+    .box-b { fill: var(--b); fill-opacity: 0.10; stroke: var(--b); stroke-width: 1.5; }
+    .box-y { fill: var(--y); fill-opacity: 0.10; stroke: var(--y); stroke-width: 1.5; stroke-dasharray: 5 3; }
+    .box-g { fill: var(--g); fill-opacity: 0.10; stroke: var(--g); stroke-width: 1.5; }
+    .t-p { fill: var(--p); } .t-b { fill: var(--b); } .t-y { fill: var(--y); } .t-g { fill: var(--g); }
+    .arrow { stroke: var(--fg); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    .loop { stroke: var(--r); stroke-width: 1.5; stroke-dasharray: 5 3; fill: none; marker-end: url(#arrowR); }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arrowR" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="380" y="24" text-anchor="middle">PR 从提交到合并：先机器、后人工</text>
+
+  <rect class="box-p" x="20" y="40" width="160" height="114" rx="8"/>
+  <text class="tag t-p" x="100" y="66" text-anchor="middle">作者自检</text>
+  <text x="100" y="92" text-anchor="middle">拆分到 400 行以内</text>
+  <text x="100" y="114" text-anchor="middle">按模板写清 PR 描述</text>
+  <text x="100" y="136" text-anchor="middle">本地构建与测试通过</text>
+
+  <rect class="box-b" x="210" y="40" width="160" height="114" rx="8"/>
+  <text class="tag t-b" x="290" y="66" text-anchor="middle">自动检查（CI）</text>
+  <text x="290" y="92" text-anchor="middle">构建与单元测试</text>
+  <text x="290" y="114" text-anchor="middle">格式与静态分析</text>
+  <text x="290" y="136" text-anchor="middle">CodeQL / 密钥扫描</text>
+
+  <rect class="box-y" x="400" y="40" width="160" height="114" rx="8"/>
+  <text class="tag t-y" x="480" y="66" text-anchor="middle">AI 预审（可选）</text>
+  <text x="480" y="92" text-anchor="middle">机器人留评论</text>
+  <text x="480" y="114" text-anchor="middle">只作参考线索</text>
+  <text x="480" y="136" text-anchor="middle">默认不计入批准</text>
+
+  <rect class="box-g" x="590" y="40" width="150" height="114" rx="8"/>
+  <text class="tag t-g" x="665" y="66" text-anchor="middle">人工 Review</text>
+  <text x="665" y="92" text-anchor="middle">Code Owner 批准</text>
+  <text x="665" y="114" text-anchor="middle">阻塞评论全部解决</text>
+  <text x="665" y="136" text-anchor="middle">Squash 合入主干</text>
+
+  <line class="arrow" x1="180" y1="97" x2="208" y2="97"/>
+  <line class="arrow" x1="370" y1="97" x2="398" y2="97"/>
+  <line class="arrow" x1="560" y1="97" x2="588" y2="97"/>
+
+  <path class="loop" d="M665,154 L665,184 L100,184 L100,156"/>
+  <text class="muted" x="382" y="202" text-anchor="middle">需要修改：作者推送新提交 → 自动检查重跑 → 旧批准失效后重新 Review</text>
+</svg>

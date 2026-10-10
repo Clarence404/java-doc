@@ -1,0 +1,88 @@
+<svg viewBox="0 0 770 446" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .lane { font-size:12px; font-weight:700; fill:var(--p); }
+  </style>
+  <defs>
+    <marker id="arrow-cicd-pipe" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="385" y="26" text-anchor="middle">一条主干流水线：PR 把关、main 构建一次、tag 晋级同一个镜像</text>
+
+  <text class="lane" x="20" y="54">阶段一：Pull Request（每次推送都跑，只读权限）</text>
+  <rect x="20" y="64" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="100" y="90" text-anchor="middle">编译 + 测试</text>
+  <text class="desc" x="100" y="112" text-anchor="middle">mvnw verify · JDK 矩阵</text>
+  <rect x="210" y="64" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="290" y="90" text-anchor="middle">质量门禁</text>
+  <text class="desc" x="290" y="112" text-anchor="middle">覆盖率 · Sonar 新代码</text>
+  <rect x="400" y="64" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="480" y="90" text-anchor="middle">安全扫描</text>
+  <text class="desc" x="480" y="112" text-anchor="middle">CodeQL · 依赖漏洞</text>
+  <rect x="590" y="64" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="670" y="90" text-anchor="middle">评审通过</text>
+  <text class="desc" x="670" y="112" text-anchor="middle">必需检查全绿才可合并</text>
+  <line x1="180" y1="96" x2="208" y2="96" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
+  <line x1="370" y1="96" x2="398" y2="96" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
+  <line x1="560" y1="96" x2="588" y2="96" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
+
+  <line x1="670" y1="128" x2="670" y2="176" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
+  <text class="label" x="678" y="157">合并</text>
+  <text class="lane" x="20" y="166">阶段二：合并到 main（自动，按提交 SHA 出制品）</text>
+  <rect x="590" y="178" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="670" y="204" text-anchor="middle">构建镜像</text>
+  <text class="desc" x="670" y="226" text-anchor="middle">标签 sha-&lt;commit&gt;</text>
+  <rect x="400" y="178" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="480" y="204" text-anchor="middle">推送 + 来源证明</text>
+  <text class="desc" x="480" y="226" text-anchor="middle">记录 digest · SLSA</text>
+  <rect x="210" y="178" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="290" y="204" text-anchor="middle">部署 staging</text>
+  <text class="desc" x="290" y="226" text-anchor="middle">按 digest 滚动更新</text>
+  <rect x="20" y="178" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="100" y="204" text-anchor="middle">发布后验证</text>
+  <text class="desc" x="100" y="226" text-anchor="middle">冒烟 · 错误率</text>
+  <line x1="590" y1="210" x2="562" y2="210" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
+  <line x1="400" y1="210" x2="372" y2="210" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
+  <line x1="210" y1="210" x2="182" y2="210" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
+
+  <line x1="100" y1="242" x2="100" y2="290" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
+  <text class="label" x="108" y="271">打 tag v*</text>
+  <text class="lane" x="750" y="280" text-anchor="end">阶段三：发布（同一 digest 晋级，人工审批）</text>
+  <rect x="20" y="292" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="100" y="318" text-anchor="middle">解析 digest</text>
+  <text class="desc" x="100" y="340" text-anchor="middle">不重新构建，只加版本标签</text>
+  <rect x="210" y="292" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="290" y="318" text-anchor="middle">环境审批</text>
+  <text class="desc" x="290" y="340" text-anchor="middle">production 保护规则</text>
+  <rect x="400" y="292" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="480" y="318" text-anchor="middle">部署生产</text>
+  <text class="desc" x="480" y="340" text-anchor="middle">滚动 / 金丝雀</text>
+  <rect x="590" y="292" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="670" y="318" text-anchor="middle">验证或回滚</text>
+  <text class="desc" x="670" y="340" text-anchor="middle">rollout undo</text>
+  <line x1="180" y1="324" x2="208" y2="324" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
+  <line x1="370" y1="324" x2="398" y2="324" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
+  <line x1="560" y1="324" x2="588" y2="324" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
+
+  <rect x="20" y="386" width="730" height="40" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="desc" x="385" y="411" text-anchor="middle">贯穿全程：最小权限 permissions · OIDC 短期凭证 · concurrency 防并发部署 · 依赖与镜像缓存 · Action 固定到提交 SHA</text>
+</svg>

@@ -1,0 +1,50 @@
+<svg viewBox="0 0 850 158" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-env-promotion" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="425" y="26" text-anchor="middle">环境晋级：同一个镜像 digest 从 dev 走到 prod</text>
+  <rect x="20" y="50" width="150" height="88" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="95" y="76" text-anchor="middle">dev</text>
+  <text class="desc" x="95" y="98" text-anchor="middle">PR 预览 / 本地联调</text>
+  <text class="desc" x="95" y="120" text-anchor="middle">命名空间 dev</text>
+  <line x1="170" y1="94" x2="238" y2="94" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-env-promotion)"/>
+  <text class="label" x="204" y="88" text-anchor="middle">CI 全绿</text>
+  <rect x="240" y="50" width="150" height="88" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="315" y="76" text-anchor="middle">test</text>
+  <text class="desc" x="315" y="98" text-anchor="middle">合并 main 自动部署</text>
+  <text class="desc" x="315" y="120" text-anchor="middle">命名空间 test</text>
+  <line x1="390" y1="94" x2="458" y2="94" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-env-promotion)"/>
+  <text class="label" x="424" y="88" text-anchor="middle">QA 通过</text>
+  <rect x="460" y="50" width="150" height="88" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="535" y="76" text-anchor="middle">staging</text>
+  <text class="desc" x="535" y="98" text-anchor="middle">打 tag v* 自动部署</text>
+  <text class="desc" x="535" y="120" text-anchor="middle">独立集群或节点池</text>
+  <line x1="610" y1="94" x2="678" y2="94" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-env-promotion)"/>
+  <text class="label" x="644" y="88" text-anchor="middle">人工审批</text>
+  <rect x="680" y="50" width="150" height="88" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="755" y="76" text-anchor="middle">prod</text>
+  <text class="desc" x="755" y="98" text-anchor="middle">审批后部署</text>
+  <text class="desc" x="755" y="120" text-anchor="middle">独立生产集群</text>
+</svg>

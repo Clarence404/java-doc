@@ -1,0 +1,57 @@
+<svg viewBox="0 0 860 310" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+    .t { font-weight: 700; font-size: 14px; }
+    .s { font-size: 12px; fill: var(--muted); }
+    .arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; marker-end: url(#arr); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect width="860" height="310" fill="var(--bg)" rx="8"/>
+  <rect x="20" y="80" width="170" height="60" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="105" y="105" text-anchor="middle" class="t" fill="var(--b)">代码优先</text>
+  <text x="105" y="124" text-anchor="middle" class="s">注解 + springdoc 导出</text>
+  <rect x="20" y="170" width="170" height="60" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="105" y="195" text-anchor="middle" class="t" fill="var(--p)">契约优先</text>
+  <text x="105" y="214" text-anchor="middle" class="s">手写 openapi.yaml</text>
+  <rect x="240" y="123" width="150" height="64" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="315" y="148" text-anchor="middle" class="t" fill="var(--y)">OpenAPI 3.1 规范</text>
+  <text x="315" y="167" text-anchor="middle" class="s">api/openapi.yaml 入库</text>
+  <rect x="440" y="115" width="170" height="80" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="525" y="140" text-anchor="middle" class="t" fill="var(--r)">CI 门禁</text>
+  <text x="525" y="160" text-anchor="middle" class="s">lint 规则检查</text>
+  <text x="525" y="179" text-anchor="middle" class="s">破坏性变更检测</text>
+  <rect x="660" y="20" width="180" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="750" y="45" text-anchor="middle" class="t" fill="var(--g)">HTML 文档</text>
+  <text x="750" y="64" text-anchor="middle" class="s">Redocly build-docs</text>
+  <rect x="660" y="90" width="180" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="750" y="115" text-anchor="middle" class="t" fill="var(--g)">客户端 SDK</text>
+  <text x="750" y="134" text-anchor="middle" class="s">openapi-generator</text>
+  <rect x="660" y="160" width="180" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="750" y="185" text-anchor="middle" class="t" fill="var(--g)">Mock 服务</text>
+  <text x="750" y="204" text-anchor="middle" class="s">Prism</text>
+  <rect x="660" y="230" width="180" height="60" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="750" y="255" text-anchor="middle" class="t" fill="var(--g)">契约测试</text>
+  <text x="750" y="274" text-anchor="middle" class="s">联调与回归</text>
+  <line x1="190" y1="122" x2="238" y2="144" class="arrow"/>
+  <line x1="190" y1="188" x2="238" y2="166" class="arrow"/>
+  <line x1="390" y1="155" x2="438" y2="155" class="arrow"/>
+  <line x1="610" y1="140" x2="658" y2="55" class="arrow"/>
+  <line x1="610" y1="150" x2="658" y2="120" class="arrow"/>
+  <line x1="610" y1="160" x2="658" y2="190" class="arrow"/>
+  <line x1="610" y1="170" x2="658" y2="255" class="arrow"/>
+</svg>
