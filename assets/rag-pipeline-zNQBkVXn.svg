@@ -1,0 +1,80 @@
+<svg viewBox="0 0 730 440" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0 0 L7 3.5 L0 7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="730" height="440" fill="var(--bg)"/>
+  <text x="365" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">RAG 两阶段流程</text>
+
+  <text x="20" y="50" font-size="12" font-weight="600" fill="var(--p)">索引阶段（离线 / 增量执行）</text>
+  <rect x="20" y="60" width="150" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="95" y="86" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">文档加载</text>
+  <text x="95" y="106" text-anchor="middle" font-size="11" fill="var(--fg)">PDF、Wiki、数据库</text>
+  <rect x="200" y="60" width="150" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="275" y="86" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">切块</text>
+  <text x="275" y="106" text-anchor="middle" font-size="11" fill="var(--fg)">按结构或递归切分</text>
+  <rect x="380" y="60" width="150" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="455" y="86" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">Embedding</text>
+  <text x="455" y="106" text-anchor="middle" font-size="11" fill="var(--fg)">Chunk 转成向量</text>
+  <rect x="560" y="60" width="150" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="635" y="86" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">写入向量库</text>
+  <text x="635" y="106" text-anchor="middle" font-size="11" fill="var(--fg)">附带来源、ACL 元数据</text>
+  <line x1="170" y1="90" x2="198" y2="90" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="350" y1="90" x2="378" y2="90" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="530" y1="90" x2="558" y2="90" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="635" y1="120" x2="635" y2="158" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="560" y="160" width="150" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="635" y="186" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">向量数据库</text>
+  <text x="635" y="206" text-anchor="middle" font-size="11" fill="var(--fg)">文本 + 向量 + 元数据</text>
+  <text x="20" y="250" font-size="12" font-weight="600" fill="var(--b)">查询阶段（在线 / 每次提问）</text>
+  <line x1="635" y1="220" x2="635" y2="258" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="20" y="260" width="150" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="95" y="286" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">用户问题</text>
+  <text x="95" y="306" text-anchor="middle" font-size="11" fill="var(--fg)">带上当前用户身份</text>
+  <rect x="200" y="260" width="150" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="275" y="286" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">Query 改写</text>
+  <text x="275" y="306" text-anchor="middle" font-size="11" fill="var(--fg)">可选：补全、拆分</text>
+  <rect x="380" y="260" width="150" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="455" y="286" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">问题向量化</text>
+  <text x="455" y="306" text-anchor="middle" font-size="11" fill="var(--fg)">同一个 Embedding 模型</text>
+  <rect x="560" y="260" width="150" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="635" y="286" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">检索 Top-K</text>
+  <text x="635" y="306" text-anchor="middle" font-size="11" fill="var(--fg)">向量相似度 + 元数据过滤</text>
+  <line x1="170" y1="290" x2="198" y2="290" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="350" y1="290" x2="378" y2="290" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="530" y1="290" x2="558" y2="290" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="635" y1="320" x2="635" y2="358" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="20" y="360" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="95" y="386" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">返回结果</text>
+  <text x="95" y="406" text-anchor="middle" font-size="11" fill="var(--fg)">展示引用来源</text>
+  <rect x="200" y="360" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="275" y="386" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">LLM 生成</text>
+  <text x="275" y="406" text-anchor="middle" font-size="11" fill="var(--fg)">只依据上下文作答</text>
+  <rect x="380" y="360" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="455" y="386" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">拼入 Prompt</text>
+  <text x="455" y="406" text-anchor="middle" font-size="11" fill="var(--fg)">上下文标明为参考资料</text>
+  <rect x="560" y="360" width="150" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="635" y="386" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">Rerank</text>
+  <text x="635" y="406" text-anchor="middle" font-size="11" fill="var(--fg)">可选：精排后截断</text>
+  <line x1="560" y1="390" x2="532" y2="390" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="380" y1="390" x2="352" y2="390" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="200" y1="390" x2="172" y2="390" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+</svg>

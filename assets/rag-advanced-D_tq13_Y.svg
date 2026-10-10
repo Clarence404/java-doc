@@ -1,0 +1,55 @@
+<svg viewBox="0 0 680 620" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0 0 L7 3.5 L0 7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="680" height="620" fill="var(--bg)"/>
+  <text x="340" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">进阶 RAG 查询链路</text>
+
+  <rect x="20" y="40" width="640" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="340" y="66" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">Query 改写 / 扩展</text>
+  <text x="340" y="86" text-anchor="middle" font-size="11" fill="var(--fg)">把口语化、指代不清的问题改写成检索友好的表述，必要时拆成多个子问题</text>
+  <line x1="178" y1="100" x2="178" y2="138" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="502" y1="100" x2="502" y2="138" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="20" y="140" width="316" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="178" y="166" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">向量检索（语义）</text>
+  <text x="178" y="186" text-anchor="middle" font-size="11" fill="var(--fg)">擅长同义表达、换个说法的问题</text>
+  <rect x="344" y="140" width="316" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="502" y="166" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">关键词检索（BM25）</text>
+  <text x="502" y="186" text-anchor="middle" font-size="11" fill="var(--fg)">擅长型号、错误码、人名等精确词</text>
+  <line x1="178" y1="200" x2="178" y2="238" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="502" y1="200" x2="502" y2="238" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="20" y="240" width="640" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="340" y="266" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">RRF 融合</text>
+  <text x="340" y="286" text-anchor="middle" font-size="11" fill="var(--fg)">按两路结果中的名次合并：score = Σ 1 / (k + rank)，不需要分数可比</text>
+  <line x1="340" y1="300" x2="340" y2="338" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="20" y="340" width="640" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="340" y="366" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">Rerank 精排</text>
+  <text x="340" y="386" text-anchor="middle" font-size="11" fill="var(--fg)">交叉编码器把问题和每个候选片段一起打分，从几十条里取前几条</text>
+  <line x1="340" y1="400" x2="340" y2="438" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="20" y="440" width="640" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="340" y="466" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">上下文增强</text>
+  <text x="340" y="486" text-anchor="middle" font-size="11" fill="var(--fg)">带来源编号拼入 Prompt，并声明这些内容是参考资料，不是指令</text>
+  <line x1="340" y1="500" x2="340" y2="538" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="20" y="540" width="640" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="566" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">LLM 生成</text>
+  <text x="340" y="586" text-anchor="middle" font-size="11" fill="var(--fg)">要求逐条标注引用；检索结果为空时直接说明没有依据</text>
+</svg>

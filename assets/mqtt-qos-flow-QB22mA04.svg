@@ -1,0 +1,78 @@
+<svg viewBox="0 0 680 330" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:2; }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .tag { font-size:13px; font-weight:700; }
+    .item { font-size:11px; fill:var(--muted); }
+    .lbl { font-size:11px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:2; marker-end:url(#a); fill:none; }
+    .life { stroke:var(--border); stroke-width:1.5; stroke-dasharray:4 4; }
+    .note { font-size:10px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+    <text class="title" x="340" y="26" text-anchor="middle">MQTT QoS 握手流程</text>
+
+  <!-- QoS 0 最多一次 -->
+  <rect class="box" x="10" y="40" width="208" height="270" stroke="var(--b)"/>
+  <text class="tag" x="114" y="62" text-anchor="middle" fill="var(--b)">QoS 0 最多一次</text>
+  <rect class="box" x="30" y="76" width="70" height="34" stroke="var(--border)"/>
+  <text class="item" x="65" y="97" text-anchor="middle">发送方</text>
+  <rect class="box" x="128" y="76" width="70" height="34" stroke="var(--border)"/>
+  <text class="item" x="163" y="97" text-anchor="middle">接收方</text>
+  <line class="life" x1="65" y1="110" x2="65" y2="262"/>
+  <line class="life" x1="163" y1="110" x2="163" y2="262"/>
+  <line class="arr" x1="65" y1="140" x2="161" y2="140"/>
+  <text class="lbl" x="114" y="134" text-anchor="middle">PUBLISH</text>
+  <text class="note" x="114" y="288" text-anchor="middle">发出即结束，不确认也不重发</text>
+
+  <!-- QoS 1 至少一次 -->
+  <rect class="box" x="236" y="40" width="208" height="270" stroke="var(--g)"/>
+  <text class="tag" x="340" y="62" text-anchor="middle" fill="var(--g)">QoS 1 至少一次</text>
+  <rect class="box" x="256" y="76" width="70" height="34" stroke="var(--border)"/>
+  <text class="item" x="291" y="97" text-anchor="middle">发送方</text>
+  <rect class="box" x="354" y="76" width="70" height="34" stroke="var(--border)"/>
+  <text class="item" x="389" y="97" text-anchor="middle">接收方</text>
+  <line class="life" x1="291" y1="110" x2="291" y2="262"/>
+  <line class="life" x1="389" y1="110" x2="389" y2="262"/>
+  <line class="arr" x1="291" y1="140" x2="387" y2="140"/>
+  <text class="lbl" x="340" y="134" text-anchor="middle">PUBLISH</text>
+  <line class="arr" x1="389" y1="174" x2="293" y2="174"/>
+  <text class="lbl" x="340" y="168" text-anchor="middle">PUBACK</text>
+  <text class="note" x="340" y="288" text-anchor="middle">未收到 PUBACK 就重发，可能重复</text>
+
+  <!-- QoS 2 恰好一次 -->
+  <rect class="box" x="462" y="40" width="208" height="270" stroke="var(--p)"/>
+  <text class="tag" x="566" y="62" text-anchor="middle" fill="var(--p)">QoS 2 恰好一次</text>
+  <rect class="box" x="482" y="76" width="70" height="34" stroke="var(--border)"/>
+  <text class="item" x="517" y="97" text-anchor="middle">发送方</text>
+  <rect class="box" x="580" y="76" width="70" height="34" stroke="var(--border)"/>
+  <text class="item" x="615" y="97" text-anchor="middle">接收方</text>
+  <line class="life" x1="517" y1="110" x2="517" y2="262"/>
+  <line class="life" x1="615" y1="110" x2="615" y2="262"/>
+  <line class="arr" x1="517" y1="140" x2="613" y2="140"/>
+  <text class="lbl" x="566" y="134" text-anchor="middle">PUBLISH</text>
+  <line class="arr" x1="615" y1="174" x2="519" y2="174"/>
+  <text class="lbl" x="566" y="168" text-anchor="middle">PUBREC</text>
+  <line class="arr" x1="517" y1="208" x2="613" y2="208"/>
+  <text class="lbl" x="566" y="202" text-anchor="middle">PUBREL</text>
+  <line class="arr" x1="615" y1="242" x2="519" y2="242"/>
+  <text class="lbl" x="566" y="236" text-anchor="middle">PUBCOMP</text>
+  <text class="note" x="566" y="288" text-anchor="middle">按 Packet ID 去重，只交付一次</text>
+</svg>

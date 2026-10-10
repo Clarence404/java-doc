@@ -1,0 +1,65 @@
+<svg viewBox="0 0 680 376" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:2; }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .tag { font-size:13px; font-weight:700; }
+    .item { font-size:11px; fill:var(--muted); }
+    .lbl { font-size:11px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:2; marker-end:url(#a); fill:none; }
+    .bi { stroke:var(--muted); stroke-width:2; marker-end:url(#a); marker-start:url(#s); fill:none; }
+    .life { stroke:var(--border); stroke-width:1.5; stroke-dasharray:4 4; }
+    .note { font-size:10px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="s" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
+      <polygon points="7 0,0 3.5,7 7" fill="var(--muted)"/>
+    </marker>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+      <text class="title" x="340" y="26" text-anchor="middle">KubeEdge 云边协同架构</text>
+  <rect class="box" x="10" y="50" width="200" height="60" stroke="var(--b)"/>
+  <text class="tag" x="110" y="76" text-anchor="middle" fill="var(--b)">K8s API Server</text>
+  <text class="item" x="110" y="96" text-anchor="middle">Pod / ConfigMap / Device CRD</text>
+  <rect class="box" x="290" y="50" width="380" height="60" stroke="var(--p)"/>
+  <text class="tag" x="480" y="76" text-anchor="middle" fill="var(--p)">CloudCore（云端）</text>
+  <text class="item" x="480" y="96" text-anchor="middle">CloudHub / EdgeController / DeviceController</text>
+  <line class="bi" x1="212" y1="80" x2="288" y2="80"/>
+  <text class="note" x="250" y="72" text-anchor="middle">List-Watch</text>
+  <rect class="box" x="290" y="150" width="380" height="80" stroke="var(--g)"/>
+  <text class="tag" x="480" y="176" text-anchor="middle" fill="var(--g)">EdgeCore（边缘节点）</text>
+  <text class="item" x="480" y="196" text-anchor="middle">EdgeHub / MetaManager / Edged</text>
+  <text class="item" x="480" y="212" text-anchor="middle">DeviceTwin / EventBus / 本地元数据库</text>
+  <line class="bi" x1="480" y1="112" x2="480" y2="148"/>
+  <text class="note" x="488" y="134">WebSocket / QUIC，端口 10000</text>
+  <rect class="box" x="10" y="150" width="200" height="80" stroke="var(--y)"/>
+  <text class="tag" x="110" y="176" text-anchor="middle" fill="var(--y)">边缘应用 Pod</text>
+  <text class="item" x="110" y="196" text-anchor="middle">由 Edged 拉起和管理</text>
+  <text class="item" x="110" y="212" text-anchor="middle">断网后继续运行</text>
+  <line class="arr" x1="290" y1="190" x2="212" y2="190"/>
+  <text class="note" x="251" y="182" text-anchor="middle">管理</text>
+  <rect class="box" x="290" y="270" width="170" height="60" stroke="var(--y)"/>
+  <text class="tag" x="375" y="296" text-anchor="middle" fill="var(--y)">Mapper</text>
+  <text class="item" x="375" y="316" text-anchor="middle">Modbus / OPC UA 等</text>
+  <rect class="box" x="500" y="270" width="170" height="60" stroke="var(--r)"/>
+  <text class="tag" x="585" y="296" text-anchor="middle" fill="var(--r)">现场设备</text>
+  <text class="item" x="585" y="316" text-anchor="middle">传感器 / PLC</text>
+  <line class="bi" x1="375" y1="232" x2="375" y2="268"/>
+  <text class="note" x="383" y="254">DMI（gRPC）</text>
+  <line class="bi" x1="462" y1="300" x2="498" y2="300"/>
+  <text class="item" x="340" y="358" text-anchor="middle">云边断开时，EdgeCore 依靠本地元数据继续管理 Pod 和设备，恢复连接后再与云端同步状态</text>
+</svg>
