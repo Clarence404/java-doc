@@ -1,0 +1,66 @@
+<svg viewBox="0 0 770 270" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-ci" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="385" y="26" text-anchor="middle">Packer、Terraform、cloud-init、Ansible 的分工</text>
+
+  <rect x="20" y="50" width="160" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="100" y="74" text-anchor="middle">Packer 构建镜像</text>
+  <text class="desc" x="100" y="96" text-anchor="middle">OS 补丁 / JDK / Agent</text>
+  <text class="desc" x="100" y="112" text-anchor="middle">构建期，一次烘焙</text>
+
+  <rect x="210" y="50" width="160" height="80" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="290" y="74" text-anchor="middle">镜像仓库</text>
+  <text class="desc" x="290" y="96" text-anchor="middle">AMI / 阿里云自定义镜像</text>
+  <text class="desc" x="290" y="112" text-anchor="middle">按版本打标签</text>
+
+  <rect x="400" y="50" width="160" height="80" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="480" y="74" text-anchor="middle">Terraform 造机器</text>
+  <text class="desc" x="480" y="96" text-anchor="middle">引用镜像 ID</text>
+  <text class="desc" x="480" y="112" text-anchor="middle">传入 user-data</text>
+
+  <rect x="590" y="50" width="160" height="80" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="670" y="74" text-anchor="middle">cloud-init 首次启动</text>
+  <text class="desc" x="670" y="96" text-anchor="middle">注入实例差异</text>
+  <text class="desc" x="670" y="112" text-anchor="middle">配置 / 拉 jar / 启服务</text>
+
+  <line x1="180" y1="90" x2="208" y2="90" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-ci)"/>
+  <line x1="370" y1="90" x2="398" y2="90" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-ci)"/>
+  <line x1="560" y1="90" x2="588" y2="90" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-ci)"/>
+
+  <rect x="20" y="180" width="160" height="70" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="100" y="206" text-anchor="middle">shell / Ansible</text>
+  <text class="desc" x="100" y="228" text-anchor="middle">作为 Packer provisioner</text>
+
+  <rect x="590" y="180" width="160" height="70" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="670" y="206" text-anchor="middle">Ansible（可选）</text>
+  <text class="desc" x="670" y="228" text-anchor="middle">运行期批量变更</text>
+
+  <line x1="100" y1="180" x2="100" y2="132" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-ci)"/>
+  <text class="label" x="108" y="160">构建时调用</text>
+  <line x1="670" y1="180" x2="670" y2="132" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-ci)"/>
+  <text class="label" x="678" y="160">SSH 推送</text>
+</svg>

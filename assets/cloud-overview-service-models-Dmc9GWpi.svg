@@ -1,0 +1,87 @@
+<svg viewBox="0 0 720 396" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .head { font-size:13px; font-weight:700; fill:var(--fg); }
+    .cell { font-size:12px; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <text class="title" x="360" y="26" text-anchor="middle">云服务模型的责任划分</text>
+  <text class="head" x="102" y="58" text-anchor="middle">自建机房</text>
+  <rect x="24" y="72" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="102" y="92" text-anchor="middle">数据</text>
+  <rect x="24" y="112" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="102" y="132" text-anchor="middle">应用</text>
+  <rect x="24" y="152" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="102" y="172" text-anchor="middle">运行时与中间件</text>
+  <rect x="24" y="192" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="102" y="212" text-anchor="middle">操作系统</text>
+  <rect x="24" y="232" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="102" y="252" text-anchor="middle">虚拟化</text>
+  <rect x="24" y="272" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="102" y="292" text-anchor="middle">服务器与存储</text>
+  <rect x="24" y="312" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="102" y="332" text-anchor="middle">网络与机房</text>
+  <text class="head" x="274" y="58" text-anchor="middle">IaaS</text>
+  <rect x="196" y="72" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="274" y="92" text-anchor="middle">数据</text>
+  <rect x="196" y="112" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="274" y="132" text-anchor="middle">应用</text>
+  <rect x="196" y="152" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="274" y="172" text-anchor="middle">运行时与中间件</text>
+  <rect x="196" y="192" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="274" y="212" text-anchor="middle">操作系统</text>
+  <rect x="196" y="232" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="274" y="252" text-anchor="middle">虚拟化</text>
+  <rect x="196" y="272" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="274" y="292" text-anchor="middle">服务器与存储</text>
+  <rect x="196" y="312" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="274" y="332" text-anchor="middle">网络与机房</text>
+  <text class="head" x="446" y="58" text-anchor="middle">PaaS</text>
+  <rect x="368" y="72" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="446" y="92" text-anchor="middle">数据</text>
+  <rect x="368" y="112" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="446" y="132" text-anchor="middle">应用</text>
+  <rect x="368" y="152" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="446" y="172" text-anchor="middle">运行时与中间件</text>
+  <rect x="368" y="192" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="446" y="212" text-anchor="middle">操作系统</text>
+  <rect x="368" y="232" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="446" y="252" text-anchor="middle">虚拟化</text>
+  <rect x="368" y="272" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="446" y="292" text-anchor="middle">服务器与存储</text>
+  <rect x="368" y="312" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="446" y="332" text-anchor="middle">网络与机房</text>
+  <text class="head" x="618" y="58" text-anchor="middle">SaaS</text>
+  <rect x="540" y="72" width="156" height="32" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="cell" x="618" y="92" text-anchor="middle">数据</text>
+  <rect x="540" y="112" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="618" y="132" text-anchor="middle">应用</text>
+  <rect x="540" y="152" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="618" y="172" text-anchor="middle">运行时与中间件</text>
+  <rect x="540" y="192" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="618" y="212" text-anchor="middle">操作系统</text>
+  <rect x="540" y="232" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="618" y="252" text-anchor="middle">虚拟化</text>
+  <rect x="540" y="272" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="618" y="292" text-anchor="middle">服务器与存储</text>
+  <rect x="540" y="312" width="156" height="32" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="cell" x="618" y="332" text-anchor="middle">网络与机房</text>
+  <rect x="232" y="362" width="14" height="14" rx="3" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.2"/>
+  <text class="desc" x="252" y="373">用户负责</text>
+  <rect x="392" y="362" width="14" height="14" rx="3" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.2"/>
+  <text class="desc" x="412" y="373">云厂商负责</text>
+</svg>

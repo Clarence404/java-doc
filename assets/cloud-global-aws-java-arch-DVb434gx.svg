@@ -1,0 +1,73 @@
+<svg viewBox="0 0 720 512" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .head { font-size:13px; font-weight:700; fill:var(--fg); }
+    .cell { font-size:12px; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-aws" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="360" y="26" text-anchor="middle">AWS 上的 Java 微服务参考架构</text>
+  <rect x="180" y="48" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="head" x="280" y="72" text-anchor="middle">Route 53</text>
+  <text class="desc" x="280" y="94" text-anchor="middle">DNS 解析 / 健康检查 / 路由策略</text>
+  <rect x="180" y="144" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="head" x="280" y="168" text-anchor="middle">CloudFront</text>
+  <text class="desc" x="280" y="190" text-anchor="middle">CDN 边缘缓存 / HTTPS 终止</text>
+  <rect x="400" y="144" width="140" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="head" x="470" y="168" text-anchor="middle">AWS WAF</text>
+  <text class="desc" x="470" y="190" text-anchor="middle">Web ACL 挂在 CloudFront</text>
+  <line x1="380" y1="174" x2="400" y2="174" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="180" y="240" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="head" x="280" y="264" text-anchor="middle">ALB</text>
+  <text class="desc" x="280" y="286" text-anchor="middle">七层负载均衡 / 健康检查</text>
+  <rect x="20" y="336" width="520" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="head" x="280" y="360" text-anchor="middle">Amazon EKS（跨多可用区）</text>
+  <text class="desc" x="280" y="382" text-anchor="middle">Spring Boot Pod × N / HPA 扩 Pod / Karpenter 扩节点</text>
+  <rect x="20" y="432" width="124" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="head" x="82" y="456" text-anchor="middle">Aurora MySQL</text>
+  <text class="desc" x="82" y="478" text-anchor="middle">写实例 + 读副本</text>
+  <rect x="152" y="432" width="124" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="head" x="214" y="456" text-anchor="middle">ElastiCache</text>
+  <text class="desc" x="214" y="478" text-anchor="middle">Valkey / Redis OSS</text>
+  <rect x="284" y="432" width="124" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="head" x="346" y="456" text-anchor="middle">SQS</text>
+  <text class="desc" x="346" y="478" text-anchor="middle">异步解耦 / 削峰</text>
+  <rect x="416" y="432" width="124" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="head" x="478" y="456" text-anchor="middle">S3</text>
+  <text class="desc" x="478" y="478" text-anchor="middle">文件 / 静态资源</text>
+  <line x1="280" y1="108" x2="280" y2="142" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-aws)"/>
+  <line x1="280" y1="204" x2="280" y2="238" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-aws)"/>
+  <line x1="280" y1="300" x2="280" y2="334" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-aws)"/>
+  <line x1="82" y1="396" x2="82" y2="430" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-aws)"/>
+  <line x1="214" y1="396" x2="214" y2="430" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-aws)"/>
+  <line x1="346" y1="396" x2="346" y2="430" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-aws)"/>
+  <line x1="478" y1="396" x2="478" y2="430" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-aws)"/>
+  <rect x="556" y="48" width="144" height="444" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text class="head" x="628" y="76" text-anchor="middle">可观测与审计</text>
+  <text class="cell" x="628" y="130" text-anchor="middle">CloudWatch</text>
+  <text class="desc" x="628" y="152" text-anchor="middle">指标 / 日志 / 告警</text>
+  <text class="cell" x="628" y="224" text-anchor="middle">ADOT（OTel）</text>
+  <text class="desc" x="628" y="246" text-anchor="middle">链路追踪 → X-Ray</text>
+  <text class="cell" x="628" y="318" text-anchor="middle">CloudTrail</text>
+  <text class="desc" x="628" y="340" text-anchor="middle">API 调用审计</text>
+  <text class="cell" x="628" y="412" text-anchor="middle">IAM / KMS</text>
+  <text class="desc" x="628" y="434" text-anchor="middle">权限与密钥</text>
+</svg>

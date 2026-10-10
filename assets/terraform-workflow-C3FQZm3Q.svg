@@ -1,0 +1,68 @@
+<svg viewBox="0 0 730 250" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-tf" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="365" y="26" text-anchor="middle">Terraform 工作流</text>
+
+  <rect x="20" y="50" width="150" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="95" y="74" text-anchor="middle">编写 HCL</text>
+  <text class="desc" x="95" y="96" text-anchor="middle">*.tf + *.tfvars</text>
+
+  <rect x="200" y="50" width="150" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="275" y="74" text-anchor="middle">terraform init</text>
+  <text class="desc" x="275" y="96" text-anchor="middle">装 Provider / 连 Backend</text>
+
+  <rect x="380" y="50" width="150" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="455" y="74" text-anchor="middle">terraform plan</text>
+  <text class="desc" x="455" y="96" text-anchor="middle">对比 State 生成计划</text>
+
+  <rect x="560" y="50" width="150" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="635" y="74" text-anchor="middle">terraform apply</text>
+  <text class="desc" x="635" y="96" text-anchor="middle">按计划调用云 API</text>
+
+  <line x1="170" y1="80" x2="198" y2="80" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-tf)"/>
+  <line x1="350" y1="80" x2="378" y2="80" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-tf)"/>
+  <line x1="530" y1="80" x2="558" y2="80" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-tf)"/>
+
+  <line x1="95" y1="110" x2="95" y2="168" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-tf)"/>
+  <text class="label" x="103" y="144">提交</text>
+  <line x1="455" y1="110" x2="455" y2="168" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-tf)"/>
+  <text class="label" x="463" y="144">加锁读</text>
+  <line x1="635" y1="110" x2="635" y2="168" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-tf)"/>
+  <text class="label" x="643" y="144">变更</text>
+
+  <rect x="20" y="170" width="330" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="185" y="194" text-anchor="middle">Git 仓库 + PR 评审</text>
+  <text class="desc" x="185" y="216" text-anchor="middle">plan 结果贴进 PR，审过再 apply</text>
+
+  <rect x="380" y="170" width="150" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="455" y="194" text-anchor="middle">远程 Backend</text>
+  <text class="desc" x="455" y="216" text-anchor="middle">State 文件 + 状态锁</text>
+
+  <rect x="560" y="170" width="150" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="635" y="194" text-anchor="middle">云上真实资源</text>
+  <text class="desc" x="635" y="216" text-anchor="middle">apply 后回写 State</text>
+</svg>

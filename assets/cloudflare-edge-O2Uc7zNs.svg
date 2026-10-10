@@ -1,0 +1,69 @@
+<svg viewBox="0 0 720 350" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">请求经过 Cloudflare 边缘节点的处理顺序</text>
+
+  <rect x="260" y="40" width="200" height="44" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="360" y="67" text-anchor="middle" class="name">用户请求</text>
+
+  <rect x="20" y="118" width="680" height="118" rx="6" fill="var(--y)" fill-opacity="0.06" stroke="var(--y)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="360" y="140" text-anchor="middle" class="lbl">Cloudflare 边缘节点（Anycast 就近接入）</text>
+
+  <rect x="44" y="156" width="104" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="96" y="180" text-anchor="middle" class="name">DNS 解析</text>
+  <text x="96" y="200" text-anchor="middle" class="desc">返回边缘 IP</text>
+
+  <rect x="176" y="156" width="104" height="60" rx="4" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="228" y="180" text-anchor="middle" class="name">DDoS 防护</text>
+  <text x="228" y="200" text-anchor="middle" class="desc">L3 / L4 / L7</text>
+
+  <rect x="308" y="156" width="104" height="60" rx="4" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="360" y="180" text-anchor="middle" class="name">WAF / 限流</text>
+  <text x="360" y="200" text-anchor="middle" class="desc">规则匹配拦截</text>
+
+  <rect x="440" y="156" width="104" height="60" rx="4" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="492" y="180" text-anchor="middle" class="name">Workers</text>
+  <text x="492" y="200" text-anchor="middle" class="desc">可选边缘逻辑</text>
+
+  <rect x="572" y="156" width="104" height="60" rx="4" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="624" y="180" text-anchor="middle" class="name">缓存</text>
+  <text x="624" y="200" text-anchor="middle" class="desc">命中直接返回</text>
+
+  <line x1="148" y1="186" x2="174" y2="186" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="280" y1="186" x2="306" y2="186" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="412" y1="186" x2="438" y2="186" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="544" y1="186" x2="570" y2="186" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="260" y="270" width="200" height="60" rx="4" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="360" y="294" text-anchor="middle" class="name">源站</text>
+  <text x="360" y="314" text-anchor="middle" class="desc">云厂商 LB / VPS / R2</text>
+
+  <line x1="360" y1="84" x2="360" y2="116" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="360" y1="236" x2="360" y2="268" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="372" y="257" class="lbl">未命中缓存或动态请求才回源</text>
+</svg>

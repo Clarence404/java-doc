@@ -1,0 +1,78 @@
+<svg viewBox="0 0 720 424" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .lbl { fill:var(--fg); font-size:11px; }
+    .solid { stroke:var(--muted); stroke-width:1.6; fill:none; }
+    .dash { stroke:var(--muted); stroke-width:1.6; fill:none; stroke-dasharray:5 4; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="360" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">从 Unix 到 GNU/Linux</text>
+
+  <rect class="box" x="20" y="44" width="680" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="360" y="70" text-anchor="middle" fill="var(--p)">Unix（1969，贝尔实验室）</text>
+  <text class="sub" x="360" y="88" text-anchor="middle">Ken Thompson / Dennis Ritchie；1973 年用 C 语言重写，确立「一切皆文件、小工具组合」的设计哲学</text>
+
+  <line class="solid" x1="100" y1="104" x2="100" y2="142" marker-end="url(#a)"/>
+  <line class="solid" x1="273" y1="104" x2="273" y2="142" marker-end="url(#a)"/>
+  <line class="dash" x1="446" y1="104" x2="446" y2="142" marker-end="url(#a)"/>
+  <line class="dash" x1="620" y1="104" x2="620" y2="142" marker-end="url(#a)"/>
+
+  <rect class="box" x="20" y="144" width="160" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="100" y="170" text-anchor="middle" fill="var(--b)">BSD（1977）</text>
+  <text class="sub" x="100" y="188" text-anchor="middle">伯克利，TCP/IP、vi</text>
+  <rect class="box" x="193" y="144" width="160" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="273" y="170" text-anchor="middle" fill="var(--b)">System V（1983）</text>
+  <text class="sub" x="273" y="188" text-anchor="middle">AT&amp;T 商业主线</text>
+  <rect class="box" x="366" y="144" width="160" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="446" y="170" text-anchor="middle" fill="var(--g)">GNU 计划（1983）</text>
+  <text class="sub" x="446" y="188" text-anchor="middle">自由的类 Unix 用户态</text>
+  <rect class="box" x="540" y="144" width="160" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="620" y="170" text-anchor="middle" fill="var(--y)">Minix（1987）</text>
+  <text class="sub" x="620" y="188" text-anchor="middle">教学用，微内核</text>
+
+  <line class="solid" x1="100" y1="204" x2="100" y2="242" marker-end="url(#a)"/>
+  <line class="solid" x1="273" y1="204" x2="273" y2="242" marker-end="url(#a)"/>
+  <line class="dash" x1="620" y1="204" x2="620" y2="242" marker-end="url(#a)"/>
+  <line class="solid" x1="446" y1="204" x2="446" y2="342" marker-end="url(#a)"/>
+
+  <rect class="box" x="20" y="244" width="160" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="100" y="270" text-anchor="middle" fill="var(--b)">BSD 后代</text>
+  <text class="sub" x="100" y="288" text-anchor="middle">FreeBSD / macOS 等</text>
+  <rect class="box" x="193" y="244" width="160" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="273" y="270" text-anchor="middle" fill="var(--b)">商业 Unix</text>
+  <text class="sub" x="273" y="288" text-anchor="middle">Solaris / AIX / HP-UX</text>
+  <rect class="box" x="540" y="244" width="160" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="620" y="270" text-anchor="middle" fill="var(--r)">Linux 内核（1991）</text>
+  <text class="sub" x="620" y="288" text-anchor="middle">Linus Torvalds · GPLv2</text>
+
+  <line class="solid" x1="620" y1="304" x2="620" y2="342" marker-end="url(#a)"/>
+
+  <rect class="box" x="366" y="344" width="334" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="533" y="370" text-anchor="middle" fill="var(--r)">GNU/Linux 发行版</text>
+  <text class="sub" x="533" y="388" text-anchor="middle">内核 + GNU 工具链 + 包管理 + 默认配置</text>
+
+  <line class="solid" x1="30" y1="366" x2="70" y2="366"/>
+  <text class="lbl" x="80" y="370">代码直接衍生</text>
+  <line class="dash" x1="30" y1="390" x2="70" y2="390"/>
+  <text class="lbl" x="80" y="394">借鉴设计、从零重写</text>
+</svg>

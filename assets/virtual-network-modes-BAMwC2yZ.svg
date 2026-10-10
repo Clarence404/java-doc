@@ -1,0 +1,70 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 12px; fill: var(--muted); }
+    .item  { font-size: 12px; }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="26" text-anchor="middle" class="title">本地虚拟机的三种网络模式</text>
+  <text x="120" y="56" text-anchor="middle" class="name">桥接（Bridged）</text>
+  <rect x="20" y="72" width="200" height="40" rx="6" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="120" y="97" text-anchor="middle" class="item">局域网 / 外网</text>
+  <rect x="20" y="162" width="80" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="60" y="187" text-anchor="middle" class="name">宿主机</text>
+  <text x="60" y="206" text-anchor="middle" class="desc">物理网卡</text>
+  <rect x="140" y="162" width="80" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="180" y="187" text-anchor="middle" class="name">虚拟机</text>
+  <text x="180" y="206" text-anchor="middle" class="desc">Guest OS</text>
+  <line x1="60" y1="162" x2="60" y2="114" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="180" y1="162" x2="180" y2="114" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="120" y="250" text-anchor="middle" class="item">Hyper-V：外部交换机</text>
+  <text x="120" y="270" text-anchor="middle" class="lbl">VM 拿局域网 IP，可被访问</text>
+  <text x="360" y="56" text-anchor="middle" class="name">NAT</text>
+  <rect x="260" y="72" width="200" height="40" rx="6" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="360" y="97" text-anchor="middle" class="item">局域网 / 外网</text>
+  <rect x="260" y="162" width="80" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="300" y="187" text-anchor="middle" class="name">宿主机</text>
+  <text x="300" y="206" text-anchor="middle" class="desc">物理网卡</text>
+  <rect x="380" y="162" width="80" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="420" y="187" text-anchor="middle" class="name">虚拟机</text>
+  <text x="420" y="206" text-anchor="middle" class="desc">Guest OS</text>
+  <line x1="300" y1="162" x2="300" y2="114" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="380" y1="192" x2="342" y2="192" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="360" y="186" text-anchor="middle" class="lbl">NAT</text>
+  <text x="360" y="250" text-anchor="middle" class="item">Hyper-V：Default Switch</text>
+  <text x="360" y="270" text-anchor="middle" class="lbl">VM 可出网，外部不能主动访问</text>
+  <text x="600" y="56" text-anchor="middle" class="name">仅主机（Host-only）</text>
+  <rect x="500" y="72" width="200" height="40" rx="6" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="600" y="97" text-anchor="middle" class="desc">局域网不可达</text>
+  <rect x="500" y="162" width="80" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="540" y="187" text-anchor="middle" class="name">宿主机</text>
+  <text x="540" y="206" text-anchor="middle" class="desc">物理网卡</text>
+  <rect x="620" y="162" width="80" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="660" y="187" text-anchor="middle" class="name">虚拟机</text>
+  <text x="660" y="206" text-anchor="middle" class="desc">Guest OS</text>
+  <line x1="620" y1="192" x2="582" y2="192" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="600" y="250" text-anchor="middle" class="item">Hyper-V：内部交换机</text>
+  <text x="600" y="270" text-anchor="middle" class="lbl">只有宿主机与 VM 互通</text>
+</svg>

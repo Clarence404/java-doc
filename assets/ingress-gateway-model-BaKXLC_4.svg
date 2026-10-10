@@ -1,0 +1,80 @@
+<svg viewBox="0 0 720 422" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .head { font-size:13px; font-weight:700; fill:var(--muted); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-igm" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="360" y="22" text-anchor="middle">Ingress 与 Gateway API 资源模型</text>
+  <text class="head" x="180" y="46" text-anchor="middle">Ingress（已冻结）</text>
+  <text class="head" x="540" y="46" text-anchor="middle">Gateway API</text>
+
+  <!-- 左列：Ingress -->
+  <rect x="20" y="60" width="320" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="180" y="84" text-anchor="middle">IngressClass（集群管理员）</text>
+  <text class="desc" x="180" y="104" text-anchor="middle">controller 字段指定由哪个控制器处理</text>
+
+  <line x1="180" y1="120" x2="180" y2="152" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-igm)"/>
+  <text class="label" x="190" y="140">ingressClassName</text>
+
+  <rect x="20" y="154" width="320" height="154" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="180" y="178" text-anchor="middle">Ingress（应用开发者）</text>
+  <text class="desc" x="180" y="204" text-anchor="middle">host / path 路由规则</text>
+  <text class="desc" x="180" y="228" text-anchor="middle">TLS 证书 Secret 引用</text>
+  <text class="desc" x="180" y="252" text-anchor="middle">重写、限流、灰度靠控制器私有注解</text>
+  <text class="desc" x="180" y="276" text-anchor="middle">运维与开发的配置挤在同一个对象里</text>
+
+  <line x1="180" y1="308" x2="180" y2="340" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-igm)"/>
+  <text class="label" x="190" y="328">backend.service</text>
+
+  <rect x="20" y="342" width="320" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="180" y="366" text-anchor="middle">Service</text>
+  <text class="desc" x="180" y="386" text-anchor="middle">按 selector 选中 Pod，控制器直连 Endpoints</text>
+
+  <!-- 右列：Gateway API -->
+  <rect x="380" y="60" width="320" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="540" y="84" text-anchor="middle">GatewayClass（基础设施提供方）</text>
+  <text class="desc" x="540" y="104" text-anchor="middle">controllerName 指定实现，如 Envoy Gateway</text>
+
+  <line x1="540" y1="120" x2="540" y2="152" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-igm)"/>
+  <text class="label" x="550" y="140">gatewayClassName</text>
+
+  <rect x="380" y="154" width="320" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="540" y="178" text-anchor="middle">Gateway（集群运维）</text>
+  <text class="desc" x="540" y="198" text-anchor="middle">监听端口、协议、TLS，限定哪些路由可挂载</text>
+
+  <line x1="540" y1="214" x2="540" y2="246" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-igm)"/>
+  <text class="label" x="550" y="234">parentRefs 挂载</text>
+
+  <rect x="380" y="248" width="320" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="540" y="272" text-anchor="middle">HTTPRoute（应用开发者）</text>
+  <text class="desc" x="540" y="292" text-anchor="middle">host / path / header 匹配、权重、过滤器</text>
+
+  <line x1="540" y1="308" x2="540" y2="340" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-igm)"/>
+  <text class="label" x="550" y="328">backendRefs</text>
+
+  <rect x="380" y="342" width="320" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="540" y="366" text-anchor="middle">Service</text>
+  <text class="desc" x="540" y="386" text-anchor="middle">可按 weight 拆分到多个 Service</text>
+</svg>

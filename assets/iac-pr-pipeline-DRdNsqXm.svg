@@ -1,0 +1,68 @@
+<svg viewBox="0 0 770 332" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .lane { font-size:12px; font-weight:700; fill:var(--p); }
+  </style>
+  <defs>
+    <marker id="arrow-iac-pr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="385" y="26" text-anchor="middle">IaC 的 PR 流水线：先审计划，再执行同一份计划</text>
+  <text class="lane" x="20" y="54">阶段一：Pull Request（只读角色）</text>
+  <rect x="20" y="64" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="100" y="90" text-anchor="middle">静态检查</text>
+  <text class="desc" x="100" y="112" text-anchor="middle">fmt · validate · tflint</text>
+  <rect x="210" y="64" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="290" y="90" text-anchor="middle">terraform plan</text>
+  <text class="desc" x="290" y="112" text-anchor="middle">-out=tfplan + JSON</text>
+  <rect x="400" y="64" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="480" y="90" text-anchor="middle">策略检查</text>
+  <text class="desc" x="480" y="112" text-anchor="middle">Conftest / Checkov</text>
+  <rect x="590" y="64" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="670" y="90" text-anchor="middle">plan 贴到 PR</text>
+  <text class="desc" x="670" y="112" text-anchor="middle">gh pr comment</text>
+  <line x1="180" y1="96" x2="208" y2="96" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-iac-pr)"/>
+  <line x1="370" y1="96" x2="398" y2="96" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-iac-pr)"/>
+  <line x1="560" y1="96" x2="588" y2="96" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-iac-pr)"/>
+
+  <line x1="670" y1="128" x2="670" y2="176" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-iac-pr)"/>
+  <text class="label" x="678" y="157">人工评审</text>
+  <text class="lane" x="20" y="166">阶段二：合并到 main（apply 角色仅限 production 环境）</text>
+  <rect x="590" y="178" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="670" y="204" text-anchor="middle">合并 PR</text>
+  <text class="desc" x="670" y="226" text-anchor="middle">Reviewer 看过 plan</text>
+  <rect x="400" y="178" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="480" y="204" text-anchor="middle">main 上重新 plan</text>
+  <text class="desc" x="480" y="226" text-anchor="middle">tfplan 存为制品</text>
+  <rect x="210" y="178" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="290" y="204" text-anchor="middle">环境审批</text>
+  <text class="desc" x="290" y="226" text-anchor="middle">production 保护规则</text>
+  <rect x="20" y="178" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="100" y="204" text-anchor="middle">apply tfplan</text>
+  <text class="desc" x="100" y="226" text-anchor="middle">执行审批过的计划</text>
+  <line x1="590" y1="210" x2="562" y2="210" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-iac-pr)"/>
+  <line x1="400" y1="210" x2="372" y2="210" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-iac-pr)"/>
+  <line x1="210" y1="210" x2="182" y2="210" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-iac-pr)"/>
+
+  <rect x="20" y="272" width="730" height="40" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="desc" x="385" y="297" text-anchor="middle">贯穿全程：OIDC 短期凭证 · 远程 Backend + 状态锁 · concurrency 串行执行 · Actions 固定到提交 SHA</text>
+</svg>

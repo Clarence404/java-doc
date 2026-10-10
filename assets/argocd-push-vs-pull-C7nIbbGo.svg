@@ -1,0 +1,70 @@
+<svg viewBox="0 0 720 362" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-argocd-pp" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="360" y="26" text-anchor="middle">推送式部署与 GitOps 拉取式部署的权限边界</text>
+
+  <rect x="10" y="40" width="340" height="302" rx="10" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="180" y="64" text-anchor="middle">推送式：CI 直接部署</text>
+
+  <rect x="50" y="78" width="260" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="180" y="102" text-anchor="middle">应用代码仓库</text>
+  <text class="desc" x="180" y="124" text-anchor="middle">开发者合并代码</text>
+
+  <line x1="180" y1="138" x2="180" y2="170" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-argocd-pp)"/>
+
+  <rect x="50" y="172" width="260" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="180" y="196" text-anchor="middle">CI 流水线</text>
+  <text class="desc" x="180" y="218" text-anchor="middle">构建镜像，持有集群凭证</text>
+
+  <line x1="180" y1="232" x2="180" y2="264" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-argocd-pp)"/>
+  <text class="label" x="190" y="252">kubectl apply（推）</text>
+
+  <rect x="50" y="266" width="260" height="60" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="180" y="290" text-anchor="middle">Kubernetes 集群</text>
+  <text class="desc" x="180" y="312" text-anchor="middle">写权限暴露在集群外</text>
+
+  <rect x="370" y="40" width="340" height="302" rx="10" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="540" y="64" text-anchor="middle">拉取式：GitOps（Argo CD）</text>
+
+  <rect x="410" y="78" width="260" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="540" y="102" text-anchor="middle">CI 流水线</text>
+  <text class="desc" x="540" y="124" text-anchor="middle">构建镜像，只改配置仓库</text>
+
+  <line x1="540" y1="138" x2="540" y2="170" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-argocd-pp)"/>
+  <text class="label" x="550" y="158">提交 image tag</text>
+
+  <rect x="410" y="172" width="260" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="540" y="196" text-anchor="middle">Git 配置仓库</text>
+  <text class="desc" x="540" y="218" text-anchor="middle">唯一事实来源，历史即审计</text>
+
+  <line x1="540" y1="232" x2="540" y2="264" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-argocd-pp)"/>
+  <text class="label" x="550" y="252">Argo CD 拉取（拉）</text>
+
+  <rect x="410" y="266" width="260" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="540" y="290" text-anchor="middle">Kubernetes 集群</text>
+  <text class="desc" x="540" y="312" text-anchor="middle">Argo CD 在集群内执行 Sync</text>
+</svg>
