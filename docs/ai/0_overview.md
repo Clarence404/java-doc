@@ -36,7 +36,7 @@ MCP（Model Context Protocol）由 Anthropic 于 2024 年发起，2025 年 12 �
 5. 复杂任务编排：[AI Agent 智能体](./5_advanced/0_agent) → [MCP 协议](./5_advanced/1_mcp)；Prompt 和 RAG 都解决不了时再考虑 [模型微调](./5_advanced/2_fine_tuning)
 6. 最后浏览 [AI 编程工具怎么选](./6_tools/0_ai_tools)，了解日常开发可用的 AI 工具
 
-复习时用 [高频面试题](./99_interview) 自测，答案在 [AI 面试题解答](/interview/19_ai)。
+复习时用 [高频面试题](./99_interview) 自测，答案在 [AI 面试题解答](/interview/25_ai)。
 
 ---
 
@@ -48,7 +48,7 @@ MCP（Model Context Protocol）由 Anthropic 于 2024 年发起，2025 年 12 �
 - 调用链路、Token 用量与延迟监控 → [可观测性总览](/observability/0_overview)
 - 限流、超时、重试、降级等调用外部服务的通用治理 → [高可用总览](/high-avail/0_overview)
 - Spring Boot 自动配置与 Starter 机制 → [Spring Boot 总览](/spring-boot/0_overview)
-- 本模块高频问题的答案汇总 → [AI 面试题解答](/interview/19_ai)
+- 本模块高频问题的答案汇总 → [AI 面试题解答](/interview/25_ai)
 
 ---
 

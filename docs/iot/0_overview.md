@@ -30,7 +30,7 @@
 10. [OTA 升级](./10_ota)：固件签名校验、防回滚、A/B 分区与灰度发布
 11. [规则引擎](./11_rule_engine)：规则模型、条件匹配与动作执行
 
-复习时用 [高频面试题](./99_interview) 自测，答案在 [IoT 面试题解答](/interview/18_iot)。
+复习时用 [高频面试题](./99_interview) 自测，答案在 [IoT 面试题解答](/interview/24_iot)。
 
 ---
 
@@ -45,4 +45,4 @@
 - [零信任架构](/security/9_zero_trust)：设备身份与最小权限访问的通用原则
 - [Kubernetes](/cloud-native/6_kubernetes)：KubeEdge 所依赖的云端集群
 - [AI 总览](/ai/0_overview)：边缘推理所用模型的来源与接入方式
-- [IoT 面试题解答](/interview/18_iot)：本模块高频问题的答案汇总
+- [IoT 面试题解答](/interview/24_iot)：本模块高频问题的答案汇总

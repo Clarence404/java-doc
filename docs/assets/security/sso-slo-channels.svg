@@ -1,0 +1,77 @@
+<svg viewBox="0 0 760 372" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-slo2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="380" y="26" text-anchor="middle">单点登出的两条通道：前端通道与后端通道</text>
+
+  <!-- 左：前端通道 -->
+  <rect x="20" y="42" width="350" height="310" rx="10" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="195" y="66" text-anchor="middle">前端通道（Front-Channel）</text>
+
+  <rect x="75" y="80" width="240" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="195" y="104" text-anchor="middle">IdP 登出页（在浏览器里）</text>
+  <text class="desc" x="195" y="126" text-anchor="middle">销毁全局会话后渲染各应用的 iframe</text>
+
+  <line x1="112" y1="140" x2="112" y2="176" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-slo2)"/>
+  <line x1="278" y1="140" x2="278" y2="176" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-slo2)"/>
+  <text class="label" x="195" y="163" text-anchor="middle">iframe 加载</text>
+
+  <rect x="36" y="178" width="152" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="112" y="202" text-anchor="middle">应用 A 登出地址</text>
+  <text class="desc" x="112" y="224" text-anchor="middle">?iss=…&amp;sid=…</text>
+
+  <rect x="202" y="178" width="152" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="278" y="202" text-anchor="middle">应用 B 登出地址</text>
+  <text class="desc" x="278" y="224" text-anchor="middle">?iss=…&amp;sid=…</text>
+
+  <rect x="36" y="276" width="318" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="desc" x="195" y="300" text-anchor="middle">靠浏览器在 iframe 里带上应用的会话 Cookie</text>
+  <text class="desc" x="195" y="322" text-anchor="middle">第三方 Cookie 被拦截或页面提前关闭就会失败</text>
+
+  <!-- 右：后端通道 -->
+  <rect x="390" y="42" width="350" height="310" rx="10" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="565" y="66" text-anchor="middle">后端通道（Back-Channel）</text>
+
+  <rect x="445" y="80" width="240" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="565" y="104" text-anchor="middle">IdP 服务端</text>
+  <text class="desc" x="565" y="126" text-anchor="middle">销毁全局会话后逐个回调已登录的应用</text>
+
+  <line x1="482" y1="140" x2="482" y2="176" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-slo2)"/>
+  <line x1="648" y1="140" x2="648" y2="176" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-slo2)"/>
+  <text class="label" x="565" y="163" text-anchor="middle">HTTP POST</text>
+
+  <rect x="406" y="178" width="152" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="482" y="202" text-anchor="middle">应用 A 回调端点</text>
+  <text class="desc" x="482" y="224" text-anchor="middle">logout_token（JWT）</text>
+
+  <rect x="572" y="178" width="152" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="648" y="202" text-anchor="middle">应用 B 回调端点</text>
+  <text class="desc" x="648" y="224" text-anchor="middle">logout_token（JWT）</text>
+
+  <rect x="406" y="276" width="318" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="desc" x="565" y="300" text-anchor="middle">服务器对服务器，不依赖浏览器状态</text>
+  <text class="desc" x="565" y="322" text-anchor="middle">应用要验签，并按 sid / sub 找到会话销毁</text>
+</svg>

@@ -31,7 +31,8 @@ export const SUMMARY = {
         {text: '分布式架构', from: 10},
         {text: '三高架构', from: 12},
         {text: '架构设计', from: 15},
-        {text: '垂直领域', from: 18},
+        {text: '研发运维', from: 20},
+        {text: '垂直领域', from: 24},
     ],
 };
 
@@ -140,7 +141,7 @@ export const GROUPS = [
     },
     {
         name: '研发效能', tagline: '测试工程、DevOps 与工程效率', modules: [
-            {name: '测试工程', dir: 'testing', desc: '测试分层 / JUnit 6 / Mockito / 集成测试 / TDD / Testcontainers / 契约测试 / 性能测试'},
+            {name: '测试工程', dir: 'testing', interview: ['20_testing'], desc: '测试分层 / JUnit 6 / Mockito / 集成测试 / TDD / Testcontainers / 契约测试 / 性能测试'},
             {name: 'DevOps', dir: 'devops', desc: 'Git 工作流 / CI/CD / Code Review / 开发规范 / 发布策略 / 制品与环境'},
             {name: '工程效率', dir: 'engineering', desc: '构建工具 / 开发工具 / 代码质量 / Arthas 诊断 / 依赖治理 / API 文档与规范'},
         ],
@@ -148,7 +149,7 @@ export const GROUPS = [
     {
         name: '运维保障', tagline: '云原生、可观测性与安全', modules: [
             {
-                name: '云原生', dir: 'cloud-native',
+                name: '云原生', dir: 'cloud-native', interview: ['21_cloud_native'],
                 desc: 'Linux / Docker / Kubernetes / Helm / Terraform / 云平台',
                 sidebar: [
                     {text: '操作系统', from: 1},
@@ -158,15 +159,15 @@ export const GROUPS = [
                     {text: '云平台', from: 13},
                 ],
             },
-            {name: '可观测性', dir: 'observability', desc: '日志 / 指标与 PromQL / 链路追踪 / 告警 / OpenTelemetry'},
-            {name: '应用安全', dir: 'security', desc: 'JWT / OAuth2 / OIDC / SSO / RBAC / API 安全 / 零信任'},
+            {name: '可观测性', dir: 'observability', interview: ['22_observability'], desc: '日志 / 指标与 PromQL / 链路追踪 / 告警 / OpenTelemetry'},
+            {name: '应用安全', dir: 'security', interview: ['23_security'], desc: 'JWT / OAuth2 / OIDC / SSO / RBAC / API 安全 / 零信任'},
         ],
     },
     {
         name: '垂直领域', tagline: 'IoT 与 AI，拓展技术边界', modules: [
-            {name: 'IoT', dir: 'iot', interview: ['18_iot'], desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / OTA'},
+            {name: 'IoT', dir: 'iot', interview: ['24_iot'], desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / OTA'},
             {
-                name: 'AI', dir: 'ai', interview: ['19_ai'],
+                name: 'AI', dir: 'ai', interview: ['25_ai'],
                 desc: 'Spring AI / LangChain4j / RAG / Agent / MCP / 本地模型',
                 subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 工具生态'},
             },

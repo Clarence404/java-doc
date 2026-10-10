@@ -63,6 +63,8 @@ Grafana 官方提供 `grafana/otel-lgtm` 镜像，一个容器内集成了 OTel 
 3. **把信号变成行动**：读 [告警体系](./4_alerting)，结合 [可用性度量](/high-avail/1_sla_slo) 中的 SLO 与燃烧速率，设计少而准的告警。
 4. **统一标准**：读 [OpenTelemetry](./5_opentelemetry)，理解 OTLP、Collector 和语义约定，把各信号的采集收敛到一套标准上。
 
+复习时用 [高频面试题](./99_interview) 自测，答案在 [可观测性面试题解答](/interview/22_observability)。
+
 ---
 
 ## 五、关联模块

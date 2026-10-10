@@ -1,0 +1,66 @@
+<svg viewBox="0 0 680 290" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171; }
+    }
+  </style>
+  <defs>
+    <marker id="csrf-arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0.5 L6,3.5 L0,6.5 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+
+  <rect width="680" height="290" fill="var(--bg)"/>
+
+  <text x="340" y="26" font-size="14" font-weight="700" text-anchor="middle" fill="var(--fg)">CSRF：借用户浏览器里的 Cookie 发请求</text>
+
+  <!-- 恶意站点 B -->
+  <rect x="20" y="50" width="150" height="80" rx="6" fill="var(--r)" fill-opacity="0.10" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="95" y="84" font-size="12" font-weight="700" text-anchor="middle" fill="var(--r)">恶意站点 B</text>
+  <text x="95" y="104" font-size="10" text-anchor="middle" fill="var(--muted)">evil.example</text>
+
+  <!-- 用户浏览器 -->
+  <rect x="265" y="50" width="150" height="80" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="340" y="84" font-size="12" font-weight="700" text-anchor="middle" fill="var(--b)">用户浏览器</text>
+  <text x="340" y="104" font-size="10" text-anchor="middle" fill="var(--muted)">持有 A 的 Session Cookie</text>
+
+  <!-- 站点 A -->
+  <rect x="510" y="50" width="150" height="80" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="585" y="84" font-size="12" font-weight="700" text-anchor="middle" fill="var(--y)">站点 A</text>
+  <text x="585" y="104" font-size="10" text-anchor="middle" fill="var(--muted)">④ 只认 Cookie，执行转账</text>
+
+  <!-- B → 浏览器 -->
+  <line x1="170" y1="90" x2="262" y2="90" stroke="var(--r)" stroke-width="1.5" marker-end="url(#csrf-arr)"/>
+  <text x="216" y="84" font-size="10" text-anchor="middle" fill="var(--fg)">② 自动提交表单</text>
+  <text x="216" y="106" font-size="10" text-anchor="middle" fill="var(--muted)">① 用户访问 B</text>
+
+  <!-- 浏览器 → A -->
+  <line x1="415" y1="90" x2="507" y2="90" stroke="var(--r)" stroke-width="1.5" marker-end="url(#csrf-arr)"/>
+  <text x="461" y="84" font-size="10" text-anchor="middle" fill="var(--fg)">③ POST /transfer</text>
+  <text x="461" y="106" font-size="10" text-anchor="middle" fill="var(--muted)">自动带 Cookie</text>
+
+  <!-- 防护 -->
+  <rect x="10" y="170" width="660" height="100" rx="6" fill="var(--g)" fill-opacity="0.06" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="340" y="188" font-size="11" font-weight="700" text-anchor="middle" fill="var(--g)">三道防线：任一生效即可让第 ③ 步失败</text>
+
+  <rect x="20" y="198" width="200" height="62" rx="5" fill="var(--g)" fill-opacity="0.14" stroke="var(--g)" stroke-width="1"/>
+  <text x="120" y="222" font-size="11" font-weight="600" text-anchor="middle" fill="var(--g)">SameSite=Lax</text>
+  <text x="120" y="240" font-size="10" text-anchor="middle" fill="var(--muted)">跨站 POST 不带 Cookie</text>
+
+  <rect x="240" y="198" width="200" height="62" rx="5" fill="var(--g)" fill-opacity="0.14" stroke="var(--g)" stroke-width="1"/>
+  <text x="340" y="222" font-size="11" font-weight="600" text-anchor="middle" fill="var(--g)">CSRF Token</text>
+  <text x="340" y="240" font-size="10" text-anchor="middle" fill="var(--muted)">B 读不到，无法伪造</text>
+
+  <rect x="460" y="198" width="200" height="62" rx="5" fill="var(--g)" fill-opacity="0.14" stroke="var(--g)" stroke-width="1"/>
+  <text x="560" y="222" font-size="11" font-weight="600" text-anchor="middle" fill="var(--g)">Origin / Fetch Metadata</text>
+  <text x="560" y="240" font-size="10" text-anchor="middle" fill="var(--muted)">拒绝跨站来源的写请求</text>
+</svg>

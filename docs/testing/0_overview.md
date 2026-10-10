@@ -49,6 +49,8 @@ Spring Boot 项目里，JUnit、AssertJ、Mockito、Testcontainers 的版本都�
 
 TDD 编号靠前，但它要求先熟悉单元测试与 Mock，放在最后读更容易落地。Spring 项目读完前三篇后接着读 [Spring Boot 测试](/spring-boot/13_testing)。
 
+复习时用 [高频面试题](./99_interview) 自测，答案在 [测试工程面试题解答](/interview/20_testing)。
+
 ---
 
 ## 三、测试分层与比例
