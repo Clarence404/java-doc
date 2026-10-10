@@ -1,0 +1,72 @@
+<svg viewBox="0 0 840 300" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-mvn" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="420" y="26" text-anchor="middle">Maven default 生命周期与默认绑定的插件目标（jar 打包）</text>
+
+  <rect x="20" y="50" width="170" height="76" rx="8" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text class="box-title" x="105" y="74" text-anchor="middle">validate</text>
+  <text class="desc" x="105" y="92" text-anchor="middle">校验 POM 与结构</text>
+  <text class="desc" x="105" y="108" text-anchor="middle">enforcer:enforce（需配置）</text>
+  <rect x="230" y="50" width="170" height="76" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="315" y="74" text-anchor="middle">compile</text>
+  <text class="desc" x="315" y="92" text-anchor="middle">resources:resources</text>
+  <text class="desc" x="315" y="108" text-anchor="middle">compiler:compile</text>
+  <rect x="440" y="50" width="170" height="76" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="525" y="74" text-anchor="middle">test</text>
+  <text class="desc" x="525" y="92" text-anchor="middle">compiler:testCompile</text>
+  <text class="desc" x="525" y="108" text-anchor="middle">surefire:test（*Test）</text>
+  <rect x="650" y="50" width="170" height="76" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="735" y="74" text-anchor="middle">package</text>
+  <text class="desc" x="735" y="92" text-anchor="middle">jar:jar</text>
+  <text class="desc" x="735" y="108" text-anchor="middle">Boot 插件 repackage</text>
+  <rect x="650" y="176" width="170" height="76" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="735" y="200" text-anchor="middle">integration-test</text>
+  <text class="desc" x="735" y="218" text-anchor="middle">failsafe:integration-test</text>
+  <text class="desc" x="735" y="234" text-anchor="middle">运行 *IT 集成测试</text>
+  <rect x="440" y="176" width="170" height="76" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="525" y="200" text-anchor="middle">verify</text>
+  <text class="desc" x="525" y="218" text-anchor="middle">failsafe:verify</text>
+  <text class="desc" x="525" y="234" text-anchor="middle">jacoco:check 等门禁</text>
+  <rect x="230" y="176" width="170" height="76" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="315" y="200" text-anchor="middle">install</text>
+  <text class="desc" x="315" y="218" text-anchor="middle">install:install</text>
+  <text class="desc" x="315" y="234" text-anchor="middle">写入本地 ~/.m2</text>
+  <rect x="20" y="176" width="170" height="76" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="105" y="200" text-anchor="middle">deploy</text>
+  <text class="desc" x="105" y="218" text-anchor="middle">deploy:deploy</text>
+  <text class="desc" x="105" y="234" text-anchor="middle">推送远程仓库</text>
+
+  <line x1="190" y1="88" x2="228" y2="88" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-mvn)"/>
+  <line x1="400" y1="88" x2="438" y2="88" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-mvn)"/>
+  <line x1="610" y1="88" x2="648" y2="88" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-mvn)"/>
+  <line x1="735" y1="126" x2="735" y2="174" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-mvn)"/>
+  <line x1="650" y1="214" x2="612" y2="214" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-mvn)"/>
+  <line x1="440" y1="214" x2="402" y2="214" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-mvn)"/>
+  <line x1="230" y1="214" x2="192" y2="214" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-mvn)"/>
+
+  <text class="desc" x="420" y="280" text-anchor="middle">执行某个阶段会先依次执行它之前的所有阶段；failsafe、jacoco、enforcer 需在 POM 中声明才会绑定；clean 与 site 是另外两套生命周期</text>
+</svg>

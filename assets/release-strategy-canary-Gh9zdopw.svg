@@ -1,0 +1,85 @@
+<svg viewBox="0 0 780 330" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .card { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+    .label { font-weight: 600; }
+    .sub { fill: var(--muted); font-size: 12px; }
+    .v1 { fill: var(--b); fill-opacity: 0.12; stroke: var(--b); stroke-width: 1.5; }
+    .v2 { fill: var(--g); fill-opacity: 0.12; stroke: var(--g); stroke-width: 1.5; }
+    .v2wait { fill: var(--g); fill-opacity: 0.05; stroke: var(--g); stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .gone { fill: var(--muted); fill-opacity: 0.08; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .bad { fill: var(--r); fill-opacity: 0.08; stroke: var(--r); stroke-width: 1.5; }
+    .t1 { fill: var(--b); font-weight: 600; }
+    .t2 { fill: var(--g); font-weight: 600; }
+    .tr { fill: var(--r); font-weight: 600; }
+    .tm { fill: var(--muted); }
+    .arrow { stroke: var(--fg); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    .arrow-g { stroke: var(--g); stroke-width: 1.5; fill: none; marker-end: url(#arrowG); }
+    .arrow-r { stroke: var(--r); stroke-width: 1.5; fill: none; marker-end: url(#arrowR); }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="var(--fg)"/></marker>
+    <marker id="arrowG" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="var(--g)"/></marker>
+    <marker id="arrowR" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="var(--r)"/></marker>
+  </defs>
+  <rect width="780" height="330" fill="var(--bg)" rx="8"/>
+  <text x="390" y="26" text-anchor="middle" class="title">金丝雀渐进式交付：按指标自动推进或回滚</text>
+  <rect x="20" y="46" width="150" height="64" rx="6" class="card"/>
+  <text x="95" y="72" text-anchor="middle" class="t2">canary 10%</text>
+  <text x="95" y="94" text-anchor="middle" class="sub">stable 90%</text>
+  <line x1="170" y1="78" x2="214" y2="78" class="arrow-g"/>
+  <text x="193" y="71" text-anchor="middle" class="sub">通过</text>
+  <rect x="216" y="46" width="150" height="64" rx="6" class="card"/>
+  <text x="291" y="72" text-anchor="middle" class="t2">canary 30%</text>
+  <text x="291" y="94" text-anchor="middle" class="sub">stable 70%</text>
+  <line x1="366" y1="78" x2="410" y2="78" class="arrow-g"/>
+  <text x="389" y="71" text-anchor="middle" class="sub">通过</text>
+  <rect x="412" y="46" width="150" height="64" rx="6" class="card"/>
+  <text x="487" y="72" text-anchor="middle" class="t2">canary 60%</text>
+  <text x="487" y="94" text-anchor="middle" class="sub">stable 40%</text>
+  <line x1="562" y1="78" x2="606" y2="78" class="arrow-g"/>
+  <text x="585" y="71" text-anchor="middle" class="sub">通过</text>
+  <rect x="608" y="46" width="150" height="64" rx="6" class="v2"/>
+  <text x="683" y="72" text-anchor="middle" class="t2">canary 100%</text>
+  <text x="683" y="94" text-anchor="middle" class="sub">全量切换</text>
+  <line x1="95" y1="110" x2="95" y2="148" class="arrow"/>
+  <rect x="20" y="150" width="150" height="60" rx="6" class="card"/>
+  <text x="95" y="174" text-anchor="middle" class="label">pause + 分析</text>
+  <text x="95" y="194" text-anchor="middle" class="sub">成功率 / P99 延迟</text>
+  <line x1="291" y1="110" x2="291" y2="148" class="arrow"/>
+  <rect x="216" y="150" width="150" height="60" rx="6" class="card"/>
+  <text x="291" y="174" text-anchor="middle" class="label">pause + 分析</text>
+  <text x="291" y="194" text-anchor="middle" class="sub">成功率 / P99 延迟</text>
+  <line x1="487" y1="110" x2="487" y2="148" class="arrow"/>
+  <rect x="412" y="150" width="150" height="60" rx="6" class="card"/>
+  <text x="487" y="174" text-anchor="middle" class="label">pause + 分析</text>
+  <text x="487" y="194" text-anchor="middle" class="sub">成功率 / P99 延迟</text>
+  <line x1="683" y1="110" x2="683" y2="148" class="arrow"/>
+  <rect x="608" y="150" width="150" height="60" rx="6" class="v2"/>
+  <text x="683" y="174" text-anchor="middle" class="t2">推广完成</text>
+  <text x="683" y="194" text-anchor="middle" class="sub">新版本成为 stable</text>
+  <line x1="95" y1="210" x2="95" y2="248" class="arrow-r"/>
+  <text x="103" y="235" class="sub">失败</text>
+  <line x1="291" y1="210" x2="291" y2="248" class="arrow-r"/>
+  <text x="299" y="235" class="sub">失败</text>
+  <line x1="487" y1="210" x2="487" y2="248" class="arrow-r"/>
+  <text x="495" y="235" class="sub">失败</text>
+  <rect x="20" y="250" width="542" height="64" rx="6" class="bad"/>
+  <text x="291" y="276" text-anchor="middle" class="tr">自动中止（abort）：流量 100% 切回 stable</text>
+  <text x="291" y="298" text-anchor="middle" class="sub">canary 副本缩容，Rollout 标记为 Degraded，等待修复后重新发布</text>
+</svg>

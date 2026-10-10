@@ -1,0 +1,70 @@
+<svg viewBox="0 0 840 350" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-med" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="420" y="26" text-anchor="middle">Maven 依赖调解：最短路径优先，同深度先声明优先</text>
+
+  <rect x="20" y="40" width="390" height="210" rx="8" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="215" y="64" text-anchor="middle">规则一：路径最短优先</text>
+  <rect x="40" y="125" width="60" height="34" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="70" y="146" text-anchor="middle">A</text>
+  <rect x="134" y="80" width="60" height="34" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="164" y="101" text-anchor="middle">B</text>
+  <rect x="228" y="80" width="60" height="34" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="258" y="101" text-anchor="middle">C:1.0</text>
+  <path d="M100,142 H117 V97 H132" fill="none" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-med)"/>
+  <path d="M100,142 H117 V187 H132" fill="none" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-med)"/>
+  <line x1="194" y1="97" x2="226" y2="97" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-med)"/>
+  <rect x="134" y="170" width="60" height="34" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="164" y="191" text-anchor="middle">D</text>
+  <rect x="228" y="170" width="60" height="34" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="258" y="191" text-anchor="middle">E</text>
+  <line x1="194" y1="187" x2="226" y2="187" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-med)"/>
+  <rect x="322" y="170" width="60" height="34" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text class="box-title" x="352" y="191" text-anchor="middle">C:2.0</text>
+  <line x1="288" y1="187" x2="320" y2="187" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-med)"/>
+  <text class="desc" x="215" y="232" text-anchor="middle">C:1.0 深度 2，C:2.0 深度 3：选 C:1.0</text>
+  <rect x="430" y="40" width="390" height="210" rx="8" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="625" y="64" text-anchor="middle">规则二：同深度先声明优先</text>
+  <rect x="450" y="125" width="60" height="34" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="480" y="146" text-anchor="middle">A</text>
+  <rect x="544" y="80" width="60" height="34" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="574" y="101" text-anchor="middle">B</text>
+  <rect x="638" y="80" width="60" height="34" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="668" y="101" text-anchor="middle">C:1.0</text>
+  <path d="M510,142 H527 V97 H542" fill="none" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-med)"/>
+  <path d="M510,142 H527 V187 H542" fill="none" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-med)"/>
+  <line x1="604" y1="97" x2="636" y2="97" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-med)"/>
+  <rect x="544" y="170" width="60" height="34" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="574" y="191" text-anchor="middle">D</text>
+  <rect x="638" y="170" width="60" height="34" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text class="box-title" x="668" y="191" text-anchor="middle">C:2.0</text>
+  <line x1="604" y1="187" x2="636" y2="187" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-med)"/>
+  <text class="desc" x="625" y="232" text-anchor="middle">同为深度 2，B 先于 D 声明：选 C:1.0</text>
+  <rect x="20" y="270" width="800" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="420" y="294" text-anchor="middle">dependencyManagement 优先于调解规则</text>
+  <text class="desc" x="420" y="314" text-anchor="middle">在当前 POM 或父 POM 的 dependencyManagement 中锁定 C:2.0 后，两条路径都解析为 C:2.0（Gradle 默认选最高版本）</text>
+</svg>

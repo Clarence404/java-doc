@@ -1,0 +1,104 @@
+<svg viewBox="0 0 760 430" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .label { font-size: 14px; font-weight: 700; }
+    .sub { fill: var(--muted); font-size: 12px; }
+    .lane { fill: var(--muted); font-size: 12px; }
+    .card { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+    .box-b { fill: var(--b); fill-opacity: 0.10; stroke: var(--b); stroke-width: 1.5; }
+    .box-g { fill: var(--g); fill-opacity: 0.10; stroke: var(--g); stroke-width: 1.5; }
+    .box-p { fill: var(--p); fill-opacity: 0.10; stroke: var(--p); stroke-width: 1.5; }
+    .arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; marker-end: url(#arr); }
+    .main { stroke: var(--b); stroke-width: 3; fill: none; }
+    .dev { stroke: var(--g); stroke-width: 3; fill: none; }
+    .br { stroke: var(--p); stroke-width: 2; fill: none; }
+    .rel { stroke: var(--y); stroke-width: 2; fill: none; }
+    .hot { stroke: var(--r); stroke-width: 2; fill: none; }
+    .hot-d { stroke: var(--r); stroke-width: 1.5; stroke-dasharray: 5 3; fill: none; }
+    .cb { fill: var(--card); stroke: var(--b); stroke-width: 2; }
+    .cg { fill: var(--card); stroke: var(--g); stroke-width: 2; }
+    .cp { fill: var(--card); stroke: var(--p); stroke-width: 2; }
+    .cy { fill: var(--card); stroke: var(--y); stroke-width: 2; }
+    .cr { fill: var(--card); stroke: var(--r); stroke-width: 2; }
+    .tag { fill: var(--y); stroke: var(--y); stroke-width: 2; }
+    .tagt { fill: var(--y); font-size: 12px; font-weight: 600; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text class="title" x="380" y="24" text-anchor="middle">分支模型对比</text>
+  <rect class="card" x="10" y="40" width="740" height="150" rx="8"/>
+  <text class="label" x="380" y="64" text-anchor="middle">主干开发 / GitHub Flow（全站推荐）</text>
+  <text class="lane" x="24" y="99">feat/* fix/*</text>
+  <text class="lane" x="24" y="144">main</text>
+  <text class="sub" x="736" y="99" text-anchor="end">分支只活 1–2 天</text>
+  <line class="main" x1="130" y1="140" x2="730" y2="140"/>
+  <path class="br" d="M190,140 C205,140 205,95 220,95 L270,95 C285,95 285,140 300,140"/>
+  <path class="br" d="M360,140 C375,140 375,95 390,95 L440,95 C455,95 455,140 470,140"/>
+  <path class="br" d="M560,140 C575,140 575,95 590,95 C605,95 605,140 620,140"/>
+  <circle cx="160" cy="140" r="5" class="cb"/>
+  <circle cx="300" cy="140" r="5" class="cb"/>
+  <circle cx="360" cy="140" r="5" class="cb"/>
+  <circle cx="560" cy="140" r="5" class="cb"/>
+  <circle cx="700" cy="140" r="5" class="cb"/>
+  <circle cx="235" cy="95" r="5" class="cp"/>
+  <circle cx="255" cy="95" r="5" class="cp"/>
+  <circle cx="405" cy="95" r="5" class="cp"/>
+  <circle cx="425" cy="95" r="5" class="cp"/>
+  <circle cx="590" cy="95" r="5" class="cp"/>
+  <circle cx="470" cy="140" r="5" class="tag"/>
+  <circle cx="620" cy="140" r="5" class="tag"/>
+  <text class="tagt" x="470" y="166" text-anchor="middle">tag v1.5.0</text>
+  <text class="tagt" x="620" y="166" text-anchor="middle">tag v1.5.1</text>
+  <text class="sub" x="300" y="166" text-anchor="middle">合并即可部署</text>
+  <rect class="card" x="10" y="210" width="740" height="200" rx="8"/>
+  <text class="label" x="380" y="234" text-anchor="middle">Git Flow（遗留选项：需同时维护多个版本的产品）</text>
+  <text class="lane" x="24" y="264">hotfix/*</text>
+  <text class="lane" x="24" y="294">main</text>
+  <text class="lane" x="24" y="324">release/*</text>
+  <text class="lane" x="24" y="354">develop</text>
+  <text class="lane" x="24" y="384">feature/*</text>
+  <line class="main" x1="130" y1="290" x2="730" y2="290"/>
+  <line class="dev" x1="130" y1="350" x2="730" y2="350"/>
+  <path class="br" d="M170,350 C185,350 185,380 200,380 L250,380 C265,380 265,350 280,350"/>
+  <path class="rel" d="M320,350 C335,350 335,320 350,320 L400,320 C415,320 415,290 430,290"/>
+  <path class="rel" d="M400,320 C415,320 425,350 440,350"/>
+  <path class="hot" d="M500,290 C515,290 515,260 530,260 L560,260 C575,260 575,290 590,290"/>
+  <path class="hot-d" d="M560,260 C600,260 600,350 640,350"/>
+  <circle cx="150" cy="290" r="5" class="cb"/>
+  <circle cx="500" cy="290" r="5" class="cb"/>
+  <circle cx="700" cy="290" r="5" class="cb"/>
+  <circle cx="150" cy="350" r="5" class="cg"/>
+  <circle cx="280" cy="350" r="5" class="cg"/>
+  <circle cx="320" cy="350" r="5" class="cg"/>
+  <circle cx="440" cy="350" r="5" class="cg"/>
+  <circle cx="640" cy="350" r="5" class="cg"/>
+  <circle cx="700" cy="350" r="5" class="cg"/>
+  <circle cx="215" cy="380" r="5" class="cp"/>
+  <circle cx="235" cy="380" r="5" class="cp"/>
+  <circle cx="365" cy="320" r="5" class="cy"/>
+  <circle cx="385" cy="320" r="5" class="cy"/>
+  <circle cx="545" cy="260" r="5" class="cr"/>
+  <circle cx="430" cy="290" r="5" class="tag"/>
+  <circle cx="590" cy="290" r="5" class="tag"/>
+  <text class="tagt" x="430" y="280" text-anchor="middle">v2.0.0</text>
+  <text class="tagt" x="600" y="282">v2.0.1</text>
+  <text class="sub" x="736" y="384" text-anchor="end">hotfix 需同时合回 main 与 develop</text>
+</svg>

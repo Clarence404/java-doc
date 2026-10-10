@@ -1,0 +1,107 @@
+<svg viewBox="0 0 780 328" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .card { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+    .label { font-weight: 600; }
+    .sub { fill: var(--muted); font-size: 12px; }
+    .v1 { fill: var(--b); fill-opacity: 0.12; stroke: var(--b); stroke-width: 1.5; }
+    .v2 { fill: var(--g); fill-opacity: 0.12; stroke: var(--g); stroke-width: 1.5; }
+    .v2wait { fill: var(--g); fill-opacity: 0.05; stroke: var(--g); stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .gone { fill: var(--muted); fill-opacity: 0.08; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .bad { fill: var(--r); fill-opacity: 0.08; stroke: var(--r); stroke-width: 1.5; }
+    .t1 { fill: var(--b); font-weight: 600; }
+    .t2 { fill: var(--g); font-weight: 600; }
+    .tr { fill: var(--r); font-weight: 600; }
+    .tm { fill: var(--muted); }
+    .arrow { stroke: var(--fg); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    .arrow-g { stroke: var(--g); stroke-width: 1.5; fill: none; marker-end: url(#arrowG); }
+    .arrow-r { stroke: var(--r); stroke-width: 1.5; fill: none; marker-end: url(#arrowR); }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="var(--fg)"/></marker>
+    <marker id="arrowG" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="var(--g)"/></marker>
+    <marker id="arrowR" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" fill="var(--r)"/></marker>
+  </defs>
+  <rect width="780" height="328" fill="var(--bg)" rx="8"/>
+  <text x="390" y="26" text-anchor="middle" class="title">滚动更新：replicas=4，maxSurge=1，maxUnavailable=0</text>
+  <rect x="20" y="42" width="124" height="266" rx="6" class="card"/>
+  <text x="82" y="66" text-anchor="middle" class="label">1 初始</text>
+  <rect x="34" y="80" width="96" height="32" rx="4" class="v1"/>
+  <text x="82" y="100" text-anchor="middle" class="t1">v1</text>
+  <rect x="34" y="120" width="96" height="32" rx="4" class="v1"/>
+  <text x="82" y="140" text-anchor="middle" class="t1">v1</text>
+  <rect x="34" y="160" width="96" height="32" rx="4" class="v1"/>
+  <text x="82" y="180" text-anchor="middle" class="t1">v1</text>
+  <rect x="34" y="200" width="96" height="32" rx="4" class="v1"/>
+  <text x="82" y="220" text-anchor="middle" class="t1">v1</text>
+  <text x="82" y="292" text-anchor="middle" class="sub">可用 4 / 共 4</text>
+  <line x1="144" y1="175" x2="172" y2="175" class="arrow"/>
+  <rect x="174" y="42" width="124" height="266" rx="6" class="card"/>
+  <text x="236" y="66" text-anchor="middle" class="label">2 先扩容</text>
+  <rect x="188" y="80" width="96" height="32" rx="4" class="v1"/>
+  <text x="236" y="100" text-anchor="middle" class="t1">v1</text>
+  <rect x="188" y="120" width="96" height="32" rx="4" class="v1"/>
+  <text x="236" y="140" text-anchor="middle" class="t1">v1</text>
+  <rect x="188" y="160" width="96" height="32" rx="4" class="v1"/>
+  <text x="236" y="180" text-anchor="middle" class="t1">v1</text>
+  <rect x="188" y="200" width="96" height="32" rx="4" class="v1"/>
+  <text x="236" y="220" text-anchor="middle" class="t1">v1</text>
+  <rect x="188" y="240" width="96" height="32" rx="4" class="v2wait"/>
+  <text x="236" y="260" text-anchor="middle" class="t2">v2 未就绪</text>
+  <text x="236" y="292" text-anchor="middle" class="sub">可用 4 / 共 5</text>
+  <line x1="298" y1="175" x2="326" y2="175" class="arrow"/>
+  <rect x="328" y="42" width="124" height="266" rx="6" class="card"/>
+  <text x="390" y="66" text-anchor="middle" class="label">3 再缩容</text>
+  <rect x="342" y="80" width="96" height="32" rx="4" class="v1"/>
+  <text x="390" y="100" text-anchor="middle" class="t1">v1</text>
+  <rect x="342" y="120" width="96" height="32" rx="4" class="v1"/>
+  <text x="390" y="140" text-anchor="middle" class="t1">v1</text>
+  <rect x="342" y="160" width="96" height="32" rx="4" class="v1"/>
+  <text x="390" y="180" text-anchor="middle" class="t1">v1</text>
+  <rect x="342" y="200" width="96" height="32" rx="4" class="gone"/>
+  <text x="390" y="220" text-anchor="middle" class="tm">v1 终止中</text>
+  <rect x="342" y="240" width="96" height="32" rx="4" class="v2"/>
+  <text x="390" y="260" text-anchor="middle" class="t2">v2 就绪</text>
+  <text x="390" y="292" text-anchor="middle" class="sub">可用 4 / 共 5</text>
+  <line x1="452" y1="175" x2="480" y2="175" class="arrow"/>
+  <rect x="482" y="42" width="124" height="266" rx="6" class="card"/>
+  <text x="544" y="66" text-anchor="middle" class="label">4 循环替换</text>
+  <rect x="496" y="80" width="96" height="32" rx="4" class="v1"/>
+  <text x="544" y="100" text-anchor="middle" class="t1">v1</text>
+  <rect x="496" y="120" width="96" height="32" rx="4" class="v1"/>
+  <text x="544" y="140" text-anchor="middle" class="t1">v1</text>
+  <rect x="496" y="160" width="96" height="32" rx="4" class="v2"/>
+  <text x="544" y="180" text-anchor="middle" class="t2">v2</text>
+  <rect x="496" y="200" width="96" height="32" rx="4" class="v2"/>
+  <text x="544" y="220" text-anchor="middle" class="t2">v2</text>
+  <rect x="496" y="240" width="96" height="32" rx="4" class="v2wait"/>
+  <text x="544" y="260" text-anchor="middle" class="t2">v2 未就绪</text>
+  <text x="544" y="292" text-anchor="middle" class="sub">可用 4 / 共 5</text>
+  <line x1="606" y1="175" x2="634" y2="175" class="arrow"/>
+  <rect x="636" y="42" width="124" height="266" rx="6" class="card"/>
+  <text x="698" y="66" text-anchor="middle" class="label">5 完成</text>
+  <rect x="650" y="80" width="96" height="32" rx="4" class="v2"/>
+  <text x="698" y="100" text-anchor="middle" class="t2">v2</text>
+  <rect x="650" y="120" width="96" height="32" rx="4" class="v2"/>
+  <text x="698" y="140" text-anchor="middle" class="t2">v2</text>
+  <rect x="650" y="160" width="96" height="32" rx="4" class="v2"/>
+  <text x="698" y="180" text-anchor="middle" class="t2">v2</text>
+  <rect x="650" y="200" width="96" height="32" rx="4" class="v2"/>
+  <text x="698" y="220" text-anchor="middle" class="t2">v2</text>
+  <text x="698" y="292" text-anchor="middle" class="sub">可用 4 / 共 4</text>
+</svg>
