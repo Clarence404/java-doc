@@ -370,7 +370,7 @@ public class TelemetryHandler {
 
 ### 3、连接规模
 
-单个平台服务通常只维护少量 MQTT 连接，海量设备连接由 Broker 承担。如果需要用 Java 直接承载设备长连接（私有 TCP 协议），见 [Netty 设备接入网关](./9_netty_gateway)。
+单个平台服务通常只维护少量 MQTT 连接，海量设备连接由 Broker 承担。如果需要用 Java 直接承载设备长连接（私有 TCP 协议），见 [Netty 接入网关](./9_netty_gateway)。
 
 ---
 

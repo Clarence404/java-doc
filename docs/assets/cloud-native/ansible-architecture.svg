@@ -32,7 +32,7 @@
   <text class="box-title" x="160" y="84" text-anchor="middle">控制节点（Control Node）</text>
   <text class="desc" x="160" y="110" text-anchor="middle">Inventory（主机清单）</text>
   <text class="desc" x="160" y="134" text-anchor="middle">Playbook（任务编排 YAML）</text>
-  <text class="desc" x="160" y="158" text-anchor="middle">模块库（yum / copy / systemd…）</text>
+  <text class="desc" x="160" y="158" text-anchor="middle">模块库（dnf / copy / systemd…）</text>
   <text class="desc" x="160" y="182" text-anchor="middle">ansible / ansible-playbook CLI</text>
   <text class="desc" x="160" y="206" text-anchor="middle">无守护进程、无数据库</text>
 

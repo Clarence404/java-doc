@@ -1,0 +1,66 @@
+<svg viewBox="0 0 760 312" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .name { font-size:12px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-k8s-path" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="170" y="26" text-anchor="middle">一次请求进入集群的路径</text>
+
+  <!-- CoreDNS -->
+  <rect x="360" y="36" width="160" height="60" rx="6" fill="var(--card)" stroke="var(--y)"/>
+  <text class="name" x="440" y="60" text-anchor="middle">CoreDNS</text>
+  <text class="desc" x="440" y="82" text-anchor="middle">Service 名 → ClusterIP</text>
+  <line x1="440" y1="96" x2="440" y2="127" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-path)"/>
+
+  <!-- 主链路 -->
+  <rect x="20" y="129" width="110" height="70" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="75" y="157" text-anchor="middle">客户端</text>
+  <text class="desc" x="75" y="179" text-anchor="middle">集群外</text>
+  <line x1="130" y1="164" x2="168" y2="164" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-path)"/>
+
+  <rect x="170" y="129" width="150" height="70" rx="6" fill="var(--card)" stroke="var(--p)"/>
+  <text class="name" x="245" y="157" text-anchor="middle">Gateway / Ingress</text>
+  <text class="desc" x="245" y="179" text-anchor="middle">L7 入口：域名与路径</text>
+  <line x1="320" y1="164" x2="358" y2="164" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-path)"/>
+
+  <rect x="360" y="129" width="160" height="70" rx="6" fill="var(--card)" stroke="var(--b)"/>
+  <text class="name" x="440" y="157" text-anchor="middle">Service（ClusterIP）</text>
+  <text class="desc" x="440" y="179" text-anchor="middle">稳定虚拟 IP + 负载均衡</text>
+
+  <!-- EndpointSlice -->
+  <rect x="360" y="232" width="160" height="60" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="440" y="256" text-anchor="middle">EndpointSlice</text>
+  <text class="desc" x="440" y="278" text-anchor="middle">就绪 Pod 的 IP:端口</text>
+  <line x1="440" y1="232" x2="440" y2="201" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-path)"/>
+
+  <!-- Pods -->
+  <line x1="520" y1="164" x2="578" y2="108" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-path)"/>
+  <line x1="520" y1="164" x2="578" y2="164" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-path)"/>
+  <line x1="520" y1="164" x2="578" y2="220" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-path)"/>
+  <rect x="580" y="86" width="160" height="44" rx="6" fill="var(--card)" stroke="var(--g)"/>
+  <text class="name" x="660" y="113" text-anchor="middle">Pod 10.244.1.12</text>
+  <rect x="580" y="142" width="160" height="44" rx="6" fill="var(--card)" stroke="var(--g)"/>
+  <text class="name" x="660" y="169" text-anchor="middle">Pod 10.244.2.7</text>
+  <rect x="580" y="198" width="160" height="44" rx="6" fill="var(--card)" stroke="var(--g)"/>
+  <text class="name" x="660" y="225" text-anchor="middle">Pod 10.244.3.21</text>
+</svg>

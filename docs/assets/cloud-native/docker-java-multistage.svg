@@ -1,0 +1,61 @@
+<svg viewBox="0 0 760 194" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="24" text-anchor="middle" class="title">Java 镜像多阶段构建与交付</text>
+
+  <rect x="20" y="44" width="150" height="130" rx="4" fill="var(--muted)" fill-opacity="0.10" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="95" y="70" text-anchor="middle" class="name">源码与构建上下文</text>
+  <text x="95" y="94" text-anchor="middle" class="desc">pom.xml + src/</text>
+  <text x="95" y="114" text-anchor="middle" class="desc">.dockerignore</text>
+  <text x="95" y="134" text-anchor="middle" class="desc">排除 target、.git</text>
+
+  <rect x="210" y="44" width="150" height="130" rx="4" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="285" y="70" text-anchor="middle" class="name">构建阶段 build</text>
+  <text x="285" y="94" text-anchor="middle" class="desc">Maven + JDK 镜像</text>
+  <text x="285" y="114" text-anchor="middle" class="desc">缓存挂载 ~/.m2</text>
+  <text x="285" y="134" text-anchor="middle" class="desc">mvn package</text>
+  <text x="285" y="154" text-anchor="middle" class="desc">jarmode 分层解压</text>
+
+  <rect x="400" y="44" width="150" height="130" rx="4" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="475" y="70" text-anchor="middle" class="name">运行阶段</text>
+  <text x="475" y="94" text-anchor="middle" class="desc">只有 JRE 的基础镜像</text>
+  <text x="475" y="114" text-anchor="middle" class="desc">按层 COPY 4 个目录</text>
+  <text x="475" y="134" text-anchor="middle" class="desc">USER 非 root</text>
+  <text x="475" y="154" text-anchor="middle" class="desc">exec 形式 ENTRYPOINT</text>
+
+  <rect x="590" y="44" width="150" height="130" rx="4" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="665" y="70" text-anchor="middle" class="name">推送与运行</text>
+  <text x="665" y="94" text-anchor="middle" class="desc">docker push 到仓库</text>
+  <text x="665" y="114" text-anchor="middle" class="desc">扫描、签名</text>
+  <text x="665" y="134" text-anchor="middle" class="desc">按 digest 部署</text>
+  <text x="665" y="154" text-anchor="middle" class="desc">Compose / K8s 运行</text>
+
+  <line x1="170" y1="109" x2="208" y2="109" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="360" y1="109" x2="398" y2="109" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="550" y1="109" x2="588" y2="109" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

@@ -1,0 +1,77 @@
+<svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 12px; fill: var(--muted); }
+    .item  { font-size: 12px; }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="26" text-anchor="middle" class="title">Type-1、Type-2 Hypervisor 与容器的分层对比</text>
+  <text x="120" y="56" text-anchor="middle" class="name">Type-1（裸金属）</text>
+  <text x="360" y="56" text-anchor="middle" class="name">Type-2（宿主式）</text>
+  <text x="600" y="56" text-anchor="middle" class="name">容器</text>
+  <rect x="10" y="140" width="106" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="63.0" y="165" text-anchor="middle" class="name">应用</text>
+  <text x="63.0" y="184" text-anchor="middle" class="desc">Guest OS</text>
+  <rect x="124" y="140" width="106" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="177.0" y="165" text-anchor="middle" class="name">应用</text>
+  <text x="177.0" y="184" text-anchor="middle" class="desc">Guest OS</text>
+  <rect x="10" y="208" width="220" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="120.0" y="233" text-anchor="middle" class="name">Hypervisor（Type-1）</text>
+  <text x="120.0" y="252" text-anchor="middle" class="desc">ESXi / Hyper-V / KVM / Xen</text>
+  <rect x="10" y="276" width="220" height="40" rx="6" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="120.0" y="301" text-anchor="middle" class="name">物理硬件</text>
+  <rect x="250" y="72" width="106" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="303.0" y="97" text-anchor="middle" class="name">应用</text>
+  <text x="303.0" y="116" text-anchor="middle" class="desc">Guest OS</text>
+  <rect x="364" y="72" width="106" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="417.0" y="97" text-anchor="middle" class="name">应用</text>
+  <text x="417.0" y="116" text-anchor="middle" class="desc">Guest OS</text>
+  <rect x="250" y="140" width="220" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="360.0" y="165" text-anchor="middle" class="name">Hypervisor（Type-2）</text>
+  <text x="360.0" y="184" text-anchor="middle" class="desc">Workstation / VirtualBox</text>
+  <rect x="250" y="208" width="220" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="360.0" y="233" text-anchor="middle" class="name">宿主操作系统</text>
+  <text x="360.0" y="252" text-anchor="middle" class="desc">Windows / macOS / Linux</text>
+  <rect x="250" y="276" width="220" height="40" rx="6" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="360.0" y="301" text-anchor="middle" class="name">物理硬件</text>
+  <rect x="490" y="72" width="68" height="60" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="524.0" y="97" text-anchor="middle" class="name">应用</text>
+  <text x="524.0" y="116" text-anchor="middle" class="desc">依赖库</text>
+  <rect x="566" y="72" width="68" height="60" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="600.0" y="97" text-anchor="middle" class="name">应用</text>
+  <text x="600.0" y="116" text-anchor="middle" class="desc">依赖库</text>
+  <rect x="642" y="72" width="68" height="60" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="676.0" y="97" text-anchor="middle" class="name">应用</text>
+  <text x="676.0" y="116" text-anchor="middle" class="desc">依赖库</text>
+  <rect x="490" y="140" width="220" height="60" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="600.0" y="165" text-anchor="middle" class="name">容器运行时</text>
+  <text x="600.0" y="184" text-anchor="middle" class="desc">containerd / runc</text>
+  <rect x="490" y="208" width="220" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="600.0" y="233" text-anchor="middle" class="name">宿主 OS（共享内核）</text>
+  <text x="600.0" y="252" text-anchor="middle" class="desc">namespaces / cgroups</text>
+  <rect x="490" y="276" width="220" height="40" rx="6" fill="var(--card)" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="600.0" y="301" text-anchor="middle" class="name">物理机或虚拟机</text>
+  <text x="360" y="342" text-anchor="middle" class="lbl">每个 VM 自带内核，隔离强、开销大；容器共享宿主内核，启动快、隔离弱</text>
+</svg>

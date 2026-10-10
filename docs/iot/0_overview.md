@@ -26,7 +26,7 @@
 6. [MQTT 客户端](./6_mqtt_client)：Java MQTT 客户端选型、重连与会话、Spring Integration 收发
 7. [Modbus 采集](./7_modbus)：寄存器读写、轮询调度与数据解析
 8. [设备影子](./8_device_shadow)：期望值与上报值、版本号与离线指令
-9. [Netty 设备接入网关](./9_netty_gateway)：私有二进制协议接入、会话管理与上下行路由
+9. [Netty 接入网关](./9_netty_gateway)：私有二进制协议接入、会话管理与上下行路由
 10. [OTA 升级](./10_ota)：固件签名校验、防回滚、A/B 分区与灰度发布
 11. [规则引擎](./11_rule_engine)：规则模型、条件匹配与动作执行
 

@@ -1,251 +1,296 @@
 ---
-description: Unix 渊源、发展历程、通用核心命令
+description: Unix 渊源与 GPL、常用命令、systemd 与日志、权限、信号、文件描述符、排查命令
 ---
 
 # Linux 概览
 
-## **一、Linux 前身：Unix 及 Minix**
-
-Linux 不是凭空诞生的，它的核心思想、架构和设计理念都来源于 **Unix**，并受到 **Minix** 的影响。因此，要理解 Linux 的前身，
-必须先了解 Unix 和 Minix。
-
----
-
-### **1、 Unix - Linux 的“祖父”**
-
-#### **Unix 的诞生（1969 年）**
-
-Linux 的前身可以追溯到 1969 年，当时 **贝尔实验室（Bell Labs）** 的 **Ken Thompson** 和 **Dennis Ritchie**
-在开发一个新的操作系统。他们的目标是创建一个简单、可移植且适用于多用户、多任务环境的系统，这就是 **Unix**（UNICS，后来改名为
-Unix）。
-
-> Unix 的几个重要特点：
-> - **多用户、多任务**：支持多个用户同时使用，并能运行多个进程。
-> - **模块化设计**：采用“小而精”的哲学，每个程序只做一件事，但做得很好。
-> - **C 语言编写**：1973 年，Dennis Ritchie 用 C 语言重写 Unix，使其易于移植到不同的硬件上。
-
-#### **Unix 的分裂**
-
-由于 Unix 设计优秀，各大公司和大学都开始使用，并进行修改。逐渐，Unix 分裂为多个版本：
-
-- **AT&T Unix**（System V）——主要由 AT&T 继续开发，商业化后成为企业市场的主流。
-- **BSD（Berkeley Software Distribution）**——加州大学伯克利分校基于 Unix 研发，带来了 `vi`、`csh`、`TCP/IP` 等关键技术。
-- **其他商业 Unix 版本**：如 Sun Solaris、IBM AIX、HP-UX 等。
-
-随着 Unix 逐渐商业化，它的源码也变得封闭，普通用户无法免费获得完整的 Unix 系统。这就为后来的 **Minix 和 Linux 的诞生**
-埋下了伏笔。
+> **本篇目标**：了解 Linux 从 Unix、GNU、Minix 一路演化而来的脉络，掌握后端部署和排障最常用的那部分 Linux：systemd 服务管理与 journalctl 日志、文件权限、进程信号、文件描述符限制，以及按资源定位问题的排查命令。
+>
+> **前置阅读**：无
 
 ---
 
-### **2、 Minix - Linux 的“父亲”**
+## 一、从 Unix 到 Linux
 
-#### **Minix 的诞生（1987 年）**
+![从 Unix 到 GNU/Linux](../assets/cloud-native/linux-lineage.svg)
 
-由于 Unix 逐渐商业化，普通用户和学生无法轻易学习 Unix 的源码。荷兰计算机科学家 **Andrew S、 Tanenbaum** 认为 Unix
-太昂贵，难以用于教学，所以在 1987 年开发了 **Minix**，这是一个类 Unix 操作系统。
+### 1、Unix 与它的分裂
 
-> Minix 的特点：
-> - 轻量级，适用于 8086 处理器（早期 PC）。
-> - 采用微内核（Microkernel）架构，模块化设计。
-> - 用于教学目的，因此是开源的，但受到一定限制。
+1969 年，贝尔实验室的 Ken Thompson 和 Dennis Ritchie 开发了 Unix（最初叫 UNICS）。1973 年 Unix 用 C 语言重写，从此可以较低成本地移植到不同硬件上。它奠定的几条设计理念至今仍是 Linux 的底色：
 
-Minix 被广泛用于计算机科学课程，特别是在操作系统教学中。然而，它有几个限制：
+- **多用户、多任务**：多个用户同时登录，多个进程并发运行
+- **一切皆文件**：设备、管道、Socket 都通过文件描述符读写
+- **小工具组合**：每个程序只做一件事，用管道把它们串起来
 
-- 不能自由修改或分发（许可证限制）。
-- 主要用于教学，不适合实际应用。
-- 硬件支持有限，无法满足更复杂的计算需求。
+Unix 的源码授权给大学和厂商后，分化成两条主线：加州大学伯克利分校的 **BSD**（贡献了 TCP/IP 协议栈、`vi`、`csh`，后代包括 FreeBSD 和 macOS 的内核部分），以及 AT&T 的商业主线 **System V**（Solaris、AIX、HP-UX 等商业 Unix 都与它有渊源）。随着商业化加深，Unix 源码不再能自由获取和修改。
 
-由于这些限制，**Linus Torvalds**（Linux 之父）在学习 Minix 后，决定自己编写一个新的、更加自由和强大的操作系统，这就催生了
-Linux。
+### 2、GNU 计划与 Minix
 
----
+- **GNU 计划（1983）**：Richard Stallman 发起，目标是做一套完全自由的类 Unix 系统，并为此制定了 GPL 许可证。到 1990 年代初，GNU 已经有了 `gcc`、`glibc`、`bash`、coreutils 等用户态组件，唯独缺一个可用的内核
+- **Minix（1987）**：Andrew S. Tanenbaum 为操作系统教学编写的类 Unix 系统，采用微内核架构，源码随教材发布，但当时的许可证不允许自由修改和再分发（MINIX 3 起才改为 BSD 式许可证）
 
-### **3、 Linux 的诞生（1991 年）**
+### 3、Linux 的诞生
 
-1991 年，芬兰大学生 **Linus Torvalds** 受到 Minix 的启发，开始开发自己的内核。他最初的目标只是做一个类似 Minix
-的简单操作系统，运行在自己的 386 计算机上。然而，他选择使用 GNU 通用公共许可证（GPL）发布，使其迅速吸引了全球开发者的关注和贡献。
+1991 年 8 月，芬兰大学生 Linus Torvalds 在 comp.os.minix 新闻组宣布自己正在写一个「只是爱好」的内核，同年 9 月发布 0.01 版，运行在 Intel 386 上。最初的许可证禁止商业使用，1992 年的 0.12 版起改用 **GNU GPL v2**，此后吸引了全球开发者参与；今天内核的许可证仍是 GPL-2.0-only。
 
-> **Linux 与 Unix/Minix 的不同点**：
-> - **不像 Unix，是从零开发的内核，但遵循 Unix 设计哲学**。
-> - **不像 Minix，Linux 采用的是单内核（Monolithic Kernel），不是微内核**。
-> - **Linux 采用 GNU 许可证，允许自由修改、分发和商业化**。
-> - **快速发展，吸引了大量开发者，成为开源操作系统的领导者**。
+与前辈相比：
 
----
+- **与 Unix**：没有使用 Unix 源码，是从零编写的内核，但遵循 Unix 的接口与设计哲学（后来以 POSIX 为兼容目标）
+- **与 Minix**：Linux 采用宏内核（Monolithic Kernel），驱动和文件系统运行在内核态，通过可加载模块保持扩展性；Minix 是微内核
+- **与 GNU**：Linux 只是内核，Linux 内核 + GNU 工具链才构成一个可用的操作系统，因此也被称为 GNU/Linux
 
-### **4、 Linux 前身总结**
+| 系统 | 诞生 | 主要开发者 | 许可证 | 对 Linux 的影响 |
+|------|------|-----------|--------|----------------|
+| Unix | 1969 | Ken Thompson、Dennis Ritchie | 专有 | 设计理念与系统接口 |
+| BSD | 1977 | 加州大学伯克利分校 | BSD 许可证 | TCP/IP、`vi` 等工具 |
+| GNU | 1983 | Richard Stallman / FSF | GPL | 编译器、C 库、Shell 等用户态 |
+| Minix | 1987 | Andrew S. Tanenbaum | 早期受限，MINIX 3 起为 BSD 式 | 直接启发了 Linux 的诞生 |
+| Linux | 1991 | Linus Torvalds | GPL-2.0-only | — |
 
-| 操作系统      | 诞生时间 | 主要开发者                         | 主要用途        | 许可证           | 对 Linux 的影响                |
-|-----------|------|-------------------------------|-------------|---------------|----------------------------|
-| **Unix**  | 1969 | Ken Thompson & Dennis Ritchie | 服务器、大型机     | 专有（后来分裂出 BSD） | 提供了基础架构和设计理念               |
-| **BSD**   | 1977 | 加州大学伯克利分校                     | 服务器、网络      | BSD 许可证       | 提供了 `vi`、TCP/IP 协议等        |
-| **Minix** | 1987 | Andrew Tanenbaum              | 教学          | 受限开源          | 启发 Linus Torvalds 开发 Linux |
-| **Linux** | 1991 | Linus Torvalds                | 服务器、桌面、移动设备 | GNU GPL       | 成为全球最流行的开源操作系统             |
+### 4、关键节点
 
-Linux 继承了 Unix 的设计思想，同时受 Minix 启发成为完全自由的开源系统。如今，它已经发展成为全球服务器、云计算、嵌入式设备、
-超级计算机的核心操作系统。
+- **1992–1993 年**：SUSE（1992）、Slackware 与 Debian（1993）、Red Hat（1993）相继出现，内核 + GNU + 包管理被整合成发行版
+- **2004 年**：Ubuntu 发布，降低了 Linux 的使用门槛
+- **2008 年前后**：内核引入 cgroups，配合已有的 namespace，成为后来容器技术的基础（见 [Docker](./5_docker)）
+- **2010 年代**：systemd 逐步成为主流发行版的默认 init 系统；Android 让 Linux 内核进入移动设备
+- **2020–2021 年**：CentOS 转向 Stream，Rocky Linux、AlmaLinux 成为 RHEL 兼容的免费替代
 
-## **二、Linux 的发展历程**
-
-### 1、**Linux 的起源**
-
-Linux 的历史可以追溯到 1991 年，当时芬兰计算机科学家 **Linus Torvalds** 在学习 MINIX（一个教学用的小型 UNIX 类操作系统）时，
-觉得 MINIX 受限太多，于是自己从零开始开发了一个新的内核。这个内核就是 Linux，它最初只是一个兴趣项目，但由于 Torvalds 选择了 *
-*GPL（GNU General Public License）** 开源许可证，导致 Linux 迅速吸引了一大批开发者的关注和贡献。
-
-### 2、**GNU 计划与 Linux 的结合**
-
-Linux 仅仅是一个内核，而一个完整的操作系统还需要 Shell、编译器、库文件等组件。幸运的是，在 1983 年，**Richard Stallman** 
-发起了**GNU 计划**，目标是创建一个完全自由的 UNIX 类操作系统。GNU 计划提供了许多关键组件，如 `gcc`（编译器）、`glibc`（C 语言库）、
-`bash`（Shell）等。
-
-Linux 内核 + GNU 工具链 = **完整的 Linux 操作系统**
-
-这使得 Linux 逐渐成为 UNIX 的一种开源替代方案，并得到了越来越广泛的应用。
+发行版的派系、差异与选型见下一篇 [Linux 发行版](./2_linux_distros)。
 
 ---
 
-### 3、**Linux 发行版的出现**
+## 二、日常命令速查
 
-由于 Linux 内核本身只是一个核心组件，并不包含 GUI、应用软件、系统管理工具等。因此，各个组织和社区开始基于 Linux 内核，整合 GNU
-组件、软件包管理器、桌面环境等，形成了完整的 Linux **发行版（Distribution）**。
-
-不同的发行版有不同的目标和优化方向，比如有的侧重稳定性（如 Debian），有的适用于企业（如 Red Hat），有的专注于桌面用户（如
-Ubuntu）。这些发行版主要基于两大流派：
-
----
-
-### 4、**Linux 的主流发行版**
-
-Linux 发行版大致可以分为以下几个主要家族：
-
-#### **Debian 系**
-
-- **Debian**（1993 年）：以稳定著称，广泛用于服务器环境。
-- **Ubuntu**（2004 年）：基于 Debian，优化桌面体验，适合新手，拥有 LTS（长期支持）版本。
-- **Kali Linux**：基于 Debian，专注于网络安全与渗透测试。
-
-> **特点**：稳定、APT 包管理器（`.deb`）、社区驱动
-
-#### **Red Hat 系**
-
-- **Red Hat Enterprise Linux（RHEL）**（1995 年）：商业发行版，适用于企业级应用，需要订阅支持。
-- **CentOS**（2004 年-2021 年停更）：RHEL 的社区克隆版本，主要用于企业服务器。
-- **Rocky Linux / AlmaLinux**（CentOS 停更后）：作为 RHEL 的免费替代方案。
-- **Fedora**（2003 年）：Red Hat 赞助的社区版，测试新技术，特性前沿。
-
-> **特点**：稳定性强、适合企业应用、YUM/DNF 包管理器（`.rpm`）
-
-#### **Arch Linux 系**
-
-- **Arch Linux**（2002 年）：极简、滚动更新，适合高级用户，所有软件均需手动安装和配置。
-- **Manjaro**：基于 Arch，增强易用性，适合桌面用户。
-
-> **特点**：极简、滚动更新、Pacman 包管理器
-
-#### **SUSE 系**
-
-- **openSUSE**（2004 年）：社区发行版，稳定性强，适合企业开发。
-- **SUSE Linux Enterprise Server（SLES）**：企业版，专注于云计算和大规模部署。
-
-> **特点**：适合企业级解决方案、YaST 管理工具
+| 类别 | 命令 | 说明 |
+|------|------|------|
+| 目录与文件 | `ls -lh`、`cd`、`pwd`、`cp -r`、`mv`、`rm`、`mkdir -p` | 浏览与增删改 |
+| 查找 | `find /data/logs -name "*.log" -mtime +7`、`which java` | 按条件找文件、找命令路径 |
+| 查看内容 | `cat`、`less`、`head -n 100`、`tail -f app.log` | `less +F` 可在跟踪与翻页之间切换 |
+| 文本处理 | `grep -n "ERROR" app.log`、`awk`、`sed`、`sort \| uniq -c`、`wc -l` | 日志统计的主力组合 |
+| 磁盘 | `df -h`、`df -i`、`du -sh /var/log/* \| sort -h` | 空间与 inode 用量 |
+| 压缩 | `tar -czf logs.tar.gz logs/`、`tar -xzf logs.tar.gz`、`unzip` | 打包与解包 |
+| 用户 | `id`、`whoami`、`sudo -u app <cmd>`、`passwd` | 身份与提权 |
+| 网络配置 | `ip addr`、`ip route`、`ip link` | iproute2，替代已弃用的 `ifconfig` / `route` |
+| 定时任务 | `crontab -e`、`crontab -l`、`systemctl list-timers` | cron 守护进程或 systemd timer |
+| 历史 | `history`、`alias ll='ls -lh'` | 写入 `~/.bashrc` 持久生效 |
 
 ---
 
-### 5、**为什么 Linux 发行版会分裂？**
+## 三、systemd 与 journalctl
 
-Linux 发行版的分裂主要源于以下几点：
+主流发行版（RHEL 系、Debian / Ubuntu、SUSE）都用 **systemd** 作为 1 号进程，负责启动、停止、重启和监管服务，日志由配套的 journald 收集。
 
-1. **需求不同**
-    - 服务器用户希望稳定性（如 Debian、RHEL）。
-    - 桌面用户希望易用性（如 Ubuntu、Fedora）。
-    - 高级用户希望可定制性（如 Arch Linux）。
+### 1、常用命令
 
-2. **商业利益**
-    - Red Hat、SUSE 等公司希望提供商业支持，形成企业级 Linux 发行版（如 RHEL、SLES）。
-    - 社区则需要免费替代品（如 CentOS、AlmaLinux、Rocky Linux）。
+```bash
+systemctl status order            # 查看状态、主进程 PID 与最近日志
+systemctl start|stop|restart order
+systemctl enable --now order      # 开机自启并立即启动
+systemctl daemon-reload           # 修改 unit 文件后必须执行
+systemctl list-units --failed     # 列出启动失败的服务
+systemctl cat order               # 查看最终生效的 unit 内容
+```
 
-3. **技术理念不同**
-    - Debian 追求自由软件，而 Ubuntu 更注重用户体验（如包含专有驱动）。
-    - Arch 采用滚动更新，而 RHEL 采用长期支持版本。
+### 2、把 Java 服务注册为 systemd 服务
 
----
+裸机或虚拟机上部署 Spring Boot jar 时，用 systemd 托管比 `nohup java -jar &` 可靠：崩溃自动拉起、开机自启、日志统一进 journal、停机信号可控。
 
-### 6、**Linux 发展总结**
+```ini
+# /etc/systemd/system/order.service
+[Unit]
+Description=Order Service
+After=network-online.target
+Wants=network-online.target
 
-Linux 从最初的一个内核发展到如今的众多发行版，主要经历了以下阶段：
+[Service]
+Type=simple
+User=app
+Group=app
+WorkingDirectory=/opt/order
+ExecStart=/usr/bin/java -XX:MaxRAMPercentage=70 -jar /opt/order/order.jar
+# JVM 收到 SIGTERM 后以 143（128+15）退出，声明为正常退出
+SuccessExitStatus=143
+Restart=on-failure
+RestartSec=5
+# 停机时先发 SIGTERM，40 秒内未退出再发 SIGKILL
+TimeoutStopSec=40
+LimitNOFILE=65535
 
-1. **1991 年**：Linus Torvalds 发布 Linux 内核。
-2. **1993 年**：Debian、Slackware 等早期发行版出现。
-3. **1995-2000 年**：Red Hat、SUSE 成立，开始进入企业市场。
-4. **2004 年**：Ubuntu 发布，使 Linux 变得更加易用。
-5. **2010 年后**：云计算、容器化（如 Docker）、嵌入式（如 Android）推动 Linux 发展。
-6. **2021 年**：CentOS 停更，AlmaLinux、Rocky Linux 作为替代。
+[Install]
+WantedBy=multi-user.target
+```
 
-如今，Linux 已经广泛应用于服务器、云计算、嵌入式设备（如 Android）、超级计算机、甚至个人桌面，成为全球最重要的操作系统之一。
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now order
+```
 
-## 三、**Linux 通用核心命令**
+- `ExecStart` 中的 `java` 路径按实际 JDK 安装位置填写（可用 `readlink -f "$(which java)"` 查看）
+- `TimeoutStopSec` 要大于 Spring Boot 的 `spring.lifecycle.timeout-per-shutdown-phase`，否则优雅停机还没完成就被强杀，见 [优雅上下线与变更](/high-avail/8_graceful_release)
+- `LimitNOFILE` 是 systemd 服务的文件描述符上限，`/etc/security/limits.conf` 对它不生效（见下文第六节）
 
-### 1、📁文件系统相关
+### 3、journalctl 查日志
 
-| 命令                                     | 说明              |
-|----------------------------------------|-----------------|
-| `ls`, `cd`, `pwd`                      | 列目录，切换目录，显示当前目录 |
-| `cp`, `mv`, `rm`                       | 复制、移动、删除        |
-| `mkdir`, `rmdir`                       | 创建/删除目录         |
-| `find`, `locate`                       | 查找文件            |
-| `du`, `df`                             | 查看磁盘使用          |
-| `chmod`, `chown`                       | 修改权限、属主属组       |
-| `touch`, `cat`, `less`, `head`, `tail` | 操作文件内容          |
+```bash
+journalctl -u order -f                    # 跟踪某个服务的日志
+journalctl -u order --since "1 hour ago"  # 按时间过滤
+journalctl -u order -n 200 --no-pager     # 最近 200 行
+journalctl -p err -b                      # 本次开机以来的错误级别日志
+journalctl -k                             # 内核日志，相当于 dmesg
+journalctl --disk-usage                   # journal 占用的磁盘
+sudo journalctl --vacuum-time=7d          # 只保留 7 天
+```
 
----
+journal 是否在重启后保留，由 `/etc/systemd/journald.conf` 的 `Storage` 决定：取 `auto` 时，存在 `/var/log/journal` 目录才持久化，否则只写在内存中的 `/run/log/journal`。
 
-### 2、🧠系统监控与性能
-
-| 命令                        | 说明                    |
-|---------------------------|-----------------------|
-| `top`, `htop`             | 实时查看系统资源（htop 更美观）    |
-| `free -h`                 | 查看内存                  |
-| `uptime`, `vmstat`        | 查看负载、内存               |
-| `ps aux`, `kill`, `xargs` | 查看/杀进程                |
-| `iostat`, `iotop`         | 查看 IO 情况（需安装 sysstat） |
-
----
-
-### 3、🌐网络命令
-
-| 命令                          | 说明                |
-|-----------------------------|-------------------|
-| `ping`, `traceroute`, `dig` | 网络连通性/路由/DNS      |
-| `netstat`, `ss`             | 查看端口、连接           |
-| `curl`, `wget`              | 请求/下载资源           |
-| `telnet`, `nc`              | 测试端口连通性           |
-| `ip a`, `ip r`, `ip link`   | 网络配置（替代 ifconfig） |
-
----
-
-### 4、🔒权限管理
-
-| 命令                               | 说明     |
-|----------------------------------|--------|
-| `sudo`, `passwd`                 | 提权、改密码 |
-| `useradd`, `usermod`, `groupadd` | 用户组管理  |
-| `id`, `who`, `whoami`            | 当前用户信息 |
+> [!tip]
+> 应用自身的业务日志仍建议写文件或输出 JSON 到 stdout，再由采集端统一收集，journal 只作为兜底。日志规范见 [可观测性总览](/observability/0_overview)。
 
 ---
 
-### 5、🔧常用管理工具
+## 四、用户、权限与 umask
 
-| 命令                           | 说明         |
-|------------------------------|------------|
-| `tar`, `gzip`, `unzip`       | 解压压缩       |
-| `date`, `cal`                | 查看时间、日历    |
-| `history`, `alias`           | 历史命令、自定义命令 |
-| `cron`, `crontab`            | 定时任务       |
-| `journalctl`, `dmesg`, `log` | 查看日志（系统）   |
+### 1、rwx 与八进制
 
-## 四、后续补充专题
+`ls -l` 第一列如 `-rw-r-----`：第 1 位是类型（`-` 文件、`d` 目录、`l` 链接），后 9 位依次是属主、属组、其他人的读（r=4）、写（w=2）、执行（x=1）权限。
 
-- [Nginx 与 Ingress](./7_nginx_ingress)：反向代理、负载均衡、Kubernetes 入口流量
-- [Helm](./8_helm) / [Argo CD](./9_argocd) / [Terraform](./11_terraform)：应用部署、GitOps、基础设施即代码
-- [Service Mesh](./10_service_mesh)：Sidecar、流量治理、mTLS、可观测性
+| 写法 | 含义 | 典型用途 |
+|------|------|---------|
+| `chmod 640 application.yml` | 属主读写、属组只读、其他人无权限 | 含密码的配置文件 |
+| `chmod 750 /opt/order` | 属主全部、属组读和进入、其他人无权限 | 应用目录 |
+| `chmod 600 ~/.ssh/id_ed25519` | 仅属主读写 | SSH 私钥（权限过宽时 ssh 会拒绝使用） |
+| `chown -R app:app /opt/order` | 修改属主与属组 | 部署后交给运行账号 |
+
+目录的 `x` 表示能否进入，`r` 表示能否列出内容。另有三个特殊位：setuid（以文件属主身份执行，如 `passwd`）、setgid、sticky（如 `/tmp`，只有文件属主能删除自己的文件）。
+
+### 2、umask
+
+新建文件的权限 = 默认值（文件 666、目录 777）去掉 umask 中的位。默认 umask `022` 得到文件 644、目录 755；改成 `027` 得到 640 / 750，其他人完全不可读，适合生产主机。systemd 服务可在 `[Service]` 中用 `UMask=0027` 单独指定。
+
+### 3、用专用账号运行服务
+
+```bash
+sudo useradd --system --no-create-home --shell /usr/sbin/nologin app
+sudo chown -R app:app /opt/order
+```
+
+服务不要以 root 运行：一旦应用被攻破，攻击者拿到的就是整台主机。需要监听 1024 以下端口时，优先放在 Nginx 之后，或给进程授予 `CAP_NET_BIND_SERVICE` 能力，而不是改用 root。SELinux / AppArmor 等强制访问控制见 [Linux 发行版](./2_linux_distros)。
+
+---
+
+## 五、进程与信号
+
+### 1、常用信号
+
+| 信号 | 编号 | 能否捕获 | 说明 |
+|------|------|---------|------|
+| `SIGTERM` | 15 | 能 | `kill` 的默认信号，请求进程退出；JVM 会执行 shutdown hook，Spring Boot 据此优雅停机 |
+| `SIGKILL` | 9 | 不能 | 内核直接终止进程，不执行任何清理；处理中的请求、未刷盘的数据都会丢失 |
+| `SIGINT` | 2 | 能 | 终端里按 Ctrl+C |
+| `SIGHUP` | 1 | 能 | 终端断开；Nginx 等守护进程约定为重新加载配置 |
+| `SIGQUIT` | 3 | 能 | HotSpot JVM 收到后把线程栈打印到标准输出，进程不退出 |
+
+### 2、kill -15 与 kill -9
+
+停服务的正确顺序是先 `kill <pid>`（即 `-15`），等待进程自行退出，超时后才 `kill -9`。systemd 的 `TimeoutStopSec`、Kubernetes 的 `terminationGracePeriodSeconds` 都是同一套逻辑。一上来就 `-9` 相当于直接断电，摘流量、等待在途请求、关闭连接池都来不及做。
+
+进程退出码 = 128 + 信号编号：**143** 表示被 SIGTERM 终止，**137** 表示被 SIGKILL 终止（容器里常见于内存超限被 OOM Killer 杀掉）。
+
+> [!warning]
+> 容器中如果用 shell 形式启动 Java（`ENTRYPOINT java -jar app.jar`），SIGTERM 只会发给 `sh`，JVM 收不到，最终被 SIGKILL。完整的停机链路见 [优雅上下线与变更](/high-avail/8_graceful_release)。
+
+### 3、查看与定位进程
+
+```bash
+ps -ef | grep java                                      # 找进程
+pgrep -f order.jar                                      # 直接拿 PID
+ps -eo pid,ppid,stat,%cpu,%mem,cmd --sort=-%cpu | head  # 按 CPU 排序
+ps -o nlwp= -p <pid>                                    # 线程数
+```
+
+`STAT` 列中 `D` 表示不可中断睡眠（通常在等磁盘或网络存储 IO，`kill -9` 也杀不掉），`Z` 表示僵尸进程（已退出但父进程未回收，需处理父进程）。
+
+---
+
+## 六、文件描述符与 ulimit
+
+Linux 中每个打开的文件、Socket、管道都占一个文件描述符（fd）。高并发服务的连接、连接池、日志文件都会消耗 fd，超过上限会抛出 `java.io.IOException: Too many open files`。
+
+```bash
+cat /proc/<pid>/limits | grep "open files"   # 进程实际生效的软 / 硬限制
+ls /proc/<pid>/fd | wc -l                     # 进程当前打开的 fd 数
+ulimit -n; ulimit -Hn                         # 当前 shell 的软 / 硬限制
+cat /proc/sys/fs/file-nr                      # 全系统已分配 fd 数与上限
+```
+
+限制在哪里设置，取决于进程是怎么启动的：
+
+| 启动方式 | 设置位置 |
+|---------|---------|
+| systemd 服务 | unit 文件中的 `LimitNOFILE=65535` |
+| 登录 shell 中手动启动 | `/etc/security/limits.conf`（经 PAM 生效，需重新登录） |
+| Docker 容器 | `docker run --ulimit nofile=65535:65535`，或 daemon 的 `default-ulimits` |
+| 全系统上限 | `fs.file-max`、`fs.nr_open`（sysctl） |
+
+HotSpot JVM 在 Linux 上启动时默认会把软限制提升到硬限制（`-XX:+MaxFDLimit`），所以对 Java 服务真正要调大的是硬限制。连接相关的内核参数（`somaxconn`、端口范围、TIME_WAIT）见 [并发参数调优](/high-con/7_concurrency_tuning)。
+
+---
+
+## 七、常用排查命令
+
+排查时先按资源逐一检查利用率、饱和度和错误（USE 方法，见 [性能分析方法论](/high-perf/2_methodology)），确定瓶颈在 CPU、内存、磁盘还是网络，再深入到进程和代码。
+
+### 1、按资源选命令
+
+| 资源 | 命令 | 重点看 |
+|------|------|--------|
+| 负载 / CPU | `uptime`、`top`、`vmstat 1 5`、`mpstat -P ALL 1` | load 与 CPU 核数之比；`us` / `sy` / `wa` / `st`；`vmstat` 的 `r`（运行队列）与 `cs`（上下文切换） |
+| 内存 | `free -h`、`vmstat 1 5` | 看 `available` 而不是 `free`；`si` / `so` 持续非零说明在换页 |
+| 磁盘 | `df -h`、`df -i`、`iostat -x 1`、`iotop` | 空间与 inode；`%util`、`r_await` / `w_await`、`aqu-sz` |
+| 网络 | `ss -lntp`、`ss -s`、`ss -Htan state time-wait \| wc -l`、`ip -s link` | 监听端口与进程；各状态连接数；网卡丢包与错误 |
+| 连通性 | `ping`、`mtr`、`dig`、`curl -v`、`nc -zv host 3306` | 路由、DNS 解析、TLS 握手、端口可达 |
+| 进程级 | `pidstat -u -r -d -p <pid> 1`、`lsof -p <pid>`、`lsof -i :8080` | 单进程的 CPU / 内存 / IO；打开的文件与连接 |
+| 系统调用 | `strace -f -p <pid> -T -e trace=network`、`strace -c -p <pid>` | 卡在哪个系统调用、耗时多少；`-c` 汇总调用次数 |
+| 内核事件 | `dmesg -T \| grep -i -E "out of memory\|killed process"` | OOM Killer、磁盘与网卡报错 |
+
+几个容易踩的坑：
+
+- `netstat` 属于已弃用的 net-tools，新系统默认不装，统一用 `ss`
+- `iostat`、`mpstat`、`pidstat`、`sar` 来自 **sysstat** 包；`iotop` 是独立的包（`iotop` 或 `iotop-c`）；`strace`、`lsof` 也通常需要单独安装
+- `df` 显示磁盘满、`du` 却统计不出来时，多半是日志文件被删除但仍被进程打开，用 `lsof +L1` 找出来，重启进程或清空文件即可释放
+- `strace` 会显著拖慢被跟踪的进程，生产环境只做短时间采样
+
+### 2、定位 Java 进程的高 CPU 线程
+
+```bash
+top -Hp <pid>                               # 找到 CPU 最高的线程 ID（十进制）
+printf '%x\n' <tid>                         # 转成十六进制，如 3e8
+jstack <pid> | grep -A 20 'nid=0x3e8'       # 在线程栈中找到对应线程
+```
+
+更完整的 JVM 排障流程见 [故障排查](/jvm/9_troubleshooting)，在线诊断工具 Arthas 见 [线上诊断](/engineering/4_diagnosis)。
+
+---
+
+## 小结
+
+- Linux 内核从零编写，继承 Unix 的设计哲学，受 Minix 启发，与 GNU 用户态组合成完整系统；内核许可证为 GPL-2.0-only
+- 服务用 systemd 托管：`Restart` 负责崩溃拉起，`TimeoutStopSec` 要大于应用的优雅停机时间，`LimitNOFILE` 设置 fd 上限，日志用 `journalctl -u` 查看
+- 服务使用专用的非 root 账号运行，配置文件 640、目录 750，生产主机 umask 取 027
+- 停服务先 SIGTERM，超时再 SIGKILL；退出码 143 / 137 分别对应这两个信号
+- fd 上限在哪里设置取决于启动方式，systemd 服务不读 `limits.conf`
+- 排查按 USE 方法逐个资源检查，`ss` 替代 `netstat`，`iostat` 来自 sysstat
+
+## 参考资料
+
+- Linux 内核文档：[The Linux Kernel documentation](https://docs.kernel.org/)
+- 内核许可证说明：[Linux kernel licensing rules](https://docs.kernel.org/process/license-rules.html)
+- GNU 计划：[About the GNU Project](https://www.gnu.org/gnu/thegnuproject.html)
+- systemd 服务配置：[systemd.service 手册](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html)
+- 资源限制配置：[systemd.exec 手册](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html)
+- journal 查询：[journalctl 手册](https://www.freedesktop.org/software/systemd/man/latest/journalctl.html)
+- 信号说明：[signal(7) - Linux manual page](https://man7.org/linux/man-pages/man7/signal.7.html)
+- 套接字统计：[ss(8) - Linux manual page](https://man7.org/linux/man-pages/man8/ss.8.html)
+- 系统调用跟踪：[strace(1) - Linux manual page](https://man7.org/linux/man-pages/man1/strace.1.html)
+
+> 下一篇：[Linux 发行版](./2_linux_distros) —— RHEL 系、Debian 系、Alpine 与国产发行版的差异和选型。

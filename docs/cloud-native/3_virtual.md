@@ -1,172 +1,154 @@
 ---
-description: 虚拟机发展与分类、常用虚拟机
+description: 发展脉络、系统 VM 与进程 VM、Type-1 / Type-2、硬件辅助虚拟化、VM 与容器、microVM 与沙箱
 ---
 
 # 虚拟化概览
 
-## 一、虚拟机的发展
+> **本篇目标**：理清虚拟化的发展脉络和几种分类口径，分清 Type-1 / Type-2 Hypervisor、虚拟机与容器、microVM 与沙箱各自的位置，为后续学习 Docker 和 Kubernetes 打基础。
+>
+> **前置阅读**：[Linux 发行版](./2_linux_distros)
 
-虚拟机的发展经历了从最初在大型机上实现资源隔离，到现代云计算时代作为基础设施核心支撑的演进过程。大致可分为以下几个阶段：
-
-### 1. **初始阶段（1960s-1970s）：大型机虚拟化**
-
-虚拟化最早起源于 IBM 在 1960 年代开发的 CP/CMS 系统，用于在大型机上运行多个用户会话。它的目的是提高计算资源的利用率和多任务处理能力。
-
-- **代表技术**：IBM VM/370
-- **核心目标**：资源隔离、多任务处理
-- **主要特点**：硬件模拟、时间分片、用户空间隔离
-
-### 2. **停滞与过渡阶段（1980s-1990s）：微机兴起，虚拟化冷淡**
-
-随着微型计算机和个人电脑的普及，硬件成本下降，虚拟化技术一度热度降低。这一时期，更多关注操作系统本身的发展，如 UNIX、Windows
-等。
-
-- **主要趋势**：硬件廉价导致“一机一系统”模式流行
-- **虚拟化应用**：主要用于软件调试（如 DOSBox、Bochs）
-
-### 3. **复兴阶段（2000s）：x86 虚拟化崛起**
-
-2000 年后，随着服务器数量激增与资源浪费问题加剧，x86 架构虚拟化成为研究和商业热点。VMware、Microsoft、Xen 等相继推出虚拟化方案。
-
-- **代表产品**：VMware Workstation/ESX、Xen、VirtualBox
-- **核心技术突破**：
-
-    - 二进制翻译（Binary Translation）
-    - 半虚拟化（Paravirtualization）
-    - 硬件辅助虚拟化（Intel VT-x、AMD-V）
-
-### 4. **成熟阶段（2010s）：云计算与容器化共存**
-
-虚拟机技术已广泛应用于数据中心和云计算平台，成为 IaaS 层的基础。而与此同时，容器（如 Docker）的轻量级隔离方式也逐渐兴起，
-与虚拟机并行发展。
-
-- **云平台依赖**：AWS EC2、Microsoft Azure、阿里云 ECS 等
-- **关键趋势**：
-
-    - 虚拟化与容器化融合（Kata Containers）
-    - 虚拟化性能优化（如 SR-IOV、NUMA 支持）
-
-### 5. **现代阶段（2020s 至今）：轻量虚拟化与边缘计算**
-
-随着边缘计算、物联网的发展，对启动速度快、资源占用小的轻量虚拟机（如 Firecracker、Wasmtime）需求提升。同时，WebAssembly
-等技术也提供了更细粒度的沙箱化运行环境。
-
-- **代表技术**：Firecracker（用于 AWS Lambda）、gVisor、WebAssembly VM
-- **发展方向**：
-
-    - 微服务化架构支持
-    - 更强的安全隔离
-    - 快速启动与冷启动优化
+虚拟化的本质是在物理资源和使用者之间加一层抽象：把一台机器的 CPU、内存、磁盘、网卡「切」成多份，或者把一种运行环境「模拟」到另一种平台上。服务器虚拟化、JVM、容器、WebAssembly 都在做这件事，区别在于抽象层放在哪里、隔离到什么程度。
 
 ---
 
-## 二、虚拟机的分类
+## 一、发展脉络
 
-虚拟机（Virtual Machine，VM）是一种对计算机系统资源的抽象和模拟，根据不同的维度可以将虚拟机分为多种类型，主要包括以下几类：
+### 1、大型机时代（1960s–1970s）
 
-### 1. **系统虚拟机（System Virtual Machine）**
+IBM 在 CP-40 / CP-67 上首先实现了虚拟机，1972 年的 VM/370 让一台大型机同时运行多个相互隔离的操作系统实例，目的是分时共享昂贵的硬件。1974 年 Popek 和 Goldberg 提出「可虚拟化」的形式化条件：所有敏感指令都必须是特权指令，这样 Hypervisor 才能用「陷入—模拟」的方式接管它们。
 
-系统虚拟机模拟的是一整套完整的计算机硬件系统，它允许在其上运行完整的操作系统。其主要用途是提供多个独立的操作系统环境。
+### 2、PC 时代的沉寂（1980s–1990s）
 
-- **代表产品**：VMware ESXi、Microsoft Hyper-V、KVM、Xen
-- **特点**：每个虚拟机都可以运行不同的操作系统；高度隔离；资源开销较大。
-- **使用场景**：服务器虚拟化、云计算基础设施。
+x86 PC 普及后硬件变便宜，「一台机器一个系统」成为常态，虚拟化热度下降。同时，x86 有十几条敏感但非特权的指令，不满足 Popek–Goldberg 条件，无法直接用陷入—模拟实现虚拟化，这是技术上的主要障碍。
 
-### 2. **进程虚拟机（Process Virtual Machine）**
+### 3、x86 虚拟化复兴（1999–2010）
 
-进程虚拟机是为了支持单个进程的运行而设计的，它为该进程提供一个运行时的抽象平台，屏蔽底层操作系统的差异。
+服务器数量激增、利用率低下，虚拟化重新成为刚需，三条技术路线先后突破 x86 的限制：
 
-- **代表产品**：Java 虚拟机（JVM）、.NET CLR、Python 虚拟机（PVM）
-- **特点**：跨平台；启动快；通常用于语言运行时。
-- **使用场景**：软件开发与跨平台运行。
+- **二进制翻译**：VMware Workstation（1999）在运行时把客户机内核里的敏感指令改写成安全指令序列，客户机系统无需修改
+- **半虚拟化**：Xen（2003）修改客户机内核，让它主动调用 Hypervisor（hypercall），省去翻译开销
+- **硬件辅助虚拟化**：Intel VT-x（2005）和 AMD-V（2006）在 CPU 中加入新的运行模式，后来又加入 EPT / NPT 加速内存地址转换；KVM 借此在 2007 年进入 Linux 主线内核
 
----
+### 4、云计算与容器（2006–2019）
 
-### 3. **全虚拟化 vs 半虚拟化**
+- AWS EC2（2006）把虚拟机变成按需租用的商品，虚拟化成为 IaaS 的基础
+- Docker（2013）用 Linux namespaces 和 cgroups 做进程级隔离，容器开始与虚拟机并行发展
+- SR-IOV、virtio、硬件卸载（如 AWS Nitro）持续压低虚拟化的 IO 开销
 
-- **全虚拟化（Full Virtualization）**
-  客户操作系统无需修改，虚拟机完全模拟底层硬件。
-  代表：VMware Workstation、QEMU（带硬件支持）
+### 5、轻量化与强隔离（2018 至今）
 
-- **半虚拟化（Paravirtualization）**
-  客户操作系统需做一定修改，以便与虚拟机监控器更高效地通信。
-  代表：Xen（早期版本）
+函数计算、多租户容器平台既要容器的启动速度，又要虚拟机的隔离强度，催生了一批新形态：
 
----
-
-### 4. **宿主式 vs 裸金属式**
-
-- **宿主式虚拟机（Hosted VM）**
-  依赖已有的主操作系统，在其上运行虚拟机软件（如 VMware Workstation、VirtualBox）。
-
-- **裸金属虚拟机（Bare-metal VM）**
-  虚拟机监控器直接运行在硬件之上，不依赖宿主操作系统（如 VMware ESXi、KVM）。
+- **microVM**：Firecracker 基于 KVM，只模拟极少的设备，启动在百毫秒级，用于 AWS Lambda 与 Fargate
+- **安全容器**：Kata Containers 给每个 Pod 套一个轻量虚拟机，对外仍是标准容器接口
+- **用户态内核沙箱**：gVisor 在用户态实现一套 Linux 系统调用，拦截容器的系统调用，不需要完整的客户机内核
+- **WebAssembly 运行时**：Wasmtime、WasmEdge 以字节码 + 能力模型提供细粒度沙箱，属于进程级运行时而非系统虚拟机
 
 ---
 
-### 5. **高性能虚拟机 vs 轻量级虚拟机**
+## 二、分类口径
 
-- **高性能虚拟机**：追求接近原生性能的模拟，如用于大型服务器或数据库环境。
-- **轻量级虚拟机**：如 WebAssembly VM、GraalVM，用于快速、安全地运行嵌入式或浏览器代码。
+虚拟化有几种互相独立的分类维度，同一个产品在不同维度下各有归属，不要混用。
 
-## 三、常用的虚拟机介绍
+### 1、系统虚拟机与进程虚拟机
 
-### 1、基本概念与关系
+| 维度 | 系统虚拟机（System VM） | 进程虚拟机（Process VM） |
+|------|------------------------|------------------------|
+| 虚拟的对象 | 整台计算机（CPU、内存、设备） | 单个程序的运行环境（指令集、内存模型、运行时库） |
+| 上面运行什么 | 完整操作系统 | 一个应用进程 |
+| 生命周期 | 随 VM 开关机 | 随进程启停 |
+| 代表 | ESXi、Hyper-V、KVM、Xen、VMware Workstation、VirtualBox | JVM（含 GraalVM）、.NET CLR、CPython 解释器、Wasmtime |
 
-| 技术          | 全称                          | 类型          | 简介                                         |
-|-------------|-----------------------------|-------------|--------------------------------------------|
-| **WSL**     | Windows Subsystem for Linux | 子系统 / 轻量虚拟机 | Windows 上运行 Linux 的兼容层（WSL 2 底层基于 Hyper-V） |
-| **Hyper-V** | 无缩写，全称就是 Hyper-V            | 裸金属虚拟化      | 微软原生的 Type 1 虚拟机监控器（Hypervisor），运行完整虚拟机    |
-| **VMware**  | 如 VMware Workstation / ESXi | 虚拟机平台       | 非微软公司开发的虚拟化方案，主流商用虚拟化工具之一                  |
+GraalVM 是一套 JDK 及多语言运行时（Graal JIT、Native Image），属于进程虚拟机，不是轻量级系统虚拟机。JVM 的内部机制见 [JVM 总览](/jvm/0_overview)。
 
-- **WSL 2 的内核虚拟化底层依赖 Hyper-V 技术**。
-- Hyper-V 和 VMware 都是系统级虚拟机管理器，二者具有相似功能但彼此**不兼容**。
+### 2、Type-1 与 Type-2 Hypervisor
 
----
+Hypervisor（虚拟机监控器，VMM）是负责创建和调度系统虚拟机的那一层，按它运行的位置分为两类：
 
-### 2、架构对比
+![Type-1、Type-2 Hypervisor 与容器的分层对比](../assets/cloud-native/virtual-hypervisor-types.svg)
 
-| 项目              | WSL 1            | WSL 2            | Hyper-V         | VMware                 |
-|-----------------|------------------|------------------|-----------------|------------------------|
-| 虚拟化方式           | 系统调用转发（非虚拟机）     | 基于轻量 Hyper-V 虚拟机 | Type 1 虚拟化（裸金属） | Hosted 或 Type 1（取决于产品） |
-| 是否真正虚拟机         | 否                | 是（轻量）            | 是               | 是                      |
-| 是否使用 Hypervisor | 否                | 是（Hyper-V）       | 是               | 否（自己实现）                |
-| 启动速度            | 极快               | 快                | 慢（完整启动）         | 慢（完整启动）                |
-| 文件访问            | 与 Windows 共用文件系统 | 虚拟磁盘 + 可挂载       | 独立虚拟硬盘          | 独立虚拟硬盘                 |
-| Linux 支持        | 非完整（无内核）         | 完整 Linux 内核      | 完整系统            | 完整系统                   |
+| 类型 | 运行位置 | 代表产品 | 典型场景 |
+|------|---------|---------|---------|
+| Type-1（裸金属） | 直接运行在硬件上，自己管理 CPU 和内存 | VMware ESXi、Hyper-V、Xen、KVM | 数据中心、云平台 |
+| Type-2（宿主式） | 作为应用运行在宿主操作系统之上 | VMware Workstation / Fusion、VirtualBox、Parallels Desktop | 个人电脑上的开发测试 |
 
----
+两个容易误解的地方：
 
-### 3、使用场景对比
+- **Hyper-V 是 Type-1**：启用 Hyper-V 后，Hypervisor 先于 Windows 启动，原来的 Windows 变成运行在 Hypervisor 之上的「根分区」，与其他虚拟机平级，只是拥有管理权限
+- **KVM 的归类**：KVM 是 Linux 内核模块，加载后让宿主内核本身充当 Hypervisor，虚拟机就是一个普通的 Linux 进程（通常由 QEMU 负责设备模拟）。它有宿主 OS，却由内核直接掌管硬件虚拟化，一般归为 Type-1
 
-| 场景                                | 推荐技术                             | 原因                 |
-|-----------------------------------|----------------------------------|--------------------|
-| **开发者想在 Windows 下运行 Linux 命令/工具** | **WSL 2**                        | 启动快、集成好、支持原生 Linux |
-| **部署测试多系统环境（如 Windows + Linux）**  | **Hyper-V / VMware**             | 完整虚拟机，更接近真实环境      |
-| **需要高性能服务器虚拟化**                   | **Hyper-V（Server）或 VMware ESXi** | 提供企业级稳定性与性能        |
-| **在个人电脑上跑多个操作系统并行使用**             | **VMware Workstation / Hyper-V** | 桌面级多系统测试环境         |
+::: tip 现代 Type-2 也依赖硬件辅助
+Type-1 / Type-2 只说明 Hypervisor 运行的位置，不说明性能高低。VMware Workstation 和 VirtualBox 同样使用 VT-x / AMD-V，CPU 密集型负载的开销都不大；Type-1 的优势主要在于没有宿主 OS 的资源争用，管理能力也更完整。
+:::
 
----
+### 3、全虚拟化、半虚拟化与硬件辅助
 
-### 4、兼容性与冲突问题
+| 方式 | 客户机系统是否修改 | 实现手段 | 代表 |
+|------|------------------|---------|------|
+| 全虚拟化（软件） | 否 | 二进制翻译敏感指令 | 早期 VMware |
+| 半虚拟化 | 是，内核改为调用 hypercall | 客户机主动与 Hypervisor 协作 | 早期 Xen PV |
+| 硬件辅助虚拟化 | 否 | CPU 提供 VT-x / AMD-V、EPT / NPT | KVM、Hyper-V、现代 VMware |
 
-- **VMware 和 Hyper-V 有冲突**：
-  因为 VMware 需要自己管理硬件虚拟化，但如果 Hyper-V 已启动，会占用 VT-x / AMD-V 资源，VMware 可能启动失败。
-
-- **WSL 2 依赖 Hyper-V**：
-  开启 WSL 2 时，其实就是运行一个轻量 Hyper-V 虚拟机。
-
-- **解决办法**：
-  如果你想同时使用 VMware 和 WSL，可以选择：
-
-    - 使用 WSL 1（但功能受限）
-    - 使用 VMware 的兼容 Hyper-V 模式（较新版本支持）
-    - 或者在 BIOS 中切换开启 / 关闭虚拟化功能（麻烦）
+如今 CPU 与内存基本都靠硬件辅助完成，半虚拟化的思路保留在 IO 上：客户机安装 virtio（KVM）、VMBus 驱动（Hyper-V）或 VMware Tools 这类半虚拟化驱动，绕开对真实网卡、磁盘控制器的低效模拟。
 
 ---
 
-### 5、总结一句话：
+## 三、虚拟机与容器
 
-> **WSL 是为开发者服务的轻量 Linux 环境，底层基于 Hyper-V；**<br>
-> **Hyper-V 是微软官方的企业级虚拟化平台；**<br>
-> **VMware 是跨平台、高兼容性的第三方虚拟化解决方案。**
+容器不是轻量虚拟机：虚拟机虚拟的是硬件，每个 VM 有自己的内核；容器只是宿主机上的一组进程，用 **namespaces** 隔离视图（进程号、网络、挂载点、主机名），用 **cgroups** 限制资源（CPU、内存、IO），所有容器共享同一个宿主内核。
+
+| 对比项 | 虚拟机 | 容器 |
+|-------|-------|------|
+| 隔离边界 | 硬件虚拟化，独立内核 | 内核特性，共享宿主内核 |
+| 启动速度 | 秒级到分钟级（完整引导系统） | 毫秒到秒级（启动一个进程） |
+| 镜像体积 | GB 级，含完整操作系统 | MB 级，只含应用及依赖 |
+| 可运行的系统 | 任意操作系统 | 只能与宿主内核兼容（Linux 容器需要 Linux 内核） |
+| 安全隔离 | 强，逃逸需突破 Hypervisor | 较弱，内核漏洞可能导致逃逸 |
+
+两者通常叠加使用：云上的 Kubernetes 节点本身是虚拟机，容器跑在虚拟机里。对隔离要求高的多租户场景，再用以下方案在两者之间折中：
+
+| 方案 | 做法 | 隔离强度 | 代价 |
+|------|------|---------|------|
+| 普通容器（runc） | namespaces + cgroups | 共享内核 | 几乎无额外开销 |
+| gVisor（runsc） | 用户态内核拦截系统调用 | 系统调用面大幅收窄 | 系统调用密集型负载变慢 |
+| Kata Containers | 每个 Pod 一个轻量 VM，内含独立内核 | 硬件虚拟化级 | 额外内存与启动时间 |
+| Firecracker microVM | 精简设备模型的 KVM 虚拟机 | 硬件虚拟化级 | 需要 KVM，设备支持有限 |
+
+这几种方案都能通过 Kubernetes 的 RuntimeClass 按 Pod 选择。容器的具体用法见后续的 [Docker](./5_docker) 与 [Kubernetes](./6_kubernetes)。
+
+---
+
+## 四、选型参考
+
+| 场景 | 推荐 | 原因 |
+|------|------|------|
+| Windows 上做 Linux 命令行开发、跑 Docker | WSL 2 | 集成度高，按需启动，资源随用随还 |
+| 个人电脑上运行完整的多操作系统环境 | VMware Workstation、VirtualBox、Hyper-V | 完整虚拟机，可快照、可定制网络 |
+| 机房或私有云的服务器虚拟化 | ESXi、Hyper-V Server 角色、KVM（Proxmox VE、OpenStack） | Type-1，具备集群、迁移、高可用能力 |
+| 函数计算、多租户容器隔离 | Firecracker、Kata Containers、gVisor | 兼顾启动速度和隔离强度 |
+| 插件、边缘场景的不可信代码 | WebAssembly 运行时 | 进程内沙箱，启动快、体积小 |
+
+Windows 上 WSL 2、Hyper-V、VMware Workstation、VirtualBox 的安装、网络配置和共存问题，见下一篇 [虚拟化工具](./4_virtual_tools)。
+
+---
+
+## 小结
+
+- 系统虚拟机虚拟整台计算机，进程虚拟机只为单个程序提供运行环境；JVM、GraalVM、Wasm 运行时都属于后者
+- Type-1 Hypervisor 直接管理硬件（ESXi、Hyper-V、KVM、Xen），Type-2 运行在宿主 OS 之上（VMware Workstation、VirtualBox）
+- 硬件辅助虚拟化已是主流，半虚拟化的思路保留在 virtio 等 IO 驱动上
+- 容器共享宿主内核，比虚拟机轻但隔离弱；gVisor、Kata、Firecracker 在两者之间提供不同强度的折中
+
+## 参考资料
+
+- Popek 与 Goldberg 的可虚拟化条件：[Formal Requirements for Virtualizable Third Generation Architectures（CACM 1974）](https://dl.acm.org/doi/10.1145/361011.361073)
+- Hyper-V 架构：[Microsoft Learn - Hyper-V Architecture](https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/reference/hyper-v-architecture)
+- KVM 官方文档：[Linux Kernel - KVM](https://docs.kernel.org/virt/kvm/index.html)
+- Firecracker：[Firecracker 官网](https://firecracker-microvm.github.io/)
+- Kata Containers：[Kata Containers 文档（GitHub）](https://github.com/kata-containers/kata-containers/tree/main/docs)
+- gVisor：[gVisor 架构说明](https://gvisor.dev/docs/)
+- Wasmtime：[Wasmtime 文档](https://docs.wasmtime.dev/)
+- Kubernetes RuntimeClass：[Kubernetes 文档 - Runtime Class](https://kubernetes.io/docs/concepts/containers/runtime-class/)
+
+> 下一篇：[虚拟化工具](./4_virtual_tools)

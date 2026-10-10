@@ -1,0 +1,91 @@
+<svg viewBox="0 0 760 424" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .tag { font-size:13px; font-weight:700; fill:var(--fg); }
+    .name { font-size:12px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-k8s-arch" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="380" y="26" text-anchor="middle">Kubernetes 集群架构</text>
+
+  <!-- 控制平面 -->
+  <rect x="20" y="40" width="720" height="128" rx="8" fill="var(--bg)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="tag" x="380" y="62" text-anchor="middle">控制平面（Control Plane）：组件之间只通过 kube-apiserver 交互</text>
+
+  <rect x="36" y="78" width="163" height="70" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="117" y="104" text-anchor="middle">etcd</text>
+  <text class="desc" x="117" y="126" text-anchor="middle">集群状态唯一存储</text>
+
+  <rect x="211" y="78" width="163" height="70" rx="6" fill="var(--card)" stroke="var(--p)"/>
+  <text class="name" x="292" y="104" text-anchor="middle">kube-apiserver</text>
+  <text class="desc" x="292" y="126" text-anchor="middle">唯一入口：认证、鉴权、准入</text>
+
+  <rect x="386" y="78" width="163" height="70" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="467" y="104" text-anchor="middle">kube-scheduler</text>
+  <text class="desc" x="467" y="126" text-anchor="middle">为新 Pod 挑选节点</text>
+
+  <rect x="561" y="78" width="163" height="70" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="642" y="104" text-anchor="middle">controller-manager</text>
+  <text class="desc" x="642" y="126" text-anchor="middle">把实际状态调谐到期望状态</text>
+
+  <!-- 控制平面到节点 -->
+  <line x1="198" y1="168" x2="198" y2="212" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-arch)"/>
+  <text class="label" x="206" y="194">kubelet 通过 apiserver watch 期望状态、上报状态</text>
+  <line x1="562" y1="168" x2="562" y2="212" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-arch)"/>
+
+  <!-- 节点 1 -->
+  <rect x="20" y="214" width="356" height="190" rx="8" fill="var(--bg)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="tag" x="198" y="236" text-anchor="middle">工作节点 Node 1</text>
+  <rect x="36" y="250" width="100" height="60" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="86" y="273" text-anchor="middle">kubelet</text>
+  <text class="desc" x="86" y="294" text-anchor="middle">启停并上报 Pod</text>
+  <rect x="148" y="250" width="100" height="60" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="198" y="273" text-anchor="middle">kube-proxy</text>
+  <text class="desc" x="198" y="294" text-anchor="middle">Service 转发规则</text>
+  <rect x="260" y="250" width="100" height="60" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="310" y="273" text-anchor="middle">containerd</text>
+  <text class="desc" x="310" y="294" text-anchor="middle">CRI 容器运行时</text>
+  <rect x="36" y="322" width="156" height="44" rx="6" fill="var(--card)" stroke="var(--g)"/>
+  <text class="name" x="114" y="349" text-anchor="middle">Pod</text>
+  <rect x="204" y="322" width="156" height="44" rx="6" fill="var(--card)" stroke="var(--g)"/>
+  <text class="name" x="282" y="349" text-anchor="middle">Pod</text>
+  <text class="desc" x="198" y="388" text-anchor="middle">CNI 插件：Pod 网络 · CSI 驱动：存储卷</text>
+
+  <!-- 节点 2 -->
+  <rect x="384" y="214" width="356" height="190" rx="8" fill="var(--bg)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="tag" x="562" y="236" text-anchor="middle">工作节点 Node 2</text>
+  <rect x="400" y="250" width="100" height="60" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="450" y="273" text-anchor="middle">kubelet</text>
+  <text class="desc" x="450" y="294" text-anchor="middle">启停并上报 Pod</text>
+  <rect x="512" y="250" width="100" height="60" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="562" y="273" text-anchor="middle">kube-proxy</text>
+  <text class="desc" x="562" y="294" text-anchor="middle">Service 转发规则</text>
+  <rect x="624" y="250" width="100" height="60" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="674" y="273" text-anchor="middle">containerd</text>
+  <text class="desc" x="674" y="294" text-anchor="middle">CRI 容器运行时</text>
+  <rect x="400" y="322" width="156" height="44" rx="6" fill="var(--card)" stroke="var(--g)"/>
+  <text class="name" x="478" y="349" text-anchor="middle">Pod</text>
+  <rect x="568" y="322" width="156" height="44" rx="6" fill="var(--card)" stroke="var(--g)"/>
+  <text class="name" x="646" y="349" text-anchor="middle">Pod</text>
+  <text class="desc" x="562" y="388" text-anchor="middle">CNI 插件：Pod 网络 · CSI 驱动：存储卷</text>
+</svg>

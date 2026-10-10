@@ -1,0 +1,69 @@
+<svg viewBox="0 0 824 270" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-cis" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="412" y="26" text-anchor="middle">cloud-init 启动阶段</text>
+
+  <rect x="20" y="50" width="136" height="96" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="88" y="74" text-anchor="middle">Detect</text>
+  <text class="desc" x="88" y="96" text-anchor="middle">ds-identify</text>
+  <text class="desc" x="88" y="112" text-anchor="middle">识别所在平台</text>
+  <text class="desc" x="88" y="128" text-anchor="middle">决定是否运行</text>
+
+  <rect x="182" y="50" width="136" height="96" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="250" y="74" text-anchor="middle">Local</text>
+  <text class="desc" x="250" y="96" text-anchor="middle">网络尚未就绪</text>
+  <text class="desc" x="250" y="112" text-anchor="middle">定位本地数据源</text>
+  <text class="desc" x="250" y="128" text-anchor="middle">生成网络配置</text>
+
+  <rect x="344" y="50" width="136" height="96" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="412" y="74" text-anchor="middle">Network</text>
+  <text class="desc" x="412" y="96" text-anchor="middle">取回 user-data</text>
+  <text class="desc" x="412" y="112" text-anchor="middle">write_files</text>
+  <text class="desc" x="412" y="128" text-anchor="middle">users_groups / ssh</text>
+
+  <rect x="506" y="50" width="136" height="96" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="574" y="74" text-anchor="middle">Config</text>
+  <text class="desc" x="574" y="96" text-anchor="middle">runcmd 写成脚本</text>
+  <text class="desc" x="574" y="112" text-anchor="middle">ntp / timezone</text>
+  <text class="desc" x="574" y="128" text-anchor="middle">等配置类模块</text>
+
+  <rect x="668" y="50" width="136" height="96" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="736" y="74" text-anchor="middle">Final</text>
+  <text class="desc" x="736" y="96" text-anchor="middle">packages 安装</text>
+  <text class="desc" x="736" y="112" text-anchor="middle">write_files defer</text>
+  <text class="desc" x="736" y="128" text-anchor="middle">scripts_user 执行</text>
+
+  <line x1="156" y1="98" x2="180" y2="98" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cis)"/>
+  <line x1="318" y1="98" x2="342" y2="98" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cis)"/>
+  <line x1="480" y1="98" x2="504" y2="98" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cis)"/>
+  <line x1="642" y1="98" x2="666" y2="98" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cis)"/>
+
+  <rect x="20" y="180" width="784" height="70" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="412" y="206" text-anchor="middle">排查入口</text>
+  <text class="desc" x="216" y="228" text-anchor="middle">/var/log/cloud-init.log：模块执行明细</text>
+  <text class="desc" x="608" y="228" text-anchor="middle">/var/log/cloud-init-output.log：命令输出</text>
+</svg>

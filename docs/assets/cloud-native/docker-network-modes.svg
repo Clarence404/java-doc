@@ -1,0 +1,74 @@
+<svg viewBox="0 0 720 424" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">Docker 四种网络模式</text>
+
+  <!-- bridge -->
+  <rect x="20" y="44" width="330" height="170" rx="4" fill="var(--b)" fill-opacity="0.06" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="185" y="66" text-anchor="middle" class="name">bridge（默认）</text>
+  <rect x="40" y="78" width="120" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="100" y="100" text-anchor="middle" class="desc">容器 1  172.17.0.2</text>
+  <rect x="210" y="78" width="120" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="270" y="100" text-anchor="middle" class="desc">容器 2  172.17.0.3</text>
+  <line x1="100" y1="112" x2="100" y2="142" stroke="var(--b)" stroke-width="1.5"/>
+  <line x1="270" y1="112" x2="270" y2="142" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="106" y="131" class="lbl">veth</text>
+  <text x="276" y="131" class="lbl">veth</text>
+  <rect x="40" y="142" width="290" height="34" rx="4" fill="var(--b)" fill-opacity="0.15" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="185" y="164" text-anchor="middle" class="name">docker0 网桥  172.17.0.1</text>
+  <text x="185" y="200" text-anchor="middle" class="desc">出网经 NAT 走宿主机网卡，入站靠 -p 端口映射</text>
+
+  <!-- host -->
+  <rect x="370" y="44" width="330" height="170" rx="4" fill="var(--g)" fill-opacity="0.06" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="535" y="66" text-anchor="middle" class="name">host</text>
+  <rect x="390" y="78" width="290" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="535" y="100" text-anchor="middle" class="desc">容器进程（没有自己的 IP）</text>
+  <line x1="535" y1="112" x2="535" y2="142" stroke="var(--g)" stroke-width="1.5"/>
+  <rect x="390" y="142" width="290" height="34" rx="4" fill="var(--g)" fill-opacity="0.15" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="535" y="164" text-anchor="middle" class="name">宿主机网络栈：IP 与端口直接共用</text>
+  <text x="535" y="200" text-anchor="middle" class="desc">-p 参数被忽略；端口会与宿主机进程冲突</text>
+
+  <!-- none -->
+  <rect x="20" y="234" width="330" height="170" rx="4" fill="var(--muted)" fill-opacity="0.06" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="185" y="256" text-anchor="middle" class="name">none</text>
+  <rect x="40" y="268" width="290" height="60" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="185" y="292" text-anchor="middle" class="name">容器：只有 lo 回环网卡</text>
+  <text x="185" y="312" text-anchor="middle" class="desc">没有外部网卡、路由和 IP</text>
+  <text x="185" y="390" text-anchor="middle" class="desc">适合不需要联网的离线任务</text>
+
+  <!-- container -->
+  <rect x="370" y="234" width="330" height="170" rx="4" fill="var(--p)" fill-opacity="0.06" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="535" y="256" text-anchor="middle" class="name">container:&lt;name&gt;</text>
+  <rect x="390" y="268" width="290" height="94" rx="4" fill="none" stroke="var(--p)" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="535" y="288" text-anchor="middle" class="desc">同一个网络命名空间：同 IP，localhost 互通</text>
+  <rect x="402" y="300" width="128" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="466" y="322" text-anchor="middle" class="desc">容器 A</text>
+  <rect x="540" y="300" width="128" height="34" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="604" y="322" text-anchor="middle" class="desc">容器 B（加入 A）</text>
+  <text x="535" y="390" text-anchor="middle" class="desc">Kubernetes Pod 内多容器就是这个模型</text>
+</svg>

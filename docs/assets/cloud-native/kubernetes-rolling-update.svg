@@ -1,0 +1,78 @@
+<svg viewBox="0 0 760 340" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .name { font-size:12px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-k8s-roll" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="380" y="26" text-anchor="middle">Deployment 滚动更新中的某一时刻</text>
+
+  <rect x="230" y="40" width="300" height="60" rx="6" fill="var(--card)" stroke="var(--p)"/>
+  <text class="name" x="380" y="64" text-anchor="middle">Deployment order-service</text>
+  <text class="desc" x="380" y="86" text-anchor="middle">replicas: 4 · maxSurge: 1 · maxUnavailable: 0</text>
+  <path d="M230,70 H195 V134" fill="none" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-roll)"/>
+  <path d="M530,70 H565 V134" fill="none" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-roll)"/>
+
+  <rect x="20" y="136" width="350" height="60" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="195" y="160" text-anchor="middle">旧 ReplicaSet（镜像 1.4.0）</text>
+  <text class="desc" x="195" y="182" text-anchor="middle">replicas: 4 → 3 → … → 0</text>
+  <rect x="390" y="136" width="350" height="60" rx="6" fill="var(--card)" stroke="var(--g)"/>
+  <text class="name" x="565" y="160" text-anchor="middle">新 ReplicaSet（镜像 1.5.0）</text>
+  <text class="desc" x="565" y="182" text-anchor="middle">replicas: 0 → 1 → 2 → … → 4</text>
+
+  <line x1="60" y1="196" x2="60" y2="230" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-roll)"/>
+  <line x1="150" y1="196" x2="150" y2="230" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-roll)"/>
+  <line x1="240" y1="196" x2="240" y2="230" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-roll)"/>
+  <line x1="330" y1="196" x2="330" y2="230" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-k8s-roll)"/>
+  <line x1="430" y1="196" x2="430" y2="230" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-roll)"/>
+  <line x1="520" y1="196" x2="520" y2="230" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-k8s-roll)"/>
+  <line x1="610" y1="196" x2="610" y2="230" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-k8s-roll)"/>
+  <line x1="700" y1="196" x2="700" y2="230" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-k8s-roll)"/>
+
+  <rect x="20" y="232" width="80" height="60" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="60" y="256" text-anchor="middle">v1 Pod</text>
+  <text class="desc" x="60" y="278" text-anchor="middle">Ready</text>
+  <rect x="110" y="232" width="80" height="60" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="150" y="256" text-anchor="middle">v1 Pod</text>
+  <text class="desc" x="150" y="278" text-anchor="middle">Ready</text>
+  <rect x="200" y="232" width="80" height="60" rx="6" fill="var(--card)" stroke="var(--border)"/>
+  <text class="name" x="240" y="256" text-anchor="middle">v1 Pod</text>
+  <text class="desc" x="240" y="278" text-anchor="middle">Ready</text>
+  <rect x="290" y="232" width="80" height="60" rx="6" fill="none" stroke="var(--muted)" stroke-dasharray="4 3"/>
+  <text class="name" x="330" y="256" text-anchor="middle">v1 Pod</text>
+  <text class="desc" x="330" y="278" text-anchor="middle">已缩容</text>
+
+  <rect x="390" y="232" width="80" height="60" rx="6" fill="var(--card)" stroke="var(--g)"/>
+  <text class="name" x="430" y="256" text-anchor="middle">v2 Pod</text>
+  <text class="desc" x="430" y="278" text-anchor="middle">Ready</text>
+  <rect x="480" y="232" width="80" height="60" rx="6" fill="var(--card)" stroke="var(--y)"/>
+  <text class="name" x="520" y="256" text-anchor="middle">v2 Pod</text>
+  <text class="desc" x="520" y="278" text-anchor="middle">启动中</text>
+  <rect x="570" y="232" width="80" height="60" rx="6" fill="none" stroke="var(--muted)" stroke-dasharray="4 3"/>
+  <text class="name" x="610" y="256" text-anchor="middle">v2 Pod</text>
+  <text class="desc" x="610" y="278" text-anchor="middle">待创建</text>
+  <rect x="660" y="232" width="80" height="60" rx="6" fill="none" stroke="var(--muted)" stroke-dasharray="4 3"/>
+  <text class="name" x="700" y="256" text-anchor="middle">v2 Pod</text>
+  <text class="desc" x="700" y="278" text-anchor="middle">待创建</text>
+
+  <text class="desc" x="380" y="318" text-anchor="middle">Pod 总数 5 = 4 + maxSurge，Ready 数 4 = 4 − maxUnavailable；启动中的 Pod 通过 readinessProbe 后才继续缩旧扩新</text>
+</svg>

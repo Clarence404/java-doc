@@ -1,0 +1,62 @@
+<svg viewBox="0 0 720 364" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">镜像分层与容器可写层（overlay2）</text>
+
+  <!-- 容器可写层 -->
+  <rect x="60" y="44" width="280" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="200" y="68" text-anchor="middle" class="name">容器 A 可写层（upperdir）</text>
+  <text x="200" y="88" text-anchor="middle" class="desc">改文件时先从下层复制上来（CoW）</text>
+
+  <rect x="380" y="44" width="280" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="520" y="68" text-anchor="middle" class="name">容器 B 可写层（upperdir）</text>
+  <text x="520" y="88" text-anchor="middle" class="desc">容器删除时随之删除</text>
+
+  <line x1="200" y1="104" x2="200" y2="132" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="520" y1="104" x2="520" y2="132" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 只读镜像层 -->
+  <rect x="60" y="134" width="600" height="210" rx="4" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="360" y="156" text-anchor="middle" class="name">同一个镜像：只读层（lowerdir），被所有容器共享</text>
+
+  <rect x="80" y="170" width="560" height="34" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="96" y="192" class="name">第 4 层  COPY application/</text>
+  <text x="630" y="192" text-anchor="end" class="desc">应用代码，变化最频繁，放最上面</text>
+
+  <rect x="80" y="212" width="560" height="34" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="96" y="234" class="name">第 3 层  COPY dependencies/</text>
+  <text x="630" y="234" text-anchor="end" class="desc">依赖不变时直接命中构建缓存</text>
+
+  <rect x="80" y="254" width="560" height="34" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="96" y="276" class="name">第 2 层  JRE 运行时</text>
+  <text x="630" y="276" text-anchor="end" class="desc">来自基础镜像</text>
+
+  <rect x="80" y="296" width="560" height="34" rx="4" fill="var(--muted)" fill-opacity="0.12" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="96" y="318" class="name">第 1 层  OS 基础层（Ubuntu）</text>
+  <text x="630" y="318" text-anchor="end" class="desc">同一台机器上多个镜像共用一份</text>
+</svg>

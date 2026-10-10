@@ -162,7 +162,7 @@ description: MQTT QoS 与会话、MQTT 5、协议选型、EMQX 与接入网关�
 - 长度按无符号读并设上限；CRC 失败计数进监控，而不是抛异常把设备踢下线
 - 有出站消息就必须有编码器，否则 `writeAndFlush` 写不出去
 
-→ 详见 [Netty 设备接入网关](/iot/9_netty_gateway#二、带-crc-的私有协议帧)
+→ 详见 [Netty 接入网关](/iot/9_netty_gateway#二、带-crc-的私有协议帧)
 
 ### Q13：海量设备连在多个网关节点上，平台下发指令怎么找到设备？
 
@@ -173,7 +173,7 @@ description: MQTT QoS 与会话、MQTT 5、协议选型、EMQX 与接入网关�
 - 写出前检查 `isWritable()`，超过高水位说明对端慢，指令拒绝或延后
 - 状态放设备影子、规则放规则引擎，节点故障时设备重连到别的节点即可
 
-→ 详见 [Netty 设备接入网关](/iot/9_netty_gateway#四、连接管理与下行路由)
+→ 详见 [Netty 接入网关](/iot/9_netty_gateway#四、连接管理与下行路由)
 
 ## 四、数据链路与存储
 

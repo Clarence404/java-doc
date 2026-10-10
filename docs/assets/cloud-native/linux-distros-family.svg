@@ -1,0 +1,76 @@
+<svg viewBox="0 0 810 308" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .lbl { fill:var(--fg); font-size:11px; }
+    .solid { stroke:var(--muted); stroke-width:1.6; fill:none; }
+    .dash { stroke:var(--muted); stroke-width:1.6; fill:none; stroke-dasharray:5 4; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="405" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Linux 发行版主要派系</text>
+  <rect class="box" x="20" y="44" width="770" height="44" rx="8" stroke="var(--fg)"/>
+  <text class="name" x="405" y="71" text-anchor="middle" fill="var(--fg)">Linux 内核（kernel.org，GPL-2.0）</text>
+  <line class="solid" x1="80" y1="88" x2="80" y2="126" marker-end="url(#a)"/>
+  <rect class="box" x="20" y="128" width="120" height="160" rx="8" stroke="var(--r)"/>
+  <text class="name" x="80" y="150" text-anchor="middle" fill="var(--r)">RHEL 系</text>
+  <text class="sub" x="80" y="168" text-anchor="middle">rpm / dnf</text>
+  <text class="lbl" x="80" y="194" text-anchor="middle">RHEL（订阅）</text>
+  <text class="lbl" x="80" y="214" text-anchor="middle">CentOS Stream</text>
+  <text class="lbl" x="80" y="234" text-anchor="middle">Rocky Linux</text>
+  <text class="lbl" x="80" y="254" text-anchor="middle">AlmaLinux</text>
+  <text class="lbl" x="80" y="274" text-anchor="middle">Fedora（试验田）</text>
+  <line class="solid" x1="210" y1="88" x2="210" y2="126" marker-end="url(#a)"/>
+  <rect class="box" x="150" y="128" width="120" height="160" rx="8" stroke="var(--p)"/>
+  <text class="name" x="210" y="150" text-anchor="middle" fill="var(--p)">Debian 系</text>
+  <text class="sub" x="210" y="168" text-anchor="middle">deb / apt</text>
+  <text class="lbl" x="210" y="194" text-anchor="middle">Debian</text>
+  <text class="lbl" x="210" y="214" text-anchor="middle">Ubuntu LTS</text>
+  <text class="lbl" x="210" y="234" text-anchor="middle">Linux Mint 等桌面版</text>
+  <line class="solid" x1="340" y1="88" x2="340" y2="126" marker-end="url(#a)"/>
+  <rect class="box" x="280" y="128" width="120" height="160" rx="8" stroke="var(--g)"/>
+  <text class="name" x="340" y="150" text-anchor="middle" fill="var(--g)">SUSE 系</text>
+  <text class="sub" x="340" y="168" text-anchor="middle">rpm / zypper</text>
+  <text class="lbl" x="340" y="194" text-anchor="middle">SLES（订阅）</text>
+  <text class="lbl" x="340" y="214" text-anchor="middle">openSUSE Leap</text>
+  <text class="lbl" x="340" y="234" text-anchor="middle">Tumbleweed（滚动）</text>
+  <line class="solid" x1="470" y1="88" x2="470" y2="126" marker-end="url(#a)"/>
+  <rect class="box" x="410" y="128" width="120" height="160" rx="8" stroke="var(--b)"/>
+  <text class="name" x="470" y="150" text-anchor="middle" fill="var(--b)">Arch 系</text>
+  <text class="sub" x="470" y="168" text-anchor="middle">pacman</text>
+  <text class="lbl" x="470" y="194" text-anchor="middle">Arch Linux（滚动）</text>
+  <text class="lbl" x="470" y="214" text-anchor="middle">Manjaro</text>
+  <line class="solid" x1="600" y1="88" x2="600" y2="126" marker-end="url(#a)"/>
+  <rect class="box" x="540" y="128" width="120" height="160" rx="8" stroke="var(--y)"/>
+  <text class="name" x="600" y="150" text-anchor="middle" fill="var(--y)">Alpine</text>
+  <text class="sub" x="600" y="168" text-anchor="middle">apk</text>
+  <text class="lbl" x="600" y="194" text-anchor="middle">Alpine Linux</text>
+  <text class="lbl" x="600" y="214" text-anchor="middle">musl + BusyBox</text>
+  <text class="lbl" x="600" y="234" text-anchor="middle">容器基础镜像</text>
+  <line class="solid" x1="730" y1="88" x2="730" y2="126" marker-end="url(#a)"/>
+  <rect class="box" x="670" y="128" width="120" height="160" rx="8" stroke="var(--muted)"/>
+  <text class="name" x="730" y="150" text-anchor="middle" fill="var(--muted)">国产</text>
+  <text class="sub" x="730" y="168" text-anchor="middle">rpm 或 deb</text>
+  <text class="lbl" x="730" y="194" text-anchor="middle">openEuler</text>
+  <text class="lbl" x="730" y="214" text-anchor="middle">Anolis / Alinux</text>
+  <text class="lbl" x="730" y="234" text-anchor="middle">统信 UOS</text>
+  <text class="lbl" x="730" y="254" text-anchor="middle">银河麒麟</text>
+</svg>

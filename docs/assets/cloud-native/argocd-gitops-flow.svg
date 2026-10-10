@@ -1,0 +1,60 @@
+<svg viewBox="0 0 720 276" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-argocd-flow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="360" y="26" text-anchor="middle">GitOps 拉取式交付流程</text>
+
+  <rect x="20" y="46" width="200" height="70" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="120" y="74" text-anchor="middle">应用代码仓库</text>
+  <text class="desc" x="120" y="98" text-anchor="middle">开发者合并代码</text>
+
+  <rect x="260" y="46" width="200" height="70" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="74" text-anchor="middle">CI 流水线</text>
+  <text class="desc" x="360" y="98" text-anchor="middle">构建并推送镜像</text>
+
+  <rect x="500" y="46" width="200" height="70" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="600" y="74" text-anchor="middle">配置仓库（Git）</text>
+  <text class="desc" x="600" y="98" text-anchor="middle">提交新的 image tag</text>
+
+  <line x1="220" y1="81" x2="258" y2="81" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-argocd-flow)"/>
+  <line x1="460" y1="81" x2="498" y2="81" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-argocd-flow)"/>
+
+  <line x1="600" y1="116" x2="600" y2="164" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-argocd-flow)"/>
+  <text class="label" x="590" y="145" text-anchor="end">轮询 / Webhook 拉取</text>
+
+  <rect x="20" y="166" width="440" height="90" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="240" y="192" text-anchor="middle">Kubernetes 集群</text>
+  <text class="desc" x="130" y="222" text-anchor="middle">同步状态：Synced / OutOfSync</text>
+  <text class="desc" x="350" y="222" text-anchor="middle">健康状态：Healthy / Degraded</text>
+
+  <rect x="500" y="166" width="200" height="90" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="600" y="192" text-anchor="middle">Argo CD（集群内）</text>
+  <text class="desc" x="600" y="214" text-anchor="middle">对比 Git 期望与集群实际</text>
+  <text class="desc" x="600" y="236" text-anchor="middle">有差异则执行 Sync</text>
+
+  <line x1="500" y1="211" x2="462" y2="211" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-argocd-flow)"/>
+  <text class="label" x="481" y="205" text-anchor="middle">Sync</text>
+</svg>

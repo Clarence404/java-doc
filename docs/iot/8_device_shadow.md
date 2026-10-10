@@ -294,4 +294,4 @@ public class ShadowService {
 - AWS IoT Device Shadow 数据流：[https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-data-flow.html](https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-data-flow.html)
 - Redis EVAL 与 Lua 脚本：[https://redis.io/docs/latest/develop/programmability/eval-intro/](https://redis.io/docs/latest/develop/programmability/eval-intro/)
 
-> 下一篇：[Netty 设备接入网关](./9_netty_gateway)
+> 下一篇：[Netty 接入网关](./9_netty_gateway)
