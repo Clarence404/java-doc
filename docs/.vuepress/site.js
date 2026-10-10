@@ -140,7 +140,7 @@ export const GROUPS = [
     },
     {
         name: '研发效能', tagline: '测试工程、DevOps 与工程效率', modules: [
-            {name: '测试工程', dir: 'testing', desc: '测试分层 / 单元与集成测试 / 性能测试（部分篇章仍在编写）', stub: '编写中'},
+            {name: '测试工程', dir: 'testing', desc: '测试分层 / JUnit 6 / Mockito / 集成测试 / TDD / Testcontainers / 契约测试 / 性能测试'},
             {name: 'DevOps', dir: 'devops', desc: 'Git 工作流 / CI/CD / Code Review / 开发规范 / 发布策略 / 制品与环境'},
             {name: '工程效率', dir: 'engineering', desc: '构建工具 / 开发工具 / 代码质量 / Arthas 诊断 / 依赖治理 / API 文档与规范'},
         ],
@@ -158,7 +158,7 @@ export const GROUPS = [
                     {text: '云平台', from: 13},
                 ],
             },
-            {name: '可观测性', dir: 'observability', desc: '日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry（大纲阶段）', stub: '大纲阶段'},
+            {name: '可观测性', dir: 'observability', desc: '日志 / 指标与 PromQL / 链路追踪 / 告警 / OpenTelemetry'},
             {name: '应用安全', dir: 'security', desc: 'JWT / OAuth2 / OIDC / SSO / RBAC / API 安全 / 零信任'},
         ],
     },

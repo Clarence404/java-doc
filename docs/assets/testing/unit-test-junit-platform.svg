@@ -1,0 +1,80 @@
+<svg viewBox="0 0 760 406" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .label { font-size: 13px; font-weight: 700; }
+    .sub { fill: var(--muted); font-size: 12px; }
+    .card { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+    .box-b { fill: var(--b); fill-opacity: 0.10; stroke: var(--b); stroke-width: 1.5; }
+    .box-p { fill: var(--p); fill-opacity: 0.10; stroke: var(--p); stroke-width: 1.5; }
+    .box-g { fill: var(--g); fill-opacity: 0.10; stroke: var(--g); stroke-width: 1.5; }
+    .box-y { fill: var(--y); fill-opacity: 0.10; stroke: var(--y); stroke-width: 1.5; stroke-dasharray: 5 3; }
+    .arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; marker-end: url(#arr); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text class="title" x="380" y="24" text-anchor="middle">JUnit 6 的三层结构：客户端、平台、引擎</text>
+
+  <rect class="card" x="20" y="44" width="230" height="60" rx="8"/>
+  <text class="label" x="135" y="68" text-anchor="middle">IDE</text>
+  <text class="sub" x="135" y="88" text-anchor="middle">IntelliJ IDEA / VS Code</text>
+  <rect class="card" x="265" y="44" width="230" height="60" rx="8"/>
+  <text class="label" x="380" y="68" text-anchor="middle">构建工具</text>
+  <text class="sub" x="380" y="88" text-anchor="middle">Maven Surefire / Gradle</text>
+  <rect class="card" x="510" y="44" width="230" height="60" rx="8"/>
+  <text class="label" x="625" y="68" text-anchor="middle">ConsoleLauncher</text>
+  <text class="sub" x="625" y="88" text-anchor="middle">命令行运行，支持 --fail-fast</text>
+
+  <line class="arrow" x1="135" y1="104" x2="135" y2="136"/>
+  <line class="arrow" x1="380" y1="104" x2="380" y2="136"/>
+  <line class="arrow" x1="625" y1="104" x2="625" y2="136"/>
+
+  <rect class="box-b" x="20" y="138" width="720" height="60" rx="8"/>
+  <text class="label" x="380" y="162" text-anchor="middle">JUnit Platform（junit-platform-launcher）</text>
+  <text class="sub" x="380" y="182" text-anchor="middle">发现测试、按标签过滤、调度各引擎执行、把结果汇报给监听器</text>
+
+  <line class="arrow" x1="135" y1="198" x2="135" y2="230"/>
+  <line class="arrow" x1="380" y1="198" x2="380" y2="230"/>
+  <line class="arrow" x1="625" y1="198" x2="625" y2="230"/>
+
+  <rect class="box-g" x="20" y="232" width="230" height="60" rx="8"/>
+  <text class="label" x="135" y="256" text-anchor="middle">Jupiter 引擎</text>
+  <text class="sub" x="135" y="276" text-anchor="middle">junit-jupiter-engine</text>
+  <rect class="box-y" x="265" y="232" width="230" height="60" rx="8"/>
+  <text class="label" x="380" y="256" text-anchor="middle">Vintage 引擎（已废弃）</text>
+  <text class="sub" x="380" y="276" text-anchor="middle">运行 JUnit 3 / 4 测试</text>
+  <rect class="box-p" x="510" y="232" width="230" height="60" rx="8"/>
+  <text class="label" x="625" y="256" text-anchor="middle">第三方引擎</text>
+  <text class="sub" x="625" y="276" text-anchor="middle">Cucumber / ArchUnit 等</text>
+
+  <line class="arrow" x1="135" y1="292" x2="135" y2="324"/>
+  <line class="arrow" x1="380" y1="292" x2="380" y2="324"/>
+  <line class="arrow" x1="625" y1="292" x2="625" y2="324"/>
+
+  <rect class="card" x="20" y="326" width="230" height="60" rx="8"/>
+  <text class="label" x="135" y="350" text-anchor="middle">Jupiter 编程模型</text>
+  <text class="sub" x="135" y="370" text-anchor="middle">@Test / 参数化 / Extension</text>
+  <rect class="card" x="265" y="326" width="230" height="60" rx="8"/>
+  <text class="label" x="380" y="350" text-anchor="middle">JUnit 4 测试</text>
+  <text class="sub" x="380" y="370" text-anchor="middle">仅作迁移期过渡</text>
+  <rect class="card" x="510" y="326" width="230" height="60" rx="8"/>
+  <text class="label" x="625" y="350" text-anchor="middle">其他框架的测试</text>
+  <text class="sub" x="625" y="370" text-anchor="middle">Feature 文件 / 架构规则</text>
+</svg>

@@ -1,0 +1,70 @@
+<svg viewBox="0 0 770 334" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .tag { font-size: 13px; font-weight: 700; }
+    .muted { fill: var(--muted); }
+    .box-p { fill: var(--p); fill-opacity: 0.10; stroke: var(--p); stroke-width: 1.5; }
+    .box-b { fill: var(--b); fill-opacity: 0.10; stroke: var(--b); stroke-width: 1.5; }
+    .box-g { fill: var(--g); fill-opacity: 0.10; stroke: var(--g); stroke-width: 1.5; }
+    .box-y { fill: var(--y); fill-opacity: 0.10; stroke: var(--y); stroke-width: 1.5; }
+    .t-p { fill: var(--p); } .t-b { fill: var(--b); } .t-g { fill: var(--g); } .t-y { fill: var(--y); }
+    .arrow { stroke: var(--fg); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="385" y="24" text-anchor="middle">消费者驱动契约：契约由调用方提出，提供方在自己的 CI 里验证</text>
+
+  <rect class="box-p" x="20" y="44" width="190" height="130" rx="8"/>
+  <text class="tag t-p" x="115" y="70" text-anchor="middle">消费者 billing-service</text>
+  <text x="115" y="98" text-anchor="middle">对 Mock 服务端写测试</text>
+  <text x="115" y="124" text-anchor="middle">只声明自己用到的字段</text>
+  <text x="115" y="150" text-anchor="middle">测试通过即产出契约</text>
+
+  <rect class="box-b" x="290" y="44" width="190" height="130" rx="8"/>
+  <text class="tag t-b" x="385" y="70" text-anchor="middle">Pact Broker</text>
+  <text x="385" y="98" text-anchor="middle">按版本与分支存契约</text>
+  <text x="385" y="124" text-anchor="middle">记录验证结果</text>
+  <text x="385" y="150" text-anchor="middle">记录各环境已部署版本</text>
+
+  <rect class="box-g" x="560" y="44" width="190" height="130" rx="8"/>
+  <text class="tag t-g" x="655" y="70" text-anchor="middle">提供方 order-service</text>
+  <text x="655" y="98" text-anchor="middle">拉取所有消费者的契约</text>
+  <text x="655" y="124" text-anchor="middle">逐条回放请求</text>
+  <text x="655" y="150" text-anchor="middle">比对真实响应</text>
+
+  <line class="arrow" x1="210" y1="109" x2="288" y2="109"/>
+  <text class="muted" x="249" y="99" text-anchor="middle">① 发布契约</text>
+
+  <line class="arrow" x1="480" y1="109" x2="558" y2="109"/>
+  <text class="muted" x="519" y="99" text-anchor="middle">② 拉取契约</text>
+
+  <path class="arrow" d="M655,174 L655,199 L440,199 L440,176"/>
+  <text class="muted" x="548" y="216" text-anchor="middle">③ 回传验证结果</text>
+
+  <rect class="box-y" x="20" y="234" width="730" height="80" rx="8"/>
+  <text class="tag t-y" x="385" y="260" text-anchor="middle">④ 部署流水线门禁（消费者与提供方各自执行）</text>
+  <text x="203" y="292" text-anchor="middle">can-i-deploy：目标环境的对端版本都验证通过？</text>
+  <text x="568" y="292" text-anchor="middle">部署成功后 record-deployment</text>
+
+  <line class="arrow" x1="385" y1="174" x2="385" y2="232"/>
+  <text class="muted" x="375" y="216" text-anchor="end">查询兼容矩阵</text>
+</svg>

@@ -1,0 +1,55 @@
+<svg viewBox="0 0 760 336" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .head { font-size: 13px; font-weight: 700; }
+    .label { font-size: 13px; }
+    .sub { fill: var(--muted); font-size: 12px; }
+    .box-r { fill: var(--r); fill-opacity: 0.10; stroke: var(--r); stroke-width: 1.5; }
+    .box-y { fill: var(--y); fill-opacity: 0.10; stroke: var(--y); stroke-width: 1.5; }
+    .box-p { fill: var(--p); fill-opacity: 0.10; stroke: var(--p); stroke-width: 1.5; }
+    .box-b { fill: var(--b); fill-opacity: 0.10; stroke: var(--b); stroke-width: 1.5; }
+    .box-g { fill: var(--g); fill-opacity: 0.10; stroke: var(--g); stroke-width: 1.5; }
+  </style>
+  <text class="title" x="380" y="24" text-anchor="middle">测试金字塔与测试蜂巢</text>
+
+  <text class="head" x="210" y="52" text-anchor="middle">金字塔：领域逻辑为主的服务</text>
+  <rect class="box-r" x="150" y="66" width="120" height="36" rx="6"/>
+  <text class="label" x="210" y="89" text-anchor="middle">E2E 端到端</text>
+  <rect class="box-y" x="120" y="112" width="180" height="36" rx="6"/>
+  <text class="label" x="210" y="135" text-anchor="middle">契约测试</text>
+  <rect class="box-p" x="90" y="158" width="240" height="36" rx="6"/>
+  <text class="label" x="210" y="181" text-anchor="middle">集成测试 · Testcontainers</text>
+  <rect class="box-b" x="60" y="204" width="300" height="36" rx="6"/>
+  <text class="label" x="210" y="227" text-anchor="middle">切片测试 · @WebMvcTest 等</text>
+  <rect class="box-g" x="30" y="250" width="360" height="36" rx="6"/>
+  <text class="label" x="210" y="273" text-anchor="middle">单元测试 · JUnit + AssertJ + Mockito</text>
+
+  <text class="head" x="580" y="52" text-anchor="middle">蜂巢：以服务协作为主的微服务</text>
+  <rect class="box-r" x="480" y="66" width="200" height="60" rx="6"/>
+  <text class="label" x="580" y="90" text-anchor="middle">集成化测试 Integrated</text>
+  <text class="sub" x="580" y="110" text-anchor="middle">跨多个服务，少量冒烟</text>
+  <rect class="box-p" x="430" y="136" width="300" height="80" rx="6"/>
+  <text class="label" x="580" y="160" text-anchor="middle">集成测试 Integration</text>
+  <text class="sub" x="580" y="180" text-anchor="middle">真实 DB / MQ 容器 + WireMock + 契约</text>
+  <text class="sub" x="580" y="200" text-anchor="middle">数量最多</text>
+  <rect class="box-g" x="480" y="226" width="200" height="60" rx="6"/>
+  <text class="label" x="580" y="250" text-anchor="middle">实现细节测试</text>
+  <text class="sub" x="580" y="270" text-anchor="middle">复杂规则才写单元测试</text>
+
+  <text class="sub" x="380" y="316" text-anchor="middle">越往上越慢、越贵、越接近真实环境；越往下越快、越稳定、失败时定位越准</text>
+</svg>

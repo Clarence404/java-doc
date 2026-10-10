@@ -1,0 +1,72 @@
+<svg viewBox="0 0 880 370" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-obs-stack" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="440" y="26" text-anchor="middle">可观测性平台：应用埋点 → Collector → 各信号后端 → Grafana 统一查询</text>
+
+  <rect x="20" y="110" width="170" height="150" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="105" y="150" text-anchor="middle">order-service</text>
+  <text class="desc" x="105" y="180" text-anchor="middle">Micrometer 指标</text>
+  <text class="desc" x="105" y="205" text-anchor="middle">Micrometer Tracing / OTel</text>
+  <text class="desc" x="105" y="230" text-anchor="middle">stdout JSON 日志</text>
+
+  <line x1="190" y1="185" x2="238" y2="185" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-obs-stack)"/>
+  <text class="label" x="214" y="176" text-anchor="middle">OTLP</text>
+
+  <rect x="240" y="110" width="170" height="150" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="325" y="150" text-anchor="middle">OTel Collector</text>
+  <text class="desc" x="325" y="180" text-anchor="middle">接收 OTLP / 采集文件</text>
+  <text class="desc" x="325" y="205" text-anchor="middle">批处理 · 脱敏 · 采样</text>
+  <text class="desc" x="325" y="230" text-anchor="middle">按信号路由到后端</text>
+
+  <line x1="410" y1="130" x2="458" y2="82" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-obs-stack)"/>
+  <line x1="410" y1="170" x2="458" y2="160" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-obs-stack)"/>
+  <line x1="410" y1="210" x2="458" y2="240" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-obs-stack)"/>
+  <line x1="410" y1="250" x2="458" y2="318" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-obs-stack)"/>
+
+  <rect x="460" y="50" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="560" y="76" text-anchor="middle">Prometheus</text>
+  <text class="desc" x="560" y="96" text-anchor="middle">指标 · PromQL · 告警规则</text>
+  <rect x="460" y="130" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="560" y="156" text-anchor="middle">Loki / Elasticsearch</text>
+  <text class="desc" x="560" y="176" text-anchor="middle">日志 · LogQL / 全文检索</text>
+  <rect x="460" y="210" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="560" y="236" text-anchor="middle">Tempo / Jaeger v2</text>
+  <text class="desc" x="560" y="256" text-anchor="middle">链路 · TraceQL / 瀑布图</text>
+  <rect x="460" y="290" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text class="box-title" x="560" y="316" text-anchor="middle">Pyroscope</text>
+  <text class="desc" x="560" y="336" text-anchor="middle">Profiles · 火焰图（Alpha）</text>
+
+  <line x1="660" y1="80" x2="708" y2="80" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-obs-stack)"/>
+  <line x1="660" y1="160" x2="708" y2="160" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-obs-stack)"/>
+  <line x1="660" y1="240" x2="708" y2="240" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-obs-stack)"/>
+  <line x1="660" y1="320" x2="708" y2="320" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-obs-stack)"/>
+
+  <rect x="710" y="50" width="150" height="300" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="785" y="170" text-anchor="middle">Grafana</text>
+  <text class="desc" x="785" y="196" text-anchor="middle">统一查询 / 看板</text>
+  <text class="desc" x="785" y="220" text-anchor="middle">按 traceId 关联跳转</text>
+  <text class="desc" x="785" y="244" text-anchor="middle">exemplar 跳到 trace</text>
+</svg>

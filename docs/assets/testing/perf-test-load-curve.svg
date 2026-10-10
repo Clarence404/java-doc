@@ -1,0 +1,49 @@
+<svg viewBox="0 0 760 330" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-perf-curve" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text class="title" x="380" y="26" text-anchor="middle">负载、吞吐与延迟：线性区、饱和区与过载区</text>
+  <line x1="70" y1="290" x2="70" y2="58" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-perf-curve)"/>
+  <line x1="70" y1="290" x2="712" y2="290" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow-perf-curve)"/>
+  <text class="desc" x="52" y="174" text-anchor="middle" transform="rotate(-90 52 174)">吞吐量 / P99 延迟</text>
+  <line x1="340" y1="70" x2="340" y2="290" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <line x1="500" y1="70" x2="500" y2="290" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <text class="box-title" x="205" y="80" text-anchor="middle">线性区</text>
+  <text class="desc" x="205" y="98" text-anchor="middle">吞吐随负载线性增长</text>
+  <text class="box-title" x="420" y="80" text-anchor="middle">饱和区（拐点）</text>
+  <text class="desc" x="420" y="98" text-anchor="middle">吞吐见顶、P99 抬头</text>
+  <text class="box-title" x="605" y="80" text-anchor="middle">过载区</text>
+  <text class="desc" x="605" y="98" text-anchor="middle">排队失控、吞吐下降</text>
+  <path d="M70,280 L340,160 C400,134 450,128 500,128 C560,128 620,150 690,210" fill="none" stroke="var(--b)" stroke-width="2.5"/>
+  <path d="M70,268 L340,262 C420,258 460,240 500,215 C560,170 600,120 640,84" fill="none" stroke="var(--r)" stroke-width="2.5"/>
+  <circle cx="340" cy="160" r="5" fill="var(--g)"/>
+  <text class="label" x="350" y="184" style="fill:var(--g)">容量点</text>
+  <text class="desc" x="350" y="202">P99 达标且 CPU ≤ 70%</text>
+  <text class="desc" x="712" y="312" text-anchor="end">负载（到达速率）</text>
+  <line x1="90" y1="308" x2="114" y2="308" stroke="var(--b)" stroke-width="2.5"/>
+  <text class="desc" x="120" y="312">吞吐量（QPS）</text>
+  <line x1="230" y1="308" x2="254" y2="308" stroke="var(--r)" stroke-width="2.5"/>
+  <text class="desc" x="260" y="312">P99 延迟</text>
+</svg>

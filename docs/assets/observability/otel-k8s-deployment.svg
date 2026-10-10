@@ -1,0 +1,78 @@
+<svg viewBox="0 0 860 380" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .lane { font-size:12px; font-weight:700; fill:var(--p); }
+    .mono { font-size:12px; font-family:Consolas,Menlo,monospace; fill:var(--fg); }
+    .span { font-size:12px; fill:var(--fg); }
+  </style>
+  <defs>
+    <marker id="arrow-otel-k8s" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="430" y="26" text-anchor="middle">Kubernetes 上的两层部署：节点 Agent + 集中 Gateway</text>
+
+  <rect x="20" y="50" width="300" height="130" rx="8" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="lane" x="170" y="72" text-anchor="middle">Node 1</text>
+  <rect x="36" y="86" width="110" height="76" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="91" y="114" text-anchor="middle">order-service</text>
+  <text class="desc" x="91" y="136" text-anchor="middle">Java agent</text>
+  <rect x="180" y="86" width="124" height="76" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="242" y="110" text-anchor="middle">Agent</text>
+  <text class="desc" x="242" y="130" text-anchor="middle">k8sattributes</text>
+  <text class="desc" x="242" y="146" text-anchor="middle">loadbalancing</text>
+  <line x1="146" y1="124" x2="178" y2="124" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-otel-k8s)"/>
+
+  <rect x="20" y="200" width="300" height="130" rx="8" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="lane" x="170" y="222" text-anchor="middle">Node 2</text>
+  <rect x="36" y="236" width="110" height="76" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="91" y="264" text-anchor="middle">inventory</text>
+  <text class="desc" x="91" y="286" text-anchor="middle">Java agent</text>
+  <rect x="180" y="236" width="124" height="76" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="242" y="260" text-anchor="middle">Agent</text>
+  <text class="desc" x="242" y="280" text-anchor="middle">k8sattributes</text>
+  <text class="desc" x="242" y="296" text-anchor="middle">loadbalancing</text>
+  <line x1="146" y1="274" x2="178" y2="274" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-otel-k8s)"/>
+
+  <rect x="380" y="120" width="200" height="140" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="480" y="150" text-anchor="middle">Gateway Collector</text>
+  <text class="desc" x="480" y="174" text-anchor="middle">Deployment · 多副本</text>
+  <text class="desc" x="480" y="196" text-anchor="middle">tail_sampling · batch</text>
+  <text class="desc" x="480" y="218" text-anchor="middle">统一出口、鉴权、重试</text>
+
+  <line x1="304" y1="124" x2="378" y2="162" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-otel-k8s)"/>
+  <line x1="304" y1="274" x2="378" y2="232" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-otel-k8s)"/>
+
+  <rect x="640" y="60" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="740" y="84" text-anchor="middle">Tempo / Jaeger v2</text>
+  <text class="desc" x="740" y="104" text-anchor="middle">traces</text>
+  <rect x="640" y="160" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="740" y="184" text-anchor="middle">Prometheus</text>
+  <text class="desc" x="740" y="204" text-anchor="middle">metrics</text>
+  <rect x="640" y="260" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="740" y="284" text-anchor="middle">Loki</text>
+  <text class="desc" x="740" y="304" text-anchor="middle">logs</text>
+
+  <line x1="580" y1="140" x2="638" y2="92" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-otel-k8s)"/>
+  <line x1="580" y1="190" x2="638" y2="190" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-otel-k8s)"/>
+  <line x1="580" y1="240" x2="638" y2="288" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-otel-k8s)"/>
+
+  <text class="desc" x="430" y="360" text-anchor="middle">Agent 每节点一个（DaemonSet），就近接收并补 Pod 元数据；按 traceID 路由到 Gateway，保证同一 trace 落在同一副本做尾部采样</text>
+</svg>

@@ -1,0 +1,70 @@
+<svg viewBox="0 0 760 372" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .lane { font-size:12px; font-weight:700; fill:var(--p); }
+    .mono { font-size:12px; font-family:Consolas,Menlo,monospace; fill:var(--fg); }
+    .span { font-size:12px; fill:var(--fg); }
+  </style>
+  <text class="title" x="380" y="26" text-anchor="middle">一次下单请求的 Trace 瀑布图（同一 traceId，缩进表示父子关系）</text>
+  <text class="desc" x="280" y="50" text-anchor="middle">0</text>
+  <text class="desc" x="380" y="50" text-anchor="middle">100</text>
+  <text class="desc" x="480" y="50" text-anchor="middle">200</text>
+  <text class="desc" x="580" y="50" text-anchor="middle">300</text>
+  <text class="desc" x="680" y="50" text-anchor="middle">400 ms</text>
+  <line x1="280" y1="56" x2="280" y2="326" stroke="var(--border)" stroke-dasharray="3,3"/>
+  <line x1="380" y1="56" x2="380" y2="326" stroke="var(--border)" stroke-dasharray="3,3"/>
+  <line x1="480" y1="56" x2="480" y2="326" stroke="var(--border)" stroke-dasharray="3,3"/>
+  <line x1="580" y1="56" x2="580" y2="326" stroke="var(--border)" stroke-dasharray="3,3"/>
+  <line x1="680" y1="56" x2="680" y2="326" stroke="var(--border)" stroke-dasharray="3,3"/>
+
+  <text class="span" x="20" y="79">api-gateway  POST /orders</text>
+  <rect x="280" y="64" width="380" height="22" rx="4" fill="var(--p)" opacity="0.85"/>
+  <text class="desc" x="666" y="79">380ms</text>
+
+  <text class="span" x="36" y="113">order-service  POST /orders</text>
+  <rect x="288" y="98" width="364" height="22" rx="4" fill="var(--b)" opacity="0.85"/>
+  <text class="desc" x="658" y="113">364ms</text>
+
+  <text class="span" x="52" y="147">order-service  SELECT t_order</text>
+  <rect x="300" y="132" width="40" height="22" rx="4" fill="var(--b)" opacity="0.6"/>
+  <text class="desc" x="346" y="147">40ms</text>
+
+  <text class="span" x="52" y="181">order-service  HTTP POST</text>
+  <rect x="346" y="166" width="240" height="22" rx="4" fill="var(--b)" opacity="0.6"/>
+  <text class="desc" x="592" y="181">240ms</text>
+
+  <text class="span" x="68" y="215">inventory-service  /deduct</text>
+  <rect x="350" y="200" width="232" height="22" rx="4" fill="var(--g)" opacity="0.85"/>
+  <text class="desc" x="588" y="215">232ms</text>
+
+  <text class="span" x="84" y="249">inventory-service  UPDATE</text>
+  <rect x="360" y="234" width="210" height="22" rx="4" fill="var(--r)" opacity="0.85"/>
+  <text class="label" x="576" y="249" style="fill:var(--r)">210ms 慢 SQL</text>
+
+  <text class="span" x="52" y="283">order-service  send order-created</text>
+  <rect x="592" y="268" width="18" height="22" rx="4" fill="var(--b)" opacity="0.6"/>
+  <text class="desc" x="616" y="283">18ms</text>
+
+  <text class="span" x="68" y="317">notification-service  receive</text>
+  <rect x="625" y="302" width="70" height="22" rx="4" fill="var(--y)" opacity="0.85"/>
+  <text class="desc" x="701" y="317">70ms</text>
+
+  <text class="desc" x="380" y="352" text-anchor="middle">消费者 Span 在网关返回之后才结束：异步环节不计入接口耗时，但仍在同一条 Trace 里</text>
+</svg>

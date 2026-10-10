@@ -1,0 +1,64 @@
+<svg viewBox="0 0 800 366" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+    .lane { font-size:12px; font-weight:700; fill:var(--p); }
+    .mono { font-size:12px; font-family:Consolas,Menlo,monospace; fill:var(--fg); }
+    .span { font-size:12px; fill:var(--fg); }
+  </style>
+  <defs>
+    <marker id="arrow-trace-prop" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="400" y="26" text-anchor="middle">上下文传播：trace-id 一路不变，parent-id 每跳换成发送方的 Span</text>
+
+  <rect x="20" y="50" width="160" height="70" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="100" y="76" text-anchor="middle">api-gateway</text>
+  <text class="desc" x="100" y="98" text-anchor="middle">生成 trace-id · Span A</text>
+  <rect x="220" y="50" width="160" height="70" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="300" y="76" text-anchor="middle">order-service</text>
+  <text class="desc" x="300" y="98" text-anchor="middle">提取后续接 · Span B</text>
+  <rect x="420" y="50" width="160" height="70" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="500" y="76" text-anchor="middle">Kafka order-created</text>
+  <text class="desc" x="500" y="98" text-anchor="middle">记录头保存上下文</text>
+  <rect x="620" y="50" width="160" height="70" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="700" y="76" text-anchor="middle">notification</text>
+  <text class="desc" x="700" y="98" text-anchor="middle">消费时续接 · Span D</text>
+
+  <line x1="180" y1="85" x2="218" y2="85" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-trace-prop)"/>
+  <text class="label" x="200" y="79" text-anchor="middle">HTTP</text>
+  <line x1="380" y1="85" x2="418" y2="85" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-trace-prop)"/>
+  <text class="label" x="400" y="79" text-anchor="middle">消息头</text>
+  <line x1="580" y1="85" x2="618" y2="85" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-trace-prop)"/>
+  <text class="label" x="600" y="79" text-anchor="middle">拉取</text>
+
+  <rect x="20" y="150" width="760" height="196" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="400" y="174" text-anchor="middle">每一跳携带的请求头（HTTP 头与 Kafka 记录头同名）</text>
+  <text class="mono" x="400" y="200" text-anchor="middle">traceparent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01</text>
+  <text class="lane" x="210" y="230" text-anchor="middle">version = 00</text>
+  <text class="desc" x="210" y="250" text-anchor="middle">规范版本，目前固定为 00</text>
+  <text class="lane" x="590" y="230" text-anchor="middle">trace-id：32 位十六进制</text>
+  <text class="desc" x="590" y="250" text-anchor="middle">整条链路不变，即日志 MDC 中的 traceId</text>
+  <text class="lane" x="210" y="282" text-anchor="middle">parent-id：16 位十六进制</text>
+  <text class="desc" x="210" y="302" text-anchor="middle">每跳替换成发送方当前 Span 的 id</text>
+  <text class="lane" x="590" y="282" text-anchor="middle">trace-flags = 01</text>
+  <text class="desc" x="590" y="302" text-anchor="middle">最低位 1 表示上游已采样，下游跟随</text>
+  <text class="mono" x="400" y="328" text-anchor="middle">baggage: tenantId=t-1001,channel=app</text>
+</svg>

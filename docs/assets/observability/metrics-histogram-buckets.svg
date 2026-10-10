@@ -1,0 +1,66 @@
+<svg viewBox="0 0 780 290" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="390" y="24" text-anchor="middle" class="title">经典直方图：累积 le 桶 + histogram_quantile 线性插值</text>
+  <text x="246" y="48" text-anchor="middle" class="desc">5 分钟内 1000 个请求，每根柱 = 耗时 ≤ le 的请求数（累积）</text>
+
+  <line x1="40" y1="250" x2="452" y2="250" stroke="var(--muted)" stroke-width="1"/>
+
+  <rect x="50" y="142" width="52" height="108" fill="var(--b)" fill-opacity="0.25" stroke="var(--b)" stroke-width="1.2"/>
+  <text x="76" y="136" text-anchor="middle" class="lbl">600</text>
+  <text x="76" y="268" text-anchor="middle" class="desc">le=0.05</text>
+
+  <rect x="118" y="97" width="52" height="153" fill="var(--b)" fill-opacity="0.25" stroke="var(--b)" stroke-width="1.2"/>
+  <text x="144" y="91" text-anchor="middle" class="lbl">850</text>
+  <text x="144" y="268" text-anchor="middle" class="desc">le=0.1</text>
+
+  <rect x="186" y="77" width="52" height="173" fill="var(--b)" fill-opacity="0.25" stroke="var(--b)" stroke-width="1.2"/>
+  <text x="212" y="71" text-anchor="middle" class="lbl">960</text>
+  <text x="212" y="268" text-anchor="middle" class="desc">le=0.25</text>
+
+  <rect x="254" y="71" width="52" height="179" fill="var(--y)" fill-opacity="0.30" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="280" y="65" text-anchor="middle" class="lbl">995</text>
+  <text x="280" y="268" text-anchor="middle" class="desc">le=0.5</text>
+
+  <rect x="322" y="70" width="52" height="180" fill="var(--b)" fill-opacity="0.25" stroke="var(--b)" stroke-width="1.2"/>
+  <text x="348" y="64" text-anchor="middle" class="lbl">999</text>
+  <text x="348" y="268" text-anchor="middle" class="desc">le=1</text>
+
+  <rect x="390" y="70" width="52" height="180" fill="var(--b)" fill-opacity="0.25" stroke="var(--b)" stroke-width="1.2"/>
+  <text x="416" y="64" text-anchor="middle" class="lbl">1000</text>
+  <text x="416" y="268" text-anchor="middle" class="desc">le=+Inf</text>
+
+  <rect x="476" y="56" width="284" height="194" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="618" y="80" text-anchor="middle" class="name">求 P99</text>
+  <text x="492" y="108" class="lbl">1. 目标排名：0.99 × 1000 = 990</text>
+  <text x="492" y="134" class="lbl">2. 落入 le=0.5 桶：之前 960，桶内 35</text>
+  <text x="492" y="160" class="lbl">3. 桶内线性插值：</text>
+  <text x="492" y="184" class="lbl">   0.25 + 0.25 × 30 / 35 ≈ 0.464 s</text>
+  <text x="492" y="212" class="desc">真实 P99 可能是 0.25～0.5 s 间任意值</text>
+  <text x="492" y="236" class="desc">误差上限 = 桶宽，桶边界要贴近 SLO 阈值</text>
+</svg>

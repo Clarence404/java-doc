@@ -1,0 +1,60 @@
+<svg viewBox="0 0 640 318" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .tag { font-size: 13px; font-weight: 700; }
+    .muted { fill: var(--muted); }
+    .box-n { fill: var(--card); stroke: var(--border); stroke-width: 1.5; }
+    .box-p { fill: var(--p); fill-opacity: 0.10; stroke: var(--p); stroke-width: 1.5; }
+    .box-b { fill: var(--b); fill-opacity: 0.10; stroke: var(--b); stroke-width: 1.5; }
+    .box-g { fill: var(--g); fill-opacity: 0.10; stroke: var(--g); stroke-width: 1.5; }
+    .box-r { fill: var(--r); fill-opacity: 0.10; stroke: var(--r); stroke-width: 1.5; }
+    .box-y { fill: var(--y); fill-opacity: 0.10; stroke: var(--y); stroke-width: 1.5; stroke-dasharray: 5 3; }
+    .box-m { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 3; }
+    .t-p { fill: var(--p); } .t-b { fill: var(--b); } .t-g { fill: var(--g); } .t-r { fill: var(--r); } .t-y { fill: var(--y); }
+    .arrow { stroke: var(--fg); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <text class="title" x="320" y="26" text-anchor="middle">TDD 循环：红 → 绿 → 重构</text>
+
+  <rect class="box-r" x="40" y="50" width="200" height="80" rx="8"/>
+  <text class="tag t-r" x="140" y="80" text-anchor="middle">红：写一个失败的测试</text>
+  <text x="140" y="106" text-anchor="middle">只描述下一个小行为</text>
+
+  <rect class="box-g" x="400" y="50" width="200" height="80" rx="8"/>
+  <text class="tag t-g" x="500" y="80" text-anchor="middle">绿：让测试通过</text>
+  <text x="500" y="106" text-anchor="middle">写最少的代码，允许写死</text>
+
+  <rect class="box-b" x="220" y="190" width="200" height="80" rx="8"/>
+  <text class="tag t-b" x="320" y="220" text-anchor="middle">重构：整理代码</text>
+  <text x="320" y="246" text-anchor="middle">消除重复，测试保持全绿</text>
+
+  <line class="arrow" x1="240" y1="90" x2="398" y2="90"/>
+  <text class="muted" x="319" y="82" text-anchor="middle">确认因预期原因失败</text>
+
+  <line class="arrow" x1="460" y1="130" x2="400" y2="188"/>
+  <text class="muted" x="470" y="168">全部测试变绿</text>
+
+  <line class="arrow" x1="240" y1="190" x2="180" y2="132"/>
+  <text class="muted" x="170" y="168" text-anchor="end">下一个行为</text>
+
+  <text class="muted" x="320" y="298" text-anchor="middle">每轮几分钟；重构中任何测试变红，立即撤回到上一个绿色状态</text>
+</svg>
