@@ -6,11 +6,13 @@ description: DAG 依赖、数据时间与运行时间、DolphinScheduler、补�
 
 > 前置阅读：[数仓分层与建模](./2_data_warehouse)、[数据集成](./5_data_integration)
 
-数据任务调度负责让离线链路按依赖顺序、按业务日期正确运行，失败能重跑、历史能补数、核心报表按时产出。本篇讲 DAG 依赖、数据时间、补数与重跑、幂等写入和 SLA 监控，以 Apache DolphinScheduler 3.4 和 Apache Airflow 3.3 为基线，示例统一使用电商订单日报链路 `order_daily`。
+数据任务调度让离线链路按依赖和业务日期正确运行，失败能重跑、历史能补数。本篇讲 DAG 依赖、数据时间、补数与重跑、幂等写入和 SLA 监控，基线为 DolphinScheduler 3.4。
 
 ---
 
 ## 一、数据调度要解决什么
+
+本篇以 Apache DolphinScheduler 3.4 和 Apache Airflow 3.3 为基线，示例统一使用电商订单日报链路 `order_daily`，目标是核心报表按时产出。
 
 ### 1、和业务定时任务的区别
 

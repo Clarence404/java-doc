@@ -6,11 +6,13 @@ description: Serial / Parallel / CMS / G1 / ZGC（含分代 ZGC）/ Shenandoah �
 
 > 前置阅读：[GC 原理](./4_gc_theory)
 
-收集器的演进主线是**把越来越多的 GC 工作从 STW 挪到并发阶段**：Serial 全程停顿 → Parallel 多线程停顿 → CMS 并发标记 → G1 可预测停顿 → ZGC / Shenandoah 并发整理。本篇讲 HotSpot 各款收集器的工作方式、适用场景与 JDK 版本演进，以及按业务目标选型。
+垃圾收集器的演进主线是把越来越多的 GC 工作从 STW 挪到并发阶段。本篇讲 HotSpot 各收集器的工作方式、适用场景、JDK 版本演进与按目标选型。
 
 ---
 
 ## 一、收集器概览
+
+演进顺序：Serial 全程停顿 → Parallel 多线程停顿 → CMS 并发标记 → G1 可预测停顿 → ZGC / Shenandoah 并发整理。
 
 **经典收集器分年轻代与老年代两块、需要成对搭配；G1 之后的收集器自己管理整个堆。**
 

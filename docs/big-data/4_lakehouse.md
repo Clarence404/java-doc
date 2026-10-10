@@ -6,11 +6,13 @@ description: 数据湖与湖仓、表格式原理、Iceberg / Paimon / Hudi / De
 
 > 前置阅读：[大数据基础](./1_basics)、[数仓分层与建模](./2_data_warehouse)、[Spark](./3_spark)
 
-湖仓是在对象存储的开放文件之上加一层表格式，把数仓的事务、行级更新和演进能力带到数据湖上，并让多个引擎共享同一张表。本篇以 Iceberg 为例讲表格式原理与 Spark SQL 实战，再覆盖 Iceberg / Paimon / Hudi / Delta 选型、Catalog、小文件治理和 Flink + Paimon 流式湖仓，版本基线为 Iceberg 1.12、Paimon 2.0、Hudi 1.2.x。
+湖仓是在对象存储的开放文件上加一层表格式，让数据湖有事务和行级更新，并能被多个引擎共享。本篇讲表格式原理、四种表格式选型、Catalog、小文件治理和流式湖仓，基线为 Iceberg 1.12。
 
 ---
 
 ## 一、为什么需要数据湖与湖仓
+
+本篇以 Iceberg 为例讲表格式原理与 Spark SQL 实战，选型覆盖 Iceberg / Paimon / Hudi / Delta，流式湖仓采用 Flink + Paimon；版本基线为 Iceberg 1.12、Paimon 2.0、Hudi 1.2.x。
 
 ### 1、Hive 表的天花板
 

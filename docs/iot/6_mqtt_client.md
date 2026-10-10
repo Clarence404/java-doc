@@ -6,11 +6,13 @@ description: HiveMQ 客户端、持久会话与重连、共享订阅、Spring In
 
 > 前置阅读：[通信协议](./1_protocol)
 
-本篇讲 Java 侧怎么接入 MQTT 5：独立进程（网关、采集器、压测工具）用 HiveMQ MQTT Client，Spring Boot 业务服务用 Spring Integration MQTT，并配好持久会话、自动重连、共享订阅和按 Topic 路由。版本基线：JDK 21、Spring Boot 4.x（依赖管理带 Spring Integration 7.x）、HiveMQ MQTT Client 1.4.0、Paho mqttv5 1.2.5。
+Java 服务接入 MQTT 5 有独立客户端和 Spring 集成两种方式。本篇讲 HiveMQ 客户端、Spring Integration MQTT、持久会话与重连、共享订阅，基线为 JDK 21、Spring Boot 4.x。
 
 ---
 
 ## 一、客户端选型
+
+独立进程（网关、采集器、压测工具）用 HiveMQ MQTT Client，Spring Boot 业务服务用 Spring Integration MQTT，并按 Topic 路由。版本基线：JDK 21、Spring Boot 4.x（依赖管理带 Spring Integration 7.x）、HiveMQ MQTT Client 1.4.0、Paho mqttv5 1.2.5。
 
 ### 1、三个可选项
 

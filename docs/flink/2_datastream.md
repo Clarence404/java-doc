@@ -6,11 +6,13 @@ description: Source API、转换算子、ProcessFunction、定时器、侧输出
 
 > 前置阅读：[Flink 概览](./1_basics)
 
-一个 DataStream 作业永远是同一个骨架：**创建环境 → 定义 Source → 一串转换 → 定义 Sink → `execute()`**，算子函数里的代码会被序列化后发到 TaskManager 上执行，这是很多坑的根源。本篇基于 Flink 2.x 走完从 KafkaSource 读取、ProcessFunction 与定时器、异步 I/O 关联维表到 KafkaSink 精确一次写出的完整链路，并梳理类型推断、Kryo 回退等常见坑。
+DataStream 作业的骨架固定为环境、Source、转换、Sink 和 `execute()`，算子代码会被序列化发到 TaskManager 执行。本篇讲 KafkaSource、ProcessFunction 与定时器、异步 I/O、精确一次 KafkaSink 与常见坑，基线为 Flink 2.2。
 
 ---
 
 ## 一、执行环境
+
+算子函数被序列化后在远端执行是很多坑的根源；常见坑包括类型推断、Kryo 回退等。
 
 ![典型 DataStream 作业拓扑](../assets/flink/flink-datastream-pipeline.svg)
 

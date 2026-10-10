@@ -1,12 +1,8 @@
 # 缓存总览
 
-缓存模块覆盖分布式缓存 Redis、本地缓存 Caffeine、两级缓存与 JetCache，以及缓存一致性和使用规范。本模块负责 Redis 本身与缓存一致性的技术细节；系统级的多级缓存架构与热点治理策略放在 [高并发](/high-con/0_overview)，分布式锁放在 [分布式](/distributed/0_overview)，限流放在 [高可用](/high-avail/0_overview)。
+缓存模块覆盖分布式缓存 Redis、本地缓存 Caffeine、两级缓存与 JetCache，以及缓存一致性和使用规范，负责 Redis 本身与缓存一致性的技术细节。
 
-版本基线：
-
-- **Redis 8.x**：8.0（2025-05 GA）起改名 Redis Open Source，许可证在 RSALv2 / SSPLv1 之外新增 AGPLv3 可选；原 Redis Stack 的 JSON、Time Series、概率结构（Bloom / Cuckoo / Count-min / Top-k / t-digest）与查询引擎并入核心，并新增 Vector Set（预览）
-- **Valkey 8.x**：Redis 7.2.4 的 BSD 许可分支，命令与协议兼容，不含上述 Redis 8 新增模块
-- **客户端与框架**：Spring Boot 4 / Spring Data Redis 4（配置前缀 `spring.data.redis.*`，JSON 序列化器换成 Jackson 3 版本）、Redisson 4.x（4.0 起支持 Spring Boot 4）、Caffeine 3.x、JetCache 2.7+
+**版本基线（2026 年 10 月）**：Redis 8.x、Valkey 8.x、Spring Data Redis 4、Redisson 4.x、Caffeine 3.x、JetCache 2.7
 
 ---
 
@@ -29,6 +25,8 @@
 ---
 
 ## 三、关联模块
+
+系统级的多级缓存架构与热点治理策略放在 [高并发](/high-con/0_overview)，分布式锁放在 [分布式](/distributed/0_overview)，限流放在 [高可用](/high-avail/0_overview)。Redis 8.0 起改名 Redis Open Source，原 Redis Stack 的 JSON、Time Series、概率结构与查询引擎并入核心；Valkey 是 Redis 7.2.4 的 BSD 许可分支，不含这些新增模块。Spring Data Redis 4 配置前缀为 `spring.data.redis.*`，JSON 序列化器换成 Jackson 3 版本；Redisson 4.0 起支持 Spring Boot 4。
 
 - 缓存架构设计（多级缓存、预热、热点探测）→ [缓存架构设计](/high-con/3_cache_architecture)
 - 热点 Key / 热点行治理 → [热点问题](/high-con/6_hotspot)

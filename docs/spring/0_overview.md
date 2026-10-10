@@ -1,8 +1,8 @@
 # Spring 总览
 
-Spring Framework 是 Java 后端的基础框架：IoC 容器负责创建与装配对象，AOP 把事务、缓存、权限等横切逻辑从业务代码中剥离，在此之上提供 Web（Spring MVC / WebFlux）、事务、数据访问等能力。本模块讲 Framework 本身的机制与常用组件，以及 Spring Security、Spring Batch、Spring Integration 等周边项目；Spring Boot 的自动配置与工程化放在 [Spring Boot](/spring-boot/0_overview) 模块，微服务组件放在 [Spring Cloud](/spring-cloud/0_overview) 模块。
+本模块讲 Spring Framework 本身的机制与常用组件（IoC、AOP、MVC / WebFlux、事务、数据访问），以及 Spring Security、Batch、Integration 等周边项目。
 
-版本基线：**Spring Framework 7.x / Spring Boot 4.x / Spring Security 7 / JDK 17+（推荐 21 / 25）**，与 Framework 6.x / Boot 3.x 行为不同的地方在文中单独标出。
+**版本基线（2026 年 10 月）**：Spring Framework 7.x、Spring Boot 4.x、Spring Security 7、JDK 21 / 25
 
 ---
 
@@ -46,6 +46,8 @@ Spring Framework 是 Java 后端的基础框架：IoC 容器负责创建与装�
 ---
 
 ## 三、关联模块
+
+Spring Boot 的自动配置与工程化放在 [Spring Boot](/spring-boot/0_overview) 模块，微服务组件放在 [Spring Cloud](/spring-cloud/0_overview) 模块。最低要求 JDK 17；与 Framework 6.x / Boot 3.x 行为不同的地方在文中单独标出。
 
 - [Spring Boot](/spring-boot/0_overview)：自动配置、Starter、配置体系、测试与启动优化；版本差异见 [Spring Boot 版本演进](/spring-boot/11_versions)
 - [Spring Cloud](/spring-cloud/0_overview)：注册发现、网关、服务调用、配置中心与治理

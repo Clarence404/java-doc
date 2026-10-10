@@ -6,11 +6,13 @@ description: RTMP、RTSP、HTTP-FLV、HLS 与 LL-HLS、DASH、CMAF、WebRTC 与 
 
 > 前置阅读：[音视频基础](./1_basics)、[TCP 与 UDP](/protocols/1_tcp_udp)、[HTTP](/protocols/2_http)
 
-协议是音视频平台里最容易"选错就推倒重来"的部分：同一路直播，用 HLS 分发延迟十几秒，弹幕互动明显对不上；改用 WebRTC 延迟降到亚秒，但 CDN 成本和服务器复杂度完全是另一个量级。本篇按"推流 → 拉流 → 实时 → 选型"的顺序梳理主流协议、延迟对比与推拉流鉴权，示例统一为主播推流到 `ingest.example.com`、观众从 `pull.example.com` 拉流、直播间号 `room1001`，工具以 FFmpeg 9.0 为基线。
+流媒体协议决定音视频怎么推上来、怎么分发给观众，选错往往要推倒重来。本篇讲推流协议、拉流协议、实时协议、延迟对比与推拉流鉴权，基线为 FFmpeg 9.0。
 
 ---
 
 ## 一、协议全景
+
+同一路直播，用 HLS 分发延迟十几秒，弹幕互动明显对不上；改用 WebRTC 延迟降到亚秒，但 CDN 成本和服务器复杂度完全是另一个量级。示例统一为主播推流到 `ingest.example.com`、观众从 `pull.example.com` 拉流、直播间号 `room1001`。
 
 音视频协议按方向分成两类：
 

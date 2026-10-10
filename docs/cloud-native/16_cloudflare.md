@@ -6,11 +6,13 @@ description: 边缘请求链路、代理模式、缓存规则、WAF 与限流、
 
 > 前置阅读：[国内云平台](./14_cloud_domestic)、[国际云平台](./15_cloud_global)、[DNS](/protocols/4_dns)
 
-Cloudflare 不卖虚拟机，它是一张覆盖全球数百个城市的边缘网络，通常**叠加在云厂商或 VPS 之上**作为入口层：用户请求先到最近的边缘节点，经过防护、规则与缓存处理，必要时才回到源站。本篇讲代理模式、缓存规则、WAF 与限流、Workers / R2 / Tunnel / Pages，以及中国大陆访问限制与源站保护做法。
+Cloudflare 是一张全球边缘网络，通常叠加在云厂商或 VPS 之上作为入口层。本篇讲代理模式、缓存规则、WAF 与限流、Workers / R2 / Tunnel 和源站保护。
 
 ---
 
 ## 一、边缘请求链路
+
+Cloudflare 不卖虚拟机，节点覆盖全球数百个城市：用户请求先到最近的边缘节点，经过防护、规则与缓存处理，必要时才回到源站。文中也会讲 Pages 和中国大陆访问限制。
 
 ![请求经过 Cloudflare 边缘节点的处理顺序](../assets/cloud-native/cloudflare-edge.svg)
 

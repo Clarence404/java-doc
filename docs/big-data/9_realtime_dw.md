@@ -6,11 +6,13 @@ description: 埋点规范与采集网关、Flink SQL 写 Paimon 分层、StarRoc
 
 > 前置阅读：[数据湖与湖仓](./4_lakehouse)、[Flink SQL 与 Table API](/flink/5_sql)、[OLAP 查询与数据服务](./7_olap_service)
 
-本篇把前面的分层建模、湖仓表格式、调度、OLAP 与治理串成一条能上线的分钟级实时数仓链路：App 埋点经采集网关进入 Kafka，Flink SQL 逐层写入 Paimon 的 ODS / DWD / DWS，StarRocks 用外部 Catalog 和异步物化视图提供 ADS，Spring Boot 查询服务对外输出。内容覆盖每层的延迟监控与回放、补数、故障恢复，版本基线为 Flink 2.2（`flink-sql-connector-kafka-5.0.0-2.2.jar`，Kafka 连接器尚未适配 2.3）、Paimon 2.0（2026 年 8 月发布，`paimon-flink-2.2-2.0.0.jar`）、StarRocks 4.1、Spring Boot 4、JDK 21（查询服务与网关）。
+实时数仓是把前面的分层、湖仓、OLAP 与治理串成一条能上线的分钟级数据链路。本篇讲 Flink SQL 写 Paimon 分层、StarRocks 物化视图、延迟监控、回放补数与故障恢复，基线为 Flink 2.2。
 
 ---
 
 ## 一、需求与架构
+
+版本基线为 Flink 2.2（`flink-sql-connector-kafka-5.0.0-2.2.jar`，Kafka 连接器尚未适配 2.3）、Paimon 2.0（2026 年 8 月发布，`paimon-flink-2.2-2.0.0.jar`）、StarRocks 4.1、Spring Boot 4、JDK 21（查询服务与网关）。
 
 ### 1、需求
 

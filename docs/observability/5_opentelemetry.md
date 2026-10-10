@@ -6,11 +6,13 @@ description: 组成与成熟度、Java agent 2.x、Spring Boot 接入对比、Co
 
 > 前置阅读：[链路追踪](./3_tracing)、[指标监控](./2_metrics)
 
-OpenTelemetry（OTel）是 CNCF 下的可观测性数据标准与工具集，只负责数据怎么产生、描述和传输，应用产出的数据可发给任意兼容 OTLP 的后端，换后端不用改代码。本篇以 **OpenTelemetry Java agent 2.32**、**Collector v0.162**（2026 年 10 月）和 **Spring Boot 4.x** 为基线，讲 OTel 的组成、Java 接入方式、Collector 配置与 Kubernetes 部署，示例沿用 `order-service` → `inventory-service` → Kafka → `notification-service` 下单链路。
+OpenTelemetry（OTel）是 CNCF 下的可观测性数据标准与工具集，换后端不用改代码。本篇讲 OTel 组成、Java 接入方式、Collector 配置与 Kubernetes 部署，基线为 Spring Boot 4.x。
 
 ---
 
 ## 一、组成
+
+OTel 只负责数据怎么产生、描述和传输，应用产出的数据可发给任意兼容 OTLP 的后端。版本为 OpenTelemetry Java agent 2.32、Collector v0.162（2026 年 10 月），示例沿用 `order-service` → `inventory-service` → Kafka → `notification-service` 下单链路。
 
 ### 1、六个部分
 

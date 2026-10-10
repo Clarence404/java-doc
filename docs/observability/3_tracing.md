@@ -6,11 +6,13 @@ description: Trace / Span、W3C 传播、Boot 接入、异步与 Kafka 透传、
 
 > 前置阅读：[日志](/spring-boot/12_logging)、[指标监控](./2_metrics)
 
-链路追踪回答一个请求穿过多个服务和消息队列后慢在哪一跳、错误从哪里开始传播。本篇以 **Spring Boot 4.x 自带的 Micrometer Tracing** 和 **OpenTelemetry** 为基线，讲模型、上下文传播、接入、采样、后端选型与排障，示例使用 `order-service` → `inventory-service` → Kafka 主题 `order-created` → `notification-service` 这条下单链路。
+链路追踪回答一个请求穿过多个服务后慢在哪一跳、错误从哪开始传播。本篇讲模型、上下文传播、接入、采样、后端选型与排障，基线为 Spring Boot 4.x。
 
 ---
 
 ## 一、核心概念
+
+接入基于 Spring Boot 4.x 自带的 Micrometer Tracing 和 OpenTelemetry；示例使用 `order-service` → `inventory-service` → Kafka 主题 `order-created` → `notification-service` 这条下单链路。
 
 ### 1、Trace 与 Span
 

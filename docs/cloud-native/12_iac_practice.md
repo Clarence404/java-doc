@@ -6,11 +6,13 @@ description: 仓库布局与环境晋级、PR 流水线与 OIDC、策略即代�
 
 > 前置阅读：[Terraform](./11_terraform)、[cloud-init 与 Packer](./12_cloud_init)
 
-IaC 进入多人协作后，关键问题变成**基础设施代码怎么评审、怎么上线、怎么防止出事**。本篇搭一条 PR 驱动的 Terraform 流水线并讲策略即代码、漂移检测与 State 安全，示例以 GitHub Actions + AWS 为主（阿里云做法在文中点出），工具版本以 2026 年 10 月为准：Terraform 1.16、hashicorp/setup-terraform v4、Conftest 0.71。
+IaC 多人协作后，难点变成基础设施代码怎么评审、上线和防事故。本篇讲 PR 驱动的流水线、策略即代码、漂移检测和 State 安全，基线为 Terraform 1.16。
 
 ---
 
 ## 一、仓库布局与环境晋级
+
+示例以 GitHub Actions + AWS 为主（阿里云做法在文中点出），工具版本：Terraform 1.16、hashicorp/setup-terraform v4、Conftest 0.71。
 
 [Terraform](./11_terraform) 讲了 HCL、State、Module 和多环境目录，[Ansible](./12_ansible) 讲了 Playbook 和 Role，这里不再重复语法；示例选 AWS 是因为它的 OIDC 生态最成熟。
 

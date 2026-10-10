@@ -2,9 +2,9 @@
 description: 复杂度与均摊、链表与栈、哈希与堆、树与图、排序与二分、分治 / DP / 贪心 / 回溯、刷题技巧
 ---
 
-# 数据结构与算法面试题解答
+# 算法面试题解答
 
-> 题目清单见 [数据结构与算法面试题](/algorithms/99_interview)；细节见 [数据结构与算法总览](/algorithms/0_overview)。`HashMap`、`ArrayList` 的源码细节见 [Java 面试题解答](/interview/1_java)，海量数据题见 [业务场景面试题解答](/interview/16_scenario)。
+> 题目清单见 [数据结构与算法面试题](/algorithms/99_interview)；细节见 [数据结构与算法总览](/algorithms/0_overview)。`HashMap`、`ArrayList` 的源码细节见 [Java 基础面试题解答](/interview/1_java)，海量数据题见 [业务场景面试题解答](/interview/16_scenario)。
 >
 > 版本基线：代码以 JDK 21 为准，方法签名采用 LeetCode 风格，数据结构优先用 JDK 自带实现（`ArrayDeque`、`PriorityQueue`、`HashMap`、`TreeMap`）。
 

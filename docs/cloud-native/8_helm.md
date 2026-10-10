@@ -6,7 +6,7 @@ description: Helm 4 基线、Chart 模板、升级回滚、多环境 values、OC
 
 > 前置阅读：[Kubernetes](./6_kubernetes)
 
-Helm 是 Kubernetes 的包管理器：把 Deployment、Service、ConfigMap 等一组 YAML 写成参数化模板打成 **Chart**，一条命令完成安装、升级、回滚，并在集群里记录每次变更的历史。本篇基于 Helm 4 讲第三方 Chart 的使用、自定义 Chart 编写、values 合并与回滚语义、多环境配置和 OCI 发布。
+Helm 是 Kubernetes 的包管理器，把一组 YAML 写成参数化模板 Chart，一条命令完成安装、升级、回滚。本篇讲第三方 Chart、自定义 Chart、values 与回滚、多环境和 OCI 发布，基线为 Helm 4.0。
 
 ---
 

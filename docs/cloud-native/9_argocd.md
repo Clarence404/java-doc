@@ -6,11 +6,13 @@ description: GitOps 拉取模型、安装、Application 与 ApplicationSet、同
 
 > 前置阅读：[Kubernetes](./6_kubernetes)、[Helm](./8_helm)、[CI/CD](/devops/2_ci_cd)
 
-**Argo CD** 是 CNCF 毕业项目，基于 GitOps 拉取模型为 Kubernetes 做持续交付：运行在集群内，持续对比「Git 里写的」与「集群里跑的」，有差异就同步。本文以 Argo CD 3.x 为基线（3.0 于 2025 年 5 月发布，截至 2026 年 10 月最新为 3.5），讲安装、Application / ApplicationSet、同步与回滚策略、多环境和周边工具。
+Argo CD 是 CNCF 毕业项目，在集群内持续对比 Git 与集群状态并自动同步，做 Kubernetes 的 GitOps 持续交付。本篇讲安装、Application / ApplicationSet、同步与回滚、多环境与周边工具，基线为 Argo CD 3.0。
 
 ---
 
 ## 一、GitOps 与拉取模型
+
+版本说明：3.0 为本文基线，截至 2026 年 10 月最新为 3.5。
 
 传统流水线在 CI 里直接 `kubectl apply` 或 `helm upgrade`（推送式）；GitOps 下 CI 只负责构建镜像并把新的 image tag 提交到**配置仓库**，部署由集群内的 Argo CD 拉取完成。
 

@@ -4,7 +4,7 @@ description: 线程与中断、volatile、锁与 AQS、CAS、并发容器、Thre
 
 # Java 并发面试题解答
 
-> 题目清单见 [Java 面试题](/java/99_interview)（本页答第四组「并发」，其余三组见 [Java 面试题解答](/interview/1_java)）；细节见 [Java 总览](/java/0_overview) 的并发部分，JMM、DCL、虚拟线程原理见 [JVM 面试题解答](/interview/3_jvm) Q42–Q51。
+> 题目清单见 [Java 面试题](/java/99_interview)（本页答第四组「并发」，其余三组见 [Java 基础面试题解答](/interview/1_java)）；细节见 [Java 总览](/java/0_overview) 的并发部分，JMM、DCL、虚拟线程原理见 [JVM 面试题解答](/interview/3_jvm) Q42–Q51。
 >
 > 版本基线：JDK 21 / 25 LTS，与 JDK 8 / 17 不同处单独说明。
 

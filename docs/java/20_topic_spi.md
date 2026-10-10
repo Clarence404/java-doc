@@ -6,11 +6,13 @@ description: ServiceLoader、TCCL、JPMS provides / uses、Dubbo 扩展点、自
 
 > 前置阅读：[序列化](./19_topic_serialization)、[类加载机制](/jvm/2_class_loading)
 
-SPI（Service Provider Interface）是框架只定义接口、第三方 jar 提供实现并在约定位置登记、运行时再把实现找出来的服务发现机制，JDBC、SLF4J、Dubbo、Spring Boot 自动配置都是这个思路。本篇讲 `ServiceLoader` 的加载过程，以及 JPMS、Dubbo、Spring Boot 的 SPI 变体与自定义扩展点。
+SPI 是框架只定义接口、第三方 jar 提供实现、运行时再把实现找出来的服务发现机制。本篇讲 ServiceLoader 加载过程、JPMS、Dubbo、Spring Boot 的 SPI 变体。
 
 ---
 
 ## 一、SPI 与 API 的区别
+
+SPI（Service Provider Interface）的实现要在约定位置登记，JDBC、SLF4J、Dubbo、Spring Boot 自动配置都是这个思路；本篇也讲自定义扩展点。
 
 | 维度 | API | SPI |
 |------|-----|-----|

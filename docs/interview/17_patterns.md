@@ -4,7 +4,7 @@ description: 设计原则、单例与工厂、代理与装饰器、策略与模�
 
 # 设计模式面试题解答
 
-> 题目清单见 [设计模式面试题](/patterns/99_interview)；细节见 [设计模式总览](/patterns/0_overview)。JDK 动态代理与 CGLIB 的实现差异见 [Java 面试题解答](/interview/1_java)，Spring AOP 与事务失效见 [Spring 面试题解答](/interview/5_spring)。
+> 题目清单见 [设计模式面试题](/patterns/99_interview)；细节见 [设计模式总览](/patterns/0_overview)。JDK 动态代理与 CGLIB 的实现差异见 [Java 基础面试题解答](/interview/1_java)，Spring AOP 与事务失效见 [Spring 面试题解答](/interview/5_spring)。
 >
 > 版本基线：示例代码默认 JDK 21（record、sealed、switch 模式匹配），Spring 类名以 Spring Framework 6.x / 7.x 为准；模式定义以 GoF 原书与 Refactoring.Guru 为准。
 

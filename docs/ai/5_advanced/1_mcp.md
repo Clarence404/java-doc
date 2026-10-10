@@ -6,11 +6,13 @@ description: MCP 能力模型、规范演进、Streamable HTTP、Java 客户端�
 
 > 前置阅读：[Function Calling（工具调用）](../1_concepts/2_function_calling)、[AI Agent 智能体](./0_agent)
 
-MCP 是连接 AI 应用与外部工具、数据源的开放协议。本篇以 MCP 规范 2026-07-28 版本与 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0 为基线，讲角色与能力模型、传输演进、客户端接入与 Server 开发、认证与安全风险，属性名与传输细节以官方文档为准。
+MCP 是连接 AI 应用与外部工具、数据源的开放协议。本篇讲能力模型、传输演进、客户端与 Server 开发、认证与安全，基线为 Spring AI 2.0。
 
 ---
 
 ## 一、MCP 是什么
+
+本篇以 MCP 规范 2026-07-28 版本与 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0 为基线，属性名与传输细节以官方文档为准。
 
 MCP（Model Context Protocol）是 Anthropic 于 2024 年 11 月发布的开放协议，用来标准化 AI 应用与外部工具、数据源之间的连接方式。2025 年 12 月，Anthropic 把 MCP 捐赠给 Linux 基金会下新成立的 Agentic AI Foundation，由社区中立治理。
 

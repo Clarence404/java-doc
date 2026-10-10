@@ -6,11 +6,13 @@ description: ID Token、登录流程与校验、nonce、Discovery 与 JWKS、Use
 
 > 前置阅读：[OAuth2](./2_oauth2)、[JWT 令牌机制](./1_jwt)
 
-OIDC（OpenID Connect）是建立在 OAuth 2 之上的**身份认证层**：OAuth 2 回答"这个客户端能访问什么"，OIDC 回答"当前登录的用户是谁"。本篇以 OpenID Connect Core 1.0（含 2023 年 12 月的勘误集 2）及 Discovery 1.0、RP-Initiated / Front-Channel / Back-Channel Logout 1.0 为准，框架代码以 Spring Boot 4 / Spring Security 7 为准。
+OIDC 是 OAuth 2 之上的身份认证层，回答「当前登录的用户是谁」。本篇讲 ID Token、Discovery 与各类登出，基线为 OpenID Connect Core 1.0 与 Spring Security 7.0。
 
 ---
 
 ## 一、OIDC 在 OAuth 2 上加了什么
+
+规范以 OpenID Connect Core 1.0（含勘误集 2）及 Discovery 1.0、RP-Initiated / Front-Channel / Back-Channel Logout 1.0 为准，框架代码以 Spring Boot 4 / Spring Security 7 为准。
 
 OIDC 没有发明新的授权流程，而是在 OAuth 2 授权码流程上做了几处标准化扩展：
 

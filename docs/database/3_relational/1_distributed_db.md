@@ -6,11 +6,13 @@ description: TiDB 架构与事务、OceanBase 多副本与多租户、选型对�
 
 > 前置阅读：[MySQL 基础](../1_mysql/0_overview)、[其他 RDBMS](./0_other_rdbms)
 
-TiDB、OceanBase 属于 NewSQL / 分布式关系型数据库：对外提供 SQL 与 ACID 事务，内部切片并用多副本共识协议复制，从而能加节点扩容。本篇讲两者的实现、与 MySQL 的兼容差异及与 Aurora、PolarDB 的选型，版本基线为 TiDB 8.5 LTS 与 OceanBase 4.x。
+TiDB、OceanBase 这类分布式数据库对外提供 SQL 与事务，内部切片并多副本复制，加节点就能扩容。本篇讲两者的实现、MySQL 兼容差异及与 Aurora、PolarDB 的选型，基线为 TiDB 8.5。
 
 ---
 
 ## 一、TiDB
+
+OceanBase 部分以 4.x 为基线。
 
 ### 1、定位与特点
 

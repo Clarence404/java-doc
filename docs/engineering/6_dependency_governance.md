@@ -6,11 +6,13 @@ description: BOM 策略、Enforcer 约束、Renovate / Dependabot、漏洞扫描
 
 > 前置阅读：[构建工具](./1_build_tools)
 
-依赖治理要回答版本谁说了算、冲突怎么提前发现、漏洞和许可证风险怎么持续兜底、出事时能否马上说清「我们用了什么」。本篇用 BOM 与 Version Catalog、maven-enforcer、Renovate / Dependabot、漏洞扫描、License 检查与 CycloneDX SBOM 搭建治理闭环，版本以 2026 年 10 月为准：Spring Boot 4.1.1、Spring Cloud 2025.1.3、Dependency-Check 13.0.0、maven-enforcer-plugin 3.6.3。
+依赖治理要管住版本、提前发现冲突、持续兜底漏洞和许可证风险，出事时能马上说清用了什么。本篇讲 BOM 与 Version Catalog、enforcer、Renovate、漏洞与 License 扫描、SBOM，基线为 Spring Boot 4.1。
 
 ---
 
 ## 一、治理闭环
+
+版本：Spring Boot 4.1.1、Spring Cloud 2025.1.3、Dependency-Check 13.0.0、maven-enforcer-plugin 3.6.3；Renovate 之外也覆盖 Dependabot，SBOM 用 CycloneDX。
 
 ![依赖治理闭环](../assets/engineering/dependency-governance-loop.svg)
 

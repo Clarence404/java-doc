@@ -6,11 +6,13 @@ description: IDEA 快捷键与调试、远程调试、HTTP Client / Bruno、插�
 
 > 前置阅读：[构建工具](./1_build_tools)
 
-IDE 和桌面工具决定日常开发是否顺手。本篇讲 IntelliJ IDEA 快捷键、断点与 JDWP 远程调试，用 `.http` 文件或 Bruno 管理接口集合，以及用 SDKMAN / mise 切换多 JDK，版本以 2026 年 10 月为准：IntelliJ IDEA 2026.x、JDK 21（25 为最新 LTS）。
+IDE 和桌面工具决定日常开发是否顺手。本篇讲 IntelliJ IDEA 快捷键与远程调试、`.http` 文件与 Bruno、SDKMAN / mise 切换多 JDK，基线为 JDK 21。
 
 ---
 
 ## 一、IntelliJ IDEA
+
+版本：IntelliJ IDEA 2026.x、JDK 21（25 为最新 LTS）；远程调试基于断点与 JDWP。
 
 ### 1、统一发行版
 

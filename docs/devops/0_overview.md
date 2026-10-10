@@ -4,13 +4,9 @@ description: DevOps 生命周期、DORA 五项交付指标、模块导航与推�
 
 # DevOps 总览
 
-DevOps 把开发（Development）和运维（Operations）放进同一条交付链路：用版本控制、自动化流水线和可度量的反馈，让一次代码变更又快又稳地到达生产。本模块讲 Java 后端团队日常要落地的那部分：分支与提交怎么管、代码怎么评审、规范怎么约束、流水线怎么搭、制品和版本怎么管、环境怎么隔离、发布怎么做到可灰度可回滚。
+DevOps 把开发和运维放进同一条交付链路，用版本控制、自动化流水线和可度量的反馈，让变更又快又稳地到达生产。本模块讲 Java 后端团队要落地的分支、评审、规范、流水线、制品、环境与发布。
 
-![DevOps 生命周期](../assets/devops/overview-devops-lifecycle.svg)
-
-全站统一的交付约定：分支模型采用 **主干开发 / GitHub Flow**（短命分支、`main` 始终可发布、在 `main` 上打 tag 发版，不设长期 `develop` 分支）；同一个制品从测试环境一路晋级到生产，环境差异只靠配置注入；未完成的功能用 Feature Flag 隐藏，而不是靠长期分支隔离。
-
-版本基线（2026 年 10 月）：Git 2.5x（当前稳定版 2.56）；CI 示例以 **GitHub Actions** 为主，GitLab CI 与 **Jenkins LTS 2.5xx**（自 2.555.1 起要求 Java 21 或 25）给出对应写法；部署目标为 **Kubernetes 1.37**，GitOps 用 **Argo CD 3.x**，南北向入口用 Gateway API（社区版 ingress-nginx 已于 2026 年 3 月停止维护）；版本号遵循 **SemVer 2.0.0**，供应链安全参照 **SLSA 1.2** 与 Sigstore；示例应用默认 **JDK 21**（25 为新 LTS）、**Spring Boot 4**。
+**版本基线（2026 年 10 月）**：Git 2.56、GitHub Actions、Jenkins LTS 2.5xx、Kubernetes 1.37、Argo CD 3.x、SemVer 2.0.0、SLSA 1.2、JDK 21、Spring Boot 4
 
 ---
 
@@ -21,6 +17,10 @@ DevOps 把开发（Development）和运维（Operations）放进同一条交付�
 ---
 
 ## 二、推荐阅读路径
+
+![DevOps 生命周期](../assets/devops/overview-devops-lifecycle.svg)
+
+全站统一的交付约定：分支模型采用 **主干开发 / GitHub Flow**（短命分支、`main` 始终可发布、在 `main` 上打 tag 发版，不设长期 `develop` 分支）；同一个制品从测试环境一路晋级到生产，环境差异只靠配置注入；未完成的功能用 Feature Flag 隐藏，而不是靠长期分支隔离。CI 示例以 GitHub Actions 为主，同时给出 GitLab CI 与 Jenkins 写法（Jenkins 自 2.555.1 起要求 Java 21 或 25）；南北向入口用 Gateway API（社区版 ingress-nginx 已于 2026 年 3 月停止维护）；供应链安全参照 SLSA 与 Sigstore。
 
 按一次变更从写代码到上线的顺序阅读：
 

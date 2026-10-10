@@ -6,11 +6,13 @@ description: Maven 生命周期与作用域、依赖调解、Wrapper 与 mvnd、
 
 > 前置阅读：[工程效率总览](./0_overview)
 
-构建工具负责把源码编译、测试、打包成可交付产物，本篇是构建机制的主文档。内容包括 Maven 生命周期、作用域与依赖调解，Maven / Gradle 9 构建配置与多模块工程，版本以 2026 年 10 月为准：Maven 3.9.16、Gradle 9.8、Spring Boot 4.1.x、JDK 21。
+构建工具负责把源码编译、测试、打包成可交付产物，本篇是构建机制的主文档。本篇讲 Maven 生命周期、作用域与依赖调解、Maven / Gradle 构建配置与多模块，基线为 Maven 3.9。
 
 ---
 
 ## 一、Maven 生命周期与插件
+
+版本：Maven 3.9.16、Gradle 9.8、Spring Boot 4.1.x、JDK 21。
 
 ### 1、三套生命周期
 

@@ -6,11 +6,13 @@ description: 2.x / 3.x / 4.x 基线对照、各版本核心特性、支持周期
 
 > 前置阅读：[启动流程与自动配置](./1_spring_boot)
 
-Spring Boot 的大版本跟着 Spring Framework 走：Boot 2.x / 3.x / 4.x 分别对应 Framework 5.x / 6.x / 7.x，每次升级的核心都是**基线抬升**（Java、Jakarta EE、Servlet、Hibernate、Jackson），它决定了依赖能不能编译、能不能启动。本篇梳理每一代的基线与新能力，并给出 2.7 → 3.5 → 4.x 的升级步骤。
+Spring Boot 的大版本跟着 Spring Framework 走，每次升级的核心都是基线抬升。本篇梳理 2.x、3.x、4.x 各代的基线与新能力，以及逐代升级步骤，基线为 Spring Boot 4.0。
 
 ---
 
 ## 一、三代基线对照
+
+Boot 2.x / 3.x / 4.x 分别对应 Framework 5.x / 6.x / 7.x；基线（Java、Jakarta EE、Servlet、Hibernate、Jackson）决定了依赖能不能编译、能不能启动。升级路径为 2.7 → 3.5 → 4.x。
 
 ![Spring Boot 大版本演进与基线](../assets/spring-boot/spring-boot-versions.svg)
 

@@ -2,7 +2,7 @@
 description: Lambda 与 Stream、版本特性、异常、String、泛型、反射与代理、IO、序列化、集合
 ---
 
-# Java 面试题解答
+# Java 基础面试题解答
 
 > 题目清单见 [Java 面试题](/java/99_interview)；「并发」一组的答案见 [Java 并发面试题解答](/interview/2_concurrent)。
 >
@@ -475,4 +475,4 @@ protected boolean removeEldestEntry(Map.Entry<K, V> eldest) { return size() > ca
 - TreeSet / TreeMap 用比较器判断「是否同一个元素」，而不是 `equals`；比较结果为 0 就当作重复
 - 例子：按年龄排序的 `TreeSet<User>`，同龄的第二个用户加不进去；要用 `thenComparing` 再加一个区分字段
 
-→ 详见 [集合框架](/java/21_topic_collection#七、linkedhashmap)、[Caffeine](/cache/7_caffeine)；不借助 LinkedHashMap 手写 LRU 见 [数据结构与算法面试题解答](/interview/4_algorithms#q8-如何手写一个-lru-缓存)
+→ 详见 [集合框架](/java/21_topic_collection#七、linkedhashmap)、[Caffeine](/cache/7_caffeine)；不借助 LinkedHashMap 手写 LRU 见 [算法面试题解答](/interview/4_algorithms#q8-如何手写一个-lru-缓存)

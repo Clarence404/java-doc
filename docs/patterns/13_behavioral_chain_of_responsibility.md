@@ -6,11 +6,13 @@ description: 纯责任链与管道、审批链、FilterChain 写法、Spring Sec
 
 > 前置阅读：[代理模式](./12_structural_proxy)
 
-责任链模式（Chain of Responsibility）把多个处理者串成一条链，请求沿链传递，每个处理者决定自己处理还是交给下一个，发送者只认识链头。本篇讲「纯责任链 / 管道」两种变体、审批链与 Filter 风格链的写法，以及 Servlet、Spring Security、Spring MVC 和 Netty 里的责任链。
+责任链模式把多个处理者串成一条链，请求沿链传递，各处理者决定自己处理还是交给下一个。本篇讲纯责任链与管道两种变体、审批链与 Filter 风格写法，以及框架里的责任链。
 
 ---
 
 ## 一、定义与角色
+
+发送者只认识链头；框架部分覆盖 Servlet、Spring Security、Spring MVC 和 Netty。
 
 ### 1、角色
 

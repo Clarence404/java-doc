@@ -6,11 +6,13 @@ description: 命名、类与 Lombok / record、注释、异常、日志、并发
 
 > 前置阅读：[Code Review](./3_code_review)
 
-开发规范是一份 Java 21 团队可直接采用的编码规约，来源是《阿里巴巴 Java 开发手册（黄山版）》和 Google Java Style Guide，结合 JDK 21（JDK 25 的差异会注明）与 Spring Boot 4 做了取舍。本篇覆盖命名与注释、Lombok 与 record、异常体系、日志 / 并发 / 金额 / 数据访问的硬性规定和禁止事项，每条都配正例与反例。
+开发规范是一份 Java 团队可直接采用的编码规约，取材于阿里巴巴 Java 开发手册和 Google Java Style Guide。本篇讲命名与注释、Lombok 与 record、异常体系、日志并发等硬性规定，基线为 JDK 21。
 
 ---
 
 ## 一、规约怎么落地
+
+规约来源为《阿里巴巴 Java 开发手册（黄山版）》，结合 JDK 21（JDK 25 的差异会注明）与 Spring Boot 4 做了取舍；硬性规定覆盖日志 / 并发 / 金额 / 数据访问，每条都配正例与反例。
 
 规约分两类，处理方式不同：
 

@@ -6,11 +6,13 @@ description: 消费者驱动契约、Spring Cloud Contract、Pact 与 Broker、c
 
 > 前置阅读：[Mock 测试](./2_mock)、[集成测试](./3_integration_test)、[微服务设计模式](/microservices/2_patterns)
 
-契约测试在端到端测试和 Mock 之间保证服务之间的接口兼容。本篇讲消费者驱动契约流程、Spring Cloud Contract 与 Pact JVM 的用法以及 Pact Broker 与 can-i-deploy，版本基线为 JDK 21、Spring Boot 4.0、Spring Cloud Contract **5.0.3**、Pact JVM **4.7.5**、pact-broker-cli 0.9。
+契约测试在端到端测试和 Mock 之间保证服务之间的接口兼容。本篇讲消费者驱动契约流程、Spring Cloud Contract、Pact JVM、Pact Broker 与 can-i-deploy，基线为 Spring Boot 4.0。
 
 ---
 
 ## 一、契约测试解决什么问题
+
+版本基线：JDK 21、Spring Boot 4.0、Spring Cloud Contract 5.0.3、Pact JVM 4.7.5、pact-broker-cli 0.9。
 
 微服务之间的调用有两种常见测法，各有硬伤：
 

@@ -6,7 +6,7 @@ description: Iterable 与 Iterator、fail-fast 与 CME、分页迭代器、内�
 
 > 前置阅读：[命令模式](./14_behavioral_command)、[集合框架](/java/21_topic_collection)
 
-迭代器模式（Iterator）提供一种顺序访问聚合元素而不暴露内部结构的方式，Java 把它直接做进了语言：集合实现 `Iterable`，for-each 就是迭代器的语法糖。本篇讲角色与 `Iterable` / `Iterator` 的对应、可用于 for-each 和 Stream 的自定义迭代器，以及 fail-fast、游标查询等坑。
+迭代器模式提供一种顺序访问聚合元素而不暴露内部结构的方式，Java 的 for-each 就是它的语法糖。本篇讲角色对应、自定义迭代器、fail-fast 与游标查询的坑。
 
 ---
 

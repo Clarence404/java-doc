@@ -1,12 +1,14 @@
 # 系统架构总览
 
-系统架构模块整理 Java 后端在「代码怎么组织、数据怎么分层、接口怎么可靠」上的通用设计：架构模式（分层、整洁架构、六边形、CQRS、事件溯源）与 DDD，数据冷热分离与对象存储，幂等设计，权限系统架构与主数据系统。微服务拆分与中间件选型在 [微服务](/microservices/0_overview) 与 [Spring Cloud](/spring-cloud/0_overview) 模块展开，业务系统的完整设计案例在 [业务场景](/scenario/0_overview) 模块，这里不重复。
+系统架构模块整理 Java 后端在「代码怎么组织、数据怎么分层、接口怎么可靠」上的通用设计：架构模式与 DDD、冷热分离与对象存储、幂等、权限系统与主数据。
 
-版本基线：**JDK 21 / 25**、**Spring Boot 4**（Spring Framework 7、Spring Data Redis 4、Jackson 3）、**MySQL 8.4 LTS**、**Redis 8.x**、**RocketMQ 5.x**、**AWS SDK for Java 2.x**、**MyBatis-Plus 3.5.x**；示例代码统一使用构造器注入。
+**版本基线（2026 年 10 月）**：JDK 21 / 25、Spring Boot 4、MySQL 8.4、Redis 8.x、RocketMQ 5.x、AWS SDK for Java 2.x、MyBatis-Plus 3.5
 
 ---
 
 ## 一、模块地图
+
+微服务拆分与中间件选型在 [微服务](/microservices/0_overview) 与 [Spring Cloud](/spring-cloud/0_overview) 模块展开，业务系统的完整设计案例在 [业务场景](/scenario/0_overview) 模块，这里不重复。示例代码统一使用构造器注入。
 
 | 方向 | 内容 | 适合关注 |
 |------|------|----------|

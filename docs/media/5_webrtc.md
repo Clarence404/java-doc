@@ -6,11 +6,13 @@ description: SDP offer / answer、ICE 与 NAT 穿透、coturn 限时凭证、Spr
 
 > 前置阅读：[流媒体协议](./2_protocols)、[WebSocket](/netty/10_websocket)、[TCP 与 UDP](/protocols/1_tcp_udp)
 
-WebRTC（Web Real-Time Communication）是浏览器和移动端内置的实时音视频能力：采集、编码、网络穿透、加密传输、抖动缓冲、回声消除都由客户端里的 WebRTC 引擎完成，端到端延迟通常在 500 ms 以内，定位是视频会议、在线课堂、直播连麦、远程问诊、云游戏这类秒级延迟都不可接受的**互动**场景。本篇聚焦 Java 后端在 WebRTC 里真正要做的事：**信令、鉴权、TURN 凭证、房间与 SFU 的编排**（SFU 以 LiveKit Server 1.13 为参照），媒体流本身不经过 Java 进程。
+WebRTC 是浏览器和移动端内置的实时音视频能力，端到端延迟通常在 500 ms 以内。本篇讲信令、鉴权、TURN 凭证、房间与 SFU 编排，基线为 LiveKit Server 1.13。
 
 ---
 
 ## 一、WebRTC 的组成与后端职责
+
+WebRTC（Web Real-Time Communication）的采集、编码、网络穿透、加密传输、抖动缓冲、回声消除都由客户端里的 WebRTC 引擎完成，定位是视频会议、在线课堂、直播连麦、远程问诊、云游戏这类秒级延迟都不可接受的互动场景。媒体流本身不经过 Java 进程，Java 后端只负责信令、鉴权、TURN 凭证和房间与 SFU 的编排（SFU 以 LiveKit Server 1.13 为参照）。
 
 WebRTC 标准只规定了"两端之间媒体怎么走"，刻意没有规定"两端怎么找到对方"。一次通话涉及四类角色：
 

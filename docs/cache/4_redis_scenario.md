@@ -6,11 +6,13 @@ description: 排行榜、布隆过滤器、签到统计、可靠延迟队列、L
 
 > 前置阅读：[Redis 基础](./1_redis_base)、[Redis 核心原理](./2_redis_core)
 
-Redis 的数据结构可以直接支撑排行榜、签到、延迟队列等常见业务场景。本篇只讲 Redis 层面的实现，重点是延迟队列和 Stream 在消费失败时如何不丢任务，示例基于 Spring Boot 4 / Spring Data Redis 4（`redis` 指注入的 `StringRedisTemplate`）。
+Redis 的数据结构能直接撑起排行榜、签到、延迟队列等常见业务。本篇讲排行榜、布隆过滤器、签到统计、可靠延迟队列和 Stream 队列，基线为 Spring Boot 4。
 
 ---
 
 ## 一、排行榜（ZSet）
+
+本篇只讲 Redis 层面的实现，重点是延迟队列和 Stream 在消费失败时如何不丢任务；示例基于 Spring Boot 4 / Spring Data Redis 4，`redis` 指注入的 `StringRedisTemplate`。
 
 ```java
 // 加分

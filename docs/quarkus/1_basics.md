@@ -6,7 +6,7 @@ description: 构建期增强、扩展、ArC 依赖注入、Dev Mode、Dev Servic
 
 > 前置阅读：[启动流程与自动配置](/spring-boot/1_spring_boot)、[Vert.x 概览](/vertx/1_basics)
 
-Quarkus 是 Red Hat 主导的 Java 框架，核心是把 Spring Boot 在运行期做的扫描、注解解析、代理生成、Bean 装配**挪到构建期**，因此启动快、内存省。本篇讲扩展、ArC 依赖注入、开发模式、Dev Services、配置体系，以及版本线与它和 Vert.x 的关系。
+Quarkus 是 Red Hat 主导的 Java 框架，把运行期的扫描与装配挪到构建期，因此启动快、内存省。本篇讲扩展、ArC 依赖注入、开发模式与 Dev Services、配置体系和版本线。
 
 ---
 

@@ -6,11 +6,13 @@ description: 客户端对比、锁 API 与看门狗、限流器、延迟队列�
 
 > 前置阅读：[Redis 基础](./1_redis_base)、[Redis 实战](./5_redis_practice)、[分布式锁](/distributed/3_lock)
 
-Redisson 是基于 Redis 的 **Java 分布式对象库**，把锁、信号量、限流器、队列、带本地缓存的 Map 等封装成 Java 对象，底层用 Lua 脚本和 Pub/Sub 保证原子性与通知。本篇讲这些 API 的用法与语义边界，版本基线为 Redisson 4.x（Spring Boot Starter 写作时为 4.8.0，支持 Spring Boot 1.3 – 4.1）、服务端 Redis 8.x / Valkey 8.x。
+Redisson 是基于 Redis 的 Java 分布式对象库，把锁、限流器、队列等封装成 Java 对象。本篇讲锁与看门狗、限流器、延迟队列、本地缓存 Map 和 Spring Boot 集成，基线为 Redisson 4.8。
 
 ---
 
 ## 一、与其他 Redis 客户端对比
+
+Redisson 底层用 Lua 脚本和 Pub/Sub 保证原子性与通知。版本基线为 Redisson 4.x（Spring Boot Starter 写作时为 4.8.0，支持 Spring Boot 1.3 – 4.1）、服务端 Redis 8.x / Valkey 8.x。
 
 | 对比项 | Redisson | Lettuce | Jedis |
 |--------|----------|---------|-------|

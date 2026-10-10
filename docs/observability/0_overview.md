@@ -1,12 +1,14 @@
 # 可观测性总览
 
-可观测性（Observability）回答的是：系统出问题时，能不能**只凭它对外输出的信号**判断发生了什么、在哪里、为什么。本模块讲平台侧——信号怎么采集、存在哪里、怎么查询与告警；应用侧怎么打日志、怎么注册指标，分别在 [日志](/spring-boot/12_logging) 与 [Actuator 监控](/spring-boot/7_actuator) 中讲，这里只链接不重复。
+可观测性回答的是：系统出问题时，能否**只凭它对外输出的信号**判断发生了什么、在哪里、为什么。本模块讲平台侧——信号怎么采集、存储、查询与告警。
 
-**版本基线（2026 年 10 月）**：Spring Boot 4.0 / 4.1，对应 Micrometer 1.16 / 1.17 与 Micrometer Tracing 1.6 / 1.7，Boot 4 新增 `spring-boot-starter-opentelemetry`；OpenTelemetry Java agent 2.x（当前 2.32，2.0 起默认以 `http/protobuf` 协议向 4318 端口导出 OTLP）；Prometheus 3.x（3.0 于 2024 年 11 月发布，带来新版 UI、UTF-8 指标名与 OTLP 接收，当前 3.15，另有 3.13 LTS 线）；Grafana 13.x；Loki 3.x（当前 3.7，原生接收 OTLP 日志，默认开启结构化元数据）；Tempo 3.x（3.0 用新的写入架构取代了 ingester）；Jaeger v2（2024 年 11 月发布，基于 OpenTelemetry Collector 构建，Jaeger v1 已于 2025-12-31 停止维护）；OpenTelemetry Profiles 信号于 2026 年 3 月进入公开 Alpha。
+**版本基线（2026 年 10 月）**：Spring Boot 4.0 / 4.1、Micrometer 1.16 / 1.17、Micrometer Tracing 1.6 / 1.7、OpenTelemetry Java agent 2.32、Prometheus 3.15、Grafana 13.x、Loki 3.7、Tempo 3.x、Jaeger v2
 
 ---
 
 ## 一、三大信号与 Profiles
+
+应用侧怎么打日志、怎么注册指标，分别在 [日志](/spring-boot/12_logging) 与 [Actuator 监控](/spring-boot/7_actuator) 中讲，这里只链接不重复。版本要点：Boot 4 新增 `spring-boot-starter-opentelemetry`；OTel Java agent 2.0 起默认以 `http/protobuf` 协议向 4318 端口导出 OTLP；Prometheus 3 带来新版 UI、UTF-8 指标名与 OTLP 接收（另有 3.13 LTS 线）；Loki 原生接收 OTLP 日志并默认开启结构化元数据；Tempo 3.0 用新的写入架构取代了 ingester；Jaeger v2 基于 OpenTelemetry Collector 构建，v1 已于 2025-12-31 停止维护；OpenTelemetry Profiles 信号于 2026 年 3 月进入公开 Alpha。
 
 | 信号 | 回答的问题 | 数据形态 | 成本特征 | 典型工具 | 本模块 |
 |------|------------|----------|----------|----------|--------|

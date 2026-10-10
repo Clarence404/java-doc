@@ -6,11 +6,13 @@ description: 配置优先级、松散绑定、@ConfigurationProperties、Profile
 
 > 前置阅读：[启动流程与自动配置](./1_spring_boot)
 
-Spring Boot 的外部化配置机制从 2.4 起基本稳定，3.x 与 4.x 的写法一致。本篇以 Spring Boot 4.x 为基线，讲配置优先级与查找路径、`@ConfigurationProperties`（含 record 与校验）、多环境 Profile 与 `spring.config.import`，以及敏感配置和动态刷新的归属，个别差异在正文中标出。
+外部化配置让同一个包在不同环境读取不同配置，机制自 2.4 起基本稳定。本篇讲配置优先级、`@ConfigurationProperties`、Profile 与 `spring.config.import`、敏感配置与动态刷新，基线为 Spring Boot 4.x。
 
 ---
 
 ## 一、配置源优先级
+
+3.x 与 4.x 的写法一致，个别差异在正文中标出；`@ConfigurationProperties` 部分含 record 与校验，敏感配置与动态刷新只说明归属。
 
 ![Spring Boot 配置源优先级](../assets/spring-boot/config-precedence.svg)
 

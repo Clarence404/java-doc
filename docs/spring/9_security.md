@@ -6,11 +6,13 @@ description: 过滤器链、Resource Server 校验 JWT、自定义 JWT 过滤器
 
 > 前置阅读：[MVC](./3_mvc)、[JWT 令牌机制](/security/1_jwt)
 
-本篇讲 Spring Security 7（Spring Boot 4）的过滤器链与授权架构，以及前后端分离 API 的无状态安全配置。内容包括 OAuth2 Resource Server 校验 JWT、`@PreAuthorize` 方法级权限和 `AuthorizationManager` 动态 URL 权限。
+Spring Security 是 Spring 的认证授权框架，核心是一条过滤器链。本篇讲过滤器链与授权架构、无状态 API 配置、OAuth2 Resource Server 校验 JWT、方法级与动态 URL 权限，基线为 Spring Security 7.x。
 
 ---
 
 ## 一、核心架构
+
+本篇对应 Spring Boot 4，面向前后端分离 API；方法级权限用 `@PreAuthorize`，动态 URL 权限用 `AuthorizationManager`。
 
 ### 1、过滤器链
 

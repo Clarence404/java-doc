@@ -6,11 +6,13 @@ description: Binlog、复制原理、GTID、半同步、并行回放与延迟、
 
 > 前置阅读：[MySQL 事务与锁](./5_topic_transaction)、[InnoDB 存储结构](./8_topic_innodb)
 
-本篇讲 binlog 与 GTID 复制原理、半同步与多线程回放、延迟监控，以及 InnoDB Cluster、ClusterSet 与传统主从的选择。以 MySQL 8.4 LTS 为基准，8.4 **移除了**所有 `MASTER` / `SLAVE` 形式的复制语句（如 `CHANGE MASTER TO`、`START SLAVE`、`SHOW SLAVE STATUS`、`SHOW MASTER STATUS`），文中只用新语法，"主库 / 从库"对应官方术语 source / replica。
+MySQL 主从复制靠 binlog 把主库变更同步到从库，是读写分离和高可用的基础。本篇讲 binlog 与 GTID 复制、半同步与并行回放、延迟监控、InnoDB Cluster 选型，基线为 MySQL 8.4。
 
 ---
 
 ## 一、Binlog
+
+8.4 **移除了**所有 `MASTER` / `SLAVE` 形式的复制语句（如 `CHANGE MASTER TO`、`START SLAVE`、`SHOW SLAVE STATUS`、`SHOW MASTER STATUS`），文中只用新语法，"主库 / 从库"对应官方术语 source / replica；传统主从之外还会对比 ClusterSet。
 
 ### 1、作用
 

@@ -6,11 +6,13 @@ description: 动态表与 changelog、连接器 DDL、窗口 TVF、四种 Join�
 
 > 前置阅读：[时间、水位线与窗口](./3_time_window)、[状态与容错](./4_state_checkpoint)
 
-Flink SQL 把流看作不断变化的动态表，本篇讲 changelog 的四种行类型、Kafka / upsert-kafka / JDBC 连接器 DDL、事件时间与水位线声明、窗口聚合、各类 Join、Top-N 与去重，以及如何估算并用 TTL 控制状态。示例以 **Flink 2.2 + 对应连接器** 为准（见 [Flink 概览](./1_basics)），SQL 语法在 2.3 上同样适用。
+Flink SQL 把流看作不断变化的动态表，在上面持续执行查询。本篇讲 changelog 行类型、连接器 DDL、水位线声明、窗口聚合、Join 与 Top-N，基线为 Flink 2.2。
 
 ---
 
 ## 一、动态表与 changelog
+
+示例以 Flink 2.2 + 对应连接器为准（见 [Flink 概览](./1_basics)），SQL 语法在 2.3 上同样适用；连接器涵盖 Kafka / upsert-kafka / JDBC，另讲去重以及如何估算并用 TTL 控制状态。
 
 ### 1、流就是一张不断变化的表
 

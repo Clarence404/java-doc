@@ -6,11 +6,13 @@ description: 质量门禁全景、Spotless 格式化、Checkstyle、SpotBugs / P
 
 > 前置阅读：[构建工具](./1_build_tools)、[单元测试](/testing/1_unit_test)
 
-代码质量门禁用自动化工具在合并前拦住格式、规范、缺陷与架构问题，本篇是 Sonar、JaCoCo、格式化与静态分析工具配置的主文档。内容包括 Spotless、Checkstyle、SpotBugs / PMD、ArchUnit、JaCoCo 与 Sonar 质量门禁的分层搭建和统一的覆盖率阈值口径，插件版本以 2026 年 10 月 Maven Central 为准，基线 JDK 21、Spring Boot 4。
+代码质量门禁用自动化工具在合并前拦住格式、规范、缺陷与架构问题，本篇是相关工具配置的主文档。本篇讲 Spotless、Checkstyle、SpotBugs / PMD、ArchUnit、JaCoCo 与 Sonar 门禁，基线为 JDK 21。
 
 ---
 
 ## 一、质量门禁全景
+
+插件版本以 2026 年 10 月 Maven Central 为准，基线 JDK 21、Spring Boot 4；覆盖率阈值采用全站统一口径。
 
 ![PR 流水线中的质量门禁](../assets/engineering/code-quality-gate-pipeline.svg)
 

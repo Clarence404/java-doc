@@ -6,11 +6,13 @@ description: Web 自动装配、Jackson 3、两条校验路径、ProblemDetail�
 
 > 前置阅读：[MVC](/spring/3_mvc)
 
-Spring Boot 在 Spring MVC 之上提供了 Web 自动装配和一套工程默认值。本篇讲 Jackson 3、参数校验的两条路径、`/error` 与 ProblemDetail、Filter 注册与顺序、安全的 CORS 配置，以及 RestClient 与 HTTP Service Clients 的用法与选型。
+Spring Boot 在 Spring MVC 之上提供 Web 自动装配和一套工程默认值。本篇讲 Jackson 3、参数校验、`/error` 与 ProblemDetail、Filter 与 CORS 配置、RestClient 与 HTTP Service Clients。
 
 ---
 
 ## 一、Web 自动装配
+
+参数校验有两条路径，Filter 部分包括注册与顺序，HTTP 客户端部分包括用法与选型。
 
 DispatcherServlet 的请求处理流程、统一返回结构、`@RestControllerAdvice` 全局异常处理和拦截器实现属于 Spring MVC 本身，统一在 [MVC](/spring/3_mvc) 讲解。
 

@@ -6,11 +6,13 @@ description: RBAC0–3 与角色爆炸、ABAC、ReBAC、模型选型、OPA / Reg
 
 > 前置阅读：[JWT 令牌机制](/security/1_jwt)、[Spring Security](/spring/9_security)
 
-认证（Authentication）回答「你是谁」，授权（Authorization）回答「你能对什么资源做什么操作」。本篇讲 RBAC（含 RBAC0–3 与角色爆炸）、ABAC、ReBAC 三种授权模型的思路与选型，以及用 OPA（Rego v1）和 jCasbin 抽离策略并接入 Spring Security 7。
+授权回答「你能对什么资源做什么操作」，与回答「你是谁」的认证不同。本篇讲 RBAC、ABAC、ReBAC 的思路与选型，以及用 OPA 和 jCasbin 接入 Spring Security 7.0。
 
 ---
 
 ## 一、核心概念
+
+RBAC 部分含 RBAC0–3 与角色爆炸问题，OPA 策略使用 Rego v1。
 
 一次授权判断可以抽象成：**主体（Subject）能否对资源（Resource）执行操作（Action）**，判断时可能还要参考环境（时间、IP、设备）。不同模型的区别在于「凭什么判断」：
 

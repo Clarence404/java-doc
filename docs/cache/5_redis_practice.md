@@ -6,11 +6,13 @@ description: Spring Boot 4 集成、Jackson 3 序列化、Spring Cache、大 Key
 
 > 前置阅读：[Redis 核心原理](./2_redis_core)、[Redis 集群](./3_redis_cluster)
 
-Spring Data Redis 通过 Lettuce / Jedis 连接，同样适用于 Valkey（Valkey 官方另提供含 Java 的多语言客户端 GLIDE）。本篇基于 Spring Boot 4 / Spring Data Redis 4，讲连接与序列化配置、Spring Cache 的安全用法、大 Key / 热 Key 治理和监控指标。
+Spring Data Redis 是 Spring 项目里用 Redis 的标准方式。本篇讲连接与序列化配置、Spring Cache 安全用法、大 Key / 热 Key 治理和监控，基线为 Spring Boot 4。
 
 ---
 
 ## 一、Spring Data Redis 集成
+
+Spring Data Redis 通过 Lettuce / Jedis 连接，同样适用于 Valkey（Valkey 官方另提供含 Java 的多语言客户端 GLIDE）；示例基于 Spring Boot 4 / Spring Data Redis 4。
 
 Spring Cache 注解本身的语义（`@Cacheable` / `@CacheEvict` 的属性、代理机制）见 [Cache 抽象](/spring/5_cache)，这里只讲 Redis 相关的配置与踩坑。
 

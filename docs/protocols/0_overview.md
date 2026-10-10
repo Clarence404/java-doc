@@ -1,8 +1,8 @@
 # 网络协议总览
 
-网络协议模块从 Java 后端的视角讲协议：重点是每天都在用的 TCP、HTTP、TLS、DNS，以及服务间调用用的 RPC 协议；数据库、邮件、文件这几类外围协议只讲对接时需要懂的报文流程和安全要点。IO 模型、Netty 编程、WebSocket、SSE 等「怎么写网络程序」的内容放在 Netty 模块，认证授权放在应用安全模块，本模块只讲协议本身。
+网络协议模块从 Java 后端视角讲协议：重点是 TCP、HTTP、TLS、DNS 与 RPC，数据库、邮件、文件等外围协议只讲对接所需的报文流程与安全要点。
 
-版本基线：协议以现行 RFC 为准（TCP RFC 9293、HTTP 语义 RFC 9110、HTTP/2 RFC 9113、HTTP/3 RFC 9114、TLS 1.3 RFC 8446）；示例代码默认 **JDK 21**、**Spring Boot 4**，Linux 行为以 5.x / 6.x 内核为准，与旧版本行为不同的地方在正文中单独标出。
+**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Linux 内核 5.x / 6.x
 
 ![后端视角的协议分层](../assets/protocols/protocol-layers.svg)
 
@@ -42,6 +42,8 @@
 ---
 
 ## 四、关联模块
+
+IO 模型、Netty 编程、WebSocket、SSE 等「怎么写网络程序」的内容放在 Netty 模块，认证授权放在应用安全模块，本模块只讲协议本身。协议以现行 RFC 为准（TCP RFC 9293、HTTP 语义 RFC 9110、HTTP/2 RFC 9113、HTTP/3 RFC 9114、TLS 1.3 RFC 8446），与旧版本行为不同的地方在正文中单独标出。
 
 - IO 模型、Reactor、Netty 编程、粘包拆包、心跳、WebSocket、SSE → [Netty 总览](/netty/0_overview)
 - 网络层面的性能优化（零拷贝、连接复用、压缩、序列化选择） → [IO 与网络优化](/high-perf/9_io_network)

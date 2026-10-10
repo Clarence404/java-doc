@@ -6,11 +6,13 @@ description: 三大 MQ 对比、场景决策表、选型步骤、常见误区
 
 > 前置阅读：[Kafka](./2_kafka)、[RocketMQ](./3_rocketmq)、[RabbitMQ](./4_rabbitmq)
 
-MQ 选型真正起作用的往往不是"谁性能最高"，而是**消息语义**（事务、延迟、回放、路由）和**团队能否运维得住**。本篇把 Kafka / RocketMQ / RabbitMQ 与 Pulsar 等[其他 MQ](./5_other_mq) 的差异收拢到一张表里，再给出场景化建议并列出常见误判。
+MQ 选型起作用的往往不是谁性能最高，而是消息语义和团队能否运维得住。本篇讲 Kafka / RocketMQ / RabbitMQ 与 Pulsar 等的差异、场景化建议和常见误判。
 
 ---
 
 ## 一、三大 MQ 对比
+
+消息语义指事务、延迟、回放、路由；三大 MQ 之外的产品见[其他 MQ](./5_other_mq)。
 
 **一句话定位：Kafka 是事件流平台（日志即存储），RocketMQ 是面向业务消息的中间件，RabbitMQ 是灵活路由的消息代理。**
 

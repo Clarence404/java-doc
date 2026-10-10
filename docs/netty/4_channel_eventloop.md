@@ -6,7 +6,7 @@ description: Channel 生命周期与 AttributeKey、ChannelFuture 异步结果�
 
 > 前置阅读：[Netty 入门](./3_netty_desc)
 
-**Channel 是连接，EventLoop 是干活的线程，Pipeline 是处理流水线，Handler 是流水线上的工位。** 本篇讲前两个：Channel 如何表示连接、IO 结果如何通过 ChannelFuture 异步返回、EventLoop 如何单线程串行处理连接，以及慢业务为什么必须交给业务线程池。
+Netty 里 Channel 是连接，EventLoop 是干活的线程，Pipeline 是流水线，Handler 是工位。本篇讲 Channel、ChannelFuture 异步结果、EventLoop 单线程串行处理，以及慢业务为何要交给业务线程池。
 
 ---
 

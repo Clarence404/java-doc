@@ -6,11 +6,13 @@ description: 结构与签名算法、RFC 8725 校验清单、双 Token 轮换与
 
 > 前置阅读：[HTTP](/protocols/2_http)、[分布式会话](/distributed/5_session)
 
-JWT（JSON Web Token，RFC 7519）是一种**令牌格式**，不是认证协议：它可以承载 OAuth2 的访问令牌、OIDC 的 ID Token，也可以是自家登录接口签发的会话凭证。本篇是站内 JWT 的主文档，覆盖结构、算法、校验、双 Token、吊销、密钥轮换与存储，代码基线为 Spring Boot 4 / Spring Security 7，签发示例直接使用内置的 Nimbus JOSE + JWT 库。
+JWT 是一种令牌格式而非认证协议，可承载访问令牌、ID Token 或会话凭证。本篇讲结构与算法、校验、双 Token 与吊销、密钥轮换与存储，基线为 Spring Security 7.0。
 
 ---
 
 ## 一、JWT 是什么
+
+JWT 定义于 RFC 7519。本篇是站内 JWT 的主文档，代码基线为 Spring Boot 4 / Spring Security 7，签发示例直接使用内置的 Nimbus JOSE + JWT 库。
 
 最常见的 JWT 是一个**紧凑序列化的 JWS**（JSON Web Signature，RFC 7515）：声明以 JSON 表示，经过签名保证不被篡改，但内容**不加密**。需要保密时用 JWE（RFC 7516）或干脆不用 JWT。
 

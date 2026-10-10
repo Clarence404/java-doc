@@ -4,7 +4,7 @@ description: IoC、Bean 生命周期、AOP、事务、MVC、常用组件、WebFl
 
 # Spring 面试题解答
 
-> 题目清单见 [Spring 面试题](/spring/99_interview)，模块入口见 [Spring 总览](/spring/0_overview)；Spring Boot 的题目见 [Spring Boot 面试题解答](/interview/5_spring_boot)；JDK 代理与 CGLIB 的细节见 [Java 面试题解答](/interview/1_java)。
+> 题目清单见 [Spring 面试题](/spring/99_interview)，模块入口见 [Spring 总览](/spring/0_overview)；Spring Boot 的题目见 [Spring Boot 面试题解答](/interview/5_spring_boot)；JDK 代理与 CGLIB 的细节见 [Java 基础面试题解答](/interview/1_java)。
 >
 > 版本基线：Spring Framework 7 / Spring Boot 4 / Spring Security 7（JDK 17+），与旧版本不同处单独说明。
 

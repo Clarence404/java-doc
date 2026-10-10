@@ -6,7 +6,7 @@ description: 批处理与流处理、MapReduce 思想、HDFS 与 YARN 现状、�
 
 > 前置阅读：[大数据总览](./0_overview)、[对象存储](/architecture/4_object_storage)
 
-大数据技术要解决的是单机存不下、算不动、跑不完的问题，本篇是整个模块的概念地基。内容涵盖批处理与流处理、MapReduce 思想、HDFS 与 YARN 的现状、存算分离、对象存储数据湖以及 Lambda 与 Kappa 架构，版本基线为 Hadoop 3.5。
+大数据技术解决的是单机存不下、算不动、跑不完的问题。本篇讲批处理与流处理、MapReduce、HDFS 与 YARN、存算分离与数据湖、Lambda 与 Kappa，基线为 Hadoop 3.5。
 
 ---
 

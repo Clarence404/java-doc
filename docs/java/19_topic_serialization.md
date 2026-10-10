@@ -6,11 +6,13 @@ description: 类演进兼容规则、Externalizable、record、反序列化过�
 
 > 前置阅读：[IO 与 NIO](./18_topic_io)
 
-序列化把对象变成字节，用于网络传输、持久化和进程间传递，选型看体积与速度、跨语言、类演进兼容和安全四件事。本篇讲 Java 原生序列化的演进规则、陷阱与反序列化过滤器，以及 Kryo / Protobuf / Hessian / JSON 的选择和 Jackson 3（Spring Boot 4 默认）的变化。
+序列化把对象变成字节，用于网络传输、持久化和进程间传递。本篇讲原生序列化演进与陷阱、反序列化过滤器、框架选型、Jackson 3 变化。
 
 ---
 
 ## 一、Java 原生序列化
+
+选型看体积与速度、跨语言、类演进兼容和安全四件事；候选有 Kryo / Protobuf / Hessian / JSON，Jackson 3 是 Spring Boot 4 默认。
 
 ### 1、基本用法
 

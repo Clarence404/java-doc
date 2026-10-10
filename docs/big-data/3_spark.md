@@ -6,11 +6,13 @@ description: 运行架构、DataFrame、Java ETL、Stage 划分、倾斜与 AQE�
 
 > 前置阅读：[大数据基础](./1_basics)、[数仓分层与建模](./2_data_warehouse)
 
-Spark 是通用的分布式计算引擎，核心思路是把计算描述成一张由算子组成的有向无环图（DAG），由引擎切分成 Stage 和 Task 并行执行，中间结果尽量放在内存里，今天在数据平台里主要承担**离线批处理**：数仓 ODS → DWD → DWS 的加工、湖仓表的写入与合并、特征工程和大规模数据回刷。本篇讲运行架构、DataFrame 与 Spark SQL、Java ETL 实战、Stage 划分、Shuffle 与倾斜、分区缓存与调优、Spark Connect 以及与 Flink 的选型，版本基线为 Spark 4.2.x。
+Spark 是通用的分布式计算引擎，在数据平台里主要承担离线批处理。本篇讲运行架构、DataFrame 与 Spark SQL、Shuffle 与倾斜、调优和与 Flink 的选型，基线为 Spark 4.2。
 
 ---
 
 ## 一、运行架构
+
+Spark 的核心思路是把计算描述成一张由算子组成的有向无环图（DAG），由引擎切分成 Stage 和 Task 并行执行，中间结果尽量放在内存里。在数据平台里，它负责数仓 ODS → DWD → DWS 的加工、湖仓表的写入与合并、特征工程和大规模数据回刷。本篇版本基线为 Spark 4.2.x。
 
 ![Spark 运行架构：Driver、集群管理器与 Executor](../assets/big-data/spark-architecture.svg)
 

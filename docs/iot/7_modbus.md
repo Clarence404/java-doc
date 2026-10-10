@@ -6,11 +6,13 @@ description: 寄存器与功能码、TCP 与 RTU、digitalpetri modbus 与 j2mod
 
 > 前置阅读：[通信协议](./1_protocol)
 
-PLC、电表、变频器这类工业设备大多只会说 Modbus，平台侧通常由采集服务（或边缘网关）充当主站，周期轮询从站寄存器并换算成工程量后上报 MQTT。本篇讲 Modbus TCP 与 RTU 采集、点表驱动与批量读取、数值解码和常见坑，以 JDK 21 为基线，示例库为 digitalpetri modbus 2.1.6，备选 j2mod 3.4.0。
+PLC、电表、变频器这类工业设备大多只会说 Modbus，平台侧由采集服务充当主站周期轮询。本篇讲 TCP 与 RTU 采集、点表与批量读取、数值解码、常见坑，基线为 JDK 21。
 
 ---
 
 ## 一、采集需要掌握的协议细节
+
+采集服务（或边缘网关）周期轮询从站寄存器，换算成工程量后上报 MQTT。示例库为 digitalpetri modbus 2.1.6，备选 j2mod 3.4.0。
 
 ### 1、四类数据区
 

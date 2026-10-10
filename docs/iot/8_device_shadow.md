@@ -6,11 +6,13 @@ description: desired / reported / delta、版本号与乐观锁、Topic 设计�
 
 > 前置阅读：[MQTT 客户端](./6_mqtt_client)
 
-设备影子（Device Shadow，也叫设备孪生或期望属性）是云端为每台设备保存的一份 JSON 状态文档，应用读写影子而不是直接和设备通信，设备上线后再与影子对齐。本篇讲影子文档模型（参考 AWS IoT Device Shadow）、Topic 与版本冲突设计，以及用 Redis + Lua 实现带乐观锁的影子服务，代码基线为 JDK 21、Spring Boot 4.x（默认 Jackson 3，包名 `tools.jackson`）。
+设备影子是云端为每台设备保存的一份 JSON 状态文档，应用读写影子，设备上线后再与影子对齐。本篇讲文档模型、Topic 与版本冲突、Redis + Lua 实现，基线为 JDK 21、Spring Boot 4.x。
 
 ---
 
 ## 一、为什么需要影子
+
+设备影子（Device Shadow）也叫设备孪生或期望属性，应用读写影子而不是直接和设备通信；文档模型参考 AWS IoT Device Shadow，影子服务用乐观锁处理冲突。Spring Boot 4.x 默认 Jackson 3，包名 `tools.jackson`。
 
 ### 1、直接下发的问题
 

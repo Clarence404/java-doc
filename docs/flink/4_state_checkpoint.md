@@ -6,11 +6,13 @@ description: 状态类型与 TTL、状态后端与 ForSt、Checkpoint、Savepoin
 
 > 前置阅读：[DataStream API](./2_datastream)、[时间、水位线与窗口](./3_time_window)
 
-Flink 把算子记住的历史（累加器、已见 ID、定时器、Kafka offset）交给引擎托管——**算子只管读写，存储、快照、恢复、扩缩容时的重新分配都由引擎负责**，这是故障后仍能精确一次的基础。本篇讲状态分类、状态后端与 TTL、基于 barrier 的 Checkpoint 与 Savepoint、端到端精确一次的条件，以及 Checkpoint 耗时过长的排查。
+Flink 把算子记住的历史交给引擎托管，算子只管读写，快照、恢复和重新分配都由引擎负责。本篇讲状态分类、状态后端与 TTL、Checkpoint 与 Savepoint、端到端精确一次及 Checkpoint 排查。
 
 ---
 
 ## 一、状态的分类
+
+被托管的历史包括累加器、已见 ID、定时器、Kafka offset；引擎托管是故障后仍能精确一次的基础，Checkpoint 基于 barrier 实现。
 
 ### 1、Keyed State 与 Operator State
 

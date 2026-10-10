@@ -1,8 +1,8 @@
 # 应用安全总览
 
-应用安全模块覆盖 Java 后端的身份与令牌（JWT、OAuth2、OIDC、单点登录）、权限模型、API 安全、数据安全、常见漏洞防护与零信任架构。阅读时按「身份 → 授权 → 接口 → 数据 → 运行治理」的顺序建立整体视角：先确认是谁在访问，再判断能做什么，然后保护请求本身和数据，最后靠审计、扫描与告警发现问题。本模块讲协议原理与系统级策略，Spring Security 的配置细节放在 Spring 模块。
+应用安全模块覆盖身份与令牌（JWT、OAuth2、OIDC、SSO）、权限模型、API 与数据安全、漏洞防护和零信任，按「身份 → 授权 → 接口 → 数据 → 运行治理」建立整体视角。
 
-**版本基线（2026 年 10 月）**：Spring Boot 4 / Spring Security 7（Spring Authorization Server 已并入 Spring Security 项目）；OAuth 2.1 仍是 IETF 草案，落地以 RFC 9700《OAuth 2.0 安全最佳实践》（2025 年 1 月）为准，授权码模式统一加 PKCE（RFC 7636）；浏览器应用参考 RFC 10017（BFF 架构，2026 年 8 月）；JWT 按 RFC 8725 最佳实践与 RFC 9068 访问令牌格式；OIDC Core 1.0；漏洞分类以 OWASP Top 10:2025 为准；零信任参考 NIST SP 800-207；密码哈希用 Argon2id 或 bcrypt。
+**版本基线（2026 年 10 月）**：Spring Boot 4、Spring Security 7、OIDC Core 1.0、OWASP Top 10:2025
 
 ## 一、模块导航
 
@@ -43,6 +43,8 @@
 - **供应链**：依赖升级、SBOM、镜像扫描与签名、SAST / DAST 纳入发布流程（OWASP Top 10:2025 新增「软件供应链失败」类别）。
 
 ## 五、关联模块
+
+本模块讲协议原理与系统级策略，Spring Security 的配置细节放在 Spring 模块（Spring Authorization Server 已并入 Spring Security 项目）。标准基线：OAuth 2.1 仍是草案，落地以 RFC 9700 为准，授权码模式统一加 PKCE（RFC 7636）；浏览器应用参考 RFC 10017（BFF）；JWT 按 RFC 8725 与 RFC 9068；零信任参考 NIST SP 800-207；密码哈希用 Argon2id 或 bcrypt。
 
 - Spring Security 配置（过滤器链、Resource Server、方法级权限、动态权限）→ [Spring Security](/spring/9_security)
 - 认证框架选型（Spring Security / Sa-Token / Shiro）→ [安全框架对比](/spring/10_auth_framework)

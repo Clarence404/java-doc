@@ -6,11 +6,13 @@ description: EMQX 转发 Kafka、Flink 2.x 告警与离线检测、TDengine 超�
 
 > 前置阅读：[时序数据库](/database/4_nosql/1_time_series_db)、[Flink 总览](/flink/0_overview)、[通信协议](./1_protocol)
 
-本篇搭一条可落地的 IoT 数据链路：设备经 MQTT 上报，EMQX 规则引擎转发到 Kafka，Flink 做清洗、窗口聚合与告警，结果写入 TDengine 超表，再用降采样控制存储、用 Grafana 出看板和告警。版本基线：EMQX 5.x、Flink 2.2.x + `flink-connector-kafka:5.0.0-2.2`、TDengine 3.3.x / 3.4.x + `taos-jdbcdriver` 3.9.x、JDK 21 / Spring Boot 4。
+IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可视化。本篇讲 EMQX 转发 Kafka、Flink 清洗与告警、TDengine 超表、降采样与 Grafana，基线为 Flink 2.2。
 
 ---
 
 ## 一、IoT 数据链路
+
+整条链路：设备经 MQTT 上报，EMQX 规则引擎转发到 Kafka，Flink 做清洗、窗口聚合与告警，结果写入 TDengine 超表，再用降采样控制存储、用 Grafana 出看板和告警。版本基线：EMQX 5.x、Flink 2.2.x + `flink-connector-kafka:5.0.0-2.2`、TDengine 3.3.x / 3.4.x + `taos-jdbcdriver` 3.9.x、JDK 21 / Spring Boot 4。
 
 ### 1、IoT 数据的特点
 

@@ -6,11 +6,13 @@ description: MySQL 全文检索边界、商品 Mapping、Java API Client、CDC �
 
 > 前置阅读：[搜索数据库](/database/4_nosql/3_search_db)、[CDC 工具](/database/5_practice/0_cdc_tools)
 
-商品搜索要先判断什么时候需要专用搜索引擎，再解决索引、查询、同步与相关性问题。本篇讲 Mapping、组合查询、MySQL → ES 可靠同步、零停机重建、搜索建议与相关性调优，示例基于 Elasticsearch 9.x 与官方 Java 客户端 `co.elastic.clients:elasticsearch-java` 9.x（旧的 `RestHighLevelClient` 在 7.15 废弃，8.x 起不再提供）。
+商品搜索要先判断何时需要专用搜索引擎，再解决索引、查询、同步与相关性问题。本篇讲 Mapping 与组合查询、MySQL → ES 同步、零停机重建、相关性调优，基线为 Elasticsearch 9.x。
 
 ---
 
 ## 一、MySQL 全文检索够不够
+
+示例使用官方 Java 客户端 `co.elastic.clients:elasticsearch-java` 9.x（旧的 `RestHighLevelClient` 在 7.15 废弃，8.x 起不再提供）。
 
 | 能力 | MySQL | Elasticsearch |
 |------|-------|---------------|

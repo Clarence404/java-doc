@@ -1,8 +1,8 @@
 # AI 总览
 
-AI 模块从 Java 后端的视角讲大模型应用开发：模型怎么选、Prompt 怎么写、工具调用协议怎么走，再到用 Spring AI / LangChain4j 接入模型，用 Embedding、向量库和 RAG 接入私有知识，用 Agent、MCP 编排工具。模型训练和算法原理不在本模块范围内，只讲「把模型当作一个外部服务，如何稳定、安全、可控地用好它」。
+AI 模块从 Java 后端视角讲大模型应用开发：选模型、写 Prompt、工具调用，用 Spring AI / LangChain4j 接入模型，用 RAG 接入私有知识，用 Agent、MCP 编排工具。
 
-版本基线：示例代码默认 **JDK 21**、**Spring Boot 4** + **Spring AI 2.0.x**（Spring Boot 3 项目对应 Spring AI 1.1.x，API 大体相同，差异在正文单独标出）；LangChain4j 以 **1.x** 为准，通过 `langchain4j-bom` 统一版本（截至 2026-10 最新为 1.22.0）；MCP 以规范修订版 **2026-07-28** 为准。模型型号、价格、上下文长度变化很快，正文只写模型家族和选型方法，具体数值以各厂商官方模型页为准。
+**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Spring AI 2.0、LangChain4j 1.22、MCP 规范 2026-07-28
 
 ---
 
@@ -41,6 +41,8 @@ MCP（Model Context Protocol）由 Anthropic 于 2024 年发起，2025 年 12 �
 ---
 
 ## 四、关联模块
+
+模型训练和算法原理不在本模块范围内，只讲「把模型当作外部服务，如何稳定、安全、可控地用好它」。Spring Boot 3 项目对应 Spring AI 1.1.x，API 大体相同，差异在正文单独标出；LangChain4j 通过 `langchain4j-bom` 统一版本。模型型号、价格、上下文长度变化很快，正文只写模型家族和选型方法，具体数值以各厂商官方模型页为准。
 
 - 认证授权、API 安全、权限模型（工具最小权限、MCP 的 OAuth 授权） → [应用安全总览](/security/0_overview)
 - 关键词与向量混合检索（Elasticsearch / OpenSearch） → [搜索数据库](/database/4_nosql/3_search_db)

@@ -6,11 +6,13 @@ description: Pipeline 结构与事件传播、三个传播陷阱、动态增删 
 
 > 前置阅读：[Channel 与 EventLoop](./4_channel_eventloop)
 
-每个 Channel 拥有一条 **ChannelPipeline**，读写数据都沿它流动，流水线上的工位就是 **ChannelHandler**，回调默认运行在该 Channel 绑定的 EventLoop 线程上。本篇讲 Pipeline 如何串起 Handler、入站与出站事件的方向、三个传播陷阱，以及 Handler 的基类选择、生命周期和共享规则。
+每个 Channel 都有一条 ChannelPipeline，读写数据沿它流动，流水线上的工位就是 ChannelHandler。本篇讲 Pipeline 串起 Handler、入站与出站方向、传播陷阱、基类选择与生命周期。
 
 ---
 
 ## 一、ChannelPipeline 与 ChannelHandlerContext：处理流水线
+
+Handler 回调默认运行在该 Channel 绑定的 EventLoop 线程上；下文梳理三个传播陷阱和 Handler 共享规则。
 
 **Pipeline 是一条由 `ChannelHandlerContext` 组成的双向链表，头尾固定是 `HeadContext` 和 `TailContext`；入站事件从头往尾走，出站操作从尾往头走。**
 

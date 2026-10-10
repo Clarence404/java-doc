@@ -6,11 +6,13 @@ description: Redis GEO、过期成员清理、可见性控制、门店同步、�
 
 > 前置阅读：[Redis 基础](/cache/1_redis_base)
 
-附近的人、附近门店、打车派单的核心都是「存坐标 + 查范围内的点」，Redis GEO 底层是 ZSet，把经纬度编码成 52 位整数作为 score，ZSet 命令（`ZREM`、`ZSCORE` 等）都能用在 GEO key 上。本篇讲用 Redis GEO 实现这些场景、处理过期成员 / 不可见用户 / 派单并发、Geohash 边界问题，以及位置隐私保护。
+附近的人、附近门店、打车派单的核心都是「存坐标 + 查范围内的点」。本篇讲 Redis GEO 实现、过期成员与派单并发、Geohash 边界问题和位置隐私。
 
 ---
 
 ## 一、技术选型
+
+Redis GEO 底层是 ZSet，把经纬度编码成 52 位整数作为 score，ZSet 命令（`ZREM`、`ZSCORE` 等）都能用在 GEO key 上。
 
 | 技术 | 原理 | 适用场景 |
 |------|------|---------|

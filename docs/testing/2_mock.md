@@ -6,11 +6,13 @@ description: 测试替身分类、Mockito 5 打桩与验证、ArgumentCaptor、�
 
 > 前置阅读：[单元测试](./1_unit_test)
 
-本篇讲 Mockito 本身和测试替身的取舍：打桩、参数捕获、交互验证、严格桩、什么时候不该 Mock、JDK 21+ 挂载 agent，以及用 WireMock 测试外部 HTTP。版本基线（2026 年 10 月）：JDK 21、Spring Boot 4.x、Mockito 5.x（Boot 4.0 管理的是 5.20，Maven Central 上最新为 5.24）、WireMock 3.13。
+Mock 测试用测试替身隔离被测代码的外部依赖。本篇讲 Mockito 打桩与验证、严格桩、何时不该 Mock、JDK 21+ 挂载 agent、WireMock 测试外部 HTTP，基线为 Mockito 5.x。
 
 ---
 
 ## 一、测试替身：Mock 只是其中一种
+
+版本基线：JDK 21、Spring Boot 4.x、Mockito 5.x（Boot 4.0 管理的是 5.20，Maven Central 上最新为 5.24）、WireMock 3.13；Mockito 部分还包括参数捕获与交互验证。
 
 ### 1、五种替身
 

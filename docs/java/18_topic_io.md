@@ -6,11 +6,13 @@ description: 字节流 / 字符流、Buffer、Selector、零拷贝、Files API�
 
 > 前置阅读：[日期与时间](./17_topic_time)
 
-`java.io` 面向阻塞的**流**，`java.nio` 面向**缓冲区与通道**并用 `Selector` 实现多路复用，两者并不互相替代。本篇讲两者分工、编码正确且不泄漏句柄的读写、Buffer 状态切换、Selector 与零拷贝的边界，以及虚拟线程（JDK 21）出现后阻塞 IO 的选择。
+java.io 面向阻塞的流，java.nio 面向缓冲区与通道并用 Selector 多路复用，两者并不互相替代。本篇讲两者分工、Buffer、Selector 与零拷贝、虚拟线程下的阻塞 IO。
 
 ---
 
 ## 一、IO 体系结构
+
+读写要编码正确且不泄漏句柄；虚拟线程（JDK 21）出现后，阻塞 IO 的选择随之变化。
 
 - **字节流**：`InputStream` / `OutputStream`，处理任意二进制数据
 - **字符流**：`Reader` / `Writer`，底层仍是字节流，再按 `Charset` 编解码

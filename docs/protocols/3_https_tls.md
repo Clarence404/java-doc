@@ -6,11 +6,13 @@ description: TLS 1.3 握手、前向保密、证书链校验、SNI / ALPN / HSTS
 
 > 前置阅读：[HTTP](./2_http)
 
-HTTPS 就是跑在 TLS 之上的 HTTP，主流版本为 TLS 1.3（RFC 8446）和 1.2（RFC 5246），SSL 3.0、TLS 1.0 / 1.1 已被废弃（RFC 7568、RFC 8996）。本篇讲 TLS 1.3 握手、证书链校验、mTLS，以及 Spring Boot SSL Bundle 配置与 `PKIX path building failed` 排查。
+HTTPS 就是跑在 TLS 之上的 HTTP，负责加密、防篡改和身份校验。本篇讲 TLS 1.3 握手、证书链校验、mTLS、SSL Bundle 配置与 PKIX 报错排查，基线为 TLS 1.3。
 
 ---
 
 ## 一、为什么需要 HTTPS
+
+主流版本为 TLS 1.3（RFC 8446）和 1.2（RFC 5246），SSL 3.0、TLS 1.0 / 1.1 已被废弃（RFC 7568、RFC 8996）。
 
 ### 1、明文 HTTP 的三个问题
 

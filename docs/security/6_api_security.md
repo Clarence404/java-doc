@@ -6,11 +6,13 @@ description: OWASP API Top 10、调用方认证、HMAC 签名与防重放、API 
 
 > 前置阅读：[JWT 令牌机制](./1_jwt)、[OAuth2](./2_oauth2)、[Spring Security](/spring/9_security)
 
-API 安全要回答三个问题：**调用方是谁**（认证）、**它能动哪些数据**（授权）、**它能用多少资源**（限流与资源限制）。本篇对照 OWASP API Security Top 10 2023，讲认证选型、HMAC 签名防重放、API Key 存储轮换、越权与批量赋值防护，以及 Spring Security 7 的资源服务器、CORS 与安全响应头配置，以 Spring Boot 4 / Spring Security 7 为基线。
+API 安全要回答调用方是谁、能动哪些数据、能用多少资源三个问题。本篇讲认证选型、HMAC 防重放、API Key 管理、越权防护与安全配置，基线为 Spring Security 7.0。
 
 ---
 
 ## 一、API 面临的主要风险
+
+本篇对照 OWASP API Security Top 10 2023，覆盖批量赋值防护，以及 Spring Security 7 的资源服务器、CORS 与安全响应头配置（Spring Boot 4）。
 
 OWASP 在 2023 年发布了第二版 API Security Top 10。前几名几乎都是**授权**问题，而不是注入：
 

@@ -6,11 +6,13 @@ description: 基本原则、System Prompt、Few-shot、推理模型、结构化�
 
 > 前置阅读：[大模型选型](./0_model)
 
-Prompt 工程决定了模型输出的质量与稳定性。本篇讲 Prompt 基本原则、System Prompt 与 Few-shot、推理模型的参数控制、原生结构化输出和提示注入防护，示例基于 Spring Boot 4 + Spring AI 2.0.x 与 LangChain4j 1.x，模型型号用 `${MODEL_ID}` 占位。
+Prompt 工程就是把需求写清楚，让模型输出又好又稳。本篇讲基本原则、System Prompt 与 Few-shot、推理模型、结构化输出和注入防护，基线为 Spring AI 2.0、LangChain4j 1.x。
 
 ---
 
 ## 一、基本原则
+
+示例基于 Spring Boot 4 + Spring AI 2.0.x 与 LangChain4j 1.x，模型型号用 `${MODEL_ID}` 占位。
 
 好的 Prompt 遵循四条原则：清晰具体、交代背景、给出示例、约定输出。
 

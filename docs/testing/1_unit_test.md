@@ -6,11 +6,13 @@ description: JUnit 6 编程模型、参数化与嵌套测试、AssertJ、FIRST �
 
 > 前置阅读：[测试工程总览](./0_overview)
 
-单元测试是测试金字塔的底座：不启动 Spring、不连数据库、不发网络请求，毫秒级跑完。本篇围绕订单计价服务 `PriceCalculator`，讲 JUnit 6 与 AssertJ 的用法、可控的时间与随机数、测试数据构建器和覆盖率与变异测试，示例基于 JDK 21、JUnit 6.1.3、AssertJ 3.27.7。
+单元测试是测试金字塔的底座，不启动 Spring、不连数据库、不发网络请求，毫秒级跑完。本篇讲 JUnit 6 与 AssertJ、可控的时间与随机数、测试数据构建器、覆盖率与变异测试，基线为 JUnit 6.1。
 
 ---
 
 ## 一、单元测试的边界与被测代码
+
+示例围绕订单计价服务 `PriceCalculator`，基于 JDK 21、JUnit 6.1.3、AssertJ 3.27.7。
 
 ### 1、什么算一个「单元」
 

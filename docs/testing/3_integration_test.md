@@ -6,11 +6,13 @@ description: 测试边界、依赖替代、测试数据隔离、Flaky 治理、S
 
 > 前置阅读：[单元测试](./1_unit_test)、[Spring Boot 测试](/spring-boot/13_testing)
 
-本篇是集成测试的策略篇：测什么、依赖怎么替代、数据怎么管、为什么不稳定、构建与 CI 里怎么跑。版本基线：JDK 21、Spring Boot 4.x（Spring Framework 7、JUnit 6）、Testcontainers 2.x、Maven Surefire / Failsafe 3.6。
+集成测试验证代码与数据库、缓存、消息等真实依赖能否正确协作。本篇讲测什么、依赖怎么替代、数据怎么管、为什么不稳定以及构建与 CI 里怎么跑，基线为 Spring Boot 4.x。
 
 ---
 
 ## 一、集成测试测什么
+
+版本基线：JDK 21、Spring Boot 4.x（Spring Framework 7、JUnit 6）、Testcontainers 2.x、Maven Surefire / Failsafe 3.6。
 
 示例统一用 order-service：下单写 PostgreSQL、订单缓存放 Redis、消费 Kafka 上的支付成功事件、调用第三方支付网关。
 

@@ -6,11 +6,13 @@ description: Arthas 附着与容器排障、按症状选命令、watch / trace /
 
 > 前置阅读：[诊断工具](/jvm/8_monitoring_tools)、[故障排查](/jvm/9_troubleshooting)
 
-Arthas 能在不重启、不改代码的前提下，在方法级别观察和干预线上 JVM。本篇讲它在物理机、容器与 Kubernetes 中的附着、按症状选命令、fat jar 上的类加载器用法、可回滚的热修复和生产诊断的安全边界，版本以 2026 年 10 月为准：Arthas 4.3.5、JDK 21（JDK 25 同样适用）、Spring Boot 4。
+Arthas 能在不重启、不改代码的前提下，在方法级别观察和干预线上 JVM。本篇讲容器与 K8s 中的附着、按症状选命令、类加载器用法、可回滚热修复与安全边界，基线为 Arthas 4.3。
 
 ---
 
 ## 一、Arthas 的附着原理与启动
+
+版本：Arthas 4.3.5、JDK 21（JDK 25 同样适用）、Spring Boot 4；附着场景含物理机，类加载器用法针对 fat jar。
 
 ![Arthas 附着流程](../assets/engineering/diagnosis-arthas-attach.svg)
 

@@ -6,11 +6,13 @@ description: HNSW / IVF / 量化、过滤检索、pgvector、向量库选型、S
 
 > 前置阅读：[Embedding 向量化](./0_embedding)
 
-向量数据库用 ANN 索引在海量向量中快速找出最相近的结果，本篇是站内向量检索原理的主文档。内容覆盖 HNSW / IVF / 量化的取舍、pgvector 建表索引与过滤查询、主流向量库选型和 Spring AI 2.0 `VectorStore` 存取，代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1。
+向量数据库用 ANN 索引在海量向量里快速找出最相近的结果。本篇讲 HNSW / IVF / 量化、pgvector、向量库选型和 Spring AI VectorStore，基线为 Spring AI 2.0。
 
 ---
 
 ## 一、为什么需要向量数据库
+
+本篇是站内向量检索原理的主文档，代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1。
 
 关系型数据库擅长精确匹配和范围查询（`WHERE age > 30`），却回答不了「和这段话意思最接近的 5 条记录是哪些」。暴力做法是把查询向量和库里每一条都算一遍距离，复杂度 O(n × d)：百万条 1536 维向量，每次查询要做十几亿次乘加，延迟和 CPU 都扛不住。
 

@@ -6,11 +6,13 @@ description: KRaft 架构、可靠性配置、死信与幂等消费、事务、�
 
 > 前置阅读：[消息队列基础](./1_basics)
 
-Kafka 本质是一个**分布式、分区、多副本的提交日志**，这决定了它高吞吐、可回放、分区内有序以及「offset 累计提交」等大部分行为。本篇以 Kafka 4.x 为基准，讲架构与核心概念、Spring Boot 中不丢消息 / 可重试兜底 / 幂等消费的写法，以及积压、Rebalance、扩分区等线上问题。
+Kafka 本质是分布式、分区、多副本的提交日志，这决定了它高吞吐、可回放、分区内有序。本篇讲架构与核心概念、Spring Boot 可靠收发与幂等消费、积压与 Rebalance 排障，基线为 Kafka 4.x。
 
 ---
 
 ## 一、架构与核心概念
+
+「offset 累计提交」等行为同样源自提交日志模型；Spring Boot 写法覆盖不丢消息与可重试兜底，线上问题还包括扩分区。
 
 **Kafka 4.0 起彻底移除 ZooKeeper，集群元数据只由 KRaft Controller 仲裁（基于 Raft）管理。** 旧集群需先在 3.x 完成 ZooKeeper → KRaft 迁移再升级到 4.x。
 

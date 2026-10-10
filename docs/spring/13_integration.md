@@ -6,11 +6,13 @@ description: EIP 概念、Channel、Java DSL 文件与 HTTP 流、错误处理�
 
 > 前置阅读：[消息队列基础](/messaging/1_basics)、[Spring Batch 批处理](./12_batch)
 
-Spring Integration 是企业集成模式（EIP）的 Spring 实现，用消息驱动的集成流连接文件、HTTP、数据库、MQ 等系统，Boot 4 对应 7.x。本篇讲 Message / Channel / Endpoint / Adapter、Java DSL 集成流、错误处理与重试，以及它与 Spring Cloud Stream、Apache Camel 的取舍。
+Spring Integration 是企业集成模式（EIP）的 Spring 实现，用消息驱动的集成流连接文件、HTTP、数据库、MQ 等系统。本篇讲 Message / Channel / Endpoint / Adapter、Java DSL、错误处理与重试、选型取舍，基线为 Spring Boot 4.x。
 
 ---
 
 ## 一、核心概念
+
+Spring Boot 4 对应 Spring Integration 7.x；选型部分对比 Spring Cloud Stream 与 Apache Camel。
 
 日常 CRUD 业务不需要它；它适合多系统协议适配、异步数据管道、遗留系统对接这类「搬运 + 转换 + 路由」的场景。
 

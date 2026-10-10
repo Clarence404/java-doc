@@ -1,8 +1,8 @@
 # 云原生总览
 
-云原生模块从 Linux 与虚拟化基础出发，覆盖容器与编排（Docker、Kubernetes、Ingress、Helm、Argo CD、Service Mesh）、基础设施自动化（Terraform、Ansible、cloud-init 与 Packer、IaC 工程实践），以及公有云平台与 VPS 选购。
+本模块从 Linux 与虚拟化基础出发，覆盖容器与编排、基础设施自动化，以及公有云平台与 VPS 选购。
 
-**版本基线（2026 年 10 月）**：Kubernetes 1.37（容器运行时为 containerd / CRI-O，dockershim 自 1.24 起移除）；Docker Engine + Compose v2（`docker compose`，默认构建器为 BuildKit）；Helm 4（Helm 3 仅提供安全修复至 2026-11）；Argo CD 3.x；南北向入口推荐 Gateway API（社区版 ingress-nginx 已于 2026 年 3 月停止维护）；Terraform / OpenTofu；服务器操作系统以 Ubuntu 26.04 LTS 与 RHEL 10 系（Rocky / AlmaLinux 10）为准。
+**版本基线（2026 年 10 月）**：Kubernetes 1.37、Docker Compose v2、Helm 4、Argo CD 3.x、Ubuntu 26.04 LTS、RHEL 10
 
 ## 一、模块导航
 
@@ -19,6 +19,8 @@
 复习时用 [高频面试题](./99_interview) 自测，答案在 [云原生面试题解答](/interview/21_cloud_native)。
 
 ## 三、关联模块
+
+版本说明：容器运行时为 containerd / CRI-O（dockershim 自 1.24 起移除），Docker 默认构建器为 BuildKit；Helm 3 仅提供安全修复至 2026-11；南北向入口推荐 Gateway API（社区版 ingress-nginx 已于 2026 年 3 月停止维护）；IaC 以 Terraform / OpenTofu 为准，RHEL 10 系含 Rocky / AlmaLinux 10。
 
 - CI/CD 与发布策略 → [DevOps 总览](/devops/0_overview)
 - 日志 / 指标 / 链路追踪 → [可观测性总览](/observability/0_overview)

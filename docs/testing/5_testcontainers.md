@@ -6,11 +6,13 @@ description: 工作原理与 Ryuk、2.x 依赖与包名、JUnit 集成、等待�
 
 > 前置阅读：[集成测试](./3_integration_test)、[Docker](/cloud-native/5_docker)
 
-Testcontainers 通过 Docker API 为测试拉起真实的 PostgreSQL、Redis、Kafka、LocalStack。本篇用纯 JUnit 讲 2.x 的依赖与包名、容器生命周期、等待策略、单例与复用提速以及 CI 中的 Docker 配置，版本基线为 JDK 21、JUnit 6、Testcontainers **2.0.5**（Spring Boot 4.0 / 4.1 的依赖管理同为 2.0.5）。
+Testcontainers 通过 Docker API 为测试拉起真实的 PostgreSQL、Redis、Kafka、LocalStack。本篇讲依赖与包名、容器生命周期、等待策略、单例与复用提速、CI 中的 Docker 配置，基线为 Testcontainers 2.0。
 
 ---
 
 ## 一、为什么用真实容器
+
+本篇用纯 JUnit 讲解，版本基线为 JDK 21、JUnit 6、Testcontainers 2.0.5（Spring Boot 4.0 / 4.1 的依赖管理同为 2.0.5）。
 
 示例沿用 order-service：订单写 PostgreSQL、状态缓存放 Redis、事件发到 Kafka、发票存 S3。
 

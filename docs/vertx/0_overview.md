@@ -1,12 +1,14 @@
 # Vert.x 总览
 
-Eclipse Vert.x 是一套运行在 JVM 上的事件驱动、非阻塞工具包。它在 Netty 之上补齐了 HTTP 服务端与客户端、路由、响应式数据库客户端、消息、集群、指标与链路等能力，但不带依赖注入容器，也不规定应用结构。Quarkus 的 HTTP 层和响应式客户端就跑在 Vert.x 之上。本模块先讲 Vert.x 的定位和线程模型，再讲 Event Bus、Web 和数据访问，最后讲集群与生产实践。Netty 的内部机制和 Reactor 的通用概念在各自模块展开，这里只讲 Vert.x 特有的部分。
+本模块讲 JVM 上的事件驱动非阻塞工具包 Vert.x：先讲定位和线程模型，再讲 Event Bus、Web 与数据访问，最后讲集群与生产实践。
 
-版本基线：**Vert.x 5.2.x**（截至 2026 年 10 月最新为 5.2.1），**JDK 21 / 25**（Vert.x 5 最低要求 JDK 11）。Vert.x 5 删除了回调 API，只保留 Future，新增了 `VerticleBase`、`Vertx.builder()` 和虚拟线程 Verticle。4.5.x 线仍有维护补丁，但新项目应直接使用 5.x。与 4.x 行为不同的地方，文中会单独标出。
+**版本基线（2026 年 10 月）**：Vert.x 5.2、JDK 21 / 25
 
 ---
 
 ## 一、学习路线
+
+Vert.x 在 Netty 之上补齐了 HTTP、路由、响应式数据库客户端、消息、集群、指标与链路等能力，但不带依赖注入容器，也不规定应用结构；Quarkus 的 HTTP 层和响应式客户端就跑在 Vert.x 之上。Netty 内部机制和 Reactor 通用概念在各自模块展开，这里只讲 Vert.x 特有的部分。版本说明：Vert.x 5 最低要求 JDK 11，删除了回调 API、只保留 Future，新增 `VerticleBase`、`Vertx.builder()` 和虚拟线程 Verticle；4.5.x 线仍有维护补丁，但新项目应直接使用 5.x，与 4.x 不同处文中单独标出。
 
 | 阶段 | 要解决的问题 | 文章 |
 |------|-------------|------|

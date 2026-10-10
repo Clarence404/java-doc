@@ -6,11 +6,13 @@ description: OLAP 引擎选型、JdbcClient 查询 API、物化视图与预聚�
 
 > 前置阅读：[数仓分层与建模](./2_data_warehouse)、[任务调度](./6_scheduling)、[列式与 OLAP 数据库](/database/4_nosql/0_column_db)
 
-数据服务层负责把数仓结果表安全、稳定地提供给商家后台、运营看板和导出等消费方。本篇讲 OLAP 引擎选型、`JdbcClient` 查询 API、物化视图与预聚合、报表缓存、重查询限流、异步导出、多租户与指标层，基线为 JDK 21 + Spring Boot 4.x，OLAP 侧以 StarRocks 4.1 / Apache Doris 4.1 为例。
+数据服务层负责把数仓结果表安全、稳定地提供给后台、看板和导出等消费方。本篇讲 OLAP 选型、查询 API、物化视图与缓存、限流与异步导出、多租户，基线为 Spring Boot 4。
 
 ---
 
 ## 一、数据服务要解决什么
+
+查询 API 使用 `JdbcClient`，此外还涉及预聚合和指标层。基线为 JDK 21 + Spring Boot 4.x，OLAP 侧以 StarRocks 4.1 / Apache Doris 4.1 为例。
 
 数仓链路产出 `ads_trade_gmv_1d` 之后，工作只完成了一半：商家后台要按渠道、省份看最近 30 天的 GMV，运营看板每分钟刷新一次，大促期间并发查询翻十倍，还有人要导出半年的订单明细。这些请求如果直接用 BI 工具或业务代码裸连 OLAP 库，很快会遇到慢查询拖垮集群、租户之间数据串看、同一个"GMV"三个系统三个数的问题。示例延续电商订单场景，查询服务名为 `report-service`。
 

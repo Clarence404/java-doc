@@ -6,11 +6,13 @@ description: OpenAPI 3.1、代码优先与契约优先、客户端生成、CI �
 
 > 前置阅读：[接口文档](/spring-boot/10_api_doc)、[API 设计规范](./7_api_design_rule)
 
-OpenAPI 规范是描述 HTTP 接口契约的标准格式，本篇把它当作构建产物管理，讲规范从哪里来、怎样保证它和代码一致、团队拿它做什么。工具版本以 2026 年 10 月为准：springdoc-openapi 3.1.x（Boot 4）、springdoc-openapi-maven-plugin 1.5、openapi-generator 7.26、Redocly CLI 2.x、Spectral 6.x。
+OpenAPI 规范是描述 HTTP 接口契约的标准格式，本篇把它当作构建产物管理。本篇讲规范从哪里来、怎样保证和代码一致、团队拿它做什么，基线为 springdoc-openapi 3.1。
 
 ---
 
 ## 一、OpenAPI 规范与版本
+
+工具版本：springdoc-openapi 3.1.x（Boot 4）、springdoc-openapi-maven-plugin 1.5、openapi-generator 7.26、Redocly CLI 2.x、Spectral 6.x。
 
 OpenAPI 规范（OAS）用 YAML / JSON 描述 HTTP 接口，包括路径、参数、请求体、响应、错误和安全方案。它的前身是 Swagger 2.0，现在由 Linux 基金会下的 OpenAPI Initiative 维护。Swagger UI、Redoc、Scalar 这类工具只负责「展示」规范，规范本身才是团队之间的契约。
 

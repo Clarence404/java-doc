@@ -6,11 +6,13 @@ description: 工具包定位、与 Netty 关系、Vert.x 5 变化、与 WebFlux 
 
 > 前置阅读：[Reactor 模型](/netty/2_reactor)、[WebFlux](/spring/8_webflux)
 
-Eclipse Vert.x 是运行在 JVM 上的事件驱动、非阻塞工具包，在 Netty 之上补齐了 HTTP、路由、响应式数据库客户端、集群等能力，但不规定应用组织方式、不带依赖注入容器。本篇讲它与 Netty、WebFlux、Quarkus 的关系、Vert.x 5 相对 4.x 的关键变化，以及何时该用 Vert.x。
+Eclipse Vert.x 是 JVM 上的事件驱动、非阻塞工具包，在 Netty 之上补齐 HTTP、路由、响应式数据库客户端、集群等能力。本篇讲它与 Netty、WebFlux、Quarkus 的关系、Vert.x 5 的关键变化与选型，基线为 Vert.x 5.x。
 
 ---
 
 ## 一、Vert.x 是什么
+
+Vert.x 不规定应用组织方式、不带依赖注入容器；版本变化部分对比的是 Vert.x 4.x。
 
 用一句话概括：**Netty 给你 Channel 和 ByteBuf，Vert.x 给你 Router 和 Pool，Spring 给你一整套编程模型**。
 

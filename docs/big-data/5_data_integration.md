@@ -6,11 +6,13 @@ description: DataX 与 SeaTunnel 离线同步、Kafka Connect / Flink CDC 实时
 
 > 前置阅读：[数仓分层与建模](./2_data_warehouse)、[数据湖与湖仓](./4_lakehouse)、[CDC 工具](/database/5_practice/0_cdc_tools)
 
-数据集成负责把业务库、日志和外部系统的数据按约定时效同步进数据平台，并保证与源头对得上。本篇讲 DataX / SeaTunnel 离线同步、Debezium + Kafka Connect 与 Flink CDC 实时入湖、全量与增量衔接、幂等写入、对账和表结构变更，版本基线为 DataX `datax_v202309`、SeaTunnel 3.0（2.3.x 文档已标为不再维护）、Debezium 3.x、Flink CDC 3.6、Iceberg 1.12（均为 Apache License 2.0）。
+数据集成负责把业务库、日志和外部系统的数据按时效同步进数据平台，并与源头对得上。本篇讲离线同步、CDC 实时入湖、全量与增量衔接、对账和表结构变更，基线为 Flink CDC 3.6。
 
 ---
 
 ## 一、数据集成全景
+
+离线同步用 DataX / SeaTunnel，实时入湖用 Debezium + Kafka Connect 或 Flink CDC。版本基线为 DataX `datax_v202309`、SeaTunnel 3.0（2.3.x 文档已标为不再维护）、Debezium 3.x、Flink CDC 3.6、Iceberg 1.12，均为 Apache License 2.0。
 
 数据集成要回答的问题是：**业务数据怎么可靠地、按约定的时效进入数据平台，并且进来之后和源头对得上**。一个电商平台的数据来源通常有三类：业务库（订单、商品、用户）、行为日志（App / Web 埋点）、外部系统（物流、广告投放、支付对账单）。本篇示例统一用电商订单：MySQL 订单库 `shop.order_info` 同步到湖仓 ODS 层。
 

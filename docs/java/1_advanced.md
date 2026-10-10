@@ -6,11 +6,13 @@ description: Lambda 实现原理、函数式接口与方法引用、Stream 惰�
 
 > 前置阅读：[Java 总览](./0_overview)
 
-本篇讲 Lambda 从 javac 脱糖到 `invokedynamic` 链接的过程、函数式接口与方法引用、Stream 求值模型与并行流、Optional 规范写法，以及注解从定义、运行时读取到编译期处理的全链路（含 JDK 23 的变化）。版本基线为 JDK 21 / 25 LTS，JDK 8 / 17 的差异单独标出。
+Lambda、Stream 与注解是现代 Java 最常用的语言机制。本篇讲 Lambda 实现原理、函数式接口、Stream 与并行流、Optional、注解处理，基线为 JDK 21。
 
 ---
 
 ## 一、Lambda 表达式
+
+Lambda 从 javac 脱糖到 `invokedynamic` 链接；注解覆盖定义、运行时读取到编译期处理的全链路（含 JDK 23 的变化）。版本基线为 JDK 21 / 25 LTS，JDK 8 / 17 的差异单独标出。
 
 ### 1、语法与变量捕获
 

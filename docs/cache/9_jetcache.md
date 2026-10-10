@@ -6,11 +6,13 @@ description: 两级缓存架构、Lettuce 配置、方法注解、QuickConfig �
 
 > 前置阅读：[Caffeine](./7_caffeine)、[两级缓存（L1 + L2）](./8_two_level_cache)
 
-JetCache 是阿里巴巴开源的 Java 缓存框架，在 Spring Cache 风格的注解之上补充了两级缓存、自动刷新、空值缓存、加载合并与统计等能力，并提供编程式 API。本篇以 JetCache 2.7.x 为基线（写作时最新稳定版为 2.7.8，2.8 处于 RC 阶段），讲注解与编程式 API、多实例本地缓存同步，以及它相对 Spring Cache 的取舍。
+JetCache 是阿里开源的 Java 缓存框架，在 Spring Cache 风格注解上补了两级缓存、自动刷新等能力。本篇讲注解、编程式 API、多实例同步和与 Spring Cache 的取舍，基线为 2.7。
 
 ---
 
 ## 一、架构与能力
+
+写作时最新稳定版为 2.7.8，2.8 处于 RC 阶段；JetCache 还提供空值缓存、加载合并与统计等能力。
 
 ![JetCache 架构](../assets/cache/jetcache_arch.svg)
 

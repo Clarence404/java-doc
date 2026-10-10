@@ -6,11 +6,13 @@ description: DispatcherServlet 流程、参数校验、消息转换、ProblemDet
 
 > 前置阅读：[IoC 容器](./1_ioc)、[AOP](./2_aop)
 
-本篇讲 Spring MVC 的框架机制：请求处理链路与组件扩展、`ProblemDetail` 统一异常处理、6.1+ 方法参数校验，以及 Framework 7 / Jackson 3 下的消息转换。Framework 7 要求 Servlet 6.1（Jakarta EE 11），Boot 4 内嵌 Tomcat 或 Jetty（Undertow 已移除），starter 为 `spring-boot-starter-webmvc`（Boot 3.x 为 `spring-boot-starter-web`）。
+Spring MVC 是基于 Servlet 的 Web 框架，负责把 HTTP 请求分发到控制器方法。本篇讲请求处理链路与组件扩展、`ProblemDetail` 统一异常、方法参数校验、Jackson 3 消息转换，基线为 Spring Framework 7.x。
 
 ---
 
 ## 一、DispatcherServlet 请求处理流程
+
+Framework 7 要求 Servlet 6.1（Jakarta EE 11），Boot 4 内嵌 Tomcat 或 Jetty（Undertow 已移除），starter 为 `spring-boot-starter-webmvc`（Boot 3.x 为 `spring-boot-starter-web`）；方法参数校验自 6.1 起提供。
 
 Spring 6 起 Servlet API 全部是 `jakarta.servlet.*`。
 

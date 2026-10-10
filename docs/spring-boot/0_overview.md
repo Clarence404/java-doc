@@ -1,8 +1,8 @@
 # Spring Boot 总览
 
-Spring Boot 模块从启动流程与自动配置原理出发，覆盖 Web 开发、数据访问、数据库版本迁移、中间件集成、配置管理、Actuator 监控、自定义 Starter、异步与定时任务、接口文档，以及版本演进、日志、测试与启动部署优化。Spring Framework 本身的 IoC、AOP、事务与 MVC 机制在 [Spring 总览](/spring/0_overview) 模块讲解，这里只讲 Boot 在其之上的装配、配置与工程实践。
+Spring Boot 模块从启动流程与自动配置原理出发，覆盖 Web、数据访问、中间件集成、配置、监控、Starter、版本演进、日志、测试与启动部署优化，只讲 Boot 在 Framework 之上的装配、配置与工程实践。
 
-版本基线：**Spring Boot 4.x / Spring Framework 7.x**（JDK 17 起步，推荐 21 / 25），3.x 的差异在文中单独标注。
+**版本基线（2026 年 10 月）**：Spring Boot 4.x、Spring Framework 7.x、JDK 17 起步（推荐 21 / 25）
 
 ---
 
@@ -26,6 +26,8 @@ Spring Boot 模块从启动流程与自动配置原理出发，覆盖 Web 开发
 ---
 
 ## 三、关联模块
+
+Spring Framework 本身的 IoC、AOP、事务与 MVC 机制在 [Spring 总览](/spring/0_overview) 模块讲解。3.x 的差异在文中单独标注。
 
 - [Spring 总览](/spring/0_overview)：IoC、AOP、事务、MVC 等 Framework 机制，本模块只讲 Boot 层面的装配
 - [Spring Cloud 总览](/spring-cloud/0_overview)：注册发现、网关、服务通信等微服务组件

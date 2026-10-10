@@ -4,11 +4,9 @@ description: 构建工具、开发工具、代码质量、线上诊断、API 文
 
 # 工程效率总览
 
-工程效率模块关注「一个 Java 后端工程师每天手上用的东西」：用 Maven / Gradle 把代码稳定地构建出来，用 IDE 与调试工具写得更快，用静态分析、覆盖率和格式化守住代码质量，用 BOM、扫描、自动升级和 SBOM 管住依赖，用 Arthas / JFR 在线上定位问题，并用统一的 API 设计规范和接口文档让前后端、服务之间少扯皮。
+工程效率模块关注 Java 后端工程师每天手上用的东西：构建工具、IDE 与调试、代码质量与依赖治理、Arthas / JFR 线上诊断，以及 API 设计规范与接口文档。
 
-本模块只写「工程内部」的工具与规范：流水线编排、Git 分支模型（全站统一为 trunk-based / GitHub Flow）、制品签名与发布策略在 [DevOps 总览](/devops/0_overview)；单元测试、Mock、集成测试在 [测试工程总览](/testing/0_overview)。
-
-**版本基线（2026 年 10 月）**：JDK 21 LTS（JDK 25 LTS 已发布，新项目可直接选用）；Spring Boot 4.1.x / Spring Framework 7（Boot 4 默认使用 Jackson 3，groupId 为 `tools.jackson.core`）；Spring Cloud 2025.1.x（Oakwood）；Maven 3.9.x（3.9.16，Maven 4.0.0 仍处于 RC 阶段，最新为 rc-7，尚未 GA）；Gradle 9.x（9.8，运行 Gradle 本身需要 JDK 17+）；JaCoCo 0.8.14（支持 Java 25 字节码）；springdoc-openapi 3.x；Arthas 4.x。
+**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4.1、Spring Cloud 2025.1、Maven 3.9、Gradle 9.8、JaCoCo 0.8.14、springdoc-openapi 3.x、Arthas 4.x
 
 ![工程效率链路](../assets/engineering/overview-efficiency-map.svg)
 
@@ -33,6 +31,8 @@ description: 构建工具、开发工具、代码质量、线上诊断、API 文
 ---
 
 ## 三、关联模块
+
+本模块只写「工程内部」的工具与规范：流水线编排、Git 分支模型（全站统一为 trunk-based / GitHub Flow）、制品签名与发布策略在 [DevOps 总览](/devops/0_overview)；单元测试、Mock、集成测试在 [测试工程总览](/testing/0_overview)。版本注意：Boot 4 默认使用 Jackson 3（groupId 为 `tools.jackson.core`）；Maven 4.0 尚未 GA；运行 Gradle 9 需要 JDK 17+。
 
 - CI/CD 流水线 → [CI/CD](/devops/2_ci_cd)；Git 工作流 → [Git 工作流](/devops/1_git_workflow)
 - PR 模板与评审清单 → [Code Review](/devops/3_code_review)；命名与代码坏味道示例 → [开发规范](/devops/4_dev_standards)

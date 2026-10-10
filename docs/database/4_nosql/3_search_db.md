@@ -6,11 +6,13 @@ description: ES 9 / OpenSearch 3、倒排索引与分析器、Mapping 与 DSL、
 
 > 前置阅读：[MySQL 索引](../1_mysql/4_topic_index)、[文档数据库](./2_document_db)
 
-搜索数据库解决按关键词、相关性、过滤条件和聚合快速查找的问题，通常不是主库，而是由业务库经 CDC、消息队列或同步任务构建的**查询侧索引**。本篇讲倒排索引与分析器、Elasticsearch 的 Mapping / DSL / 聚合 / 写入链路与分片规划、向量与混合检索，以及 Elasticsearch、OpenSearch、Solr 的许可与选型差异。
+搜索数据库按关键词、相关性和过滤条件快速查找，通常是由业务库同步出来的查询侧索引，而不是主库。本篇讲倒排索引与分析器、ES 的 Mapping / DSL / 分片、向量检索及选型。
 
 ---
 
 ## 一、典型场景与定位
+
+数据通常由业务库经 CDC、消息队列或同步任务构建；选型部分对比 Elasticsearch、OpenSearch、Solr 的许可差异。
 
 | 场景 | 需求特点 | 常见方案 |
 |------|----------|----------|

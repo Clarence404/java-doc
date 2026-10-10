@@ -6,11 +6,13 @@ description: 主干触发、GitHub Actions、OIDC、digest 晋级、供应链安
 
 > 前置阅读：[Git 工作流](./1_git_workflow)、[Docker](/cloud-native/5_docker)、[Kubernetes](/cloud-native/6_kubernetes)
 
-本篇按主干开发搭建一条 Java 服务的完整流水线：PR 构建、测试与门禁，合并后构建镜像并签发来源证明，按同一 digest 晋级生产，OIDC 部署与 Workflow 安全，并给出 Jenkins 与 GitLab CI 的等价写法。示例以 GitHub Actions 为主，Action 版本以 2026 年 10 月为准：checkout v7、setup-java v6、upload-artifact v7、download-artifact v8、docker/build-push-action v7、codeql-action v4。
+CI/CD 把代码从提交到上线的构建、测试、部署串成自动化流水线。本篇讲 PR 构建与门禁、镜像构建与来源证明、按 digest 晋级、OIDC 部署与 Workflow 安全。
 
 ---
 
 ## 一、流水线的组成
+
+示例以 GitHub Actions 为主，并给出 Jenkins 与 GitLab CI 的等价写法；Action 版本：checkout v7、setup-java v6、upload-artifact v7、download-artifact v8、docker/build-push-action v7、codeql-action v4。
 
 本篇只讲流水线怎么编排，各环节的细节由对应文章负责：质量门禁的 Sonar / JaCoCo 配置见 [代码质量](/engineering/3_code_quality)，镜像标签、签名与来源证明见 [制品与版本管理](./6_artifact_version)，滚动 / 蓝绿 / 金丝雀见 [发布策略](./5_release_strategy)，多环境划分见 [环境管理](./7_env_management)，基础设施代码的流水线见 [IaC 工程实践](/cloud-native/12_iac_practice)。
 

@@ -6,7 +6,7 @@ description: 协议流程、各家差异、tool_choice、strict 模式、@Tool �
 
 > 前置阅读：[Prompt 工程](./1_prompt)
 
-Function Calling 让模型以结构化方式请求调用外部工具，是 Agent 与 MCP 的基础协议。本篇讲两轮协议与各家格式差异、`tool_choice` / 并行调用 / strict 模式、Spring AI 与 LangChain4j 的 `@Tool` 写法，以及工具设计的安全原则。
+Function Calling 让模型用结构化方式请求调用外部工具，是 Agent 与 MCP 的基础。本篇讲两轮协议、各家差异、tool_choice 与 strict 模式、@Tool 写法和工具安全。
 
 ---
 

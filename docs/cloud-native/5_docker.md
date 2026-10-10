@@ -6,11 +6,13 @@ description: 镜像分层、Dockerfile 与 BuildKit、Java 多阶段镜像、网
 
 > 前置阅读：[Linux 概览](./1_linux)、[虚拟化概览](./3_virtual)
 
-Docker 把「应用 + 依赖 + 运行环境」打包成镜像，容器则是被 Namespace 隔离视图、被 cgroup 限制资源的普通进程，共享宿主机内核，启动秒级、开销接近原生进程。本篇讲镜像分层、Java 多阶段 Dockerfile、Compose v2 本地多服务环境，以及镜像加速、代理与私有仓库。
+Docker 把应用、依赖和运行环境打包成镜像，容器是共享宿主机内核的隔离进程。本篇讲镜像分层、Java 多阶段 Dockerfile、Compose v2 和镜像加速与私有仓库。
 
 ---
 
 ## 一、核心概念与架构
+
+容器是被 Namespace 隔离视图、被 cgroup 限制资源的普通进程，启动秒级、开销接近原生进程；文中也讲代理配置。
 
 | 概念 | 说明 |
 |------|------|

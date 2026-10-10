@@ -6,11 +6,13 @@ description: Nginx 反向代理、Ingress 与 pathType、ingress-nginx 退役迁
 
 > 前置阅读：[Kubernetes](./6_kubernetes)
 
-南北向流量指从集群外部进入集群的流量，入口方案正在从 Ingress 转向 Gateway API。本篇以 2026 年 10 月为基线讲 Nginx 反向代理、Ingress 与 Gateway API 及迁移：Kubernetes 官方已冻结 Ingress API、推荐改用 Gateway API，社区版 ingress-nginx 控制器已在 2026 年 3 月停止维护。
+南北向流量指从集群外部进入集群的流量，入口方案正从 Ingress 转向 Gateway API。本篇讲 Nginx 反向代理、Ingress、Gateway API 和迁移。
 
 ---
 
 ## 一、南北向入口的位置
+
+Kubernetes 官方已冻结 Ingress API、推荐改用 Gateway API，社区版 ingress-nginx 控制器已在 2026 年 3 月停止维护。
 
 入口分层（DNS、CDN、LVS / SLB）这类系统级架构见 [接入层架构](/high-con/1_access_layer)，TLS 握手与证书链原理见 [HTTPS 与 TLS](/protocols/3_https_tls)。
 

@@ -6,11 +6,13 @@ description: 指标类型、RED / USE、自定义指标与基数控制、Prometh
 
 > 前置阅读：[日志体系](./1_logging)、[Actuator 监控](/spring-boot/7_actuator)
 
-指标是按时间采样的数值，体积小、可聚合，回答"整体现在怎么样、和平时比有没有变化"。本篇以 **Prometheus 3.x**（当前最新 3.15，长期支持线 3.13 LTS）和 **Spring Boot 4.x 自带的 Micrometer** 为基线，讲平台侧的指标模型与类型、指标清单、基数控制、抓取配置、PromQL 与看板，示例统一用 `order-service`。
+指标是按时间采样的数值，体积小、可聚合，回答整体现在怎么样、和平时比有无变化。本篇讲指标模型与类型、基数控制、抓取配置、PromQL 与看板，基线为 Prometheus 3.x。
 
 ---
 
 ## 一、指标模型
+
+Prometheus 当前最新 3.15，长期支持线 3.13 LTS；应用侧用 Spring Boot 4.x 自带的 Micrometer，示例统一用 `order-service`，并给出指标清单。
 
 Prometheus 的一切都是**时间序列**：指标名 + 一组标签（label）唯一确定一条序列，序列上是一串 `(时间戳, float64 值)` 样本。下面是 `order-service` 在 `/actuator/prometheus` 输出的一段文本格式：
 

@@ -1,8 +1,8 @@
 # 数据结构与算法总览
 
-数据结构与算法是后端开发的基本功：选错集合会让接口慢一个数量级，看不懂复杂度就估不准一个方案能不能扛住数据量。本模块从复杂度分析出发，依次讲常用数据结构、基础算法（搜索、排序、分治、回溯、贪心、动态规划）、常用解题技巧（双指针、滑动窗口、前缀和、位运算），最后按题型整理刷题清单。
+本模块从复杂度分析出发，讲常用数据结构、基础算法与解题技巧，最后按题型整理刷题清单。定位是后端基本功：选对集合、估准复杂度。
 
-基线约定：代码示例以 **JDK 21** 为准，方法签名采用 LeetCode 风格（`int[] nums`、`ListNode head`），数据结构优先使用 JDK 自带实现（`ArrayDeque`、`PriorityQueue`、`HashMap`、`TreeMap`）；JDK 集合的源码细节统一放在 [集合框架](/java/21_topic_collection)，本模块只讲算法视角。
+**版本基线（2026 年 10 月）**：JDK 21
 
 ---
 
@@ -20,14 +20,16 @@
 4. **算法技巧**：[双指针](./3_patterns/1_two_pointers)、[滑动窗口](./3_patterns/2_sliding_window)、[前缀和与差分数组](./3_patterns/3_prefix_sum)、[位运算](./3_patterns/4_bit_manipulation)，都是把暴力解法降一个数量级的常用套路
 5. **刷题实战**：按 [LeetCode 高频题分类](./4_practice/0_leet_code) 逐类刷题，机考前再看 [华为 OJ 题型与技巧](./4_practice/1_huawei_oj)
 
-[高频面试题](./99_interview) 只列题目，答案在 [数据结构与算法面试题解答](/interview/4_algorithms)。
+[高频面试题](./99_interview) 只列题目，答案在 [算法面试题解答](/interview/4_algorithms)。
 
 ---
 
 ## 三、关联模块
 
+代码方法签名采用 LeetCode 风格（`int[] nums`、`ListNode head`），数据结构优先使用 JDK 自带实现（`ArrayDeque`、`PriorityQueue`、`HashMap`、`TreeMap`）；JDK 集合的源码细节统一放在 [集合框架](/java/21_topic_collection)，本模块只讲算法视角。
+
 - [集合框架](/java/21_topic_collection)：`ArrayList`、`HashMap`、`TreeMap`、`PriorityQueue` 等 JDK 实现的源码细节
 - [MySQL 索引](/database/1_mysql/4_topic_index)：B+ 树在 InnoDB 中的落地、聚簇索引与回表
 - [海量数据算法题](/scenario/3_massive_data)：哈希分桶、堆求 Top K、Bitmap、Trie、外部排序在大数据量下的组合用法
 - [JVM](/jvm/0_overview)：递归深度与栈溢出、对象开销对数据结构内存占用的影响
-- [数据结构与算法面试题解答](/interview/4_algorithms)：本模块高频问题的答案汇总
+- [算法面试题解答](/interview/4_algorithms)：本模块高频问题的答案汇总

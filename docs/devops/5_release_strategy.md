@@ -6,11 +6,13 @@ description: 滚动、蓝绿、金丝雀、Argo Rollouts、功能开关与暗发
 
 > 前置阅读：[Kubernetes](/cloud-native/6_kubernetes)、[优雅上下线与变更](/high-avail/8_graceful_release)
 
-发布策略回答「新版本怎么替换旧版本、出了问题怎么退回去」，本篇讲滚动、蓝绿、金丝雀、功能开关与暗发布的 Kubernetes 落地、上线检查单、回滚与 DORA 度量。示例以 2026 年 10 月为基准：Kubernetes 1.37、Gateway API v1、Istio `networking.istio.io/v1`、Argo Rollouts 1.10、Spring Boot 4。
+发布策略回答新版本怎么替换旧版本、出了问题怎么退回去。本篇讲滚动、蓝绿、金丝雀、功能开关与暗发布、回滚与 DORA 度量，基线为 Kubernetes 1.37。
 
 ---
 
 ## 一、发布方式全景
+
+示例版本：Kubernetes 1.37、Gateway API v1、Istio `networking.istio.io/v1`、Argo Rollouts 1.10、Spring Boot 4；另附上线检查单。
 
 部署（deploy）和发布（release）是两件事：部署是把新代码放到生产环境运行，发布是让用户真正用到新功能。前三种方式在**基础设施层**切换版本，后两种在**应用层**把部署和发布拆开。
 

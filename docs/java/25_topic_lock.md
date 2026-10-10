@@ -6,11 +6,13 @@ description: AQS 结构与流程、公平 / 非公平锁、Condition、读写锁
 
 > 前置阅读：[synchronized](./24_topic_synchronized)、[JMM 内存模型](./22_topic_jmm)
 
-`java.util.concurrent.locks` 里的锁是几乎全部建立在 AQS 之上的纯 Java 实现，理解了 AQS，`ReentrantLock`、读写锁、`Semaphore`、`CountDownLatch` 的行为都能推出来。本篇讲 JDK 14 之后的 AQS 实现、各类显式锁的用法与坑，以及 JDK 21 / 25 上（含虚拟线程）`synchronized` 与 `Lock` 的选择。
+显式锁是 `java.util.concurrent.locks` 里几乎全部建立在 AQS 上的纯 Java 锁，弄懂 AQS 就能推出各类锁的行为。本篇讲 AQS 实现、显式锁用法与坑、`synchronized` 与 `Lock` 的选择，基线为 JDK 21 / 25。
 
 ---
 
 ## 一、Lock 接口
+
+AQS 实现按 JDK 14 之后的版本讲，`ReentrantLock`、读写锁、`Semaphore`、`CountDownLatch` 都建立在它之上；锁的选择部分包含虚拟线程场景。
 
 | 方法 | 语义 | 对应 `synchronized` 能力 |
 |------|------|--------------------------|

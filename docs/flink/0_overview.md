@@ -1,12 +1,14 @@
 # Flink 总览
 
-Flink 是有状态的分布式流计算引擎，国内实时数仓、实时风控、数据库实时同步大多以它为底座。本模块先讲运行时架构，再讲 DataStream 开发链路、事件时间与水位线、状态与 Checkpoint，然后是 Flink SQL 与 Flink CDC，最后落到 Kubernetes 部署、反压与倾斜排查，以及几个完整的业务场景。Kafka、CDC 基础、Kubernetes、监控等通用知识在各自模块展开，这里只讲 Flink 特有的部分。
+Flink 是有状态的分布式流计算引擎，是实时数仓、实时风控、数据库实时同步的常见底座。本模块从运行时架构讲到 DataStream、时间与状态、Flink SQL 与 CDC，再到部署调优和业务场景。
 
-版本基线：**Flink 2.2.x**（`flink-connector-kafka:5.0.0-2.2`）、**Flink CDC 3.6**、**JDK 17**（Java 21 为实验性支持）。Flink 2.3 已于 2026 年 6 月发布，但 Kafka 等外部连接器还没有适配 2.3 的版本，依赖这些连接器的作业建议暂时停留在 2.2.x。Flink 2.0 移除了 DataSet API、Scala API、`SourceFunction` / `SinkFunction`、Per-Job 模式和 `flink-conf.yaml`，也不再支持 Java 8。与 1.x 行为不同的地方，文中会单独标出。
+**版本基线（2026 年 10 月）**：Flink 2.2、Flink CDC 3.6、JDK 17
 
 ---
 
 ## 一、学习路线
+
+Kafka、CDC 基础、Kubernetes、监控等通用知识在各自模块展开，这里只讲 Flink 特有的部分。Kafka 连接器使用 `flink-connector-kafka:5.0.0-2.2`；Java 21 为实验性支持。Flink 2.3 已于 2026 年 6 月发布，但 Kafka 等外部连接器尚未适配，依赖它们的作业建议暂时停留在 2.2.x。Flink 2.0 移除了 DataSet API、Scala API、`SourceFunction` / `SinkFunction`、Per-Job 模式和 `flink-conf.yaml`，也不再支持 Java 8；与 1.x 行为不同的地方，文中会单独标出。
 
 | 阶段 | 要解决的问题 | 文章 |
 |------|-------------|------|

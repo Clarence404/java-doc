@@ -6,11 +6,13 @@ description: 三次握手、四次挥手、TIME_WAIT / CLOSE_WAIT、滑动窗口
 
 > 前置阅读：[IO 模型](/netty/1_io_model)
 
-TCP 是绝大多数后端通信（HTTP/1.1、HTTP/2、MySQL、Redis、Kafka、gRPC）的底座，本篇以 RFC 9293 为基线、Linux 行为以 5.x / 6.x 内核为准。内容包括建连断连与状态变化、TIME_WAIT / CLOSE_WAIT 与队列溢出排查、流量控制与拥塞控制，以及何时使用 UDP。
+TCP 是绝大多数后端通信的底座，UDP 则用于低延迟场景。本篇讲建连断连、TIME_WAIT / CLOSE_WAIT 排查、流量与拥塞控制、UDP 选型，基线为 RFC 9293。
 
 ---
 
 ## 一、TCP 报文头
+
+TCP 承载了 HTTP/1.1、HTTP/2、MySQL、Redis、Kafka、gRPC 等通信，文中 Linux 行为以 5.x / 6.x 内核为准。
 
 TCP 头部固定 20 字节，加上选项最长 60 字节。日常排查只需记住下面这些字段：
 

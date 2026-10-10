@@ -6,11 +6,13 @@ description: 好告警标准、Prometheus 告警规则、Alertmanager 路由抑�
 
 > 前置阅读：[指标监控](./2_metrics)、[Actuator 监控](/spring-boot/7_actuator)、[可用性度量](/high-avail/1_sla_slo)
 
-本篇以 order-service 为例讲告警怎么定义、怎么投递：好告警的标准、Prometheus 告警规则与 promtool 测试、Alertmanager 路由与 IM 接入、降噪手段，以及 Grafana Alerting 与 Alertmanager 怎么选。版本以 2026 年 10 月为准：Prometheus 3.x、Alertmanager 0.34。
+告警是指标出异常时把问题及时、准确通知到人的机制。本篇讲好告警标准、Prometheus 告警规则、Alertmanager 路由与降噪、Grafana Alerting 选型，基线为 Prometheus 3.x。
 
 ---
 
 ## 一、什么是好告警
+
+本篇以 order-service 为例，版本以 2026 年 10 月为准：Prometheus 3.x、Alertmanager 0.34；规则用 promtool 测试，Alertmanager 部分含 IM 接入。
 
 ### 1、四条标准
 

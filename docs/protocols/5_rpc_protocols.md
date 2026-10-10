@@ -6,7 +6,7 @@ description: RPC 组成要素、Protobuf 编码、gRPC 帧格式与四种调用�
 
 > 前置阅读：[HTTP](./2_http)
 
-RPC（Remote Procedure Call）让调用方通过桩（Stub）像调用本地方法一样调用远程服务。本篇讲 RPC 的组成、Protobuf 编码与 gRPC 帧格式、调用方式 / 截止时间 / 状态码 / 负载均衡等要点、Spring Boot 接入 gRPC，以及 Thrift、SOAP 的定位。
+RPC 让调用方通过桩像调用本地方法一样调用远程服务。本篇讲 RPC 的组成、Protobuf 与 gRPC 帧格式、gRPC 调用要点、Spring Boot 接入，以及 Thrift、SOAP 的定位。
 
 ---
 

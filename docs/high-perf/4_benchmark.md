@@ -6,11 +6,13 @@ description: 微基准的陷阱、JMH 注解与示例、结果解读
 
 > 前置阅读：[性能分析工具](./3_profilers)
 
-JMH（Java Microbenchmark Harness）是 OpenJDK 提供的微基准测试框架，用来可靠地测量**方法级、代码片段级**的性能差异：Profiler 告诉你"哪里慢"，JMH 回答"换一种写法能快多少"。本篇讲手写计时循环为什么不可信，以及如何用 JMH 写出可靠的微基准并正确解读结果。
+JMH（Java Microbenchmark Harness）是 OpenJDK 提供的微基准测试框架，用来可靠地测量方法级、代码片段级的性能差异。本篇讲手写计时循环的陷阱、JMH 写法、结果解读。
 
 ---
 
 ## 一、为什么不能用 nanoTime 循环
+
+Profiler 告诉你"哪里慢"，JMH 回答"换一种写法能快多少"。
 
 ### 1、朴素写法
 

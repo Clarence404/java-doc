@@ -1,14 +1,14 @@
 # 大数据总览
 
-大数据平台回答的是：业务系统每天产生的订单、日志、埋点，怎样**汇集到一处、加工成统一口径的数据**，再以报表、接口、特征的形式交还给业务。本模块站在 Java 后端的视角讲这条链路——后端工程师最常接触的是数据从哪里来（binlog、埋点、消息）、指标口径怎么定、加工好的数据怎么以接口形式提供出去，因此重点放在数仓建模、批处理引擎、湖仓存储、集成、调度、OLAP 与治理这几块能直接影响日常开发的内容，不追求覆盖整个 Hadoop 生态。
+大数据模块从 Java 后端的视角，讲业务数据怎样汇集、加工成统一口径，再以报表和接口交还给业务。重点是数仓建模、Spark、湖仓、数据集成、调度、OLAP 与治理，不追求覆盖整个 Hadoop 生态。
 
-流计算的细节（DataStream、事件时间、状态、Flink SQL、Flink CDC）在 [Flink](/flink/0_overview) 模块展开，列式与 OLAP 数据库的原理在 [列式与 OLAP 数据库](/database/4_nosql/0_column_db)，本模块只讲它们在数据平台中的位置并给出链接。全模块示例统一使用**电商订单**业务：`order_info`（订单）、`order_item`（订单明细）、`user_info`（用户）、`product`（商品）几张业务表，加上 App 端的浏览、加购埋点日志。
-
-**版本基线（2026 年 10 月）**：Spark 4.2（2026 年 7 月发布，4.0 起要求 JDK 17+、Scala 2.13，4.2 新增 Java 25 支持；4.1 / 4.0 仍有维护版，3.5.x 为 3.x 最后一条维护线）；Hadoop 3.5（2026 年 4 月发布，服务端要求 Java 17，客户端支持 Java 17 / 21，移除了 WASB 文件系统）与 3.4.x；Iceberg 1.12（2026 年 9 月）；Paimon 2.0（2026 年 8 月）；Hudi 1.2.x；Flink 2.2 / Flink CDC 3.6（见 [Flink 总览](/flink/0_overview)）；DolphinScheduler 3.4.x；Airflow 3.3.x；SeaTunnel 3.0（2.3.x 文档已标记为不再维护）；DataX 开源版最近一次发布仍是 `datax_v202309`；Doris 4.1.x 与 StarRocks 4.1.x。以上项目均为 Apache License 2.0。文中涉及版本差异的地方会单独标出。
+**版本基线（2026 年 10 月）**：Spark 4.2、Hadoop 3.5、Iceberg 1.12、Paimon 2.0、Hudi 1.2、Flink 2.2 / Flink CDC 3.6、DolphinScheduler 3.4、Airflow 3.3、SeaTunnel 3.0、Doris / StarRocks 4.1。
 
 ---
 
 ## 一、后端视角下的数据平台
+
+后端工程师最常接触的是数据从哪里来（binlog、埋点、消息）、指标口径怎么定、加工好的数据怎么以接口形式提供出去。流计算细节在 [Flink](/flink/0_overview) 模块展开，列式与 OLAP 数据库原理在 [列式与 OLAP 数据库](/database/4_nosql/0_column_db)，本模块只讲它们在数据平台中的位置。全模块示例统一使用电商订单业务：`order_info`（订单）、`order_item`（订单明细）、`user_info`（用户）、`product`（商品），加上 App 端的浏览、加购埋点日志。
 
 业务系统（OLTP）和数据平台（OLAP / 数仓）处理的是同一份业务事实，但目标完全不同：
 

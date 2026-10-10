@@ -6,11 +6,13 @@ description: Chunk 读写、Tasklet、流程控制、重启语义、分区扩展
 
 > 前置阅读：[事务管理](./4_transaction)
 
-Spring Batch 处理「大量数据、离线、可中断可恢复」的任务，只负责把批处理执行得可靠、可观测、可重启，不负责调度。本篇基于 Spring Boot 4（Spring Batch 6），讲 Job / Step / Chunk 模型、JDBC 作业仓库、跳过 / 重试 / 重启，以及多线程与分区扩展。
+Spring Batch 负责把大量数据、离线、可中断可恢复的任务执行得可靠、可观测、可重启，不负责调度。本篇讲 Job / Step / Chunk 模型、JDBC 作业仓库、跳过 / 重试 / 重启、多线程与分区扩展，基线为 Spring Boot 4.x。
 
 ---
 
 ## 一、核心模型
+
+本篇对应 Spring Batch 6。
 
 ### 1、架构
 

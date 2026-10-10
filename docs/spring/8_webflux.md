@@ -6,11 +6,13 @@ description: Mono/Flux、执行模型与冷热流、线程调度、背压、Cont
 
 > 前置阅读：[MVC](./3_mvc)、[Reactor 模型](/netty/2_reactor)
 
-Spring WebFlux 是基于 Project Reactor 的非阻塞 Web 栈。本篇讲执行模型、线程模型、背压与上下文传播，以及调试测试和适用场景，版本基线为 Spring Boot 4.x / Spring Framework 7.x（Reactor 2025.0，即 reactor-core 3.8.x）、Java 21 / 25。
+Spring WebFlux 是基于 Project Reactor 的非阻塞 Web 栈。本篇讲执行模型、线程模型、背压与上下文传播、调试测试与适用场景，基线为 Spring Boot 4.x。
 
 ---
 
 ## 一、响应式编程基础
+
+本篇对应 Spring Framework 7.x、Reactor 2025.0（即 reactor-core 3.8.x），运行在 Java 21 / 25。
 
 **响应式编程**：基于异步数据流的编程范式，通过非阻塞的方式处理数据，适合高并发、I/O 密集型场景。
 

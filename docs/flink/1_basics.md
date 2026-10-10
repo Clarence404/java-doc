@@ -6,11 +6,13 @@ description: 流与批、选型对比、JobManager / TaskManager / Slot、算子
 
 > 前置阅读：[Kafka](/messaging/2_kafka)
 
-Flink 是一个**有状态的分布式流计算引擎**，本篇讲它解决什么问题、与 Spark Streaming / Kafka Streams 怎么选、作业如何拆成 Task 运行，以及 2.x 的破坏性变化。本模块以 **Flink 2.2.x** 为准（Kafka 连接器 `flink-connector-kafka:5.0.0-2.2`，JDK 17，Java 21 为实验性支持），Flink 2.3 已发布但官方 Kafka 连接器尚无适配版本，依赖 Kafka 的作业建议先停在 2.2.x。
+Flink 是一个有状态的分布式流计算引擎。本篇讲它解决什么问题、与 Spark Streaming / Kafka Streams 怎么选、作业如何拆成 Task 运行及 2.x 的破坏性变化，基线为 Flink 2.2。
 
 ---
 
 ## 一、流与批
+
+本模块的连接器为 `flink-connector-kafka:5.0.0-2.2`，JDK 17（Java 21 为实验性支持）；Flink 2.3 已发布但官方 Kafka 连接器尚无适配版本，依赖 Kafka 的作业建议先停在 2.2.x。
 
 ### 1、有界流与无界流
 

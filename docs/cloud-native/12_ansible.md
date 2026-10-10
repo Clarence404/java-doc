@@ -6,11 +6,13 @@ description: 无 Agent 架构、Inventory、Playbook、幂等与 Handler、Role�
 
 > 前置阅读：[Terraform](./11_terraform)、[Linux 概览](./1_linux)
 
-Ansible 是 Red Hat 主导的配置管理与自动化工具，用 YAML 描述「机器应该是什么状态」。本篇以 2026 年 10 月的 ansible-core 2.21 和社区包 ansible 14 为基线，讲无 Agent 架构、与 Terraform 的分工、部署 Java 应用的 Playbook 与 Role 及幂等、Vault、滚动发布等工程化要点。
+Ansible 是用 YAML 描述机器应有状态的配置管理与自动化工具。本篇讲无 Agent 架构、Playbook 与 Role、幂等、Vault 和滚动发布，基线为 ansible-core 2.21。
 
 ---
 
 ## 一、定位：与 Terraform 的分工
+
+Ansible 由 Red Hat 主导；版本基线为 ansible-core 2.21 和社区包 ansible 14，示例为部署 Java 应用。
 
 两者都是「用代码管基础设施」，但管的阶段不同：
 

@@ -6,11 +6,13 @@ description: HCL、State 与锁、Module、多环境、Terraform vs OpenTofu / P
 
 > 前置阅读：[云计算概览](./13_cloud_overview)、[Linux 概览](./1_linux)
 
-Terraform 是 **IaC（Infrastructure as Code，基础设施即代码）** 工具：用 HCL 描述云上的服务器、网络、数据库、DNS，再由 Terraform 调用云厂商 API 把描述变成真实资源，并记录资源现状。本篇以 Terraform 1.16（2026 年 10 月的稳定版）和 OpenTofu 1.13 为基线，示例使用阿里云 Provider。
+Terraform 是用 HCL 描述云资源、再调云厂商 API 把它变成真实资源的 IaC 工具。本篇讲定位与许可证、State、Module 和多环境，基线为 Terraform 1.16。
 
 ---
 
 ## 一、定位与许可证
+
+IaC 即 Infrastructure as Code（基础设施即代码）。本篇以 Terraform 1.16 和 OpenTofu 1.13 为基线，示例使用阿里云 Provider。
 
 **解决的问题**：在云控制台手工点配置，无法重复、没有版本记录、多环境容易不一致。写成代码后，基础设施可以进 Git、走 PR 评审、一键复制出新环境。
 

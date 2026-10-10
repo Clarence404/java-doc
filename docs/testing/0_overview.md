@@ -4,28 +4,9 @@ description: 测试金字塔与蜂巢、各层工具与版本基线、健康测�
 
 # 测试工程总览
 
-测试工程关心的不是「写没写测试」，而是一套测试能不能在每次提交时快速、稳定地回答一个问题：**这次改动能不能放心合并、放心上线**。本模块按测试层次展开：先写好不依赖任何外部环境的单元测试，再用 Mock 隔离协作者，用真实容器做集成测试，用契约测试守住服务间接口，最后用性能测试验证容量；TDD 一篇讲怎样让测试反过来驱动设计。
+测试工程关心的是一套测试能否在每次提交时快速、稳定地回答：**这次改动能不能放心合并、放心上线**。本模块按层次讲单元测试、Mock、集成测试、契约测试、性能测试与 TDD，写的是与框架无关的方法和工具。
 
-本模块写的是与框架无关的测试方法和工具。几类相关内容各有主文档，这里只链接：Spring 的切片测试、`@MockitoBean`、`@ServiceConnection` 在 [Spring Boot 测试](/spring-boot/13_testing)；JMH 微基准在 [基准测试（JMH）](/high-perf/4_benchmark)；覆盖率门禁的阈值与 Sonar 配置在 [代码质量](/engineering/3_code_quality)；流水线怎么编排在 [CI/CD](/devops/2_ci_cd)。
-
-![测试金字塔与测试蜂巢](../assets/testing/overview-test-pyramid-honeycomb.svg)
-
-版本基线（2026 年 10 月）：
-
-| 类别 | 工具 | 版本与说明 |
-|------|------|------------|
-| 运行环境 | JDK / Spring Boot | JDK 21（25 为新 LTS）；Spring Boot 4.x（Spring Framework 7） |
-| 测试框架 | JUnit | **JUnit 6**（2025-09 发布 6.0，当前 6.1.x）；Java 17 基线，Platform / Jupiter / Vintage 版本号统一，包名仍是 `org.junit.jupiter.*`；Spring Framework 7 以 JUnit 6 为最低要求，Boot 4.1 依赖管理为 6.0.x |
-| 断言 | AssertJ | 3.27.x（Boot 4.1 管理 3.27.7） |
-| Mock | Mockito | 5.x（Boot 4.1 管理 5.23.0，独立最新 5.24.0） |
-| 集成测试 | Testcontainers | **2.0.x**（Boot 4.1 管理 2.0.5）；artifact 统一加 `testcontainers-` 前缀，移除 JUnit 4 支持 |
-| 契约测试 | Spring Cloud Contract / Pact JVM | Spring Cloud Contract 5.0.x（随 Spring Cloud 2025.1）；Pact JVM 4.7.x |
-| 性能测试 | k6 / Gatling / JMeter | k6 2.x（2026-05 发布 2.0）；Gatling 3.x（Java DSL）；JMeter 5.6.3 |
-| 质量度量 | JaCoCo / PIT | JaCoCo 0.8.14+（支持 Java 25）；PIT 1.x + `pitest-junit5-plugin`（JUnit 6 下可用） |
-
-::: tip 版本由谁管
-Spring Boot 项目里，JUnit、AssertJ、Mockito、Testcontainers 的版本都由 Boot 依赖管理统一控制，不要再单独导入 JUnit BOM 或写死版本号，否则升级 Boot 时容易出现 Platform 与引擎版本不一致。非 Boot 的纯 Java 模块才需要自己导入 `junit-bom`。
-:::
+**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4.x、JUnit 6.1、AssertJ 3.27、Mockito 5.x、Testcontainers 2.0、Spring Cloud Contract 5.0、Pact JVM 4.7、k6 2.x、Gatling 3.x、JMeter 5.6、JaCoCo 0.8、PIT 1.x
 
 ---
 
@@ -54,6 +35,8 @@ TDD 编号靠前，但它要求先熟悉单元测试与 Mock，放在最后读�
 ---
 
 ## 三、测试分层与比例
+
+![测试金字塔与测试蜂巢](../assets/testing/overview-test-pyramid-honeycomb.svg)
 
 ### 1、各层测什么
 
@@ -133,6 +116,14 @@ Surefire 与 Failsafe 的分工及配置见 [构建工具](/engineering/1_build_
 ---
 
 ## 六、关联模块
+
+几类相关内容各有主文档，这里只链接：Spring 的切片测试、`@MockitoBean`、`@ServiceConnection` 在 [Spring Boot 测试](/spring-boot/13_testing)；JMH 微基准在 [基准测试（JMH）](/high-perf/4_benchmark)；覆盖率门禁的阈值与 Sonar 配置在 [代码质量](/engineering/3_code_quality)；流水线怎么编排在 [CI/CD](/devops/2_ci_cd)。
+
+版本要点：JUnit 6 以 Java 17 为基线，Platform / Jupiter / Vintage 版本号统一，包名仍是 `org.junit.jupiter.*`，Spring Framework 7 以 JUnit 6 为最低要求；Testcontainers 2.0 的 artifact 统一加 `testcontainers-` 前缀，移除 JUnit 4 支持；JaCoCo 0.8.14 起支持 Java 25；PIT 配合 `pitest-junit5-plugin` 在 JUnit 6 下可用。
+
+::: tip 版本由谁管
+Spring Boot 项目里，JUnit、AssertJ、Mockito、Testcontainers 的版本都由 Boot 依赖管理统一控制，不要再单独导入 JUnit BOM 或写死版本号，否则升级 Boot 时容易出现 Platform 与引擎版本不一致。非 Boot 的纯 Java 模块才需要自己导入 `junit-bom`。
+:::
 
 - Spring 测试支持（切片测试、`MockMvcTester`、`@MockitoBean`、`@ServiceConnection`、上下文缓存）→ [Spring Boot 测试](/spring-boot/13_testing)
 - 微基准测试 → [基准测试（JMH）](/high-perf/4_benchmark)；性能分析方法论 → [性能分析方法论](/high-perf/2_methodology)；容量规划与全链路压测 → [容量评估与规划](/high-con/8_capacity_planning)
