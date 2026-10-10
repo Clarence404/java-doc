@@ -1,0 +1,59 @@
+<svg viewBox="0 0 800 250" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:1.5; }
+    .lbl { font-weight:600; font-size:12px; fill:var(--fg); }
+    .sub { font-size:10px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+    .life { stroke:var(--border); stroke-width:1.5; stroke-dasharray:5 4; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="400" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">OTA 升级全流程</text>
+  <rect class="box" x="20" y="50" width="160" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="100" y="76" text-anchor="middle" fill="var(--p)">构建与签名</text>
+  <text class="sub" x="100" y="94" text-anchor="middle">SHA-256 + Ed25519</text>
+  <rect class="box" x="220" y="50" width="160" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="300" y="76" text-anchor="middle" fill="var(--p)">上传对象存储</text>
+  <text class="sub" x="300" y="94" text-anchor="middle">短时效预签名 URL</text>
+  <rect class="box" x="420" y="50" width="160" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="500" y="76" text-anchor="middle" fill="var(--p)">灰度批次</text>
+  <text class="sub" x="500" y="94" text-anchor="middle">1% → 10% → 全量</text>
+  <rect class="box" x="620" y="50" width="160" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="700" y="76" text-anchor="middle" fill="var(--p)">MQTT 下发任务</text>
+  <text class="sub" x="700" y="94" text-anchor="middle">ota/command</text>
+  <rect class="box" x="620" y="170" width="160" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="700" y="196" text-anchor="middle" fill="var(--g)">断点续传下载</text>
+  <text class="sub" x="700" y="214" text-anchor="middle">HTTP Range</text>
+  <rect class="box" x="420" y="170" width="160" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="500" y="196" text-anchor="middle" fill="var(--g)">校验</text>
+  <text class="sub" x="500" y="214" text-anchor="middle">哈希 · 验签 · 版本</text>
+  <rect class="box" x="220" y="170" width="160" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="300" y="196" text-anchor="middle" fill="var(--g)">写入 B 分区</text>
+  <text class="sub" x="300" y="214" text-anchor="middle">切换启动槽</text>
+  <rect class="box" x="20" y="170" width="160" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="100" y="196" text-anchor="middle" fill="var(--g)">试运行</text>
+  <text class="sub" x="100" y="214" text-anchor="middle">确认或回滚 · 上报</text>
+  <line class="arr" x1="180" y1="80" x2="218" y2="80"/>
+  <line class="arr" x1="380" y1="80" x2="418" y2="80"/>
+  <line class="arr" x1="580" y1="80" x2="618" y2="80"/>
+  <line class="arr" x1="700" y1="110" x2="700" y2="168"/>
+  <text class="sub" x="708" y="144">设备收到任务</text>
+  <line class="arr" x1="620" y1="200" x2="582" y2="200"/>
+  <line class="arr" x1="420" y1="200" x2="382" y2="200"/>
+  <line class="arr" x1="220" y1="200" x2="182" y2="200"/>
+</svg>

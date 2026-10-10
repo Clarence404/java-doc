@@ -1,115 +1,108 @@
 ---
-description: 平台分类、商业云平台与开源平台、选型建议、ThingsBoard 规则引擎、EMQX 集群、JetLinks 二次开发
+description: 云平台与开源平台对比、平台选型、EMQX 许可与集群部署、ThingsBoard 规则链、JetLinks 协议包
 ---
 
-# IoT 平台选型
+# 平台选型
 
-> 参考资料：
-> * ThingsBoard：[https://thingsboard.io](https://thingsboard.io)
-> * EMQX：[https://www.emqx.io](https://www.emqx.io)
-> * JetLinks：[https://gitee.com/jetlinks](https://gitee.com/jetlinks)
+> **本篇目标**：分清商业云平台、开源平台和 MQTT Broker 各自的定位，能按场景选型；搞清 EMQX 5.9 之后的许可变化，能部署单节点和集群；理解 ThingsBoard 规则链和 JetLinks 协议包的扩展方式。
+>
+> **前置阅读**：[通信协议](./1_protocol)（MQTT 的 QoS、会话与 5.0 特性）
+
+IoT 平台通常要提供设备接入、设备管理（物模型、影子、OTA）、规则引擎、数据存储与可视化几块能力。云厂商把这些打包成托管服务；开源世界里，有 ThingsBoard、JetLinks 这类完整平台，也有 EMQX 这类只做接入层、需要与其他组件组合使用的 Broker。
+
+---
 
 ## 一、平台分类
 
 | 类型 | 说明 | 代表产品 |
 |------|------|---------|
-| **商业云平台** | 开箱即用，按量计费，免运维 | 阿里云 IoT、华为云 IoT、腾讯云 IoT、AWS IoT |
-| **开源自建平台** | 私有化部署，可定制，需运维 | ThingsBoard、EMQX、JetLinks、IoT-DC3 |
-| **消费级生态平台** | 面向智能家居，硬件绑定 | 小米 IoT / 米家、涂鸦 IoT |
+| **商业云平台** | 开箱即用，按量计费，免运维，能力与厂商云生态绑定 | 阿里云物联网平台、华为云 IoTDA、腾讯云 IoT Explorer、AWS IoT Core |
+| **开源完整平台** | 私有化部署，可二次开发，需自行运维 | ThingsBoard、JetLinks、IoT-DC3 |
+| **接入层组件** | 只负责 MQTT 等协议接入与消息路由，平台能力自建 | EMQX、Mosquitto、NanoMQ |
+| **家居生态平台** | 面向智能家居，偏个人和消费场景 | Home Assistant、openHAB、米家、涂鸦 |
 
 ---
 
 ## 二、商业云平台
 
-### 阿里云 IoT
+### 1、阿里云物联网平台
 
-- **定位**：国内使用最广的企业级 IoT 云平台
-- **核心能力**：设备接入（MQTT / CoAP / HTTP）、规则引擎、物模型、OTA 升级、边缘计算（Link IoT Edge）
-- **适合**：国内互联网 / 工业企业，需要快速上云
-- 官网：[https://iot.aliyun.com](https://iot.aliyun.com)
+- **定位**：国内使用最广的托管 IoT 平台
+- **核心能力**：设备接入（MQTT / CoAP / HTTP）、物模型、规则引擎与数据流转、OTA 升级，以及配套的边缘计算能力
+- **适合**：国内互联网与工业企业快速上云
 
-### 华为云 IoT
+### 2、华为云 IoTDA
 
-- **定位**：偏工业和政企场景，与华为设备生态深度集成
-- **核心能力**：设备接入、IoT 边缘（IEF）、数字孪生、与华为 OceanConnect 对接
+- **定位**：华为云的设备接入服务（IoTDA，前身为 OceanConnect），偏工业和政企场景
+- **核心能力**：设备接入与管理、设备影子、规则引擎、OTA，边缘侧配合华为云 IoTEdge
 - **适合**：工业制造、智慧城市、大型政企项目
-- 官网：[https://www.huaweicloud.com/product/iot.html](https://www.huaweicloud.com/product/iot.html)
 
-### 腾讯云 IoT
+### 3、腾讯云 IoT Explorer
 
-- **定位**：与腾讯 AI / 微信生态集成能力强
-- **核心能力**：IoT Hub（设备接入）、IoT Explorer（平台）、腾讯连连 App
-- **适合**：消费 IoT、智能家居品牌、需要微信小程序控制设备的场景
-- 官网：[https://cloud.tencent.com/product/iot-class](https://cloud.tencent.com/product/iot-class)
+- **定位**：腾讯云的物联网开发平台，与微信生态结合紧密
+- **核心能力**：设备接入、物模型、数据开发，配套腾讯连连小程序做设备控制
+- **适合**：消费类智能硬件、需要微信小程序控制设备的场景
 
-### AWS IoT
+### 4、AWS IoT
 
-- **定位**：全球最成熟的 IoT 云服务
-- **核心能力**：IoT Core（设备接入）、Greengrass（边缘计算）、Device Shadow（设备影子）、IoT Analytics
-- **适合**：全球化部署、已上 AWS 的企业
-- 官网：[https://aws.amazon.com/iot](https://aws.amazon.com/iot)
+- **定位**：全球化部署最成熟的 IoT 云服务
+- **核心能力**：IoT Core（设备接入、规则、Device Shadow 设备影子）、Greengrass（边缘运行时）、IoT SiteWise（工业设备数据建模与采集）
+- **注意**：AWS IoT Analytics 已于 2025 年 12 月 15 日停止支持，IoT Events 已于 2026 年 5 月 20 日停止支持，数据分析改用 IoT Core 规则把数据转到 Kinesis、S3 等服务再处理
+- **适合**：全球化部署、已经在用 AWS 的企业
 
-### 商业平台对比
+### 5、商业平台对比
 
-| 平台 | 国内延迟 | 边缘计算 | 工业支持 | 适合场景 |
+| 平台 | 国内访问 | 边缘计算 | 工业支持 | 适合场景 |
 |------|---------|---------|---------|---------|
-| 阿里云 IoT | 优 | ✅ | 中 | 国内互联网 / 工业 |
-| 华为云 IoT | 优 | ✅ | 强 | 大型工业 / 政企 |
-| 腾讯云 IoT | 优 | 一般 | 弱 | 消费 IoT / 微信生态 |
-| AWS IoT | 差（国内）| ✅ | 中 | 全球化部署 |
+| 阿里云物联网平台 | 好 | 有 | 中 | 国内互联网、工业 |
+| 华为云 IoTDA | 好 | 有（IoTEdge） | 强 | 大型工业、政企 |
+| 腾讯云 IoT Explorer | 好 | 一般 | 弱 | 消费 IoT、微信生态 |
+| AWS IoT | 国内访问需走中国区 | 有（Greengrass） | 中 | 全球化部署 |
+
+云平台的产品名和功能调整较频繁，选型前以各厂商官网的当前产品页为准。
 
 ---
 
 ## 三、开源平台
 
-### ThingsBoard
+### 1、ThingsBoard
 
-- **定位**：功能最完整的开源 IoT 平台，支持私有化部署
-- **技术栈**：Java（Spring Boot）+ PostgreSQL / Cassandra
-- **核心功能**：设备管理、规则引擎（可视化拖拽）、Dashboard 看板、多租户、OTA 升级
-- **部署方式**：Docker / K8s，支持社区版（免费）和专业版
-- **适合**：需要自建完整 IoT 平台的企业
-- 官网：[https://thingsboard.io](https://thingsboard.io)
-- GitHub：[https://github.com/thingsboard/thingsboard](https://github.com/thingsboard/thingsboard)
+- **定位**：功能最完整的开源 IoT 平台，当前主线为 4.x
+- **技术栈**：Java（Spring Boot）；实体数据存 PostgreSQL，时序数据可选 PostgreSQL、Cassandra 或 TimescaleDB；微服务模式下用 Kafka 做内部消息队列
+- **核心功能**：设备管理、设备与资产关系、可视化规则链、Dashboard、多租户、OTA
+- **规则脚本**：TBEL（ThingsBoard Expression Language）是过滤、转换等规则节点的默认脚本语言，执行快、自带沙箱；JavaScript 仍然可用
+- **版本**：社区版（CE）Apache 2.0，专业版（PE）为商业许可，白标、集成等能力在 PE 中
 
-### EMQX
+### 2、EMQX
 
-- **定位**：高性能 MQTT Broker，不是完整 IoT 平台，专注消息接入层
+- **定位**：高性能 MQTT Broker，专注接入层，不是完整的 IoT 平台
 - **技术栈**：Erlang/OTP
-- **核心功能**：MQTT 3.1.1 / 5.0、集群、桥接、规则引擎（数据转发到 Kafka / DB）、Web 管理界面
-- **适合**：作为自建 IoT 平台的消息接入组件，或替代云厂商 MQTT Broker
-- 官网：[https://www.emqx.io](https://www.emqx.io)
-- GitHub：[https://github.com/emqx/emqx](https://github.com/emqx/emqx)
+- **核心功能**：MQTT 3.1.1 / 5.0、集群、认证与 ACL、规则引擎与数据集成（转发到 Kafka、数据库等）、多协议网关（CoAP、LwM2M 等）、Dashboard
+- **适合**：自建 IoT 平台的消息接入层，或替代云厂商的托管 Broker
+- **许可**：5.9 起变化较大，见本文第四节
 
-### JetLinks
+### 3、JetLinks
 
-- **定位**：国内响应式 IoT 开源平台，全响应式架构
-- **技术栈**：Java（Spring WebFlux + R2DBC）+ ReactiveX
-- **核心功能**：设备接入、物模型、规则引擎、可视化、多协议支持
-- **适合**：国内团队自建 IoT 平台，希望源码可读可改
-- GitHub：[https://gitee.com/jetlinks](https://gitee.com/jetlinks)
+- **定位**：国内的响应式 IoT 开源平台
+- **技术栈**：Java 17、Spring Boot 3、Spring WebFlux、Project Reactor、R2DBC、Netty / Vert.x；时序存储可选 ElasticSearch、TDengine、TimescaleDB
+- **核心功能**：多协议设备接入（MQTT、TCP、UDP、HTTP、CoAP 等）、物模型、规则引擎、可视化
+- **版本**：社区版 Apache 2.0，企业版为商业许可
 
-### IoT-DC3
+### 4、其他
 
-- **定位**：基于 Spring Cloud 的分布式 IoT 平台
-- **技术栈**：Spring Cloud + Netty
-- **特点**：微服务架构，支持多种驱动（Modbus / MQTT / OPC-DA）
-- GitHub / 文档：[https://doc.dc3.site](https://doc.dc3.site)
+- **IoT-DC3**：基于 Spring Cloud 的分布式 IoT 平台，按协议拆分驱动微服务（Modbus、MQTT、OPC 等）
+- **openHAB**：Java 实现的智能家居自动化平台，绑定（binding）生态丰富，EPL 2.0 许可
+- **Home Assistant**：Python 实现、社区最活跃的开源智能家居平台，Apache 2.0 许可，不适合企业 IoT
 
-### OpenHAB
+### 5、许可对比
 
-- **定位**：智能家居自动化平台，重点在家居设备集成
-- **特点**：插件生态丰富（2000+ 绑定），支持 Zigbee / Z-Wave / KNX / MQTT 等
-- **适合**：个人智能家居、非商业 IoT 项目
-- 官网：[https://www.openhab.org](https://www.openhab.org)
-
-### Home Assistant
-
-- **定位**：最流行的开源智能家居平台
-- **技术栈**：Python
-- **特点**：插件生态极其丰富，社区活跃，专注家居自动化，不适合企业 IoT
-- **适合**：个人家居玩家
-- 官网：[https://www.home-assistant.io](https://www.home-assistant.io)
+| 产品 | 开源 / 免费部分 | 商业部分 |
+|------|----------------|---------|
+| ThingsBoard | CE：Apache 2.0 | PE：商业许可 |
+| EMQX | 5.8 及以前开源版：Apache 2.0；5.9 起：BSL 1.1，单节点生产免费 | 多节点集群、托管服务、嵌入销售需商业 License |
+| JetLinks | 社区版：Apache 2.0 | 企业版：商业许可 |
+| openHAB | EPL 2.0 | 无 |
+| Home Assistant | Apache 2.0 | 无 |
 
 ---
 
@@ -117,210 +110,133 @@ description: 平台分类、商业云平台与开源平台、选型建议、Thin
 
 | 场景 | 推荐 |
 |------|------|
-| 快速上云，不想运维 | 阿里云 / 华为云 IoT |
+| 快速上云，不想运维 | 阿里云物联网平台 / 华为云 IoTDA |
 | 全球化部署 | AWS IoT |
 | 私有化部署完整平台 | ThingsBoard |
-| 自建平台的消息接入层 | EMQX |
-| 国内团队自研 IoT 平台 | JetLinks / IoT-DC3 |
+| 自建平台的接入层，单节点够用 | EMQX 单节点，或 Mosquitto |
+| 自建平台的接入层，需要集群且不打算采购 License | EMQX 5.8 开源版（不再有新功能），或从源码构建 VerneMQ |
+| 边缘网关上的轻量 Broker | NanoMQ |
+| 国内团队自研平台、需要读改源码 | JetLinks / IoT-DC3 |
 | 个人智能家居 | Home Assistant |
 
----
-
-## 五、ThingsBoard 规则引擎实战
-
-### 规则链基本概念
-
-ThingsBoard 规则引擎基于 **规则链（Rule Chain）** 工作，消息在节点间流转：
-
-```
-设备上报消息 → Message → Rule Node（处理/过滤/转发）→ Next Rule Node → ...
-```
-
-每条消息携带：
-- **消息体（msg）**：JSON 格式的设备数据
-- **元数据（metadata）**：设备 ID、设备名称、租户 ID 等上下文信息
-- **消息类型（msgType）**：如 `POST_TELEMETRY_REQUEST`、`POST_ATTRIBUTES_REQUEST`
-
-### 核心节点类型
-
-| 节点类型 | 作用 |
-|---------|------|
-| **Message Type Switch** | 按消息类型路由，将不同类型分发到不同分支 |
-| **Script Filter（JS）** | 执行 JavaScript 表达式过滤消息，返回 `true` 放行，`false` 过滤掉 |
-| **Save Timeseries** | 将消息体中的字段保存为时序数据到数据库 |
-| **Create Alarm** | 根据条件创建或更新告警，支持告警级别（CRITICAL / MAJOR / WARNING） |
-| **Rest API Call** | 向外部 HTTP 接口发送请求，可携带消息体 |
-
-### 场景示例：温度超阈值创建告警
-
-**需求**：设备上报温度，当 `temperature > 80` 时创建 CRITICAL 级别告警。
-
-**配置思路**：
-
-```
-POST_TELEMETRY_REQUEST
-        ↓
-Message Type Switch
-        ↓（匹配 POST_TELEMETRY_REQUEST）
-Script Filter：temperature > 80
-        ↓（True）
-Create Alarm：type=HighTemperature, severity=CRITICAL
-```
-
-**Script Filter 节点脚本示例**：
-
-```javascript
-// 过滤条件：温度超过 80 度
-return msg.temperature > 80;
-```
-
-**Create Alarm 节点关键配置**：
-- Alarm Type：`HighTemperature`
-- Alarm Severity：`CRITICAL`
-- Propagate：勾选（向上级租户传播）
-
-### 通过 REST API 上报遥测数据（Java 示例）
-
-ThingsBoard 提供设备 API，Java 后端可直接模拟设备上报遥测触发规则引擎。
-
-**使用 RestTemplate 上报：**
-
-```java
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.*;
-import java.util.Map;
-
-public class ThingsBoardTelemetryClient {
-
-    private static final String TB_HOST = "http://localhost:8080";
-
-    /**
-     * 向 ThingsBoard 上报遥测数据
-     *
-     * @param accessToken 设备访问 Token（在 ThingsBoard 设备详情页获取）
-     * @param telemetry   遥测数据，如 {"temperature": 85, "humidity": 60}
-     */
-    public void pushTelemetry(String accessToken, Map<String, Object> telemetry) {
-        RestTemplate restTemplate = new RestTemplate();
-
-        String url = TB_HOST + "/api/v1/" + accessToken + "/telemetry";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(telemetry, headers);
-
-        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            System.out.println("遥测数据上报成功");
-        } else {
-            System.err.println("上报失败，状态码：" + response.getStatusCode());
-        }
-    }
-}
-```
-
-**使用 HttpClient（Java 11+）上报：**
-
-```java
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Map;
-
-public class ThingsBoardHttpClient {
-
-    private static final String TB_HOST = "http://localhost:8080";
-    private final HttpClient httpClient = HttpClient.newHttpClient();
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    public void pushTelemetry(String accessToken, Map<String, Object> telemetry) throws Exception {
-        String body = objectMapper.writeValueAsString(telemetry);
-        String url = TB_HOST + "/api/v1/" + accessToken + "/telemetry";
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(body))
-                .build();
-
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println("HTTP 状态码：" + response.statusCode());
-    }
-}
-```
+选型时除了功能，还要确认三件事：许可是否允许你的部署方式（集群、SaaS、随硬件销售），时序数据存在哪里、能否换成团队熟悉的存储（见 [时序数据库](/database/4_nosql/1_time_series_db)），设备规模增长后接入层能否水平扩展。
 
 ---
 
-## 六、EMQX 集群部署
+## 五、EMQX 许可与部署
 
-### 单机 vs 集群适用场景
+### 1、许可变化
 
-| 模式 | 适用场景 |
-|------|---------|
-| **单机** | 开发测试、设备数量 < 10 万、无高可用要求 |
-| **集群** | 生产环境、设备数量 > 10 万、需要水平扩展与故障转移 |
+EMQX 从 **5.9.0** 起把开源版和企业版合并为一个版本，统一采用 **BSL 1.1**（Business Source License，源码可见但不是 OSI 意义上的开源）：
 
-EMQX 集群基于 Erlang 分布式实现，节点间自动同步路由表和会话信息，客户端断线重连到任意节点均可恢复订阅。
+- **单节点生产使用免费**，不限连接规模，但不能把 EMQX 作为托管服务对外提供，也不能嵌入到销售给第三方的产品中
+- **多节点集群需要商业 License**（或使用 EMQX Cloud）；没有 License 时只能以单节点运行
+- 开发、测试等非生产用途免费；经认证的教育机构和非营利组织在非商业用途下不限节点数
+- 每个版本在发布 4 年后自动转为 Apache 2.0
+- 5.8.x 及以前的开源版仍然是 Apache 2.0，企业版从 5.0 起就是 BSL 1.1
 
-### Docker Compose 三节点集群配置
+镜像使用 `emqx/emqx`（Docker Hub 上也有同版本的 `emqx/emqx-enterprise`），Docker 官方库中不带命名空间的 `emqx` 镜像不再跟进新版本。License 可在 Dashboard「System → License」中更新，也可以执行 `emqx ctl license update <License Key>`。
+
+### 2、单节点部署
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
+services:
+  emqx:
+    image: emqx/emqx:6.3.1
+    container_name: emqx
+    hostname: node1.emqx.local
+    environment:
+      # 节点名的 host 部分需要是 IP 或 FQDN，重建容器后保持不变，数据目录才能复用
+      - EMQX_NODE_NAME=emqx@node1.emqx.local
+    ports:
+      - "1883:1883"     # MQTT TCP
+      - "8083:8083"     # MQTT over WebSocket
+      - "8084:8084"     # MQTT over WSS
+      - "8883:8883"     # MQTT over TLS
+      - "18083:18083"   # Dashboard
+    volumes:
+      - emqx-data:/opt/emqx/data
+      - emqx-log:/opt/emqx/log
+
+volumes:
+  emqx-data:
+  emqx-log:
+```
+
+```bash
+docker compose up -d
+docker exec -it emqx emqx ctl status
+```
+
+Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认密码。生产环境只对外开放 8883（TLS），1883 和 18083 限制在内网，证书配置见 [HTTPS 与 TLS](/protocols/3_https_tls)，设备认证与 ACL 见 [设备安全](./5_security)。
+
+### 3、何时需要集群
+
+| 模式 | 适用场景 |
+|------|---------|
+| **单节点** | 开发测试；连接数在单机容量内、能接受分钟级故障恢复（容器自动拉起 + 设备自动重连） |
+| **集群** | 需要节点故障时业务不中断、连接数超出单机容量、需要滚动升级 |
+
+集群节点之间通过 Erlang 分布式协议同步路由表；客户端断线后重连到任意节点，只有使用持久会话（Clean Start 为 false 且 Session Expiry Interval 大于 0）时，订阅和离线消息才会随会话接管一起恢复，否则需要客户端重新订阅。
+
+### 4、三节点集群（需 License）
+
+下面的配置演示集群拓扑，需要在启动后导入 License 才能组成集群；用 5.8.x 开源版镜像（Apache 2.0）也能跑通同样的配置。
+
+![EMQX 三节点集群与四层负载均衡](../assets/iot/emqx-cluster.svg)
+
+```yaml
+# docker-compose.yml
+x-emqx: &emqx
+  image: emqx/emqx:6.3.1
+  networks: [emqx-net]
 
 services:
   emqx1:
-    image: emqx:5.7
+    <<: *emqx
     container_name: emqx1
-    hostname: emqx1
-    environment:
-      - EMQX_NODE__NAME=emqx@emqx1
-      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
-      - EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx1,emqx@emqx2,emqx@emqx3
+    hostname: node1.emqx.local
+    environment: &emqx-env
+      EMQX_NODE_NAME: emqx@node1.emqx.local
+      EMQX_CLUSTER__DISCOVERY_STRATEGY: static
+      EMQX_CLUSTER__STATIC__SEEDS: "[emqx@node1.emqx.local,emqx@node2.emqx.local,emqx@node3.emqx.local]"
+      # 负载均衡器开启了 PROXY protocol，EMQX 监听器也要开启，才能拿到设备真实 IP
+      EMQX_LISTENERS__TCP__DEFAULT__PROXY_PROTOCOL: "true"
     ports:
-      - "1883:1883"    # MQTT
-      - "8083:8083"    # MQTT over WebSocket
-      - "18083:18083"  # Dashboard（仅第一个节点对外暴露）
-    networks:
-      - emqx-net
+      - "18083:18083"   # 只暴露一个节点的 Dashboard
     volumes:
       - emqx1-data:/opt/emqx/data
 
   emqx2:
-    image: emqx:5.7
+    <<: *emqx
     container_name: emqx2
-    hostname: emqx2
+    hostname: node2.emqx.local
     environment:
-      - EMQX_NODE__NAME=emqx@emqx2
-      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
-      - EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx1,emqx@emqx2,emqx@emqx3
-    ports:
-      - "1884:1883"
-      - "8084:8083"
-    networks:
-      - emqx-net
+      <<: *emqx-env
+      EMQX_NODE_NAME: emqx@node2.emqx.local
     volumes:
       - emqx2-data:/opt/emqx/data
 
   emqx3:
-    image: emqx:5.7
+    <<: *emqx
     container_name: emqx3
-    hostname: emqx3
+    hostname: node3.emqx.local
     environment:
-      - EMQX_NODE__NAME=emqx@emqx3
-      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
-      - EMQX_CLUSTER__STATIC__SEEDS=emqx@emqx1,emqx@emqx2,emqx@emqx3
-    ports:
-      - "1885:1883"
-      - "8085:8083"
-    networks:
-      - emqx-net
+      <<: *emqx-env
+      EMQX_NODE_NAME: emqx@node3.emqx.local
     volumes:
       - emqx3-data:/opt/emqx/data
+
+  lb:
+    image: nginx:stable-alpine
+    container_name: mqtt-lb
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "1883:1883"     # 设备只连负载均衡器，EMQX 节点不直接暴露 1883
+    networks: [emqx-net]
+    depends_on: [emqx1, emqx2, emqx3]
 
 networks:
   emqx-net:
@@ -332,250 +248,165 @@ volumes:
   emqx3-data:
 ```
 
-启动集群：
-
-```bash
-docker-compose up -d
-```
-
-### Nginx TCP 负载均衡配置
-
-在 `nginx.conf` 中添加 `stream` 块，代理 MQTT 1883 端口：
+Nginx 用 `stream` 模块做四层转发（官方镜像已包含该模块）：
 
 ```nginx
-# nginx.conf（需要编译 --with-stream 模块）
+# nginx.conf
+events {}
+
 stream {
     upstream emqx_cluster {
-        least_conn;
-        server 127.0.0.1:1883;
-        server 127.0.0.1:1884;
-        server 127.0.0.1:1885;
+        least_conn;               # 按当前连接数最少分配，长连接场景比轮询更均衡
+        server emqx1:1883;
+        server emqx2:1883;
+        server emqx3:1883;
     }
 
     server {
         listen 1883;
         proxy_pass emqx_cluster;
-        proxy_timeout 30s;
+        proxy_protocol on;        # 把设备真实 IP 传给 EMQX
         proxy_connect_timeout 5s;
+        proxy_timeout 300s;       # 必须大于 1.5 倍 Keep Alive，否则空闲设备会被 Nginx 断开
     }
 }
 ```
 
-设备连接 Nginx 的 1883 端口，请求被轮询转发到三个 EMQX 节点。
+`proxy_timeout` 是两次读写之间的最长空闲时间。设备 Keep Alive 设为 60 秒时，Broker 允许 90 秒无报文，这里设成 300 秒留足余量；如果设成 30 秒，所有空闲设备都会被周期性断开重连。TLS 可以在 Nginx 终结，也可以透传给 EMQX，需要做双向证书认证时一般透传，由 EMQX 校验客户端证书。
 
-### 集群状态查看
-
-进入任意 EMQX 节点容器查看集群状态：
+启动并导入 License 后查看集群状态：
 
 ```bash
-# 进入容器
-docker exec -it emqx1 bash
-
-# 查看集群状态（所有节点及其角色）
-emqx_ctl cluster status
-
-# 预期输出示例：
-# Cluster status: #{running_nodes =>
-#     ['emqx@emqx1','emqx@emqx2','emqx@emqx3'],
-#   stopped_nodes => []}
-
-# 查看当前连接数
-emqx_ctl broker stats | grep connections.count
-
-# 查看集群节点详情
-emqx_ctl cluster info
+docker compose up -d
+docker exec -it emqx1 emqx ctl license update <License Key>
+docker exec -it emqx1 emqx ctl cluster status
+# 正常时 running_nodes 包含三个节点，stopped_nodes 为空
 ```
+
+生产环境的 EMQX 集群通常部署在 Kubernetes 上（EMQX Operator），节点发现改用 `k8s` 或 `dns` 策略。
 
 ---
 
-## 七、JetLinks 二次开发指南
+## 六、ThingsBoard 规则链
 
-### 核心扩展点：设备协议（ProtocolSupport）
+### 1、规则链与消息
 
-JetLinks 支持通过实现 `ProtocolSupport` 接口来接入自定义设备协议，适用于企业私有协议或行业专用协议（如 Modbus 变种、私有二进制帧）。
+ThingsBoard 的规则引擎由**规则链（Rule Chain）**组成，设备上报的每条消息都会进入租户的根规则链，在节点之间流转。每条消息由三部分组成：
 
-扩展架构：
+- **msg**：消息体，通常是设备上报的 JSON 数据
+- **metadata**：上下文信息，如设备名称、设备类型、时间戳
+- **msgType**：消息类型，如遥测上报 `POST_TELEMETRY_REQUEST`、属性上报 `POST_ATTRIBUTES_REQUEST`
 
-```
-自定义协议包
-    └── ProtocolSupport（协议描述）
-            └── DeviceMessageCodec（消息编解码）
-                    ├── encode()  Java 消息 → 字节流（下行）
-                    └── decode()  字节流 → Java 消息（上行）
-```
+节点处理完消息后按输出关系（如 `Success`、`True`、`False`、`Post telemetry`）把消息交给下一个节点。
 
-### Maven 依赖
+| 节点 | 作用 |
+|------|------|
+| **Message Type Switch** | 按消息类型分流到不同分支 |
+| **Script 过滤节点** | 执行 TBEL（或 JavaScript）表达式，返回 `true` 走 True 分支，`false` 走 False 分支 |
+| **Save Timeseries** | 把消息中的字段保存为时序数据 |
+| **Create Alarm** | 创建告警，或更新已存在的活动告警 |
+| **REST API Call** | 调用外部 HTTP 接口 |
 
-```xml
-<dependencies>
-    <!-- JetLinks 协议开发核心包 -->
-    <dependency>
-        <groupId>org.jetlinks</groupId>
-        <artifactId>jetlinks-supports</artifactId>
-        <version>2.0.0</version>
-    </dependency>
+### 2、示例：温度超限告警
 
-    <!-- 响应式支持 -->
-    <dependency>
-        <groupId>io.projectreactor</groupId>
-        <artifactId>reactor-core</artifactId>
-    </dependency>
-</dependencies>
+需求：设备上报温度，`temperature > 80` 时创建 CRITICAL 级别告警。
+
+![ThingsBoard 规则链：温度超限告警](../assets/iot/thingsboard-rule-chain.svg)
+
+Script 过滤节点的 TBEL 脚本：
+
+```javascript
+// TBEL 语法与 JavaScript 接近；字段不存在时先判空，避免脚本报错
+return msg.temperature != null && msg.temperature > 80;
 ```
 
-### 自定义协议骨架代码
+Create Alarm 节点的关键配置：
 
-**实现 ProtocolSupport 接口：**
+- **Alarm type**：`HighTemperature`，同一设备同类型的活动告警只有一条，重复触发只会更新它
+- **Alarm severity**：`CRITICAL`
+- **告警传播**：勾选「Propagate alarm to related entities」后，告警会沿实体关系传播到上级实体（例如设备所属的资产），可以限定关系类型；另有选项把告警传播给直接所有者、整条所有权链或租户。这样在资产或客户层面就能看到下属设备的告警
+
+告警的清除通常再配一个反向条件（如 `temperature <= 75`）接 Clear Alarm 节点，两个阈值之间留出回差，避免在临界值附近反复告警、恢复。新版本也可以在设备配置（Device Profile）中用告警规则配置同样的逻辑，无需改动规则链。
+
+### 3、用 HTTP 上报遥测
+
+ThingsBoard 的设备 HTTP API 用设备的 Access Token 鉴权，后端或测试工具可以模拟设备上报遥测，触发规则链：
 
 ```java
-import org.jetlinks.core.ProtocolSupport;
-import org.jetlinks.core.message.codec.DeviceMessageCodec;
-import org.jetlinks.core.message.codec.Transport;
-import org.jetlinks.core.metadata.DefaultConfigMetadata;
-import org.jetlinks.core.metadata.DeviceMetadataCodec;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-/**
- * 自定义设备协议实现
- * 向 JetLinks 平台注册本协议后，平台可通过该协议接入对应设备
- */
-public class MyDeviceProtocol implements ProtocolSupport {
-
-    /** 协议唯一标识，用于平台内检索和绑定 */
-    @Override
-    public String getId() {
-        return "my-device-protocol-v1";
-    }
-
-    /** 协议显示名称，展示在 JetLinks 管理界面 */
-    @Override
-    public String getName() {
-        return "我的设备私有协议 V1";
-    }
-
-    /** 协议描述 */
-    @Override
-    public String getDescription() {
-        return "适用于 XX 系列传感器的私有二进制协议，基于 TCP 长连接";
-    }
-
-    /**
-     * 声明本协议支持的传输方式
-     * 常用值：Transport.MQTT / Transport.TCP / Transport.UDP / Transport.HTTP
-     */
-    @Override
-    public Flux<Transport> getSupportedTransport() {
-        return Flux.just(Transport.MQTT, Transport.TCP);
-    }
-
-    /**
-     * 返回对应传输方式的消息编解码器
-     */
-    @Override
-    public Mono<? extends DeviceMessageCodec> getMessageCodec(Transport transport) {
-        return Mono.just(new MyDeviceMessageCodec());
-    }
-
-    /** 返回设备物模型的编解码实现（可使用内置 JetLinksDeviceMetadataCodec） */
-    @Override
-    public Mono<? extends DeviceMetadataCodec> getMetadataCodec() {
-        return Mono.just(JetLinksDeviceMetadataCodec.getInstance());
-    }
-
-    /** 协议配置项定义（可选，无需额外配置时返回空） */
-    @Override
-    public Mono<? extends ConfigMetadata> getConfigMetadata(Transport transport) {
-        return Mono.empty();
-    }
-}
-```
-
-### 消息编解码器（DeviceMessageCodec）示例
-
-```java
-import org.jetlinks.core.message.DeviceMessage;
-import org.jetlinks.core.message.codec.*;
-import org.jetlinks.core.message.property.ReportPropertyMessage;
-import reactor.core.publisher.Mono;
-
-import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 自定义消息编解码器
- * decode：将设备上报的原始消息（MQTT payload）解析为 JetLinks 标准消息
- * encode：将平台下发的指令转换为设备可识别的格式
- */
-public class MyDeviceMessageCodec implements DeviceMessageCodec {
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
-    @Override
-    public Transport getSupportTransport() {
-        return Transport.MQTT;
+@Component
+public class ThingsBoardTelemetryClient {
+
+    private final RestClient restClient;
+
+    // Spring Boot 4 中 RestClient.Builder 的自动配置在 spring-boot-starter-restclient 里
+    public ThingsBoardTelemetryClient(RestClient.Builder builder,
+                                      @Value("${thingsboard.base-url}") String baseUrl) {
+        this.restClient = builder.baseUrl(baseUrl).build();
     }
 
     /**
-     * 解码：设备上报数据 → JetLinks 标准消息
-     * 示例：解析 JSON 格式的属性上报 {"temperature":25.6, "humidity":60}
+     * @param accessToken 设备 Access Token（设备详情页获取）
+     * @param telemetry   遥测数据，如 {"temperature": 85, "humidity": 60}
      */
-    @Override
-    public Mono<DeviceMessage> decode(MessageDecodeContext context) {
-        // 获取原始 MQTT 消息
-        MqttMessage mqttMessage = (MqttMessage) context.getMessage();
-        String payload = mqttMessage.getPayload().toString(java.nio.charset.StandardCharsets.UTF_8);
-
-        // 简单 JSON 解析（实际项目建议使用 Jackson 或 Fastjson）
-        Map<String, Object> props = parseJson(payload);
-
-        // 构造 JetLinks 属性上报消息
-        ReportPropertyMessage message = new ReportPropertyMessage();
-        message.setDeviceId(context.getDevice().getDeviceId());
-        message.setTimestamp(System.currentTimeMillis());
-        message.setProperties(props);
-
-        return Mono.just(message);
-    }
-
-    /**
-     * 编码：平台下发指令 → 设备可识别的格式
-     * 示例：将读取属性指令转为设备协议格式
-     */
-    @Override
-    public Mono<EncodedMessage> encode(MessageEncodeContext context) {
-        // 根据 context.getMessage() 的类型处理不同指令
-        // 此处简单返回空（只做上行解析的场景可返回 Mono.empty()）
-        return Mono.empty();
-    }
-
-    /** 简易 JSON 解析，仅用于示例 */
-    private Map<String, Object> parseJson(String json) {
-        // 实际项目请使用 Jackson ObjectMapper 等成熟库
-        Map<String, Object> map = new HashMap<>();
-        // ... 解析逻辑
-        return map;
+    public void pushTelemetry(String accessToken, Map<String, Object> telemetry) {
+        restClient.post()
+                .uri("/api/v1/{token}/telemetry", accessToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(telemetry)
+                .retrieve()
+                .toBodilessEntity();   // 非 2xx 响应会抛出 RestClientResponseException
     }
 }
 ```
 
-### 注册协议到 Spring 容器
+Access Token 出现在 URL 路径中，生产环境必须使用 HTTPS，并避免在网关和应用日志中记录完整 URL。
 
-```java
-import org.jetlinks.core.ProtocolSupports;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+---
 
-@Configuration
-public class ProtocolConfig {
+## 七、JetLinks 协议包
 
-    /**
-     * 在 Spring 启动时将自定义协议注册到 JetLinks
-     */
-    @Bean
-    public ApplicationRunner registerProtocol(ProtocolSupports protocolSupports) {
-        return args -> protocolSupports.register(new MyDeviceProtocol());
-    }
-}
-```
+JetLinks 用**协议包**接入私有协议设备：协议包是一个独立的 jar，平台在「协议管理」中加载后，产品选择该协议即可接入对应设备。协议包的结构如下：
 
-注册完成后，在 JetLinks 管理界面「协议管理」中即可看到并选择该协议绑定设备产品。
+- **ProtocolSupportProvider**：协议包的入口（SPI），在 `create` 方法中构造并返回协议支持对象
+- **CompositeProtocolSupport**：协议支持的组合实现，设置协议 ID、名称，按传输方式（MQTT、TCP、UDP、HTTP 等）注册以下组件
+  - **DeviceMessageCodec**：编解码器，上行把设备报文解码为平台标准消息（属性上报、事件、上下线等），下行把平台指令（读写属性、调用功能）编码为设备报文
+  - **Authenticator**：设备认证逻辑，如校验 MQTT 用户名密码、TCP 首包中的密钥
+  - **配置元数据**：在产品或设备上需要填写的配置项，如密钥
+  - **物模型编解码**：一般直接使用平台内置的 JetLinks 物模型格式
+
+自己开发协议包时，建议以官方的 [jetlinks-official-protocol](https://github.com/jetlinks/jetlinks-official-protocol) 为模板：它用 `CompositeProtocolSupport` 同时实现了 MQTT、HTTP、TCP（4 字节长度前缀的二进制帧）和 UDP 四种接入方式，复制后修改报文格式和认证逻辑即可。协议包依赖的 JetLinks 核心库版本要与平台版本一致，否则加载时可能出现类不兼容。
+
+TCP 私有协议的帧格式设计、粘包拆包和心跳是通用问题，见 [自定义私有协议](/netty/8_custom_protocol)、[心跳与连接管理](/netty/9_heartbeat)，不依赖平台自建网关的写法见 [Netty 设备接入网关](./9_netty_gateway)。
+
+---
+
+## 小结
+
+- 云平台省运维但绑定厂商；ThingsBoard、JetLinks 是完整平台；EMQX 只做接入层，平台能力要自己组合
+- EMQX 从 5.9 起统一为 BSL 1.1：单节点生产免费，集群需要 License；需要免费集群可以停留在 5.8 开源版或换用其他 Broker
+- 四层负载均衡的空闲超时必须大于 1.5 倍 Keep Alive，并用 PROXY protocol 保留设备真实 IP
+- 断线重连到其他节点后能否恢复订阅，取决于是否使用持久会话
+- ThingsBoard 规则链里，消息由 msg、metadata、msgType 组成，脚本默认用 TBEL；告警传播是沿实体关系和所有权向上传播
+- JetLinks 私有协议通过协议包接入：ProtocolSupportProvider 构造 CompositeProtocolSupport，按传输方式注册编解码器和认证器
+
+## 参考资料
+
+- EMQX License FAQ：[https://www.emqx.com/en/content/license-faq](https://www.emqx.com/en/content/license-faq)
+- EMQX 文档：Docker 部署：[https://docs.emqx.com/en/emqx/latest/deploy/install-docker.html](https://docs.emqx.com/en/emqx/latest/deploy/install-docker.html)
+- EMQX 文档：License 管理：[https://docs.emqx.com/en/emqx/latest/deploy/license.html](https://docs.emqx.com/en/emqx/latest/deploy/license.html)
+- ThingsBoard 文档：[https://thingsboard.io/docs/](https://thingsboard.io/docs/)
+- ThingsBoard TBEL：[https://thingsboard.io/docs/user-guide/tbel/](https://thingsboard.io/docs/user-guide/tbel/)
+- ThingsBoard Create Alarm 节点：[https://thingsboard.io/docs/reference/rule-engine/nodes/action/create-alarm/](https://thingsboard.io/docs/reference/rule-engine/nodes/action/create-alarm/)
+- JetLinks 社区版：[https://github.com/jetlinks/jetlinks-community](https://github.com/jetlinks/jetlinks-community)
+- JetLinks 官方协议包：[https://github.com/jetlinks/jetlinks-official-protocol](https://github.com/jetlinks/jetlinks-official-protocol)
+- AWS IoT Analytics 停止支持说明：[https://docs.aws.amazon.com/iotanalytics/latest/userguide/iotanalytics-end-of-support.html](https://docs.aws.amazon.com/iotanalytics/latest/userguide/iotanalytics-end-of-support.html)
+- NGINX stream proxy 模块：[https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html)
+
+> 下一篇：[边缘计算](./3_edge) —— 云边端分工、EdgeX Foundry、KubeEdge 云边协同、边缘 AI 推理。

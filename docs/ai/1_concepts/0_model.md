@@ -1,177 +1,192 @@
 ---
-description: 闭源商业模型（GPT / Claude / Gemini）、开源模型（Llama / DeepSeek / Qwen）、按场景选型与本地部署参数
+description: 选型维度、主流模型家族、按场景选型、成本估算公式、Tokenizer 计数、本地部署显存估算
 ---
 
-# 大语言模型（LLM）
+# 大模型选型
 
-> 参考资料：
-> * LMSYS Chatbot Arena（模型能力榜单）：[https://chat.lmsys.org/](https://chat.lmsys.org/)
-> * Open LLM Leaderboard：[https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard)
-> * Anthropic 模型文档：[https://docs.anthropic.com/en/docs/about-claude/models/](https://docs.anthropic.com/en/docs/about-claude/models/)
-> * OpenAI 模型文档：[https://platform.openai.com/docs/models](https://platform.openai.com/docs/models)
-> * Gemini 模型文档：[https://ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models)
+> **本篇目标**：建立一套不依赖具体型号的模型选型方法：按能力档位、延迟、上下文、价格档位、数据驻留、开源与否和许可证做取舍，会用公式估算调用成本和本地部署显存，知道去哪里查最新型号。
+>
+> **前置阅读**：[AI 总览](../0_overview)
 
----
-
-## 一、闭源商业模型
-
-| 模型系列 | 厂商 | 代表模型 | 上下文窗口 | 特点 |
-|---------|------|---------|-----------|------|
-| GPT-5.6 系列 | OpenAI | gpt-5.6-sol | 1.05M | 综合能力强，生态最成熟 |
-| Claude 5 系列 | Anthropic | claude-sonnet-5 | 1M | 长上下文，代码与 Agent 见长 |
-| Gemini 系列 | Google | gemini-3.5-flash | 2M | 多模态，与 Google 生态集成 |
-
-### 1.1 GPT 系列（OpenAI）
-
-> 官网：[https://platform.openai.com/docs/models](https://platform.openai.com/docs/models)
-
-GPT-5.6 系列是 OpenAI 全新命名体系下的旗舰产品线，三款模型在能力与成本之间形成梯度。**gpt-5.6-sol**（可通过别名 `gpt-5.6` 调用）是旗舰模型，面向复杂推理和代码任务；**gpt-5.6-terra** 在智能与成本之间取得平衡；**gpt-5.6-luna** 面向成本敏感型高并发场景。GPT-4o 和 o3 现已归入 Legacy 模型。
-
-| 模型 | API 标识 | 上下文 | 定价（输入/输出，$/MTok） | 适用场景 |
-|------|---------|--------|--------------------------|---------|
-| GPT-5.6 Sol | gpt-5.6-sol / gpt-5.6 | 1.05M | $5 / $30 | 复杂推理、编码、企业旗舰 |
-| GPT-5.6 Terra | gpt-5.6-terra | 1.05M | $2.50 / $15 | 智能与成本均衡 |
-| GPT-5.6 Luna | gpt-5.6-luna | 1.05M | $1 / $6 | 高频低成本调用 |
-
-- 三款模型均支持 1.05M 超长上下文，可装入大型代码库或长篇文档
-- API 生态最完善：Function Calling、Structured Output、Assistants API、Batch API 均支持
-- 计费按 token，建议用 `tiktoken` 库提前估算 token 数量控制成本
-- GPT-4o / o3 已标记为 Legacy，新项目应迁移至 GPT-5.6 系列
-
-### 1.2 Claude 系列（Anthropic）
-
-> 官网：[https://docs.anthropic.com/en/docs/about-claude/models/](https://docs.anthropic.com/en/docs/about-claude/models/)
-
-Claude 5 系列由 Anthropic 开发，以**长上下文处理**、**多步骤 Agent 任务**和**代码与文档分析**见长，安全性设计（Constitutional AI）是其核心差异。全系列支持 1M token 上下文（Haiku 4.5 为 200K），Claude 5 模型支持**自适应思考**（Adaptive Thinking），可在推理深度和响应速度间动态权衡；**claude-fable-5** 专为长时运行 Agent 场景优化；Haiku 4.5 支持扩展思考（Extended Thinking）。
-
-| 模型 | API 标识 | 上下文 | 定价（输入/输出，$/MTok） | 适用场景 |
-|------|---------|--------|--------------------------|---------|
-| Claude Fable 5 | claude-fable-5 | 1M | $10 / $50 | 长时运行 Agent、高精度推理 |
-| Claude Opus 5 | claude-opus-5 | 1M | $5 / $25 | 复杂 Agentic 编码、企业级任务 |
-| Claude Sonnet 5 | claude-sonnet-5 | 1M | $3 / $15 | 速度与智能最佳平衡 |
-| Claude Haiku 4.5 | claude-haiku-4-5-20251001 | 200K | $1 / $5 | 最快响应，高频调用 |
-
-- **Adaptive Thinking**（自适应思考）：Claude 5 系列根据任务复杂度自动调整推理深度，无需手动开关
-- **Extended Thinking**：Haiku 4.5 支持，开启后模型内部进行链式推理，适合准确性优先的场景
-- 1M token 上下文可装入整个代码仓库或超长文档，长文档处理为首选
-- Claude Code（命令行工具）默认底层即使用 Claude 系列模型
-
-### 1.3 Gemini 系列（Google）
-
-> 官网：[https://ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models)
-
-Gemini 系列是 Google 的旗舰多模态模型，原生支持文本、图像、视频、音频、PDF 和代码。**gemini-3.5-flash** 是当前稳定主力，在 Agentic 任务和编码场景达到前沿性能；**gemini-3.1-pro**（Preview）面向高复杂度问题求解；**gemini-3.1-flash-lite** 以更低成本提供接近前沿的性能。Gemini 2.5 Pro/Flash 已标记为"previous models"（逐步弃用）。新增 **Gemini Embedding 2** 支持文本、图像、视频、音频、PDF 的多模态向量化。
-
-| 模型 | 状态 | 特点 |
-|------|------|------|
-| gemini-3.5-flash | 稳定版 | Agentic/编码首选，前沿性能 |
-| gemini-3.1-flash-lite | 稳定版 | 低成本，接近前沿效果 |
-| gemini-3.1-pro | 预览版 | 高级智能，复杂问题求解 |
-| gemini-3 (flash) | 预览版 | 新一代基础版 |
-| Gemini Embedding 2 | 稳定版 | 多模态 Embedding（文本/图像/视频/音频/PDF） |
-
-- **Deep Research**：可自主规划搜索路径，生成带引用的深度研究报告
-- **多模态原生支持**：可直接传入图片、视频帧、PDF 文件进行理解分析
-- 与 Google Workspace 集成：Docs、Gmail、Sheets 中可直接调用 Gemini 能力
-- Vertex AI 提供企业级部署，支持私有化 fine-tuning
+模型型号几乎每个季度都会更新，价格和上下文长度也随之变化。本篇只写选型方法和模型家族，型号、价格、上下文长度一律以文末各厂商官方模型页为准（基线时间：2026-10）。
 
 ---
 
-## 二、开源模型
+## 一、选型维度
 
-| 模型系列 | 机构 | 代表模型 | 特点 |
-|---------|------|---------|------|
-| Llama 4 系列 | Meta | Llama-4-Maverick-17B-128E | 开源 MoE，超长上下文，多模态 |
-| DeepSeek 系列 | 深度求索 | DeepSeek-V3 / R1 | 国产，性价比极高，推理能力强 |
-| Qwen3 系列 | 阿里 | Qwen3-235B-A22B | 思考/非思考双模式，中文能力突出 |
-| Mistral 系列 | Mistral AI | Mistral Large | 欧洲出品，轻量高效 |
+### 1、七个维度
 
-### 2.1 Llama 4 系列（Meta）
+| 维度 | 要回答的问题 | 怎么判断 |
+|------|-------------|---------|
+| 能力档位 | 任务需要旗舰、均衡还是轻量模型 | 用自己业务的 50～200 条样本做小评测，公开榜单只做初筛 |
+| 延迟 | 首 Token 时间、整体响应时间能接受多少 | 交互式对话看首 Token 延迟，批处理看吞吐；推理模型思考越深延迟越高 |
+| 上下文 | 单次请求要装多少内容 | 先算「系统提示 + 检索结果 + 历史 + 输出」的 Token 总数，再留余量；能用 RAG 裁剪就不要硬塞长上下文 |
+| 价格档位 | 单次请求和月度预算能承受多少 | 用第四节的公式估算，不要只看输入单价 |
+| 数据驻留 | 数据能不能出境、能不能出公司 | 合规要求高的场景选境内云厂商、私有化部署或开源模型自部署 |
+| 开源与闭源 | 是否需要拿到权重自己部署、微调 | 闭源模型能力上限高、免运维；开源权重可私有化、可微调，但要自己承担推理成本 |
+| 许可证 | 商用是否受限 | 开源权重不等于开源许可：有的用 Apache 2.0 / MIT，有的用厂商自定义许可（附加月活上限、用途限制等），商用前通读模型卡里的 License |
 
-> Hugging Face：[https://huggingface.co/meta-llama](https://huggingface.co/meta-llama)
+### 2、能力档位而不是型号
 
-Llama 4 是 Meta 最新一代开源大模型，采用**混合专家（MoE）架构**，原生支持多模态（文本+图像），在 12 种语言上支持文本生成和代码输出。使用 Llama 4 Community License，满足条件可商业使用。**Scout** 适合超长文档处理（10M 上下文）；**Maverick** 拥有 128 个专家，性能更强，适合高难度推理和视觉任务。
+各家都按「旗舰 / 均衡 / 轻量」三档出模型，同一档位内的模型可以互相替换。工程上建议把型号做成配置项，代码只依赖档位：
 
-| 模型 | 激活参数 / 总参数 | 上下文 | 特点 |
-|------|-----------------|--------|------|
-| Llama-4-Scout-17B-16E-Instruct | 17B / ~109B（16 专家） | 10M | 超长上下文，多模态，轻量部署 |
-| Llama-4-Maverick-17B-128E-Instruct | 17B / ~400B（128 专家） | 1M | 更强推理与视觉，高性能旗舰 |
-| Llama-4-Maverick-17B-128E-Instruct-FP8 | 17B / ~400B | 1M | FP8 量化版，降低显存需求 |
+```yaml
+# application.yml：型号随厂商更新调整，代码不改
+app:
+  ai:
+    tier:
+      flagship: ${FLAGSHIP_MODEL_ID}   # 复杂推理、Agent 主控
+      balanced: ${BALANCED_MODEL_ID}   # 日常问答、RAG 生成
+      light: ${LIGHT_MODEL_ID}         # 分类、抽取、路由、摘要
+```
 
-- **MoE 架构**：每次推理仅激活 17B 参数，计算成本远低于同等稠密模型
-- **Scout 10M 超长上下文**：适合处理超大代码库、长篇文档、全量日志分析
-- **多模态原生**：可直接传入图片进行视觉推理、图像描述、文档分析
-- 可通过 Ollama、vLLM、llama.cpp 等主流工具链部署，社区生态丰富
+```java
+@ConfigurationProperties(prefix = "app.ai.tier")
+public record ModelTierProperties(String flagship, String balanced, String light) {}
+```
 
-### 2.2 DeepSeek 系列
-
-> 官网：[https://www.deepseek.com/](https://www.deepseek.com/)
-> API 文档：[https://api-docs.deepseek.com/](https://api-docs.deepseek.com/)
-
-DeepSeek 是深度求索（国内）发布的高性价比大模型，以**极低 API 价格**和**接近顶级闭源模型的性能**著称，国内访问稳定无需代理。**DeepSeek-V3** 是通用对话旗舰，综合能力对标 GPT-4o；**DeepSeek-R1** 引入强化学习推理，在数学、代码、逻辑推理上大幅超越同规模模型，性能接近 o1。
-
-| 模型 | 类型 | 特点 |
-|------|------|------|
-| DeepSeek-V3 | 通用对话 | 综合能力强，价格约 ¥1/M tokens |
-| DeepSeek-R1 | 推理增强 | 强化学习训练，数学/代码/逻辑见长 |
-| DeepSeek-R1-Distill | 蒸馏开源版 | 7B/14B/32B，可本地 Ollama 运行 |
-
-- API 兼容 OpenAI 格式，迁移成本几乎为零（替换 `base_url` 和 `api_key` 即可）
-- **国内访问稳定**：`api.deepseek.com` 无需科学上网，适合国内企业采购
-- 开源版（R1-Distill）可通过 Ollama 在本地部署，实现零成本推理
-- 价格极低：V3 输入约 ¥0.5/M tokens，输出约 ¥2/M tokens（比 GPT-4o 低一个数量级）
-
-### 2.3 Qwen3 系列（阿里）
-
-> 官网：[https://qwenlm.github.io/](https://qwenlm.github.io/)
-> Hugging Face：[https://huggingface.co/Qwen](https://huggingface.co/Qwen)
-> 通义千问 API：[https://dashscope.aliyuncs.com](https://dashscope.aliyuncs.com)
-
-Qwen3（通义千问第三代）是阿里巴巴开源的最新大模型系列，**中文能力**在同规模开源模型中表现最突出，支持 100+ 种语言，覆盖稠密模型（0.5B 至 32B）与混合专家模型（30B-A3B、235B-A22B）的完整规模。核心创新是**思考/非思考双模式**：思考模式下输出含 `<think>...</think>` 推理链，非思考模式下直接对话高效响应，无需切换模型即可兼顾推理精度与响应速度。全系列采用 **Apache 2.0 协议**，完全可商用。
-
-| 模型 | 架构 | 激活参数 / 总参数 | 上下文 | 特点 |
-|------|------|-----------------|--------|------|
-| Qwen3-0.5B | 稠密 | 0.5B | 32K / 128K | 极轻量，边缘设备首选 |
-| Qwen3-1.7B | 稠密 | 1.7B | 32K / 128K | 低资源场景 |
-| Qwen3-4B | 稠密 | 4B | 32K / 128K | 轻量高效 |
-| Qwen3-8B | 稠密 | 8B | 32K / 128K | 综合均衡，本地部署主力 |
-| Qwen3-14B | 稠密 | 14B | 32K / 128K | 能力与资源平衡 |
-| Qwen3-32B | 稠密 | 32B | 32K / 128K | 开源稠密旗舰 |
-| Qwen3-30B-A3B | MoE | 3B / 30B | 32K / 128K | 轻量 MoE，低部署成本 |
-| Qwen3-235B-A22B | MoE | 22B / 235B（128 专家，8 激活） | 32K / 128K | 开源最强，接近前沿闭源模型 |
-
-> 上下文说明：原生 32K token，通过 YaRN 缩放可扩展至 128K。
-
-- **思考模式**（Thinking Mode）：推理任务开启，输出含链式推理步骤，Temperature 建议 0.6
-- **非思考模式**（Non-thinking Mode）：对话/检索场景关闭，高效直接响应，Temperature 建议 0.7
-- Qwen3-8B 在思考模式下超越 Qwen2.5-72B 和 QwQ，在非思考模式下超越 Qwen2.5 指令模型
-- **Apache 2.0 协议**：所有规模模型均可免费商用，无需申请额外许可
-- Ollama 支持：`ollama pull qwen3:8b`，是本地中文场景的首选模型
-- 通义千问 API（DashScope）兼容 OpenAI 格式，国内访问稳定，价格有竞争力
+调用时按任务选档位，例如意图分类走 `light`、最终回答走 `balanced`、多步规划走 `flagship`。档位路由配合降级（旗舰超时或限流时降到均衡档）是控制成本和可用性最直接的手段。
 
 ---
 
-## 三、模型选型参考
+## 二、主流模型家族
 
-### 3.1 按使用场景选型
+### 1、闭源商业模型
 
-| 场景 | 推荐模型 | 理由 |
-|------|---------|------|
-| 企业 API 集成 | claude-sonnet-5 / gpt-5.6-sol | 稳定、文档完善、SDK 成熟 |
-| 成本敏感型项目 | DeepSeek-V3 / gpt-5.6-luna | 价格极低，效果不差 |
-| 本地私有化部署 | Qwen3-8B / Llama-4-Scout / DeepSeek-R1-Distill | 开源可商用，支持 Ollama 运行 |
-| 长文档处理（超长） | Llama-4-Scout（10M） / claude-sonnet-5（1M） | 超长上下文窗口 |
-| 中文场景 | Qwen3 / DeepSeek | 中文训练数据充分，双语表现最优 |
-| 多步骤 Agent 任务 | claude-fable-5 / claude-opus-5 | 专为长时运行 Agent 优化 |
-| 数学/逻辑推理 | DeepSeek-R1 / Qwen3（思考模式）| 强化学习推理，链式思维 |
-| 多模态（图像/视频）| Gemini-3.5-flash / Llama-4-Maverick | 原生多模态支持 |
+| 家族 | 厂商 | 特点 | 官方模型页 |
+|------|------|------|-----------|
+| GPT | OpenAI | 生态最成熟，三档齐全；新功能优先落在 Responses API，Assistants API 已归入 Legacy | [OpenAI Models](https://developers.openai.com/api/docs/models) |
+| Claude | Anthropic | 长上下文、代码与 Agent 任务见长；新模型默认自适应思考，用 `effort` 控制推理深度 | [Claude Models](https://platform.claude.com/docs/en/about-claude/models/overview) |
+| Gemini | Google | 原生多模态（文本、图像、音频、视频、PDF），分 Pro / Flash / Flash-Lite 三档 | [Gemini Models](https://ai.google.dev/gemini-api/docs/models) |
 
-### 3.2 本地部署推荐参数
+### 2、开源权重与国产模型
 
-| 显存 / 内存 | 推荐模型大小 | 示例 |
-|------------|------------|------|
-| 8GB 显存 | 7B ~ 8B 量化版 | Qwen3-8B-Q4 / Llama-4-Scout（部分量化） |
-| 16GB 显存 | 14B 量化版 | Qwen3-14B-Q4 |
-| 24GB 显存 | 30B ~ 32B 量化版 | Qwen3-32B-Q4 / DeepSeek-R1-32B-Q4 |
-| 48GB 显存（双卡）| Qwen3-30B-A3B（MoE）| 激活参数仅 3B，推理成本极低 |
-| 纯 CPU / 内存 | 3B ~ 4B 量化 | Qwen3-4B-Q4，速度较慢，适合测试 |
+| 家族 | 机构 | 特点 | 官方入口 |
+|------|------|------|---------|
+| DeepSeek | 深度求索 | API 同时兼容 OpenAI 与 Anthropic 格式，换 `base_url` 即可接入；R1 是用强化学习训练推理能力的代表作，当前 API 已换成新一代模型 | [DeepSeek API Docs](https://api-docs.deepseek.com/) |
+| Qwen | 阿里 | 中文能力突出，开源权重规模覆盖从端侧小模型到大 MoE，支持思考模式；旗舰版本通过阿里云百炼以 API 提供 | [Qwen](https://qwenlm.github.io/) / [Hugging Face](https://huggingface.co/Qwen) |
+| Llama | Meta | MoE 架构、多模态；使用 Meta 自定义社区许可证，附带月活上限等条款，不是 OSI 意义上的开源许可 | [Hugging Face](https://huggingface.co/meta-llama) |
+| Mistral | Mistral AI | 欧洲厂商，既有开源权重也有商业 API | [Mistral Docs](https://docs.mistral.ai/) |
+
+开源权重模型的许可证按版本、按规模可能不同，以对应模型卡为准。
+
+---
+
+## 三、按场景选型
+
+| 场景 | 推荐档位 / 类型 | 理由 |
+|------|----------------|------|
+| 企业 API 集成、对外产品 | 闭源均衡档 | 稳定性、SLA、SDK 和文档最完善 |
+| 高并发低成本（分类、抽取、路由） | 闭源轻量档或国产 API | 单价低、延迟低，简单任务效果足够 |
+| 多步骤 Agent、复杂编码 | 闭源旗舰档 | 长链路任务对规划与工具调用准确率最敏感 |
+| 数学、逻辑、复杂分析 | 推理模型或开启思考模式 | 用 `effort` / `reasoning_effort` / 思考开关调深度，而不是靠 Prompt 硬写推理步骤 |
+| 数据不能出公司 | 开源权重模型私有化部署 | 按第五节估算显存，用 Ollama、vLLM 等部署 |
+| 中文为主 | Qwen、DeepSeek 或闭源均衡档 | 中文语料充分；最终以自有样本评测为准 |
+| 长文档、整库代码分析 | 长上下文模型 + 缓存，或 RAG | 超长上下文贵且慢，能检索裁剪就先裁剪 |
+| 图像、音频、视频理解 | 原生多模态模型（如 Gemini） | 不用自己拼 OCR、ASR 链路 |
+
+---
+
+## 四、成本估算
+
+### 1、计费公式
+
+API 按 Token 计费，输入、输出、缓存命中分别定价。一次请求的成本可以写成：
+
+> 单次成本 = 未命中缓存的输入 Token × 输入单价 + 缓存写入 Token × 缓存写入单价 + 缓存命中 Token × 缓存读取单价 + 输出 Token × 输出单价
+
+几个容易漏算的地方：
+
+- **推理 Token 按输出计费**：推理模型的思考过程即使不返回给你，也按输出 Token 计费，并占用 `max_tokens`；思考越深，成本越高
+- **多轮对话的历史会被重复计费**：第 N 轮请求要把前 N−1 轮全部带上，长会话成本近似按轮数平方增长，需要做历史截断或摘要
+- **工具定义也算输入**：每个工具的 JSON Schema 都会进入输入 Token，几十个工具一起挂上，固定开销不小
+- **输出通常比输入贵数倍**：控制输出长度（`max_tokens`、要求简洁、结构化输出）往往比压缩输入更省钱
+
+月度预算再乘以调用量：
+
+> 月成本 ≈ 单次平均成本 × 日均调用量 × 30 × 重试放大系数
+
+### 2、两种折扣
+
+| 折扣 | 做法 | 适用场景 |
+|------|------|---------|
+| Prompt Caching | 把不变的内容（系统提示、工具定义、长文档）放在请求最前面，命中缓存的部分按折扣价计费，延迟也更低 | 固定系统提示、多轮对话、同一文档反复提问 |
+| Batch API | 把不要求实时返回的请求打包异步提交，按折扣价计费，结果在规定时间窗口内返回 | 离线打标、批量摘要、评测集回放 |
+
+缓存的前提是前缀完全一致：在系统提示里拼当前时间、用户 ID 这类每次都变的内容，会让缓存全部失效。各家缓存的写入价、读取价、有效期和最小长度不同，以各自价格页为准。
+
+### 3、Token 怎么数
+
+Token 是模型的计费和长度单位，一个汉字、一个英文单词对应多少 Token 取决于具体模型的分词器（Tokenizer），不同厂商、不同代际差别很大，不要用固定换算比例估算。
+
+- **以响应里的 `usage` 字段为准**：所有主流 API 都在响应中返回输入、输出、缓存 Token 数，这是计费依据，应记录到日志和监控
+- **发送前预估**：Anthropic 提供 `count_tokens` 接口；OpenAI 系模型使用的 cl100k / o200k 等编码在 Java 中可以用 [jtokkit](https://github.com/knuddelsgmbh/jtokkit) 离线计数（Python 对应 tiktoken）
+- **开源模型**：用模型自带的 tokenizer 文件计数，本地推理框架一般也会在响应中返回 Token 数
+
+---
+
+## 五、本地部署显存估算
+
+### 1、权重显存
+
+本地部署时显存主要花在三块：模型权重、KV Cache、运行时开销。权重部分：
+
+> 权重显存 ≈ 总参数量 × 每个参数的字节数
+
+| 精度 | 每参数字节数 | 8B 模型权重 | 30B 模型权重 | 70B 模型权重 |
+|------|-------------|------------|-------------|-------------|
+| FP16 / BF16 | 2 | 约 16 GB | 约 60 GB | 约 140 GB |
+| INT8 / Q8 | 约 1 | 约 8 GB | 约 30 GB | 约 70 GB |
+| 4-bit（Q4） | 约 0.5～0.6 | 约 4.5～5 GB | 约 17～19 GB | 约 40 GB |
+
+4-bit 量化每参数实际略高于 0.5 字节，因为量化还要存缩放因子等元数据。
+
+### 2、MoE 模型按总参数算显存
+
+MoE（混合专家）模型每个 Token 只激活一部分专家，所以**计算量**由激活参数决定，但所有专家的权重都必须加载，**显存**仍由总参数决定。例如一个「30B 总参数、3B 激活」的 MoE 模型，Q4 量化后权重约 17～19 GB，速度接近 3B 稠密模型，显存却接近 30B 稠密模型。显存不够时，部分推理框架可以把一部分专家放到内存里，能跑但速度明显下降。
+
+### 3、KV Cache 与运行时开销
+
+KV Cache 随上下文长度和并发数线性增长：
+
+> KV Cache ≈ 2 × 层数 × KV 头数 × 每头维度 × 上下文长度 × 每元素字节数 × 并发请求数
+
+层数、KV 头数、每头维度可以在模型的 `config.json` 里查到。长上下文、多并发时 KV Cache 可能比权重还大；再加上 10%～20% 的运行时开销，就是总显存需求。
+
+### 4、快速对照
+
+| 可用显存 / 内存 | 能跑的规模（4-bit 量化，短上下文） |
+|----------------|----------------------------------|
+| 纯 CPU，16 GB 内存 | 3B～4B，速度慢，只适合测试 |
+| 8 GB 显存 | 7B～8B |
+| 16 GB 显存 | 13B～14B |
+| 24 GB 显存 | 30B～32B 稠密模型，或 30B 级 MoE |
+| 48 GB 显存 | 70B 级稠密模型 |
+
+模型从哪里拉取、怎么调参见 [Ollama](../3_integration/0_ollama)。
+
+---
+
+## 小结
+
+- 选型按七个维度取舍：能力档位、延迟、上下文、价格档位、数据驻留、开源与否、许可证；最终以自有业务样本的小评测为准
+- 代码里只依赖「旗舰 / 均衡 / 轻量」档位，型号放配置，配合按任务路由和降级
+- 成本 = 各类 Token × 各自单价之和；推理 Token 按输出计费，多轮历史会被重复计费，缓存和 Batch 是两大折扣来源
+- Token 数以响应的 `usage` 为准，预估用厂商计数接口或对应分词器（Java 用 jtokkit），不要用固定字数比例
+- 本地部署显存 ≈ 总参数 × 每参数字节数 + KV Cache + 运行时开销；MoE 省的是计算，不省显存
+
+## 参考资料
+
+- OpenAI Models：[https://developers.openai.com/api/docs/models](https://developers.openai.com/api/docs/models)
+- OpenAI Pricing：[https://developers.openai.com/api/docs/pricing](https://developers.openai.com/api/docs/pricing)
+- Claude Models Overview：[https://platform.claude.com/docs/en/about-claude/models/overview](https://platform.claude.com/docs/en/about-claude/models/overview)
+- Claude Prompt Caching：[https://platform.claude.com/docs/en/build-with-claude/prompt-caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
+- Claude Token Counting：[https://platform.claude.com/docs/en/build-with-claude/token-counting](https://platform.claude.com/docs/en/build-with-claude/token-counting)
+- Gemini Models：[https://ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models)
+- DeepSeek API Docs：[https://api-docs.deepseek.com/](https://api-docs.deepseek.com/)
+- Qwen：[https://qwenlm.github.io/](https://qwenlm.github.io/)
+- Meta Llama（Hugging Face）：[https://huggingface.co/meta-llama](https://huggingface.co/meta-llama)
+- jtokkit：[https://github.com/knuddelsgmbh/jtokkit](https://github.com/knuddelsgmbh/jtokkit)
+- LMArena（模型对战榜单）：[https://lmarena.ai/](https://lmarena.ai/)
+
+> 下一篇：[Prompt 工程](./1_prompt)

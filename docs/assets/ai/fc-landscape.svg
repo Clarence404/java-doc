@@ -1,0 +1,48 @@
+<svg viewBox="0 0 680 276" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Function Calling 在技术版图中的位置</text>
+
+  <rect class="box" x="20" y="120" width="220" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="130" y="144" text-anchor="middle" fill="var(--p)">Function Calling</text>
+  <text class="sub" x="130" y="164" text-anchor="middle">模型侧协议：调用意图 + 结果回传</text>
+
+  <rect class="box" x="330" y="44" width="330" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="495" y="68" text-anchor="middle" fill="var(--b)">框架封装</text>
+  <text class="sub" x="495" y="88" text-anchor="middle">Spring AI / LangChain4j 的 @Tool 注解与自动循环</text>
+
+  <rect class="box" x="330" y="120" width="330" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="495" y="144" text-anchor="middle" fill="var(--g)">Agent</text>
+  <text class="sub" x="495" y="164" text-anchor="middle">在协议之上加规划、记忆与多轮循环</text>
+
+  <rect class="box" x="330" y="196" width="330" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="495" y="220" text-anchor="middle" fill="var(--y)">MCP</text>
+  <text class="sub" x="495" y="240" text-anchor="middle">工具的标准化分发：跨应用共享的工具服务端</text>
+
+  <line class="arr" x1="240" y1="135" x2="328" y2="76" marker-end="url(#a)"/>
+  <line class="arr" x1="240" y1="150" x2="328" y2="150" marker-end="url(#a)"/>
+  <line class="arr" x1="240" y1="165" x2="328" y2="224" marker-end="url(#a)"/>
+</svg>

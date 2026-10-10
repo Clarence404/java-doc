@@ -1,0 +1,65 @@
+<svg viewBox="0 0 680 256" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:2; }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .tag { font-size:13px; font-weight:700; }
+    .item { font-size:11px; fill:var(--muted); }
+    .lbl { font-size:11px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:2; marker-end:url(#a); fill:none; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text class="title" x="340" y="26" text-anchor="middle">MQTT 发布 / 订阅模型</text>
+
+  <!-- 发布方 -->
+  <rect class="box" x="10" y="50" width="170" height="60" stroke="var(--b)"/>
+  <text class="tag" x="95" y="76" text-anchor="middle" fill="var(--b)">设备 A（发布方）</text>
+  <text class="item" x="95" y="96" text-anchor="middle">factory/line1/temp</text>
+
+  <rect class="box" x="10" y="150" width="170" height="60" stroke="var(--b)"/>
+  <text class="tag" x="95" y="176" text-anchor="middle" fill="var(--b)">设备 B（发布方）</text>
+  <text class="item" x="95" y="196" text-anchor="middle">factory/line2/temp</text>
+
+  <!-- Broker -->
+  <rect class="box" x="255" y="50" width="170" height="160" stroke="var(--p)"/>
+  <text class="tag" x="340" y="108" text-anchor="middle" fill="var(--p)">Broker</text>
+  <text class="item" x="340" y="130" text-anchor="middle">按 Topic 过滤器匹配转发</text>
+  <text class="item" x="340" y="150" text-anchor="middle">会话 / 保留消息 / 遗嘱</text>
+
+  <!-- 订阅方 -->
+  <rect class="box" x="500" y="50" width="170" height="60" stroke="var(--g)"/>
+  <text class="tag" x="585" y="76" text-anchor="middle" fill="var(--g)">订阅方 1</text>
+  <text class="item" x="585" y="96" text-anchor="middle">factory/+/temp</text>
+
+  <rect class="box" x="500" y="150" width="170" height="60" stroke="var(--g)"/>
+  <text class="tag" x="585" y="176" text-anchor="middle" fill="var(--g)">订阅方 2</text>
+  <text class="item" x="585" y="196" text-anchor="middle">factory/line1/#</text>
+
+  <!-- 箭头 -->
+  <line class="arr" x1="180" y1="80" x2="253" y2="80"/>
+  <text class="lbl" x="217" y="72" text-anchor="middle">PUBLISH</text>
+  <line class="arr" x1="180" y1="180" x2="253" y2="180"/>
+  <text class="lbl" x="217" y="172" text-anchor="middle">PUBLISH</text>
+  <line class="arr" x1="425" y1="80" x2="498" y2="80"/>
+  <text class="lbl" x="462" y="72" text-anchor="middle">转发</text>
+  <line class="arr" x1="425" y1="180" x2="498" y2="180"/>
+  <text class="lbl" x="462" y="172" text-anchor="middle">转发</text>
+
+  <text class="item" x="340" y="238" text-anchor="middle">设备 A 的消息两个订阅方都会收到；设备 B 的消息只匹配订阅方 1</text>
+</svg>

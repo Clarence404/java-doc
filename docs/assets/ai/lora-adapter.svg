@@ -1,0 +1,42 @@
+<svg viewBox="0 0 680 324" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0 0 L7 3.5 L0 7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="680" height="324" fill="var(--bg)"/>
+  <text x="340" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">LoRA：冻结原权重，只训练低秩旁路</text>
+
+  <rect x="20" y="40" width="640" height="44" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="340" y="67" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">输入 x（d 维隐藏向量）</text>
+  <line x1="178" y1="84" x2="178" y2="122" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="502" y1="84" x2="502" y2="122" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="20" y="124" width="316" height="80" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="178" y="158" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">预训练权重 W</text>
+  <text x="178" y="178" text-anchor="middle" font-size="11" fill="var(--fg)">d × d，训练时冻结不更新</text>
+  <rect x="344" y="124" width="316" height="80" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="502" y="158" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">低秩旁路 ΔW = B · A</text>
+  <text x="502" y="178" text-anchor="middle" font-size="11" fill="var(--fg)">A：r × d，B：d × r，r 远小于 d</text>
+  <line x1="178" y1="204" x2="178" y2="242" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="502" y1="204" x2="502" y2="242" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="20" y="244" width="640" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="340" y="270" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">输出 h = W · x + B · A · x</text>
+  <text x="340" y="290" text-anchor="middle" font-size="11" fill="var(--fg)">部署时可把 B · A 合并回 W，推理不增加延迟</text>
+</svg>

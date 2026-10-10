@@ -31,6 +31,7 @@ export const SUMMARY = {
         {text: '分布式架构', from: 10},
         {text: '三高架构', from: 12},
         {text: '架构设计', from: 15},
+        {text: '垂直领域', from: 18},
     ],
 };
 
@@ -163,9 +164,9 @@ export const GROUPS = [
     },
     {
         name: '垂直领域', tagline: 'IoT 与 AI，拓展技术边界', modules: [
-            {name: 'IoT', dir: 'iot', desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / Java 实战'},
+            {name: 'IoT', dir: 'iot', interview: ['18_iot'], desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / OTA'},
             {
-                name: 'AI', dir: 'ai',
+                name: 'AI', dir: 'ai', interview: ['19_ai'],
                 desc: 'Spring AI / LangChain4j / RAG / Agent / MCP / 本地模型',
                 subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 工具生态'},
             },

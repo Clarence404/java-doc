@@ -1,0 +1,55 @@
+<svg viewBox="0 0 680 264" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:2; }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .tag { font-size:13px; font-weight:700; }
+    .item { font-size:11px; fill:var(--muted); }
+    .lbl { font-size:11px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:2; marker-end:url(#a); fill:none; }
+    .life { stroke:var(--border); stroke-width:1.5; stroke-dasharray:4 4; }
+    .note { font-size:10px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+      <text class="title" x="340" y="26" text-anchor="middle">ThingsBoard 规则链：温度超限告警</text>
+  <rect class="box" x="10" y="50" width="160" height="60" stroke="var(--b)"/>
+  <text class="tag" x="90" y="76" text-anchor="middle" fill="var(--b)">设备上报</text>
+  <text class="item" x="90" y="96" text-anchor="middle">temperature = 85</text>
+  <rect class="box" x="260" y="50" width="160" height="60" stroke="var(--p)"/>
+  <text class="tag" x="340" y="76" text-anchor="middle" fill="var(--p)">Message Type Switch</text>
+  <text class="item" x="340" y="96" text-anchor="middle">按消息类型分流</text>
+  <rect class="box" x="510" y="50" width="160" height="60" stroke="var(--g)"/>
+  <text class="tag" x="590" y="76" text-anchor="middle" fill="var(--g)">Save Timeseries</text>
+  <text class="item" x="590" y="96" text-anchor="middle">写入时序数据</text>
+  <rect class="box" x="260" y="160" width="160" height="60" stroke="var(--y)"/>
+  <text class="tag" x="340" y="186" text-anchor="middle" fill="var(--y)">Script 过滤（TBEL）</text>
+  <text class="item" x="340" y="206" text-anchor="middle">msg.temperature &gt; 80</text>
+  <rect class="box" x="510" y="160" width="160" height="60" stroke="var(--r)"/>
+  <text class="tag" x="590" y="186" text-anchor="middle" fill="var(--r)">Create Alarm</text>
+  <text class="item" x="590" y="206" text-anchor="middle">HighTemperature / CRITICAL</text>
+  <line class="arr" x1="170" y1="80" x2="258" y2="80"/>
+  <text class="note" x="215" y="72" text-anchor="middle">msg + metadata</text>
+  <line class="arr" x1="420" y1="80" x2="508" y2="80"/>
+  <text class="note" x="465" y="72" text-anchor="middle">Post telemetry</text>
+  <line class="arr" x1="340" y1="110" x2="340" y2="158"/>
+  <text class="note" x="348" y="138">Post telemetry</text>
+  <line class="arr" x1="420" y1="190" x2="508" y2="190"/>
+  <text class="note" x="465" y="182" text-anchor="middle">True</text>
+  <text class="item" x="340" y="246" text-anchor="middle">同一条遥测消息走两个分支：一路落库，一路判断阈值；返回 False 的消息在过滤节点止步</text>
+</svg>

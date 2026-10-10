@@ -1,61 +1,48 @@
 # IoT 总览
 
-> 参考资料：
-> * IoT Technical Guide：[https://github.com/IoT-Technology/IoT-Technical-Guide](https://github.com/IoT-Technology/IoT-Technical-Guide)
+物联网（Internet of Things，IoT）用传感器、网络和平台把物理设备连起来，完成数据采集、远程控制和联动决策。本模块从 Java 后端的视角讲 IoT：设备用什么协议上来、平台怎么选、边缘侧做什么、数据怎么落库和分析、设备怎么做安全，再落到 Java 的接入实战（MQTT 客户端、Modbus 采集、设备影子、Netty 网关、OTA、规则引擎）。单片机固件和射频硬件不在本模块范围内。
 
-## 一、什么是物联网
-
-**IoT（Internet of Things，物联网）**：通过传感器、网络、平台将物理世界中的设备连接起来，实现数据采集、远程控制和智能决策的技术体系。
-
-三个关键能力：
-- **全面感知**：传感器采集温度、压力、位置、电量等环境数据
-- **可靠传输**：通过 MQTT / NB-IoT / LoRa 等协议将数据传到平台
-- **智能处理**：平台对数据进行分析、告警、联动控制
-
-## 二、典型四层架构
+一套典型的 IoT 系统分为四层：感知层（传感器、MCU）负责采集，网络层（MQTT / NB-IoT / LoRa 等）负责传输，平台层（Broker、设备管理、规则引擎、时序库）负责汇聚和处理，应用层（看板、告警、业务系统）负责使用数据。
 
 ![IoT 四层架构](../assets/iot/iot-four-layers.svg)
 
-## 三、IoT / 工业互联网 / 边缘计算 的关系
+版本基线：协议以 **MQTT 5.0** 为主（3.1.1 仍是大量存量设备的默认版本，差异在正文标出）；Broker 示例使用 **EMQX 6.x**（镜像 `emqx/emqx`）。EMQX 从 5.9.0 起开源版与企业版合并为单一版本，改用 BSL 1.1 许可：单节点生产使用免费，多节点集群需要 License，许可细节见 [平台选型](./2_platform)；不想受此约束可选 Mosquitto、NanoMQ 等开源 Broker。数据层以 **TDengine 3.x** 为例，边缘侧以 **KubeEdge 1.23**、**EdgeX Foundry 4.0** 为准，平台以 **ThingsBoard 4.x** 为准；示例代码默认 **JDK 21**、**Spring Boot 4**。
 
-| 概念 | 定位 | 与 IoT 的关系 |
-|------|------|--------------|
-| **IoT** | 万物互联基础架构 | 核心底座 |
-| **工业互联网** | IoT 在工业场景的深化 | IoT 的垂直专业化 |
-| **边缘计算** | 在设备/网关侧本地处理数据 | IoT 的能力增强，减少云端压力 |
+---
 
-三者协同：IoT 负责感知与连接 → 边缘计算负责本地预处理 → 工业互联网在特定行业整合两者做业务决策。
-
-## 四、典型应用场景
-
-**To B（企业/行业）**
-
-| 场景 | 说明 |
-|------|------|
-| 智能制造 | 设备联网监控、预测性维护、产线自动化 |
-| 智慧城市 | 路灯、停车、垃圾桶、井盖远程管控 |
-| 智慧农业 | 土壤监测、精准灌溉、温室控制 |
-| 智慧能源 | 智能电表、水表远程抄表、用能分析 |
-| 物流追踪 | 冷链温控、货物 GPS 定位、仓储管理 |
-
-**To C（消费者）**
-
-| 场景 | 说明 |
-|------|------|
-| 智能家居 | 照明、门锁、空调、安防远程控制 |
-| 可穿戴设备 | 健康手环、智能手表、睡眠监测 |
-| 车联网 | 远程诊断、OTA 升级、自动驾驶辅助 |
-
-## 五、IoT 系统技术栈全景
-
-| 设备端 | 网关 / 边缘 | 云平台 | 应用层 |
-|--------|------------|--------|--------|
-| 传感器 / 摄像头 | 边缘网关 | MQTT Broker（EMQX）| Web / App |
-| 单片机 / MCU | 协议转换（Modbus→MQTT）| 设备管理服务 | 报表系统 |
-| Arduino / ESP32 | 本地规则引擎 | 规则引擎 | 告警中心 |
-| 树莓派 | 断网续传缓存 | 时序数据库（TDengine）| Grafana 看板 |
-| | | 流处理（Flink）| |
-
-## 六、模块导航
+## 一、模块导航
 
 <ModuleNav />
+
+---
+
+## 二、推荐阅读路径
+
+1. [通信协议](./1_protocol)：MQTT 的 QoS、保留消息、遗嘱、共享订阅与 5.0 新特性，以及 CoAP、LwM2M、LoRaWAN、NB-IoT、Modbus、OPC UA 的定位
+2. [平台选型](./2_platform)：商业云平台与开源平台对比、EMQX 许可与部署、ThingsBoard 规则链、JetLinks 协议扩展
+3. [边缘计算](./3_edge)：云边端分工、EdgeX Foundry、KubeEdge 云边协同、边缘 AI 推理
+4. [数据处理](./4_data)：时序数据落库、流式计算与告警
+5. [设备安全](./5_security)：设备身份、传输加密、Topic 级访问控制
+6. [MQTT 客户端](./6_mqtt_client)：Java MQTT 客户端选型、重连与会话、Spring Integration 收发
+7. [Modbus 采集](./7_modbus)：寄存器读写、轮询调度与数据解析
+8. [设备影子](./8_device_shadow)：期望值与上报值、版本号与离线指令
+9. [Netty 设备接入网关](./9_netty_gateway)：私有二进制协议接入、会话管理与上下行路由
+10. [OTA 升级](./10_ota)：固件签名校验、防回滚、A/B 分区与灰度发布
+11. [规则引擎](./11_rule_engine)：规则模型、条件匹配与动作执行
+
+复习时用 [高频面试题](./99_interview) 自测，答案在 [IoT 面试题解答](/interview/18_iot)。
+
+---
+
+## 三、关联模块
+
+- [网络协议 · TCP 与 UDP](/protocols/1_tcp_udp)：MQTT 跑在 TCP 上、CoAP 跑在 UDP 上，连接与重传行为的基础
+- [网络协议 · HTTPS 与 TLS](/protocols/3_https_tls)：MQTT over TLS、设备双向证书认证（mTLS）的原理
+- [Netty 总览](/netty/0_overview)：设备网关的线程模型、粘包拆包、[自定义私有协议](/netty/8_custom_protocol) 与 [心跳与连接管理](/netty/9_heartbeat)
+- [时序数据库](/database/4_nosql/1_time_series_db)：TDengine、InfluxDB、IoTDB 的数据模型与选型
+- [消息队列总览](/messaging/0_overview)：设备数据从 MQTT 桥接到 Kafka 后的削峰与分发
+- [Flink 总览](/flink/0_overview)：设备数据的窗口聚合与实时告警
+- [零信任架构](/security/9_zero_trust)：设备身份与最小权限访问的通用原则
+- [Kubernetes](/cloud-native/6_kubernetes)：KubeEdge 所依赖的云端集群
+- [AI 总览](/ai/0_overview)：边缘推理所用模型的来源与接入方式
+- [IoT 面试题解答](/interview/18_iot)：本模块高频问题的答案汇总

@@ -1,82 +1,115 @@
 ---
-description: OpenAI / Gemini / Claude API 接入、Java 框架选型对比
+description: 官方 Java SDK、OpenAI 兼容协议、流式、重试限流、Prompt Caching、成本估算
 ---
 
 # API 直接接入
 
-> 参考资料：
-> * OpenAI 官方文档：[https://platform.openai.com/docs](https://platform.openai.com/docs)
-> * Gemini API 文档：[https://ai.google.dev/gemini-api/docs](https://ai.google.dev/gemini-api/docs)
-> * Anthropic 官方文档：[https://docs.anthropic.com](https://docs.anthropic.com)
+> **本篇目标**：用各厂商的官方 Java SDK 直接调用云端大模型，掌握同步与流式调用、OpenAI 兼容协议接入国内厂商、错误分类与重试限流、Prompt Caching 和成本估算，并知道什么时候该用官方 SDK、什么时候用 Spring AI / LangChain4j。
+>
+> **前置阅读**：[大模型选型](../1_concepts/0_model)、[Spring AI](../2_frameworks/0_spring_ai)
+
+模型型号、价格、上下文长度变化很快，本文只介绍模型家族与选择思路，具体型号和价格以各厂商官方页面为准；代码中的型号一律从配置或环境变量读取。截至 2026-10 的 SDK 基线：
+
+| 厂商 | Maven 坐标 | 版本 |
+|------|-----------|------|
+| OpenAI | `com.openai:openai-java` | 4.79.0 |
+| Anthropic | `com.anthropic:anthropic-java` | 2.70.0 |
+| Google Gemini | `com.google.genai:google-genai` | 1.76.0 |
+
+这几个 SDK 发版频繁，新项目以 Maven Central 上的最新版本为准。
 
 ---
 
-## 一、OpenAI
+## 一、接入方式怎么选
 
-### 模型总览
+| 方式 | 适合场景 | 代价 |
+|------|----------|------|
+| 官方 SDK | 需要厂商特有能力（Responses API、Prompt Caching 细粒度控制、Batch、文件、思考强度等），或只对接一家 | 每家 API 风格不同，切换厂商要改代码 |
+| [Spring AI](../2_frameworks/0_spring_ai) | Spring Boot 项目、多厂商切换、需要统一的记忆 / 工具 / RAG / 观测 | 新特性跟进有延迟，厂商特有参数通过各自的 Options 类设置 |
+| [LangChain4j](../2_frameworks/1_langchain4j) | 非 Spring 项目或偏好 AiServices 声明式写法 | 同上 |
+| OpenAI 兼容协议 | 国内厂商、自建推理服务（vLLM、Ollama 等） | 只能用协议的公共子集，厂商扩展字段需额外传 |
 
-| 模型 | 别名 | 用途 | 上下文窗口 | 价格（输入 / 输出，/MTok） |
-|------|------|------|-----------|--------------------------|
-| gpt-5.6-sol | gpt-5.6 | 旗舰推理与编程 | 1.05M tokens | $5 / $30 |
-| gpt-5.6-terra | — | 智能与成本均衡 | 1.05M tokens | $2.50 / $15 |
-| gpt-5.6-luna | — | 高性价比高吞吐 | 1.05M tokens | $1 / $6 |
-| text-embedding-3-small | — | 文本向量化 | 8191 tokens | 按 Token 计费，RAG 首选 |
+实际项目常见的组合是：业务主链路用 Spring AI 统一抽象，个别需要厂商特性的功能直接用官方 SDK。Spring AI 2.0 的 OpenAI、Anthropic 模块本身就构建在这两个官方 SDK 之上。
 
-### 官方 Java SDK
+---
+
+## 二、OpenAI
+
+### 1、模型与接口
+
+当前旗舰是 GPT-6 系列，分为能力最强的 Astra、接近 Astra 但更便宜的 Sol、面向高吞吐的 Luna 三档；向量化模型为 `text-embedding-3-small` / `text-embedding-3-large`。完整列表见 [https://developers.openai.com/api/docs/models](https://developers.openai.com/api/docs/models)。
+
+OpenAI 有两套对话接口：新项目推荐 Responses API，它原生支持推理模型、内置工具和多轮状态；Chat Completions 继续长期支持，也是各家“OpenAI 兼容”协议的事实标准。
+
+### 2、Responses API
 
 ```xml
 <dependency>
-    <groupId>com.openai</groupId>
-    <artifactId>openai-java</artifactId>
-    <version>4.46.0</version>
+  <groupId>com.openai</groupId>
+  <artifactId>openai-java</artifactId>
+  <version>4.79.0</version>
 </dependency>
 ```
 
 ```java
+import java.time.Duration;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
-import com.openai.models.chat.completions.*;
-import com.openai.models.ChatModel;
+import com.openai.models.responses.Response;
+import com.openai.models.responses.ResponseCreateParams;
 
 OpenAIClient client = OpenAIOkHttpClient.builder()
         .apiKey(System.getenv("OPENAI_API_KEY"))
+        .maxRetries(3)                       // 默认 2 次
+        .timeout(Duration.ofSeconds(60))     // 默认 10 分钟，在线接口应调小
         .build();
 
+ResponseCreateParams params = ResponseCreateParams.builder()
+        .model(System.getenv("OPENAI_MODEL"))   // 型号见官方 Models 页
+        .instructions("你是一位 Java 后端专家，回答简洁专业。")
+        .input("请解释 Java 虚拟线程的适用场景。")
+        .maxOutputTokens(1024L)
+        .build();
+
+Response response = client.responses().create(params);
+response.output().stream()
+        .flatMap(item -> item.message().stream())
+        .flatMap(message -> message.content().stream())
+        .flatMap(content -> content.outputText().stream())
+        .forEach(text -> System.out.println(text.text()));
+```
+
+`OpenAIClient` 是线程安全的，内部持有连接池，整个应用共享一个实例即可，不要每次请求新建。
+
+### 3、Chat Completions 与流式
+
+```java
+import com.openai.core.http.StreamResponse;
+import com.openai.models.chat.completions.ChatCompletionChunk;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
+
 ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
-        .model(ChatModel.GPT_5_6_LUNA)
-        .maxTokens(512)
+        .model(System.getenv("OPENAI_MODEL"))
+        .maxCompletionTokens(1024L)    // 推理模型不接受 max_tokens，统一用这个
         .addSystemMessage("你是一位 Java 后端专家，回答简洁专业。")
-        .addUserMessage("请解释 Java 虚拟线程的使用场景。")
+        .addUserMessage("请解释 Java 虚拟线程的适用场景。")
         .build();
 
 String content = client.chat().completions().create(params)
         .choices().get(0).message().content().orElse("");
-```
 
-**流式响应：**
-
-```java
-try (Stream<ServerSentEvent<ChatCompletionChunk>> stream =
-             client.chat().completions().createStreaming(params).stream()) {
-    stream.forEach(event -> {
-        ChatCompletionChunk chunk = event.data();
-        if (chunk != null) {
-            chunk.choices().forEach(choice ->
-                choice.delta().content().ifPresent(System.out::print)
-            );
-        }
-    });
+try (StreamResponse<ChatCompletionChunk> stream =
+             client.chat().completions().createStreaming(params)) {
+    stream.stream()
+          .flatMap(chunk -> chunk.choices().stream())
+          .flatMap(choice -> choice.delta().content().stream())
+          .forEach(System.out::print);
 }
 ```
 
-### Spring AI 接入
+流式响应必须放在 try-with-resources 里，提前退出时才能释放底层连接。
 
-```xml
-<dependency>
-    <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-starter-model-openai</artifactId>
-</dependency>
-```
+### 4、Spring AI 配置
 
 ```yaml
 spring:
@@ -84,199 +117,117 @@ spring:
     openai:
       api-key: ${OPENAI_API_KEY}
       chat:
-        model: gpt-5.6-luna
-        temperature: 0.7
-        max-tokens: 1024
+        model: ${OPENAI_CHAT_MODEL}
+        max-completion-tokens: 2048
       embedding:
-        model: text-embedding-3-small
+        model: ${OPENAI_EMBEDDING_MODEL}
 ```
 
-### Function Calling
-
-定义工具 → 第一轮获取 `tool_call` → 执行函数 → 第二轮回传结果，与其他厂商模式一致，详见官方文档。
-
-### 限流与费用
-
-OpenAI 按账户消费分 Tier 1–5，Tier 越高 RPM / TPM 越大。遇到 `RateLimitException` 时使用指数退避重试：
-
-```java
-public ChatCompletion createWithRetry(OpenAIClient client,
-                                      ChatCompletionCreateParams params) {
-    int maxRetries = 5;
-    long delayMs = 1000;
-    for (int i = 0; i < maxRetries; i++) {
-        try {
-            return client.chat().completions().create(params);
-        } catch (RateLimitException e) {
-            if (i == maxRetries - 1) throw e;
-            Thread.sleep(delayMs * (1L << i));
-        }
-    }
-    throw new RuntimeException("超过最大重试次数");
-}
-```
-
----
-
-## 二、Gemini
-
-### 模型总览
-
-| 模型 | 状态 | 用途 | 上下文窗口 |
-|------|------|------|-----------|
-| gemini-3.5-flash | 稳定版 | Agent / 编程任务首选 | 1M tokens |
-| gemini-3.1-flash-lite | 稳定版 | 高频低成本调用 | 1M tokens |
-| gemini-3.1-pro-preview | 预览版 | 高级推理与复杂分析 | 1M tokens |
-| gemini-embedding-2 | 稳定版 | 多模态向量化 | 8K tokens |
-
-> 1M tokens 超长上下文，特别适合整个代码库分析、长文档场景。
-
-### 官方 Java SDK
-
-```xml
-<dependency>
-    <groupId>com.google.genai</groupId>
-    <artifactId>google-genai</artifactId>
-    <version>1.64.0</version>
-</dependency>
-```
-
-```java
-import com.google.genai.Client;
-import com.google.genai.types.*;
-
-Client client = Client.builder()
-        .apiKey(System.getenv("GEMINI_API_KEY"))
-        .build();
-
-GenerateContentResponse response = client.models().generateContent(
-        "gemini-3.5-flash",
-        Content.builder()
-                .role("user")
-                .addPart(Part.fromText("请用三句话解释 Redis 的持久化机制。"))
-                .build(),
-        null
-);
-System.out.println(response.text());
-```
-
-**多模态（图片 + 文本）：**
-
-```java
-byte[] imageBytes = Files.readAllBytes(Paths.get("architecture.png"));
-GenerateContentResponse response = client.models().generateContent(
-        "gemini-3.5-flash",
-        Content.builder()
-                .role("user")
-                .addPart(Part.fromBytes(imageBytes, "image/png"))
-                .addPart(Part.fromText("请描述这张架构图中各个服务的职责。"))
-                .build(),
-        null
-);
-```
-
-**流式响应：**
-
-```java
-try (ResponseStream<GenerateContentResponse> stream = client.models().generateContentStream(
-        "gemini-3.5-flash",
-        Content.builder().role("user").addPart(Part.fromText("...")).build(), null)) {
-    for (GenerateContentResponse chunk : stream) {
-        System.out.print(chunk.text());
-    }
-}
-```
-
-### Spring AI 接入
-
-```xml
-<dependency>
-    <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-starter-model-google-genai</artifactId>
-</dependency>
-```
-
-```yaml
-spring:
-  ai:
-    google:
-      genai:
-        api-key: ${GEMINI_API_KEY}
-        chat:
-          model: gemini-3.5-flash
-          temperature: 0.7
-          max-output-tokens: 2048
-```
-
-> **Google AI Studio vs Vertex AI**：AI Studio 用 API Key，适合开发测试；Vertex AI 用 Google Cloud 服务账号，适合生产与企业合规场景。
+推理模型（如 GPT-5 系列）通常不支持自定义 temperature，配置了会直接报错，不要照搬旧项目里的 `temperature: 0.7`，以模型文档为准。
 
 ---
 
 ## 三、Claude（Anthropic）
 
-### 模型总览
+### 1、模型
 
-| 模型 | 用途 | 上下文窗口 | 价格（输入 / 输出，/MTok） |
-|------|------|-----------|--------------------------|
-| claude-fable-5 | 顶级智能 / 长时间 Agent 任务 | 1M tokens | $10 / $50 |
-| claude-opus-5 | 复杂 Agent 编程与企业级任务 | 1M tokens | $5 / $25 |
-| claude-sonnet-5 | 智能与速度均衡，生产主力 | 1M tokens | $3 / $15 |
-| claude-haiku-4-5-20251001 | 高吞吐低延迟任务 | 200K tokens | $1 / $5 |
+当前一代为 Claude Fable 5.1（高难度推理与长时 Agent 任务）、Opus 5.5（官方推荐的默认起点，适合长时间的编码与知识工作）、Sonnet 5.5（速度与能力的平衡）、Haiku 5.5（高吞吐、低延迟的分类抽取路由）。型号 ID、上下文与输出上限见 [https://platform.claude.com/docs/en/about-claude/models/overview](https://platform.claude.com/docs/en/about-claude/models/overview)。
 
-### 官方 Java SDK
+### 2、Messages API
 
 ```xml
 <dependency>
-    <groupId>com.anthropic</groupId>
-    <artifactId>anthropic-java</artifactId>
-    <version>2.52.0</version>
+  <groupId>com.anthropic</groupId>
+  <artifactId>anthropic-java</artifactId>
+  <version>2.70.0</version>
 </dependency>
 ```
 
 ```java
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
-import com.anthropic.models.messages.*;
+import com.anthropic.models.messages.Message;
+import com.anthropic.models.messages.MessageCreateParams;
 
 AnthropicClient client = AnthropicOkHttpClient.builder()
         .apiKey(System.getenv("ANTHROPIC_API_KEY"))
+        .maxRetries(3)
         .build();
 
 MessageCreateParams params = MessageCreateParams.builder()
-        .model(Model.CLAUDE_SONNET_5)
-        .maxTokens(1024)
+        .model(System.getenv("CLAUDE_MODEL"))   // 型号见官方 Models 页
+        .maxTokens(1024L)                        // 必填
         .system("你是一位专业的 Java 后端架构师，回答精确且有深度。")
         .addUserMessage("请解释 Java 虚拟线程与平台线程的核心区别。")
         .build();
 
 Message message = client.messages().create(params);
-message.content().forEach(block ->
-    block.asText().ifPresent(text -> System.out.println(text.text()))
-);
+message.content().stream()
+        .flatMap(block -> block.text().stream())
+        .forEach(text -> System.out.println(text.text()));
 ```
 
-**流式响应：**
+响应的 `content` 是一组内容块，除了文本块还可能有思考块、工具调用块，按类型取需要的部分。
+
+### 3、流式
 
 ```java
+import com.anthropic.core.http.StreamResponse;
+import com.anthropic.helpers.MessageAccumulator;
+import com.anthropic.models.messages.RawMessageStreamEvent;
+
+MessageAccumulator accumulator = MessageAccumulator.create();
 try (StreamResponse<RawMessageStreamEvent> stream =
              client.messages().createStreaming(params)) {
-    stream.stream().forEach(event -> {
-        if (event.isContentBlockDelta()) {
-            event.asContentBlockDelta().delta().asText()
-                    .ifPresent(t -> System.out.print(t.text()));
-        }
-    });
+    stream.stream()
+          .peek(accumulator::accumulate)          // 同时累积出完整 Message
+          .flatMap(event -> event.contentBlockDelta().stream())
+          .flatMap(delta -> delta.delta().text().stream())
+          .forEach(text -> System.out.print(text.text()));
 }
+Message full = accumulator.message();             // 拿到 usage、stop_reason 等
 ```
 
-### Spring AI 接入
+官方建议 `max_tokens` 较大或耗时可能较长的请求一律走流式，非流式请求在网络中间设备上容易因空闲超时被断开。流式过程中也可能收到错误事件（HTTP 状态已是 200），要单独处理。
 
-```xml
-<dependency>
-    <groupId>org.springframework.ai</groupId>
-    <artifactId>spring-ai-starter-model-anthropic</artifactId>
-</dependency>
+### 4、Prompt Caching
+
+把长且稳定的前缀（系统提示、工具定义、知识文档、长对话历史）缓存起来，后续请求命中缓存时这部分输入按基础输入价的一小部分计费，同时降低首 token 延迟。两种用法：
+
+- **自动缓存**：请求顶层加一个 `cacheControl`，缓存断点随对话增长自动后移，适合多轮对话
+- **显式断点**：在具体的内容块上加 `cacheControl`，最多 4 个断点，适合精确控制缓存哪一段
+
+```java
+import java.util.List;
+import com.anthropic.models.messages.CacheControlEphemeral;
+import com.anthropic.models.messages.TextBlockParam;
+
+MessageCreateParams params = MessageCreateParams.builder()
+        .model(System.getenv("CLAUDE_MODEL"))
+        .maxTokens(1024L)
+        .systemOfTextBlockParams(List.of(
+                TextBlockParam.builder()
+                        .text("你是公司内部代码审查助手，以下是代码规范：\n" + codeStyleGuide)
+                        .cacheControl(CacheControlEphemeral.builder().build())   // 缓存到这里为止的前缀
+                        .build()))
+        .addUserMessage("帮我 review 这段 Service 代码是否符合规范。")
+        .build();
+
+Message response = client.messages().create(params);
+System.out.printf("写入缓存 %d，命中缓存 %d，未缓存输入 %d%n",
+        response.usage().cacheCreationInputTokens().orElse(0L),
+        response.usage().cacheReadInputTokens().orElse(0L),
+        response.usage().inputTokens());
 ```
+
+使用要点：
+
+- 缓存默认存活 5 分钟，每次命中会刷新；可选 1 小时 TTL，写入价更高
+- 前缀低于模型的最小可缓存长度时不会缓存，也不报错，看 `cacheCreationInputTokens` 是否为 0 判断
+- 缓存按前缀精确匹配，系统提示里放时间戳、请求 ID 等变化内容会让缓存全部失效，变化的部分放在断点之后
+- 缓存写入比普通输入贵、读取便宜很多，具体倍率因模型而异，以官方定价页为准；只调用一次的前缀不值得缓存
+
+### 5、Spring AI 配置
 
 ```yaml
 spring:
@@ -284,42 +235,194 @@ spring:
     anthropic:
       api-key: ${ANTHROPIC_API_KEY}
       chat:
-        model: claude-sonnet-5
-        max-tokens: 2048
-        temperature: 0.7
+        model: ${CLAUDE_MODEL}
+        max-tokens: 4096
+        cache-options:
+          strategy: SYSTEM_AND_TOOLS    # 缓存系统提示与工具定义，多轮对话可用 CONVERSATION_HISTORY
 ```
-
-### Prompt Caching（提示缓存）
-
-缓存长 System Prompt 或大段文档，**命中时仅收取 10% 费率**，可节省高达 90% Token 费用。
-
-```java
-MessageCreateParams params = MessageCreateParams.builder()
-        .model(Model.CLAUDE_SONNET_5)
-        .maxTokens(1024)
-        .system(List.of(
-                TextBlockParam.builder()
-                        .text("你是 Acme 公司专属助手，以下是公司代码规范（共 5000 字）：...")
-                        .cacheControl(CacheControlEphemeral.builder().build())
-                        .build()
-        ))
-        .addUserMessage("帮我 review 这段 Service 代码是否符合规范。")
-        .build();
-
-// 查看缓存统计
-response.usage().cacheReadInputTokens()
-        .ifPresent(n -> System.out.println("缓存命中 tokens：" + n));
-```
-
-适用场景：长系统提示词、RAG 文档块、Few-shot 示例、代码库分析。
 
 ---
 
-## 四、框架选型对比
+## 四、Gemini
 
-| 维度 | Spring AI | 官方 SDK（各厂商）|
-|------|-----------|-----------------|
-| 接入成本 | 低，自动配置 + 统一 API | 中，需熟悉各厂商特定概念 |
-| 多模型切换 | 换 Starter + yaml 即可 | 各套 SDK 互不兼容 |
-| 功能覆盖 | Chat / Embedding / Tool 基础能力 | 全量 API（Caching / Batch / Vision 等） |
-| 推荐场景 | 企业多模型集成、快速原型 | 深度使用厂商特有功能 |
+### 1、模型
+
+Gemini 3.x Flash 系列是当前主力，官方推荐新项目从最新的 Flash 和 Flash-Lite 起步，Pro 系列目前以预览版提供；向量化模型稳定版为 `gemini-embedding-001`。型号列表见 [https://ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models)。
+
+### 2、SDK 调用
+
+```xml
+<dependency>
+  <groupId>com.google.genai</groupId>
+  <artifactId>google-genai</artifactId>
+  <version>1.76.0</version>
+</dependency>
+```
+
+```java
+import java.nio.file.Files;
+import java.nio.file.Path;
+import com.google.genai.Client;
+import com.google.genai.ResponseStream;
+import com.google.genai.types.Content;
+import com.google.genai.types.GenerateContentConfig;
+import com.google.genai.types.GenerateContentResponse;
+import com.google.genai.types.Part;
+
+Client client = Client.builder()
+        .apiKey(System.getenv("GEMINI_API_KEY"))
+        .build();
+
+String model = System.getenv("GEMINI_MODEL");   // 型号见官方 Models 页
+
+GenerateContentConfig config = GenerateContentConfig.builder()
+        .systemInstruction(Content.fromParts(Part.fromText("你是一位 Java 后端专家。")))
+        .maxOutputTokens(1024)
+        .build();
+
+GenerateContentResponse response = client.models.generateContent(
+        model, "请用三句话解释 Redis 的持久化机制。", config);
+System.out.println(response.text());
+
+// 多模态：图片 + 文本
+byte[] image = Files.readAllBytes(Path.of("architecture.png"));
+GenerateContentResponse vision = client.models.generateContent(
+        model,
+        Content.fromParts(
+                Part.fromBytes(image, "image/png"),
+                Part.fromText("请描述这张架构图中各个服务的职责。")),
+        null);
+
+// 流式
+try (ResponseStream<GenerateContentResponse> stream =
+             client.models.generateContentStream(model, "介绍一下 Kafka 的 ISR 机制", config)) {
+    for (GenerateContentResponse chunk : stream) {
+        System.out.print(chunk.text());
+    }
+}
+```
+
+### 3、Spring AI 配置
+
+```yaml
+spring:
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}     # 设置 api-key 走 Gemini API；改用 project-id + location 则走 Vertex AI
+        chat:
+          model: ${GEMINI_MODEL}
+          max-output-tokens: 2048
+```
+
+Gemini API 用 AI Studio 发放的 API Key，适合开发与中小规模使用；Vertex AI 用 Google Cloud 服务账号认证，提供企业级的配额、区域与合规能力。同一个 SDK 和 Starter 两种都支持，只是认证配置不同。
+
+---
+
+## 五、OpenAI 兼容协议：DeepSeek、通义千问等
+
+国内主流厂商都提供 OpenAI Chat Completions 兼容接口，Java 侧可以直接复用 OpenAI SDK 或 Spring AI 的 OpenAI Starter，只换 Base URL、Key 和模型名：
+
+| 厂商 | 兼容接口 Base URL | 说明 |
+|------|-------------------|------|
+| DeepSeek | `https://api.deepseek.com` | Spring AI 也有专门的 `spring-ai-starter-model-deepseek` |
+| 阿里云百炼（通义千问） | `https://dashscope.aliyuncs.com/compatible-mode/v1` | 地域不同域名不同（如国际站 `dashscope-intl`），Key 与地域绑定，以控制台显示为准 |
+
+```java
+OpenAIClient qwen = OpenAIOkHttpClient.builder()
+        .apiKey(System.getenv("DASHSCOPE_API_KEY"))
+        .baseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
+        .build();
+// 之后的 Chat Completions 调用与 OpenAI 完全相同，model 填厂商的模型名
+```
+
+```yaml
+# Spring AI：用 OpenAI Starter 对接兼容服务
+spring:
+  ai:
+    openai:
+      api-key: ${DASHSCOPE_API_KEY}
+      chat:
+        base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+        model: ${QWEN_MODEL}
+```
+
+兼容只覆盖公共子集：Responses API、思考内容的返回格式、结构化输出的严格程度、工具调用的细节各家不尽相同，接入后要针对用到的功能逐项验证。本地的 Ollama、自建的 vLLM 也走这条路，见 [Ollama](./0_ollama)。
+
+---
+
+## 六、工程化：错误、重试、限流与成本
+
+### 1、错误分类
+
+| 状态码 | 含义 | 处理 |
+|--------|------|------|
+| 400 | 参数错误（型号不支持某参数、超出上下文等） | 不重试，修请求 |
+| 401 / 403 | Key 无效或无权限 | 不重试，告警 |
+| 404 | 型号或资源不存在（常见于型号下线） | 不重试，检查配置 |
+| 408 / 409 | 超时、冲突 | 可重试 |
+| 429 | 触发速率限制或额度上限 | 按 `retry-after` 等待后重试；额度类 429 重试无效 |
+| 500 / 502 / 503 / 504 | 服务端错误 | 指数退避重试 |
+| 529（Anthropic） | 服务整体过载 | 指数退避重试，必要时降级到备用模型 |
+
+SDK 把这些状态码映射为具体异常，例如 OpenAI SDK 的 `BadRequestException`、`RateLimitException`、`InternalServerException`，共同父类为 `OpenAIServiceException`；Anthropic SDK 在 `com.anthropic.errors` 包下有对应的同名异常。按异常类型处理，不要匹配错误消息字符串。
+
+### 2、重试
+
+OpenAI 和 Anthropic 的 Java SDK 都内置重试：默认 2 次，对连接错误、429、5xx 等可重试错误做指数退避，并遵循 `retry-after` 响应头（OpenAI SDK 还会重试 408、409）。大多数情况下只需要调 `maxRetries` 和 `timeout`，不必自己写重试循环。
+
+需要自己控制的通常是更上层的策略：重试仍失败时切换备用模型、对非幂等的工具调用避免重复执行、给整次用户请求设总超时。这类逻辑用 Resilience4j 等组件实现，与 SDK 内置重试不要叠加过多层，否则一次失败会被放大成几十次请求。超时、重试与熔断的通用原则见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)。
+
+### 3、限流
+
+厂商按组织与账号等级限制 RPM（每分钟请求数）和 TPM（每分钟 token 数），通常还有月度消费上限。客户端侧要做的是：
+
+- 按模型维度做本地限流（令牌桶或信号量），把并发控制在配额内，而不是等 429 再退避
+- 估算 TPM 时把输入和输出都算上，长上下文请求一次就可能占掉大量额度
+- 离线批量任务走厂商的 Batch 接口，价格更低且不占在线配额
+
+限流算法与分布式限流实现见 [限流与过载保护](/high-avail/7_rate_limiting)。
+
+### 4、成本估算
+
+单次请求成本可以按下式估算，各项单价从官方定价页获取：
+
+- 成本 = 未缓存输入 token × 输入单价 + 缓存写入 token × 写入单价 + 缓存读取 token × 读取单价 + 输出 token × 输出单价
+- 推理模型的思考 token 按输出计费，即使不返回给你
+- 月成本 ≈ 单次成本 × 日调用量 × 30，再按峰值留出余量
+
+降成本的常用手段：简单任务路由到小模型、Prompt Caching 复用长前缀、限制输出长度、离线任务走 Batch。Spring AI 的 `gen_ai.client.token.usage` 指标可以直接用来做按模型、按业务的成本看板。
+
+### 5、密钥管理
+
+- API Key 放在环境变量或密钥管理服务中，不写进代码和配置仓库
+- 不在前端或移动端直接调用厂商 API，统一经过后端代理，由后端做鉴权、限流与审计
+- 按环境、按业务拆分 Key 并设置消费上限，泄露时能快速吊销且影响面可控
+
+更多见 [数据安全](/security/7_data_security)。
+
+---
+
+## 小结
+
+- 官方 SDK 适合用厂商特有能力，Spring AI / LangChain4j 适合多厂商统一抽象，两者可以在一个项目里并存
+- OpenAI 新项目优先 Responses API，推理模型用 `max_completion_tokens` 且不设 temperature；Claude 必须设 `max_tokens`，长请求走流式
+- 国内厂商与自建推理服务通过 OpenAI 兼容协议接入，只能依赖公共子集，接入后逐项验证
+- SDK 已内置指数退避重试并遵循 `retry-after`，自己只需配置次数和超时，上层做降级与总超时
+- 本地限流控制在 RPM / TPM 配额内，批量任务走 Batch；成本按“输入 + 缓存写入 + 缓存读取 + 输出”分项估算
+- Prompt Caching 只对稳定前缀有效，变化内容放在断点之后；型号、价格以官方页面为准，代码里不写死
+
+## 参考资料
+
+- OpenAI API 文档：[https://developers.openai.com/api/docs](https://developers.openai.com/api/docs)
+- openai-java：[https://github.com/openai/openai-java](https://github.com/openai/openai-java)
+- Claude 模型总览：[https://platform.claude.com/docs/en/about-claude/models/overview](https://platform.claude.com/docs/en/about-claude/models/overview)
+- Claude Prompt Caching：[https://platform.claude.com/docs/en/build-with-claude/prompt-caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching)
+- Claude API 错误码：[https://platform.claude.com/docs/en/api/errors](https://platform.claude.com/docs/en/api/errors)
+- Claude 定价：[https://platform.claude.com/docs/en/about-claude/pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+- Gemini API 文档：[https://ai.google.dev/gemini-api/docs](https://ai.google.dev/gemini-api/docs)
+- DeepSeek API 文档：[https://api-docs.deepseek.com/](https://api-docs.deepseek.com/)
+- 阿里云百炼 OpenAI 兼容接口：[https://help.aliyun.com/en/model-studio/qwen-api-via-openai-chat-completions](https://help.aliyun.com/en/model-studio/qwen-api-via-openai-chat-completions)
+- Spring AI Anthropic Chat：[https://docs.spring.io/spring-ai/reference/api/chat/anthropic-chat.html](https://docs.spring.io/spring-ai/reference/api/chat/anthropic-chat.html)
+
+> 下一篇：[Embedding 向量化](../4_core_tech/0_embedding) —— 文本如何变成向量，向量化模型的选择与相似度计算。

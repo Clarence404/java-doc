@@ -389,7 +389,7 @@ public class RpcResponseHandler extends SimpleChannelInboundHandler<RpcResponse>
 
 上面是通用模板（无 CRC 校验）。面向 IoT 设备接入、带 **CRC16 校验**与跳字节重新同步的完整实现，包含 `DeviceMessage`、`DeviceMessageDecoder`、`CrcUtil` 和业务 Handler，见：
 
-[Java IoT 实战 · 六、Netty 自定义私有协议接入](/iot/6_java_iot#六、netty-自定义私有协议接入)
+[Netty 设备接入网关](/iot/9_netty_gateway#二、带-crc-的私有协议帧)
 
 ---
 

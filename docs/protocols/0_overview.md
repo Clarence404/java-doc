@@ -46,7 +46,7 @@
 - IO 模型、Reactor、Netty 编程、粘包拆包、心跳、WebSocket、SSE → [Netty 总览](/netty/0_overview)
 - 网络层面的性能优化（零拷贝、连接复用、压缩、序列化选择） → [IO 与网络优化](/high-perf/9_io_network)
 - JWT、OAuth2、mTLS 在服务网格中的使用、零信任 → [应用安全总览](/security/0_overview)
-- MQTT、CoAP、Modbus 等物联网协议 → [IoT 通信协议](/iot/1_protocol)
+- MQTT、CoAP、Modbus 等物联网协议 → [通信协议](/iot/1_protocol)
 - Raft、Paxos、ZAB、Gossip 等一致性与集群协议 → [分布式理论](/distributed/2_theorem)
 - AMQP 与消息队列协议 → [RabbitMQ](/messaging/4_rabbitmq)
 - 服务间调用方式选型、Dubbo → [服务通信](/spring-cloud/3_communication) / [Dubbo](/microservices/4_dubbo)

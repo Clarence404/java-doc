@@ -1,132 +1,136 @@
 ---
-description: 云边端三层架构、边缘核心能力、主流边缘框架、EdgeX Foundry 部署、KubeEdge 云边协同、边缘 AI 推理
+description: 云边分工、EdgeX Foundry 部署、KubeEdge 云边协同与设备管理、ONNX Runtime 边缘推理
 ---
 
 # 边缘计算
 
-> 参考资料：
-> * EdgeX Foundry：[https://www.edgexfoundry.org/](https://www.edgexfoundry.org/)
-> * KubeEdge：[https://kubeedge.io/](https://kubeedge.io/)
+> **本篇目标**：搞清哪些事该放在边缘做、哪些该放在云端做；能用 EdgeX Foundry 搭一个边缘数据采集栈，用 KubeEdge 把 Kubernetes 延伸到边缘节点；能在 Java 里用 ONNX Runtime 做边缘推理，并安全地更新模型。
+>
+> **前置阅读**：[平台选型](./2_platform)、[Kubernetes](/cloud-native/6_kubernetes)
 
-## 一、是什么
+版本基线：EdgeX Foundry **4.0**（REST API v3），KubeEdge **1.23**，ONNX Runtime **1.31**。
 
-**边缘计算（Edge Computing）**：在靠近数据产生端（设备、网关、本地服务器）进行计算和处理，而不是将所有数据发往云端。
+---
 
-**解决的问题：**
+## 一、边缘计算是什么
 
-| 问题 | 云端处理 | 边缘处理 |
-|------|---------|---------|
-| 实时性 | 延迟高（网络往返） | 延迟低（本地决策） |
-| 带宽 | 所有数据上传，带宽压力大 | 本地过滤，只上传关键数据 |
-| 可靠性 | 网络中断则失控 | 断网仍可本地运行 |
-| 数据安全 | 原始数据离开本地 | 敏感数据可留在本地 |
+**边缘计算（Edge Computing）**：在靠近数据产生端的位置（设备、网关、厂区或门店的本地服务器）完成计算和决策，而不是把所有原始数据都送到云端处理。
+
+| 问题 | 全部在云端处理 | 在边缘处理 |
+|------|---------------|-----------|
+| 实时性 | 多一次网络往返，延迟不稳定 | 本地决策，延迟低且稳定 |
+| 带宽 | 原始数据全部上传，带宽和流量成本高 | 本地过滤、降采样，只上传关键数据 |
+| 可靠性 | 网络中断后现场失控 | 断网时本地仍可运行 |
+| 数据合规 | 原始数据离开现场 | 敏感数据可以只留在本地 |
+
+典型场景：
+
+- **工厂车间**：边缘网关采集 PLC 数据，本地实时判断设备告警，云端做历史分析和跨厂对比
+- **视频监控**：摄像头接入边缘节点，本地 AI 检测异常，只上传告警片段
+- **能源管理**：电表数据在边缘聚合，按分钟或小时上报，减少上云频率
+- **零售门店**：门店本地服务器处理收银和库存，断网仍能正常营业
+
+---
 
 ## 二、云边端三层架构
 
 ![云边端三层架构](../assets/iot/edge-three-layers.svg)
 
-## 三、边缘计算核心能力
+分工的基本原则：需要毫秒级响应、断网也必须工作的逻辑（本地告警、联动控制）放在边缘；需要全局数据、算力或长期存储的工作（模型训练、跨站点分析、设备管理）放在云端。边缘只做必要的事，规则和模型由云端统一下发。
+
+---
+
+## 三、边缘核心能力
 
 | 能力 | 说明 |
 |------|------|
-| **协议转换** | 将 Modbus / OPC-UA / Zigbee 等协议统一转为 MQTT，向上对接云平台 |
-| **本地规则引擎** | 在本地执行告警、联动等规则，无需云端参与 |
-| **数据过滤与聚合** | 对原始高频数据降采样、去噪，减少上云流量 |
-| **断网续传** | 云端连接中断时本地缓存数据，恢复后补传 |
-| **AI 推理** | 在边缘侧执行轻量 AI 模型（如设备异常检测） |
+| **协议转换** | 把 Modbus、OPC UA、Zigbee 等现场协议统一转成 MQTT 向上对接，协议细节见 [通信协议](./1_protocol) |
+| **本地规则引擎** | 在本地执行告警、联动规则，不依赖云端 |
+| **数据过滤与聚合** | 对高频原始数据降采样、去噪，减少上云流量 |
+| **断网续传** | 云端连接中断时本地缓存数据，恢复后按时间顺序补传 |
+| **AI 推理** | 在边缘运行轻量模型，如设备异常检测、视觉质检 |
+| **远程运维** | 应用、配置、模型由云端统一下发和升级 |
+
+---
 
 ## 四、主流边缘框架
 
-### EdgeX Foundry
+### 1、EdgeX Foundry
 
-- **定位**：Linux 基金会主导的开源边缘计算框架，专为工业 IoT 设计
-- **技术栈**：Go（核心服务） + Docker 容器化部署
-- **架构**：微服务，每个服务职责单一（Device Service / Core Data / Rules Engine）
-- **特点**：南向支持 Modbus / OPC-UA / MQTT，北向对接云平台；模块可按需裁剪
-- GitHub：[https://github.com/edgexfoundry/edgex-go](https://github.com/edgexfoundry/edgex-go)
+- **定位**：LF Edge（Linux 基金会旗下）的开源边缘框架，面向工业 IoT 的数据采集与转发
+- **技术栈**：Go 实现的微服务，Docker 部署，服务之间通过消息总线和 REST API v3 通信
+- **架构**：南向 Device Service 负责对接设备协议（Modbus、OPC UA、MQTT、BACnet 等），Core Services 负责数据和元数据，北向 Application Service 负责把数据导出到 MQTT、Kafka、HTTP；规则引擎是可选的 LF Edge eKuiper
+- **特点**：各服务职责单一，可按需裁剪
 
-### KubeEdge
+### 2、KubeEdge
 
-- **定位**：将 Kubernetes 延伸到边缘节点，CNCF 孵化项目
-- **适合**：已有 K8s 集群，希望统一管理云端和边缘应用的团队
-- **核心能力**：边缘节点断网自治、云边消息同步、设备孪生
-- GitHub：[https://github.com/kubeedge/kubeedge](https://github.com/kubeedge/kubeedge)
+- **定位**：把 Kubernetes 延伸到边缘节点，2024 年 10 月从 CNCF 毕业
+- **适合**：已有 Kubernetes 集群，希望用同一套方式管理云端和边缘应用的团队
+- **核心能力**：边缘节点断网自治、云边可靠消息同步、设备管理（DeviceModel / Device CRD 与 Mapper）
 
-### OpenYurt
+### 3、OpenYurt
 
-- **定位**：阿里开源，将 K8s 扩展到边缘场景
-- **特点**：对原生 K8s 零侵入改造，边缘节点自治能力强
-- GitHub：[https://github.com/openyurtio/openyurt](https://github.com/openyurtio/openyurt)
+- **定位**：阿里云开源的云原生边缘计算项目，以非侵入方式把原生 Kubernetes 扩展到边缘
+- **特点**：边缘节点自治、节点池（NodePool）按地域分组管理
 
-### 框架对比
+### 4、其他选择
+
+- **NanoMQ + Neuron**：EMQ 的边缘组合，NanoMQ 是轻量 MQTT Broker，Neuron 负责工业协议采集，适合网关级设备
+- **AWS IoT Greengrass、Azure IoT Edge**：云厂商的边缘运行时，与各自云平台深度集成
+
+### 5、框架对比
 
 | 框架 | 适合场景 | 技术门槛 |
 |------|---------|---------|
-| EdgeX Foundry | 工业 IoT、协议转换网关 | 中 |
-| KubeEdge | 已有 K8s 集群，云边统一管理 | 高 |
-| OpenYurt | 阿里云用户，边缘 K8s 扩展 | 高 |
+| EdgeX Foundry | 工业协议采集与转发网关 | 中 |
+| KubeEdge | 已有 K8s，云边统一编排 | 高 |
+| OpenYurt | 已有 K8s，偏节点池化管理 | 高 |
+| NanoMQ + Neuron | 资源受限的网关设备 | 低 |
+| Greengrass / Azure IoT Edge | 已深度使用对应云平台 | 中 |
 
-## 五、典型应用场景
+选型主要看两点：边缘节点的资源（能否跑容器和 Kubernetes 节点组件），以及团队是否已经用 Kubernetes 管理应用。
 
-- **工厂车间**：边缘网关采集 PLC 数据，本地实时判断设备告警，云端做历史分析
-- **视频监控**：摄像头接入边缘节点，本地 AI 检测异常，只上传告警片段
-- **能源管理**：智能电表数据在边缘聚合，减少上云频率
-- **零售门店**：门店本地服务器处理收银、库存数据，断网仍能正常营业
+---
 
-## 六、EdgeX Foundry 实战部署
+## 五、EdgeX Foundry 部署
 
-### 6.1 Docker Compose 快速启动
+### 1、用 Docker Compose 启动
 
-EdgeX Foundry 官方提供 `edgex-compose` 项目，包含所有核心服务的 Compose 文件。
+`edgex-compose` 仓库按版本提供 Compose 文件。默认的 Compose 文件启用安全模式（API 网关 + 密钥存储），此时直接调用各服务的 REST 端口会返回 401，需要先获取 JWT。本地体验用非安全模式：
 
 ```bash
-# 克隆 edgex-compose
-git clone https://github.com/edgexfoundry/edgex-compose.git
-cd edgex-compose
-
-# 启动核心服务（包含 device-virtual 虚拟设备和 app-service-configurable）
-docker compose -f docker-compose.yml up -d
-
-# 查看所有服务状态
+# 下载 4.0 的非安全模式 Compose 文件（ARM 设备用 docker-compose-no-secty-arm64.yml）
+curl https://raw.githubusercontent.com/edgexfoundry/edgex-compose/v4.0/docker-compose-no-secty.yml -o docker-compose.yml
+docker compose up -d
 docker compose ps
 ```
 
-核心服务说明：
+主要服务：
 
 | 服务 | 职责 |
 |------|------|
-| `core-data` | 接收并持久化设备上报的读数（Reading） |
-| `core-command` | 向设备发送控制指令 |
-| `core-metadata` | 管理设备、设备配置文件的元数据 |
-| `device-virtual` | 模拟虚拟设备，开发阶段无需真实硬件 |
-| `app-service-configurable` | 北向数据导出，支持推送到 MQTT / Kafka / HTTP |
+| `core-data` | 接收并持久化设备上报的事件和读数（Event / Reading），端口 59880 |
+| `core-metadata` | 管理设备、设备配置文件（Device Profile）等元数据 |
+| `core-command` | 向设备下发读写指令 |
+| `device-virtual` | 模拟设备，开发阶段不需要真实硬件 |
+| `app-service-configurable` | 北向数据导出，可推送到 MQTT、Kafka、HTTP |
 
-### 6.2 访问管理 UI
+生产环境必须使用安全模式，并把各服务的端口限制在本机或内网。
 
-服务启动后，EdgeX UI 默认监听 4000 端口：
-
-```
-http://localhost:4000
-```
-
-在 UI 中可以查看已注册设备列表、设备配置文件以及实时上报的读数数据。
-
-### 6.3 REST API 查询设备读数
-
-EdgeX 所有服务均暴露 REST API（v3），以下示例查询最近上报的所有读数：
+### 2、用 REST API 查询读数
 
 ```bash
-# 查询所有设备的读数（最多返回 20 条）
-curl -s "http://localhost:59880/api/v3/reading/all?limit=20" | python3 -m json.tool
+# 最近 20 条读数
+curl -s "http://localhost:59880/api/v3/reading/all?limit=20"
 
 # 按设备名称过滤
 curl -s "http://localhost:59880/api/v3/reading/device/name/Random-Integer-Device?limit=5"
 
-# 查询指定资源名称的读数
-curl -s "http://localhost:59880/api/v3/reading/resourceName/Int32?limit=10"
+# 按设备查询事件（一个事件包含该次采集的多条读数）
+curl -s "http://localhost:59880/api/v3/event/device/name/Random-Integer-Device"
 ```
 
-典型响应结构：
+典型响应结构（`origin` 为纳秒时间戳）：
 
 ```json
 {
@@ -146,75 +150,78 @@ curl -s "http://localhost:59880/api/v3/reading/resourceName/Int32?limit=10"
 }
 ```
 
-### 6.4 自定义 Device Service 说明
+### 3、南向 Device Service 与北向导出
 
-Device Service 是 EdgeX 的**南向驱动层**，负责对接真实硬件（Modbus、OPC-UA、BACnet 等）：
+Device Service 是 EdgeX 的南向驱动层，每种协议对应一个独立的微服务（如 `device-modbus`、`device-mqtt`），按 Device Profile 描述的资源去读写设备，采集结果发布到消息总线，由 `core-data` 持久化。
 
-- 每种协议对应一个独立的 Device Service 微服务
-- 设备采集的数据通过 `core-data` 存储，并可触发规则引擎
-- **北向导出**通过 `app-service-configurable` 配置 Pipeline，将数据推送至 MQTT Broker 或 Kafka：
+北向导出由 `app-service-configurable` 完成：选择一个导出配置（如 `mqtt-export`），通过环境变量覆盖 Pipeline 参数即可。下面是导出到 MQTT Broker 的关键配置：
 
 ```yaml
-# app-service-configurable 环境变量示例（导出到 MQTT）
-WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_BROKERADDRESS: "tcp://mqtt-broker:1883"
-WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_TOPIC: "edgex/events"
-WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_CLIENTID: "edgex-export"
+# app-service-configurable 的环境变量（导出到 MQTT）
+environment:
+  WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_BROKERADDRESS: "tcp://mqtt-broker:1883"
+  WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_TOPIC: "edgex/events"
+  WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_CLIENTID: "edgex-export"
 ```
 
 ---
 
-## 七、KubeEdge 云边协同配置
+## 六、KubeEdge 云边协同
 
-### 7.1 云端安装（keadm init）
+### 1、架构
 
-在**云端 Master 节点**执行：
+![KubeEdge 云边协同架构](../assets/iot/kubeedge-arch.svg)
+
+- **CloudCore**：部署在云端，CloudHub 维持与边缘节点的连接，EdgeController 同步 Pod、ConfigMap 等资源，DeviceController 同步设备 CRD
+- **EdgeCore**：部署在边缘节点，EdgeHub 与云端通信，MetaManager 把元数据持久化到本地，Edged 管理容器，DeviceTwin 维护设备孪生
+- **Mapper**：协议适配程序，一种协议一个 Mapper，通过 DMI 接口与 EdgeCore 交互并读写真实设备
+
+云边之间默认通过 WebSocket（也可选 QUIC）通信，CloudHub 端口为 10000。边缘节点不需要安装完整的 Kubernetes，只运行 EdgeCore 和容器运行时。
+
+### 2、云端安装
+
+在已有 Kubernetes 集群的控制节点执行。云端与边缘的 KubeEdge 版本必须一致，Kubernetes 版本需在该 KubeEdge 版本的兼容范围内（见 KubeEdge 仓库 README 的兼容矩阵）：
 
 ```bash
-# 下载并安装 keadm（以 v1.17.0 为例）
-wget https://github.com/kubeedge/kubeedge/releases/download/v1.17.0/keadm-v1.17.0-linux-amd64.tar.gz
-tar -xvf keadm-v1.17.0-linux-amd64.tar.gz
-cp keadm-v1.17.0-linux-amd64/keadm /usr/local/bin/keadm
+KE_VERSION=v1.23.1
 
-# 初始化 CloudCore（需要已有 K8s 集群）
-keadm init --advertise-address=<云端公网IP> --kubeedge-version=1.17.0
+# 安装 keadm
+wget https://github.com/kubeedge/kubeedge/releases/download/${KE_VERSION}/keadm-${KE_VERSION}-linux-amd64.tar.gz
+tar -xzf keadm-${KE_VERSION}-linux-amd64.tar.gz
+cp keadm-${KE_VERSION}-linux-amd64/keadm/keadm /usr/local/bin/keadm
 
-# 生成边缘节点加入 token
+# 安装 CloudCore；advertise-address 是边缘节点访问云端的地址，会写入 CloudCore 证书
+keadm init --advertise-address=<云端地址> --kubeedge-version=${KE_VERSION} --kube-config=/root/.kube/config
+
+# 生成边缘节点加入用的 token
 keadm gettoken
-# 输出示例：
-# 27a37ef16159f7d3...b2bae779952bcde56...@<云端IP>:10000
 ```
 
-### 7.2 边缘节点加入
-
-在**边缘节点**执行（边缘节点无需安装完整 K8s）：
+### 3、边缘节点加入
 
 ```bash
-# 安装 keadm（同上步骤）
-
-# 加入边缘集群
 keadm join \
-  --cloudcore-ipport=<云端IP>:10000 \
-  --token=<上一步获取的token> \
-  --kubeedge-version=1.17.0 \
+  --cloudcore-ipport=<云端地址>:10000 \
+  --token=<keadm gettoken 输出的 token> \
+  --kubeedge-version=v1.23.1 \
   --edgenode-name=edge-node-01
 
-# 验证节点已注册（在云端执行）
+# 在云端确认节点已注册
 kubectl get nodes
-# NAME            STATUS   ROLES        AGE
-# master-01       Ready    control-plane  10d
-# edge-node-01    Ready    agent,edge     1m
+# NAME           STATUS   ROLES           AGE
+# master-01      Ready    control-plane   10d
+# edge-node-01   Ready    agent,edge      1m
 ```
 
-### 7.3 边缘应用部署
+### 4、部署边缘应用
 
-通过标准 `kubectl apply` 部署，使用 `nodeSelector` 将 Pod 调度到边缘节点：
+用标准的 Deployment 部署，通过 `nodeSelector` 把 Pod 调度到边缘节点：
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: edge-sensor-app
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -225,7 +232,6 @@ spec:
       labels:
         app: sensor-collector
     spec:
-      # 指定调度到边缘节点
       nodeSelector:
         kubernetes.io/hostname: edge-node-01
       containers:
@@ -242,31 +248,34 @@ kubectl apply -f edge-sensor-app.yaml
 kubectl get pods -o wide   # 确认 Pod 运行在 edge-node-01
 ```
 
-### 7.4 设备孪生（Device Twin）
+### 5、设备管理：DeviceModel 与 Device
 
-KubeEdge 通过 **DeviceModel** 和 **Device** 两个 CRD 描述边缘设备：
+KubeEdge 1.15 起设备 CRD 升级到 `v1beta1`，与旧的 `v1alpha2` 不兼容。DeviceModel 描述一类设备的属性，Device 描述具体设备实例及其协议参数：
 
 ```yaml
-# DeviceModel：定义设备属性模板
+# DeviceModel：一类设备的属性定义
 apiVersion: devices.kubeedge.io/v1beta1
 kind: DeviceModel
 metadata:
   name: temperature-sensor-model
   namespace: default
 spec:
+  protocol: modbus
   properties:
     - name: temperature
-      description: "当前温度（摄氏度）"
-      type:
-        float:
-          accessMode: ReadOnly
-          defaultValue: 0.0
+      description: 当前温度
+      type: FLOAT
+      accessMode: ReadOnly
+      minimum: "-40"
+      maximum: "125"
+      unit: Celsius
     - name: humidity
-      description: "当前湿度（%RH）"
-      type:
-        float:
-          accessMode: ReadOnly
-          defaultValue: 0.0
+      description: 当前湿度
+      type: FLOAT
+      accessMode: ReadOnly
+      minimum: "0"
+      maximum: "100"
+      unit: "%RH"
 ```
 
 ```yaml
@@ -279,16 +288,22 @@ metadata:
 spec:
   deviceModelRef:
     name: temperature-sensor-model
-  # 绑定到指定边缘节点
   nodeName: edge-node-01
+  protocol:
+    protocolName: modbus
+    configData:            # 连接参数，具体字段由所用 Mapper 定义
+      ip: 192.168.1.50
+      port: 502
+      slaveID: 1
   properties:
     - name: temperature
-      desired:
-        value: "25.0"
+      collectCycle: 10000000000    # 采集周期，单位纳秒（10 秒）
+      reportCycle: 10000000000     # 上报周期，单位纳秒
+      reportToCloud: true
       visitors:
         protocolName: modbus
-        configData:
-          register: "HoldingRegister"
+        configData:        # 属性在设备上的位置，具体字段由 Mapper 定义
+          register: HoldingRegister
           offset: 0
           limit: 1
 ```
@@ -297,187 +312,150 @@ spec:
 kubectl apply -f device-model.yaml
 kubectl apply -f device-instance.yaml
 
-# 查看设备孪生状态（reported 为设备上报值）
-kubectl get device temperature-sensor-01 -o yaml | grep -A 10 "reported"
+# 查看设备状态，status 中包含设备上报的属性值
+kubectl get device temperature-sensor-01 -o yaml
 ```
 
-### 7.5 断网自治验证
+可写属性（`accessMode: ReadWrite`）可以在 Device 的 `properties` 中设置 `desired.value`，由 Mapper 下发到设备，这与 [设备影子](./8_device_shadow) 的期望值 / 上报值模型是同一个思路。
 
-KubeEdge 边缘节点支持断网后本地 Pod 继续运行：
+### 6、断网自治验证
 
 ```bash
-# 在边缘节点模拟断网
-iptables -I OUTPUT -d <云端IP> -j DROP
+# 在边缘节点模拟与云端断网
+iptables -I OUTPUT -d <云端地址> -j DROP
 
-# 验证 Pod 仍在运行（在边缘节点本地查询）
+# 在边缘节点本地查看，Pod 仍为 Running
 crictl pods
-# Pod 依然处于 Running 状态，业务不中断
 
-# 恢复网络后，云边状态自动同步
-iptables -D OUTPUT -d <云端IP> -j DROP
-kubectl get pods -o wide   # Pod 状态重新可见于云端
+# 恢复网络，云端状态重新同步
+iptables -D OUTPUT -d <云端地址> -j DROP
+kubectl get pods -o wide
 ```
+
+断网期间，EdgeCore 依靠本地持久化的元数据继续管理 Pod；边缘节点重启后也能从本地元数据恢复应用，不需要等云端重新下发。
 
 ---
 
-## 八、边缘 AI 推理（ONNX Runtime）
+## 七、边缘 AI 推理
 
-### 8.1 Maven 依赖
+边缘推理只关心「把训练好的模型在边缘稳定地跑起来」：模型导出为 ONNX 格式后，用 ONNX Runtime 在 Java 进程内推理，不依赖 Python 环境。模型训练、选型和大模型接入见 [AI 总览](/ai/0_overview)；需要在边缘服务器上运行小型大模型时，可以参考 [Ollama](/ai/3_integration/0_ollama)。
+
+![边缘 AI 推理流水线](../assets/iot/edge-ai-pipeline.svg)
+
+### 1、依赖
 
 ```xml
 <dependency>
     <groupId>com.microsoft.onnxruntime</groupId>
     <artifactId>onnxruntime</artifactId>
-    <version>1.19.2</version>
+    <version>1.31.0</version>
 </dependency>
 ```
 
-> ONNX Runtime 1.19.x 支持 Java 8+，提供 CPU 推理；如需 GPU 加速，引入 `onnxruntime_gpu` artifact。
+CPU 推理用 `onnxruntime`；需要 GPU 加速时改用 `onnxruntime_gpu`，并确认边缘设备上的 CUDA 版本与之匹配。
 
-### 8.2 加载模型并推理（完整示例）
+### 2、加载模型并推理
 
-以下示例演示：加载 ONNX 模型 → 构造输入张量 → 执行推理 → 读取输出。
+`OrtSession` 创建开销大（要解析和优化整个模型图），应当启动时创建一次、所有请求复用；`run` 方法是线程安全的。`OnnxTensor`、`OrtSession.Result`、`OrtSession` 都持有原生内存，必须关闭。
 
 ```java
-import ai.onnxruntime.*;
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtException;
+import ai.onnxruntime.OrtSession;
 
 import java.nio.FloatBuffer;
 import java.util.Map;
 
-public class EdgeAIInference {
+/**
+ * 设备异常检测。
+ * 假设模型输入 shape 为 [1, n] 的 float 特征，输出为 [1, 1] 的异常概率。
+ */
+public final class AnomalyDetector implements AutoCloseable {
 
-    /**
-     * 设备异常检测推理
-     *
-     * @param modelPath  ONNX 模型文件路径（如 /models/anomaly_detector.onnx）
-     * @param sensorData 传感器输入数据：[温度, 振动_X, 振动_Y, 振动_Z]（4 维特征）
-     * @return 0 = 正常，1 = 异常
-     */
-    public static int detectAnomaly(String modelPath, float[] sensorData) throws OrtException {
-        // 1. 创建 OrtEnvironment（进程内单例）
-        OrtEnvironment env = OrtEnvironment.getEnvironment();
+    private final OrtEnvironment env = OrtEnvironment.getEnvironment();   // 进程内单例
+    private final OrtSession session;
+    private final String inputName;
 
-        // 2. 创建推理会话，加载模型文件
-        OrtSession.SessionOptions opts = new OrtSession.SessionOptions();
-        opts.setIntraOpNumThreads(1);   // 边缘设备通常单核推理
-        OrtSession session = env.createSession(modelPath, opts);
-
-        // 3. 构造输入张量（shape: [1, 4]，即 batch=1，特征维度=4）
-        long[] shape = {1, sensorData.length};
-        OnnxTensor inputTensor = OnnxTensor.createTensor(
-                env,
-                FloatBuffer.wrap(sensorData),
-                shape
-        );
-
-        // 4. 执行推理
-        Map<String, OnnxTensor> inputs = Map.of("input", inputTensor);
-        OrtSession.Result result = session.run(inputs);
-
-        // 5. 解析输出（模型输出 shape: [1, 1]，浮点概率值）
-        float[][] output = (float[][]) result.get(0).getValue();
-        float anomalyScore = output[0][0];
-
-        // 6. 释放资源
-        inputTensor.close();
-        result.close();
-        session.close();
-
-        // 阈值 0.5：高于则判定为异常
-        return anomalyScore >= 0.5f ? 1 : 0;
+    public AnomalyDetector(String modelPath, int intraOpThreads) throws OrtException {
+        try (OrtSession.SessionOptions opts = new OrtSession.SessionOptions()) {
+            // 线程数按边缘设备可分给推理的 CPU 核数设置，而不是固定为 1
+            opts.setIntraOpNumThreads(intraOpThreads);
+            this.session = env.createSession(modelPath, opts);
+        }
+        // 输入名从模型读取，不在代码里写死
+        this.inputName = session.getInputNames().iterator().next();
     }
 
-    public static void main(String[] args) throws OrtException {
-        // 模拟传感器读数：温度=85.3℃（偏高），振动加速度 x/y/z
-        float[] sensorData = {85.3f, 0.12f, 0.09f, 2.45f};
-
-        int result = detectAnomaly("/models/anomaly_detector.onnx", sensorData);
-        System.out.println("检测结果：" + (result == 1 ? "异常" : "正常"));
-        // 输出示例：检测结果：异常
-    }
-}
-```
-
-### 8.3 典型 IoT 场景：异常检测
-
-| 输入特征 | 说明 | 示例值 |
-|----------|------|--------|
-| 温度（℃） | 设备运行温度 | 85.3 |
-| 振动 X 轴（g） | 水平方向加速度 | 0.12 |
-| 振动 Y 轴（g） | 纵向加速度 | 0.09 |
-| 振动 Z 轴（g） | 垂直方向加速度（异常时偏大） | 2.45 |
-| **输出** | 异常概率分数 | 0.87 → 判定为异常 |
-
-推理流水线示意：
-
-```
-MQTT 采集 → sensorData[] → ONNX Runtime 推理 → anomalyScore
-    ↓ score ≥ 0.5
-本地告警 + 上报云端
-```
-
-### 8.4 模型部署到边缘节点
-
-**方式一：挂载 ConfigMap（小模型，< 1MB）**
-
-```yaml
-# 将模型文件以 binaryData 存入 ConfigMap（base64 编码）
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: onnx-model-config
-  namespace: default
-binaryData:
-  anomaly_detector.onnx: <base64编码的模型内容>
-```
-
-```yaml
-# Deployment 中挂载 ConfigMap 为文件
-volumes:
-  - name: model-volume
-    configMap:
-      name: onnx-model-config
-containers:
-  - name: inference-app
-    volumeMounts:
-      - name: model-volume
-        mountPath: /models
-```
-
-**方式二：挂载 PersistentVolume（大模型，推荐）**
-
-```yaml
-volumes:
-  - name: model-volume
-    persistentVolumeClaim:
-      claimName: edge-model-pvc
-containers:
-  - name: inference-app
-    volumeMounts:
-      - name: model-volume
-        mountPath: /models
-        readOnly: true
-```
-
-**方式三：OTA 更新模型文件**
-
-通过 KubeEdge 的 `ObjectSync` 机制或自定义的模型管理服务，将新版 ONNX 文件推送至边缘节点指定目录，应用通过文件监听（`WatchService`）热加载新模型：
-
-```java
-// 监听模型文件变更，热加载新版本
-WatchService watchService = FileSystems.getDefault().newWatchService();
-Path modelDir = Paths.get("/models");
-modelDir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-
-WatchKey key;
-while ((key = watchService.take()) != null) {
-    for (WatchEvent<?> event : key.pollEvents()) {
-        if (event.context().toString().endsWith(".onnx")) {
-            System.out.println("检测到模型更新，重新加载：" + event.context());
-            // 重新创建 OrtSession，完成热加载
-            reloadModel("/models/" + event.context());
+    public float score(float[] features) throws OrtException {
+        long[] shape = {1, features.length};
+        try (OnnxTensor input = OnnxTensor.createTensor(env, FloatBuffer.wrap(features), shape);
+             OrtSession.Result result = session.run(Map.of(inputName, input))) {
+            float[][] output = (float[][]) result.get(0).getValue();
+            return output[0][0];
         }
     }
-    key.reset();
+
+    @Override
+    public void close() throws OrtException {
+        session.close();
+    }
 }
 ```
+
+调用方按阈值判定，例如分数不低于 0.5 时触发本地告警并上报事件：
+
+```java
+try (AnomalyDetector detector = new AnomalyDetector("/models/anomaly_detector.onnx", 2)) {
+    // 特征：温度、振动 X / Y / Z 轴加速度
+    float score = detector.score(new float[]{85.3f, 0.12f, 0.09f, 2.45f});
+    boolean anomaly = score >= 0.5f;
+}
+```
+
+阈值不是固定值，要在验证集上按误报率和漏报率权衡后确定，并随模型版本一起下发。
+
+### 3、模型下发到边缘节点
+
+| 方式 | 适用 | 说明 |
+|------|------|------|
+| ConfigMap 挂载 | 很小的模型 | ConfigMap 整体不能超过 1 MiB；用 `kubectl create configmap onnx-model --from-file=anomaly_detector.onnx` 创建，模型文件放进 `binaryData` |
+| 持久卷或宿主机目录 | 常规模型 | 模型由下载程序或运维工具写入，应用以只读方式挂载 |
+| 打进镜像 | 模型与代码同步发布 | 换模型就是发新版本镜像，回滚最简单，但镜像体积大 |
+| 模型管理服务 / OTA | 大量边缘节点、需要灰度 | 按批次下发、校验、回滚，与固件升级共用一套机制 |
+
+KubeEdge 会把 ConfigMap 等资源的变更可靠地同步到边缘节点，所以 ConfigMap 和镜像两种方式在断网恢复后都能自动追上最新版本。
+
+### 4、模型热更新
+
+热更新最容易出的问题是「加载了一个写到一半的文件」，以及新模型有问题却无法回退。做法：
+
+- **原子发布**：下载到临时文件，校验 SHA-256 和签名后，再用原子重命名（同一文件系统内的 `Files.move` 加 `ATOMIC_MOVE`）放到正式位置，或者按版本号建目录、最后切换软链接。不要监听 `ENTRY_MODIFY` 后立即加载，文件写入过程中会多次触发该事件
+- **ConfigMap 挂载的特殊性**：Kubelet 更新 ConfigMap 时通过替换 `..data` 软链接完成切换，产生的是创建、删除事件而不是对模型文件的修改事件；更稳妥的做法是定时检查模型文件的哈希是否变化
+- **先建后换**：新 `AnomalyDetector` 创建成功后，再用 `AtomicReference` 替换旧实例，旧实例等进行中的推理结束后再关闭；新模型加载失败时继续使用旧模型
+- **可回退**：保留上一个版本的模型文件，新模型上线后监控告警率，异常时切回
+
+模型文件的签名校验、防回滚和灰度发布与固件升级是同一套机制，见 [OTA 升级](./10_ota)。
+
+---
+
+## 小结
+
+- 边缘负责低延迟、断网也要工作的逻辑，云端负责全局数据、训练和统一管理，规则和模型由云端下发
+- EdgeX Foundry 适合工业协议采集网关，默认安全模式下 REST 调用需要 JWT，本地体验用非安全模式
+- KubeEdge 已从 CNCF 毕业，用 CloudCore / EdgeCore 把 Kubernetes 延伸到边缘，云边版本必须一致；设备 CRD 从 1.15 起为 `v1beta1`
+- ONNX Runtime 的 Session 要创建一次、全局复用，张量和结果都要关闭；输入名从模型读取，线程数按核数设置
+- 模型更新要原子发布、先建后换、可回退，签名与灰度机制与 OTA 共用
+
+## 参考资料
+
+- EdgeX Foundry 文档：[https://docs.edgexfoundry.org/](https://docs.edgexfoundry.org/)
+- EdgeX Compose：[https://github.com/edgexfoundry/edgex-compose](https://github.com/edgexfoundry/edgex-compose)
+- KubeEdge：用 keadm 安装：[https://kubeedge.io/docs/setup/install-with-keadm](https://kubeedge.io/docs/setup/install-with-keadm)
+- KubeEdge：Device CRD：[https://kubeedge.io/docs/concept/device/device_crds](https://kubeedge.io/docs/concept/device/device_crds)
+- CNCF 宣布 KubeEdge 毕业：[https://www.cncf.io/announcements/2024/10/15/cloud-native-computing-foundation-announces-kubeedge-graduation/](https://www.cncf.io/announcements/2024/10/15/cloud-native-computing-foundation-announces-kubeedge-graduation/)
+- OpenYurt：[https://github.com/openyurtio/openyurt](https://github.com/openyurtio/openyurt)
+- ONNX Runtime Java API：[https://onnxruntime.ai/docs/get-started/with-java.html](https://onnxruntime.ai/docs/get-started/with-java.html)
+- ONNX Runtime Releases：[https://github.com/microsoft/onnxruntime/releases](https://github.com/microsoft/onnxruntime/releases)
+
+> 下一篇：[数据处理](./4_data) —— 时序数据落库、流式计算与告警。

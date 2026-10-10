@@ -1,268 +1,263 @@
 ---
-description: 微调适用时机、微调类型、数据准备、OpenAI Fine-tuning API、LoRA 本地微调、评估与注意事项
+description: 何时微调、SFT / DPO / LoRA / QLoRA、数据准备、评估、Java 侧部署调用
 ---
 
 # 模型微调
 
-> 参考资料：
-> * OpenAI Fine-tuning：[https://platform.openai.com/docs/guides/fine-tuning](https://platform.openai.com/docs/guides/fine-tuning)
-> * Hugging Face Fine-tuning：[https://huggingface.co/docs/transformers/training](https://huggingface.co/docs/transformers/training)
-> * LLaMA Factory：[https://github.com/hiyouga/LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory)
+> **本篇目标**：判断一个需求该用 Prompt、RAG 还是微调，理解 SFT、DPO、LoRA、QLoRA 的区别，掌握训练数据的准备与评估方法，并知道微调后的模型怎样部署、怎样从 Java 应用调用。
+>
+> **前置阅读**：[RAG 检索增强生成](../4_core_tech/2_rag)
+
+微调的训练环节基本在 Python 生态里完成，本篇只给出必要的命令与配置，重点放在决策、数据、评估和 Java 侧的落地。Prompt 工程、RAG、微调三者的对比只在本篇维护。
 
 ---
 
-## 一、是什么 & 何时用
+## 一、先别急着微调
 
-微调（Fine-tuning）是在预训练模型的基础上，用特定领域的标注数据继续训练，使模型适应特定任务或风格。
+### 1、三种方案对比
 
-### 三种方案对比
+| 维度 | Prompt 工程 | RAG | 微调 |
+|------|-------------|-----|------|
+| 原理 | 用指令、示例引导模型 | 检索外部知识注入上下文 | 用训练数据更新模型权重 |
+| 投入 | 极低，改文本即可 | 中等，需要向量库与入库流程 | 高，需要标注数据、算力与评估体系 |
+| 知识更新 | 改提示词即生效 | 更新文档即生效 | 需要重新训练 |
+| 擅长 | 通用任务、快速验证 | 私有知识、时效信息、可追溯来源 | 固定输出格式、语气风格、领域任务习惯、用小模型替代大模型 |
+| 不擅长 | 超长规则、稳定的复杂格式 | 改变模型行为方式 | 注入频繁变化的知识 |
+| 幻觉 | 取决于模型本身 | 有文档依据时较低 | 不会因微调自动减少，学到错误样本还会放大 |
 
-| 维度 | Prompt Engineering | RAG | Fine-tuning |
-|---|---|---|---|
-| **原理** | 通过精心设计 Prompt 引导模型 | 检索外部知识注入上下文 | 在训练数据上更新模型权重 |
-| **成本** | 极低（仅调整文本） | 中等（向量库 + 检索服务） | 高（GPU 算力 + 标注数据） |
-| **知识更新** | 随 Prompt 即时更新 | 更新向量库即可 | 需重新训练 |
-| **输出风格控制** | 有限，依赖 Prompt 提示 | 有限 | 强，能固化特定格式和语气 |
-| **幻觉风险** | 中等 | 低（有文档依据） | 中等（仍可能幻觉） |
-| **适用场景** | 通用任务、快速原型 | 知识密集型问答、文档检索 | 固定格式输出、专业领域语气、替换 few-shot |
+### 2、推荐顺序
 
-### 何时选择微调
+1. **先写评估集**：没有评估集就无法判断任何方案是否有效，后面每一步都靠它比较
+2. **Prompt 工程**：清晰的指令、少量示例、结构化输出（JSON Schema），多数需求到这一步就解决了
+3. **RAG**：缺的是知识而不是能力时，用 RAG
+4. **微调**：同时满足下面几条才考虑
 
-满足以下条件时才考虑微调，否则优先用 Prompt Engineering 或 RAG：
+- 需要稳定的输出格式或风格，Prompt 加示例仍然达不到要求
+- 任务依赖的是「做事方式」而不是「知道什么」，RAG 帮不上忙
+- 有足够的高质量样本（至少几百条），并且有人能持续维护
+- 有明确的收益：如用微调后的小模型替换大模型降低成本和延迟，或去掉很长的系统提示词
 
-- 需要**固定的输出格式**（如特定 JSON 结构），few-shot 也无法稳定达到
-- 需要**特定的语气或领域词汇**（如企业内部术语、行业缩写）
-- 有**足够的高质量标注数据**（≥ 50 条，推荐 500～2000 条）
-- **RAG 无法满足**（任务不依赖外部文档，而是依赖行为模式）
-- **推理延迟敏感**（微调后可用更小的模型替代大模型 + 长 System Prompt）
+**常见误区**：想让模型「记住公司的产品手册」而去微调。知识类需求用 RAG，微调学到的知识难以更新、无法引用来源，而且容易和原有知识混淆。
 
 ---
 
-## 二、微调类型
+## 二、微调方法
 
-| 类型 | 资源需求 | 适用模型规模 | 优点 | 缺点 |
-|---|---|---|---|---|
-| **全量微调**（Full Fine-tuning） | 极高（多块 A100） | 7B 以下 | 效果上限最高 | 成本高，容易灾难性遗忘 |
-| **LoRA** | 中等（单卡 16GB+） | 7B～70B | 参数量少，训练快，效果接近全量 | 需要合并或加载 adapter |
-| **QLoRA** | 低（单卡 8GB）| 7B～70B | 量化后显存需求极低 | 推理时需要反量化，有轻微精度损失 |
-| **PEFT（统称）** | 取决于具体方法 | 通用 | 官方库统一管理多种方法 | 配置较复杂 |
+### 1、按训练目标分
 
-**实践建议：** 本地资源有限时首选 QLoRA + LLaMA Factory；有预算且使用 OpenAI 模型时直接用 OpenAI Fine-tuning API（内部托管，无需关心训练细节）。
+| 方法 | 训练数据 | 用途 |
+|------|----------|------|
+| **SFT（监督微调）** | 输入 + 期望输出 | 学会固定格式、任务流程、领域语气，最常用 |
+| **DPO（偏好优化）** | 输入 + 好的输出 + 差的输出 | 调整风格偏好，如更简洁、更礼貌，不需要训练奖励模型 |
+| **RFT（强化微调）** | 输入 + 评分规则 | 用评分器打分强化推理能力，适合有明确对错标准的复杂任务 |
+| **蒸馏** | 大模型生成的高质量输出 | 用大模型的结果训练小模型，降低推理成本，是企业最常见的落地方式 |
+
+### 2、按更新的参数分
+
+| 方法 | 资源需求 | 优点 | 缺点 |
+|------|----------|------|------|
+| **全量微调** | 最高，需要多卡并保存完整权重副本 | 效果上限高 | 成本高，容易灾难性遗忘，每个任务一份完整模型 |
+| **LoRA** | 中等，只训练少量新增参数 | 训练快，产物只有几十到几百 MB 的适配器，可按任务切换 | 效果略逊于全量，需要选择插入的层和秩 |
+| **QLoRA** | 低，基座以 4 bit 量化加载 | 单张消费级显卡也能微调中等规模模型 | 训练速度比 LoRA 慢，量化带来少量精度损失 |
+
+### 3、LoRA 与 QLoRA 原理
+
+LoRA（Low-Rank Adaptation）冻结原始权重 W，在旁边加一条由两个小矩阵组成的旁路：A 把输入从 d 维降到 r 维，B 再升回 d 维，训练时只更新 A 和 B。输出变为 h = W·x + B·A·x，其中 r 远小于 d（常取 8、16、32），需要训练的参数通常只占原模型的 1% 以下。
+
+![LoRA 低秩旁路](../../assets/ai/lora-adapter.svg)
+
+QLoRA 是一种**训练**技巧：基座模型以 4 bit 量化形式加载以节省显存，LoRA 适配器仍以较高精度训练。部署时常见两种方式：把适配器合并回 16 bit 的基座权重后导出完整模型，或者在推理框架中「基座 + 适配器」动态加载，后者便于一个基座服务多个任务。
 
 ---
 
 ## 三、数据准备
 
-### JSONL 格式（OpenAI / LLaMA Factory 通用）
+### 1、格式
 
-每行一个 JSON 对象，包含 `system`、`user`、`assistant` 三段对话：
+主流工具都接受「对话消息」格式的 JSONL，每行一条完整样本（下面为了阅读做了换行，实际文件中一条样本必须写在一行）：
 
-```jsonl
-{"messages": [{"role": "system", "content": "你是一个 Java 代码审查助手，以结构化 Markdown 列表格式输出审查意见。"}, {"role": "user", "content": "审查以下代码：\npublic List<User> getUsers() {\n    return userRepository.findAll();\n}"}, {"role": "assistant", "content": "## 代码审查意见\n\n- **性能风险**：`findAll()` 会加载全表数据，数据量大时会导致 OOM，建议改为分页查询。\n- **建议**：使用 `findAll(Pageable pageable)` 并在接口层接收分页参数。"}]}
-{"messages": [{"role": "system", "content": "你是一个 Java 代码审查助手，以结构化 Markdown 列表格式输出审查意见。"}, {"role": "user", "content": "审查以下代码：\nString sql = \"SELECT * FROM user WHERE id = \" + userId;"}, {"role": "assistant", "content": "## 代码审查意见\n\n- **高危漏洞**：存在 SQL 注入风险，用户传入的 `userId` 未经任何过滤直接拼接 SQL。\n- **建议**：使用 PreparedStatement 参数化查询，或改用 MyBatis/JPA 的参数绑定机制。"}]}
+```json
+{
+  "messages": [
+    {"role": "system", "content": "你是 Java 代码审查助手，用 Markdown 列表输出审查意见。"},
+    {"role": "user", "content": "审查以下代码：\nString sql = \"SELECT * FROM user WHERE id = \" + userId;"},
+    {"role": "assistant", "content": "- **高危**：SQL 拼接存在注入风险。\n- **建议**：使用 PreparedStatement 或 MyBatis 的 #{} 参数绑定。"}
+  ]
+}
 ```
 
-### 数据量建议
+DPO 样本额外包含一条「更好的回答」和一条「更差的回答」，具体字段名以所用平台或工具的文档为准。
 
-| 数量 | 适用场景 |
-|---|---|
-| 50～100 条 | 概念验证，验证可行性 |
-| 200～500 条 | 单一简单任务（分类、格式转换） |
-| 500～2000 条 | 复杂任务，效果稳定 |
-| 2000 条以上 | 高精度要求、多场景覆盖 |
+### 2、数据量
 
-**数据质量原则：**
+| 样本量 | 适用阶段 |
+|--------|----------|
+| 50～100 条 | 验证可行性，看方向对不对 |
+| 几百条 | 单一、明确的任务，如分类、格式转换 |
+| 1000～几千条 | 复杂任务，追求稳定效果 |
 
-- **质量 > 数量**：100 条高质量数据优于 1000 条低质量数据
-- **多样性**：覆盖边界情况、错误输入、不同表达方式
-- **一致性**：同类任务输出格式必须完全统一，格式不一致是微调失败的主要原因
-- **人工校验**：至少抽查 20% 的数据确认准确性
+### 3、质量原则
+
+- **质量优先**：100 条精心校对的样本胜过 1000 条噪声样本，错误样本会被模型忠实地学会
+- **覆盖面**：包含边界情况、错误输入、各种表达方式，以及「应该拒绝或说不知道」的样本
+- **一致性**：同类任务的输出格式必须完全统一，格式不一致是微调失败最常见的原因
+- **人工复核**：至少抽检 20%；用大模型生成或改写的样本更要复核
+- **合规与脱敏**：训练数据里的个人信息、密钥、客户数据要先脱敏，上传到第三方平台前确认数据协议，见 [数据安全](/security/7_data_security)
+- **切分**：按 9:1 左右划分训练集和验证集，验证集不少于几十条，并且与训练集没有重复
 
 ---
 
-## 四、OpenAI Fine-tuning API
+## 四、托管微调与本地微调
 
-### 完整流程
+### 1、托管微调
 
-#### 1. 上传训练文件
+云厂商提供「上传数据 → 创建任务 → 得到新模型 ID」的托管服务，不用管 GPU 与训练细节，适合已经在用该厂商模型的团队。各平台支持的基座模型、方法和价格变化很快，以官方文档为准：
 
-```bash
-curl https://api.openai.com/v1/files \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
-  -F purpose="fine-tune" \
-  -F file="@training_data.jsonl"
+- OpenAI：提供 SFT、DPO、RFT 和视觉微调，但官方文档已说明正在收缩微调平台，新用户无法开通，已有用户在过渡期内仍可创建任务，已微调模型在其基座模型下线前可继续调用
+- Google Vertex AI：Gemini 等模型的调优服务
+- Amazon Bedrock：多家基座模型的定制，包括微调与蒸馏等方式
+- 阿里云百炼：通义千问系列模型的训练与部署
 
-# 返回示例：
-# {"id": "file-abc123", "object": "file", ...}
+托管微调产出的模型通过原来的 API 调用，只是把模型 ID 换成微调后的 ID，Java 侧不需要改代码，见第六节。
+
+### 2、本地微调
+
+开源模型（如 Qwen、Llama、Mistral 等系列）可以在自己的 GPU 上微调，数据不出内网，产物完全自有。常用工具：
+
+| 工具 | 特点 | 适用 |
+|------|------|------|
+| LLaMA-Factory | Web UI + 命令行，支持模型多，中文资料丰富 | 快速实验 |
+| Unsloth | 显存占用低、训练快，可导出 GGUF | 单卡微调 |
+| Axolotl | 配置文件驱动 | 工程化、接入 CI |
+| Hugging Face TRL / PEFT | 官方训练库，SFT、DPO 等方法齐全 | 需要定制训练流程 |
+
+以 LLaMA-Factory 为例，训练参数写在 YAML 里，命令只负责启动：
+
+```yaml
+# qlora_sft.yaml
+model_name_or_path: <base-model>   # 基座模型，如 Hugging Face 上的 Qwen 系列 Instruct 模型
+template: <template>               # 与基座匹配的对话模板，见 LLaMA-Factory 文档
+stage: sft
+finetuning_type: lora
+lora_rank: 16
+quantization_bit: 4                # 4 bit 加载基座，即 QLoRA
+dataset: code_review               # 在 data/dataset_info.json 中登记的数据集
+num_train_epochs: 3
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 8
+val_size: 0.1
+output_dir: ./output/code-review-lora
 ```
 
-#### 2. 创建 Fine-tuning Job
-
 ```bash
-curl https://api.openai.com/v1/fine_tuning/jobs \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "training_file": "file-abc123",
-    "model": "gpt-4o-mini-2024-07-18",
-    "hyperparameters": {
-      "n_epochs": 3
-    },
-    "suffix": "code-reviewer"
-  }'
-
-# 返回示例：
-# {"id": "ftjob-xyz789", "status": "queued", ...}
+llamafactory-cli train qlora_sft.yaml
+# 训练完成后用 export 子命令把适配器合并进基座，导出完整模型
 ```
 
-#### 3. 监控训练进度
+---
 
-```bash
-curl https://api.openai.com/v1/fine_tuning/jobs/ftjob-xyz789 \
-  -H "Authorization: Bearer $OPENAI_API_KEY"
+## 五、评估
 
-# 查看训练事件（含 loss 曲线数据）
-curl https://api.openai.com/v1/fine_tuning/jobs/ftjob-xyz789/events \
-  -H "Authorization: Bearer $OPENAI_API_KEY"
+### 1、看 Loss 曲线
+
+- **正常收敛**：训练 loss 与验证 loss 同步下降后趋于平稳
+- **过拟合**：训练 loss 持续下降，验证 loss 在某一轮之后开始上升；应减少训练轮数、增加数据多样性或降低学习率
+- **欠拟合**：两条曲线都下降得很慢或停在高位；检查数据格式与模板是否正确，再考虑增加轮数或提高秩
+
+### 2、看业务指标
+
+Loss 低不代表效果好，最终要用评估集比较：
+
+- **基线对比**：同一评估集上比较「原模型 + 最佳 Prompt」与「微调模型」，微调必须明显更好才值得维护
+- **任务指标**：分类任务看准确率与召回率，格式任务看结构校验通过率，生成任务用评分标准人工或 LLM 打分
+- **通用能力回归**：抽查与训练任务无关的问题，确认没有出现灾难性遗忘
+- **安全回归**：确认微调没有削弱拒答能力，例如不会因为训练样本而输出敏感信息
+
+### 3、版本管理
+
+每个微调模型记录：基座模型与版本、训练数据版本（文件哈希）、超参数、评估结果、上线和下线时间。模型 ID 写在配置中心里，回滚只需要改配置。
+
+---
+
+## 六、Java 侧部署与调用
+
+### 1、部署方式
+
+| 来源 | 部署方式 | Java 侧接入 |
+|------|----------|-------------|
+| 托管微调 | 厂商托管，得到新模型 ID | 原有 SDK / Spring AI 配置，把模型 ID 换掉 |
+| 本地微调 → Ollama | 合并后导出 safetensors 或 GGUF，在 Modelfile 中用 `FROM` 指向它，`ollama create` 生成模型 | Spring AI Ollama starter，见 [Ollama](../3_integration/0_ollama) |
+| 本地微调 → vLLM 等推理服务 | 推理框架加载基座与适配器，提供 OpenAI 兼容接口 | Spring AI OpenAI starter，`base-url` 指向推理服务 |
+
+### 2、调用：模型 ID 走配置
+
+无论哪种来源，Java 代码都不应写死模型 ID：
+
+```yaml
+spring:
+  ai:
+    openai:
+      api-key: ${LLM_API_KEY}
+      base-url: ${LLM_BASE_URL}      # 托管服务地址，或自建 vLLM 的 OpenAI 兼容地址
+      chat:
+        model: ${CODE_REVIEW_MODEL_ID}   # 微调后得到的模型 ID，放在配置中心便于切换与回滚
+        temperature: 0.2
 ```
-
-#### 4. 使用微调后的模型（Java SDK）
 
 ```java
-// 微调完成后，模型 ID 格式为：ft:gpt-4o-mini-2024-07-18:org-name:code-reviewer:xxxx
 @Service
-public class FineTunedReviewService {
+public class CodeReviewService {
 
-    private final OpenAIClient client;
+    private final ChatClient chatClient;
 
-    public FineTunedReviewService() {
-        this.client = OpenAIOkHttpClient.fromEnv();
+    public CodeReviewService(ChatClient.Builder builder) {
+        // 系统提示词与训练数据保持一致，否则微调效果会打折
+        this.chatClient = builder
+                .defaultSystem("你是 Java 代码审查助手，用 Markdown 列表输出审查意见。")
+                .build();
     }
 
     public String review(String code) {
-        ChatCompletion response = client.chat().completions().create(
-            ChatCompletionCreateParams.builder()
-                // 替换为实际的微调模型 ID
-                .model("ft:gpt-4o-mini-2024-07-18:my-org:code-reviewer:abc123")
-                .addSystemMessage("你是一个 Java 代码审查助手，以结构化 Markdown 列表格式输出审查意见。")
-                .addUserMessage("审查以下代码：\n" + code)
-                .build()
-        );
-
-        return response.choices().get(0).message().content().orElse("");
+        return chatClient.prompt()
+                .user("审查以下代码：\n" + code)
+                .call()
+                .content();
     }
 }
 ```
 
----
+上线时按灰度比例把流量切到微调模型，同时保留原模型作为降级方案，监控两者的效果指标与延迟。
 
-## 五、LoRA 本地微调（概念）
+### 3、成本估算
 
-### LoRA 原理
+- **训练成本** ≈ 训练集总 Token 数 × 训练轮数 × 训练单价（托管）；本地训练则是 GPU 时长 × 单位成本
+- **推理成本** ≈ 调用次数 × 每次的输入与输出 Token × 推理单价；微调模型的单价可能高于同基座的原模型
+- **收益**：去掉长系统提示词与 few-shot 示例节省的输入 Token，以及换用小模型节省的单价
 
-LoRA（Low-Rank Adaptation）的核心思路：冻结原始模型权重，只在每个 Transformer 层的权重矩阵旁边插入两个小矩阵 A 和 B（低秩分解），训练时只更新 A 和 B。
-
-```
-原始权重矩阵 W（d×d）不更新
-新增 ΔW = B × A，其中 B(d×r)、A(r×d)，r << d（如 r=8 或 r=16）
-推理时：output = (W + ΔW) × input
-```
-
-**优势：** 对于 7B 参数的模型，LoRA 仅需训练约 0.1%～1% 的参数量，显存需求从 80GB+ 降至 16GB 以内；配合 QLoRA（4-bit 量化）可在 8GB 消费级 GPU 上完成微调。
-
-### LLaMA Factory 快速上手
-
-```bash
-# 安装
-pip install llamafactory
-
-# 使用 Web UI 配置并启动训练（推荐新手）
-llamafactory-cli webui
-
-# 命令行启动 QLoRA 训练
-llamafactory-cli train \
-  --stage sft \
-  --model_name_or_path meta-llama/Llama-3.1-8B-Instruct \
-  --dataset my_dataset \
-  --dataset_dir ./data \
-  --template llama3 \
-  --finetuning_type lora \
-  --lora_rank 8 \
-  --output_dir ./output/llama3-lora \
-  --per_device_train_batch_size 2 \
-  --gradient_accumulation_steps 4 \
-  --num_train_epochs 3 \
-  --quantization_bit 4
-
-# 导出合并后的完整模型
-llamafactory-cli export \
-  --model_name_or_path meta-llama/Llama-3.1-8B-Instruct \
-  --adapter_name_or_path ./output/llama3-lora \
-  --export_dir ./output/llama3-merged \
-  --template llama3
-```
-
-**常用工具对比：**
-
-| 工具 | 特点 | 适用场景 |
-|---|---|---|
-| **LLaMA Factory** | Web UI + 命令行，支持 100+ 模型 | 快速实验，中文社区友好 |
-| **Axolotl** | 配置文件驱动，灵活 | 工程化、CI/CD 集成 |
-| **Hugging Face TRL** | 官方库，支持 RLHF/DPO | 需要 RLHF 对齐 |
+例如 1000 条样本、每条平均 500 Token、训练 3 轮，训练 Token 为 1000 × 500 × 3 = 150 万。单价以各平台定价页为准。
 
 ---
 
-## 六、评估与注意事项
+## 小结
 
-### 训练集/验证集划分
+- 微调排在 Prompt 工程和 RAG 之后：先建评估集，知识类需求用 RAG，行为与格式类需求才考虑微调
+- SFT 最常用，DPO 调偏好，RFT 强化推理，蒸馏用于把大模型能力迁移到小模型
+- LoRA 只训练低秩旁路，QLoRA 进一步以 4 bit 加载基座降低显存，部署时可合并或动态加载适配器
+- 数据质量和格式一致性决定成败；评估要同时看 loss、业务指标、通用能力与安全回归
+- Java 侧通过 Ollama 或 OpenAI 兼容接口调用微调模型，模型 ID 走配置，灰度上线并保留降级
 
-```text
-推荐比例：训练集 90% / 验证集 10%
-最小验证集：50 条（少于此数量，验证集 loss 统计意义有限）
-```
+## 参考资料
 
-OpenAI Fine-tuning API 支持传入 `validation_file` 参数，训练过程中会同时输出验证集 loss。
+- OpenAI 模型优化与微调：[https://developers.openai.com/api/docs/guides/model-optimization](https://developers.openai.com/api/docs/guides/model-optimization)
+- Google Vertex AI 模型调优：[https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-models](https://cloud.google.com/vertex-ai/generative-ai/docs/models/tune-models)
+- Amazon Bedrock 自定义模型：[https://docs.aws.amazon.com/bedrock/latest/userguide/custom-models.html](https://docs.aws.amazon.com/bedrock/latest/userguide/custom-models.html)
+- 阿里云百炼模型训练：[https://www.alibabacloud.com/help/en/model-studio/model-training-on-console](https://www.alibabacloud.com/help/en/model-studio/model-training-on-console)
+- LoRA 论文：[https://arxiv.org/abs/2106.09685](https://arxiv.org/abs/2106.09685)
+- QLoRA 论文：[https://arxiv.org/abs/2305.14314](https://arxiv.org/abs/2305.14314)
+- LLaMA-Factory：[https://github.com/hiyouga/LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory)
+- Unsloth 文档：[https://docs.unsloth.ai/](https://docs.unsloth.ai/)
+- Hugging Face PEFT：[https://huggingface.co/docs/peft/index](https://huggingface.co/docs/peft/index)
+- Hugging Face TRL：[https://huggingface.co/docs/trl/index](https://huggingface.co/docs/trl/index)
+- Ollama 导入模型：[https://docs.ollama.com/import](https://docs.ollama.com/import)
 
-### 通过 Loss 曲线判断过拟合
-
-```text
-正常收敛：
-  训练 loss 平稳下降 → 趋于稳定
-  验证 loss 同步下降 → 趋于稳定
-
-过拟合信号：
-  训练 loss 持续下降
-  验证 loss 在某个 epoch 后开始上升
-
-处理方式：
-  减少训练轮次（n_epochs）
-  增加训练数据多样性
-  适当增大 dropout（本地训练时）
-```
-
-### 模型版本管理
-
-```text
-命名规范（推荐）：
-  ft:gpt-4o-mini:{org}:{task}-v{版本号}:{job-id}
-  示例：ft:gpt-4o-mini:acme:code-reviewer-v2:abc123
-
-版本记录内容：
-  - 训练日期
-  - 训练数据版本（文件 hash 或数据集版本号）
-  - 超参数（epochs, learning_rate_multiplier）
-  - 验证集指标（loss, 业务指标）
-  - 上线/下线时间
-```
-
-### OpenAI 微调成本参考
-
-| 模型 | 训练价格 | 推理价格（输入/输出）|
-|---|---|---|
-| gpt-4o-mini-2024-07-18 | $0.003 / 1K tokens | $0.003 / $0.012 per 1K |
-| gpt-4o-2024-08-06 | $0.025 / 1K tokens | $0.003 / $0.015 per 1K |
-
-**估算示例：** 1000 条训练数据，每条平均 500 tokens，训练 3 个 epoch：
-`1000 × 500 × 3 = 1,500,000 tokens ≈ $4.5`（使用 gpt-4o-mini）
-
-> 注意：价格会随时调整，以 [OpenAI 官方定价页](https://openai.com/pricing) 为准。
+> 下一篇：[AI 编程工具怎么选](../6_tools/0_ai_tools)

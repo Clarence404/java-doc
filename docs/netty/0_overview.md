@@ -18,7 +18,7 @@ Netty 是 Java 生态中使用最广的网络通信框架。Dubbo、gRPC-Java、
 ## 三、阅读建议
 
 - **第一次接触 Netty**：按顺序读完前五篇，并把 [Netty 入门](./3_netty_desc) 里的 Echo 示例在本地跑一遍，再接着往下读。
-- **要做 RPC 或设备接入**：重点阅读第 6～8 篇，再结合 [IoT - Java 实战](/iot/6_java_iot) 中带 CRC 校验的完整实现。
+- **要做 RPC 或设备接入**：重点阅读第 6～8 篇，再结合 [Netty 设备接入网关](/iot/9_netty_gateway) 中带 CRC 校验的完整实现。
 - **要做实时推送**：先读 [心跳与连接管理](./9_heartbeat)，再根据是否需要客户端上行消息，在 [WebSocket](./10_websocket) 和 [SSE](./11_sse) 之间选择。
 - **准备上线或排查线上问题**：直接看 [生产实践与调优](./12_production) 的参数表和常见坑。
 

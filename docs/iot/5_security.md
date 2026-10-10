@@ -1,460 +1,428 @@
 ---
-description: 设备认证、传输加密、访问控制、常见攻击与防护、X.509 证书烧录、EMQX ACL、IoT 零信任
+description: IoT 威胁模型、一机一密、X.509 与 mTLS、EMQX 5.x 认证授权与 ACL、安全事件审计、零信任落地
 ---
 
-# IoT 安全
+# 设备安全
 
-> 参考资料：
-> * OWASP IoT Top 10：[https://owasp.org/www-project-internet-of-things/](https://owasp.org/www-project-internet-of-things/)
-> * EMQX 安全文档：[https://www.emqx.io/docs/zh/latest/access-control/overview.html](https://www.emqx.io/docs/zh/latest/access-control/overview.html)
+> **本篇目标**：掌握 IoT 设备从身份到数据的整套防护——一机一密与 X.509 证书怎么发、EMQX 5.x 的认证和 Topic 授权怎么配、越权与暴力破解怎么发现，以及零信任在设备网络中怎么落地。
+>
+> **前置阅读**：[HTTPS 与 TLS](/protocols/3_https_tls)（证书链与 mTLS）、[零信任架构](/security/9_zero_trust)、[通信协议](./1_protocol)
+
+TLS 握手、证书链校验等通用原理见 [HTTPS 与 TLS](/protocols/3_https_tls)，零信任的通用原则见 [零信任架构](/security/9_zero_trust)，本篇只讲设备侧特有的做法。
+
+版本基线：配置均为 EMQX 5.x 语法（HOCON 配置、`${clientid}` 占位符、API Key 调用 REST API），6.x 沿用同一套语法；4.x 的 `%c` / `%u` 写法与 `acl.conf` 旧格式不再适用。EMQX 5.9 起的许可变化见 [平台选型](./2_platform)。
+
+---
 
 ## 一、IoT 安全的特殊性
 
-与普通 Web 安全相比，IoT 安全面临更多挑战：
+### 1、与 Web 安全的差异
 
-| 挑战 | 说明 |
-|------|------|
-| 设备资源受限 | MCU 内存 / CPU 有限，无法运行重型加密算法 |
-| 设备数量庞大 | 数万台设备，统一管理认证复杂 |
-| 长期部署无人值守 | 设备部署后难以物理接触，漏洞修复靠 OTA |
-| 通信环境复杂 | 无线信道易被监听、伪造 |
-| 供应链风险 | 硬件固件可能被篡改 |
+| 挑战 | 说明 | 带来的要求 |
+|------|------|-----------|
+| 设备资源受限 | MCU 内存、算力有限 | 优先 ECC（P-256）而不是 RSA；会话复用减少握手 |
+| 数量庞大 | 几万到几百万台设备 | 凭证必须自动化签发、轮换、吊销 |
+| 长期无人值守 | 部署后很难物理接触 | 漏洞修复依赖安全的 OTA |
+| 物理可接触 | 设备可能被拆解、读 Flash | 私钥放安全芯片，关闭调试口 |
+| 供应链长 | 芯片、模组、产线、代工厂 | 产线环节也要纳入信任链 |
+
+### 2、常见攻击与防护
+
+| 攻击 | 说明 | 防护 |
+|------|------|------|
+| 默认 / 弱口令 | 出厂统一密码被批量利用 | 一机一密，禁止共享凭证 |
+| 暴露的调试接口 | 通过 UART / JTAG 读出固件和密钥 | 量产时熔断或禁用调试口，开启 Flash 读保护 |
+| 中间人 | 劫持通信、篡改数据 | TLS + 设备校验服务端证书，必要时 mTLS |
+| 重放 | 截获合法消息重复发送 | 消息带时间戳与 Nonce，服务端去重 |
+| 越权订阅 | 设备订阅 `#` 或其他设备的 Topic | Topic 级 ACL，兜底拒绝 |
+| 暴力破解 | 枚举设备凭证 | 认证失败审计与告警，按来源 IP 限速 |
+| 连接风暴 | 大量设备同时重连压垮 Broker | 客户端指数退避加随机抖动，Broker 连接速率限制 |
+| 不安全的更新 | 固件被替换或回滚到有漏洞的旧版本 | 固件签名、防回滚、A/B 分区（见第五节） |
+
+以上覆盖了 OWASP IoT Top 10 中最常见的几项，完整列表见文末参考资料。
 
 ---
 
-## 二、设备认证
+## 二、设备身份与认证
 
-### 认证方式对比
+### 1、认证方式对比
 
 | 方式 | 说明 | 适用场景 |
 |------|------|---------|
-| **用户名/密码** | MQTT 连接时携带 username + password | 简单场景，安全性低 |
-| **Token** | 设备携带平台颁发的 Token，定期刷新 | 互联网 IoT 平台 |
-| **PSK（预共享密钥）** | 设备出厂烧录唯一密钥，握手时验证 | 资源受限设备 |
-| **X.509 证书** | 设备持有客户端证书，双向 TLS 认证 | 安全要求高的工业场景 |
+| 用户名 / 密码（一机一密） | 每台设备唯一密钥，CONNECT 时携带 | 资源最受限的设备，必须配合 TLS |
+| HMAC 签名 | 用设备密钥对 `clientId + 时间戳` 签名作为密码，密钥不上网 | 公有云 IoT 平台常用 |
+| JWT | 设备持有带 `exp` 的令牌，过期后重新获取 | 设备能定期访问令牌服务的场景 |
+| HTTP 认证服务 | EMQX 把凭证转发给业务服务判定 | 设备台账在业务系统中，需要自定义逻辑 |
+| X.509 证书（mTLS） | 设备持有客户端证书，TLS 握手时校验 | 工业、能源、车联网等高安全要求场景 |
+| TLS-PSK / DTLS-PSK | 双方预共享对称密钥完成 TLS / DTLS 握手 | 不便处理证书的 CoAP 等低功耗设备 |
 
-### 一机一密 vs 一型一密
+### 2、一机一密与一型一密
 
-| 模式 | 说明 | 安全性 |
+| 模式 | 说明 | 风险 |
+|------|------|------|
+| 一机一密 | 每台设备出厂烧录唯一的 DeviceSecret 或证书 | 单台泄露只影响这一台，可单独吊销 |
+| 一型一密 | 同型号共用 ProductSecret，首次上线用它「动态注册」换取本机密钥 | ProductSecret 泄露后，攻击者可以伪造该型号的新设备；注册接口必须校验设备序列号白名单，并且每台设备只能注册一次 |
+
+一型一密只是解决产线无法逐台烧录的折中，换到本机密钥后应立刻弃用 ProductSecret。
+
+### 3、HMAC 签名 + EMQX HTTP 认证
+
+设备不直接发送 DeviceSecret，而是发送签名，签名中带时间戳以限制重放窗口：
+
+| CONNECT 字段 | 取值 |
+|--------------|------|
+| clientid | `dev001`（设备 ID） |
+| username | `dev001&1767225600000`（设备 ID + 毫秒时间戳） |
+| password | `HMAC-SHA256(DeviceSecret, "clientId=dev001&ts=1767225600000")` 的十六进制 |
+
+EMQX 认证链配置一个 HTTP 认证器，把凭证转给设备台账服务判定。配置了认证器后，未通过认证的客户端会被拒绝，不再需要单独的「禁止匿名」开关：
+
+```hocon
+authentication = [
+  {
+    mechanism = password_based
+    backend = http
+    method = post
+    url = "http://device-registry:8080/emqx/authn"
+    body {
+      clientid = "${clientid}"
+      username = "${username}"
+      password = "${password}"
+      peerhost = "${peerhost}"
+    }
+    headers { "Content-Type" = "application/json" }
+  }
+]
+```
+
+台账服务返回 `{"result": "allow" | "deny" | "ignore"}`；返回 4xx / 5xx 时 EMQX 视为 `ignore`，继续走认证链中的下一个认证器，全部都没通过则拒绝连接。
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.time.Clock;
+import java.time.Duration;
+import java.util.HexFormat;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.web.bind.annotation.*;
+
+// 以下三个类型分属不同文件
+public record AuthnRequest(String clientid, String username, String password, String peerhost) {}
+
+public record AuthnResult(String result, @JsonProperty("is_superuser") boolean superuser) {
+    static AuthnResult allow() { return new AuthnResult("allow", false); }
+    static AuthnResult deny()  { return new AuthnResult("deny", false); }
+}
+
+@RestController
+public class EmqxAuthnController {
+
+    private static final long MAX_SKEW_MS = Duration.ofMinutes(5).toMillis();
+    private final DeviceSecretStore secrets;   // 设备台账：按设备 ID 取出解密后的 DeviceSecret
+    private final Clock clock;
+
+    public EmqxAuthnController(DeviceSecretStore secrets, Clock clock) {
+        this.secrets = secrets;
+        this.clock = clock;
+    }
+
+    @PostMapping("/emqx/authn")
+    public AuthnResult authenticate(@RequestBody AuthnRequest req) throws GeneralSecurityException {
+        String[] parts = req.username() == null ? new String[0] : req.username().split("&", 2);
+        // username 中的设备 ID 必须等于 clientid，否则 ACL 中的 ${clientid} 可以被随意指定
+        if (parts.length != 2 || !parts[0].equals(req.clientid())) {
+            return AuthnResult.deny();
+        }
+        long ts;
+        byte[] actual;
+        try {
+            ts = Long.parseLong(parts[1]);
+            actual = HexFormat.of().parseHex(req.password());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return AuthnResult.deny();
+        }
+        if (Math.abs(clock.millis() - ts) > MAX_SKEW_MS) {
+            return AuthnResult.deny();                       // 时间戳过旧，疑似重放
+        }
+        byte[] secret = secrets.find(req.clientid()).orElse(null);
+        if (secret == null) {
+            return AuthnResult.deny();
+        }
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(secret, "HmacSHA256"));
+        byte[] expected = mac.doFinal(("clientId=" + req.clientid() + "&ts=" + ts)
+                .getBytes(StandardCharsets.UTF_8));
+        return MessageDigest.isEqual(expected, actual) ? AuthnResult.allow() : AuthnResult.deny();
+    }
+}
+```
+
+- **DeviceSecret 的存储**：HMAC 需要原始密钥，不能像用户密码那样只存哈希；台账中用 KMS 托管的密钥加密存储
+- **clientid 绑定身份**：ACL 依赖 `${clientid}`，如果认证不校验 clientid，设备可以用 `+` 之类的字符当 clientid，让 `devices/${clientid}/cmd` 变成通配订阅
+- **容量**：每次连接都会调用该服务，设备批量重连时它就是瓶颈，需要按连接风暴的峰值压测和扩容
+
+### 4、X.509 证书签发
+
+证书认证的核心原则是**私钥在哪里生成，就只待在哪里**：设备在安全芯片内生成密钥对，只把 CSR 交给 CA 签名；平台不生成、也不下发设备私钥。
+
+![设备证书签发与接入](../assets/iot/iot-cert-provisioning.svg)
+
+下面的 openssl 命令演示整个过程。生产中根 CA 离线保管，用中间 CA 签发设备证书，CA 私钥放在 HSM / KMS 中，绝不能放在跑批量脚本的机器上：
+
+```bash
+# 1) 设备 CA（演示用）：ECDSA P-256
+openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out ca.key
+openssl req -new -x509 -days 3650 -key ca.key -out ca.pem \
+  -subj "/O=MyCompany/CN=IoT-Device-CA"
+
+# 2) 设备侧：生成密钥与 CSR（理想情况下在安全芯片内完成，私钥不导出）
+openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out dev001.key
+openssl req -new -key dev001.key -out dev001.csr -subj "/O=MyCompany/CN=dev001"
+
+# 3) CA 签发：限定为客户端认证用途，并写入 CRL 分发点
+cat > device-ext.cnf <<'EOF'
+basicConstraints = critical, CA:FALSE
+keyUsage = critical, digitalSignature
+extendedKeyUsage = clientAuth
+crlDistributionPoints = URI:http://pki.example.com/device-ca.crl
+EOF
+openssl x509 -req -days 730 -sha256 -in dev001.csr \
+  -CA ca.pem -CAkey ca.key -CAcreateserial \
+  -extfile device-ext.cnf -out dev001.pem
+
+openssl verify -CAfile ca.pem dev001.pem
+```
+
+- **选 P-256 而不是 RSA 2048**：密钥和签名更短，MCU 上握手更快、占用内存更少
+- **`extendedKeyUsage = clientAuth`**：部分 Broker 和 TLS 库会校验用途，缺少时握手失败；同时防止设备证书被拿去当服务端证书
+- **CN 填设备 ID**：Broker 可以直接从证书中取出设备身份（见第三节）
+
+设备端需要保存的内容：
+
+| 内容 | 作用 | 保密性 |
 |------|------|--------|
-| **一机一密** | 每台设备有唯一的 DeviceSecret，出厂预烧录 | 高，单设备泄露不影响其他 |
-| **一型一密** | 同型号设备共用 ProductSecret，首次连接后动态获取设备密钥 | 中，适合量产激活 |
+| CA 证书（信任锚） | 校验 Broker 的服务端证书 | 公开，但要防篡改 |
+| 设备证书 | TLS 握手时出示给 Broker | 公开 |
+| 设备私钥 | TLS 握手时签名 | 只存在于安全芯片（SE / TPM）或加密存储区，不可导出 |
+
+产线上记录「设备序列号 ↔ 证书序列号」的对应关系，后续吊销、换证都靠它。
+
+### 5、证书轮换与吊销
+
+- **有效期**：设备证书 1–2 年；到期前由平台下发「换证」指令
+- **换证流程**：设备在本地生成新密钥对，通过当前有效的 TLS 连接提交新 CSR（可采用 EST，RFC 7030），拿到新证书后切换；整个过程私钥不离开设备
+- **吊销**：设备报废或疑似泄露时将证书加入 CRL；EMQX 的 SSL 监听器支持 CRL 检查（`enable_crl_check`），被吊销的设备在 TLS 握手阶段即被拒绝
+- **CA 轮换**：设备内预置新旧两个 CA 证书，先下发新 CA，再逐步换签设备证书
 
 ---
 
 ## 三、传输加密
 
-### TLS / DTLS
+所有设备流量只走 TLS（MQTT 8883 端口）；CoAP 等基于 UDP 的协议用 DTLS。握手、前向保密与证书链校验的原理见 [HTTPS 与 TLS](/protocols/3_https_tls)。
 
-- **TLS（Transport Layer Security）**：基于 TCP，保护 MQTT / HTTP / OPC-UA 通信
-- **DTLS（Datagram TLS）**：基于 UDP，保护 CoAP 通信
-- 作用：防止中间人监听、篡改数据
+EMQX 开启强制双向认证时，`verify = verify_peer` 只表示「请求并校验客户端证书」，客户端不出示证书时仍可连接；必须同时设置 `fail_if_no_peer_cert = true`：
 
-设备通过 TLS 加密连接到 MQTT Broker（EMQX），Broker 验证服务端证书；开启双向认证时设备也需提供客户端证书。
-
-**MQTT over TLS 配置要点（EMQX）：**
-
-```yaml
+```hocon
 listeners.ssl.default {
   bind = "0.0.0.0:8883"
   ssl_options {
-    cacertfile = "/etc/emqx/certs/ca.pem"
-    certfile   = "/etc/emqx/certs/server.pem"
-    keyfile    = "/etc/emqx/certs/server.key"
-    verify     = verify_peer      # 开启双向认证
+    cacertfile = "etc/certs/device-ca.pem"   # 只信任设备 CA，不要用系统公共 CA 包
+    certfile   = "etc/certs/server.pem"
+    keyfile    = "etc/certs/server.key"
+    versions   = ["tlsv1.3", "tlsv1.2"]
+    verify     = verify_peer
+    fail_if_no_peer_cert = true
+    enable_crl_check     = true
   }
+}
+
+# 关闭明文 1883 监听器
+listeners.tcp.default.enable = false
+
+# 用证书 CN 作为 clientid / username，设备无法自报他人身份
+mqtt {
+  peer_cert_as_clientid = cn
+  peer_cert_as_username = cn
 }
 ```
 
----
-
-## 四、访问控制
-
-### Topic 级别权限控制
-
-MQTT 中每个设备只应能发布/订阅属于自己的 Topic，防止越权操作：
-
-```
-# 规则示例：设备只能操作自己 ID 对应的 Topic
-设备 device-001 允许发布：devices/device-001/data
-设备 device-001 禁止发布：devices/device-002/data
-```
-
-EMQX 支持通过 ACL 规则（文件 / 数据库 / HTTP 回调）实现 Topic 粒度权限控制。
+- **`peer_cert_as_*` 必须配合强制 mTLS**：否则客户端可以出示任意自签名证书，填任意 CN
+- **CN 必须唯一**：两台设备 CN 相同会因 clientid 冲突互相踢下线
+- **资源受限设备**：TLS 1.3 + ECDHE-ECDSA 套件，开启会话复用，减少每次重连的完整握手
 
 ---
 
-## 五、常见攻击与防护
+## 四、Topic 授权（EMQX ACL）
 
-| 攻击类型 | 说明 | 防护措施 |
-|---------|------|---------|
-| **重放攻击** | 截获合法消息重复发送 | 消息加时间戳 + Nonce，服务端去重 |
-| **中间人攻击** | 劫持通信，篡改数据 | TLS 双向证书认证 |
-| **暴力破解** | 枚举猜测设备密码 | 限制连接频率，强密码策略 |
-| **DDoS / 连接风暴** | 大量设备同时重连压垮 Broker | 退避重连策略，连接速率限制 |
-| **固件篡改** | 替换设备固件植入后门 | OTA 固件签名验证 |
+### 1、认证与授权的分工
 
-### OTA 安全升级流程
+| 层 | 回答的问题 | EMQX 配置 |
+|----|-----------|----------|
+| 认证（authentication） | 你是谁、能不能连上来 | `authentication` 认证链；配置后未认证的客户端直接被拒绝 |
+| 授权（authorization） | 你能发布 / 订阅哪些 Topic | `authorization.sources` 按顺序匹配，都不命中时按 `no_match` 处理 |
 
-```
-1. 厂商对固件包进行数字签名（私钥）
-2. 平台下发升级指令 + 固件下载地址 + 签名
-3. 设备下载固件
-4. 设备用内置公钥验证签名
-5. 签名合法 → 安装；不合法 → 拒绝，告警
-```
+拒绝匿名连接是认证层的事；授权层做 Topic 粒度的最小权限，并用 `no_match = deny` 加末尾 `{deny, all}` 兜底。
 
----
+### 2、授权配置
 
-## 六、安全检查清单
-
-- [ ] 设备连接使用 TLS 加密（端口 8883 而非 1883）
-- [ ] 禁用 MQTT 匿名连接
-- [ ] 每台设备使用唯一的 Client ID + 认证凭证
-- [ ] Topic 设置 ACL，设备只能访问自己的 Topic
-- [ ] OTA 固件包验证签名
-- [ ] 定期轮换设备证书 / Token
-- [ ] Broker 开启连接速率限制，防止连接风暴
-- [ ] 生产环境禁用调试接口和测试账号
-
-## 七、X.509 证书生成与设备烧录
-
-### 完整 openssl 命令流程
-
-**第一步：生成 CA 私钥和自签名根证书**
-
-```bash
-# 生成 CA 私钥（4096 位 RSA）
-openssl genrsa -out ca.key 4096
-
-# 用 CA 私钥自签名根证书，有效期 10 年
-openssl req -new -x509 -days 3650 \
-  -key ca.key \
-  -out ca.pem \
-  -subj "/C=CN/ST=Shanghai/O=MyCompany/CN=IoT-Root-CA"
+```hocon
+authorization {
+  no_match    = deny          # 没有规则命中时拒绝（6.0 起默认即为 deny）
+  deny_action = disconnect    # 越权时断开连接；默认 ignore 只丢弃该操作
+  cache { enable = true, max_size = 32, ttl = 1m }
+  sources = [
+    { type = file, enable = true, path = "etc/acl.conf" }
+    { type = built_in_database, enable = true }
+  ]
+}
 ```
 
-**第二步：为单台设备生成私钥**
+`sources` 按顺序检查，第一个给出结果的数据源生效。授权结果有缓存，修改规则后最长要等一个 `ttl` 才对已连接的客户端生效。除文件和内置数据库外，EMQX 内置 MySQL、PostgreSQL、MongoDB、Redis、LDAP、HTTP 数据源，规则量大或要和业务系统打通时直接配置，不需要插件。
 
-```bash
-# 设备私钥（2048 位即可满足大多数 IoT 场景）
-openssl genrsa -out device-001.key 2048
-```
-
-**第三步：生成 CSR（证书签名请求）**
-
-```bash
-# CN 字段填写设备唯一标识（与 MQTT Client ID 保持一致，便于 Broker 识别）
-openssl req -new \
-  -key device-001.key \
-  -out device-001.csr \
-  -subj "/C=CN/ST=Shanghai/O=MyCompany/CN=device-001"
-```
-
-**第四步：用 CA 签发设备证书，有效期 2 年**
-
-```bash
-openssl x509 -req -days 730 \
-  -in device-001.csr \
-  -CA ca.pem \
-  -CAkey ca.key \
-  -CAcreateserial \
-  -out device-001.pem
-
-# 验证证书内容
-openssl x509 -in device-001.pem -noout -text
-```
-
-### 批量设备证书生成脚本
-
-```bash
-#!/bin/bash
-# batch_gen_certs.sh
-# 用法：./batch_gen_certs.sh device-001 device-002 device-003 ...
-
-CA_KEY="ca.key"
-CA_PEM="ca.pem"
-CERT_DIR="./certs"
-DAYS=730  # 证书有效期 2 年
-
-mkdir -p "$CERT_DIR"
-
-for DEVICE_ID in "$@"; do
-  echo ">>> 生成设备证书：$DEVICE_ID"
-
-  # 生成设备私钥
-  openssl genrsa -out "$CERT_DIR/$DEVICE_ID.key" 2048
-
-  # 生成 CSR
-  openssl req -new \
-    -key "$CERT_DIR/$DEVICE_ID.key" \
-    -out "$CERT_DIR/$DEVICE_ID.csr" \
-    -subj "/C=CN/O=MyCompany/CN=$DEVICE_ID"
-
-  # CA 签发证书
-  openssl x509 -req -days $DAYS \
-    -in "$CERT_DIR/$DEVICE_ID.csr" \
-    -CA "$CA_PEM" \
-    -CAkey "$CA_KEY" \
-    -CAcreateserial \
-    -out "$CERT_DIR/$DEVICE_ID.pem"
-
-  # 清理 CSR（不需要保留）
-  rm "$CERT_DIR/$DEVICE_ID.csr"
-
-  echo "    完成：$CERT_DIR/$DEVICE_ID.key / $DEVICE_ID.pem"
-done
-
-echo "=== 批量生成完毕，共 $# 台设备 ==="
-```
-
-调用示例：
-
-```bash
-chmod +x batch_gen_certs.sh
-./batch_gen_certs.sh device-001 device-002 device-003
-```
-
-### 设备烧录要点
-
-每台设备固件中需烧录以下三个文件：
-
-| 文件 | 作用 | 保密性 |
-|------|------|--------|
-| `ca.pem` | 根证书（信任链），设备用它验证 Broker 身份 | 公开 |
-| `device-xxx.pem` | 设备证书，Broker 用它验证设备身份 | 公开 |
-| `device-xxx.key` | 设备私钥，TLS 握手时使用 | **严格保密，不可泄露** |
-
-**烧录注意事项：**
-
-- 私钥应存储在设备的安全存储区（如 MCU 的 Flash 加密区、TPM 芯片），防止物理读取
-- 生产线烧录流程需在离线内网环境中进行，防止证书文件在传输过程中被截获
-- 烧录完成后记录设备 ID 与证书序列号的对应关系，方便日后吊销管理
-
-### 证书有效期管理
-
-- **推荐有效期：1~2 年**，过短会增加 OTA 更新频率，过长会增加证书泄露的风险窗口
-- **到期前提醒**：平台应在证书到期前 30 天推送告警，触发 OTA 更新流程
-- **更新流程**：平台下发新证书文件 → 设备通过当前有效的 TLS 连接下载 → 安装并重启连接
-- **证书吊销**：设备报废或密钥泄露时，在 CA 吊销列表（CRL）或 OCSP 中记录，Broker 定期同步
-
----
-
-## 八、EMQX ACL 规则详细配置
-
-### ACL 三种配置方式
-
-| 方式 | 文件/接口 | 适用场景 |
-|------|---------|---------|
-| **文件（acl.conf）** | `etc/acl.conf` | 规则固定、数量少，适合小规模部署 |
-| **内置数据库（Mnesia）** | EMQX Dashboard / HTTP API | 规则动态变更，无需重启 |
-| **外部数据库（MySQL / PostgreSQL）** | 配置 EMQX 插件连接外部 DB | 规则量大，与业务系统集成 |
-
-### acl.conf 文件语法
+### 3、文件规则（acl.conf）
 
 ```erlang
-%% 格式：{allow | deny, 匹配条件, 操作, [Topic 列表]}
-%%
-%% 匹配条件：
-%%   all                  — 所有客户端
-%%   {user, "username"}   — 指定用户名
-%%   {clientid, "id"}     — 指定 Client ID
-%%   {ipaddr, "ip/cidr"}  — 指定 IP 地址段
+%% EMQX 5.x acl.conf：自上而下匹配，第一条命中的规则生效
 
-%% 1. 设备只能发布/订阅自己 clientid 对应的 Topic
-%%    %c 是 Client ID 占位符，%u 是 username 占位符
-{allow, all, pubsub, ["devices/%c/data", "devices/%c/cmd"]}.
+%% 1. 任何客户端都不能订阅全量通配和系统主题（{eq, ...} 表示按字面匹配，不展开通配符）
+{deny, all, subscribe, ["$SYS/#", {eq, "#"}, {eq, "+/#"}]}.
 
-%% 2. 服务端账号（username = "server"）可以订阅所有设备 Topic
-{allow, {user, "server"}, subscribe, ["devices/#"]}.
+%% 2. 后台服务：订阅所有设备上报，向任意设备下发指令
+{allow, {username, "iot-backend"}, subscribe, ["devices/+/telemetry", "devices/+/event"]}.
+{allow, {username, "iot-backend"}, publish, ["devices/+/cmd"]}.
 
-%% 3. 服务端账号可以向任意设备下发命令
-{allow, {user, "server"}, publish, ["devices/+/cmd"]}.
+%% 3. 设备：只能发布自己的上报，只能订阅自己的指令
+{allow, all, publish, ["devices/${clientid}/telemetry", "devices/${clientid}/event"]}.
+{allow, all, subscribe, ["devices/${clientid}/cmd"]}.
 
-%% 4. 拒绝所有匿名客户端（username 为空）
-{deny, {user, ""}, all, ["#"]}.
-
-%% 5. 默认规则：拒绝所有（放在文件末尾）
+%% 4. 兜底：其余一律拒绝
 {deny, all}.
 ```
 
-### 常用规则场景示例
+- **占位符**：5.x 用 `${clientid}`、`${username}`，4.x 的 `%c`、`%u` 不再生效
+- **匹配条件**：`{username, "..."}`、`{clientid, "..."}`、`{ipaddr, "10.0.0.0/8"}`，用户名和 clientid 支持正则 `{username, {re, "^svc-"}}`
+- **按 username 授权的前提**：username 必须经过认证；只用证书认证时，用上文的 `peer_cert_as_username = cn` 让 username 也来自证书，否则任何设备都能自称 `iot-backend`
+- **通过 Dashboard 或 REST API 改过文件规则后**，EMQX 会把规则保存到 `data/authz/acl.conf`，不再读取 `path` 指向的原文件
 
-**场景 1：设备只能操作自己的 Topic（%c 占位符）**
+### 4、内置数据库与 REST API
 
-```erlang
-%% device-001 连接后，%c 替换为 device-001
-%% 该设备只能发布 devices/device-001/data，无法发布 devices/device-002/data
-{allow, all, pubsub, ["devices/%c/#"]}.
-```
-
-**场景 2：后台服务订阅所有设备上报数据**
-
-```erlang
-{allow, {user, "backend-service"}, subscribe, ["devices/#", "$SYS/#"]}.
-```
-
-**场景 3：拒绝所有匿名客户端**
-
-```erlang
-{deny, {user, ""}, all, ["#"]}.
-{deny, {clientid, ""}, all, ["#"]}.
-```
-
-### 通过 EMQX HTTP API 动态管理 ACL 规则
-
-EMQX 5.x 支持通过 REST API 对内置数据库中的 ACL 规则进行 CRUD 操作，无需重启服务。
-
-**为指定客户端添加 ACL 规则：**
+设备上线、下线频繁变化的规则放在内置数据库，通过 REST API 增删。REST API 使用 API Key 认证：在 Dashboard「系统设置 → API 密钥」创建（或用 `api_key.bootstrap_file` 在启动时导入），以 HTTP Basic 方式携带；Dashboard 的登录用户名和密码不能直接用于 Basic 认证。
 
 ```bash
-# 允许 device-001 发布到自己的数据 Topic
+# 为 dev001 写入规则：请求体是数组，可一次提交多台设备
 curl -X POST "http://emqx-host:18083/api/v5/authorization/sources/built_in_database/rules/clients" \
+  -u "${EMQX_API_KEY}:${EMQX_API_SECRET}" \
   -H "Content-Type: application/json" \
-  -u "admin:your_password" \
-  -d '{
-    "clientid": "device-001",
-    "rules": [
-      {
-        "action": "publish",
-        "topic": "devices/device-001/data",
-        "permission": "allow"
-      },
-      {
-        "action": "subscribe",
-        "topic": "devices/device-001/cmd",
-        "permission": "allow"
-      }
-    ]
-  }'
+  -d '[
+    {
+      "clientid": "dev001",
+      "rules": [
+        {"action": "publish",   "permission": "allow", "topic": "devices/dev001/telemetry"},
+        {"action": "subscribe", "permission": "allow", "topic": "devices/dev001/cmd"}
+      ]
+    }
+  ]'
+
+# 查询、删除单台设备的规则
+curl -u "${EMQX_API_KEY}:${EMQX_API_SECRET}" \
+  "http://emqx-host:18083/api/v5/authorization/sources/built_in_database/rules/clients/dev001"
+curl -X DELETE -u "${EMQX_API_KEY}:${EMQX_API_SECRET}" \
+  "http://emqx-host:18083/api/v5/authorization/sources/built_in_database/rules/clients/dev001"
 ```
 
-**查询指定客户端的 ACL 规则：**
-
-```bash
-curl -X GET "http://emqx-host:18083/api/v5/authorization/sources/built_in_database/rules/clients/device-001" \
-  -u "admin:your_password"
-```
-
-**删除指定客户端的 ACL 规则：**
-
-```bash
-curl -X DELETE "http://emqx-host:18083/api/v5/authorization/sources/built_in_database/rules/clients/device-001" \
-  -u "admin:your_password"
-```
-
-**批量导入 ACL 规则（从 JSON 文件）：**
-
-```bash
-# rules.json 格式参考 EMQX 文档，内容为规则数组
-curl -X POST "http://emqx-host:18083/api/v5/authorization/sources/built_in_database/rules/clients" \
-  -H "Content-Type: application/json" \
-  -u "admin:your_password" \
-  -d @rules.json
-```
+API Key 按最小权限分配角色，密钥放在密钥管理系统中；18083 管理端口只对内网开放。
 
 ---
 
-## 九、零信任在 IoT 中的应用
+## 五、OTA 与固件安全
 
-### 核心原则：永不信任，始终验证
+OTA 既是修复漏洞的唯一通道，也是最危险的攻击入口：攻击者一旦能推送固件，就等于拿到了全部设备。安全的 OTA 至少包括四件事：发布方用私钥对固件的 SHA-256 摘要做 ECDSA 或 Ed25519 签名，设备用内置公钥验签（MD5 既不是签名，也不抗碰撞，不能用来防篡改）；设备记录单调递增的安全版本号，拒绝安装更低版本，防止回滚到有漏洞的旧固件；A/B 双分区写入新固件，启动失败自动回退；配合安全启动（Secure Boot），保证每次上电运行的都是验签通过的固件。任务编排、灰度与断点续传等实现细节见 [OTA 升级](./10_ota)。
 
-传统网络安全依赖"边界防护"：防火墙隔离外部，内网默认可信。这一模型在 IoT 场景中彻底失效——设备分布在工厂、户外、用户家中，根本没有统一的"内网边界"。
+---
 
-**零信任的核心理念**：无论连接来自内网还是外网，无论设备是否曾经认证过，每次访问请求都必须重新验证身份和权限。
+## 六、审计与零信任落地
 
-| 对比维度 | 传统边界安全 | 零信任安全 |
-|---------|------------|----------|
-| 信任模型 | 内网默认可信，外网不可信 | 所有网络默认不可信 |
-| 认证时机 | 一次登录后长期信任 | 每次请求持续验证 |
-| 横向移动风险 | 一台设备被攻破可横向扩散 | 每台设备独立隔离，限制扩散范围 |
-| 适合场景 | 集中式办公内网 | 分布式 IoT / 云原生 / 远程办公 |
+### 1、安全事件采集
 
-### IoT 零信任关键措施
+EMQX 的审计日志（`log.audit`）记录的是 Dashboard、REST API、CLI 上的**管理操作**，不记录设备的连接与认证。设备侧的安全事件用规则引擎订阅内置事件，再转发到 Kafka / HTTP，最终进入 SIEM：
 
-**1. 设备身份：每台设备唯一证书/密钥，禁止共享凭证**
+| 事件 Topic | 用途 | 关键字段 |
+|------------|------|---------|
+| `$events/client/connected` | 设备上线，记录来源 IP | `clientid`、`username`、`peername` |
+| `$events/client/disconnected` | 设备下线及原因 | `reason` |
+| `$events/client/connack` | 连接被拒（认证失败等） | `reason_code`、`peername` |
+| `$events/auth/check_authn_complete` | 认证结果 | `reason_code` |
+| `$events/auth/check_authz_complete` | 授权结果，`result = deny` 即越权尝试 | `result`、`topic`、`action`、`peerhost` |
 
-```yaml
-# 错误做法：所有同型号设备共用同一套凭证（一旦泄露全线沦陷）
-device_id: "device-type-A"
-username: "shared_user"
-password: "shared_password"
-
-# 正确做法：每台设备独立的 X.509 证书或唯一 DeviceSecret
-device_id: "device-001"          # 全局唯一
-cert_file: "/certs/device-001.pem"
-key_file:  "/certs/device-001.key"
+```sql
+-- 越权尝试：转发到安全事件 Topic，按 clientid / peerhost 聚合告警
+SELECT clientid, username, peerhost, topic, action, result, timestamp
+FROM "$events/auth/check_authz_complete"
+WHERE result = 'deny'
 ```
 
-**2. 最小权限：设备只能访问自己的 Topic，服务间通信最小化授权**
+典型告警规则：同一来源 IP 短时间大量认证失败（暴力破解）、单台设备反复越权（固件被篡改或配置错误）、设备从未出现过的地区上线（凭证外泄）。
 
-```
-# ACL 规则示例（EMQX）
-device-001 → 仅允许 publish: devices/device-001/data
-device-001 → 仅允许 subscribe: devices/device-001/cmd
-device-001 → 禁止访问: devices/device-002/#（其他设备 Topic）
-```
+### 2、零信任措施
 
-**3. 持续验证：连接建立后定期重新验证（Token 刷新）**
+零信任的通用原则见 [零信任架构](/security/9_zero_trust)，落到 IoT 是下面几项：
 
-```java
-// 设备端伪代码：定期刷新连接 Token
-@Scheduled(fixedDelay = 3600_000) // 每小时刷新
-public void refreshDeviceToken() {
-    String newToken = authService.refreshToken(deviceId, currentToken);
-    mqttClient.disconnect();
-    mqttClient.reconnectWithToken(newToken);
-    log.info("设备 {} Token 刷新完成", deviceId);
-}
-```
+| 原则 | IoT 中的做法 |
+|------|-------------|
+| 每个设备独立身份 | 一机一密或设备证书，禁止同型号共用凭证 |
+| 最小权限 | ACL 只放行 `devices/${clientid}/...`，后台服务按职责拆分账号 |
+| 持续验证 | JWT 带 `exp`，EMQX 默认在令牌过期后断开连接（`disconnect_after_expire`），设备重连时重新认证；令牌有效期加随机抖动，避免大批设备同时过期、同时重连 |
+| 微隔离 | 按区域划分设备网段，网关作为唯一出口，Broker 不直接暴露在公网 |
+| 全程可观测 | 认证、授权、上下线事件全部进入 SIEM |
 
-**4. 微隔离：不同区域设备网络隔离，内网设备不直接暴露到公网**
+网络微分段的典型做法：
 
-```
-                 ┌─────────────────────┐
-  工厂车间 A      │ 设备网段 192.168.1.0/24 │  ──►  Edge Gateway A  ──►  EMQX Cluster
-                 └─────────────────────┘         （仅开放 8883 端口，双向 TLS）
-                 ┌─────────────────────┐
-  工厂车间 B      │ 设备网段 192.168.2.0/24 │  ──►  Edge Gateway B  ──►  EMQX Cluster
-                 └─────────────────────┘         （车间 A 与 B 网络完全隔离）
-```
+![IoT 网络微分段](../assets/iot/iot-network-segmentation.svg)
 
-- 车间 A 的设备无法直接访问车间 B 的设备
-- Edge Gateway 作为区域出口，统一管理本区域设备的认证和流量
-- EMQX Cluster 不直接暴露在公网，通过负载均衡/API Gateway 对外提供服务
+- 不同车间的设备网段之间默认拒绝互访，一台设备被攻破不会横向扩散
+- 边缘网关是区域唯一出口，统一管理本区域设备的认证和流量
+- 负载均衡只放行 8883，EMQX 集群不直接暴露在公网；Dashboard 与 REST API 端口只在管理网可达
 
-**5. 可观测：所有连接、断开、认证事件记录审计日志**
+---
 
-EMQX 支持将认证和连接事件写入日志，或通过 Webhook/规则引擎转发到外部审计系统：
+## 七、安全检查清单
 
-```yaml
-# emqx.conf：开启审计日志
-log.audit {
-  enable = true
-  path   = "/var/log/emqx/audit.log"
-  level  = info
-}
-```
-
-关键审计事件清单：
-
-| 事件 | 说明 |
+| 阶段 | 措施 |
 |------|------|
-| `client.connected` | 设备连接成功，记录 IP、Client ID、时间戳 |
-| `client.disconnected` | 设备断开，记录原因（主动/异常/认证失败） |
-| `client.auth.failed` | 认证失败，记录失败原因和来源 IP（用于检测暴力破解） |
-| `acl.deny` | ACL 拒绝的操作，记录 Topic 和操作类型（用于检测越权尝试） |
+| 一、基础 | 只开放 8883，关闭 1883；配置认证器，拒绝未认证连接；每台设备独立凭证 |
+| 二、权限 | 部署 ACL，设备只能访问自己的 Topic；`no_match = deny` + 末尾 `{deny, all}`；API Key 最小权限 |
+| 三、设备 | 私钥放安全芯片；量产禁用 UART / JTAG；删除测试账号与默认口令 |
+| 四、固件 | OTA 签名验签、防回滚、A/B 分区、安全启动 |
+| 五、隔离 | 设备网段微分段，管理端口只对内网开放 |
+| 六、持续 | 证书 / 令牌定期轮换，吊销走 CRL；认证与越权事件接入 SIEM 并配置告警 |
 
-### 零信任实施路线建议
+---
 
-```
-阶段一（基础）：启用 TLS + 禁用匿名连接 + 每台设备独立凭证
-    ↓
-阶段二（权限）：部署 ACL 规则，限制设备只能访问自己的 Topic
-    ↓
-阶段三（隔离）：网络微分段，不同区域设备走独立网关
-    ↓
-阶段四（持续验证）：Token 定期刷新机制 + 证书轮换 OTA
-    ↓
-阶段五（可观测）：审计日志接入 SIEM，异常行为实时告警
-```
+## 小结
+
+- IoT 安全的难点在规模、物理可接触和长期无人值守，凭证必须一机一密、可自动轮换和吊销
+- 密码类方案用 HMAC 签名 + 时间戳，DeviceSecret 不上网；认证服务要校验 clientid 与设备身份一致
+- 证书方案选 ECDSA P-256，私钥在设备内生成、永不离开设备；EMQX 用 `verify_peer` + `fail_if_no_peer_cert = true` 强制 mTLS，用 `peer_cert_as_clientid = cn` 绑定身份
+- EMQX 5.x 授权用 `${clientid}` 占位符、`{eq, ...}` 字面匹配，`no_match = deny` 加 `{deny, all}` 兜底；REST API 用 API Key，请求体是数组
+- OTA 要签名、防回滚、A/B 分区与安全启动，细节在 OTA 篇
+- 设备安全事件来自规则引擎的 `$events/...`，不是审计日志；零信任落地为独立身份、最小权限、持续验证、微隔离和全程可观测
+
+## 参考资料
+
+- OWASP Internet of Things Project：[https://owasp.org/www-project-internet-of-things/](https://owasp.org/www-project-internet-of-things/)
+- EMQX 认证：[https://docs.emqx.com/en/emqx/latest/access-control/authn/authn.html](https://docs.emqx.com/en/emqx/latest/access-control/authn/authn.html)
+- EMQX HTTP 认证：[https://docs.emqx.com/en/emqx/latest/access-control/authn/http.html](https://docs.emqx.com/en/emqx/latest/access-control/authn/http.html)
+- EMQX JWT 认证：[https://docs.emqx.com/en/emqx/latest/access-control/authn/jwt.html](https://docs.emqx.com/en/emqx/latest/access-control/authn/jwt.html)
+- EMQX X.509 证书认证：[https://docs.emqx.com/en/emqx/latest/access-control/authn/x509.html](https://docs.emqx.com/en/emqx/latest/access-control/authn/x509.html)
+- EMQX 授权与 ACL 文件：[https://docs.emqx.com/en/emqx/latest/access-control/authz/file.html](https://docs.emqx.com/en/emqx/latest/access-control/authz/file.html)
+- EMQX 内置数据库授权：[https://docs.emqx.com/en/emqx/latest/access-control/authz/mnesia.html](https://docs.emqx.com/en/emqx/latest/access-control/authz/mnesia.html)
+- EMQX SSL/TLS 双向认证：[https://docs.emqx.com/en/emqx/latest/network/emqx-mqtt-tls.html](https://docs.emqx.com/en/emqx/latest/network/emqx-mqtt-tls.html)
+- EMQX CRL 检查：[https://docs.emqx.com/en/emqx/latest/network/crl.html](https://docs.emqx.com/en/emqx/latest/network/crl.html)
+- EMQX REST API 与 API Key：[https://docs.emqx.com/en/emqx/latest/admin/api.html](https://docs.emqx.com/en/emqx/latest/admin/api.html)
+- EMQX 规则 SQL 事件与字段：[https://docs.emqx.com/en/emqx/latest/data-integration/rule-sql-events-and-fields.html](https://docs.emqx.com/en/emqx/latest/data-integration/rule-sql-events-and-fields.html)
+- RFC 7030 Enrollment over Secure Transport（EST）：[https://www.rfc-editor.org/rfc/rfc7030](https://www.rfc-editor.org/rfc/rfc7030)
+
+> 下一篇：[MQTT 客户端](./6_mqtt_client)

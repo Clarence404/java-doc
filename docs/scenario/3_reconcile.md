@@ -316,7 +316,7 @@ CREATE TABLE recon_diff (
 | 待复核 MANUAL | 复核通过，调账或补单 | 已解决 RESOLVED |
 | 待复核 MANUAL | 暂时无法处理 | 挂账 HANG |
 
-每次状态迁移都用条件更新：`UPDATE recon_diff SET status = ? WHERE id = ? AND status = ?`，影响行数为 0 说明已被别人处理过，直接放弃。原理见 [幂等设计](/architecture/5_idempotence#四、条件更新：状态机与版本号)。
+每次状态迁移都用条件更新：`UPDATE recon_diff SET status = ? WHERE id = ? AND status = ?`，影响行数为 0 说明已被别人处理过，直接放弃。原理见 [幂等设计](/architecture/5_idempotence#四、条件更新-状态机与版本号)。
 
 ### 3、自动处理必须幂等
 

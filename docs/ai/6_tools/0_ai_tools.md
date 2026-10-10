@@ -1,241 +1,156 @@
 ---
-description: 主流 AI 产品与编程工具横向对比：ChatGPT、Claude Code、Gemini、Cursor、Copilot、Devin Desktop
+description: AI 编程工具分类、选型维度、项目规则文件、团队使用规范（审查、测试、密钥与权限）
 ---
 
-# AI 工具总览
+# AI 编程工具怎么选
 
-> 汇总当前主流 AI 产品与开发者工具，覆盖对话助手、编程辅助等方向。
-> 最后更新：2026-07-30
+> **本篇目标**：分清 IDE 助手、编程 Agent CLI、对话助手三类工具的定位，掌握从 IDE 集成、Agent 能力、上下文、数据政策、团队管理、计费模式六个维度做选型，并为团队建立审查、测试、密钥与权限方面的使用规范。
+>
+> **前置阅读**：[AI Agent 智能体](../5_advanced/0_agent)、[MCP 协议](../5_advanced/1_mcp)
 
-## 横向对比
-
-| 工具 | 厂商 | 定位 | 适用场景 |
-|------|------|------|---------|
-| ChatGPT | OpenAI | 通用对话 / 写作 / 代码 | 日常问答、文档生成、代码辅助 |
-| Claude | Anthropic | 长上下文对话 / 代码 | 大文档分析、代码审查、写作 |
-| Gemini | Google | 多模态对话 / 搜索增强 | 图文理解、Google 生态集成 |
-| Cursor | Anysphere | AI 编程 IDE | 代码补全、重构、云端 Agent |
-| GitHub Copilot | GitHub / OpenAI | IDE 插件代码补全 | VS Code / JetBrains 代码辅助 |
-| Claude Code | Anthropic | 终端 AI 编程助手 | 命令行代码生成、项目理解 |
-| Devin Desktop | Cognition（原 Windsurf） | AI 编程 IDE + 多 Agent 平台 | 代码补全、自主 Agent 执行、多 Agent 协调 |
+AI 编程工具的产品形态、模型和价格几乎每月都在变，本篇不列价格与型号，只讲稳定的选型方法和使用规范；具体功能以各家官方文档为准，模型的接入方式见 [API 直接接入](../3_integration/1_api_access)。
 
 ---
 
-## 一、ChatGPT
+## 一、工具分类
 
-> 官网：[https://chatgpt.com](https://chatgpt.com)
-> 模型文档：[https://developers.openai.com/api/docs/models](https://developers.openai.com/api/docs/models)
+| 类别 | 形态 | 代表产品 | 擅长 |
+|------|------|----------|------|
+| **IDE 助手** | IDE 插件或基于编辑器改造的 IDE | GitHub Copilot、Cursor、JetBrains AI Assistant / Junie、Windsurf | 补全、就地修改、在编辑器里对话，也提供 Agent 模式 |
+| **编程 Agent CLI** | 终端里运行的 Agent，可读写文件、执行命令 | Claude Code、OpenAI Codex、Gemini CLI | 跨多文件的完整任务：改代码、跑测试、修复、提交 PR，可接入 CI |
+| **对话助手** | 网页或桌面聊天应用 | ChatGPT、Claude、Gemini | 方案讨论、解释概念、写文档、分析日志片段 |
 
-ChatGPT 是 OpenAI 面向终端用户的对话产品。旗舰模型已升级至 **GPT-5.6 系列**，上下文窗口达 **1.05M tokens**，知识截止日期为 2026 年 2 月。
-
-**GPT-5.6 三档定位：**
-
-| 模型 | 定位 | API 定价（input/output） |
-|------|------|--------------------------|
-| **GPT-5.6 Sol** | 旗舰，复杂推理与编码 | $5 / $30 per MTok |
-| **GPT-5.6 Terra** | 性能与成本平衡 | $2.50 / $15 per MTok |
-| **GPT-5.6 Luna** | 高吞吐、低成本 | $1 / $6 per MTok |
-
-此外还有专用模型：GPT Image 2（图像生成）、GPT-Realtime 系列（语音实时对话）、GPT Transcribe（语音转文字）。
-
-**核心功能：**
-
-- **超长上下文**：1.05M tokens，可处理超大代码库或完整项目文档
-- **多模态对话**：文本、图片、文件、语音输入均支持
-- **代码执行（Code Interpreter）**：Python 沙箱环境，可处理数据、绘图、文件转换
-- **联网搜索**：可检索实时信息，附来源引用
-- **Custom GPT / GPT Store**：可创建或使用他人制作的定制化 GPT
-- **Projects**：将多轮对话、文件、指令组织成项目，持久化上下文
-
-**订阅：** 免费版有基础额度；**Plus（$20/月）** 可使用 GPT-5.6 Sol 等旗舰模型；**Pro** 提供更高额度和优先访问。
-
-**与 Claude 的差异**：ChatGPT 生态最成熟、插件最丰富，更适合日常通用任务；Claude 在长文档和代码深度分析上更具优势。
+三类的边界正在模糊：IDE 助手都有了 Agent 模式，CLI 工具也提供 IDE 插件和桌面、网页界面。选型时看的是**主要工作方式**：以补全和就地修改为主选 IDE 助手，以「交代任务、审查结果」为主选 Agent 类工具，两者经常搭配使用。
 
 ---
 
-## 二、Claude & Claude Code
+## 二、选型维度
 
-> Claude 官网：[https://claude.ai](https://claude.ai)
-> Claude Code 文档：[https://docs.anthropic.com/en/docs/claude-code](https://docs.anthropic.com/en/docs/claude-code)
+### 1、IDE 集成
 
-**Claude（Web/API）** 是 Anthropic 的对话产品，以超长上下文和出色的代码理解能力著称。2026 年 6 月正式发布 **Claude Fable 5**（旗舰）和邀请制的 **Claude Mythos 5**（Project Glasswing）。
+Java 团队的主力 IDE 多是 IntelliJ IDEA，首先确认工具对 JetBrains 系列的支持程度：是原生插件、只提供部分功能，还是要求切换到基于 VS Code 的编辑器。切换 IDE 的成本（快捷键、调试、Maven / Gradle 集成、代码检查）往往比工具本身的差异更大。
 
-**当前模型阵列（2026）：**
+### 2、Agent 能力
 
-| 模型 | 定位 | 上下文 | API 定价（input/output） |
-|------|------|--------|--------------------------|
-| **Claude Fable 5** | 最强，长时 Agent 任务 | 1M tokens | $10 / $50 per MTok |
-| **Claude Mythos 5** | 邀请制，防御性安全工作流 | 1M tokens | 同 Fable 5 |
-| **Claude Opus 5** | 复杂 Agentic 编码 / 企业级 | 1M tokens | $5 / $25 per MTok |
-| **Claude Sonnet 5** | 速度与智能最佳平衡 | 1M tokens | $3 / $15 per MTok |
-| **Claude Haiku 4.5** | 最快，接近前沿水平 | 200K tokens | $1 / $5 per MTok |
+- **能做什么**：只给建议，还是能直接改多个文件、执行构建与测试命令、根据失败结果自行修复
+- **在哪执行**：本地工作区、隔离沙箱，还是云端后台任务（适合长时间运行的批量修改）
+- **权限控制**：执行命令、改文件前是否需要确认，能否配置允许和禁止的操作清单
+- **与流程集成**：能否在 Pull Request 上做审查、在 CI 中运行、从 Issue 直接领取任务
 
-**新特性（2025–2026）：**
+### 3、上下文处理
 
-- **Adaptive Thinking（自适应思考）**：Fable 5、Opus 5、Sonnet 5 均支持，模型根据任务复杂度动态分配推理深度，取代旧的 Extended Thinking 手动参数
-- **1M token 上下文**：可放入完整 Java 微服务项目的所有源文件进行整体分析
-- **Max 输出 128K tokens**：适合生成完整的单元测试套件或详尽的代码审查报告
-- **Claude Cowork**：新增协作功能，支持团队多人共同使用同一 Claude 会话
+- **代码库理解**：是否对整个仓库建索引、能否按需搜索文件，还是只看当前打开的文件
+- **项目规则文件**：是否支持在仓库里写约定让工具自动读取，见第三节
+- **外部上下文**：是否支持 MCP 接入数据库结构、Issue、内部文档等
 
-**订阅计划：**
+### 4、隐私与数据政策
 
-| 计划 | 价格 | 特性 |
-|------|------|------|
-| Free | 免费 | 基础对话、代码生成、联网搜索 |
-| Pro | $20/月 | 扩展额度、Claude Code、Claude Cowork |
-| Max | $100–$200/月 | 5× 或 20× Pro 额度，高峰期优先访问 |
-| Team | $20–$100/座/月 | 中央管理、SSO、企业搜索 |
-| Enterprise | 定制 | HIPAA、SCIM、审计日志、细粒度权限 |
+这一项决定能不能用，要由安全或法务一起确认：
 
-**Claude Code** 是 Anthropic 官方推出的命令行 AI 编程工具，随 Pro 计划免费提供：
+- **训练使用**：代码和对话是否会被用于训练模型，企业版默认策略与个人版是否不同
+- **数据保留**：请求内容保留多久，是否提供零数据保留选项
+- **部署与区域**：能否使用私有部署、指定数据存储区域，或通过自己的云账号调用模型
+- **内容排除**：能否配置哪些文件不得被读取或上传
 
-- **终端内对话**：在 shell 中直接与 Claude 对话，无需切换到浏览器
-- **文件读写**：可读取、编辑、创建项目文件，理解整个代码库结构
-- **命令执行**：可执行 shell 命令（测试、构建、git 操作）并根据输出进行推理
-- **MCP 扩展**：通过 MCP（Model Context Protocol）集成外部工具和数据源
-- **Hooks 自动化**：配置 pre/post 钩子，在特定操作前后自动执行脚本
+### 5、团队管理
 
-**适用场景**：复杂多文件重构、自动化调试修复、代码库整体理解、CI/CD 集成，与 Cursor 的图形化 IDE 体验互补。
+- 单点登录与账号回收、席位分配
+- 组织级策略：允许使用的模型、是否允许联网与执行命令、可接入的 MCP Server
+- 审计日志与用量报表，便于追溯和成本分摊
 
----
+### 6、计费模式
 
-## 三、Google Gemini
+常见三种：按席位订阅（每人每月固定费用，含一定额度）、按用量计费（按 Token 或请求次数）、两者混合（订阅包含基础额度，超出部分按量计费）。估算团队成本时用：月成本 ≈ 席位数 × 席位单价 + 超出额度的用量 × 用量单价。Agent 类任务一次就可能消耗大量 Token，试点期间要观察真实用量，再决定采购方式。
 
-> 官网：[https://gemini.google.com](https://gemini.google.com)
-> Google AI Studio：[https://aistudio.google.com](https://aistudio.google.com)
+### 7、选型检查清单
 
-Gemini 已升级至 **3.x 系列**，在超长上下文、多模态理解和 Google 生态集成方面持续领先。
-
-**当前模型（2026）：**
-
-| 模型 | 定位 |
-|------|------|
-| **Gemini 3.6 Flash** | 编码、知识问答与多模态任务的最高 token 效率 |
-| **Gemini 3.5 Flash-Lite** | 高吞吐低成本，适合大规模任务 |
-| **Gemini 3.1 Pro** | 复杂任务与创意工作 |
-| **Gemini 3.1 Deep Think** | 科学、研究与工程等严苛推理场景 |
-
-**核心功能：**
-
-- **超长上下文**：支持超大代码库、完整视频文件的整体理解
-- **Agentic 编码**：Gemini 3.1 Pro / Deep Think 具备多步骤、长时程的自主执行能力
-- **Deep Research**：自主规划多步搜索路径，生成带引文的深度研究报告
-- **多模态理解**：原生支持图片、PDF、视频帧、音频分析
-- **Google Search 集成**：实时联网检索，答案有来源引用
-- **Gemini Workspace**：嵌入 Google Docs / Sheets / Gmail / Meet，在办公场景中调用 AI
-
-**与 ChatGPT 的差异**：Gemini 在 Google 生态集成和超长上下文上领先，Deep Research 比 ChatGPT 搜索更深入；但插件市场和第三方集成生态不如 ChatGPT 丰富。
+| 维度 | 要回答的问题 |
+|------|--------------|
+| IDE 集成 | 团队主力 IDE 是否原生支持？需要换编辑器吗？ |
+| Agent 能力 | 能否改多文件、跑测试、自我修复？命令执行能否逐项授权？ |
+| 上下文 | 是否理解整个仓库？是否读取项目规则文件？是否支持 MCP？ |
+| 数据政策 | 是否用于训练？保留多久？能否排除敏感文件？ |
+| 团队管理 | 是否支持 SSO、组织策略、审计日志？ |
+| 计费 | 按席位还是按量？试点期间的真实用量是多少？ |
 
 ---
 
-## 四、Cursor
+## 三、项目规则文件
 
-> 官网：[https://www.cursor.com](https://www.cursor.com)
-> 文档：[https://docs.cursor.com](https://docs.cursor.com)
+让 AI 工具遵守项目约定，最有效的办法是把约定写进仓库里的规则文件，工具在每次会话开始时自动读取：
 
-Cursor 是基于 VSCode 深度改造的 **AI 原生编程 IDE**，已发展为支持云端 Agent 自主执行的完整 AI 开发平台，被超过半数的 Fortune 500 企业采用。
+| 文件 | 读取方 |
+|------|--------|
+| `AGENTS.md` | 跨工具的开放约定，Codex、Cursor、GitHub Copilot 编程 Agent、Gemini CLI、Junie 等均支持，由 Agentic AI Foundation 维护 |
+| `CLAUDE.md` | Claude Code；仓库已有 `AGENTS.md` 时也可以读取它 |
+| `.github/copilot-instructions.md` | GitHub Copilot 仓库级指令，另可用 `.github/instructions/*.instructions.md` 按路径生效 |
+| `.cursor/rules/*.mdc` | Cursor 项目规则 |
 
-**支持模型（2026）：**Claude Opus 5、GPT-5.6 Sol、Gemini 3.1 Pro、Grok 4.5 等，可切换或自定义 API。
+建议写入的内容：
 
-**核心功能：**
+- 构建、测试、格式化的命令（如 `./mvnw verify`）
+- 技术栈与版本基线（JDK、Spring Boot、主要框架）
+- 代码约定：分层结构、命名、异常处理、日志规范、禁止使用的 API
+- 禁止事项：不得修改的目录、不得提交的文件、需要人工确认的操作
 
-| 功能 | 说明 |
-|------|------|
-| **Tab 智能补全** | 基于上下文的多行代码预测，支持整块代码预测 |
-| **Chat（代码问答）** | 侧边栏对话，可引用当前文件、选中代码、整个代码库 |
-| **Composer / Agent 模式** | 跨多个文件同时生成/修改代码，完成完整功能实现 |
-| **云端 Agent** | 在云端后台独立运行数小时，自主构建、测试、演示功能 |
-| **Automations** | 按计划或触发器运行的持续在线 Agent |
-| **Design Mode** | 上传 UI 设计稿，直接用界面示意图驱动代码生成 |
-
-**平台扩展（2026 新增）：**
-
-- **Cursor for iPad / iOS**：支持在移动端继续开发工作
-- **Terminal 集成**：Agent 直接在终端中工作
-- **Slack 协作**：Agent 可在 Slack 频道中协作
-- **GitHub PR 审查**：Agent 自动 Review Pull Request
-- **Marketplace**：第三方扩展市场
-
-**使用技巧：**
-
-- `Ctrl+K`：内联编辑，选中代码后直接描述要修改的内容
-- `Ctrl+L`：打开 Chat 侧边栏，支持 `@文件名`、`@代码库` 引用上下文
-- `Ctrl+I`：打开 Composer，适合新增功能、重构模块等多文件任务
-- **Cursor Rules**（`.cursorrules` 文件）：为项目定制 AI 行为规范，类似 CLAUDE.md
-
-**与 Claude Code 的差异**：Cursor 是图形化 IDE，上手直观，适合日常编码；Claude Code 是纯命令行，适合深度自动化任务和 CI 集成。
+多个工具并存时，以 `AGENTS.md` 为主，其他文件保持同步或引用它，避免几份规则互相矛盾。本站仓库就同时维护了内容一致的 `CLAUDE.md` 与 `AGENTS.md`。
 
 ---
 
-## 五、GitHub Copilot
+## 四、团队使用规范
 
-> 官网：[https://github.com/features/copilot](https://github.com/features/copilot)
-> 文档：[https://docs.github.com/en/copilot](https://docs.github.com/en/copilot)
+### 1、审查 AI 写的代码
 
-GitHub Copilot 是 GitHub（微软）与 OpenAI 合作推出的 **IDE 插件形式**的 AI 编程助手，与 GitHub 仓库和工作流无缝衔接。2026 年进化为支持自主 Agent 执行、多模型选择的完整开发平台。
+- **作者负责制**：提交者对 AI 生成的每一行代码负责，审查标准与人写的代码完全相同，审查流程见 [Code Review](/devops/3_code_review)
+- **小步提交**：让 AI 一次只做一件事，生成大段改动时拆成多个 PR，审查者才看得过来
+- **重点检查**：边界条件与异常路径、并发与事务、SQL 与输入校验、权限判断，以及「看起来合理但调用了不存在的 API」的幻觉代码
+- **依赖要核实**：AI 推荐的依赖包先确认真实存在、来源可信、许可证合规，防止被抢注的同名恶意包混入
 
-**订阅计划（2026）：**
+### 2、测试
 
-| 计划 | 价格 | 特性 |
-|------|------|------|
-| **Free** | 免费 | 每月 2,000 次补全，基础功能 |
-| **Pro** | ~$10/月 | 无限补全，Copilot Chat |
-| **Pro+** | $39/月 | 访问高端模型（含 Opus 级别）、审计日志 |
-| **Max** | $100/月 | 最高模型优先级、最大额度 |
-| **Business** | $19/座/月 | 团队管理、知识库、代码引用检测 |
-| **Enterprise** | $39/座/月 | 知识库、PR 摘要、合规审计 |
+- 用 AI 写测试很高效，但要审查断言是否真的验证了业务规则，而不是对着当前实现「照抄输出」
+- 改动必须通过 CI 中的完整测试，不能只看 AI 声称「测试已通过」
+- 先让 AI 补齐测试再重构，是降低遗留代码改造风险的好办法；测试分层与工具见 [测试工程总览](/testing/0_overview)
 
-**产品组成：**
+### 3、密钥与敏感数据
 
-| 组件 | 说明 |
-|------|------|
-| **Copilot 代码补全** | IDE 内联补全，支持 VS Code、JetBrains、Neovim、Visual Studio |
-| **Copilot Chat** | 侧边栏对话，可引用代码、文件、PR、Issue |
-| **Copilot Edits** | 跨文件代码修改（类似 Cursor Composer） |
-| **Copilot Agents** | 可将任务分配给 Copilot、Claude、OpenAI Codex 等 Agent 自主执行 |
-| **Copilot in GitHub.com** | 在 PR、Issue、代码审查页面直接使用 AI |
-| **Copilot Extensions** | 集成 Jira、Datadog、Azure 等第三方服务 |
+- 不要把密钥、令牌、生产数据、客户信息粘贴进对话
+- 用工具提供的排除机制阻止读取敏感文件，例如 `.env`、证书、包含凭据的配置
+- 密钥只通过环境变量或密钥管理服务注入，仓库启用密钥扫描（如 gitleaks）兜底，避免 AI 顺手把密钥写进代码或日志
+- 数据分级与脱敏要求见 [数据安全](/security/7_data_security)
 
-**多模型选择**：可按任务在速度、精度、成本之间选择最优模型，不再锁定单一模型。
+### 4、Agent 的权限
 
-**企业版特性：**
+- 本地运行的 Agent 拥有与你相同的系统权限，不要对删除、推送、发布、数据库写入等命令开启自动批准
+- 涉及生产环境的操作一律人工执行，Agent 只负责生成命令或脚本供审查
+- 只接入可信来源的 MCP Server，并为其配置最小权限，风险说明见 [MCP 协议](../5_advanced/1_mcp)
+- 读取外部内容（网页、Issue、依赖源码）时，警惕其中夹带的指令诱导 Agent 执行危险操作
 
-- **知识库（Knowledge Bases）**：上传企业私有文档，让 Copilot 理解内部代码规范
-- **Pull Request 摘要**：自动生成 PR 描述和变更摘要
-- **审计日志**：企业级安全合规，所有请求可审计
-- **代码引用检测**：标记补全内容是否来自公开代码库，规避版权风险
+### 5、落地节奏
 
-**注意**：自 2026 年 4 月起，GitHub 默认将 Free / Pro / Pro+ 用户数据用于模型训练，如需退出须主动关闭此选项。
-
-**与 Cursor 的差异**：Copilot 是轻量插件，不改变原有 IDE 体验，更适合团队统一部署；Cursor 是独立 IDE，AI 能力更激进，适合个人重度用户。
+先选一两个小组试点，约定规则文件和上述规范，跑一到两个迭代后对比交付周期、缺陷率、审查耗时与实际费用，再决定推广范围和采购方式。
 
 ---
 
-## 六、Devin Desktop（原 Windsurf）
+## 小结
 
-> 官网：[https://devin.ai/desktop](https://devin.ai/desktop)（windsurf.com 已永久重定向至此）
+- 三类工具：IDE 助手重补全与就地修改，编程 Agent CLI 重完整任务，对话助手重讨论与解释，常常组合使用
+- 选型六个维度：IDE 集成、Agent 能力、上下文处理、数据政策、团队管理、计费模式，其中数据政策是一票否决项
+- 用 `AGENTS.md` 等规则文件把构建命令、技术栈、代码约定交给工具，多工具时以 `AGENTS.md` 为主
+- 团队规范：作者对 AI 代码负责、测试以 CI 为准、密钥不进对话与仓库、高风险命令不自动批准
+- 先试点、再度量、后推广，不追逐每月变化的产品排名
 
-原 Codeium 出品的 **Windsurf** 已更名为 **Devin Desktop**，windsurf.com 于 2026 年完成永久重定向。核心 IDE 体验（插件、设置、工作流、JetBrains 支持）完全保留，并在此基础上扩展为 **多 Agent 管理平台**。
+## 参考资料
 
-**核心功能：**
+- AGENTS.md：[https://agents.md/](https://agents.md/)
+- Claude Code 文档：[https://code.claude.com/docs/en/overview](https://code.claude.com/docs/en/overview)
+- OpenAI Codex：[https://developers.openai.com/codex](https://developers.openai.com/codex)
+- Gemini CLI：[https://github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli)
+- GitHub Copilot 文档：[https://docs.github.com/en/copilot](https://docs.github.com/en/copilot)
+- GitHub Copilot 仓库自定义指令：[https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions)
+- Cursor 项目规则：[https://cursor.com/docs/context/rules](https://cursor.com/docs/context/rules)
+- JetBrains AI Assistant：[https://www.jetbrains.com/help/ai-assistant/](https://www.jetbrains.com/help/ai-assistant/)
+- gitleaks：[https://github.com/gitleaks/gitleaks](https://github.com/gitleaks/gitleaks)
+- OWASP Top 10 for LLM Applications：[https://genai.owasp.org/llm-top-10/](https://genai.owasp.org/llm-top-10/)
 
-| 功能 | 说明 |
-|------|------|
-| **Cascade** | 上下文感知对话，能感知整个代码库的变化历史和依赖关系 |
-| **Flows（智能体）** | 多步骤自主执行：读文件 → 修改 → 运行测试 → 修复错误，全程自动 |
-| **Supercomplete** | 比普通 Tab 补全更大范围的多行预测 |
-| **深度上下文感知** | 自动索引整个代码库，无需手动 `@` 引用文件 |
-| **Agent Command Center** | 新增多 Agent 管理中心，包含 Spaces（项目空间）和 Kanban（任务看板）视图 |
-
-**与 Cursor 的对比：**
-
-| 维度 | Cursor | Devin Desktop（原 Windsurf） |
-|------|--------|-------------------------------|
-| 底层模型 | Claude Opus 5 / GPT-5.6 / Gemini 3.1（可选） | 自研 + Claude / GPT |
-| Agent 能力 | Composer + 云端 Agent（成熟） | Flows + Agent Command Center（更自主） |
-| 多 Agent | Automations（并行执行） | Spaces + Kanban（可视化协调） |
-| 上下文感知 | 手动引用 `@文件` 或自动索引 | 自动感知，减少手动操作 |
-| 平台扩展 | iPad / iOS / Slack / GitHub | 主要在桌面端 |
-| 适合人群 | 追求精细控制 + 跨平台 | 希望 AI 更自主执行 + 多 Agent 协调 |
-
-> **JetBrains 版本**：Windsurf for JetBrains 插件独立维护，IntelliJ IDEA 用户可继续使用，无需迁移到 Devin Desktop。
+> 返回：[AI 总览](../0_overview)

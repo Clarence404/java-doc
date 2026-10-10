@@ -1,0 +1,51 @@
+<svg viewBox="0 0 680 156" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:2; }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .tag { font-size:13px; font-weight:700; }
+    .item { font-size:11px; fill:var(--muted); }
+    .lbl { font-size:11px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:2; marker-end:url(#a); fill:none; }
+    .bi { stroke:var(--muted); stroke-width:2; marker-end:url(#a); marker-start:url(#s); fill:none; }
+    .life { stroke:var(--border); stroke-width:1.5; stroke-dasharray:4 4; }
+    .note { font-size:10px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="s" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto">
+      <polygon points="7 0,0 3.5,7 7" fill="var(--muted)"/>
+    </marker>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+      <text class="title" x="340" y="26" text-anchor="middle">边缘 AI 推理流水线</text>
+  <rect class="box" x="10" y="50" width="135" height="60" stroke="var(--b)"/>
+  <text class="tag" x="77" y="76" text-anchor="middle" fill="var(--b)">数据采集</text>
+  <text class="item" x="77" y="96" text-anchor="middle">MQTT / Modbus</text>
+  <line class="arr" x1="145" y1="80" x2="183" y2="80"/>
+  <rect class="box" x="185" y="50" width="135" height="60" stroke="var(--p)"/>
+  <text class="tag" x="252" y="76" text-anchor="middle" fill="var(--p)">特征预处理</text>
+  <text class="item" x="252" y="96" text-anchor="middle">float[1, 4]</text>
+  <line class="arr" x1="320" y1="80" x2="358" y2="80"/>
+  <rect class="box" x="360" y="50" width="135" height="60" stroke="var(--g)"/>
+  <text class="tag" x="427" y="76" text-anchor="middle" fill="var(--g)">ONNX Runtime</text>
+  <text class="item" x="427" y="96" text-anchor="middle">输出异常分数</text>
+  <line class="arr" x1="495" y1="80" x2="533" y2="80"/>
+  <rect class="box" x="535" y="50" width="135" height="60" stroke="var(--r)"/>
+  <text class="tag" x="602" y="76" text-anchor="middle" fill="var(--r)">判定与上报</text>
+  <text class="item" x="602" y="96" text-anchor="middle">≥ 0.5 本地告警</text>
+  <text class="item" x="340" y="138" text-anchor="middle">推理在边缘本地完成，断网时告警仍然生效；只把告警事件和聚合结果上报云端</text>
+</svg>

@@ -1,0 +1,68 @@
+<svg viewBox="0 0 760 242" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:1.5; }
+    .lbl { font-weight:600; font-size:12px; }
+    .sub { font-size:10px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">IoT 网络微分段</text>
+
+  <!-- 车间 A -->
+  <rect class="box" x="10" y="50" width="190" height="72" stroke="var(--y)"/>
+  <text class="lbl" x="105" y="80" text-anchor="middle" fill="var(--y)">车间 A 设备网段</text>
+  <text class="sub" x="105" y="98" text-anchor="middle">192.168.1.0/24</text>
+
+  <!-- 车间 B -->
+  <rect class="box" x="10" y="150" width="190" height="72" stroke="var(--y)"/>
+  <text class="lbl" x="105" y="180" text-anchor="middle" fill="var(--y)">车间 B 设备网段</text>
+  <text class="sub" x="105" y="198" text-anchor="middle">192.168.2.0/24</text>
+
+  <text class="sub" x="225" y="140" text-anchor="middle">A ↔ B 默认拒绝互访</text>
+
+  <line class="arr" x1="200" y1="86" x2="248" y2="86"/>
+  <line class="arr" x1="200" y1="186" x2="248" y2="186"/>
+
+  <!-- 网关 A / B -->
+  <rect class="box" x="250" y="50" width="150" height="72" stroke="var(--p)"/>
+  <text class="lbl" x="325" y="80" text-anchor="middle" fill="var(--p)">边缘网关 A</text>
+  <text class="sub" x="325" y="98" text-anchor="middle">区域唯一出口</text>
+
+  <rect class="box" x="250" y="150" width="150" height="72" stroke="var(--p)"/>
+  <text class="lbl" x="325" y="180" text-anchor="middle" fill="var(--p)">边缘网关 B</text>
+  <text class="sub" x="325" y="198" text-anchor="middle">区域唯一出口</text>
+
+  <line class="arr" x1="400" y1="86" x2="448" y2="86"/>
+  <text class="sub" x="424" y="80" text-anchor="middle">8883</text>
+  <line class="arr" x1="400" y1="186" x2="448" y2="186"/>
+  <text class="sub" x="424" y="180" text-anchor="middle">8883</text>
+
+  <!-- 负载均衡 -->
+  <rect class="box" x="450" y="50" width="130" height="172" stroke="var(--b)"/>
+  <text class="lbl" x="515" y="130" text-anchor="middle" fill="var(--b)">负载均衡</text>
+  <text class="sub" x="515" y="148" text-anchor="middle">只放行 8883</text>
+
+  <line class="arr" x1="580" y1="136" x2="618" y2="136"/>
+
+  <!-- EMQX -->
+  <rect class="box" x="620" y="50" width="130" height="172" stroke="var(--g)"/>
+  <text class="lbl" x="685" y="130" text-anchor="middle" fill="var(--g)">EMQX</text>
+  <text class="sub" x="685" y="148" text-anchor="middle">mTLS + ACL</text>
+</svg>

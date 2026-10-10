@@ -170,7 +170,7 @@ http {
 | 防重连风暴 | 网关重启或机房切换时，客户端重连采用指数退避 + 随机抖动 |
 | 系统参数 | 调大 `ulimit -n`、`somaxconn` 等，见 [并发参数调优](./7_concurrency_tuning) |
 
-基于 Netty 的长连接网关实现（心跳、WebSocket、生产调优）见 [Netty 总览](/netty/0_overview)；MQTT 等物联网协议见 [IoT 通信协议](/iot/1_protocol)。
+基于 Netty 的长连接网关实现（心跳、WebSocket、生产调优）见 [Netty 总览](/netty/0_overview)；MQTT 等物联网协议见 [通信协议](/iot/1_protocol)。
 
 ---
 
