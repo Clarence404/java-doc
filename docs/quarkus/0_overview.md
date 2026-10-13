@@ -46,7 +46,6 @@ GraalVM 的通用原理、虚拟线程和 Reactor 在各自模块展开，这里
 - [Kafka](/messaging/2_kafka)：Kafka 本身的可靠性配置、幂等消费与 Exactly-Once
 - [Kubernetes](/cloud-native/6_kubernetes)：Kubernetes 扩展生成的部署清单与健康探针，更多内容见 [云原生总览](/cloud-native/0_overview)
 - [指标监控](/observability/2_metrics) / [OpenTelemetry](/observability/5_opentelemetry)：Micrometer 指标与链路追踪，更多内容见 [可观测性总览](/observability/0_overview)
-- [Flink 总览](/flink/0_overview)：同属框架生态，面向流计算而非在线服务
 
 ## 参考资料
 

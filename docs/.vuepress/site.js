@@ -67,7 +67,7 @@ export const GROUPS = [
         ],
     },
     {
-        name: '框架生态', tagline: 'Spring 全家桶、网络与响应式框架、实时计算', modules: [
+        name: '框架生态', tagline: 'Spring 全家桶、网络与响应式框架', modules: [
             {
                 name: 'Spring', dir: 'spring', interview: ['5_spring'],
                 desc: 'IoC / AOP / Bean 生命周期 / 事务 / MVC / Security',
@@ -92,7 +92,6 @@ export const GROUPS = [
             {name: 'Netty', dir: 'netty', interview: ['6_netty'], desc: 'IO 模型 / Reactor / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优'},
             {name: 'Vert.x', dir: 'vertx', interview: ['6_vertx'], desc: 'Event Loop / Verticle / Event Bus / Web / 响应式数据访问 / 集群'},
             {name: 'Quarkus', dir: 'quarkus', interview: ['6_quarkus'], desc: '构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / Spring 迁移 / 其他框架'},
-            {name: 'Flink', dir: 'flink', interview: ['6_flink'], desc: 'DataStream / 时间与窗口 / 状态与容错 / Flink SQL / CDC / 部署调优'},
         ],
     },
     {
@@ -174,7 +173,7 @@ export const GROUPS = [
         ],
     },
     {
-        name: '垂直领域', tagline: 'IoT、AI、大数据与音视频，拓展技术边界', modules: [
+        name: '垂直领域', tagline: 'IoT、AI、大数据与实时计算、音视频，拓展技术边界', modules: [
             {
                 name: 'IoT', dir: 'iot', interview: ['24_iot'],
                 desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / OTA',
@@ -189,6 +188,7 @@ export const GROUPS = [
                 subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 编程工具'},
             },
             {name: '大数据', dir: 'big-data', interview: ['26_bigdata'], desc: '数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 数据治理 / 实时数仓'},
+            {name: 'Flink', dir: 'flink', interview: ['26_flink'], desc: 'DataStream / 时间与窗口 / 状态与容错 / Flink SQL / CDC / 部署调优'},
             {name: '音视频', dir: 'media', interview: ['27_media'], desc: '编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入'},
         ],
     },

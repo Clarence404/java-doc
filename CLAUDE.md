@@ -90,14 +90,14 @@ docs/
 
 ```
 基础层：  Java 特性 → JVM → 数据结构与算法 → 网络协议
-框架层：  Spring → Spring Boot → Netty → Vert.x → Quarkus → Flink
+框架层：  Spring → Spring Boot → Netty → Vert.x → Quarkus
 数据层：  数据库 → 缓存 → 消息队列
 分布式层：分布式理论 → 微服务 → Spring Cloud
 三高层：  高性能 → 高并发 → 高可用
 架构层：  设计模式 → 系统架构 → 业务场景
 研发效能：测试工程 → DevOps → 工程效率
 运维保障：云原生 → 可观测性 → 应用安全
-新兴层：  IoT → AI → 大数据 → 音视频
+新兴层：  IoT → AI → 大数据 → Flink → 音视频
 面试：    interview/ 各专题汇总复习
 ```
 
