@@ -4,7 +4,7 @@ description: 端点暴露与访问控制、健康检查、存活 / 就绪探针�
 
 # Actuator 监控
 
-> 前置阅读：[配置管理](./6_config)
+> 前置阅读：[配置管理](./5_config)
 
 Actuator 为 Spring Boot 应用提供健康检查、指标等管理端点。本篇以 Spring Boot 4.x 为基线（3.x 差异在对应位置标出），讲暴露与访问模型、健康检查与存活 / 就绪探针、Micrometer 业务指标，以及管理端点的安全开放。
 
@@ -78,7 +78,7 @@ management:
 | `mappings` | 全部请求映射 | 排障时临时开放 |
 | `scheduledtasks` | `@Scheduled` 任务清单 | 鉴权 |
 | `caches` | 缓存管理器与缓存名 | 鉴权 |
-| `startup` | 启动步骤耗时（需 `BufferingApplicationStartup`） | 启动优化时开放，见 [启动与部署优化](./14_startup) |
+| `startup` | 启动步骤耗时（需 `BufferingApplicationStartup`） | 启动优化时开放，见 [启动与部署优化](./13_startup) |
 | `httpexchanges` | 最近的 HTTP 请求（3.0 前叫 `httptrace`，需提供 `HttpExchangeRepository` Bean） | 一般不开 |
 | `sbom`（3.3+） | 软件物料清单，用于漏洞扫描 | 鉴权 |
 | `threaddump` | 线程转储 | 鉴权 |
@@ -94,7 +94,7 @@ curl -X POST http://localhost:8081/actuator/loggers/com.example.order \
   -d '{"configuredLevel":"DEBUG"}'
 ```
 
-日志级别的分组与用法见 [日志](./12_logging)。
+日志级别的分组与用法见 [日志](./9_logging)。
 
 ---
 
@@ -404,7 +404,7 @@ public class PaymentService {
 }
 ```
 
-也可以在方法上加 `@Observed(name = "payment.pay")`，需要 `spring-boot-starter-aspectj`（Boot 3.x 为 `spring-boot-starter-aop`）并设置 `management.observations.annotations.enabled=true`。高 / 低基数的区分正是上一小节「标签值有限」规则的落地。链路追踪的接入与 traceId 写入日志见 [日志](./12_logging) 和 [链路追踪](/observability/3_tracing)。
+也可以在方法上加 `@Observed(name = "payment.pay")`，需要 `spring-boot-starter-aspectj`（Boot 3.x 为 `spring-boot-starter-aop`）并设置 `management.observations.annotations.enabled=true`。高 / 低基数的区分正是上一小节「标签值有限」规则的落地。链路追踪的接入与 traceId 写入日志见 [日志](./9_logging) 和 [链路追踪](/observability/3_tracing)。
 
 ### 4、Prometheus 抓取与 Grafana
 
@@ -475,4 +475,4 @@ Boot 3.x 中 `EndpointRequest` 位于 `org.springframework.boot.actuate.autoconf
 - Actuator Metrics：[https://docs.spring.io/spring-boot/reference/actuator/metrics.html](https://docs.spring.io/spring-boot/reference/actuator/metrics.html)
 - Micrometer：[https://docs.micrometer.io/micrometer/reference/](https://docs.micrometer.io/micrometer/reference/)
 
-> 下一篇：[自定义 Starter](./8_custom_starter) —— 把通用能力封装成可插拔的自动配置，理解 Boot 是如何装配那上百个组件的。
+> 下一篇：[自定义 Starter](./12_custom_starter) —— 把通用能力封装成可插拔的自动配置，理解 Boot 是如何装配那上百个组件的。

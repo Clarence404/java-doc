@@ -380,7 +380,7 @@ jobs:
       - run: packer build -var "image_version=${GITHUB_REF_NAME#image-v}" .
 ```
 
-示例按主版本号引用 Action，便于阅读；对安全要求高的仓库，应改为固定到完整的 commit SHA（如 `actions/checkout@<40 位 SHA> # v7`），并用 Dependabot 自动升级，防止 tag 被篡改后执行恶意代码。流水线的其他环节见 [CI/CD](/devops/2_ci_cd)。
+示例按主版本号引用 Action，便于阅读；对安全要求高的仓库，应改为固定到完整的 commit SHA（如 `actions/checkout@<40 位 SHA> # v7`），并用 Dependabot 自动升级，防止 tag 被篡改后执行恶意代码。流水线的其他环节见 [CI/CD](/devops/4_ci_cd)。
 
 ---
 

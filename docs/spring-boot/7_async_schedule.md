@@ -93,7 +93,7 @@ spring:
 
 - 线程池**一定要作为 Bean 暴露**。在 `AsyncConfigurer#getAsyncExecutor` 里 `new` 出来再 `initialize()` 的池不受容器管理：关闭时不会等任务完成，也没有执行器指标
 - `CallerRunsPolicy` 会让提交线程（往往是 Tomcat 请求线程）去执行任务，起到限流作用，但也会拉长接口耗时；对丢弃可接受的任务用 `DiscardPolicy` 并记录日志
-- 需要透传 MDC / traceId 时给执行器设置 `TaskDecorator`，写法与「恢复而不是清空」的坑见 [线程池](/java/28_topic_thread_pool) 与 [日志](./12_logging)
+- 需要透传 MDC / traceId 时给执行器设置 `TaskDecorator`，写法与「恢复而不是清空」的坑见 [线程池](/java/28_topic_thread_pool) 与 [日志](./9_logging)
 
 ### 4、异常处理
 
@@ -190,7 +190,7 @@ public class NotifyService {
 - 方法是 `private` 或 `final`、类是 `final`：代理无法拦截
 - 忘了 `@EnableAsync`：方法会在调用线程中同步执行，不报错
 
-测试 `@Async` 方法时用 Awaitility 等待结果，见 [Spring Boot 测试](./13_testing)。
+测试 `@Async` 方法时用 Awaitility 等待结果，见 [Spring Boot 测试](./10_testing)。
 
 ---
 
@@ -516,4 +516,4 @@ spring:
 - ShedLock：[https://github.com/lukas-krecan/ShedLock](https://github.com/lukas-krecan/ShedLock)
 - XXL-JOB：[https://www.xuxueli.com/xxl-job/](https://www.xuxueli.com/xxl-job/)
 
-> 下一篇：[接口文档](./10_api_doc) —— 用 springdoc-openapi 从代码生成 OpenAPI 文档，并控制好分组、鉴权与生产环境开关。
+> 下一篇：[接口文档](./8_api_doc) —— 用 springdoc-openapi 从代码生成 OpenAPI 文档，并控制好分组、鉴权与生产环境开关。

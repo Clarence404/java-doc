@@ -77,7 +77,7 @@ Spring Cloud 在 Spring Boot 之上为注册发现、网关、通信、配置、
 - [分布式 · 分布式事务](/distributed/4_transaction)：2PC、TCC、Saga、本地消息表的完整对比
 - [消息队列总览](/messaging/0_overview)：Kafka / RocketMQ / RabbitMQ 本体
 - [可观测性 · 链路追踪](/observability/3_tracing)：Micrometer Tracing 与 OpenTelemetry
-- [Spring Boot · 版本演进](/spring-boot/11_versions)：Boot 4 / Framework 7 的升级要点
+- [Spring Boot · 版本演进](/spring-boot/14_versions)：Boot 4 / Framework 7 的升级要点
 - [Spring Cloud 面试题解答](/interview/11_spring_cloud)：本模块高频问题的答案汇总
 
 ## 参考资料

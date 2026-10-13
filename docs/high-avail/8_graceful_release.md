@@ -181,7 +181,7 @@ Spring Cloud 的自动注册在 Web 容器启动完成时触发，早于 `Applic
 
 ## 三、发布策略
 
-各种发布策略的完整对比见 [发布策略](/devops/5_release_strategy)。
+各种发布策略的完整对比见 [发布策略](/devops/7_release_strategy)。
 
 | 策略 | 做法 | 回滚速度 | 资源成本 | 适用 |
 |------|------|---------|---------|------|
@@ -189,7 +189,7 @@ Spring Cloud 的自动注册在 Web 容器启动完成时触发，早于 `Applic
 | 蓝绿发布 | 新旧两套环境，一次切换全部流量 | 秒级（切回旧环境）| 高（双倍资源）| 重大版本、需要快速回滚 |
 | 金丝雀 / 灰度 | 先放少量流量（按比例、用户、地域）到新版本 | 快（摘除灰度实例）| 中 | 高风险变更、核心链路 |
 
-K8s 滚动、蓝绿、Ingress 金丝雀的具体配置与上线 SOP 见 [发布策略](/devops/5_release_strategy)，按请求头路由的灰度负载均衡实现见 [Spring Cloud 服务治理](/spring-cloud/5_service_governance)。
+K8s 滚动、蓝绿、Ingress 金丝雀的具体配置与上线 SOP 见 [发布策略](/devops/7_release_strategy)，按请求头路由的灰度负载均衡实现见 [Spring Cloud 服务治理](/spring-cloud/5_service_governance)。
 
 ---
 

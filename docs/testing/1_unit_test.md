@@ -186,7 +186,7 @@ public class PriceCalculator {
 
 ### 1、依赖
 
-Spring Boot 项目引入 `spring-boot-starter-test`（Boot 4 按技术引入 `spring-boot-starter-<技术>-test`，见 [Spring Boot 测试](/spring-boot/13_testing)）即可，JUnit、AssertJ、Mockito 版本都由 Boot 管理。不依赖 Boot 的纯 Java 模块自己导入 BOM：
+Spring Boot 项目引入 `spring-boot-starter-test`（Boot 4 按技术引入 `spring-boot-starter-<技术>-test`，见 [Spring Boot 测试](/spring-boot/10_testing)）即可，JUnit、AssertJ、Mockito 版本都由 Boot 管理。不依赖 Boot 的纯 Java 模块自己导入 BOM：
 
 ```xml
 <dependencyManagement>
@@ -1018,7 +1018,7 @@ void allowsZeroPriceGiftLine() {
 - 测试数据构建器让每个测试只出现它关心的字段
 - 覆盖率只说明哪些代码没被执行；PIT 能揪出「执行了但没验证」的边界，适合在核心模块上定期运行
 
-Mockito 的用法在 [Mock 测试](./2_mock)，Spring 的切片测试在 [Spring Boot 测试](/spring-boot/13_testing)。
+Mockito 的用法在 [Mock 测试](./2_mock)，Spring 的切片测试在 [Spring Boot 测试](/spring-boot/10_testing)。
 
 ---
 

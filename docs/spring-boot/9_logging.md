@@ -4,7 +4,7 @@ description: SLF4J 门面与桥接、Boot 日志配置、结构化日志、异�
 
 # 日志
 
-> 前置阅读：[配置管理](./6_config)
+> 前置阅读：[配置管理](./5_config)
 
 日志是应用排障的第一手资料。本篇讲应用侧的 SLF4J 门面、实现与桥接器，Spring Boot 中的级别、文件、Profile 与结构化 JSON 配置，异步日志取舍、traceId 在线程池与响应式链路中的传递，以及性能与安全上的常见坑。
 
@@ -108,7 +108,7 @@ logging:
 | `logging.console.enabled` | **Boot 4.0+**，设为 `false` 关闭控制台输出 |
 | `logging.include-application-name` | 设置了 `spring.application.name` 时默认在日志中输出应用名，设为 `false` 关闭 |
 
-环境变量覆盖级别：`LOGGING_LEVEL_COM_EXAMPLE_ORDER=DEBUG` 只对包级 logger 有效，类级 logger 需用 `SPRING_APPLICATION_JSON`。配置源优先级见 [配置管理](./6_config)。
+环境变量覆盖级别：`LOGGING_LEVEL_COM_EXAMPLE_ORDER=DEBUG` 只对包级 logger 有效，类级 logger 需用 `SPRING_APPLICATION_JSON`。配置源优先级见 [配置管理](./5_config)。
 
 ### 2、logback-spring.xml
 
@@ -315,7 +315,7 @@ class ContextPropagationConfiguration {
 }
 ```
 
-Boot 4.0 起容器中有多个 `TaskDecorator` Bean 时会组合成 `CompositeTaskDecorator` 依次应用，不必再手工合并。`@Async` 与线程池配置见 [异步与定时任务](./9_async_schedule)。
+Boot 4.0 起容器中有多个 `TaskDecorator` Bean 时会组合成 `CompositeTaskDecorator` 依次应用，不必再手工合并。`@Async` 与线程池配置见 [异步与定时任务](./7_async_schedule)。
 
 ### 4、响应式链路
 
@@ -344,7 +344,7 @@ curl -X POST http://localhost:8080/actuator/loggers/com.example.order \
 - 修改只在当前实例内存中生效，重启失效；多实例需逐个调用或借助配置中心
 - 该端点可写，**必须做鉴权**并限制在管理端口
 
-端点开放与安全配置见 [Actuator](./7_actuator)。
+端点开放与安全配置见 [Actuator](./11_actuator)。
 
 ---
 
@@ -431,4 +431,4 @@ Log4j2 对应属性为 `logging.log4j2.rollingpolicy.*`（`max-file-size`、`max
 - Logback AsyncAppender：[https://logback.qos.ch/manual/appenders-async-sift.html](https://logback.qos.ch/manual/appenders-async-sift.html)
 - Log4j2 异步日志：[https://logging.apache.org/log4j/2.x/manual/async.html](https://logging.apache.org/log4j/2.x/manual/async.html)
 
-> 下一篇：[Spring Boot 测试](./13_testing) —— 切片测试、Mock 与 Testcontainers，让 Boot 应用的每一层都能被快速、可靠地验证。
+> 下一篇：[Spring Boot 测试](./10_testing) —— 切片测试、Mock 与 Testcontainers，让 Boot 应用的每一层都能被快速、可靠地验证。

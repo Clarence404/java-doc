@@ -27,9 +27,9 @@
 
 ## 三、推荐阅读路径
 
-1. [架构模式与风格](./2_arch_patterns) 与 [DDD 领域驱动设计](./3_ddd)：先建立依赖方向、聚合与限界上下文的概念，再看领域事件如何经 Outbox 可靠投递
-2. [幂等设计](./5_idempotence)：所有重试、MQ 消费、回调接口的前提，建议与 [消息队列基础](/messaging/1_basics) 一起读
-3. [数据冷热分离](./1_cold_hot_data) 与 [对象存储](./4_object_storage)：数据量增长后的分层存储与文件存储方案
+1. [架构模式与风格](./1_arch_patterns) 与 [DDD 领域驱动设计](./2_ddd)：先建立依赖方向、聚合与限界上下文的概念，再看领域事件如何经 Outbox 可靠投递
+2. [幂等设计](./3_idempotence)：所有重试、MQ 消费、回调接口的前提，建议与 [消息队列基础](/messaging/1_basics) 一起读
+3. [数据冷热分离](./4_cold_hot_data) 与 [对象存储](./5_object_storage)：数据量增长后的分层存储与文件存储方案
 4. [权限系统架构设计](./6_access_control) 与 [主数据系统设计](./7_master_data)：把前面的模式组合成具体的平台系统
 
 [高频面试题](./99_interview) 只列题目，答案在 [系统架构面试题解答](/interview/15_architecture)。

@@ -266,7 +266,7 @@ printf '%x\n' <tid>                         # 转成十六进制，如 3e8
 jstack <pid> | grep -A 20 'nid=0x3e8'       # 在线程栈中找到对应线程
 ```
 
-更完整的 JVM 排障流程见 [故障排查](/jvm/9_troubleshooting)，在线诊断工具 Arthas 见 [线上诊断](/engineering/4_diagnosis)。
+更完整的 JVM 排障流程见 [故障排查](/jvm/9_troubleshooting)，在线诊断工具 Arthas 见 [线上诊断](/engineering/7_diagnosis)。
 
 ---
 

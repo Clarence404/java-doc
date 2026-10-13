@@ -95,7 +95,7 @@ spec:
 几个要点：
 
 - **`maxUnavailable: 0` + `maxSurge`**：保证滚动期间可用实例不减少，与 [优雅上下线与变更](/high-avail/8_graceful_release) 的建议一致；代价是需要多出 `maxSurge` 个 Pod 的资源配额
-- **就绪探针用 `/actuator/health/readiness`**：只看是否能接流量；外部依赖不放进存活探针，分组配置见 [Actuator 监控](/spring-boot/7_actuator)
+- **就绪探针用 `/actuator/health/readiness`**：只看是否能接流量；外部依赖不放进存活探针，分组配置见 [Actuator 监控](/spring-boot/11_actuator)
 - **`preStop.sleep` 是原生动作**：由 kubelet 执行，不依赖镜像里的 shell，distroless 镜像也能用；它在 Kubernetes 1.34 GA。需要在 preStop 里调接口主动下线时才用 `exec`，此时镜像必须带 `sh` 和 `curl`
 - **新旧版本会并存**：滚动过程中两个版本同时处理请求，接口不能有破坏性变更，表结构按「先扩展后收缩」演进，见第八节
 
@@ -462,7 +462,7 @@ spec:
 
 在发布流程里，开关的典型用法是：版本先以「开关关闭」部署到全部实例，再按内部账号 → 1% → 5% → 全量逐步打开，每一步观察与金丝雀相同的 SLO 指标；指标异常时直接关开关止损，比回滚部署快得多。生产开关的修改要和代码发布一样留审计记录，排障时才能关联到「刚刚改了哪个开关」。
 
-开关的实现（配置中心驱动、OpenFeature）、类型与生命周期治理见 [环境管理 · 功能开关](/devops/7_env_management#五、功能开关-feature-flag)。
+开关的实现（配置中心驱动、OpenFeature）、类型与生命周期治理见 [环境管理 · 功能开关](/devops/6_env_management#五、功能开关-feature-flag)。
 
 ### 2、暗发布：用真实流量验证但不影响用户
 
@@ -512,7 +512,7 @@ spec:
 
 ## 七、上线检查单
 
-检查单把「可灰度、可监控、可回滚」落到每次发布，原则见 [优雅上下线与变更 - 变更三板斧](/high-avail/8_graceful_release)。代码评审要求见 [Code Review](./3_code_review)，制品与镜像版本见 [制品与版本管理](./6_artifact_version)。
+检查单把「可灰度、可监控、可回滚」落到每次发布，原则见 [优雅上下线与变更 - 变更三板斧](/high-avail/8_graceful_release)。代码评审要求见 [Code Review](./2_code_review)，制品与镜像版本见 [制品与版本管理](./5_artifact_version)。
 
 ### 1、发布前
 
@@ -579,7 +579,7 @@ Nacos、Apollo 都保留配置历史，可以回滚到任一版本。配置变�
 
 DORA 的五项指标（吞吐：部署频率、变更前置时间、失败部署恢复时间；不稳定性：变更失败率、部署返工率）及其定义演变见 [DevOps 总览 · 交付效能度量](/devops/0_overview#三、交付效能度量-dora)。发布环节要保证的是这些指标有可靠的数据来源：
 
-- 部署频率、前置时间：CI/CD 流水线与 Git 提交时间，见 [CI/CD](./2_ci_cd)
+- 部署频率、前置时间：CI/CD 流水线与 Git 提交时间，见 [CI/CD](./4_ci_cd)
 - 变更失败率、返工率：发布记录中标记为回滚或热修复的部署
 - 恢复时间：故障工单中「部署时间」到「恢复时间」的差值
 
@@ -630,5 +630,3 @@ DORA 的五项指标（吞吐：部署频率、变更前置时间、失败部署
 - Flagger：[Flagger 文档](https://docs.flagger.app/)
 - OpenFeature Java SDK：[open-feature/java-sdk](https://github.com/open-feature/java-sdk)
 - DORA 指标：[DORA's software delivery performance metrics](https://dora.dev/guides/dora-metrics/)
-
-> 下一篇：[制品与版本管理](./6_artifact_version)

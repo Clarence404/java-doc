@@ -16,10 +16,10 @@ Spring Boot 模块从启动流程与自动配置原理出发，覆盖 Web、数�
 
 1. 先读 [启动流程与自动配置](./1_spring_boot)，理解“约定优于配置”的实现原理。
 2. 再读 [Web 开发](./2_web_dev)、[数据访问](./3_data_access) 与 [数据库版本迁移](./4_flyway)，覆盖日常 CRUD 开发的主干。
-3. 然后读 [配置管理](./6_config)、[中间件集成](./5_middleware)、[异步任务与定时任务](./9_async_schedule) 与 [接口文档](./10_api_doc)。
-4. 接着读 [日志](./12_logging) 与 [Spring Boot 测试](./13_testing)，补齐日常开发的基础设施。
-5. 最后读 [Actuator 监控](./7_actuator)、[自定义 Starter](./8_custom_starter) 与 [启动与部署优化](./14_startup)，面向生产运维与组件封装。
-6. 从 2.x / 3.x 升级时先看 [Spring Boot 版本演进](./11_versions)。
+3. 然后读 [配置管理](./5_config)、[中间件集成](./6_middleware)、[异步任务与定时任务](./7_async_schedule) 与 [接口文档](./8_api_doc)。
+4. 接着读 [日志](./9_logging) 与 [Spring Boot 测试](./10_testing)，补齐日常开发的基础设施。
+5. 最后读 [Actuator 监控](./11_actuator)、[自定义 Starter](./12_custom_starter) 与 [启动与部署优化](./13_startup)，面向生产运维与组件封装。
+6. 从 2.x / 3.x 升级时再读 [Spring Boot 版本演进](./14_versions)，它不依赖前面各篇，也可以单独查阅。
 
 [高频面试题](./99_interview) 只列题目，答案在 [Spring Boot 面试题解答](/interview/5_spring_boot)。
 

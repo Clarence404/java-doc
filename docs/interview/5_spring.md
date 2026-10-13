@@ -326,20 +326,21 @@ txTemplate.execute(status -> { recordRepo.save(record); return accountRepo.deduc
 
 **常见坑**：Filter 既加了 `@Component` 又用 `FilterRegistrationBean` 注册，会执行两次，二选一。
 
-→ 详见 [MVC](/spring/3_mvc#_3、filter-与-handlerinterceptor)、[Web 开发](/spring-boot/2_web_dev#五、filter-与拦截器的注册)
+→ 详见 [MVC](/spring/3_mvc#_4、filter-与-handlerinterceptor)、[Web 开发](/spring-boot/2_web_dev#五、filter-与拦截器的注册)
 
-### Q24：Controller 是线程安全的吗？`DispatcherServlet` 什么时候初始化？
+### Q24：Servlet 的生命周期？Servlet 线程安全吗？
 
-**一句话**：Controller 默认是单例 Bean，一个实例同时服务所有请求线程，本身不是线程安全的；只要不在字段里存请求状态就没问题。`DispatcherServlet` 也一样是单实例多线程，Boot 默认等第一个请求才初始化它。
+**一句话**：Servlet 由容器管理，一生只走三步：初始化一次、每个请求处理一次、停机销毁一次；一个 Servlet 只有一个实例被所有请求线程同时调用，所以它本身不是线程安全的。
 
-- 单例多线程：Controller、Service、Filter 和 `DispatcherServlet` 都是一个实例被多个线程同时调用
-- 请求相关的数据放局部变量、方法参数或 request 里，不放实例字段
-- 确实要共享的可变状态，用线程安全容器或交给 Redis、数据库
-- 不推荐为此把 Controller 改成 prototype / request 作用域，把状态移出字段更简单
+- `init()`：实例化后调用一次，默认第一个请求才触发，`load-on-startup ≥ 0` 则随容器启动
+- `service()`：每个请求调用一次，再分派到 `doGet()` / `doPost()`，由容器的工作线程执行
+- `destroy()`：应用停止时调用一次，释放资源
+- 线程安全规则：请求数据放局部变量、方法参数或 request 里，不放实例字段；共享可变状态用线程安全容器或外部存储
+- `DispatcherServlet` 就是一个 Servlet，Controller 默认单例，同样单实例多线程，规则一样
 
-**常见坑**：首个请求才初始化 `DispatcherServlet`，第一个请求偏慢，可设 `spring.mvc.servlet.load-on-startup=1`。
+**常见坑**：Boot 默认首个请求才初始化 `DispatcherServlet`，第一个请求偏慢，可设 `spring.mvc.servlet.load-on-startup=1`。
 
-→ 详见 [IoC 容器](/spring/1_ioc#四、bean-作用域)、[MVC](/spring/3_mvc#一、dispatcherservlet-请求处理流程)
+→ 详见 [MVC](/spring/3_mvc#_1、servlet-生命周期与线程安全)、[IoC 容器](/spring/1_ioc#四、bean-作用域)
 
 ### Q25：Framework 6.1 起 MVC 参数校验有什么变化？`MethodArgumentNotValidException` 与 `HandlerMethodValidationException` 分别在什么时候抛出？
 
@@ -413,7 +414,7 @@ txTemplate.execute(status -> { recordRepo.save(record); return accountRepo.deduc
 
 **常见坑**：用 `enableUnsafeDefaultTyping()` 允许反序列化任意类型，Redis 数据被篡改就可能远程执行代码。
 
-→ 详见 [Cache 抽象](/spring/5_cache#_2、redis-cachemanager-spring-data-redis-4-jackson-3)、[中间件集成](/spring-boot/5_middleware#_2、序列化-jackson-3)
+→ 详见 [Cache 抽象](/spring/5_cache#_2、redis-cachemanager-spring-data-redis-4-jackson-3)、[中间件集成](/spring-boot/6_middleware#_2、序列化-jackson-3)
 
 ### Q30：`@Cacheable(sync = true)` 能解决集群下的缓存击穿吗？
 
@@ -558,7 +559,7 @@ Mono.fromCallable(() -> legacyClient.fetch(id)).subscribeOn(Schedulers.boundedEl
 - `hasRole("ADMIN")` 实际检查的是 `ROLE_ADMIN`；`hasAuthority("order:delete")` 原样比较
 - Security 7 把授权服务器（Authorization Server）并进主项目，Boot 4 的 OAuth2 starter 改名为 `spring-boot-starter-security-oauth2-*`
 
-→ 详见 [Spring Security](/spring/9_security#二、securityfilterchain-配置)、[Spring Boot 版本演进](/spring-boot/11_versions)
+→ 详见 [Spring Security](/spring/9_security#二、securityfilterchain-配置)、[Spring Boot 版本演进](/spring-boot/14_versions)
 
 ### Q41：JWT 认证用 OAuth2 Resource Server 和自定义过滤器有什么区别？自定义过滤器有哪些坑？
 
@@ -699,7 +700,7 @@ Mono.fromCallable(() -> legacyClient.fetch(id)).subscribeOn(Schedulers.boundedEl
 
 - 7.1 起 `RestTemplate` 标记为废弃，计划 8.0 删除
 
-→ 详见 [Spring 总览](/spring/0_overview#_2、版本演进)、[Spring Boot 版本演进](/spring-boot/11_versions)
+→ 详见 [Spring 总览](/spring/0_overview#_2、版本演进)、[Spring Boot 版本演进](/spring-boot/14_versions)
 
 ### Q52：`RestTemplate`、`RestClient`、`WebClient`、HTTP Service Clients 怎么选？
 
@@ -732,4 +733,4 @@ Mono.fromCallable(() -> legacyClient.fetch(id)).subscribeOn(Schedulers.boundedEl
 - 为什么和虚拟线程有关：虚拟线程不用线程池，没了「线程池大小」这道闸门，大量并发会压垮数据库连接池或下游
 - `@ConcurrencyLimit` 只限单个实例，不是集群限流
 
-→ 详见 [Retry 重试](/spring/6_retry#三、并发限制-concurrencylimit)、[Spring Boot 版本演进](/spring-boot/11_versions#_7、内置弹性注解-retryable-concurrencylimit)
+→ 详见 [Retry 重试](/spring/6_retry#三、并发限制-concurrencylimit)、[Spring Boot 版本演进](/spring-boot/14_versions#_7、内置弹性注解-retryable-concurrencylimit)

@@ -4,7 +4,7 @@ description: SemVer 与 SNAPSHOT、Nexus / Harbor、digest 部署、cosign 签�
 
 # 制品与版本管理
 
-> 前置阅读：[CI/CD](./2_ci_cd)、[Docker](/cloud-native/5_docker)
+> 前置阅读：[CI/CD](./4_ci_cd)、[Docker](/cloud-native/5_docker)
 
 制品（artifact）是 CI 产出、CD 消费的东西：Jar、镜像、Helm Chart。本篇讲版本号规范、Nexus 与 Harbor 仓库、按 digest 部署，以及 cosign 签名与 SLSA 溯源，让线上任意 Pod 都能追溯到具体提交。
 
@@ -22,7 +22,7 @@ description: SemVer 与 SNAPSHOT、Nexus / Harbor、digest 部署、cosign 签�
 
 两条原则：
 
-- **制品只构建一次**：同一个产物从 test 一路晋级到 prod，各环境的差异只靠配置注入，不为每个环境重新打包（环境划分见 [环境管理](./7_env_management)）
+- **制品只构建一次**：同一个产物从 test 一路晋级到 prod，各环境的差异只靠配置注入，不为每个环境重新打包（环境划分见 [环境管理](./6_env_management)）
 - **发布版本不可覆盖**：release 仓库禁止重复部署同一版本，镜像仓库开启 tag 不可变，否则「同一个版本号」在不同时间可能是两份不同的二进制
 
 Harbor 自 v2.8 起移除了 ChartMuseum，Chart 统一以 OCI 制品存放，和镜像共用项目、权限与清理策略：
@@ -350,7 +350,7 @@ Label 是构建者自己写的，任何人都能伪造。供应链安全要回�
 
 | 证据 | 回答的问题 | 工具 |
 |------|-----------|------|
-| SBOM | 镜像里有哪些组件和版本 | CycloneDX Maven 插件、Syft、BuildKit `--sbom`；生成方式见 [依赖治理](/engineering/6_dependency_governance) |
+| SBOM | 镜像里有哪些组件和版本 | CycloneDX Maven 插件、Syft、BuildKit `--sbom`；生成方式见 [依赖治理](/engineering/2_dependency_governance) |
 | 签名 | 镜像是否出自可信身份，内容有没有被篡改 | Sigstore cosign |
 | 溯源证明（Provenance） | 由哪个仓库、哪个提交、哪个 workflow 构建 | GitHub Artifact Attestations、BuildKit `--provenance`，格式遵循 SLSA |
 
@@ -497,7 +497,7 @@ spec:
 
 ## 七、镜像漏洞扫描
 
-Maven 依赖的漏洞扫描（OWASP Dependency-Check、OSV）与自动升级（Renovate）属于依赖治理，见 [依赖治理](/engineering/6_dependency_governance)。镜像层面还要扫基础镜像里的系统包，常用 Trivy：
+Maven 依赖的漏洞扫描（OWASP Dependency-Check、OSV）与自动升级（Renovate）属于依赖治理，见 [依赖治理](/engineering/2_dependency_governance)。镜像层面还要扫基础镜像里的系统包，常用 Trivy：
 
 ```bash
 # 安装（Homebrew 核心仓库已收录）
@@ -570,4 +570,4 @@ Harbor 也内置 Trivy 扫描器，可在项目中开启「推送时自动扫描
 - trivy-action 事件：[CVE-2026-33634（NVD）](https://nvd.nist.gov/vuln/detail/cve-2026-33634)
 - GitHub Actions 安全加固（固定 SHA）：[Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use)
 
-> 下一篇：[环境管理](./7_env_management)
+> 下一篇：[环境管理](./6_env_management)

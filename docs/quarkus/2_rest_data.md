@@ -163,7 +163,7 @@ public class GlobalExceptionMappers {
 - `/q/swagger-ui`：Swagger UI，**默认只在 dev / test 模式启用**，生产需显式设置 `quarkus.swagger-ui.always-include=true`（同时要考虑鉴权）
 - 细化描述用 MicroProfile OpenAPI 注解：`@Operation`、`@APIResponse`、`@Tag`
 
-接口文档的通用规范见 [接口文档](/spring-boot/10_api_doc)。
+接口文档的通用规范见 [接口文档](/spring-boot/8_api_doc)。
 
 ---
 

@@ -4,7 +4,7 @@ description: 多环境分层、trunk-based 晋级、Boot 4 配置、Nacos、密�
 
 # 环境管理
 
-> 前置阅读：[配置管理](/spring-boot/6_config)、[Kubernetes](/cloud-native/6_kubernetes)、[制品与版本管理](./6_artifact_version)
+> 前置阅读：[配置管理](/spring-boot/5_config)、[Kubernetes](/cloud-native/6_kubernetes)、[制品与版本管理](./5_artifact_version)
 
 多环境的核心矛盾是：**环境之间要尽量一致，才能让测试结论可信；又必须严格隔离，才能让测试不伤及生产**。本篇是全站多环境划分的主文档，讲四环境分层、digest 逐级晋级、配置与密钥、功能开关，以及测试数据与集群隔离。
 
@@ -91,7 +91,7 @@ jobs:
 
 - 输入值通过 `env` 传给脚本，而不是直接在 `run` 中拼接 `${{ inputs.* }}`，避免脚本注入
 - 晋级记录就是 Git 提交历史：谁、在什么时间、把哪个 digest 推到了哪个环境，一目了然；回滚就是 `git revert` 这次提交
-- 构建、签名与 digest 的获取见 [制品与版本管理](./6_artifact_version)，流水线整体结构见 [CI/CD](./2_ci_cd)，发布方式（滚动、蓝绿、金丝雀）见 [发布策略](./5_release_strategy)
+- 构建、签名与 digest 的获取见 [制品与版本管理](./5_artifact_version)，流水线整体结构见 [CI/CD](./4_ci_cd)，发布方式（滚动、蓝绿、金丝雀）见 [发布策略](./7_release_strategy)
 
 ---
 
@@ -99,7 +99,7 @@ jobs:
 
 ### 1、Profile 与环境的映射规则
 
-Profile 的语法细节（多文档、分组、`@Profile`）见 [配置管理](/spring-boot/6_config)，这里只定团队规则：
+Profile 的语法细节（多文档、分组、`@Profile`）见 [配置管理](/spring-boot/5_config)，这里只定团队规则：
 
 - Profile 名与环境名一一对应：`dev`、`test`、`staging`、`prod`；本机开发另用 `local`
 - **Jar 里不写默认激活的 Profile**：不要写 `spring.profiles.active: ${SPRING_PROFILES_ACTIVE:dev}`。一旦生产 Pod 漏配环境变量，应用会带着 dev 配置（dev 库地址与账号）静默启动；不写默认值时，缺少数据源地址会让应用启动失败，问题当场暴露
@@ -198,7 +198,7 @@ spec:
                   key: password
 ```
 
-更推荐把 Secret 挂载成文件，用 `spring.config.import: optional:configtree:/etc/secrets/` 读取：文件不会出现在进程环境变量里，轮换也不必重建 Pod 环境，做法见 [配置管理](/spring-boot/6_config)。
+更推荐把 Secret 挂载成文件，用 `spring.config.import: optional:configtree:/etc/secrets/` 读取：文件不会出现在进程环境变量里，轮换也不必重建 Pod 环境，做法见 [配置管理](/spring-boot/5_config)。
 
 ### 3、Nacos 命名空间隔离
 
@@ -293,7 +293,7 @@ spec:
 
 ## 五、功能开关（Feature Flag）
 
-功能开关让「部署」和「发布」分离：代码已经上线，但新功能对谁可见由开关决定。它是金丝雀放量、A/B 实验和快速止损的基础；放量与回滚的整体流程见 [发布策略](./5_release_strategy)，用开关做降级见 [服务降级](/high-avail/6_degradation)。
+功能开关让「部署」和「发布」分离：代码已经上线，但新功能对谁可见由开关决定。它是金丝雀放量、A/B 实验和快速止损的基础；放量与回滚的整体流程见 [发布策略](./7_release_strategy)，用开关做降级见 [服务降级](/high-avail/6_degradation)。
 
 ### 1、配置中心驱动的简单实现
 
@@ -626,3 +626,5 @@ DB_URL=jdbc:mysql://mysql-prod.internal:3306/myapp
 - Argo CD ApplicationSet：[Generating Applications with ApplicationSet](https://argo-cd.readthedocs.io/en/stable/user-guide/application-set/)
 - OpenFeature：[OpenFeature 文档](https://openfeature.dev/docs/reference/intro)
 - MySQL mysqldump：[mysqldump — A Database Backup Program](https://dev.mysql.com/doc/refman/8.4/en/mysqldump.html)
+
+> 下一篇：[发布策略](./7_release_strategy)

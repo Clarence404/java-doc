@@ -96,7 +96,7 @@ Content-Type: application/merge-patch+json
 {"remark": "请周末配送"}
 ```
 
-服务端用 `UPDATE ... WHERE id = ? AND version = 7` 执行更新，影响行数为 0 时返回 `412`，客户端重新拉取后再提交。条件更新的原理见 [幂等设计](/architecture/5_idempotence)。
+服务端用 `UPDATE ... WHERE id = ? AND version = 7` 执行更新，影响行数为 0 时返回 `412`，客户端重新拉取后再提交。条件更新的原理见 [幂等设计](/architecture/3_idempotence)。
 
 ---
 
@@ -353,7 +353,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 - **继承 `ResponseEntityExceptionHandler`**：Spring MVC 自身的异常（参数校验失败、请求体无法解析、方法不支持等）由父类转换成对应 4xx，不会被 `Exception` 兜底成 500
 - **5xx 不暴露内部信息**：只返回通用的 `detail` 和 `traceId`，堆栈只写日志；4xx 记 `warn`、5xx 记 `error`
-- 什么时候捕获、怎么包装、一个异常只记录一次等编码层面的规约见 [开发规范](/devops/4_dev_standards#五、异常)
+- 什么时候捕获、怎么包装、一个异常只记录一次等编码层面的规约见 [开发规范](/devops/3_dev_standards#五、异常)
 
 ::: tip 已经在用 Result 包装的项目
 不必一次性全部迁移。成功响应继续用 `Result`，错误响应先做到两点：HTTP 状态码真实，业务码改成稳定的字符串。之后新接口用 Problem Details，旧接口在下一个大版本里统一切换。
@@ -402,7 +402,7 @@ Spring Data 的 `Pageable` 参数解析默认**页码从 0 开始**，参数名�
 
 ## 七、幂等
 
-创建订单、发起支付这类非幂等的写接口，由客户端生成幂等键，放在 `Idempotency-Key` 请求头里（IETF 草案 draft-ietf-httpapi-idempotency-key-header 使用的名称，Stripe 等平台同样用这个名字）。服务端收到请求后，先用 `SET key PROCESSING NX EX` **原子地占位**，再执行业务，完成后把结果写回同一个 key。重复请求遇到 `PROCESSING` 返回 409，遇到已完成则直接重放首次结果。同一个 key 搭配不同的请求体，应返回 422。千万不要写成「先 GET 查一下，没有再执行」：两个并发请求会同时查不到，然后各创建一笔订单。占位状态机、唯一约束兜底和支付回调等完整方案见 [幂等设计](/architecture/5_idempotence)。接口签名、限流和防重放见 [API 安全](/security/6_api_security)。
+创建订单、发起支付这类非幂等的写接口，由客户端生成幂等键，放在 `Idempotency-Key` 请求头里（IETF 草案 draft-ietf-httpapi-idempotency-key-header 使用的名称，Stripe 等平台同样用这个名字）。服务端收到请求后，先用 `SET key PROCESSING NX EX` **原子地占位**，再执行业务，完成后把结果写回同一个 key。重复请求遇到 `PROCESSING` 返回 409，遇到已完成则直接重放首次结果。同一个 key 搭配不同的请求体，应返回 422。千万不要写成「先 GET 查一下，没有再执行」：两个并发请求会同时查不到，然后各创建一笔订单。占位状态机、唯一约束兜底和支付回调等完整方案见 [幂等设计](/architecture/3_idempotence)。接口签名、限流和防重放见 [API 安全](/security/6_api_security)。
 
 ---
 
@@ -440,7 +440,7 @@ Spring Data 的 `Pageable` 参数解析默认**页码从 0 开始**，参数名�
 
 ### 3、Spring Framework 7 内置版本控制
 
-Framework 7 在 Spring MVC 和 WebFlux 中内置了 API 版本控制，不再需要自己写 `RequestCondition`。版本可以从请求头、查询参数、媒体类型参数或路径段中解析；Boot 4 提供 `spring.mvc.apiversion.*` 属性来配置，属性写法见 [Spring Boot 版本演进](/spring-boot/11_versions)。路径版本要配合废弃处理器使用时，用 Java 配置更直观：
+Framework 7 在 Spring MVC 和 WebFlux 中内置了 API 版本控制，不再需要自己写 `RequestCondition`。版本可以从请求头、查询参数、媒体类型参数或路径段中解析；Boot 4 提供 `spring.mvc.apiversion.*` 属性来配置，属性写法见 [Spring Boot 版本演进](/spring-boot/14_versions)。路径版本要配合废弃处理器使用时，用 Java 配置更直观：
 
 ```java
 import java.net.URI;
@@ -506,7 +506,7 @@ public class OrderController {
 | 路径段解析器 | 必须声明 `{version}` URI 变量；它不会返回「无版本」，因此不能和其他解析器组合，除非使用带 `Predicate<RequestPath>` 的重载（7.0.6 起） |
 | 废弃提示 | 请求命中 v1 时，`StandardApiVersionDeprecationHandler` 自动加上 `Deprecation`、`Sunset`、`Link` 响应头 |
 
-文档侧的配合方式（每个版本一个 `GroupedOpenApi`）见 [接口文档](/spring-boot/10_api_doc)。
+文档侧的配合方式（每个版本一个 `GroupedOpenApi`）见 [接口文档](/spring-boot/8_api_doc)。
 
 ---
 
@@ -547,7 +547,7 @@ Link: <https://developer.example.com/changelog/v1-deprecation>; rel="deprecation
 
 ## 十、接口评审检查项
 
-通用的 PR 检查清单见 [Code Review](/devops/3_code_review)，这里只列接口专项：
+通用的 PR 检查清单见 [Code Review](/devops/2_code_review)，这里只列接口专项：
 
 - [ ] URL 使用名词复数、小写连字符，嵌套不超过两级资源
 - [ ] HTTP 方法与语义匹配，状态码真实，创建返回 201 和 `Location`
@@ -585,3 +585,5 @@ Link: <https://developer.example.com/changelog/v1-deprecation>; rel="deprecation
 - 废弃处理器 Javadoc：[StandardApiVersionDeprecationHandler](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/accept/StandardApiVersionDeprecationHandler.html)
 - Spring MVC 错误响应：[Error Responses](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-rest-exceptions.html)
 - Spring Data Web 分页支持：[Web support](https://docs.spring.io/spring-data/commons/reference/repositories/core-extensions.html#core.web)
+
+> 下一篇：[API 文档](./5_api_doc)

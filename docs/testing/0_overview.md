@@ -18,17 +18,17 @@ description: 测试金字塔与蜂巢、各层工具与版本基线、健康测�
 
 ## 二、推荐阅读路径
 
-按测试层次从下往上读：
+按测试层次从下往上读，TDD 作为开发方法紧跟在三篇基础之后：
 
 1. [单元测试](./1_unit_test)：JUnit 6 编程模型、参数化与嵌套测试、AssertJ、好测试的标准、时间与随机数、测试数据构建器
 2. [Mock 测试](./2_mock)：测试替身分类、Mockito 5、参数捕获、静态方法 Mock、Mock 过度的反模式
 3. [集成测试](./3_integration_test)：集成测试的边界、外部依赖替代方案、测试数据管理、Flaky 治理、Surefire / Failsafe 分工
-4. [Testcontainers](./5_testcontainers)：容器生命周期、等待策略、单例与复用、2.x 依赖变化
-5. [契约测试](./6_contract_test)：消费者驱动契约、Spring Cloud Contract、Pact 与 can-i-deploy
-6. [性能测试](./7_performance_test)：测试类型、开放与闭合负载模型、k6 / Gatling / JMeter
-7. [TDD 测试驱动开发](./4_tdd)：红-绿-重构、两种流派、遗留代码引入测试
+4. [TDD 测试驱动开发](./4_tdd)：红-绿-重构、两种流派、遗留代码引入测试，建立在前三篇的单元测试、Mock 与集成测试之上
+5. [Testcontainers](./5_testcontainers)：容器生命周期、等待策略、单例与复用、2.x 依赖变化
+6. [契约测试](./6_contract_test)：消费者驱动契约、Spring Cloud Contract、Pact 与 can-i-deploy
+7. [性能测试](./7_performance_test)：测试类型、开放与闭合负载模型、k6 / Gatling / JMeter
 
-TDD 编号靠前，但它要求先熟悉单元测试与 Mock，放在最后读更容易落地。Spring 项目读完前三篇后接着读 [Spring Boot 测试](/spring-boot/13_testing)。
+Spring 项目读完前三篇后接着读 [Spring Boot 测试](/spring-boot/10_testing)。
 
 复习时用 [高频面试题](./99_interview) 自测，答案在 [测试工程面试题解答](/interview/20_testing)。
 
@@ -65,7 +65,7 @@ TDD 编号靠前，但它要求先熟悉单元测试与 Mock，放在最后读�
 
 ### 3、几条分层原则
 
-- **能不启动 Spring 就不启动**：构造器注入的类直接 `new` 出来测，比任何 Spring 测试都快，见 [Spring Boot 测试](/spring-boot/13_testing) 第一节
+- **能不启动 Spring 就不启动**：构造器注入的类直接 `new` 出来测，比任何 Spring 测试都快，见 [Spring Boot 测试](/spring-boot/10_testing) 第一节
 - **数据库用真实的，不用 H2 冒充**：Testcontainers 让真实数据库的成本降到可以接受，H2 的兼容模式会掩盖方言差异
 - **端到端只留关键路径**：E2E 用例慢且脆，一个流程一两条冒烟即可，分支组合交给下层
 - **不在多层重复测同一件事**：单元测试已经穷举了折扣规则，集成测试只需验证「规则被调用、结果被正确落库」
@@ -88,7 +88,7 @@ TDD 编号靠前，但它要求先熟悉单元测试与 Mock，放在最后读�
 | PR 流水线 | 10 分钟以内 | 全部单元、切片、集成、契约测试 |
 | 合并后 / 夜间 | 不限，但要有人看结果 | 端到端、性能基线、变异测试 |
 
-套件变慢时先看三件事：Spring 上下文是否被频繁重建（[Spring Boot 测试](/spring-boot/13_testing) 第八节）、容器是否每个测试类都重启（[Testcontainers](./5_testcontainers)）、是否有 `Thread.sleep` 等待异步结果（改用 Awaitility）。
+套件变慢时先看三件事：Spring 上下文是否被频繁重建（[Spring Boot 测试](/spring-boot/10_testing) 第八节）、容器是否每个测试类都重启（[Testcontainers](./5_testcontainers)）、是否有 `Thread.sleep` 等待异步结果（改用 Awaitility）。
 
 ### 3、覆盖率只是信号
 
@@ -100,7 +100,7 @@ TDD 编号靠前，但它要求先熟悉单元测试与 Mock，放在最后读�
 
 ## 五、测试在 CI 中的位置
 
-流水线的编排（触发条件、Job 依赖、缓存、分支保护）在 [CI/CD](/devops/2_ci_cd)，这里只说各类测试放在哪一步：
+流水线的编排（触发条件、Job 依赖、缓存、分支保护）在 [CI/CD](/devops/4_ci_cd)，这里只说各类测试放在哪一步：
 
 | 阶段 | 运行的测试 | 构建命令 / 工具 | 失败的后果 |
 |------|------------|-----------------|------------|
@@ -117,7 +117,7 @@ Surefire 与 Failsafe 的分工及配置见 [构建工具](/engineering/1_build_
 
 ## 六、关联模块
 
-几类相关内容各有主文档，这里只链接：Spring 的切片测试、`@MockitoBean`、`@ServiceConnection` 在 [Spring Boot 测试](/spring-boot/13_testing)；JMH 微基准在 [基准测试（JMH）](/high-perf/4_benchmark)；覆盖率门禁的阈值与 Sonar 配置在 [代码质量](/engineering/3_code_quality)；流水线怎么编排在 [CI/CD](/devops/2_ci_cd)。
+几类相关内容各有主文档，这里只链接：Spring 的切片测试、`@MockitoBean`、`@ServiceConnection` 在 [Spring Boot 测试](/spring-boot/10_testing)；JMH 微基准在 [基准测试（JMH）](/high-perf/4_benchmark)；覆盖率门禁的阈值与 Sonar 配置在 [代码质量](/engineering/3_code_quality)；流水线怎么编排在 [CI/CD](/devops/4_ci_cd)。
 
 版本要点：JUnit 6 以 Java 17 为基线，Platform / Jupiter / Vintage 版本号统一，包名仍是 `org.junit.jupiter.*`，Spring Framework 7 以 JUnit 6 为最低要求；Testcontainers 2.0 的 artifact 统一加 `testcontainers-` 前缀，移除 JUnit 4 支持；JaCoCo 0.8.14 起支持 Java 25；PIT 配合 `pitest-junit5-plugin` 在 JUnit 6 下可用；Spring Cloud Contract 已于 2026 年 7 月移交社区以 Stubborn Contract 继续维护，Spring Cloud 2025.1.3 起不再收录，新项目优先 Pact 或规划迁移到 Stubborn（见 [契约测试](./6_contract_test)）。
 
@@ -125,12 +125,12 @@ Surefire 与 Failsafe 的分工及配置见 [构建工具](/engineering/1_build_
 Spring Boot 项目里，JUnit、AssertJ、Mockito、Testcontainers 的版本都由 Boot 依赖管理统一控制，不要再单独导入 JUnit BOM 或写死版本号，否则升级 Boot 时容易出现 Platform 与引擎版本不一致。非 Boot 的纯 Java 模块才需要自己导入 `junit-bom`。
 :::
 
-- Spring 测试支持（切片测试、`MockMvcTester`、`@MockitoBean`、`@ServiceConnection`、上下文缓存）→ [Spring Boot 测试](/spring-boot/13_testing)
+- Spring 测试支持（切片测试、`MockMvcTester`、`@MockitoBean`、`@ServiceConnection`、上下文缓存）→ [Spring Boot 测试](/spring-boot/10_testing)
 - 微基准测试 → [基准测试（JMH）](/high-perf/4_benchmark)；性能分析方法论 → [性能分析方法论](/high-perf/2_methodology)；容量规划与全链路压测 → [容量评估与规划](/high-con/8_capacity_planning)
 - 故障注入与混沌实验 → [混沌工程](/high-avail/10_chaos_engineering)
 - 覆盖率门禁、JaCoCo、Sonar、ArchUnit → [代码质量](/engineering/3_code_quality)
 - Surefire / Failsafe 与 Maven 生命周期 → [构建工具](/engineering/1_build_tools)
-- 流水线中的测试阶段与质量门禁 → [CI/CD](/devops/2_ci_cd)；评审时怎么看测试 → [Code Review](/devops/3_code_review)
+- 流水线中的测试阶段与质量门禁 → [CI/CD](/devops/4_ci_cd)；评审时怎么看测试 → [Code Review](/devops/2_code_review)
 - 测试数据构建器的模式基础 → [建造者模式](/patterns/4_creational_builder)
 
 ---

@@ -8,7 +8,7 @@
 
 ## 一、三大信号与 Profiles
 
-应用侧怎么打日志、怎么注册指标，分别在 [日志](/spring-boot/12_logging) 与 [Actuator 监控](/spring-boot/7_actuator) 中讲，这里只链接不重复。版本要点：Boot 4 新增 `spring-boot-starter-opentelemetry`；OTel Java agent 2.0 起默认以 `http/protobuf` 协议向 4318 端口导出 OTLP；Prometheus 3 带来新版 UI、UTF-8 指标名与 OTLP 接收（另有 3.13 LTS 线）；Loki 原生接收 OTLP 日志并默认开启结构化元数据；Tempo 3.0 用新的写入架构取代了 ingester；Jaeger v2 基于 OpenTelemetry Collector 构建，v1 已于 2025-12-31 停止维护；OpenTelemetry Profiles 信号于 2026 年 3 月进入公开 Alpha。
+应用侧怎么打日志、怎么注册指标，分别在 [日志](/spring-boot/9_logging) 与 [Actuator 监控](/spring-boot/11_actuator) 中讲，这里只链接不重复。版本要点：Boot 4 新增 `spring-boot-starter-opentelemetry`；OTel Java agent 2.0 起默认以 `http/protobuf` 协议向 4318 端口导出 OTLP；Prometheus 3 带来新版 UI、UTF-8 指标名与 OTLP 接收（另有 3.13 LTS 线）；Loki 原生接收 OTLP 日志并默认开启结构化元数据；Tempo 3.0 用新的写入架构取代了 ingester；Jaeger v2 基于 OpenTelemetry Collector 构建，v1 已于 2025-12-31 停止维护；OpenTelemetry Profiles 信号于 2026 年 3 月进入公开 Alpha。
 
 | 信号 | 回答的问题 | 数据形态 | 成本特征 | 典型工具 | 本模块 |
 |------|------------|----------|----------|----------|--------|
@@ -63,7 +63,7 @@ Grafana 官方提供 `grafana/otel-lgtm` 镜像，一个容器内集成了 OTel 
 
 ## 四、推荐阅读路径
 
-1. **先打好应用侧基础**：读 [日志](/spring-boot/12_logging)（结构化日志、MDC 与 traceId）与 [Actuator 监控](/spring-boot/7_actuator)（Micrometer 指标、Observation API），确认应用能正确产出信号。
+1. **先打好应用侧基础**：读 [日志](/spring-boot/9_logging)（结构化日志、MDC 与 traceId）与 [Actuator 监控](/spring-boot/11_actuator)（Micrometer 指标、Observation API），确认应用能正确产出信号。
 2. **按信号逐个建设**：读 [日志体系](./1_logging)（采集链路、Loki / Elasticsearch 选型、LogQL），再读 [指标监控](./2_metrics)（指标类型、PromQL、基数控制）和 [链路追踪](./3_tracing)（上下文传播、采样、后端选型）。
 3. **把信号变成行动**：读 [告警体系](./4_alerting)，结合 [可用性度量](/high-avail/1_sla_slo) 中的 SLO 与燃烧速率，设计少而准的告警。
 4. **统一标准**：读 [OpenTelemetry](./5_opentelemetry)，理解 OTLP、Collector 和语义约定，把各信号的采集收敛到一套标准上。
@@ -74,13 +74,13 @@ Grafana 官方提供 `grafana/otel-lgtm` 镜像，一个容器内集成了 OTel 
 
 ## 五、关联模块
 
-- 应用侧日志框架、结构化日志、MDC 与 traceId 传递 → [日志](/spring-boot/12_logging)
-- Actuator 端点、Micrometer 自定义指标、Observation API → [Actuator 监控](/spring-boot/7_actuator)
+- 应用侧日志框架、结构化日志、MDC 与 traceId 传递 → [日志](/spring-boot/9_logging)
+- Actuator 端点、Micrometer 自定义指标、Observation API → [Actuator 监控](/spring-boot/11_actuator)
 - SLI / SLO、错误预算与燃烧速率告警 → [可用性度量](/high-avail/1_sla_slo)；故障分级、On-call 与复盘 → [故障应急与复盘](/high-avail/11_incident_response)
 - 分位数、吞吐与延迟指标的含义 → [性能指标](/high-perf/1_metrics)；RED / USE 方法 → [性能分析方法论](/high-perf/2_methodology)
 - Prometheus 本地 TSDB 与长期存储（VictoriaMetrics / Thanos / Mimir） → [时序数据库](/database/4_nosql/1_time_series_db)
 - Elasticsearch 索引与检索原理 → [搜索数据库](/database/4_nosql/3_search_db)
-- JFR、jstack 等 JVM 诊断工具 → [诊断工具](/jvm/8_monitoring_tools)；Arthas 等线上诊断 → [线上诊断](/engineering/4_diagnosis)
+- JFR、jstack 等 JVM 诊断工具 → [诊断工具](/jvm/8_monitoring_tools)；Arthas 等线上诊断 → [线上诊断](/engineering/7_diagnosis)
 - Sidecar 代理自动产生的流量指标与链路 → [服务网格](/microservices/3_service_mesh)
 - 采集 Agent 的 DaemonSet 部署、Pod 日志路径 → [Kubernetes](/cloud-native/6_kubernetes)
 - 日志脱敏与审计日志 → [数据安全](/security/7_data_security)

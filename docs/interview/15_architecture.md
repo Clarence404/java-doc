@@ -20,7 +20,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 收益：不启动 Spring 也能对业务规则做单元测试，换数据库或 MQ 只改适配器
 - 规则简单的 CRUD 系统用分层架构就够了，不必为模式而模式
 
-→ 详见 [架构模式与风格](/architecture/2_arch_patterns)
+→ 详见 [架构模式与风格](/architecture/1_arch_patterns)
 
 ### Q2：CQRS 适用于什么场景？读模型延迟怎么处理？
 
@@ -32,7 +32,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 读模型最终一致：命令返回后前端先展示结果；关键页面按 ID 回读写库；或返回版本号，查询时等读模型追上
 - 投影器要幂等（版本号条件更新）、可重建（重放事件或全量回灌）
 
-→ 详见 [架构模式与风格](/architecture/2_arch_patterns#四、cqrs-命令查询职责分离)
+→ 详见 [架构模式与风格](/architecture/1_arch_patterns#四、cqrs-命令查询职责分离)
 
 ### Q3：事件溯源是什么？快照和事件版本演进怎么做？
 
@@ -44,7 +44,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 查询必须配合 CQRS 投影读模型；Kafka 适合分发事件，不适合当事件存储（难以按聚合读取、没有按版本的乐观写）
 - `apply` 只改状态、不能有副作用，因为重放时会反复执行
 
-→ 详见 [架构模式与风格](/architecture/2_arch_patterns#五、event-sourcing-事件溯源)
+→ 详见 [架构模式与风格](/architecture/1_arch_patterns#五、event-sourcing-事件溯源)
 
 ### Q4：冷热数据如何分离？为什么不能双写 MQ？`DROP PARTITION` 能直接归档吗？
 
@@ -56,7 +56,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - `DROP PARTITION` 是直接删除，不是归档；先 `EXCHANGE PARTITION`（或导出）、校验，再删
 - 分区表用 `RANGE COLUMNS(created_at)`，复合表达式做不了分区裁剪
 
-→ 详见 [数据冷热分离](/architecture/1_cold_hot_data#二、分离策略)
+→ 详见 [数据冷热分离](/architecture/4_cold_hot_data#二、分离策略)
 
 ### Q5：客户端直传对象存储怎么设计？MinIO 现在还能用吗？
 
@@ -68,7 +68,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - MinIO 社区版：2021 年改 AGPLv3，2025 年停止发布二进制与镜像并进入维护模式，仓库已归档；新项目优先云对象存储，自建可评估 Ceph RGW、SeaweedFS 等
 - 业务代码只依赖 S3 协议，换存储只改配置
 
-→ 详见 [对象存储](/architecture/4_object_storage#四、客户端直传-预签名-url)、[自建选型与 MinIO 现状](/architecture/4_object_storage#六、自建选型与-minio-现状)
+→ 详见 [对象存储](/architecture/5_object_storage#四、客户端直传-预签名-url)、[自建选型与 MinIO 现状](/architecture/5_object_storage#六、自建选型与-minio-现状)
 
 ### Q6：主数据变更如何可靠分发、防止下游乱序？
 
@@ -97,7 +97,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 
 - 子域：核心域重点建模，支撑域够用即可，通用域优先采购或用开源
 
-→ 详见 [DDD 领域驱动设计](/architecture/3_ddd)
+→ 详见 [DDD 领域驱动设计](/architecture/2_ddd)
 
 ### Q8：聚合设计有哪些原则？一个事务能改多个聚合吗？
 
@@ -110,7 +110,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 
 **常见坑**：实体只重写 `equals` 不重写 `hashCode`，放进 `HashSet` 就出错；标识要在创建时确定，不要等自增回填。
 
-→ 详见 [DDD 领域驱动设计](/architecture/3_ddd#_3、聚合与聚合根-aggregate)
+→ 详见 [DDD 领域驱动设计](/architecture/2_ddd#_3、聚合与聚合根-aggregate)
 
 ### Q9：贫血模型和充血模型有什么区别？领域服务和应用服务怎么分？
 
@@ -125,7 +125,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 远程调用不要放进数据库事务：先在事务外查询组装，再开短事务写入
 - 领域对象不注入 Spring Bean，需要外部能力时由应用层或领域服务通过接口传入
 
-→ 详见 [DDD 领域驱动设计](/architecture/3_ddd#_4、领域服务-domain-service)
+→ 详见 [DDD 领域驱动设计](/architecture/2_ddd#_4、领域服务-domain-service)
 
 ### Q10：限界上下文和微服务是什么关系？防腐层做什么？
 
@@ -136,7 +136,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 上游是遗留系统、第三方或模型不稳定时，优先用防腐层
 - 上下文映射也反映团队关系：上游不配合时下游只能跟随或加防腐层
 
-→ 详见 [DDD 领域驱动设计](/architecture/3_ddd#二、战略设计)
+→ 详见 [DDD 领域驱动设计](/architecture/2_ddd#二、战略设计)
 
 ### Q11：领域事件如何可靠投递？为什么不能在 `Repository.save()` 里发 MQ？
 
@@ -147,7 +147,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 跨上下文、不能丢的事件一律走 Outbox 或 RocketMQ 事务消息
 - 事件要带事件 ID、聚合 ID 和发生时间，消费方按业务键去重
 
-→ 详见 [DDD 领域驱动设计](/architecture/3_ddd#四、领域事件与最终一致)
+→ 详见 [DDD 领域驱动设计](/architecture/2_ddd#四、领域事件与最终一致)
 
 ### Q12：DDD 在 Spring Boot 项目里怎么落地？什么项目不适合？
 
@@ -161,7 +161,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 
 **常见坑**：Repository 返回 PO、Service 直接改实体字段、一个聚合几十个字段，都是「名义 DDD」。
 
-→ 详见 [DDD 领域驱动设计](/architecture/3_ddd#五、ddd-分层架构)
+→ 详见 [DDD 领域驱动设计](/architecture/2_ddd#五、ddd-分层架构)
 
 ## 三、幂等设计
 
@@ -178,7 +178,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 重复请求的来源：用户重复点击、超时重试（超时不等于失败）、MQ 重投、支付渠道重推、定时任务重复触发
 - 能用「设为某值」就不用「增加某值」；客户端能确定资源 ID 时用 `PUT /orders/{requestNo}` 代替 `POST`
 
-→ 详见 [幂等设计](/architecture/5_idempotence#一、幂等的语义与幂等键)
+→ 详见 [幂等设计](/architecture/3_idempotence#一、幂等的语义与幂等键)
 
 ### Q14：接口幂等如何设计？按操作类型怎么选方案？
 
@@ -195,7 +195,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 优先级：唯一约束 / 同事务去重 > 条件更新 > 请求号与 Token > Redis 状态机（加速层）
 - 冲突时返回首次结果，调用方才能放心重试
 
-→ 详见 [幂等设计](/architecture/5_idempotence#二、按操作类型选方案)
+→ 详见 [幂等设计](/architecture/3_idempotence#二、按操作类型选方案)
 
 ### Q15：用 Redis `SETNX` 做幂等有什么问题？正确写法是什么？
 
@@ -207,7 +207,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 更严格时占位值带 UUID，完成和释放用 Lua 比较后再改写
 - Redis 与数据库不是原子的，业务层仍要唯一约束或条件更新兜底
 
-→ 详见 [幂等设计](/architecture/5_idempotence#六、redis-状态机-加速层)、[消息队列面试题解答](/interview/9_mq#二、消息可靠性)
+→ 详见 [幂等设计](/architecture/3_idempotence#六、redis-状态机-加速层)、[消息队列面试题解答](/interview/9_mq#二、消息可靠性)
 
 ### Q16：Token 防重复提交有什么局限？`Idempotency-Key` 请求头怎么用？
 
@@ -218,7 +218,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 同 key 不同请求体返回 422；首次请求还在处理中返回 409；必须带 key 却没带返回 400
 - key 设保留期（如 24 小时）并写进接口文档；前端按钮置灰只是体验优化，不是防线
 
-→ 详见 [幂等设计](/architecture/5_idempotence#七、token-与请求号-防重复提交)
+→ 详见 [幂等设计](/architecture/3_idempotence#七、token-与请求号-防重复提交)
 
 ### Q17：支付回调如何保证幂等？分布式锁能保证幂等吗？
 
@@ -230,7 +230,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 回调可能不来：定时主动查单，与回调走同一个幂等入口
 - 锁会因租约过期失效，锁内仍要有条件更新作为真正的判断
 
-→ 详见 [幂等设计](/architecture/5_idempotence#九、业务案例-下单与支付回调)、[订单](/scenario/5_order_system#三、支付回调)
+→ 详见 [幂等设计](/architecture/3_idempotence#九、业务案例-下单与支付回调)、[订单](/scenario/5_order_system#三、支付回调)
 
 ## 四、访问控制
 

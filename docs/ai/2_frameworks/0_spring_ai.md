@@ -427,7 +427,7 @@ Spring AI 基于 Micrometer 为 ChatClient、Advisor、ChatModel、工具调用�
 | `spring.ai.tool` | 单次工具执行 |
 | `db.vector.client.operation` | 向量库的写入、删除、查询 |
 
-成本监控看 `gen_ai.client.token.usage`（Prometheus 中为 `gen_ai_client_token_usage_total`，按 input / output 区分）。提示词、模型输出、工具参数和结果默认不导出，排障时才用 `spring.ai.chat.client.observations.log-prompt` 等开关临时打开。指标与链路的通用做法见 [可观测性总览](/observability/0_overview) 与 [Actuator 监控](/spring-boot/7_actuator)。
+成本监控看 `gen_ai.client.token.usage`（Prometheus 中为 `gen_ai_client_token_usage_total`，按 input / output 区分）。提示词、模型输出、工具参数和结果默认不导出，排障时才用 `spring.ai.chat.client.observations.log-prompt` 等开关临时打开。指标与链路的通用做法见 [可观测性总览](/observability/0_overview) 与 [Actuator 监控](/spring-boot/11_actuator)。
 
 ---
 

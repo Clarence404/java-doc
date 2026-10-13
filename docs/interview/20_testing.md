@@ -105,7 +105,7 @@ description: 测试分层、单元测试、覆盖率、测试替身、Testcontai
 **常见坑**：
 - 同一个 Bean 在不同测试类里的 Mock 字段名不一致，也会被当成不同上下文
 
-→ 详见 [Spring Boot 测试](/spring-boot/13_testing#_3、为什么-mockitobean-会拖慢测试)
+→ 详见 [Spring Boot 测试](/spring-boot/10_testing#_3、为什么-mockitobean-会拖慢测试)
 
 ## 三、集成与契约测试
 

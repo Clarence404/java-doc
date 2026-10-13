@@ -4,7 +4,7 @@ description: 测试边界、依赖替代、测试数据隔离、Flaky 治理、S
 
 # 集成测试
 
-> 前置阅读：[单元测试](./1_unit_test)、[Spring Boot 测试](/spring-boot/13_testing)
+> 前置阅读：[单元测试](./1_unit_test)、[Spring Boot 测试](/spring-boot/10_testing)
 
 集成测试验证代码与数据库、缓存、消息等真实依赖能否正确协作。本篇讲测什么、依赖怎么替代、数据怎么管、为什么不稳定以及构建与 CI 里怎么跑，基线为 Spring Boot 4.x。
 
@@ -46,7 +46,7 @@ description: 测试边界、依赖替代、测试数据隔离、Flaky 治理、S
 - 第三方支付网关、短信服务商 → 用 WireMock 模拟 HTTP 行为，包括超时和错误码
 - 公司内其他微服务（库存、用户） → 本服务的集成测试里用替身；两边接口是否对得上交给 [契约测试](./6_contract_test)，不要为了测 order-service 把库存服务也拉起来
 
-Spring 项目里，集成测试通常是 `@SpringBootTest` 加载完整上下文；只想验证一层（Controller 绑定、Repository 查询）时用切片测试更快，两者的写法与取舍见 [Spring Boot 测试 · 测试分层](/spring-boot/13_testing)。
+Spring 项目里，集成测试通常是 `@SpringBootTest` 加载完整上下文；只想验证一层（Controller 绑定、Repository 查询）时用切片测试更快，两者的写法与取舍见 [Spring Boot 测试 · 测试分层](/spring-boot/10_testing)。
 
 ---
 
@@ -62,7 +62,7 @@ Spring 项目里，集成测试通常是 `@SpringBootTest` 加载完整上下文
 
 H2 的问题不是「偶尔不兼容」，而是它会让你回避数据库特性：为了让测试通过，团队开始避免用 PostgreSQL 的 `jsonb`、部分索引、`SKIP LOCKED`，或者在 Flyway 脚本里写两套方言。用容器后这些顾虑都没有了。容器的启动、复用与提速技巧见 [Testcontainers](./5_testcontainers)。
 
-Spring Boot 的 `@SpringBootTest`、切片测试、`@ServiceConnection` 见 [Spring Boot 测试](/spring-boot/13_testing)，容器本身的生命周期、等待策略和复用见 [Testcontainers](./5_testcontainers)，服务之间的接口兼容见 [契约测试](./6_contract_test)。
+Spring Boot 的 `@SpringBootTest`、切片测试、`@ServiceConnection` 见 [Spring Boot 测试](/spring-boot/10_testing)，容器本身的生命周期、等待策略和复用见 [Testcontainers](./5_testcontainers)，服务之间的接口兼容见 [契约测试](./6_contract_test)。
 
 ---
 
@@ -70,7 +70,7 @@ Spring Boot 的 `@SpringBootTest`、切片测试、`@ServiceConnection` 见 [Spr
 
 ### 1、统一的测试基类
 
-先把所有集成测试共用的东西收拢到一处：同一组容器、同一个 profile、同一套清理逻辑。这样所有测试类命中同一个 Spring 上下文缓存，容器也只启动一次（原理见 [Spring Boot 测试 · 上下文缓存](/spring-boot/13_testing)）。
+先把所有集成测试共用的东西收拢到一处：同一组容器、同一个 profile、同一套清理逻辑。这样所有测试类命中同一个 Spring 上下文缓存，容器也只启动一次（原理见 [Spring Boot 测试 · 上下文缓存](/spring-boot/10_testing)）。
 
 ```java
 // src/test/java/com/example/order/ContainersConfig.java
@@ -208,7 +208,7 @@ class PaymentEventListenerIT extends AbstractIT {
 - **不要用 `Thread.sleep`**：睡短了偶发失败，睡长了拖慢整个套件；`atMost` 只是上限，条件满足立即返回
 - **断言最终状态，而不是中间过程**：查数据库里的订单状态，比去拦截监听器方法更稳
 - **订单号用 UUID**：即使清理遗漏或测试并行，也不会读到别的测试的数据
-- 第二个测试验证「重复投递只生效一次」，这是 MQ 至少一次语义下必须有的保障，幂等设计见 [幂等性](/architecture/5_idempotence)
+- 第二个测试验证「重复投递只生效一次」，这是 MQ 至少一次语义下必须有的保障，幂等设计见 [幂等性](/architecture/3_idempotence)
 
 `@EmbeddedKafka`（spring-kafka-test）也能跑这个测试，但它和真实 Broker 的版本、配置不一定一致；已经在用 Testcontainers 时没有理由再引入它。
 
@@ -267,7 +267,7 @@ class PaymentGatewayClientIT extends AbstractIT {
 
 超时、5xx、畸形响应这类「对方出问题」的场景，正是 WireMock 比真实沙箱环境更有用的地方：沙箱很难稳定地制造超时。
 
-注意 `@DynamicPropertySource` 会参与上下文缓存键，这个类会得到一个独立的上下文。网关替身用到的地方多时，把 WireMock 也提到基类，或改成固定配置的 Bean。只测 `RestClient` 的请求与解析、不需要完整上下文时，`@RestClientTest` + `MockRestServiceServer` 更轻，见 [Spring Boot 测试 · 切片测试](/spring-boot/13_testing)。
+注意 `@DynamicPropertySource` 会参与上下文缓存键，这个类会得到一个独立的上下文。网关替身用到的地方多时，把 WireMock 也提到基类，或改成固定配置的 Bean。只测 `RestClient` 的请求与解析、不需要完整上下文时，`@RestClientTest` + `MockRestServiceServer` 更轻，见 [Spring Boot 测试 · 切片测试](/spring-boot/10_testing)。
 
 ---
 
@@ -297,7 +297,7 @@ spring:
 | 唯一业务键 | 每个测试生成自己的订单号、用户 ID | 任何场景，尤其是并行 | 断言只能按键查，不能断言「表里共几行」 |
 | `@Sql` 脚本 | 测试前执行指定 SQL 准备数据 | 需要固定基线数据的查询测试 | 脚本与实体变更容易脱节 |
 
-测试事务回滚的具体陷阱（flush 时机、懒加载被掩盖、跨线程不回滚）在 [Spring Boot 测试 · 事务回滚语义与陷阱](/spring-boot/13_testing) 中有完整列表，这里不重复。对集成测试的建议是：
+测试事务回滚的具体陷阱（flush 时机、懒加载被掩盖、跨线程不回滚）在 [Spring Boot 测试 · 事务回滚语义与陷阱](/spring-boot/10_testing) 中有完整列表，这里不重复。对集成测试的建议是：
 
 - **完整流程类测试不加测试事务**，在 `@BeforeEach` 里清空（前面基类的做法），再叠加唯一业务键
 - **清理放在测试前而不是测试后**：测试失败时数据还留在库里，方便排查；也不怕上一个测试中途崩溃没执行清理
@@ -571,7 +571,7 @@ JUnit 的并行由配置参数控制，适合无共享状态的单元测试。�
 
 ### 1、流水线里的位置
 
-集成测试应该在每个 PR 上跑，而不是只在夜间构建里跑：合并之后才发现的问题，修复成本和定位难度都高得多。完整的流水线编排见 [CI/CD](/devops/2_ci_cd)，集成测试相关的要点：
+集成测试应该在每个 PR 上跑，而不是只在夜间构建里跑：合并之后才发现的问题，修复成本和定位难度都高得多。完整的流水线编排见 [CI/CD](/devops/4_ci_cd)，集成测试相关的要点：
 
 - **一次 `verify` 跑完两类测试**：项目不大时最简单，Failsafe 的失败会让 `verify` 失败、阻止合并
 - **测试多时拆成两个 Job**：单元测试 Job 跑 `./mvnw test`，几分钟给出反馈；集成测试 Job 跑 `./mvnw verify -DskipUTs=true`，二者并行

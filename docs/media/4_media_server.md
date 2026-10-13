@@ -307,7 +307,7 @@ public class SrsHookController {
 
 1. SRS 写完一个文件，发 `on_dvr` 回调，业务服务只投递一条"录制完成"消息就返回
 2. **运行在 SRS 同一台机器上的归档进程**（或 Kubernetes 中同 Pod 的 sidecar）消费消息，因为只有它能读到本地文件；也可以挂共享存储，但直播写入量大时不推荐
-3. 归档进程按需转封装为 MP4，用分片上传写入对象存储，key 形如 `live-records/room_1001/20261010/1791590400.mp4`，分片上传与断点续传见 [对象存储](/architecture/4_object_storage)
+3. 归档进程按需转封装为 MP4，用分片上传写入对象存储，key 形如 `live-records/room_1001/20261010/1791590400.mp4`，分片上传与断点续传见 [对象存储](/architecture/5_object_storage)
 4. 上传成功后回写录像记录（房间、开始时间、时长、对象 key），再删除本地文件；上传失败保留文件并重试，磁盘水位告警兜底
 5. 需要多码率回放时，把对象 key 交给点播转码流水线（[FFmpeg 与转码](./3_ffmpeg) 第五节）
 

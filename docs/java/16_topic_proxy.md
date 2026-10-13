@@ -216,7 +216,7 @@ JDK 代理的 class 文件写入当前工作目录下按包名组织的子目录
 
 ### 3、Native Image 与 Spring AOT
 
-GraalVM Native Image 不能在运行时生成类：JDK 动态代理需要在构建期登记接口列表（proxy-config / `RuntimeHints.proxies()`），CGLIB 代理类由 Spring AOT 在构建期提前生成。自己用 `Proxy.newProxyInstance` 的地方要补充 hints，详见 [启动与部署优化](/spring-boot/14_startup)。
+GraalVM Native Image 不能在运行时生成类：JDK 动态代理需要在构建期登记接口列表（proxy-config / `RuntimeHints.proxies()`），CGLIB 代理类由 Spring AOT 在构建期提前生成。自己用 `Proxy.newProxyInstance` 的地方要补充 hints，详见 [启动与部署优化](/spring-boot/13_startup)。
 
 ---
 

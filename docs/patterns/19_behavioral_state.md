@@ -168,7 +168,7 @@ WHERE  id = ? AND status = 'PENDING';
 - **副作用放在更新成功之后**：状态更新成功（影响 1 行）才发消息、扣库存，否则重复请求会重复触发
 - **记录状态流水**：每次转换写一条「订单号、原状态、新状态、事件、时间」记录，方便对账和排查
 
-完整的订单状态机、支付回调与超时关单见 [订单](/scenario/5_order_system) 和 [支付系统](/scenario/14_payment)，条件更新做幂等的原理见 [幂等设计](/architecture/5_idempotence)。
+完整的订单状态机、支付回调与超时关单见 [订单](/scenario/5_order_system) 和 [支付](/scenario/14_payment)，条件更新做幂等的原理见 [幂等设计](/architecture/3_idempotence)。
 
 ---
 

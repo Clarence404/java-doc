@@ -2,7 +2,7 @@
 description: Redis 计数与关系去重、CDC 异步落库与最终一致、热点分桶、读路径降级、大 V 点赞查询、对账校准、存储估算
 ---
 
-# 计数系统
+# 计数服务
 
 > 前置阅读：[热点问题](/high-con/6_hotspot)、[消息队列基础](/messaging/1_basics)、[缓存一致性](/cache/10_cache_consistency)
 
@@ -123,7 +123,7 @@ public boolean like(long userId, long targetId) {
 // unlike：DELETE 影响 1 行才算取消成功，同样先写库再删缓存
 ```
 
-- 点赞、取消点赞都以「影响行数」判断是否真的发生了变化，用户连点、网关重试都只会成功一次；通用幂等做法见 [幂等设计](/architecture/5_idempotence)
+- 点赞、取消点赞都以「影响行数」判断是否真的发生了变化，用户连点、网关重试都只会成功一次；通用幂等做法见 [幂等设计](/architecture/3_idempotence)
 - 关系表按 `user_id` 分片，「我赞过的」只查一个分片；「谁赞了我」和对账需要按 `target_id` 查，由 CDC 再同步一份按 `target_id` 分片的副本，分片方法见 [数据层扩展](/high-con/5_data_scaling)
 - 自己点赞后看到的 +1 由前端乐观更新，其他人看到的计数有秒级延迟
 

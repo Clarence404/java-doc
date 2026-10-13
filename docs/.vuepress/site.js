@@ -45,7 +45,7 @@ export const GROUPS = [
                 sidebar: [
                     {text: '综合', from: 1},
                     {text: '语言机制', from: 10},
-                    {text: 'IO 与数据', from: 17},
+                    {text: '核心类库', from: 17},
                     {text: '并发', from: 22},
                 ],
             },
@@ -72,13 +72,23 @@ export const GROUPS = [
                 name: 'Spring', dir: 'spring', interview: ['5_spring'],
                 desc: 'IoC / AOP / Bean 生命周期 / 事务 / MVC / Security',
                 sidebar: [
-                    {text: '核心容器', from: 1},
+                    {text: '核心特性', from: 1},
                     {text: '常用组件', from: 5},
+                    {text: '响应式 Web', from: 8},
                     {text: '安全', from: 9},
                     {text: '批处理与集成', from: 12},
                 ],
             },
-            {name: 'Spring Boot', dir: 'spring-boot', interview: ['5_spring_boot'], desc: '自动配置 / Web / 数据访问 / 日志 / 测试 / Actuator / 版本演进 / 启动优化'},
+            {
+                name: 'Spring Boot', dir: 'spring-boot', interview: ['5_spring_boot'],
+                desc: '自动配置 / Web / 数据访问 / 日志 / 测试 / Actuator / 版本演进 / 启动优化',
+                sidebar: [
+                    {text: '开发基础', from: 1},
+                    {text: '功能集成', from: 6},
+                    {text: '测试与运维', from: 10},
+                    {text: '扩展与演进', from: 12},
+                ],
+            },
             {name: 'Netty', dir: 'netty', interview: ['6_netty'], desc: 'IO 模型 / Reactor / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优'},
             {name: 'Vert.x', dir: 'vertx', desc: 'Event Loop / Verticle / Event Bus / Web / 响应式数据访问 / 集群'},
             {name: 'Quarkus', dir: 'quarkus', desc: '构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / Spring 迁移 / 其他框架'},
@@ -106,7 +116,7 @@ export const GROUPS = [
     {
         name: '分布式架构', tagline: '分布式理论到微服务落地', modules: [
             {name: '分布式', dir: 'distributed', interview: ['10_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID'},
-            {name: '微服务', dir: 'microservices', interview: ['11_microservices'], desc: '服务拆分 / 设计模式 / 服务网格 / Dubbo'},
+            {name: '微服务', dir: 'microservices', interview: ['11_microservices'], desc: '服务拆分 / 设计模式 / 服务网格 / Dubbo / 调用顺序'},
             {name: 'Spring Cloud', dir: 'spring-cloud', interview: ['11_spring_cloud'], desc: 'Nacos / Gateway / OpenFeign / Sentinel / Seata'},
         ],
     },
@@ -165,11 +175,18 @@ export const GROUPS = [
     },
     {
         name: '垂直领域', tagline: 'IoT、AI、大数据与音视频，拓展技术边界', modules: [
-            {name: 'IoT', dir: 'iot', interview: ['24_iot'], desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / OTA'},
+            {
+                name: 'IoT', dir: 'iot', interview: ['24_iot'],
+                desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / OTA',
+                sidebar: [
+                    {text: '原理与选型', from: 1},
+                    {text: '接入实战', from: 6},
+                ],
+            },
             {
                 name: 'AI', dir: 'ai', interview: ['25_ai'],
                 desc: 'Spring AI / LangChain4j / RAG / Agent / MCP / 本地模型',
-                subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 工具生态'},
+                subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 编程工具'},
             },
             {name: '大数据', dir: 'big-data', interview: ['26_bigdata'], desc: '数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 数据治理 / 实时数仓'},
             {name: '音视频', dir: 'media', interview: ['27_media'], desc: '编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入'},

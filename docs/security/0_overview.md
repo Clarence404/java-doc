@@ -12,8 +12,8 @@
 
 1. **身份与登录**：先读 [JWT 令牌机制](./1_jwt)，再读 [OAuth2](./2_oauth2)、[OIDC](./3_oidc) 和 [单点登录](./4_sso)，弄清令牌格式、授权流程、身份层与跨系统登录的关系。
 2. **授权**：读 [权限模型：RBAC 与 ABAC](./5_rbac_abac)，区分认证与授权，掌握 RBAC、ABAC 与数据权限。
-3. **接口与漏洞**：读 [API 安全](./6_api_security) 与 [常见漏洞与防护](./8_vulnerabilities)，补齐签名、防重放、CORS、输入校验以及 OWASP Top 10 的防护手段。
-4. **数据**：读 [数据安全](./7_data_security)，覆盖加密、脱敏、密钥管理与审计日志。
+3. **接口与数据**：读 [API 安全](./6_api_security) 与 [数据安全](./7_data_security)，补齐签名、防重放、CORS、输入校验，以及加密、脱敏、密钥管理与审计日志。
+4. **漏洞防护**：读 [常见漏洞与防护](./8_vulnerabilities)，对照 OWASP Top 10 检查前面各层的防护是否到位。
 5. **架构演进**：最后读 [零信任架构](./9_zero_trust)，把网关边界的视角扩展到服务间 mTLS、持续验证与动态授权。
 
 复习时用 [高频面试题](./99_interview) 自测，答案在 [应用安全面试题解答](/interview/23_security)。
@@ -54,8 +54,8 @@
 - 网关统一鉴权（网关作为 OAuth2 资源服务器）→ [API 网关](/spring-cloud/2_api_gateway)
 - 服务间 mTLS 与网格安全策略 → [服务网格](/microservices/3_service_mesh)
 - 证书与 TLS / mTLS 协议 → [HTTPS 与 TLS](/protocols/3_https_tls)
-- Actuator 端点暴露与保护 → [Actuator 监控](/spring-boot/7_actuator)
-- 日志脱敏与日志体系 → [日志](/spring-boot/12_logging)、[日志体系](/observability/1_logging)
-- 依赖漏洞扫描与制品安全 → [依赖治理](/engineering/6_dependency_governance)、[制品与版本管理](/devops/6_artifact_version)
+- Actuator 端点暴露与保护 → [Actuator 监控](/spring-boot/11_actuator)
+- 日志脱敏与日志体系 → [日志](/spring-boot/9_logging)、[日志体系](/observability/1_logging)
+- 依赖漏洞扫描与制品安全 → [依赖治理](/engineering/2_dependency_governance)、[制品与版本管理](/devops/5_artifact_version)
 - 限流与防刷 → [限流与过载保护](/high-avail/7_rate_limiting)
 - 物联网设备认证与安全 → [设备安全](/iot/5_security)

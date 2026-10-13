@@ -216,7 +216,7 @@ java --add-opens java.base/java.lang=ALL-UNNAMED \
      -jar app.jar
 ```
 
-`--add-opens` 只是权宜之计，根本解决办法是升级用到深度反射的库（老版本的 Lombok、Groovy、CGLIB、序列化框架等）。Spring Boot 3.x / Spring Framework 6.x 起最低要求 Java 17，详见 [Spring Boot 版本演进](/spring-boot/11_versions)。
+`--add-opens` 只是权宜之计，根本解决办法是升级用到深度反射的库（老版本的 Lombok、Groovy、CGLIB、序列化框架等）。Spring Boot 3.x / Spring Framework 6.x 起最低要求 Java 17，详见 [Spring Boot 版本演进](/spring-boot/14_versions)。
 
 ---
 
@@ -241,7 +241,7 @@ try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
 - JDK 24 移除了 `-Djdk.tracePinnedThreads`，排查 pin 用 JFR 事件 `jdk.VirtualThreadPinned`
 - 适合 IO 密集型，对 CPU 密集型没有收益；`ThreadLocal` 在海量线程下会放大内存占用，考虑 `ScopedValue`
 
-完整原理、调度模型与最佳实践见 [虚拟线程](./30_topic_virtual_thread)；Spring Boot 中的开启方式见 [异步任务与定时任务](/spring-boot/9_async_schedule)。
+完整原理、调度模型与最佳实践见 [虚拟线程](./30_topic_virtual_thread)；Spring Boot 中的开启方式见 [异步任务与定时任务](/spring-boot/7_async_schedule)。
 
 ### 2、Record 模式与 switch 模式匹配（JEP 440 / 441）
 

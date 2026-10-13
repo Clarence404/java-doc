@@ -158,7 +158,7 @@ Java 应用接入大模型的方式见 [AI](/ai/0_overview)。
 
 - **跨可用区**：EKS 节点组、Aurora 副本、ElastiCache 副本都至少分布在两个可用区，见 [冗余与故障转移](/high-avail/2_redundancy_failover)
 - **优雅上下线**：ALB 目标注销延迟要和 Pod 的 `preStop`、Spring Boot 优雅停机时间配合，否则滚动发布时会有 502，见 [优雅上下线](/high-avail/8_graceful_release)
-- **健康检查**：ALB 健康检查和 K8s 探针指向 Actuator 的 liveness / readiness 端点，见 [Actuator](/spring-boot/7_actuator)
+- **健康检查**：ALB 健康检查和 K8s 探针指向 Actuator 的 liveness / readiness 端点，见 [Actuator](/spring-boot/11_actuator)
 - **基础设施即代码**：上述资源用 [Terraform](./11_terraform) 统一管理，避免在控制台手工点出来的环境无法复现
 
 ::: warning 待补充

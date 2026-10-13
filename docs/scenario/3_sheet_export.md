@@ -4,7 +4,7 @@ description: 异步导出任务、主键游标分批读、SXSSF / EasyExcel 流�
 
 # 海量数据导入导出
 
-> 前置阅读：[MySQL 索引](/database/1_mysql/4_topic_index)、[数据访问性能](/high-perf/10_db_performance)、[对象存储](/architecture/4_object_storage)
+> 前置阅读：[MySQL 索引](/database/1_mysql/4_topic_index)、[数据访问性能](/high-perf/10_db_performance)、[对象存储](/architecture/5_object_storage)
 
 后台的「导出 Excel」和「批量导入」在数据量到了百万行时，同步链路的每一环都会出问题。本篇的思路是**同步请求只负责提交任务，数据按批流过内存，结果文件放对象存储**，并讲清导出不 OOM、导入可校验可防重，以及每一步的内存与耗时估算。
 
@@ -234,7 +234,7 @@ CREATE TABLE export_task (
 - **抢任务**：多个实例轮询 PENDING 任务，用 `UPDATE export_task SET status='RUNNING', heartbeat_at=NOW() WHERE id=? AND status='PENDING'` 抢占，影响行数为 1 才执行
 - **进度**：`done_rows` 每批更新，前端轮询显示；大表 `COUNT(*)` 很慢，总数用 `max_id - min_id` 估算或只显示「已导出 N 行」
 - **故障恢复**：执行中每批刷新 `heartbeat_at` 和 `last_id`；心跳超过 5 分钟未更新的 RUNNING 任务视为实例已宕机，改回 PENDING 重新执行。单个 xlsx 文件不能续写，宕机实例上的临时文件也已丢失，所以从头导出；数据量特别大时按 50 万行拆成多个分片文件，每片写完即上传并记下已完成的片号和 `last_id`，恢复时只重跑未完成的片
-- **全局并发**：执行线程池核心数等于最大并发数（如 4），任务本身排在表里，线程池不需要大队列。线程池参数与隔离见 [线程池](/java/28_topic_thread_pool)，Spring 中的异步与定时任务见 [异步任务与定时任务](/spring-boot/9_async_schedule)
+- **全局并发**：执行线程池核心数等于最大并发数（如 4），任务本身排在表里，线程池不需要大队列。线程池参数与隔离见 [线程池](/java/28_topic_thread_pool)，Spring 中的异步与定时任务见 [异步任务与定时任务](/spring-boot/7_async_schedule)
 
 任务完成后要通知用户（站内信、IM 消息）。通知必须在状态更新提交之后发送：写 outbox 表或在事务提交回调里发，不要在事务里直接发消息，否则事务回滚了消息却已经发出。
 
@@ -244,7 +244,7 @@ CREATE TABLE export_task (
 - 用户点击下载时，服务端先校验 `task.user_id` 与当前用户一致，再签发有效期 10～15 分钟的预签名 GET URL，浏览器直接从对象存储下载，不经过应用服务器
 - 过期清理：在 `export/` 前缀上配生命周期规则，7 天后自动删除对象；定时任务把对应任务改为 EXPIRED，页面不再展示下载按钮
 
-预签名 URL 的生成与生命周期规则配置见 [对象存储](/architecture/4_object_storage)。
+预签名 URL 的生成与生命周期规则配置见 [对象存储](/architecture/5_object_storage)。
 
 ### 3、大文件压缩
 
@@ -351,7 +351,7 @@ public void saveBatch(String batchNo, int lastRowNo, List<Order> valid, List<Imp
 
 校验查询和插入之间有时间差，两个导入任务可能同时写入同一个业务键。这时批量插入会抛 `DuplicateKeyException` 并整批回滚，处理方式是：重新查一次这批的业务键，把已存在的行改记为错误，剩余的行再执行一次 `saveBatch`。
 
-每行数据带上 `batch_no`，导错了还能按批次号分批 `DELETE` 整批撤销。幂等的通用做法见 [幂等设计](/architecture/5_idempotence)。
+每行数据带上 `batch_no`，导错了还能按批次号分批 `DELETE` 整批撤销。幂等的通用做法见 [幂等设计](/architecture/3_idempotence)。
 
 ### 6、部分成功还是整体回滚
 
@@ -386,7 +386,7 @@ public void saveBatch(String batchNo, int lastRowNo, List<Order> valid, List<Imp
 - 导入先上传再异步解析：监听器每 1000 行一批，内存校验在前、批量查库在后，合法行批量插入，错误行记表并生成错误报告
 - 导入幂等靠三层：断点行号与数据同事务提交、文件哈希提醒、业务唯一键加唯一约束兜底；需要整体生效的数据用暂存表，不用超大事务
 
-导入重复提交不重复入库的通用做法见 [幂等设计](/architecture/5_idempotence)。
+导入重复提交不重复入库的通用做法见 [幂等设计](/architecture/3_idempotence)。
 
 ## 参考资料
 

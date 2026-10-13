@@ -70,7 +70,7 @@ Java 服务接入 OpenTelemetry 有两条主路线和一个过渡选项：Microm
 
 本站立场：
 
-- **Spring Boot 4 新项目默认走 Micrometer 路线**：用官方 `spring-boot-starter-opentelemetry`，与 Spring 的 Observation API、`management.*` 配置完全对齐，支持原生镜像；配置方式见 [链路追踪](./3_tracing#三、spring-boot-接入) 和 [Actuator 监控](/spring-boot/7_actuator)
+- **Spring Boot 4 新项目默认走 Micrometer 路线**：用官方 `spring-boot-starter-opentelemetry`，与 Spring 的 Observation API、`management.*` 配置完全对齐，支持原生镜像；配置方式见 [链路追踪](./3_tracing#三、spring-boot-接入) 和 [Actuator 监控](/spring-boot/11_actuator)
 - **多语言统一用 OTel 体系，或要零代码覆盖 JDBC、Redis 等更多库时用 Java agent**：OpenTelemetry 官方文档把 agent 作为 Spring Boot 插桩的默认选择，覆盖面最广，代价是启动开销和与其他 agent 的冲突
 - **社区 starter 只是过渡选项**：只在 Boot 3.x 项目无法使用 agent（如原生镜像）时考虑；官方文档列出的支持范围是 Boot 2.6+ / 3.1+，它与 Boot 4 的官方 starter 不能混用
 - **只选一条**：agent 与 Micrometer Tracing 同时启用会产生重复的 Span；agent 2.x 默认关闭了对 Micrometer 指标的桥接，也是为了避免重复

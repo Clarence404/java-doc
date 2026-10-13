@@ -31,8 +31,8 @@ Spring Cloud 各组件的具体用法在 [Spring Cloud](/spring-cloud/0_overview
 - [Spring Cloud 总览](/spring-cloud/0_overview)：注册发现、网关、服务通信、配置中心、服务治理的 Spring 实现
 - [Spring Cloud · 服务通信](/spring-cloud/3_communication)：HTTP Service Clients、OpenFeign、gRPC 与异步消息
 - [Spring Cloud Alibaba](/spring-cloud/6_alibaba)：Nacos、Sentinel、Seata 与版本对齐
-- [系统架构 · DDD 领域驱动设计](/architecture/3_ddd)：用限界上下文划定服务边界
-- [系统架构 · 架构模式与风格](/architecture/2_arch_patterns)：CQRS、Event Sourcing、六边形架构
+- [系统架构 · DDD 领域驱动设计](/architecture/2_ddd)：用限界上下文划定服务边界
+- [系统架构 · 架构模式与风格](/architecture/1_arch_patterns)：CQRS、Event Sourcing、六边形架构
 - [分布式 · 分布式事务](/distributed/4_transaction)：TCC、Saga、本地消息表、Seata
 - [高可用 · 熔断](/high-avail/5_circuit_breaking)：熔断器状态机与系统级容错策略
 - [可观测性 · 链路追踪](/observability/3_tracing)：跨服务调用链的追踪与排障

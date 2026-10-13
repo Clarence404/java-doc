@@ -356,7 +356,7 @@ class ArchitectureTest {
 
 - `consideringOnlyDependenciesInLayers()` 只检查层与层之间的依赖，不管对 JDK、Spring 等外部类的依赖
 - 老项目一次性修不完时，用 `FreezingArchRule.freeze(rule)` 把现有违规记录为基线，只拦新增违规
-- DDD / 六边形架构的包结构同样可以描述，见 [DDD](/architecture/3_ddd)
+- DDD / 六边形架构的包结构同样可以描述，见 [DDD](/architecture/2_ddd)
 
 ---
 
@@ -494,9 +494,9 @@ class ArchitectureTest {
 
 ### 4、在 CI 中执行
 
-下面是 GitHub Actions 中构建、测试、分析一步完成的关键步骤，完整工作流（触发、权限、Action 固定到 SHA）见 [CI/CD](/devops/2_ci_cd)：
+下面是 GitHub Actions 中构建、测试、分析一步完成的关键步骤，完整工作流（触发、权限、Action 固定到 SHA）见 [CI/CD](/devops/4_ci_cd)：
 
-流水线怎么编排（触发条件、Job 依赖、分支保护）见 [CI/CD](/devops/2_ci_cd)。
+流水线怎么编排（触发条件、Job 依赖、分支保护）见 [CI/CD](/devops/4_ci_cd)。
 
 ```yaml
 steps:
@@ -566,7 +566,7 @@ steps:
 - Sonar 产品已更名为 SonarQube Server / Community Build / Cloud / for IDE；CI 中 `fetch-depth: 0` 加 `sonar.qualitygate.wait=true`，再用分支保护阻断合并
 - 技术债的核心思路是冻结存量、卡住增量，再按「改动频繁 + 复杂度高」排期偿还
 
-评审清单见 [Code Review](/devops/3_code_review)，代码坏味道示例见 [开发规范](/devops/4_dev_standards)，依赖漏洞与许可证扫描见 [依赖治理](./6_dependency_governance)。
+评审清单见 [Code Review](/devops/2_code_review)，代码坏味道示例见 [开发规范](/devops/3_dev_standards)，依赖漏洞与许可证扫描见 [依赖治理](./2_dependency_governance)。
 
 ## 参考资料
 
@@ -588,4 +588,4 @@ steps:
 - JaCoCo 版本变更：[Change History](https://www.jacoco.org/jacoco/trunk/doc/changes.html)
 - EditorConfig：[editorconfig.org](https://editorconfig.org/)
 
-> 下一篇：[线上诊断](./4_diagnosis)
+> 下一篇：[API 设计规范](./4_api_design_rule)

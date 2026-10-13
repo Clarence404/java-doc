@@ -169,7 +169,7 @@ public class OrderCreatedConsumer implements RocketMQListener<MessageExt> {
 }
 ```
 
-`grantPoints` 内部按「去重记录与积分写入同一个本地事务」实现，写法、Redis 状态机方案和「`SETNX` 占位即完成」反模式统一见 [消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)，通用方案对比见 [系统架构 · 幂等设计](/architecture/5_idempotence)。RocketMQ 侧的要点：
+`grantPoints` 内部按「去重记录与积分写入同一个本地事务」实现，写法、Redis 状态机方案和「`SETNX` 占位即完成」反模式统一见 [消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)，通用方案对比见 [系统架构 · 幂等设计](/architecture/3_idempotence)。RocketMQ 侧的要点：
 
 - **去重键取 `msg.getKeys()`**：发送时把订单号写进 `KEYS`，比 `msgId` 可靠（重试产生的重复消息 `msgId` 不同），控制台也能按 Key 查消息
 - **正常返回 = 成功，抛异常 = 重试**：已处理过的消息直接返回；看到「处理中」要抛异常等重投，不能返回成功

@@ -104,15 +104,15 @@ public class CacheWarmUpRunner implements ApplicationRunner {
 
 - `ApplicationRunner` 拿到解析好的 `ApplicationArguments`，`CommandLineRunner` 拿到原始 `String...`，按需二选一
 - Runner 在 `ApplicationReadyEvent` 之前执行：**预热期间就绪探针不会通过**，这正是想要的效果；但 Runner 抛异常会让整个应用启动失败，非关键任务自己捕获异常
-- 耗时很长的任务不要放在 Runner 里阻塞启动，交给异步线程池，见 [异步任务与定时任务](./9_async_schedule)
+- 耗时很长的任务不要放在 Runner 里阻塞启动，交给异步线程池，见 [异步任务与定时任务](./7_async_schedule)
 
 ### 5、启动问题排查
 
 | 现象 | 手段 |
 |------|------|
 | 某个自动配置没生效 / 意外生效 | `--debug` 启动或 `logging.level.org.springframework.boot.autoconfigure=debug`，查看条件评估报告；运行中查 `/actuator/conditions` |
-| 启动慢，不知道慢在哪 | `BufferingApplicationStartup` + `/actuator/startup` 记录每个步骤耗时，见 [启动与部署优化](./14_startup) |
-| 配置值不对 | `/actuator/env` 查看属性来源与优先级，见 [配置管理](./6_config) |
+| 启动慢，不知道慢在哪 | `BufferingApplicationStartup` + `/actuator/startup` 记录每个步骤耗时，见 [启动与部署优化](./13_startup) |
+| 配置值不对 | `/actuator/env` 查看属性来源与优先级，见 [配置管理](./5_config) |
 
 ---
 
@@ -135,7 +135,7 @@ public class CacheWarmUpRunner implements ApplicationRunner {
 | 2.7 | 新增 `AutoConfiguration.imports` 与 `@AutoConfiguration` | 两种方式并存 |
 | 3.x / 4.x | 只认 `AutoConfiguration.imports` | `spring.factories` 里的 `EnableAutoConfiguration` 键不再生效 |
 
-`spring.factories` 并没有废弃，它仍负责 `ApplicationListener`、`EnvironmentPostProcessor`、`FailureAnalyzer` 等启动期扩展点。从 2.x 升级时，自定义 Starter 必须把自动配置类迁到 `AutoConfiguration.imports`，否则会**静默失效**。完整的 Starter 写法见 [自定义 Starter](./8_custom_starter)。
+`spring.factories` 并没有废弃，它仍负责 `ApplicationListener`、`EnvironmentPostProcessor`、`FailureAnalyzer` 等启动期扩展点。从 2.x 升级时，自定义 Starter 必须把自动配置类迁到 `AutoConfiguration.imports`，否则会**静默失效**。完整的 Starter 写法见 [自定义 Starter](./12_custom_starter)。
 
 ### 3、Boot 4 的模块化自动配置
 
@@ -146,7 +146,7 @@ public class CacheWarmUpRunner implements ApplicationRunner {
 - 直接引用了自动配置类的代码要改包名：`exclude = ...`、测试里的 `@ImportAutoConfiguration(...)`；`@EntityScan` 移到了 `org.springframework.boot.persistence.autoconfigure`
 - 迁移过渡期可以先用 `spring-boot-starter-classic` / `spring-boot-starter-test-classic` 拿回全部自动配置，再逐步换成精确的 starter
 
-starter 改名清单与升级步骤见 [Spring Boot 版本演进](./11_versions)。
+starter 改名清单与升级步骤见 [Spring Boot 版本演进](./14_versions)。
 
 ### 4、条件注解
 
@@ -215,7 +215,7 @@ myapp:
 - 注册方式：主类加 `@ConfigurationPropertiesScan`，或在自动配置里用 `@EnableConfigurationProperties`
 - `@Validated` 校验需要 `spring-boot-starter-validation`，校验失败会让启动直接失败，比运行时才发现配置错误好得多
 - 加 `spring-boot-configuration-processor`（`optional`）生成元数据，IDE 才能补全和提示自定义属性
-- 配置源优先级、Profile、`@Value` 与 `@ConfigurationProperties` 的取舍见 [配置管理](./6_config)
+- 配置源优先级、Profile、`@Value` 与 `@ConfigurationProperties` 的取舍见 [配置管理](./5_config)
 
 ---
 

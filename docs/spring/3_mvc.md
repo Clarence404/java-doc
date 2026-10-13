@@ -1,5 +1,5 @@
 ---
-description: DispatcherServlet 流程、参数校验、消息转换、ProblemDetail 异常处理、拦截器、API 版本
+description: Servlet 生命周期、DispatcherServlet 流程、参数校验、消息转换、ProblemDetail 异常、拦截器、API 版本
 ---
 
 # MVC
@@ -16,7 +16,25 @@ Framework 7 要求 Servlet 6.1（Jakarta EE 11），Boot 4 内嵌 Tomcat 或 Jet
 
 Spring 6 起 Servlet API 全部是 `jakarta.servlet.*`。
 
-### 1、处理流程
+### 1、Servlet 生命周期与线程安全
+
+Servlet 是由容器（Tomcat / Jetty）创建和调用的请求处理组件，`DispatcherServlet` 本身就是一个 `HttpServlet`。它的生命周期完全由容器管理：
+
+| 阶段 | 方法 | 调用时机与次数 |
+|------|------|----------------|
+| 初始化 | `init(ServletConfig)` | 实例化后调用一次；默认首个请求到来时才初始化，`load-on-startup ≥ 0` 时随容器启动 |
+| 处理请求 | `service()` → `doGet()` / `doPost()` 等 | 每个请求调用一次，由容器的工作线程（开启虚拟线程时为虚拟线程）执行 |
+| 销毁 | `destroy()` | 应用停止或卸载时调用一次，用于释放资源 |
+
+一个 Servlet 声明只创建**一个实例**，所有请求线程并发调用它的 `service()`，所以 Servlet 本身不是线程安全的，编码时遵守几条规则：
+
+- 不在实例字段里存请求相关的可变状态（当前用户、参数、中间结果），这类数据放局部变量、方法参数或 request 属性
+- 只读配置和无状态依赖（如注入的 Service）可以放字段
+- 确需共享的可变状态用线程安全容器或交给 Redis、数据库；早期让容器串行调用的 `SingleThreadModel` 已在 Servlet 6.0 删除
+
+`DispatcherServlet` 在 `init()` 阶段从 Spring 容器取出 `HandlerMapping`、`HandlerAdapter` 等组件（`initStrategies()`），之后每个请求的 `service()` 最终进入 `doDispatch()`。Controller 默认是单例 Bean，同样是单实例多线程，上面的规则同样适用。Boot 默认 `spring.mvc.servlet.load-on-startup=-1`，第一个请求才触发初始化，首个请求会偏慢，设为 `1` 可提前到启动阶段。
+
+### 2、处理流程
 
 `DispatcherServlet` 是前端控制器，所有请求经它的 `doDispatch()` 分发：
 
@@ -33,7 +51,7 @@ Spring 6 起 Servlet API 全部是 `jakarta.servlet.*`。
 
 第 2–6 步中抛出的异常（包括拦截器 `preHandle` 中的异常）交给 `HandlerExceptionResolver` 处理，见第五节。
 
-### 2、核心组件
+### 3、核心组件
 
 | 组件 | 职责 | 常用实现 / 扩展方式 |
 |------|------|-------------------|
@@ -46,7 +64,7 @@ Spring 6 起 Servlet API 全部是 `jakarta.servlet.*`。
 | `HandlerExceptionResolver` | 把异常转换为响应 | `@ExceptionHandler`、`ResponseEntityExceptionHandler` |
 | `ViewResolver` | 视图名 → 视图 | Thymeleaf 等模板引擎 |
 
-### 3、Filter 与 HandlerInterceptor
+### 4、Filter 与 HandlerInterceptor
 
 | 对比 | Filter | HandlerInterceptor |
 |------|--------|--------------------|
@@ -205,7 +223,7 @@ public class JacksonConfig {
 }
 ```
 
-Boot 3.x（Jackson 2）对应的是 `Jackson2ObjectMapperBuilderCustomizer`。从 Boot 3 升级时，Jackson 3 的部分默认值不同，可以先设 `spring.jackson.use-jackson2-defaults=true` 过渡，迁移细节见 [Spring Boot 版本演进](/spring-boot/11_versions)。
+Boot 3.x（Jackson 2）对应的是 `Jackson2ObjectMapperBuilderCustomizer`。从 Boot 3 升级时，Jackson 3 的部分默认值不同，可以先设 `spring.jackson.use-jackson2-defaults=true` 过渡，迁移细节见 [Spring Boot 版本演进](/spring-boot/14_versions)。
 
 ### 3、Framework 7 的转换器配置 API
 
@@ -492,7 +510,7 @@ public class AccountController {
 
 支持的版本默认从控制器映射上声明的版本自动收集。请求的版本不在支持列表中时抛 `InvalidApiVersionException`；启用后默认要求请求携带版本，缺少时抛 `MissingApiVersionException`，两者都返回 400；配置了默认版本（`setDefaultVersion`）则缺失时按默认版本处理。多种解析策略可以在 `configureApiVersioning` 中组合；WebFlux 用 `WebFluxConfigurer` 的同名方法。`ApiVersionDeprecationHandler` 可以按 RFC 9745 / RFC 8594 为废弃版本输出 `Deprecation`、`Sunset` 响应头。
 
-Boot 4 用 `spring.mvc.apiversion.*` 属性代替上面的 Java 配置，见 [Web 开发 · API 版本控制](/spring-boot/2_web_dev#_2、api-版本控制-boot-4)；路径版本 vs 请求头版本等设计规范见 [API 设计规范](/engineering/7_api_design_rule)。
+Boot 4 用 `spring.mvc.apiversion.*` 属性代替上面的 Java 配置，见 [Web 开发 · API 版本控制](/spring-boot/2_web_dev#_2、api-版本控制-boot-4)；路径版本 vs 请求头版本等设计规范见 [API 设计规范](/engineering/4_api_design_rule)。
 
 ---
 

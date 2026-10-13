@@ -86,7 +86,7 @@ java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar a
 - 容器里通过环境变量注入，不改启动脚本：`JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"`
 
 ::: warning 只在受控环境开启
-JDWP 没有认证，任何能连上端口的人都能在目标 JVM 里执行任意代码。只在开发、测试环境开启，端口不暴露到公网；Kubernetes 里优先保持监听 localhost，再用 `kubectl port-forward pod/<pod-name> 5005:5005` 转发到本机。断点停住的是真实线程，在共享环境调试时优先用日志断点。生产问题用 [Arthas 线上诊断](./4_diagnosis)。
+JDWP 没有认证，任何能连上端口的人都能在目标 JVM 里执行任意代码。只在开发、测试环境开启，端口不暴露到公网；Kubernetes 里优先保持监听 localhost，再用 `kubectl port-forward pod/<pod-name> 5005:5005` 转发到本机。断点停住的是真实线程，在共享环境调试时优先用日志断点。生产问题用 [Arthas 线上诊断](./7_diagnosis)。
 :::
 
 ### 5、Live Templates 与 Postfix
@@ -396,4 +396,4 @@ Lombok、MapStruct 等库的用法见 [效率工具库](/java/98_dev_tool)。
 - mise Java 插件：[mise Java](https://mise.jdx.dev/lang/java.html)
 - jenv：[jenv 仓库](https://github.com/jenv/jenv)
 
-> 下一篇：[代码质量](./3_code_quality)
+> 下一篇：[线上诊断](./7_diagnosis)

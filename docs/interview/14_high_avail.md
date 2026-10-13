@@ -262,7 +262,7 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 - 参数错误、业务异常、熔断已打开：不重试
 - 非幂等接口要先做幂等（幂等键、唯一约束、状态机），再谈重试
 
-→ 详见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead#_1、哪些错误可以重试)、[幂等设计](/architecture/5_idempotence#二、按操作类型选方案)
+→ 详见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead#_1、哪些错误可以重试)、[幂等设计](/architecture/3_idempotence#二、按操作类型选方案)
 
 ### Q21：指数退避是什么？为什么要加 Jitter？
 

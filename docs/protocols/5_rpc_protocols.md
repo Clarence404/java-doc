@@ -392,7 +392,7 @@ SOAP 是 W3C 标准的 XML 消息协议，配套用 WSDL 描述接口，通常�
 - HTTP/2 长连接会让 L4 负载均衡失效，用客户端负载均衡或 L7 代理按请求分发
 - Spring Boot 4.1 起自带 gRPC starter，4.0 用 Spring gRPC 1.0，3.x 存量项目可用社区 starter
 - Thrift 主要存在于存量大数据组件，SOAP 主要用于对接银行、政务等老系统
-- REST 风格的 URL、状态码、版本约定见 [API 设计规范](/engineering/7_api_design_rule)
+- REST 风格的 URL、状态码、版本约定见 [API 设计规范](/engineering/4_api_design_rule)
 - 服务间调用怎么选（HTTP Service Clients / OpenFeign / gRPC / Dubbo / 异步消息）见 [服务通信](/spring-cloud/3_communication)
 - Dubbo 与 Triple 协议见 [Dubbo](/microservices/4_dubbo)
 - AMQP 是消息协议而不是 RPC：RabbitMQ 经典用法是 AMQP 0-9-1，AMQP 1.0 是另一套协议，见 [RabbitMQ](/messaging/4_rabbitmq)

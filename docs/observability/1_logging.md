@@ -4,7 +4,7 @@ description: 日志分类与级别策略、JSON 字段规范、traceId 关联、
 
 # 日志体系
 
-> 前置阅读：[日志](/spring-boot/12_logging)、[可观测性总览](./0_overview)
+> 前置阅读：[日志](/spring-boot/9_logging)、[可观测性总览](./0_overview)
 
 日志平台关心的是日志离开应用之后的事情。本篇讲分类与级别、结构化与 traceId 关联、Kubernetes 采集、Loki 与 Elasticsearch 选型、保留与脱敏。
 
@@ -45,10 +45,10 @@ description: 日志分类与级别策略、JSON 字段规范、traceId 关联、
 
 落地要点：
 
-- **生产默认 INFO**，第三方框架包统一调到 WARN；需要 DEBUG 时用 `/actuator/loggers` 对单个包临时调级，排查完恢复，见 [日志](/spring-boot/12_logging) 第六节
+- **生产默认 INFO**，第三方框架包统一调到 WARN；需要 DEBUG 时用 `/actuator/loggers` 对单个包临时调级，排查完恢复，见 [日志](/spring-boot/9_logging) 第六节
 - **ERROR 必须可行动**：被调用方返回业务校验失败（如参数错误）是 WARN 甚至 INFO，不是 ERROR；否则 ERROR 被噪声淹没，基于 ERROR 数量的告警就失去意义
 - **同一异常只记录一次**：在统一异常处理处打 ERROR 并带完整异常栈，中间层不要"打一条再抛出"
-- **防日志风暴**：下游故障时，每个失败请求都打异常栈会让日志量瞬间放大数十倍，压垮采集管道和存储。应用侧写日志不能阻塞业务线程（异步 Appender 与 `neverBlock` 的取舍见 [日志](/spring-boot/12_logging) 第四节），平台侧在 Agent 和存储层设置限流（见第八节）
+- **防日志风暴**：下游故障时，每个失败请求都打异常栈会让日志量瞬间放大数十倍，压垮采集管道和存储。应用侧写日志不能阻塞业务线程（异步 Appender 与 `neverBlock` 的取舍见 [日志](/spring-boot/9_logging) 第四节），平台侧在 Agent 和存储层设置限流（见第八节）
 
 ---
 
@@ -58,7 +58,7 @@ description: 日志分类与级别策略、JSON 字段规范、traceId 关联、
 
 文本日志需要在采集端用正则或 grok 解析，字段一改、多一个空格解析就失败；多行异常栈还要额外配置多行合并规则。结构化 JSON 一行一个事件，异常栈作为字段内的字符串，采集端零解析，查询端直接按字段过滤。
 
-Spring Boot 3.4 起内置 `ecs`、`gelf`、`logstash` 三种结构化格式，配置方法见 [日志](/spring-boot/12_logging) 第三节。平台侧要做的是**全公司选定一种格式**，让所有服务的字段名一致——同一个"日志级别"，在 ECS 里是 `log.level`，在 Logstash 格式里是 `level`，在 OTel 日志模型里是 `SeverityText`，混用会让跨服务查询和告警规则写不下去。
+Spring Boot 3.4 起内置 `ecs`、`gelf`、`logstash` 三种结构化格式，配置方法见 [日志](/spring-boot/9_logging) 第三节。平台侧要做的是**全公司选定一种格式**，让所有服务的字段名一致——同一个"日志级别"，在 ECS 里是 `log.level`，在 Logstash 格式里是 `level`，在 OTel 日志模型里是 `SeverityText`，混用会让跨服务查询和告警规则写不下去。
 
 ### 2、字段清单
 
@@ -89,7 +89,7 @@ Spring Boot 3.4 起内置 `ecs`、`gelf`、`logstash` 三种结构化格式，�
 
 ### 1、traceId 从哪里来
 
-引入 Micrometer Tracing 后，每个请求的 `traceId`、`spanId` 会被自动写入 MDC，结构化日志随之输出为 JSON 字段，跨线程池与响应式链路的传递方式见 [日志](/spring-boot/12_logging) 第五节。MDC 键名在两条接入路线上不同（Micrometer Tracing 写 `traceId`，OpenTelemetry Java agent 写 `trace_id`），全公司应只用一条路线或在平台侧统一字段名，见 [链路追踪](./3_tracing#七、日志、指标与链路的关联)。
+引入 Micrometer Tracing 后，每个请求的 `traceId`、`spanId` 会被自动写入 MDC，结构化日志随之输出为 JSON 字段，跨线程池与响应式链路的传递方式见 [日志](/spring-boot/9_logging) 第五节。MDC 键名在两条接入路线上不同（Micrometer Tracing 写 `traceId`，OpenTelemetry Java agent 写 `trace_id`），全公司应只用一条路线或在平台侧统一字段名，见 [链路追踪](./3_tracing#七、日志、指标与链路的关联)。
 
 ### 2、把 traceId 返回给调用方
 
@@ -153,7 +153,7 @@ traceId 每个请求都不同，做成标签会让每个请求成为一条独立
 | 应用直推 | 应用通过 OTLP 直接把日志发给 Collector | 无需解析文件，日志自带 traceId 等结构化属性 | 日志可靠性依赖网络与 Collector，应用要处理背压 | 已全面使用 OTel 的团队 |
 | 主机 Agent | 虚拟机上 Agent 读取滚动日志文件 | 传统部署成熟方案 | 要管理文件轮转与位点 | 非容器化部署 |
 
-容器化部署中应用**只输出 stdout**，不在容器内写文件，原因见 [日志](/spring-boot/12_logging) 第九节和 [Kubernetes](/cloud-native/6_kubernetes)。日志量很大或存储需要维护窗口时，可以在 Agent 与存储之间加 Kafka 缓冲，存储故障时日志先积压在 Kafka 中，避免 Agent 本地缓冲打满后丢弃。
+容器化部署中应用**只输出 stdout**，不在容器内写文件，原因见 [日志](/spring-boot/9_logging) 第九节和 [Kubernetes](/cloud-native/6_kubernetes)。日志量很大或存储需要维护窗口时，可以在 Agent 与存储之间加 Kafka 缓冲，存储故障时日志先积压在 Kafka 中，避免 Agent 本地缓冲打满后丢弃。
 
 ### 2、Agent 选型
 
@@ -438,7 +438,7 @@ Loki 的数据本身就在对象存储中，冷热分层主要靠对象存储的
 
 | 层次 | 做法 | 说明 |
 |------|------|------|
-| 源头 | DTO 排除敏感字段、不打印请求体、Logback `%replace` 兜底 | **最主要的一层**，见 [日志](/spring-boot/12_logging) 第八节 |
+| 源头 | DTO 排除敏感字段、不打印请求体、Logback `%replace` 兜底 | **最主要的一层**，见 [日志](/spring-boot/9_logging) 第八节 |
 | 管道 | Collector `transform` / `redaction` 处理器、Fluent Bit 过滤器按规则替换 | 兜底拦截漏网的手机号、身份证号、Token |
 | 存储与访问 | Loki 多租户隔离、Elasticsearch 字段级权限、查询审计 | 不同团队只能看自己的日志，敏感索引单独授权 |
 | 生命周期 | 按合规要求设置保留期并真正删除 | 过期日志也是负债 |

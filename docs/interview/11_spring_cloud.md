@@ -348,4 +348,4 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign 与 HTTP 
 - 跨 MQ：生产者写进消息头，消费者取出来接着用
 - 采样率默认 10%（`management.tracing.sampling.probability`）；不想改代码可用 SkyWalking 或 OpenTelemetry Java Agent
 
-→ 详见 [日志](/spring-boot/12_logging#五、mdc-与-traceid-传递)、[链路追踪](/observability/3_tracing)、[OpenTelemetry](/observability/5_opentelemetry)
+→ 详见 [日志](/spring-boot/9_logging#五、mdc-与-traceid-传递)、[链路追踪](/observability/3_tracing)、[OpenTelemetry](/observability/5_opentelemetry)

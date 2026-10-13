@@ -2,6 +2,8 @@
 
 本模块聚焦**系统级的性能优化策略与方法**：如何度量、如何定位瓶颈、各层有哪些通用手段。本篇给出高性能优化的全局视图，以及模块的阅读顺序。
 
+**版本基线（2026 年 10 月）**：JDK 21 / 25、Spring Boot 4、MySQL 8.4、JMH 1.37
+
 ---
 
 ## 一、什么是高性能
@@ -115,6 +117,6 @@ GC、JIT、索引、Redis、Kafka、Netty 等具体技术的原理与调优在�
 - 数据库索引与 SQL → [数据库](/database/0_overview)
 - 消息队列 → [消息队列](/messaging/0_overview)
 - 网络 IO 模型 → [Netty](/netty/1_io_model)
-- 线上诊断（Arthas 等）→ [线上诊断](/engineering/4_diagnosis)
+- 线上诊断（Arthas 等）→ [线上诊断](/engineering/7_diagnosis)
 
 > 下一篇：[性能指标](./1_metrics) —— 优化之前，先把"快"和"慢"变成可度量的数字。

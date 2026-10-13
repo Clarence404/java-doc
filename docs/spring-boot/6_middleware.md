@@ -24,7 +24,7 @@ Spring Boot 接入中间件主要是 Starter 与配置这一层「胶水」。�
 
 - **Jackson 3 是 Boot 4 的默认 JSON 库**，各项目的 Jackson 2 版序列化器都被标记为废弃，新旧格式的输出可能不同，升级时要考虑已写入的存量数据能否读回
 - 版本全部由 Boot 依赖管理，不要自己写版本号
-- 集成测试用 Testcontainers + `@ServiceConnection` 自动注入连接信息，见 [Spring Boot 测试](./13_testing)
+- 集成测试用 Testcontainers + `@ServiceConnection` 自动注入连接信息，见 [Spring Boot 测试](./10_testing)
 - 密码一律用 `${ENV_VAR}` 占位，密钥管理见 [数据安全](/security/7_data_security)
 
 ---
@@ -463,4 +463,4 @@ public class OrderAnalyticsService {
 - Spring Data Elasticsearch：[https://docs.spring.io/spring-data/elasticsearch/reference/](https://docs.spring.io/spring-data/elasticsearch/reference/)
 - Spring Data MongoDB：[https://docs.spring.io/spring-data/mongodb/reference/](https://docs.spring.io/spring-data/mongodb/reference/)
 
-> 下一篇：[配置管理](./6_config) —— 配置源优先级、Profile、属性绑定与配置加密。
+> 下一篇：[异步任务与定时任务](./7_async_schedule) —— `@Async` 与 `@Scheduled` 的执行器配置、多实例调度和虚拟线程开关。

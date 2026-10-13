@@ -140,13 +140,13 @@ mvn dependency:analyze
 </dependencies>
 ```
 
-团队层面如何让冲突在构建期就失败（`dependencyConvergence`、`requireUpperBoundDeps`）、禁用哪些库、版本谁说了算，见 [依赖治理](./6_dependency_governance)。
+团队层面如何让冲突在构建期就失败（`dependencyConvergence`、`requireUpperBoundDeps`）、禁用哪些库、版本谁说了算，见 [依赖治理](./2_dependency_governance)。
 
 ### 4、BOM 导入
 
 BOM（Bill of Materials）是只包含 `dependencyManagement` 的 POM，通过 `type=pom` + `scope=import` 导入后，它管理的构件都不用再写版本。导入**必须写在 `<dependencyManagement>` 里**：
 
-BOM 选型、版本约束、漏洞扫描、自动升级、License 与 SBOM 等依赖治理见 [依赖治理](./6_dependency_governance)。
+BOM 选型、版本约束、漏洞扫描、自动升级、License 与 SBOM 等依赖治理见 [依赖治理](./2_dependency_governance)。
 
 ```xml
 <dependencyManagement>
@@ -162,7 +162,7 @@ BOM 选型、版本约束、漏洞扫描、自动升级、License 与 SBOM 等�
 </dependencyManagement>
 ```
 
-多个 BOM 管理同一构件时谁生效、如何覆盖 BOM 里的单个版本、团队自定义 BOM 的做法，统一在 [依赖治理第二节](./6_dependency_governance) 讲。
+多个 BOM 管理同一构件时谁生效、如何覆盖 BOM 里的单个版本、团队自定义 BOM 的做法，统一在 [依赖治理第二节](./2_dependency_governance) 讲。
 
 ---
 
@@ -281,7 +281,7 @@ Boot 项目有两种接入方式：
 
 - **Lombok 不用再手动从 fat jar 中排除**：Boot 4 起 `repackage` 默认不打包 `optional` 依赖（需要时用 `<includeOptional>true</includeOptional>` 恢复），把 Lombok 声明为 `optional` 即可
 - **JDK 23+ 的注解处理器**：javac 不再自动运行类路径上的处理器，Lombok / MapStruct 要在 `maven-compiler-plugin` 的 `annotationProcessorPaths` 中显式声明，完整配置见 [效率工具库](/java/98_dev_tool)
-- **Boot 4 的 starter 改名**：Web 是 `spring-boot-starter-webmvc`，测试按技术拆成 `spring-boot-starter-<技术>-test`；分层 jar、`build-image` 与 AOT 见 [启动与部署优化](/spring-boot/14_startup)
+- **Boot 4 的 starter 改名**：Web 是 `spring-boot-starter-webmvc`，测试按技术拆成 `spring-boot-starter-<技术>-test`；分层 jar、`build-image` 与 AOT 见 [启动与部署优化](/spring-boot/13_startup)
 
 ### 5、可复现构建与常用命令
 
@@ -513,7 +513,7 @@ buildCache {
 
 ## 七、私有仓库与镜像
 
-Nexus 仓库的规划、发布凭证与制品版本规范见 [制品与版本管理](/devops/6_artifact_version)。开发机只需在 `~/.m2/settings.xml` 中把所有请求导向公司代理仓库：
+Nexus 仓库的规划、发布凭证与制品版本规范见 [制品与版本管理](/devops/5_artifact_version)。开发机只需在 `~/.m2/settings.xml` 中把所有请求导向公司代理仓库：
 
 ```xml
 <settings>
@@ -556,4 +556,4 @@ Nexus 仓库的规划、发布凭证与制品版本规范见 [制品与版本管
 - Gradle 配置缓存：[Configuration Cache](https://docs.gradle.org/current/userguide/configuration_cache_enabling.html)
 - Gradle 构建缓存：[Build Cache](https://docs.gradle.org/current/userguide/build_cache.html)
 
-> 下一篇：[开发工具](./2_dev_tools)
+> 下一篇：[依赖治理](./2_dependency_governance)

@@ -181,7 +181,7 @@ public class OrderValidationService {
 |------|------|-----------|
 | `FilterChain.doFilter` | Servlet API（`jakarta.servlet`） | 每个 `Filter` 调用 `chain.doFilter(req, resp)` 放行，不调用即拦截 |
 | `FilterChainProxy` → `SecurityFilterChain` | Spring Security | `FilterChainProxy` 作为一个 Servlet Filter 挂进容器，按请求匹配一条 `SecurityFilterChain`，再用内部的 `VirtualFilterChain` 依次执行其中的安全过滤器，见 [Spring Security](/spring/9_security#_1、过滤器链) |
-| `HandlerExecutionChain` | Spring MVC | 依次调用拦截器的 `preHandle`，任何一个返回 `false` 就中断，见 [MVC](/spring/3_mvc#_3、filter-与-handlerinterceptor) |
+| `HandlerExecutionChain` | Spring MVC | 依次调用拦截器的 `preHandle`，任何一个返回 `false` 就中断，见 [MVC](/spring/3_mvc#_4、filter-与-handlerinterceptor) |
 | `ChannelPipeline` | Netty | 每个 `ChannelHandler` 处理完后调用 `ctx.fireChannelRead(msg)` 交给下一个入站处理器，见 [Pipeline 与 Handler](/netty/5_pipeline_handler) |
 | `HandlerExceptionResolverComposite` | Spring MVC | 依次询问异常解析器，第一个返回非空结果的负责处理，属于纯责任链 |
 

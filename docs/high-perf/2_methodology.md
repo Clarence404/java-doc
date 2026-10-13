@@ -76,7 +76,7 @@ USE 的优点是**覆盖完整、不遗漏**，适合"系统整体变慢但不�
 - **CPU 高、RT 高**：计算型瓶颈。用 CPU 火焰图找热点方法，或检查是否 GC 线程占满 CPU。
 - **CPU 低、RT 高**：等待型瓶颈。线程在等锁、等 IO、等连接池、等下游。用 `jstack` 看线程状态分布，或用 async-profiler 的 wall-clock 模式（`-e wall`）采样。
 
-具体故障排查步骤（CPU 飙高、内存泄漏、死锁）见 [JVM 故障排查](/jvm/9_troubleshooting) 与 [线上诊断](/engineering/4_diagnosis)。
+具体故障排查步骤（CPU 飙高、内存泄漏、死锁）见 [JVM 故障排查](/jvm/9_troubleshooting) 与 [线上诊断](/engineering/7_diagnosis)。
 
 ---
 

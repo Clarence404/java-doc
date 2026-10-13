@@ -70,7 +70,7 @@ mvn -Pnative spring-boot:build-image
 
 ### 3、可观测性：Micrometer Observation 与 Tracing（3.0）
 
-Boot 3.0 支持 Micrometer 1.10 引入的 Observation API——一次埋点同时产出指标和链路 Span，并自动配置 Micrometer Tracing（支持 Brave、OpenTelemetry 桥接，导出到 Zipkin 等）。Spring Cloud Sleuth 不再适用于 Boot 3，链路追踪统一改用 Micrometer Tracing。Boot 侧的端点与指标配置见 [Actuator 监控](./7_actuator)，整体可观测性体系见 [可观测性总览](/observability/0_overview)。
+Boot 3.0 支持 Micrometer 1.10 引入的 Observation API——一次埋点同时产出指标和链路 Span，并自动配置 Micrometer Tracing（支持 Brave、OpenTelemetry 桥接，导出到 Zipkin 等）。Spring Cloud Sleuth 不再适用于 Boot 3，链路追踪统一改用 Micrometer Tracing。Boot 侧的端点与指标配置见 [Actuator 监控](./11_actuator)，整体可观测性体系见 [可观测性总览](/observability/0_overview)。
 
 ### 4、ProblemDetail：标准化错误响应（3.0）
 
@@ -111,7 +111,7 @@ server:
 
 ### 7、虚拟线程与 JdbcClient（3.2）
 
-- **虚拟线程**：运行在 Java 21 上并设置 `spring.threads.virtual.enabled=true`，Tomcat / Jetty 请求处理、`@Async`（`applicationTaskExecutor`）、`@Scheduled`（`taskScheduler`）、Kafka / RabbitMQ 监听容器都会改用虚拟线程。适用场景与钉住（pinning）等坑见 [异步任务与定时任务 - 虚拟线程](./9_async_schedule)
+- **虚拟线程**：运行在 Java 21 上并设置 `spring.threads.virtual.enabled=true`，Tomcat / Jetty 请求处理、`@Async`（`applicationTaskExecutor`）、`@Scheduled`（`taskScheduler`）、Kafka / RabbitMQ 监听容器都会改用虚拟线程。适用场景与钉住（pinning）等坑见 [异步任务与定时任务 - 虚拟线程](./7_async_schedule)
 - **JdbcClient**：Framework 6.1 新增的流式 JDBC API，Boot 3.2 基于 `NamedParameterJdbcTemplate` 自动配置，轻量查询不必再引入 ORM
 
 ```java
@@ -127,7 +127,7 @@ List<Order> orders = jdbcClient.sql("select * from t_order where user_id = :user
 
 | 变化 | 说明 |
 |------|------|
-| 结构化日志 | `logging.structured.format.console` / `logging.structured.format.file` 直接输出 JSON，内置 `ecs`、`logstash`、`gelf` 三种格式，详见 [日志](./12_logging) |
+| 结构化日志 | `logging.structured.format.console` / `logging.structured.format.file` 直接输出 JSON，内置 `ecs`、`logstash`、`gelf` 三种格式，详见 [日志](./9_logging) |
 | `@MockitoBean` / `@MockitoSpyBean` | Framework 6.2 提供，Boot 3.4 起 `@MockBean` / `@SpyBean` 废弃，**Boot 4.0 删除** |
 | HTTP 客户端选择 | `spring.http.client.factory` 指定底层实现（`http-components` / `jetty` / `reactor` / `jdk` / `simple`） |
 | 优雅停机默认开启 | 内嵌服务器默认 graceful shutdown，要恢复旧行为设 `server.shutdown=immediate` |
@@ -302,7 +302,7 @@ mvn -U org.openrewrite.maven:rewrite-maven-plugin:run \
 |------|------|------|
 | JDK | 编译失败 | 构建与运行环境升到 Java 17+（建议直接 21） |
 | `javax.*` 包名 | 大量编译错误；第三方库运行时 `NoClassDefFoundError: javax/servlet/...` | 全局替换为 `jakarta.*`（只换 Jakarta EE 规范的包）；升级不支持 Jakarta 的三方库 |
-| 自动配置注册 | 自定义 starter 不生效 | `spring.factories` 中 `EnableAutoConfiguration` 键的注册方式在 3.0 删除，改写到 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`（2.7 起已支持），见 [自定义 Starter](./8_custom_starter) |
+| 自动配置注册 | 自定义 starter 不生效 | `spring.factories` 中 `EnableAutoConfiguration` 键的注册方式在 3.0 删除，改写到 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`（2.7 起已支持），见 [自定义 Starter](./12_custom_starter) |
 | 尾斜杠匹配 | `/orders/` 返回 404，原来能匹配 `/orders` | Framework 6 默认关闭尾斜杠匹配；客户端改用规范路径，过渡期可在 `configurePathMatch` 中 `setUseTrailingSlashMatch(true)`（4.x 已删除该选项） |
 | Hibernate 6 | 依赖坐标找不到；HQL / 主键生成行为变化 | groupId 改为 `org.hibernate.orm`；`spring.jpa.hibernate.use-new-id-generator-mappings` 已删除，检查 ID 生成策略与原生 SQL |
 | Redis 配置前缀 | 连不上 Redis（仍连 localhost） | `spring.redis.*` 改为 `spring.data.redis.*` |
@@ -370,4 +370,4 @@ public UrlHandlerFilter urlHandlerFilter() {
 - 支持周期：[https://spring.io/projects/spring-boot#support](https://spring.io/projects/spring-boot#support)
 - OpenRewrite Spring 配方：[https://docs.openrewrite.org/recipes/java/spring](https://docs.openrewrite.org/recipes/java/spring)
 
-> 下一篇：[日志](./12_logging) —— 从日志门面到结构化日志，看看 Spring Boot 应用的日志该怎么配、怎么采集。
+> 返回：[Spring Boot 总览](./0_overview)

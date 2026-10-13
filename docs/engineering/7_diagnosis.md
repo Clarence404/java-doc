@@ -265,7 +265,7 @@ logger --classLoaderClass org.springframework.boot.loader.launch.LaunchedClassLo
   --name com.example.order --level info
 ```
 
-不加类加载器参数时修改的是系统类加载器里的 Logback 实例，命令提示成功但应用日志毫无变化，这是最常见的误用。已暴露 Actuator 的应用也可以通过 `loggers` 端点调整，见 [Actuator 监控](/spring-boot/7_actuator)。
+不加类加载器参数时修改的是系统类加载器里的 Logback 实例，命令提示成功但应用日志毫无变化，这是最常见的误用。已暴露 Actuator 的应用也可以通过 `loggers` 端点调整，见 [Actuator 监控](/spring-boot/11_actuator)。
 
 ---
 
@@ -374,5 +374,3 @@ Arthas 能读任意对象、调用任意方法、替换字节码，本质上是�
 - JEP 451 动态加载 Agent 的警告：[JEP 451: Prepare to Disallow the Dynamic Loading of Agents](https://openjdk.org/jeps/451)
 - Kubernetes 临时容器调试：[Debug Running Pods](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/)
 - Spring Boot 可执行 jar 的启动器：[Launching Executable Jars](https://docs.spring.io/spring-boot/specification/executable-jar/launching.html)
-
-> 下一篇：[API 文档](./5_api_doc)

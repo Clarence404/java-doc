@@ -96,7 +96,7 @@ VU 用完时，k6 不会排队等待，而是放弃这次迭代并计入 `droppe
 
 压测工具测到的是**客户端视角**的延迟，包含网络与排队；应用自身的 Micrometer 指标是**服务端视角**。两者都要看：客户端 P99 高而服务端 P99 正常，问题在网络、负载均衡、网关或压测机；两者一起升高，问题在服务内部或下游。
 
-服务端 P99 需要应用开启直方图（`management.metrics.distribution.percentiles-histogram.http.server.requests: true`，接入方式见 [Actuator 监控](/spring-boot/7_actuator) 第六节），然后在 Prometheus 里按接口计算：
+服务端 P99 需要应用开启直方图（`management.metrics.distribution.percentiles-histogram.http.server.requests: true`，接入方式见 [Actuator 监控](/spring-boot/11_actuator) 第六节），然后在 Prometheus 里按接口计算：
 
 ```promql
 histogram_quantile(
@@ -462,7 +462,7 @@ JMeter 的 Duration Assertion 是**逐个样本**判定的：单个响应超过�
 
 ### 3、预热
 
-JVM 刚启动时代码以解释模式运行，JIT 编译、类加载、连接池建连、本地缓存填充都在前几分钟发生，这段时间的延迟不代表稳态。处理方式有两种：一是像上面的脚本那样单独设一个 `warmup` 场景，其他场景用 `startTime` 延后启动，阈值只绑定正式场景；二是压测前单独跑一轮预热。JVM 层面的预热手段（CDS、CRaC 等）见 [启动优化](/spring-boot/14_startup)。
+JVM 刚启动时代码以解释模式运行，JIT 编译、类加载、连接池建连、本地缓存填充都在前几分钟发生，这段时间的延迟不代表稳态。处理方式有两种：一是像上面的脚本那样单独设一个 `warmup` 场景，其他场景用 `startTime` 延后启动，阈值只绑定正式场景；二是压测前单独跑一轮预热。JVM 层面的预热手段（CDS、CRaC 等）见 [启动优化](/spring-boot/13_startup)。
 
 ### 4、基线与对比
 
@@ -470,7 +470,7 @@ JVM 刚启动时代码以解释模式运行，JIT 编译、类加载、连接池
 
 ### 5、压测时同步观测
 
-只看压测报告无法定位问题。压测期间至少盯住：应用的 `http_server_requests` 延迟与错误、JVM 堆和 GC 停顿、Tomcat / Netty 线程池、HikariCP 的 `hikaricp_connections_active` 与 `hikaricp_connections_pending`、数据库的慢查询与锁等待。指标接入见 [Actuator 监控](/spring-boot/7_actuator)，日志与 traceId 关联见 [日志](/spring-boot/12_logging)。
+只看压测报告无法定位问题。压测期间至少盯住：应用的 `http_server_requests` 延迟与错误、JVM 堆和 GC 停顿、Tomcat / Netty 线程池、HikariCP 的 `hikaricp_connections_active` 与 `hikaricp_connections_pending`、数据库的慢查询与锁等待。指标接入见 [Actuator 监控](/spring-boot/11_actuator)，日志与 traceId 关联见 [日志](/spring-boot/9_logging)。
 
 ---
 
@@ -530,7 +530,7 @@ jobs:
 
 几点约定：
 
-- `BASE_URL` 先放进 `env` 再在脚本里引用，而不是把 `${{ }}` 表达式直接拼进 `run`，避免表达式注入；Action 固定到 commit SHA、最小权限等通用规则见 [CI/CD](/devops/2_ci_cd)。
+- `BASE_URL` 先放进 `env` 再在脚本里引用，而不是把 `${{ }}` 表达式直接拼进 `run`，避免表达式注入；Action 固定到 commit SHA、最小权限等通用规则见 [CI/CD](/devops/4_ci_cd)。
 - `concurrency` 保证同一时间只有一个工作流在压测环境上运行，`cancel-in-progress: false` 让新任务排队而不是打断正在进行的压测。
 - `if: always()` 保证阈值失败时也能上传报告，失败的那次最需要看报告。
 - PR 冒烟的写法相同，把场景换成 `--scenario smoke`，并在前面加一步用 Docker Compose 拉起 order-service 及其依赖；冒烟只判功能和错误率，不设严格的延迟阈值，否则共享 Runner 的波动会让 PR 频繁误报。
@@ -572,7 +572,7 @@ jobs:
 | 浸泡测试中内存持续增长 | 内存泄漏、缓存无上限 | `jcmd <pid> GC.heap_info` 看堆使用；对比多次堆转储，见 [诊断工具](/jvm/8_monitoring_tools) |
 | P99 周期性尖刺 | GC 停顿、定时任务、日志刷盘 | GC 日志与 JFR 录制，见 [JVM 层性能策略](/high-perf/5_jvm_tuning) |
 
-线上环境无法重启或加参数时，用 Arthas 的 `trace`、`profiler` 等命令在运行中定位，见 [线上诊断](/engineering/4_diagnosis)。找到瓶颈并调整后，按同一条件重跑压测验证效果，各层并发参数的调整方法见 [并发参数调优](/high-con/7_concurrency_tuning)，容量换算见 [容量评估与规划](/high-con/8_capacity_planning)。
+线上环境无法重启或加参数时，用 Arthas 的 `trace`、`profiler` 等命令在运行中定位，见 [线上诊断](/engineering/7_diagnosis)。找到瓶颈并调整后，按同一条件重跑压测验证效果，各层并发参数的调整方法见 [并发参数调优](/high-con/7_concurrency_tuning)，容量换算见 [容量评估与规划](/high-con/8_capacity_planning)。
 
 压测结果怎么换算成机器数、全链路压测与影子库怎么做，见 [容量评估与规划](/high-con/8_capacity_planning)；定位瓶颈的方法与工具见 [性能分析方法论](/high-perf/2_methodology) 和 [性能分析工具](/high-perf/3_profilers)。
 

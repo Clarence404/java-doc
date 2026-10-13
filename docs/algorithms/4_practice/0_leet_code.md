@@ -305,4 +305,4 @@ description: 按题型分类的 LeetCode 高频题、难度与考点、解题切
 - 力扣中国站题库：[https://leetcode.cn/problemset/](https://leetcode.cn/problemset/)
 - OI Wiki：[https://oi-wiki.org/](https://oi-wiki.org/)
 
-> 下一篇：[华为 OJ 题型与技巧](./1_huawei_oj) —— ACM 模式输入输出、`BufferedReader` 读法、常见题型与 API 速查。
+> 下一篇：[ACM 模式机考技巧](./1_huawei_oj) —— ACM 模式输入输出、`BufferedReader` 读法、常见题型与 API 速查。

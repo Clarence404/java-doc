@@ -120,7 +120,7 @@ public class OrderController {
 | `java.nio.file.Files` | `readString`、`copy`、`walk` 等静态方法 | 实际工作交给对应的 `FileSystemProvider`，调用方不用关心是哪种文件系统 |
 | Spring `JdbcTemplate` | `query`、`update` | 获取连接、创建语句、遍历结果集、关闭资源、异常转换；它同时也是模板方法加回调的典型，见 [模板方法模式](./21_behavioral_template_method) |
 
-SLF4J 是最典型的外观：业务代码只依赖 `slf4j-api`，换日志实现只需要换依赖，代码不用改。门面、实现与桥接包的关系见 [日志](/spring-boot/12_logging)。
+SLF4J 是最典型的外观：业务代码只依赖 `slf4j-api`，换日志实现只需要换依赖，代码不用改。门面、实现与桥接包的关系见 [日志](/spring-boot/9_logging)。
 
 微服务网关常被比作「系统级外观」：客户端只认网关一个入口，背后有多少服务对外不可见。这是架构层面的类比，网关的具体能力见 [API 网关](/spring-cloud/2_api_gateway)。
 

@@ -114,7 +114,7 @@ jstack <pid> | grep -A 30 "nid=0x3039"   # 看这个线程在执行什么
 - 偶发或多个线程分摊时，直接抓 30～60 秒 CPU 火焰图更可靠
 - 最忙的是 GC 线程时，问题在对象分配太多或内存泄漏，转查 GC 日志（见 Q12）
 
-→ 详见 [故障排查](/jvm/9_troubleshooting#十、cpu-使用率高)、[线上诊断](/engineering/4_diagnosis#三、按症状选命令)、[性能分析工具](/high-perf/3_profilers#一、async-profiler)
+→ 详见 [故障排查](/jvm/9_troubleshooting#十、cpu-使用率高)、[线上诊断](/engineering/7_diagnosis#三、按症状选命令)、[性能分析工具](/high-perf/3_profilers#一、async-profiler)
 
 ### Q8：JFR 能采集哪些信息？适合排查什么问题？
 

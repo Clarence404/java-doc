@@ -219,7 +219,7 @@ public class QrAppController {
 }
 ```
 
-- **重复请求天然幂等**：手机网络抖动重发确认时，状态已是 `CONFIRMED` 且 `uid` 相同，脚本直接返回成功，不需要额外的去重 key。这是用状态机做幂等的典型写法，通用方案见 [幂等设计](/architecture/5_idempotence)
+- **重复请求天然幂等**：手机网络抖动重发确认时，状态已是 `CONFIRMED` 且 `uid` 相同，脚本直接返回成功，不需要额外的去重 key。这是用状态机做幂等的典型写法，通用方案见 [幂等设计](/architecture/3_idempotence)
 - **创建也用脚本**：`HSET` 与 `EXPIRE` 分两条命令时，进程在中间崩溃会留下永不过期的 key；所有脚本只操作一个 key，Redis Cluster 下没有跨 slot 问题
 
 ---

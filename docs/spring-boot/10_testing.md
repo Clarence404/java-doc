@@ -494,7 +494,7 @@ public class TestOrderApplication {
 
 ### 1、@Async：用 Awaitility 等待结果
 
-`@Async` 方法在另一个线程执行，测试方法返回时它可能还没跑完；不要用 `Thread.sleep` 赌时间，用 Awaitility 轮询断言（`@Async` 本身的配置见 [异步任务与定时任务](./9_async_schedule)）：
+`@Async` 方法在另一个线程执行，测试方法返回时它可能还没跑完；不要用 `Thread.sleep` 赌时间，用 Awaitility 轮询断言（`@Async` 本身的配置见 [异步任务与定时任务](./7_async_schedule)）：
 
 ```java
 import java.time.Duration;
@@ -607,4 +607,4 @@ Spring TestContext 把加载过的 `ApplicationContext` 缓存在 JVM 静态变�
 - Spring TestContext Framework：[https://docs.spring.io/spring-framework/reference/testing/testcontext-framework.html](https://docs.spring.io/spring-framework/reference/testing/testcontext-framework.html)
 - Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 
-> 下一篇：[启动与部署优化](./14_startup) —— 测试跑稳之后，再看如何让应用启动更快、部署更稳。
+> 下一篇：[Actuator 监控](./11_actuator) —— 健康检查、探针、指标与端点安全，让 Boot 应用在生产环境可观测、可运维。

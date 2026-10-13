@@ -260,4 +260,4 @@ Prompt 工程、RAG、微调三者的对比只在本篇维护。
 - Hugging Face TRL：[https://huggingface.co/docs/trl/index](https://huggingface.co/docs/trl/index)
 - Ollama 导入模型：[https://docs.ollama.com/import](https://docs.ollama.com/import)
 
-> 下一篇：[AI 编程工具怎么选](../6_tools/0_ai_tools)
+> 下一篇：[AI 编程工具](../6_tools/0_ai_tools)

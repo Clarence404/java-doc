@@ -49,7 +49,7 @@ WebFlux 构建在 **Reactive Streams** 规范之上（JDK 9 起以 `java.util.co
 - Boot 4.0 起移除了 Undertow 支持（Servlet 6.1 基线不兼容），WebFlux 可选服务器为 Netty / Tomcat / Jetty
 - Boot 4.0 起 `WebClient.Builder` 的自动配置拆到 `spring-boot-starter-webclient`；只想在 MVC 应用里用 `WebClient` 调下游时引这个 starter 即可，不必引入 `spring-boot-starter-webflux`（后者会带上响应式服务端）
 - **非阻塞的前提是整条链路都不阻塞**：WebFlux 里调用 JDBC 等阻塞 API 会卡住事件循环，吞吐反而低于 MVC
-- 只是想用少量代码获得高并发的阻塞式业务，优先考虑 MVC + 虚拟线程（Boot 3.2+，`spring.threads.virtual.enabled=true`），见 [异步任务与定时任务](/spring-boot/9_async_schedule)
+- 只是想用少量代码获得高并发的阻塞式业务，优先考虑 MVC + 虚拟线程（Boot 3.2+，`spring.threads.virtual.enabled=true`），见 [异步任务与定时任务](/spring-boot/7_async_schedule)
 
 ---
 
@@ -255,7 +255,7 @@ private boolean isRetryable(Throwable e) {
 }
 ```
 
-- 重试的本质是**重新订阅上游**：对 `WebClient` 来说就是重新发一次 HTTP 请求，所以只对幂等操作重试，非幂等的 POST 需配合幂等键，见 [幂等设计](/architecture/5_idempotence)
+- 重试的本质是**重新订阅上游**：对 `WebClient` 来说就是重新发一次 HTTP 请求，所以只对幂等操作重试，非幂等的 POST 需配合幂等键，见 [幂等设计](/architecture/3_idempotence)
 - 默认重试耗尽抛出的是包装后的 `RetryExhaustedException`（可用 `Exceptions.isRetryExhausted` 判断），上面用 `onRetryExhaustedThrow` 还原为原始异常，便于全局异常处理
 
 ### 3、全局异常处理
@@ -629,7 +629,7 @@ private Mono<Long> slowProcess(Long tick) {
 
 ### 1、为什么 ThreadLocal / MDC 会失效
 
-MDC、Spring Security 的 `SecurityContextHolder`、事务同步等都依赖 ThreadLocal。响应式链路中，一个请求的处理会在多个线程间跳转（事件循环线程、boundedElastic 线程、WebClient 回调线程），而一个线程又交替处理多个请求，因此在入口处放进 ThreadLocal 的值，在后续操作符中**可能读不到，甚至读到别的请求的值**。MDC 基础用法见 [日志](/spring-boot/12_logging)。
+MDC、Spring Security 的 `SecurityContextHolder`、事务同步等都依赖 ThreadLocal。响应式链路中，一个请求的处理会在多个线程间跳转（事件循环线程、boundedElastic 线程、WebClient 回调线程），而一个线程又交替处理多个请求，因此在入口处放进 ThreadLocal 的值，在后续操作符中**可能读不到，甚至读到别的请求的值**。MDC 基础用法见 [日志](/spring-boot/9_logging)。
 
 ### 2、Reactor Context
 
@@ -829,7 +829,7 @@ void delayedWithVirtualTime() {
 
 `withVirtualTime` 会把默认调度器替换为虚拟时钟，Publisher 必须在 Supplier 中惰性创建，提前创建好的 `Mono` 仍会使用真实时钟。
 
-接口级测试（`@WebFluxTest` + `WebTestClient`）见 [Spring Boot 测试](/spring-boot/13_testing)。
+接口级测试（`@WebFluxTest` + `WebTestClient`）见 [Spring Boot 测试](/spring-boot/10_testing)。
 
 ---
 

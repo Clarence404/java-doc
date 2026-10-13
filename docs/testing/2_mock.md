@@ -330,7 +330,7 @@ void publishFailureAfterCharge() {
 
 ### 2、BDDMockito
 
-BDDMockito 只是换了一套和 given / when / then 结构对应的方法名，功能完全相同。Spring 官方示例和 [Spring Boot 测试](/spring-boot/13_testing) 一篇都用这种风格：
+BDDMockito 只是换了一套和 given / when / then 结构对应的方法名，功能完全相同。Spring 官方示例和 [Spring Boot 测试](/spring-boot/10_testing) 一篇都用这种风格：
 
 ```java
 import static org.mockito.BDDMockito.given;
@@ -599,7 +599,7 @@ class OrderServiceFakeTest {
 
 这个测试一个 Mockito 调用都没有：单方法接口直接用 lambda 和方法引用当 Stub / 记录器，比 Mock 更短也更好读。
 
-Fake 的前提是它的行为和真实实现一致。Fake 放在测试源码里与生产代码一起维护，真实的 JPA / JDBC 实现另用 [`@DataJpaTest`](/spring-boot/13_testing) + [Testcontainers](./5_testcontainers) 测，两边各管一半。
+Fake 的前提是它的行为和真实实现一致。Fake 放在测试源码里与生产代码一起维护，真实的 JPA / JDBC 实现另用 [`@DataJpaTest`](/spring-boot/10_testing) + [Testcontainers](./5_testcontainers) 测，两边各管一半。
 
 ### 4、过度 Mock 的信号
 
@@ -841,7 +841,7 @@ tasks.test {
 | 工具 | 层次 | 适用 |
 |------|------|------|
 | Mockito | 进程内对象 | 业务逻辑测试，Mock 自己的接口 |
-| `MockRestServiceServer` | 拦截 Spring 的 `RestClient` / `RestTemplate` | 只测 Spring HTTP 客户端代码，不走真实网络，见 [Spring Boot 测试](/spring-boot/13_testing) 的 `@RestClientTest` |
+| `MockRestServiceServer` | 拦截 Spring 的 `RestClient` / `RestTemplate` | 只测 Spring HTTP 客户端代码，不走真实网络，见 [Spring Boot 测试](/spring-boot/10_testing) 的 `@RestClientTest` |
 | WireMock | 真实 HTTP 服务端（本地端口） | 与客户端实现无关，覆盖真实网络栈：序列化、超时、连接错误、延迟 |
 
 ### 2、被测适配器
@@ -983,7 +983,7 @@ class HttpPaymentClientTest {
 
 ### 5、在 Spring 测试中使用
 
-在 `@SpringBootTest` 里，用 `@DynamicPropertySource` 把 `wm.baseUrl()` 写进支付网关地址属性即可，写法见 [Spring Boot 测试](/spring-boot/13_testing) 第二节的「测试专用属性」。WireMock 官方也提供 Spring Boot 集成（`org.wiremock.integrations:wiremock-spring-boot`，`@EnableWireMock` 自动启动服务端并注入属性），使用前在其发布说明里确认支持的 Boot 版本。
+在 `@SpringBootTest` 里，用 `@DynamicPropertySource` 把 `wm.baseUrl()` 写进支付网关地址属性即可，写法见 [Spring Boot 测试](/spring-boot/10_testing) 第二节的「测试专用属性」。WireMock 官方也提供 Spring Boot 集成（`org.wiremock.integrations:wiremock-spring-boot`，`@EnableWireMock` 自动启动服务端并注入属性），使用前在其发布说明里确认支持的 Boot 版本。
 
 WireMock 只能证明「客户端按我理解的协议工作」。对方接口改了字段，WireMock 桩不会知道；服务双方都在团队内时，用 [契约测试](./6_contract_test) 让桩由提供方的契约生成。
 
@@ -993,9 +993,9 @@ WireMock 只能证明「客户端按我理解的协议工作」。对方接口�
 
 Spring 上下文里替换 Bean 用 Spring Framework 的 `@MockitoBean` / `@MockitoSpyBean`（`org.springframework.test.context.bean.override.mockito` 包）。Spring Boot 的 `@MockBean` / `@SpyBean` 在 Boot 3.4 废弃、**Boot 4.0 已删除**，升级时改注解和 import 即可。
 
-使用原则只有一条：**能不用就不用**。上面所有测试都没有启动 Spring，直接 `new` 被测对象并传入 `@Mock`，毫秒级完成。只有在切片测试（`@WebMvcTest` 里 Mock Controller 依赖的 Service）或必须启动上下文的集成测试里才用 `@MockitoBean`，而且它会参与上下文缓存键，Mock 组合不统一会让测试套件反复启动上下文。具体用法、共享 Mock 的组合注解、缓存问题都在 [Spring Boot 测试](/spring-boot/13_testing) 第三、四、八节，这里不重复。
+使用原则只有一条：**能不用就不用**。上面所有测试都没有启动 Spring，直接 `new` 被测对象并传入 `@Mock`，毫秒级完成。只有在切片测试（`@WebMvcTest` 里 Mock Controller 依赖的 Service）或必须启动上下文的集成测试里才用 `@MockitoBean`，而且它会参与上下文缓存键，Mock 组合不统一会让测试套件反复启动上下文。具体用法、共享 Mock 的组合注解、缓存问题都在 [Spring Boot 测试](/spring-boot/10_testing) 第三、四、八节，这里不重复。
 
-Spring 上下文里的 `@MockitoBean`、切片测试和上下文缓存见 [Spring Boot 测试](/spring-boot/13_testing)，真实数据库与中间件的集成测试见 [集成测试](./3_integration_test) 和 [Testcontainers](./5_testcontainers)。
+Spring 上下文里的 `@MockitoBean`、切片测试和上下文缓存见 [Spring Boot 测试](/spring-boot/10_testing)，真实数据库与中间件的集成测试见 [集成测试](./3_integration_test) 和 [Testcontainers](./5_testcontainers)。
 
 ---
 

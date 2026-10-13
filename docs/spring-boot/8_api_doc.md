@@ -314,4 +314,4 @@ springdoc:
 - Spring REST Docs：[https://spring.io/projects/spring-restdocs](https://spring.io/projects/spring-restdocs)
 - Knife4j：[https://doc.xiaominfo.com/](https://doc.xiaominfo.com/)
 
-> 下一篇：[Spring Boot 版本演进](./11_versions) —— 2.x、3.x、4.x 每一代改了什么基线，以及一个老项目怎样一步步升级到 4.x。
+> 下一篇：[日志](./9_logging) —— 从日志门面到结构化日志，看看 Spring Boot 应用的日志该怎么配、怎么采集。

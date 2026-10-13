@@ -2,9 +2,9 @@
 description: 支付单与交易单、状态机与条件更新、渠道下单与回调验签幂等、查单与关单、退款、日终对账、借贷记账、容量估算
 ---
 
-# 支付系统
+# 支付
 
-> 前置阅读：[订单](./5_order_system)、[幂等设计](/architecture/5_idempotence)、[分布式事务](/distributed/4_transaction)
+> 前置阅读：[订单](./5_order_system)、[幂等设计](/architecture/3_idempotence)、[分布式事务](/distributed/4_transaction)
 
 支付中心负责一笔钱从发起、到账、退回到对平的完整生命周期，原则是**任何结论都要有渠道侧的证据**（回调、查单、账单）。本篇讲对接微信支付、支付宝时如何处理重复 / 丢失 / 乱序回调、可靠关单、安全重试退款，以及每日对账与差错处理。
 
@@ -82,7 +82,7 @@ UPDATE pay_trade SET status = 'CLOSED', closed_at = ?
 WHERE trade_no = ? AND status IN ('WAITING', 'PAYING');
 ```
 
-回调和关单并发时，两条语句竞争同一行的行锁，先提交的生效，后执行的影响 0 行。状态机与条件更新的通用写法见 [幂等设计](/architecture/5_idempotence)（条件更新一节）。
+回调和关单并发时，两条语句竞争同一行的行锁，先提交的生效，后执行的影响 0 行。状态机与条件更新的通用写法见 [幂等设计](/architecture/3_idempotence)（条件更新一节）。
 
 ---
 

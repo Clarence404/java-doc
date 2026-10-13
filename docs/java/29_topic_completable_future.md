@@ -365,7 +365,7 @@ try (ExecutorService vt = Executors.newVirtualThreadPerTaskExecutor()) {
 | JDK 8 / 17，IO 并行聚合 | `CompletableFuture` + 专用线程池 |
 | JDK 21+，请求内的少量并行调用 | 虚拟线程 + 阻塞写法；生产稳定 API 优先，结构化并发转正前按团队对预览特性的接受程度选择 |
 | 下游 API 本身就是异步回调（Netty、异步客户端、MQ 发送） | `CompletableFuture` 桥接，不要为了阻塞而阻塞 |
-| 需要声明式组合、对外暴露异步接口（如 `@Async` 返回值） | `CompletableFuture`，Spring 写法见 [异步任务与定时任务](/spring-boot/9_async_schedule) |
+| 需要声明式组合、对外暴露异步接口（如 `@Async` 返回值） | `CompletableFuture`，Spring 写法见 [异步任务与定时任务](/spring-boot/7_async_schedule) |
 
 并行聚合在业务中的完整落地（整体超时预算、核心与非核心数据的降级）见 [异步与批量](/high-perf/8_async_batch)。
 

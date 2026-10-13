@@ -49,7 +49,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 好的拆分：一个需求通常只改一个服务；一个需求要改五个服务还得按顺序发布，就是拆错了
 - 防过度拆分：服务数量和团队维护能力匹配；总是一起改的模块不要拆开
 
-→ 详见 [微服务设计模式](/microservices/2_patterns#一、服务拆分模式)、[DDD 领域驱动设计](/architecture/3_ddd)
+→ 详见 [微服务设计模式](/microservices/2_patterns#一、服务拆分模式)、[DDD 领域驱动设计](/architecture/2_ddd)
 
 ### Q4：如何把单体迁移到微服务？绞杀者模式怎么做？
 
@@ -214,7 +214,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 记日志这类旁路调用：`failsafe`（出错直接忽略）
 - 发通知这类：`failback`（失败后在后台重发）
 
-→ 详见 [Dubbo](/microservices/4_dubbo#_2、集群容错策略)、[幂等设计](/architecture/5_idempotence)
+→ 详见 [Dubbo](/microservices/4_dubbo#_2、集群容错策略)、[幂等设计](/architecture/3_idempotence)
 
 ### Q17：Dubbo SPI 与 Java SPI 有什么区别？`@Adaptive`、`@Activate` 做什么？
 
@@ -260,7 +260,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - CQRS：查询灵活，代价是读到的数据会有短暂延迟
 - 「独占数据」指的是归属权：同一个 MySQL 实例上分不同库、只授权给对应服务也可以；但禁止多个服务直接读写同一张表
 
-→ 详见 [微服务设计模式](/microservices/2_patterns#三、数据管理模式)、[架构模式与风格](/architecture/2_arch_patterns)
+→ 详见 [微服务设计模式](/microservices/2_patterns#三、数据管理模式)、[架构模式与风格](/architecture/1_arch_patterns)
 
 ### Q21：Outbox 模式如何保证「写库 + 发消息」的原子性？
 
@@ -320,7 +320,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 状态机 / 乐观锁（`WHERE status = ?` 或版本号）：状态流转、扣减类操作
 - Redis `SET NX`：高并发快速判重，但要有数据库兜底
 
-→ 详见 [幂等设计](/architecture/5_idempotence)、[系统架构面试题解答](/interview/15_architecture#三、幂等设计)
+→ 详见 [幂等设计](/architecture/3_idempotence)、[系统架构面试题解答](/interview/15_architecture#三、幂等设计)
 
 ### Q26：分布式接口请求的顺序性如何保证？
 

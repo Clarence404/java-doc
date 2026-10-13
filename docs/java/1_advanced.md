@@ -81,7 +81,7 @@ $ javac Demo.java && javap -c -p Demo
 
 - 类文件更少更小，不会每个 Lambda 都多一个 `.class`
 - 生成策略留给运行时决定，JDK 升级（如改用隐藏类）不需要重新编译用户代码
-- 首次链接有成本（生成类、解析方法句柄），对启动时间敏感的场景可借助 CDS / AOT 缓存，见 [启动与部署优化](/spring-boot/14_startup)
+- 首次链接有成本（生成类、解析方法句柄），对启动时间敏感的场景可借助 CDS / AOT 缓存，见 [启动与部署优化](/spring-boot/13_startup)
 
 可序列化的 Lambda（目标类型实现了 `Serializable`）会改用 `LambdaMetafactory.altMetafactory`，并在宿主类生成 `$deserializeLambda$` 方法；除非框架需要（如部分 RPC 框架序列化 Lambda），一般不要让 Lambda 可序列化。`invokedynamic` 指令本身的执行过程见 [字节码执行](/jvm/3_bytecode)。
 

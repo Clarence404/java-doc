@@ -582,7 +582,7 @@ jobs:
 - 提供方的流水线对称：运行验证测试并回传结果，部署前同样 `can-i-deploy --pacticipant order-service`，部署后 `record-deployment`
 - 在 Broker 上配置 `contract_requiring_verification_published` 类型的 Webhook，消费者发布了需要验证的新契约时自动触发提供方的验证构建，不必等提供方下次提交代码
 
-流水线的整体编排、环境与审批见 [CI/CD](/devops/2_ci_cd)。
+流水线的整体编排、环境与审批见 [CI/CD](/devops/4_ci_cd)。
 
 ---
 
@@ -722,7 +722,7 @@ OpenAPI 规范和契约测试经常被放在一起比较，它们回答的是不
 | 不能发现 | 「这个字段有没有人用」；实现与规范是否一致需另行校验 | 没有消费者声明的部分 |
 | 适用 | 对外开放的 API、消费者不可控 | 内部服务之间、消费者可协作 |
 
-两者可以叠加：用 OpenAPI 作为接口文档与代码生成的来源，在 CI 中用 oasdiff 拦截结构性破坏（见 [API 文档 · CI 中的规范检查](/engineering/5_api_doc#六、ci-中的规范检查)），同时对内部调用方用 CDC 守住真实依赖。PactFlow 的双向契约测试（Bi-Directional Contract Testing）把这两者结合：提供方上传 OpenAPI 规范与自测结果，消费者上传 Pact 契约，由平台比对二者是否兼容，适合提供方不愿或不能运行 Pact 验证的场景。版本号与废弃策略见 [API 设计规范](/engineering/7_api_design_rule)。
+两者可以叠加：用 OpenAPI 作为接口文档与代码生成的来源，在 CI 中用 oasdiff 拦截结构性破坏（见 [API 文档 · CI 中的规范检查](/engineering/5_api_doc#六、ci-中的规范检查)），同时对内部调用方用 CDC 守住真实依赖。PactFlow 的双向契约测试（Bi-Directional Contract Testing）把这两者结合：提供方上传 OpenAPI 规范与自测结果，消费者上传 Pact 契约，由平台比对二者是否兼容，适合提供方不愿或不能运行 Pact 验证的场景。版本号与废弃策略见 [API 设计规范](/engineering/4_api_design_rule)。
 
 OpenAPI 规范本身、代码生成和 oasdiff 破坏性变更检查见 [API 文档](/engineering/5_api_doc)。
 

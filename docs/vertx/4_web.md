@@ -245,7 +245,7 @@ router.errorHandler(404, ctx -> ctx.json(new JsonObject().put("code", 404).put("
 
 - 生产环境不要把异常堆栈和内部错误信息返回给客户端，5xx 只返回通用信息与 traceId；
 - `errorHandler(code, handler)` 处理路由级失败（如 404 无匹配、405 方法不允许），`failureHandler` 处理 Route 内的失败，两者配合覆盖全部情况；
-- 错误响应体格式与状态码规范见 [API 设计规范](/engineering/7_api_design_rule)。
+- 错误响应体格式与状态码规范见 [API 设计规范](/engineering/4_api_design_rule)。
 
 ---
 

@@ -418,7 +418,7 @@ public void deleteUser(@PathVariable long id) {
 
 - **来源 IP 不要直接读 `X-Forwarded-For` 头**：客户端可以随便伪造。设置 `server.forward-headers-strategy=native`（由 Tomcat 的 RemoteIpValve 处理）并配置可信代理网段，之后 `getRemoteAddr()` 拿到的才是可信的客户端地址
 - **写入方式**：合规要求"必须记下来"的操作要同步写入或先写本地可靠队列，异步写丢了就等于没记；普通操作可以异步
-- 审计日志单独一条管道，与应用日志分开存储和授权，日志管道设计见 [日志](/observability/1_logging)，Logback 配置见 [日志](/spring-boot/12_logging)
+- 审计日志单独一条管道，与应用日志分开存储和授权，日志管道设计见 [日志](/observability/1_logging)，Logback 配置见 [日志](/spring-boot/9_logging)
 
 ### 存储与防篡改
 
@@ -641,7 +641,7 @@ public record LoginRequest(String username, String password) {
 }
 ```
 
-Logback 的配置方式和结构化日志见 [日志](/spring-boot/12_logging)，日志采集管道上的脱敏处理见 [日志](/observability/1_logging)。
+Logback 的配置方式和结构化日志见 [日志](/spring-boot/9_logging)，日志采集管道上的脱敏处理见 [日志](/observability/1_logging)。
 
 ---
 

@@ -36,7 +36,7 @@ description: HTTP 幂等语义、Idempotency-Key、唯一约束、条件更新�
 | POST | 否 | 否 | 创建、触发动作，需要额外的幂等机制 |
 | PATCH | 否 | 否 | 「余额 +10」这类增量修改不幂等；「状态设为 X」这类覆盖修改可以做成幂等 |
 
-能用「设为某值」表达的修改，尽量不要用「增加某值」；客户端能确定资源 ID 时，用 `PUT /orders/{requestNo}` 代替 `POST /orders`，天然幂等。接口风格约定见 [API 设计规范](/engineering/7_api_design_rule)。
+能用「设为某值」表达的修改，尽量不要用「增加某值」；客户端能确定资源 ID 时，用 `PUT /orders/{requestNo}` 代替 `POST /orders`，天然幂等。接口风格约定见 [API 设计规范](/engineering/4_api_design_rule)。
 
 ### 3、幂等键：用什么判断「是同一次请求」
 
@@ -372,4 +372,4 @@ public void onPaid(PayNotify notify) {
 - Redisson · Locks and synchronizers：[https://redisson.org/docs/data-and-services/locks-and-synchronizers/](https://redisson.org/docs/data-and-services/locks-and-synchronizers/)
 - Spring Data Redis · Scripting：[https://docs.spring.io/spring-data/redis/reference/redis/scripting.html](https://docs.spring.io/spring-data/redis/reference/redis/scripting.html)
 
-> 下一篇：[权限系统架构设计](./6_access_control) —— 权限系统的 PEP / PDP 部署、网关与服务的鉴权分工、权限缓存刷新与数据权限拦截。
+> 下一篇：[数据冷热分离](./4_cold_hot_data) —— 冷热判断标准、分批归档与 CDC 异步归档、冷存储选型，以及查询如何在冷热两层之间路由。

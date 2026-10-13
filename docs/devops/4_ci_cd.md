@@ -12,7 +12,7 @@ CI/CD 把代码从提交到上线的构建、测试、部署串成自动化流�
 
 ## 一、流水线的组成
 
-本篇只讲流水线怎么编排，各环节的细节由对应文章负责：质量门禁的 Sonar / JaCoCo 配置见 [代码质量](/engineering/3_code_quality)，镜像标签、签名与来源证明见 [制品与版本管理](./6_artifact_version)，滚动 / 蓝绿 / 金丝雀见 [发布策略](./5_release_strategy)，多环境划分见 [环境管理](./7_env_management)，基础设施代码的流水线见 [IaC 工程实践](/cloud-native/12_iac_practice)。
+本篇只讲流水线怎么编排，各环节的细节由对应文章负责：质量门禁的 Sonar / JaCoCo 配置见 [代码质量](/engineering/3_code_quality)，镜像标签、签名与来源证明见 [制品与版本管理](./5_artifact_version)，滚动 / 蓝绿 / 金丝雀见 [发布策略](./7_release_strategy)，多环境划分见 [环境管理](./6_env_management)，基础设施代码的流水线见 [IaC 工程实践](/cloud-native/12_iac_practice)。
 
 示例以 GitHub Actions 为主，并给出 Jenkins 与 GitLab CI 的等价写法；Action 版本（2026 年 10 月）：checkout v7、setup-java v6、upload-artifact v7、download-artifact v8、docker/build-push-action v7、codeql-action v4。
 
@@ -211,13 +211,13 @@ jobs:
 
 ### 3、质量门禁放在哪里
 
-覆盖率阈值由 JaCoCo 的 `check` 目标绑定在 `verify` 阶段，`./mvnw verify` 不达标就失败；Sonar 扫描作为单独 Step 追加在构建之后，并用 `if: github.event.pull_request.head.repo.fork != true` 跳过拿不到 `SONAR_TOKEN` 的 fork PR，插件、阈值与「只看新代码」的门禁条件统一见 [代码质量](/engineering/3_code_quality)。依赖漏洞、许可证扫描与 SBOM 的治理策略见 [依赖治理](/engineering/6_dependency_governance)。
+覆盖率阈值由 JaCoCo 的 `check` 目标绑定在 `verify` 阶段，`./mvnw verify` 不达标就失败；Sonar 扫描作为单独 Step 追加在构建之后，并用 `if: github.event.pull_request.head.repo.fork != true` 跳过拿不到 `SONAR_TOKEN` 的 fork PR，插件、阈值与「只看新代码」的门禁条件统一见 [代码质量](/engineering/3_code_quality)。依赖漏洞、许可证扫描与 SBOM 的治理策略见 [依赖治理](/engineering/2_dependency_governance)。
 
-在仓库的分支保护（或 Ruleset）里把 `构建与测试（JDK 21）`、`构建与测试（JDK 25）`、`CodeQL 扫描` 设为必需检查，门禁才真正拦得住合并。PR 模板与评审要求见 [Code Review](./3_code_review)。
+在仓库的分支保护（或 Ruleset）里把 `构建与测试（JDK 21）`、`构建与测试（JDK 25）`、`CodeQL 扫描` 设为必需检查，门禁才真正拦得住合并。PR 模板与评审要求见 [Code Review](./2_code_review)。
 
 ### 4、来源证明
 
-`actions/attest-build-provenance` 为镜像 digest 生成 SLSA 来源证明（谁、在哪个仓库、哪次运行、哪个提交构建的），用 Sigstore 短期证书签名并推送到镜像仓库。部署前可以用 `gh attestation verify oci://ghcr.io/acme/order-service@sha256:... --repo acme/order-service` 校验。v4 起它是 `actions/attest` 的薄封装，两者择一即可。私有仓库使用 attestation 需要 GitHub Enterprise Cloud。cosign 签名、准入校验与 SBOM 附加见 [制品与版本管理](./6_artifact_version)。
+`actions/attest-build-provenance` 为镜像 digest 生成 SLSA 来源证明（谁、在哪个仓库、哪次运行、哪个提交构建的），用 Sigstore 短期证书签名并推送到镜像仓库。部署前可以用 `gh attestation verify oci://ghcr.io/acme/order-service@sha256:... --repo acme/order-service` 校验。v4 起它是 `actions/attest` 的薄封装，两者择一即可。私有仓库使用 attestation 需要 GitHub Enterprise Cloud。cosign 签名、准入校验与 SBOM 附加见 [制品与版本管理](./5_artifact_version)。
 
 ---
 
@@ -314,7 +314,7 @@ jobs:
 - **环境保护**：`production` 环境配置必需审批人、禁止自审、只允许 tag `v*` 部署；审批通过前 Job 不会开始，也拿不到 OIDC 令牌
 - **变更记录**：`--record` 自 kubectl 1.22 起已废弃，改为写 `kubernetes.io/change-cause` 注解，`kubectl rollout history` 中即可看到每个版本的来源
 - **指标口径**：Spring Boot 通过 Micrometer 暴露的是 `http_server_requests_seconds_count`，错误率必须是「5xx 速率 / 总速率」的比值；`job` 标签取决于 Prometheus 的抓取配置。`jq -r` 去掉引号，`// "0"` 处理无数据的情况，比较用 `awk`，不依赖 `bc`
-- **边界**：这只是滚动更新加一道指标检查，不是金丝雀。按流量比例放量、自动分析和中止属于渐进式交付，用 Argo Rollouts 或网关权重实现，见 [发布策略](./5_release_strategy)；Deployment、探针与滚动参数见 [Kubernetes](/cloud-native/6_kubernetes)
+- **边界**：这只是滚动更新加一道指标检查，不是金丝雀。按流量比例放量、自动分析和中止属于渐进式交付，用 Argo Rollouts 或网关权重实现，见 [发布策略](./7_release_strategy)；Deployment、探针与滚动参数见 [Kubernetes](/cloud-native/6_kubernetes)
 
 ### 3、release.yml：tag 触发，晋级同一个 digest
 
@@ -370,7 +370,7 @@ jobs:
       image: ghcr.io/acme/order-service@${{ needs.promote.outputs.digest }}
 ```
 
-`imagetools create` 只是给已有清单加一个标签，digest 不变，所以 `1.4.0` 与 `sha-<commit>` 指向同一份字节。调用可复用工作流时 `with` 中不能使用 `env` 上下文，因此镜像名写成字面量（也可以放进仓库变量 `vars`）。版本号规则与镜像标签策略见 [制品与版本管理](./6_artifact_version)。
+`imagetools create` 只是给已有清单加一个标签，digest 不变，所以 `1.4.0` 与 `sha-<commit>` 指向同一份字节。调用可复用工作流时 `with` 中不能使用 `env` 上下文，因此镜像名写成字面量（也可以放进仓库变量 `vars`）。版本号规则与镜像标签策略见 [制品与版本管理](./5_artifact_version)。
 
 ---
 
@@ -679,4 +679,4 @@ deploy-production:
 - GitLab OIDC：[OpenID Connect (OIDC) Authentication Using ID Tokens](https://docs.gitlab.com/ci/secrets/id_token_authentication/)
 - Argo CD：[Argo CD 文档](https://argo-cd.readthedocs.io/en/stable/)
 
-> 下一篇：[Code Review](./3_code_review)
+> 下一篇：[制品与版本管理](./5_artifact_version)

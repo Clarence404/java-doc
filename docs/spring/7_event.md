@@ -144,7 +144,7 @@ public class OrderAsyncListener {
 
 - Spring Boot 已自动配置名为 `applicationTaskExecutor` 的执行器，`@Async` 不指定名称时使用它，线程池参数用 `spring.task.execution.pool.*` 调整；开启 `spring.threads.virtual.enabled=true` 后改为虚拟线程执行，见 [虚拟线程](/java/30_topic_virtual_thread)
 - 异步监听器的异常**不会**传回发布方，`void` 方法的异常交给 `AsyncUncaughtExceptionHandler`（默认只打日志），需要实现 `AsyncConfigurer` 自定义处理与告警
-- 异步执行时 `ThreadLocal` 中的内容（如 `SecurityContext`、MDC 中的 traceId）不会自动传递，需要 `TaskDecorator` 处理，见 [日志 · traceId](/spring-boot/12_logging)
+- 异步执行时 `ThreadLocal` 中的内容（如 `SecurityContext`、MDC 中的 traceId）不会自动传递，需要 `TaskDecorator` 处理，见 [日志 · traceId](/spring-boot/9_logging)
 - 线程池参数怎么定、拒绝策略怎么选见 [线程池](/java/28_topic_thread_pool)
 
 ### 2、全局异步：ApplicationEventMulticaster
@@ -304,7 +304,7 @@ class InventoryManagement {
 }
 ```
 
-由于可能重投，监听器本身必须**幂等**，见 [幂等设计](/architecture/5_idempotence)。
+由于可能重投，监听器本身必须**幂等**，见 [幂等设计](/architecture/3_idempotence)。
 
 ---
 
@@ -334,7 +334,7 @@ public class StartupListener {
 }
 ```
 
-启动阶段的执行顺序与 `ApplicationRunner` / `CommandLineRunner` 的取舍见 [启动与部署优化](/spring-boot/14_startup)。
+启动阶段的执行顺序与 `ApplicationRunner` / `CommandLineRunner` 的取舍见 [启动与部署优化](/spring-boot/13_startup)。
 
 ---
 
@@ -409,7 +409,7 @@ class NotificationListener {
 | 发通知 | 尽力而为 | AFTER_COMMIT + `@Async` |
 | 通知其他服务 | 最终一致，跨进程 | Outbox / 事务消息 → MQ |
 
-事件让代码解耦了，但**调用链变隐式**了：读 `createOrder` 看不出会发生什么。监听器多了以后要有清单和监控；模块边界清晰的单体可以考虑 Spring Modulith 统一管理模块与事件。CQRS、事件溯源等架构模式见 [架构模式与风格](/architecture/2_arch_patterns)。
+事件让代码解耦了，但**调用链变隐式**了：读 `createOrder` 看不出会发生什么。监听器多了以后要有清单和监控；模块边界清晰的单体可以考虑 Spring Modulith 统一管理模块与事件。CQRS、事件溯源等架构模式见 [架构模式与风格](/architecture/1_arch_patterns)。
 
 ---
 

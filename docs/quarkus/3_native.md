@@ -4,7 +4,7 @@ description: 原生构建、反射登记、类初始化时机、容器镜像、K
 
 # 原生镜像与云原生部署
 
-> 前置阅读：[Quarkus 概览](./1_basics)、[JIT 编译](/jvm/7_jit)、[启动与部署优化](/spring-boot/14_startup)
+> 前置阅读：[Quarkus 概览](./1_basics)、[JIT 编译](/jvm/7_jit)、[启动与部署优化](/spring-boot/13_startup)
 
 Quarkus 可以借助 GraalVM / Mandrel 构建原生镜像，并一键生成容器镜像与 Kubernetes 清单。本篇讲原生构建的方式与反射、资源、类初始化等常见坑，健康检查与指标，以及 JVM 模式与原生模式的取舍。
 
@@ -255,7 +255,7 @@ public class PaymentGatewayHealthCheck implements HealthCheck {
 | 高密度部署、实例多但单实例流量小（如大量内部小服务） | 原生模式，内存节省可换算成节点数 |
 | 长期运行、高吞吐的核心服务 | JVM 模式，峰值吞吐与可观测性更重要 |
 | 依赖大量无扩展的第三方库 | JVM 模式，原生适配成本高 |
-| 只想改善启动但不想承担原生的约束 | JVM 模式 + AOT 缓存（JDK 25，见 [启动与部署优化](/spring-boot/14_startup)） |
+| 只想改善启动但不想承担原生的约束 | JVM 模式 + AOT 缓存（JDK 25，见 [启动与部署优化](/spring-boot/13_startup)） |
 
 一个务实的路径：先用 JVM 模式上线拿到构建期增强的大部分收益，再挑冷启动敏感的服务做原生化，并在 CI 中同时跑 JVM 与原生两套集成测试。
 
@@ -269,7 +269,7 @@ public class PaymentGatewayHealthCheck implements HealthCheck {
 - 容器镜像用 Jib 扩展最省事，JVM 模式的 `quarkus-app/` 布局天然分层，不要改成 uber-jar
 - Kubernetes 扩展生成清单作为起点，健康检查分 live / ready / started，存活探针不查外部依赖
 - 原生模式适合冷启动敏感与高密度部署，长期运行的高吞吐服务通常留在 JVM 模式
-- GraalVM Native Image 的通用原理（静态分析、闭世界假设、AOT 编译）见 [JIT 编译](/jvm/7_jit)，Spring Boot 的原生方案与 CDS / AOT 缓存对比见 [启动与部署优化](/spring-boot/14_startup)，本篇只讲了 Quarkus 特有的部分。
+- GraalVM Native Image 的通用原理（静态分析、闭世界假设、AOT 编译）见 [JIT 编译](/jvm/7_jit)，Spring Boot 的原生方案与 CDS / AOT 缓存对比见 [启动与部署优化](/spring-boot/13_startup)，本篇只讲了 Quarkus 特有的部分。
 
 ## 参考资料
 

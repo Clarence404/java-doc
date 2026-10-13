@@ -4,7 +4,7 @@ description: 数据模型、Redis Hash 与异步持久化、临时车与登录�
 
 # 购物车
 
-> 前置阅读：[商品详情页](./13_product_detail)、[缓存一致性](/cache/10_cache_consistency)、[幂等设计](/architecture/5_idempotence)
+> 前置阅读：[商品详情页](./13_product_detail)、[缓存一致性](/cache/10_cache_consistency)、[幂等设计](/architecture/3_idempotence)
 
 购物车是「用户 + 商品 + 数量」的增删改查，难点在高频写、未登录可用和价格库存多变。本篇讲 Redis 存储与异步持久化、临时车合并、实时计算与结算校验。
 
@@ -190,7 +190,7 @@ public final class CartKeys {
 }
 ```
 
-- **「加 1 件」不是天然幂等的**：网络超时后客户端重试会加成 2 件。客户端每次操作生成一个 requestId，幂等记录和数据修改在同一个脚本里原子完成，不存在「记录写了、数据没改」的中间状态。「把数量改成 3」「勾选」「删除」本身就是幂等的，可以不带 requestId。幂等的通用做法见 [幂等设计](/architecture/5_idempotence)
+- **「加 1 件」不是天然幂等的**：网络超时后客户端重试会加成 2 件。客户端每次操作生成一个 requestId，幂等记录和数据修改在同一个脚本里原子完成，不存在「记录写了、数据没改」的中间状态。「把数量改成 3」「勾选」「删除」本身就是幂等的，可以不带 requestId。幂等的通用做法见 [幂等设计](/architecture/3_idempotence)
 - requestId 拼在用户自己的 key 下面，不同用户的 requestId 碰撞也不会互相影响
 - 用 `StringRedisTemplate` 执行脚本，保证参数以纯字符串传入，`tonumber` 能正确解析
 

@@ -190,7 +190,7 @@ Kafka 是"至少一次"投递，消费者重启、再均衡时同一条消息可
 | 告警 | `rule:alarm:{ruleId}:{deviceId}` | 规则配置的静默期，如 30 分钟，期间同一规则同一设备不重复告警 |
 | 指令、Webhook | `rule:act:{ruleId}:{deviceId}:{动作序号}:{消息时间戳}` | 1 小时，覆盖消息重投的时间窗口 |
 
-更多去重方案见 [幂等设计](/architecture/5_idempotence)。
+更多去重方案见 [幂等设计](/architecture/3_idempotence)。
 
 ### 2、执行器
 

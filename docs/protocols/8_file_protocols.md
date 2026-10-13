@@ -218,7 +218,7 @@ class SftpInboundConfig {
 - FTP 主动模式由服务端连回客户端，被动模式由客户端连服务端的随机端口，公网场景只能用被动模式
 - JSch 用 `com.github.mwiede` 维护分支；必须加载 `known_hosts` 并开启 `StrictHostKeyChecking=yes`，Channel 建立失败时也要释放 Session
 - Spring Integration 6 起 SFTP 基于 Apache MINA SSHD，用 `CachingSessionFactory` 复用会话，多实例部署要换共享的 `MetadataStore` 防止重复处理
-- 系统内部的文件存取优先用对象存储（S3 / MinIO），见 [对象存储](/architecture/4_object_storage)。
+- 系统内部的文件存取优先用对象存储（S3 / MinIO），见 [对象存储](/architecture/5_object_storage)。
 
 ## 参考资料
 

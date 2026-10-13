@@ -292,7 +292,7 @@ Nacos 的接入与命名空间、分组规划见 [配置中心](/spring-cloud/4_
 
 另外两个 Boot 相关的点：
 
-- `/actuator/env`、`/actuator/configprops` 从 Boot 3.0 起默认把值显示为 `******`，不要为了排查把 `show-values` 设成 `always`，见 [Actuator 监控](./7_actuator)
+- `/actuator/env`、`/actuator/configprops` 从 Boot 3.0 起默认把值显示为 `******`，不要为了排查把 `show-values` 设成 `always`，见 [Actuator 监控](./11_actuator)
 - 日志里不要打印 `@ConfigurationProperties` 对象的 `toString()`，record 默认的 `toString()` 会输出全部字段
 
 Jasypt 的算法选择、Vault 动态凭证与密钥轮换统一见 [数据安全](/security/7_data_security)。
@@ -325,4 +325,4 @@ Boot 本身只在启动时绑定配置，**运行时修改配置需要 Spring Cl
 - Spring Boot Profiles：[https://docs.spring.io/spring-boot/reference/features/profiles.html](https://docs.spring.io/spring-boot/reference/features/profiles.html)
 - Spring Cloud Vault：[https://spring.io/projects/spring-cloud-vault](https://spring.io/projects/spring-cloud-vault)
 
-> 下一篇：[Actuator 监控](./7_actuator) —— 健康检查、探针、指标与端点安全，让 Boot 应用在生产环境可观测、可运维。
+> 下一篇：[中间件集成](./6_middleware) —— Redis、Kafka、RabbitMQ、Elasticsearch、MongoDB 的 Starter、关键配置与 Boot 4 变化。

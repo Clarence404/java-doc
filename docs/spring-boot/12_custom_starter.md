@@ -31,7 +31,7 @@ description: 命名与模块、imports 注册、装配顺序、条件注解、�
 
 autoconfigure 模块中的第三方依赖标 `optional`，这样使用方没引对应库时，`@ConditionalOnClass` 才能让配置安全地跳过。功能简单、只有一种用法时，两个模块可以合一。
 
-Boot 4 把自动配置按技术拆成了独立模块（详见 [Spring Boot 版本演进](./11_versions)），所以 Starter 依赖的不再是一个大而全的 `spring-boot-autoconfigure`，而是具体的技术模块：例如基于 Redis 的 Starter 应依赖 `spring-boot-data-redis`（或直接依赖 `spring-boot-starter-data-redis`），否则 Redis 的自动配置类根本不在 classpath 上。
+Boot 4 把自动配置按技术拆成了独立模块（详见 [Spring Boot 版本演进](./14_versions)），所以 Starter 依赖的不再是一个大而全的 `spring-boot-autoconfigure`，而是具体的技术模块：例如基于 Redis 的 Starter 应依赖 `spring-boot-data-redis`（或直接依赖 `spring-boot-starter-data-redis`），否则 Redis 的自动配置类根本不在 classpath 上。
 
 ---
 
@@ -138,7 +138,7 @@ com.example.cache.RedisCacheAutoConfiguration
 ```
 
 - **configuration-processor**：使用方在 `application.yaml` 中敲 `my.cache.` 就有补全和说明。需要补充提示（可选值、废弃说明）时，在 `META-INF/additional-spring-configuration-metadata.json` 中手写，处理器会合并进去
-- **autoconfigure-processor**：把 `@ConditionalOnClass`、`@AutoConfiguration(after = …)` 等信息提前写进元数据文件，Boot 启动时不用加载类就能先过滤掉不满足条件的配置，减少类加载、加快启动（启动优化见 [启动与部署优化](./14_startup)）
+- **autoconfigure-processor**：把 `@ConditionalOnClass`、`@AutoConfiguration(after = …)` 等信息提前写进元数据文件，Boot 启动时不用加载类就能先过滤掉不满足条件的配置，减少类加载、加快启动（启动优化见 [启动与部署优化](./13_startup)）
 
 使用 Maven 时，如果项目显式配置了 `annotationProcessorPaths`，这两个处理器也要加进去，否则不会生效。
 
@@ -242,7 +242,7 @@ class RedisCacheAutoConfigurationTest {
 - Web 相关的配置用 `WebApplicationContextRunner` / `ReactiveWebApplicationContextRunner`
 - 测试中 `withBean` 注册的 Bean 属于「用户配置」，会先于自动配置处理，正好用来验证 `@ConditionalOnMissingBean` 的覆盖逻辑
 
-Spring Boot 测试的整体分层与切片测试见 [Spring Boot 测试](./13_testing)。
+Spring Boot 测试的整体分层与切片测试见 [Spring Boot 测试](./10_testing)。
 
 ---
 
@@ -263,4 +263,4 @@ Spring Boot 测试的整体分层与切片测试见 [Spring Boot 测试](./13_te
 - Configuration Metadata：[https://docs.spring.io/spring-boot/specification/configuration-metadata/index.html](https://docs.spring.io/spring-boot/specification/configuration-metadata/index.html)
 - Spring Data Redis 4.0 升级说明：[https://docs.spring.io/spring-data/redis/reference/4.0/upgrading.html](https://docs.spring.io/spring-data/redis/reference/4.0/upgrading.html)
 
-> 下一篇：[异步任务与定时任务](./9_async_schedule) —— `@Async` 与 `@Scheduled` 的执行器配置、多实例调度和虚拟线程开关。
+> 下一篇：[启动与部署优化](./13_startup) —— 启动耗时度量、懒加载与裁剪、CDS / AOT 缓存、Native Image 与 CRaC，让应用启动更快、部署更稳。

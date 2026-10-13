@@ -29,7 +29,7 @@ GraalVM 的通用原理、虚拟线程和 Reactor 在各自模块展开，这里
 
 - **第一次接触 Quarkus**：按顺序读完前两篇。[Quarkus 概览](./1_basics) 讲的构建期增强，是理解后面所有特性和限制的前提。
 - **从 Spring Boot 转过来**：读完 [Quarkus 概览](./1_basics) 后直接读 [从 Spring Boot 迁移](./5_from_spring) 的概念对照，再回头读第 2～4 篇。
-- **关注启动速度与资源占用**：重点读 [原生镜像与云原生部署](./3_native)，并对照 [启动与部署优化](/spring-boot/14_startup) 中 Spring Boot 的 CDS、AOT 缓存与原生方案。
+- **关注启动速度与资源占用**：重点读 [原生镜像与云原生部署](./3_native)，并对照 [启动与部署优化](/spring-boot/13_startup) 中 Spring Boot 的 CDS、AOT 缓存与原生方案。
 - **做框架选型**：看 [其他 Java 框架](./6_other_frameworks) 的选型对比，以及 [Vert.x 概览](/vertx/1_basics) 中 Vert.x 的定位。
 
 ---
@@ -37,7 +37,7 @@ GraalVM 的通用原理、虚拟线程和 Reactor 在各自模块展开，这里
 ## 四、关联模块
 
 - [Vert.x 总览](/vertx/0_overview)：Quarkus 的 HTTP 层、事件总线和响应式客户端都跑在 Vert.x 之上
-- [启动与部署优化](/spring-boot/14_startup)：Spring Boot 的启动优化与原生方案，可与 Quarkus 的做法对照；Spring Boot 本身见 [Spring Boot 总览](/spring-boot/0_overview)
+- [启动与部署优化](/spring-boot/13_startup)：Spring Boot 的启动优化与原生方案，可与 Quarkus 的做法对照；Spring Boot 本身见 [Spring Boot 总览](/spring-boot/0_overview)
 - [JIT 编译](/jvm/7_jit)：GraalVM Native Image 的静态分析、闭世界假设与 AOT 编译原理
 - [WebFlux](/spring/8_webflux)：Reactor 的执行模型与背压，可与 Mutiny 对照
 - [虚拟线程](/java/30_topic_virtual_thread)：`@RunOnVirtualThread` 的基础，钉住与 ThreadLocal 的坑

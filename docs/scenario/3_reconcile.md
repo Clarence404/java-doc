@@ -4,7 +4,7 @@ description: 差错类型、摘要比对与排序归并比对、游标分批拉�
 
 # 海量数据对账
 
-> 前置阅读：[海量数据算法题](./3_massive_data)、[幂等设计](/architecture/5_idempotence)、[MySQL 索引](/database/1_mysql/4_topic_index)
+> 前置阅读：[海量数据算法题](./3_massive_data)、[幂等设计](/architecture/3_idempotence)、[MySQL 索引](/database/1_mysql/4_topic_index)
 
 对账就是拿两份「本应一致」的数据逐条核对，找出不一致的记录并处理掉。本篇讲每天几千万笔时的通用做法：拉取、分片、比对、差错处理，以及断点续跑、跨日在途、差错修复幂等这几个容易出事故的环节。
 
@@ -12,7 +12,7 @@ description: 差错类型、摘要比对与排序归并比对、游标分批拉�
 
 ## 一、对账要解决什么
 
-支付渠道对账的业务流程见 [支付系统](./14_payment)。
+支付渠道对账的业务流程见 [支付](./14_payment)。
 
 ### 1、常见的对账场景
 
@@ -42,7 +42,7 @@ description: 差错类型、摘要比对与排序归并比对、游标分批拉�
 
 ![海量数据对账流程](../assets/scenario/reconcile-flow.svg)
 
-1. **拉取与标准化**：内部流水从从库或离线库按游标分批拉取；渠道账单下载后流式解析。两边统一成同一种结构：交易号、金额（分）、归一后的状态、对账日期。原始账单文件原样存进对象存储，方便事后追溯，见 [对象存储](/architecture/4_object_storage)
+1. **拉取与标准化**：内部流水从从库或离线库按游标分批拉取；渠道账单下载后流式解析。两边统一成同一种结构：交易号、金额（分）、归一后的状态、对账日期。原始账单文件原样存进对象存储，方便事后追溯，见 [对象存储](/architecture/5_object_storage)
 2. **分片**：按「日期 + 商户 + `hash(交易号) % N`」切片。同一笔交易两边一定落在同号分片，原理与 [海量数据算法题](./3_massive_data) 的哈希分桶相同
 3. **比对**：先比每个分片的摘要，只对摘要不一致的分片比明细
 4. **差错登记**：比出的差异写入差错表，唯一键保证重跑不会重复登记
@@ -252,7 +252,7 @@ void pullSegment(JdbcClient replica, Checkpoints cp, SegmentWriter writer,
 - **写中间表**：对账中间表建唯一键 `(bill_date, side, trade_no)`，用 `INSERT ... ON DUPLICATE KEY UPDATE` 或 `INSERT IGNORE`，重复写入不产生重复行；位点和这批数据也可以放在同一个事务里提交。批量写入的参数（`rewriteBatchedStatements` 等）见 [数据访问性能](/high-perf/10_db_performance#三、批量写入)
 - **写分片文件**：以分片为单位，分片失败就删掉该片的输出文件整片重跑；位点只记录「哪些分片已完成」
 
-任务本身也要能重入：用一张任务表记录 `(channel, bill_date)` 的批次和每个分片的状态（待执行 / 执行中 / 完成 / 失败），重启后只捡起未完成的分片；同一天的任务用唯一键或分布式调度保证只有一个实例在跑，见 [异步任务与定时任务](/spring-boot/9_async_schedule#三、多实例下的定时任务)。
+任务本身也要能重入：用一张任务表记录 `(channel, bill_date)` 的批次和每个分片的状态（待执行 / 执行中 / 完成 / 失败），重启后只捡起未完成的分片；同一天的任务用唯一键或分布式调度保证只有一个实例在跑，见 [异步任务与定时任务](/spring-boot/7_async_schedule#三、多实例下的定时任务)。
 
 ---
 
@@ -316,7 +316,7 @@ CREATE TABLE recon_diff (
 | 待复核 MANUAL | 复核通过，调账或补单 | 已解决 RESOLVED |
 | 待复核 MANUAL | 暂时无法处理 | 挂账 HANG |
 
-每次状态迁移都用条件更新：`UPDATE recon_diff SET status = ? WHERE id = ? AND status = ?`，影响行数为 0 说明已被别人处理过，直接放弃。原理见 [幂等设计](/architecture/5_idempotence#四、条件更新-状态机与版本号)。
+每次状态迁移都用条件更新：`UPDATE recon_diff SET status = ? WHERE id = ? AND status = ?`，影响行数为 0 说明已被别人处理过，直接放弃。原理见 [幂等设计](/architecture/3_idempotence#四、条件更新-状态机与版本号)。
 
 ### 3、自动处理必须幂等
 
@@ -356,7 +356,7 @@ public void supplement(long diffId, String orderNo, String tradeNo, long amountF
 
 ### 1、分片并行
 
-分片之间互不依赖，用有界线程池并行处理，线程数按源库能承受的并发和对账机器的内存（单片约 40MB）来定，不要用无界队列。线程池参数与拒绝策略见 [线程池](/java/28_topic_thread_pool)，Spring 中的配置见 [异步任务与定时任务](/spring-boot/9_async_schedule)。
+分片之间互不依赖，用有界线程池并行处理，线程数按源库能承受的并发和对账机器的内存（单片约 40MB）来定，不要用无界队列。线程池参数与拒绝策略见 [线程池](/java/28_topic_thread_pool)，Spring 中的配置见 [异步任务与定时任务](/spring-boot/7_async_schedule)。
 
 ### 2、限速，别压垮源库
 

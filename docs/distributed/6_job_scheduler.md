@@ -12,7 +12,7 @@ description: 重复执行、ShedLock、分片与错过触发、幂等、XXL-JOB�
 
 ## 一、多实例下的定时任务问题
 
-单实例内的定时任务（`@Scheduled`、`ScheduledThreadPoolExecutor`）见 [异步任务与定时任务](/spring-boot/9_async_schedule)，本篇只讲多实例与调度平台。
+单实例内的定时任务（`@Scheduled`、`ScheduledThreadPoolExecutor`）见 [异步任务与定时任务](/spring-boot/7_async_schedule)，本篇只讲多实例与调度平台。
 
 应用部署三个实例，每个实例里的 `@Scheduled` 都会按时触发，同一任务被执行三次。随之而来的问题：
 
@@ -92,7 +92,7 @@ public class ReportJob {
 
 ### 6、重试与幂等
 
-调度平台的失败重试、故障转移、人工重跑都会让同一批数据被处理多次，**任务必须幂等**：按业务键去重、用状态机推进、或写入时依赖唯一约束，见 [幂等设计](/architecture/5_idempotence)。
+调度平台的失败重试、故障转移、人工重跑都会让同一批数据被处理多次，**任务必须幂等**：按业务键去重、用状态机推进、或写入时依赖唯一约束，见 [幂等设计](/architecture/3_idempotence)。
 
 ### 7、调度系统自身的高可用
 

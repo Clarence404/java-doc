@@ -4,7 +4,7 @@ description: 分片直传、事件驱动转码编排、HLS AES-128 加密与密�
 
 # 点播与短视频
 
-> 前置阅读：[FFmpeg 与转码](./3_ffmpeg)、[对象存储](/architecture/4_object_storage)
+> 前置阅读：[FFmpeg 与转码](./3_ffmpeg)、[对象存储](/architecture/5_object_storage)
 
 点播（VOD）的内容先落盘再播放，短视频是文件短、量极大、更看重首帧的点播变体。本篇讲分片直传、转码编排、HLS 加密与播放鉴权、审核与存储分层，基线为 FFmpeg 9.0。
 
@@ -73,7 +73,7 @@ CREATE TABLE media_task (
 
 ## 二、上传：预签名分片直传
 
-视频文件动辄几百 MB 到数 GB，必须让客户端直传对象存储。流程与 [对象存储](/architecture/4_object_storage) 第四节的预签名直传一致，大文件走分片：
+视频文件动辄几百 MB 到数 GB，必须让客户端直传对象存储。流程与 [对象存储](/architecture/5_object_storage) 第四节的预签名直传一致，大文件走分片：
 
 1. 客户端调用 `POST /api/videos/uploads`，带上文件名、大小、MIME 类型和文件哈希
 2. 后端校验身份、配额、格式白名单（`video/mp4`、`video/quicktime` 等）和大小上限，创建 `video` 记录（`UPLOADING`），调用 `CreateMultipartUpload` 拿到 `uploadId`，为每个分片签发 `UploadPart` 预签名 URL
@@ -471,7 +471,7 @@ ffmpeg -i source.mp4 -vf "fps=1/10,scale=160:-2,tile=10x10" -q:v 5 sprite_%03d.j
 
 ## 八、存储分层与生命周期
 
-点播平台的存储量只增不减，且播放分布极度长尾：少数新视频贡献绝大部分播放，大量老视频几乎无人观看。存储类别的通用介绍见 [对象存储](/architecture/4_object_storage) 第三节，点播的分层策略：
+点播平台的存储量只增不减，且播放分布极度长尾：少数新视频贡献绝大部分播放，大量老视频几乎无人观看。存储类别的通用介绍见 [对象存储](/architecture/5_object_storage) 第三节，点播的分层策略：
 
 | 数据 | 存放前缀 | 分层策略 |
 |------|----------|----------|
@@ -525,7 +525,7 @@ S3 生命周期规则示例（`aws s3api put-bucket-lifecycle-configuration --bu
 - **首帧优化**：单文件 MP4 播放时，`moov` 索引放在文件头部（FFmpeg 的 `-movflags +faststart`），播放器下载前几十 KB 就能起播；HLS 场景缩短首个切片时长（如 2 秒）
 - **预加载**：Feed 里预先下载下一、二条视频的前几百 KB，划过去时直接起播；预加载量要按网络类型调整，避免浪费用户流量和平台带宽
 - **码率选择**：短视频通常不做 HLS 多码率，而是转出 2～3 档 MP4，由客户端按网络和屏幕选择一档；App 端普遍支持 H.265，可以对 App 下发 H.265、对网页下发 H.264，同画质节省可观带宽
-- **播放统计**：播放次数、完播率是推荐系统的核心信号，客户端上报经消息队列异步聚合，计数实现见 [计数系统](/scenario/17_counter)，Feed 分发见 [Feed 流和消息推送](/scenario/8_feed_stream)
+- **播放统计**：播放次数、完播率是推荐系统的核心信号，客户端上报经消息队列异步聚合，计数实现见 [计数服务](/scenario/17_counter)，Feed 分发见 [Feed 流和消息推送](/scenario/8_feed_stream)
 - **互动消息不走媒体链路**：评论、点赞、弹幕通过长连接或普通接口实现，弹幕的推送模型见 [即时通讯](/scenario/16_im)
 
 ---

@@ -27,7 +27,7 @@ JDK 自带一组命令行与图形化诊断工具，**JDK 9+ 首选 `jcmd`**，�
 | JFR / JMC | 录制 + GUI | JDK Flight Recorder 低开销录制，JDK Mission Control 分析 |
 | MAT | GUI | Eclipse Memory Analyzer，深度分析 heap dump |
 | VisualVM | GUI | 综合监控（CPU / 内存 / 线程 / GC） |
-| Arthas | 在线诊断 | 方法追踪 / 观察入参返回值 → 详见 [线上诊断](/engineering/4_diagnosis) |
+| Arthas | 在线诊断 | 方法追踪 / 观察入参返回值 → 详见 [线上诊断](/engineering/7_diagnosis) |
 
 ---
 

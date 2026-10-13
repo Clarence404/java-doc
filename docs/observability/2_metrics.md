@@ -4,7 +4,7 @@ description: 指标类型、RED / USE、自定义指标与基数控制、Prometh
 
 # 指标监控
 
-> 前置阅读：[日志体系](./1_logging)、[Actuator 监控](/spring-boot/7_actuator)
+> 前置阅读：[日志体系](./1_logging)、[Actuator 监控](/spring-boot/11_actuator)
 
 指标是按时间采样的数值，体积小、可聚合，回答整体现在怎么样、和平时比有无变化。本篇讲指标模型与类型、基数控制、抓取配置、PromQL 与看板，基线为 Prometheus 3.x。
 
@@ -124,7 +124,7 @@ Micrometer 开启 `publishPercentileHistogram()` 后默认会生成几十个桶�
 
 ## 五、Java 自定义指标与基数控制
 
-依赖、端点暴露，以及 `Counter` / `Gauge` / `Timer` 的基本写法和"同名同键、标签值有限"两条规则已在 [Actuator 监控](/spring-boot/7_actuator) 第六节给出，这里补充分布类指标、SLO 桶和基数防护。
+依赖、端点暴露，以及 `Counter` / `Gauge` / `Timer` 的基本写法和"同名同键、标签值有限"两条规则已在 [Actuator 监控](/spring-boot/11_actuator) 第六节给出，这里补充分布类指标、SLO 桶和基数防护。
 
 ### 1、Timer 与 DistributionSummary
 
@@ -191,7 +191,7 @@ public class PaymentService {
 
 要点：
 
-- `orderNo` 只用于日志和链路，**绝不能作为标签**；需要同时进指标和 Span 时，用 Observation API 的 `highCardinalityKeyValue` 区分（见 [Actuator 监控](/spring-boot/7_actuator) 第六节）
+- `orderNo` 只用于日志和链路，**绝不能作为标签**；需要同时进指标和 Span 时，用 Observation API 的 `highCardinalityKeyValue` 区分（见 [Actuator 监控](/spring-boot/11_actuator) 第六节）
 - `minimumExpectedValue` / `maximumExpectedValue` 把默认几十个桶收窄到 5ms～10s，`serviceLevelObjectives` 再补上 300ms 和 1s 两个对齐 SLO 的桶
 - 通过注入的 `MeterRegistry` 注册，不要用静态的 `Metrics.globalRegistry`，后者不受 Spring 管理，指标不会出现在 `/actuator/prometheus`
 
@@ -334,7 +334,7 @@ spec:
       interval: 15s
 ```
 
-最常见的"抓不到"原因是 `metadata.labels` 与 Prometheus 资源的 `serviceMonitorSelector` 不匹配，或者 ServiceMonitor 所在命名空间不在 `serviceMonitorNamespaceSelector` 范围内。没有 Service 的工作负载（如 Flink 作业、DaemonSet 中的 agent）用 `PodMonitor`。独立管理端口的配置见 [Actuator 监控](/spring-boot/7_actuator) 第一节，部署清单见 [Kubernetes](/cloud-native/6_kubernetes)。
+最常见的"抓不到"原因是 `metadata.labels` 与 Prometheus 资源的 `serviceMonitorSelector` 不匹配，或者 ServiceMonitor 所在命名空间不在 `serviceMonitorNamespaceSelector` 范围内。没有 Service 的工作负载（如 Flink 作业、DaemonSet 中的 agent）用 `PodMonitor`。独立管理端口的配置见 [Actuator 监控](/spring-boot/11_actuator) 第一节，部署清单见 [Kubernetes](/cloud-native/6_kubernetes)。
 
 ### 4、OTLP 推送到 Prometheus 3
 
@@ -507,7 +507,7 @@ histogram_quantile(0.99,
 - Kubernetes 中用 ServiceMonitor 声明抓取目标；批任务用 Pushgateway，统一 OpenTelemetry 的场景可用 `--web.enable-otlp-receiver` 直接推 OTLP
 - PromQL 记住四条：先 rate 后 sum、`histogram_quantile` 保留 `le`、比例用速率之和相除、窗口至少 4 倍抓取间隔；高频查询沉淀为 recording rules，看板按 RED → 资源 → 依赖 → 业务排布并纳入版本管理
 
-相关内容：应用侧依赖、端点暴露与 `MeterRegistry` 基础用法见 [Actuator 监控](/spring-boot/7_actuator) 第六节；平均值与分位数、Little 定律见 [性能指标](/high-perf/1_metrics)；USE / RED 的排查用法见 [性能分析方法论](/high-perf/2_methodology)；Prometheus 本地 TSDB 与长期存储见 [时序数据库](/database/4_nosql/1_time_series_db) 第四节；SLO 与燃烧速率告警见 [可用性度量](/high-avail/1_sla_slo)；告警规则与 Alertmanager 见 [告警体系](./4_alerting)。
+相关内容：应用侧依赖、端点暴露与 `MeterRegistry` 基础用法见 [Actuator 监控](/spring-boot/11_actuator) 第六节；平均值与分位数、Little 定律见 [性能指标](/high-perf/1_metrics)；USE / RED 的排查用法见 [性能分析方法论](/high-perf/2_methodology)；Prometheus 本地 TSDB 与长期存储见 [时序数据库](/database/4_nosql/1_time_series_db) 第四节；SLO 与燃烧速率告警见 [可用性度量](/high-avail/1_sla_slo)；告警规则与 Alertmanager 见 [告警体系](./4_alerting)。
 
 ## 参考资料
 

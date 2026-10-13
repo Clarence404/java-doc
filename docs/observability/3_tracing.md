@@ -4,7 +4,7 @@ description: Trace / Span、W3C 传播、Boot 接入、异步与 Kafka 透传、
 
 # 链路追踪
 
-> 前置阅读：[日志](/spring-boot/12_logging)、[指标监控](./2_metrics)
+> 前置阅读：[日志](/spring-boot/9_logging)、[指标监控](./2_metrics)
 
 链路追踪回答一个请求穿过多个服务后慢在哪一跳、错误从哪开始传播。本篇讲模型、上下文传播、接入、采样、后端选型与排障，基线为 Spring Boot 4.x。
 
@@ -151,7 +151,7 @@ management:
 - OpenTelemetry 采样器由 `management.opentelemetry.tracing.sampler` 决定，默认 `parent-based-trace-id-ratio`：上游已做出采样决定就跟随上游，否则按比例采样，保证一条链路要么完整、要么都不采
 - 本地开发配合 Docker Compose 支持时，OTLP 地址会自动配置；生产环境需要自己设置
 
-traceId 写入日志的格式（`logging.pattern.correlation`）见 [日志](/spring-boot/12_logging#五、mdc-与-traceid-传递)，这里不重复。
+traceId 写入日志的格式（`logging.pattern.correlation`）见 [日志](/spring-boot/9_logging#五、mdc-与-traceid-传递)，这里不重复。
 
 ### 3、自动产生的 Span
 
@@ -166,7 +166,7 @@ JDBC 不在 Spring 的 Observation 覆盖范围内。需要 SQL 级 Span 时可�
 
 ### 4、手动创建 Span
 
-业务内部的关键步骤（如风控校验、调用第三方）可以手动埋点。首选 Observation API，一次埋点同时得到指标和 Span，写法见 [Actuator 监控](/spring-boot/7_actuator)；只要 Span 时可以直接用 `Tracer`：
+业务内部的关键步骤（如风控校验、调用第三方）可以手动埋点。首选 Observation API，一次埋点同时得到指标和 Span，写法见 [Actuator 监控](/spring-boot/11_actuator)；只要 Span 时可以直接用 `Tracer`：
 
 ```java
 import io.micrometer.tracing.BaggageInScope;
@@ -222,7 +222,7 @@ Micrometer 的 [Context Propagation](https://docs.micrometer.io/context-propagat
 | `CompletableFuture.supplyAsync(..., executor)` | 传入上面装饰过的执行器，不要用默认的 `ForkJoinPool.commonPool()` |
 | 原生 `ExecutorService` | 用 `ContextExecutorService.wrap(...)` 包装 |
 
-配置代码见 [日志](/spring-boot/12_logging#五、mdc-与-traceid-传递)，线程池参数见 [异步与定时任务](/spring-boot/9_async_schedule)。
+配置代码见 [日志](/spring-boot/9_logging#五、mdc-与-traceid-传递)，线程池参数见 [异步与定时任务](/spring-boot/7_async_schedule)。
 
 ### 2、虚拟线程
 
@@ -252,7 +252,7 @@ class VirtualThreadExecutorConfig {
 
 ### 3、响应式
 
-WebFlux / Reactor 中一个请求会在多个线程间切换，需要设置 `spring.reactor.context-propagation=auto`，让 Reactor 在操作符之间自动恢复 ThreadLocal，见 [日志](/spring-boot/12_logging#五、mdc-与-traceid-传递)。
+WebFlux / Reactor 中一个请求会在多个线程间切换，需要设置 `spring.reactor.context-propagation=auto`，让 Reactor 在操作符之间自动恢复 ThreadLocal，见 [日志](/spring-boot/9_logging#五、mdc-与-traceid-传递)。
 
 ### 4、Kafka
 
@@ -414,7 +414,7 @@ datasources:
 - 后端优先选能接收 OTLP 的 Tempo 或 Jaeger v2，应用经 Collector 上报，换后端不动代码
 - 用 exemplars、trace-id 跳转把指标、链路、日志串成一条路径，前提是字段命名统一
 
-相关内容：应用侧 traceId 写入日志、`logging.pattern.correlation` 与 `ContextPropagatingTaskDecorator` 的基础配置见 [日志](/spring-boot/12_logging#五、mdc-与-traceid-传递)；Observation API 一次埋点同时产出指标和 Span 见 [Actuator 监控](/spring-boot/7_actuator)；OpenTelemetry 的组件、Java agent 与 Collector 配置见 [OpenTelemetry](./5_opentelemetry)。
+相关内容：应用侧 traceId 写入日志、`logging.pattern.correlation` 与 `ContextPropagatingTaskDecorator` 的基础配置见 [日志](/spring-boot/9_logging#五、mdc-与-traceid-传递)；Observation API 一次埋点同时产出指标和 Span 见 [Actuator 监控](/spring-boot/11_actuator)；OpenTelemetry 的组件、Java agent 与 Collector 配置见 [OpenTelemetry](./5_opentelemetry)。
 
 ## 参考资料
 

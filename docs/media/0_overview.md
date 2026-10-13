@@ -42,9 +42,9 @@ Java 后端的具体工作：签发推流和播放地址并鉴权、接收流媒
 Java 后端常做的事：
 
 - **地址签发与鉴权**：主播开播时生成带过期时间和签名的推流地址；观众进入直播间时生成播放地址，CDN 或流媒体服务器校验签名；推流签名与播放防盗链的实现见 [直播系统设计](./6_live_streaming#三、开播与推流鉴权)，通用签名规则参见 [API 安全](/security/6_api_security)
-- **处理 Hook 回调**：流媒体服务器在推流开始、断开、录制文件生成时回调业务接口，后端据此更新直播间状态、触发回放转码；回调要做幂等，参见 [幂等设计](/architecture/5_idempotence)
+- **处理 Hook 回调**：流媒体服务器在推流开始、断开、录制文件生成时回调业务接口，后端据此更新直播间状态、触发回放转码；回调要做幂等，参见 [幂等设计](/architecture/3_idempotence)
 - **任务编排**：上传完成后投递转码、截图、内容审核任务到消息队列，由转码集群消费，参见 [消息队列总览](/messaging/0_overview)
-- **媒资管理**：记录原始文件、转码产物、封面、时长、分辨率等元数据，文件本身放对象存储，参见 [对象存储](/architecture/4_object_storage)
+- **媒资管理**：记录原始文件、转码产物、封面、时长、分辨率等元数据，文件本身放对象存储，参见 [对象存储](/architecture/5_object_storage)
 - **实时互动**：弹幕、礼物、在线人数走长连接，不走媒体流，参见 [即时通讯](/scenario/16_im) 与 [WebSocket](/netty/10_websocket)
 
 ::: tip Java 能不能直接处理音视频
@@ -73,7 +73,7 @@ Java 后端常做的事：
 
 - TCP / UDP、HTTP 协议基础 → [TCP 与 UDP](/protocols/1_tcp_udp)、[HTTP](/protocols/2_http)
 - 弹幕、礼物、在线人数等实时消息 → [即时通讯](/scenario/16_im)；长连接实现 → [WebSocket](/netty/10_websocket)、[SSE](/netty/11_sse)
-- 视频文件的分片上传、断点续传 → [大文件上传](/scenario/10_file_upload)；存储与预签名地址 → [对象存储](/architecture/4_object_storage)
+- 视频文件的分片上传、断点续传 → [大文件上传](/scenario/10_file_upload)；存储与预签名地址 → [对象存储](/architecture/5_object_storage)
 - 转码、截图、审核任务的异步投递 → [消息队列总览](/messaging/0_overview)
 - 推流 / 播放地址签名与防盗链 → [API 安全](/security/6_api_security)
 - CDN 与边缘加速 → [Cloudflare 边缘服务](/cloud-native/16_cloudflare)；接入层与流量调度 → [接入层架构](/high-con/1_access_layer)

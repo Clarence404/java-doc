@@ -33,7 +33,7 @@ Kafka 本质是分布式、分区、多副本的提交日志，这决定了它�
 
 ## 二、Spring Boot 快速接入
 
-Spring Boot 3.x 对应 spring-kafka 3.x，Boot 4.x 对应 spring-kafka 4.x，版本由 Boot 依赖管理，无需手写。中间件接入的通用做法见 [Spring Boot · 中间件集成](/spring-boot/5_middleware)。
+Spring Boot 3.x 对应 spring-kafka 3.x，Boot 4.x 对应 spring-kafka 4.x，版本由 Boot 依赖管理，无需手写。中间件接入的通用做法见 [Spring Boot · 中间件集成](/spring-boot/6_middleware)。
 
 ```xml
 <dependency>
@@ -209,7 +209,7 @@ Spring Boot 检测到 `CommonErrorHandler` 类型的 Bean 会自动装配到监�
 
 ### 3、幂等消费
 
-重复消费不可避免（生产者重试、Rebalance、重启从旧 offset 拉取），必须在业务层幂等。两种正确写法（去重记录与业务同事务、Redis 处理中 / 已完成状态机）和「SETNX 占位即完成」的反模式统一见 [消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)，通用方案见 [系统架构 · 幂等设计](/architecture/5_idempotence)。Kafka 下要注意两点：
+重复消费不可避免（生产者重试、Rebalance、重启从旧 offset 拉取），必须在业务层幂等。两种正确写法（去重记录与业务同事务、Redis 处理中 / 已完成状态机）和「SETNX 占位即完成」的反模式统一见 [消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)，通用方案见 [系统架构 · 幂等设计](/architecture/3_idempotence)。Kafka 下要注意两点：
 
 - **去重键用业务键（订单号 + 事件类型），不要用 `partition + offset`**：同一业务事件被生产者重发时会拿到新的 offset，按 offset 去重拦不住；数据迁移、Topic 重建后 offset 也会变
 - **已处理过就正常返回，处理失败就抛异常**：返回后 offset 照常提交；抛异常交给上面的 `DefaultErrorHandler` 退避重试或进死信，看到「处理中」状态时同样抛异常，不能当作成功跳过（offset 是累计提交的，跳过就再也回不来）

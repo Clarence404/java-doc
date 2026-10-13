@@ -4,7 +4,7 @@ description: 好告警标准、Prometheus 告警规则、Alertmanager 路由抑�
 
 # 告警体系
 
-> 前置阅读：[指标监控](./2_metrics)、[Actuator 监控](/spring-boot/7_actuator)、[可用性度量](/high-avail/1_sla_slo)
+> 前置阅读：[指标监控](./2_metrics)、[Actuator 监控](/spring-boot/11_actuator)、[可用性度量](/high-avail/1_sla_slo)
 
 告警是指标出异常时把问题及时、准确通知到人的机制。本篇讲好告警标准、Prometheus 告警规则、Alertmanager 路由与降噪、Grafana Alerting 选型，基线为 Prometheus 3.x。
 
@@ -105,7 +105,7 @@ alerting:
 
 ### 2、order-service 的规则文件
 
-下面的规则依赖 [Actuator 监控](/spring-boot/7_actuator) 中的配置：指标带公共标签 `application`，并开启了 `http.server.requests` 的直方图桶（否则没有 `_bucket` 序列，P99 无法计算）。抓取任务名为 `order-service`。
+下面的规则依赖 [Actuator 监控](/spring-boot/11_actuator) 中的配置：指标带公共标签 `application`，并开启了 `http.server.requests` 的直方图桶（否则没有 `_bucket` 序列，P99 无法计算）。抓取任务名为 `order-service`。
 
 ```yaml
 # /etc/prometheus/rules/order-service-alerts.yml
@@ -322,7 +322,7 @@ spec:
             runbook_url: "https://wiki.example.com/runbook/order-service#instance-down"
 ```
 
-规则写好却不生效，最常见的原因就是标签和 `ruleSelector` 对不上。规则文件和应用代码放在同一仓库，由 [CI/CD](/devops/2_ci_cd) 运行 promtool 校验后再通过 GitOps 同步。
+规则写好却不生效，最常见的原因就是标签和 `ruleSelector` 对不上。规则文件和应用代码放在同一仓库，由 [CI/CD](/devops/4_ci_cd) 运行 promtool 校验后再通过 GitOps 同步。
 
 ---
 
@@ -779,7 +779,7 @@ Grafana 自带告警功能（Grafana 11 起移除了旧版告警，只保留统�
 - critical 告警以 SLO 燃烧速率为准，用告警质量数据持续清理噪声；Watchdog 心跳保证告警链路本身可被监控
 - 核心告警用 Prometheus + Alertmanager 管成代码，Grafana Alerting 补充其他数据源
 
-相关内容：SLO、错误预算和燃烧速率的计算见 [可用性度量](/high-avail/1_sla_slo)；故障分级（P0–P3）、On-call 排班、升级路径和复盘见 [故障应急与复盘](/high-avail/11_incident_response)；应用侧如何暴露 `/actuator/prometheus` 指标见 [Actuator 监控](/spring-boot/7_actuator) 第六节；Prometheus 长期存储与高可用见 [时序数据库](/database/4_nosql/1_time_series_db)。
+相关内容：SLO、错误预算和燃烧速率的计算见 [可用性度量](/high-avail/1_sla_slo)；故障分级（P0–P3）、On-call 排班、升级路径和复盘见 [故障应急与复盘](/high-avail/11_incident_response)；应用侧如何暴露 `/actuator/prometheus` 指标见 [Actuator 监控](/spring-boot/11_actuator) 第六节；Prometheus 长期存储与高可用见 [时序数据库](/database/4_nosql/1_time_series_db)。
 
 ## 参考资料
 

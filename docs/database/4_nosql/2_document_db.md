@@ -274,7 +274,7 @@ public class TransferService {
 }
 ```
 
-Spring Data MongoDB 中注册 `MongoTransactionManager` 后即可用 `@Transactional`，Spring Boot 的连接配置见 [中间件集成](/spring-boot/5_middleware)，`@Transactional` 本身的机制见 [事务管理](/spring/4_transaction)。
+Spring Data MongoDB 中注册 `MongoTransactionManager` 后即可用 `@Transactional`，Spring Boot 的连接配置见 [中间件集成](/spring-boot/6_middleware)，`@Transactional` 本身的机制见 [事务管理](/spring/4_transaction)。
 
 ---
 

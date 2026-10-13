@@ -131,7 +131,7 @@ public class AliyunSmsClassAdapter extends AliyunSmsClient implements MessageSen
 
 - 接入三方 SDK、遗留系统，对方接口不能改，又不想让业务代码依赖它
 - 统一多个供应商的接口（多家短信、多家支付），每家写一个适配器
-- 在 DDD 中，适配器是 [防腐层](/architecture/3_ddd) 的常见实现手段：把外部模型转换成本上下文的模型
+- 在 DDD 中，适配器是 [防腐层](/architecture/2_ddd) 的常见实现手段：把外部模型转换成本上下文的模型
 
 **常见坑**：
 

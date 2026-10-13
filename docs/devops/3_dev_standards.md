@@ -4,7 +4,7 @@ description: 命名、类与 Lombok / record、注释、异常、日志、并发
 
 # 开发规范
 
-> 前置阅读：[Code Review](./3_code_review)
+> 前置阅读：[Code Review](./2_code_review)
 
 开发规范是一份 Java 团队可直接采用的编码规约，取材于阿里巴巴 Java 开发手册和 Google Java Style Guide。本篇讲命名与注释、Lombok 与 record、异常体系、日志并发等硬性规定，基线为 JDK 21。
 
@@ -16,17 +16,17 @@ description: 命名、类与 Lombok / record、注释、异常、日志、并发
 
 规约分两类，处理方式不同：
 
-本篇是全站**代码坏味道正反例**的出处，[Code Review](./3_code_review) 的检查清单逐条对应这里。与其他模块的分工：
+本篇是全站**代码坏味道正反例**的出处，[Code Review](./2_code_review) 的检查清单逐条对应这里。与其他模块的分工：
 
 | 主题 | 本篇只写 | 完整内容 |
 |------|----------|----------|
 | 格式化与静态检查 | 规约本身 | [代码质量](/engineering/3_code_quality)：Spotless / Checkstyle / SonarQube 在 CI 中强制 |
-| 日志 | 编码层面的硬性规定 | [日志](/spring-boot/12_logging)：门面、配置、结构化日志、MDC |
-| REST 与统一响应 | 不展开 | [API 设计规范](/engineering/7_api_design_rule)：URL、状态码、响应体、分页、版本 |
+| 日志 | 编码层面的硬性规定 | [日志](/spring-boot/9_logging)：门面、配置、结构化日志、MDC |
+| REST 与统一响应 | 不展开 | [API 设计规范](/engineering/4_api_design_rule)：URL、状态码、响应体、分页、版本 |
 | 异常机制 | 业务异常体系 | [Java 异常](/java/10_topic_exception) |
 
 - **机器能判断的交给工具**：缩进、import 顺序、行宽、大括号位置、未使用变量，由格式化工具和静态检查在 CI 中强制，不靠人记、也不在 Review 里讨论，配置见 [代码质量](/engineering/3_code_quality)
-- **需要理解语义的交给人**：命名是否达意、异常是否该捕获、事务边界是否正确，由作者自检和 [Code Review](./3_code_review) 把关
+- **需要理解语义的交给人**：命名是否达意、异常是否该捕获、事务边界是否正确，由作者自检和 [Code Review](./2_code_review) 把关
 
 条目按强度分「强制」和「推荐」：强制项违反即阻塞合并，推荐项由 Reviewer 酌情提出。新项目从第一天开启格式化检查；老项目先一次性格式化全量代码并单独提交（把该提交加进 `.git-blame-ignore-revs`，避免污染 `git blame`），再开启检查。
 
@@ -263,7 +263,7 @@ try {
 
 ### 2、业务异常体系
 
-全站只有一种业务异常形态：错误码枚举承载「HTTP 状态 + 稳定字符串业务码（取枚举名，如 `ORDER_NOT_FOUND`、`STOCK_INSUFFICIENT`、`SYSTEM_ERROR`）+ 标题」，`BizException` 只引用错误码，可带原始异常。枚举、`BizException` 与全局处理器的完整代码以 [API 设计规范](/engineering/7_api_design_rule#_2、spring-中的实现) 为准，这里只列编码规约：
+全站只有一种业务异常形态：错误码枚举承载「HTTP 状态 + 稳定字符串业务码（取枚举名，如 `ORDER_NOT_FOUND`、`STOCK_INSUFFICIENT`、`SYSTEM_ERROR`）+ 标题」，`BizException` 只引用错误码，可带原始异常。枚举、`BizException` 与全局处理器的完整代码以 [API 设计规范](/engineering/4_api_design_rule#_2、spring-中的实现) 为准，这里只列编码规约：
 
 - **业务码用稳定的字符串**，不用 `A0404`、`code=400` 这类模仿 HTTP 状态码的数字；同一个码一旦对外发布就不再改含义
 - **新增错误先查枚举**，能复用就复用，不在业务代码里临时拼字符串码
@@ -274,13 +274,13 @@ try {
 - **HTTP 状态码反映真实结果**：参数错误 400、资源不存在 404、服务端故障 500，不能所有响应都返回 200 再在响应体里放错误码；网关、监控、重试策略都依赖真实状态码
 - **只在全局处理器里兜底**：业务代码不 `catch (Exception e)`，Spring MVC 自身异常交给 `ResponseEntityExceptionHandler` 转成 4xx
 - **5xx 不把内部信息返回给客户端**：只返回通用提示和 `traceId`，细节进日志；4xx 记 `warn`，5xx 记 `error`
-- 响应体格式（Problem Details 或 Result 包装）见 [API 设计规范](/engineering/7_api_design_rule#五、错误响应-problem-details)
+- 响应体格式（Problem Details 或 Result 包装）见 [API 设计规范](/engineering/4_api_design_rule#五、错误响应-problem-details)
 
 ---
 
 ## 六、日志
 
-日志框架、配置、结构化日志和 MDC 见 [日志](/spring-boot/12_logging)，编码层面的硬性规定如下：
+日志框架、配置、结构化日志和 MDC 见 [日志](/spring-boot/9_logging)，编码层面的硬性规定如下：
 
 ```java
 // 反例
@@ -432,7 +432,7 @@ for (int from = 0; from < orders.size(); from += batchSize) {
 
 ## 九、接口层
 
-URL 设计、HTTP 方法与状态码、统一响应结构、分页与版本管理统一见 [API 设计规范](/engineering/7_api_design_rule)。编码层面只强调两点：
+URL 设计、HTTP 方法与状态码、统一响应结构、分页与版本管理统一见 [API 设计规范](/engineering/4_api_design_rule)。编码层面只强调两点：
 
 - **入参必须校验**，用 Bean Validation 注解声明，不在 Service 里手写一堆 `if`
 - **入参与出参用独立的 record**，不直接暴露持久化实体，避免多余字段泄露和意外的批量赋值
@@ -499,4 +499,4 @@ public ResponseEntity<OrderView> create(@RequestBody @Valid CreateOrderRequest r
 - MyBatis-Plus BaseMapper 源码（`selectByIds`）：[BaseMapper.java](https://github.com/baomidou/mybatis-plus/blob/3.0/mybatis-plus-core/src/main/java/com/baomidou/mybatisplus/core/mapper/BaseMapper.java)
 - SLF4J 用户手册：[SLF4J Manual](https://www.slf4j.org/manual.html)
 
-> 下一篇：[发布策略](./5_release_strategy)
+> 下一篇：[CI/CD](./4_ci_cd)

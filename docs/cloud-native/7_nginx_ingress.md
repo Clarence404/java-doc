@@ -349,7 +349,7 @@ GW_IP=$(kubectl get gateway public-gw -n infra -o jsonpath='{.status.addresses[0
 curl --resolve shop.example.com:443:$GW_IP https://shop.example.com/api/orders
 ```
 
-证书是自签名的话，`curl` 需要加 `-k` 或用 `--cacert` 指定 CA。按请求头灰度、流量镜像等更多写法，以及网格内东西向流量的 Gateway API 用法，见 [服务网格](/microservices/3_service_mesh)；发布流程层面的灰度策略见 [发布策略](/devops/5_release_strategy)。
+证书是自签名的话，`curl` 需要加 `-k` 或用 `--cacert` 指定 CA。按请求头灰度、流量镜像等更多写法，以及网格内东西向流量的 Gateway API 用法，见 [服务网格](/microservices/3_service_mesh)；发布流程层面的灰度策略见 [发布策略](/devops/7_release_strategy)。
 
 ### 4、证书自动化
 
@@ -422,7 +422,7 @@ curl --resolve shop.example.com:443:$GW_IP https://shop.example.com/api/orders
 |------|--------|----------|------|
 | Nginx / Ingress / Gateway API | 南北向入口：外部流量进集群 | 域名路由、TLS 卸载、静态资源、粗粒度限流 | 本篇 |
 | API 网关（Spring Cloud Gateway 等） | 业务入口：面向 API 的治理 | 统一鉴权、按用户限流、协议转换、聚合 | [API 网关](/spring-cloud/2_api_gateway) |
-| 服务网格（Istio、Linkerd） | 东西向：服务之间的调用 | mTLS、重试熔断、细粒度流量、调用观测 | [服务网格](/microservices/3_service_mesh)、[Service Mesh](./10_service_mesh) |
+| 服务网格（Istio、Linkerd） | 东西向：服务之间的调用 | mTLS、重试熔断、细粒度流量、调用观测 | [服务网格](/microservices/3_service_mesh)、[服务网格部署](./10_service_mesh) |
 
 常见的组合是：云负载均衡 → Gateway API 实现（TLS 卸载、域名路由）→ 业务 API 网关（鉴权、业务限流）→ 微服务。小团队不必每层都上：Gateway API 已经能做路由、重定向、权重灰度，很多场景不再需要单独的 Nginx 层；只有当鉴权、按租户限流这类逻辑需要用 Java 编写时，才值得再加一层业务网关。
 

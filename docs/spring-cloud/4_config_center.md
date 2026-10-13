@@ -175,7 +175,7 @@ public class PricingRuleListener {
 }
 ```
 
-Boot 自身的配置加载顺序、Profile 与 `@ConfigurationProperties` 校验见 Spring Boot 模块的 [配置管理](/spring-boot/6_config)。
+Boot 自身的配置加载顺序、Profile 与 `@ConfigurationProperties` 校验见 Spring Boot 模块的 [配置管理](/spring-boot/5_config)。
 
 ---
 

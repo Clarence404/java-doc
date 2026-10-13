@@ -84,6 +84,6 @@ Java 后端和数据平台打交道，主要在四个接口上：
 - 列存原理、ClickHouse、Doris / StarRocks 数据模型 → [列式与 OLAP 数据库](/database/4_nosql/0_column_db)
 - 数据集成与实时链路的消息总线 → [Kafka](/messaging/2_kafka)
 - 业务侧定时任务、XXL-JOB 等分布式调度 → [分布式调度](/distributed/6_job_scheduler)；审批类流程编排 → [工作流引擎](/distributed/7_work_flow)
-- 冷热分层与归档 → [数据冷热分离](/architecture/1_cold_hot_data)；对象存储原理与选型 → [对象存储](/architecture/4_object_storage)
+- 冷热分层与归档 → [数据冷热分离](/architecture/4_cold_hot_data)；对象存储原理与选型 → [对象存储](/architecture/5_object_storage)
 - 海量数据场景的整体选型 → [海量数据架构选型](/scenario/2_big_data)；读写分离到异构存储 → [数据层扩展](/high-con/5_data_scaling)
 - 数据回流到在线系统时的缓存设计 → [缓存总览](/cache/0_overview)；高并发查询场景 → [高并发总览](/high-con/0_overview)

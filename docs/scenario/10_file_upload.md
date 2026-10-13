@@ -4,7 +4,7 @@ description: 分片直传、断点续传、秒传校验、STS 与预签名、上
 
 # 大文件上传
 
-> 前置阅读：[对象存储](/architecture/4_object_storage)
+> 前置阅读：[对象存储](/architecture/5_object_storage)
 
 大文件上传通常基于 S3 分片上传协议由浏览器直传对象存储，示例用 AWS SDK for Java 2.x，OSS、COS、Ceph RGW 等兼容 S3 的服务换 `endpointOverride` 即可对接。本篇讲并发分片、断点续传、安全秒传、最小权限凭证，以及上传后的校验与处理。
 
@@ -388,7 +388,7 @@ https://cdn.example.com/images/photo.jpg?x-oss-process=image/crop,w_200,h_200
 
 - **持久性与可用性是两回事**：Amazon S3 的设计持久性为 99.999999999%（11 个 9），指数据不丢；可用性 SLA 另行约定，指能不能访问。各云厂商的数字以其官方文档为准
 - **公有云**：S3、阿里云 OSS、腾讯云 COS 等，配合 CDN 与生命周期规则（转低频、归档、过期删除）
-- **私有化**：MinIO 社区版已停止维护，新项目优先评估 Ceph RGW、SeaweedFS 等替代方案；许可证变化时间线与自建方案对比见 [自建选型与 MinIO 现状](/architecture/4_object_storage#六、自建选型与-minio-现状)
+- **私有化**：MinIO 社区版已停止维护，新项目优先评估 Ceph RGW、SeaweedFS 等替代方案；许可证变化时间线与自建方案对比见 [自建选型与 MinIO 现状](/architecture/5_object_storage#六、自建选型与-minio-现状)
 - **应用代码不绑定厂商**：用 AWS SDK for Java 2.x 的 S3 接口，通过 `endpointOverride` 切换后端
 
 ---
@@ -403,7 +403,7 @@ https://cdn.example.com/images/photo.jpg?x-oss-process=image/crop,w_200,h_200
 - 优先用预签名 URL；必须用 STS 时附带会话策略限定前缀
 - 中转上传时校验参数、规范化路径、不用客户端文件名
 - MinIO 社区版已停止维护，私有化存储要重新评估
-- 对象存储的概念、存储类型与 SDK 基本用法见 [对象存储](/architecture/4_object_storage)，本篇只讲了上传这条链路。
+- 对象存储的概念、存储类型与 SDK 基本用法见 [对象存储](/architecture/5_object_storage)，本篇只讲了上传这条链路。
 
 ## 参考资料
 

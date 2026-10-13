@@ -33,9 +33,9 @@ description: 主干开发与 GitHub Flow、分支保护规则集、Conventional 
 - **`main` 始终可发布**：任何时刻从 `main` 构建出的制品都能上生产，坏了的 `main` 是最高优先级问题
 - **短命分支**：从 `main` 切出，一个分支只做一件事，1–2 天内合并；大功能拆成多个可独立合并的小 PR
 - **只通过 PR 合并**：`main` 禁止直接推送，合并前必须通过 CI 和评审（见第三节）
-- **未完成的功能用开关隐藏**：代码先合进 `main`，用 Feature Flag 控制是否对用户可见，而不是在分支上囤积数周，做法见 [环境管理](./7_env_management)
-- **用 tag 发版**：在 `main` 的某个提交上打 `v1.5.0` 这样的 tag 触发正式发布，版本号规则见 [制品与版本管理](./6_artifact_version)
-- **不设 `develop` 分支**：环境差异不靠分支表达，同一个制品从测试环境逐级晋级到生产，见 [环境管理](./7_env_management) 与 [发布策略](./5_release_strategy)
+- **未完成的功能用开关隐藏**：代码先合进 `main`，用 Feature Flag 控制是否对用户可见，而不是在分支上囤积数周，做法见 [环境管理](./6_env_management)
+- **用 tag 发版**：在 `main` 的某个提交上打 `v1.5.0` 这样的 tag 触发正式发布，版本号规则见 [制品与版本管理](./5_artifact_version)
+- **不设 `develop` 分支**：环境差异不靠分支表达，同一个制品从测试环境逐级晋级到生产，见 [环境管理](./6_env_management) 与 [发布策略](./7_release_strategy)
 
 ### 3、紧急修复怎么走
 
@@ -177,7 +177,7 @@ on:
 | `chore` | 其他杂项 | 无 |
 | `revert` | 回滚某次提交 | 视被回滚内容而定 |
 
-任何 type 只要带 `!` 或 `BREAKING CHANGE` 脚注，就意味着主版本号 +1。这套映射让 release-please、semantic-release 这类工具能从提交历史自动算出下一个版本号并生成变更日志，发版流程见 [制品与版本管理](./6_artifact_version)。
+任何 type 只要带 `!` 或 `BREAKING CHANGE` 脚注，就意味着主版本号 +1。这套映射让 release-please、semantic-release 这类工具能从提交历史自动算出下一个版本号并生成变更日志，发版流程见 [制品与版本管理](./5_artifact_version)。
 
 ### 3、示例
 
@@ -338,7 +338,7 @@ jobs:
           fi
 ```
 
-把这个检查加入规则集的必需检查后，标题不合规的 PR 无法合并。流水线的整体结构见 [CI/CD](./2_ci_cd)。
+把这个检查加入规则集的必需检查后，标题不合规的 PR 无法合并。流水线的整体结构见 [CI/CD](./4_ci_cd)。
 
 ---
 
@@ -346,7 +346,7 @@ jobs:
 
 ![PR 生命周期](../assets/devops/git-workflow-pr-lifecycle.svg)
 
-PR 模板、评审清单、评审时效与评论写法以 [Code Review](./3_code_review) 为准，本篇不重复。和分支模型直接相关的约定如下：
+PR 模板、评审清单、评审时效与评论写法以 [Code Review](./2_code_review) 为准，本篇不重复。和分支模型直接相关的约定如下：
 
 - **大小**：单个 PR 改动建议不超过 **400 行**（不含生成代码与锁文件），超过时在描述里说明原因或拆分；全站统一这个数字
 - **单一主题**：一个 PR 只做一件事，重构与功能改动分开提，方便评审和回滚
@@ -430,7 +430,7 @@ git bisect reset          # 结束后回到原来的分支
 - `main` 用规则集保护：禁止删除与强推、必须经 PR 与必需检查、线性历史、只允许 Squash；`v*` tag 另设规则集防止移动；CODEOWNERS 按目录指派评审人，PR 多时用合并队列（工作流需监听 `merge_group`）
 - 提交遵循 Conventional Commits 1.0.0，`feat` / `fix` / `!` 分别对应次版本、修订号、主版本；Squash 合并下 PR 标题就是主干上的提交信息
 - 钩子要随仓库分发（pre-commit 框架或 `core.hooksPath`），shebang 写在第一行；本地钩子可被跳过，CI 必须再校验 PR 标题
-- PR 不超过 400 行、单一主题，模板与评审清单以 [Code Review](./3_code_review) 为准
+- PR 不超过 400 行、单一主题，模板与评审清单以 [Code Review](./2_code_review) 为准
 
 ---
 
@@ -452,4 +452,4 @@ git bisect reset          # 结束后回到原来的分支
 - `git push --force-with-lease` / `--force-if-includes`：[git-push 文档](https://git-scm.com/docs/git-push)
 - `git bisect run`：[git-bisect 文档](https://git-scm.com/docs/git-bisect)
 
-> 下一篇：[CI/CD](./2_ci_cd)
+> 下一篇：[Code Review](./2_code_review)

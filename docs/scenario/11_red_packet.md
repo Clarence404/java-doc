@@ -306,7 +306,7 @@ public class GrabCreditService {
 }
 ```
 
-`DuplicateKeyException` 会让整个事务回滚，前面的份额更新也一起撤销，所以重复消费不会产生任何副作用。消费幂等的通用做法见 [消息队列基础](/messaging/1_basics)，幂等方案对比见 [幂等设计](/architecture/5_idempotence)。
+`DuplicateKeyException` 会让整个事务回滚，前面的份额更新也一起撤销，所以重复消费不会产生任何副作用。消费幂等的通用做法见 [消息队列基础](/messaging/1_basics)，幂等方案对比见 [幂等设计](/architecture/3_idempotence)。
 
 ---
 

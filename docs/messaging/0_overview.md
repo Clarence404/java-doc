@@ -2,6 +2,8 @@
 
 消息中间件（Message Queue，MQ）是分布式系统中的异步通信层，用来解耦服务依赖、缓冲流量洪峰、把非核心操作异步化。本模块先讲与产品无关的通用问题（可靠性、幂等、顺序、积压、事务一致），再分别深入 Kafka、RocketMQ、RabbitMQ 三大主流 MQ，介绍 Pulsar 等其他 MQ，最后给出选型建议。
 
+**版本基线（2026 年 10 月）**：Kafka 4.x、RocketMQ 5.x、RabbitMQ 4.x、Spring Boot 4
+
 ---
 
 ## 一、模块导航
@@ -25,7 +27,7 @@
 
 - [高并发 · 异步与削峰](/high-con/4_async_peak_shaving)：MQ 在系统级削峰设计中的位置
 - [分布式 · 分布式事务](/distributed/4_transaction)：TCC、Saga、本地消息表、事务消息的完整对比
-- [系统架构 · 幂等设计](/architecture/5_idempotence)：消费幂等所依赖的通用幂等方案
-- [Spring Boot · 中间件集成](/spring-boot/5_middleware)：Spring Boot 集成 Kafka / RocketMQ / RabbitMQ
+- [系统架构 · 幂等设计](/architecture/3_idempotence)：消费幂等所依赖的通用幂等方案
+- [Spring Boot · 中间件集成](/spring-boot/6_middleware)：Spring Boot 集成 Kafka / RocketMQ / RabbitMQ
 - [CDC 工具](/database/5_practice/0_cdc_tools)：基于 binlog 的数据同步与 Outbox 投递
 - [消息队列面试题解答](/interview/9_mq)：本模块高频问题的答案汇总

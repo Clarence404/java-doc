@@ -4,7 +4,7 @@ description: GitOps 拉取模型、安装、Application 与 ApplicationSet、同
 
 # Argo CD
 
-> 前置阅读：[Kubernetes](./6_kubernetes)、[Helm](./8_helm)、[CI/CD](/devops/2_ci_cd)
+> 前置阅读：[Kubernetes](./6_kubernetes)、[Helm](./8_helm)、[CI/CD](/devops/4_ci_cd)
 
 Argo CD 是 CNCF 毕业项目，在集群内持续对比 Git 与集群状态并自动同步，做 Kubernetes 的 GitOps 持续交付。本篇讲安装、Application / ApplicationSet、同步与回滚、多环境与周边工具，基线为 Argo CD 3.x。
 
@@ -27,7 +27,7 @@ Argo CD 是 CNCF 毕业项目，在集群内持续对比 Git 与集群状态并�
 
 ![推送式部署与 GitOps 拉取式部署的权限边界](../assets/cloud-native/argocd-push-vs-pull.svg)
 
-流水线本身的设计（阶段划分、制品管理、质量门禁）见 [CI/CD](/devops/2_ci_cd)，这里只讲部署这一段。
+流水线本身的设计（阶段划分、制品管理、质量门禁）见 [CI/CD](/devops/4_ci_cd)，这里只讲部署这一段。
 
 > [!tip]
 > 应用代码和部署配置建议放在**两个仓库**：CI 往配置仓库提交 image tag 不会再次触发应用构建，权限也能分开管理。
@@ -277,7 +277,7 @@ spec:
 | `git` | 按配置仓库的目录或文件生成，新增目录即新增应用 |
 | `matrix` / `merge` | 组合多个生成器，如「集群 × 应用」 |
 
-外部集群用 `argocd cluster add <kubeconfig-context>` 注册，Argo CD 会在目标集群创建 ServiceAccount 并保存凭证。多团队共用时，每个团队一个 AppProject，限制可用的源仓库、目标集群和命名空间，再配合 RBAC 控制谁能同步哪些应用。各环境的配置差异如何组织见 [环境管理](/devops/7_env_management)。
+外部集群用 `argocd cluster add <kubeconfig-context>` 注册，Argo CD 会在目标集群创建 ServiceAccount 并保存凭证。多团队共用时，每个团队一个 AppProject，限制可用的源仓库、目标集群和命名空间，再配合 RBAC 控制谁能同步哪些应用。各环境的配置差异如何组织见 [环境管理](/devops/6_env_management)。
 
 ---
 
@@ -304,7 +304,7 @@ CI 构建完镜像后，有两种方式把新 tag 写进配置仓库：
 
 ### 3、渐进式发布：Argo Rollouts
 
-Argo CD 只负责「把 Git 状态同步到集群」，Deployment 自带的滚动更新无法按流量比例灰度、也不会按指标自动回滚。Argo Rollouts 是同属 Argo 项目的独立控制器，用 `Rollout` 资源替代 Deployment，支持金丝雀与蓝绿发布，可结合 Ingress、Gateway API 或服务网格切分流量，并按 Prometheus 等指标分析结果自动推进或回滚。它和 Argo CD 配合使用：Argo CD 同步 `Rollout` 清单，Rollouts 负责发布过程。发布策略本身见 [发布策略](/devops/5_release_strategy)。
+Argo CD 只负责「把 Git 状态同步到集群」，Deployment 自带的滚动更新无法按流量比例灰度、也不会按指标自动回滚。Argo Rollouts 是同属 Argo 项目的独立控制器，用 `Rollout` 资源替代 Deployment，支持金丝雀与蓝绿发布，可结合 Ingress、Gateway API 或服务网格切分流量，并按 Prometheus 等指标分析结果自动推进或回滚。它和 Argo CD 配合使用：Argo CD 同步 `Rollout` 清单，Rollouts 负责发布过程。发布策略本身见 [发布策略](/devops/7_release_strategy)。
 
 ---
 
@@ -331,4 +331,4 @@ Argo CD 只负责「把 Git 状态同步到集群」，Deployment 自带的滚�
 - Argo Rollouts：[Argo Rollouts Documentation](https://argo-rollouts.readthedocs.io/en/stable/)
 - GitOps 原则：[OpenGitOps](https://opengitops.dev/)
 
-> 下一篇：[Service Mesh](./10_service_mesh)
+> 下一篇：[服务网格部署](./10_service_mesh)

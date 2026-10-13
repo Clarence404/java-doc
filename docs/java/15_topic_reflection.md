@@ -253,7 +253,7 @@ MyBatis 的 `Reflector` 不属于这一类：它是按类缓存的反射元数�
 
 ### 2、GraalVM Native Image 与 AOT
 
-Native Image 在构建期做封闭世界分析，运行时**只能**反射构建期登记过的类和成员，否则抛 `ClassNotFoundException` / `NoSuchMethodException` 或静默拿不到成员。Spring Boot 3 的 AOT 引擎会为自己知道的 Bean 自动生成 reflect-config；业务代码中按字符串拼类名、自己反射的地方，要通过 `RuntimeHintsRegistrar`（或 `@RegisterReflectionForBinding`）补登记。详见 [启动与部署优化](/spring-boot/14_startup)。
+Native Image 在构建期做封闭世界分析，运行时**只能**反射构建期登记过的类和成员，否则抛 `ClassNotFoundException` / `NoSuchMethodException` 或静默拿不到成员。Spring Boot 3 的 AOT 引擎会为自己知道的 Bean 自动生成 reflect-config；业务代码中按字符串拼类名、自己反射的地方，要通过 `RuntimeHintsRegistrar`（或 `@RegisterReflectionForBinding`）补登记。详见 [启动与部署优化](/spring-boot/13_startup)。
 
 ### 3、安全
 

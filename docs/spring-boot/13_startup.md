@@ -4,7 +4,7 @@ description: 启动耗时度量、懒加载与裁剪、CDS / AOT 缓存、AOT �
 
 # 启动与部署优化
 
-> 前置阅读：[启动流程与自动配置](./1_spring_boot)、[Spring Boot 版本演进](./11_versions)
+> 前置阅读：[启动流程与自动配置](./1_spring_boot)、[Spring Boot 版本演进](./14_versions)
 
 Spring Boot 服务的启动时间由类加载、Bean 创建和 JIT 预热三块组成，优化手段本质是把某一块挪到构建期或直接跳过。本篇讲启动时间测量、CDS、AOT 缓存、CRaC、Native Image 与容器镜像落地。
 
@@ -65,7 +65,7 @@ public class OrderApplication {
 }
 ```
 
-再暴露 Actuator 的 `startup` 端点（Actuator 接入方式见 [Actuator 监控](./7_actuator)）：
+再暴露 Actuator 的 `startup` 端点（Actuator 接入方式见 [Actuator 监控](./11_actuator)）：
 
 ```yaml
 management:
@@ -124,7 +124,7 @@ spring:
 
 启动时每个自动配置类都要加载并评估条件，classpath 上依赖越多，评估和创建的东西越多：
 
-- **去掉用不到的 starter**：这是最有效的裁剪。Spring Boot 4 把原来的大 JAR（如 `spring-boot-autoconfigure`）拆成了更小的模块，各技术都有专属 starter，按需引入的粒度更细（迁移细节见 [版本演进](./11_versions)）
+- **去掉用不到的 starter**：这是最有效的裁剪。Spring Boot 4 把原来的大 JAR（如 `spring-boot-autoconfigure`）拆成了更小的模块，各技术都有专属 starter，按需引入的粒度更细（迁移细节见 [版本演进](./14_versions)）
 - **查看条件评估报告**：启动时加 `--debug`（或配置 `debug=true`）会打印哪些自动配置生效、哪些没生效及原因；运行中可通过 Actuator 的 `conditions` 端点查看
 - **排除确实不需要的自动配置**：`@SpringBootApplication(exclude = ...)` 或 `spring.autoconfigure.exclude` 配置项
 
@@ -329,7 +329,7 @@ CRaC 不在 OpenJDK 主线，绑定特定发行版和 Linux，恢复要求操作
 
 ## 七、虚拟线程开关
 
-`spring.threads.virtual.enabled=true`（Java 21+，官方强烈建议 Java 24+）改变的是**运行期的并发模型**，对启动时间没有直接帮助，但能减少为扛住阻塞 IO 而预留的平台线程和线程栈内存；部署时注意虚拟线程都是守护线程，没有其他非守护线程的应用需配 `spring.main.keep-alive=true` 防止 JVM 提前退出。开关的作用范围、钉住问题与收益边界见 [异步任务与定时任务](./9_async_schedule)。
+`spring.threads.virtual.enabled=true`（Java 21+，官方强烈建议 Java 24+）改变的是**运行期的并发模型**，对启动时间没有直接帮助，但能减少为扛住阻塞 IO 而预留的平台线程和线程栈内存；部署时注意虚拟线程都是守护线程，没有其他非守护线程的应用需配 `spring.main.keep-alive=true` 防止 JVM 提前退出。开关的作用范围、钉住问题与收益边界见 [异步任务与定时任务](./7_async_schedule)。
 
 ---
 
@@ -392,7 +392,7 @@ ENTRYPOINT ["java", "-XX:AOTCache=app.aot", "-XX:MaxRAMPercentage=75", "-jar", "
 
 ### 4、和 K8s 探针配合
 
-启动优化缩短的是"进程起来"的时间，实例能不能接流量还取决于探针：给慢启动应用配 `startupProbe`，就绪探针指向 Actuator 的 readiness 组，预热完成后再标记就绪。探针与优雅上下线见 [Actuator 监控](./7_actuator) 与 [优雅上下线与变更](/high-avail/8_graceful_release)。
+启动优化缩短的是"进程起来"的时间，实例能不能接流量还取决于探针：给慢启动应用配 `startupProbe`，就绪探针指向 Actuator 的 readiness 组，预热完成后再标记就绪。探针与优雅上下线见 [Actuator 监控](./11_actuator) 与 [优雅上下线与变更](/high-avail/8_graceful_release)。
 
 ---
 
@@ -435,4 +435,4 @@ ENTRYPOINT ["java", "-XX:AOTCache=app.aot", "-XX:MaxRAMPercentage=75", "-jar", "
 - Checkpoint and Restore：[https://docs.spring.io/spring-framework/reference/integration/checkpoint-restore.html](https://docs.spring.io/spring-framework/reference/integration/checkpoint-restore.html)
 - Dockerfiles：[https://docs.spring.io/spring-boot/reference/packaging/container-images/dockerfiles.html](https://docs.spring.io/spring-boot/reference/packaging/container-images/dockerfiles.html)
 
-> 返回：[Spring Boot 总览](./0_overview)
+> 下一篇：[Spring Boot 版本演进](./14_versions) —— 2.x、3.x、4.x 每一代改了什么基线，以及一个老项目怎样一步步升级到 4.x。

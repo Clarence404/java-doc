@@ -66,7 +66,7 @@
 - [高性能 · 性能分析工具](/high-perf/3_profilers)：Profiler、JFR、火焰图；基准测试见 [基准测试（JMH）](/high-perf/4_benchmark)
 - [高并发 · 并发参数调优](/high-con/7_concurrency_tuning)：线程数、连接池等系统级参数的设定方法
 - [高性能 · 池化技术](/high-perf/7_pooling)：线程池、连接池的池化原理与取舍
-- [Spring Boot · 异步任务与定时任务](/spring-boot/9_async_schedule)：在 Spring Boot 中使用线程池与虚拟线程
+- [Spring Boot · 异步任务与定时任务](/spring-boot/7_async_schedule)：在 Spring Boot 中使用线程池与虚拟线程
 - [设计模式总览](/patterns/0_overview)：单例、代理等模式的完整实现
 - [Java 基础面试题解答](/interview/1_java) / [Java 并发面试题解答](/interview/2_concurrent)：本模块高频问题的答案汇总
 

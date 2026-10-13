@@ -268,7 +268,7 @@ spec:
 - `toYaml`：把 values 中的一整段对象原样输出，适合 `resources`、`nodeSelector`、`tolerations`
 - `default`、`quote`、`required "错误提示" .Values.xxx`：缺省值、加引号、必填校验
 
-探针路径对应 Spring Boot Actuator 的健康分组，见 [Actuator 监控](/spring-boot/7_actuator)；`MaxRAMPercentage` 等容器内 JVM 参数见 [GC 调优](/jvm/6_gc_tuning)。
+探针路径对应 Spring Boot Actuator 的健康分组，见 [Actuator 监控](/spring-boot/11_actuator)；`MaxRAMPercentage` 等容器内 JVM 参数见 [GC 调优](/jvm/6_gc_tuning)。
 
 ### 4、values.schema.json
 
@@ -383,7 +383,7 @@ resources:
     memory: 2Gi
 ```
 
-不要在 values 文件里写数据库密码等敏感信息。常见做法是：密钥由 External Secrets Operator 从 Vault 或云密钥服务同步成 Kubernetes Secret，Chart 只引用 Secret 的名字。环境划分与配置管理的整体策略见 [环境管理](/devops/7_env_management)。
+不要在 values 文件里写数据库密码等敏感信息。常见做法是：密钥由 External Secrets Operator 从 Vault 或云密钥服务同步成 Kubernetes Secret，Chart 只引用 Secret 的名字。环境划分与配置管理的整体策略见 [环境管理](/devops/6_env_management)。
 
 ---
 
@@ -423,7 +423,7 @@ helm upgrade --install order oci://registry.example.com/charts/order-service \
   --version 0.3.0 -n shop -f values-prod.yaml
 ```
 
-OCI 仓库里 Chart 的 tag 就是 `Chart.yaml` 的 `version`，与镜像共用同一套仓库、权限和清理策略。制品版本与仓库管理见 [制品与版本管理](/devops/6_artifact_version)。
+OCI 仓库里 Chart 的 tag 就是 `Chart.yaml` 的 `version`，与镜像共用同一套仓库、权限和清理策略。制品版本与仓库管理见 [制品与版本管理](/devops/5_artifact_version)。
 
 ---
 

@@ -4,7 +4,7 @@ description: 领域与限界上下文、上下文映射、实体与值对象、�
 
 # DDD 领域驱动设计
 
-> 前置阅读：[架构模式与风格](./2_arch_patterns)
+> 前置阅读：[架构模式与风格](./1_arch_patterns)
 
 Domain-Driven Design 以业务领域为核心建模，解决的是**复杂业务逻辑的组织问题**，以增删改查为主的系统用 DDD 成本大于收益。本篇讲战略设计、战术设计、领域事件与 Outbox，以及在 Spring Boot 中的分层落地。
 
@@ -287,7 +287,7 @@ public class DomainEventOutbox {
 
 - 同一个上下文内、允许丢失的后续动作（发站内信、刷新本地缓存），可以用 Spring 的 `ApplicationEventPublisher` 发布进程内事件，监听器使用 `@TransactionalEventListener(phase = AFTER_COMMIT)` 在提交后执行；使用 Spring Data JPA / JDBC 时，聚合继承 `AbstractAggregateRoot` 并 `registerEvent(...)`，`save()` 时会自动发布，监听器同样要用 `AFTER_COMMIT`
 - 跨上下文、不能丢的事件一律走 Outbox 或 RocketMQ 事务消息；投递与对比见 [消息队列基础](/messaging/1_basics)
-- 事件至少投递一次，消费方必须幂等，见 [幂等设计](./5_idempotence)；事件本身要带事件 ID、聚合 ID 和发生时间
+- 事件至少投递一次，消费方必须幂等，见 [幂等设计](./3_idempotence)；事件本身要带事件 ID、聚合 ID 和发生时间
 
 ---
 
@@ -416,4 +416,4 @@ public class PlaceOrderUseCase {
 - Spring Framework · Transaction-bound Events：[https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html)
 - microservices.io · Transactional Outbox：[https://microservices.io/patterns/data/transactional-outbox.html](https://microservices.io/patterns/data/transactional-outbox.html)
 
-> 下一篇：[对象存储](./4_object_storage) —— 对象存储的数据模型与一致性、预签名直传，以及 MinIO 现状与自建替代方案。
+> 下一篇：[幂等设计](./3_idempotence) —— HTTP 幂等语义与 Idempotency-Key，按插入、更新、消费、提交四类操作选方案，以及下单与支付回调的幂等落地。

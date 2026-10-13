@@ -282,7 +282,7 @@ public void handleOrder(OrderCreatedEvent event, Channel channel,
 
 ### 5、幂等消费
 
-RabbitMQ 是至少一次投递：requeue、消费者崩溃、连接断开、生产者 confirm 超时重发，都会产生重复消息。**用业务键（如 `orderId + 事件类型`）而不是 Broker 的 messageId 去重**，去重记录与业务写入同一本地事务、Redis 状态机、「`SETNX` 占位即完成」反模式统一见 [消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)，通用方案见 [系统架构 · 幂等设计](/architecture/5_idempotence)。RabbitMQ 侧只需注意 ack 时机：
+RabbitMQ 是至少一次投递：requeue、消费者崩溃、连接断开、生产者 confirm 超时重发，都会产生重复消息。**用业务键（如 `orderId + 事件类型`）而不是 Broker 的 messageId 去重**，去重记录与业务写入同一本地事务、Redis 状态机、「`SETNX` 占位即完成」反模式统一见 [消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)，通用方案见 [系统架构 · 幂等设计](/architecture/3_idempotence)。RabbitMQ 侧只需注意 ack 时机：
 
 - **自动 ACK 模式**：监听方法正常返回后容器才 ack，已处理过的消息直接 `return` 即可；抛异常则按第 3 小节的重试 + 死信处理
 - **手动 ACK 模式**：去重判断为「已处理」时也要 `basicAck`，否则消息一直 unacked；看到「处理中」应 `basicNack` 退避重投而不是 ack 跳过

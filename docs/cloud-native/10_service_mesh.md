@@ -2,7 +2,7 @@
 description: 云原生栈中的位置、Sidecar 与 Ambient 安装、平台前置条件、控制面与数据面升级
 ---
 
-# Service Mesh
+# 服务网格部署
 
 > 前置阅读：[Kubernetes](./6_kubernetes)、[Nginx、Ingress 与 Gateway API](./7_nginx_ingress)
 

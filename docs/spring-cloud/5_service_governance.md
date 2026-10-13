@@ -410,7 +410,7 @@ OpenFeign 默认超时（连接 10s、读取 60s）远大于合理值，必须�
 | **API 版本** | 破坏性变更发新版本，新旧版本并行运行，调用方逐步迁移 |
 | **契约测试** | 用 Spring Cloud Contract 或 Pact 让 Provider 变更在 CI 中就能发现对 Consumer 的破坏 |
 
-Framework 7 内置了 API 版本控制，服务端用 `@GetMapping(path = "/orders/{id}", version = "2")` 声明版本，Boot 4 通过 `spring.mvc.apiversion.*` 配置版本从请求头、查询参数、路径或媒体类型中读取，配置方式见 [Spring Boot 版本演进](/spring-boot/11_versions)。客户端侧，Spring Cloud LoadBalancer 5.0 的 `api-version` 配置可以按请求携带的版本，只选元数据 `API_VERSION` 匹配的实例，让 v1、v2 实例同名注册、按版本分流：
+Framework 7 内置了 API 版本控制，服务端用 `@GetMapping(path = "/orders/{id}", version = "2")` 声明版本，Boot 4 通过 `spring.mvc.apiversion.*` 配置版本从请求头、查询参数、路径或媒体类型中读取，配置方式见 [Spring Boot 版本演进](/spring-boot/14_versions)。客户端侧，Spring Cloud LoadBalancer 5.0 的 `api-version` 配置可以按请求携带的版本，只选元数据 `API_VERSION` 匹配的实例，让 v1、v2 实例同名注册、按版本分流：
 
 ```yaml
 spring:
@@ -432,7 +432,7 @@ spring:
           API_VERSION: "2"
 ```
 
-版本号放在路径还是请求头、何时废弃旧版本等约定见 [API 设计规范](/engineering/7_api_design_rule)。
+版本号放在路径还是请求头、何时废弃旧版本等约定见 [API 设计规范](/engineering/4_api_design_rule)。
 
 ---
 

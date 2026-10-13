@@ -370,7 +370,7 @@ updates:
 | GitHub Dependabot alerts | GitHub Advisory Database | 开启依赖图后自动生效 | 零配置，直接在仓库 Security 页提示 |
 | Dependency-Check | NVD + OSS Index 等 | Maven / Gradle 插件 | 基于 CPE 匹配，覆盖广，误报相对多 |
 
-推荐组合：PR 上跑一个快的（OSV-Scanner 或 Trivy），每日定时跑一次全量（Dependency-Check 或对 SBOM 的扫描），镜像扫描见 [Docker](/cloud-native/5_docker)。在 CI 中使用第三方扫描 Action 时，按 [CI/CD](/devops/2_ci_cd) 的要求把 Action 固定到完整 commit SHA。
+推荐组合：PR 上跑一个快的（OSV-Scanner 或 Trivy），每日定时跑一次全量（Dependency-Check 或对 SBOM 的扫描），镜像扫描见 [Docker](/cloud-native/5_docker)。在 CI 中使用第三方扫描 Action 时，按 [CI/CD](/devops/4_ci_cd) 的要求把 Action 固定到完整 commit SHA。
 
 ### 4、研判：不是每个 CVE 都要立刻升级
 
@@ -494,13 +494,13 @@ curl http://localhost:8080/actuator/sbom/application  # CycloneDX JSON
 trivy sbom target/classes/META-INF/sbom/application.cdx.json
 ```
 
-Actuator 端点的安全暴露方式见 [Actuator 监控](/spring-boot/7_actuator)。SBOM 作为制品附件发布、对 SBOM 和镜像做签名与溯源（cosign、SLSA provenance）见 [制品与版本管理](/devops/6_artifact_version)。
+Actuator 端点的安全暴露方式见 [Actuator 监控](/spring-boot/11_actuator)。SBOM 作为制品附件发布、对 SBOM 和镜像做签名与溯源（cosign、SLSA provenance）见 [制品与版本管理](/devops/5_artifact_version)。
 
 ### 3、依赖完整性校验
 
 扫描解决的是「已知漏洞」，完整性校验解决的是「下载到的 jar 是不是真的那一个」：
 
-制品签名与溯源见 [制品与版本管理](/devops/6_artifact_version)。
+制品签名与溯源见 [制品与版本管理](/devops/5_artifact_version)。
 
 - **Gradle 依赖校验**：生成 `gradle/verification-metadata.xml`，记录每个依赖的 SHA-256，之后任何哈希不匹配都会让构建失败。升级依赖时重新生成并在 PR 中评审差异
 
@@ -545,4 +545,4 @@ Actuator 端点的安全暴露方式见 [Actuator 监控](/spring-boot/7_actuato
 - CycloneDX Maven 插件：[cyclonedx-maven-plugin](https://github.com/CycloneDX/cyclonedx-maven-plugin)
 - CycloneDX Gradle 插件：[cyclonedx-gradle-plugin](https://github.com/CycloneDX/cyclonedx-gradle-plugin)
 
-> 下一篇：[API 设计规范](./7_api_design_rule)
+> 下一篇：[代码质量](./3_code_quality)

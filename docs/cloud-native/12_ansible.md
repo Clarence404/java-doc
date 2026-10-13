@@ -280,7 +280,7 @@ roles/
 - **tags**：给任务打标签，`--tags deploy` 只跑发布相关的任务，加速日常发布
 - **与 Terraform 衔接**：Terraform 的 `output` 渲染出 inventory 文件，或用 `cloud.terraform` 集合的 inventory 插件直接读取 State；云上也可以用各厂商的动态 inventory 插件按标签分组
 - **可复现的控制节点**：用 Execution Environment（打包了 ansible-core、集合与 Python 依赖的容器镜像）配合 `ansible-navigator` 运行，本地和 CI 用同一套依赖
-- **容器时代的位置**：应用容器化后，Ansible 退到**虚机层**，负责初始化节点、安装容器运行时和 K8s 本身、管理非容器化中间件；应用发布交给 [Helm](./8_helm) / [Argo CD](./9_argocd)，流水线编排见 [CI/CD](/devops/2_ci_cd)
+- **容器时代的位置**：应用容器化后，Ansible 退到**虚机层**，负责初始化节点、安装容器运行时和 K8s 本身、管理非容器化中间件；应用发布交给 [Helm](./8_helm) / [Argo CD](./9_argocd)，流水线编排见 [CI/CD](/devops/4_ci_cd)
 
 ---
 

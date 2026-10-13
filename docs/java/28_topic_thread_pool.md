@@ -650,7 +650,7 @@ JDK 21 的虚拟线程调度器也是一个 `ForkJoinPool`，但它是**独立�
 | `SimpleAsyncTaskExecutor` | **每个任务新建一个线程**，不复用。没有 Spring Boot 自动配置、也没有自定义执行器时，`@Async` 回退到它，高并发下线程数失控 |
 | Spring Boot 自动配置 | 提供名为 `applicationTaskExecutor` 的 `ThreadPoolTaskExecutor`，通过 `spring.task.execution.pool.*` 配置；开启 `spring.threads.virtual.enabled=true`（Boot 3.2+、JDK 21+）后换成基于虚拟线程的 `SimpleAsyncTaskExecutor` |
 
-`@Async` 的配置方式、自定义执行器与虚拟线程开关的完整写法见 [异步任务与定时任务](/spring-boot/9_async_schedule)，这里只强调两个线程池层面的坑。
+`@Async` 的配置方式、自定义执行器与虚拟线程开关的完整写法见 [异步任务与定时任务](/spring-boot/7_async_schedule)，这里只强调两个线程池层面的坑。
 
 **一、默认执行器是无界的**：Boot 自动配置的 `applicationTaskExecutor` 队列容量和最大线程数默认都是 `Integer.MAX_VALUE`，本质上和 `newFixedThreadPool` 一样是无界队列。生产环境要么显式限制 `queue-capacity`，要么为不同业务定义独立的线程池，并在 `@Async("orderExecutor")` 上显式指定。
 
@@ -675,7 +675,7 @@ private static void setOrClear(Map<String, String> context) {
 }
 ```
 
-为什么不能直接 `MDC.clear()`：配了 `CallerRunsPolicy` 时，被拒绝的任务在**提交线程**（例如 Tomcat 请求线程）里执行，`finally` 里的 `clear()` 会把调用方自己的 traceId 一起抹掉，后续日志全部丢失链路信息。日志上下文的完整方案见 [日志](/spring-boot/12_logging)。
+为什么不能直接 `MDC.clear()`：配了 `CallerRunsPolicy` 时，被拒绝的任务在**提交线程**（例如 Tomcat 请求线程）里执行，`finally` 里的 `clear()` 会把调用方自己的 traceId 一起抹掉，后续日志全部丢失链路信息。日志上下文的完整方案见 [日志](/spring-boot/9_logging)。
 
 ---
 

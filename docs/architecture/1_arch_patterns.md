@@ -34,7 +34,7 @@ Robert C. Martin 提出，核心是**依赖规则：源码依赖只能从外层�
 - **Interface Adapters**：Controller、Presenter、Gateway，负责数据格式转换
 - **Frameworks & Drivers**：Web 框架、数据库、MQ 等细节
 
-内层需要访问数据库时，由内层定义接口、外层实现（依赖倒置）。收益是业务规则与框架、数据库解耦，可以不启动 Spring 就完成单元测试。Spring Boot 中按 interfaces / application / domain / infrastructure 落地的包结构见 [DDD 领域驱动设计](./3_ddd) 的「Spring Boot 落地」一节。
+内层需要访问数据库时，由内层定义接口、外层实现（依赖倒置）。收益是业务规则与框架、数据库解耦，可以不启动 Spring 就完成单元测试。Spring Boot 中按 interfaces / application / domain / infrastructure 落地的包结构见 [DDD 领域驱动设计](./2_ddd) 的「Spring Boot 落地」一节。
 
 ---
 
@@ -119,7 +119,7 @@ public class CreateOrderHandler {
 }
 ```
 
-不要在 handler 里 `orderRepo.save()` 之后直接向 MQ 发布事件：handler 在事务内，事务回滚时下游已收到「幽灵事件」；事务提交了但发送失败，读模型永远不同步。Outbox 的实现见 [DDD 领域驱动设计](./3_ddd) 的「领域事件与最终一致」一节。
+不要在 handler 里 `orderRepo.save()` 之后直接向 MQ 发布事件：handler 在事务内，事务回滚时下游已收到「幽灵事件」；事务提交了但发送失败，读模型永远不同步。Outbox 的实现见 [DDD 领域驱动设计](./2_ddd) 的「领域事件与最终一致」一节。
 
 ### 3、读侧：投影与查询
 
@@ -293,4 +293,4 @@ public class Order {
 - Microsoft Azure Architecture Center · Event Sourcing pattern：[https://learn.microsoft.com/en-us/azure/architecture/patterns/event-sourcing](https://learn.microsoft.com/en-us/azure/architecture/patterns/event-sourcing)
 - microservices.io · Transactional Outbox：[https://microservices.io/patterns/data/transactional-outbox.html](https://microservices.io/patterns/data/transactional-outbox.html)
 
-> 下一篇：[DDD 领域驱动设计](./3_ddd) —— 限界上下文与上下文映射、实体与值对象、聚合规则、仓储，以及领域事件经 Outbox 的可靠投递。
+> 下一篇：[DDD 领域驱动设计](./2_ddd) —— 限界上下文与上下文映射、实体与值对象、聚合规则、仓储，以及领域事件经 Outbox 的可靠投递。

@@ -380,7 +380,7 @@ Paimon 主键表的数据按桶组织成 LSM 树，**写入作业在写的同时
 
 - **即席分析、数据探索**：Trino 或 Doris / StarRocks 直接查湖表，免去导数
 - **报表、看板这类高并发查询**：湖表的延迟（对象存储读取 + 元数据规划）通常在秒级，扛不住几百 QPS 的面板；在 Doris / StarRocks 上对湖表建物化视图，或把 ADS 层结果写入其内表
-- **冷热分层**：近期热数据放 OLAP 内表，历史数据留在湖里按需查询，策略见 [数据冷热分离](/architecture/1_cold_hot_data)
+- **冷热分层**：近期热数据放 OLAP 内表，历史数据留在湖里按需查询，策略见 [数据冷热分离](/architecture/4_cold_hot_data)
 
 Doris / StarRocks 的数据模型、物化视图与选型对比见 [列式与 OLAP 数据库](/database/4_nosql/0_column_db)；对外提供查询服务的整体设计见 [OLAP 查询与数据服务](./7_olap_service)。
 
@@ -470,7 +470,7 @@ Paimon 的端到端延迟由 checkpoint 间隔决定，一般在 1～5 分钟；
 - Catalog 优先选 REST 协议的实现（Polaris、Gravitino 等），获得凭证下发、统一权限和服务端提交
 - MOR 和流式写入必然带来小文件和删除文件堆积，Iceberg 要按"合并数据文件 → 合并清单 → 过期快照 → 清理孤儿文件"定期维护，Paimon 在写入链路中自动合并
 - 交互查询用 Trino / Doris / StarRocks 直接读湖表，高并发服务靠物化视图或 OLAP 内表；分钟级实时链路用 Flink + Paimon，秒级仍走 Kafka
-- 本篇只讲湖表本身：对象存储与存算分离的基本原理见 [大数据基础](./1_basics)；Flink 的运行时、Flink SQL 与 Flink CDC 见 [Flink 总览](/flink/0_overview)；Doris / StarRocks / ClickHouse 本身见 [列式与 OLAP 数据库](/database/4_nosql/0_column_db)；冷数据归档到对象存储的策略见 [数据冷热分离](/architecture/1_cold_hot_data)；数据怎么从业务库进湖见 [数据集成](./5_data_integration)
+- 本篇只讲湖表本身：对象存储与存算分离的基本原理见 [大数据基础](./1_basics)；Flink 的运行时、Flink SQL 与 Flink CDC 见 [Flink 总览](/flink/0_overview)；Doris / StarRocks / ClickHouse 本身见 [列式与 OLAP 数据库](/database/4_nosql/0_column_db)；冷数据归档到对象存储的策略见 [数据冷热分离](/architecture/4_cold_hot_data)；数据怎么从业务库进湖见 [数据集成](./5_data_integration)
 
 ## 参考资料
 

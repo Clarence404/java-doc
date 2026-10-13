@@ -359,4 +359,4 @@ description: 复杂度与均摊、链表与栈、哈希与堆、树与图、排�
 - 输入：数据量小用 `Scanner`；数据多用 `BufferedReader` 按行读到 EOF，再 `trim().split("\\s+")` 拆分
 - 输出：大量输出用 `StringBuilder` 或 `PrintWriter` 一次写出，最后记得 `flush`
 
-→ 详见 [LeetCode 高频题分类](/algorithms/4_practice/0_leet_code)、[华为 OJ 题型与技巧](/algorithms/4_practice/1_huawei_oj#一、输入输出处理)
+→ 详见 [LeetCode 高频题分类](/algorithms/4_practice/0_leet_code)、[ACM 模式机考技巧](/algorithms/4_practice/1_huawei_oj#一、输入输出处理)

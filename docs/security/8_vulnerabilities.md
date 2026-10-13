@@ -500,7 +500,7 @@ spring:
       max-request-size: 20MB
 ```
 
-对象存储的直传与签名 URL 方案见 [对象存储](/architecture/4_object_storage)。
+对象存储的直传与签名 URL 方案见 [对象存储](/architecture/5_object_storage)。
 
 ---
 
@@ -515,7 +515,7 @@ spring:
 
 **Log4Shell（CVE-2021-44228）**：Log4j 2 会解析日志消息里的 `${jndi:ldap://...}` 查找表达式并加载远程类，只要把用户输入写进日志就能远程执行代码。后续又修补了 CVE-2021-45046、CVE-2021-45105、CVE-2021-44832，完整修复需要 **2.17.1 及以上**（Java 8+），实际使用时跟随 Spring Boot BOM 用最新的 2.x 版本。Spring Boot 默认的日志实现是 Logback，只有显式切换到 `spring-boot-starter-log4j2` 的项目才使用 Log4j 2 核心。
 
-日志脱敏、日志注入的完整说明见 [日志](/spring-boot/12_logging)。
+日志脱敏、日志注入的完整说明见 [日志](/spring-boot/9_logging)。
 
 ---
 
@@ -528,7 +528,7 @@ A03 软件供应链失败覆盖的范围比"依赖有 CVE"更广：依赖本身�
 - **SBOM**：用 CycloneDX 插件生成软件物料清单，漏洞爆发时能在几分钟内回答"哪些服务用了受影响版本"
 - **完整性**：校验依赖签名与校验和，CI 中的第三方 Action 固定到完整 commit SHA
 
-具体配置（插件版本、误报抑制、研判流程、SBOM 生成与 `/actuator/sbom`）见 [依赖治理](/engineering/6_dependency_governance)，镜像扫描见 [Docker](/cloud-native/5_docker)。
+具体配置（插件版本、误报抑制、研判流程、SBOM 生成与 `/actuator/sbom`）见 [依赖治理](/engineering/2_dependency_governance)，镜像扫描见 [Docker](/cloud-native/5_docker)。
 
 ---
 

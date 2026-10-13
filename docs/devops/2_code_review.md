@@ -4,7 +4,7 @@ description: PR 规模与流程、CODEOWNERS 与规则集、PR 模板、检查�
 
 # Code Review
 
-> 前置阅读：[Git 工作流](./1_git_workflow)、[CI/CD](./2_ci_cd)
+> 前置阅读：[Git 工作流](./1_git_workflow)、[CI/CD](./4_ci_cd)
 
 在主干开发下 PR 是合入 `main` 的唯一入口，Code Review 就是主干质量的最后一道人工关口。本篇讲 PR 大小与响应时限、CODEOWNERS 与规则集、PR 模板与检查清单、评论写法和 AI 辅助 Review，是 **PR 模板与 Review 检查清单的唯一出处**。
 
@@ -42,8 +42,8 @@ Review 首先保证**主干代码整体健康度只升不降**，其次是知识
 | 阶段 | 由谁负责 | 内容 | 详见 |
 |------|----------|------|------|
 | 作者自检 | 作者 | 拆分 PR、填写模板、本地构建通过、自己先通读一遍 diff | 第四节 |
-| 自动检查 | CI | 编译、单元 / 集成测试、格式检查（Spotless / Checkstyle）、静态分析与覆盖率（SonarQube / JaCoCo） | [CI/CD](./2_ci_cd)、[代码质量](/engineering/3_code_quality) |
-| 安全扫描 | CI / 平台 | CodeQL 等 SAST、密钥扫描（推送保护）、依赖漏洞扫描 | [漏洞防护](/security/8_vulnerabilities)、[依赖治理](/engineering/6_dependency_governance) |
+| 自动检查 | CI | 编译、单元 / 集成测试、格式检查（Spotless / Checkstyle）、静态分析与覆盖率（SonarQube / JaCoCo） | [CI/CD](./4_ci_cd)、[代码质量](/engineering/3_code_quality) |
+| 安全扫描 | CI / 平台 | CodeQL 等 SAST、密钥扫描（推送保护）、依赖漏洞扫描 | [漏洞防护](/security/8_vulnerabilities)、[依赖治理](/engineering/2_dependency_governance) |
 | AI 预审 | 机器人（可选） | 自动留下评论和修改建议，供作者和 Reviewer 参考 | 第七节 |
 | 人工 Review | Reviewer / Code Owner | 设计、正确性、边界、可维护性等机器判断不了的问题 | 第五节 |
 | 合并 | 作者 | 所有必需检查通过、阻塞评论已解决后 Squash 合并到 `main` | [Git 工作流](./1_git_workflow) |
@@ -119,9 +119,9 @@ Closes #
 
 ## 五、Reviewer 检查清单（全站统一版本）
 
-按「影响从大到小」看：先确认方向对，再看细节。下面每一项对应的代码正反例见 [开发规范](./4_dev_standards)。
+按「影响从大到小」看：先确认方向对，再看细节。下面每一项对应的代码正反例见 [开发规范](./3_dev_standards)。
 
-具体的代码坏味道正反例集中在 [开发规范](./4_dev_standards)，这里只列检查项。
+具体的代码坏味道正反例集中在 [开发规范](./3_dev_standards)，这里只列检查项。
 
 ### 1、设计与正确性（阻塞级）
 
@@ -285,4 +285,4 @@ Review 流程是否健康，可以看几个指标（用于发现瓶颈，**不�
 - GitHub 文档，评论中的修改建议：[Commenting on a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request)
 - GitHub 文档，Copilot 代码评审：[About GitHub Copilot code review](https://docs.github.com/en/copilot/concepts/agents/code-review)
 
-> 下一篇：[开发规范](./4_dev_standards)
+> 下一篇：[开发规范](./3_dev_standards)

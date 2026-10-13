@@ -4,8 +4,6 @@ description: 三次握手、四次挥手、TIME_WAIT / CLOSE_WAIT、滑动窗口
 
 # TCP 与 UDP
 
-> 前置阅读：[IO 模型](/netty/1_io_model)
-
 TCP 是 HTTP、MySQL、Redis、Kafka、gRPC 等绝大多数后端通信的底座，UDP 则用于低延迟场景。本篇讲建连断连、TIME_WAIT / CLOSE_WAIT 排查、流量与拥塞控制、UDP 选型，基线为 RFC 9293 与 Linux 5.x / 6.x 内核。
 
 ---
@@ -167,7 +165,7 @@ CLOSE_WAIT 出现在**被动关闭的一方**：内核已收到对端 FIN 并回
 排查步骤：
 
 1. 找到进程与对端：`ss -tanp state close-wait`，看是哪个进程、连向哪个服务
-2. 看线程在干什么：`jstack <pid>` 或 [Arthas](/engineering/4_diagnosis) 的 `thread` 命令，常见是线程卡在业务逻辑里，没走到关闭连接的代码
+2. 看线程在干什么：`jstack <pid>` 或 [Arthas](/engineering/7_diagnosis) 的 `thread` 命令，常见是线程卡在业务逻辑里，没走到关闭连接的代码
 3. 查代码：异常路径没有关闭连接、读到流末尾（`read()` 返回 -1）后没关、连接池归还逻辑有 bug、HTTP 响应体没读完也没关闭导致连接既不归还也不释放
 
 修复原则：所有 Socket、流、HTTP 响应都用 try-with-resources；连接池配置空闲检测，及时清理被对端关闭的连接。
@@ -348,7 +346,7 @@ TCP 实现在操作系统内核里，改进要等内核和中间网络设备一�
 - 流量控制看接收方的 `rwnd`，拥塞控制看网络的 `cwnd`；Linux 默认 CUBIC，长距离有丢包的链路可以考虑 BBR
 - Nagle 与延迟确认叠加会多出约 40 ms 时延，时延敏感场景开 `TCP_NODELAY`；TCP keepalive 只能兜底，长连接以应用层心跳为准
 - UDP 无连接、保留边界、无拥塞控制，适合 DNS、音视频和 QUIC
-- 粘包拆包、应用层心跳等编程问题放在 [Netty](/netty/0_overview) 模块。
+- 粘包拆包、应用层心跳等编程问题放在 [Netty](/netty/0_overview) 模块，应用如何读写 Socket（BIO / NIO / 多路复用）见 [IO 模型](/netty/1_io_model)。
 
 ## 参考资料
 

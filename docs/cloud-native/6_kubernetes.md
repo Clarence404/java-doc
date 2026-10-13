@@ -238,7 +238,7 @@ JVM 参数推荐通过 `JAVA_TOOL_OPTIONS` 环境变量传入，JVM 启动时会
 
 **liveness 绝不能检查数据库、Redis 等外部依赖**：依赖一抖动，所有 Pod 会被同时重启，把局部故障放大成全量重启。readiness 是否包含共享依赖、为什么推荐只看应用自身状态，完整论证见 [冗余与故障转移 · Kubernetes 探针](/high-avail/2_redundancy_failover)。
 
-Spring Boot 的 Actuator 直接提供了对应的端点：`/actuator/health/liveness`、`/actuator/health/readiness`，开启 `management.endpoint.health.probes.add-additional-paths=true` 后还会在**业务端口**上暴露 `/livez`、`/readyz`。探针应该走业务端口，否则业务端口卡死时独立管理端口的探针仍可能返回成功。健康分组怎么配见 [Actuator 监控](/spring-boot/7_actuator)。
+Spring Boot 的 Actuator 直接提供了对应的端点：`/actuator/health/liveness`、`/actuator/health/readiness`，开启 `management.endpoint.health.probes.add-additional-paths=true` 后还会在**业务端口**上暴露 `/livez`、`/readyz`。探针应该走业务端口，否则业务端口卡死时独立管理端口的探针仍可能返回成功。健康分组怎么配见 [Actuator 监控](/spring-boot/11_actuator)。
 
 启动慢的 Java 服务用 `startupProbe` 兜住启动时间，而不是把 liveness 的 `initialDelaySeconds` 设得很大：前者启动一完成就切换到正常的 liveness 检查，后者在整个运行期间都放宽了故障检测。
 
@@ -253,7 +253,7 @@ Spring Boot 的 Actuator 直接提供了对应的端点：`/actuator/health/live
 
 线上服务常用 `maxSurge: 1, maxUnavailable: 0`：每次先起一个新 Pod，**等它通过 readinessProbe** 后再删一个旧 Pod，可用实例数始终不减少。如果新版本一直无法就绪，滚动会停在原地，旧 Pod 继续服务；超过 `progressDeadlineSeconds`（默认 600 秒）后 Deployment 被标记为失败，但**不会自动回滚**，需要执行 `kubectl rollout undo` 或由发布系统处理。`minReadySeconds` 让新 Pod 就绪后再稳定一段时间才计为可用，可以拦住"刚就绪就崩溃"的版本。
 
-旧的 ReplicaSet 会保留（数量由 `revisionHistoryLimit` 控制，默认 10），回滚就是把旧 ReplicaSet 重新扩容。金丝雀、蓝绿等更精细的发布方式见 [发布策略](/devops/5_release_strategy)。
+旧的 ReplicaSet 会保留（数量由 `revisionHistoryLimit` 控制，默认 10），回滚就是把旧 ReplicaSet 重新扩容。金丝雀、蓝绿等更精细的发布方式见 [发布策略](/devops/7_release_strategy)。
 
 ### 3、优雅终止
 
@@ -591,7 +591,7 @@ kubectl -n demo run curl --rm -it --restart=Never --image=curlimages/curl:8.16.0
 | 反复重启但日志正常 | livenessProbe 误杀（Full GC 停顿、启动慢） | 用 `startupProbe` 兜住启动，适当放宽 liveness 的 `failureThreshold` |
 | Service 访问不通 | 选择器与 Pod 标签不匹配、`targetPort` 写错 | `kubectl get endpointslices -l kubernetes.io/service-name=order-service` 看后端列表是否为空 |
 
-Java 进程内部的问题（CPU 飙高、线程阻塞、内存泄漏）用 Arthas、jcmd 等工具在容器内诊断，见 [线上诊断](/engineering/4_diagnosis) 与 [JVM 故障排查](/jvm/9_troubleshooting)。集群和应用的指标、日志、告警体系见 [可观测性总览](/observability/0_overview)。
+Java 进程内部的问题（CPU 飙高、线程阻塞、内存泄漏）用 Arthas、jcmd 等工具在容器内诊断，见 [线上诊断](/engineering/7_diagnosis) 与 [JVM 故障排查](/jvm/9_troubleshooting)。集群和应用的指标、日志、告警体系见 [可观测性总览](/observability/0_overview)。
 
 ---
 

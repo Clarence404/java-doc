@@ -4,7 +4,7 @@ description: 批处理与流处理、MapReduce 思想、HDFS 与 YARN 现状、�
 
 # 大数据基础
 
-> 前置阅读：[大数据总览](./0_overview)、[对象存储](/architecture/4_object_storage)
+> 前置阅读：[大数据总览](./0_overview)、[对象存储](/architecture/5_object_storage)
 
 大数据技术解决的是单机存不下、算不动、跑不完的问题。本篇讲批处理与流处理、MapReduce、HDFS 与 YARN、存算分离与数据湖、Lambda 与 Kappa，基线为 Hadoop 3.5。
 
@@ -305,7 +305,7 @@ s3a://shop-lake/warehouse/dws.db/dws_trade_user_order_1d/dt=2026-10-09/part-0000
 
 - **按时间分区**是最基本的做法，查询带上 `dt` 条件时引擎只扫描对应目录（分区裁剪）
 - 分区不能过细：按 `dt` + `hour` + `province` 三级分区，每天就是几百个目录，每个目录下的文件都很小。经验上单个分区的数据量不宜低于几百 MB
-- 冷数据可以转到对象存储的低频 / 归档存储类型，与 [数据冷热分离](/architecture/1_cold_hot_data) 中的思路一致
+- 冷数据可以转到对象存储的低频 / 归档存储类型，与 [数据冷热分离](/architecture/4_cold_hot_data) 中的思路一致
 
 ### 3、从 Spark 访问对象存储
 

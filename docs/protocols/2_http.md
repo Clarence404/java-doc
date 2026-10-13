@@ -77,7 +77,7 @@ RFC 9110 给方法定义了两个关键属性：
 
 - **幂等说的是服务器状态，不是响应**：第二次 DELETE 返回 404 而第一次返回 204，仍然是幂等的
 - **GET 与 POST 的区别是语义**，不是“GET 参数在 URL、POST 在 body”：GET 带 body 没有定义好的语义，很多代理会丢弃；URL 长度限制来自浏览器和服务器实现（常见 8 KB 左右），协议本身没有规定；POST 放 body 也不等于“更安全”，没有 TLS 一样是明文
-- **非幂等的 POST 不能盲目重试**：网关、HTTP 客户端的自动重试应只对幂等方法开启；下单这类 POST 要靠幂等键在业务层兜底，见 [幂等设计](/architecture/5_idempotence)
+- **非幂等的 POST 不能盲目重试**：网关、HTTP 客户端的自动重试应只对幂等方法开启；下单这类 POST 要靠幂等键在业务层兜底，见 [幂等设计](/architecture/3_idempotence)
 
 ---
 
@@ -107,7 +107,7 @@ RFC 9110 给方法定义了两个关键属性：
 | 503 Service Unavailable | 暂时不可用 | 过载、维护、熔断打开 |
 | 504 Gateway Timeout | 网关等上游超时 | 上游太慢，超过网关的读超时 |
 
-排查网关报错时，**502 看上游是否活着、连接是否被异常关闭（常见是上游 keep-alive 超时比网关短，见第六节）；504 看上游耗时和网关超时配置**。业务接口用哪些状态码、错误体怎么设计，见 [API 设计规范](/engineering/7_api_design_rule)。
+排查网关报错时，**502 看上游是否活着、连接是否被异常关闭（常见是上游 keep-alive 超时比网关短，见第六节）；504 看上游耗时和网关超时配置**。业务接口用哪些状态码、错误体怎么设计，见 [API 设计规范](/engineering/4_api_design_rule)。
 
 ---
 
@@ -363,7 +363,7 @@ public class HttpClientDemo {
 
 ## 十一、相关协议：REST、WebSocket 与 SSE
 
-**REST** 不是协议，而是基于 HTTP 语义设计接口的风格：用 URL 表示资源、用方法表示动作、用状态码表示结果。URL 命名、统一响应体、分页、版本管理等约定见 [API 设计规范](/engineering/7_api_design_rule)。
+**REST** 不是协议，而是基于 HTTP 语义设计接口的风格：用 URL 表示资源、用方法表示动作、用状态码表示结果。URL 命名、统一响应体、分页、版本管理等约定见 [API 设计规范](/engineering/4_api_design_rule)。
 
 **WebSocket 与 SSE** 解决的是服务端主动推送：WebSocket 借 HTTP/1.1 的 `Upgrade` 握手（101 状态码）后切换成全双工的帧协议（RFC 6455）；SSE 则是一个不结束的 `text/event-stream` 响应，只能服务端到客户端单向推送，但天然复用 HTTP 的认证与代理。握手细节、帧格式和 Spring / Netty 实现分别见 [WebSocket](/netty/10_websocket) 和 [SSE（Server-Sent Events）](/netty/11_sse)。
 
@@ -379,7 +379,7 @@ public class HttpClientDemo {
 - HTTP/2 用二进制帧和流在一条 TCP 上多路复用，消除了 HTTP 层队头阻塞，但 TCP 层仍在；Server Push 已被 103 Early Hints 取代
 - HTTP/3 基于 QUIC：流独立、内置 TLS 1.3、0-RTT（可重放，只用于幂等请求）、连接迁移
 - JDK 11+ 的 `HttpClient` 默认协商 HTTP/2，要复用实例并显式设置超时
-- HTTPS 的握手与证书放在下一篇；REST 接口的 URL 与状态码约定见 [API 设计规范](/engineering/7_api_design_rule)。
+- HTTPS 的握手与证书放在下一篇；REST 接口的 URL 与状态码约定见 [API 设计规范](/engineering/4_api_design_rule)。
 
 ## 参考资料
 

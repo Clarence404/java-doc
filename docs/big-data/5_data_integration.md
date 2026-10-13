@@ -394,7 +394,7 @@ WHEN NOT MATCHED AND s.is_deleted = 0 THEN INSERT
 - **重跑粒度与覆盖粒度一致**：作业按天重跑，就按天分区覆盖；按小时重跑却按天覆盖，会把同一天其他小时的数据清掉
 - **两阶段提交管"恰好一次可见"**：Flink 的事务型 Sink、SeaTunnel Doris 的 `sink.enable-2pc` 保证故障恢复后不重复提交，但人工重跑同一时间窗仍要靠主键或分区覆盖
 
-业务系统中的幂等设计（唯一索引、Token、状态机）见 [幂等设计](/architecture/5_idempotence)。
+业务系统中的幂等设计（唯一索引、Token、状态机）见 [幂等设计](/architecture/3_idempotence)。
 
 ---
 

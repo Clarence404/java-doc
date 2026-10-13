@@ -548,7 +548,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 }
 ```
 
-响应体里不出现异常类名、SQL、表名、内部主机名；Spring Boot 的 `server.error.include-stacktrace`、`include-message` 默认都是 `never`，不要在生产打开。统一响应结构的约定见 [API 设计规范](/engineering/7_api_design_rule)。
+响应体里不出现异常类名、SQL、表名、内部主机名；Spring Boot 的 `server.error.include-stacktrace`、`include-message` 默认都是 `never`，不要在生产打开。统一响应结构的约定见 [API 设计规范](/engineering/4_api_design_rule)。
 
 ### 资源限制
 
@@ -561,7 +561,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 | 请求头大小 | `server.max-http-request-header-size` |
 | 批量接口 | 限制单次条数（如一次最多 100 个 ID） |
 | 耗时操作 | 导出、报表改为异步任务，接口只返回任务 ID |
-| 重复提交 | 写接口要求幂等键，见 [幂等设计](/architecture/5_idempotence) |
+| 重复提交 | 写接口要求幂等键，见 [幂等设计](/architecture/3_idempotence) |
 
 ### 限流与防刷
 
@@ -656,7 +656,7 @@ Spring Security 默认会写出以下响应头，一般不需要改：
 
 ## 八、运维端点与传输层
 
-- **Actuator**：生产只通过 Web 暴露 `health`（必要时加 `info`、`prometheus`），其他端点走独立管理端口并限制来源；`env`、`configprops` 的值从 Spring Boot 3.0 起默认就以 `******` 显示（`show-values: never`），不要为了排查问题改成 `always`。完整配置见 [Actuator](/spring-boot/7_actuator)
+- **Actuator**：生产只通过 Web 暴露 `health`（必要时加 `info`、`prometheus`），其他端点走独立管理端口并限制来源；`env`、`configprops` 的值从 Spring Boot 3.0 起默认就以 `******` 显示（`show-values: never`），不要为了排查问题改成 `always`。完整配置见 [Actuator](/spring-boot/11_actuator)
 - **日志脱敏**：请求日志里不打印密码、Token、Secret、完整手机号和证件号，规则与实现统一见 [数据安全](./7_data_security)
 - **API 资产**：所有对外接口登记在网关和接口文档里，老版本有明确的下线时间，测试环境不对公网开放
 - **TLS**：全程 HTTPS，通常在网关 / Ingress 终止 TLS，服务间按需启用 mTLS。协议版本、证书链与 Spring Boot 的 SSL Bundle 配置统一见 [HTTPS 与 TLS](/protocols/3_https_tls)

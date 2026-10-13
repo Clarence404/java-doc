@@ -25,13 +25,13 @@
 
 ## 三、关联模块
 
-本模块是锁、事务、ID、会话的主文档；缓存一致性见 [缓存一致性](/cache/10_cache_consistency)，幂等见 [幂等设计](/architecture/5_idempotence)，消息可靠投递见 [消息队列基础](/messaging/1_basics)，分库分表见 [分库分表与中间件](/database/5_practice/2_sharding)。版本说明：Redis 8.4 起有原生 `DELEX key IFEQ value` 做比较后删除（Valkey 8.x 同理）；Redisson 4.x 锁 API 与 3.x 一致；Seata 仍为 Apache 孵化项目，groupId 为 `org.apache.seata`，客户端可沿用 SCA BOM 的 2.5.0 或显式覆盖到 2.6.0，seata-server 与客户端保持同一版本；Kafka 4.x 仅支持 KRaft；XXL-JOB 3.x 需 JDK 17+。
+本模块是锁、事务、ID、会话的主文档；缓存一致性见 [缓存一致性](/cache/10_cache_consistency)，幂等见 [幂等设计](/architecture/3_idempotence)，消息可靠投递见 [消息队列基础](/messaging/1_basics)，分库分表见 [分库分表与中间件](/database/5_practice/2_sharding)。版本说明：Redis 8.4 起有原生 `DELEX key IFEQ value` 做比较后删除（Valkey 8.x 同理）；Redisson 4.x 锁 API 与 3.x 一致；Seata 仍为 Apache 孵化项目，groupId 为 `org.apache.seata`，客户端可沿用 SCA BOM 的 2.5.0 或显式覆盖到 2.6.0，seata-server 与客户端保持同一版本；Kafka 4.x 仅支持 KRaft；XXL-JOB 3.x 需 JDK 17+。
 
 - [高并发总览](/high-con/0_overview) / [高可用总览](/high-avail/0_overview) / [高性能总览](/high-perf/0_overview)：系统级的扩展、容灾与性能策略
 - [微服务总览](/microservices/0_overview) / [Spring Cloud 总览](/spring-cloud/0_overview)：服务拆分、治理与 Seata 的配置落地
 - [缓存总览](/cache/0_overview)：Redis、Redisson API 与缓存一致性
 - [消息队列总览](/messaging/0_overview)：消息可靠投递、消费幂等与事务消息的中间件细节
-- [幂等设计](/architecture/5_idempotence)：接口与消息消费的幂等方案（唯一约束、状态机、去重表）
+- [幂等设计](/architecture/3_idempotence)：接口与消息消费的幂等方案（唯一约束、状态机、去重表）
 - [分库分表与中间件](/database/5_practice/2_sharding)：分片键、ShardingSphere 与分布式主键的落地
 - [JWT 令牌机制](/security/1_jwt)：无状态令牌的结构、签名与吊销
 - [业务场景总览](/scenario/0_overview)：秒杀、订单等用到锁、事务与 ID 的完整案例

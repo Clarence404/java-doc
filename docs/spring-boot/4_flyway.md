@@ -270,4 +270,4 @@ liquibase rollback-count --count=1    # 回滚最近一个 changeSet
 - Liquibase 官方文档：[https://docs.liquibase.com/](https://docs.liquibase.com/)
 - Spring Boot 4.0 Migration Guide：[https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide)
 
-> 下一篇：[中间件集成](./5_middleware) —— Redis、Kafka、RabbitMQ、Elasticsearch、MongoDB 的 Starter、关键配置与 Boot 4 变化。
+> 下一篇：[配置管理](./5_config) —— 配置源优先级、Profile、属性绑定与配置加密。

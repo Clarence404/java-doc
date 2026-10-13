@@ -4,7 +4,7 @@ description: OpenAPI 3.1、代码优先与契约优先、客户端生成、CI �
 
 # API 文档
 
-> 前置阅读：[接口文档](/spring-boot/10_api_doc)、[API 设计规范](./7_api_design_rule)
+> 前置阅读：[接口文档](/spring-boot/8_api_doc)、[API 设计规范](./4_api_design_rule)
 
 OpenAPI 规范是描述 HTTP 接口契约的标准格式。本篇把它当作构建产物管理，讲规范从哪里来、怎样保证和代码一致、团队拿它做什么，基线为 springdoc-openapi 3.1。
 
@@ -72,7 +72,7 @@ springdoc-openapi 3.x 默认输出 3.1（`springdoc.api-docs.version` 默认值�
 
 ## 四、代码优先：构建期生成规范
 
-springdoc 的依赖、注解、分组、Security 放行和按环境关闭见 [接口文档](/spring-boot/10_api_doc)，这里不重复。
+springdoc 的依赖、注解、分组、Security 放行和按环境关闭见 [接口文档](/spring-boot/8_api_doc)，这里不重复。
 
 ### 1、Maven：spring-boot-maven-plugin + springdoc 插件
 
@@ -240,7 +240,7 @@ components:
           type: string
 ```
 
-`operationId` 会变成生成代码里的方法名，`tags` 会变成接口名，**发布后不要随意改名**，否则所有客户端的代码都要跟着改。错误响应统一使用 RFC 9457 Problem Details，约定见 [API 设计规范](./7_api_design_rule)。
+`operationId` 会变成生成代码里的方法名，`tags` 会变成接口名，**发布后不要随意改名**，否则所有客户端的代码都要跟着改。错误响应统一使用 RFC 9457 Problem Details，约定见 [API 设计规范](./4_api_design_rule)。
 
 ### 2、生成服务端接口
 
@@ -401,9 +401,9 @@ jobs:
           fail-on: ERR
 ```
 
-- `-DskipTests` 只跳过测试，生成规范的插件照常执行；完整的构建和测试由主流水线负责（见 [CI/CD](/devops/2_ci_cd)）
+- `-DskipTests` 只跳过测试，生成规范的插件照常执行；完整的构建和测试由主流水线负责（见 [CI/CD](/devops/4_ci_cd)）
 - `git diff --exit-code` 有差异时退出码非零，提示开发者先在本地生成规范并提交
-- oasdiff 把删除接口、删除响应字段、新增必填参数等改动判定为 ERR 级别；确实需要破坏兼容时，按 [API 设计规范](./7_api_design_rule#八、版本管理) 升级版本，而不是关掉检查
+- oasdiff 把删除接口、删除响应字段、新增必填参数等改动判定为 ERR 级别；确实需要破坏兼容时，按 [API 设计规范](./4_api_design_rule#八、版本管理) 升级版本，而不是关掉检查
 - 示例中第三方 Action 用的是主版本标签；生产仓库应按 GitHub 安全加固指南固定到 commit SHA
 
 ### 3、发布文档
@@ -419,7 +419,7 @@ jobs:
           path: site/
 ```
 
-生产环境本身不开放文档端点（见 [接口文档](/spring-boot/10_api_doc)）。需要给合作方看文档时，发布的是这份静态 HTML，不是线上服务的 `/v3/api-docs`。
+生产环境本身不开放文档端点（见 [接口文档](/spring-boot/8_api_doc)）。需要给合作方看文档时，发布的是这份静态 HTML，不是线上服务的 `/v3/api-docs`。
 
 ---
 
@@ -445,7 +445,7 @@ jobs:
 | 只读字段 | 服务端生成的 ID、创建时间标 `READ_ONLY`，只在响应模型中出现 |
 | 凭证不进响应模型 | 签发的 Token、密钥只在专门的认证接口返回，不要作为普通字段出现在业务响应里 |
 | 错误响应 | 用 `@ApiResponse` 声明 4xx / 5xx，内容类型为 `application/problem+json` |
-| 废弃接口 | 加 `@Deprecated` 即可，springdoc 会自动标记 `deprecated: true`，不必再写 `@Operation(deprecated = true)`；下线流程见 [API 设计规范](./7_api_design_rule#九、废弃与下线) |
+| 废弃接口 | 加 `@Deprecated` 即可，springdoc 会自动标记 `deprecated: true`，不必再写 `@Operation(deprecated = true)`；下线流程见 [API 设计规范](./4_api_design_rule#九、废弃与下线) |
 | 稳定标识 | `operationId`、Tag 名、Schema 名发布后视同接口的一部分，改名等于破坏性变更 |
 | 生产关闭 | 同时关闭 `springdoc.api-docs.enabled` 和 `springdoc.swagger-ui.enabled`；只关 UI 时 `/v3/api-docs` 仍然可以访问 |
 
@@ -474,4 +474,4 @@ jobs:
 - Spring REST Docs：[Spring REST Docs](https://spring.io/projects/spring-restdocs)
 - GitHub Actions 安全加固（固定 SHA）：[Security hardening for GitHub Actions](https://docs.github.com/en/actions/reference/security/secure-use)
 
-> 下一篇：[依赖治理](./6_dependency_governance)
+> 下一篇：[开发工具](./6_dev_tools)

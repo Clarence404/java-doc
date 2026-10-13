@@ -97,7 +97,7 @@ NIST SP 800-145 的定义：云计算是一种模型，让用户通过网络按�
 - **阿里云**：云数据库 Redis 版与 Tair 合并为「云数据库 Tair（兼容 Redis）」；MNS 改名「轻量消息队列（原 MNS）」；负载均衡 SLB 现在是产品族统称，下分 CLB（传统型，即原来的 SLB）、ALB（七层）和 NLB（四层）
 
 ::: tip 对照表只说明「同类」，不代表能力等价
-同是托管 Redis，各家支持的版本、集群模式和命令子集都不同；同是消息队列，SQS 是简单队列，RocketMQ 支持事务消息和顺序消息。迁移前要对照目标产品的文档逐项确认。消息队列的选型见 [消息队列](/messaging/0_overview)，对象存储的设计见 [对象存储](/architecture/4_object_storage)。
+同是托管 Redis，各家支持的版本、集群模式和命令子集都不同；同是消息队列，SQS 是简单队列，RocketMQ 支持事务消息和顺序消息。迁移前要对照目标产品的文档逐项确认。消息队列的选型见 [消息队列](/messaging/0_overview)，对象存储的设计见 [对象存储](/architecture/5_object_storage)。
 :::
 
 ---

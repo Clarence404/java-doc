@@ -247,7 +247,7 @@ public class AuditInterceptor {
 
 - **深度依赖 Spring 生态**的存量系统：Spring Cloud Alibaba、Spring Batch、Spring Security 复杂定制、大量自研 Starter
 - **强依赖国内中间件 SDK** 且这些 SDK 没有 Quarkus 扩展的系统
-- **启动和内存不是瓶颈**的长时间运行服务：Spring Boot 自身也有 CDS / AOT 缓存、虚拟线程、原生镜像等手段（见 [启动与部署优化](/spring-boot/14_startup)），优化成本远低于迁移
+- **启动和内存不是瓶颈**的长时间运行服务：Spring Boot 自身也有 CDS / AOT 缓存、虚拟线程、原生镜像等手段（见 [启动与部署优化](/spring-boot/13_startup)），优化成本远低于迁移
 - 团队规模大、招聘依赖 Spring 技能栈的组织：国内 Quarkus 人才和中文资料都明显少于 Spring
 
 ### 3、折中方案

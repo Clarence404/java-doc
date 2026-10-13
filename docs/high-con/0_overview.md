@@ -1,8 +1,8 @@
 # 高并发总览
 
-> 参考链接：[advanced-java 高并发架构](https://gitee.com/Doocs/advanced-java#%E9%AB%98%E5%B9%B6%E5%8F%91%E6%9E%B6%E6%9E%84)
+高并发系统设计的目标是流量变大时系统依然扛得住，并且流量翻倍时能靠加机器线性提升容量。本模块讲接入层、水平扩展、缓存、削峰、数据层扩展、热点与容量规划。
 
-高并发系统设计的核心目标是：**流量变大时系统依然扛得住**——在有限的资源下支撑尽可能多的并发请求，保持合理的响应时间，并且流量翻倍时可以通过加机器（而不是重写系统）线性提升容量。
+**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Redis 8.x、RocketMQ 5.x、MySQL 8.4
 
 ![高并发系统设计全景](../assets/concurrency/hc_overview.svg)
 
@@ -98,3 +98,7 @@
 - 长连接网关实现 → [Netty](/netty/0_overview)
 - 秒杀、订单、Feed 等完整案例 → [业务场景](/scenario/0_overview)
 - 答案汇总 → [高并发面试题解答](/interview/13_high_con)
+
+## 参考资料
+
+- 选题参考：[advanced-java 高并发架构](https://gitee.com/Doocs/advanced-java#%E9%AB%98%E5%B9%B6%E5%8F%91%E6%9E%B6%E6%9E%84)

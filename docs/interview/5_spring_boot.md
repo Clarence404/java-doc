@@ -56,7 +56,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - 元数据：引入 `spring-boot-configuration-processor`，IDE 里就有配置提示
 - 测试：用 `ApplicationContextRunner` 覆盖默认装配、关闭开关、用户覆盖、缺少依赖四种情况
 
-→ 详见 [自定义 Starter](/spring-boot/8_custom_starter)
+→ 详见 [自定义 Starter](/spring-boot/12_custom_starter)
 
 ## 二、启动流程
 
@@ -93,7 +93,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - 很耗时又不影响接流量的任务不要放在 Runner 里同步执行，交给异步线程
 - 配合 K8s 的 `startupProbe`，防止启动慢被反复重启
 
-→ 详见 [启动流程与自动配置](/spring-boot/1_spring_boot#_4、applicationrunner-与-commandlinerunner)、[Actuator 监控](/spring-boot/7_actuator#四、存活-就绪探针与健康分组)
+→ 详见 [启动流程与自动配置](/spring-boot/1_spring_boot#_4、applicationrunner-与-commandlinerunner)、[Actuator 监控](/spring-boot/11_actuator#四、存活-就绪探针与健康分组)
 
 ## 三、配置管理
 
@@ -107,7 +107,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **常见坑**：镜像里 `JAVA_OPTS="-Dspring.profiles.active=prod"` 写死后，K8s 注入的 `SPRING_PROFILES_ACTIVE` 环境变量不生效。
 
-→ 详见 [配置管理](/spring-boot/6_config#一、配置源优先级)
+→ 详见 [配置管理](/spring-boot/5_config#一、配置源优先级)
 
 ### Q9：`@Value` 与 `@ConfigurationProperties` 有什么区别？松散绑定与校验怎么用，如何绑定到 record？
 
@@ -125,7 +125,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **常见坑**：嵌套对象要加 `@Valid` 才会一起校验。
 
-→ 详见 [配置管理](/spring-boot/6_config#二、属性注入)
+→ 详见 [配置管理](/spring-boot/5_config#二、属性注入)
 
 ### Q10：`spring.config.import` 有什么用？（`optional:`、`configtree:`、Nacos / Vault）
 
@@ -137,7 +137,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - `vault://`：从 Vault 拉取密钥
 - Spring Cloud 2020.0 起默认不用 bootstrap 配置了，配置中心统一走这个入口
 
-→ 详见 [配置管理](/spring-boot/6_config#四、spring-config-import)、[配置中心](/spring-cloud/4_config_center)
+→ 详见 [配置管理](/spring-boot/5_config#四、spring-config-import)、[配置中心](/spring-cloud/4_config_center)
 
 ## 四、Web 与数据访问
 
@@ -244,7 +244,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **常见坑**：在监听方法里 catch 异常后只打日志，消息被确认消费，就此丢失。
 
-→ 详见 [中间件集成](/spring-boot/5_middleware)、[Kafka](/messaging/2_kafka)
+→ 详见 [中间件集成](/spring-boot/6_middleware)、[Kafka](/messaging/2_kafka)
 
 ### Q20：`@Async` 默认用哪个执行器？为什么开启虚拟线程后 `@Async` 可能不受影响？
 
@@ -257,7 +257,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **常见坑**：忘了加 `@EnableAsync` 或在同一个类里调用，`@Async` 方法会同步执行。
 
-→ 详见 [异步任务与定时任务](/spring-boot/9_async_schedule#_1、谁在执行-async-方法)、[线程池](/java/28_topic_thread_pool)
+→ 详见 [异步任务与定时任务](/spring-boot/7_async_schedule#_1、谁在执行-async-方法)、[线程池](/java/28_topic_thread_pool)
 
 ### Q21：`@Scheduled` 默认用几个线程？如何避免任务互相阻塞？
 
@@ -268,7 +268,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - `fixedRate` 按固定频率触发；`fixedDelay` 等上次执行完再开始计时
 - Spring 的 cron 有 6 位（第一位是秒），建议写上 `zone` 时区
 
-→ 详见 [异步任务与定时任务](/spring-boot/9_async_schedule#_2、默认只有一个调度线程)
+→ 详见 [异步任务与定时任务](/spring-boot/7_async_schedule#_2、默认只有一个调度线程)
 
 ### Q22：多实例部署时如何让定时任务只执行一次？（ShedLock vs XXL-JOB）
 
@@ -278,7 +278,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - XXL-JOB：没有 Boot 自动配置，要手动声明 `XxlJobSpringExecutor`；访问令牌从环境变量读，执行器端口只对调度中心开放
 - 需要持久化触发器、错过了要补跑，可以用 Quartz 集群
 
-→ 详见 [异步任务与定时任务](/spring-boot/9_async_schedule#三、多实例下的定时任务)、[分布式调度](/distributed/6_job_scheduler)
+→ 详见 [异步任务与定时任务](/spring-boot/7_async_schedule#三、多实例下的定时任务)、[分布式调度](/distributed/6_job_scheduler)
 
 ## 六、运维与可观测
 
@@ -292,7 +292,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **常见坑**：生产环境配 `exposure.include: "*"` 把所有端点都暴露出去。
 
-→ 详见 [Actuator 监控](/spring-boot/7_actuator#_2、暴露与访问是两件事)
+→ 详见 [Actuator 监控](/spring-boot/11_actuator#_2、暴露与访问是两件事)
 
 ### Q24：存活探针与就绪探针有什么区别？为什么外部依赖不能放进存活探针？
 
@@ -302,7 +302,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - Boot 4 起探针分组默认开启（Boot 3 只在检测到 K8s 时开启）
 - 数据库、Redis 这类共享依赖也不要放进就绪探针：依赖一抖，所有实例同时被摘流量，等于全站不可用
 
-→ 详见 [Actuator 监控](/spring-boot/7_actuator#四、存活-就绪探针与健康分组)、[高可用面试题解答](/interview/14_high_avail#q10-k8s-的-liveness-和-readiness-探针有什么区别-为什么探针不建议检查数据库等共享依赖)
+→ 详见 [Actuator 监控](/spring-boot/11_actuator#四、存活-就绪探针与健康分组)、[高可用面试题解答](/interview/14_high_avail#q10-k8s-的-liveness-和-readiness-探针有什么区别-为什么探针不建议检查数据库等共享依赖)
 
 ### Q25：如何用 Micrometer 写自定义业务指标？如何避免高基数？Observation API 做什么？
 
@@ -313,7 +313,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - 命名用点分小写，如 `order.created`，导出到 Prometheus 会变成 `order_created_total`
 - Observation API：埋一次点，同时得到计时指标和链路追踪数据，Spring MVC、`RestClient`、Kafka 内部都用它
 
-→ 详见 [Actuator 监控](/spring-boot/7_actuator#六、指标-micrometer-与-prometheus)
+→ 详见 [Actuator 监控](/spring-boot/11_actuator#六、指标-micrometer-与-prometheus)
 
 ### Q26：Boot 3.4+ 的结构化日志怎么用？traceId 如何进入日志，跨线程如何传递？
 
@@ -324,7 +324,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - 跨服务：Micrometer Tracing 会自动在请求头里带上 `traceparent`
 - 常见组合：本地开发用文本格式，生产容器输出 JSON 到标准输出
 
-→ 详见 [日志](/spring-boot/12_logging#五、mdc-与-traceid-传递)
+→ 详见 [日志](/spring-boot/9_logging#五、mdc-与-traceid-传递)
 
 ### Q27：如何在生产环境真正关闭接口文档？
 
@@ -335,7 +335,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **常见坑**：给自己的 `OpenApiConfig` 加 `@Profile("!prod")` 只去掉了自定义配置，springdoc 自动配置还在，`/v3/api-docs` 照样能访问。
 
-→ 详见 [接口文档](/spring-boot/10_api_doc#五、按环境关闭)
+→ 详见 [接口文档](/spring-boot/8_api_doc#五、按环境关闭)
 
 ## 七、测试
 
@@ -352,7 +352,7 @@ Boot 4 的变化：
 
 **常见坑**：`@WebMvcTest` 不会加载 `@Service`，Controller 的依赖要用 `@MockitoBean` 提供。
 
-→ 详见 [Spring Boot 测试](/spring-boot/13_testing#一、测试依赖与分层)
+→ 详见 [Spring Boot 测试](/spring-boot/10_testing#一、测试依赖与分层)
 
 ### Q29：`@MockBean` 为什么被 `@MockitoBean` 取代？为什么 Mock 一多测试就变慢？
 
@@ -362,7 +362,7 @@ Boot 4 的变化：
 - 解法：把「外部依赖统一 Mock」收进一个测试基类或组合注解，所有集成测试共用一个容器
 - 其他打破缓存的因素：不同的 `@ActiveProfiles`、不同的属性、`@DirtiesContext`
 
-→ 详见 [Spring Boot 测试](/spring-boot/13_testing#四、mock-bean-mockitobean-与-mockitospybean)
+→ 详见 [Spring Boot 测试](/spring-boot/10_testing#四、mock-bean-mockitobean-与-mockitospybean)
 
 ### Q30：Testcontainers 如何与 Spring Boot 集成？`@ServiceConnection` 做了什么？
 
@@ -374,7 +374,7 @@ Boot 4 的变化：
 
 **常见坑**：用 `@Container` 静态字段时，测试类结束容器就停了，但缓存的 Spring 容器还在，下一个测试类会连到已停止的容器。
 
-→ 详见 [Spring Boot 测试](/spring-boot/13_testing#五、testcontainers-集成)、[Testcontainers](/testing/5_testcontainers)
+→ 详见 [Spring Boot 测试](/spring-boot/10_testing#五、testcontainers-集成)、[Testcontainers](/testing/5_testcontainers)
 
 ### Q31：测试方法上的 `@Transactional` 什么时候不会回滚？
 
@@ -385,7 +385,7 @@ Boot 4 的变化：
 
 **常见坑**：JPA 的写入可能还没真正发到数据库，断言前要调用 `flush()`，否则测试通过了但 SQL 根本没执行。
 
-→ 详见 [Spring Boot 测试](/spring-boot/13_testing#六、事务回滚语义与陷阱)
+→ 详见 [Spring Boot 测试](/spring-boot/10_testing#六、事务回滚语义与陷阱)
 
 ## 八、版本与启动优化
 
@@ -398,7 +398,7 @@ Boot 4 的变化：
 - 升级路线：2.x → 2.7 → 3.5 → 4.x，不要跳级，每一步先清掉所有废弃警告
 - 工具：`spring-boot-properties-migrator` 提示配置改名，OpenRewrite 自动改代码；Spring Cloud 等依赖按兼容表一起升
 
-→ 详见 [Spring Boot 版本演进](/spring-boot/11_versions#五、升级指南)
+→ 详见 [Spring Boot 版本演进](/spring-boot/14_versions#五、升级指南)
 
 ### Q33：Spring Boot 应用启动慢怎么优化？懒加载、CDS / AOT 缓存、Native Image 怎么选？
 
@@ -413,4 +413,4 @@ Boot 4 的变化：
 - JVM 部署的默认选择：JDK 25+ 用 AOT 缓存，JDK 21 用 CDS，放进镜像构建流程
 - Native Image 只在 Serverless、频繁扩缩容这种启动速度和内存特别关键的场景使用
 
-→ 详见 [启动与部署优化](/spring-boot/14_startup#九、方案对比与选型)
+→ 详见 [启动与部署优化](/spring-boot/13_startup#九、方案对比与选型)

@@ -21,7 +21,7 @@ AI 模块从 Java 后端视角讲大模型应用开发：选模型、写 Prompt�
 | 模型接入 | 本地用 Ollama 跑开源模型，线上直连各家 API | [Ollama](./3_integration/0_ollama) / [API 直接接入](./3_integration/1_api_access) |
 | 核心技术 | Embedding 把文本变成向量，向量库做近似检索，RAG 先检索再生成 | [RAG 检索增强生成](./4_core_tech/2_rag) |
 | 高阶应用 | Agent 在工具调用之上加规划与循环；MCP 把工具做成跨应用共享的标准服务；微调用领域数据改造模型 | [AI Agent 智能体](./5_advanced/0_agent) / [MCP 协议](./5_advanced/1_mcp) |
-| AI 工具生态 | AI 编程工具的选型维度、项目规则文件与团队使用规范 | [AI 编程工具怎么选](./6_tools/0_ai_tools) |
+| AI 编程工具 | AI 编程工具的选型维度、项目规则文件与团队使用规范 | [AI 编程工具](./6_tools/0_ai_tools) |
 
 MCP（Model Context Protocol）由 Anthropic 于 2024 年发起，2025 年 12 月捐赠给 Linux 基金会旗下的 Agentic AI Foundation（AAIF），现由该基金会中立治理；它是协议而不是安全保障，远程 MCP Server 的授权（HTTP 传输按规范走 OAuth）、工具权限与工具输出带来的间接提示注入都要应用自己把关，详见 [MCP 协议](./5_advanced/1_mcp)。
 
@@ -34,7 +34,7 @@ MCP（Model Context Protocol）由 Anthropic 于 2024 年发起，2025 年 12 �
 3. 模型接入：开发环境用 [Ollama](./3_integration/0_ollama) 本地跑，生产对接云端见 [API 直接接入](./3_integration/1_api_access)
 4. 私有知识问答：[Embedding 向量化](./4_core_tech/0_embedding) → [向量数据库](./4_core_tech/1_vector_db) → [RAG 检索增强生成](./4_core_tech/2_rag)
 5. 复杂任务编排：[AI Agent 智能体](./5_advanced/0_agent) → [MCP 协议](./5_advanced/1_mcp)；Prompt 和 RAG 都解决不了时再考虑 [模型微调](./5_advanced/2_fine_tuning)
-6. 最后浏览 [AI 编程工具怎么选](./6_tools/0_ai_tools)，了解日常开发可用的 AI 工具
+6. 最后浏览 [AI 编程工具](./6_tools/0_ai_tools)，了解日常开发可用的 AI 工具
 
 复习时用 [高频面试题](./99_interview) 自测，答案在 [AI 面试题解答](/interview/25_ai)。
 

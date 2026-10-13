@@ -25,14 +25,12 @@ DevOps 把开发和运维放进同一条交付链路，用版本控制、自动�
 按一次变更从写代码到上线的顺序阅读：
 
 1. [Git 工作流](./1_git_workflow)：主干开发与 GitHub Flow、分支保护规则集、Conventional Commits、提交钩子
-2. [Code Review](./3_code_review)：PR 模板与评审清单（全站唯一版本）、评审礼仪与时效
-3. [开发规范](./4_dev_standards)：命名、异常、日志、代码坏味道示例
-4. [CI/CD](./2_ci_cd)：流水线结构、质量门禁、缓存与并发、部署触发
-5. [制品与版本管理](./6_artifact_version)：版本号、制品仓库、镜像标签与按 digest 部署、签名与来源证明
-6. [环境管理](./7_env_management)：多环境划分与配置注入、Feature Flag、环境数据
-7. [发布策略](./5_release_strategy)：滚动、蓝绿、金丝雀与回滚
-
-文件编号与阅读顺序不完全一致：发布策略编号靠前，但它依赖制品和环境两篇的概念，建议放在最后读。
+2. [Code Review](./2_code_review)：PR 模板与评审清单（全站唯一版本）、评审礼仪与时效
+3. [开发规范](./3_dev_standards)：命名、异常、日志、代码坏味道示例
+4. [CI/CD](./4_ci_cd)：流水线结构、质量门禁、缓存与并发、部署触发
+5. [制品与版本管理](./5_artifact_version)：版本号、制品仓库、镜像标签与按 digest 部署、签名与来源证明
+6. [环境管理](./6_env_management)：多环境划分与配置注入、Feature Flag、环境数据
+7. [发布策略](./7_release_strategy)：滚动、蓝绿、金丝雀与回滚
 
 ---
 
@@ -61,10 +59,10 @@ DORA（DevOps Research and Assessment）是一个长期跟踪软件交付效能�
 ## 四、关联模块
 
 - 代码质量门禁（SonarQube、JaCoCo、格式化工具）→ [代码质量](/engineering/3_code_quality)
-- 构建工具与依赖调解 → [构建工具](/engineering/1_build_tools)；BOM、依赖扫描、许可证与 SBOM → [依赖治理](/engineering/6_dependency_governance)
-- REST 约定与统一响应 → [API 设计规范](/engineering/7_api_design_rule)
+- 构建工具与依赖调解 → [构建工具](/engineering/1_build_tools)；BOM、依赖扫描、许可证与 SBOM → [依赖治理](/engineering/2_dependency_governance)
+- REST 约定与统一响应 → [API 设计规范](/engineering/4_api_design_rule)
 - 测试分层与 CI 中的测试 → [测试工程总览](/testing/0_overview)
-- 多环境配置与 Profile → [配置管理](/spring-boot/6_config)；数据库迁移随发布执行 → [数据库版本迁移](/spring-boot/4_flyway)
+- 多环境配置与 Profile → [配置管理](/spring-boot/5_config)；数据库迁移随发布执行 → [数据库版本迁移](/spring-boot/4_flyway)
 - 部署平台 → [Kubernetes](/cloud-native/6_kubernetes)、[Helm](/cloud-native/8_helm)、[Argo CD](/cloud-native/9_argocd)；基础设施变更走 PR → [IaC 工程实践](/cloud-native/12_iac_practice)
 - 探针、优雅停机与滚动参数 → [优雅上下线与变更](/high-avail/8_graceful_release)；故障处置与复盘 → [故障应急与复盘](/high-avail/11_incident_response)
 - 发布后的监控与告警 → [可观测性总览](/observability/0_overview)

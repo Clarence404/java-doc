@@ -275,7 +275,7 @@ Profile loadProfile(long uid) throws InterruptedException {
 
 ## 九、在 Spring Boot 中开启
 
-Spring Boot 3.2+、JDK 21+ 设置 `spring.threads.virtual.enabled=true`，Tomcat / Jetty 的请求处理、`@Async` 默认执行器、`@Scheduled` 及部分消息监听容器都会改用虚拟线程。开关影响的组件清单与注意事项见 [异步任务与定时任务](/spring-boot/9_async_schedule)。开启前先确认两件事：对下游的并发是否已有连接池或信号量兜底；JDK 21–23 上依赖库是否在热点路径使用 `synchronized` 阻塞。
+Spring Boot 3.2+、JDK 21+ 设置 `spring.threads.virtual.enabled=true`，Tomcat / Jetty 的请求处理、`@Async` 默认执行器、`@Scheduled` 及部分消息监听容器都会改用虚拟线程。开关影响的组件清单与注意事项见 [异步任务与定时任务](/spring-boot/7_async_schedule)。开启前先确认两件事：对下游的并发是否已有连接池或信号量兜底；JDK 21–23 上依赖库是否在热点路径使用 `synchronized` 阻塞。
 
 ---
 

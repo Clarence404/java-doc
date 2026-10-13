@@ -18,7 +18,7 @@
 2. **数据结构**：按顺序读 [数组与链表](./1_data_structures/0_array_list) → [栈与队列](./1_data_structures/1_stack_queue) → [哈希表](./1_data_structures/2_hash_table) → [树](./1_data_structures/3_tree) → [堆](./1_data_structures/4_heap) → [图](./1_data_structures/5_graph) → [字典树（Trie）](./1_data_structures/6_trie)
 3. **基础算法**：[搜索算法](./2_algorithms/0_search) → [排序算法](./2_algorithms/1_sort) → [分治算法](./2_algorithms/2_divide_conquer) → [回溯算法](./2_algorithms/3_backtrack) → [贪心算法](./2_algorithms/4_greedy) → [动态规划](./2_algorithms/5_dynamic_programming)；动态规划和分治、贪心同属算法思想，已从「算法技巧」移到「基础算法」
 4. **算法技巧**：[双指针](./3_patterns/1_two_pointers)、[滑动窗口](./3_patterns/2_sliding_window)、[前缀和与差分数组](./3_patterns/3_prefix_sum)、[位运算](./3_patterns/4_bit_manipulation)，都是把暴力解法降一个数量级的常用套路
-5. **刷题实战**：按 [LeetCode 高频题分类](./4_practice/0_leet_code) 逐类刷题，机考前再看 [华为 OJ 题型与技巧](./4_practice/1_huawei_oj)
+5. **刷题实战**：按 [LeetCode 高频题分类](./4_practice/0_leet_code) 逐类刷题，机考前再看 [ACM 模式机考技巧](./4_practice/1_huawei_oj)
 
 代码示例的方法签名采用 LeetCode 风格（`int[] nums`、`ListNode head`），数据结构优先使用 JDK 自带实现（`ArrayDeque`、`PriorityQueue`、`HashMap`、`TreeMap`）。
 

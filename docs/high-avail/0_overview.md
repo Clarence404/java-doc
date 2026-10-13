@@ -2,6 +2,8 @@
 
 高可用模块聚焦**系统级的高可用策略**：如何度量、如何消除单点、如何防住下游故障与上游过载、如何让变更和机房故障不停服。本篇给出全局视图：故障从哪里来、各用什么手段应对、按什么顺序阅读本模块。
 
+**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Spring Cloud 2025.1、Resilience4j 2.x、Sentinel 1.8、Chaos Mesh 2.x
+
 ---
 
 ## 一、什么是高可用
@@ -77,7 +79,7 @@
 - **系统学习**：按编号顺序阅读。先读 [可用性度量](./1_sla_slo) 明确目标，再按"冗余 → 防下游故障 → 防上游过载 → 变更与容灾 → 验证与应急"的顺序推进
 - **服务经常被下游拖垮**：[超时、重试与隔离](./4_timeout_retry_bulkhead) → [熔断](./5_circuit_breaking) → [降级](./6_degradation)，并用 [冗余与故障转移](./2_redundancy_failover) 的"依赖治理"梳理强弱依赖
 - **大促或流量突增**：先读 [容量评估与规划](/high-con/8_capacity_planning) 定容量，再读 [限流与过载保护](./7_rate_limiting) 与 [降级](./6_degradation) 准备预案
-- **发布总出问题**：[优雅上下线与变更](./8_graceful_release)，配合 [发布策略](/devops/5_release_strategy)
+- **发布总出问题**：[优雅上下线与变更](./8_graceful_release)，配合 [发布策略](/devops/7_release_strategy)
 - **线上正在出故障**：直接看 [故障应急与复盘](./11_incident_response) 的止血手段清单
 
 ---
@@ -91,7 +93,7 @@ Sentinel、Resilience4j、Nacos 等组件的框架配置在 [Spring Cloud 服务
 - 选主、共识与分布式一致性 → [分布式理论](/distributed/2_theorem)
 - MySQL 复制与 Redis 集群 → [MySQL 主从复制](/database/1_mysql/9_topic_replication)、[Redis 集群](/cache/3_redis_cluster)
 - 监控告警 → [可观测性](/observability/0_overview)
-- 重试的前提 → [幂等设计](/architecture/5_idempotence)
+- 重试的前提 → [幂等设计](/architecture/3_idempotence)
 - 答案汇总 → [高可用面试题解答](/interview/14_high_avail)
 
 ## 参考资料

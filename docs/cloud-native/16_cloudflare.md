@@ -130,7 +130,7 @@ npx wrangler deploy                          # 部署到边缘
 
 R2 是兼容 S3 API 的对象存储，最大特点是**不收取出口流量费**，只按存储量和操作次数计费（写类为 Class A，读类为 Class B）。图片、附件、安装包这类下载量大的场景，与按流量收费的对象存储相比成本差异明显。存储桶可以直接绑定自定义域名，经由 Cloudflare 缓存对外提供访问。
 
-对象存储的通用概念、预签名直传与工程实践见 [对象存储](/architecture/4_object_storage)，下面只列接入 R2 时与标准 S3 不同的配置。
+对象存储的通用概念、预签名直传与工程实践见 [对象存储](/architecture/5_object_storage)，下面只列接入 R2 时与标准 S3 不同的配置。
 
 ### Java 接入（AWS SDK for Java v2）
 

@@ -233,7 +233,7 @@ grep "nid=0x3039" thread_dump.txt -A 30
 grep -E "Pause Full|Pause Young" gc.log | tail -20
 ```
 
-Arthas 的 `thread -n 3` 可以一步列出最忙的 3 个线程及其栈，见 [线上诊断](/engineering/4_diagnosis)。
+Arthas 的 `thread -n 3` 可以一步列出最忙的 3 个线程及其栈，见 [线上诊断](/engineering/7_diagnosis)。
 
 ---
 
@@ -316,7 +316,7 @@ Arthas 的 `sc -d <类名>` 可查看已加载类的来源 jar 与类加载器�
 | 方法行为异常 | 入参 / 返回值 / 异常 | Arthas `watch <class> <method> '{params, returnObj}'` |
 | 类加载失败 | 异常类型、类来源 jar | `-Xlog:class+load`、`mvn dependency:tree` |
 
-> Arthas 用法详见 [线上诊断](/engineering/4_diagnosis)。
+> Arthas 用法详见 [线上诊断](/engineering/7_diagnosis)。
 
 ---
 

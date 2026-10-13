@@ -30,7 +30,7 @@
 
 | 场景 | 推荐 | 原因 |
 |------|------|------|
-| 对外开放 API | HTTP + JSON | 生态最广、易调试，规范见 [API 设计规范](/engineering/7_api_design_rule) |
+| 对外开放 API | HTTP + JSON | 生态最广、易调试，规范见 [API 设计规范](/engineering/4_api_design_rule) |
 | 服务间高性能调用 | gRPC 或 Dubbo 3 Triple | HTTP/2 + Protobuf，强类型契约，支持流式；选型见 [服务通信](/spring-cloud/3_communication) |
 | 服务端向浏览器单向推送 | SSE | 基于普通 HTTP，自动重连，见 [SSE（Server-Sent Events）](/netty/11_sse) |
 | 浏览器双向实时通信 | WebSocket | 全双工、低开销，见 [WebSocket](/netty/10_websocket) |

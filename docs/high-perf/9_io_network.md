@@ -139,7 +139,7 @@ server:
 | 缓存头 | 带 hash 的文件名 + `Cache-Control: max-age=31536000, immutable`；HTML 使用协商缓存（`ETag`） |
 | 动静分离 | 静态资源由 Nginx / 对象存储 + CDN 提供 |
 | 图片优化 | WebP/AVIF 格式、按尺寸裁剪、懒加载 |
-| 对象存储直传 | 上传下载通过预签名 URL 直连对象存储，不经应用中转，见 [对象存储](/architecture/4_object_storage) |
+| 对象存储直传 | 上传下载通过预签名 URL 直连对象存储，不经应用中转，见 [对象存储](/architecture/5_object_storage) |
 
 ---
 

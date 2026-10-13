@@ -244,7 +244,7 @@ LocalDate nextWeek = day.plusDays(7);
 
 ### 1、仍然有价值的部分
 
-Google 出品的核心库，以 API 设计严谨著称。Spring Framework 本身并不依赖 Guava；项目里往往是间接引入的（如某些 Google 客户端库），版本冲突很常见，见 [依赖治理](/engineering/6_dependency_governance)。
+Google 出品的核心库，以 API 设计严谨著称。Spring Framework 本身并不依赖 Guava；项目里往往是间接引入的（如某些 Google 客户端库），版本冲突很常见，见 [依赖治理](/engineering/2_dependency_governance)。
 
 ```xml
 <dependency>
@@ -330,7 +330,7 @@ limiter.acquire();
 
 ## 小结
 
-IDE 插件与日常软件工具见 [开发工具](/engineering/2_dev_tools)，依赖版本管理见 [依赖治理](/engineering/6_dependency_governance)。
+IDE 插件与日常软件工具见 [开发工具](/engineering/6_dev_tools)，依赖版本管理见 [依赖治理](/engineering/2_dependency_governance)。
 
 - Lombok 通过改写 javac 内部 AST 工作，每个新 JDK 都需要对应版本（JDK 21 → 1.18.30，JDK 25 → 1.18.40）；JDK 23 起必须在 `annotationProcessorPaths` 中显式声明
 - 实体类不用 `@Data`，有继承用 `callSuper = true`，builder 默认值加 `@Builder.Default`；简单不可变 DTO 优先 `record`

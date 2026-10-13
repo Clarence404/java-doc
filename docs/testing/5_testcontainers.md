@@ -185,7 +185,7 @@ class JdbcOrderRepositoryTest {
 
 `@Testcontainers(parallel = true)` 可以让同一类中的多个容器并行启动，缩短等待；它不改变上表的生命周期。官方说明扩展**不支持与 JUnit 的并行测试执行同时使用**，并行跑测试类时改用单例容器或进程级并行（见 [集成测试 · 并行执行](./3_integration_test#七、并行执行)）。
 
-在 Spring Boot 里用 `@ServiceConnection` 自动注入连接信息、把容器声明成 Bean 共享、开发期用容器启动应用，见 [Spring Boot 测试 · Testcontainers 集成](/spring-boot/13_testing#五、testcontainers-集成)。
+在 Spring Boot 里用 `@ServiceConnection` 自动注入连接信息、把容器声明成 Bean 共享、开发期用容器启动应用，见 [Spring Boot 测试 · Testcontainers 集成](/spring-boot/10_testing#五、testcontainers-集成)。
 
 ---
 
@@ -459,7 +459,7 @@ class NetworkExample {
 |------|------|------|
 | 每个测试前清表 | `@BeforeEach` 执行 `TRUNCATE ... RESTART IDENTITY CASCADE` | 简单可靠；不能与同一库上的并行测试共存 |
 | 每个测试用唯一业务键 | 订单号、客户号带随机后缀，断言只查自己的数据 | 支持并行；断言不能写「表里只有一行」 |
-| 事务回滚 | 测试在事务中执行，结束回滚 | 只适用于被测代码与测试共用一个连接 / 事务的场景，Spring 中的陷阱见 [Spring Boot 测试](/spring-boot/13_testing#六、事务回滚语义与陷阱) |
+| 事务回滚 | 测试在事务中执行，结束回滚 | 只适用于被测代码与测试共用一个连接 / 事务的场景，Spring 中的陷阱见 [Spring Boot 测试](/spring-boot/10_testing#六、事务回滚语义与陷阱) |
 
 清表的写法见下一节的 `OrderQueryIT`。Kafka 主题无法「清空」，用每个测试独立的主题名或消费组，或者只断言带本测试唯一键的消息。数据策略的完整讨论（Flyway 建表、种子数据、并发隔离）见 [集成测试 · 测试数据管理](./3_integration_test#四、测试数据管理)。
 
@@ -525,7 +525,7 @@ class OrderQueryIT extends AbstractPostgresIT {
 }
 ```
 
-Spring Boot 项目不需要手写单例：把容器声明为 `@Bean` 后由 Spring 管理生命周期，同一上下文缓存内天然只启动一次，见 [Spring Boot 测试 · Testcontainers 集成](/spring-boot/13_testing#五、testcontainers-集成)。
+Spring Boot 项目不需要手写单例：把容器声明为 `@Bean` 后由 Spring 管理生命周期，同一上下文缓存内天然只启动一次，见 [Spring Boot 测试 · Testcontainers 集成](/spring-boot/10_testing#五、testcontainers-集成)。
 
 ### 2、容器复用：跨多次运行保留容器
 
