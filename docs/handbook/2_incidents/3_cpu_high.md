@@ -152,7 +152,7 @@ len=27 cost=7420ms
 len=29 cost=26530ms
 ```
 
-长度每增加 2 个字符耗时约增长 3～4 倍，61 个字符的地址在理论上需要计算数年，线程等于永久卡死。可运行的复现程序见配套仓库 [jvm-lab 的 CpuHighRegex](https://github.com/Clarence404/java-doc-labs/tree/main/jvm-lab)。
+长度每增加 2 个字符耗时约增长 3～4 倍，61 个字符的地址在理论上需要计算数年，线程等于永久卡死。
 
 ---
 
