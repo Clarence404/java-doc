@@ -20,6 +20,7 @@ docs/
 ├── distributed/    分布式理论 / 锁 / 事务 / 会话
 ├── engineering/    工程效率：构建 / 工具链 / 代码质量 / 线上诊断 / API 规范
 ├── flink/          Flink：DataStream / 时间与窗口 / 状态与容错 / SQL / CDC / 部署调优
+├── handbook/       实战手册：速查表 / 故障案例
 ├── high-avail/     高可用：SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线
 ├── high-con/       高并发：水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划
 ├── high-perf/      高性能：指标 / 方法论 / 基准测试 / 池化与异步 / IO 与数据库优化 / Profiler
@@ -76,6 +77,7 @@ docs/
 | 云原生 | `docs/cloud-native/` | Linux 运维 / Docker / Kubernetes / Helm / Terraform / Ansible / VPS |
 | DevOps | `docs/devops/` | Git 工作流 / CI/CD / Code Review / 团队规范 |
 | 工程效率 | `docs/engineering/` | 构建工具 / 开发工具 / 代码质量 / 线上诊断 / API 规范 |
+| 实战手册 | `docs/handbook/` | 常用命令速查表 / 线上故障案例 |
 | 可观测性 | `docs/observability/` | 日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry |
 | 网络协议 | `docs/protocols/` | TCP/UDP / HTTP / TLS / DNS / gRPC / 数据库、邮件、文件协议 |
 | 应用安全 | `docs/security/` | 认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任 |
@@ -95,7 +97,7 @@ docs/
 分布式层：分布式理论 → 微服务 → Spring Cloud
 三高层：  高性能 → 高并发 → 高可用
 架构层：  设计模式 → 系统架构 → 业务场景
-研发效能：测试工程 → DevOps → 工程效率
+研发效能：测试工程 → DevOps → 工程效率 → 实战手册
 运维保障：云原生 → 可观测性 → 应用安全
 新兴层：  IoT → AI → 大数据 → Flink → 音视频
 面试：    interview/ 各专题汇总复习
