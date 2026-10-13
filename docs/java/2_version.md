@@ -575,4 +575,4 @@ JEP 500 对后端最值得关注：依赖注入、序列化、Mock 框架如果�
 - Oracle Java SE 支持路线图：[https://www.oracle.com/java/technologies/java-se-support-roadmap.html](https://www.oracle.com/java/technologies/java-se-support-roadmap.html)
 - JDK 25 文档：[https://docs.oracle.com/en/java/javase/25/](https://docs.oracle.com/en/java/javase/25/)
 
-> 下一篇：[异常体系](./10_topic_exception) —— 进入语言机制部分，从受检与非受检异常的设计讲到生产中的异常处理规范。
+> 下一篇：[面向对象与 Object](./10_topic_basics) —— 进入语言机制部分，从分派规则、接口与抽象类讲到 Object 方法契约与自动装箱。

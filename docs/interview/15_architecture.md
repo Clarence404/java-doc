@@ -234,7 +234,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 
 ## 四、访问控制
 
-权限模型对比（RBAC / ABAC / ReBAC / ACL）与数据权限拦截见 [安全面试题解答 Q12](/interview/23_security#q12-rbac、abac、rebac、acl-有什么区别-怎么选)、[Q14](/interview/23_security#q14-数据权限-行级权限-怎么做)；正文见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac#五、模型对比与选型)、[权限系统架构设计](/architecture/6_access_control#四、数据权限拦截架构)。
+权限模型对比（RBAC / ABAC / ReBAC / ACL）与数据权限拦截见 [安全面试题解答 Q14](/interview/23_security#q14-rbac、abac、rebac、acl-有什么区别-怎么选)、[Q16](/interview/23_security#q16-数据权限-行级权限-怎么做)；正文见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac#五、模型对比与选型)、[权限系统架构设计](/architecture/6_access_control#四、数据权限拦截架构)。
 
 ### Q18：鉴权放在网关还是服务？权限变更后如何及时生效？
 

@@ -1,5 +1,5 @@
 ---
-description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签名与越权、密码与加密、常见漏洞、零信任
+description: JWT、防撞库与 MFA、OAuth2 / OIDC / SSO、权限模型、接口签名、密码与加密、漏洞、零信任
 ---
 
 # 应用安全面试题解答
@@ -81,9 +81,40 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [JWT 令牌机制](/security/1_jwt#九、token-存在哪里)
 
+### Q6：撞库和暴力破解有什么区别？登录接口怎么防？
+
+**一句话**：暴力破解是对一个账号反复猜密码，撞库是拿别处泄露的账号密码批量试，每个账号只试一两次；前者靠按账号节流，后者要靠限流、泄露密码检查和 MFA 一起防。
+
+- 分层限流：按 IP、设备、账号分别限频，连续失败后逐级延迟或短时锁定
+- 锁定要有时限：永久锁定会被人故意输错把别人锁死
+- 泄露密码检查：登录、注册、改密时比对泄露库（Spring Security 的 `CompromisedPasswordChecker`），命中就强制改密
+- 防账号枚举：错误提示统一为「用户名或密码错误」，用户不存在时也做一次哈希，耗时一致
+- 风险登录（新设备、新地区）出验证码或要求二次验证，MFA 兜底
+
+**常见坑**：只按账号锁定，撞库每个账号只试一次，根本触发不了。
+
+→ 详见 [认证与登录](/security/1_authentication#二、密码登录-把基础做对)
+
+### Q7：MFA 为什么不推荐短信验证码？Passkey 强在哪？
+
+**一句话**：短信能被补卡劫持、能被钓鱼网站实时转发；Passkey 私钥不出设备、凭据和域名绑定，假网站拿不到签名，是目前最抗钓鱼的登录方式。
+
+| 方式 | 主要弱点 | 抗钓鱼 |
+|------|----------|--------|
+| 短信验证码 | SIM 卡劫持、信令拦截、实时转发 | 否 |
+| TOTP 动态码 | 钓鱼网站可实时转发 | 否 |
+| Passkey | 丢设备后靠恢复流程 | 是 |
+
+- TOTP（RFC 6238）：手机和服务端共享密钥，按 30 秒一个时间步算出 6 位码；校验要防重放、接口要限流
+- 恢复码：一次性、只存哈希、只展示一次，恢复流程往往是最薄弱的一环
+- Passkey（WebAuthn）：服务端只存公钥，登录时认证器用私钥签服务端的随机 challenge；一次指纹即满足多因素
+- Spring Security 7 内置 `webAuthn()`、`oneTimeTokenLogin()` 和 `@EnableMultiFactorAuthentication`
+
+→ 详见 [认证与登录](/security/1_authentication#五、passkeys-与-webauthn)
+
 ## 二、OAuth2 / OIDC / SSO
 
-### Q6：OAuth2 和 OIDC 有什么区别？
+### Q8：OAuth2 和 OIDC 有什么区别？
 
 **一句话**：OAuth2 管「授权」（这个应用能访问什么），OIDC 在它上面加了一层「认证」（你是谁），多出来的核心就是 ID Token。
 
@@ -95,7 +126,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [OIDC](/security/3_oidc#一、oidc-在-oauth-2-上加了什么)
 
-### Q7：授权码模式为什么要加 PKCE？
+### Q9：授权码模式为什么要加 PKCE？
 
 **一句话**：授权码要经过浏览器回跳，可能被截获；PKCE 让客户端先交一个哈希、换令牌时再交原文，截到 code 的人没有原文就换不出令牌。
 
@@ -107,7 +138,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [OAuth2](/security/2_oauth2#五、授权码-pkce)
 
-### Q8：为什么隐式模式和密码模式被淘汰了？
+### Q10：为什么隐式模式和密码模式被淘汰了？
 
 **一句话**：隐式模式把令牌直接放在 URL 里，容易泄露；密码模式让客户端直接拿用户密码，违背 OAuth 的初衷，所以 OAuth 2.1 把两者都删了。
 
@@ -119,7 +150,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [OAuth2](/security/2_oauth2#四、授权模式总览)
 
-### Q9：ID Token 和 Access Token 有什么区别？能不能拿 ID Token 调 API？
+### Q11：ID Token 和 Access Token 有什么区别？能不能拿 ID Token 调 API？
 
 **一句话**：ID Token 是给客户端看的「登录证明」，Access Token 是给 API 用的「通行证」，ID Token 绝不能拿去调 API。
 
@@ -135,7 +166,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [OIDC](/security/3_oidc#二、id-token-与-access-token)
 
-### Q10：Cookie 不能跨域，不同域名的系统怎么做单点登录？
+### Q12：Cookie 不能跨域，不同域名的系统怎么做单点登录？
 
 **一句话**：SSO 不靠共享 Cookie：全局会话 Cookie 只写在认证中心自己的域名下，每个系统都跳去认证中心拿一次性票据，再各自建本地会话。
 
@@ -149,7 +180,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [单点登录](/security/4_sso#_1、跨域名为什么也能-sso)
 
-### Q11：单点登出怎么做？为什么比单点登录难？
+### Q13：单点登出怎么做？为什么比单点登录难？
 
 **一句话**：在 A 点退出只销毁了 A 的本地会话，IdP 和 B、C 的会话都还活着；完整的单点登出要通知 IdP，再由 IdP 逐个通知其他系统，推荐走后端通道。
 
@@ -163,7 +194,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 ## 三、授权
 
-### Q12：RBAC、ABAC、ReBAC、ACL 有什么区别？怎么选？
+### Q14：RBAC、ABAC、ReBAC、ACL 有什么区别？怎么选？
 
 **一句话**：RBAC 看「你是什么角色」，ABAC 看「各方属性满不满足规则」，ReBAC 看「你和这个对象有没有关系」，ACL 看「这个资源的名单上有没有你」；大多数系统 RBAC 打底，再按需叠加其他模型。
 
@@ -181,7 +212,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac#五、模型对比与选型)
 
-### Q13：OPA 是什么？为什么要把授权规则交给它？
+### Q15：OPA 是什么？为什么要把授权规则交给它？
 
 **一句话**：OPA 是一个通用策略引擎，用 Rego 语言写规则，业务服务只把「谁、要干什么、对什么」发给它，它返回允许或拒绝，规则从业务代码里抽了出来。
 
@@ -193,7 +224,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac#六、opa-策略引擎)
 
-### Q14：数据权限（行级权限）怎么做？
+### Q16：数据权限（行级权限）怎么做？
 
 **一句话**：功能权限回答「能不能调接口」，数据权限回答「调通后能看到哪些行」；数据范围挂在角色上，由服务端在 SQL 层统一追加过滤条件，不在每个查询里手写。
 
@@ -208,7 +239,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 ## 四、API 与数据安全
 
-### Q15：开放接口为什么要「签名 + 时间戳 + nonce」？
+### Q17：开放接口为什么要「签名 + 时间戳 + nonce」？
 
 **一句话**：签名证明「请求没被改过、是持有 Secret 的人发的」，时间戳 + nonce 防止合法请求被截下来原样重发，三者缺一不可。
 
@@ -220,7 +251,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [API 安全](/security/6_api_security#三、接口签名与防重放)
 
-### Q16：什么是 BOLA / 越权访问？怎么防？
+### Q18：什么是 BOLA / 越权访问？怎么防？
 
 **一句话**：BOLA（对象级授权失效）就是「改一下 URL 里的 ID 就能看别人的订单」，排在 OWASP API Top 10 第一；防法是每次都按「当前用户 + 对象 ID」一起查。
 
@@ -232,7 +263,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [API 安全](/security/6_api_security#五、bearer-token-与对象级授权)
 
-### Q17：用户密码应该怎么存？
+### Q19：用户密码应该怎么存？
 
 **一句话**：密码只能用专门的慢哈希单向处理，首选 Argon2id，老系统用 bcrypt；MD5、SHA-256 加盐也不行，问题在于太快。
 
@@ -249,7 +280,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [数据安全](/security/7_data_security#密码哈希)
 
-### Q18：敏感字段怎么加密？什么是信封加密？
+### Q20：敏感字段怎么加密？什么是信封加密？
 
 **一句话**：对称加密首选 AES-GCM；密钥不能和数据放一起，用信封加密：KMS 里的主密钥只加密「数据密钥」，数据密钥在本地加密数据。
 
@@ -263,7 +294,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [数据安全](/security/7_data_security#信封加密)
 
-### Q19：数据脱敏怎么做？日志里要注意什么？
+### Q21：数据脱敏怎么做？日志里要注意什么？
 
 **一句话**：接口输出按类型遮挡（手机号留前 3 后 4），日志按「源头不打、兜底再遮」两层处理，密码、完整 Token、密钥一律不能记。
 
@@ -277,7 +308,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 ## 五、漏洞与零信任
 
-### Q20：SQL 注入怎么防？MyBatis 的 `#{}` 和 `${}` 有什么区别？
+### Q22：SQL 注入怎么防？MyBatis 的 `#{}` 和 `${}` 有什么区别？
 
 **一句话**：防 SQL 注入只有一招：参数化查询，让输入永远只当数据；MyBatis 里 `#{}` 是参数化，`${}` 是直接拼字符串。
 
@@ -293,7 +324,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [常见漏洞与防护](/security/8_vulnerabilities#_2、参数化查询)
 
-### Q21：XSS 和 CSRF 分别是什么？各怎么防？
+### Q23：XSS 和 CSRF 分别是什么？各怎么防？
 
 **一句话**：XSS 是攻击者的脚本在你的页面里执行；CSRF 是恶意网站借浏览器自动带的 Cookie 冒充你发请求。前者靠输出编码 + CSP，后者靠 CSRF Token + SameSite。
 
@@ -307,7 +338,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [常见漏洞与防护](/security/8_vulnerabilities#四、csrf-跨站请求伪造)
 
-### Q22：什么是 SSRF？怎么防？
+### Q24：什么是 SSRF？怎么防？
 
 **一句话**：SSRF 是让服务器按用户给的 URL 去发请求，被拿来访问内网和云主机元数据；防法是出站白名单 + 网络层隔离。
 
@@ -319,7 +350,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [常见漏洞与防护](/security/8_vulnerabilities#五、ssrf-服务端请求伪造)
 
-### Q23：反序列化漏洞是怎么回事？
+### Q25：反序列化漏洞是怎么回事？
 
 **一句话**：共同根因是「数据决定了要实例化哪个类」，攻击者构造数据触发危险类的方法链（gadget 链）执行任意代码；防法就是不让外部数据决定类型。
 
@@ -331,7 +362,7 @@ description: JWT 与双 Token、OAuth2 / OIDC / SSO、权限模型、接口签�
 
 → 详见 [常见漏洞与防护](/security/8_vulnerabilities#六、不安全的反序列化)
 
-### Q24：零信任是什么？服务间怎么落地？
+### Q26：零信任是什么？服务间怎么落地？
 
 **一句话**：零信任就是「不因为在内网就信任」：以身份代替网络位置做信任依据，每次访问都认证授权，最小权限，假设已经被攻破；服务间落地靠工作负载身份 + mTLS。
 

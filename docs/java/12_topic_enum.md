@@ -291,4 +291,4 @@ public enum OrderStatus {
 - Java Object Serialization Specification §1.12 Serialization of Enum Constants：[https://docs.oracle.com/en/java/javase/21/docs/specs/serialization/serial-arch.html](https://docs.oracle.com/en/java/javase/21/docs/specs/serialization/serial-arch.html)
 - JEP 441 Pattern Matching for switch：[https://openjdk.org/jeps/441](https://openjdk.org/jeps/441)
 
-> 下一篇：[内部类](./13_topic_inner_class) —— 嵌套类的四种形态、编译器生成的外部引用，以及它们如何导致内存泄漏。
+> 下一篇：[Record、Sealed 与模式匹配](./12_topic_record) —— 透明的数据载体、受限的类型层次，以及用 switch 模式匹配做穷举处理。

@@ -340,7 +340,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 **一句话**：HTTPS 传输 + AppKey/Secret 签名防篡改 + timestamp 与 nonce 防重放 + 按调用方限流授权，敏感数据再做加密和脱敏。
 
-- 签名与防重放：规范串覆盖 HTTP 方法、路径、排序后的查询串、时间戳、nonce、请求体摘要，只签参数会被挪到别的接口；原理见 [安全面试题解答 Q15](/interview/23_security#q15-开放接口为什么要「签名-时间戳-nonce」)
+- 签名与防重放：规范串覆盖 HTTP 方法、路径、排序后的查询串、时间戳、nonce、请求体摘要，只签参数会被挪到别的接口；原理见 [安全面试题解答 Q17](/interview/23_security#q17-开放接口为什么要「签名-时间戳-nonce」)
 - 按 AppKey 限流、按接口授权、按「当前用户 + 对象 ID」防越权；涉及资金的写接口加 `Idempotency-Key` 幂等
 
 → 详见 [API 安全](/security/6_api_security#三、接口签名与防重放)

@@ -21,7 +21,7 @@ description: Lambda 与 Stream、版本特性、异常、String、泛型、反�
 
 **常见坑**：包装类之间用 `==` 比较（应该用 `equals`）；`Integer` 为 null 时自动拆箱直接 NPE。
 
-→ 详见 [集合框架](/java/21_topic_collection#_5、key-的设计)、[享元模式](/patterns/11_structural_flyweight#三、jdk-中的应用)
+→ 详见 [面向对象与 Object · equals 与 hashCode](/java/10_topic_basics#三、equals-与-hashcode)、[包装类与自动装箱](/java/10_topic_basics#五、包装类与自动装箱)
 
 ### Q2：抽象类和接口的区别？Java 为什么不支持类的多继承，接口默认方法冲突怎么解决？
 
@@ -38,7 +38,7 @@ description: Lambda 与 Stream、版本特性、异常、String、泛型、反�
 - 默认方法冲突时：父类的方法优先；其次是更具体的子接口优先；还分不出来就编译报错，实现类必须自己重写，可用 `A.super.method()` 指定用哪个
 - 复用代码优先用组合而不是继承
 
-→ 详见 [版本演进](/java/2_version#_5、sealed-类-java-17)、[模板方法模式](/patterns/21_behavioral_template_method)
+→ 详见 [面向对象与 Object · 抽象类与接口](/java/10_topic_basics#二、抽象类与接口)、[模板方法模式](/patterns/21_behavioral_template_method)
 
 ### Q3：Lambda 的底层原理是什么？和匿名内部类有什么区别？为什么只能捕获 effectively final 的局部变量？
 
@@ -281,9 +281,22 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [动态代理](/java/16_topic_proxy#二、cglib-动态代理)
 
+### Q21：record 和普通类 / Lombok `@Data` 有什么区别？sealed 解决什么问题？对 sealed 类型做 switch 为什么不建议写 default？
+
+**一句话**：record 是「只装数据」的不可变类，sealed 限定「只有这几种子类」，两者配合 switch 模式匹配，让编译器检查每种情况都处理到了。
+
+- record：字段全是 `final`，构造器、访问器、`equals` / `hashCode` / `toString` 自动生成；不能继承别的类、不能加实例字段、没有无参构造器，所以不能当 JPA 实体
+- 和 `@Data` 比：`@Data` 生成 setter、对象可变，靠注解处理器；record 是语言特性，不可变、无依赖。但 record 只是浅不可变，`List` 组件要在紧凑构造器里 `List.copyOf`
+- sealed：用 `permits` 列出允许的子类，子类必须是 `final` / `sealed` / `non-sealed`；适合「支付结果只有成功、处理中、失败」这种封闭的类型
+- switch 覆盖了 sealed 的全部子类型就不用 `default`；写了 `default`，以后新增子类型会被悄悄归进默认分支，编译器不再报错
+
+**常见坑**：Boot 4 的 Jackson 3 默认 `FAIL_ON_NULL_FOR_PRIMITIVES` 开启，record 里 `int` 组件在 JSON 中缺失会反序列化失败，可选字段用包装类型。
+
+→ 详见 [Record、Sealed 与模式匹配](/java/12_topic_record#四、实战-用-sealed-record-switch-建模支付结果)
+
 ## 三、IO 与数据
 
-### Q21：`SimpleDateFormat` 为什么线程不安全？`LocalDateTime`、`OffsetDateTime`、`ZonedDateTime`、`Instant` 有什么区别？
+### Q22：`SimpleDateFormat` 为什么线程不安全？`LocalDateTime`、`OffsetDateTime`、`ZonedDateTime`、`Instant` 有什么区别？
 
 **一句话**：`SimpleDateFormat` 把解析过程的中间结果存在一个共享的成员变量里，多线程同时用会互相覆盖。改用 `DateTimeFormatter`，它不可变，可以做成全局常量。
 
@@ -301,7 +314,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [日期与时间](/java/17_topic_time#二、java-time-类型模型)
 
-### Q22：数据库里时间该怎么存？MySQL `DATETIME` 与 `TIMESTAMP` 有什么区别？夏令时会带来什么问题？
+### Q23：数据库里时间该怎么存？MySQL `DATETIME` 与 `TIMESTAMP` 有什么区别？夏令时会带来什么问题？
 
 **一句话**：已经发生的事存 UTC 时刻，展示时再转成用户时区；未来的本地事件（如「每天 9 点开会」）存本地时间 + 时区；生日这种纯日期存 `LocalDate`。
 
@@ -315,7 +328,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [日期与时间](/java/17_topic_time#七、数据库映射)
 
-### Q23：Java IO 流有哪些分类？BIO / NIO / AIO 的区别？有了虚拟线程还需要 NIO / Netty 吗？
+### Q24：Java IO 流有哪些分类？BIO / NIO / AIO 的区别？有了虚拟线程还需要 NIO / Netty 吗？
 
 **一句话**：按数据单位分字节流（`InputStream` / `OutputStream`）和字符流（`Reader` / `Writer`，就是字节流加上编解码）；日常读写文件首选 `Files` 工具类。
 
@@ -333,7 +346,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [IO 与 NIO](/java/18_topic_io#一、io-体系结构)
 
-### Q24：零拷贝的原理？`transferTo` 与 `mmap` 各有什么限制？直接缓冲区的代价是什么？
+### Q25：零拷贝的原理？`transferTo` 与 `mmap` 各有什么限制？直接缓冲区的代价是什么？
 
 **一句话**：零拷贝就是少让 CPU 在内核和应用之间搬数据。普通的读再写要 CPU 拷 2 次；`transferTo`（底层是 Linux 的 `sendfile`）只拷 1 次，网卡支持时 0 次。
 
@@ -349,7 +362,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [IO 与 NIO](/java/18_topic_io#四、零拷贝)
 
-### Q25：序列化的作用？`serialVersionUID` 有什么用？类新增 / 删除字段后反序列化会怎样？
+### Q26：序列化的作用？`serialVersionUID` 有什么用？类新增 / 删除字段后反序列化会怎样？
 
 **一句话**：序列化是把对象转成字节，用来网络传输或存盘。`serialVersionUID` 是类的版本号，读的时候版本对不上就抛 `InvalidClassException`。
 
@@ -360,7 +373,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [序列化](/java/19_topic_serialization#一、java-原生序列化)
 
-### Q26：反序列化漏洞的原理？如何用 `ObjectInputFilter` 防护？序列化方案怎么选？
+### Q27：反序列化漏洞的原理？如何用 `ObjectInputFilter` 防护？序列化方案怎么选？
 
 **一句话**：`ObjectInputStream` 会按数据里写的类名创建对象并执行它的回调方法。攻击者拼出一串项目里已有的类，让回调层层触发，最后执行任意命令。只要反序列化不可信的数据，就有风险。
 
@@ -371,7 +384,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [序列化](/java/19_topic_serialization#五、反序列化安全)
 
-### Q27：SPI 是什么，与 API 有何区别？SPI 如何「打破」双亲委派？Dubbo SPI 和 Spring Boot 自动配置做了哪些增强？
+### Q28：SPI 是什么，与 API 有何区别？SPI 如何「打破」双亲委派？Dubbo SPI 和 Spring Boot 自动配置做了哪些增强？
 
 **一句话**：API 是别人写好实现给你调用；SPI 反过来，框架定好接口，由第三方提供实现，框架运行时自动发现并加载。Java 自带的 SPI 是 `ServiceLoader`，读 `META-INF/services/接口全名` 里写的实现类。
 
@@ -382,7 +395,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [SPI 机制](/java/20_topic_spi#二、java-原生-spi-serviceloader)
 
-### Q28：HashMap 的 put 流程？hash 为什么要 `h ^ (h >>> 16)`？容量为什么是 2 的幂？哈希冲突有哪些解决方式？
+### Q29：HashMap 的 put 流程？hash 为什么要 `h ^ (h >>> 16)`？容量为什么是 2 的幂？哈希冲突有哪些解决方式？
 
 **一句话**：HashMap 是数组 + 链表 / 红黑树。put 时先算 hash 定位到数组下标，没人就直接放，有人就比较 key，相同则覆盖，不同就挂到链表尾部。
 
@@ -393,7 +406,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [集合框架](/java/21_topic_collection#六、hashmap)
 
-### Q29：HashMap 何时树化、何时退化？扩容时元素如何迁移？JDK 7 并发扩容为什么会死循环？
+### Q30：HashMap 何时树化、何时退化？扩容时元素如何迁移？JDK 7 并发扩容为什么会死循环？
 
 **一句话**：链表长度超过 8 且数组长度至少 64 时转成红黑树；数组不到 64 时先扩容。树上节点减到 6 个及以下时退回链表。
 
@@ -406,7 +419,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [集合框架](/java/21_topic_collection#_3、树化与退化)
 
-### Q30：ArrayList 的扩容机制？ArrayList 与 LinkedList 怎么选？fail-fast 与弱一致迭代器有什么区别？
+### Q31：ArrayList 的扩容机制？ArrayList 与 LinkedList 怎么选？fail-fast 与弱一致迭代器有什么区别？
 
 **一句话**：`ArrayList` 第一次 `add` 时分配容量 10，不够时扩成原来的 1.5 倍并复制数组。几乎所有场景都选 `ArrayList`，`LinkedList` 很少有优势。
 
@@ -424,7 +437,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [集合框架](/java/21_topic_collection#_1、arraylist-vs-linkedlist)
 
-### Q31：`List.of`、`Arrays.asList`、`Collections.unmodifiableList` 有什么区别？JDK 21 Sequenced Collections 解决了什么问题？
+### Q32：`List.of`、`Arrays.asList`、`Collections.unmodifiableList` 有什么区别？JDK 21 Sequenced Collections 解决了什么问题？
 
 **一句话**：`List.of` 是真正不可变的；`Arrays.asList` 长度固定、和原数组共享数据；`Collections.unmodifiableList` 只是只读的「窗口」，底层集合变了它也跟着变。
 
@@ -440,7 +453,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [集合框架](/java/21_topic_collection#_2、不可变集合)
 
-### Q32：如何用 LinkedHashMap 实现 LRU？TreeSet / TreeMap 为什么可能「丢」元素？
+### Q33：如何用 LinkedHashMap 实现 LRU？TreeSet / TreeMap 为什么可能「丢」元素？
 
 **一句话**：`LinkedHashMap` 构造时传 `accessOrder = true`，每次访问会把元素移到末尾；再重写 `removeEldestEntry`，超出容量就删掉最前面（最久没用）的那个，就是 LRU。
 
