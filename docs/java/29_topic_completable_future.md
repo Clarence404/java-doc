@@ -6,13 +6,11 @@ description: 回调线程与默认执行器、任务组合、异常传播、join
 
 > 前置阅读：[线程基础](./23_topic_thread_basics)、[线程池](./28_topic_thread_pool)
 
-`CompletableFuture` 是能手动完成、完成时触发回调链的结果容器，同时实现了 `Future` 和 `CompletionStage`。本篇讲回调执行线程、异常传播、编排写法与何时改用虚拟线程，基线为 JDK 21。
+`CompletableFuture`（JDK 8 引入）是能手动完成、完成时触发回调链的结果容器，同时实现了 `Future` 和 `CompletionStage`。本篇讲回调执行线程、异常传播、编排写法与何时改用虚拟线程，基线为 JDK 21。
 
 ---
 
 ## 一、创建与完成
-
-`CompletableFuture` 自 JDK 8 引入；编排写法覆盖线程池隔离、超时预算与 traceId 传递。
 
 ### 1、由任务驱动
 

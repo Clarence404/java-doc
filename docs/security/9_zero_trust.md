@@ -12,7 +12,7 @@ description: NIST 800-207 原则与组件、身份感知代理、SPIFFE 与 mTLS
 
 ## 一、核心原则
 
-落地方式包括身份感知代理（如 Cloudflare Access）和工作负载身份（SPIFFE、mTLS、Istio）；传统网络安全则是「城堡加护城河」，进了内网就默认可信。
+传统网络安全是「城堡加护城河」，进了内网就默认可信，零信任正好反过来。
 
 "Never trust, always verify"这一说法来自 Forrester 分析师 John Kindervag 在 2010 年提出的零信任模型；Google 从 2011 年起在内部落地 BeyondCorp，取消了员工访问内部应用的 VPN；NIST 在 2020 年发布 SP 800-207，给出了目前最常被引用的定义。SP 800-207 的七条基本原则可以归纳为：
 

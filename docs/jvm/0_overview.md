@@ -1,10 +1,16 @@
 # JVM 总览
 
-JVM 模块覆盖运行时内存结构、类加载、字节码执行、GC 原理与收集器、GC 调优、JIT 编译，以及诊断工具与线上故障排查。以 JDK 21 LTS 为基准视角，兼顾 JDK 8 / 17 与 25 的差异。阅读时建议按“内存与类加载 → 执行引擎 → GC → 调优与排查”的顺序推进。
+JVM 模块覆盖运行时内存结构、类加载、字节码执行、GC 原理与收集器、GC 调优、JIT 编译，以及诊断工具与线上故障排查。阅读时建议按“内存与类加载 → 执行引擎 → GC → 调优与排查”的顺序推进。
+
+**版本基线（2026 年 10 月）**：JDK 21 / 25 LTS（兼顾 8 / 17，并标注 26 / 27 的默认值变化，如 JDK 27 起所有环境默认 G1、默认开启紧凑对象头）
+
+---
 
 ## 一、模块导航
 
 <ModuleNav />
+
+---
 
 ## 二、推荐阅读路径
 
@@ -14,11 +20,19 @@ JVM 模块覆盖运行时内存结构、类加载、字节码执行、GC 原理�
 4. 接着读 [GC 调优](./6_gc_tuning) 与 [JIT 编译](./7_jit)，面向性能做参数调整。
 5. 最后读 [诊断工具](./8_monitoring_tools) 与 [故障排查](./9_troubleshooting)，具备线上问题定位能力。
 
+---
+
 ## 三、关联模块
 
-- Java 内存模型（JMM、happens-before、volatile）→ [Java JMM 内存模型](/java/22_topic_jmm)
+- Java 内存模型（JMM、happens-before、volatile）→ [JMM 内存模型](/java/22_topic_jmm)
 - 虚拟线程与线程池 → [虚拟线程](/java/30_topic_virtual_thread)、[线程池](/java/28_topic_thread_pool)
 - 收集器选型、容器内存、JIT 预热等性能策略 → [JVM 层性能策略](/high-perf/5_jvm_tuning)
 - 性能分析方法论与 Profiler → [高性能](/high-perf/0_overview)
 - Arthas 在线诊断 → [线上诊断](/engineering/4_diagnosis)
 - JVM 面试题完整解答 → [JVM 面试题解答](/interview/3_jvm)
+
+## 参考资料
+
+- JVM 规范：[The Java Virtual Machine Specification](https://docs.oracle.com/javase/specs/jvms/se25/html/index.html)
+- GC 调优指南：[HotSpot Virtual Machine Garbage Collection Tuning Guide](https://docs.oracle.com/en/java/javase/25/gctuning/index.html)
+- JEP 索引：[JEP 0: JEP Index](https://openjdk.org/jeps/0)

@@ -6,13 +6,11 @@ description: 两级缓存架构、Lettuce 配置、方法注解、QuickConfig �
 
 > 前置阅读：[Caffeine](./7_caffeine)、[两级缓存（L1 + L2）](./8_two_level_cache)
 
-JetCache 是阿里开源的 Java 缓存框架，在 Spring Cache 风格注解上补了两级缓存、自动刷新等能力。本篇讲注解、编程式 API、多实例同步和与 Spring Cache 的取舍，基线为 2.7。
+JetCache 是阿里开源的 Java 缓存框架，在 Spring Cache 风格注解上补了两级缓存、自动刷新等能力。本篇讲注解、编程式 API、多实例同步和与 Spring Cache 的取舍，基线为 2.7.9（兼容 Spring Boot 4）。
 
 ---
 
 ## 一、架构与能力
-
-写作时最新稳定版为 2.7.8，2.8 处于 RC 阶段；JetCache 还提供空值缓存、加载合并与统计等能力。
 
 ![JetCache 架构](../assets/cache/jetcache_arch.svg)
 
@@ -32,7 +30,11 @@ JetCache 是阿里开源的 Java 缓存框架，在 Spring Cache 风格注解上
 
 ## 二、接入与配置
 
-2.7 起 `@CreateCache` 与 `@EnableCreateCacheAnnotation` 已废弃；在 Spring Boot 4 上使用前，先在官方 Release 与 Issue 中确认兼容性。
+::: warning Spring Boot 4 兼容性
+截至 2026 年 10 月：2.7.9（2026-05）是兼容 Spring Boot 4 的稳定版；2.8.0.RC 基于 Spring Framework 7 / Boot 4.0 构建、要求 JDK 17，但与 2.7 不兼容（移除 fastjson1、kryo4，新增反序列化过滤），升级前读官方兼容性文档。2.7.8 及更早版本基于 Boot 3.x 构建。
+:::
+
+2.7 起 `@CreateCache` 与 `@EnableCreateCacheAnnotation` 已废弃。
 
 ### 1、依赖
 
@@ -40,7 +42,7 @@ JetCache 是阿里开源的 Java 缓存框架，在 Spring Cache 风格注解上
 <dependency>
     <groupId>com.alicp.jetcache</groupId>
     <artifactId>jetcache-starter-redis-lettuce</artifactId>
-    <version>2.7.8</version>
+    <version>2.7.9</version>
 </dependency>
 ```
 

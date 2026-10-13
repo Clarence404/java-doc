@@ -65,7 +65,7 @@ description: L1 + L2 读写流程、提交后失效、多实例 L1 失效方案�
 
 ### 3、Redis 服务端失效推送（Client-side caching）
 
-Redis 6 起提供 `CLIENT TRACKING`：服务端记录客户端读过的 key（或按前缀广播），key 被修改时主动推送失效通知，Redis 8.x / Valkey 8.x 均支持。Lettuce 通过 `ClientSideCaching` 使用它（需 RESP3 连接）：
+Redis 6 起提供 `CLIENT TRACKING`：服务端记录客户端读过的 key（或按前缀广播），key 被修改时主动推送失效通知，Redis 8.x / Valkey 9.x 均支持。Lettuce 通过 `ClientSideCaching` 使用它（需 RESP3 连接）：
 
 ```java
 Map<String, String> clientCache = new ConcurrentHashMap<>();          // 生产环境应换成有容量上限的 Map

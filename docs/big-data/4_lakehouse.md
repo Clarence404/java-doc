@@ -12,7 +12,7 @@ description: 数据湖与湖仓、表格式原理、Iceberg / Paimon / Hudi / De
 
 ## 一、为什么需要数据湖与湖仓
 
-本篇以 Iceberg 为例讲表格式原理与 Spark SQL 实战，选型覆盖 Iceberg / Paimon / Hudi / Delta，流式湖仓采用 Flink + Paimon；版本基线为 Iceberg 1.12、Paimon 2.0、Hudi 1.2.x。
+本篇以 Iceberg 为例演示表格式原理与 Spark SQL 写法，流式湖仓部分用 Flink + Paimon。版本基线：Iceberg 1.12、Paimon 2.0、Hudi 1.2.x。
 
 ### 1、Hive 表的天花板
 
@@ -120,7 +120,7 @@ Hive 要求用户显式维护一个分区列（如 `dt`），写入时自己算�
 
 ## 三、Spark SQL 实战：Iceberg 订单表
 
-**版本基线（2026 年 10 月）**：Iceberg 1.12（2026 年 9 月发布，表格式规范 v1 / v2 / v3 均已定稿，v4 仍在开发）、Paimon 2.0（2026 年 8 月）、Hudi 1.2.x、Delta Lake 4.4、Apache Polaris 1.4、Apache Gravitino 1.x。注意 Iceberg 1.12 的 Spark 运行时只发布到 `iceberg-spark-runtime-4.1_2.13`，[Spark](./3_spark) 一篇的基线 Spark 4.2 暂时没有对应构件，读写 Iceberg 的集群先用 Spark 4.1。
+**版本基线（2026 年 10 月）**：Iceberg 1.12（2026 年 9 月发布，表格式规范 v1 / v2 / v3 均已定稿，v4 仍在开发）、Paimon 2.0（2026 年 8 月）、Hudi 1.2.x、Delta Lake 4.4、Apache Polaris 1.4、Apache Gravitino 1.x。注意 Iceberg 1.12 的 Spark 运行时只发布到 `iceberg-spark-runtime-4.1_2.13`，[Spark](./3_spark) 一篇的基线 Spark 4.2 暂时没有对应构件，读写 Iceberg 的集群暂用 Spark 4.1（Spark 4.2 独有的 Auto CDC、指标视图等能力因此暂不可用）。
 
 示例统一用电商订单：业务库 `order_info` 表同步进湖，形成 `lake.ods.ods_order_info_inc`。
 
@@ -155,7 +155,7 @@ CREATE TABLE lake.ods.ods_order_info_inc (
   order_id     BIGINT NOT NULL,
   user_id      BIGINT,
   shop_id      BIGINT,
-  amount       DECIMAL(12, 2),
+  amount       DECIMAL(18, 2),
   status       STRING,
   order_time   TIMESTAMP,
   update_time  TIMESTAMP
@@ -228,7 +228,7 @@ CALL lake.system.rollback_to_snapshot('ods.ods_order_info_inc', 8744736658442914
 
 ```sql
 -- 加列、改名：纯元数据操作
-ALTER TABLE lake.ods.ods_order_info_inc ADD COLUMN coupon_amount DECIMAL(12, 2) AFTER amount;
+ALTER TABLE lake.ods.ods_order_info_inc ADD COLUMN coupon_amount DECIMAL(18, 2) AFTER amount;
 ALTER TABLE lake.ods.ods_order_info_inc RENAME COLUMN status TO order_status;
 
 -- 大促期间单日数据量暴涨，新数据改为按小时分区，历史数据保持按天
@@ -417,7 +417,7 @@ CREATE TABLE ods.ods_order_info_inc (
   order_id     BIGINT,
   user_id      BIGINT,
   shop_id      BIGINT,
-  amount       DECIMAL(12, 2),
+  amount       DECIMAL(18, 2),
   status       STRING,
   order_time   TIMESTAMP(3),
   update_time  TIMESTAMP(3),

@@ -12,7 +12,7 @@ description: BOM 策略、Enforcer 约束、Renovate / Dependabot、漏洞扫描
 
 ## 一、治理闭环
 
-版本：Spring Boot 4.1.1、Spring Cloud 2025.1.3、Dependency-Check 13.0.0、maven-enforcer-plugin 3.6.3；Renovate 之外也覆盖 Dependabot，SBOM 用 CycloneDX。
+版本基线：Spring Boot 4.1.1、Spring Cloud 2025.1.3、Dependency-Check 13.0.0、maven-enforcer-plugin 3.6.3。
 
 ![依赖治理闭环](../assets/engineering/dependency-governance-loop.svg)
 

@@ -12,7 +12,7 @@ description: 指标类型、RED / USE、自定义指标与基数控制、Prometh
 
 ## 一、指标模型
 
-Prometheus 当前最新 3.15，长期支持线 3.13 LTS；应用侧用 Spring Boot 4.x 自带的 Micrometer，示例统一用 `order-service`，并给出指标清单。
+示例统一用 `order-service`，应用侧用 Spring Boot 4.x 自带的 Micrometer；Prometheus 当前最新 3.15，长期支持线为 3.13 LTS。
 
 Prometheus 的一切都是**时间序列**：指标名 + 一组标签（label）唯一确定一条序列，序列上是一串 `(时间戳, float64 值)` 样本。下面是 `order-service` 在 `/actuator/prometheus` 输出的一段文本格式：
 

@@ -12,7 +12,7 @@ description: ES 9 / OpenSearch 3、倒排索引与分析器、Mapping 与 DSL、
 
 ## 一、典型场景与定位
 
-数据通常由业务库经 CDC、消息队列或同步任务构建；选型部分对比 Elasticsearch、OpenSearch、Solr 的许可差异。
+索引数据通常由业务库经 CDC、消息队列或同步任务写入。
 
 | 场景 | 需求特点 | 常见方案 |
 |------|----------|----------|

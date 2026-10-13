@@ -12,8 +12,6 @@ description: AQS 结构与流程、公平 / 非公平锁、Condition、读写锁
 
 ## 一、Lock 接口
 
-AQS 实现按 JDK 14 之后的版本讲，`ReentrantLock`、读写锁、`Semaphore`、`CountDownLatch` 都建立在它之上；锁的选择部分包含虚拟线程场景。
-
 | 方法 | 语义 | 对应 `synchronized` 能力 |
 |------|------|--------------------------|
 | `lock()` | 阻塞获取，不响应中断 | 进入同步块 |

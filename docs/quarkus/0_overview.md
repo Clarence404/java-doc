@@ -8,7 +8,7 @@ Quarkus 是 Red Hat 主导的云原生 Java 框架，把 Spring Boot 在运行�
 
 ## 一、学习路线
 
-最后一部分讲怎样从 Spring Boot 迁移，以及 Micronaut、Helidon、Solon、Javalin 等框架的对比；GraalVM 的通用原理、虚拟线程和 Reactor 在各自模块展开，这里只讲 Quarkus 特有的部分。3.40 LTS 维护到 2027-09-30，Quarkus 3 的 JVM 模式支持 JDK 17–25。Quarkus 4.0 已于 2026-10-01 发布 Beta1，最低要求 Java 21，并升级到 Vert.x 5、Jackson 3 和 Hibernate ORM 8，计划 11 月底 GA；本模块以 3.40 LTS 为准，Quarkus 4 的变化在文中单独标出。
+GraalVM 的通用原理、虚拟线程和 Reactor 在各自模块展开，这里只讲 Quarkus 特有的部分。版本说明：3.40 LTS 维护到 2027-09-30，Quarkus 3 的 JVM 模式支持 JDK 17–25。Quarkus 4.0 已于 2026-10-01 发布 Beta1，最低要求 Java 21，并升级到 Vert.x 5、Jackson 3 和 Hibernate ORM 8，计划 11 月底 GA；本模块以 3.40 LTS 为准，Quarkus 4 的变化在文中单独标出。
 
 | 阶段 | 要解决的问题 | 文章 |
 |------|-------------|------|

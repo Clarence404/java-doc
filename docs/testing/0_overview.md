@@ -6,7 +6,7 @@ description: 测试金字塔与蜂巢、各层工具与版本基线、健康测�
 
 测试工程关心的是一套测试能否在每次提交时快速、稳定地回答：**这次改动能不能放心合并、放心上线**。本模块按层次讲单元测试、Mock、集成测试、契约测试、性能测试与 TDD，写的是与框架无关的方法和工具。
 
-**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4.x、JUnit 6.1、AssertJ 3.27、Mockito 5.x、Testcontainers 2.0、Spring Cloud Contract 5.0、Pact JVM 4.7、k6 2.x、Gatling 3.x、JMeter 5.6、JaCoCo 0.8、PIT 1.x
+**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4.x、JUnit 6.1、AssertJ 3.27、Mockito 5.x、Testcontainers 2.0、Spring Cloud Contract 5.0（已移交 Stubborn）、Pact JVM 4.7、k6 2.x、Gatling 3.x、JMeter 5.6、JaCoCo 0.8、PIT 1.x
 
 ---
 
@@ -25,7 +25,7 @@ description: 测试金字塔与蜂巢、各层工具与版本基线、健康测�
 3. [集成测试](./3_integration_test)：集成测试的边界、外部依赖替代方案、测试数据管理、Flaky 治理、Surefire / Failsafe 分工
 4. [Testcontainers](./5_testcontainers)：容器生命周期、等待策略、单例与复用、2.x 依赖变化
 5. [契约测试](./6_contract_test)：消费者驱动契约、Spring Cloud Contract、Pact 与 can-i-deploy
-6. [性能测试](./7_performance_test)：测试类型、开放与封闭负载模型、k6 / Gatling / JMeter
+6. [性能测试](./7_performance_test)：测试类型、开放与闭合负载模型、k6 / Gatling / JMeter
 7. [TDD 测试驱动开发](./4_tdd)：红-绿-重构、两种流派、遗留代码引入测试
 
 TDD 编号靠前，但它要求先熟悉单元测试与 Mock，放在最后读更容易落地。Spring 项目读完前三篇后接着读 [Spring Boot 测试](/spring-boot/13_testing)。
@@ -45,7 +45,7 @@ TDD 编号靠前，但它要求先熟悉单元测试与 Mock，放在最后读�
 | 单元测试 | 单个类 / 方法的业务规则、边界与异常 | JUnit 6、AssertJ、Mockito | 毫秒级 | 精确到某条规则 |
 | 切片测试 | Spring 帮你做的事：参数绑定、校验、序列化、Repository 查询 | `@WebMvcTest`、`@DataJpaTest` | 百毫秒到秒级（上下文可缓存） | 某一层的配置或映射 |
 | 集成测试 | 跨进程边界：真实 SQL 方言、事务、MQ 收发、缓存 | `@SpringBootTest` + Testcontainers、WireMock | 秒级（含容器启动） | 组件协作或中间件用法 |
-| 契约测试 | 服务之间的请求 / 响应格式是否兼容 | Spring Cloud Contract、Pact | 秒级 | 哪个接口字段被破坏 |
+| 契约测试 | 服务之间的请求 / 响应格式是否兼容 | Pact、Spring Cloud Contract（已移交 Stubborn） | 秒级 | 哪个接口字段被破坏 |
 | 端到端测试 | 部署好的整套系统上的关键业务流程 | Playwright、REST Assured | 秒到分钟级 | 「某处坏了」，定位要靠日志与链路 |
 | 性能测试 | 吞吐、延迟分位数、容量拐点 | k6、Gatling、JMeter | 分钟到小时级 | 容量与瓶颈，不判断功能对错 |
 
@@ -107,7 +107,7 @@ TDD 编号靠前，但它要求先熟悉单元测试与 Mock，放在最后读�
 | `mvn test` | 单元测试、切片测试（`*Test`） | Maven Surefire | PR 不能合并 |
 | `mvn verify` | 集成测试（`*IT`），JaCoCo 报告 | Maven Failsafe + Testcontainers | PR 不能合并 |
 | 质量门禁 | 新代码覆盖率、静态检查 | SonarQube | PR 不能合并 |
-| 发布前 | 契约验证、`can-i-deploy` | Pact Broker / Spring Cloud Contract | 阻止部署 |
+| 发布前 | 契约验证、`can-i-deploy` | Pact Broker / Spring Cloud Contract（已移交 Stubborn） | 阻止部署 |
 | 部署到预发后 | 端到端冒烟 | Playwright / REST Assured | 阻止晋级生产 |
 | 夜间 / 版本前 | 性能基线、变异测试 | k6 / Gatling、PIT | 出报告，回归时建工单 |
 
@@ -119,7 +119,7 @@ Surefire 与 Failsafe 的分工及配置见 [构建工具](/engineering/1_build_
 
 几类相关内容各有主文档，这里只链接：Spring 的切片测试、`@MockitoBean`、`@ServiceConnection` 在 [Spring Boot 测试](/spring-boot/13_testing)；JMH 微基准在 [基准测试（JMH）](/high-perf/4_benchmark)；覆盖率门禁的阈值与 Sonar 配置在 [代码质量](/engineering/3_code_quality)；流水线怎么编排在 [CI/CD](/devops/2_ci_cd)。
 
-版本要点：JUnit 6 以 Java 17 为基线，Platform / Jupiter / Vintage 版本号统一，包名仍是 `org.junit.jupiter.*`，Spring Framework 7 以 JUnit 6 为最低要求；Testcontainers 2.0 的 artifact 统一加 `testcontainers-` 前缀，移除 JUnit 4 支持；JaCoCo 0.8.14 起支持 Java 25；PIT 配合 `pitest-junit5-plugin` 在 JUnit 6 下可用。
+版本要点：JUnit 6 以 Java 17 为基线，Platform / Jupiter / Vintage 版本号统一，包名仍是 `org.junit.jupiter.*`，Spring Framework 7 以 JUnit 6 为最低要求；Testcontainers 2.0 的 artifact 统一加 `testcontainers-` 前缀，移除 JUnit 4 支持；JaCoCo 0.8.14 起支持 Java 25；PIT 配合 `pitest-junit5-plugin` 在 JUnit 6 下可用；Spring Cloud Contract 已于 2026 年 7 月移交社区以 Stubborn Contract 继续维护，Spring Cloud 2025.1.3 起不再收录，新项目优先 Pact 或规划迁移到 Stubborn（见 [契约测试](./6_contract_test)）。
 
 ::: tip 版本由谁管
 Spring Boot 项目里，JUnit、AssertJ、Mockito、Testcontainers 的版本都由 Boot 依赖管理统一控制，不要再单独导入 JUnit BOM 或写死版本号，否则升级 Boot 时容易出现 Platform 与引擎版本不一致。非 Boot 的纯 Java 模块才需要自己导入 `junit-bom`。

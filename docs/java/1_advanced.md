@@ -12,7 +12,7 @@ Lambda、Stream 与注解是现代 Java 最常用的语言机制。本篇讲 Lam
 
 ## 一、Lambda 表达式
 
-Lambda 从 javac 脱糖到 `invokedynamic` 链接；注解覆盖定义、运行时读取到编译期处理的全链路（含 JDK 23 的变化）。版本基线为 JDK 21 / 25 LTS，JDK 8 / 17 的差异单独标出。
+版本基线为 JDK 21 / 25 LTS，JDK 8 / 17 的差异单独标出。
 
 ### 1、语法与变量捕获
 

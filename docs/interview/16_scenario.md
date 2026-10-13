@@ -349,15 +349,12 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 ### Q26：对外开放的 API 如何保证安全？
 
-**一句话**：HTTPS 传输 + AppKey/Secret 签名防篡改 + timestamp 与 nonce 防重放 + 限流与权限控制，敏感数据再做加密和脱敏。
+**一句话**：HTTPS 传输 + AppKey/Secret 签名防篡改 + timestamp 与 nonce 防重放 + 按调用方限流授权，敏感数据再做加密和脱敏。
 
-- 签名：参数按 key 字典序拼接，加上 timestamp、nonce，用 `HMAC-SHA256(appSecret, 拼接串)` 计算，服务端用同样规则重算比对
-- 防重放：timestamp 超出时间窗口直接拒绝；nonce 在窗口内用 Redis 去重
-- AppSecret 不在网络上传输，服务端加密存储，支持轮换与吊销
-- 按 AppKey 限流、按接口授权；日志脱敏，错误响应不暴露内部信息
-- 涉及资金的写接口还要做幂等（`Idempotency-Key`）
+- 签名与防重放：规范串覆盖 HTTP 方法、路径、排序后的查询串、时间戳、nonce、请求体摘要，只签参数会被挪到别的接口；原理见 [安全面试题解答 Q15](/interview/23_security#q15-开放接口为什么要「签名-时间戳-nonce」)
+- 按 AppKey 限流、按接口授权、按「当前用户 + 对象 ID」防越权；涉及资金的写接口加 `Idempotency-Key` 幂等
 
-→ 详见 [API 安全](/security/6_api_security)
+→ 详见 [API 安全](/security/6_api_security#三、接口签名与防重放)
 
 ### Q27：扫码登录怎么设计？PC 怎么知道手机已经确认？
 

@@ -12,7 +12,7 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 
 ## 一、IoT 数据链路
 
-整条链路：设备经 MQTT 上报，EMQX 规则引擎转发到 Kafka，Flink 做清洗、窗口聚合与告警，结果写入 TDengine 超表，再用降采样控制存储、用 Grafana 出看板和告警。版本基线：EMQX 5.x、Flink 2.2.x + `flink-connector-kafka:5.0.0-2.2`、TDengine 3.3.x / 3.4.x + `taos-jdbcdriver` 3.9.x、JDK 21 / Spring Boot 4。
+整条链路：设备经 MQTT 上报，EMQX 规则引擎转发到 Kafka，Flink 做清洗、窗口聚合与告警，结果写入 TDengine 超表，再用降采样控制存储、用 Grafana 出看板和告警。版本基线：EMQX 5.9+ / 6.x（配置为 5.x 起的 HOCON 语法）、Flink 2.2.x + `flink-connector-kafka:5.0.0-2.2`、TDengine 3.3.x / 3.4.x + `taos-jdbcdriver` 3.9.x、JDK 21 / Spring Boot 4。
 
 ### 1、IoT 数据的特点
 
@@ -670,8 +670,9 @@ public class GrafanaAlertController {
 | 离线、连续超温、多条件组合 | Flink | 需要按设备的状态和定时器，秒级延迟 |
 | 单指标阈值、趋势类 | Grafana | 运维自助配置，不用发版 |
 | 设备连接断开 | EMQX 规则引擎（`$events/client/disconnected`） | 事件源头就在 Broker |
+| 设备联动、需要关联业务数据（工单、设备模型、权限）的单点判断 | 自研规则引擎，见 [规则引擎](./11_rule_engine) | 规则由业务人员配置，动作要调用业务系统 |
 
-同一个告警只在一层产生，再统一汇入告警服务做去重、抑制和升级，避免同一故障从三个渠道各报一次。
+同一个告警只在一层产生，四层的告警再统一汇入同一个告警服务做去重、抑制和升级，避免同一故障从多个渠道各报一次。
 
 ---
 
@@ -697,4 +698,4 @@ public class GrafanaAlertController {
 - Grafana 告警状态与健康：[https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/state-and-health/](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/state-and-health/)
 - Grafana 联系人：[https://grafana.com/docs/grafana/latest/alerting/fundamentals/notifications/contact-points/](https://grafana.com/docs/grafana/latest/alerting/fundamentals/notifications/contact-points/)
 
-> 下一篇：[设备安全](./5_security) —— 一机一密、X.509 与 mTLS、EMQX 5.x 认证授权、审计与零信任落地。
+> 下一篇：[设备安全](./5_security) —— 一机一密、X.509 与 mTLS、EMQX 认证授权、审计与零信任落地。

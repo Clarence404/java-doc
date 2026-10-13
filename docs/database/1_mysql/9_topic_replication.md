@@ -12,7 +12,7 @@ MySQL 主从复制靠 binlog 把主库变更同步到从库，是读写分离和
 
 ## 一、Binlog
 
-8.4 **移除了**所有 `MASTER` / `SLAVE` 形式的复制语句（如 `CHANGE MASTER TO`、`START SLAVE`、`SHOW SLAVE STATUS`、`SHOW MASTER STATUS`），文中只用新语法，"主库 / 从库"对应官方术语 source / replica；传统主从之外还会对比 ClusterSet。
+版本说明：MySQL 8.4 **移除了**所有 `MASTER` / `SLAVE` 形式的复制语句（如 `CHANGE MASTER TO`、`START SLAVE`、`SHOW SLAVE STATUS`、`SHOW MASTER STATUS`），文中只用新语法，"主库 / 从库"对应官方术语 source / replica。
 
 ### 1、作用
 

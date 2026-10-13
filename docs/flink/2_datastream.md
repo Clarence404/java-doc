@@ -12,8 +12,6 @@ DataStream 作业的骨架固定为环境、Source、转换、Sink 和 `execute(
 
 ## 一、执行环境
 
-算子函数被序列化后在远端执行是很多坑的根源；常见坑包括类型推断、Kryo 回退等。
-
 ![典型 DataStream 作业拓扑](../assets/flink/flink-datastream-pipeline.svg)
 
 ```java

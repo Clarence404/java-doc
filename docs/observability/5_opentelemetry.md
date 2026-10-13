@@ -55,7 +55,7 @@ OTel 只负责数据怎么产生、描述和传输，应用产出的数据可发
 
 ## 二、Java 接入方式对比
 
-Java 服务接入 OpenTelemetry 有三条路：
+Java 服务接入 OpenTelemetry 有两条主路线和一个过渡选项：Micrometer 路线（Spring Boot 官方 starter）、OTel Java agent，以及只用于 Boot 3 特殊场景的 OTel 社区 starter。本站其他文章涉及接入选择时都以本节为准。
 
 | 维度 | OTel Java agent | Spring Boot 官方 `spring-boot-starter-opentelemetry` | OTel 社区 `opentelemetry-spring-boot-starter` |
 |------|-----------------|------------------------------------------|------------------------------------------|
@@ -68,12 +68,12 @@ Java 服务接入 OpenTelemetry 有三条路：
 | 启动开销 | 启动时插桩，启动变慢；与 AOT 缓存、其他 agent 可能冲突 | 小 | 小 |
 | 维护方 | OpenTelemetry | Spring 团队 | OpenTelemetry；官方文档列出的支持范围为 Boot 2.6+ / 3.1+ |
 
-选择建议：
+本站立场：
 
-- **希望零代码、覆盖面最广，或公司内多语言统一用 OTel 体系**：用 Java agent。OpenTelemetry 官方把 agent 作为 Java 的默认推荐
-- **Spring Boot 4 项目、已经在用 Micrometer、或需要原生镜像**：用官方 `spring-boot-starter-opentelemetry`，配置方式见 [链路追踪](./3_tracing) 第三节和 [Actuator 监控](/spring-boot/7_actuator)
-- **社区 starter**：只在 Boot 3.x 项目无法使用 agent（如原生镜像）时考虑，它与 Boot 4 的官方 starter 不能混用
-- 三条路**只选一条**：agent 与 Micrometer Tracing 同时启用会产生重复的 Span；agent 2.x 默认关闭了对 Micrometer 指标的桥接，也是为了避免重复
+- **Spring Boot 4 新项目默认走 Micrometer 路线**：用官方 `spring-boot-starter-opentelemetry`，与 Spring 的 Observation API、`management.*` 配置完全对齐，支持原生镜像；配置方式见 [链路追踪](./3_tracing#三、spring-boot-接入) 和 [Actuator 监控](/spring-boot/7_actuator)
+- **多语言统一用 OTel 体系，或要零代码覆盖 JDBC、Redis 等更多库时用 Java agent**：OpenTelemetry 官方文档把 agent 作为 Spring Boot 插桩的默认选择，覆盖面最广，代价是启动开销和与其他 agent 的冲突
+- **社区 starter 只是过渡选项**：只在 Boot 3.x 项目无法使用 agent（如原生镜像）时考虑；官方文档列出的支持范围是 Boot 2.6+ / 3.1+，它与 Boot 4 的官方 starter 不能混用
+- **只选一条**：agent 与 Micrometer Tracing 同时启用会产生重复的 Span；agent 2.x 默认关闭了对 Micrometer 指标的桥接，也是为了避免重复
 
 ---
 
@@ -474,7 +474,7 @@ docker run --rm -p 3000:3000 -p 4317:4317 -p 4318:4318 grafana/otel-lgtm
 
 - OpenTelemetry 只管数据的产生、描述和传输，不管存储；靠 OTLP 和语义约定做到"换后端不改代码"
 - 组成是 API、SDK、插桩、Collector、OTLP、语义约定；traces、metrics、logs 均已稳定，profiles 处于 Alpha
-- Java 接入三选一：agent 零代码、覆盖最广；Boot 4 官方 starter 基于 Micrometer、支持原生镜像；社区 starter 只用于 Boot 3 的特殊场景，不要叠加使用
+- Java 接入只选一条：Boot 4 新项目默认官方 starter（Micrometer 路线）；多语言统一或要零代码覆盖时用 agent；社区 starter 只用于 Boot 3 的特殊场景
 - agent 2.x 默认使用 `http/protobuf` 和 4318 端口、稳定版 HTTP 语义约定，并关闭 Micrometer 桥接；配置以 `OTEL_*` 环境变量为主，声明式配置的规范已稳定但 Java 实现仍是实验性
 - Collector 由 receivers、processors、exporters 组成管道，`memory_limiter` 放第一位；组件已改用 snake_case 新名，Loki 改用 `otlp_http` 写入
 - Kubernetes 上采用 DaemonSet Agent + Deployment Gateway 两层部署，尾部采样需要按 traceID 路由到同一副本

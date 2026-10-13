@@ -12,7 +12,7 @@ RAG 就是先从知识库查出相关片段，再交给模型作答。本篇讲�
 
 ## 一、RAG 是什么
 
-代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0，涵盖 Query 改写与两种框架的落地写法。
+本篇代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0。
 
 **RAG（Retrieval-Augmented Generation，检索增强生成）** 的思路是「先查资料，再回答」：用户提问时，先从知识库里检索出最相关的几段内容，拼进 Prompt 作为上下文，再让 LLM 基于这些内容作答。它解决三个问题：
 

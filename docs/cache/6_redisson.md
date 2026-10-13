@@ -12,7 +12,7 @@ Redisson 是基于 Redis 的 Java 分布式对象库，把锁、限流器、队�
 
 ## 一、与其他 Redis 客户端对比
 
-Redisson 底层用 Lua 脚本和 Pub/Sub 保证原子性与通知。版本基线为 Redisson 4.x（Spring Boot Starter 写作时为 4.8.0，支持 Spring Boot 1.3 – 4.1）、服务端 Redis 8.x / Valkey 8.x。
+Redisson 底层用 Lua 脚本和 Pub/Sub 保证原子性与通知。版本基线为 Redisson 4.x（Spring Boot Starter 写作时为 4.8.0，支持 Spring Boot 1.3 – 4.1）、服务端 Redis 8.x / Valkey 9.x。
 
 | 对比项 | Redisson | Lettuce | Jedis |
 |--------|----------|---------|-------|

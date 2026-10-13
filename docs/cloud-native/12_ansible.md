@@ -12,7 +12,7 @@ Ansible 是用 YAML 描述机器应有状态的配置管理与自动化工具。
 
 ## 一、定位：与 Terraform 的分工
 
-Ansible 由 Red Hat 主导；版本基线为 ansible-core 2.21 和社区包 ansible 14，示例为部署 Java 应用。
+Ansible 由 Red Hat 主导，本篇以 ansible-core 2.21 和社区包 ansible 14 为基线，示例为部署一个 Java 应用。
 
 两者都是「用代码管基础设施」，但管的阶段不同：
 

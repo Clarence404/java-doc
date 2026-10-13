@@ -12,8 +12,6 @@ description: RBAC0–3 与角色爆炸、ABAC、ReBAC、模型选型、OPA / Reg
 
 ## 一、核心概念
 
-RBAC 部分含 RBAC0–3 与角色爆炸问题，OPA 策略使用 Rego v1。
-
 一次授权判断可以抽象成：**主体（Subject）能否对资源（Resource）执行操作（Action）**，判断时可能还要参考环境（时间、IP、设备）。不同模型的区别在于「凭什么判断」：
 
 | 模型 | 判断依据 | 典型场景 |

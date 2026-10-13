@@ -12,8 +12,6 @@ description: 类演进兼容规则、Externalizable、record、反序列化过�
 
 ## 一、Java 原生序列化
 
-选型看体积与速度、跨语言、类演进兼容和安全四件事；候选有 Kryo / Protobuf / Hessian / JSON，Jackson 3 是 Spring Boot 4 默认。
-
 ### 1、基本用法
 
 实现 `Serializable`（标记接口，无方法），用 `ObjectOutputStream.writeObject` / `ObjectInputStream.readObject` 读写。
@@ -136,6 +134,8 @@ public record Money(String currency, long cents) implements Serializable {
 ---
 
 ## 二、序列化框架对比
+
+选型看体积与速度、跨语言、类演进兼容和安全四件事。
 
 | 框架 | 格式 | 跨语言 | 性能 | 体积 | 典型场景 |
 |------|------|--------|------|------|----------|

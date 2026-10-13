@@ -8,7 +8,7 @@ Flink 是有状态的分布式流计算引擎，是实时数仓、实时风控�
 
 ## 一、学习路线
 
-Kafka、CDC 基础、Kubernetes、监控等通用知识在各自模块展开，这里只讲 Flink 特有的部分。Kafka 连接器使用 `flink-connector-kafka:5.0.0-2.2`；Java 21 为实验性支持。Flink 2.3 已于 2026 年 6 月发布，但 Kafka 等外部连接器尚未适配，依赖它们的作业建议暂时停留在 2.2.x。Flink 2.0 移除了 DataSet API、Scala API、`SourceFunction` / `SinkFunction`、Per-Job 模式和 `flink-conf.yaml`，也不再支持 Java 8；与 1.x 行为不同的地方，文中会单独标出。
+Kafka、CDC 基础、Kubernetes、监控等通用知识在各自模块展开，这里只讲 Flink 特有的部分。版本说明：Kafka 连接器使用 `flink-connector-kafka:5.0.0-2.2`；Java 21 为实验性支持。Flink 2.3 已于 2026 年 6 月发布，但 Kafka 等外部连接器尚未适配，依赖它们的作业建议暂时停留在 2.2.x。Flink 2.0 移除了 DataSet API、Scala API、`SourceFunction` / `SinkFunction`、Per-Job 模式和 `flink-conf.yaml`，也不再支持 Java 8；与 1.x 行为不同的地方，文中会单独标出。
 
 | 阶段 | 要解决的问题 | 文章 |
 |------|-------------|------|

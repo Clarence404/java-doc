@@ -1,8 +1,8 @@
 # 微服务总览
 
-本模块讲与框架无关的微服务架构问题：收益与代价、何时及如何从单体迁移、常用设计模式，以及 Dubbo / Spring Cloud 与服务网格两条治理路线。
+微服务是把单一应用拆成一组围绕业务能力构建、可独立部署、通过轻量级协议通信的小服务的架构风格。本模块讲与框架无关的架构问题：收益与代价、何时及如何从单体迁移、常用设计模式，以及 Dubbo / Spring Cloud 与服务网格两条治理路线。
 
-**版本基线（2026 年 10 月）**：Spring Boot 4.x、Spring Cloud 2025.1、Istio 1.24、Dubbo 3.3
+**版本基线（2026 年 10 月）**：Spring Boot 4.x、Spring Cloud 2025.1、Istio 1.30 / 1.31（1.29 已于 2026-10-12 停止支持）、Dubbo 3.3
 
 ---
 
@@ -25,7 +25,7 @@
 
 ## 三、关联模块
 
-微服务是把单一应用拆成一组围绕业务能力构建、可独立部署、通过轻量级协议通信的小服务的架构风格（James Lewis 与 Martin Fowler 2014 年系统阐述）。Spring Cloud 各组件的具体用法在 [Spring Cloud](/spring-cloud/0_overview) 模块展开。版本注意：Istio Ambient 模式已 GA；Dubbo 3.3 基于 Spring Boot 3.5，Boot 4 适配以官方发布为准。
+Spring Cloud 各组件的具体用法在 [Spring Cloud](/spring-cloud/0_overview) 模块展开。版本注意：Istio Ambient 模式已 GA；Dubbo 3.3 基于 Spring Boot 3.5，Boot 4 适配以官方发布为准。
 
 - [Spring Cloud 总览](/spring-cloud/0_overview)：注册发现、网关、服务通信、配置中心、服务治理的 Spring 实现
 - [Spring Cloud · 服务通信](/spring-cloud/3_communication)：HTTP Service Clients、OpenFeign、gRPC 与异步消息

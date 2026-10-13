@@ -12,7 +12,7 @@ description: CAS 硬件基础、VarHandle、Atomic 类族、ABA 与版本戳、L
 
 ## 一、CAS：原子操作的硬件基础
 
-原子类也是 AQS、`ConcurrentHashMap` 等 JUC 组件的底层基础；字段更新器与 `AtomicLong` 的取舍也在下文。
+CAS 也是 AQS、`ConcurrentHashMap` 等 JUC 组件的底层基础。
 
 ### 1、语义
 

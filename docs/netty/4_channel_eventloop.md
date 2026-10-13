@@ -33,7 +33,7 @@ Netty 里 Channel 是连接，EventLoop 是干活的线程，Pipeline 是流水�
 | `NioDatagramChannel` | UDP | 无连接，一个 Channel 收发所有数据报 |
 
 ::: tip 选择建议
-开发机用 `Nio*` 保证跨平台；Linux 生产环境可切换 `Epoll*`（配套 `EpollEventLoopGroup`），通常用 `Epoll.isAvailable()` 做运行时判断。
+开发机用 `Nio*` 保证跨平台；Linux 生产环境可切换 `Epoll*`（线程组配套 `EpollIoHandler.newFactory()`），通常用 `Epoll.isAvailable()` 做运行时判断。
 :::
 
 ### 2、生命周期
@@ -111,17 +111,16 @@ Handler 的回调默认就运行在 EventLoop 线程上。在这里调用 `futur
 
 ## 三、EventLoop 与 EventLoopGroup：干活的线程
 
-**一个 EventLoop = 一个线程 + 一个 Selector + 任务队列，它在死循环里轮流处理 IO 事件和提交进来的任务。** EventLoopGroup 则是一组 EventLoop，对应 [Reactor 模型](./2_reactor)中的"从 Reactor 组"。
+**一个 EventLoop = 一个线程 + 一个 IO 多路复用器（NIO 下是 Selector）+ 任务队列，它在死循环里轮流处理 IO 事件和提交进来的任务。** EventLoopGroup 则是一组 EventLoop，对应 [Reactor 模型](./2_reactor)中的"从 Reactor 组"。
 
 ### 1、事件循环在做什么
 
-`NioEventLoop` 的 `run()` 大致是三步循环：
+Netty 4.2 把事件循环拆成两层：通用的 `SingleThreadIoEventLoop` 负责循环和任务队列，传输相关的 `IoHandler`（`NioIoHandler`、`EpollIoHandler` 等）负责等待和处理 IO。`run()` 大致是两步循环：
 
-1. **select**：在 Selector 上等待 IO 就绪（有任务待执行时不会长时间阻塞）
-2. **processSelectedKeys**：处理就绪的 accept / read / write 事件，驱动 Pipeline
-3. **runAllTasks**：执行 `taskQueue`（`execute()` 提交的普通任务）和到期的 `scheduledTaskQueue`（`schedule()` 提交的定时任务）
+1. **runIo**：由 `IoHandler` 在 Selector / epoll 上等待 IO 就绪（有任务待执行时不会长时间阻塞），再处理就绪的 accept / read / write 事件，驱动 Pipeline
+2. **runAllTasks**：执行 `taskQueue`（`execute()` 提交的普通任务）和到期的定时任务（`schedule()` 提交）
 
-两类工作的时间配比由 `ioRatio` 控制，**默认 50**，即 IO 处理与任务执行大致各占一半时间。
+每轮执行任务最多约 1 秒（`-Dio.netty.eventLoop.maxTaskProcessingQuantumMs`，默认 1000），到点就回去处理 IO；`ioRatio` 在 4.2 中默认 100，即不按比例分配。Netty 4.1 的 `NioEventLoop` 是 select → processSelectedKeys → runAllTasks 三步，`ioRatio` **默认 50**，IO 与任务大致各占一半时间。
 
 ### 2、Channel 终身绑定一个 EventLoop
 
@@ -135,12 +134,17 @@ Handler 的回调默认就运行在 EventLoop 线程上。在这里调用 `futur
 
 ### 3、线程数
 
-`NioEventLoopGroup` 无参构造时，线程数默认 = **CPU 核数 × 2**（可用 `-Dio.netty.eventLoopThreads` 覆盖）。服务端通常这样配置：
+`MultiThreadIoEventLoopGroup` 不指定线程数（或传 0）时，线程数默认 = **CPU 核数 × 2**（可用 `-Dio.netty.eventLoopThreads` 覆盖）。服务端通常这样配置：
 
 ```java
-EventLoopGroup bossGroup   = new NioEventLoopGroup(1); // 只负责 accept，1 个线程足够
-EventLoopGroup workerGroup = new NioEventLoopGroup();  // 负责读写，默认 CPU × 2
+IoHandlerFactory nio = NioIoHandler.newFactory();  // 换传输只需换工厂：EpollIoHandler / KQueueIoHandler / IoUringIoHandler
+EventLoopGroup bossGroup   = new MultiThreadIoEventLoopGroup(1, nio); // 只负责 accept，1 个线程足够
+EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(nio);    // 负责读写，默认 CPU × 2
 ```
+
+::: tip 与 4.1 的写法对照
+Netty 4.1 按传输各写一个线程组：`new NioEventLoopGroup()`、`new EpollEventLoopGroup()`。这些类在 4.2 中仍能编译但已废弃，统一改为 `MultiThreadIoEventLoopGroup` + 对应的 `XxxIoHandler.newFactory()`；`Bootstrap.channel(...)` 仍需配套的 Channel 类（如 `NioServerSocketChannel`、`EpollServerSocketChannel`）。
+:::
 
 ### 4、在 EventLoop 中执行任务
 
@@ -229,10 +233,12 @@ public class BusinessHandler extends SimpleChannelInboundHandler<Request> {
 
 ## 参考资料
 
-- Channel 接口：[Channel (Netty API)](https://netty.io/4.1/api/io/netty/channel/Channel.html)
-- 异步结果与监听器：[ChannelFuture (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelFuture.html)
-- EventLoopGroup 接口：[EventLoopGroup (Netty API)](https://netty.io/4.1/api/io/netty/channel/EventLoopGroup.html)
+- Channel 接口：[Channel (Netty API)](https://netty.io/4.2/api/io/netty/channel/Channel.html)
+- 异步结果与监听器：[ChannelFuture (Netty API)](https://netty.io/4.2/api/io/netty/channel/ChannelFuture.html)
+- EventLoopGroup 接口：[EventLoopGroup (Netty API)](https://netty.io/4.2/api/io/netty/channel/EventLoopGroup.html)
+- 4.2 线程组实现：[MultiThreadIoEventLoopGroup (Netty API)](https://netty.io/4.2/api/io/netty/channel/MultiThreadIoEventLoopGroup.html)
+- 4.1 → 4.2 迁移：[Netty 4.2 Migration Guide](https://netty.io/wiki/netty-4.2-migration-guide.html)
 - Netty 4 线程模型变化说明：[New and Noteworthy in 4.0](https://netty.io/wiki/new-and-noteworthy-in-4.0.html)
-- 业务线程池与 EventExecutorGroup：[EventExecutorGroup (Netty API)](https://netty.io/4.1/api/io/netty/util/concurrent/EventExecutorGroup.html)
+- 业务线程池与 EventExecutorGroup：[EventExecutorGroup (Netty API)](https://netty.io/4.2/api/io/netty/util/concurrent/EventExecutorGroup.html)
 
 > 下一篇：[Pipeline 与 Handler](./5_pipeline_handler) —— 消息在连接上如何被一层层处理，以及 Handler 的编写规则。

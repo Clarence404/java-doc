@@ -102,8 +102,8 @@ void read(SelectionKey key) throws IOException {
 | 业务线程池（可选）| 自定义线程池，或 `pipeline.addLast(EventExecutorGroup, ...)` |
 
 ```java
-EventLoopGroup bossGroup   = new NioEventLoopGroup(1);  // 主 Reactor：只负责 accept
-EventLoopGroup workerGroup = new NioEventLoopGroup();   // 从 Reactor 组：负责读写
+EventLoopGroup bossGroup   = new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory()); // 主 Reactor：只负责 accept
+EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());    // 从 Reactor 组：负责读写
 EventExecutorGroup bizGroup = new DefaultEventExecutorGroup(16); // 业务线程池（可选）
 
 ServerBootstrap bootstrap = new ServerBootstrap()
@@ -183,7 +183,7 @@ Linux 长期缺少成熟的网络异步 IO，所以 Linux 上的高性能网络�
 - Reactor 模式原始论文（Douglas C. Schmidt）：[Reactor: An Object Behavioral Pattern for Demultiplexing and Dispatching Handles for Synchronous Events](https://www.dre.vanderbilt.edu/~schmidt/PDF/reactor-siemens.pdf)
 - Proactor 模式原始论文：[Proactor: An Object Behavioral Pattern for Demultiplexing and Dispatching Handlers for Asynchronous Events](https://www.dre.vanderbilt.edu/~schmidt/PDF/Proactor.pdf)
 - 单线程 / 多线程 / 主从 Reactor 的经典讲解（Doug Lea）：[Scalable IO in Java](https://gee.cs.oswego.edu/dl/cpjslides/nio.pdf)
-- Netty 线程组 API：[EventLoopGroup (Netty API)](https://netty.io/4.1/api/io/netty/channel/EventLoopGroup.html)
-- Netty NIO 事件循环实现：[NioEventLoopGroup (Netty API)](https://netty.io/4.1/api/io/netty/channel/nio/NioEventLoopGroup.html)
+- Netty 线程组 API：[EventLoopGroup (Netty API)](https://netty.io/4.2/api/io/netty/channel/EventLoopGroup.html)
+- Netty 4.2 事件循环组：[MultiThreadIoEventLoopGroup (Netty API)](https://netty.io/4.2/api/io/netty/channel/MultiThreadIoEventLoopGroup.html)
 
 > 下一篇：[Netty 入门](./3_netty_desc) —— 看 Netty 如何把主从 Reactor 封装成几十行就能跑起来的服务端。

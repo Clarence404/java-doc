@@ -12,7 +12,7 @@ description: 日志分类与级别策略、JSON 字段规范、traceId 关联、
 
 ## 一、日志分类与用途
 
-示例统一以 Kubernetes 上运行的 `order-service`（命名空间 `order`）为对象，另含 LogQL 查询与控量手段。
+示例统一以 Kubernetes 上运行的 `order-service`（命名空间 `order`）为对象。
 
 不同类别的日志，读者、保留期和可靠性要求完全不同，混在一条管道、一个保留策略里，要么成本失控，要么合规不达标。
 

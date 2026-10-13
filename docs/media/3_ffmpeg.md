@@ -12,7 +12,7 @@ FFmpeg 是把解封装、编解码、滤镜和推拉流集中在一个命令行�
 
 ## 一、命令结构与 ffprobe
 
-FFmpeg 是音视频领域事实上的"瑞士军刀"，很多媒体处理服务的底层也基于它。本篇版本为 FFmpeg 9.0（当前 9.0.2，2026-09 发布；8.1 系列仍在维护）。示例统一用一个直播 / 视频平台的场景：用户上传视频 → 转成多码率 HLS → 生成封面与进度条缩略图 → 在 App 和 Web 播放。
+FFmpeg 是音视频领域事实上的"瑞士军刀"，很多媒体处理服务的底层也基于它。版本说明：FFmpeg 当前最新为 9.0.2（2026-09 发布），8.1 系列仍在维护。示例场景：用户上传视频 → 转成多码率 HLS → 生成封面与进度条缩略图 → 在 App 和 Web 播放。
 
 ::: tip 许可证要先想清楚
 FFmpeg 本体是 LGPL 2.1+；一旦编译时带 `--enable-gpl`（libx264、libx265 都需要），整个二进制就按 GPL 分发；带 `--enable-nonfree`（如 libfdk_aac）的构建不能再分发。服务端自己用一般没问题，但要把 FFmpeg 打进交付给客户的产品或客户端时，先让法务确认用的是哪种构建。
@@ -220,10 +220,10 @@ ffmpeg -re -stream_loop -1 -i demo.mp4 \
   -c:v libx264 -preset veryfast -tune zerolatency \
   -b:v 2500k -maxrate 2500k -bufsize 5000k -g 60 -keyint_min 60 \
   -c:a aac -b:a 128k -ar 44100 \
-  -f flv "rtmp://push.live.example.com/live/room_1001?expire=1791590400&token=3f9c..."
+  -f flv "rtmp://push.example.com/live/room_1001?expire=1791590400&sign=3f9c..."
 
 # 源已经是 H.264/AAC 时直接拷贝转推，例如把一路直播转推到另一个平台
-ffmpeg -i "rtmp://origin.live.example.com/live/room_1001" -c copy -f flv "rtmp://relay.example.net/app/key"
+ffmpeg -i "rtmp://origin.internal/live/room_1001" -c copy -f flv "rtmp://relay.example.net/app/key"
 ```
 
 直播推流要点：固定 GOP（30fps 下 `-g 60` 即 2 秒一个关键帧，影响首屏时间和 HLS 切片）、固定码率、`-tune zerolatency` 关掉 B 帧和前瞻以降低编码延迟。RTMP URL 里的 `token` 由业务服务签发，流媒体服务器在推流时回调业务鉴权，见 [流媒体服务器](./4_media_server) 第四节。

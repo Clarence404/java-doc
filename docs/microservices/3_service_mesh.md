@@ -82,10 +82,10 @@ istioctl waypoint apply -n production --enroll-namespace
 | 资源开销 | 每个 Pod 一份 Envoy，随 Pod 数线性增长 | 每节点一个 ztunnel，L7 只在需要的地方部署 waypoint |
 | 接入与升级 | 注入和升级代理都要重启业务 Pod | 打标签即接入，升级 ztunnel 不重启业务 Pod |
 | L7 能力 | 默认全量具备 | 按需开启（部署 waypoint） |
-| 成熟度 | 最成熟，生态与案例最多 | 1.24 起 GA，部分高级特性与多集群场景需核对当前版本文档 |
+| 成熟度 | 最成熟，生态与案例最多 | 1.24 起 GA，当前支持版本（1.30 / 1.31）已是生产可用模式；多集群等高级场景以对应版本文档为准 |
 | 适合 | 需要每个工作负载都有完整 L7 治理 | 以 mTLS、零信任为首要目标，或希望降低资源开销 |
 
-官方性能测试（Istio 1.24，1 KB 负载、1000 QPS）给出的单代理资源占用：Sidecar 约 0.20 vCPU / 60 MB，waypoint 约 0.25 vCPU / 60 MB，ztunnel 约 0.06 vCPU / 12 MB。实际开销与流量模型强相关，以自己环境的压测为准。
+Istio 1.24 发布时的官方性能测试（1 KB 负载、1000 QPS）给出的单代理资源占用：Sidecar 约 0.20 vCPU / 60 MB，waypoint 约 0.25 vCPU / 60 MB，ztunnel 约 0.06 vCPU / 12 MB。实际开销与流量模型强相关，以自己环境的压测为准。
 
 ---
 

@@ -62,7 +62,7 @@ Netty 是一个**异步、事件驱动**的网络应用框架，基于 Java NIO�
 <dependency>
     <groupId>io.netty</groupId>
     <artifactId>netty-all</artifactId>
-    <version>4.1.115.Final</version>
+    <version>4.2.19.Final</version>
 </dependency>
 ```
 
@@ -72,8 +72,9 @@ Netty 是一个**异步、事件驱动**的网络应用框架，基于 Java NIO�
 public final class EchoServer {
 
     public static void main(String[] args) throws InterruptedException {
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);   // 主 Reactor：accept
-        EventLoopGroup workerGroup = new NioEventLoopGroup();  // 从 Reactor：读写，默认 CPU 核数 × 2 个线程
+        // Netty 4.2 写法：通用线程组 + 传输相关的 IoHandler（4.1 为 new NioEventLoopGroup()）
+        EventLoopGroup bossGroup = new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory()); // 主 Reactor：accept
+        EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());  // 从 Reactor：读写，默认 CPU 核数 × 2 个线程
         try {
             ServerBootstrap b = new ServerBootstrap()
                     .group(bossGroup, workerGroup)
@@ -122,7 +123,7 @@ public class EchoServerHandler extends SimpleChannelInboundHandler<String> {
 public final class EchoClient {
 
     public static void main(String[] args) throws InterruptedException {
-        EventLoopGroup group = new NioEventLoopGroup();        // 客户端只需一个线程组
+        EventLoopGroup group = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory()); // 客户端只需一个线程组
         try {
             Bootstrap b = new Bootstrap()
                     .group(group)
@@ -224,8 +225,8 @@ TCP 是字节流，没有消息边界，一次读到的数据可能是半行，�
 
 - **主从 Reactor 线程模型**：少量线程处理大量连接，accept 与读写分离 → [Reactor 模型](./2_reactor)
 - **无锁串行化**：Channel 绑定单个 EventLoop，同一连接上的处理不需要加锁，也没有线程切换 → [Channel 与 EventLoop](./4_channel_eventloop)
-- **池化直接内存与零拷贝**：`PooledByteBufAllocator` 复用内存、减少 GC；堆外内存减少一次拷贝；`CompositeByteBuf`、`FileRegion` 避免多余的数据复制 → [ByteBuf 与内存管理](./6_bytebuf)
-- **原生 epoll 传输**：绕过 JDK Selector，使用 ET 模式并支持更多 Socket 参数 → [生产实践与调优](./12_production)
+- **池化直接内存与零拷贝**：池化分配器（4.2 默认 `AdaptiveByteBufAllocator`，4.1 为 `PooledByteBufAllocator`）复用内存、减少 GC；堆外内存减少一次拷贝；`CompositeByteBuf`、`FileRegion` 避免多余的数据复制 → [ByteBuf 与内存管理](./6_bytebuf)
+- **原生 epoll 传输**：绕过 JDK Selector，直接调用 epoll，对象分配更少并支持更多 Socket 参数 → [生产实践与调优](./12_production)
 
 ## 小结
 
@@ -239,8 +240,8 @@ TCP 是字节流，没有消息边界，一次读到的数据可能是半行，�
 
 - Netty 官网：[Netty Project](https://netty.io/)
 - 官方入门教程：[Netty User Guide for 4.x](https://netty.io/wiki/user-guide-for-4.x.html)
-- 服务端启动器 API：[ServerBootstrap (Netty API)](https://netty.io/4.1/api/io/netty/bootstrap/ServerBootstrap.html)
-- Channel 参数选项：[ChannelOption (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelOption.html)
+- 服务端启动器 API：[ServerBootstrap (Netty API)](https://netty.io/4.2/api/io/netty/bootstrap/ServerBootstrap.html)
+- Channel 参数选项：[ChannelOption (Netty API)](https://netty.io/4.2/api/io/netty/channel/ChannelOption.html)
 - Netty 源码仓库：[netty/netty — GitHub](https://github.com/netty/netty)
 
 > 下一篇：[Channel 与 EventLoop](./4_channel_eventloop) —— 深入连接与线程两个核心抽象，弄清 EventLoop 的线程模型细节。

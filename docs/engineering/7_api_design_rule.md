@@ -230,22 +230,54 @@ Spring Framework 6 起内置 `ProblemDetail` 与 `ErrorResponse`。框架自身�
 - 只设置 `spring.mvc.problemdetails.enabled=true`，Boot 会注册一个默认的异常处理器
 - 自己写 `@RestControllerAdvice` 继承 `ResponseEntityExceptionHandler`，同时处理业务异常。此时 Boot 不再注册默认处理器，上面的属性也就不需要了
 
+全站统一用一个错误码枚举承载「HTTP 状态 + 稳定字符串业务码 + 标题」，业务码直接取枚举名，业务异常只引用枚举：
+
 ```java
 import org.springframework.http.HttpStatus;
 
-public class BizException extends RuntimeException {
+public enum ErrorCode {
+
+    PARAM_INVALID(HttpStatus.BAD_REQUEST, "请求参数错误"),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "订单不存在"),
+    STOCK_INSUFFICIENT(HttpStatus.CONFLICT, "库存不足"),
+    ORDER_SHIPPED(HttpStatus.UNPROCESSABLE_CONTENT, "订单已发货"),
+    FILE_PROCESS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "文件处理失败"),
+    SYSTEM_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "系统繁忙，请稍后重试");
 
     private final HttpStatus status;
-    private final String code;
+    private final String title;
 
-    public BizException(HttpStatus status, String code, String message) {
-        super(message);
+    ErrorCode(HttpStatus status, String title) {
         this.status = status;
-        this.code = code;
+        this.title = title;
     }
 
-    public HttpStatus getStatus() { return status; }
-    public String getCode() { return code; }
+    public HttpStatus status() { return status; }
+    public String title() { return title; }
+    public String code() { return name(); }           // 业务码 = 枚举名，如 ORDER_NOT_FOUND
+}
+```
+
+```java
+public class BizException extends RuntimeException {
+
+    private final ErrorCode errorCode;
+
+    public BizException(ErrorCode errorCode) {
+        this(errorCode, errorCode.title());
+    }
+
+    public BizException(ErrorCode errorCode, String message) {
+        super(message);
+        this.errorCode = errorCode;
+    }
+
+    public BizException(ErrorCode errorCode, String message, Throwable cause) {
+        super(message, cause);                        // 保留 cause，根因堆栈不丢
+        this.errorCode = errorCode;
+    }
+
+    public ErrorCode getErrorCode() { return errorCode; }
 }
 ```
 
@@ -253,6 +285,7 @@ public class BizException extends RuntimeException {
 import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -264,6 +297,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -271,12 +305,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(BizException.class)
     public ProblemDetail handleBiz(BizException ex) {
-        ProblemDetail pd = ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage());
-        pd.setType(URI.create(PROBLEM_BASE + ex.getCode().toLowerCase().replace('_', '-')));
-        pd.setTitle(ex.getStatus().getReasonPhrase());
-        pd.setProperty("code", ex.getCode());
-        pd.setProperty("traceId", MDC.get("traceId"));
-        return pd;
+        ErrorCode ec = ex.getErrorCode();
+        boolean serverError = ec.status().is5xxServerError();
+        if (serverError) {
+            log.error("业务处理失败，code={}", ec.code(), ex);          // 5xx：记录堆栈
+        } else {
+            log.warn("业务异常，code={}, message={}", ec.code(), ex.getMessage());
+        }
+        // 5xx 只返回通用提示，内部细节只进日志
+        return problem(ec, serverError ? ec.title() : ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleUnknown(Exception ex) {
+        log.error("未处理的异常", ex);
+        return problem(ErrorCode.SYSTEM_ERROR, ErrorCode.SYSTEM_ERROR.title());
     }
 
     @Override
@@ -294,10 +337,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .toList());
         return handleExceptionInternal(ex, pd, headers, status, request);
     }
+
+    private ProblemDetail problem(ErrorCode ec, String detail) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(ec.status(), detail);
+        pd.setType(URI.create(PROBLEM_BASE + ec.code().toLowerCase().replace('_', '-')));
+        pd.setTitle(ec.title());
+        pd.setProperty("code", ec.code());
+        pd.setProperty("traceId", MDC.get("traceId"));
+        return pd;
+    }
 }
 ```
 
-业务代码只需 `throw new BizException(HttpStatus.UNPROCESSABLE_CONTENT, "ORDER_SHIPPED", "订单已发货，不能取消")`。`500` 一类未预期的异常，只返回通用的 `detail` 和 `traceId`，堆栈只写日志，不放进响应。
+业务代码只需 `throw new BizException(ErrorCode.ORDER_SHIPPED, "订单已发货，不能取消")`。几点约定：
+
+- **继承 `ResponseEntityExceptionHandler`**：Spring MVC 自身的异常（参数校验失败、请求体无法解析、方法不支持等）由父类转换成对应 4xx，不会被 `Exception` 兜底成 500
+- **5xx 不暴露内部信息**：只返回通用的 `detail` 和 `traceId`，堆栈只写日志；4xx 记 `warn`、5xx 记 `error`
+- 什么时候捕获、怎么包装、一个异常只记录一次等编码层面的规约见 [开发规范](/devops/4_dev_standards#五、异常)
 
 ::: tip 已经在用 Result 包装的项目
 不必一次性全部迁移。成功响应继续用 `Result`，错误响应先做到两点：HTTP 状态码真实，业务码改成稳定的字符串。之后新接口用 Problem Details，旧接口在下一个大版本里统一切换。

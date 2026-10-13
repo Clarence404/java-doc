@@ -93,7 +93,8 @@ Mark Word 存储对象运行时数据，其内容随锁状态复用。64 位 JVM
 
 - 分代年龄只有 4 位，所以 `-XX:MaxTenuringThreshold` 最大为 15
 - 偏向锁自 JDK 15 起默认禁用并废弃（JEP 374），后续版本已移除；锁升级细节见 [Java synchronized](/java/24_topic_synchronized)
-- JDK 24 引入实验性紧凑对象头（JEP 450），JDK 25 转为正式特性（JEP 519），但默认不开启，需要加 `-XX:+UseCompactObjectHeaders`，把 Mark Word 与类指针压进 8 字节
+- 表中「轻量级锁存指针」是传统实现；JDK 23 起默认用 lock-stack 实现轻量级锁，Mark Word 只改锁位、不存指针，详见 [Java synchronized](/java/24_topic_synchronized)
+- JDK 24 引入实验性紧凑对象头（JEP 450），JDK 25 转为正式特性（JEP 519，需加 `-XX:+UseCompactObjectHeaders`），JDK 27 起默认开启（JEP 534），把 Mark Word 与类指针压进 8 字节；回退旧布局用 `-XX:-UseCompactObjectHeaders`
 
 ### 2、压缩指针
 

@@ -18,7 +18,7 @@ description: 线程模型与原生传输、关键参数、写水位与背压、�
 
 | 线程组 | 建议 | 说明 |
 |--------|------|------|
-| bossGroup | `new NioEventLoopGroup(1)` | 每个 `ServerChannel` 只注册到一个 EventLoop，只监听 1 个端口时多配线程也用不上 |
+| bossGroup | `new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory())` | 每个 `ServerChannel` 只注册到一个 EventLoop，只监听 1 个端口时多配线程也用不上 |
 | workerGroup | 默认（CPU 核数 × 2） | 可用 `-Dio.netty.eventLoopThreads` 调整；纯 IO 场景一般无需改动 |
 | 业务线程池 | 按业务耗时单独评估 | 数据库、RPC、复杂计算等阻塞操作不能在 EventLoop 中执行 |
 
@@ -34,10 +34,12 @@ description: 线程模型与原生传输、关键参数、写水位与背压、�
 
 | 传输 | 平台 | EventLoopGroup / Channel | 依赖 |
 |------|------|--------------------------|------|
-| NIO | 全平台 | `NioEventLoopGroup` / `NioServerSocketChannel` | 内置 |
-| Epoll | Linux | `EpollEventLoopGroup` / `EpollServerSocketChannel` | `netty-transport-native-epoll`（带平台 classifier，如 `linux-x86_64`） |
-| KQueue | macOS / BSD | `KQueueEventLoopGroup` / `KQueueServerSocketChannel` | `netty-transport-native-kqueue` |
-| io_uring | 较新 Linux 内核 | `IOUringEventLoopGroup` 等 | 4.1 中为孵化项目 `netty-incubator-transport-io_uring`，生产使用需充分验证 |
+| NIO | 全平台 | `NioIoHandler` / `NioServerSocketChannel` | 内置 |
+| Epoll | Linux | `EpollIoHandler` / `EpollServerSocketChannel` | `netty-transport-native-epoll`（带平台 classifier，如 `linux-x86_64`） |
+| KQueue | macOS / BSD | `KQueueIoHandler` / `KQueueServerSocketChannel` | `netty-transport-native-kqueue` |
+| io_uring | 较新 Linux 内核 | `IoUringIoHandler` / `IoUringServerSocketChannel` | 4.2 起转正为 `netty-transport-native-io_uring`（包名 `io.netty.channel.uring`，需 JDK 9+）；传输较新，上线前充分压测 |
+
+4.2 中线程组统一用 `new MultiThreadIoEventLoopGroup(n, XxxIoHandler.newFactory())` 创建。Netty 4.1 用的是 `NioEventLoopGroup`、`EpollEventLoopGroup` 等专用线程组，io_uring 还在孵化项目 `netty-incubator-transport-io_uring` 中（类名前缀 `IOUring`），该孵化模块与 4.2 不兼容。
 
 按平台自动选择，不可用时回退 NIO：
 
@@ -48,7 +50,8 @@ public final class TransportFactory {
     private static final boolean EPOLL = Epoll.isAvailable();
 
     public static EventLoopGroup newGroup(int threads) {
-        return EPOLL ? new EpollEventLoopGroup(threads) : new NioEventLoopGroup(threads);
+        IoHandlerFactory factory = EPOLL ? EpollIoHandler.newFactory() : NioIoHandler.newFactory();
+        return new MultiThreadIoEventLoopGroup(threads, factory);   // threads = 0 表示默认线程数
     }
 
     public static Class<? extends ServerChannel> serverChannelClass() {
@@ -85,7 +88,7 @@ ServerBootstrap b = new ServerBootstrap()
         .childOption(ChannelOption.TCP_NODELAY, true)
         .childOption(ChannelOption.SO_KEEPALIVE, true)
         .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(32 * 1024, 64 * 1024))
-        .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+        .childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)   // 4.2 默认 adaptive
         .childHandler(initializer);
 ```
 
@@ -98,7 +101,7 @@ ServerBootstrap b = new ServerBootstrap()
 | `SO_RCVBUF` / `SO_SNDBUF` | childOption | 内核收发缓冲区大小 | 一般不设置，交给操作系统自动调节；手动设置后 Linux 会关闭该连接的自动调节 |
 | `CONNECT_TIMEOUT_MILLIS` | option（客户端） | 建连超时 | 默认 30s，客户端建议按业务调小（如 3～5s） |
 | `WRITE_BUFFER_WATER_MARK` | childOption | 出站缓冲区高 / 低水位，决定 `isWritable()` | 默认低 32KB、高 64KB，按单连接吞吐调整 |
-| `ALLOCATOR` | childOption | ByteBuf 分配器 | 默认池化分配器（`PooledByteBufAllocator`），一般无需修改 |
+| `ALLOCATOR` | childOption | ByteBuf 分配器 | 默认 `ByteBufAllocator.DEFAULT`：4.2 为自适应池化分配器（`AdaptiveByteBufAllocator`），4.1 为 `PooledByteBufAllocator`；升级初期可用 `-Dio.netty.allocator.type=pooled` 保持旧行为 |
 | `RCVBUF_ALLOCATOR` | childOption | 每次读取分配多大的 ByteBuf | 默认自适应（`AdaptiveRecvByteBufAllocator`），根据历史读取量动态调整 |
 | `AUTO_READ` | childOption | 是否自动注册读事件 | 默认 `true`；做入站背压时临时关闭，见下文 |
 
@@ -253,10 +256,11 @@ ch.pipeline().addFirst(new FlushConsolidationHandler(256, true));
 public class NettyMemoryMetrics {
 
     public NettyMemoryMetrics(MeterRegistry registry) {
-        PooledByteBufAllocatorMetric metric = PooledByteBufAllocator.DEFAULT.metric();
-        Gauge.builder("netty.allocator.direct.used", metric, PooledByteBufAllocatorMetric::usedDirectMemory)
+        // 取默认分配器的指标：adaptive / pooled / unpooled 都实现了 ByteBufAllocatorMetricProvider
+        ByteBufAllocatorMetric metric = ((ByteBufAllocatorMetricProvider) ByteBufAllocator.DEFAULT).metric();
+        Gauge.builder("netty.allocator.direct.used", metric, ByteBufAllocatorMetric::usedDirectMemory)
              .baseUnit("bytes").register(registry);
-        Gauge.builder("netty.allocator.heap.used", metric, PooledByteBufAllocatorMetric::usedHeapMemory)
+        Gauge.builder("netty.allocator.heap.used", metric, ByteBufAllocatorMetric::usedHeapMemory)
              .baseUnit("bytes").register(registry);
     }
 }
@@ -364,7 +368,7 @@ public class NettyServerLifecycle implements SmartLifecycle {
 | 新建 / 断开速率 | 同上，按分钟统计 | 大量重连风暴 |
 | EventLoop 待处理任务数 | 遍历 group，读取 `SingleThreadEventExecutor.pendingTasks()` | 持续增长说明 IO 线程被阻塞或过载 |
 | 不可写次数 | `channelWritabilityChanged` 或写前检查计数 | 慢消费者增多 |
-| 直接内存使用 | `PooledByteBufAllocatorMetric.usedDirectMemory()` | 只涨不跌 |
+| 直接内存使用 | `ByteBufAllocatorMetric.usedDirectMemory()` | 只涨不跌 |
 | 解码错误数 | 解码器异常 / `DecoderException` 计数 | 协议不兼容或遭受攻击 |
 | 心跳超时断开数 | `READER_IDLE` 关闭时计数 | 网络质量或客户端异常 |
 | 业务线程池队列长度 | 线程池 `getQueue().size()` | 处理能力不足 |
@@ -419,10 +423,10 @@ public static void registerPendingTasks(MeterRegistry registry, EventLoopGroup g
 ## 参考资料
 
 - 原生传输：[Netty Native Transports](https://netty.io/wiki/native-transports.html)
-- 连接参数：[ChannelOption (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelOption.html)
-- 写水位线：[WriteBufferWaterMark (Netty API)](https://netty.io/4.1/api/io/netty/channel/WriteBufferWaterMark.html)
-- flush 合并：[FlushConsolidationHandler (Netty API)](https://netty.io/4.1/api/io/netty/handler/flush/FlushConsolidationHandler.html)
-- 泄漏检测级别：[ResourceLeakDetector (Netty API)](https://netty.io/4.1/api/io/netty/util/ResourceLeakDetector.html)
-- 优雅停机 shutdownGracefully：[EventExecutorGroup (Netty API)](https://netty.io/4.1/api/io/netty/util/concurrent/EventExecutorGroup.html)
+- 连接参数：[ChannelOption (Netty API)](https://netty.io/4.2/api/io/netty/channel/ChannelOption.html)
+- 写水位线：[WriteBufferWaterMark (Netty API)](https://netty.io/4.2/api/io/netty/channel/WriteBufferWaterMark.html)
+- flush 合并：[FlushConsolidationHandler (Netty API)](https://netty.io/4.2/api/io/netty/handler/flush/FlushConsolidationHandler.html)
+- 泄漏检测级别：[ResourceLeakDetector (Netty API)](https://netty.io/4.2/api/io/netty/util/ResourceLeakDetector.html)
+- 优雅停机 shutdownGracefully：[EventExecutorGroup (Netty API)](https://netty.io/4.2/api/io/netty/util/concurrent/EventExecutorGroup.html)
 
 > 回到 [模块总览](./0_overview) 查看完整学习路径，或前往 [Netty 面试题解答](/interview/6_netty) 复习高频问题。

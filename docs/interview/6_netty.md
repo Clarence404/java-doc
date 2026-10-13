@@ -59,7 +59,7 @@ description: IO 模型、Reactor、ByteBuf、粘包拆包、心跳、生产调�
 
 ### Q4：epoll 的 LT 和 ET 有什么区别？Netty 用哪种？
 
-**一句话**：LT（水平触发）只要缓冲区里还有没读完的数据，每次都提醒你；ET（边缘触发）只在新数据到来时提醒一次，必须一口气读到读不出为止。Netty 的 NIO 传输是 LT，原生 epoll 传输是 ET。
+**一句话**：LT（水平触发）只要缓冲区里还有没读完的数据，每次都提醒你；ET（边缘触发）只在新数据到来时提醒一次，必须一口气读到读不出为止。Netty 4.2 的 NIO 和原生 epoll 传输都用 LT；4.1 的原生 epoll 默认是 ET。
 
 | 对比 | LT（默认） | ET |
 |------|----------|----|
@@ -68,8 +68,9 @@ description: IO 模型、Reactor、ByteBuf、粘包拆包、心跳、生产调�
 | 漏读风险 | 低 | 高 |
 | 系统调用 | 较多 | 较少 |
 
-- `NioEventLoopGroup`（基于 JDK `Selector`）是 LT
-- `EpollEventLoopGroup`（Netty 原生 epoll）是 ET，这是它吞吐更高的原因之一
+- NIO 传输（`NioIoHandler`，基于 JDK `Selector`）是 LT
+- 原生 epoll 传输（`EpollIoHandler`）在 4.2 改为固定 LT，`EpollMode` 设置已无效；4.1 默认 ET
+- 原生 epoll 快主要是因为直接调 epoll、对象分配少，不在触发模式
 
 → 详见 [IO 模型](/netty/1_io_model)
 
@@ -146,7 +147,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 
 **一句话**：一个 EventLoop 就是一个线程 + 一个 Selector + 一个任务队列，在死循环里轮流处理 IO 事件和排队的任务。Channel 终身绑定一个 EventLoop，换来的是**不用加锁**和**消息有序**。
 
-- 循环三步：等事件 → 处理 IO 事件（驱动 Pipeline）→ 执行队列里的任务和到期的定时任务；两者时间比例由 `ioRatio` 控制，默认 50
+- 循环两步：等事件并处理 IO（驱动 Pipeline）→ 执行队列里的任务和到期的定时任务；4.2 每轮任务最多跑约 1 秒就回去处理 IO（4.1 由 `ioRatio` 按 50% 分配）
 - 绑定的好处：同一连接的 Handler 不会被多个线程同时调用，状态不用加锁；读写按顺序进行，也没有线程切换
 - 代价：一个 EventLoop 管很多连接，任何阻塞都会拖慢它名下所有连接
 - 其他线程要操作 Channel，会把任务投递到它的 EventLoop；`write` / `writeAndFlush` 内部已做了这一步，任何线程调用都安全
@@ -369,7 +370,7 @@ Netty 的「异步」指的是接口：`write` 等操作立即返回一个 `Chan
 **一句话**：大多数保持默认，重点确认线程数、Linux 原生传输、连接队列长度、`TCP_NODELAY`、客户端连接超时和写水位；拿不准默认值的一律显式设置，同时限制直接内存。
 
 - 线程：bossGroup 每个监听端口 1 个；workerGroup 默认 CPU × 2，容器里要确认识别到的核数对不对
-- 传输：Linux 用 `EpollEventLoopGroup`，先判断 `Epoll.isAvailable()`，不可用再退回 NIO
+- 传输：Linux 用 `MultiThreadIoEventLoopGroup` + `EpollIoHandler`（4.1 是 `EpollEventLoopGroup`），先判断 `Epoll.isAvailable()`，不可用再退回 NIO
 - 连接：`SO_BACKLOG`（等待接入的连接队列）显式设如 1024；`TCP_NODELAY` 显式 `true`；客户端连接超时默认 30 秒，调小到 3～5 秒
 - 内存：显式设 `-XX:MaxDirectMemorySize`，堆 + 直接内存 + 元空间 + 线程栈要小于容器限制
 - 系统：每个连接占一个文件句柄，调大 `ulimit -n`

@@ -242,7 +242,7 @@ public class ReconnectClient {
     private final String host;
     private final int port;
     /** 全局唯一：绝不能每次重连都 new 一个，否则线程会越积越多 */
-    private final EventLoopGroup group = new NioEventLoopGroup();
+    private final EventLoopGroup group = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
     private final Bootstrap bootstrap = new Bootstrap();
     private final AtomicInteger attempts = new AtomicInteger();
     private volatile boolean stopped;
@@ -443,10 +443,10 @@ public class SessionCleanupHandler extends ChannelInboundHandlerAdapter {
 
 ## 参考资料
 
-- 空闲检测 Handler：[IdleStateHandler (Netty API)](https://netty.io/4.1/api/io/netty/handler/timeout/IdleStateHandler.html)
+- 空闲检测 Handler：[IdleStateHandler (Netty API)](https://netty.io/4.2/api/io/netty/handler/timeout/IdleStateHandler.html)
 - TCP keepalive 参数：[tcp(7) — Linux manual page](https://man7.org/linux/man-pages/man7/tcp.7.html)
-- 连接分组与广播：[ChannelGroup (Netty API)](https://netty.io/4.1/api/io/netty/channel/group/ChannelGroup.html)
-- Channel 属性绑定：[AttributeKey (Netty API)](https://netty.io/4.1/api/io/netty/util/AttributeKey.html)
-- 断线重连所用的异步监听：[ChannelFuture (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelFuture.html)
+- 连接分组与广播：[ChannelGroup (Netty API)](https://netty.io/4.2/api/io/netty/channel/group/ChannelGroup.html)
+- Channel 属性绑定：[AttributeKey (Netty API)](https://netty.io/4.2/api/io/netty/util/AttributeKey.html)
+- 断线重连所用的异步监听：[ChannelFuture (Netty API)](https://netty.io/4.2/api/io/netty/channel/ChannelFuture.html)
 
 > 下一篇：[WebSocket](./10_websocket) —— 把心跳与连接管理用到浏览器长连接上，并解决集群推送问题。

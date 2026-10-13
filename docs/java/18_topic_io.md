@@ -12,8 +12,6 @@ java.io 面向阻塞的流，java.nio 面向缓冲区与通道并用 Selector �
 
 ## 一、IO 体系结构
 
-读写要编码正确且不泄漏句柄；虚拟线程（JDK 21）出现后，阻塞 IO 的选择随之变化。
-
 - **字节流**：`InputStream` / `OutputStream`，处理任意二进制数据
 - **字符流**：`Reader` / `Writer`，底层仍是字节流，再按 `Charset` 编解码
 
@@ -89,7 +87,7 @@ AIO 只有在 Windows 上是真正的内核异步（IOCP）。Linux 上的 `Asyn
 - **文件 IO**：操作系统没有通用的异步文件接口，文件读写会占住载体线程。JDK 的做法是临时扩大调度器并行度来补偿，大量并发文件 IO 时载体线程数会上涨
 - **固定（pinning）**：JDK 24（JEP 491）起，在 `synchronized` 中阻塞不再固定载体线程；本地方法帧和类初始化期间仍会固定。排查用 JFR 事件 `jdk.VirtualThreadPinned`（`-Djdk.tracePinnedThreads` 已在 JDK 24 移除）
 
-结论：普通的「请求 → 调下游 HTTP / JDBC → 返回」业务，用虚拟线程加阻塞 API 最简单；需要自定义二进制协议、数万长连接、精细背压或零拷贝时，仍用 NIO / Netty。虚拟线程的 API 与限制见 [版本演进](./2_version)。
+结论：普通的「请求 → 调下游 HTTP / JDBC → 返回」业务，用虚拟线程加阻塞 API 最简单；需要自定义二进制协议、数万长连接、精细背压或零拷贝时，仍用 NIO / Netty。虚拟线程的 API 与限制见 [虚拟线程](./30_topic_virtual_thread)。
 
 ---
 

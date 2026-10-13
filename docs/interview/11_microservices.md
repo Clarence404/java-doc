@@ -6,7 +6,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 > 题目清单见 [微服务面试题](/microservices/99_interview)，模块入口见 [微服务总览](/microservices/0_overview)；Nacos、网关、Feign、Sentinel、Seata 等组件题见 [Spring Cloud 面试题解答](/interview/11_spring_cloud)，熔断限流策略见 [高可用面试题解答](/interview/14_high_avail)。
 >
-> 版本基线：Istio 1.24+、Dubbo 3.3、Spring Cloud 2025.1.x。
+> 版本基线：Istio 1.30 / 1.31、Dubbo 3.3、Spring Cloud 2025.1.x。
 
 ## 一、拆分与演进
 
@@ -28,14 +28,15 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 ### Q2：微服务和 SOA 的区别是什么？
 
-**一句话**：微服务可以看成「轻量版 SOA」：去掉企业服务总线（ESB）和重协议，服务拆得更细，每个服务自己管数据。
+**一句话**：区别不在服务大小，而在**怎么连、数据归谁**：SOA 靠中心总线（ESB）串起各系统，微服务去掉总线、各服务直连并独占自己的数据。
 
 | 对比 | SOA | 微服务 |
 |------|-----|--------|
-| 通信 | ESB 总线 + WS-* 重协议 | HTTP / gRPC / MQ，逻辑放在服务里，管道只负责传输 |
-| 粒度 | 粗，面向系统集成 | 细，一个业务能力一个服务 |
+| 集成方式 | ESB 总线做路由、协议转换、编排（智能管道），WS-* 重协议 | HTTP / gRPC / MQ 直连，逻辑放在服务里，管道只负责传输（智能端点、哑管道） |
 | 数据 | 常共享数据库 | 每个服务独立存储 |
 | 目标 | 跨系统复用 | 快速迭代、独立交付 |
+
+**常见坑**：把「拆得更细」当成微服务的定义。粒度只是次要差异，拆过头就成了纳米服务。
 
 → 详见 [微服务优势与挑战](/microservices/1_pros_and_cons#_3、微服务-vs-soa)
 

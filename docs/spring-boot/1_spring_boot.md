@@ -12,7 +12,7 @@ Spring Boot 的核心是 `SpringApplication.run()` 启动流程与自动配置�
 
 ## 一、启动入口与 @SpringBootApplication
 
-本篇对应 Spring Framework 7.x，与 3.x 不同处单独标出；自动配置部分从 `AutoConfiguration.imports` 一直讲到条件判定。
+本篇对应 Spring Framework 7.x，与 Boot 3.x 不同处单独标出。
 
 ### 1、启动入口
 

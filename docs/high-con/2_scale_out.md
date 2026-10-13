@@ -46,19 +46,7 @@ Session 外置的完整方案对比（粘性会话、Session 复制、集中存�
 
 ### 2、Spring Session 外置到 Redis
 
-Spring Boot 3 引入 `spring-session-data-redis` 后即自动配置 Redis 存储，无需再声明存储类型：
-
-```yaml
-spring:
-  session:
-    timeout: 30m               # 会话过期时间
-    redis:
-      namespace: app:session   # key 前缀，多个应用共用 Redis 时用于隔离
-  data:
-    redis:
-      host: redis.internal
-      port: 6379
-```
+会话外置的依赖（Boot 4 为 `spring-boot-starter-session-data-redis`）、配置（`spring.session.data.redis.*`）与 Redis 键结构见 [分布式会话 · Spring Session + Redis](/distributed/5_session#二、spring-session-redis)。
 
 ### 3、无状态化检查点
 

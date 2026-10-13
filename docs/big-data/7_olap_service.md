@@ -12,9 +12,9 @@ description: OLAP 引擎选型、JdbcClient 查询 API、物化视图与预聚�
 
 ## 一、数据服务要解决什么
 
-查询 API 使用 `JdbcClient`，此外还涉及预聚合和指标层。基线为 JDK 21 + Spring Boot 4.x，OLAP 侧以 StarRocks 4.1 / Apache Doris 4.1 为例。
-
 数仓链路产出 `ads_trade_gmv_1d` 之后，工作只完成了一半：商家后台要按渠道、省份看最近 30 天的 GMV，运营看板每分钟刷新一次，大促期间并发查询翻十倍，还有人要导出半年的订单明细。这些请求如果直接用 BI 工具或业务代码裸连 OLAP 库，很快会遇到慢查询拖垮集群、租户之间数据串看、同一个"GMV"三个系统三个数的问题。示例延续电商订单场景，查询服务名为 `report-service`。
+
+版本基线：JDK 21 + Spring Boot 4.x，查询 API 用 `JdbcClient`，OLAP 侧以 StarRocks 4.1 / Apache Doris 4.1 为例。
 
 ### 1、访问模式
 

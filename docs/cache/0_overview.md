@@ -2,7 +2,7 @@
 
 缓存模块覆盖分布式缓存 Redis、本地缓存 Caffeine、两级缓存与 JetCache，以及缓存一致性和使用规范，负责 Redis 本身与缓存一致性的技术细节。
 
-**版本基线（2026 年 10 月）**：Redis 8.x、Valkey 8.x、Spring Data Redis 4、Redisson 4.x、Caffeine 3.x、JetCache 2.7
+**版本基线（2026 年 10 月）**：Redis 8.x、Valkey 9.x、Spring Data Redis 4、Redisson 4.x、Caffeine 3.x、JetCache 2.7.9（2.8 RC）
 
 ---
 
@@ -17,7 +17,7 @@
 1. 先读 [Redis 基础](./1_redis_base) 与 [Redis 核心原理](./2_redis_core)，掌握数据类型、线程模型、持久化和淘汰机制。
 2. 再读 [Redis 集群](./3_redis_cluster)，理解主从、哨兵与 Cluster 的高可用取舍。
 3. 然后读 [Redis 典型应用场景](./4_redis_scenario)、[Redis 实战](./5_redis_practice) 与 [Redisson](./6_redisson)，落地到业务代码。
-4. 接着读 [Caffeine](./7_caffeine)、[两级缓存（L1 + L2）](./8_two_level_cache)、[JetCache](./9_jetcache)，建立本地 + 分布式的多级缓存视角。
+4. 接着读 [Caffeine](./7_caffeine)、[两级缓存（L1 + L2）](./8_two_level_cache)、[JetCache](./9_jetcache)（可选：Boot 4 需 2.7.9 及以上，也可用 Caffeine + 自建两级缓存替代），建立本地 + 分布式的多级缓存视角。
 5. 最后读 [缓存一致性](./10_cache_consistency) 与 [缓存最佳实践](./11_cache_rule)，形成团队规范。
 
 [高频面试题](./99_interview) 只列题目，答案在 [缓存面试题解答](/interview/8_cache)。
@@ -26,7 +26,7 @@
 
 ## 三、关联模块
 
-系统级的多级缓存架构与热点治理策略放在 [高并发](/high-con/0_overview)，分布式锁放在 [分布式](/distributed/0_overview)，限流放在 [高可用](/high-avail/0_overview)。Redis 8.0 起改名 Redis Open Source，原 Redis Stack 的 JSON、Time Series、概率结构与查询引擎并入核心；Valkey 是 Redis 7.2.4 的 BSD 许可分支，不含这些新增模块。Spring Data Redis 4 配置前缀为 `spring.data.redis.*`，JSON 序列化器换成 Jackson 3 版本；Redisson 4.0 起支持 Spring Boot 4。
+系统级的多级缓存架构与热点治理策略放在 [高并发](/high-con/0_overview)，分布式锁放在 [分布式](/distributed/0_overview)，限流放在 [高可用](/high-avail/0_overview)。版本说明：Redis 8.0 起改名 Redis Open Source，原 Redis Stack 的 JSON、Time Series、概率结构与查询引擎并入核心；Valkey 是 Redis 7.2.4 的 BSD 许可分支，不含这些新增模块；Valkey 9.0（2025-10）起支持 Hash 字段级 TTL、原子槽迁移与 Cluster 模式多数据库。Spring Data Redis 4 配置前缀为 `spring.data.redis.*`，JSON 序列化器换成 Jackson 3 版本；Redisson 4.0 起支持 Spring Boot 4。
 
 - 缓存架构设计（多级缓存、预热、热点探测）→ [缓存架构设计](/high-con/3_cache_architecture)
 - 热点 Key / 热点行治理 → [热点问题](/high-con/6_hotspot)

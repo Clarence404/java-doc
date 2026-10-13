@@ -6,7 +6,7 @@ description: OpenAPI 3.1、代码优先与契约优先、客户端生成、CI �
 
 > 前置阅读：[接口文档](/spring-boot/10_api_doc)、[API 设计规范](./7_api_design_rule)
 
-OpenAPI 规范是描述 HTTP 接口契约的标准格式，本篇把它当作构建产物管理。本篇讲规范从哪里来、怎样保证和代码一致、团队拿它做什么，基线为 springdoc-openapi 3.1。
+OpenAPI 规范是描述 HTTP 接口契约的标准格式。本篇把它当作构建产物管理，讲规范从哪里来、怎样保证和代码一致、团队拿它做什么，基线为 springdoc-openapi 3.1。
 
 ---
 

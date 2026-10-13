@@ -6,7 +6,7 @@ description: 五种基础类型、Bitmap / HLL / GEO / Stream、Redis 8 内置�
 
 > 前置阅读：[缓存总览](./0_overview)
 
-Redis 是基于内存的键值数据库，Value 有多种数据类型，每种类型按数据量自动在紧凑编码和通用编码之间切换。本篇以 Redis 8.x 为基线讲各类型的命令、用途与底层编码，Valkey 8.x 对基础类型与命令完全兼容，但不包含 Redis 8 新增的 JSON、概率结构等内置类型。
+Redis 是基于内存的键值数据库，Value 有多种数据类型，每种类型按数据量自动在紧凑编码和通用编码之间切换。本篇以 Redis 8.x 为基线讲各类型的命令、用途与底层编码，Valkey 9.x 兼容基础类型与命令（Hash 字段级 TTL 自 Valkey 9.0 起支持），但不包含 Redis 8 新增的 JSON、概率结构等内置类型。
 
 ---
 
@@ -42,7 +42,7 @@ HINCRBY user:1 age 1
 HSCAN user:1 0 COUNT 100       # 大 Hash 用 HSCAN 分批读，避免 HGETALL
 ```
 
-**哈希字段过期**：Redis 7.4 起可以给单个字段设置 TTL，8.0 又增加了读写时顺带设置或清除过期的命令。适合「一个用户一个 Hash，里面每个验证码 / 令牌各自过期」这类场景。
+**哈希字段过期**：Redis 7.4 起（Valkey 9.0 起）可以给单个字段设置 TTL，8.0 又增加了读写时顺带设置或清除过期的命令。适合「一个用户一个 Hash，里面每个验证码 / 令牌各自过期」这类场景。
 
 ```bash
 HEXPIRE user:1:tokens 600 FIELDS 1 t_abc     # 字段 t_abc 10 分钟后过期（7.4+）

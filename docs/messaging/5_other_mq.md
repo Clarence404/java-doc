@@ -68,9 +68,7 @@ Pulsar 把「怎么分发给消费者」交给**订阅（Subscription）**决定
 
 ## 二、Kafka 的队列语义：Share Group
 
-Kafka 社区也在补齐"队列语义"：KIP-932（Share Group，即 Queues for Kafka）允许多个消费者**共享消费同一分区**并**逐条确认**，单条消息处理失败可以单独重投，而不必像传统消费组那样受「一个分区只能被组内一个消费者消费」和累计位点的限制。
-
-它在 4.x 中从早期访问、预览逐步推进，**生产使用前请确认所用版本中该特性的状态**。在它成熟之前，需要竞争消费、逐条确认的场景仍以 RabbitMQ、RocketMQ 或 Pulsar 的 Shared 订阅为主。
+KIP-932（Share Group，即 Queues for Kafka）让多个消费者共享消费同一分区并逐条确认，Kafka 4.2（2026-02）起 GA，相当于 Pulsar 的 Shared 订阅（不保证顺序）。已有 Kafka 集群、需要竞争消费的场景可以不再额外引入 RabbitMQ；确认类型、重投上限与限制见 [Kafka · 共享组](./2_kafka#_4、共享组-queues-for-kafka)。
 
 ---
 
@@ -91,7 +89,7 @@ Kafka 社区也在补齐"队列语义"：KIP-932（Share Group，即 Queues for 
 ## 小结
 
 - Pulsar 以存算分离、多租户、Geo 复制见长，四种订阅模式让一套系统同时覆盖队列与流；但组件多、门槛高，平台型场景再引入
-- Kafka 用 Share Group 补齐逐条确认的队列语义，生产使用前要确认版本状态
+- Kafka 用 Share Group 补齐逐条确认的队列语义，4.2 起 GA
 - Redis Stream、NATS、Artemis、MQTT Broker、云托管服务各有细分场景，通用业务 MQ 仍以三大 MQ 为主
 
 ## 参考资料

@@ -12,7 +12,7 @@ description: 命名、类与 Lombok / record、注释、异常、日志、并发
 
 ## 一、规约怎么落地
 
-规约来源为《阿里巴巴 Java 开发手册（黄山版）》，结合 JDK 21（JDK 25 的差异会注明）与 Spring Boot 4 做了取舍；硬性规定覆盖日志 / 并发 / 金额 / 数据访问，每条都配正例与反例。
+规约以《阿里巴巴 Java 开发手册（黄山版）》为主要来源，结合 JDK 21（JDK 25 的差异会注明）与 Spring Boot 4 做了取舍，每条都配正例与反例。
 
 规约分两类，处理方式不同：
 
@@ -263,95 +263,18 @@ try {
 
 ### 2、业务异常体系
 
-用一个错误码枚举承载「HTTP 状态 + 业务错误码 + 默认提示」，业务异常只引用错误码：
+全站只有一种业务异常形态：错误码枚举承载「HTTP 状态 + 稳定字符串业务码（取枚举名，如 `ORDER_NOT_FOUND`、`STOCK_INSUFFICIENT`、`SYSTEM_ERROR`）+ 标题」，`BizException` 只引用错误码，可带原始异常。枚举、`BizException` 与全局处理器的完整代码以 [API 设计规范](/engineering/7_api_design_rule#_2、spring-中的实现) 为准，这里只列编码规约：
 
-```java
-public enum ErrorCode {
-
-    PARAM_INVALID(HttpStatus.BAD_REQUEST, "A0400", "请求参数错误"),
-    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "A0404", "订单不存在"),
-    STOCK_INSUFFICIENT(HttpStatus.CONFLICT, "A0409", "库存不足"),
-    FILE_PROCESS_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "B0002", "文件处理失败"),
-    SYSTEM_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "B0001", "系统繁忙，请稍后重试");
-
-    private final HttpStatus status;
-    private final String code;
-    private final String defaultMessage;
-
-    ErrorCode(HttpStatus status, String code, String defaultMessage) {
-        this.status = status;
-        this.code = code;
-        this.defaultMessage = defaultMessage;
-    }
-
-    public HttpStatus status() { return status; }
-    public String code() { return code; }
-    public String defaultMessage() { return defaultMessage; }
-}
-```
-
-```java
-@Getter
-public class BizException extends RuntimeException {
-
-    private final ErrorCode errorCode;
-
-    public BizException(ErrorCode errorCode) {
-        this(errorCode, errorCode.defaultMessage());
-    }
-
-    public BizException(ErrorCode errorCode, String message) {
-        super(message);
-        this.errorCode = errorCode;
-    }
-
-    public BizException(ErrorCode errorCode, String message, Throwable cause) {
-        super(message, cause);
-        this.errorCode = errorCode;
-    }
-}
-```
-
-错误码借鉴黄山版手册的风格：首字母表示来源（A 用户端、B 系统内部、C 第三方服务），便于一眼判断该找谁。
+- **业务码用稳定的字符串**，不用 `A0404`、`code=400` 这类模仿 HTTP 状态码的数字；同一个码一旦对外发布就不再改含义
+- **新增错误先查枚举**，能复用就复用，不在业务代码里临时拼字符串码
+- **抛业务异常时 message 写给调用方看**，带上定位所需的业务键（如订单号），不写堆栈、SQL 等内部信息
 
 ### 3、全局处理：HTTP 状态码要真实
 
-```java
-@Slf4j
-@RestControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-
-    @ExceptionHandler(BizException.class)
-    public ResponseEntity<ProblemDetail> handleBiz(BizException e) {
-        ErrorCode ec = e.getErrorCode();
-        if (ec.status().is5xxServerError()) {
-            log.error("业务处理失败，code={}", ec.code(), e);
-        } else {
-            log.warn("业务异常，code={}, message={}", ec.code(), e.getMessage());
-        }
-        return build(ec, ec.status().is5xxServerError() ? ec.defaultMessage() : e.getMessage());
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ProblemDetail> handleUnknown(Exception e) {
-        log.error("未处理的异常", e);
-        return build(ErrorCode.SYSTEM_ERROR, ErrorCode.SYSTEM_ERROR.defaultMessage());
-    }
-
-    private ResponseEntity<ProblemDetail> build(ErrorCode ec, String detail) {
-        ProblemDetail body = ProblemDetail.forStatusAndDetail(ec.status(), detail);
-        body.setProperty("code", ec.code());
-        return ResponseEntity.status(ec.status()).body(body);
-    }
-}
-```
-
-几处设计说明：
-
-- **HTTP 状态码反映真实结果**：参数错误返回 400、资源不存在返回 404、服务端故障返回 500，而不是所有响应都返回 200 再在响应体里放错误码；网关、监控、重试策略都依赖真实状态码
-- **继承 `ResponseEntityExceptionHandler`**：Spring MVC 自身的异常（参数校验失败、请求体无法解析、方法不支持、静态资源不存在等）由父类转换成对应 4xx 的 `ProblemDetail`，不会被 `Exception` 兜底成 500
-- **5xx 不把内部信息返回给客户端**：只返回通用提示，细节进日志
-- **响应体格式以 API 规范为准**：示例使用 Spring 内置的 `ProblemDetail`（RFC 9457）；团队若采用自定义的统一响应包装，字段约定见 [API 设计规范](/engineering/7_api_design_rule)，这里不重复
+- **HTTP 状态码反映真实结果**：参数错误 400、资源不存在 404、服务端故障 500，不能所有响应都返回 200 再在响应体里放错误码；网关、监控、重试策略都依赖真实状态码
+- **只在全局处理器里兜底**：业务代码不 `catch (Exception e)`，Spring MVC 自身异常交给 `ResponseEntityExceptionHandler` 转成 4xx
+- **5xx 不把内部信息返回给客户端**：只返回通用提示和 `traceId`，细节进日志；4xx 记 `warn`，5xx 记 `error`
+- 响应体格式（Problem Details 或 Result 包装）见 [API 设计规范](/engineering/7_api_design_rule#五、错误响应-problem-details)
 
 ---
 

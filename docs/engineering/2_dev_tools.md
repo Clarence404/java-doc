@@ -12,7 +12,7 @@ IDE 和桌面工具决定日常开发是否顺手。本篇讲 IntelliJ IDEA 快�
 
 ## 一、IntelliJ IDEA
 
-版本：IntelliJ IDEA 2026.x、JDK 21（25 为最新 LTS）；远程调试基于断点与 JDWP。
+版本基线：IntelliJ IDEA 2026.x、JDK 21（25 为最新 LTS）。
 
 ### 1、统一发行版
 

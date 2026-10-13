@@ -12,8 +12,6 @@ description: MySQL 全文检索边界、商品 Mapping、Java API Client、CDC �
 
 ## 一、MySQL 全文检索够不够
 
-示例使用官方 Java 客户端 `co.elastic.clients:elasticsearch-java` 9.x（旧的 `RestHighLevelClient` 在 7.15 废弃，8.x 起不再提供）。
-
 | 能力 | MySQL | Elasticsearch |
 |------|-------|---------------|
 | `LIKE '%手机%'` | 前导通配符用不上 B+ 树索引，大表全表扫描 | — |
@@ -79,6 +77,8 @@ PUT /products_v1
 ---
 
 ## 三、搜索查询
+
+示例使用官方 Java 客户端 `co.elastic.clients:elasticsearch-java` 9.x（旧的 `RestHighLevelClient` 在 7.15 废弃，8.x 起不再提供）。
 
 请求 DTO 不要命名为 `SearchRequest`，会和客户端的同名类冲突：
 

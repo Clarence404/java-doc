@@ -12,7 +12,7 @@ description: 实时 GMV 大屏、CEP 实时风控、Kafka / Paimon 实时数仓�
 
 ## 一、实时 GMV 大屏
 
-每个方案给出架构、关键代码与设计取舍。示例基于 Flink 2.2 + `flink-connector-kafka:5.0.0-2.2` + Flink CDC 3.6；CEP 需要单独引入 `flink-cep`（不在 Flink 发行包里）。
+每个方案给出架构、关键代码与设计取舍，示例基于 Flink 2.2 + `flink-connector-kafka:5.0.0-2.2` + Flink CDC 3.6。
 
 ### 1、需求与架构
 

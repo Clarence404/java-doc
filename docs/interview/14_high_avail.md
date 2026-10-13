@@ -328,16 +328,16 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 
 → 详见 [熔断](/high-avail/5_circuit_breaking)
 
-### Q26：Sentinel、Hystrix、Resilience4j 的区别？新项目怎么选？
+### Q26：Sentinel 与 Resilience4j 怎么选？
 
-**一句话**：新项目在 Sentinel 和 Resilience4j 里选：用 Spring Cloud Alibaba、要控制台动态改规则选 Sentinel；想轻量、走 Spring Cloud 标准接口选 Resilience4j。Hystrix 2018 年起就不再开发，新项目不用。
+**一句话**：用 Spring Cloud Alibaba、要控制台动态改规则选 Sentinel；想轻量、走 Spring Cloud CircuitBreaker 标准接口选 Resilience4j。老项目里的 Hystrix 2018 年起停止开发、2020.0 起已从 Spring Cloud 移除，只做迁移不再新用。
 
-| 对比 | Sentinel | Resilience4j | Hystrix |
-|------|---------|-------------|---------|
-| 熔断策略 | 慢调用、异常比例、异常数 | 失败率、慢调用率 | 失败率 |
-| 额外能力 | 限流、热点参数、系统保护 | 限流、重试、超时 | 请求合并 |
-| 改规则 | 控制台 / 配置中心动态推送 | 配置文件、代码 | 配置文件 |
-| 状态 | 活跃 | 活跃 | 维护模式，已从 Spring Cloud 移除 |
+| 对比 | Sentinel | Resilience4j |
+|------|---------|-------------|
+| 熔断策略 | 慢调用、异常比例、异常数 | 失败率、慢调用率 |
+| 额外能力 | 限流、热点参数、系统保护 | 限流、重试、超时、舱壁 |
+| 改规则 | 控制台 / 配置中心动态推送 | 配置文件、代码 |
+| 依赖 | 需部署控制台 | 纯库，无额外组件 |
 
 → 详见 [熔断](/high-avail/5_circuit_breaking)
 

@@ -78,7 +78,11 @@ MCP 用日期作为版本号，只有出现不兼容变更时才发布新版本�
 | 2025-11-25 | 支持 OpenID Connect 发现、推荐 Client ID Metadata Documents 注册方式、URL 模式征询、实验性 Tasks |
 | 2026-07-28（当前） | 协议改为**无状态**：去掉 `initialize` 握手与 `Mcp-Session-Id`，每个请求在 `_meta` 中携带协议版本与客户端能力；新增 `server/discover`；服务端向客户端的请求改为多轮往返（MRTR）模式；废弃 Sampling、Roots、Logging；动态客户端注册标记为废弃 |
 
-对 Java 开发者最直接的影响：远程 MCP 一律用 Streamable HTTP，不再新建 HTTP+SSE 服务；无状态化之后，MCP Server 可以像普通 REST 服务一样水平扩展，不再需要会话粘滞。
+对 Java 开发者最直接的影响：远程 MCP 一律用 Streamable HTTP，不再新建 HTTP+SSE 服务。协议无状态之后，Server 理论上可以像普通 REST 服务一样水平扩展，但前提是 SDK 已实现 2026-07-28 版本。
+
+::: warning Java SDK 支持现状
+截至 2026 年 10 月，MCP Java SDK 最新版 2.0.1（本篇基线 Spring AI 2.0.1 基于它）跟随的仍是 2025-11-25 规范，发布说明中尚未声明支持 2026-07-28。在它支持之前，有状态的 Streamable HTTP Server 多实例部署仍要按 `Mcp-Session-Id` 做会话粘滞；若工具都是一问一答、不需要服务端主动发请求或通知，可改用 Spring AI 的 `protocol=STATELESS` 模式（见第六节）实现无会话扩展。升级前以 MCP Java SDK 与 Spring AI 的发布说明为准。
+:::
 
 ### 1、两种标准传输
 
@@ -343,7 +347,7 @@ Spring AI 文档明确提醒：HTTP 传输的 MCP 端点**默认不做任何认�
 ## 小结
 
 - MCP 标准化「工具从哪来、怎么调用」，与 Function Calling 是上下层关系；协议已由 Linux 基金会下的 Agentic AI Foundation 治理
-- 传输只有两种：本地 stdio、远程 Streamable HTTP；HTTP+SSE 已废弃，2026-07-28 版本起协议无状态，便于水平扩展
+- 传输只有两种：本地 stdio、远程 Streamable HTTP；HTTP+SSE 已废弃；2026-07-28 版本起协议无状态，但 Java SDK 尚未跟进，多实例部署仍需会话粘滞或使用 Spring AI 的 STATELESS 模式
 - Spring AI 用 `spring-ai-starter-mcp-client` 与 `stdio` / `streamable-http` 连接配置接入，工具用 `defaultToolCallbacks` 注册；LangChain4j 用 `McpToolProvider`
 - 写 Server 用 `spring-ai-starter-mcp-server(-webmvc)` 与 `@McpTool`，stdio 模式必须关闭 stdout 输出
 - HTTP 端点默认无认证，远程部署按规范接 OAuth 2.1，禁止令牌透传；防范工具投毒，只接入可信 Server、白名单工具、副作用操作人工确认

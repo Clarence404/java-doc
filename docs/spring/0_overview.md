@@ -87,7 +87,7 @@ Spring Boot 不是 Framework 的替代品：它在 Framework 之上提供依赖�
 | 6.1 | 2023.11 | 虚拟线程支持（[虚拟线程](/java/30_topic_virtual_thread)）；`RestClient`、`JdbcClient`；MVC 内置方法参数校验；CRaC 检查点（对应 Boot 3.2） |
 | 6.2 | 2024.11 | Bean 后台初始化；`@MockitoBean` / `@MockitoSpyBean`；`@EnableTransactionManagement(rollbackOn = ALL_EXCEPTIONS)`；单例锁机制重构（对应 Boot 3.4 / 3.5） |
 | 7.0 | 2025.11 | Jakarta EE 11（Servlet 6.1）；JSpecify 空安全注解；默认 Jackson 3（Jackson 2 支持废弃）；MVC / WebFlux 内置 API 版本控制；`@Retryable` / `@ConcurrencyLimit` 内置弹性注解；`@ImportHttpServices` 注册 HTTP 服务客户端；`HttpMessageConverters` 构建器（对应 Boot 4.0） |
-| 7.1 | 2026 | `RestTemplate` 标记废弃，推荐 `RestClient`（对应 Boot 4.1） |
+| 7.1 | 2026.11（计划） | `RestTemplate` 加 `@Deprecated`，推荐 `RestClient`，计划 8.0 移除（对应 Boot 4.2）；截至 2026-10 仍为里程碑版，稳定版为 7.0.x |
 
 Spring Boot 各版本的升级清单与支持周期见 [Spring Boot 版本演进](/spring-boot/11_versions)。
 

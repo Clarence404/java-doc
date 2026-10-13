@@ -151,10 +151,10 @@ Java AIO（NIO.2）在 Windows 上基于 IOCP，是真正的异步；但在 Linu
 | 读取要求 | 可以分多次读 | 必须循环读到返回 `EAGAIN` |
 | 漏读风险 | 低 | 高（没读完且无新数据到达，就不会再通知）|
 | 系统调用次数 | 较多 | 较少 |
-| 典型使用 | select / poll 兼容语义、JDK NIO | Nginx、Netty 原生 epoll 传输 |
+| 典型使用 | select / poll 兼容语义、JDK NIO、Netty 4.2 原生 epoll | Nginx、Netty 4.1 原生 epoll 传输 |
 
 ::: tip Netty 的实际选择
-默认的 NIO 传输（`NioEventLoopGroup`，基于 JDK `Selector`）是 **LT** 模式；换用 `netty-transport-native-epoll`（`EpollEventLoopGroup`）后使用 **ET** 模式，并在读取时循环读到 `EAGAIN`。这是原生传输吞吐更高的原因之一，生产配置见 [生产实践与调优](./12_production)。
+默认的 NIO 传输（`NioIoHandler`，基于 JDK `Selector`）是 **LT** 模式。原生 epoll 传输（`netty-transport-native-epoll`，`EpollIoHandler`）在 Netty 4.2 中**也统一改为 LT**，`EpollMode` / `EPOLL_MODE` 已废弃、设置无效；Netty 4.1 的原生 epoll 默认是 ET，并在读取时循环读到 `EAGAIN`。原生传输吞吐更高主要靠直接调用 epoll、更少的对象分配和更多的 TCP 选项，生产配置见 [生产实践与调优](./12_production)。
 :::
 
 ## 四、总结：用两个阶段给五种模型归类
@@ -187,7 +187,7 @@ Java AIO（NIO.2）在 Windows 上基于 IOCP，是真正的异步；但在 Linu
 - 一次网络读分两个阶段：等待数据就绪、内核拷贝到用户空间，五种模型的差别都落在这两个阶段上
 - BIO 的问题是线程数随连接数增长；非阻塞 IO 解决了线程挂起，却带来空轮询；多路复用让一个线程等待一批连接
 - epoll 把"注册"和"等待"拆开，靠红黑树 + 就绪链表做到与连接总数无关的等待开销
-- JDK NIO 使用 LT 模式，Netty 原生 epoll 传输使用 ET 模式
+- JDK NIO 使用 LT 模式；Netty 4.2 的原生 epoll 传输也统一用 LT（4.1 默认 ET）
 - 只有 AIO 是异步 IO，Java NIO 与 Netty 都是同步非阻塞 + 多路复用
 
 ## 参考资料

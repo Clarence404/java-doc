@@ -12,7 +12,7 @@ description: 云边分工、EdgeX Foundry 部署、KubeEdge 云边协同与设�
 
 ## 一、边缘计算是什么
 
-版本：EdgeX Foundry 4.0（REST API v3）搭边缘采集栈、KubeEdge 1.23 做云边协同、ONNX Runtime 1.31 在 Java 里做边缘推理与模型更新。
+版本基线：EdgeX Foundry 4.0（REST API v3）、KubeEdge 1.23、ONNX Runtime 1.31。
 
 **边缘计算（Edge Computing）**：在靠近数据产生端的位置（设备、网关、厂区或门店的本地服务器）完成计算和决策，而不是把所有原始数据都送到云端处理。
 

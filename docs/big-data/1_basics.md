@@ -83,12 +83,12 @@ MapReduce 出自 Google 2004 年的论文，Hadoop MapReduce 是它的开源实�
 
 ### 2、代码示意
 
-下面用 Hadoop MapReduce 的 Java API 实现上述统计。金额以「分」为单位存成 `long`，避免浮点误差：
+下面用 Hadoop MapReduce 的 Java API 实现上述统计。金额按 [数据治理](./8_governance#_1、字段标准) 的约定以「元」存储（两位小数，如 `199.00`），Map 端用 `BigDecimal` 解析后换算成「分」的 `long` 参与 Shuffle 和求和，最后一步再换回元，全程不经过 `double`：
 
 ```java
 public class GmvByProvince {
 
-    // 输入行：order_id,user_id,province,status,amount_fen
+    // 输入行：order_id,user_id,province,status,amount（单位元，两位小数）
     public static class GmvMapper extends Mapper<LongWritable, Text, Text, LongWritable> {
         private final Text province = new Text();
         private final LongWritable amount = new LongWritable();
@@ -99,13 +99,14 @@ public class GmvByProvince {
             String[] f = line.toString().split(",");
             if (f.length == 5 && "PAID".equals(f[3])) {
                 province.set(f[2]);
-                amount.set(Long.parseLong(f[4]));
+                amount.set(new BigDecimal(f[4]).movePointRight(2).longValueExact());   // 元 → 分
                 ctx.write(province, amount);
             }
         }
     }
 
-    public static class SumReducer extends Reducer<Text, LongWritable, Text, LongWritable> {
+    /** Combiner：Map 端局部求和，输入输出都是「分」 */
+    public static class SumCombiner extends Reducer<Text, LongWritable, Text, LongWritable> {
         private final LongWritable total = new LongWritable();
 
         @Override
@@ -120,14 +121,29 @@ public class GmvByProvince {
         }
     }
 
+    /** Reducer：汇总后换回「元」输出 */
+    public static class YuanReducer extends Reducer<Text, LongWritable, Text, Text> {
+        @Override
+        protected void reduce(Text key, Iterable<LongWritable> values, Context ctx)
+                throws IOException, InterruptedException {
+            long sum = 0;
+            for (LongWritable v : values) {
+                sum += v.get();
+            }
+            ctx.write(key, new Text(BigDecimal.valueOf(sum, 2).toPlainString()));
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         Job job = Job.getInstance(new Configuration(), "gmv-by-province");
         job.setJarByClass(GmvByProvince.class);
         job.setMapperClass(GmvMapper.class);
-        job.setCombinerClass(SumReducer.class);   // 求和满足结合律，可直接复用为 Combiner
-        job.setReducerClass(SumReducer.class);
+        job.setCombinerClass(SumCombiner.class);   // 求和满足结合律，可以在 Map 端先合并
+        job.setReducerClass(YuanReducer.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(LongWritable.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(LongWritable.class);
+        job.setOutputValueClass(Text.class);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? 0 : 1);
@@ -138,7 +154,7 @@ public class GmvByProvince {
 同样的逻辑在 Spark SQL 中只需要一句：
 
 ```sql
-SELECT province, SUM(amount_fen) AS gmv_fen
+SELECT province, SUM(amount) AS gmv          -- amount 为 DECIMAL(18, 2)，SUM 结果仍是精确小数
 FROM ods_order_info_inc
 WHERE dt = '2026-10-09' AND status = 'PAID'
 GROUP BY province;
@@ -317,7 +333,7 @@ Dataset<Row> orders = spark.read()
 
 orders.filter(col("status").equalTo("PAID"))
       .groupBy(col("province"))
-      .agg(sum("amount_fen").alias("gmv_fen"))
+      .agg(sum("amount").alias("gmv"))
       .write()
       .mode(SaveMode.Overwrite)
       .parquet("s3a://shop-lake/warehouse/ads.db/ads_trade_gmv_province_1d/dt=2026-10-09/");

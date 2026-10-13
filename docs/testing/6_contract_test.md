@@ -12,7 +12,7 @@ description: 消费者驱动契约、Spring Cloud Contract、Pact 与 Broker、c
 
 ## 一、契约测试解决什么问题
 
-版本基线：JDK 21、Spring Boot 4.0、Spring Cloud Contract 5.0.3、Pact JVM 4.7.5、pact-broker-cli 0.9。
+版本基线：JDK 21、Spring Boot 4.0（Spring Cloud Contract 的最后一版 5.0.3 随 Spring Cloud 2025.1 发布，对应 Boot 4.0，故本篇不跟随工程基线 4.1）、Spring Cloud Contract 5.0.3、Pact JVM 4.7.5、pact-broker-cli 0.9。
 
 微服务之间的调用有两种常见测法，各有硬伤：
 

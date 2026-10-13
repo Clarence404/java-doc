@@ -173,6 +173,7 @@ G1 记录每个 Region 的存活对象比例和历史回收耗时，每次在 `M
 - 早期用 Brooks 转发指针（每个对象多一个字）实现并发转移；**JDK 13 起改用 LRB（Load Reference Barrier）**，不再需要转发指针字
 - 并发标记使用 SATB；停顿通常为毫秒级，与堆大小基本无关
 - 参数：`-XX:+UseShenandoahGC`
+- 分代：JDK 24 实验性引入分代模式（JEP 404），JDK 25 转为产品特性（JEP 521），开启方式 `-XX:+UseShenandoahGC -XX:ShenandoahGCMode=generational`，不再需要解锁实验参数
 
 ---
 
@@ -194,7 +195,7 @@ G1 记录每个 Region 的存活对象比例和历史回收耗时，每次在 `M
 | CMS | 老年代 | 短 | 中 | 已移除 |
 | **G1** | 整堆 | 可控（目标默认 200ms） | 中高 | 通用服务端 |
 | **ZGC** | 整堆 | **< 1ms**（JDK 16+） | 中高（分代后） | 低延迟、大堆 |
-| Shenandoah | 整堆 | 毫秒级 | 中 | 低延迟、大堆 |
+| Shenandoah | 整堆（JDK 25+ 可选分代） | 毫秒级 | 中 | 低延迟、大堆 |
 
 ---
 
@@ -202,7 +203,7 @@ G1 记录每个 Region 的存活对象比例和历史回收耗时，每次在 `M
 
 ### 1、JVM 的默认选择
 
-不指定收集器时，JDK 9 及以后会先判断是否为"服务器级"机器：**CPU 少于 2 个或物理内存（容器中为内存 limit）小于 1792MB 时默认 Serial，否则默认 G1**。JDK 8 在服务器级机器上默认 Parallel。容器里 CPU / 内存配额较小时，很容易意外落到 Serial，生产环境建议显式指定收集器。
+不指定收集器时，JDK 9 及以后会先判断是否为"服务器级"机器：**CPU 少于 2 个或物理内存（容器中为内存 limit）小于 1792MB 时默认 Serial，否则默认 G1**。JDK 8 在服务器级机器上默认 Parallel。**JDK 27 起（JEP 523）不再区分，所有环境默认 G1**，小规格容器不再落到 Serial；JDK 26 及以前容器配额较小时仍可能意外落到 Serial，生产环境建议显式指定收集器。
 
 ### 2、按场景选择
 
@@ -213,7 +214,7 @@ G1 记录每个 Region 的存活对象比例和历史回收耗时，每次在 `M
 | 低延迟、P99 敏感（JDK 17+） | ZGC | JDK 21+ 使用分代 ZGC |
 | 批处理 / 离线计算 | Parallel | 最大化吞吐 |
 | 大堆（数十 GB 以上） | ZGC | G1 大堆下 Mixed / Full GC 停顿更难控制 |
-| 小堆（< 1GB）、单核容器 | Serial | 开销最小 |
+| 小堆（< 1GB）、单核容器 | Serial | 开销最小；JDK 27 起默认 G1，需显式指定 |
 | 性能测试 | Epsilon | 排除 GC 干扰 |
 
 ---
@@ -224,7 +225,7 @@ G1 记录每个 Region 的存活对象比例和历史回收耗时，每次在 `M
 - **Parallel** 吞吐优先，是 JDK 8 默认；**G1** 用 Region + 回收收益排序实现可预测停顿，JDK 9 起默认，Full GC 自 JDK 10 并行
 - **ZGC** 靠染色指针 + 读屏障实现并发转移，JDK 21 引入分代、JDK 23 默认分代、JDK 24 移除非分代
 - **Shenandoah** 自 JDK 13 起用 LRB 取代 Brooks 指针，同样是并发整理
-- 小配额容器可能被自动选为 Serial，生产环境**显式指定收集器**
+- JDK 26 及以前小配额容器可能被自动选为 Serial，JDK 27 起所有环境默认 G1；生产环境仍建议**显式指定收集器**
 
 ## 参考资料
 
@@ -233,6 +234,8 @@ G1 记录每个 Region 的存活对象比例和历史回收耗时，每次在 `M
 - CMS 移除：[JEP 363: Remove the Concurrent Mark Sweep (CMS) Garbage Collector](https://openjdk.org/jeps/363)
 - 分代 ZGC：[JEP 439: Generational ZGC](https://openjdk.org/jeps/439)
 - 分代 ZGC 成为默认：[JEP 474: ZGC: Generational Mode by Default](https://openjdk.org/jeps/474)
+- 分代 Shenandoah：[JEP 521: Generational Shenandoah](https://openjdk.org/jeps/521)
+- 所有环境默认 G1：[JEP 523: Make G1 the Default Garbage Collector in All Environments](https://openjdk.org/jeps/523)
 - Shenandoah：[JEP 189: Shenandoah: A Low-Pause-Time Garbage Collector](https://openjdk.org/jeps/189)
 
 > 下一篇：[GC 调优](./6_gc_tuning) —— 有了收集器，如何设定目标、读 GC 日志、调整参数。

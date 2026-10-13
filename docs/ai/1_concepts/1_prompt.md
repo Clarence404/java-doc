@@ -12,7 +12,7 @@ Prompt 工程就是把需求写清楚，让模型输出又好又稳。本篇讲�
 
 ## 一、基本原则
 
-示例基于 Spring Boot 4 + Spring AI 2.0.x 与 LangChain4j 1.x，模型型号用 `${MODEL_ID}` 占位。
+本篇示例基于 Spring Boot 4 + Spring AI 2.0.x 与 LangChain4j 1.x，模型型号统一用 `${MODEL_ID}` 占位。
 
 好的 Prompt 遵循四条原则：清晰具体、交代背景、给出示例、约定输出。
 

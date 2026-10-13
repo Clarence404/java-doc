@@ -401,10 +401,10 @@ public class RpcResponseHandler extends SimpleChannelInboundHandler<RpcResponse>
 
 ## 参考资料
 
-- 编码器基类：[MessageToByteEncoder (Netty API)](https://netty.io/4.1/api/io/netty/handler/codec/MessageToByteEncoder.html)
-- 解码器基类：[ByteToMessageDecoder (Netty API)](https://netty.io/4.1/api/io/netty/handler/codec/ByteToMessageDecoder.html)
-- 按长度字段切帧：[LengthFieldBasedFrameDecoder (Netty API)](https://netty.io/4.1/api/io/netty/handler/codec/LengthFieldBasedFrameDecoder.html)
-- Handler 共享与 @Sharable：[ChannelHandler (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelHandler.html)
-- 异步结果与超时处理：[ChannelFuture (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelFuture.html)
+- 编码器基类：[MessageToByteEncoder (Netty API)](https://netty.io/4.2/api/io/netty/handler/codec/MessageToByteEncoder.html)
+- 解码器基类：[ByteToMessageDecoder (Netty API)](https://netty.io/4.2/api/io/netty/handler/codec/ByteToMessageDecoder.html)
+- 按长度字段切帧：[LengthFieldBasedFrameDecoder (Netty API)](https://netty.io/4.2/api/io/netty/handler/codec/LengthFieldBasedFrameDecoder.html)
+- Handler 共享与 @Sharable：[ChannelHandler (Netty API)](https://netty.io/4.2/api/io/netty/channel/ChannelHandler.html)
+- 异步结果与超时处理：[ChannelFuture (Netty API)](https://netty.io/4.2/api/io/netty/channel/ChannelFuture.html)
 
 > 下一篇：[心跳与连接管理](./9_heartbeat) —— 长连接如何发现"假死"的对端，以及断线后如何自动重连。

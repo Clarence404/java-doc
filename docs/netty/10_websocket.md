@@ -102,7 +102,7 @@ Base64( SHA-1( Sec-WebSocket-Key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11" ) )
 <dependency>
     <groupId>io.netty</groupId>
     <artifactId>netty-all</artifactId>
-    <version>4.1.115.Final</version>
+    <version>4.2.19.Final</version>
 </dependency>
 ```
 
@@ -119,8 +119,8 @@ public class WebSocketServer {
     }
 
     public void run() throws InterruptedException {
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup = new MultiThreadIoEventLoopGroup(1, NioIoHandler.newFactory());
+        EventLoopGroup workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
@@ -495,7 +495,7 @@ HTTP 升级与 TCP 基础可参考 [HTTP](/protocols/2_http) 与 [TCP 与 UDP](/
 ## 参考资料
 
 - WebSocket 协议规范（握手、帧格式、Ping / Pong）：[RFC 6455: The WebSocket Protocol](https://www.rfc-editor.org/rfc/rfc6455)
-- Netty WebSocket 协议处理器：[WebSocketServerProtocolHandler (Netty API)](https://netty.io/4.1/api/io/netty/handler/codec/http/websocketx/WebSocketServerProtocolHandler.html)
+- Netty WebSocket 协议处理器：[WebSocketServerProtocolHandler (Netty API)](https://netty.io/4.2/api/io/netty/handler/codec/http/websocketx/WebSocketServerProtocolHandler.html)
 - Spring WebSocket / STOMP / SockJS：[Spring Framework Reference: WebSockets](https://docs.spring.io/spring-framework/reference/web/websocket.html)
 - Nginx 代理 WebSocket：[NGINX: WebSocket proxying](https://nginx.org/en/docs/http/websocket.html)
 - Redis 发布订阅：[Redis Pub/Sub](https://redis.io/docs/latest/develop/interact/pubsub/)

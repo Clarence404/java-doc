@@ -12,8 +12,6 @@ description: Sequenced 集合、不可变集合、HashMap 树化与扩容、Conc
 
 ## 一、集合体系总览
 
-不可变集合与 Sequenced 集合在 JDK 9–21 间新增；HashMap 讲哈希 / 树化 / 扩容，ConcurrentHashMap（JDK 8+）讲 CAS + `synchronized` 桶锁与协作扩容。
-
 ![Java 集合体系：Collection 与 Map 两大分支，含 JDK 21 Sequenced 接口](../assets/java/collection_hierarchy.svg)
 
 - **Collection** 分为 List（有序可重复）、Set（不重复）、Queue / Deque（队列）；**Map** 是独立体系，存键值对

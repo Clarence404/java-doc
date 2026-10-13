@@ -12,7 +12,9 @@ description: RTMP、RTSP、HTTP-FLV、HLS 与 LL-HLS、DASH、CMAF、WebRTC 与 
 
 ## 一、协议全景
 
-同一路直播，用 HLS 分发延迟十几秒，弹幕互动明显对不上；改用 WebRTC 延迟降到亚秒，但 CDN 成本和服务器复杂度完全是另一个量级。示例统一为主播推流到 `ingest.example.com`、观众从 `pull.example.com` 拉流、直播间号 `room1001`。
+同一路直播，用 HLS 分发延迟十几秒，弹幕互动明显对不上；改用 WebRTC 延迟降到亚秒，但 CDN 成本和服务器复杂度完全是另一个量级。
+
+示例场景：主播推流到 `push.example.com`、观众从 `play.example.com` 拉流、直播间号 `room1001`。
 
 音视频协议按方向分成两类：
 
@@ -45,12 +47,12 @@ RTMP（Real-Time Messaging Protocol）是 Adobe 为 Flash 设计的协议，2012
 - **负载就是 FLV Tag**：音频、视频、元数据（`onMetaData`）三类消息，与 FLV 文件的 Tag 结构一致，所以 RTMP 转 HTTP-FLV 几乎零成本
 - **跑在 TCP 上**：丢包时 TCP 重传会造成队头阻塞，弱网下延迟会持续累积，这是它不适合远距离、高丢包链路的原因；加密版本 RTMPS 是 RTMP over TLS，默认端口 443
 
-推流地址的结构是 `rtmp://主机[:端口]/应用名/流名`，OBS 把它拆成"服务器"（`rtmp://ingest.example.com/live`）和"推流码"（`room1001?expire=...&sign=...`）两部分。
+推流地址的结构是 `rtmp://主机[:端口]/应用名/流名`，OBS 把它拆成"服务器"（`rtmp://push.example.com/live`）和"推流码"（`room1001?expire=...&sign=...`）两部分。
 
 ```bash
 # 用本地文件模拟主播推流：-re 按原始帧率读取，-c copy 不转码
 ffmpeg -re -i demo.mp4 -c copy -f flv \
-  "rtmp://ingest.example.com/live/room1001?expire=1791619200&sign=3f9a..."
+  "rtmp://push.example.com/live/room1001?expire=1791619200&sign=3f9a..."
 ```
 
 ### 2、Enhanced RTMP
@@ -91,7 +93,7 @@ C->S  TEARDOWN rtsp://camera.example.com:554/stream1 RTSP/1.0       # 结束会�
 ```bash
 # 拉取摄像头 RTSP 并转推到 RTMP（编码不变，只转封装）
 ffmpeg -rtsp_transport tcp -i "rtsp://camera.example.com:554/stream1" \
-  -c copy -f flv rtmp://ingest.example.com/live/store-cam-01
+  -c copy -f flv rtmp://push.example.com/live/store-cam-01
 ```
 
 RTSP 的消息格式与 HTTP 的异同见 [网络协议总览](/protocols/0_overview)。
@@ -100,7 +102,7 @@ RTSP 的消息格式与 HTTP 的异同见 [网络协议总览](/protocols/0_over
 
 ## 四、HTTP-FLV
 
-HTTP-FLV 是把 FLV 流放在一个**永不结束的 HTTP 响应**里：客户端请求 `http://pull.example.com/live/room1001.flv`，服务器返回 FLV 文件头后持续写入音视频 Tag，通常使用分块传输编码。
+HTTP-FLV 是把 FLV 流放在一个**永不结束的 HTTP 响应**里：客户端请求 `http://play.example.com/live/room1001.flv`，服务器返回 FLV 文件头后持续写入音视频 Tag，通常使用分块传输编码。
 
 - **延迟与 RTMP 相当**（1～3 秒），因为负载就是 RTMP 收到的 FLV Tag，服务器只做转发
 - **走 HTTP 80 / 443 端口**，能复用 CDN 的 HTTP 基础设施，穿透防火墙没有障碍；国内直播 CDN 普遍支持，是国内网页和 App 直播的主力拉流协议
@@ -228,7 +230,7 @@ WHIP 的完整交互只有一来一回加一个删除：
 
 ```text
 POST /whip/room1001 HTTP/1.1
-Host: ingest.example.com
+Host: push.example.com
 Content-Type: application/sdp
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
 
@@ -253,7 +255,7 @@ ffmpeg -re -i demo.mp4 \
   -c:v libx264 -profile:v baseline -tune zerolatency -bf 0 \
   -c:a libopus -ar 48000 -ac 2 \
   -authorization "eyJhbGciOiJIUzI1NiJ9..." \
-  -f whip "https://ingest.example.com/whip/room1001"
+  -f whip "https://push.example.com/whip/room1001"
 ```
 
 OBS 30 起也支持 WHIP 输出。SRS、ZLMediaKit、MediaMTX、LiveKit 等主流服务器都已实现 WHIP，WHEP 虽未定稿，主流服务器和部分 CDN 也已提供支持。
@@ -273,7 +275,7 @@ SRT（Secure Reliable Transport）由 Haivision 开发，2017 年以 MPL-2.0 许
 ```bash
 # 以 SRT 推流（MPEG-TS 封装）；FFmpeg 的 latency 选项单位是微秒
 ffmpeg -re -i demo.mp4 -c copy -f mpegts \
-  "srt://ingest.example.com:10080?streamid=#!::r=live/room1001,m=publish"
+  "srt://push.example.com:10080?streamid=#!::r=live/room1001,m=publish"
 ```
 
 SRT 适合户外直播、赛事转播、跨国推流等上行链路质量差的场景，OBS、vMix 和主流硬件编码器都支持；它不面向浏览器播放，到达服务器后照样转成 HTTP-FLV / HLS / WebRTC 分发。
@@ -315,51 +317,14 @@ SRT 适合户外直播、赛事转播、跨国推流等上行链路质量差的�
 
 无论哪种协议，推流和播放地址都不能是固定的，否则推流码泄露就能被人"盗播"，播放地址被盗链会白白消耗 CDN 流量。通用做法是**带过期时间的签名 URL**：Java 后端在主播开播、观众进房时签发地址，流媒体服务器或 CDN 校验签名与时间。
 
-```java
-public final class StreamUrlSigner {
-
-    private final byte[] secret;
-
-    public StreamUrlSigner(String secret) {
-        this.secret = secret.getBytes(StandardCharsets.UTF_8);
-    }
-
-    /** 签发推流地址：签名覆盖 app、流名与过期时间，任一被篡改都会校验失败 */
-    public String signPublishUrl(String stream, Duration ttl) {
-        long expire = Instant.now().plus(ttl).getEpochSecond();
-        String sign = hmacSha256Hex("/live/" + stream + ":" + expire);
-        return "rtmp://ingest.example.com/live/" + stream + "?expire=" + expire + "&sign=" + sign;
-    }
-
-    /** 校验：先比较过期时间，再用常量时间比较签名，避免时序攻击 */
-    public boolean verify(String app, String stream, long expire, String sign) {
-        if (Instant.now().getEpochSecond() > expire) {
-            return false;
-        }
-        String expected = hmacSha256Hex("/" + app + "/" + stream + ":" + expire);
-        return MessageDigest.isEqual(
-                expected.getBytes(StandardCharsets.UTF_8),
-                sign.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private String hmacSha256Hex(String data) {
-        try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(secret, "HmacSHA256"));
-            return HexFormat.of().formatHex(mac.doFinal(data.getBytes(StandardCharsets.UTF_8)));
-        } catch (GeneralSecurityException e) {
-            throw new IllegalStateException("HMAC 计算失败", e);
-        }
-    }
-}
-```
+推流地址形如 `rtmp://push.example.com/live/room1001?expire={过期时间戳}&sign={签名}`，`sign = HMAC-SHA256(密钥, "/live/room1001:{expire}")`：签名覆盖 app、流名与过期时间，任一被篡改都会校验失败；校验时先比较过期时间，再用常量时间比较签名。签名器的完整 Java 实现与密钥轮换见 [直播系统设计](./6_live_streaming#_1、签名推流地址)。
 
 落地要点：
 
 - **推流在服务器 Hook 里校验**：流媒体服务器收到 `publish` 时回调业务接口（如 SRS 的 `on_publish`、ZLMediaKit 的 `on_publish` Hook），Java 后端调用 `verify` 并检查该直播间是否允许开播，返回失败即拒绝推流；回调接口的设计见 [流媒体服务器](./4_media_server)
-- **播放鉴权交给 CDN**：各家 CDN 都有自己的 URL 鉴权规则（参数名、签名串格式、时间格式各不相同），后端按 CDN 文档生成，CDN 边缘直接校验，不回源到业务服务
+- **播放鉴权交给 CDN**：各家 CDN 都有自己的 URL 鉴权规则（参数名、签名串格式、时间格式各不相同），后端按 CDN 文档生成，CDN 边缘直接校验，不回源到业务服务；阿里云 A 型鉴权的 Java 实现见 [点播与短视频](./7_vod#六、播放鉴权与-cdn-签名-url)
 - **WebRTC / WHIP 用 Bearer Token**：WHIP / WHEP 本身是 HTTP，直接用短期 JWT 或不透明令牌放在 `Authorization` 头里
-- **有效期按场景设定**：推流地址可以覆盖一场直播的时长，主播断线重连时还能使用；播放地址宜短，过期后由客户端重新向后端换取；HLS 的切片请求也要带上鉴权参数，否则只保护了 m3u8
+- **有效期按场景设定**：推流地址的过期时间只管"何时可以开始推"，窗口给 10 到 30 分钟，已在推的流不会因过期被断开，断线重连超过窗口时由 App 重新申请；播放地址宜短，过期后由客户端重新向后端换取；HLS 的切片请求也要带上鉴权参数，否则只保护了 m3u8
 - **签名设计的通用原则**（规范串、防重放、密钥轮换）见 [API 安全](/security/6_api_security)
 
 ---

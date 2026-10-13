@@ -12,7 +12,7 @@ Mock 测试用测试替身隔离被测代码的外部依赖。本篇讲 Mockito 
 
 ## 一、测试替身：Mock 只是其中一种
 
-版本基线：JDK 21、Spring Boot 4.x、Mockito 5.x（Boot 4.0 管理的是 5.20，Maven Central 上最新为 5.24）、WireMock 3.13；Mockito 部分还包括参数捕获与交互验证。
+版本基线：JDK 21、Spring Boot 4.x、Mockito 5.x（Boot 4.0 管理的是 5.20，Maven Central 上最新为 5.24）、WireMock 3.13。
 
 ### 1、五种替身
 

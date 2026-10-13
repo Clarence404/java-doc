@@ -12,7 +12,7 @@ JWT 是一种令牌格式而非认证协议，可承载访问令牌、ID Token �
 
 ## 一、JWT 是什么
 
-JWT 定义于 RFC 7519。本篇是站内 JWT 的主文档，代码基线为 Spring Boot 4 / Spring Security 7，签发示例直接使用内置的 Nimbus JOSE + JWT 库。
+JWT 定义于 RFC 7519，本篇是站内 JWT 的主文档；签发示例直接使用 Spring Security 内置的 Nimbus JOSE + JWT 库。
 
 最常见的 JWT 是一个**紧凑序列化的 JWS**（JSON Web Signature，RFC 7515）：声明以 JSON 表示，经过签名保证不被篡改，但内容**不加密**。需要保密时用 JWE（RFC 7516）或干脆不用 JWT。
 

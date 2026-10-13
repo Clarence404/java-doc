@@ -12,7 +12,7 @@ description: JDK Proxy、CGLIB invokeSuper、ByteBuddy、Spring 默认代理、�
 
 ## 一、JDK 动态代理
 
-Spring AOP、`@Transactional`、MyBatis Mapper、Feign / Dubbo 客户端都建立在动态代理之上；本篇也讲生成类的调用分派与异常传递。
+Spring AOP、`@Transactional`、MyBatis Mapper、Feign / Dubbo 客户端都建立在动态代理之上。
 
 代理模式本身的意图、静态代理写法见 [代理模式](/patterns/12_structural_proxy)，本篇只讲 JVM 层面的实现机制。
 

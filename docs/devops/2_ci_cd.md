@@ -12,9 +12,9 @@ CI/CD 把代码从提交到上线的构建、测试、部署串成自动化流�
 
 ## 一、流水线的组成
 
-示例以 GitHub Actions 为主，并给出 Jenkins 与 GitLab CI 的等价写法；Action 版本：checkout v7、setup-java v6、upload-artifact v7、download-artifact v8、docker/build-push-action v7、codeql-action v4。
-
 本篇只讲流水线怎么编排，各环节的细节由对应文章负责：质量门禁的 Sonar / JaCoCo 配置见 [代码质量](/engineering/3_code_quality)，镜像标签、签名与来源证明见 [制品与版本管理](./6_artifact_version)，滚动 / 蓝绿 / 金丝雀见 [发布策略](./5_release_strategy)，多环境划分见 [环境管理](./7_env_management)，基础设施代码的流水线见 [IaC 工程实践](/cloud-native/12_iac_practice)。
+
+示例以 GitHub Actions 为主，并给出 Jenkins 与 GitLab CI 的等价写法；Action 版本（2026 年 10 月）：checkout v7、setup-java v6、upload-artifact v7、download-artifact v8、docker/build-push-action v7、codeql-action v4。
 
 ### 1、三个概念
 

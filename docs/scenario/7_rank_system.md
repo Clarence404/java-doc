@@ -12,7 +12,7 @@ description: ZSet 实时榜、日周月榜、同分先到先得、分片合并�
 
 ## 一、实时排行榜
 
-示例基于 Redis 7.x / 8.x 与 Spring Data Redis（`redis` 指 `StringRedisTemplate`）；积分系统要求余额不错、流水可对账、与榜单最终一致。
+示例基于 Redis 7.x / 8.x 与 Spring Data Redis（`redis` 指 `StringRedisTemplate`）。
 
 ZSet 的命令与底层结构（跳表 + listpack）见 [Redis 基础](/cache/1_redis_base)。
 
@@ -185,6 +185,8 @@ Top N 是典型的读热点，在应用里用 [Caffeine](/cache/7_caffeine) 缓�
 ---
 
 ## 五、积分系统
+
+积分系统要求余额不错、流水可对账、与榜单最终一致。
 
 ### 1、表设计
 

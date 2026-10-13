@@ -12,7 +12,7 @@ description: Trace / Span、W3C 传播、Boot 接入、异步与 Kafka 透传、
 
 ## 一、核心概念
 
-接入基于 Spring Boot 4.x 自带的 Micrometer Tracing 和 OpenTelemetry；示例使用 `order-service` → `inventory-service` → Kafka 主题 `order-created` → `notification-service` 这条下单链路。
+示例使用 `order-service` → `inventory-service` → Kafka 主题 `order-created` → `notification-service` 这条下单链路。
 
 ### 1、Trace 与 Span
 
@@ -104,12 +104,12 @@ Spring Boot 的链路追踪由 **Micrometer Tracing** 提供：业务和框架�
 
 | 组合 | Boot 4 依赖 | 上报协议 | 适用 |
 |------|-------------|----------|------|
-| OpenTelemetry + OTLP | `spring-boot-starter-opentelemetry` | OTLP（HTTP 默认，也可 gRPC） | 新项目首选，可发往 Collector、Tempo、Jaeger v2 |
+| OpenTelemetry + OTLP | `spring-boot-starter-opentelemetry` | OTLP（HTTP 默认，也可 gRPC） | Boot 4 新项目的默认路线，可发往 Collector、Tempo、Jaeger v2 |
 | Brave + Zipkin | `spring-boot-starter-zipkin` | Zipkin JSON | 已有 Zipkin 平台 |
 
 Boot 3.x 没有这两个 starter，需要手动组合 `micrometer-tracing-bridge-otel` + `opentelemetry-exporter-otlp`（或 `micrometer-tracing-bridge-brave` + `zipkin-reporter-brave`），OTLP 地址的属性是 `management.otlp.tracing.endpoint`。
 
-另一条路是不引入任何依赖，直接挂 OpenTelemetry Java agent 做字节码插桩。两条路选一条，**不要同时使用**，否则同一个请求会产生两套 Span。对比与 agent 用法见 [OpenTelemetry](./5_opentelemetry)。
+另一条路是不引入任何依赖，直接挂 OpenTelemetry Java agent 做字节码插桩。两条路选一条，**不要同时使用**，否则同一个请求会产生两套 Span。什么情况下选哪条（含社区 starter）以 [OpenTelemetry](./5_opentelemetry#二、java-接入方式对比) 的结论为准。
 
 ### 2、依赖与配置
 

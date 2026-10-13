@@ -12,8 +12,6 @@ Kafka 本质是分布式、分区、多副本的提交日志，这决定了它�
 
 ## 一、架构与核心概念
 
-「offset 累计提交」等行为同样源自提交日志模型；Spring Boot 写法覆盖不丢消息与可重试兜底，线上问题还包括扩分区。
-
 **Kafka 4.0 起彻底移除 ZooKeeper，集群元数据只由 KRaft Controller 仲裁（基于 Raft）管理。** 旧集群需先在 3.x 完成 ZooKeeper → KRaft 迁移再升级到 4.x。
 
 ![Kafka 4.x 集群架构](../assets/messaging/kafka-architecture.svg)
@@ -361,7 +359,21 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);
 
 ### 4、共享组（Queues for Kafka）
 
-KIP-932 引入的共享组（Share Group）让多个消费者可以协同消费同一分区，支持逐条确认和重投递，消费者数量不再受分区数限制，更接近传统队列语义。该特性从 4.0 起以早期访问 / 预览形式逐步提供，成熟度随版本变化，生产使用前请以所用版本的官方文档为准。
+KIP-932 引入的共享组（Share Group）给 Kafka 补上了传统队列语义。4.0 为早期访问、4.1 为预览，**4.2（2026-02）起正式宣布生产可用（GA）**。
+
+| 维度 | 消费者组 | 共享组 |
+|------|----------|--------|
+| 分区分配 | 一个分区只给组内一个消费者 | 多个消费者可同时消费同一分区 |
+| 消费者上限 | 受分区数限制 | 不受分区数限制，可按积压扩消费者 |
+| 确认方式 | 累计提交 offset | 逐条确认：`ACCEPT`（完成）/ `RELEASE`（放回重投）/ `REJECT`（永久失败）；4.2 新增 `RENEW`，延长处理慢的记录的锁 |
+| 顺序 | 分区内有序 | 不保证顺序 |
+
+- **客户端**：用 `KafkaShareConsumer`（不是 `KafkaConsumer`）；记录被取走后加锁（`share.record.lock.duration.ms`，默认 30s），超时未确认自动放回
+- **重投上限**：单条记录最多投递 `share.delivery.count.limit` 次（默认 5），超过后归档不再投递；截至 4.3 还没有内置死信 Topic（KIP-1191 已通过，计划在后续版本提供），需要死信时在 `REJECT` 前自行转发
+- **监控**：4.2 起提供共享分区 lag 指标，可据此扩缩消费者
+- **适用**：任务分发、竞争消费、逐条确认且不要求顺序的场景；要求分区内顺序、Exactly-Once 或 Streams 处理时仍用消费者组
+
+与 Pulsar Shared 订阅、RabbitMQ 的对比见 [其他消息系统](./5_other_mq#二、kafka-的队列语义-share-group)。
 
 ---
 

@@ -12,7 +12,7 @@ description: 好告警标准、Prometheus 告警规则、Alertmanager 路由抑�
 
 ## 一、什么是好告警
 
-本篇以 order-service 为例，版本以 2026 年 10 月为准：Prometheus 3.x、Alertmanager 0.34；规则用 promtool 测试，Alertmanager 部分含 IM 接入。
+示例以 order-service 为对象，版本为 Prometheus 3.x、Alertmanager 0.34（2026 年 10 月）。
 
 ### 1、四条标准
 

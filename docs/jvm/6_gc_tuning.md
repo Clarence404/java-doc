@@ -165,7 +165,7 @@ jstat、jcmd、JFR 等在线观测手段见 [诊断工具](./8_monitoring_tools)
 - **容器感知**：JDK 10 起（8u191 回移）默认开启 `-XX:+UseContainerSupport`，JVM 按容器的内存与 CPU limit 计算默认堆大小、GC 线程数
 - **按比例设置堆**：用 `-XX:MaxRAMPercentage` / `-XX:InitialRAMPercentage` 替代固定的 `-Xmx` / `-Xms`，规格调整时无需改参数；默认 `MaxRAMPercentage=25` 偏保守，通常取 50～75
 - **给堆外留足空间**：元空间、直接内存、线程栈、Code Cache、GC 自身数据结构都计入容器内存，堆外占用大的应用（Netty、线程多）取低比例，并显式限制 `MaxDirectMemorySize`、`MaxMetaspaceSize`
-- **小规格容器**：CPU < 2 或内存 < 1792MB 时 JVM 会默认选 Serial，建议显式指定收集器
+- **小规格容器**：JDK 26 及以前，CPU < 2 或内存 < 1792MB 时 JVM 会默认选 Serial；JDK 27 起（JEP 523）所有环境默认 G1。无论哪个版本都建议显式指定收集器
 
 ```bash
 java -XX:InitialRAMPercentage=70 -XX:MaxRAMPercentage=70 \

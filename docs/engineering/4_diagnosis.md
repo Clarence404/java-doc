@@ -12,7 +12,7 @@ Arthas 能在不重启、不改代码的前提下，在方法级别观察和干�
 
 ## 一、Arthas 的附着原理与启动
 
-版本：Arthas 4.3.5、JDK 21（JDK 25 同样适用）、Spring Boot 4；附着场景含物理机，类加载器用法针对 fat jar。
+版本基线：Arthas 4.3.5、JDK 21（JDK 25 同样适用）、Spring Boot 4。
 
 ![Arthas 附着流程](../assets/engineering/diagnosis-arthas-attach.svg)
 

@@ -208,9 +208,9 @@ UDP 是面向数据报的协议，每个数据报都有天然边界：发送方�
 ## 参考资料
 
 - TCP 字节流语义：[RFC 9293: Transmission Control Protocol (TCP)](https://www.rfc-editor.org/rfc/rfc9293)
-- 解码器基类与累积缓冲：[ByteToMessageDecoder (Netty API)](https://netty.io/4.1/api/io/netty/handler/codec/ByteToMessageDecoder.html)
-- 长度字段解码器参数详解：[LengthFieldBasedFrameDecoder (Netty API)](https://netty.io/4.1/api/io/netty/handler/codec/LengthFieldBasedFrameDecoder.html)
-- 分隔符解码器：[DelimiterBasedFrameDecoder (Netty API)](https://netty.io/4.1/api/io/netty/handler/codec/DelimiterBasedFrameDecoder.html)
-- 发送端长度前缀编码器：[LengthFieldPrepender (Netty API)](https://netty.io/4.1/api/io/netty/handler/codec/LengthFieldPrepender.html)
+- 解码器基类与累积缓冲：[ByteToMessageDecoder (Netty API)](https://netty.io/4.2/api/io/netty/handler/codec/ByteToMessageDecoder.html)
+- 长度字段解码器参数详解：[LengthFieldBasedFrameDecoder (Netty API)](https://netty.io/4.2/api/io/netty/handler/codec/LengthFieldBasedFrameDecoder.html)
+- 分隔符解码器：[DelimiterBasedFrameDecoder (Netty API)](https://netty.io/4.2/api/io/netty/handler/codec/DelimiterBasedFrameDecoder.html)
+- 发送端长度前缀编码器：[LengthFieldPrepender (Netty API)](https://netty.io/4.2/api/io/netty/handler/codec/LengthFieldPrepender.html)
 
 > 下一篇：[自定义私有协议](./8_custom_protocol) —— 从零设计一个带魔数、版本、类型和长度字段的二进制协议，并实现完整的编解码。

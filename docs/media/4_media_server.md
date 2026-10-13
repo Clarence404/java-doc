@@ -18,7 +18,7 @@ description: 流媒体服务器职责、SRS / ZLMediaKit / MediaMTX 选型、HTT
 
 | 职责 | 说明 | 业务服务在其中的角色 |
 |------|------|----------------------|
-| 接入（Ingest） | 接收 RTMP、SRT、WebRTC（WHIP）、RTSP、GB28181 推流或主动拉流 | 签发推流地址与 token，回调中鉴权 |
+| 接入（Ingest） | 接收 RTMP、SRT、WebRTC（WHIP）、RTSP、GB28181 推流或主动拉流 | 签发带签名的推流地址，回调中鉴权 |
 | 转协议 / 转封装 | 一路 RTMP 输入，同时输出 HTTP-FLV、HLS、WebRTC，通常不重新编码 | 决定房间开哪些输出 |
 | 分发 | 源站把流推给边缘或 CDN，就近服务观众 | 调度：给观众返回哪个域名 / 节点 |
 | 录制（DVR） | 把直播流写成 FLV / MP4 / HLS 文件 | 回调中拿到文件，归档到对象存储、生成回放 |
@@ -123,10 +123,10 @@ vhost __defaultVhost__ {
 }
 ```
 
-推流与播放（流名 `room_1001`，token 由业务签发）：
+推流与播放（流名 `room_1001`，签名由业务签发）：
 
 ```bash
-ffmpeg -re -i demo.flv -c copy -f flv "rtmp://localhost/live/room_1001?expire=1791590400&token=3f9c..."
+ffmpeg -re -i demo.flv -c copy -f flv "rtmp://localhost/live/room_1001?expire=1791590400&sign=3f9c..."
 
 # 播放
 # RTMP:     rtmp://localhost/live/room_1001
@@ -152,9 +152,9 @@ SRS 在事件发生时向配置的 URL 发 `POST` 请求，请求体是 JSON。�
   "ip": "203.0.113.10",
   "vhost": "__defaultVhost__",
   "app": "live",
-  "tcUrl": "rtmp://push.live.example.com/live",
+  "tcUrl": "rtmp://push.example.com/live",
   "stream": "room_1001",
-  "param": "?expire=1791590400&token=3f9c...",
+  "param": "?expire=1791590400&sign=3f9c...",
   "stream_url": "/live/room_1001",
   "stream_id": "vid-124q9y3"
 }
@@ -162,8 +162,8 @@ SRS 在事件发生时向配置的 URL 发 `POST` 请求，请求体是 JSON。�
 
 | 回调 | 时机 | 额外字段 | 业务用途 |
 |------|------|----------|----------|
-| `on_publish` | 开始推流 | — | 校验推流 token，房间置为直播中 |
-| `on_unpublish` | 停止推流 | — | 房间置为已下播，结算时长 |
+| `on_publish` | 开始推流 | — | 校验推流签名，房间置为直播中 |
+| `on_unpublish` | 停止推流 | — | 房间记为中断，宽限期后仍未恢复再判定下播、结算时长 |
 | `on_play` | 开始播放 | `pageUrl` | 付费 / 私密直播的播放鉴权 |
 | `on_stop` | 停止播放 | — | 观看时长统计 |
 | `on_dvr` | 一个录制文件写完 | `cwd`、`file` | 归档到对象存储 |
@@ -174,61 +174,15 @@ SRS 在事件发生时向配置的 URL 发 `POST` 请求，请求体是 JSON。�
 几点必须清楚：
 
 - **回调是同步阻塞的**：推流 / 播放要等回调返回才继续，接口必须快（几十毫秒以内），慢操作（写日志库、发通知）异步做
-- **token 放在 `param` 里**：推流地址上的查询串原样出现在 `param` 字段，业务自己解析；SRS 不做签名校验
+- **签名放在 `param` 里**：推流地址上的查询串（`?expire=...&sign=...`）原样出现在 `param` 字段，业务自己解析；SRS 不做签名校验
 - **回调本身没有签名**：任何能访问回调地址的人都能伪造请求。回调接口只暴露在内网（单独的端口或路径前缀，网关不转发 `/internal/**`），并用网络策略限制只有流媒体服务器能访问
 - **回调可能丢**：流媒体服务器崩溃或网络中断时，`on_unpublish` 可能永远不会到达，房间会一直显示"直播中"。必须配合第七节的 API 对账兜底
 
 ### 2、推流地址签名
 
-主播点"开播"时，业务服务生成带过期时间和 HMAC 签名的推流地址；签名方案与通用接口签名一致，原理见 [API 安全](/security/6_api_security) 第三节：
+主播点"开播"时，业务服务生成带过期时间和 HMAC 签名的推流地址，形如 `rtmp://push.example.com/live/{stream}?expire={过期时间戳}&sign={签名}`，签名串为 `/live/{stream}:{expire}`。签名器 `StreamSigner` 的完整实现、TTL（10 到 30 分钟，只管"何时可以开始推"）和密钥轮换见 [直播系统设计](./6_live_streaming#_1、签名推流地址)，签名原理与通用接口签名一致（见 [API 安全](/security/6_api_security)），本篇只讲回调这一侧怎么用它。
 
-```java
-@Component
-public class StreamTokenService {
-
-    private final byte[] secret;
-
-    public StreamTokenService(@Value("${live.push-secret}") String secret) {
-        this.secret = secret.getBytes(StandardCharsets.UTF_8);
-    }
-
-    /** 推流地址：rtmp://push.live.example.com/live/{stream}?expire=..&token=.. */
-    public String pushUrl(String stream, Duration ttl) {
-        long expire = Instant.now().plus(ttl).getEpochSecond();
-        return "rtmp://push.live.example.com/live/%s?expire=%d&token=%s"
-                .formatted(stream, expire, sign(stream, expire));
-    }
-
-    public boolean verify(String stream, String expire, String token) {
-        if (stream == null || expire == null || token == null) {
-            return false;
-        }
-        long exp;
-        try {
-            exp = Long.parseLong(expire);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-        if (Instant.now().getEpochSecond() > exp) {
-            return false;
-        }
-        byte[] expected = sign(stream, exp).getBytes(StandardCharsets.US_ASCII);
-        return MessageDigest.isEqual(expected, token.getBytes(StandardCharsets.US_ASCII));   // 常量时间比较
-    }
-
-    private String sign(String stream, long expire) {
-        try {
-            Mac mac = Mac.getInstance("HmacSHA256");   // Mac 非线程安全，每次新建
-            mac.init(new SecretKeySpec(secret, "HmacSHA256"));
-            return HexFormat.of().formatHex(mac.doFinal((stream + ":" + expire).getBytes(StandardCharsets.UTF_8)));
-        } catch (GeneralSecurityException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-}
-```
-
-流名使用房间号而不是主播 ID，过期时间只在开始推流时校验，推流中途到期不会被断开；主播断线重连时如果 token 已过期，需要重新从 App 获取。
+流名使用房间号而不是主播 ID；过期时间只在开始推流时校验，推流中途到期不会被断开；主播断线重连超过窗口时，由 App 重新向业务服务申请推流地址。
 
 ### 3、Spring Boot 回调控制器
 
@@ -260,13 +214,13 @@ public class SrsHookController {
     private static final Map<String, Integer> ALLOW = Map.of("code", 0);
     private static final Map<String, Integer> DENY = Map.of("code", 403);
 
-    private final StreamTokenService tokens;
+    private final StreamSigner signer;
     private final LiveRoomService rooms;
     private final RecordingEventPublisher recordings;
 
-    public SrsHookController(StreamTokenService tokens, LiveRoomService rooms,
+    public SrsHookController(StreamSigner signer, LiveRoomService rooms,
                              RecordingEventPublisher recordings) {
-        this.tokens = tokens;
+        this.signer = signer;
         this.rooms = rooms;
         this.recordings = recordings;
     }
@@ -274,15 +228,16 @@ public class SrsHookController {
     @PostMapping("/publish")
     public Map<String, Integer> onPublish(@RequestBody SrsHookEvent e) {
         Map<String, String> q = queryOf(e.param());
-        boolean allowed = "live".equals(e.app())
-                && tokens.verify(e.stream(), q.get("expire"), q.get("token"))
-                && rooms.startLive(e.stream(), e.clientId(), e.serverId(), e.ip());
+        String sign = q.get("sign");
+        boolean allowed = sign != null
+                && signer.verify(e.app(), e.stream(), parseLong(q.get("expire")), sign)
+                && rooms.markLive(e.stream(), e.serverId(), e.clientId());
         return allowed ? ALLOW : DENY;
     }
 
     @PostMapping("/unpublish")
     public Map<String, Integer> onUnpublish(@RequestBody SrsHookEvent e) {
-        rooms.endLive(e.stream(), e.clientId());   // 只结束 client_id 匹配的那次推流
+        rooms.markInterrupted(e.stream(), e.clientId());   // 先记"中断"，宽限期后再判定下播
         return ALLOW;
     }
 
@@ -307,17 +262,25 @@ public class SrsHookController {
         return UriComponentsBuilder.newInstance().query(query).build()
                 .getQueryParams().toSingleValueMap();
     }
+
+    private static long parseLong(String s) {
+        try {
+            return s == null ? 0L : Long.parseLong(s);
+        } catch (NumberFormatException e) {
+            return 0L;                                                 // 0 一定已过期，校验自然失败
+        }
+    }
 }
 ```
 
 `@JsonProperty` / `@JsonIgnoreProperties` 来自 `com.fasterxml.jackson.annotation`，Spring Boot 4 默认的 Jackson 3 仍沿用这个注解包。`ignoreUnknown` 让 SRS 升级后新增字段不影响反序列化。
 
-业务服务里两个容易写错的地方：
+`markLive` / `markInterrupted` 的业务逻辑与 [直播系统设计](./6_live_streaming#_2、源站回调鉴权) 一致，要点两条：
 
-- **开播要防"一个房间两路推流"**：单台 SRS 会拒绝同名流的第二个推流者，但在多台源站时两路推流可能落到不同机器。`startLive` 用条件更新实现：`UPDATE live_room SET status='LIVE', publisher_client_id=?, origin_server_id=? WHERE stream_key=? AND status IN ('IDLE','ENDED')`，影响行数为 0 就拒绝
-- **下播要校验 `client_id`**：主播网络抖动重连时，新连接的 `on_publish` 可能先于旧连接的 `on_unpublish` 到达。`endLive` 带上 `WHERE publisher_client_id = ?`，旧连接的下播事件就不会把新开的直播关掉
+- **防"一个房间两路推流"**：单台 SRS 会拒绝同名流的第二个推流者，但多台源站时两路推流可能落到不同机器。`markLive` 用 Redis `SET live:pusher:{stream} {clientId} NX EX 60` 占位，推流期间定时续期，抢不到占位就拒绝
+- **下播走宽限期并校验 `client_id`**：`markInterrupted` 只在占位值等于本次 `client_id` 时释放占位、把房间记为中断，30 到 60 秒内重新 `on_publish` 视为续播，超时由定时任务判定下播。主播重连时新连接的 `on_publish` 可能先于旧连接的 `on_unpublish` 到达，按 `client_id` 比较能保证旧连接的下播事件不会把新开的直播关掉
 
-观众播放的 `ticket` 是业务给已登录、已付费观众签发的短期票据，思路与推流 token 相同；免费公开的直播可以不配 `on_play`，把鉴权放在 CDN 的 URL 签名上，避免每个观众都打一次业务接口。
+观众播放的 `ticket` 是业务给已登录、已付费观众签发的短期票据，思路与推流签名相同；免费公开的直播可以不配 `on_play`，把鉴权放在 CDN 的 URL 签名上，避免每个观众都打一次业务接口。
 
 ### 4、其他服务器的回调差异
 
@@ -374,7 +337,7 @@ vhost __defaultVhost__ {
 - **源站集群**：多个源站时，边缘需要知道某路流在哪台源站上。SRS 6 及以前用源站之间互相查询（MESH）的方式；SRS 7 改成独立的 `srs-proxy`，由代理把推流和播放负载均衡到一组互不同步状态的源站，多个代理可以通过 Redis 共享状态，源站可以作为普通的无状态 Deployment 部署在 Kubernetes 上
 - **CDN**：HLS 是普通的 HTTP 文件，直接交给 CDN 缓存最省事（m3u8 设短缓存、切片设长缓存）；HTTP-FLV 需要 CDN 支持长连接流式回源，各家直播 CDN 都支持。也可以让源站用 `forward` 或 FFmpeg 把流转推到云厂商的直播 CDN，自建只做接入和录制。边缘缓存与 HTTP 缓存头见 [Cloudflare 边缘服务](/cloud-native/16_cloudflare)
 
-调度由业务服务做：观众进房间时，业务根据地域、运营商和各节点负载返回播放地址（例如 `https://hz-edge.live.example.com/live/room_1001.flv`）；主播开播时返回就近的推流接入点。直播系统整体的调度、连麦、弹幕设计见 [直播系统设计](./6_live_streaming)，弹幕消息通道见 [即时通讯](/scenario/16_im)。
+调度由业务服务做：观众进房间时，业务根据地域、运营商和各节点负载返回播放地址（例如 `https://hz-edge.play.example.com/live/room_1001.flv`）；主播开播时返回就近的推流接入点。直播系统整体的调度、连麦、弹幕设计见 [直播系统设计](./6_live_streaming)，弹幕消息通道见 [即时通讯](/scenario/16_im)。
 
 ---
 
@@ -417,7 +380,7 @@ SRS 开启 `exporter` 后在 `http://host:9972/metrics` 暴露 Prometheus 格式
 
 - 流媒体服务器负责媒体面（接入、转协议、分发、录制），Java 业务服务负责控制面（鉴权、状态、调度、计费），两者通过 HTTP 回调和管理 API 协作
 - 互联网直播选 SRS，监控接入选 ZLMediaKit，轻量转发与边缘场景选 MediaMTX；三者都以 MIT 许可为主，ZLMediaKit 商用需核查其中的第三方代码
-- SRS 回调要求 HTTP 200 且 `code` 为 0，否则断开客户端；token 从 `param` 中解析并用 HMAC + 过期时间校验；回调接口只开放内网、必须快、不做重活
+- SRS 回调要求 HTTP 200 且 `code` 为 0，否则断开客户端；签名从 `param` 中解析并用 HMAC + 过期时间校验，下播走宽限期并校验 `client_id`；回调接口只开放内网、必须快、不做重活
 - 开播用条件更新防双推，下播校验 `client_id` 防误关；回调可能丢失，用 HTTP API 定时对账兜底
 - DVR 推荐 `segment` 分段录 FLV，由同机归档进程转封装、分片上传对象存储，再交给点播转码
 - 分发靠源站 + 边缘 + CDN，SRS 7 用 `srs-proxy` 重做源站集群；监控看连接数、带宽、回调耗时和归档积压，体验指标靠播放器埋点

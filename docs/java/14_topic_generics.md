@@ -12,8 +12,6 @@ description: 类型擦除与 Signature、桥方法、通配符与 PECS、堆污�
 
 ## 一、基础语法
 
-泛型在 Java 5 引入，采用「擦除式」实现，但声明处的泛型签名会写进 class 文件，框架靠它在运行时还原 `List<User>` 这样的类型。
-
 ### 1、泛型类、接口与方法
 
 ```java
@@ -59,6 +57,8 @@ String larger = max("apple", "banana");   // 推断 T = String
 ---
 
 ## 二、类型擦除
+
+Java 5 引入泛型时采用「擦除式」实现，但声明处的泛型签名会写进 class 文件，框架靠它在运行时还原 `List<User>` 这样的类型。
 
 ### 1、擦除了什么，保留了什么
 

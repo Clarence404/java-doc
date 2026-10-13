@@ -212,7 +212,7 @@ jcmd <pid> Compiler.codecache      # 查看 Code Cache 使用情况（JDK 9+）
 - Graal 是用 Java 编写的 JIT 编译器，通过 JVMCI 接入 HotSpot，可替代 C2
 - JDK 10 以实验特性引入 OpenJDK（JEP 317，`-XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler`）
 - JDK 17 从 OpenJDK 中移除（JEP 410，同时移除了 JDK 9 引入的 `jaotc` AOT 工具）
-- 现在要使用 Graal JIT，需要使用 **GraalVM 发行版**
+- 之后 Graal JIT 只在 **GraalVM 发行版**中提供；2025 年 9 月 Oracle 宣布 Oracle JDK 不再带实验性 Graal JIT，GraalVM 不再属于 Java SE 产品、也不再跟随 JDK 半年发版，Native Image 由 GraalVM（社区版）独立发布；HotSpot 的启动优化转向 Project Leyden
 
 ### 2、GraalVM Native Image
 
@@ -222,7 +222,7 @@ native-image -jar app.jar   # 编译为原生可执行文件
 
 - 构建期做静态分析（封闭世界假设），直接生成机器码，启动从秒级降到毫秒级，内存占用大幅降低
 - 代价：没有运行时 JIT，峰值吞吐通常低于 HotSpot；反射、动态代理、资源加载需要额外配置
-- Spring Boot 3.x 通过 AOT 处理支持构建 Native Image
+- Spring Boot 3 / 4 通过 Spring AOT 支持构建 Native Image
 
 ### 3、HotSpot AOT 缓存（Project Leyden）
 
@@ -233,6 +233,7 @@ native-image -jar app.jar   # 编译为原生可执行文件
 | JDK 24 | JEP 483：AOT 类加载与链接 | 缓存已加载、已链接的类，缩短启动 |
 | JDK 25 | JEP 514：AOT 命令行易用性 | 一条 `-XX:AOTCacheOutput` 完成训练并生成缓存 |
 | JDK 25 | JEP 515：AOT 方法 profiling | 缓存训练时的方法 profile，JIT 启动后更快编译热点，缩短预热 |
+| JDK 26 | JEP 516：任意 GC 的 AOT 对象缓存 | 缓存对象改为 GC 无关格式流式加载，ZGC 等任意收集器都能用 AOT 缓存 |
 
 ```bash
 # JDK 25：训练运行并生成缓存
@@ -255,7 +256,7 @@ JDK 21 不可用。与 AppCDS、CRaC 的选型对比见 [JVM 层性能策略](/h
 - 分层编译 0–4 级，典型路径 `0 → 3 → 4`：C1 带 profiling 快速编译，C2 基于 profile 激进优化
 - 内联是优化的基础（`MaxInlineSize=35`、`FreqInlineSize=325` 字节）；去虚化依赖类型 profile，假设失效会逆优化
 - 逃逸分析在 HotSpot 中通过标量替换消除分配、同步消除去掉锁，没有真正的栈上分配
-- Code Cache 满会停止编译；缩短启动与预热可选 AOT 缓存（JDK 24+）、Native Image 等，Graal JIT 需用 GraalVM 发行版
+- Code Cache 满会停止编译；缩短启动与预热优先考虑 HotSpot AOT 缓存（JDK 24+，JDK 26 起支持任意 GC），极致启动再考虑 Native Image
 
 ## 参考资料
 
@@ -263,6 +264,7 @@ JDK 21 不可用。与 AppCDS、CRaC 的选型对比见 [JVM 层性能策略](/h
 - 分段代码缓存：[JEP 197: Segmented Code Cache](https://openjdk.org/jeps/197)
 - Graal JIT 与 jaotc 的移除：[JEP 410: Remove the Experimental AOT and JIT Compiler](https://openjdk.org/jeps/410)
 - AOT 类加载与链接：[JEP 483: Ahead-of-Time Class Loading & Linking](https://openjdk.org/jeps/483)
+- 任意 GC 的 AOT 对象缓存：[JEP 516: Ahead-of-Time Object Caching with Any GC](https://openjdk.org/jeps/516)
 - AOT 命令行易用性：[JEP 514: Ahead-of-Time Command-Line Ergonomics](https://openjdk.org/jeps/514)
 - GraalVM Native Image：[Native Image — GraalVM Reference Manual](https://www.graalvm.org/latest/reference-manual/native-image/)
 

@@ -12,7 +12,7 @@ description: 采样与分辨率、码率与码控、H.264 / H.265 / AV1、AAC / 
 
 ## 一、从信号到数据：采样与原始数据量
 
-做视频平台的后端不需要会写编码器，但要能讨论"这路流为什么花屏、为什么首屏慢、为什么这么费带宽"。示例来自一个直播 + 点播的视频平台：主播用 OBS 推 1080p 直播，平台出多档清晰度并生成回放，用户上传的短视频统一转码。
+示例场景：一个直播 + 点播的视频平台，主播用 OBS 推 1080p 直播，平台出多档清晰度并生成回放，用户上传的短视频统一转码。
 
 ### 1、音频：采样率、位深、声道
 
@@ -67,7 +67,7 @@ x264 的 CRF 取值 0～51，默认 23，数值越小质量越高、文件越大
 # 直播推流：近似 CBR，码率 4 Mbps，缓冲 2 倍码率
 ffmpeg -re -i input.mp4 -c:v libx264 -preset veryfast -tune zerolatency \
   -b:v 4000k -maxrate 4000k -bufsize 8000k \
-  -c:a aac -b:a 128k -ar 48000 -f flv rtmp://ingest.example.com/live/room1001
+  -c:a aac -b:a 128k -ar 48000 -f flv rtmp://push.example.com/live/room1001
 
 # 点播转码：Capped CRF，质量优先但峰值不超过 4.5 Mbps
 ffmpeg -i upload.mov -c:v libx264 -preset slow -crf 23 \
@@ -82,10 +82,12 @@ ffmpeg -i upload.mov -c:v libx264 -preset slow -crf 23 \
 
 | 档位 | 分辨率 | 视频码率 | 音频码率 |
 |------|--------|----------|----------|
-| 蓝光 | 1920×1080 | 3～6 Mbps | 128 kbps |
-| 超清 | 1280×720 | 1.5～3 Mbps | 128 kbps |
-| 高清 | 854×480 | 0.8～1.2 Mbps | 96 kbps |
+| 超清 | 1920×1080 | 3～6 Mbps | 128 kbps |
+| 高清 | 1280×720 | 1.5～3 Mbps | 128 kbps |
+| 标清 | 854×480 | 0.8～1.2 Mbps | 96 kbps |
 | 流畅 | 640×360 | 0.4～0.8 Mbps | 64 kbps |
+
+全模块统一用这四个档位名。点播用 Capped CRF，可以按片源取到区间上段；直播用近似 CBR，一般取中下段，直播专用的帧率和"原画"档见 [直播系统设计](./6_live_streaming#_1、码率阶梯)。
 
 H.265 / AV1 在同等画质下码率可以再降 30%～50%（具体收益取决于编码器实现和内容）。更进一步是**按内容的码率阶梯**（per-title / per-scene encoding）：先分析片源复杂度再决定每档码率，动画、课程类内容能省下大量带宽，细节见 [点播与短视频](./7_vod)。
 

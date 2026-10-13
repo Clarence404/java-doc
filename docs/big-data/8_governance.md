@@ -12,9 +12,9 @@ description: 元数据目录与血缘、OpenLineage、质量规则与调度门�
 
 ## 一、数据治理管什么
 
-示例沿用电商订单业务（`order_info`、`order_item`、`user_info`、`product` 与 App 埋点），引擎以 Flink 2.2、Spark 4.2、Paimon 2.0、StarRocks 4.1 为准。
-
 数仓刚建起来时，几十张表、几个人维护，靠口头约定就够了。表涨到几千张、任务涨到几百个之后，问题就从"能不能算出来"变成了："这个字段是从哪来的""上游改了表结构会影响谁""昨天的 GMV 和财务对不上是谁的问题""这张 3 TB 的表还有人用吗"。
+
+示例沿用电商订单业务（`order_info`、`order_item`、`user_info`、`product` 与 App 埋点），引擎以 Flink 2.2、Spark 4.2、Paimon 2.0、StarRocks 4.1 为准。
 
 ![数据治理闭环](../assets/big-data/governance-loop.svg)
 

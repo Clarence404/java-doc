@@ -12,7 +12,7 @@ Flink SQL 把流看作不断变化的动态表，在上面持续执行查询。�
 
 ## 一、动态表与 changelog
 
-示例以 Flink 2.2 + 对应连接器为准（见 [Flink 概览](./1_basics)），SQL 语法在 2.3 上同样适用；连接器涵盖 Kafka / upsert-kafka / JDBC，另讲去重以及如何估算并用 TTL 控制状态。
+示例以 Flink 2.2 + 对应连接器为准（见 [Flink 概览](./1_basics)），SQL 语法在 2.3 上同样适用。
 
 ### 1、流就是一张不断变化的表
 

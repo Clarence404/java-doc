@@ -124,6 +124,8 @@ public class StreamSigner {
 - **TTL 不宜过长**：主播点"开播"后立即推流，窗口给 10 到 30 分钟足够；断线重连超过窗口时由 App 重新申请
 - **密钥轮换**：密钥前加版本号（如 `sign=v2.xxxx`），校验时按版本选密钥，轮换期间新旧并存
 
+本模块其他篇（[流媒体协议](./2_protocols)、[流媒体服务器](./4_media_server)）提到的推流签名都以这一节为准：签名串 `/live/{streamKey}:{expire}`、参数名 `expire` + `sign`、推流域名 `push.example.com`。
+
 ### 2、源站回调鉴权
 
 以 SRS 为例，在 vhost 的 `http_hooks` 中配置 `on_publish` 指向业务服务。SRS 在客户端开始推流时以 JSON POST 回调，请求体包含 `action`、`client_id`、`ip`、`vhost`、`app`、`stream`、`param`（推流 URL 的查询串，如 `?expire=...&sign=...`）、`server_id` 等字段；**业务服务返回 HTTP 200 且 `code` 为 0 才放行**，否则 SRS 断开推流。完整配置见 [流媒体服务器](./4_media_server)。
@@ -181,7 +183,9 @@ public class SrsCallbackController {
 }
 ```
 
-`roomService.markLive` 里做业务校验：房间存在且审核通过、主播未被封禁、同一 `streamKey` 当前没有另一路在推（用 Redis `SET live:pusher:{streamKey} {clientId} NX EX 60` 占位，推流期间定时续期），全部满足才把房间置为"直播中"并发布开播事件。
+`roomService.markLive` 里做业务校验：房间存在且审核通过、主播未被封禁、同一 `streamKey` 当前没有另一路在推（用 Redis `SET live:pusher:{streamKey} {clientId} NX EX 60` 占位，推流期间定时续期），全部满足才把房间置为"直播中"并发布开播事件。多台源站时两路推流可能落到不同机器，单台 SRS 的同名流互斥管不到，这个占位就是防双推的唯一关口。
+
+`roomService.markInterrupted` 只在占位值等于本次 `clientId` 时才删除占位（Lua 脚本比较后删除），并把房间记为"中断"、记下中断时间；宽限期内新连接的 `on_publish` 重新抢到占位即视为续播，超时仍未恢复由定时任务判定下播、结算时长。按 `clientId` 比较是为了防误关：重连时新连接的 `on_publish` 可能先于旧连接的 `on_unpublish` 到达，旧连接的下播事件因 `clientId` 不匹配不会删掉新连接的占位；新连接若因旧占位未释放被拒，推流 SDK 自动重试几秒即可。
 
 几条工程约束：
 
@@ -201,42 +205,7 @@ public class SrsCallbackController {
 | URL 签名鉴权 | 播放地址带过期时间和签名，CDN 边缘校验 | 地址在有效期内仍可被转发，需配合较短的有效期 |
 | 业务层鉴权 | 付费直播在进房接口校验权益后才签发播放地址，并限制同一账号并发观看数 | 需要业务配合，实现成本最高 |
 
-**URL 签名由 CDN 边缘校验，Java 后端只负责生成**，具体算法以所用 CDN 的文档为准。以阿里云 CDN 的 A 型鉴权为例：
-
-- 地址格式：`https://play.example.com/live/room1001_720p.flv?auth_key={timestamp}-{rand}-{uid}-{md5hash}`
-- `md5hash = MD5("{URI}-{timestamp}-{rand}-{uid}-{PrivateKey}")`，`rand` 一般用去掉连字符的 UUID，`uid` 不用时填 0
-- CDN 以 `timestamp + 控制台配置的有效时长` 判断是否过期，过期或签名不符返回 403
-
-```java
-@Component
-public class PlayUrlSigner {
-
-    private final String privateKey;
-
-    public PlayUrlSigner(@Value("${live.cdn.auth-key}") String privateKey) {
-        this.privateKey = privateKey;
-    }
-
-    /** uri 形如 /live/room1001_720p.flv，必须以 / 开头，含非 ASCII 字符时先做 URL 编码 */
-    public String sign(String uri) {
-        long timestamp = Instant.now().getEpochSecond();
-        String rand = UUID.randomUUID().toString().replace("-", "");
-        String uid = "0";
-        String md5 = md5Hex(uri + "-" + timestamp + "-" + rand + "-" + uid + "-" + privateKey);
-        return "https://play.example.com" + uri
-                + "?auth_key=" + timestamp + "-" + rand + "-" + uid + "-" + md5;
-    }
-
-    private static String md5Hex(String s) {
-        try {
-            byte[] digest = MessageDigest.getInstance("MD5").digest(s.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-}
-```
+**URL 签名由 CDN 边缘校验，Java 后端只负责生成**，具体算法以所用 CDN 的文档为准。以阿里云 CDN 的 A 型鉴权为例，播放地址形如 `https://play.example.com/live/room1001_720p.flv?auth_key={timestamp}-{rand}-{uid}-{md5hash}`，CDN 以 `timestamp + 控制台配置的有效时长` 判断是否过期，过期或签名不符返回 403。签名算法与 Java 实现（`CdnSigner`）、签名 Cookie 和边缘鉴权见 [点播与短视频](./7_vod#六、播放鉴权与-cdn-签名-url)，直播与点播共用同一个签名器，只是 URI 指向 `.flv` / `.m3u8`。
 
 注意 HLS 的特殊性：播放器先请求 `.m3u8`，再按列表请求每个 `.ts` / `.m4s` 切片，切片 URL 是相对路径，**不会自动带上 m3u8 的鉴权参数**。需要确认 CDN 支持对 m3u8 内的切片地址做鉴权参数改写，或采用按目录、按 Cookie 鉴权的模式，否则会出现"列表能拉到、切片全部 403"。
 
@@ -246,7 +215,7 @@ public class PlayUrlSigner {
 
 ### 1、码率阶梯
 
-观众网络差异很大，只提供原画会让弱网用户一直卡顿。转码集群把主播的原始流转成多档码率（码率阶梯，bitrate ladder），下表是 H.264 直播的常见参考值，实际取值要按内容复杂度调整：
+观众网络差异很大，只提供原画会让弱网用户一直卡顿。转码集群把主播的原始流转成多档码率（码率阶梯，bitrate ladder）。档位名和通用取值见 [音视频基础](./1_basics#_3、码率阶梯)，下表只列直播的差异：多了"原画"档和帧率，码率取通用区间的中下段，因为直播用近似 CBR 编码、没有逐片优化的余地，码率给高了直接变成卡顿和 CDN 费用：
 
 | 档位 | 分辨率 | 帧率 | 视频码率参考 | 用途 |
 |------|--------|------|--------------|------|
@@ -287,14 +256,14 @@ HLS 的主播放列表（master playlist）列出所有档位，播放器根据�
 
 ## 六、延迟分级
 
-"直播延迟"指主播端画面发生到观众端看到的时间，由采集编码、推流、转码、分发、播放缓冲累加而成。按协议可分为几档：
+"直播延迟"指主播端画面发生到观众端看到的时间，由采集编码、推流、转码、分发、播放缓冲累加而成。按协议可分为几档（数值与 [流媒体协议](./2_protocols#一、协议全景) 的协议全景表一致，各环节耗时拆解见该篇第十节）：
 
 | 档位 | 典型协议 | 端到端延迟（量级） | CDN 支持 | 适用场景 |
 |------|----------|--------------------|----------|----------|
-| 实时互动 | WebRTC（WHEP / 私有信令） | 1 秒以内 | 需要支持 WebRTC 的专门网络 | 连麦、直播带货抢购、互动课堂、竞拍 |
-| 低延迟 | HTTP-FLV、RTMP 播放 | 2 到 5 秒 | 主流 CDN 支持，浏览器需 flv.js / mpegts.js 播放 | 秀场、游戏直播的默认档 |
+| 实时互动 | WebRTC（WHEP / 私有信令） | 0.1 到 0.5 秒 | 需要支持 WebRTC 的专门网络 | 连麦、直播带货抢购、互动课堂、竞拍 |
+| 低延迟 | HTTP-FLV、RTMP 播放 | 1 到 3 秒 | 主流 CDN 支持，浏览器需 flv.js / mpegts.js 播放 | 秀场、游戏直播的默认档 |
 | 低延迟 HLS | LL-HLS、低延迟 DASH | 2 到 5 秒 | 需要 CDN 支持分块传输 | 需要 iOS 原生播放、又想降低延迟 |
-| 标准 | HLS、DASH | 10 到 30 秒 | 所有 CDN，缓存友好 | 赛事、发布会、大规模分发，对互动要求低 |
+| 标准 | HLS、DASH | 常规 6 到 30 秒 | 所有 CDN，缓存友好 | 赛事、发布会、大规模分发，对互动要求低 |
 
 选型思路：
 
@@ -361,7 +330,7 @@ ZREVRANGE live:hot 0 49 WITHSCORES
 
 ## 九、连麦
 
-连麦是主播与观众或主播之间的实时音视频互动，延迟要求在 1 秒以内，只能用 WebRTC。典型架构：
+连麦是主播与观众或主播之间的实时音视频互动，连麦方延迟要求在 500 毫秒以内，只能用 WebRTC。典型架构：
 
 1. **连麦房间**：主播开启连麦时，业务服务在 SFU（如 LiveKit）创建一个与直播间对应的 RTC 房间，并为主播和被邀请的连麦者签发带发布权限的 token
 2. **实时互动**：主播与连麦者通过 SFU 互相收发音视频，延迟在几百毫秒量级

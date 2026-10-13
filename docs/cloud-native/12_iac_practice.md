@@ -12,9 +12,7 @@ IaC 多人协作后，难点变成基础设施代码怎么评审、上线和防�
 
 ## 一、仓库布局与环境晋级
 
-示例以 GitHub Actions + AWS 为主（阿里云做法在文中点出），工具版本：Terraform 1.16、hashicorp/setup-terraform v4、Conftest 0.71。
-
-[Terraform](./11_terraform) 讲了 HCL、State、Module 和多环境目录，[Ansible](./12_ansible) 讲了 Playbook 和 Role，这里不再重复语法；示例选 AWS 是因为它的 OIDC 生态最成熟。
+[Terraform](./11_terraform) 讲了 HCL、State、Module 和多环境目录，[Ansible](./12_ansible) 讲了 Playbook 和 Role，这里不再重复语法。示例以 GitHub Actions + AWS 为主（AWS 的 OIDC 生态最成熟，阿里云做法在文中点出），工具版本：Terraform 1.16、hashicorp/setup-terraform v4、Conftest 0.71。
 
 ### 1、推荐布局
 

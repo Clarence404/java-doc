@@ -6,7 +6,7 @@ description: MQTT QoS 与会话、MQTT 5、协议选型、EMQX 与接入网关�
 
 > 题目清单见 [IoT 面试题](/iot/99_interview)；细节见 [IoT 总览](/iot/0_overview)。
 >
-> 版本基线：MQTT 5.0（兼顾 3.1.1）、EMQX 5.9+ / 6.x（5.x 配置语法）、TDengine 3.x、Flink 2.2、JDK 21 / Spring Boot 4。
+> 版本基线：MQTT 5.0（兼顾 3.1.1）、EMQX 5.9+ / 6.x（配置为 5.x 起的 HOCON 语法）、TDengine 3.x、Flink 2.2、JDK 21 / Spring Boot 4。
 
 ## 一、MQTT 协议
 

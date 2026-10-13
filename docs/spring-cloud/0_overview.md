@@ -1,6 +1,6 @@
 # Spring Cloud 总览
 
-本模块讲 Spring Cloud 微服务工具集的框架落地：注册发现、网关、通信、配置、治理，再到 Spring Cloud Alibaba 与 Spring Cloud Stream。
+Spring Cloud 在 Spring Boot 之上为注册发现、网关、通信、配置、治理提供统一抽象，实现可换成 Nacos、Consul、Kubernetes 等。本模块讲这些能力的框架落地，再到 Spring Cloud Alibaba 与 Spring Cloud Stream。
 
 **版本基线（2026 年 10 月）**：Spring Cloud 2025.1、Spring Cloud Alibaba 2025.1.0.0、Spring Boot 4
 
@@ -68,7 +68,7 @@
 
 ## 四、关联模块
 
-Spring Cloud 在 Spring Boot 之上提供统一抽象，具体实现可以换成 Nacos、Consul、Kubernetes 等。限流熔断的策略与阈值、分布式事务理论、服务网格分别在高可用、分布式、微服务模块展开，本模块只写框架落地。版本说明：Spring Cloud 2025.1.x（Oakwood）基于 Spring Framework 7，2025.1.2 起支持 Boot 4.1；Boot 3.5 对应 Spring Cloud 2025.0（Northfields）与 SCA 2025.0.0.0，文中涉及差异处单独标出。
+限流熔断的策略与阈值、分布式事务理论、服务网格分别在高可用、分布式、微服务模块展开，本模块只写框架落地。
 
 - [微服务设计模式](/microservices/2_patterns)：网关、BFF、Sidecar 等微服务模式
 - [微服务 · 服务网格](/microservices/3_service_mesh)：Istio / Envoy 与 Spring Cloud 的分工

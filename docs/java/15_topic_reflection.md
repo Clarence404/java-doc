@@ -12,7 +12,7 @@ description: 成员查找、record / sealed 反射、模块强封装、JEP 416�
 
 ## 一、Class 对象
 
-Spring、Jackson、MyBatis、JUnit 都建立在反射之上。模块系统对反射的限制按 JDK 9 → 16 → 17 演进，JDK 18 之后实现改变；替代方案有 MethodHandle、VarHandle、字节码生成。
+Spring、Jackson、MyBatis、JUnit 都建立在反射之上，而反射的入口就是 `Class` 对象。
 
 ### 1、三种获取方式
 

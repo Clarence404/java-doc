@@ -112,7 +112,8 @@ ByteBuf 可以从"内存放在哪"和"内存是否复用"两个维度分类。
 
 | 类型 | 分配器 | 特点 |
 |------|--------|------|
-| 池化 | `PooledByteBufAllocator` | 从内存池取、用完归还，分配快、GC 压力小，**生产推荐** |
+| 池化（自适应） | `AdaptiveByteBufAllocator` | 4.2 的默认分配器，按实际分配大小自动调整池的规格，官方仍标为实验性 |
+| 池化（jemalloc 式） | `PooledByteBufAllocator` | 从内存池取、用完归还，分配快、GC 压力小；4.1 的默认值，久经生产验证 |
 | 非池化 | `UnpooledByteBufAllocator` / `Unpooled` 工具类 | 每次新分配，简单直接，适合测试和一次性数据 |
 
 ### 3、如何获取 ByteBuf
@@ -125,14 +126,14 @@ ByteBuf b = ctx.alloc().heapBuffer(256);     // 明确使用堆内存
 ByteBuf c = ctx.alloc().directBuffer(256);   // 明确使用直接内存
 CompositeByteBuf d = ctx.alloc().compositeBuffer();
 
-ByteBuf e = PooledByteBufAllocator.DEFAULT.buffer(); // 在 Handler 之外使用池化分配器
+ByteBuf e = ByteBufAllocator.DEFAULT.buffer();       // 在 Handler 之外使用默认分配器（4.2 为 adaptive）
 ByteBuf f = Unpooled.copiedBuffer("hi", CharsetUtil.UTF_8); // 非池化，常用于测试
 ```
 
-默认分配器由系统属性 `io.netty.allocator.type` 决定：Netty 4.1 中非 Android 平台默认 `pooled`，Android 默认 `unpooled`。
+默认分配器由系统属性 `io.netty.allocator.type` 决定，可选 `adaptive` / `pooled` / `unpooled`，Netty 4.2 默认 `adaptive`。
 
 ::: tip 版本差异
-Netty 4.2 引入了自适应分配器（`AdaptiveByteBufAllocator`）并将其作为新的默认值，可以通过 `-Dio.netty.allocator.type=pooled` 切回。升级大版本时注意核对。
+Netty 4.1 中非 Android 平台默认 `pooled`，Android 默认 `unpooled`；4.2 改为自适应分配器 `adaptive`。官方迁移指南建议升级时先加 `-Dio.netty.allocator.type=pooled` 保持 4.1 行为，稳定后再单独去掉它验证 `adaptive`。
 :::
 
 ---
@@ -319,7 +320,7 @@ ctx.writeAndFlush(frame);
 
 ## 七、内存池原理（简述）
 
-**`PooledByteBufAllocator` 借鉴了 jemalloc 的思想：按大小分级管理，线程优先从本地缓存分配，从而减少锁竞争、内存碎片和 GC。** 以下为结构概览，具体数值随版本有所调整。
+**`PooledByteBufAllocator` 借鉴了 jemalloc 的思想（4.2 默认的 `AdaptiveByteBufAllocator` 是另一套实现，本节不展开）：按大小分级管理，线程优先从本地缓存分配，从而减少锁竞争、内存碎片和 GC。** 以下为结构概览，具体数值随版本有所调整。
 
 | 层级 | 说明 |
 |------|------|
@@ -353,11 +354,11 @@ ctx.writeAndFlush(frame);
 
 ## 参考资料
 
-- ByteBuf 读写指针与 API：[ByteBuf (Netty API)](https://netty.io/4.1/api/io/netty/buffer/ByteBuf.html)
+- ByteBuf 读写指针与 API：[ByteBuf (Netty API)](https://netty.io/4.2/api/io/netty/buffer/ByteBuf.html)
 - 引用计数与泄漏排查：[Reference counted objects](https://netty.io/wiki/reference-counted-objects.html)
-- 泄漏检测级别：[ResourceLeakDetector (Netty API)](https://netty.io/4.1/api/io/netty/util/ResourceLeakDetector.html)
-- 池化分配器：[PooledByteBufAllocator (Netty API)](https://netty.io/4.1/api/io/netty/buffer/PooledByteBufAllocator.html)
-- 用户态零拷贝：组合缓冲区：[CompositeByteBuf (Netty API)](https://netty.io/4.1/api/io/netty/buffer/CompositeByteBuf.html)
-- OS 级零拷贝：FileRegion 与 sendfile：[FileRegion (Netty API)](https://netty.io/4.1/api/io/netty/channel/FileRegion.html)
+- 泄漏检测级别：[ResourceLeakDetector (Netty API)](https://netty.io/4.2/api/io/netty/util/ResourceLeakDetector.html)
+- 池化分配器：[PooledByteBufAllocator (Netty API)](https://netty.io/4.2/api/io/netty/buffer/PooledByteBufAllocator.html)
+- 用户态零拷贝：组合缓冲区：[CompositeByteBuf (Netty API)](https://netty.io/4.2/api/io/netty/buffer/CompositeByteBuf.html)
+- OS 级零拷贝：FileRegion 与 sendfile：[FileRegion (Netty API)](https://netty.io/4.2/api/io/netty/channel/FileRegion.html)
 
 > 下一篇：[粘包与拆包](./7_stick_split) —— TCP 只保证字节流，一条完整的消息从哪开始、到哪结束，要靠我们自己界定。

@@ -39,12 +39,15 @@
 | 存储与查询 | 按信号特点各自存储 | 指标：Prometheus（长期存储接 VictoriaMetrics / Thanos / Mimir）；日志：Loki / Elasticsearch；链路：Tempo / Jaeger v2；Profiles：Pyroscope |
 | 展示与告警 | 看板、探索、跨信号跳转、告警 | Grafana；Prometheus 规则 + Alertmanager，或 Grafana Alerting |
 
-Spring Boot 应用有两条接入路线，选一条为主，不要混用导致重复埋点：
+Spring Boot 应用有两条主路线和一个过渡选项，只选一条，不要混用导致重复埋点：
 
 - **Micrometer 路线**：`spring-boot-starter-actuator` 暴露 `/actuator/prometheus` 供 Prometheus 抓取，Micrometer Tracing 通过 OTel bridge 以 OTLP 导出 Span；Boot 4 的 `spring-boot-starter-opentelemetry` 把这套依赖打包好。优点是与 Spring 的 Observation API、配置属性完全对齐
 - **OpenTelemetry agent 路线**：`-javaagent:opentelemetry-javaagent.jar` 自动埋点 HTTP、JDBC、Kafka 等常见库，指标、链路、日志都走 OTLP 发往 Collector。优点是零代码、多语言统一；代价是启动变慢、与 Spring 自己的 Observation 埋点可能重叠
+- **过渡选项**：OTel 社区 `opentelemetry-spring-boot-starter`，只用于 Boot 3 项目无法使用 agent（如原生镜像）的场景
 
-两条路线的细节与取舍见 [OpenTelemetry](./5_opentelemetry)。Collector 作为中间层的价值在于：应用只认 OTLP 一个协议，后端怎么换（Jaeger 换 Tempo、自建换云厂商）只改 Collector 配置；采样、脱敏、限流这类治理逻辑也集中在这一层做。
+本站立场是 Boot 4 新项目默认走 Micrometer 路线，多语言统一或要零代码覆盖时用 agent，取舍细节见 [OpenTelemetry](./5_opentelemetry#二、java-接入方式对比)。
+
+Collector 作为中间层的价值在于：应用只认 OTLP 一个协议，后端怎么换（Jaeger 换 Tempo、自建换云厂商）只改 Collector 配置；采样、脱敏、限流这类治理逻辑也集中在这一层做。
 
 ::: tip 本地试验
 Grafana 官方提供 `grafana/otel-lgtm` 镜像，一个容器内集成了 OTel Collector、Prometheus、Loki、Tempo、Pyroscope 与 Grafana，适合在本机跑通 order-service 的三大信号，不适合用于生产。

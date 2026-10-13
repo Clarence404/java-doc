@@ -12,7 +12,7 @@ description: 滚动、蓝绿、金丝雀、Argo Rollouts、功能开关与暗发
 
 ## 一、发布方式全景
 
-示例版本：Kubernetes 1.37、Gateway API v1、Istio `networking.istio.io/v1`、Argo Rollouts 1.10、Spring Boot 4；另附上线检查单。
+示例版本：Kubernetes 1.37、Gateway API v1、Istio `networking.istio.io/v1`、Argo Rollouts 1.10、Spring Boot 4。
 
 部署（deploy）和发布（release）是两件事：部署是把新代码放到生产环境运行，发布是让用户真正用到新功能。前三种方式在**基础设施层**切换版本，后两种在**应用层**把部署和发布拆开。
 
@@ -274,28 +274,13 @@ VirtualService 的 `http` 规则按书写顺序匹配，第一条命中即生效
 
 ### 3、Ingress 注解方式（存量）
 
-还在用 ingress-nginx（或兼容其注解的控制器）的存量集群，金丝雀靠注解实现。它要求**先有一个同 host、同 path 的主 Ingress**，金丝雀 Ingress 才会生效：
+::: warning 社区 ingress-nginx 已退役
+社区 ingress-nginx 于 2026 年 3 月停止维护，不再发布任何安全修复。下面的注解只用于迁移前的过渡，新部署请用上文 [Gateway API 权重分流](#_1、gateway-api-httproute-权重-推荐)；迁移步骤见 [从 Ingress 迁移到 Gateway API](/cloud-native/7_nginx_ingress#七、从-ingress-迁移到-gateway-api)。
+:::
+
+还在用 ingress-nginx（或兼容其注解的控制器）的存量集群，金丝雀靠注解实现。前提是**已有一个同 host、同 path 的主 Ingress**（指向 `order-v1`），再加一个带 canary 注解的 Ingress 指向新版本：
 
 ```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: order
-  namespace: shop
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: shop.example.com
-      http:
-        paths:
-          - path: /api/orders
-            pathType: Prefix
-            backend:
-              service:
-                name: order-v1
-                port:
-                  number: 8080
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -308,7 +293,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: shop.example.com
+    - host: shop.example.com          # host、path 与主 Ingress 相同
       http:
         paths:
           - path: /api/orders
@@ -320,7 +305,7 @@ spec:
                   number: 8080
 ```
 
-注解是控制器私有约定，换控制器就要重写；社区 ingress-nginx 已不再发布安全修复，这段配置只作为迁移前的过渡，迁移步骤见 [Nginx、Ingress 与 Gateway API](/cloud-native/7_nginx_ingress)。
+注解是控制器私有约定，换控制器就要重写。
 
 ### 4、灰度维度
 

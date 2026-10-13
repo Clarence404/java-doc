@@ -6,7 +6,7 @@ description: Redis 数据类型与编码、线程模型与持久化、过期与�
 
 > 题目清单见 [缓存面试题](/cache/99_interview)；细节见 [缓存总览](/cache/0_overview)。
 >
-> 版本基线：Redis 8.x（兼顾 7.x）、Valkey 8.x、Spring Boot 4 / Spring Data Redis 4、Redisson 4.x、Caffeine 3.x、JetCache 2.7+。
+> 版本基线：Redis 8.x（兼顾 7.x）、Valkey 9.x、Spring Boot 4 / Spring Data Redis 4、Redisson 4.x、Caffeine 3.x、JetCache 2.7.9+（Boot 4）。
 
 ## 一、数据类型与编码
 

@@ -12,7 +12,7 @@ Flink 把算子记住的历史交给引擎托管，算子只管读写，快照�
 
 ## 一、状态的分类
 
-被托管的历史包括累加器、已见 ID、定时器、Kafka offset；引擎托管是故障后仍能精确一次的基础，Checkpoint 基于 barrier 实现。
+被引擎托管的状态包括累加器、已见 ID、定时器、Kafka offset 等，这也是故障后仍能精确一次的基础。
 
 ### 1、Keyed State 与 Operator State
 

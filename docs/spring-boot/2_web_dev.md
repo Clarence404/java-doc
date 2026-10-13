@@ -12,8 +12,6 @@ Spring Boot 在 Spring MVC 之上提供 Web 自动装配和一套工程默认值
 
 ## 一、Web 自动装配
 
-参数校验有两条路径，Filter 部分包括注册与顺序，HTTP 客户端部分包括用法与选型。
-
 DispatcherServlet 的请求处理流程、统一返回结构、`@RestControllerAdvice` 全局异常处理和拦截器实现属于 Spring MVC 本身，统一在 [MVC](/spring/3_mvc) 讲解。
 
 ### 1、starter 与默认装配

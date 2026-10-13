@@ -12,7 +12,7 @@ description: ODS / DWD / DWS / ADS 分层、星型与雪花、事实表与维度
 
 ## 一、为什么要分层
 
-建模的目标是让"昨天各省份 GMV"这种问题只需要一处计算、一个答案。本篇 SQL 以 Spark SQL + Iceberg 1.12 写法给出。
+建模的目标是让"昨天各省份 GMV"这种问题只需要一处计算、一个答案。本篇 SQL 以 Spark SQL + Iceberg 1.12 写法给出；Iceberg 1.12 的 Spark 运行时只发布到 4.1，读写 Iceberg 的集群暂用 Spark 4.1。
 
 没有规划的数仓通常长成"烟囱式"：每来一个报表需求，开发就从 ODS 原始表写一条几百行的 SQL 直接出结果。半年之后会出现这些问题：
 
@@ -84,9 +84,9 @@ CREATE TABLE dwd_trade_order_detail_inc (
     province_id            BIGINT,
     order_time             TIMESTAMP,
     sku_num                INT       COMMENT '购买件数',
-    original_amount_fen    BIGINT    COMMENT '原始金额（分）',
-    coupon_reduce_fen      BIGINT    COMMENT '优惠券分摊金额（分）',
-    split_total_amount_fen BIGINT    COMMENT '实付分摊金额（分）',
+    original_amount        DECIMAL(18, 2) COMMENT '原始金额（元）',
+    coupon_reduce_amount   DECIMAL(18, 2) COMMENT '优惠券分摊金额（元）',
+    split_total_amount     DECIMAL(18, 2) COMMENT '实付分摊金额（元）',
     dt                     STRING
 ) USING iceberg
 PARTITIONED BY (dt);
@@ -101,9 +101,9 @@ SELECT
     o.province_id,
     o.create_time,
     oi.sku_num,
-    oi.sku_num * oi.price_fen,
-    COALESCE(oi.split_coupon_fen, 0),
-    oi.split_total_fen
+    oi.sku_num * oi.price,
+    COALESCE(oi.split_coupon_amount, 0),
+    oi.split_total_amount
 FROM (
     SELECT *, ROW_NUMBER() OVER (PARTITION BY id ORDER BY update_time DESC) AS rn
     FROM ods_order_item_inc
@@ -123,7 +123,7 @@ WHERE oi.rn = 1;
 
 - 每次运行只覆盖当天这一个静态分区，任务可以安全地重跑（幂等），这是批处理任务最重要的性质
 - 下单是一次性发生的事件，所以按订单创建日期落分区；订单状态的后续变化属于支付、发货等其他业务过程，各自建事实表，或进入累积快照事实表（第四节）
-- 金额统一用「分」存储为整数，避免浮点误差，与业务库约定保持一致
+- 金额统一用 `DECIMAL(18, 2)`、单位元，不用 `DOUBLE` 以免累加误差；业务库若以分存储，在 ODS → DWD 这一步换算，字段标准见 [数据治理](./8_governance#_1、字段标准)
 - 日期 `'2026-10-09'` 在实际任务中由调度系统以参数传入，见 [任务调度](./6_scheduling)
 
 ### 5、从 DWD 到 DWS
@@ -137,7 +137,7 @@ SELECT
     user_id,
     COUNT(DISTINCT order_id)    AS order_count_1d,
     SUM(sku_num)                AS order_num_1d,
-    SUM(split_total_amount_fen) AS order_amount_fen_1d
+    SUM(split_total_amount)     AS order_amount_1d
 FROM dwd_trade_order_detail_inc
 WHERE dt = '2026-10-09'
 GROUP BY user_id;
@@ -147,7 +147,7 @@ INSERT OVERWRITE TABLE dws_trade_user_order_nd PARTITION (dt = '2026-10-09')
 SELECT
     user_id,
     SUM(order_count_1d)      AS order_count_7d,
-    SUM(order_amount_fen_1d) AS order_amount_fen_7d
+    SUM(order_amount_1d)     AS order_amount_7d
 FROM dws_trade_user_order_1d
 WHERE dt BETWEEN '2026-10-03' AND '2026-10-09'
 GROUP BY user_id;
@@ -271,7 +271,7 @@ WHEN MATCHED THEN UPDATE SET *
 WHEN NOT MATCHED THEN INSERT *;
 ```
 
-Spark 4.2 的声明式管道（Declarative Pipelines）还提供了 Auto CDC 能力，可以把变更流自动应用为 SCD Type 1 表，适合不想手写 MERGE 的场景。
+Spark 4.2 的声明式管道（Declarative Pipelines）还提供了 Auto CDC 能力，可以把变更流自动应用为 SCD Type 1 表，适合不想手写 MERGE 的场景；它需要 Spark 4.2，在 Iceberg 1.12 的表上暂时用不了（运行时只到 Spark 4.1）。
 
 ### 3、Type 2：拉链表
 
@@ -352,7 +352,7 @@ WHEN NOT MATCHED THEN
 **按历史版本关联**：事实表关联拉链维度时，用业务发生日期落在有效区间内作为关联条件，取到的就是"下单当时"的用户等级：
 
 ```sql
-SELECT o.order_id, o.split_total_amount_fen, u.user_level
+SELECT o.order_id, o.split_total_amount, u.user_level
 FROM dwd_trade_order_detail_inc o
 JOIN dim_user_zip u
   ON o.user_id = u.user_id
@@ -457,11 +457,11 @@ SELECT * FROM dim_user_zip WHERE end_date = DATE '9999-12-31';
 | 指标名称 / 英文名 | 支付 GMV / `pay_gmv` |
 | 类型 | 派生指标 |
 | 业务口径 | 统计周期内支付成功的订单实付金额之和，含运费，不扣除退款，剔除测试账号订单 |
-| 技术口径 | `dws_trade_province_order_1d.pay_amount_fen_1d` 按日期汇总 |
+| 技术口径 | `dws_trade_province_order_1d.pay_amount_1d` 按日期汇总 |
 | 统计周期 / 粒度 | 最近 1 日 / 全站、省份 |
 | 负责人 | 交易域数据负责人 |
 
-业务口径是给人看的，要写清楚含不含什么；技术口径指向具体的表和字段，便于追溯。口径变更必须走评审并记录版本，否则历史报表和当前报表会悄悄对不上。Spark 4.2 新增的指标视图（metric views）支持在 SQL 层声明式地定义语义模型，[OLAP 查询与数据服务](./7_olap_service) 中会讨论指标层与数据服务的结合方式。
+业务口径是给人看的，要写清楚含不含什么；技术口径指向具体的表和字段，便于追溯。口径变更必须走评审并记录版本，否则历史报表和当前报表会悄悄对不上。Spark 4.2 新增的指标视图（metric views）支持在 SQL 层声明式地定义语义模型（同样需要 Spark 4.2，Iceberg 1.12 的集群暂时用不了），[OLAP 查询与数据服务](./7_olap_service) 中会讨论指标层与数据服务的结合方式。
 
 ---
 

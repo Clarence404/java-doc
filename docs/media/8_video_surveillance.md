@@ -371,7 +371,7 @@ public record ZlmStreamEvent(String mediaServerId, String app, String stream,
 |------|----------|------|--------------|------|
 | HTTP-FLV | `http://zlm.example.com/rtp/44010200491310000001.live.flv` | 1～3 秒 | mpegts.js / flv.js（基于 MSE） | 监控实时预览的主力 |
 | WS-FLV | `ws://zlm.example.com/rtp/44010200491310000001.live.flv` | 1～3 秒 | 同上，经 WebSocket | 需要穿过只放行 WebSocket 的网关时 |
-| HLS | `http://zlm.example.com/rtp/44010200491310000001/hls.m3u8` | 5 秒以上 | hls.js、Safari 原生 | 移动端兼容、录像回看 |
+| HLS | `http://zlm.example.com/rtp/44010200491310000001/hls.m3u8` | 常规 6～30 秒 | hls.js、Safari 原生 | 移动端兼容、录像回看 |
 | WebRTC | `http://zlm.example.com/index/api/webrtc?app=rtp&stream=44010200491310000001&type=play` | 亚秒级 | 浏览器原生（ZLMediaKit 的信令接口，也支持 WHEP） | 云台控制、对讲等强实时场景 |
 
 几个常见问题：

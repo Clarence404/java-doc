@@ -12,8 +12,6 @@ Flink 上生产除了通用运维，还有部署模式、内存与反压这些�
 
 ## 一、部署模式与 Kubernetes Operator
 
-指标定位覆盖反压、checkpoint 失败与数据倾斜；部署采用 Application 模式。
-
 Kubernetes 本身的概念与运维见 [Kubernetes](/cloud-native/6_kubernetes)。
 
 ### 1、Application 模式是默认选择

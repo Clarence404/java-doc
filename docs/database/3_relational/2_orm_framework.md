@@ -12,7 +12,7 @@ ORM 框架负责把 Java 对象和数据库表互相映射，Java 项目里最�
 
 ## 一、MyBatis 缓存
 
-版本基线：MyBatis 3.5.19（mybatis-spring-boot-starter 3.0.x 对应 Boot 3.2–3.5，4.0.x 对应 Boot 4.0）、MyBatis-Plus 3.5.17、Hibernate ORM 7.x（实现 Jakarta Persistence 3.2，Boot 4 默认）；原理部分还涉及分页插件、Mapper 代理、执行器、TypeHandler 与数据源路由。
+版本基线：MyBatis 3.5.19（mybatis-spring-boot-starter 3.0.x 对应 Boot 3.2–3.5，4.0.x 对应 Boot 4.0）、MyBatis-Plus 3.5.17、Hibernate ORM 7.x（实现 Jakarta Persistence 3.2，Boot 4 默认）。
 
 本篇讲框架原理；在 Spring Boot 中引入依赖、写实体与 Repository、配置 MyBatis-Plus 与多数据源等用法见 [数据访问](/spring-boot/3_data_access)。
 

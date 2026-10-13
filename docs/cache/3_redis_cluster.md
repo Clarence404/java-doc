@@ -121,7 +121,7 @@ redis-cli --cluster reshard 10.0.0.1:6379                   # 交互式迁移槽
 redis-cli --cluster rebalance 10.0.0.1:6379                 # 按权重自动均衡
 ```
 
-迁移按 key 逐个 `MIGRATE`，大 key 迁移会阻塞源节点和目标节点，迁移前要先治理大 key。
+迁移按 key 逐个 `MIGRATE`，大 key 迁移会阻塞源节点和目标节点，迁移前要先治理大 key。Valkey 9.0 起另有原子槽迁移：在源节点执行 `CLUSTER MIGRATESLOTS SLOTSRANGE <起> <止> NODE <目标节点ID>`，后台整槽流式复制并追增量，完成后一次性切换归属，迁移期间不再出现 ASK 重定向，进度用 `CLUSTER GETSLOTMIGRATIONS` 查看。
 
 ### 4、故障转移
 

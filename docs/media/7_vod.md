@@ -12,7 +12,7 @@ description: 分片直传、事件驱动转码编排、HLS AES-128 加密与密�
 
 ## 一、整体链路
 
-点播和直播最大的区别是内容先落盘再播放：有充足的时间做转码、加密、审核，播放侧追求起播快、不卡顿、防盗播和低成本；短视频单个文件短、上传量和播放量极大、用户在 Feed 里快速划走，因此更看重首帧时间和预加载。示例沿用模块的视频平台：创作者在 App 上传视频，平台转码成多码率 HLS，观众在 App 和网页上观看；DRM 也在本篇范围内。
+点播和直播最大的区别是内容先落盘再播放：有充足的时间做转码、加密、审核，播放侧追求起播快、不卡顿、防盗播和低成本；短视频单个文件短、上传量和播放量极大、用户在 Feed 里快速划走，因此更看重首帧时间和预加载。示例沿用模块的视频平台：创作者在 App 上传视频，平台转码成多码率 HLS，观众在 App 和网页上观看。
 
 ![点播处理流水线](../assets/media/vod-pipeline.svg)
 
@@ -207,7 +207,7 @@ https://api.example.com/api/hls/keys/k_9f2c1a
 3b7e1f0c9a2d4e6f8a1b2c3d4e5f6071
 ```
 
-三档码率加密输出（码率阶梯取值的依据见 [FFmpeg 与转码](./3_ffmpeg)）：
+三档码率加密输出（码率阶梯的档位与取值见 [音视频基础](./1_basics#_3、码率阶梯)，多码率命令的写法见 [FFmpeg 与转码](./3_ffmpeg#_3、多码率-hls)）：
 
 ```bash
 ffmpeg -i source.mp4 \
@@ -369,7 +369,7 @@ DRM 的申请流程、证书和费用都比较重：Widevine 需要与 Google �
 国内 CDN 常见的「A 型鉴权」格式（以阿里云 CDN 为例，腾讯云等厂商的时间戳防盗链思路相同、参数名不同）：
 
 ```text
-https://vod.example.com/hls/2026/10/10/88001/seg_1_00000.ts?auth_key={timestamp}-{rand}-{uid}-{md5hash}
+https://play.example.com/hls/2026/10/10/88001/seg_1_00000.ts?auth_key={timestamp}-{rand}-{uid}-{md5hash}
 md5hash = md5("{uri}-{timestamp}-{rand}-{uid}-{privateKey}")
 ```
 

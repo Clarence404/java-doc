@@ -47,22 +47,23 @@ description: 分层超时、指数退避与抖动、重试放大控制（重试�
 ### 4、配置示例
 
 ```yaml
-# Spring Cloud OpenFeign：全局默认 + 按服务覆盖
+# Boot 4：RestClient / HTTP Service Clients，全局默认 + 按服务分组覆盖
 spring:
-  cloud:
-    openfeign:
-      client:
-        config:
-          default:
-            connect-timeout: 1000      # 连接超时 1s
-            read-timeout: 3000         # 读取超时 3s
-          inventory-service:           # 库存查询更快，单独收紧
-            connect-timeout: 500
-            read-timeout: 1000
+  http:
+    clients:
+      connect-timeout: 1s        # 所有 HTTP 客户端的全局默认值
+      read-timeout: 3s
+    serviceclient:
+      inventory:                 # 库存查询更快，单独收紧
+        base-url: http://inventory-service
+        connect-timeout: 500ms
+        read-timeout: 1s
 ```
 
+HTTP Service Clients 的注册方式见 [服务通信](/spring-cloud/3_communication#二、http-service-clients-推荐)；存量 OpenFeign 的超时配置（`spring.cloud.openfeign.client.config.*`）见同篇 [超时与压缩](/spring-cloud/3_communication#_3、超时与压缩)。
+
 ::: warning 注意框架自带的超时
-开启 `spring.cloud.openfeign.circuitbreaker.enabled` 并使用 Resilience4j 实现时，Spring Cloud CircuitBreaker 的 TimeLimiter 也会生效，其默认超时很短（1s），可能先于 Feign 的读取超时触发。建议显式配置 TimeLimiter，并让两者取值一致。
+叠加 Spring Cloud CircuitBreaker（Resilience4j 实现）时，TimeLimiter 也会生效，其默认超时很短（1s），可能先于客户端的读取超时触发。建议显式配置 TimeLimiter，并让两者取值一致。
 :::
 
 ---
@@ -175,9 +176,22 @@ Supplier<Stock> call = Retry.decorateSupplier(Retry.of("inventory", config), () 
 Resilience4j 注解默认的装饰顺序是 `Retry ( CircuitBreaker ( RateLimiter ( TimeLimiter ( Bulkhead ( 调用 ) ) ) ) )`：重试在最外层，每次尝试都会被熔断器统计。熔断打开后抛出的 `CallNotPermittedException` 必须排除在重试之外，见 [熔断](./5_circuit_breaking)。
 :::
 
-### 4、Spring Retry
+### 4、Spring 声明式重试
 
-Spring 生态可用 `@Retryable` + `@Backoff` 声明式实现退避重试，`@Recover` 做重试耗尽后的兜底。用法、退避参数、`RetryTemplate` 与自定义 `RetryPolicy` 详见 [Retry 重试](/spring/6_retry)。
+Spring Framework 7（Boot 4）内置 `@Retryable`，配置类加 `@EnableResilientMethods` 即可，无需引入 Spring Retry：
+
+```java
+@Retryable(
+    includes   = {ConnectException.class, SocketTimeoutException.class},
+    maxRetries = 2,          // 不含首次调用
+    delay      = 100,        // 毫秒
+    multiplier = 2,
+    maxDelay   = 1000,
+    jitter     = 50)
+public Stock query(long skuId) { ... }
+```
+
+Framework 7 **没有 `@Recover`**：重试耗尽后原始异常直接抛出，兜底写在调用方。参数语义、`RetryTemplate` 与自定义 `RetryPolicy` 详见 [Retry 重试](/spring/6_retry)；Boot 3 存量项目的 Spring Retry（`@Backoff` / `@Recover`）见同篇 [§六](/spring/6_retry#六、spring-retry-boot-3-存量项目)。
 
 ---
 

@@ -12,8 +12,6 @@ HTTPS 就是跑在 TLS 之上的 HTTP，负责加密、防篡改和身份校验�
 
 ## 一、为什么需要 HTTPS
 
-主流版本为 TLS 1.3（RFC 8446）和 1.2（RFC 5246），SSL 3.0、TLS 1.0 / 1.1 已被废弃（RFC 7568、RFC 8996）。
-
 ### 1、明文 HTTP 的三个问题
 
 | 威胁 | 例子 | TLS 的对策 |
@@ -34,6 +32,8 @@ HTTPS 带来的额外开销主要是握手的 1 个 RTT 和一次签名运算；
 ---
 
 ## 二、TLS 1.3 握手
+
+主流版本为 TLS 1.3（RFC 8446）和 1.2（RFC 5246），SSL 3.0、TLS 1.0 / 1.1 已被废弃（RFC 7568、RFC 8996）。
 
 ![TLS 1.2（ECDHE）与 TLS 1.3 完整握手对比](../assets/protocols/tls-handshake.svg)
 

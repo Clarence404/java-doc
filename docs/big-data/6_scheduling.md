@@ -12,7 +12,7 @@ description: DAG 依赖、数据时间与运行时间、DolphinScheduler、补�
 
 ## 一、数据调度要解决什么
 
-本篇以 Apache DolphinScheduler 3.4 和 Apache Airflow 3.3 为基线，示例统一使用电商订单日报链路 `order_daily`，目标是核心报表按时产出。
+本篇以 Apache DolphinScheduler 3.4 和 Apache Airflow 3.3 为基线，示例统一使用电商订单日报链路 `order_daily`。
 
 ### 1、和业务定时任务的区别
 

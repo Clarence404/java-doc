@@ -6,7 +6,7 @@ description: 2.x / 3.x / 4.x 基线对照、各版本核心特性、支持周期
 
 > 前置阅读：[启动流程与自动配置](./1_spring_boot)
 
-Spring Boot 的大版本跟着 Spring Framework 走，每次升级的核心都是基线抬升。本篇梳理 2.x、3.x、4.x 各代的基线与新能力，以及逐代升级步骤，基线为 Spring Boot 4.0。
+Spring Boot 的大版本跟着 Spring Framework 走，每次升级的核心都是基线抬升。本篇梳理 2.x、3.x、4.x 各代的基线与新能力，以及逐代升级步骤，基线为 Spring Boot 4.x。
 
 ---
 

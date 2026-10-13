@@ -6,13 +6,11 @@ description: Pipeline 结构与事件传播、三个传播陷阱、动态增删 
 
 > 前置阅读：[Channel 与 EventLoop](./4_channel_eventloop)
 
-每个 Channel 都有一条 ChannelPipeline，读写数据沿它流动，流水线上的工位就是 ChannelHandler。本篇讲 Pipeline 串起 Handler、入站与出站方向、传播陷阱、基类选择与生命周期。
+每个 Channel 都有一条 ChannelPipeline，读写数据沿它流动，流水线上的工位就是 ChannelHandler，回调默认运行在 Channel 绑定的 EventLoop 线程上。本篇讲 Pipeline 串起 Handler、入站与出站方向、三个传播陷阱、基类选择、生命周期与共享规则。
 
 ---
 
 ## 一、ChannelPipeline 与 ChannelHandlerContext：处理流水线
-
-Handler 回调默认运行在该 Channel 绑定的 EventLoop 线程上；下文梳理三个传播陷阱和 Handler 共享规则。
 
 **Pipeline 是一条由 `ChannelHandlerContext` 组成的双向链表，头尾固定是 `HeadContext` 和 `TailContext`；入站事件从头往尾走，出站操作从尾往头走。**
 
@@ -164,10 +162,10 @@ protected void initChannel(SocketChannel ch) {
 
 ## 参考资料
 
-- Pipeline 结构与入站 / 出站传播：[ChannelPipeline (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelPipeline.html)
-- Handler 接口与 @Sharable：[ChannelHandler (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelHandler.html)
-- Handler 上下文：[ChannelHandlerContext (Netty API)](https://netty.io/4.1/api/io/netty/channel/ChannelHandlerContext.html)
-- 自动释放消息的入站 Handler：[SimpleChannelInboundHandler (Netty API)](https://netty.io/4.1/api/io/netty/channel/SimpleChannelInboundHandler.html)
+- Pipeline 结构与入站 / 出站传播：[ChannelPipeline (Netty API)](https://netty.io/4.2/api/io/netty/channel/ChannelPipeline.html)
+- Handler 接口与 @Sharable：[ChannelHandler (Netty API)](https://netty.io/4.2/api/io/netty/channel/ChannelHandler.html)
+- Handler 上下文：[ChannelHandlerContext (Netty API)](https://netty.io/4.2/api/io/netty/channel/ChannelHandlerContext.html)
+- 自动释放消息的入站 Handler：[SimpleChannelInboundHandler (Netty API)](https://netty.io/4.2/api/io/netty/channel/SimpleChannelInboundHandler.html)
 - 引用计数与消息释放规则：[Reference counted objects](https://netty.io/wiki/reference-counted-objects.html)
 
 > 下一篇：[ByteBuf 与内存管理](./6_bytebuf) —— Pipeline 里流动的数据长什么样，以及如何避免内存泄漏。

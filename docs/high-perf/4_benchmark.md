@@ -12,8 +12,6 @@ JMH（Java Microbenchmark Harness）是 OpenJDK 提供的微基准测试框架�
 
 ## 一、为什么不能用 nanoTime 循环
 
-Profiler 告诉你"哪里慢"，JMH 回答"换一种写法能快多少"。
-
 ### 1、朴素写法
 
 **手写 `nanoTime` 循环测出来的数字通常不可信。** 典型的反例：
@@ -254,7 +252,7 @@ StringConcatBenchmark.plusInLoop         1000  avgt   10  812.447 ± 20.513  us/
 | 指标 | ns/op、ops/s、分配字节数 | QPS、P99、错误率、资源使用率 |
 | 工具 | JMH | JMeter、k6、Gatling、wrk |
 
-JMH 回答"**A 写法比 B 写法快多少**"，压测回答"**系统能扛多少流量**"。压测方法与工具见 [性能测试](/testing/7_performance_test)，容量评估见 [容量评估与规划](/high-con/8_capacity_planning)。
+Profiler 告诉你"**哪里慢**"，JMH 回答"**A 写法比 B 写法快多少**"，压测回答"**系统能扛多少流量**"。压测方法与工具见 [性能测试](/testing/7_performance_test)，容量评估见 [容量评估与规划](/high-con/8_capacity_planning)。
 
 ---
 

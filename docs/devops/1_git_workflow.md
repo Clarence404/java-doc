@@ -6,7 +6,7 @@ description: 主干开发与 GitHub Flow、分支保护规则集、Conventional 
 
 > 前置阅读：[DevOps 总览](./0_overview)
 
-分支模型决定了 CI 怎么触发、环境怎么晋级、版本怎么发布。本篇按主干开发 / GitHub Flow 讲分支组织、`main` 规则集与 CODEOWNERS、Conventional Commits 与提交校验，基线为 Git 2.23。
+分支模型决定了 CI 怎么触发、环境怎么晋级、版本怎么发布。本篇按主干开发 / GitHub Flow 讲分支组织、`main` 规则集与 CODEOWNERS、Conventional Commits 与提交校验。
 
 ---
 

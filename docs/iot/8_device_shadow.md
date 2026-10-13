@@ -12,7 +12,7 @@ description: desired / reported / delta、版本号与乐观锁、Topic 设计�
 
 ## 一、为什么需要影子
 
-设备影子（Device Shadow）也叫设备孪生或期望属性，应用读写影子而不是直接和设备通信；文档模型参考 AWS IoT Device Shadow，影子服务用乐观锁处理冲突。Spring Boot 4.x 默认 Jackson 3，包名 `tools.jackson`。
+设备影子（Device Shadow）也叫设备孪生或期望属性，应用读写影子而不是直接和设备通信。
 
 ### 1、直接下发的问题
 
@@ -31,6 +31,8 @@ description: desired / reported / delta、版本号与乐观锁、Topic 设计�
 ---
 
 ## 二、影子文档模型
+
+文档模型参考 AWS IoT Device Shadow。
 
 ### 1、文档结构
 
@@ -147,6 +149,8 @@ return cur + 1
 合并与 `delta` 计算在 Java 中完成，Lua 只负责"版本没变才写"。设备上报 `reported` 时不带版本，冲突时服务端自动重读重试；应用修改 `desired` 时带版本，冲突直接返回 409。
 
 ### 3、合并与 delta 计算
+
+下面的代码使用 Jackson 3（Spring Boot 4.x 默认），包名为 `tools.jackson`。
 
 ```java
 import tools.jackson.databind.JsonNode;

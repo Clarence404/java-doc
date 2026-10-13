@@ -12,7 +12,7 @@ Kubernetes 是声明式容器编排系统，控制器持续把集群实际状态
 
 ## 一、集群架构
 
-期望状态指要跑几个副本、用哪个镜像、暴露什么端口等。本篇以 Kubernetes 1.37 为基线、containerd 为运行时，最后给出一份可上线的 Spring Boot 部署清单。
+本篇以 Kubernetes 1.37 为基线、containerd 为运行时。
 
 ![Kubernetes 集群架构](../assets/cloud-native/kubernetes-architecture.svg)
 

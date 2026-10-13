@@ -12,9 +12,9 @@ description: DataX 与 SeaTunnel 离线同步、Kafka Connect / Flink CDC 实时
 
 ## 一、数据集成全景
 
-离线同步用 DataX / SeaTunnel，实时入湖用 Debezium + Kafka Connect 或 Flink CDC。版本基线为 DataX `datax_v202309`、SeaTunnel 3.0（2.3.x 文档已标为不再维护）、Debezium 3.x、Flink CDC 3.6、Iceberg 1.12，均为 Apache License 2.0。
-
 数据集成要回答的问题是：**业务数据怎么可靠地、按约定的时效进入数据平台，并且进来之后和源头对得上**。一个电商平台的数据来源通常有三类：业务库（订单、商品、用户）、行为日志（App / Web 埋点）、外部系统（物流、广告投放、支付对账单）。本篇示例统一用电商订单：MySQL 订单库 `shop.order_info` 同步到湖仓 ODS 层。
+
+离线同步用 DataX / SeaTunnel，实时入湖用 Debezium + Kafka Connect 或 Flink CDC。版本基线：DataX `datax_v202309`、SeaTunnel 3.0（2.3.x 文档已标为不再维护）、Debezium 3.x、Flink CDC 3.6、Iceberg 1.12，均为 Apache License 2.0。
 
 ![数据集成架构：离线批量 + 实时增量，源端与目标端对账](../assets/big-data/integration-sync-architecture.svg)
 
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS ods.ods_order_info_inc (
   order_id     BIGINT,
   user_id      BIGINT,
   shop_id      BIGINT,
-  amount       DECIMAL(12, 2),
+  amount       DECIMAL(18, 2),
   status       STRING,
   order_time   TIMESTAMP,
   update_time  TIMESTAMP
@@ -129,7 +129,7 @@ python bin/datax.py \
 - **`splitPk`**：按主键范围切分成多个 Task 并发读，只支持整数主键；不配则单线程读整张表。实际并发受 `channel` 限制
 - **`where` 用左闭右开**：`[start, end)` 保证相邻两天既不重不漏；`update_time` 上要有索引，并且业务更新时必须刷新它（`ON UPDATE CURRENT_TIMESTAMP` 或由 ORM 统一维护）
 - **`writeMode: truncate`**：写入前清空目标目录下以 `fileName` 为前缀的文件，同一天重跑结果不变，这是离线同步幂等的关键；`append` 重跑会产生重复数据
-- **金额声明为 `STRING`**：文本文件里写原样的 `199.00`，由 Hive 按表上的 `DECIMAL(12,2)` 解析，避免经过 `DOUBLE` 丢精度；`fieldDelimiter` 必须与建表语句一致
+- **金额声明为 `STRING`**：文本文件里写原样的 `199.00`，由 Hive 按表上的 `DECIMAL(18,2)` 解析，避免经过 `DOUBLE` 丢精度；`fieldDelimiter` 必须与建表语句一致
 - **`errorLimit`**：脏数据（类型转换失败等）超过阈值就让作业失败；对账要求严格的表设为 0
 - **密码不要写死在 JSON 里**：由调度系统从密钥管理中取出后经环境变量传入；生产上 Hive 表推荐用 ORC / Parquet（`fileType: "orc"`），文本格式只是为了示例直观
 
@@ -442,7 +442,7 @@ WHERE order_time >= TIMESTAMP '2026-10-09 00:00:00'
 GROUP BY order_id % 64;
 ```
 
-- **两边的拼接结果必须逐字节相同**：数字统一转字符串（`DECIMAL(12,2)` 两边都输出 `199.00`）、时间统一格式与时区（Spark 会话时区 `spark.sql.session.timeZone` 要与 MySQL 连接时区一致）、`CONCAT_WS` 两边都会跳过 `NULL`
+- **两边的拼接结果必须逐字节相同**：数字统一转字符串（`DECIMAL(18,2)` 两边都输出 `199.00`）、时间统一格式与时区（Spark 会话时区 `spark.sql.session.timeZone` 要与 MySQL 连接时区一致）、`CONCAT_WS` 两边都会跳过 `NULL`
 - **按主键分桶**：总数对不上时，只需在不一致的桶里继续下钻，不用全表逐行比
 - **时间窗选稳定的数据**：实时链路的数据一直在变，对账选 T-1 这类已经稳定的窗口，或在源端与目标端取同一时刻的快照（Iceberg 用 `TIMESTAMP AS OF`）
 - **口径一致**：目标端如果做过清洗（过滤测试订单、合并软删除），源端的统计 SQL 要用相同条件

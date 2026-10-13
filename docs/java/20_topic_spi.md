@@ -12,7 +12,7 @@ SPI 是框架只定义接口、第三方 jar 提供实现、运行时再把实�
 
 ## 一、SPI 与 API 的区别
 
-SPI（Service Provider Interface）的实现要在约定位置登记，JDBC、SLF4J、Dubbo、Spring Boot 自动配置都是这个思路；本篇也讲自定义扩展点。
+SPI（Service Provider Interface）的实现要在约定位置登记，JDBC、SLF4J、Dubbo、Spring Boot 自动配置都是这个思路。
 
 | 维度 | API | SPI |
 |------|-----|-----|

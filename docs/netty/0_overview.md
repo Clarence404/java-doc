@@ -2,6 +2,8 @@
 
 Netty 是 Java 生态中使用最广的网络通信框架。Dubbo、gRPC-Java、RocketMQ、Spring WebFlux、Spring Cloud Gateway 等组件的网络层都建立在它之上。本模块从操作系统的 IO 模型讲起，逐步深入 Netty 的线程模型、核心组件和内存管理，再落到协议设计、长连接应用和生产调优，共分四个阶段。
 
+**版本基线（2026 年 10 月）**：Netty 4.2.19.Final（运行要求 JDK 8+，io_uring 传输需 JDK 9+，示例代码按 JDK 17+ 编写）；Netty 4.1 将于 2027 年 7 月 1 日停止维护，与 4.2 的差异在相关章节单独标注
+
 ## 一、学习路线
 
 | 阶段 | 要解决的问题 | 文章 |

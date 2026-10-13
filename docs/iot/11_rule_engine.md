@@ -33,7 +33,7 @@ WHERE
   payload.temperature > 80
 ```
 
-**组合使用最常见**：EMQX 规则负责把原始消息转发进 Kafka；"连续 5 分钟超温"这类窗口规则交给 Flink，见 [Flink 总览](/flink/0_overview)；与业务相关的单点判断和动作由自研规则引擎完成。ThingsBoard 规则链的用法见 [平台选型](./2_platform)。
+**组合使用最常见**：EMQX 规则负责把原始消息转发进 Kafka；"连续 5 分钟超温"这类窗口规则交给 Flink，见 [Flink 总览](/flink/0_overview)；与业务相关的单点判断和动作由自研规则引擎完成。告警按「同一个告警只在一层产生，再统一汇入告警服务」分工：离线与窗口类归 Flink，阈值与趋势归 Grafana，连接断开归 EMQX，设备联动和需要关联业务数据的归本篇的规则引擎，完整分层表见 [数据处理](./4_data#_4、告警放在哪一层)。ThingsBoard 规则链的用法见 [平台选型](./2_platform)。
 
 ### 2、执行链路
 

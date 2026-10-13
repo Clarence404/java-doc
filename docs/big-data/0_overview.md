@@ -2,7 +2,7 @@
 
 大数据模块从 Java 后端的视角，讲业务数据怎样汇集、加工成统一口径，再以报表和接口交还给业务。重点是数仓建模、Spark、湖仓、数据集成、调度、OLAP 与治理，不追求覆盖整个 Hadoop 生态。
 
-**版本基线（2026 年 10 月）**：Spark 4.2、Hadoop 3.5、Iceberg 1.12、Paimon 2.0、Hudi 1.2、Flink 2.2 / Flink CDC 3.6、DolphinScheduler 3.4、Airflow 3.3、SeaTunnel 3.0、Doris / StarRocks 4.1。
+**版本基线（2026 年 10 月）**：Spark 4.2（Iceberg 1.12 的 Spark 运行时只发布到 4.1，读写 Iceberg 的集群暂用 Spark 4.1）、Hadoop 3.5、Iceberg 1.12、Paimon 2.0、Hudi 1.2、Flink 2.2 / Flink CDC 3.6、DolphinScheduler 3.4、Airflow 3.3、SeaTunnel 3.0、Doris / StarRocks 4.1。
 
 ---
 

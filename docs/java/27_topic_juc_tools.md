@@ -12,8 +12,6 @@ description: CountDownLatch、CyclicBarrier、Semaphore、Phaser、Exchanger、�
 
 ## 一、总览
 
-下文对比各工具的实现与语义差异、生产写法，以及 JDK 21 / 25 上的替代方案。
-
 本文示例中的 `warmUp`、`compute`、`doPhase`、`callApi` 等为业务方法，`pool` 为已创建的 `ExecutorService`，`log` 为日志对象，`threads` 为并发线程数。
 
 | 工具 | 底层实现 | 状态含义 |

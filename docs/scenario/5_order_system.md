@@ -1,12 +1,12 @@
 ---
-description: 状态机与条件更新、下单幂等与库存预占、支付回调、超时关单、按流程选分布式事务、退款
+description: 状态机与条件更新、下单幂等与库存预占、消费支付成功事件、超时关单、按流程选分布式事务、订单侧退款
 ---
 
 # 订单
 
 > 前置阅读：[幂等方案总结](/architecture/5_idempotence)、[分布式事务](/distributed/4_transaction)、[消息队列基础](/messaging/1_basics)
 
-订单的难点不在建表，而在**每个环节都会被重复调用**：用户重复提交、支付平台重复通知、MQ 重复投递、定时任务和消息同时关单。本篇的统一做法是唯一约束挡重复、状态条件更新挡并发、消息在事务提交之后发出，跨服务的一致性按流程选定一种方案。
+订单的难点不在建表，而在**每个环节都会被重复调用**：用户重复提交、支付成功事件重复到达、MQ 重复投递、定时任务和消息同时关单。本篇的统一做法是唯一约束挡重复、状态条件更新挡并发、消息在事务提交之后发出，跨服务的一致性按流程选定一种方案。
 
 ---
 
@@ -61,7 +61,7 @@ public void transit(long orderId, OrderStatus from, OrderStatus to) {
 3. 调库存服务**预占**库存、调优惠券服务锁定优惠券，两者都以 `biz_no` 作为幂等键
 4. 生成订单号（雪花算法，见 [分布式 ID 生成](/distributed/8_id_generator)），插入订单，状态为待支付
 5. 事务提交后发送 15 分钟关单定时消息
-6. 创建支付单，返回支付参数
+6. 调支付中心创建支付单（以订单号幂等），返回支付参数；支付单与交易单模型见 [支付系统](./14_payment#三、支付单、交易单与状态机)
 
 幂等检查和插入订单都在预占之后，所以**预占本身必须幂等**：重复请求用同一个 `biz_no` 预占，库存服务直接返回上次的结果，不会重复扣减。
 
@@ -112,64 +112,33 @@ public Order createOrder(CreateOrderCommand cmd) {
 
 ## 三、支付回调
 
-### 1、两大平台的差异
+渠道回调的验签、金额与商户号校验、渠道流水号去重、主动查单都由支付中心负责，订单服务不直接对接支付宝、微信支付。支付中心处理成功后通过 Outbox 投递 `PAY_SUCCESS` 事件，订单服务只做订单侧的事：
 
-| 项目 | 支付宝 | 微信支付 APIv3 |
-|------|--------|----------------|
-| 成功状态 | `trade_status` 为 `TRADE_SUCCESS` 或 `TRADE_FINISHED` | 解密后 `trade_state` 为 `SUCCESS` |
-| 应答成功 | 响应体返回纯文本 `success` | 返回 HTTP 200 或 204 |
-| 应答失败 | 返回其他内容，平台按间隔重发 | 返回 4XX / 5XX，平台按间隔重发 |
-| 必须校验 | 验签，`out_trade_no`、`total_amount`、`app_id` 与本地一致 | 验签并解密，`out_trade_no`、金额、`appid` / `mchid` 与本地一致 |
+- 回调验签与幂等：见 [支付系统](./14_payment#四、渠道下单与异步回调)
+- 查单补偿与渠道关单：见 [支付系统](./14_payment#五、主动查单与超时关单)
 
-只验签不校验金额和商户号，就可能被别的订单或低金额的合法通知冒充。
-
-### 2、回调处理
-
-```java
-@PostMapping("/pay/notify/alipay")
-public String alipayNotify(@RequestParam Map<String, String> params) {
-    if (!alipayVerifier.verify(params)) {
-        return "failure";                                   // 验签失败
-    }
-    PayNotify n = PayNotify.fromAlipay(params);
-    if (!n.isPaid()) {
-        return "success";                                   // 非成功状态：确认收到即可
-    }
-    Payment payment = paymentMapper.selectByPayNo(n.payNo());
-    if (payment == null
-            || payment.getAmount().compareTo(n.amount()) != 0
-            || !alipayAppId.equals(n.appId())) {
-        log.warn("支付通知与本地支付单不一致: {}", n);
-        return "failure";
-    }
-    orderPayService.paySuccess(n);
-    return "success";
-}
-```
+### 1、消费支付成功事件
 
 ```java
 @Transactional
-public void paySuccess(PayNotify n) {
-    // payment：UNIQUE KEY uk_pay_no (pay_no)、UNIQUE KEY uk_trade_no (trade_no)
-    // UPDATE payment SET status='SUCCESS', trade_no=?, paid_at=? WHERE pay_no=? AND status='WAITING'
-    if (paymentMapper.markSuccess(n.payNo(), n.tradeNo(), n.paidAt()) == 0) {
-        return;                                             // 重复通知或主动查单已处理
+public void onPaySuccess(PaySuccessEvent e) {             // 事件至少投递一次，必须幂等
+    long orderId = Long.parseLong(e.bizOrderNo());
+    // UPDATE orders SET status='PENDING_SHIPMENT', pay_no=?, paid_at=? WHERE id=? AND status='PENDING_PAYMENT'
+    if (orderMapper.markPaid(orderId, e.payNo(), e.paidAt()) == 0) {
+        Order o = orderMapper.selectById(orderId);
+        if (o.getStatus() == OrderStatus.CANCELLED) {
+            // 关单后才到账：向支付中心申请全额退款，request_no 固定，重复事件不会退两次
+            payClient.applyRefund(e.payNo(), "AUTO-" + orderId, e.amountCent());
+        }
+        return;                                             // 已是待发货及之后：重复事件直接结束
     }
-    if (orderMapper.updateStatus(n.orderId(), PENDING_PAYMENT, PENDING_SHIPMENT) == 0) {
-        refundService.applyAutoRefund(n.orderId(), n.payNo(), n.amount());   // 关单后才到账：自动退款
-        return;
-    }
-    outboxMapper.insert(OutboxEvent.of("ORDER_PAID", n.orderId()));         // 与状态变更同一事务
+    outboxMapper.insert(OutboxEvent.of("ORDER_PAID", orderId));   // 与状态变更同一事务
 }
 ```
 
-- **幂等靠支付单的状态条件更新**：`WAITING → SUCCESS` 只会成功一次，重复通知、通知与主动查单并发都影响 0 行。不需要分布式锁，更不能「锁外先查、锁内不查」
+- **幂等靠订单的状态条件更新**：`待支付 → 待发货` 只会成功一次，重复事件、事件与关单并发都影响 0 行，不需要分布式锁
 - **下游通知走 Outbox**：发货、积分、确认扣减库存都订阅 `ORDER_PAID`，事件与状态变更在同一事务落库，提交后由投递任务发出
-- 回调里只做校验和落库，耗时的后续动作全部异步，保证快速应答
-
-### 3、主动查单
-
-通知可能延迟或丢失，定时任务查询「待支付且已发起支付」的订单，查到已支付就调用同一个 `paySuccess`。多实例部署时 `@Scheduled` 会在每个实例上执行，用 XXL-JOB 或 ShedLock 保证单实例运行，见 [分布式调度](/distributed/6_job_scheduler)。关单前也要最后查一次，见下一节。
+- **兜底**：事件长时间没到时，订单服务按支付单号向支付中心查询；日终核对「支付成功」与「订单已支付」两个集合，见 [支付系统](./14_payment#_2、支付中心与业务方的一致性)
 
 ---
 
@@ -179,7 +148,7 @@ public void paySuccess(PayNotify n) {
 
 | 方案 | 原理 | 评价 |
 |------|------|------|
-| 定时扫描 | 每分钟扫 `status = 待支付 AND created_at < now - 15m` | 简单可靠，有分钟级延迟，量大时需分片扫描；适合作为兜底 |
+| 定时扫描 | 每分钟扫 `status = 待支付 AND created_at < now - 15m` | 简单可靠，有分钟级延迟，量大时需分片扫描；适合作为兜底；多实例部署用 XXL-JOB 或 ShedLock 保证单实例执行，见 [分布式调度](/distributed/6_job_scheduler) |
 | RocketMQ 5.x 定时消息 | 下单时发 15 分钟后投递的消息 | 精确、可靠，推荐；4.x 只有 18 个固定级别，没有 15 分钟 |
 | RabbitMQ 延迟 | 延迟消息插件，或 TTL + 死信队列 | 可用；TTL 方案有队头阻塞，不同时长要分队列 |
 | Redisson 延迟队列 | 基于 Redis ZSet 的 `RDelayedQueue` | 轻量，可靠性取决于 Redis 持久化 |
@@ -237,9 +206,8 @@ public class OrderCloseService {
         if (order == null || order.getStatus() != OrderStatus.PENDING_PAYMENT) {
             return;                                         // 快速路径，真正的判断在条件更新
         }
-        // 1. 先关闭支付平台上的交易；关不掉说明用户已付款，按支付成功处理
-        if (payGateway.closeTrade(order.getPayNo()) == CloseResult.ALREADY_PAID) {
-            orderPayService.paySuccess(payGateway.query(order.getPayNo()));
+        // 1. 先让支付中心关闭渠道交易；关不掉说明用户已付款，等 PAY_SUCCESS 事件推进订单
+        if (payClient.close(order.getPayNo()) == CloseResult.ALREADY_PAID) {
             return;
         }
         // 2. 本地关单与「释放库存」事件在同一个事务
@@ -265,7 +233,7 @@ SET available = available + #{quantity}, reserved = reserved - #{quantity}
 WHERE sku_id = #{skuId};
 ```
 
-- 关单先调支付平台关单接口（支付宝 `alipay.trade.close`、微信支付关单接口），否则可能本地刚关单，用户就付款成功
+- 关单先让支付中心关闭渠道交易（先查单、再关渠道，见 [支付系统](./14_payment#_2、超时关单)），否则可能本地刚关单，用户就付款成功
 - 「先查状态、再关单、再回补」三步分开执行时，并发的支付回调或重复消息会导致已支付订单被关闭、库存重复回补；条件更新 + 同事务事件可以消除这些问题
 - 订单和库存在同一个库时，直接在关单事务里执行上面两条 SQL，不需要事件
 
@@ -290,53 +258,20 @@ WHERE sku_id = #{skuId};
 
 ## 六、退款
 
+退款单、可退额度、调渠道退款都归支付中心，订单服务只管售后申请、审核和订单侧的状态。退款单模型、可退额度与部分退款见 [支付系统](./14_payment#六、退款)。
+
 ### 1、流程
 
-1. 用户提交退款申请，携带客户端生成的退款请求号 `request_no`
-2. 校验可退金额，**一次性生成退款单号并落库**，状态为已申请
-3. 商家审核：驳回则释放可退额度；通过则流转到已审核
-4. 退款执行任务把退款单改为退款中，用**固定的退款单号**调用支付平台，失败重试时始终复用
-5. 平台异步通知或主动查询得到结果，条件更新为成功 / 失败；失败释放可退额度
-6. 退款成功后：累计退款等于实付时订单流转到已关闭；未发货的退款释放库存，积分、优惠券按规则回退，同样通过 Outbox 事件通知
+1. 用户提交售后申请，携带客户端生成的请求号 `request_no`，订单服务落一张售后单（`UNIQUE KEY (order_id, request_no)`），状态为已申请
+2. 商家审核：驳回则售后单结束；通过则以 `request_no` 调支付中心申请退款，支付中心占用可退额度并生成退款单号，超额时直接拒绝
+3. 支付中心退款成功后投递 `REFUND_SUCCESS` 事件，订单服务条件更新售后单为已退款
+4. 累计退款等于实付时订单流转到已关闭；未发货的退款释放库存，积分、优惠券按规则回退，同样通过 Outbox 事件通知
 
-### 2、申请：固定退款单号 + 额度条件更新
+### 2、订单侧只记状态
 
-```java
-// refund：UNIQUE KEY uk_refund_no (refund_no)、UNIQUE KEY uk_order_request (order_id, request_no)
-@Transactional
-public Refund apply(long orderId, String requestNo, BigDecimal amount) {
-    Refund existing = refundMapper.selectByRequest(orderId, requestNo);
-    if (existing != null) {
-        return existing;                                    // 重复申请：返回同一张退款单
-    }
-    // UPDATE orders SET refund_amount = refund_amount + #{amount}
-    // WHERE id = #{orderId} AND refund_amount + #{amount} <= pay_amount
-    if (orderMapper.occupyRefundAmount(orderId, amount) == 0) {
-        throw new BizException("超过可退金额");
-    }
-    Refund refund = Refund.applied(idGenerator.nextId(), orderId, requestNo, amount);
-    refundMapper.insert(refund);                            // 并发重复申请撞唯一键，整个事务回滚
-    return refund;
-}
-```
-
-### 3、执行：复用同一个退款单号
-
-```java
-public void execute(String refundNo) {
-    Refund r = refundMapper.selectByRefundNo(refundNo);
-    if (r.getStatus() == RefundStatus.APPROVED) {
-        refundMapper.updateStatus(refundNo, RefundStatus.APPROVED, RefundStatus.REFUNDING);
-    } else if (r.getStatus() != RefundStatus.REFUNDING) {
-        return;                                             // 已有终态，不再调用平台
-    }
-    // 支付宝部分退款用 out_request_no，微信支付用 out_refund_no；平台按该编号幂等
-    payGateway.refund(r.getPayNo(), r.getRefundNo(), r.getAmount());
-}
-```
-
-- 不要在调用时用「订单号 + 退款次数」临时拼退款单号：重试时次数可能已经变化，拼出一个新单号，平台会把它当成另一笔退款，造成重复退款
-- 可退额度用条件更新占用，两个并发的部分退款不会超出实付金额
+- 售后单只记录申请、审核与退款结果，**不在订单表上自己维护可退额度**：两处各记一份必然对不上，以支付中心交易单上的已退金额为准
+- 重试调用支付中心时始终带同一个 `request_no`，支付中心按 `(trade_no, request_no)` 幂等，返回同一张退款单
+- 关单后到账的自动退款（第三节）也走同一个接口，`request_no` 用固定前缀加订单号
 
 ---
 
@@ -371,15 +306,14 @@ public void execute(String refundNo) {
 
 - 订单主状态只靠 `WHERE status = 旧状态` 的条件更新流转，并发控制不需要 version；退款进度放在独立的退款单上
 - 下单以 `biz_no` 唯一约束兜底，库存与优惠券预占也必须以 `biz_no` 幂等，悬挂预占靠扫描释放
-- 支付回调要验签并校验金额与商户号；幂等靠支付单 `WAITING → SUCCESS` 条件更新和支付单号唯一约束，后续动作通过 Outbox 事件触发
-- 关单先关支付平台交易，再在一个事务里条件更新订单并写释放库存事件；库存侧以预占记录状态保证只释放一次
+- 支付回调验签、查单、渠道关单与退款都归支付中心（见 [支付系统](./14_payment)）；订单侧消费 `PAY_SUCCESS` 时以 `待支付 → 待发货` 条件更新幂等，关单后到账则申请自动退款
+- 关单先让支付中心关闭渠道交易，再在一个事务里条件更新订单并写释放库存事件；库存侧以预占记录状态保证只释放一次
 - 定时消息在事务提交后发送（`@TransactionalEventListener(AFTER_COMMIT)`），失败由扫描任务兜底；RocketMQ 4.x 没有 15 分钟级别
 - 一个流程只选一种分布式事务方案：同步预占、Outbox 或事务消息、Seata 各管各的
-- 退款单号申请时一次生成并落库，重试始终复用；可退额度用条件更新占用
+- 订单侧只管售后申请、审核和订单状态；退款单号与可退额度由支付中心管理，重试始终带同一个 `request_no`
 
 ## 参考资料
 
-- 微信支付 APIv3 支付通知：[https://pay.weixin.qq.com/doc/v3/merchant/4012791861](https://pay.weixin.qq.com/doc/v3/merchant/4012791861)
 - RocketMQ 定时 / 延时消息：[https://rocketmq.apache.org/docs/featureBehavior/02delaymessage](https://rocketmq.apache.org/docs/featureBehavior/02delaymessage)
 - RocketMQ 事务消息：[https://rocketmq.apache.org/docs/featureBehavior/04transactionmessage](https://rocketmq.apache.org/docs/featureBehavior/04transactionmessage)
 - Spring Framework Transaction-bound Events：[https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html)

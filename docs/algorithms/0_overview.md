@@ -20,13 +20,13 @@
 4. **算法技巧**：[双指针](./3_patterns/1_two_pointers)、[滑动窗口](./3_patterns/2_sliding_window)、[前缀和与差分数组](./3_patterns/3_prefix_sum)、[位运算](./3_patterns/4_bit_manipulation)，都是把暴力解法降一个数量级的常用套路
 5. **刷题实战**：按 [LeetCode 高频题分类](./4_practice/0_leet_code) 逐类刷题，机考前再看 [华为 OJ 题型与技巧](./4_practice/1_huawei_oj)
 
+代码示例的方法签名采用 LeetCode 风格（`int[] nums`、`ListNode head`），数据结构优先使用 JDK 自带实现（`ArrayDeque`、`PriorityQueue`、`HashMap`、`TreeMap`）。
+
 [高频面试题](./99_interview) 只列题目，答案在 [算法面试题解答](/interview/4_algorithms)。
 
 ---
 
 ## 三、关联模块
-
-代码方法签名采用 LeetCode 风格（`int[] nums`、`ListNode head`），数据结构优先使用 JDK 自带实现（`ArrayDeque`、`PriorityQueue`、`HashMap`、`TreeMap`）；JDK 集合的源码细节统一放在 [集合框架](/java/21_topic_collection)，本模块只讲算法视角。
 
 - [集合框架](/java/21_topic_collection)：`ArrayList`、`HashMap`、`TreeMap`、`PriorityQueue` 等 JDK 实现的源码细节
 - [MySQL 索引](/database/1_mysql/4_topic_index)：B+ 树在 InnoDB 中的落地、聚簇索引与回表

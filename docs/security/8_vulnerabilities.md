@@ -12,7 +12,7 @@ Java Web 漏洞的根源是把数据当成代码，或把「能连上」当成�
 
 ## 一、OWASP Top 10:2025
 
-前一类包括注入、XSS、反序列化、XXE，后一类包括越权、CSRF、SSRF，防护对应数据与代码分离、每次访问都显式校验身份与权限。代码基线为 JDK 21、Spring Boot 4、Spring Security 7、Jackson 3。
+把数据当成代码的有注入、XSS、反序列化、XXE，把「能连上」当成「被授权」的有越权、CSRF、SSRF，防护分别对应数据与代码分离、每次访问都显式校验身份与权限。代码基线为 JDK 21、Spring Boot 4、Spring Security 7、Jackson 3。
 
 OWASP Top 10 每三到四年更新一次，2025 版在 2021 版基础上做了合并和新增：
 

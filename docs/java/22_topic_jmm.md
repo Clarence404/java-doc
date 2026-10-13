@@ -6,13 +6,13 @@ description: 可见性来源、happens-before、volatile、锁的内存语义、
 
 > 前置阅读：[集合框架](./21_topic_collection)
 
-JMM 是 JLS 第 17 章定义的规则，规定一次读操作允许看到哪些写操作的值。本篇讲 happens-before 判断方法，以及 volatile、synchronized、final 各自的保证。
+JMM（Java Memory Model）是 JLS 第 17 章定义的规则，规定一次读操作允许看到哪些写操作的值。本篇讲 happens-before 判断方法，以及 volatile、synchronized、final 各自的保证。
 
 ---
 
 ## 一、为什么需要 JMM
 
-JMM 即 Java Memory Model。只要程序没有数据竞争，其行为就等同于顺序一致（DRF-SC 保证）；volatile、synchronized、final 也各有没保证的部分。
+JMM 给程序员的核心承诺是：只要程序没有数据竞争，其行为就等同于顺序一致（DRF-SC 保证）。
 
 ### 1、问题不在「缓存不一致」
 
