@@ -161,10 +161,6 @@ Java 应用接入大模型的方式见 [AI](/ai/0_overview)。
 - **健康检查**：ALB 健康检查和 K8s 探针指向 Actuator 的 liveness / readiness 端点，见 [Actuator](/spring-boot/11_actuator)
 - **基础设施即代码**：上述资源用 [Terraform](./11_terraform) 统一管理，避免在控制台手工点出来的环境无法复现
 
-::: warning 待补充
-AWS 实战操作：AWS CLI 常用命令、AWS SDK for Java 2.x 访问 S3 / SQS 的示例。
-:::
-
 ---
 
 ## 小结

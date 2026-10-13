@@ -1,12 +1,12 @@
 ---
-description: 交替打印奇偶数与 1A2B3C、多线程按序执行、CountDownLatch / CyclicBarrier 赛跑、任一成功即返回、任务超时、LRU 缓存
+description: 交替打印、按序执行、赛跑、任一成功即返回、任务超时、LRU 缓存
 ---
 
 # 多线程编程题
 
 > 前置阅读：[线程基础](/java/23_topic_thread_basics)、[显式锁（Lock）](/java/25_topic_lock)、[同步工具类](/java/27_topic_juc_tools)
 
-面试中的多线程手写题考的是能否把「共享状态 + 等待条件 + 唤醒」写对。本篇讲交替打印、按序执行、赛跑、任一成功即返回、任务超时与 LRU 缓存六类题目，每道都给出可直接编译运行的完整程序，基线为 JDK 21。
+面试中的多线程手写题考的是能否把「共享状态 + 等待条件 + 唤醒」写对。本篇讲交替打印、按序执行、赛跑、任一成功、超时与 LRU 六类题，均为可运行的完整程序，基线为 JDK 21。
 
 ---
 
@@ -230,9 +230,9 @@ public class OrderedJoin {
             awaitDone(t2);
             System.out.println("T3");
         });
-        t3.start();                              // 启动顺序打乱也不影响执行顺序
-        t2.start();
         t1.start();
+        t2.start();
+        t3.start();
     }
 
     private static void awaitDone(Thread t) {
@@ -245,6 +245,8 @@ public class OrderedJoin {
     }
 }
 ```
+
+注意 `join` 只等已经启动的线程，对还没 `start` 的线程会立即返回，所以必须按 t1 → t2 → t3 启动；启动顺序不确定时，用下面的 `CountDownLatch` 写法（`OrderedLatch`）。
 
 如果只要求「T1 的某一步之后 T2 才能开始」，而不是等 T1 整个结束，用 `CountDownLatch` 做信号：
 
@@ -659,7 +661,7 @@ public class BatchTimeout {
 
 要点：
 
-- 取消靠中断，是协作式的：`sleep`、`wait`、阻塞队列等方法会响应中断，纯计算循环要自己检查 `isInterrupted()`，阻塞在传统 Socket IO 上的线程不响应中断，要给 IO 本身设超时
+- 取消靠中断，是协作式的：`sleep`、`wait`、阻塞队列等方法会响应中断，纯计算循环要自己检查 `isInterrupted()`，平台线程阻塞在传统 Socket IO 上不响应中断（虚拟线程被中断会关闭 socket 并抛 `SocketException`），要给 IO 本身设超时
 - `CompletableFuture` 的 `orTimeout` / `completeOnTimeout` 只让结果按时完成，不会中断底层任务
 - HTTP、数据库调用优先用客户端自带的连接 / 读超时，比在外层取消更可靠
 

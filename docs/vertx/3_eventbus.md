@@ -6,7 +6,7 @@ description: 地址、send / publish / request、编解码器、集群 Event Bus
 
 > 前置阅读：[Event Loop 与 Verticle](./2_core)
 
-Event Bus 是 Vert.x 的消息总线：Verticle 之间不直接持有引用，而是往地址上发消息，加上 Cluster Manager 后同一套 API 还能跨进程通信。本篇讲地址模型与三种通信模式、自定义编解码器、本地与集群的差别和「至多一次」的投递语义，以及何时该换成真正的消息队列。
+Event Bus 是 Vert.x 的消息总线，Verticle 之间通过地址收发消息，接上 Cluster Manager 即可跨进程。本篇讲通信模式、编解码器、集群与投递语义，基线为 Vert.x 5。
 
 ---
 

@@ -6,7 +6,7 @@ description: 五种基础类型、Bitmap / HLL / GEO / Stream、Redis 8 内置�
 
 > 前置阅读：[缓存总览](./0_overview)
 
-Redis 是基于内存的键值数据库，Value 有多种数据类型，每种类型按数据量自动在紧凑编码和通用编码之间切换。本篇以 Redis 8.x 为基线讲各类型的命令、用途与底层编码，Valkey 9.x 兼容基础类型与命令（Hash 字段级 TTL 自 Valkey 9.0 起支持），但不包含 Redis 8 新增的 JSON、概率结构等内置类型。
+Redis 是基于内存的键值数据库，每种数据类型按数据量自动在紧凑编码和通用编码之间切换。本篇讲各类型的命令、用途与底层编码，基线为 Redis 8。
 
 ---
 
@@ -210,6 +210,7 @@ JSON.GET user:1 $.name
 - Set 在 7.2 起对非整数小集合使用 listpack；所有类型都按阈值在紧凑编码与通用编码间切换
 - Stream 有消费组和 PEL，但持久化与复制是异步的，强可靠消息用专业 MQ
 - Redis 8 内置 JSON、Bloom / Cuckoo、Top-k、t-digest、Time Series、查询引擎和 Vector Set；Valkey 需要另装模块
+- Valkey 9.x 兼容基础类型与命令（Hash 字段级 TTL 自 Valkey 9.0 起支持），但不含 Redis 8 新增的内置类型
 
 ## 参考资料
 

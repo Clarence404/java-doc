@@ -6,7 +6,7 @@ description: 工具包定位、与 Netty 关系、Vert.x 5 变化、与 WebFlux 
 
 > 前置阅读：[Reactor 模型](/netty/2_reactor)、[WebFlux](/spring/8_webflux)
 
-Eclipse Vert.x 是 JVM 上的事件驱动、非阻塞工具包，在 Netty 之上补齐 HTTP、路由、响应式数据库客户端、集群等能力。本篇讲它与 Netty、WebFlux、Quarkus 的关系、Vert.x 5 相对 4.x 的关键变化与选型，基线为 Vert.x 5.x。
+Eclipse Vert.x 是 JVM 上的事件驱动、非阻塞工具包，在 Netty 之上补齐 HTTP、路由、数据库客户端等能力。本篇讲它与同类框架的关系、Vert.x 5 的变化与选型，基线为 Vert.x 5。
 
 ---
 

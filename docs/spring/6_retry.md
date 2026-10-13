@@ -6,7 +6,7 @@ description: 核心 @Retryable、退避与抖动、@ConcurrencyLimit、RetryTemp
 
 > 前置阅读：[AOP](./2_aop)
 
-Spring Framework 7 内置了 `@Retryable`、`@ConcurrencyLimit`、`RetryTemplate` 等弹性能力。本篇讲在 Spring 中怎么写次数、退避、抖动、异常范围可控的重试，它与事务、幂等、熔断的配合，以及从 Spring Retry 迁移。
+Spring Framework 7 内置了 `@Retryable`、`@ConcurrencyLimit` 等弹性能力。本篇讲可控重试的写法、与事务和熔断的配合，以及从 Spring Retry 迁移。
 
 ---
 

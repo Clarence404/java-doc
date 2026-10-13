@@ -6,7 +6,7 @@ description: 无锁增量快照、MySQL CDC 源、YAML 管道与 Schema 演进�
 
 > 前置阅读：[状态与容错](./4_state_checkpoint)、[Flink SQL 与 Table API](./5_sql)
 
-本篇是「用 Flink 做 CDC」的主文档，基于 Flink CDC 3.x 讲 CDC 源连接器与 YAML 数据管道两种用法、无锁增量快照的「全量 + 增量」衔接、MySQL 源配置、整库同步到 Doris / StarRocks / Paimon / Kafka，以及精确一次的边界与常见坑。
+Flink CDC 用无锁增量快照把数据库的「全量 + 增量」变更持续同步到下游。本篇讲源连接器与 YAML 管道两种用法、MySQL 源配置、整库同步与精确一次的边界，基线为 Flink CDC 3。
 
 ---
 

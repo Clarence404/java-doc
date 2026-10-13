@@ -1,12 +1,12 @@
 ---
-description: ScheduledThreadPoolExecutor 延迟与周期任务、fixedRate 与 fixedDelay、Timer 对比、工作窃取、ForkJoinPool 与 commonPool
+description: 定时线程池、fixedRate 与 fixedDelay、Timer 对比、工作窃取、commonPool
 ---
 
 # Fork/Join 与定时任务
 
 > 前置阅读：[线程池](./28_topic_thread_pool)
 
-`ScheduledThreadPoolExecutor` 和 `ForkJoinPool` 是 `ThreadPoolExecutor` 之外最常用的两种 JDK 执行器，前者负责延迟与周期调度，后者用工作窃取跑递归分治计算。本篇讲周期任务的两种节奏与异常陷阱、工作窃取原理、`ForkJoinPool` 与普通线程池的分工以及 `commonPool` 的共享风险，基线为 JDK 21。
+`ScheduledThreadPoolExecutor` 负责周期调度，`ForkJoinPool` 用工作窃取跑分治计算。本篇讲周期任务节奏与异常陷阱、工作窃取原理与 `commonPool` 的共享风险，基线为 JDK 21。
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: 三大信号、RED 与 USE、结构化日志、Loki 选型、指标类型与基数、PromQL、链路传播与采样、OpenTelemetry、告警与燃烧速率
+description: 三大信号、RED 与 USE、日志、指标基数、PromQL、链路采样、OpenTelemetry、告警
 ---
 
 # 可观测性面试题解答

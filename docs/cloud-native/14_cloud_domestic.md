@@ -168,10 +168,6 @@ ACK 节点池、PolarDB / RDS、Tair 都选择多可用区，ALB 同时挂多个
 - **备案与合规**：境内服务器对外提供网站服务需要 ICP 备案，备案主体与接入商绑定，换云需要变更接入
 - **基础设施即代码**：三家都提供 Terraform Provider，资源用代码管理便于多云与复刻环境，见 [Terraform](./11_terraform)
 
-::: warning 待补充
-阿里云实战操作：ECS 部署 Spring Boot、OSS 接入、MSE Nacos 配置。
-:::
-
 ---
 
 ## 小结

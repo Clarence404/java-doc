@@ -6,7 +6,7 @@ description: RTO / RPO、mysqldump、XtraBackup 增量、binlog PITR、PG 增量
 
 > 前置阅读：[MySQL 主从与高可用](../1_mysql/9_topic_replication)
 
-复制解决「机器坏了还能服务」，备份解决「数据被删错、被勒索加密后还能找回」：`DELETE` 会同步到所有副本，只有备份能回到误操作之前。本篇以 MySQL 8.4 LTS 与 PostgreSQL 18 为基线，讲按 RPO / RTO 设计备份策略、两种数据库的备份恢复命令与恢复演练。
+复制解决「机器坏了还能服务」，备份解决「误删、被勒索后还能找回」：`DELETE` 会同步到所有副本。本篇讲备份策略、备份恢复命令与恢复演练，基线为 MySQL 8.4 / PostgreSQL 18。
 
 ---
 

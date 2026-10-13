@@ -1,12 +1,12 @@
 ---
-description: 缓存层级与访问延迟、缓存行与局部性、MESI 一致性协议、Store Buffer 与内存屏障、JMM 映射、伪共享与 @Contended、LongAdder
+description: 缓存层级与缓存行、MESI 协议、Store Buffer 与内存屏障、JMM 映射、伪共享与 @Contended
 ---
 
 # CPU 缓存与伪共享
 
 > 前置阅读：[内存管理与 Page Cache](./3_memory)、[JMM 内存模型](/java/22_topic_jmm)
 
-CPU 比内存快两个数量级，中间靠多级缓存填平，缓存的工作方式直接决定并发代码的快慢。本篇讲缓存层级与缓存行、MESI 一致性协议、Store Buffer 与内存屏障，以及伪共享的成因与解法，基线为 x86-64 / AArch64 与 JDK 21。
+CPU 比内存快两个数量级，靠多级缓存填平，缓存的工作方式直接决定并发代码的快慢。本篇讲缓存行、MESI、内存屏障与伪共享，基线为 x86-64 与 JDK 21。
 
 ---
 
@@ -81,7 +81,7 @@ Java 的二维数组是「数组的数组」，内层数组各自是独立对象
 
 一个核写 S 或 I 状态的行时，要经过核间互联发消息、等待其他核回复确认。这正是多线程争抢同一个变量时变慢的根源：
 
-- `AtomicLong.incrementAndGet()` 在高并发下，那一行在各核之间来回「乒乓」，每次 CAS 都可能要先抢到独占权
+- `AtomicLong.incrementAndGet()` 在高并发下，那一行在各核之间来回「乒乓」，每次 `lock xadd` / CAS 都要先抢到这一行的独占权
 - `synchronized` 锁对象头、AQS 的 `state` 字段同理，竞争越激烈，花在搬运缓存行上的时间越多
 
 这些开销来自一致性协议本身，与锁算法无关，所以「减少对同一缓存行的写竞争」是所有高性能并发结构的共同思路。
@@ -123,7 +123,7 @@ JMM 本身用 happens-before 定义语义，并不规定屏障；屏障是 JVM �
 | volatile 读 | 普通 `mov`，不需要屏障 | `ldar`（acquire 读） |
 | volatile 写 | `mov` 后加 `lock addl $0,(rsp)`（作用等同 StoreLoad），或直接用 `xchg` | `stlr`（release 写） |
 | CAS（`compareAndSet`） | `lock cmpxchg`，自带全屏障 | `casal` 或 `ldaxr` / `stlxr` 循环 |
-| `synchronized` 进入 / 退出 | 加锁用 CAS（acquire），解锁为 release 写 | 同左，使用 acquire / release 指令 |
+| `synchronized` 进入 / 退出 | 加锁、解锁快速路径都用 CAS；膨胀为重量级锁后，退出是 release 写 | 同左，使用 acquire / release 指令 |
 
 所以在 x86 上 volatile 读几乎免费、volatile 写要付一次 StoreLoad 的代价。屏障插入规则与 volatile 的精确语义见 [JMM 内存模型](/java/22_topic_jmm#四、volatile-的精确语义)，CAS 的硬件指令见 [原子类](/java/26_topic_atomic#一、cas-原子操作的硬件基础)。
 

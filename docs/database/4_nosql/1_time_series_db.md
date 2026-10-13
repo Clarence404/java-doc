@@ -6,7 +6,7 @@ description: 时序模型、InfluxDB、TimescaleDB、Prometheus 存储、TDengin
 
 > 前置阅读：[列式与 OLAP 数据库](./0_column_db)、[PostgreSQL 基础](../2_postgresql/0_overview)
 
-时序数据在写入路径、过期、压缩与聚合上需要专用存储，本篇讲 InfluxDB 三代版本差异、TimescaleDB 的 hypertable / 列存 / 连续聚合、Prometheus 本地存储的定位，以及 InfluxDB、TimescaleDB、TDengine、IoTDB 的选型。
+时序数据在写入路径、过期、压缩与聚合上需要专用存储。本篇讲 InfluxDB 三代差异、TimescaleDB 的 hypertable 与连续聚合、Prometheus 本地存储的定位与 TSDB 选型。
 
 ---
 

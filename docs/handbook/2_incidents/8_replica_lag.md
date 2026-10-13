@@ -6,7 +6,7 @@ description: 单条大 DELETE 致复制延迟、SHOW REPLICA STATUS、写后读�
 
 > 前置阅读：[MySQL 主从与高可用](/database/1_mysql/9_topic_replication)、[数据层扩展](/high-con/5_data_scaling)
 
-用户支付成功后跳回订单详情，页面却一直显示"待支付"，部分用户因此重复支付。根因是详情查询走了从库，而一次单语句清理大表让从库延迟最高到了 14 分钟。本篇按现象、排查、根因、修复、预防完整复盘，基线为 JDK 21、Spring Boot 4、MySQL 8.4（GTID 复制，一主两从）。
+用户支付后订单详情仍显示"待支付"，部分用户因此重复支付，根因是详情查询走从库，而一次大表单语句清理让从库延迟达 14 分钟。本篇完整复盘，基线为 MySQL 8.4（GTID 一主两从）、Spring Boot 4。
 
 ---
 

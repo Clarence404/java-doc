@@ -1,5 +1,5 @@
 ---
-description: DataX 与 SeaTunnel 离线同步、Kafka Connect / Flink CDC 实时入湖、全量 + 增量、幂等写入、对账、表结构变更
+description: DataX / SeaTunnel 离线同步、CDC 实时入湖、全量 + 增量、幂等写入、对账、表结构变更
 ---
 
 # 数据集成

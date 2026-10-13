@@ -1,6 +1,6 @@
 # Spring Cloud 总览
 
-Spring Cloud 在 Spring Boot 之上为注册发现、网关、通信、配置、治理提供统一抽象，实现可换成 Nacos、Consul、Kubernetes 等。本模块讲这些能力的框架落地，再到 Spring Cloud Alibaba 与 Spring Cloud Stream。
+Spring Cloud 在 Spring Boot 之上为注册发现、网关、通信、配置、治理提供统一抽象，底层可换 Nacos、Kubernetes 等实现。本模块讲这些能力的落地，以及 Alibaba 与 Stream。
 
 **版本基线（2026 年 10 月）**：Spring Cloud 2025.1、Spring Cloud Alibaba 2025.1.0.0、Spring Boot 4
 

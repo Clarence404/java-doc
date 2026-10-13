@@ -260,10 +260,6 @@ Cloudflare 现在把新功能都放在 Workers 上，Workers 也能托管静态�
 
 各项具体额度以 Cloudflare 官方的套餐与定价页为准。
 
-::: warning 待补充
-Cloudflare Access 配置实战、限流规则保护登录接口的完整示例。
-:::
-
 ---
 
 ## 小结

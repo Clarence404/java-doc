@@ -6,7 +6,7 @@ description: 事件发布与监听、同步与异步、条件监听、事务事�
 
 > 前置阅读：[事务管理](./4_transaction)
 
-Spring 事件是进程内的发布-订阅机制，用于解耦主流程与后续动作。本篇讲事件的发布、监听、异步与排序，`@TransactionalEventListener` 的执行时机与陷阱，以及「至多一次」的可靠性边界与升级到 Outbox、Spring Modulith 或消息队列的时机。
+Spring 事件是进程内的发布-订阅机制，用于解耦主流程与后续动作。本篇讲发布监听与异步、事务事件的时机与陷阱、可靠性边界，基线为 Spring Framework 7。
 
 ---
 

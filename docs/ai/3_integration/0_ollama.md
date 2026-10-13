@@ -6,7 +6,7 @@ description: 本地部署与 Docker、原生 / OpenAI 兼容 API、结构化输�
 
 > 前置阅读：[大模型选型](../1_concepts/0_model)、[Spring AI](../2_frameworks/0_spring_ai)
 
-Ollama 是基于 llama.cpp 的本地模型运行工具，适合开发联调、离线环境和数据不出内网的小规模场景，高并发生产推理通常交给专门的推理服务。本篇讲原生与 OpenAI 兼容接口、结构化输出、工具调用、思考模式、Spring AI / LangChain4j 接入、性能调优与对外暴露的安全问题。
+Ollama 是基于 llama.cpp 的本地模型运行工具，适合开发联调、离线和数据不出内网的小规模场景。本篇讲原生与 OpenAI 兼容接口、工具调用、Spring AI / LangChain4j 接入、调优与安全。
 
 ---
 

@@ -37,7 +37,7 @@ description: NAS 主备切换卡住 NFS、线程进入 D 状态、Load 计入不
 
 ### 1、Load 到底在数什么
 
-Linux 的平均负载统计的是**可运行（R）+ 不可中断睡眠（D）**的任务数，不只是在用 CPU 的任务。CPU 闲而 Load 高，说明大量任务卡在 D 状态：
+Linux 的平均负载统计的是可运行（R）+ 不可中断睡眠（D）的任务数，CPU 闲而 Load 高，说明大量任务卡在 D 状态（→ 原理见 [Load 与 CPU 利用率](/os/5_load_cpu)）：
 
 ```bash
 vmstat 1 5
@@ -53,7 +53,7 @@ procs -----------memory---------- ---swap-- -----io---- -system-- -------cpu----
  2 129      0 5122876 212344 6830128   0    0     0     8  903 1391  5  1 93  1  0  0
 ```
 
-`r`（可运行）只有 0～2，`b`（阻塞在不可中断等待）稳定在 128 以上：Load 几乎全部来自 D 状态。`wa` 也很低，因为本机磁盘没有在忙，任务是在等别的东西。
+`r`（可运行）只有 0～2，`b`（`procs_blocked`，等待 IO 完成的任务数）稳定在 128 以上。`b` 统计的是阻塞在 IO 上的任务，像 NFS 的 `rpc_wait_bit_killable`（可被信号打断的不可中断等待）不一定都计入，所以要准确数 D 状态任务，还得用下一步的 `ps -eLo stat,wchan | grep ^D` 直接统计，`b` 只作旁证。`wa` 也很低，因为本机磁盘没有在忙，任务是在等远端存储。
 
 ### 2、谁在 D 状态、卡在哪
 
@@ -91,7 +91,7 @@ jcmd 2214 Thread.print | grep -A6 '"http-nio-8080-exec-1' | head -8
 ```
 
 ```text
-"http-nio-8080-exec-17" #63 daemon prio=5 os_prio=0 cpu=812.44ms elapsed=8231.17s tid=0x00007f3a2c01a000 nid=3871 runnable
+"http-nio-8080-exec-17" #63 [3871] daemon prio=5 os_prio=0 cpu=812.44ms elapsed=8231.17s tid=0x00007f3a2c01a000 nid=3871 runnable
    java.lang.Thread.State: RUNNABLE
 	at java.io.FileOutputStream.writeBytes(java.base@21.0.8/Native Method)
 	at java.io.FileOutputStream.write(java.base@21.0.8/FileOutputStream.java:367)

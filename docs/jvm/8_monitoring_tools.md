@@ -1,12 +1,12 @@
 ---
-description: jcmd、jps / jstack / jmap / jhsdb / jstat、NMT、JFR / JMC、MAT、VisualVM、容器中 attach
+description: jcmd、jstack / jmap / jstat、NMT、JFR / JMC、MAT、VisualVM、容器中 attach
 ---
 
 # 诊断工具
 
 > 前置阅读：[JIT 编译](./7_jit)
 
-JDK 自带一组命令行与图形化诊断工具，**JDK 9+ 首选 `jcmd`**，它覆盖了 jstack、jmap、jinfo 的大部分功能，还能控制 JFR、查看 NMT。本篇讲每个问题该用哪个工具，以及在生产和容器中如何安全使用。
+JDK 自带一组命令行与图形化诊断工具，覆盖线程、堆、GC、本地内存与运行时事件。本篇讲每类问题该用哪个工具，以及在生产和容器中如何安全使用，基线为 JDK 21。
 
 ---
 
@@ -33,7 +33,7 @@ JDK 自带一组命令行与图形化诊断工具，**JDK 9+ 首选 `jcmd`**，�
 
 ## 二、jcmd：诊断命令总入口
 
-**`jcmd <pid> <命令>` 通过 attach 机制在目标 JVM 内执行诊断命令**，可用命令因 JDK 版本而异，先用 `help` 查看。
+**`jcmd <pid> <命令>` 通过 attach 机制在目标 JVM 内执行诊断命令**，可用命令因 JDK 版本而异，先用 `help` 查看。JDK 9+ 首选 `jcmd`，它覆盖了 jstack、jmap、jinfo 的大部分功能，还能控制 JFR、查看 NMT。
 
 ```bash
 jcmd                                    # 列出本机 Java 进程（等价于 jps -l）

@@ -529,7 +529,7 @@ new BigDecimal("2.345").setScale(2, RoundingMode.HALF_EVEN);      // 2.34，银�
 
 - 舍入规则是业务规则，写进常量或领域对象，不要散落在各个调用点；多步计算只在最后一步舍入，中间结果保留足够精度
 - 分摊（如订单优惠按商品拆分）各项分别舍入后总和可能差一分，把差额补到最后一项，保证合计与总额一致
-- 输出用 `toPlainString()`，`toString()` 在指数较大时会输出 `1E+3` 这样的科学计数法
+- scale 为负（如 `stripTrailingZeros()` 之后 100 变成 `1E+2`）或数值很小（`0.0000001` 输出 `1E-7`）时，`toString()` 会输出科学计数法，展示用 `toPlainString()`
 
 ### 5、BigDecimal 还是 long 分
 

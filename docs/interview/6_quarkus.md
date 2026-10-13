@@ -1,5 +1,5 @@
 ---
-description: 构建期增强、扩展与 ArC、Dev Services、REST 线程模型、Panache 与事务、Mutiny 与 Kafka、原生镜像、迁移与选型
+description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache、Mutiny、原生镜像、迁移选型
 ---
 
 # Quarkus 面试题解答

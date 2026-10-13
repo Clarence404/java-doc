@@ -70,7 +70,7 @@ description: QPS / TPS / RT / 并发数、分位数、资源指标、Little 定�
 | JVM GC | 停顿时间、频率、晋升速率、堆占用 | `jstat -gcutil`、GC 日志、JFR | Full GC 频繁、单次停顿超出 SLO |
 | 线程 | 活跃线程数、BLOCKED/WAITING 数、线程池队列长度 | `jstack`、Arthas `thread`、Micrometer | 线程池满、大量线程 BLOCKED |
 
-- **Load Average** 表示处于可运行 + 不可中断（通常是 IO）状态的平均进程数，需要与 CPU 核数对比：长期高于核数说明有排队。
+- **Load Average** 表示处于可运行 + 不可中断（通常是 IO）状态的平均任务（线程）数，需要与 CPU 核数对比：长期高于核数说明有排队，原理见 [Load 与 CPU 利用率](/os/5_load_cpu)。
 - `%util` 在 SSD / NVMe 等可并行处理请求的设备上接近 100% 不一定代表饱和，应结合 await 与队列长度判断。
 - GC 指标的解读见 [JVM 层性能策略](./5_jvm_tuning)，监控工具见 [JVM 诊断工具](/jvm/8_monitoring_tools)。
 

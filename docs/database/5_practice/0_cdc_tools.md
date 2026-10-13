@@ -6,7 +6,7 @@ description: binlog 前置配置、binlog-connector、Canal、Debezium 3.x、Fli
 
 > 前置阅读：[MySQL 主从与高可用](../1_mysql/9_topic_replication)
 
-CDC（Change Data Capture，变更数据捕获）通过订阅 MySQL binlog、PostgreSQL WAL 等变更日志实时获取增删改，不给业务表加查询压力，也能拿到删除与变更前的值。本篇讲 MySQL 8.4 下的账号与 binlog 前置配置、mysql-binlog-connector-java / Canal / Debezium 的最小接入、Debezium 事件结构与工具选型。
+CDC（变更数据捕获）订阅 binlog、WAL 实时获取增删改，不给业务表加查询压力，还能拿到变更前的值。本篇讲 binlog 前置配置、Canal / Debezium 等工具接入与选型，基线为 MySQL 8.4。
 
 ---
 

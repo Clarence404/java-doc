@@ -1,12 +1,12 @@
 ---
-description: 质量门禁全景、Spotless 格式化、Checkstyle、SpotBugs / PMD、ArchUnit、JaCoCo、Sonar 质量门禁、技术债
+description: Spotless、Checkstyle、SpotBugs / PMD、ArchUnit、JaCoCo、Sonar 门禁、技术债
 ---
 
 # 代码质量
 
 > 前置阅读：[构建工具](./1_build_tools)、[单元测试](/testing/1_unit_test)
 
-代码质量门禁用自动化工具在合并前拦住格式、规范、缺陷与架构问题。本篇是这些工具配置的主文档，讲 Spotless、Checkstyle、SpotBugs / PMD、ArchUnit、JaCoCo 与 Sonar 门禁，基线为 JDK 21。
+代码质量门禁用自动化工具在合并前拦住格式、规范、缺陷与架构问题。本篇讲 Spotless、Checkstyle、SpotBugs / PMD、ArchUnit、JaCoCo 与 Sonar 门禁，基线为 JDK 21。
 
 ---
 

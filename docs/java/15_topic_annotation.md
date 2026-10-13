@@ -1,12 +1,12 @@
 ---
-description: 注解定义与属性限制、元注解与保留策略、反射读取与 Spring 组合注解、APT / JSR 269、Lombok 与 MapStruct、JDK 23 处理器变化
+description: 注解定义与元注解、反射与组合注解、JSR 269 处理器、Lombok 与 MapStruct、JDK 23 变化
 ---
 
 # 注解与注解处理器
 
 > 前置阅读：[泛型](./14_topic_generics)
 
-注解是附加在声明或类型上的元数据，要由编译器、注解处理器或运行时框架读取才产生作用。本篇讲注解定义与元注解、运行时反射读取与 Spring 组合注解、编译期注解处理器（JSR 269）以及 Lombok / MapStruct 的实现方式，基线为 JDK 21。
+注解是附加在声明或类型上的元数据，要由编译器、注解处理器或运行时框架读取才起作用。本篇讲注解定义、反射读取与组合注解、JSR 269 注解处理器及 Lombok / MapStruct 原理，基线为 JDK 21。
 
 ---
 

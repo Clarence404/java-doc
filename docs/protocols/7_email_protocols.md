@@ -6,7 +6,7 @@ description: SMTP 与端口、IMAP / POP3、MIME 结构与编码、SPF / DKIM / 
 
 > 前置阅读：[DNS](./4_dns)、[HTTPS 与 TLS](./3_https_tls)
 
-应用后端和邮件打交道通常是用 SMTP 发系统通知、偶尔用 IMAP 收件，能否进收件箱一半看代码、一半看域名 DNS 配置。本篇讲 SMTP 会话、MIME 结构、SPF / DKIM / DMARC，以及在 Spring Boot 4 中发送邮件和用 Jakarta Mail 收件。
+后端用 SMTP 发通知、用 IMAP 收件，邮件能否进收件箱还取决于域名的 DNS 配置。本篇讲 SMTP 会话、MIME 结构、SPF / DKIM / DMARC 与 Spring 收发信，基线为 Spring Boot 4。
 
 ---
 

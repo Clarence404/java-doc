@@ -1,5 +1,5 @@
 ---
-description: RTSP 与 ONVIF 发现、GB/T 28181 注册 / 目录 / 点播、ZLMediaKit 与 WVP-PRO、按需拉流、网页播放、录像、IoT 集成
+description: RTSP / ONVIF、GB/T 28181 注册与点播、WVP-PRO、按需拉流、网页播放、录像
 ---
 
 # 监控视频接入

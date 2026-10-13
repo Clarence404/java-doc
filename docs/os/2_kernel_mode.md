@@ -57,7 +57,8 @@ CPU 在硬件层面提供了不同的特权级，操作系统据此把代码分�
 | `FileChannel.transferTo` | `sendfile`（目标是 Socket 时） |
 | `Selector.select`（Linux） | `epoll_wait` |
 | `new Thread().start()` | `clone3` / `clone` |
-| `ByteBuffer.allocateDirect`、堆扩容 | `mmap` |
+| `ByteBuffer.allocateDirect` | `Unsafe.allocateMemory` → `malloc`（大块时 glibc 转用 `mmap`） |
+| 堆扩容 | `mmap` |
 | `LockSupport.park` 与锁竞争 | `futex` |
 
 ---
@@ -124,7 +125,7 @@ strace -f -e trace=openat -o /tmp/open.log java -jar app.jar
 | `mmap` / `munmap` / `madvise` | 内存映射与归还，GC 调整堆大小或直接内存分配释放频繁时会多 |
 
 ::: warning 生产环境慎用 strace
-ptrace 让目标线程每次系统调用都停下来交给 strace 处理，系统调用密集的进程可能慢上数倍甚至更多。线上只做短时间的 `-c` 统计，或改用开销小得多的 `perf trace`、bpftrace 等基于 eBPF 的工具。
+ptrace 让目标线程每次系统调用都停下来交给 strace 处理，系统调用密集的进程可能慢上数倍甚至更多。线上只做短时间的 `-c` 统计，或改用开销小得多的 `perf trace`（基于内核 tracepoint）或 bpftrace 等 eBPF 工具。
 :::
 
 ---

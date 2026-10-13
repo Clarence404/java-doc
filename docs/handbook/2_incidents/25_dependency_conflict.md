@@ -1,12 +1,12 @@
 ---
-description: 升级 SDK 后线上 NoSuchMethodError、Arthas sc/sm/jad 定位类来源、-Xlog:class+load 与 dependency:tree、Maven 最近者优先、enforcer 构建期拦截
+description: NoSuchMethodError、Arthas 定位类来源、dependency:tree、最近者优先、enforcer 拦截
 ---
 
 # 依赖冲突导致 NoSuchMethodError
 
 > 前置阅读：[构建工具](/engineering/1_build_tools)、[类加载机制](/jvm/2_class_loading)
 
-报表服务升级了内部对象存储 SDK，编译、单元测试、启动全部通过，上线后"导出报表"接口却抛出 `NoSuchMethodError`。本篇复盘 Maven 依赖调解让低版本 Guava 胜出的过程，以及运行时和构建期的定位与拦截手段，基线为 JDK 21、Spring Boot 4、Maven 3.9。
+报表服务升级 SDK 后编译、测试、启动都通过，上线却抛 `NoSuchMethodError`。本篇复盘低版本 Guava 胜出的原因及定位与拦截手段，基线为 JDK 21、Maven 3。
 
 ---
 
@@ -62,7 +62,7 @@ sc -d com.google.common.collect.ImmutableList
 
 ```text
  class-info        com.google.common.collect.ImmutableList
- code-source       /app/BOOT-INF/lib/guava-20.0.jar
+ code-source       jar:nested:/app/report-service.jar/!BOOT-INF/lib/guava-20.0.jar!/
  name              com.google.common.collect.ImmutableList
  ...
  class-loader      +-org.springframework.boot.loader.launch.LaunchedClassLoader@6d06d69c
@@ -86,7 +86,7 @@ jad com.example.storage.sdk.upload.MultipartPlanner plan
 能看到 `.collect(ImmutableList.toImmutableList())`，说明 SDK 是新版本，问题只在 Guava 版本。fat jar 里有没有同时打进两个 Guava：
 
 ```bash
-unzip -l report-service-2.14.0.jar | grep -i "guava"
+unzip -l report-service.jar | grep -i "guava"
 ```
 
 示例输出：

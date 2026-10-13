@@ -6,7 +6,7 @@ description: JDBC 分层、MySQL 握手与认证、PostgreSQL 消息格式、Red
 
 > 前置阅读：[TCP 与 UDP](./1_tcp_udp)、[HTTPS 与 TLS](./3_https_tls)
 
-数据库协议都是跑在 TCP 上的私有二进制协议，Java 通过 JDBC 驱动把它们屏蔽掉。本篇讲 MySQL 握手、`caching_sha2_password` 认证与 TLS 升级，PostgreSQL 消息格式与扩展查询协议，以及 Redis RESP2 与 RESP3 的区别。
+数据库协议都是跑在 TCP 上的私有二进制协议，Java 通过 JDBC 驱动把它们屏蔽掉。本篇讲 MySQL 握手与认证、PostgreSQL 消息格式与扩展查询、Redis RESP2 与 RESP3 的区别。
 
 ---
 

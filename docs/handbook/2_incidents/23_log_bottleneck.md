@@ -54,7 +54,7 @@ grep -A12 '"http-nio-8080-exec' jstack-1.txt | grep -E "State|parking to wait|at
 200 个 Tomcat 线程里 173 个在等**同一把锁**，等待位置是 Logback 的 `OutputStreamAppender.writeBytes`。找持有锁的线程：
 
 ```text
-"http-nio-8080-exec-41" #96 daemon prio=5 os_prio=0 cpu=8812.41ms elapsed=5410.27s tid=0x... nid=88 runnable
+"http-nio-8080-exec-41" #96 [88] daemon prio=5 os_prio=0 cpu=8812.41ms elapsed=5410.27s tid=0x... nid=88 runnable
    java.lang.Thread.State: RUNNABLE
 	at java.io.FileOutputStream.writeBytes(java.base@21.0.8/Native Method)
 	at java.io.FileOutputStream.write(java.base@21.0.8/FileOutputStream.java:367)
@@ -78,10 +78,10 @@ iostat -x 5 2 | grep -E "Device|vdb"
 
 ```text
 Device   r/s     w/s    rkB/s     wkB/s  r_await  w_await  aqu-sz  %util
-vdb      0.20  2984.60    1.60  97213.40    0.50    45.12   134.7  100.00
+vdb      0.20  2984.60    1.60  19184.20    0.50    45.12   134.7  100.00
 ```
 
-日志盘是一块按 IOPS 计费的云盘，规格上限约 3000 IOPS / 100MB/s，已经顶满。用 `pidstat -d 5` 看是谁在写，排第一的是这几个 Java 进程，第二是日志采集 Agent 的读。
+日志盘是一块按 IOPS 计费的云盘，规格上限约 3000 IOPS、带宽 100MB/s。`w/s` 2984 已把 3000 IOPS 顶满，而 `wkB/s` 约 19MB/s 远没到带宽上限——瓶颈是 IOPS 不是带宽，大量小日志行把每秒写次数吃光了。用 `pidstat -d 5` 看是谁在写，排第一的是节点上这几个 Pod 的 Java 进程，第二是日志采集 Agent 的读。
 
 ### 3、日志量为什么暴涨
 
@@ -91,7 +91,7 @@ vdb      0.20  2984.60    1.60  97213.40    0.50    45.12   134.7  100.00
 sum by (level) (rate(logback_events_total{app="pay-callback-service"}[5m]))
 ```
 
-INFO 从每秒 900 条涨到 4100 条，而且单条体积明显变大。看采集侧每分钟字节数，单 Pod 从 8MB/min 涨到 95MB/min。抽几条日志：
+INFO 从每秒 900 条涨到 4100 条，新增约 3200 条/秒，且单条体积明显变大。按每个回调多打 5 条推算，对应新增回调约 640 次/秒（3200÷5）；每条日志平均约 6KB，这些日志行把节点日志盘的写压到约 3000 次/秒（`w/s` 2984）、约 19MB/s（`wkB/s` 19184）——写次数正好顶满云盘 3000 IOPS，和上面 iostat 一致。抽几条日志：
 
 ```bash
 kubectl exec pay-callback-7f6d-c9x2p -- sh -c 'tail -n 2000 /data/logs/app.log | awk "{print length}" | sort -n | tail -3'
@@ -146,7 +146,7 @@ trace com.example.pay.callback.CallbackService handle -n 5 '#cost > 200'
 
 ## 四、根因
 
-1. **日志量和单条体积暴涨**：新增的"全报文 + 循环逐条"日志让单 Pod 写入量涨了 10 倍以上，超过日志盘的 IOPS 和带宽上限
+1. **日志量和单条体积暴涨**：新增的"全报文 + 循环逐条"日志让写入量涨了 10 倍以上，每秒写次数超过日志盘的 IOPS 上限（带宽尚有余量，瓶颈在 IOPS）
 2. **同步 Appender 把磁盘延迟传导给请求线程**：所有线程共用一个文件 Appender，写入串行化，持锁线程卡在 `write` 上，其余线程全部排队，Tomcat 线程被占满
 3. **调用位置采集放大了单条成本**：`%method:%line` 让每条日志多一次栈遍历，在高 QPS 下进一步抬高 CPU 与延迟
 

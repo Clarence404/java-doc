@@ -173,7 +173,7 @@ kubectl logs product-service-6c8f-q7n2d | grep -m1 "Started ProductApplication"
 2026-10-11T14:01:34.512+08:00  INFO 1 --- [main] c.e.product.ProductApplication : Started ProductApplication in 21.874 seconds
 ```
 
-应用启动完成后 7 秒 Pod 就绪，立刻按 1/8 的比例分到全量流量，此时 JIT、类加载、连接池、本地缓存都还是"冷"的。
+应用启动完成后 7 秒 Pod 就绪，立刻分到全量流量的约 1/10（滚动发布 `maxSurge=2`，在线实例最多 10 个），此时 JIT、类加载、连接池、本地缓存都还是"冷"的。
 
 ---
 

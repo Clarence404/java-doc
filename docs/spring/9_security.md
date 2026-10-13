@@ -6,7 +6,7 @@ description: 过滤器链、Resource Server 校验 JWT、自定义 JWT 过滤器
 
 > 前置阅读：[MVC](./3_mvc)、[JWT 令牌机制](/security/1_jwt)
 
-Spring Security 是 Spring 的认证授权框架，核心是一条过滤器链。本篇讲过滤器链与授权架构、无状态 API 配置、OAuth2 Resource Server 校验 JWT、方法级与动态 URL 权限，基线为 Spring Security 7.x（Spring Boot 4）。
+Spring Security 是 Spring 的认证授权框架，核心是一条过滤器链。本篇讲授权架构、无状态 API、JWT 校验、方法级与动态权限，基线为 Spring Security 7。
 
 ---
 

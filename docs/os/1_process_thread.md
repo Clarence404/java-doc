@@ -1,12 +1,12 @@
 ---
-description: 进程 / 线程 / 协程的区别、task_struct 与 clone、Java 1:1 与 M:N 线程模型、上下文切换成本、CFS 与 EEVDF 调度
+description: 进程 / 线程 / 协程、task_struct 与 clone、Java 线程模型、上下文切换、CFS 与 EEVDF
 ---
 
 # 进程、线程与协程
 
 > 前置阅读：[线程基础](/java/23_topic_thread_basics)
 
-进程是资源分配的单位，线程是 CPU 调度的单位，协程是在用户态自行调度的执行流。本篇讲三者的区别、Linux 如何用同一套结构表示进程和线程、Java 线程与内核线程的对应关系，以及上下文切换的成本与调度器，基线为 Linux 6.x、JDK 21。
+进程是资源分配的单位，线程是 CPU 调度的单位，协程是在用户态自行调度的执行流。本篇讲三者区别、Linux 的进程与线程结构、Java 线程模型、上下文切换与调度器，基线为 Linux 6.x、JDK 21。
 
 ---
 

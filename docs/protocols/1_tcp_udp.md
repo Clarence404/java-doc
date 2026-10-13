@@ -4,7 +4,7 @@ description: 三次握手、四次挥手、TIME_WAIT / CLOSE_WAIT、滑动窗口
 
 # TCP 与 UDP
 
-TCP 是 HTTP、MySQL、Redis、Kafka、gRPC 等绝大多数后端通信的底座，UDP 则用于低延迟场景。本篇讲建连断连、TIME_WAIT / CLOSE_WAIT 排查、流量与拥塞控制、UDP 选型，基线为 RFC 9293 与 Linux 5.x / 6.x 内核。
+TCP 是绝大多数后端通信的底座，UDP 则用于低延迟场景。本篇讲建连断连、TIME_WAIT / CLOSE_WAIT 排查、流量与拥塞控制、UDP 选型，基线为 RFC 9293 与 Linux 5.x / 6.x。
 
 ---
 

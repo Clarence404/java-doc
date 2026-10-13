@@ -6,7 +6,7 @@ description: 负载均衡与灰度路由、熔断限流、Framework 7 容错注�
 
 > 前置阅读：[服务通信](./3_communication)
 
-本篇讲 Spring Cloud 中服务治理能力的框架落地。内容包括 Spring Cloud LoadBalancer 的接入与自定义、按请求头的灰度路由与标记透传，以及用 Resilience4j、Sentinel 或 Framework 7 内置注解实现熔断、重试与并发限制。
+服务治理让服务调用在故障与变更下仍然可控。本篇讲负载均衡与灰度路由、熔断限流、超时重试与优雅上下线，基线为 Spring Cloud 2025.1。
 
 ---
 

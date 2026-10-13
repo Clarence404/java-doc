@@ -1,5 +1,5 @@
 ---
-description: Nacos 注册与配置、配置刷新、网关、OpenFeign 与 HTTP Service Client、Sentinel、Seata、Stream、链路追踪
+description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentinel、Seata、Stream、链路追踪
 ---
 
 # Spring Cloud 面试题解答

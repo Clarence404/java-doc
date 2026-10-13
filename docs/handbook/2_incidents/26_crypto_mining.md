@@ -1,12 +1,12 @@
 ---
-description: 夜间 CPU 打满、伪装成内核线程的进程、/proc 取证、crontab 与 systemd 持久化、异常外连、隔离清理与重建、Redis 暴露面加固
+description: 夜间 CPU 打满、伪装进程、/proc 取证、持久化手段、隔离清理与重建、Redis 加固
 ---
 
 # 服务器被植入挖矿程序
 
 > 前置阅读：[Linux 概览](/cloud-native/1_linux)、[常见漏洞与防护](/security/8_vulnerabilities)
 
-一台测试环境云主机连续几晚 CPU 100%，最初被当成"压测没关"，最后确认被植入了挖矿程序，入口是一个暴露在公网、没有认证的老版本 Redis。本篇从防守方视角复盘发现、取证、清理与加固，基线为 Linux 内核 6.x、Redis 8。
+测试云主机连续几晚 CPU 打满，起初被当成压测没关，最后确认是公网暴露的无认证 Redis 被植入挖矿程序。本篇从防守方视角复盘发现、取证、清理与加固，基线为 Linux 6、Redis 8。
 
 ---
 
@@ -47,12 +47,14 @@ top -b -n 1 -o %CPU | head -12
 
 ```text
   PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
-28417 redis     20   0 2481216  2.3g   3128 S 795.0  14.6  1847:22 [kworker/u16:2]
+28417 redis     20   0 2481216  2.3g   3128 S 795.0  14.6  6400:11 [kworker/u16:2]
  1203 redis     20   0  168544  21412   3920 S   0.7   0.1   2:14.08 redis-server
   ...
 ```
 
 进程名是 `[kworker/u16:2]`，看起来像内核线程。但真正的内核线程有两个特点：属主是 root、虚拟内存为 0（没有用户态地址空间）。这个进程属主是 `redis`、占用 2.3GB 物理内存、用了 8 核，**是伪装成内核线程的用户态进程**。
+
+这份快照是在 10-10 凌晨 02:20（02:13 `NodeCpuHigh` 告警后）抓的，正是夜间挖矿时段，所以 `top` 里是 795%、8 核满载。累计 CPU 时间 `TIME+` 约 6400 分钟 ≈ 8 核 × 约 13 小时 20 分满载（10-08、10-09 两整晚各挖 6 小时，10-10 凌晨到抓快照又挖了 1 小时 20 分），和它「只在夜间满载、`ELAPSED` 已存活两天多」对得上。这个挖矿程序会按本地时间自行节流，只在 01:00–07:00 全力挖、白天几乎不占 CPU，这正是「白天看着正常、每晚打满」、连续两晚被当成压测忽略的原因。
 
 ### 2、用 /proc 看清它是谁
 
@@ -67,11 +69,11 @@ ps -o pid,ppid,user,lstart,etime -p 28417
 示例输出：
 
 ```text
-lrwxrwxrwx 1 redis redis 0 Oct 10 09:52 /proc/28417/exe -> /var/tmp/.ICE-unix/.x/kdevtmpfs (deleted)
-lrwxrwxrwx 1 redis redis 0 Oct 10 09:52 /proc/28417/cwd -> /var/tmp/.ICE-unix/.x
+lrwxrwxrwx 1 redis redis 0 Oct 10 02:20 /proc/28417/exe -> /var/tmp/.ICE-unix/.x/kdevtmpfs (deleted)
+lrwxrwxrwx 1 redis redis 0 Oct 10 02:20 /proc/28417/cwd -> /var/tmp/.ICE-unix/.x
 [kworker/u16:2]
   PID  PPID USER                      STARTED     ELAPSED
-28417     1 redis    Wed Oct  8 01:00:03 2026  2-08:52:11
+28417     1 redis    Thu Oct  8 01:00:03 2026  2-01:19:57
 ```
 
 - 可执行文件在隐藏目录 `/var/tmp/.ICE-unix/.x/` 下，并且**已被删除**（`(deleted)`），进程仍在内存中运行
@@ -160,7 +162,7 @@ grep -E "00:(2|3|4)[0-9]" /var/log/redis/redis-server.log | head
 ```
 
 - SSH 日志里该时间段没有成功登录记录，排除弱口令 SSH 入口
-- Redis 日志显示 00:3x 有来自 198.51.100.77 的连接，随后出现了配置被修改、执行持久化的记录
+- Redis 默认 `loglevel notice` 不会记录客户端连接和 `CONFIG SET`，所以来源 IP 要从 `ss`、云平台 VPC 流日志或安全中心取（198.51.100.77 即来自 `ss` 和流日志）；Redis 自身日志里能看到的是异常痕迹：同步到一个陌生「主」的复制记录、`Module ... loaded` 以及 `DB saved on disk` 等
 
 再看 Redis 本身的配置：
 
@@ -178,7 +180,9 @@ port 6379
 redis
 ```
 
-一台三年前装的 Redis 5，监听所有网卡、关闭了保护模式、没有密码，安全组对公网放开了 6379（当时为了外包团队联调临时放开，之后没收回）。攻击者利用未授权访问改写了 Redis 的持久化配置，把定时任务写进了 `redis` 用户的 crontab，拿到了 `redis` 用户的执行权限；之后又借助系统上一个未修补的本地提权漏洞拿到 root，写入 SSH 公钥和 systemd 单元。
+一台三年前装的 Redis 5，监听所有网卡、关闭了保护模式、没有密码，安全组对公网放开了 6379（当时为了外包团队联调临时放开，之后没收回）。攻击者利用未授权访问，采用 Redis 4/5 时代的主从复制技巧：让目标把一台攻击者控制的「主」同步过来，再借 `MODULE LOAD` 加载恶意模块，从而以 `redis` 用户身份拿到命令执行能力。有了 `redis` 用户的执行权限后，用 `crontab` 命令写该用户自己的定时任务、并落下一个挖矿二进制做持久化；之后再借助系统上一个未修补的本地提权漏洞拿到 root，写入 SSH 公钥和 systemd 单元。
+
+过去流传的「`CONFIG SET dir` 改持久化目录 + 写 root 的 crontab」在这里走不通：Redis 以 `redis` 用户运行，既写不了 `/var/spool/cron` 下 root 的 crontab，也写不进系统目录，所以攻击者改用加载模块拿命令执行、再写 `redis` 用户自己的 crontab。Redis 7 起 `MODULE` 命令默认关闭（`enable-module-command no`），加上默认开启 `protected-mode`、设置 `requirepass`、用 `bind` 收敛监听地址，任意一项都能截断这条链路。
 
 ### 6、同网段排查
 
@@ -189,7 +193,7 @@ test-mw-05 上同样有可疑进程，入口不同：它上面没有 Redis，但
 ## 四、根因
 
 1. **暴露面**：测试 Redis 监听 `0.0.0.0`、关闭保护模式、无认证，安全组临时放开公网 6379 后没有回收
-2. **版本过老**：Redis 5 允许通过命令在运行时修改持久化目录和文件名；Redis 7 起这类敏感配置默认禁止在运行时修改（`enable-protected-configs no`），老版本没有这层保护
+2. **版本过老**：Redis 4/5 对 `MODULE LOAD` 和主从复制都没有限制，攻击者能借「复制一台恶意主 + 加载模块」拿到命令执行；Redis 7 起默认关闭 `MODULE` 命令（`enable-module-command no`）、敏感配置也默认禁止运行时修改（`enable-protected-configs no`），老版本没有这些保护
 3. **权限过大**：主机系统多年未打补丁，存在本地提权漏洞；`redis` 用户拥有登录 shell 和 crontab 权限
 4. **凭据横向复用**：测试主机之间放置了免密登录私钥，一台失陷就能扩散
 5. **告警被忽略**：夜间 CPU 告警持续两天被当作压测处理，云厂商通知才引起重视

@@ -1,12 +1,12 @@
 ---
-description: Servlet 生命周期、DispatcherServlet 流程、参数校验、消息转换、ProblemDetail 异常、拦截器、API 版本
+description: Servlet 生命周期、DispatcherServlet 流程、参数校验、ProblemDetail、拦截器、API 版本
 ---
 
 # MVC
 
 > 前置阅读：[IoC 容器](./1_ioc)、[AOP](./2_aop)
 
-Spring MVC 是基于 Servlet 的 Web 框架，负责把 HTTP 请求分发到控制器方法。本篇讲请求处理链路与组件扩展、`ProblemDetail` 统一异常、方法参数校验、Jackson 3 消息转换，基线为 Spring Framework 7.x。
+Spring MVC 是基于 Servlet 的 Web 框架，把 HTTP 请求分发到控制器方法。本篇讲请求处理链路、统一异常、参数校验与消息转换，基线为 Spring Framework 7。
 
 ---
 

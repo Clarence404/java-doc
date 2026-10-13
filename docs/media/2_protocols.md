@@ -1,5 +1,5 @@
 ---
-description: RTMP、RTSP、HTTP-FLV、HLS 与 LL-HLS、DASH、CMAF、WebRTC 与 WHIP / WHEP、SRT、延迟对比与场景选型
+description: RTMP、RTSP、HTTP-FLV、HLS / LL-HLS、DASH、WebRTC、SRT、延迟对比与选型
 ---
 
 # 流媒体协议

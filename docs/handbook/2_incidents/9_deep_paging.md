@@ -6,7 +6,7 @@ description: 按页码全量拉取、大偏移扫描百万行、Buffer Pool 冲�
 
 > 前置阅读：[MySQL 索引](/database/1_mysql/4_topic_index)、[数据访问性能](/high-perf/10_db_performance)
 
-一个第三方服务商用 `page=1,2,3…` 循环拉取大商户的全部历史订单，页码越翻越深，单条查询从毫秒级涨到 7 秒，最终把主库 IO 和 Buffer Pool 一起拖垮。本篇按现象、排查、根因、修复、预防完整复盘，基线为 JDK 21、Spring Boot 4、MySQL 8.4。
+第三方服务商用 `page=1,2,3…` 循环拉取大商户全部历史订单，单条查询从毫秒级涨到 7 秒，最终拖垮主库 IO 和 Buffer Pool。本篇完整复盘，基线为 MySQL 8.4、Spring Boot 4。
 
 ---
 

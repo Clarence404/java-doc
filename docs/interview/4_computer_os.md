@@ -1,5 +1,5 @@
 ---
-description: 进程线程协程、上下文切换、用户态与系统调用、futex、虚拟内存与缺页、OOM Killer、Page Cache 与 fsync、mmap、伪共享、Load、僵尸进程、IPC
+description: 进程线程协程、系统调用、虚拟内存、OOM Killer、Page Cache、伪共享、Load、IPC
 ---
 
 # 操作系统面试题解答
@@ -14,14 +14,15 @@ description: 进程线程协程、上下文切换、用户态与系统调用、f
 
 **一句话**：进程管「有什么资源」，线程管「谁在 CPU 上跑」，协程把「谁在跑」的决定权从内核拿回用户态，所以越往后越轻、越便宜。
 
+- 隔离性：一个进程崩了不影响别的进程，一个线程踩坏内存整个进程一起挂
+- 协程分有栈（Go、Java 虚拟线程，任意深度可挂起）和无栈（Kotlin `suspend`，编译成状态机）
+- Linux 内核里进程、线程都是 `task_struct`，区别只在共享多少资源；协程不归内核管，在用户态由运行时调度
+
 | 维度 | 进程 | 线程 | 协程 |
 |------|------|------|------|
 | 地址空间 | 独立 | 与同进程线程共享 | 挂在线程上 |
 | 谁调度 | 内核 | 内核 | 运行时 / 库 |
 | 切换成本 | 最高（换页表） | 中（进内核） | 低（不进内核） |
-
-- 隔离性：一个进程崩了不影响别的进程，一个线程踩坏内存整个进程一起挂
-- 协程分有栈（Go、Java 虚拟线程，任意深度可挂起）和无栈（Kotlin `suspend`，编译成状态机）
 
 → 详见 [进程、线程与协程](/os/1_process_thread#一、三者的区别)
 
@@ -103,7 +104,7 @@ description: 进程线程协程、上下文切换、用户态与系统调用、f
 - 好处：进程间隔离、按需分配、多个进程可共享同一批物理页（共享库、Page Cache）
 - TLB 是 CPU 里的地址翻译缓存，命中就不用查页表；大页（2 MB）能减少 TLB 未命中
 - Java 进程的虚拟内存不只是堆：还有元空间、每个线程的栈、直接内存、JIT 代码缓存、GC 数据结构
-- RSS 是真正驻留在物理内存里的部分，容器内存 limit 要按 RSS 留余量
+- RSS 是真正驻留在物理内存里的部分；容器内存 limit 按 RSS 加必要的 Page Cache 留余量，监控看 working set
 
 → 详见 [内存管理与 Page Cache](/os/3_memory#_2、java-进程的虚拟内存)
 
@@ -124,14 +125,15 @@ description: 进程线程协程、上下文切换、用户态与系统调用、f
 
 **一句话**：`OutOfMemoryError` 是 JVM 发现堆或元空间满了抛的异常，进程还活着；OOM Killer 是内核发现整机（或容器）物理内存耗尽，直接用 `SIGKILL` 杀进程，应用连日志都来不及打。
 
+- Linux 默认允许超额分配（overcommit），申请时只粗查，真用完时才由 OOM Killer 按评分挑进程
+- 容器里堆没满却被杀，多半是直接内存、线程栈、元空间等堆外部分把总量撑过了 limit
+- 被 OOM Killer 杀掉的进程退出码是 137（128 + SIGKILL），用 `dmesg -T | grep -i "killed process"` 确认
+
 | 对比 | OutOfMemoryError | OOM Killer |
 |------|------------------|------------|
 | 谁触发 | JVM | 内核 |
 | 原因 | 堆 / 元空间等达到 JVM 上限 | 物理内存（或 cgroup `memory.max`）耗尽 |
 | 现象 | 异常栈、可配置堆转储 | 进程突然消失，退出码 137，`dmesg` 有记录 |
-
-- Linux 默认允许超额分配（overcommit），申请时只粗查，真用完时才由 OOM Killer 按评分挑进程
-- 容器里堆没满却被杀，多半是直接内存、线程栈、元空间等堆外部分把总量撑过了 limit
 
 → 详见 [内存管理与 Page Cache](/os/3_memory#_3、超额分配与-oom-killer)
 
@@ -140,7 +142,7 @@ description: 进程线程协程、上下文切换、用户态与系统调用、f
 **一句话**：没有。`write` 只是把数据拷进内核的 Page Cache、标成脏页就返回了，后台 flusher 线程过一阵才写回磁盘；要确保落盘必须调用 `fsync`（Java 里是 `FileChannel.force`）。
 
 - 进程崩溃不丢数据（已在内核里），机器断电或内核崩溃会丢还没回写的脏页
-- 脏页默认最多存约 30 秒，或占比超过 `dirty_background_ratio` 时后台回写；超过 `dirty_ratio` 时 `write` 自己会被卡住
+- 脏页超过约 30 秒后，在下一轮回写（每 5 秒唤醒）中写出，即约 30–35 秒；或占比超过 `dirty_background_ratio` 时后台回写；超过 `dirty_ratio` 时 `write` 自己会被卡住
 - `fdatasync` 只同步数据和必需的元数据，通常比 `fsync` 快；新建文件还要对所在目录做一次 `fsync`
 - `fsync` 慢（毫秒级），所以 MySQL 用组提交、日志框架用异步刷盘来摊薄
 
@@ -150,15 +152,15 @@ description: 进程线程协程、上下文切换、用户态与系统调用、f
 
 **一句话**：`mmap` 把文件映射进进程地址空间，直接读写 Page Cache，省掉一次内核到用户缓冲区的拷贝和每次读写的系统调用；Kafka 则干脆把缓存交给 Page Cache，不在 JVM 堆里自己缓存。
 
+- 用 Page Cache 的好处：不占堆、不受 GC 影响，进程重启缓存还在，消费者紧跟生产者时读的就是刚写入的页
+- Kafka 用 `FileChannel.write` 追加 + `sendfile` 发送，RocketMQ 用 `mmap` 写 CommitLog
+- 部署这类中间件时，内存的大头要留给操作系统而不是堆
+
 | 对比 | `read` / `write` | `mmap` |
 |------|------------------|--------|
 | 拷贝 | 每次多拷一次 | 直接访问 Page Cache |
 | 系统调用 | 每次读写一次 | 只在映射 / 解除映射时 |
 | 适合 | 顺序流式、小文件 | 大文件随机读写、多进程共享 |
-
-- 用 Page Cache 的好处：不占堆、不受 GC 影响，进程重启缓存还在，消费者紧跟生产者时读的就是刚写入的页
-- Kafka 用 `FileChannel.write` 追加 + `sendfile` 发送，RocketMQ 用 `mmap` 写 CommitLog
-- 部署这类中间件时，内存的大头要留给操作系统而不是堆
 
 → 详见 [内存管理与 Page Cache](/os/3_memory#六、mmap)、[为什么 Kafka 与 RocketMQ 依赖 Page Cache](/os/3_memory#七、为什么-kafka-与-rocketmq-依赖-page-cache)
 
@@ -184,7 +186,7 @@ description: 进程线程协程、上下文切换、用户态与系统调用、f
 
 - Load 要和逻辑核数比；统计单位是线程，不是进程
 - 常见成因：磁盘慢或打满、NFS / 云盘抖动、内存紧张导致直接回收或换页
-- 排查：`vmstat 1` 的 `b` 列看 D 状态数，`ps -eLo stat,wchan` 看线程卡在哪个内核函数，`iostat -x 1` 看磁盘延迟
+- 排查：`vmstat 1` 的 `b` 列看阻塞在 IO 上的任务数（D 状态的主要部分，完整计数用 `ps -eLo stat | grep -c ^D`），`ps -eLo stat,wchan` 看线程卡在哪个内核函数，`iostat -x 1` 看磁盘延迟
 - `wa` 只作参考：它只在 CPU 空闲时才计入；更准的是 PSI（`/proc/pressure/io`）
 - 容器里 `/proc/loadavg` 是宿主机的，判断容器缺不缺 CPU 看 cgroup 的 PSI 和 `cpu.stat` 限流计数
 

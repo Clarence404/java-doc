@@ -6,7 +6,7 @@ description: ChatClient、Advisor、对话记忆、Tool Calling、结构化输�
 
 > 前置阅读：[Function Calling（工具调用）](../1_concepts/2_function_calling)、[Spring Boot 总览](/spring-boot/0_overview)
 
-Spring AI 是 Spring 官方的 AI 集成框架，用自动配置、Bean、配置属性的方式把大模型、向量库、工具调用接进应用。本篇以 Spring AI 2.0.x（截至 2026-10 最新为 2.0.1，支持 Spring Boot 4.0.x / 4.1.x，示例用 JDK 21）为基线，讲 ChatClient、Advisor、对话记忆、Tool Calling、结构化输出及从 1.x（Spring Boot 3.5 线）升级的要点。
+Spring AI 是 Spring 官方的 AI 集成框架，以自动配置方式接入大模型与向量库。本篇讲 ChatClient、Advisor、对话记忆、Tool Calling、结构化输出与 1.x 升级，基线为 Spring AI 2。
 
 ---
 

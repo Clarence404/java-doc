@@ -1,12 +1,12 @@
 ---
-description: 外部调用偶发恰好 5 秒、ndots:5 放大查询、A/AAAA 并发触发 conntrack 冲突丢包、NodeLocal DNSCache 修复
+description: 偶发恰好 5 秒、ndots:5 放大查询、conntrack 冲突丢包、NodeLocal DNSCache 修复
 ---
 
 # DNS 解析超时
 
 > 前置阅读：[DNS](/protocols/4_dns)、[Kubernetes](/cloud-native/6_kubernetes)
 
-订单服务调用外部支付网关偶发「刚好慢 5 秒」，对方坚称自己的接口只要几十毫秒，网络组也查不到丢包。本篇复盘一次 Kubernetes 中典型的 DNS 解析超时，基线为 Kubernetes 1.37、CoreDNS、JDK 21 / Spring Boot 4。
+订单服务调用外部支付网关偶发「刚好慢 5 秒」，对方接口只要几十毫秒，网络组也查不到丢包。本篇复盘这次 DNS 解析超时，基线为 Kubernetes 1.37、JDK 21。
 
 ---
 

@@ -107,7 +107,7 @@ grep -rn python3 /etc/cron.d/ /var/spool/cron/ 2>/dev/null
 
 - **用户态 OOM 守护进程**：部分发行版默认启用 `systemd-oomd`，按内存压力杀整个 cgroup，记录在 `journalctl -u systemd-oomd`
 - **systemd 停止超时**：`systemctl stop` 后超过 `TimeoutStopSec` 仍未退出，systemd 会补发 SIGKILL，日志里先有 `Stopping`，再有 `State 'stop-sigterm' timed out. Killing.`
-- **人或脚本 `kill -9`**：事后很难追查，可提前用 auditd 记录所有 SIGKILL：`auditctl -a always,exit -F arch=b64 -S kill,tkill,tgkill -F a1=9 -k sigkill`，再用 `ausearch -k sigkill` 查发送方
+- **人或脚本 `kill -9`**：事后很难追查，可提前用 auditd 记录所有 SIGKILL。注意信号参数的位置不同——`kill` / `tkill` 的信号是第 2 个参数 `a1`，`tgkill` 是第 3 个参数 `a2`，要拆成两条规则：`auditctl -a always,exit -F arch=b64 -S kill,tkill -F a1=9 -k sigkill` 和 `auditctl -a always,exit -F arch=b64 -S tgkill -F a2=9 -k sigkill`，再用 `ausearch -k sigkill` 查发送方
 
 ---
 

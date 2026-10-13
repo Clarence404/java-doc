@@ -6,7 +6,7 @@ description: 命名与模块、imports 注册、装配顺序、条件注解、�
 
 > 前置阅读：[启动流程与自动配置](./1_spring_boot)
 
-自定义 Starter 是检验自己是否理解自动配置的最好方式：写一遍就知道上百个自动配置类是如何被找到、筛选和排序的。本篇按 Boot 4 的约定讲模块拆分、自动配置类的顺序与条件、配置属性的 IDE 提示，以及用 `ApplicationContextRunner` 测清各种装配分支。
+自定义 Starter 是检验是否理解自动配置的最好方式。本篇讲模块拆分、装配顺序与条件、配置元数据，以及用 `ApplicationContextRunner` 测试，基线为 Spring Boot 4。
 
 ---
 

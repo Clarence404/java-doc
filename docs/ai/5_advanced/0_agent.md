@@ -6,7 +6,7 @@ description: ReAct 循环、记忆隔离、多 Agent 编排、护栏与人工确
 
 > 前置阅读：[Function Calling（工具调用）](../1_concepts/2_function_calling)
 
-Agent 让 LLM 作为决策核心循环调用工具、自主完成任务。本篇讲工作流与 Agent 的区别、ReAct 循环、记忆与规划、LangChain4j / Spring AI 实现、多 Agent 编排、工具安全，以及上下文工程、Agent Skills 与 A2A 协议，代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0。
+Agent 让 LLM 作为决策核心循环调用工具、自主完成任务。本篇讲 ReAct 循环、记忆与规划、多 Agent 编排、工具安全与上下文工程，基线为 Spring AI 2 / LangChain4j 1。
 
 ---
 

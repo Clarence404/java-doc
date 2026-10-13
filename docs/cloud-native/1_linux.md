@@ -206,7 +206,7 @@ ps -eo pid,ppid,stat,%cpu,%mem,cmd --sort=-%cpu | head  # 按 CPU 排序
 ps -o nlwp= -p <pid>                                    # 线程数
 ```
 
-`STAT` 列中 `D` 表示不可中断睡眠（通常在等磁盘或网络存储 IO，`kill -9` 也杀不掉），`Z` 表示僵尸进程（已退出但父进程未回收，需处理父进程）。
+`STAT` 列中 `D` 表示不可中断睡眠（通常在等磁盘或网络存储 IO，`kill -9` 也杀不掉），`Z` 表示僵尸进程（已退出但父进程未回收，需处理父进程）。D 状态会计入 Load，所以会出现 Load 高而 CPU 低。→ 原理见 [Load 与 CPU 利用率](/os/5_load_cpu#二、load-高而-cpu-低)
 
 ---
 
@@ -255,7 +255,7 @@ HotSpot JVM 在 Linux 上启动时默认会把软限制提升到硬限制（`-XX
 
 - `netstat` 属于已弃用的 net-tools，新系统默认不装，统一用 `ss`
 - `iostat`、`mpstat`、`pidstat`、`sar` 来自 **sysstat** 包；`iotop` 是独立的包（`iotop` 或 `iotop-c`）；`strace`、`lsof` 也通常需要单独安装
-- `df` 显示磁盘满、`du` 却统计不出来时，多半是日志文件被删除但仍被进程打开，用 `lsof +L1` 找出来，重启进程或清空文件即可释放
+- `df` 显示磁盘满、`du` 却统计不出来时，多半是日志文件被删除但仍被进程打开，用 `lsof +L1` 找出来，重启进程或清空文件即可释放。→ 原理见 [进程间通信与进程状态](/os/6_ipc_process#四、删除正在写的文件-空间为什么不释放)
 - `strace` 会显著拖慢被跟踪的进程，生产环境只做短时间采样
 
 ### 2、定位 Java 进程的高 CPU 线程

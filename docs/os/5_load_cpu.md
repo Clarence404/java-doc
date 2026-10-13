@@ -1,12 +1,12 @@
 ---
-description: Load Average 定义与 D 状态、Load 高 CPU 低的成因、us / sy / wa / si / st 拆解、PSI 与容器限流、IO 密集与 CPU 密集、线程数估算
+description: Load 定义与 D 状态、Load 高 CPU 低、CPU 各项占比、PSI 与容器限流、线程数估算
 ---
 
 # Load 与 CPU 利用率
 
 > 前置阅读：[进程、线程与协程](./1_process_thread)、[Linux 概览](/cloud-native/1_linux)
 
-Load Average 和 CPU 利用率是 `top` 第一屏的两个数，却经常被读反：Load 高不等于 CPU 忙，CPU 低也不等于系统闲。本篇讲 Linux 上 Load 的准确定义、Load 高而 CPU 低的成因、CPU 各项占比的含义，以及如何据此判断任务类型、估算线程数，基线为 Linux 6.x 内核与 cgroup v2。
+Load 高不等于 CPU 忙，CPU 低也不等于系统闲，这两个数经常被读反。本篇讲 Load 的定义、Load 高而 CPU 低的成因、CPU 各项占比与线程数估算，基线为 Linux 6 与 cgroup v2。
 
 ---
 
@@ -50,13 +50,14 @@ Load 只告诉你「有多少任务在等」，不告诉你「在等什么、等
 ```bash
 $ cat /proc/pressure/cpu
 some avg10=12.31 avg60=8.02 avg300=5.11 total=902837261
+full avg10=0.00 avg60=0.00 avg300=0.00 total=0
 $ cat /proc/pressure/io
 some avg10=35.20 avg60=30.88 avg300=22.17 total=...
 full avg10=18.45 avg60=15.02 avg300=10.90 total=...
 ```
 
 - `some`：至少有一个任务因该资源停顿的时间占比
-- `full`：所有非空闲任务同时停顿的时间占比，表示这段时间完全没有有效工作
+- `full`：所有非空闲任务同时停顿的时间占比，表示这段时间完全没有有效工作；系统级的 cpu `full` 恒为 0，只在 cgroup 级别有意义
 
 cgroup v2 下每个 cgroup 也有自己的 `cpu.pressure` / `io.pressure` / `memory.pressure`，可以精确到某个容器。
 
@@ -82,14 +83,14 @@ Load 高、`top` 里 CPU 却很空闲，说明排队的大多是 **D 状态**的
 ### 2、排查步骤
 
 ```bash
-vmstat 1                       # r：可运行任务数；b：D 状态任务数
+vmstat 1                       # r：可运行任务数；b：阻塞在 IO 上的任务数（D 状态的主要部分）
 ps -eLo stat,pid,tid,wchan:32,comm | awk '$1 ~ /^D/'   # 列出所有 D 状态线程与等待点
 cat /proc/<pid>/task/<tid>/stack                         # 某个线程的内核栈，需要 root
 iostat -x 1                    # 磁盘延迟与使用率
 cat /proc/pressure/io          # IO 压力
 ```
 
-`vmstat` 的 `r` 远大于核数是 CPU 不够；`b` 持续不为 0 是在等 IO 或内核资源。`wchan` 列显示线程在哪个内核函数里睡眠，比如 `io_schedule`、`folio_wait_bit` 一类基本可以确定在等块设备，`rpc_wait_bit_killable` 一类指向 NFS。
+`vmstat` 的 `r` 远大于核数是 CPU 不够；`b` 持续不为 0 是在等 IO（`b` 只统计阻塞在 IO 上的任务，完整的 D 状态数用 `ps -eLo stat | grep -c ^D`）。`wchan` 列显示线程在哪个内核函数里睡眠，比如 `io_schedule`、`folio_wait_bit` 一类基本可以确定在等块设备，`rpc_wait_bit_killable` 一类指向 NFS。
 
 ### 3、反过来：CPU 高而 Load 不高
 
@@ -169,7 +170,7 @@ cat /sys/fs/cgroup/cpu.stat     # nr_throttled、throttled_usec 持续增长说�
 ## 小结
 
 - Linux 的 Load 是 R + D 状态线程数的滑动平均，衡量的是系统需求，要和逻辑核数比较
-- Load 高 CPU 低，多半是 D 状态任务在等磁盘、网络存储或内存回收，用 `vmstat` 的 `b` 列、`ps` 的 `wchan` 和 PSI 定位
+- Load 高 CPU 低，多半是 D 状态任务在等磁盘、网络存储或内存回收，用 `vmstat` 的 `b` 列（阻塞在 IO 上的任务数）、`ps` 的 `stat` / `wchan` 和 PSI 定位
 - CPU 拆成 us / sy / wa / si / st 读：`sy` 高查系统调用和切换，`si` 集中查网卡队列，`st` 高是宿主机问题，`wa` 只作参考
 - 容器内看 cgroup 的 PSI 和 `cpu.stat` 限流计数，不看 `/proc/loadavg`
 - `jstack` 的 `RUNNABLE` 不等于在用 CPU；线程数按等待 / 计算比估算，最终以压测为准

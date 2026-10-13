@@ -6,7 +6,7 @@ description: LDAP / CAS / SAML2 / OIDC 接入、Keycloak 登出、授权服务�
 
 > 前置阅读：[单点登录](/security/4_sso)、[OIDC](/security/3_oidc)、[Spring Security](./9_security)
 
-Spring 应用可以通过 LDAP、CAS、SAML2、OIDC 等协议接入单点登录。本篇讲四类协议接入、Keycloak 角色映射与单点登出、Spring Authorization Server 自建认证中心、Sa-Token SSO，基线为 Spring Boot 4.x / Spring Security 7。
+Spring 应用可通过 LDAP、CAS、SAML2、OIDC 接入单点登录。本篇讲四类协议接入、Keycloak 单点登出、自建授权服务器与 Sa-Token SSO，基线为 Spring Security 7。
 
 ---
 

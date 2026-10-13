@@ -1,12 +1,12 @@
 ---
-description: RT 出现 200ms 台阶、重传率计算、ss -ti 看单连接重传、nstat 与 softnet_stat、tcpdump 抓包、网卡中断集中导致丢包
+description: RT 的 200ms 台阶、重传率、ss -ti、nstat 与 softnet_stat、抓包、网卡中断集中
 ---
 
 # 网络重传与丢包
 
 > 前置阅读：[TCP 与 UDP](/protocols/1_tcp_udp)、[Linux 排查命令速查](/handbook/1_cheatsheet/0_linux)
 
-库存服务的调用耗时偶尔"整齐地"多出 200ms 或 400ms，应用、数据库、GC 都查不出问题。本篇复盘一次由节点网卡中断集中引发的丢包与 TCP 重传，基线为 Linux 内核 6.x、JDK 21 / Spring Boot 4。
+库存服务的调用耗时偶尔"整齐地"多出约 210ms 或 420ms，应用、数据库、GC 都查不出问题。本篇复盘一次由节点网卡中断集中引发的丢包与 TCP 重传，基线为 Linux 6、JDK 21。
 
 ---
 
@@ -38,7 +38,7 @@ description: RT 出现 200ms 台阶、重传率计算、ss -ti 看单连接重�
 
 服务端耗时 18ms、调用方 230ms，差值只能出现在网络、内核协议栈或调用方自身排队上。调用方的 HTTP 连接池没有等待（`pending=0`），GC 正常，先怀疑网络。
 
-慢请求集中在 210ms、420ms 附近很有指向性：Linux 的 TCP 最小重传超时（RTO）是 200ms，丢一次包、超时重传一次就多出约 200ms，连续两次超时 RTO 翻倍，就多出 200 + 400ms 量级。**台阶状的延迟是超时重传的典型特征。**
+慢请求集中在 210ms、420ms 附近很有指向性：Linux 的 TCP 最小重传超时（RTO）是 200ms。一次丢包靠超时重传补回，就多出约一个 RTO（加上约 10ms 的 RTT ≈ 210ms）；一次请求里有两处各自独立丢包、各等一次约 200ms 的 RTO，叠起来约 420ms。要是同一个包连续两次超时，RTO 才会翻倍（200 + 400 ≈ 600ms），正对应这里 P999 的 640ms。**台阶状的延迟是超时重传的典型特征。**
 
 ### 2、看重传率
 
@@ -176,7 +176,7 @@ systemctl is-active irqbalance
 inactive
 ```
 
-网卡有 8 个队列，但中断全部落在 CPU0 上，`irqbalance` 没有运行。
+网卡有 8 个队列，但中断全部落在 CPU0 上（上面输出为省篇幅只保留了前 4 个 CPU 列），`irqbalance` 没有运行。
 
 ---
 
@@ -185,7 +185,7 @@ inactive
 node-07 是 10 月 9 日用新版本节点镜像重建的，新镜像精简时去掉了 `irqbalance`，网卡多队列的中断全部绑在 CPU0 上：
 
 1. 晚高峰收包量上来后，CPU0 的软中断处理不过来（softnet backlog 溢出、time_squeeze 增长）
-2. 内核取包不及时，网卡接收环形缓冲区（默认 512 槽位）被填满，后续包在网卡层被丢弃（`rx_missed_errors`）
+2. 内核取包不及时，网卡接收环形缓冲区（大小取驱动默认值，本机为 512，可用 `ethtool -g eth0` 查看）被填满，后续包在网卡层被丢弃（`rx_missed_errors`）
 3. 丢掉的响应和 ACK 只能靠对端超时重传补回，每次至少 200ms，这就是调用耗时出现 200ms / 400ms 台阶的原因
 
 其他节点用的是老镜像，`irqbalance` 正常运行，所以只有调度到 node-07 的 Pod 受影响。
@@ -266,7 +266,7 @@ sysctl -w net.core.netdev_max_backlog=16384
 
 ## 小结
 
-- 延迟整齐地多出 200ms / 400ms，优先怀疑超时重传：Linux 最小 RTO 是 200ms，每次超时翻倍
+- 延迟整齐地多出约 210ms / 420ms，优先怀疑超时重传：Linux 最小 RTO 是 200ms，一次丢包多出约一个 RTO，一次请求里两处独立丢包就叠成约两个 RTO；同一个包连续超时才会 RTO 翻倍（200 + 400 ≈ 600ms）
 - 重传率 = `TcpRetransSegs` 增量 / `TcpOutSegs` 增量，内网健康值应在 0.1% 以下；先在全体节点上对比，定位到具体节点
 - `ss -ti` 看单连接的 rtt、rto、retrans，`tcpdump` 两端对照确认丢包位置
 - 接收侧丢包分两层：网卡 ring 满看 `ethtool -S` 与 `ip -s link` 的 missed，内核 backlog 满看 `softnet_stat` 第 2 列；中断集中在单核是常见原因

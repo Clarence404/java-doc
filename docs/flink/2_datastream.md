@@ -6,7 +6,7 @@ description: Source API、转换算子、ProcessFunction、定时器、侧输出
 
 > 前置阅读：[Flink 概览](./1_basics)
 
-DataStream 作业的骨架固定为环境、Source、转换、Sink 和 `execute()`，算子代码会被序列化发到 TaskManager 执行。本篇讲 KafkaSource、ProcessFunction 与定时器、异步 I/O、精确一次 KafkaSink 与常见坑，基线为 Flink 2.2。
+DataStream 作业由 Source、转换、Sink 组成，算子代码序列化后发到 TaskManager 执行。本篇讲 KafkaSource、ProcessFunction、异步 I/O 与精确一次 Sink，基线为 Flink 2。
 
 ---
 

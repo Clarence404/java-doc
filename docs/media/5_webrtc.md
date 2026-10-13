@@ -1,5 +1,5 @@
 ---
-description: SDP offer / answer、ICE 与 NAT 穿透、coturn 限时凭证、Spring WebSocket 信令、Mesh / SFU / MCU、WHIP / WHEP
+description: SDP 与 ICE、NAT 穿透与 TURN 凭证、WebSocket 信令、SFU 架构、WHIP / WHEP
 ---
 
 # WebRTC 实时通信

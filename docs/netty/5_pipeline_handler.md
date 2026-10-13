@@ -6,7 +6,7 @@ description: Pipeline 结构与事件传播、三个传播陷阱、动态增删 
 
 > 前置阅读：[Channel 与 EventLoop](./4_channel_eventloop)
 
-每个 Channel 都有一条 ChannelPipeline，读写数据沿它流动，流水线上的工位就是 ChannelHandler，回调默认运行在 Channel 绑定的 EventLoop 线程上。本篇讲 Pipeline 串起 Handler、入站与出站方向、三个传播陷阱、基类选择、生命周期与共享规则。
+每个 Channel 都有一条 ChannelPipeline，读写数据沿它流过各个 Handler。本篇讲出入站方向、三个传播陷阱、基类选择、生命周期与共享规则，基线为 Netty 4.2。
 
 ---
 
@@ -95,6 +95,8 @@ public class AuthHandler extends SimpleChannelInboundHandler<LoginRequest> {
 ## 二、ChannelHandler：流水线上的工位
 
 **Handler 分入站和出站两类；实际开发中几乎不直接实现接口，而是继承 Netty 提供的适配器类。**
+
+Handler 的回调默认运行在 Channel 绑定的 EventLoop 线程上。
 
 ### 1、入站与出站
 

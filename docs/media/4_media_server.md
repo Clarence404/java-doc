@@ -1,5 +1,5 @@
 ---
-description: 流媒体服务器职责、SRS / ZLMediaKit / MediaMTX 选型、HTTP 回调鉴权、DVR 录制归档、源站与边缘集群、监控 API
+description: SRS / ZLMediaKit / MediaMTX 选型、回调鉴权、DVR 录制、源站与边缘集群、监控
 ---
 
 # 流媒体服务器

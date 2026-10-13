@@ -6,7 +6,7 @@ description: Embedding 原理、模型选型、相似度与归一化、维度与
 
 > 前置阅读：[大模型选型](../1_concepts/0_model)
 
-Embedding 把文本映射成向量，是 RAG、语义搜索、推荐去重的地基。本篇讲 Embedding 的意义、模型选型、维度带来的存储与调用成本，以及 Spring AI 与 LangChain4j 接入，代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0。
+Embedding 把文本映射成向量，是 RAG、语义搜索、推荐去重的地基。本篇讲模型选型、维度与成本、Spring AI / LangChain4j 接入，基线为 Spring AI 2 / LangChain4j 1。
 
 ---
 

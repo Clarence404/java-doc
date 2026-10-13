@@ -114,7 +114,7 @@ COMMAND  PID USER   FD   TYPE DEVICE    SIZE/OFF NLINK    NODE NAME
 java    2318  app  187w   REG  253,1 40802189312     0 1572871 /data/logs/app.log (deleted)
 ```
 
-`rm` 只删除了目录项，Java 进程还持有这个文件的句柄，`NLINK` 为 0 但数据块要等句柄关闭才会释放。所以 `du` 统计不到，`df` 却依然是满的。
+`rm` 只删除了目录项，Java 进程还持有句柄，`NLINK` 为 0 但数据块要等句柄关闭才释放，所以 `du` 统计不到、`df` 却依然是满的（→ 原理见 [进程间通信与进程状态](/os/6_ipc_process#四、删除正在写的文件-空间为什么不释放)）。
 
 ---
 

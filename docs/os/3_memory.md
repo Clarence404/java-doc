@@ -1,12 +1,12 @@
 ---
-description: 虚拟内存与页表、缺页与大页、Swap 与 OOM Killer、Page Cache 读写路径、write 与 fsync、脏页回写、mmap、Kafka / RocketMQ 与容器内存
+description: 虚拟内存与缺页、Swap 与 OOM Killer、Page Cache、write 与 fsync、脏页回写、mmap、容器内存
 ---
 
 # 内存管理与 Page Cache
 
 > 前置阅读：[用户态、内核态与系统调用](./2_kernel_mode)
 
-进程看到的内存都是虚拟地址，由内核和 MMU 按页映射到物理内存，文件读写则默认经过内核中的 Page Cache。本篇讲虚拟内存与缺页、Swap、Page Cache 的读写路径、`write` 与 `fsync` 的区别、`mmap`，以及消息队列和容器为什么都绕不开 Page Cache，基线为 Linux 6.x、JDK 21。
+进程看到的都是虚拟地址，由内核按页映射到物理内存，文件读写默认经过 Page Cache。本篇讲虚拟内存与缺页、Swap、Page Cache、`fsync` 与 `mmap`，基线为 Linux 6、JDK 21。
 
 ---
 
@@ -217,7 +217,7 @@ cgroup v2 把容器内进程读写文件产生的 Page Cache 也**计入容器�
 - 进程使用虚拟地址，经页表和 TLB 翻译成物理地址；物理内存在第一次访问时通过缺页异常分配，所以 Java 进程的 VIRT 远大于 RSS
 - 主缺页要读磁盘，代价是毫秒级；`AlwaysPreTouch` 把首次触碰堆页的代价挪到启动时；大页减少 TLB 未命中
 - 内存耗尽时内核的 OOM Killer 直接杀进程，与 JVM 的 `OutOfMemoryError` 不同；Swap 会让 GC 停顿急剧变长，Java 服务应避免换页
-- 普通文件读写都经过 Page Cache：读有命中与预读，写只拷贝进缓存并标记脏页，由 flusher 线程在 30 秒内或脏页超阈值时回写
+- 普通文件读写都经过 Page Cache：读有命中与预读，写只拷贝进缓存并标记脏页，由 flusher 线程在脏页超阈值时回写，或在脏页超过约 30 秒后的下一轮回写（每 5 秒唤醒）中写出，即约 30–35 秒
 - `write` 成功不等于落盘，需要持久化时用 `fsync` / `fdatasync`（`FileChannel.force`），并通过组提交等方式摊薄成本
 - `mmap` 直接访问 Page Cache，省去一次拷贝和逐次系统调用，适合大文件随机读写
 - Kafka、RocketMQ 把缓存交给 Page Cache，因此内存要留给操作系统；容器中的 Page Cache 计入内存用量，监控看 working set
