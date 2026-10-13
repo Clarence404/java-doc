@@ -32,6 +32,8 @@ GraalVM 的通用原理、虚拟线程和 Reactor 在各自模块展开，这里
 - **关注启动速度与资源占用**：重点读 [原生镜像与云原生部署](./3_native)，并对照 [启动与部署优化](/spring-boot/13_startup) 中 Spring Boot 的 CDS、AOT 缓存与原生方案。
 - **做框架选型**：看 [其他 Java 框架](./6_other_frameworks) 的选型对比，以及 [Vert.x 概览](/vertx/1_basics) 中 Vert.x 的定位。
 
+复习时用 [高频面试题](./99_interview) 自测，答案在 [Quarkus 面试题解答](/interview/6_quarkus)。
+
 ---
 
 ## 四、关联模块

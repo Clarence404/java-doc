@@ -90,8 +90,8 @@ export const GROUPS = [
                 ],
             },
             {name: 'Netty', dir: 'netty', interview: ['6_netty'], desc: 'IO 模型 / Reactor / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优'},
-            {name: 'Vert.x', dir: 'vertx', desc: 'Event Loop / Verticle / Event Bus / Web / 响应式数据访问 / 集群'},
-            {name: 'Quarkus', dir: 'quarkus', desc: '构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / Spring 迁移 / 其他框架'},
+            {name: 'Vert.x', dir: 'vertx', interview: ['6_vertx'], desc: 'Event Loop / Verticle / Event Bus / Web / 响应式数据访问 / 集群'},
+            {name: 'Quarkus', dir: 'quarkus', interview: ['6_quarkus'], desc: '构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / Spring 迁移 / 其他框架'},
             {name: 'Flink', dir: 'flink', interview: ['6_flink'], desc: 'DataStream / 时间与窗口 / 状态与容错 / Flink SQL / CDC / 部署调优'},
         ],
     },
@@ -152,8 +152,8 @@ export const GROUPS = [
     {
         name: '研发效能', tagline: '测试工程、DevOps 与工程效率', modules: [
             {name: '测试工程', dir: 'testing', interview: ['20_testing'], desc: '测试分层 / JUnit 6 / Mockito / 集成测试 / TDD / Testcontainers / 契约测试 / 性能测试'},
-            {name: 'DevOps', dir: 'devops', desc: 'Git 工作流 / CI/CD / Code Review / 开发规范 / 发布策略 / 制品与环境'},
-            {name: '工程效率', dir: 'engineering', desc: '构建工具 / 开发工具 / 代码质量 / Arthas 诊断 / 依赖治理 / API 文档与规范'},
+            {name: 'DevOps', dir: 'devops', interview: ['20_devops'], desc: 'Git 工作流 / CI/CD / Code Review / 开发规范 / 发布策略 / 制品与环境'},
+            {name: '工程效率', dir: 'engineering', interview: ['20_devops'], desc: '构建工具 / 开发工具 / 代码质量 / Arthas 诊断 / 依赖治理 / API 文档与规范'},
         ],
     },
     {

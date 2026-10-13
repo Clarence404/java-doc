@@ -31,6 +31,8 @@ Vert.x 在 Netty 之上补齐了 HTTP、路由、响应式数据库客户端、�
 - **做网关、IoT 接入或实时推送**：先读 [Netty 总览](/netty/0_overview) 理解底层，再读 [Event Bus](./3_eventbus) 和 [集群与生产实践](./6_production)。
 - **在 Vert.x 和其他框架之间犹豫**：看 [Vert.x 概览](./1_basics) 的对比与选型一节，再对照 [其他 Java 框架](/quarkus/6_other_frameworks) 的选型表。
 
+复习时用 [高频面试题](./99_interview) 自测，答案在 [Vert.x 面试题解答](/interview/6_vertx)。
+
 ---
 
 ## 四、关联模块

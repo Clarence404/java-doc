@@ -32,6 +32,8 @@ DevOps 把开发和运维放进同一条交付链路，用版本控制、自动�
 6. [环境管理](./6_env_management)：多环境划分与配置注入、Feature Flag、环境数据
 7. [发布策略](./7_release_strategy)：滚动、蓝绿、金丝雀与回滚
 
+复习时用 [高频面试题](./99_interview) 自测，答案在 [研发效能面试题解答](/interview/20_devops)。
+
 ---
 
 ## 三、交付效能度量（DORA）
