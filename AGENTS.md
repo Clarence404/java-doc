@@ -174,7 +174,7 @@ description: 要点一、要点二、要点三
 
 构建时若有文章缺少 `description`，控制台会输出 `[module-nav]` 警告并列出文件。
 
-改完后执行 `npm run docs:build` 确认构建通过。
+改完后执行 `npm run docs:build`，再执行 `npm run docs:check`（SVG 规范、文章规范、站内链接与锚点，脚本在 `scripts/`）；两者都通过才算完成，CI 也会在部署前跑同样的检查，不通过不会部署。
 
 ## 画图规范
 
