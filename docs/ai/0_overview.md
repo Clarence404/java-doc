@@ -16,7 +16,7 @@ AI 模块从 Java 后端视角讲大模型应用开发：选模型、写 Prompt�
 
 | 部分 | 一句话 | 入口 |
 |------|--------|------|
-| 基础概念 | 模型选型与成本估算、Prompt 写法与结构化输出、Function Calling 协议 | [大模型选型](./1_concepts/0_model) |
+| 基础概念 | Token、上下文窗口与采样参数，模型选型与成本估算、Prompt 写法与结构化输出、Function Calling 协议 | [大模型基础概念](./1_concepts/0_llm_basics) |
 | Java 框架 | Spring AI 与 Spring Boot 深度集成；LangChain4j 以 AiServices 声明式接口见长 | [Spring AI](./2_frameworks/0_spring_ai) / [LangChain4j](./2_frameworks/1_langchain4j) |
 | 模型接入 | 本地用 Ollama 跑开源模型，线上直连各家 API | [Ollama](./3_integration/0_ollama) / [API 直接接入](./3_integration/1_api_access) |
 | 核心技术 | Embedding 把文本变成向量，向量库做近似检索，RAG 先检索再生成 | [RAG 检索增强生成](./4_core_tech/2_rag) |
@@ -29,7 +29,7 @@ MCP（Model Context Protocol）由 Anthropic 于 2024 年发起，2025 年 12 �
 
 ## 三、推荐阅读路径
 
-1. 先读基础概念：[大模型选型](./1_concepts/0_model) → [Prompt 工程](./1_concepts/1_prompt) → [Function Calling（工具调用）](./1_concepts/2_function_calling)，后面所有框架和 Agent 都建立在这三篇之上
+1. 先读基础概念：[大模型基础概念](./1_concepts/0_llm_basics) → [大模型选型](./1_concepts/0_model) → [Prompt 工程](./1_concepts/1_prompt) → [Function Calling（工具调用）](./1_concepts/2_function_calling)，后面所有框架和 Agent 都建立在这四篇之上
 2. 选一个框架上手：Spring 技术栈优先 [Spring AI](./2_frameworks/0_spring_ai)，需要声明式 AI 服务或非 Spring 项目看 [LangChain4j](./2_frameworks/1_langchain4j)
 3. 模型接入：开发环境用 [Ollama](./3_integration/0_ollama) 本地跑，生产对接云端见 [API 直接接入](./3_integration/1_api_access)
 4. 私有知识问答：[Embedding 向量化](./4_core_tech/0_embedding) → [向量数据库](./4_core_tech/1_vector_db) → [RAG 检索增强生成](./4_core_tech/2_rag)
