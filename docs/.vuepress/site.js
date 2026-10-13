@@ -149,10 +149,15 @@ export const GROUPS = [
         ],
     },
     {
-        name: '研发效能', tagline: '测试工程、DevOps 与工程效率', modules: [
+        name: '研发效能', tagline: '测试工程、DevOps、工程效率与实战手册', modules: [
             {name: '测试工程', dir: 'testing', interview: ['20_testing'], desc: '测试分层 / JUnit 6 / Mockito / 集成测试 / TDD / Testcontainers / 契约测试 / 性能测试'},
             {name: 'DevOps', dir: 'devops', interview: ['20_devops'], desc: 'Git 工作流 / CI/CD / Code Review / 开发规范 / 发布策略 / 制品与环境'},
             {name: '工程效率', dir: 'engineering', interview: ['20_devops'], desc: '构建工具 / 开发工具 / 代码质量 / Arthas 诊断 / 依赖治理 / API 文档与规范'},
+            {
+                name: '实战手册', dir: 'handbook', interview: ['20_handbook'],
+                desc: '常用命令速查 / 线上故障案例：现象、排查、根因、修复与预防',
+                subdirs: {'1_cheatsheet': '速查表', '2_incidents': '故障案例'},
+            },
         ],
     },
     {

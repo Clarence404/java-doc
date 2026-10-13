@@ -105,7 +105,7 @@ jstack <pid> | grep "java.lang.Thread.State" | sort | uniq -c   # 统计各状�
 | `TIMED_WAITING` | 有超时的等待（`Thread.sleep()` / `wait(long)` / `parkNanos()`） | 一般正常 |
 
 - 单次 dump 只是瞬间快照，**间隔几秒连续抓 3 次**对比，才能区分"一直卡住"和"刚好在执行"
-- 高 CPU 线程定位（`top -H` → 十六进制 TID → 搜索 `nid=0x...`）见 [故障排查](./9_troubleshooting)
+- 高 CPU 线程定位（`top -H` 找到 TID → JDK 18+ 直接搜 `nid=<TID>`，JDK 17 及更早先转十六进制）见 [故障排查](./9_troubleshooting)
 
 ---
 

@@ -101,13 +101,14 @@ asprof -d 30 -f /tmp/cpu.html <pid>   # async-profiler 抓 30 秒 CPU 火焰图
 
 ### Q7：线上 CPU 使用率飙高，如何定位到具体的代码行？
 
-**一句话**：先找到最耗 CPU 的线程，把线程 ID 转成十六进制，到 `jstack` 输出里找对应的 `nid`，栈顶就是热点代码。
+**一句话**：先找到最耗 CPU 的线程，到 `jstack` 输出里按 `nid` 找到它，栈顶就是热点代码。
 
 ```bash
-top -H -p <pid>                          # 找到高 CPU 的线程 ID
-printf "%x\n" <tid>                      # 转十六进制，如 12345 → 3039
-jstack <pid> | grep -A 30 "nid=0x3039"   # 看这个线程在执行什么
+top -H -p <pid>                          # 找到高 CPU 的线程 ID，如 12345
+jstack <pid> | grep -A 30 "nid=12345 "   # JDK 18+ 的 nid 是十进制，直接搜
 ```
+
+- JDK 17 及更早 `nid` 是十六进制，要先 `printf "%x\n" 12345` 转成 `3039` 再搜 `nid=0x3039`
 
 - 用 Arthas 更快：`thread -n 3` 直接列出最忙的 3 个线程和调用栈
 - 一次 `jstack` 只是瞬间快照，连抓 3～5 次，反复出现的才是热点

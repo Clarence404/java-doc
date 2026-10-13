@@ -472,11 +472,11 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 
 ### Q39：如何排查 CPU 100% 问题？
 
-**一句话**：`top` 找进程 → `top -H -p <pid>` 找最忙的线程 → 线程号转十六进制 → 在 jstack 输出里按 `nid` 找到它的调用栈。
+**一句话**：`top` 找进程 → `top -H -p <pid>` 找最忙的线程 → 在 jstack 输出里按 `nid` 找到它的调用栈。
 
 ```bash
-printf "%x\n" <tid>                              # 线程号转十六进制
-jstack <pid> | grep "nid=0x<hex>" -A 30
+jstack <pid> | grep "nid=<tid> " -A 30           # JDK 18+ 的 nid 是十进制
+# JDK 17 及更早先转十六进制：printf "%x\n" <tid>，再搜 "nid=0x<hex>"
 ```
 
 - 常见原因：死循环、自旋、频繁 GC、正则回溯、大量序列化或加解密

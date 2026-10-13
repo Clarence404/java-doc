@@ -262,8 +262,8 @@ HotSpot JVM 在 Linux 上启动时默认会把软限制提升到硬限制（`-XX
 
 ```bash
 top -Hp <pid>                               # 找到 CPU 最高的线程 ID（十进制）
-printf '%x\n' <tid>                         # 转成十六进制，如 3e8
-jstack <pid> | grep -A 20 'nid=0x3e8'       # 在线程栈中找到对应线程
+jstack <pid> | grep -A 20 'nid=1000 '       # JDK 18+ 的 nid 是十进制，直接用线程 ID 搜
+# JDK 17 及更早 nid 是十六进制：printf '%x\n' 1000 → 3e8，再搜 'nid=0x3e8'
 ```
 
 更完整的 JVM 排障流程见 [故障排查](/jvm/9_troubleshooting)，在线诊断工具 Arthas 见 [线上诊断](/engineering/7_diagnosis)。

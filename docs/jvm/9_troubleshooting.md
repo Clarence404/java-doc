@@ -222,14 +222,13 @@ top
 # 2. 找到高 CPU 的线程（-H = 线程模式）
 top -H -p <pid>
 
-# 3. 将线程 TID 转为十六进制
-printf "%x\n" <tid>   # 例：12345 → 3039
-
-# 4. 在 thread dump 中搜索对应的 nid（间隔几秒多抓几次，确认一直在同一处）
+# 3. 在 thread dump 中搜索对应的 nid（间隔几秒多抓几次，确认一直在同一处）
+#    JDK 18 起 nid 以十进制打印，直接用 top 里的 TID 搜索
 jstack <pid> > thread_dump.txt
-grep "nid=0x3039" thread_dump.txt -A 30
+grep "nid=12345 " thread_dump.txt -A 30
+#    JDK 17 及更早 nid 是十六进制，先转换：printf "%x\n" 12345 → 3039，再 grep "nid=0x3039"
 
-# 5. 若高 CPU 线程是 GC 线程（如 "GC Thread#0"、"G1 Conc#0"）→ 查 GC 日志
+# 4. 若高 CPU 线程是 GC 线程（如 "GC Thread#0"、"G1 Conc#0"）→ 查 GC 日志
 grep -E "Pause Full|Pause Young" gc.log | tail -20
 ```
 

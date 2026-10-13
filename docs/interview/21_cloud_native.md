@@ -25,11 +25,11 @@ description: Linux 信号与排查、容器原理与 Java 镜像、Kubernetes �
 
 ### Q2：线上 Java 进程 CPU 飙高，怎么定位到具体代码？
 
-**一句话**：先用 `top -Hp` 找到最吃 CPU 的线程，把线程 ID 转成十六进制，再到 `jstack` 输出里按 `nid` 找到这个线程的调用栈。
+**一句话**：先用 `top -Hp` 找到最吃 CPU 的线程，再到 `jstack` 输出里按 `nid` 找到这个线程的调用栈。
 
 - `top` 或 `ps --sort=-%cpu` 先确认是哪个 Java 进程
 - `top -Hp <pid>`：按线程看 CPU，记下最高的线程 ID（十进制）
-- `printf '%x\n' <tid>` 转十六进制，`jstack <pid> | grep -A 20 'nid=0x...'` 看栈
+- JDK 18+ 的 `nid` 也是十进制，`jstack <pid> | grep -A 20 'nid=<tid> '` 直接看栈；JDK 17 及更早要先 `printf '%x\n' <tid>` 转十六进制
 - 多抓几次栈对比，同一位置反复出现才是热点；常见是死循环、正则回溯、频繁 GC
 - 嫌手工麻烦就用 Arthas 的 `thread -n 3` 一步出结果
 
