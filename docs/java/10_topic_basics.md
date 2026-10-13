@@ -1,12 +1,12 @@
 ---
-description: 分派与重载重写、抽象类与接口、equals / hashCode、clone 与 Cleaner、Integer 缓存
+description: 分派与重写、抽象类与接口、equals / hashCode、Integer 缓存、值传递、BigDecimal 金额
 ---
 
 # 面向对象与 Object
 
 > 前置阅读：[版本演进](./2_version)
 
-面向对象在 Java 里落到分派规则、类型设计和 `Object` 方法的契约上。本篇讲重载与重写、抽象类与接口、equals / hashCode 和自动装箱的坑，基线为 JDK 21 / 25。
+面向对象在 Java 里落到分派规则、类型设计和 `Object` 方法的契约上。本篇讲重载与重写、抽象类与接口、equals / hashCode、自动装箱、值传递和 BigDecimal 金额计算，基线为 JDK 21 / 25。
 
 ---
 
@@ -355,7 +355,7 @@ i1.intValue() == i2.intValue();    // true
 
 - 包装类之间一律用 `equals` 或 `Objects.equals`（可处理 null），不用 `==`；只在测试里 127 以内「碰巧」相等，上线后数值一大就出错
 - `equals` 不会跨类型比较，`Long` 与 `Integer` 永远不相等；跨类型比数值先转成基本类型
-- `BigDecimal` 不要用 `equals` 比数值：`new BigDecimal("1.0").equals(new BigDecimal("1.00"))` 为 false（精度不同），比数值用 `compareTo`
+- `BigDecimal` 不要用 `equals` 比数值：`new BigDecimal("1.0").equals(new BigDecimal("1.00"))` 为 false（精度不同），比数值用 `compareTo`，金额计算的完整注意事项见第八节
 
 ### 4、拆箱 NPE
 
@@ -427,6 +427,124 @@ JDK 16 起这类值对象优先写成 `record`，它自动满足前两条规则�
 
 ---
 
+## 七、值传递
+
+### 1、Java 只有值传递
+
+调用方法时，实参的值被**复制**到新的形参变量里（JLS §8.4.1）。基本类型复制的是数值，引用类型复制的是引用（对象地址），对象本身不复制。所以：
+
+- 通过形参**修改对象的状态**，调用方看得到：两个变量指向同一个对象
+- 给形参**重新赋值**，调用方看不到：只是让副本指向了别处，原变量不受影响
+
+```java
+static void rename(User u) {
+    u.setName("Bob");          // 改的是同一个对象，调用方可见
+    u = new User("Carol");     // 只改了形参这个副本，调用方的 user 仍指向原对象
+}
+
+User user = new User("Alice");
+rename(user);
+System.out.println(user.getName());   // Bob
+```
+
+### 2、swap 为什么写不出来
+
+```java
+static void swap(Integer a, Integer b) {
+    Integer tmp = a;
+    a = b;                     // 只交换了两个形参副本
+    b = tmp;
+}
+
+Integer x = 1, y = 2;
+swap(x, y);
+System.out.println(x + "," + y);   // 1,2，没有交换
+```
+
+C++ 的引用参数（`int&`）能让形参成为实参的别名，Java 没有这种机制。想「交换」只能交换容器里的元素（如 `Collections.swap(list, i, j)`、交换数组下标），或者返回新值让调用方重新赋值。
+
+- `String`、包装类看起来像「传值」，是因为它们**不可变**：方法里无法修改对象本身，只能让形参指向新对象，调用方当然看不到
+- 「引用传递」一词在 Java 里不准确，准确的说法是「按值传递引用」；面试回答时把「复制的是引用」这一点说清楚即可
+
+---
+
+## 八、金额计算与 BigDecimal
+
+### 1、不要用 double 表示金额
+
+`double` 是二进制浮点数，0.1、0.2 这类十进制小数无法精确表示，运算结果带误差：
+
+```java
+System.out.println(0.1 + 0.2);            // 0.30000000000000004
+System.out.println(1.0 - 0.9);            // 0.09999999999999998
+```
+
+单次误差很小，但累加、比较相等、四舍五入时会放大成「对账差一分钱」。金额只有两种正确的表示：`BigDecimal`，或以最小货币单位（分）存的 `long`。
+
+### 2、构造：用 String 或 valueOf
+
+```java
+new BigDecimal(0.1);          // 0.1000000000000000055511151231257827021181583404541015625
+new BigDecimal("0.1");        // 0.1
+BigDecimal.valueOf(0.1);      // 0.1：内部走 Double.toString(0.1)
+BigDecimal.valueOf(0.1f);     // 0.10000000149011612：float 先拓宽成 double，误差已经带进来
+```
+
+- `new BigDecimal(double)` 精确保留了 `double` 的二进制误差，等于把错误原样搬进来
+- 来自接口、数据库、配置的金额本来就是字符串或 `DECIMAL`，直接用 `new BigDecimal(String)`；JDBC 的 `getBigDecimal` 也不经过 `double`
+- 整数分转元用 `BigDecimal.valueOf(fen, 2)` 或 `movePointLeft(2)`，不要先除以 100.0
+
+### 3、比较：compareTo 而不是 equals
+
+`BigDecimal` 由「无标度值 + 标度（scale）」组成，`2.0` 是 20 × 10⁻¹，`2.00` 是 200 × 10⁻²。`equals` 同时比较数值和标度：
+
+```java
+BigDecimal a = new BigDecimal("2.0"), b = new BigDecimal("2.00");
+a.equals(b);                   // false
+a.compareTo(b) == 0;           // true，只比较数值
+a.stripTrailingZeros().equals(b.stripTrailingZeros());   // true
+```
+
+- 判断金额相等、大小一律用 `compareTo`
+- `BigDecimal` 作 `HashMap` / `HashSet` 的 key 时，`2.0` 与 `2.00` 是两个 key；需要按数值去重先 `stripTrailingZeros()`，或改用 `TreeMap`（按 `compareTo` 判等）
+- 单元测试断言用 AssertJ 的 `isEqualByComparingTo`，见 [单元测试](/testing/1_unit_test)
+
+### 4、除法与舍入：显式写出 scale 和 RoundingMode
+
+```java
+BigDecimal total = new BigDecimal("10");
+total.divide(new BigDecimal("3"));                                // ArithmeticException：无限循环小数
+total.divide(new BigDecimal("3"), 2, RoundingMode.HALF_UP);       // 3.33
+new BigDecimal("2.345").setScale(2);                               // ArithmeticException：需要舍入但没给模式
+new BigDecimal("2.345").setScale(2, RoundingMode.HALF_UP);        // 2.35
+new BigDecimal("2.345").setScale(2, RoundingMode.HALF_EVEN);      // 2.34，银行家舍入
+```
+
+| 模式 | 规则 | 适用 |
+|------|------|------|
+| `HALF_UP` | 四舍五入 | 面向用户的价格展示、大多数业务结算 |
+| `HALF_EVEN` | 恰好一半时向偶数舍入 | 大量累加的统计、利息计算，正负误差相互抵消 |
+| `DOWN` / `UP` | 向零截断 / 远离零进位 | 优惠、手续费按合同约定「舍去」或「进位」 |
+| `FLOOR` / `CEILING` | 向负无穷 / 正无穷 | 涉及负数（退款、冲正）时与 `DOWN` / `UP` 结果不同，需按约定选择 |
+
+- 舍入规则是业务规则，写进常量或领域对象，不要散落在各个调用点；多步计算只在最后一步舍入，中间结果保留足够精度
+- 分摊（如订单优惠按商品拆分）各项分别舍入后总和可能差一分，把差额补到最后一项，保证合计与总额一致
+- 输出用 `toPlainString()`，`toString()` 在指数较大时会输出 `1E+3` 这样的科学计数法
+
+### 5、BigDecimal 还是 long 分
+
+| 对比 | `BigDecimal` | `long`（分） |
+|------|-------------|-------------|
+| 精度 | 任意精度，可表示汇率、单价等多位小数 | 只到最小货币单位 |
+| 性能 | 对象运算，较慢、占内存 | 原始类型，快 |
+| 数据库 | `DECIMAL(p,s)` | `BIGINT` |
+| 风险点 | 舍入模式、`equals` | 单位换算错误（元当分）、乘除时的舍入仍要手写 |
+| 适合 | 计价、利率、汇率、财务报表 | 支付、账户余额、库存金额等高频加减 |
+
+常见做法是存储与流转用 `long` 分（支付渠道多以分为单位，见 [支付](/scenario/14_payment)），乘除、折扣、汇率换算时转成 `BigDecimal` 计算，舍入后再转回 `long`（`longValueExact()` 在有小数或溢出时抛异常，比 `longValue()` 安全）。不同币种的最小单位不同，日元没有小数、部分中东货币有 3 位，用 `Currency.getDefaultFractionDigits()` 查询，不要写死 100。领域模型中把金额封装成值对象（金额 + 币种），见 [DDD 领域驱动设计](/architecture/2_ddd)；团队规约见 [开发规范 · 金额](/devops/3_dev_standards#_3、金额)。
+
+---
+
 ## 小结
 
 - 重载在编译期按参数声明类型选定（静态分派），重写在运行期按接收者实际类型选定（动态分派）；`static`、`private`、`final` 方法与字段不参与多态
@@ -435,6 +553,8 @@ JDK 16 起这类值对象优先写成 `record`，它自动满足前两条规则�
 - `clone` 绕过构造器且默认浅拷贝，用拷贝构造器或静态工厂替代；`finalize` 已待移除，资源释放用 try-with-resources，`Cleaner` 只做兜底
 - 包装类之间用 `equals` 比较，`Integer` 默认只缓存 -128 ~ 127；三元运算符、`Map.get` 是拆箱 NPE 的高发点；数值计算用原始类型流
 - 不可变类：`final` 类 + `private final` 字段 + 防御性拷贝；简单值对象优先 `record`
+- Java 只有值传递，引用类型复制的是引用：方法内改对象状态调用方可见，给形参重新赋值不可见，所以写不出 swap
+- 金额不用 `double`：`BigDecimal` 用 `String` 或 `valueOf` 构造，比较用 `compareTo`，除法和 `setScale` 显式给出 `RoundingMode`；高频加减与存储用 `long` 分
 
 ## 参考资料
 
@@ -444,5 +564,8 @@ JDK 16 起这类值对象优先写成 `record`，它自动满足前两条规则�
 - Cleaner API（Java SE 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/ref/Cleaner.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/ref/Cleaner.html)
 - JEP 421 Deprecate Finalization for Removal：[https://openjdk.org/jeps/421](https://openjdk.org/jeps/421)
 - JEP 500 Prepare to Make Final Mean Final：[https://openjdk.org/jeps/500](https://openjdk.org/jeps/500)
+- Java 语言规范 §8.4.1 形式参数：[https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.4.1](https://docs.oracle.com/javase/specs/jls/se21/html/jls-8.html#jls-8.4.1)
+- BigDecimal API（Java SE 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/math/BigDecimal.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/math/BigDecimal.html)
+- RoundingMode API（Java SE 21）：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/math/RoundingMode.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/math/RoundingMode.html)
 
 > 下一篇：[异常体系](./10_topic_exception) —— 受检与非受检异常的设计、finally 与 try-with-resources，以及生产中的异常处理规范。

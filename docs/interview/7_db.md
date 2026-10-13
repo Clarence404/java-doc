@@ -1,5 +1,5 @@
 ---
-description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL、分库分表与迁移扩容、NoSQL、连接池与 CDC
+description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL、分库分表与迁移扩容、NoSQL、连接池与 CDC、MyBatis
 ---
 
 # 数据库面试题解答
@@ -717,3 +717,95 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 **常见坑**：PG 做时间点恢复时忘了创建 `recovery.signal` 文件，数据库会正常启动并忽略所有恢复参数。
 
 → 详见 [数据备份与恢复](/database/5_practice/1_backup_recovery)
+
+## 十一、MyBatis 与 ORM
+
+### Q50：MyBatis 里 `#{}` 和 `${}` 有什么区别？
+
+**一句话**：`#{}` 会变成预编译语句里的 `?` 占位符，参数由 JDBC 绑定，安全；`${}` 是把值原样拼进 SQL 字符串，传什么就执行什么，有 SQL 注入风险。
+
+| 写法 | 实现 | 安全 | 能否用于表名、列名 |
+|------|------|------|-----------------|
+| `#{}` | `PreparedStatement` 的 `?` | 安全 | 不能（会被当成字符串加引号） |
+| `${}` | 字符串替换 | 不安全 | 能，但值必须来自白名单 |
+
+- 默认一律用 `#{}`；`LIKE` 也用 `#{}`，在 SQL 里用 `CONCAT('%', #{kw}, '%')` 拼通配符
+- 动态排序、动态表名只能用 `${}`：把前端传来的字段名映射成代码里写死的列名再传进去
+
+**常见坑**：为了省事写 `'%${kw}%'`，搜索框直接成了注入入口。
+
+→ 详见 [常见漏洞与防护](/security/8_vulnerabilities#_2、参数化查询)
+
+### Q51：MyBatis 插件（Interceptor）是怎么工作的？能拦截哪些对象？
+
+**一句话**：插件本质是 JDK 动态代理。MyBatis 创建四类核心对象时，会让每个插件把目标对象包一层代理，调用到声明过的方法就先进插件逻辑，再决定是否放行。
+
+- 只能拦截四类对象：`Executor`（执行器，管缓存和事务）、`StatementHandler`（操作 JDBC 语句）、`ParameterHandler`（绑参数）、`ResultSetHandler`（映射结果）
+- 用 `@Intercepts` + `@Signature` 声明要拦截哪个接口的哪个方法；目标没实现这个接口就不生成代理
+- 多个插件层层嵌套：后注册的在最外层，最先执行
+- 典型用途：分页、慢 SQL 统计、多租户条件、字段加解密与脱敏
+
+**常见坑**：`Executor.query` 有 4 参数和 6 参数两个重载，只声明一个会漏拦截。
+
+→ 详见 [ORM 框架](/database/3_relational/2_orm_framework#五、插件-interceptor-原理)
+
+### Q52：MyBatis 的一级缓存和二级缓存有什么区别？生产中要开吗？
+
+**一句话**：一级缓存在同一个 `SqlSession` 内生效，默认开启；二级缓存按 Mapper 的 namespace 跨 Session 共享，要在 Mapper 上声明 `<cache/>` 才生效。生产中业务数据一般不开二级缓存，改用 Redis。
+
+| 对比 | 一级缓存 | 二级缓存 |
+|------|---------|---------|
+| 范围 | 同一个 `SqlSession` | 同一个 namespace |
+| 默认 | 开启 | 需声明 `<cache/>` 或 `@CacheNamespace` |
+| 清空时机 | 增删改、提交、回滚、Session 关闭 | 本 namespace 增删改 |
+
+- Spring 中没有事务时每次调用都是新 Session，一级缓存基本不起作用；只有 `@Transactional` 内才共享
+- 二级缓存在事务提交后才对其他 Session 可见；查找顺序是先二级、再一级、最后数据库
+- 二级缓存存在各实例本地内存，多实例部署不一致；多表查询被别的 namespace 更新时也不会失效
+
+**常见坑**：一级缓存命中返回的是同一个对象，修改它会污染后续查询结果。
+
+→ 详见 [ORM 框架](/database/3_relational/2_orm_framework#一、mybatis-缓存)
+
+### Q53：什么是延迟加载？MyBatis 和 Hibernate 分别怎么做？
+
+**一句话**：查主对象时先不查关联对象，返回一个代理，等代码第一次访问关联属性时再发 SQL。好处是不用的关联不查，代价是遍历列表时容易变成 N+1 查询（查 1 次列表，再为每条记录各查 1 次）。
+
+- MyBatis：全局 `lazyLoadingEnabled=true` 开启，只对 `<association>` / `<collection>` 里用 `select` 属性的嵌套查询生效；用 JOIN + 嵌套结果映射时没有延迟可言
+- Hibernate / JPA：用 `FetchType.LAZY` 声明；对一关联默认是 EAGER，建议显式改成 LAZY 再按需 `join fetch`
+- Hibernate 在事务（持久化上下文）关闭后访问懒加载关联会抛 `LazyInitializationException`
+- 列表场景优先一次 JOIN 或批量 `IN (...)` 查询取齐数据，而不是依赖懒加载
+
+**常见坑**：把懒加载代理对象直接交给 Jackson 序列化，要么触发一串额外查询，要么因为代理类的内部字段序列化失败。
+
+→ 详见 [ORM 框架](/database/3_relational/2_orm_framework#_4、关联加载与-n-1)
+
+### Q54：MyBatis 怎么分页？PageHelper 和 MyBatis-Plus 分页的原理是什么？
+
+**一句话**：`RowBounds` 是内存分页，数据库仍返回全部结果，只适合小结果集；生产都用物理分页：插件拦截查询，先执行一条 COUNT，再按数据库方言给原 SQL 追加 `LIMIT`。
+
+- PageHelper：`startPage` 把分页参数放进 `ThreadLocal`，紧接着的第一条查询被拦截器改写，结束后清理
+- MyBatis-Plus：`PaginationInnerInterceptor` 用 jsqlparser 解析 SQL，会优化 COUNT（去掉无用的 `ORDER BY` 和不影响行数的 `LEFT JOIN`）
+- MyBatis-Plus 3.5.9 起要额外引入 `mybatis-plus-jsqlparser`；PageHelper 在 Boot 4 下用 starter 4.x
+- 偏移量很大时 `LIMIT` 依然慢，深分页要改成按上一页最后一个 ID 往后查
+
+**常见坑**：`startPage` 后没有紧跟查询（中途抛异常或走了别的分支），分页参数留在线程里，被这个线程下一次查询误用。
+
+→ 详见 [ORM 框架](/database/3_relational/2_orm_framework#二、分页原理)
+
+### Q55：MyBatis 和 JPA / Hibernate 怎么选？
+
+**一句话**：MyBatis 是「SQL 映射」，SQL 自己写、完全可控；Hibernate 是「对象映射」，操作对象由框架生成 SQL。复杂查询、报表、要 DBA 审 SQL 选 MyBatis；领域模型清晰、以整个聚合为单位读写选 JPA。
+
+| 维度 | MyBatis / MyBatis-Plus | Hibernate / JPA |
+|------|------------------------|-----------------|
+| SQL 控制 | 手写，完全可控 | 自动生成，需要盯着实际 SQL |
+| 复杂查询 | 直接写 SQL | JPQL / Criteria 较繁琐 |
+| 学习曲线 | 平缓 | 陡（实体状态、脏检查、抓取策略） |
+| 换数据库 | SQL 可能要改 | 换方言即可 |
+
+- Hibernate 的核心是持久化上下文：事务内修改托管对象，提交时自动对比并发出 UPDATE（脏检查）
+- 国内项目 MyBatis-Plus 更常见，单表 CRUD 不用写 SQL，复杂查询仍可回到 XML
+- 同一个项目可以混用：简单 CRUD 用 JPA，复杂报表用 MyBatis 或 `JdbcClient`
+
+→ 详见 [ORM 框架](/database/3_relational/2_orm_framework#_6、hibernate-与-mybatis-选型)

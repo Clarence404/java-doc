@@ -1,12 +1,12 @@
 ---
-description: 数据分级与合规、密码哈希、AES-GCM、信封加密与 KMS、Vault、审计日志、字段加密与盲索引、脱敏
+description: 数据分级与合规、密码哈希、AES-GCM、国密、信封加密与 KMS、Vault、审计日志、字段加密与盲索引、脱敏
 ---
 
 # 数据安全
 
 > 前置阅读：[API 安全](./6_api_security)、[HTTPS 与 TLS](/protocols/3_https_tls)
 
-数据安全覆盖数据从采集到删除的整个生命周期。本篇讲数据分级与合规、密码哈希、AES-GCM 与信封加密、审计日志、字段级加密与脱敏，基线为 JDK 21。
+数据安全覆盖数据从采集到删除的整个生命周期。本篇讲数据分级与合规、密码哈希、AES-GCM 与国密、信封加密、审计日志、字段级加密与脱敏，基线为 JDK 21。
 
 ---
 
@@ -152,6 +152,58 @@ public class PasswordConfig {
 - `Argon2PasswordEncoder` 依赖 BouncyCastle，需要引入 `org.bouncycastle:bcprov-jdk18on`；Spring Security 7 另外提供基于 Password4j 的 `Argon2Password4jPasswordEncoder` 等实现，引入 `com.password4j:password4j` 即可使用
 - **平滑升级**：提供一个 `UserDetailsPasswordService` Bean，用户下次登录成功时，如果 `upgradeEncoding` 判断哈希需要升级（算法或参数变了），Spring Security 会用新算法重新哈希并调用它保存，无需强制所有人改密码
 - 参数以单次校验 200～500ms 为目标在生产机型上压测确定；登录接口要配合限流和失败锁定，否则慢哈希会被用来打满 CPU
+
+### 国密算法：SM2 / SM3 / SM4
+
+国密算法是国家密码管理局发布的商用密码算法，已成为国家标准，并进入 ISO/IEC 国际标准。三个最常用的分别对位国际算法：
+
+| 算法 | 类型 | 对位的国际算法 | 关键参数 | 国家标准 |
+|------|------|---------------|---------|---------|
+| SM2 | 椭圆曲线公钥算法：签名、密钥交换、加密 | ECDSA、ECDH、RSA | 256 位曲线 `sm2p256v1` | GB/T 32918 |
+| SM3 | 密码杂凑（哈希） | SHA-256 | 256 位摘要 | GB/T 32905 |
+| SM4 | 分组密码 | AES-128 | 128 位密钥、128 位分组 | GB/T 32907 |
+
+**什么时候必须用**：《密码法》（2020-01-01 施行）要求关键信息基础设施使用商用密码进行保护并开展安全性评估；等保第三级及以上系统、政务云、金融、电力等行业项目，通常要通过依据 GB/T 39786-2021《信息系统密码应用基本要求》的商用密码应用安全性评估（密评）。落到技术上，就是用国密算法替换上面的 AES / SHA-256 / RSA，且密钥最好放在经认证的密码机或密码服务中。面向海外或没有密评要求的系统，继续用 AES-GCM 等国际算法即可。具体适用范围以项目合同和测评机构意见为准。
+
+**Java 中的支持**：OpenJDK 不内置国密算法，常用 Bouncy Castle（`org.bouncycastle:bcprov-jdk18on`）作为 JCA Provider，写法与 AES、ECDSA 基本一致：
+
+```java
+import java.security.*;
+import java.security.spec.ECGenParameterSpec;
+import javax.crypto.*;
+import javax.crypto.spec.GCMParameterSpec;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+Security.addProvider(new BouncyCastleProvider());
+
+// SM3：摘要
+byte[] digest = MessageDigest.getInstance("SM3", "BC").digest(data);
+
+// SM4-GCM：与前文 AES-GCM 的规则相同，12 字节随机 IV、同一密钥下 IV 不重复
+KeyGenerator kg = KeyGenerator.getInstance("SM4", "BC");
+kg.init(128);
+SecretKey sm4Key = kg.generateKey();
+Cipher cipher = Cipher.getInstance("SM4/GCM/NoPadding", "BC");
+cipher.init(Cipher.ENCRYPT_MODE, sm4Key, new GCMParameterSpec(128, iv));
+byte[] ciphertext = cipher.doFinal(plaintext);
+
+// SM2：签名算法 SM3withSM2
+KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC", "BC");
+kpg.initialize(new ECGenParameterSpec("sm2p256v1"));
+KeyPair keyPair = kpg.generateKeyPair();
+Signature signer = Signature.getInstance("SM3withSM2", "BC");
+signer.initSign(keyPair.getPrivate());
+signer.update(data);
+byte[] signature = signer.sign();
+```
+
+对接时最容易出问题的是双方约定不一致：
+
+- **SM2 签名的用户 ID**：签名前要把用户 ID 混入摘要，未指定时默认 `1234567812345678`；对方用了别的 ID，验签必然失败，需要通过 `SM2ParameterSpec` 显式设置
+- **SM2 密文顺序**：标准规定密文按 C1C3C2 排列，Bouncy Castle 底层 `SM2Engine` 的默认顺序是 C1C2C3，与银行、密码机对接前先确认格式，必要时指定 `SM2Engine.Mode.C1C3C2`
+- **SM4 的模式**：与 AES 一样不要用 ECB；`Cipher.getInstance("SM4")` 在 Bouncy Castle 中默认就是 ECB，务必写全 `SM4/GCM/NoPadding`（或 CBC + HMAC-SM3）
+- **SM3 也是快速哈希**：不能直接用来存密码，有国密要求时用 PBKDF2 + HMAC-SM3 等慢哈希方案
+- **传输层**：国密 TLS 有两条路线，国内的 TLCP（GB/T 38636，双证书）和 TLS 1.3 国密套件（RFC 8998）；JDK 自带的 JSSE 两者都不支持，需要腾讯 Kona SM Suite 等第三方实现，或者在网关、负载均衡（如支持国密的 Nginx / Tongsuo）上终止国密 TLS，后端仍走普通 TLS
 
 ---
 
@@ -650,6 +702,7 @@ Logback 的配置方式和结构化日志见 [日志](/spring-boot/9_logging)，
 - 先给数据分级，再按级别决定加密、脱敏、日志和访问控制规则；PIPL 和 GDPR 落到技术上就是最小化采集、加密存储、访问审计、到期删除、支持用户行使权利
 - 密码用 Argon2id（m=19 MiB、t=2、p=1）或 bcrypt，通过 `DelegatingPasswordEncoder` 的 `{id}` 前缀和 `UserDetailsPasswordService` 在登录时平滑升级；快速哈希的问题是太快，不是彩虹表
 - 对称加密用 AES-GCM：每次随机 12 字节 IV、128 位标签，同一密钥下 IV 绝不重复，随机 IV 时每个密钥最多加密约 2^32 条消息；用 AAD 把密文绑定到具体记录
+- 有密评要求的系统用国密替换：SM4 对位 AES、SM3 对位 SHA-256、SM2 对位 ECDSA / RSA；Java 通过 Bouncy Castle 使用，对接前先对齐 SM2 用户 ID、密文顺序（C1C3C2）和 SM4 模式
 - 信封加密：主密钥不出 KMS，数据密钥加密后与密文一起存放，轮换主密钥只需重新加密数据密钥；Vault 自 2023 年起为 BSL 许可，OpenBao 是开源分叉；Spring Cloud Vault 要用 `spring.config.import: vault://`
 - 审计日志单独存储、只追加、可防篡改，来源 IP 只信任可信代理传来的值
 - 字段级加密后用盲索引（独立密钥的 HMAC）做精确查询；接口输出用 Jackson 3 的 `ValueSerializer` 自动脱敏，日志按"源头不打、兜底再遮"处理
@@ -664,6 +717,12 @@ Logback 的配置方式和结构化日志见 [日志](/spring-boot/9_logging)，
 - Spring Security 密码存储：[Password Storage](https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html)
 - Spring Cloud Vault：[Spring Cloud Vault Reference](https://docs.spring.io/spring-cloud-vault/reference/)
 - 信封加密概念：[AWS KMS Concepts - Envelope Encryption](https://docs.aws.amazon.com/kms/latest/developerguide/kms-cryptography.html#enveloping)
+- 国家标准全文公开系统（GB/T 32918 SM2、GB/T 32905 SM3、GB/T 32907 SM4、GB/T 39786）：[https://openstd.samr.gov.cn/](https://openstd.samr.gov.cn/)
+- 国家密码管理局：[https://www.oscca.gov.cn/](https://www.oscca.gov.cn/)
+- 国家法律法规数据库（《密码法》）：[https://flk.npc.gov.cn/](https://flk.npc.gov.cn/)
+- TLS 1.3 国密套件：[RFC 8998 - ShangMi (SM) Cipher Suites for TLS 1.3](https://www.rfc-editor.org/rfc/rfc8998)
+- Bouncy Castle Java 文档：[https://www.bouncycastle.org/documentation/documentation-java/](https://www.bouncycastle.org/documentation/documentation-java/)
+- 腾讯 Kona SM Suite：[https://github.com/Tencent/TencentKonaSMSuite](https://github.com/Tencent/TencentKonaSMSuite)
 - OpenBao：[OpenBao Documentation](https://openbao.org/docs/)
 - Jackson 3 迁移：[Jackson 3.0 Migration Guide](https://github.com/FasterXML/jackson/blob/main/jackson3/MIGRATING_TO_JACKSON_3.md)
 - 《中华人民共和国个人信息保护法》：[中国人大网](http://www.npc.gov.cn/npc/c2/c30834/202108/t20210820_313088.html)

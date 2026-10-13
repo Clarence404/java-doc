@@ -320,6 +320,17 @@ Thread.ofPlatform().start(() -> System.out.println(TRACE_ID.get()));   // req-42
 
 复制只发生在线程创建那一刻。线程池中的线程是预先或第一次提交时创建的，之后复用，后续任务拿到的是**创建线程时**那个请求的值，而不是提交任务时的值。普通 `ThreadLocal` 则根本不会传递到其他线程。
 
+```java
+ExecutorService pool = Executors.newFixedThreadPool(1);
+
+TRACE_ID.set("req-1");
+pool.submit(() -> System.out.println(TRACE_ID.get()));   // req-1：首次提交时创建线程，顺带复制
+TRACE_ID.set("req-2");
+pool.submit(() -> System.out.println(TRACE_ID.get()));   // 仍是 req-1：线程被复用，不会再复制
+```
+
+在 Web 应用里，这意味着 A 用户请求创建的线程会把 A 的上下文带给之后所有复用它的任务，比「拿不到值」更危险。
+
 ### 4、TransmittableThreadLocal（TTL）
 
 阿里开源的 TTL 解决「提交任务时捕获、执行任务时回放、执行完恢复」的问题，适合线程池中传递 TraceId、租户等上下文：
@@ -342,7 +353,15 @@ TRACE_ID.set("req-42");
 pool.submit(() -> System.out.println(TRACE_ID.get()));   // req-42
 ```
 
-只用一种方式即可：包装线程池（上例），或者用 `TtlRunnable.get(task)` 包装单个任务，或者以 Java Agent 方式启动自动增强 JDK 线程池，不要叠加。Spring 体系中也可以用 Micrometer Context Propagation 在 Reactor、`@Async` 之间传递上下文。
+TTL 的核心是在任务包装器里做三步，简称 CRR：
+
+- **捕获（Capture）**：`submit` 时在提交线程里，把所有 TTL 的当前值拍一个快照，存进包装后的任务
+- **回放（Replay）**：工作线程开始执行任务前，先备份自己身上原有的 TTL 值，再把快照设置进去
+- **恢复（Restore）**：任务执行完（含异常）后，把工作线程的 TTL 还原成备份值，不污染下一个任务
+
+和 `InheritableThreadLocal` 的根本区别是传递时机：ITL 绑定在「线程创建」上，TTL 绑定在「任务提交」上，而线程池里真正和请求一一对应的是任务。
+
+只用一种方式即可：包装线程池（上例），或者用 `TtlRunnable.get(task)` 包装单个任务，或者以 Java Agent 方式启动自动增强 JDK 线程池，不要叠加。不想引入 TTL 时，同样的「提交时拷贝、执行后恢复」可以手写：Spring 的 `ThreadPoolTaskExecutor` 设置 `TaskDecorator`，`CompletableFuture` 传入包装过的执行器，见 [CompletableFuture · 上下文传递](./29_topic_completable_future#七、上下文传递)；Spring 体系中还可以用 Micrometer Context Propagation 在 Reactor、`@Async` 之间传递已注册的上下文。
 
 ### 5、ScopedValue（JDK 25）
 
@@ -385,7 +404,7 @@ void handle(Request req) {
 - `wait` 必须在 `while` 循环中调用，状态修改与 `notifyAll` 在同一把锁内；实际项目优先用 JUC 工具类
 - 守护线程不阻止 JVM 退出、`finally` 不保证执行；虚拟线程总是守护线程
 - ThreadLocal 的值存在线程的 `ThreadLocalMap` 中，key 弱引用、value 强引用；线程池中必须在 `finally` 中 `remove()`
-- 跨线程传递：`InheritableThreadLocal` 只在创建线程时复制，线程池用 TTL，JDK 25 的虚拟线程场景用 `ScopedValue`
+- 跨线程传递：`InheritableThreadLocal` 只在创建线程时复制，线程复用后拿到的是旧请求的值；线程池用 TTL 或 `TaskDecorator` 在提交时捕获、执行前回放、执行后恢复；JDK 25 的虚拟线程与结构化并发场景用 `ScopedValue`
 
 ## 参考资料
 

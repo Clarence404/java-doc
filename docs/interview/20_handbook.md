@@ -237,3 +237,125 @@ description: CPU 飙高、OOM 与 Full GC、线程卡死、慢 SQL 与锁表、�
 **常见坑**：业务编号只有普通索引，重复数据被静默写入，直到对账才发现；关键编号要加唯一索引。
 
 → 详见 [时钟回拨导致 ID 重复 · 排查过程](/handbook/2_incidents/17_clock_rollback#三、排查过程)
+
+## 五、进阶排查
+
+### Q17：Load 很高但 CPU 很闲，问题出在哪？
+
+**一句话**：Linux 的 Load 不只数在跑的任务，还数卡在不可中断等待（D 状态）里的任务；CPU 闲而 Load 高，多半是一批线程卡在 IO 上，比如 NFS 不响应。
+
+- `vmstat 1` 看 `b` 列，`ps -eLo stat,wchan` 找 D 状态线程，`/proc/<pid>/task/<tid>/stack` 看卡在内核哪里
+- 卡在本地 IO 的 Java 线程在线程栈里仍显示 `RUNNABLE`，要和系统线程状态对照看
+- `hard` 挂载的 NFS 一卡，所有访问该目录的进程都会进入 D 状态，`df` 也会卡住
+- 修复：访问共享存储放独立线程池并设超时，告警补上 D 状态任务数和 IO 压力（PSI）
+
+**常见坑**：只按「CPU 高」的思路解读 Load 告警，前面十几分钟都在找 CPU 消耗。
+
+→ 详见 [Load 高但 CPU 不高 · 排查过程](/handbook/2_incidents/18_load_high_cpu_low#三、排查过程)
+
+### Q18：发版后 MySQL CPU 打满，怎么找到是哪条 SQL？
+
+**一句话**：先确认是在算而不是在等（没有锁等待、IO 不高、扫描行数暴涨），再从最忙的系统线程或 digest 统计找到头号 SQL，最后对照发版内容找原因。
+
+- `top -H` 找最忙的 mysqld 线程，用 `performance_schema.threads` 的 `THREAD_OS_ID` 对回正在执行的 SQL
+- `events_statements_summary_by_digest` 按总耗时排序，看「检查行数 / 返回行数」和 `SUM_NO_INDEX_USED`
+- `EXPLAIN` 后 `SHOW WARNINGS` 出现 1739 警告，就是参数类型和列类型不一致导致索引失效
+- 止血靠回滚加批量终止该类语句，根治是参数类型与列类型保持一致
+
+**常见坑**：测试库数据量太小，全表扫描也只要 1ms，类型改错了测试照样通过。
+
+→ 详见 [数据库 CPU 被打满 · 排查过程](/handbook/2_incidents/19_db_cpu_full#三、排查过程)
+
+### Q19：磁盘满了，删掉大日志文件后空间为什么没释放？
+
+**一句话**：文件被删了但进程还开着它，inode 和数据块要等最后一个句柄关闭才回收；所以 `df` 显示满、`du` 却统计不到。
+
+- 先用 `df -h` 和 `df -i` 分清是空间满还是 inode 满，再用 `du -x` 逐层找大目录
+- `lsof +L1` 列出已删除仍被占用的文件，通过 `/proc/<pid>/fd/<n>` 清空句柄就能立即释放，不用重启
+- 这次的根源是线上临时调成 DEBUG 后忘了恢复，还打印了上传文件内容
+- 修复：日志设总量上限、日志放独立数据盘，临时调高的日志级别定时自动恢复
+
+**常见坑**：直接 `rm` 正在写的日志，空间不释放；应该用 `truncate -s 0` 或清空句柄。
+
+→ 详见 [磁盘写满 · 排查过程](/handbook/2_incidents/20_disk_full#三、排查过程)
+
+### Q20：Java 进程突然没了，没有 hs_err 也没有 OOM 日志，怎么查？
+
+**一句话**：什么痕迹都不留的退出基本是收到了 SIGKILL，最常见的发送方是内核的 OOM Killer；去 systemd 和内核日志里找证据。
+
+| 退出痕迹 | 大概率原因 |
+|----------|------------|
+| 有 `hs_err_pid*.log` | JVM 自身崩溃 |
+| 有优雅停机日志 | 收到 SIGTERM |
+| 什么都没有 | 收到 SIGKILL |
+
+- `journalctl -u <服务>` 看 systemd 记录的信号，`journalctl -k` / `dmesg` 看 OOM Killer 报告
+- 报告里 `global_oom` 表示整机内存耗尽，`CONSTRAINT_MEMCG` 表示 cgroup 限额；被杀的是占用最大的进程，不一定是肇事者
+- 修复：堆给系统和其他进程留足余量，配置自动拉起、OOM 计数告警和「任务该发生却没发生」告警
+
+→ 详见 [Java 进程突然消失 · 排查过程](/handbook/2_incidents/21_process_killed#三、排查过程)
+
+### Q21：新 Pod 刚上线的几分钟 RT 很高，之后自己好了，为什么？
+
+**一句话**：这是冷启动：热点代码还没被 JIT 编译成机器码、类和连接池按需初始化、本地缓存是空的，实例一就绪就接满流量，前几分钟自然慢。
+
+- 按 Pod 和启动时长拆分 P99，只有新实例慢就是冷启动问题
+- 启动期 JIT 编译线程大量占 CPU，CPU limit 偏小时还会被限流，把问题放大
+- 修复：预热完成再就绪、连接池固定大小并提前建连、缓存预加载，给编译留足 CPU
+- 缩短启动：JDK 21 用 AppCDS，JDK 25 可用 AOT 缓存，训练时带上预热流量效果更好
+
+**常见坑**：为省 CPU 只开 C1（`TieredStopAtLevel=1`），稳态性能会一直打折扣。
+
+→ 详见 [启动后 RT 飙高 · 排查过程](/handbook/2_incidents/22_warmup_rt#三、排查过程)
+
+### Q22：CPU 不高、下游都正常，接口却变慢，会不会是日志的问题？
+
+**一句话**：会。同步日志要先拿到 Appender 的锁再写盘，日志量暴涨把磁盘写满带宽后，请求线程就排队等这把锁，所有接口一起变慢。
+
+- 线程栈里大量线程 `WAITING` 在同一把锁上，顺着锁的持有者找到 Appender
+- `iostat -x` 看日志盘 `%util` 和写等待，确认磁盘是瓶颈
+- 根治靠控量：不打完整报文、不在循环里逐条打、生产 pattern 不采集行号和方法名
+- 普通日志改异步且队列满时丢弃，资金和审计日志单独同步写，保证完整
+
+**常见坑**：异步 Appender 默认队列满时会阻塞，不改丢弃策略照样拖慢接口。
+
+→ 详见 [日志打印拖慢接口 · 排查过程](/handbook/2_incidents/23_log_bottleneck#三、排查过程)
+
+### Q23：调用耗时出现 200ms、400ms 的台阶，怎么排查？
+
+**一句话**：整齐的 200ms 倍数是 TCP 超时重传的签名：Linux 最小重传超时是 200ms，每次超时再翻倍；要查的是丢包，而不是对方接口慢。
+
+- 服务端自身耗时正常、调用方慢，问题在中间的网络
+- 重传率 = `TcpRetransSegs` 增量 / `TcpOutSegs` 增量，各节点对比，先定位到单个节点
+- `ss -ti` 看单连接的 rtt、rto、retrans，两端 `tcpdump` 对照确认在哪一侧丢的包
+- 网卡层丢包看 `ethtool -S` 的 missed，内核层看 `softnet_stat`；这次是新镜像缺了 irqbalance，中断全挤在一个核上
+
+**常见坑**：先去扩容被调用服务，结果毫无作用。
+
+→ 详见 [网络重传与丢包 · 排查过程](/handbook/2_incidents/24_network_retrans#三、排查过程)
+
+### Q24：升级 SDK 后线上报 NoSuchMethodError，怎么定位？
+
+**一句话**：编译时用的依赖版本和运行时加载的不一致，基本是 Maven 传递依赖冲突，低版本的 jar 胜出了。
+
+- 线上用 Arthas `sc -d` 看类来自哪个 jar，`sm` / `jad` 确认方法是否存在；没有 Arthas 就加 `-Xlog:class+load`
+- 构建期用 `mvn dependency:tree -Dverbose` 找被省略的冲突版本
+- Maven 规则：路径最近者优先，深度相同时先声明者优先，所以低版本可能压过高版本
+- 修复用 `dependencyManagement` 统一版本，并用 enforcer 的 `requireUpperBoundDeps` 在构建期拦截
+
+**常见坑**：启动成功、健康检查通过不代表依赖一致，执行到那行代码才会报错。
+
+→ 详见 [依赖冲突导致 NoSuchMethodError · 排查过程](/handbook/2_incidents/25_dependency_conflict#三、排查过程)
+
+### Q25：服务器夜间 CPU 打满，怀疑被植入挖矿程序，怎么处理？
+
+**一句话**：先隔离再取证，查清进程、持久化手段和入侵入口；拿到过 root 的主机不能靠清理恢复信任，要重建并轮换凭据。
+
+- 进程名会伪装成内核线程，看 `/proc/<pid>/exe`、`cwd`、`cmdline` 和父进程；文件被删了也能从 `/proc` 复制样本
+- 持久化要查全：所有用户的 crontab、systemd 单元与定时器、`authorized_keys`
+- 这次的入口是对公网开放、没有认证的 Redis
+- 加固：中间件端口不对公网开放，Redis 用专用无登录用户运行，主机及时打补丁
+
+**常见坑**：直接 `kill -9` 进程就算结束，持久化项还在，整点又被拉起来。
+
+→ 详见 [服务器被植入挖矿程序 · 排查过程](/handbook/2_incidents/26_crypto_mining#三、排查过程)

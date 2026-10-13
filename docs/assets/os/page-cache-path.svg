@@ -1,0 +1,59 @@
+<svg viewBox="0 0 720 384" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <text x="360" y="24" text-anchor="middle" class="title">读写文件经过 Page Cache 的路径（左：写，右：读）</text>
+  <rect x="20" y="44" width="330" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="185" y="68" text-anchor="middle" class="name">用户缓冲区</text>
+  <text x="185" y="90" text-anchor="middle" class="txt">write(buf) 的数据来源</text>
+  <rect x="370" y="44" width="330" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="535" y="68" text-anchor="middle" class="name">用户缓冲区</text>
+  <text x="535" y="90" text-anchor="middle" class="txt">read(buf) 的目的地</text>
+  <line x1="185" y1="104" x2="185" y2="172" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="195" y="134" class="txt">write()：CPU 拷贝进 Page Cache</text>
+  <text x="195" y="152" class="txt">标记为脏页后立即返回</text>
+  <line x1="535" y1="174" x2="535" y2="106" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="545" y="134" class="txt">读命中：直接拷贝给应用</text>
+  <text x="545" y="152" class="note">不访问磁盘</text>
+  <rect x="20" y="174" width="330" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="185" y="198" text-anchor="middle" class="name">Page Cache · 脏页</text>
+  <text x="185" y="220" text-anchor="middle" class="txt">已写入、尚未落盘</text>
+  <rect x="370" y="174" width="330" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="535" y="198" text-anchor="middle" class="name">Page Cache · 干净页</text>
+  <text x="535" y="220" text-anchor="middle" class="txt">与磁盘一致，内存紧张时可直接回收</text>
+  <line x1="185" y1="234" x2="185" y2="302" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="195" y="264" class="txt">后台回写：flusher 线程定期刷</text>
+  <text x="195" y="282" class="txt">fsync：立即同步并等待完成</text>
+  <line x1="535" y1="304" x2="535" y2="236" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="545" y="264" class="txt">读未命中：从磁盘读入</text>
+  <text x="545" y="282" class="note">顺带预读后续的页</text>
+  <rect x="20" y="304" width="330" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="185" y="328" text-anchor="middle" class="name">磁盘</text>
+  <text x="185" y="350" text-anchor="middle" class="txt">脏页写回后才算持久化</text>
+  <rect x="370" y="304" width="330" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="535" y="328" text-anchor="middle" class="name">磁盘</text>
+  <text x="535" y="350" text-anchor="middle" class="txt">文件的持久副本</text>
+</svg>

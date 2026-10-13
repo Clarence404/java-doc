@@ -296,4 +296,4 @@ BFS 模板和双向 BFS 见 [搜索算法](../2_algorithms/0_search)，连通块
 - Java 21 `StringTokenizer` API：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/StringTokenizer.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/StringTokenizer.html)
 - Java 21 `Scanner` API：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Scanner.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Scanner.html)
 
-> 返回：[数据结构与算法总览](../0_overview)
+> 下一篇：[多线程编程题](./2_concurrency_coding)

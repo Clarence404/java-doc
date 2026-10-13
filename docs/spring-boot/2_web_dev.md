@@ -1,12 +1,12 @@
 ---
-description: Web 自动装配、Jackson 3、两条校验路径、ProblemDetail、Filter、CORS、HTTP 客户端
+description: Jackson 3、参数校验、ProblemDetail、Filter、CORS、HTTP 客户端、Tomcat 线程模型
 ---
 
 # Web 开发
 
 > 前置阅读：[MVC](/spring/3_mvc)
 
-Spring Boot 在 Spring MVC 之上提供 Web 自动装配和一套工程默认值。本篇讲 Jackson 3、参数校验、`/error` 与 ProblemDetail、Filter 与 CORS 配置、RestClient 与 HTTP Service Clients。
+Spring Boot 在 Spring MVC 之上提供 Web 自动装配和一套工程默认值。本篇讲 Jackson 3、参数校验、错误响应、Filter 与 CORS、HTTP 客户端和内嵌 Tomcat 线程模型，基线为 Spring Boot 4。
 
 ---
 
@@ -578,6 +578,70 @@ public ProductApi productApi(RestClient.Builder builder) {
 
 ---
 
+## 八、内嵌 Tomcat 线程模型
+
+Boot 4 默认的内嵌容器是 Tomcat 11（另一个选择是 Jetty，Undertow 已移除）。参数的容量估算和压测方法在 [并发参数调优](/high-con/7_concurrency_tuning#二、web-容器参数) 统一讲，这里讲清楚请求在哪些线程之间流转，以及默认值背后的道理。
+
+### 1、一个请求经过的线程
+
+![内嵌 Tomcat（NIO）一个请求经过的线程](../assets/spring-boot/tomcat-thread-model.svg)
+
+| 角色 | 线程名（端口 8080） | 数量 | 职责 |
+|------|-------------------|------|------|
+| Acceptor | `http-nio-8080-Acceptor` | 1 | 从 OS 全连接队列 `accept()` 新连接，交给 Poller；连接数到达 `max-connections` 时暂停 accept |
+| Poller | `http-nio-8080-Poller` | 1 | 用 NIO `Selector` 监听所有连接的可读事件，有数据到达就把连接封装成任务提交给工作线程池 |
+| 工作线程 | `http-nio-8080-exec-N` | `min-spare` ~ `threads.max` | 解析 HTTP、执行 Filter 链、`DispatcherServlet` 与 Controller，直到响应写完 |
+
+这正是 Reactor 的分工：Acceptor 收连接、Selector 分发事件、线程池处理业务（与 Netty 的对比见 [Reactor 模型](/netty/2_reactor)），由此有两个推论：
+
+- **空闲的长连接不占工作线程**：Keep-Alive 连接在两次请求之间回到 Poller 等待，所以 `max-connections`（8192）可以远大于 `threads.max`（200）
+- **业务代码里的阻塞会一直占着工作线程**：查库、调下游、等锁期间，这个线程什么也不干但也不释放。线程 dump 里大量 `exec-N` 停在 socket 读（`NioSocketImpl.read`）或 `HikariPool.getConnection`，说明瓶颈在下游而不在 Tomcat
+
+### 2、默认值与三道闸门
+
+| 属性（Boot 4） | 默认值 | 作用 |
+|---------------|--------|------|
+| `server.tomcat.threads.max` | 200 | 工作线程上限，即同时处理的请求数 |
+| `server.tomcat.threads.min-spare` | 10 | 常驻的最少工作线程 |
+| `server.tomcat.threads.max-queue-capacity` | `Integer.MAX_VALUE` | 线程用满后任务排队的容量 |
+| `server.tomcat.max-connections` | 8192 | 已接收连接的总数上限 |
+| `server.tomcat.accept-count` | 100 | OS 全连接队列长度，实际取 `min(accept-count, somaxconn)` |
+
+请求压力递增时依次触发：工作线程扩到 `threads.max` → 新请求在连接上等待，直到连接数达到 `max-connections` → 新连接停在 OS 队列 → 队列满后客户端连接超时或被拒绝。
+
+Tomcat 的工作线程池与 JDK `ThreadPoolExecutor` 默认行为相反：它用自定义的 `TaskQueue`，线程数没到 `threads.max` 时**先建线程再排队**，适合请求处理这种「宁可多开线程也不要排队」的场景，JDK 线程池的提交流程见 [线程池](/java/28_topic_thread_pool)。
+
+### 3、为什么默认 200 而不是 N + 1
+
+「CPU 核数 + 1」是 **CPU 密集型** 任务的经验值：线程几乎不等待，多开只会增加上下文切换。Web 请求是 **IO 密集型**，大部分时间在等数据库、缓存和下游接口，线程等待时 CPU 是空闲的，需要更多线程才能把 CPU 用起来：
+
+```text
+线程数 ≈ CPU 核数 × (1 + 等待时间 / 计算时间)
+```
+
+8 核机器上，一个请求耗时 50ms、其中只有 5ms 在用 CPU，约 `8 × (1 + 45 / 5) = 80` 个线程就能让 CPU 跑满；等待占比更高的接口需要的更多。200 是一个面向「普通 IO 型 Web 应用」的通用默认值，不是算出来的最优值，调整时注意：
+
+- **按 Little 定律反推**：所需并发 ≈ 目标 QPS × 平均响应时间，例如 2000 QPS × 0.1s = 200
+- **先看下游池**：HikariCP 默认 `maximum-pool-size` 只有 10，200 个工作线程同时查库，190 个会在 `getConnection` 上排队；加大 `threads.max` 前先确认数据库连接池、HTTP 客户端连接池能不能接住
+- **调大不是免费的**：每个平台线程默认栈 1MB（`-Xss`），上千线程既占内存又增加切换开销；线程不够用通常意味着响应时间变长了，先查慢在哪里
+
+### 4、虚拟线程
+
+JDK 21+ 设置 `spring.threads.virtual.enabled=true` 后，Boot 4 把 Tomcat 的执行器换成 `VirtualThreadExecutor`，每个请求一个虚拟线程，线程名变为 `tomcat-handler-N`：
+
+```yaml
+spring:
+  threads:
+    virtual:
+      enabled: true          # Boot 3.2+；Boot 4 中同样适用于 Jetty
+```
+
+- Acceptor 和 Poller 不变，只有工作线程换成虚拟线程；`threads.max`、`min-spare`、`max-queue-capacity` 不再生效
+- `max-connections` 成为容器层唯一的并发闸门，阻塞等待不再占用平台线程，瓶颈直接转移到下游：数据库连接池、对外 HTTP 调用要靠池大小或信号量限流
+- 虚拟线程在 JDK 21–23 中于 `synchronized` 内阻塞会钉住载体线程，JDK 24 起解决；开关影响的组件（`@Async`、`@Scheduled` 等）见 [异步任务与定时任务](./7_async_schedule)，原理见 [虚拟线程](/java/30_topic_virtual_thread)
+
+---
+
 ## 小结
 
 - Boot 4 的 Web starter 是 `spring-boot-starter-webmvc`；定制用 `WebMvcConfigurer`，加 `@EnableWebMvc` 会关掉 Boot 的 MVC 自动配置
@@ -588,6 +652,7 @@ public ProductApi productApi(RestClient.Builder builder) {
 - Filter 用 `@Component` 或 `FilterRegistrationBean` 注册，二选一；相对 Spring Security（-100）的顺序决定它在认证前还是认证后执行
 - CORS 携带凭证时必须用明确的来源白名单，`allowedOriginPatterns("*")` + 凭证等于对所有网站开放
 - 同步调用用 `RestClient`，接口化调用用 HTTP Service Clients（Boot 4 的 `@ImportHttpServices` + `spring.http.serviceclient.*`），`RestTemplate` 在 Framework 7.1 被废弃；所有客户端都要设超时
+- 内嵌 Tomcat：1 个 Acceptor、1 个 Poller、最多 `threads.max`（200）个工作线程；IO 型请求大部分时间在等待，所以默认值远大于 N + 1，调大前先看下游连接池；开启虚拟线程后 `max-connections` 是容器层唯一的闸门
 
 ## 参考资料
 
@@ -596,6 +661,8 @@ public ProductApi productApi(RestClient.Builder builder) {
 - Spring MVC Validation：[https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-validation.html](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-validation.html)
 - CORS：[https://docs.spring.io/spring-framework/reference/web/webmvc-cors.html](https://docs.spring.io/spring-framework/reference/web/webmvc-cors.html)
 - Spring Boot Calling REST Services：[https://docs.spring.io/spring-boot/reference/io/rest-client.html](https://docs.spring.io/spring-boot/reference/io/rest-client.html)
+- Spring Boot Embedded Web Servers：[https://docs.spring.io/spring-boot/how-to/webserver.html](https://docs.spring.io/spring-boot/how-to/webserver.html)
+- Apache Tomcat 11 HTTP Connector 配置：[https://tomcat.apache.org/tomcat-11.0-doc/config/http.html](https://tomcat.apache.org/tomcat-11.0-doc/config/http.html)
 - Framework REST Clients：[https://docs.spring.io/spring-framework/reference/integration/rest-clients.html](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
 
 > 下一篇：[数据访问](./3_data_access) —— 持久化方案选型、JPA 与 MyBatis-Plus 的正确用法、事务装配、多数据源与分页。

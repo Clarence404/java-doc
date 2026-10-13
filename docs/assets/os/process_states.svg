@@ -1,0 +1,66 @@
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .lbl   { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+    <marker id="arr2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto-start-reverse">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="24" text-anchor="middle" class="title">Linux 进程状态转换</text>
+  <rect x="285" y="40" width="150" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="360" y="64" text-anchor="middle" class="name">新建</text>
+  <text x="360" y="84" text-anchor="middle" class="desc">fork() / clone()</text>
+  <line x1="360" y1="100" x2="360" y2="148" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="20" y="150" width="150" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="95" y="174" text-anchor="middle" class="name">S 可中断睡眠</text>
+  <text x="95" y="194" text-anchor="middle" class="desc">可被信号唤醒</text>
+  <rect x="285" y="150" width="150" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="360" y="174" text-anchor="middle" class="name">R 运行 / 就绪</text>
+  <text x="360" y="194" text-anchor="middle" class="desc">在 CPU 上或运行队列中</text>
+  <rect x="550" y="150" width="150" height="60" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="625" y="174" text-anchor="middle" class="name">Z 僵尸</text>
+  <text x="625" y="194" text-anchor="middle" class="desc">只剩 PID 与退出码</text>
+
+  <line x1="172" y1="180" x2="283" y2="180" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr2)"/>
+  <text x="227" y="174" text-anchor="middle" class="lbl">R→S 等待事件</text>
+  <text x="227" y="196" text-anchor="middle" class="lbl">S→R 被唤醒</text>
+  <line x1="435" y1="180" x2="548" y2="180" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="491" y="174" text-anchor="middle" class="lbl">exit()</text>
+
+  <line x1="360" y1="212" x2="360" y2="258" stroke="var(--fg)" stroke-width="1.5" marker-start="url(#arr2)" marker-end="url(#arr2)"/>
+  <text x="352" y="238" text-anchor="end" class="lbl">R→D 等磁盘 IO</text>
+  <text x="368" y="238" class="lbl">D→R IO 完成</text>
+  <line x1="625" y1="210" x2="625" y2="258" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="633" y="238" class="lbl">父进程 wait()</text>
+
+  <rect x="285" y="260" width="150" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="360" y="284" text-anchor="middle" class="name">D 不可中断睡眠</text>
+  <text x="360" y="304" text-anchor="middle" class="desc">信号也无法打断</text>
+  <rect x="550" y="260" width="150" height="60" rx="4" fill="var(--border)" fill-opacity="0.5" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="625" y="284" text-anchor="middle" class="name">被回收</text>
+  <text x="625" y="304" text-anchor="middle" class="desc">进程表项删除，PID 释放</text>
+</svg>

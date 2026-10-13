@@ -1,12 +1,12 @@
 ---
-description: ReAct 循环、记忆隔离、多 Agent 编排、护栏与人工确认、框架实战
+description: ReAct 循环、记忆隔离、多 Agent 编排、护栏与人工确认、上下文工程、Agent Skills、A2A 协议
 ---
 
 # AI Agent 智能体
 
 > 前置阅读：[Function Calling（工具调用）](../1_concepts/2_function_calling)
 
-Agent 让 LLM 作为决策核心循环调用工具、自主完成任务。本篇讲工作流与 Agent 的区别、ReAct 循环、记忆与规划、LangChain4j / Spring AI 实现、多 Agent 编排与工具安全，代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0。
+Agent 让 LLM 作为决策核心循环调用工具、自主完成任务。本篇讲工作流与 Agent 的区别、ReAct 循环、记忆与规划、LangChain4j / Spring AI 实现、多 Agent 编排、工具安全，以及上下文工程、Agent Skills 与 A2A 协议，代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0。
 
 ---
 
@@ -390,6 +390,113 @@ Agent 读取的网页、邮件、文档、工具返回值都可能夹带指令�
 
 ---
 
+## 八、上下文工程
+
+### 1、从提示词到上下文
+
+**上下文工程**（Context Engineering）是 Anthropic 在 2025 年 9 月的工程文章中系统阐述的说法：提示词工程关心「怎么写指令」，上下文工程关心「每一轮推理时，窗口里到底放哪些 Token」。Agent 多轮运行时，窗口里除了系统提示，还有工具定义、示例、对话历史、检索结果、工具返回值和记忆，它们都在争夺同一个窗口。
+
+窗口不是越满越好。上下文越长，模型从中准确找回信息的能力越弱（文章称为 context rot，上下文腐化），每多一个 Token 都在消耗模型有限的注意力。目标是：**用尽量少、信号尽量强的 Token 让模型做对事**。
+
+| 组成 | 常见问题 | 做法 |
+|------|---------|------|
+| 系统提示 | 要么写死成一堆 if-else 规则，要么空泛到没有约束 | 分节组织，从最小版本开始，按实际失败案例补充 |
+| 工具 | 工具太多、职责重叠，模型不知道选哪个 | 每个工具职责单一、参数清楚、返回精简；按场景拆工具集 |
+| 示例 | 罗列大量边界规则 | 几个有代表性的多样示例 |
+| 检索与工具结果 | 一次性塞入全部文档、原样返回大段 JSON | 按需检索，工具只返回模型需要的字段 |
+| 对话历史 | 无限增长 | 窗口截断、压缩摘要 |
+
+### 2、长任务的三种手段
+
+- **按需加载**：上下文里只放轻量的引用（文件路径、查询条件、链接），模型需要时再通过工具读取，而不是一开始全部塞进去；稳定、必需的内容仍然预先放入，两者结合
+- **压缩**（Compaction）：窗口快满时把历史总结成摘要，用摘要开启新的上下文继续；最轻量的做法是清掉早期轮次中已经用过的工具返回值
+- **结构化笔记与子 Agent**：让 Agent 把进度、待办写到窗口外的存储（文件、数据库），需要时再读回；或把探索性子任务交给子 Agent，它在干净的上下文里工作，只把精简结论返回给主 Agent（见第六节第 3 小节）
+
+落到 Java 框架上：对话记忆一律设窗口（Spring AI `MessageWindowChatMemory`，LangChain4j `MessageWindowChatMemory` / `TokenWindowChatMemory`），长会话在窗口之外再做摘要；工具返回值在工具方法里就裁剪好；稳定的系统提示、工具定义放在请求最前面，便于命中 Prompt Caching（见 [API 直接接入](../3_integration/1_api_access#_4、prompt-caching)）。
+
+---
+
+## 九、Agent Skills
+
+### 1、是什么
+
+**Agent Skills** 由 Anthropic 在 2025 年 10 月推出，同年 12 月作为开放规范发布（agentskills.io），目前已被多家编码 Agent 工具采用。一个 Skill 就是一个目录，把某类任务的操作说明、脚本和参考资料打包在一起，Agent 在任务需要时才加载，相当于给 Agent 装上可插拔的「岗位手册」。
+
+```
+pdf-processing/
+├── SKILL.md        必需：YAML 元数据 + Markdown 说明
+├── scripts/        可选：可执行脚本
+├── references/     可选：详细参考文档
+└── assets/         可选：模板、数据文件
+```
+
+```markdown
+---
+name: pdf-processing
+description: 提取 PDF 文本和表格、填写表单、合并文件。处理 PDF 或用户提到表单时使用。
+---
+
+# PDF 处理
+
+1. 提取文本：运行 scripts/extract.py <文件路径>
+2. 填写表单：先读 references/FORMS.md 了解字段格式
+```
+
+规范要求：`name` 必填，只能用小写字母、数字和连字符，最长 64 字符，且与目录名一致；`description` 必填，最长 1024 字符，要同时写清「做什么」和「什么时候用」，Agent 靠它决定是否激活。
+
+### 2、渐进式加载
+
+Skill 的核心设计是分三层按需加载，正好对应上一节的上下文工程：
+
+| 层级 | 内容 | 何时进入上下文 |
+|------|------|---------------|
+| 元数据 | `name` + `description`，约 100 Token | 启动时加载所有 Skill 的元数据 |
+| 说明 | `SKILL.md` 正文（建议 5000 Token 以内、500 行以内） | 判断任务相关、激活该 Skill 时 |
+| 资源 | `scripts/`、`references/`、`assets/` 中的文件 | 执行过程中真正用到时 |
+
+因此装几十个 Skill 也只多占几千 Token。与相关概念的区别：
+
+- **与工具 / MCP**：工具和 MCP 提供「能做什么」（调用接口、读写数据），Skill 提供「怎么做」（流程、规范、经验），Skill 的说明里可以指导模型去调用某些工具
+- **与系统提示**：系统提示每轮都在，Skill 只在需要时加载
+- **与 RAG**：RAG 按语义相似度检索知识片段，Skill 是作者整理好的完整操作流程，由模型按描述选择
+
+在自己的 Java Agent 里实现类似机制并不复杂：启动时扫描 Skill 目录，把所有 `name` + `description` 列进系统提示；再提供一个「加载 Skill」工具，按名称返回 `SKILL.md` 正文，资源文件通过受限目录的读文件工具获取。注意 Skill 里的脚本会被 Agent 执行，第三方 Skill 要像第三方依赖一样审查来源。
+
+---
+
+## 十、A2A 协议与 MCP
+
+### 1、A2A 是什么
+
+**A2A**（Agent2Agent）是让不同团队、不同框架开发的 Agent 互相发现、委派任务、交换结果的开放协议。它由 Google 在 2025 年 4 月发布，同年捐赠给 Linux 基金会，由多家厂商组成的技术指导委员会维护，目前规范为 1.0 版本，官网已宣布加入 Linux 基金会旗下的 Agentic AI Foundation。官方提供 Java SDK（`a2aproject/a2a-java`）。
+
+| 概念 | 说明 |
+|------|------|
+| Agent Card | JSON 格式的「名片」，声明名称、能力（技能）、服务地址、支持的协议绑定和认证方式；默认发布在 `/.well-known/agent-card.json` |
+| Task | 一次委派的工作单元，有唯一 ID 和状态：已提交、处理中、需要输入、需要认证、完成、失败、取消、拒绝 |
+| Message / Part | 一轮交互的消息，由文本、文件或结构化数据片段组成 |
+| Artifact | 任务的产出物，同样由 Part 组成 |
+
+传输上，1.0 定义了 JSON-RPC、gRPC、HTTP+JSON 三种绑定；长任务可以用 SSE 流式推送进度，也可以注册 Webhook 接收推送通知。认证沿用 API Key、OAuth 2.0、OpenID Connect、mTLS 等标准方案，在 Agent Card 中声明。
+
+### 2、与 MCP 的分工
+
+A2A 官方的定位是与 MCP 互补而非替代：**MCP 是 Agent 连接工具和数据，A2A 是 Agent 连接 Agent**。
+
+| 维度 | MCP | A2A |
+|------|-----|-----|
+| 连接对象 | Agent ↔ 工具、数据源 | Agent ↔ Agent |
+| 对方是什么 | 能力明确的函数，输入输出可预期 | 有自主决策能力的黑盒，内部用什么模型和工具不暴露 |
+| 交互形态 | 一次工具调用，通常很快返回 | 有状态的任务，可能持续数小时，中途可能需要补充输入 |
+| 发现方式 | 客户端连接后列出工具 | 读取 Agent Card |
+| 典型场景 | 读数据库、调内部 API、操作文件 | 跨团队、跨公司的 Agent 协作，如采购 Agent 委托供应商的报价 Agent |
+
+一个 Agent 往往两者都用：对内用 MCP 接工具，对外用 A2A 和别的 Agent 协作。判断标准很简单：对方只需要执行确定的操作，就暴露成 MCP 工具；对方需要自己规划、多轮交互、长时间运行，才值得做成 A2A Agent。同一进程内的多 Agent 编排用框架即可（第六节），A2A 解决的是跨服务、跨组织的互通。
+
+调用远程 Agent 时，第七节的安全原则同样适用：对方返回的内容是不可信数据，可能夹带提示注入；委派出去的任务要设超时，认证凭据按 Agent Card 声明的方案走，不要在消息里传递。
+
+---
+
 ## 小结
 
 - 能用工作流就不用 Agent；需要模型自主决定步骤时，从单 Agent + 少量工具开始
@@ -397,6 +504,9 @@ Agent 读取的网页、邮件、文档、工具返回值都可能夹带指令�
 - 记忆必须按会话隔离：LangChain4j 用 `chatMemoryProvider` + `@MemoryId`，Spring AI 用 `CONVERSATION_ID`
 - 多 Agent 优先选链式、路由、并行这类确定性模式，确实需要动态拆分时再用编排者-执行者或 supervisor
 - 护栏四件套：调用上限与超时、工具最小权限、副作用操作人工确认、全链路可观测
+- 上下文工程：窗口是有限资源，用最少的高信号 Token；长任务靠按需加载、压缩、结构化笔记与子 Agent
+- Agent Skills 用「元数据 → 说明 → 资源」三层渐进加载，提供「怎么做」；工具和 MCP 提供「能做什么」
+- MCP 连接 Agent 与工具，A2A 连接 Agent 与 Agent；对方需要自主规划、长时间运行时才用 A2A
 
 工具调用的协议细节只在 Function Calling 篇展开，本篇关注把工具调用组织成「能自主完成任务、又不会失控」的系统。
 
@@ -409,6 +519,10 @@ Agent 读取的网页、邮件、文档、工具返回值都可能夹带指令�
 - Spring AI Chat Memory：[https://docs.spring.io/spring-ai/reference/api/chat-memory.html](https://docs.spring.io/spring-ai/reference/api/chat-memory.html)
 - LangChain4j Tools：[https://docs.langchain4j.dev/tutorials/tools](https://docs.langchain4j.dev/tutorials/tools)
 - LangChain4j Agents（agentic 模块）：[https://docs.langchain4j.dev/tutorials/agents](https://docs.langchain4j.dev/tutorials/agents)
+- Anthropic - Effective context engineering for AI agents：[https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
+- Agent Skills 规范：[https://agentskills.io/specification](https://agentskills.io/specification)
+- A2A 协议规范：[https://a2a-protocol.org/latest/specification/](https://a2a-protocol.org/latest/specification/)
+- A2A Java SDK：[https://github.com/a2aproject/a2a-java](https://github.com/a2aproject/a2a-java)
 - OWASP Top 10 for LLM Applications：[https://genai.owasp.org/llm-top-10/](https://genai.owasp.org/llm-top-10/)
 
 > 下一篇：[MCP 协议](./1_mcp)

@@ -369,3 +369,5 @@ class SnowflakeIdGeneratorTest {
 - InstantSource 接口：[Oracle: InstantSource (Java SE 21)](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/InstantSource.html)
 - 重复键错误码 1062：[MySQL 8.4 Reference Manual: Server Error Message Reference](https://dev.mysql.com/doc/mysql-errors/8.4/en/server-error-reference.html)
 - 雪花算法原始设计：[Twitter Engineering: Announcing Snowflake](https://blog.x.com/engineering/en_us/a/2010/announcing-snowflake)
+
+> 下一篇：[Load 高但 CPU 不高](./18_load_high_cpu_low)

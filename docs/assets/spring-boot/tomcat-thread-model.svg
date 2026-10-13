@@ -1,0 +1,62 @@
+<svg viewBox="0 0 868 214" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+
+  <text x="434" y="24" text-anchor="middle" class="title">内嵌 Tomcat（NIO）一个请求经过的线程</text>
+
+  <rect x="20" y="40" width="140" height="72" rx="6" fill="var(--muted)" fill-opacity="0.10" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="90" y="62" text-anchor="middle" class="name">客户端</text>
+  <text x="90" y="82" text-anchor="middle" class="desc">TCP 三次握手</text>
+  <text x="90" y="98" text-anchor="middle" class="desc">完成后进入队列</text>
+
+  <rect x="192" y="40" width="140" height="72" rx="6" fill="var(--y)" fill-opacity="0.10" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="262" y="62" text-anchor="middle" class="name">OS 全连接队列</text>
+  <text x="262" y="82" text-anchor="middle" class="desc">accept-count = 100</text>
+  <text x="262" y="98" text-anchor="middle" class="desc">受 somaxconn 截断</text>
+
+  <rect x="364" y="40" width="140" height="72" rx="6" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="434" y="62" text-anchor="middle" class="name">Acceptor（1 个线程）</text>
+  <text x="434" y="82" text-anchor="middle" class="desc">accept() 取出连接</text>
+  <text x="434" y="98" text-anchor="middle" class="desc">注册到 Poller</text>
+
+  <rect x="536" y="40" width="140" height="72" rx="6" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="606" y="62" text-anchor="middle" class="name">Poller（1 个线程）</text>
+  <text x="606" y="82" text-anchor="middle" class="desc">Selector 监听可读</text>
+  <text x="606" y="98" text-anchor="middle" class="desc">封装任务交给线程池</text>
+
+  <rect x="708" y="40" width="140" height="72" rx="6" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="778" y="62" text-anchor="middle" class="name">工作线程 exec-N</text>
+  <text x="778" y="82" text-anchor="middle" class="desc">threads.max = 200</text>
+  <text x="778" y="98" text-anchor="middle" class="desc">执行 Filter → Controller</text>
+
+  <line x1="160" y1="76" x2="190" y2="76" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="332" y1="76" x2="362" y2="76" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="504" y1="76" x2="534" y2="76" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="676" y1="76" x2="706" y2="76" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <rect x="364" y="150" width="484" height="44" rx="6" fill="var(--r)" fill-opacity="0.06" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="606" y="177" text-anchor="middle" class="desc">max-connections = 8192：已接收连接的总数上限，满后 Acceptor 暂停 accept</text>
+</svg>

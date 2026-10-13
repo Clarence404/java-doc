@@ -33,6 +33,7 @@ docs/
 ├── microservices/  微服务：概念 / 拆分 / 组件 / 模式
 ├── netty/          IO 模型 / Reactor / 核心组件 / ByteBuf / 编解码与私有协议 / 心跳 / WebSocket / SSE / 生产调优
 ├── observability/  可观测性：日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry
+├── os/             操作系统：进程线程 / 内核态与系统调用 / 内存与 Page Cache / CPU 缓存 / Load / IPC
 ├── patterns/       设计模式（23 种 GoF）
 ├── protocols/      网络协议：TCP/UDP / HTTP / HTTPS 与 TLS / DNS / RPC / 数据库 / 邮件 / 文件
 ├── quarkus/        Quarkus：构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / 其他 Java 框架
@@ -79,6 +80,7 @@ docs/
 | 工程效率 | `docs/engineering/` | 构建工具 / 开发工具 / 代码质量 / 线上诊断 / API 规范 |
 | 实战手册 | `docs/handbook/` | 常用命令速查表 / 线上故障案例 |
 | 可观测性 | `docs/observability/` | 日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry |
+| 操作系统 | `docs/os/` | 进程线程与协程 / 用户态与系统调用 / 内存与 Page Cache / CPU 缓存与伪共享 / Load / 进程间通信 |
 | 网络协议 | `docs/protocols/` | TCP/UDP / HTTP / TLS / DNS / gRPC / 数据库、邮件、文件协议 |
 | 应用安全 | `docs/security/` | 认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任 |
 | IoT | `docs/iot/` | 物联网架构 / 协议 / 开源平台 |
@@ -91,7 +93,7 @@ docs/
 ## 推荐学习路径
 
 ```
-基础层：  Java 特性 → JVM → 数据结构与算法 → 网络协议
+基础层：  Java 特性 → JVM → 数据结构与算法 → 操作系统 → 网络协议
 框架层：  Spring → Spring Boot → Netty → Vert.x → Quarkus
 数据层：  数据库 → 缓存 → 消息队列
 分布式层：分布式理论 → 微服务 → Spring Cloud

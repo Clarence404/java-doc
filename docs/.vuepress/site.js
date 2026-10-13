@@ -38,7 +38,7 @@ export const SUMMARY = {
 
 export const GROUPS = [
     {
-        name: '基础体系', tagline: '语言、运行时、算法与网络，后端的地基', modules: [
+        name: '基础体系', tagline: '语言、运行时、算法、操作系统与网络，后端的地基', modules: [
             {
                 name: 'Java', dir: 'java', interview: ['1_java', '2_concurrent'],
                 desc: '语言机制 / 集合 / IO / 并发（JMM、锁、线程池、CompletableFuture）/ 版本特性',
@@ -63,6 +63,7 @@ export const GROUPS = [
                 desc: '复杂度 / 数据结构 / 基础算法 / 算法技巧 / 刷题实战',
                 subdirs: {'1_data_structures': '数据结构', '2_algorithms': '基础算法', '3_patterns': '算法技巧', '4_practice': '刷题实战'},
             },
+            {name: '操作系统', dir: 'os', interview: ['4_computer_os'], desc: '进程线程与协程 / 用户态与系统调用 / 内存与 Page Cache / CPU 缓存与伪共享 / Load / 进程间通信'},
             {name: '网络协议', dir: 'protocols', interview: ['4_network'], desc: 'TCP/UDP / HTTP / HTTPS 与 TLS / DNS / RPC / 数据库、邮件、文件协议'},
         ],
     },
@@ -139,7 +140,7 @@ export const GROUPS = [
             },
             {name: '系统架构', dir: 'architecture', interview: ['15_architecture'], desc: '架构模式 / DDD / 幂等 / 对象存储 / 权限系统'},
             {
-                name: '业务场景', dir: 'scenario', interview: ['16_scenario'],
+                name: '业务场景', dir: 'scenario', interview: ['16_scenario', '16_scenario_highlights'],
                 desc: '海量数据 / 秒杀 / 订单 / 短链 / 排行榜 / Feed 流 / 搜索 / 红包 / LBS / 商品详情 / 支付 / 优惠券 / IM / 计数 / 扫码登录 / 购物车',
                 sidebar: [
                     {text: '海量数据', from: 1},
