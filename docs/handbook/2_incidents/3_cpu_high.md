@@ -132,8 +132,8 @@ ts=2026-10-12 15:51:07.332; [cost=0.012ms] result=@ArrayList[
 ### 4、本地复现
 
 ```java
-Pattern p = Pattern.compile("^([\\u4e00-\\u9fa5A-Za-z0-9]+[\\s-]?)+$");
-for (int n = 20; n <= 32; n += 4) {
+Pattern p = Pattern.compile("^([\\u4e00-\\u9fa5A-Za-z0-9]+[\\s-]?){1,20}$");
+for (int n = 18; n <= 28; n += 2) {
     String s = "浦".repeat(n) + "＃";              // n 个合法字符 + 1 个非法字符
     long t = System.nanoTime();
     p.matcher(s).matches();
@@ -144,13 +144,15 @@ for (int n = 20; n <= 32; n += 4) {
 示例输出：
 
 ```text
-len=21 cost=38ms
-len=25 cost=611ms
-len=29 cost=9874ms
-len=33 cost=158230ms
+len=19 cost=48ms
+len=21 cost=170ms
+len=23 cost=590ms
+len=25 cost=2110ms
+len=27 cost=7420ms
+len=29 cost=26530ms
 ```
 
-长度每增加 4 个字符耗时约增长 16 倍，61 个字符的地址在理论上需要计算数年，线程等于永久卡死。
+长度每增加 2 个字符耗时约增长 3～4 倍，61 个字符的地址在理论上需要计算数年，线程等于永久卡死。可运行的复现程序见配套仓库 [jvm-lab 的 CpuHighRegex](https://github.com/Clarence404/java-doc-labs/tree/main/jvm-lab)。
 
 ---
 
@@ -159,11 +161,12 @@ len=33 cost=158230ms
 v2.41.0 新增的校验正则：
 
 ```java
-private static final Pattern ADDRESS = Pattern.compile("^([\\u4e00-\\u9fa5A-Za-z0-9]+[\\s-]?)+$");
+private static final Pattern ADDRESS = Pattern.compile("^([\\u4e00-\\u9fa5A-Za-z0-9]+[\\s-]?){1,20}$");
 ```
 
-- 外层 `(...)+` 里套着内层 `[...]+`，分隔符 `[\s-]?` 又是可选的，于是同一段连续汉字可以被切分成任意多种"组"的组合
+- 外层 `(...){1,20}`（「地址最多 20 段」）里套着内层 `[...]+`，分隔符 `[\s-]?` 又是可选的，于是同一段连续汉字可以被切分成任意多种"组"的组合
 - 末尾的 `＃` 让整体匹配必然失败，回溯引擎会把所有切分方式都尝试一遍，组合数随长度指数增长（典型的 ReDoS）
+- 如果外层写成不限次数的 `(...)+`，JDK 9 起 `java.util.regex` 会记住「某位置已经匹配失败」而跳过重复尝试，这个例子不会爆炸；但带上限的 `{m,n}` 不走这项优化，换一种结构的嵌套量词同样会爆炸，不能依赖 JDK 兜底
 - 校验之前没有长度限制，`java.util.regex` 在匹配过程中也不响应线程中断，请求超时后线程仍在计算
 
 ---
