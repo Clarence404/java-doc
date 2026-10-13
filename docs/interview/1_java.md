@@ -51,7 +51,7 @@ description: Lambda 与 Stream、版本特性、异常、String、泛型、反�
 
 **常见坑**：`Function`、`Consumer` 等接口不能抛受检异常，Lambda 内要捕获后包装成非受检异常再抛。
 
-→ 详见 [Lambda、Stream 与注解](/java/1_advanced#_2、底层实现-invokedynamic-lambdametafactory)、[内部类](/java/13_topic_inner_class#七、lambda-与匿名类的区别)
+→ 详见 [Lambda 与 Stream](/java/1_advanced#_2、底层实现-invokedynamic-lambdametafactory)、[内部类](/java/13_topic_inner_class#七、lambda-与匿名类的区别)
 
 ### Q4：Stream 的惰性求值是什么？有状态 / 无状态 / 短路操作有哪些？`Collectors.toMap` 有哪些坑？`Stream.toList()` 与 `Collectors.toList()` 有什么区别？
 
@@ -69,7 +69,7 @@ description: Lambda 与 Stream、版本特性、异常、String、泛型、反�
 
 **常见坑**：`toMap` 遇到重复 key 抛异常，要传第三个参数决定保留哪个；value 为 null 直接 NPE。
 
-→ 详见 [Lambda、Stream 与注解](/java/1_advanced#_1、流水线与惰性求值)
+→ 详见 [Lambda 与 Stream](/java/1_advanced#_1、流水线与惰性求值)
 
 ### Q5：并行流用的是哪个线程池？默认并行度是多少？为什么不能在并行流里做阻塞 IO？
 
@@ -82,7 +82,7 @@ description: Lambda 与 Stream、版本特性、异常、String、泛型、反�
 
 **常见坑**：在并行流的 `forEach` 里往共享的 `ArrayList` 写数据会丢数据，结果要用 `collect` 收集。
 
-→ 详见 [Lambda、Stream 与注解](/java/1_advanced#_6、并行流)
+→ 详见 [Lambda 与 Stream](/java/1_advanced#_6、并行流)
 
 ### Q6：Optional 的正确用法？`orElse` 和 `orElseGet` 有什么区别？
 
@@ -99,7 +99,7 @@ User u = findUser(id).orElseGet(this::createDefault);   // 找不到时才创建
 
 **常见坑**：返回集合的方法直接返回空集合，不要返回 `Optional<List<T>>`。
 
-→ 详见 [Lambda、Stream 与注解](/java/1_advanced#四、optional)
+→ 详见 [Lambda 与 Stream](/java/1_advanced#四、optional)
 
 ### Q7：`@Retention` 三种策略有什么区别？注解处理器的原理是什么？Lombok 为什么特殊，JDK 23 之后为什么可能失效？与 MapStruct 同用要注意什么？
 
@@ -112,7 +112,7 @@ User u = findUser(id).orElseGet(this::createDefault);   // 找不到时才创建
 
 **常见坑**：Lombok 与 MapStruct 同用时，处理器路径要同时写上 `lombok`、`mapstruct-processor`、`lombok-mapstruct-binding`，否则可能生成空映射。
 
-→ 详见 [Lambda、Stream 与注解](/java/1_advanced#_4、注解处理器)、[效率工具库](/java/98_dev_tool#_2、原理与-jdk-兼容性)
+→ 详见 [注解与注解处理器](/java/15_topic_annotation#四、注解处理器)、[效率工具库](/java/98_dev_tool#_2、原理与-jdk-兼容性)
 
 ### Q8：Java 8 → 11 → 17 → 21 升级分别会遇到哪些兼容问题？
 

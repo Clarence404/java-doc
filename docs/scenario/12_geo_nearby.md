@@ -1,5 +1,5 @@
 ---
-description: Redis GEO、过期成员清理、可见性控制、门店同步、司机派单防并发、Geohash 九宫格、位置隐私
+description: Redis GEO、过期成员清理、可见性控制、门店同步、司机派单防并发、Geohash 九宫格、位置隐私、容量估算
 ---
 
 # 附近的人
@@ -10,7 +10,30 @@ description: Redis GEO、过期成员清理、可见性控制、门店同步、�
 
 ---
 
-## 一、技术选型
+## 一、需求与挑战
+
+### 1、功能范围
+
+| 场景 | 要求 |
+|------|------|
+| 附近的人 | 按距离由近到远列出 1 公里内最近活跃的用户，只显示模糊距离 |
+| 附近门店 | 按距离列出半径内营业中的门店，新增、迁址、关店及时生效 |
+| 司机派单 | 从订单附近的空闲司机里选一个，同一个司机不能同时派给两单 |
+
+### 2、挑战
+
+| 挑战 | 说明 |
+|------|------|
+| 高频写入 | 用户、司机持续上报位置，写入量远大于门店这类静态数据 |
+| 过期与不可见 | 离线的人、设置了不可见的人不能出现在结果里，也不能让 key 无限增长 |
+| 派单并发 | 两个订单同时查到同一个空闲司机是常态 |
+| 隐私 | 模糊距离挡不住多点查询的三边定位 |
+
+---
+
+## 二、整体架构
+
+### 1、技术选型
 
 Redis GEO 底层是 ZSet，把经纬度编码成 52 位整数作为 score，ZSet 命令（`ZREM`、`ZSCORE` 等）都能用在 GEO key 上。
 
@@ -21,9 +44,64 @@ Redis GEO 底层是 ZSet，把经纬度编码成 52 位整数作为 score，ZSet
 | Elasticsearch | `geo_point` 字段 + `geo_distance` 过滤与按距离排序 | 附近搜索与全文检索、筛选结合 |
 | PostGIS | PostgreSQL 空间扩展 | 地理围栏、路径分析等复杂 GIS |
 
+### 2、Redis key 设计
+
+三个场景都用 Redis GEO，key 按城市拆分，同城的 key 用哈希标签 `{city}` 落在同一个槽：
+
+| key | 类型 | 用途 |
+|-----|------|------|
+| `nearby:{city}:loc` | GEO | 附近的人：吸附后的位置 |
+| `nearby:{city}:ts` | ZSet | 附近的人：最近上报时间，用于过滤与清理过期成员 |
+| `stores:{city}:loc` | GEO | 门店位置，增量同步 + 每日全量重建 |
+| `drivers:{city}:available` | GEO | 空闲司机位置 |
+| `drivers:{city}:ts` | ZSet | 司机最近心跳，用于下线检测 |
+| `drivers:{city}:status` | Hash | 司机状态，以服务端为准 |
+
 ---
 
-## 二、附近的人
+## 三、Geohash 原理
+
+### 1、编码
+
+Geohash 把经度、纬度区间反复二分，交替取经度位和纬度位，每 5 位编成一个 Base32 字符。字符串越长，格子越小；**前缀相同的点一定落在同一个格子里**，距离不会超过格子大小。
+
+| 长度 | 格子大小（约） |
+|------|--------------|
+| 4 | 39 km × 19.5 km |
+| 5 | 4.9 km × 4.9 km |
+| 6 | 1.2 km × 0.61 km |
+| 7 | 153 m × 153 m |
+| 8 | 38 m × 19 m |
+
+### 2、边界问题
+
+反过来却不成立：**距离很近的两个点，可能分属相邻的两个格子，前缀完全不同**。只按前缀查当前格子，就会漏掉格子边界另一侧的点。
+
+![Geohash 边界问题与九宫格查询](../assets/scenario/geohash-neighbors.svg)
+
+解决办法：
+
+1. 选择格子边长不小于查询半径的精度
+2. 查询中心格和周围 8 个邻居格（九宫格）
+3. 对候选点按实际距离再过滤一次，九宫格的覆盖范围比圆大
+
+在 MySQL、ES 中自己维护 Geohash 列时用得到这一点；Redis 的 `GEOSEARCH` 内部已经做了邻居格搜索与距离过滤。Java 中可以用 geohash-java（Maven 坐标 `ch.hsr:geohash`）计算邻居：
+
+```java
+public List<String> nineCells(double lat, double lng, int precision) {
+    GeoHash center = GeoHash.withCharacterPrecision(lat, lng, precision);
+    List<String> cells = new ArrayList<>(9);
+    cells.add(center.toBase32());
+    for (GeoHash h : center.getAdjacent()) {          // 8 个邻居
+        cells.add(h.toBase32());
+    }
+    return cells;
+}
+```
+
+---
+
+## 四、附近的人
 
 ### 1、命令
 
@@ -48,7 +126,7 @@ public void report(long userId, String city, double lng, double lat) {
     if (visibility.isHidden(userId)) {                 // 设置了不可见：不写入
         return;
     }
-    Point p = Privacy.snap(lng, lat);                  // 先吸附到网格，见第五节
+    Point p = Privacy.snap(lng, lat);                  // 先吸附到网格，见第七节
     String member = String.valueOf(userId);
     redis.executePipelined((RedisCallback<Object>) conn -> {
         conn.geoCommands().geoAdd(bytes("nearby:{" + city + "}:loc"), p, bytes(member));
@@ -125,7 +203,7 @@ return #stale
 
 ---
 
-## 三、附近门店
+## 五、附近门店
 
 门店位置变化少，但会新增、迁址和关店，不能只在应用启动时 `@PostConstruct` 全量加载：每个实例每次启动都重复写一遍，关掉的门店也永远不会删掉。
 
@@ -159,7 +237,7 @@ public List<StoreVO> nearbyStores(String city, double lng, double lat, double ra
 
 ---
 
-## 四、司机派单
+## 六、司机派单
 
 ### 1、状态与位置一起判断
 
@@ -202,7 +280,7 @@ App 崩溃或断网时不会上报「下线」。定时任务按心跳扫描超�
 
 ---
 
-## 五、位置隐私
+## 七、位置隐私
 
 ### 1、对外只给模糊距离
 
@@ -240,45 +318,25 @@ public static Point snap(double lng, double lat) {
 
 ---
 
-## 六、Geohash 原理
+---
 
-### 1、编码
+## 八、容量估算
 
-Geohash 把经度、纬度区间反复二分，交替取经度位和纬度位，每 5 位编成一个 Base32 字符。字符串越长，格子越小；**前缀相同的点一定落在同一个格子里**，距离不会超过格子大小。
+假设附近的人峰值同时在线 **200 万**，在线时每 2 分钟上报一次，人均每天查询 5 次（DAU 1,000 万）；在线司机 50 万，每 5 秒上报一次；门店 50 万家；查询峰值按均值的 5 倍。ZSet / GEO 每个成员按约 80 B（member、score 与跳表开销）估算。
 
-| 长度 | 格子大小（约） |
-|------|--------------|
-| 4 | 39 km × 19.5 km |
-| 5 | 4.9 km × 4.9 km |
-| 6 | 1.2 km × 0.61 km |
-| 7 | 153 m × 153 m |
-| 8 | 38 m × 19 m |
+**附近的人**：
 
-### 2、边界问题
+- 上报：2,000,000 ÷ 120 ≈ 16,667 次/秒，每次一个管道（`GEOADD` + `ZADD`），约 3.3 万次命令/秒
+- 查询：10,000,000 × 5 = 5,000 万次/天，平均约 579 次/秒，峰值约 2,900 次/秒；每次一条 `GEOSEARCH`（多取 100 条）加一次 `ZMSCORE` 和一次可见性批量查询
+- 内存：活跃成员约等于在线人数，每人在 `loc` 和 `ts` 各一个成员，2,000,000 × 2 × 80 B = 320 MB；最大的城市按 20% 算，单个 key 约 40 万成员、32 MB，不算大 key，前提是过期成员按时清理
 
-反过来却不成立：**距离很近的两个点，可能分属相邻的两个格子，前缀完全不同**。只按前缀查当前格子，就会漏掉格子边界另一侧的点。
+**司机派单**：
 
-![Geohash 边界问题与九宫格查询](../assets/scenario/geohash-neighbors.svg)
+- 上报：500,000 ÷ 5 = 10 万次 Lua/秒，分布在各城市的槽上
+- 同城的 key 共用一个槽，假设最大的城市有 10 万在线司机，就是 2 万次 Lua/秒落在同一个分片；假设单分片承担 5 万次 Lua/秒，还有 2.5 倍余量
+- 内存：50 万司机 × 2 个成员 × 80 B ≈ 80 MB，状态 Hash 另计约 50 MB
 
-解决办法：
-
-1. 选择格子边长不小于查询半径的精度
-2. 查询中心格和周围 8 个邻居格（九宫格）
-3. 对候选点按实际距离再过滤一次，九宫格的覆盖范围比圆大
-
-在 MySQL、ES 中自己维护 Geohash 列时用得到这一点；Redis 的 `GEOSEARCH` 内部已经做了邻居格搜索与距离过滤。Java 中可以用 geohash-java（Maven 坐标 `ch.hsr:geohash`）计算邻居：
-
-```java
-public List<String> nineCells(double lat, double lng, int precision) {
-    GeoHash center = GeoHash.withCharacterPrecision(lat, lng, precision);
-    List<String> cells = new ArrayList<>(9);
-    cells.add(center.toBase32());
-    for (GeoHash h : center.getAdjacent()) {          // 8 个邻居
-        cells.add(h.toBase32());
-    }
-    return cells;
-}
-```
+门店 500,000 × 80 B = 40 MB。整体内存不到 1 GB，瓶颈在命令吞吐而不是容量；单分片吞吐以压测为准，估算方法见 [容量评估与规划](/high-con/8_capacity_planning)。
 
 ---
 

@@ -294,7 +294,7 @@ ScopedValue.where(CURRENT_USER, user).run(() -> service.process(request));   // 
 | 饥饿 | 部分线程长期拿不到锁或 CPU | 公平锁、缩短持锁时间 |
 | 线程池饥饿死锁 | 父任务占满线程等子任务，子任务排不上 | 父子任务用不同线程池 |
 
-→ 详见 [故障排查](/jvm/9_troubleshooting#十一、死锁)、[线程池](/java/28_topic_thread_pool#九、常见坑)
+→ 详见 [故障排查](/jvm/9_troubleshooting#十一、死锁)、[线程池](/java/28_topic_thread_pool#八、常见坑)
 
 ---
 

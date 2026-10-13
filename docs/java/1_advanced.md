@@ -1,12 +1,12 @@
 ---
-description: Lambda 实现原理、函数式接口与方法引用、Stream 惰性求值与并行流、Optional、注解与注解处理器
+description: Lambda 实现原理、函数式接口与方法引用、Stream 惰性求值与收集器、并行流、Optional
 ---
 
-# Lambda、Stream 与注解
+# Lambda 与 Stream
 
 > 前置阅读：[Java 总览](./0_overview)
 
-Lambda、Stream 与注解是现代 Java 最常用的语言机制。本篇讲 Lambda 实现原理、函数式接口、Stream 与并行流、Optional、注解处理，基线为 JDK 21。
+Lambda 与 Stream 是现代 Java 最常用的函数式语言机制。本篇讲 Lambda 实现原理、函数式接口、Stream 与并行流、Optional，基线为 JDK 21。
 
 ---
 
@@ -406,121 +406,13 @@ String v2 = cache.get(key).orElseGet(() -> loadFromDb(key));
 
 ## 五、注解
 
-### 1、定义与属性限制
-
-注解（JDK 5）是附加在声明或类型上的元数据，本身不包含行为，需要由编译器、注解处理器或运行时框架读取后才产生作用。
-
-```java
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE})
-public @interface RateLimit {
-    String key() default "";
-    int permitsPerSecond() default 100;
-    TimeUnit unit() default TimeUnit.SECONDS;
-}
-```
-
-属性的限制：
-
-- 类型只能是：基本类型、`String`、`Class`、枚举、其他注解，以及它们的一维数组
-- 值必须是**编译期常量**（字面量、`static final` 常量表达式、枚举常量、类字面量），不能是方法调用结果
-- 默认值不能是 `null`；需要「未设置」语义时用空串、`-1` 或专门的哨兵值
-- 只有一个名为 `value` 的属性时，使用时可省略属性名：`@RateLimit("login")`（前提是该注解声明了 `value`）
-
-### 2、元注解
-
-| 元注解 | 作用 | 要点 |
-|--------|------|------|
-| `@Retention` | 保留到哪个阶段 | `SOURCE`：编译后丢弃（`@Override`、Lombok 注解）；`CLASS`：写入 class 文件但运行时不可见，**这是默认值**；`RUNTIME`：运行时可通过反射读取。自定义注解要被 Spring 等框架读取，必须是 `RUNTIME` |
-| `@Target` | 能标注在哪里 | `TYPE`、`METHOD`、`FIELD`、`PARAMETER` 等；JDK 8 新增 `TYPE_PARAMETER` / `TYPE_USE`（可标注在任何使用类型的位置，如 `List<@NonNull String>`），JDK 9 新增 `MODULE`，JDK 16 新增 `RECORD_COMPONENT` |
-| `@Inherited` | 子类继承父类上的注解 | 只对**类上的注解**、只沿**父类**生效；接口上的注解、方法上的注解都不会被继承 |
-| `@Repeatable` | 同一位置可重复标注（JDK 8） | 需要一个容器注解；读取时用 `getAnnotationsByType`，`getAnnotation` 拿不到重复的注解 |
-| `@Documented` | 出现在 Javadoc 中 | 仅影响文档 |
-
-### 3、运行时读取
-
-```java
-Method method = OrderController.class.getMethod("create", OrderRequest.class);
-RateLimit limit = method.getAnnotation(RateLimit.class);   // RUNTIME 保留才非 null
-if (limit != null) {
-    rateLimiter.acquire(limit.key(), limit.permitsPerSecond());
-}
-```
-
-JDK 的 `getAnnotation` 只看直接标注的注解（加上 `@Inherited` 规则），**不识别元注解组合**：方法上标了 `@GetMapping`，用 `getAnnotation(RequestMapping.class)` 拿到的是 `null`。Spring 通过 `MergedAnnotations` / `AnnotatedElementUtils` 递归解析元注解，并用 `@AliasFor` 把组合注解的属性映射到元注解属性，这才有了 `@RestController`、`@GetMapping` 这类组合注解。业务中用注解驱动横切逻辑（限流、审计、幂等）通常借助切面实现，见 [AOP](/spring/2_aop)。反射 API 本身见 [反射](./15_topic_reflection)。
-
-### 4、注解处理器
-
-注解处理器（JSR 269，`javax.annotation.processing`）在**编译期**运行：javac 解析源码后，按轮次（round）把标注了目标注解的元素交给处理器；处理器生成的新源文件会进入下一轮继续编译，直到没有新文件产生。
-
-```java
-@SupportedAnnotationTypes("com.example.Descriptor")
-public class DescriptorProcessor extends AbstractProcessor {
-
-    @Override
-    public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.latestSupported();     // 不要硬编码 RELEASE_17，否则新 JDK 上会报警告
-    }
-
-    @Override
-    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        for (Element element : roundEnv.getElementsAnnotatedWith(Descriptor.class)) {
-            if (element.getKind() != ElementKind.CLASS) {
-                processingEnv.getMessager().printMessage(
-                    Diagnostic.Kind.ERROR, "@Descriptor 只能标注在类上", element);   // 直接让编译失败
-                continue;
-            }
-            TypeElement type = (TypeElement) element;
-            String pkg = processingEnv.getElementUtils().getPackageOf(type).getQualifiedName().toString();
-            String name = type.getSimpleName() + "Descriptor";
-            try (Writer writer = processingEnv.getFiler()
-                    .createSourceFile(pkg + "." + name, type).openWriter()) {
-                writer.write("package " + pkg + ";\n\n"
-                    + "public final class " + name + " {\n"
-                    + "    public static final String TYPE = \"" + type.getQualifiedName() + "\";\n"
-                    + "}\n");
-            } catch (IOException e) {
-                processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), element);
-            }
-        }
-        return true;
-    }
-}
-```
-
-要点：
-
-- **只能生成新文件，不能修改已有类**。标准处理器（MapStruct、Dagger、AutoValue、Spring 的 `spring-context-indexer` 等）都是「读注解 → 生成新类」
-- **Lombok 是例外**：它借用注解处理器的入口，却直接修改 javac 内部的语法树（AST），往原有类里塞 getter / 构造器。这依赖 javac 的内部 API，所以每个新 JDK 都要等 Lombok 发布适配版本，详见 [效率工具库](./98_dev_tool)
-- **注册方式**：在处理器 jar 的 `META-INF/services/javax.annotation.processing.Processor` 中列出类名（可用 Google AutoService 自动生成）
-- **生成源码**：手写字符串容易出错，可用 JavaPoet。原 `square/javapoet` 已归档，维护中的分支是 `com.palantir.javapoet:javapoet`
-
-**JDK 23 的默认行为变化**：从 JDK 23 起，javac **不再自动运行类路径上发现的注解处理器**，除非显式指定处理器（`-processor`、`--processor-path` / `-processorpath`、`--processor-module-path`）或使用 `-proc:full`。JDK 21 起在隐式运行处理器时会给出提示。升级到 JDK 23+ 后最典型的症状是「Lombok 的 getter 突然找不到」「MapStruct 的实现类没有生成」。正确做法是在构建工具中显式声明处理器路径：
-
-```xml
-<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-compiler-plugin</artifactId>
-    <configuration>
-        <annotationProcessorPaths>
-            <path>
-                <groupId>com.example</groupId>
-                <artifactId>descriptor-processor</artifactId>
-                <version>1.0.0</version>
-            </path>
-        </annotationProcessorPaths>
-    </configuration>
-</plugin>
-```
-
-Gradle 的 `annotationProcessor` 依赖配置本来就走处理器路径，不受影响。Lombok + MapStruct 的完整配置见 [效率工具库](./98_dev_tool)，构建工具本身见 [构建工具](/engineering/1_build_tools)。
+注解的定义、元注解、运行时读取与编译期注解处理器（APT / JSR 269、Lombok、MapStruct）单独成篇，见 [注解与注解处理器](./15_topic_annotation)。
 
 ---
 
 ## 小结
 
-泛型见 [泛型](./14_topic_generics)，反射见 [反射](./15_topic_reflection)，本篇不重复。
+泛型见 [泛型](./14_topic_generics)，注解见 [注解与注解处理器](./15_topic_annotation)，反射见 [反射](./15_topic_reflection)，本篇不重复。
 
 - Lambda 由 javac 脱糖为私有方法 + `invokedynamic`，首次执行时由 `LambdaMetafactory` 生成隐藏类并链接 CallSite；它不是匿名内部类，`this` 指外围实例，不生成 `.class` 文件
 - 捕获的局部变量必须 effectively final；非捕获 Lambda 可复用实例，但规范不保证同一性
@@ -528,7 +420,6 @@ Gradle 的 `annotationProcessor` 依赖配置本来就走处理器路径，不�
 - Stream 惰性、纵向、一次性；操作分无状态、有状态、短路三类；JDK 16+ 用 `toList()` 收集，`toMap` 注意重复 key 和 null 值
 - 并行流跑在 JVM 共享的 commonPool 上（并行度 CPU 核数 − 1，调用线程也参与），只适合大数据量、可均匀拆分、纯 CPU 计算；阻塞 IO 绝不要放进并行流
 - Optional 只做返回值；默认值需要计算时用 `orElseGet`
-- 注解靠元注解定义保留期与位置；JDK 反射不识别元注解组合，Spring 用 `MergedAnnotations` 实现；注解处理器只能生成新文件，Lombok 修改 AST 是特例；JDK 23 起必须显式声明处理器路径
 
 ## 参考资料
 
@@ -536,6 +427,5 @@ Gradle 的 `annotationProcessor` 依赖配置本来就走处理器路径，不�
 - `java.util.stream` 包文档：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/package-summary.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/stream/package-summary.html)
 - `LambdaMetafactory` API：[https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/invoke/LambdaMetafactory.html](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/invoke/LambdaMetafactory.html)
 - JEP 371 Hidden Classes：[https://openjdk.org/jeps/371](https://openjdk.org/jeps/371)
-- javac 文档（`-proc` 与注解处理）：[https://docs.oracle.com/en/java/javase/25/docs/specs/man/javac.html](https://docs.oracle.com/en/java/javase/25/docs/specs/man/javac.html)
 
 > 下一篇：[版本演进](./2_version) —— 从 JDK 8 到 27，按升级路径梳理各版本的关键特性与迁移坑点。

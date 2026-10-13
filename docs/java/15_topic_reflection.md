@@ -4,7 +4,7 @@ description: 成员查找、record / sealed 反射、模块强封装、JEP 416�
 
 # 反射
 
-> 前置阅读：[泛型](./14_topic_generics)
+> 前置阅读：[泛型](./14_topic_generics)、[注解与注解处理器](./15_topic_annotation)
 
 反射是在运行时访问类结构并据此创建实例、读写字段、调用方法的能力。本篇讲核心 API 调用语义、模块系统限制、实现与性能、MethodHandle 取舍。
 

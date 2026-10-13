@@ -1,12 +1,12 @@
 ---
-description: 执行流程、ctl 与 Worker、队列与拒绝策略、异常处理、关闭与监控、定时任务、Fork/Join
+description: 执行流程、ctl 与 Worker、队列与拒绝策略、异常处理、关闭与监控、虚拟线程分工、Spring 线程池
 ---
 
 # 线程池
 
 > 前置阅读：[线程基础](./23_topic_thread_basics)、[集合框架](./21_topic_collection)
 
-线程池解决两件事：**复用**线程以省去创建销毁开销，用有界的线程数和队列给并发**设上限**。本篇讲 `ThreadPoolExecutor` 的执行流程、`ctl` 状态与 `Worker` 复用、生产级线程池的配置 / 异常 / 监控 / 关闭，以及 Fork/Join、虚拟线程与它的分工。
+线程池解决两件事：**复用**线程以省去创建销毁开销，用有界的线程数和队列给并发**设上限**。本篇讲 `ThreadPoolExecutor` 的执行流程、`ctl` 状态与 `Worker` 复用、生产级线程池的配置 / 异常 / 监控 / 关闭，以及虚拟线程与它的分工。
 
 ---
 
@@ -22,7 +22,7 @@ description: 执行流程、ctl 与 Worker、队列与拒绝策略、异常处�
 - `ExecutorService`：增加 `submit`、`invokeAll` / `invokeAny`、`shutdown` 等生命周期方法；JDK 19 起继承 `AutoCloseable`。
 - `AbstractExecutorService`：用 `newTaskFor` 把任务包装成 `FutureTask`，实现了 `submit` 系列方法。
 - `ThreadPoolExecutor`：通用线程池实现；`ScheduledThreadPoolExecutor` 在其基础上支持延迟 / 周期任务。
-- `ForkJoinPool`：同样继承 `AbstractExecutorService`，但用每线程一个双端队列 + 工作窃取，见第六节。
+- `ForkJoinPool`：同样继承 `AbstractExecutorService`，但用每线程一个双端队列 + 工作窃取，见 [Fork/Join 与定时任务](./28_topic_thread_scheduled)。
 
 ### 2、构造参数
 
@@ -524,113 +524,13 @@ void resize(ThreadPoolExecutor pool, int newCore, int newMax) {
 
 ---
 
-## 五、ScheduledThreadPoolExecutor
+## 五、定时任务与 Fork/Join
 
-用于执行**延迟任务**和**周期任务**，是 `Timer` 的替代品。它内部使用按执行时间排序的 `DelayedWorkQueue`（无界），只用核心线程执行，`maximumPoolSize` 不起作用。
-
-```java
-ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2, new NamedThreadFactory("schedule"));
-
-// 延迟 5 秒执行一次
-scheduler.schedule(() -> log.info("延迟任务"), 5, TimeUnit.SECONDS);
-
-// 固定频率：每 10 秒开始一次（以上一次的开始时间计算）
-scheduler.scheduleAtFixedRate(this::syncData, 0, 10, TimeUnit.SECONDS);
-
-// 固定延迟：上一次结束后再等 10 秒
-scheduler.scheduleWithFixedDelay(this::cleanCache, 0, 10, TimeUnit.SECONDS);
-```
-
-| | `scheduleAtFixedRate` | `scheduleWithFixedDelay` |
-|--|-----------------------|--------------------------|
-| 间隔计算 | 上一次**开始**到下一次开始 | 上一次**结束**到下一次开始 |
-| 执行耗时超过周期时 | 下一次在上一次结束后**立即**开始，不会并发执行 | 不受影响，始终保持固定间隔 |
-| 适用 | 心跳、固定频率采样 | 轮询、清理等需要稳定间隔的任务 |
-
-::: warning 周期任务抛异常会"静默停止"
-周期任务一旦抛出未捕获的异常，**后续调度全部取消**，而且不会有任何日志（异常被保存在返回的 `ScheduledFuture` 中）。周期任务体内务必 try-catch：
-```java
-scheduler.scheduleAtFixedRate(() -> {
-    try {
-        syncData();
-    } catch (Exception e) {
-        log.error("同步任务失败", e);
-    }
-}, 0, 10, TimeUnit.SECONDS);
-```
-:::
-
-| | `Timer` | `ScheduledThreadPoolExecutor` |
-|--|---------|-------------------------------|
-| 线程数 | 单线程，一个任务慢会拖累所有任务 | 可配置多线程 |
-| 异常影响 | 任一任务抛异常，**整个 Timer 终止** | 只影响该任务自身 |
-| 时间基准 | `System.currentTimeMillis`，改系统时钟会受影响 | `System.nanoTime` 相对时间 |
-
-集群环境下的分布式定时任务见 [分布式调度](/distributed/6_job_scheduler)。
+`ScheduledThreadPoolExecutor`（延迟 / 周期任务，`Timer` 的替代品）与 `ForkJoinPool`（工作窃取、递归分治、`commonPool` 的共享风险）单独成篇，见 [Fork/Join 与定时任务](./28_topic_thread_scheduled)。
 
 ---
 
-## 六、Fork/Join
-
-### 1、工作窃取
-
-Fork/Join 框架用于**递归分治**任务。每个工作线程有自己的双端队列：自己 `fork` 出的子任务从 top 端压入、弹出（LIFO，缓存局部性好）；空闲线程从别人队列的 base 端**窃取**（FIFO，偷到的是最早 fork、粒度最大的任务），两端操作，竞争很小。
-
-![Fork/Join 工作窃取](../assets/java/forkjoin_work_stealing.svg)
-
-```java
-public class SumTask extends RecursiveTask<Long> {
-    private static final int THRESHOLD = 1000;
-    private final long[] arr;
-    private final int start, end;
-
-    public SumTask(long[] arr, int start, int end) {
-        this.arr = arr;
-        this.start = start;
-        this.end = end;
-    }
-
-    @Override
-    protected Long compute() {
-        if (end - start <= THRESHOLD) {
-            long sum = 0;                  // 任务足够小，直接计算
-            for (int i = start; i < end; i++) sum += arr[i];
-            return sum;
-        }
-        int mid = (start + end) >>> 1;     // 拆分任务
-        SumTask left = new SumTask(arr, start, mid);
-        SumTask right = new SumTask(arr, mid, end);
-        left.fork();                       // 左半部分压入自己的队列，可能被别人窃取
-        return right.compute()             // 当前线程直接算右半部分
-             + left.join();                // 等待左半部分；等待期间会帮忙执行其他任务
-    }
-}
-
-long result = ForkJoinPool.commonPool().invoke(new SumTask(arr, 0, arr.length));
-```
-
-`parallelStream` 与不传执行器的 `CompletableFuture.xxxAsync` 默认都使用 `ForkJoinPool.commonPool()`。
-
-### 2、ForkJoinPool vs ThreadPoolExecutor
-
-| | `ForkJoinPool` | `ThreadPoolExecutor` |
-|--|----------------|----------------------|
-| 任务队列 | 每个线程一个双端队列 + 工作窃取 | 所有线程共享一个阻塞队列 |
-| 适合的任务 | 可递归拆分的 CPU 密集型计算 | 相互独立的业务任务，包括 IO 密集型 |
-| 任务间关系 | 父任务 `join` 等待子任务，等待时线程会去执行其他任务 | 任务之间最好没有依赖，否则可能饥饿死锁 |
-| 默认并行度 | `commonPool` 为 CPU 核数 − 1（至少 1） | 由构造参数决定 |
-
-::: warning commonPool 是全 JVM 共享的
-`parallelStream`、不传执行器的 `CompletableFuture.xxxAsync` 都在用它。在里面执行阻塞 IO，会拖慢整个应用的并行计算，IO 任务请使用独立的线程池。
-
-它的并行度来自 `Runtime.availableProcessors()`，容器里取的是 cgroup 的 CPU 限额：限额 1～2 核时 `commonPool` 并行度只有 1（此时 `CompletableFuture` 甚至会退化为每任务新建线程，见 [CompletableFuture](./29_topic_completable_future)）。可以用 `-XX:ActiveProcessorCount` 或 `-Djava.util.concurrent.ForkJoinPool.common.parallelism` 调整，容器 CPU 感知见 [JVM 层性能策略](/high-perf/5_jvm_tuning)。
-:::
-
-JDK 21 的虚拟线程调度器也是一个 `ForkJoinPool`，但它是**独立实例**，与 `commonPool` 互不影响。
-
----
-
-## 七、虚拟线程与线程池（JDK 21+）
+## 六、虚拟线程与线程池（JDK 21+）
 
 虚拟线程把"线程"从稀缺资源变成了廉价对象，它和线程池的分工可以概括为：
 
@@ -642,7 +542,7 @@ JDK 21 的虚拟线程调度器也是一个 `ForkJoinPool`，但它是**独立�
 
 ---
 
-## 八、Spring 中的线程池
+## 七、Spring 中的线程池
 
 | 组件 | 说明 |
 |------|------|
@@ -679,7 +579,7 @@ private static void setOrClear(Map<String, String> context) {
 
 ---
 
-## 九、常见坑
+## 八、常见坑
 
 | 坑 | 现象 | 解决 |
 |----|------|------|
@@ -720,7 +620,7 @@ for (int i = 0; i < 2; i++) {
 - `submit` 的异常藏在 `Future` 里，用任务内 try-catch 或 `afterExecute` 兜底；周期任务抛异常会静默停止
 - 关闭用 `shutdown` + `awaitTermination` + `shutdownNow` 三步；`shutdownNow` 只发中断信号
 - 动态调参注意 core / max 的先后顺序，队列容量不能改
-- `commonPool` 全局共享且并行度受容器 CPU 限额影响，阻塞 IO 不要放进去；虚拟线程不池化，限流改用 `Semaphore`
+- 虚拟线程不池化，限流改用 `Semaphore`；定时任务与 Fork/Join（含 `commonPool` 的共享风险）见 [Fork/Join 与定时任务](./28_topic_thread_scheduled)
 - Spring 中显式指定 `@Async` 执行器，`TaskDecorator` 传 MDC 时恢复原上下文而不是清空
 
 ## 参考资料
@@ -730,4 +630,4 @@ for (int i = 0; i < 2; i++) {
 - [程序员老猫 - 背会了常见的几个线程池用法，结果被问翻](https://mp.weixin.qq.com/s/xWbSPHJG_TztJpM4Pv9knw)
 - [程序员追风 - 线程池灵魂 8 连问](https://mp.weixin.qq.com/s/7ub5RhxfuklzYsa84tGAzQ)
 
-> 下一篇：[CompletableFuture](./29_topic_completable_future) —— 在线程池之上编排异步任务：回调线程、组合、异常传播与超时。
+> 下一篇：[Fork/Join 与定时任务](./28_topic_thread_scheduled) —— ThreadPoolExecutor 之外的两种执行器：延迟 / 周期调度与工作窃取的分治计算。

@@ -4,7 +4,7 @@ description: JDK 8 到 27 关键特性、预览到正式的演进、移除与废
 
 # 版本演进
 
-> 前置阅读：[Lambda、Stream 与注解](./1_advanced)
+> 前置阅读：[Lambda 与 Stream](./1_advanced)
 
 Java 自 JDK 10 起每六个月发一个版本、每两年定一个 LTS。本篇讲 8 → 11 → 17 → 21 → 25 → 26/27 的关键特性、预览与正式之分、兼容性坑和选型，基线为 JDK 21 / 25。
 
@@ -22,13 +22,13 @@ Java 8（2014）引入了函数式编程，是迄今影响最大的一次语言�
 
 | 特性 | 说明 | 详见 |
 |------|------|------|
-| Lambda / 方法引用 / 函数式接口 | `invokedynamic` 实现，非匿名内部类 | [Lambda、Stream 与注解](./1_advanced) |
-| Stream API / Optional | 声明式集合处理、返回值空语义 | [Lambda、Stream 与注解](./1_advanced) |
+| Lambda / 方法引用 / 函数式接口 | `invokedynamic` 实现，非匿名内部类 | [Lambda 与 Stream](./1_advanced) |
+| Stream API / Optional | 声明式集合处理、返回值空语义 | [Lambda 与 Stream](./1_advanced) |
 | `java.time` | 不可变、线程安全，替代 `Date` / `Calendar` / `SimpleDateFormat` | [日期与时间](./17_topic_time) |
 | 接口 `default` / `static` 方法 | 接口可演进而不破坏实现类 | — |
 | `CompletableFuture` | 可组合的异步编程 | [CompletableFuture](./29_topic_completable_future) |
 | 元空间替代永久代 | 类元数据移到本地内存，`-XX:MaxMetaspaceSize` | [内存结构](/jvm/1_memory) |
-| 重复注解、类型注解 | `@Repeatable`、`TYPE_USE` | [Lambda、Stream 与注解](./1_advanced) |
+| 重复注解、类型注解 | `@Repeatable`、`TYPE_USE` | [注解与注解处理器](./15_topic_annotation) |
 
 ```java
 interface Greeting {
@@ -198,7 +198,7 @@ public non-sealed class BankTransfer implements Payment {}   // 允许继续扩�
 ### 6、其他常用改进
 
 - **有帮助的 NullPointerException**（Java 14 引入，JEP 358；Java 15 起默认开启）：异常信息直接指出哪个变量为 null，如 `Cannot invoke "String.length()" because "user.name" is null`
-- **`Stream.toList()`**（Java 16）：返回不可修改列表，见 [Lambda、Stream 与注解](./1_advanced)
+- **`Stream.toList()`**（Java 16）：返回不可修改列表，见 [Lambda 与 Stream](./1_advanced)
 - **ZGC、Shenandoah 转为正式**（Java 15）
 - **隐藏类**（Java 15，JEP 371）：Lambda 与动态代理生成的类改用它定义
 
@@ -307,7 +307,7 @@ lru.putFirst("k", 1);
 | Markdown 文档注释 `///` | 23 / JEP 467 | 正式 |
 | ZGC 默认分代模式 | 23 / JEP 474 | 正式 |
 | `sun.misc.Unsafe` 内存访问方法弃用 | 23 / JEP 471 | 弃用；24 起使用时打印警告（JEP 498） |
-| javac 默认不再运行类路径上的注解处理器 | 23 | 需显式声明处理器路径，见 [Lambda、Stream 与注解](./1_advanced) |
+| javac 默认不再运行类路径上的注解处理器 | 23 | 需显式声明处理器路径，见 [注解与注解处理器](./15_topic_annotation#四、注解处理器) |
 | Stream Gatherers | 24 / JEP 485 | 正式（22、23 预览） |
 | Class-File API | 24 / JEP 484 | 正式，替代 ASM 解析 / 生成字节码 |
 | AOT 类加载与链接 | 24 / JEP 483 | 正式（`-XX:AOTCache`），缩短启动时间 |
@@ -354,7 +354,7 @@ try (Arena arena = Arena.ofConfined()) {
 }
 ```
 
-`Gatherers.mapConcurrent` 是「对一批 IO 调用做有上限的并发」的标准库方案，比在并行流里做 IO 安全得多（并行流的问题见 [Lambda、Stream 与注解](./1_advanced)）。
+`Gatherers.mapConcurrent` 是「对一批 IO 调用做有上限的并发」的标准库方案，比在并行流里做 IO 安全得多（并行流的问题见 [Lambda 与 Stream](./1_advanced)）。
 
 ---
 

@@ -205,7 +205,7 @@ boolean mates = Outer.class.isNestmateOf(Outer.Inner.class); // true
 
 ## 七、Lambda 与匿名类的区别
 
-Lambda 不是匿名类的语法糖：它编译为私有合成方法 + `invokedynamic`，`this` 指外围实例，只在用到实例成员时才捕获外部引用，捕获局部变量的规则（effectively final）与匿名类相同；实现原理见 [Lambda、Stream 与注解](./1_advanced)，完整对比表见 [字节码执行 · invokedynamic 与 Lambda](/jvm/3_bytecode#四、invokedynamic-与-lambda)。
+Lambda 不是匿名类的语法糖：它编译为私有合成方法 + `invokedynamic`，`this` 指外围实例，只在用到实例成员时才捕获外部引用，捕获局部变量的规则（effectively final）与匿名类相同；实现原理见 [Lambda 与 Stream](./1_advanced)，完整对比表见 [字节码执行 · invokedynamic 与 Lambda](/jvm/3_bytecode#四、invokedynamic-与-lambda)。
 
 ---
 

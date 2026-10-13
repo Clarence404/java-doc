@@ -348,4 +348,4 @@ System.out.println(t);   // java.util.Map<java.lang.String, java.util.List<java.
 - JVMS 4.7.9 Signature 属性：[https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.9](https://docs.oracle.com/javase/specs/jvms/se21/html/jvms-4.html#jvms-4.7.9)
 - JEP 394 instanceof 模式匹配：[https://openjdk.org/jeps/394](https://openjdk.org/jeps/394)
 
-> 下一篇：[反射](./15_topic_reflection) —— 泛型签名之外，看运行时如何读取和调用类的全部成员，以及 JDK 18 后反射的实现变化。
+> 下一篇：[注解与注解处理器](./15_topic_annotation) —— 注解的定义与元注解、运行时读取，以及在编译期生成代码的注解处理器。

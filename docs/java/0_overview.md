@@ -1,6 +1,6 @@
 # Java 总览
 
-本模块覆盖 Java 语言本身：语言机制（面向对象与 Object、异常、字符串、枚举、Record 与模式匹配、内部类、泛型、反射、代理）、IO 与数据（时间、IO / NIO、序列化、SPI、集合）、并发编程（JMM、线程、锁、原子类、同步工具、线程池、CompletableFuture、虚拟线程）以及各版本新特性。JVM 内部原理与 Spring 等框架在各自模块展开，这里只在需要时一句话带过并给出链接。
+本模块覆盖 Java 语言本身：语言机制（面向对象与 Object、异常、字符串、枚举、Record 与模式匹配、内部类、泛型、注解、反射、代理）、IO 与数据（时间、IO / NIO、序列化、SPI、集合）、并发编程（JMM、线程、锁、原子类、同步工具、线程池、Fork/Join 与定时任务、CompletableFuture、虚拟线程）以及各版本新特性。JVM 内部原理与 Spring 等框架在各自模块展开，这里只在需要时一句话带过并给出链接。
 
 版本基线：**JDK 21 / 25 LTS**，与 JDK 8 / 17 行为不同的地方在文中单独标出。
 
@@ -18,7 +18,7 @@
 
 **综合（1–2）**
 
-1. [Lambda、Stream 与注解](./1_advanced)：Lambda 的 `invokedynamic` 实现、Stream 求值模型与并行流、Optional 规范、注解处理器
+1. [Lambda 与 Stream](./1_advanced)：Lambda 的 `invokedynamic` 实现、Stream 求值模型与并行流、Optional 规范
 2. [版本演进](./2_version)：JDK 8 到 27 的关键特性、预览到正式的路线、升级坑点与版本选型
 
 **语言机制（10–16）**
@@ -30,32 +30,34 @@
 7. [Record、Sealed 与模式匹配](./12_topic_record)：record、sealed 与 switch 模式匹配的组合建模
 8. [内部类](./13_topic_inner_class)：静态嵌套类、内部类、局部类与匿名类
 9. [泛型](./14_topic_generics)：类型擦除、通配符与 PECS
-10. [反射](./15_topic_reflection)：Class 对象、反射调用、MethodHandle 与模块封装
-11. [动态代理](./16_topic_proxy)：JDK 代理与 CGLIB / ByteBuddy
+10. [注解与注解处理器](./15_topic_annotation)：元注解、运行时读取、APT 与 Lombok / MapStruct
+11. [反射](./15_topic_reflection)：Class 对象、反射调用、MethodHandle 与模块封装
+12. [动态代理](./16_topic_proxy)：JDK 代理与 CGLIB / ByteBuddy
 
 **IO 与数据（17–21）**
 
-12. [日期与时间](./17_topic_time)：`java.time` 体系与时区处理
-13. [IO 与 NIO](./18_topic_io)：流体系、Buffer / Channel / Selector、零拷贝
-14. [序列化](./19_topic_serialization)：JDK 序列化机制、风险与替代方案
-15. [SPI 机制](./20_topic_spi)：`ServiceLoader` 与 JDBC / Spring Boot / Dubbo 的扩展机制
-16. [集合框架](./21_topic_collection)：HashMap、ConcurrentHashMap 等核心集合的实现
+13. [日期与时间](./17_topic_time)：`java.time` 体系与时区处理
+14. [IO 与 NIO](./18_topic_io)：流体系、Buffer / Channel / Selector、零拷贝
+15. [序列化](./19_topic_serialization)：JDK 序列化机制、风险与替代方案
+16. [SPI 机制](./20_topic_spi)：`ServiceLoader` 与 JDBC / Spring Boot / Dubbo 的扩展机制
+17. [集合框架](./21_topic_collection)：HashMap、ConcurrentHashMap 等核心集合的实现
 
 **并发（22–30）**
 
-17. [JMM 内存模型](./22_topic_jmm)：可见性、有序性、happens-before 与 volatile
-18. [线程基础](./23_topic_thread_basics)：线程状态、中断、ThreadLocal
-19. [synchronized](./24_topic_synchronized)：对象头、锁状态与 JDK 15 / 23 之后的变化
-20. [显式锁（Lock）](./25_topic_lock)：AQS、ReentrantLock、读写锁
-21. [原子类（Atomic）](./26_topic_atomic)：CAS、ABA、LongAdder
-22. [同步工具类](./27_topic_juc_tools)：CountDownLatch、CyclicBarrier、Semaphore 等
-23. [线程池](./28_topic_thread_pool)：ThreadPoolExecutor 参数、拒绝策略与生产配置
-24. [CompletableFuture](./29_topic_completable_future)：异步编排与线程池选择
-25. [虚拟线程](./30_topic_virtual_thread)：调度模型、pinning 与使用边界
+18. [JMM 内存模型](./22_topic_jmm)：可见性、有序性、happens-before 与 volatile
+19. [线程基础](./23_topic_thread_basics)：线程状态、中断、ThreadLocal
+20. [synchronized](./24_topic_synchronized)：对象头、锁状态与 JDK 15 / 23 之后的变化
+21. [显式锁（Lock）](./25_topic_lock)：AQS、ReentrantLock、读写锁
+22. [原子类（Atomic）](./26_topic_atomic)：CAS、ABA、LongAdder
+23. [同步工具类](./27_topic_juc_tools)：CountDownLatch、CyclicBarrier、Semaphore 等
+24. [线程池](./28_topic_thread_pool)：ThreadPoolExecutor 参数、拒绝策略与生产配置
+25. [Fork/Join 与定时任务](./28_topic_thread_scheduled)：ScheduledThreadPoolExecutor、工作窃取与 commonPool
+26. [CompletableFuture](./29_topic_completable_future)：异步编排与线程池选择
+27. [虚拟线程](./30_topic_virtual_thread)：调度模型、pinning 与使用边界
 
 **附录（98）**
 
-26. [效率工具库](./98_dev_tool)：Lombok、MapStruct、Hutool、Guava 的用法、坑点与 JDK 内置替代
+28. [效率工具库](./98_dev_tool)：Lombok、MapStruct、Hutool、Guava 的用法、坑点与 JDK 内置替代
 
 [高频面试题](./99_interview) 只列题目，答案在 [Java 基础面试题解答](/interview/1_java) 与 [Java 并发面试题解答](/interview/2_concurrent)。
 

@@ -4,7 +4,7 @@ description: Lombok、MapStruct、Hutool、Guava 的用法与坑点、JDK 版本
 
 # 效率工具库
 
-> 前置阅读：[Lambda、Stream 与注解](./1_advanced)
+> 前置阅读：[注解与注解处理器](./15_topic_annotation)
 
 本篇讲 Lombok、MapStruct、Hutool、Guava 的正确用法、新 JDK 兼容与构建配置坑、过时 API，以及哪些需求 JDK 本身已能满足。版本号以撰写时（2026-10）Maven Central 的版本为例，使用时以最新发布为准。
 
@@ -49,7 +49,7 @@ public class OrderService {
 
 ### 2、原理与 JDK 兼容性
 
-标准注解处理器只能生成新文件，Lombok 则借用处理器入口、通过 javac 的**内部 API** 直接改写已有类的语法树（原理见 [Lambda、Stream 与注解](./1_advanced)）。代价是：**每个新 JDK 都可能改动 javac 内部结构，Lombok 必须发布对应的适配版本**，否则编译直接失败。
+标准注解处理器只能生成新文件，Lombok 则借用处理器入口、通过 javac 的**内部 API** 直接改写已有类的语法树（原理见 [注解与注解处理器](./15_topic_annotation#四、注解处理器)）。代价是：**每个新 JDK 都可能改动 javac 内部结构，Lombok 必须发布对应的适配版本**，否则编译直接失败。
 
 | JDK | 最低 Lombok 版本 |
 |-----|------------------|
