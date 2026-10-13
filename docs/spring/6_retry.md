@@ -170,6 +170,8 @@ public void callLegacySystem(Request req) { ... }   // 超出直接抛 Invocatio
 - 需要「重试 + 兜底」写在一处
 - 调用发生在同一个类内部，注解会因自调用不经过代理而失效
 
+注意 `org.springframework.core.retry.Retryable` 是 `RetryTemplate` 执行的回调接口，与 `@Retryable` 注解（`org.springframework.resilience.annotation`）同名但不是一个东西，导入时别混淆。
+
 ### 1、构建 RetryPolicy
 
 ```java

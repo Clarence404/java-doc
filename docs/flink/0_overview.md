@@ -56,6 +56,7 @@ Kafka、CDC 基础、Kubernetes、监控等通用知识在各自模块展开，�
 - [幂等设计](/architecture/5_idempotence)：Sink 端幂等写入与消费端去重的通用做法
 - [Kubernetes](/cloud-native/6_kubernetes)：Flink on Kubernetes 用到的基础概念，更多内容见 [云原生总览](/cloud-native/0_overview)
 - [指标监控](/observability/2_metrics)：Prometheus 指标与告警体系，更多内容见 [可观测性总览](/observability/0_overview)
+- [大数据总览](/big-data/0_overview)：Flink 在数据平台中的位置，数仓分层、湖仓（Paimon / Iceberg）、Spark 批处理与 [实时数仓实战](/big-data/9_realtime_dw) 在那里展开
 - [海量数据架构选型](/scenario/2_big_data)：离线与实时计算在大数据场景中的整体位置
 - [Vert.x 总览](/vertx/0_overview) / [Quarkus 总览](/quarkus/0_overview)：同属框架生态，面向在线服务而非流计算
 - [Flink 面试题解答](/interview/6_flink)：本模块高频问题的答案汇总

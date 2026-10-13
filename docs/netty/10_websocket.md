@@ -479,6 +479,7 @@ server {
 | 股票 / 行情推送 | 服务端高频推送价格变动，客户端偶发下单指令 |
 | 多人实时游戏 | 玩家操作、位置同步，延迟敏感 |
 | IoT 设备控制 | 服务端下发控制指令，设备上报状态 |
+| 音视频通话信令 | WebRTC 的 SDP 与 ICE 候选通过 WebSocket 交换，媒体流本身不走 WebSocket，见 [WebRTC 信令服务](/media/5_webrtc#六、java-信令服务) |
 
 HTTP 升级与 TCP 基础可参考 [HTTP](/protocols/2_http) 与 [TCP 与 UDP](/protocols/1_tcp_udp)。
 

@@ -209,40 +209,10 @@ Spring Boot 检测到 `CommonErrorHandler` 类型的 Bean 会自动装配到监�
 
 ### 3、幂等消费
 
-重复消费不可避免（生产者重试、Rebalance、重启从旧 offset 拉取），必须在业务层幂等。通用原则见 [消息队列基础](./1_basics) 与 [系统架构 · 幂等设计](/architecture/5_idempotence)，这里给出 Kafka 下的推荐写法。
+重复消费不可避免（生产者重试、Rebalance、重启从旧 offset 拉取），必须在业务层幂等。两种正确写法（去重记录与业务同事务、Redis 处理中 / 已完成状态机）和「SETNX 占位即完成」的反模式统一见 [消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)，通用方案见 [系统架构 · 幂等设计](/architecture/5_idempotence)。Kafka 下要注意两点：
 
-**去重键用业务键（订单号 + 事件类型），不要用 `partition + offset`**：同一业务事件被生产者重发时会拿到新的 offset，按 offset 去重拦不住；数据迁移、Topic 重建后 offset 也会变。
-
-**方案 A：业务写入与去重记录放在同一个本地事务（首选）**
-
-```java
-@Service
-@RequiredArgsConstructor
-public class OrderService {
-    private final ConsumeRecordMapper consumeRecordMapper;  // consume_record 表，biz_key 唯一索引
-    private final OrderMapper orderMapper;
-
-    @Transactional
-    public void handle(OrderEvent event) {
-        String bizKey = event.getOrderId() + ":" + event.getType();
-        // INSERT IGNORE（MySQL）/ ON CONFLICT DO NOTHING（PostgreSQL），与业务更新同一事务
-        if (consumeRecordMapper.insertIgnore(bizKey) == 0) {
-            return;                               // 已处理过：直接返回，offset 正常提交
-        }
-        orderMapper.markPaid(event.getOrderId());
-        // 业务失败抛异常 → 去重记录一起回滚 → 错误处理器重试时可以再次处理
-    }
-}
-```
-
-**方案 B：Redis 状态机（业务不在同一个库时）**
-
-1. `SET dedup:{bizKey} processing NX EX 60`：设置成功才开始处理
-2. 处理成功后把值改为 `done`，并设置较长过期时间
-3. 处理失败时 `DEL` 该 key 再抛异常，重试或重投时可以重新处理
-4. 抢占失败时读值：`done` 直接返回；`processing` 说明有别的实例正在处理，**抛异常让错误处理器退避重试，不能当作成功跳过**
-
-**错误做法**：先 `SETNX` 占位、再处理、失败也不清理——处理失败后这条消息再也进不去，等于丢消息。
+- **去重键用业务键（订单号 + 事件类型），不要用 `partition + offset`**：同一业务事件被生产者重发时会拿到新的 offset，按 offset 去重拦不住；数据迁移、Topic 重建后 offset 也会变
+- **已处理过就正常返回，处理失败就抛异常**：返回后 offset 照常提交；抛异常交给上面的 `DefaultErrorHandler` 退避重试或进死信，看到「处理中」状态时同样抛异常，不能当作成功跳过（offset 是累计提交的，跳过就再也回不来）
 
 ---
 
@@ -479,44 +449,7 @@ Kafka Connect 是 Kafka 自带的**数据管道框架**，通过配置而不是�
 
 ### 2、Debezium：MySQL CDC → Kafka
 
-Debezium 是最常用的 CDC Source Connector，读取 MySQL binlog（需 `binlog_format=ROW`）把行变更写入 Kafka。CDC 工具的整体对比见 [CDC 工具](/database/5_practice/0_cdc_tools)。以下为 Debezium 2.x 及以后的属性名：
-
-```json
-{
-  "name": "mysql-cdc-connector",
-  "config": {
-    "connector.class": "io.debezium.connector.mysql.MySqlConnector",
-    "database.hostname": "mysql",
-    "database.port": "3306",
-    "database.user": "debezium",
-    "database.password": "${file:/opt/kafka/secrets/mysql.properties:password}",
-    "database.server.id": "184054",
-    "topic.prefix": "dbserver1",
-    "database.include.list": "inventory",
-    "table.include.list": "inventory.orders",
-    "schema.history.internal.kafka.bootstrap.servers": "kafka:9092",
-    "schema.history.internal.kafka.topic": "schema-changes.inventory"
-  }
-}
-```
-
-- `topic.prefix` 取代了 1.x 的 `database.server.name`，变更写入 `<topic.prefix>.<库名>.<表名>`，即 `dbserver1.inventory.orders`
-- `schema.history.internal.kafka.*` 取代了 1.x 的 `database.history.kafka.*`，用于保存表结构变更历史
-- `database.server.id` 是 Debezium 伪装成 MySQL 从库时使用的 server id，在复制拓扑中必须唯一
-- 密码不要明文写进配置，用 Connect 的配置提供者（如 `FileConfigProvider`）引用外部文件
-
-每条变更消息的 payload 结构：
-
-```json
-{
-  "op": "u",
-  "before": { "id": 1, "amount": 100 },
-  "after":  { "id": 1, "amount": 200 },
-  "source": { "ts_ms": 1700000000000, "db": "inventory", "table": "orders" }
-}
-```
-
-`op` 取值：`c` 插入、`u` 更新、`d` 删除、`r` 快照读取。
+Debezium 是最常用的 CDC Source Connector，读取 MySQL binlog（需 `binlog_format=ROW`）把行变更写入 `<topic.prefix>.<库名>.<表名>`，每条消息带 `op` / `before` / `after` / `source` 信封。连接器注册 JSON、`database.server.id` 唯一性、事件结构与 CDC 工具对比统一见 [CDC 工具 · Debezium](/database/5_practice/0_cdc_tools#五、debezium)；下面的 Sink 示例以 topic `dbserver1.inventory.orders` 为例。
 
 ### 3、Sink：Kafka → Elasticsearch
 

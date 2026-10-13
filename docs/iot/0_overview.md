@@ -44,6 +44,7 @@
 - [时序数据库](/database/4_nosql/1_time_series_db)：TDengine、InfluxDB、IoTDB 的数据模型与选型
 - [消息队列总览](/messaging/0_overview)：设备数据从 MQTT 桥接到 Kafka 后的削峰与分发
 - [Flink 总览](/flink/0_overview)：设备数据的窗口聚合与实时告警
+- [监控视频接入](/media/8_video_surveillance)：摄像头类设备走 RTSP / ONVIF / GB/T 28181 取流，与设备平台的集成方式
 - [零信任架构](/security/9_zero_trust)：设备身份与最小权限访问的通用原则
 - [Kubernetes](/cloud-native/6_kubernetes)：KubeEdge 所依赖的云端集群
 - [AI 总览](/ai/0_overview)：边缘推理所用模型的来源与接入方式

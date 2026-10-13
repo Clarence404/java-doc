@@ -290,6 +290,9 @@ curl -X POST http://localhost:8083/connectors \
 
 账号按第二节创建；`database.server.id` 同样必须在拓扑内唯一。变更事件写入 topic `<topic.prefix>.<库名>.<表名>`，即 `mydb.mydb.orders`。
 
+- 以上是 Debezium 2.x 及以后的属性名：`topic.prefix` 取代了 1.x 的 `database.server.name`，`schema.history.internal.kafka.*` 取代了 1.x 的 `database.history.kafka.*`（保存表结构变更历史），从旧版本迁移时要一起改
+- 示例为了直观写了明文密码；生产环境用 Connect 的配置提供者引用外部文件：worker 配置 `config.providers=file` 与 `config.providers.file.class=org.apache.kafka.common.config.provider.FileConfigProvider`，连接器里写 `"database.password": "${file:/opt/kafka/secrets/mysql.properties:password}"`
+
 ### 3、事件结构
 
 默认的 `JsonConverter` 会把每条消息包成 `{"schema": {...}, "payload": {...}}`，`schema` 部分描述字段类型，体积往往比数据本身还大；设置 `value.converter.schemas.enable=false` 或使用 Avro / Protobuf + Schema Registry 可以去掉它。下面是一条 UPDATE 事件的 `payload`：

@@ -41,12 +41,7 @@ Anthropic 在《Building effective agents》中把 LLM 应用分成两类：**�
 
 ### 1、记忆要按用户隔离
 
-Web 应用里最常见的 bug 是把一个 `ChatMemory` 实例注册成单例 Bean，所有用户共用一份对话历史，A 用户的问题会出现在 B 用户的上下文里。正确做法是按会话 ID 取各自的记忆：
-
-- **LangChain4j**：`chatMemoryProvider(id -> ...)` 配合方法参数上的 `@MemoryId`
-- **Spring AI**：`MessageChatMemoryAdvisor` 配合每次请求传入的 `ChatMemory.CONVERSATION_ID`
-
-会话 ID 由服务端根据登录态生成（如「用户 ID + 会话 ID」），不能直接信任前端传来的值。生产环境把记忆存到 JDBC、Redis 等持久化存储，并设置窗口大小，避免上下文无限增长。
+最常见的 bug 是把一个 `ChatMemory` 注册成单例 Bean，所有用户共用一份历史；要按服务端根据登录态生成的会话 ID 取各自的记忆，并持久化、设置窗口大小。写法见 [LangChain4j](../2_frameworks/1_langchain4j#_1、多用户隔离)（`chatMemoryProvider` + `@MemoryId`）与 [Spring AI](../2_frameworks/0_spring_ai#_2、对话记忆)（`MessageChatMemoryAdvisor` + `CONVERSATION_ID`）。
 
 ### 2、规划
 
@@ -292,9 +287,15 @@ Spring AI 文档基于《Building effective agents》整理了五种模式，从
 
 ### 2、LangChain4j agentic 模块
 
-`langchain4j-agentic` 提供了声明式的多 Agent 编排：`sequenceBuilder`（串行）、`parallelBuilder`（并行）、`loopBuilder`（循环到满足条件）、`supervisorBuilder`（由一个规划模型动态调度子 Agent）。该模块目前是实验性的，API 可能调整。
+`langchain4j-agentic`（`dev.langchain4j:langchain4j-agentic`，beta 版本，官方明确为实验性，API 可能调整）提供声明式的多 Agent 编排：用 `@Agent` 标注单方法接口，再用 `AgenticServices` 组合：
+
+- `sequenceBuilder()` 串行，`parallelBuilder()` 并行，`loopBuilder()` 循环到满足退出条件或达到最大次数，`conditionalBuilder()` 按条件激活子 Agent
+- `supervisorBuilder()` 由一个规划模型动态决定下一步调用哪个子 Agent
+- `humanInTheLoopBuilder()` 在流程中插入等待人工输入的节点
+- 子 Agent 通过共享的 `AgenticScope` 按 `outputKey` 读写中间结果
 
 ```java
+import java.util.Map;
 import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.agentic.AgenticServices;
 import dev.langchain4j.agentic.UntypedAgent;
@@ -324,6 +325,14 @@ UntypedAgent pipeline = AgenticServices.sequenceBuilder()
 
 String result = (String) pipeline.invoke(Map.of("requirement", "订单导出接口，支持按时间范围筛选"));
 ```
+
+需要检查点持久化、中断恢复的长流程，可以改用 **LangGraph4j**：独立的开源项目（groupId `org.bsc.langgraph4j`，核心包 `langgraph4j-core`，与 LangChain4j 集成用 `langgraph4j-langchain4j`，版本号独立，截至 2026-10 为 1.9.x），用有状态的图（节点 + 边）描述流程，支持回环、条件分支和检查点。
+
+| 场景 | 建议 |
+|------|------|
+| 单 Agent 加工具、RAG 问答 | AiServices 即可 |
+| 固定的顺序 / 并行 / 循环流程 | `langchain4j-agentic` 的工作流构建器 |
+| 流程复杂、需要检查点持久化与中断恢复 | LangGraph4j |
 
 ### 3、把 Agent 当作工具
 

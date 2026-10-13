@@ -180,7 +180,80 @@ CREATE TABLE outbox_message (
 - **定期归档**：已发送的记录按时间归档或删除，防止表膨胀
 - 消费方的「处理成功后回调更新状态」不是必需步骤，消费端靠幂等即可
 
-完整的投递代码与各 MQ 的确认机制见 [消息队列基础](/messaging/1_basics#八、分布式事务中的消息)。
+### 3、中继投递代码
+
+多实例部署时，每个实例的定时任务都会扫到同一批待发送消息，必须保证同一条消息同一时刻只被一个实例处理：
+
+| 做法 | 原理 | 特点 |
+|------|------|------|
+| `SELECT … FOR UPDATE SKIP LOCKED` | 各实例锁定不同的行，已被锁的行直接跳过 | 多实例并行投递，吞吐随实例数提升；需 MySQL 8.0+ / PostgreSQL 9.5+ |
+| 分布式锁 / 单实例调度 | 同一时刻只有一个实例执行中继任务（Redisson、ShedLock、XXL-JOB 单机路由） | 实现简单，但投递吞吐受单实例限制 |
+
+以 `SKIP LOCKED` 为例（基于上面的 `outbox_message` 表），写入与投递：
+
+```java
+// 写入：与业务数据同一本地事务，保证「订单存在 ⇔ 消息存在」
+@Transactional(rollbackFor = Exception.class)
+public void createOrder(OrderCmd cmd) {
+    orderMapper.insert(Order.from(cmd));
+    outboxMapper.insert(OutboxMessage.of(cmd.getOrderNo() + ":order-created", "order-created", toJson(cmd)));
+}
+```
+
+```java
+public interface OutboxMapper {
+    // 走 idx_status_retry 索引，否则会锁住大量扫描到的行
+    @Select("SELECT * FROM outbox_message WHERE status = 0 AND next_retry_at <= NOW() "
+          + "ORDER BY next_retry_at LIMIT #{limit} FOR UPDATE SKIP LOCKED")
+    List<OutboxMessage> lockPending(@Param("limit") int limit);
+
+    @Update("UPDATE outbox_message SET status = 1 WHERE id = #{id}")
+    int markSent(@Param("id") long id);
+}
+
+@Service
+@RequiredArgsConstructor
+public class OutboxRelayService {
+
+    private final OutboxMapper outboxMapper;
+    private final MqProducer mqProducer;
+
+    /** 单批投递：事务提交前行锁一直持有，其他实例会跳过这些行 */
+    @Transactional(rollbackFor = Exception.class)
+    public int relayBatch(int limit) {
+        List<OutboxMessage> batch = outboxMapper.lockPending(limit);
+        for (OutboxMessage msg : batch) {
+            mqProducer.syncSend(msg.getTopic(), msg.getBizKey(), msg.getPayload()); // 同步发送，失败抛异常回滚本批
+            outboxMapper.markSent(msg.getId());
+        }
+        return batch.size();
+    }
+}
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class OutboxRelayJob {
+
+    private final OutboxRelayService relayService;
+
+    // 调度方法与事务方法分属两个 Bean，确保 @Transactional 经过代理生效
+    @Scheduled(fixedDelay = 1000)
+    public void relay() {
+        try {
+            relayService.relayBatch(100);
+        } catch (Exception e) {
+            log.error("outbox 投递失败，下个周期重试", e);
+        }
+    }
+}
+```
+
+::: warning 仍然是「至少一次」
+消息发送成功但事务回滚（如后一条发送失败、`markSent` 失败）时，下个周期会再发一次，所以消费端必须幂等。批量不宜过大：事务内持有行锁并等待 MQ 响应，批越大锁持有越久。示例省略了失败重试计数，生产中发送失败的记录应累加 `retry_count`、按退避推迟 `next_retry_at`，超过上限置为 `FAILED` 并告警。
+:::
+
+各 MQ 的发送确认机制与事务消息的对比见 [消息队列基础](/messaging/1_basics#八、分布式事务中的消息)。
 
 ---
 
@@ -336,7 +409,7 @@ public class OrderAppService {
 }
 ```
 
-每个参与的数据库都要建 `undo_log` 表；依赖与配置见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba)。
+每个参与的数据库都要建 `undo_log` 表；依赖、yaml 配置、XID 透传等接入要点见 [Spring Cloud Alibaba · Seata](/spring-cloud/6_alibaba#四、seata-分布式事务)。
 
 ### 4、TCC 模式
 

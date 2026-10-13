@@ -136,7 +136,7 @@ public class OrderController {
 
 ### 2、API 版本控制（Boot 4）
 
-Framework 7 内置 API 版本控制，Boot 4 通过 `spring.mvc.apiversion.*` 配置版本来源：
+Framework 7 内置 API 版本控制，Boot 4 通过 `spring.mvc.apiversion.*`（WebFlux 为 `spring.webflux.apiversion.*`）配置版本来源，版本可来自请求头、查询参数、媒体类型参数或路径：
 
 ```yaml
 spring:
@@ -155,7 +155,7 @@ public OrderVO getV1_1(@PathVariable Long id) { ... }
 public OrderDetailVO getV1_2(@PathVariable Long id) { ... }
 ```
 
-版本解析与异常行为见 [Spring Boot 版本演进](./11_versions)。
+配置了 `default` 时，缺少版本的请求按默认版本处理；未配置时缺少版本返回 400。版本解析、支持版本的收集、异常与废弃响应头等框架机制见 [MVC · API 版本控制](/spring/3_mvc#七、api-版本控制)。
 
 ---
 
@@ -509,7 +509,7 @@ spring:
       read-timeout: 3s
 ```
 
-**一定要设置超时**：未设置时的默认值可能是无限等待，一个慢下游就能耗尽调用方的线程。超时、重试与隔离的系统性设计见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)；Framework 7 自带的 `@Retryable` 见 [Spring Boot 版本演进](./11_versions)。
+**一定要设置超时**：未设置时的默认值可能是无限等待，一个慢下游就能耗尽调用方的线程。超时、重试与隔离的系统性设计见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)；Framework 7 自带的 `@Retryable` 见 [Retry 重试](/spring/6_retry)。
 
 ### 3、HTTP Service Clients
 
@@ -531,14 +531,17 @@ public interface ProductApi {
 ```java
 @SpringBootApplication
 @ImportHttpServices(group = "product", types = ProductApi.class)
+// 也可以按包扫描整组接口：@ImportHttpServices(group = "inventory", basePackages = "com.example.client.inventory")
 public class Application { ... }
 ```
 
 ```yaml
 spring:
   http:
+    clients:
+      connect-timeout: 1s           # 所有 HTTP 客户端的全局默认值
     serviceclient:
-      product:
+      product:                      # 按组覆盖
         base-url: https://product.example.com
         read-timeout: 2s
 ```

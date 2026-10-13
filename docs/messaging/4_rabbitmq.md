@@ -282,21 +282,11 @@ public void handleOrder(OrderCreatedEvent event, Channel channel,
 
 ### 5、幂等消费
 
-RabbitMQ 是至少一次投递：requeue、消费者崩溃、连接断开、生产者 confirm 超时重发，都会产生重复消息。**用业务键（如 `orderId + 事件类型`）而不是 Broker 的 messageId 去重**，并且"去重记录"与"业务写入"必须原子：
+RabbitMQ 是至少一次投递：requeue、消费者崩溃、连接断开、生产者 confirm 超时重发，都会产生重复消息。**用业务键（如 `orderId + 事件类型`）而不是 Broker 的 messageId 去重**，去重记录与业务写入同一本地事务、Redis 状态机、「`SETNX` 占位即完成」反模式统一见 [消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)，通用方案见 [系统架构 · 幂等设计](/architecture/5_idempotence)。RabbitMQ 侧只需注意 ack 时机：
 
-```java
-@Transactional
-public void handleCreated(OrderCreatedEvent event) {
-    // 去重表对 (biz_key, consumer) 建唯一索引；与业务写入在同一个本地事务里
-    int inserted = consumeRecordMapper.insertIgnore("order-created:" + event.orderId(), "order-service");
-    if (inserted == 0) {
-        return;   // 已处理过，直接返回（容器随后 ack）
-    }
-    inventoryService.reserve(event);   // 业务写入；异常则整个事务回滚，去重记录一起撤销，重投时可再处理
-}
-```
-
-> 反例：先 `SETNX` 占位再处理——处理失败时占位已存在，重投会被当成"已处理"而跳过，消息就丢了。用 Redis 的话要做成状态机：`SET key processing NX EX` → 处理 → 置为 `done`；失败时 `DEL` 让重投能重试；看到 `processing` 的投递应退避重试而不是 ack 跳过。更多方案见 [系统架构 · 幂等设计](/architecture/5_idempotence)。
+- **自动 ACK 模式**：监听方法正常返回后容器才 ack，已处理过的消息直接 `return` 即可；抛异常则按第 3 小节的重试 + 死信处理
+- **手动 ACK 模式**：去重判断为「已处理」时也要 `basicAck`，否则消息一直 unacked；看到「处理中」应 `basicNack` 退避重投而不是 ack 跳过
+- **ack 必须在业务事务提交之后**：先 ack 后提交，事务回滚时消息已经没了
 
 ---
 

@@ -21,7 +21,7 @@ description: 指标与方法论、Profiler、JVM 层、池化、异步批量、�
 
 **常见坑**：流量超过处理能力时公式不再成立，请求开始排队，压测里表现为「QPS 上不去、RT 突然飙升」。
 
-→ 详见 [性能指标](/high-perf/1_metrics)
+→ 详见 [性能指标](/high-perf/1_metrics#四、指标之间的关系-little-定律)
 
 ### Q2：为什么不能只看平均响应时间？P99 和 P999 分别意味着什么？
 
@@ -34,7 +34,7 @@ description: 指标与方法论、Profiler、JVM 层、池化、异步批量、�
 
 **常见坑**：压测工具在服务卡住时少发请求，慢请求被低估；用固定速率发压的工具（如 wrk2）。
 
-→ 详见 [性能指标](/high-perf/1_metrics)
+→ 详见 [性能指标](/high-perf/1_metrics#二、平均值-vs-分位数)
 
 ### Q3：USE 方法和 RED 方法分别适合什么场景？
 
@@ -48,7 +48,7 @@ description: 指标与方法论、Profiler、JVM 层、池化、异步批量、�
 - 饱和度比使用率更说明问题：比如线程池队列在堆积、连接池有人在等
 - Spring Boot 的 `http.server.requests` 指标就是现成的 RED 数据
 
-→ 详见 [性能分析方法论](/high-perf/2_methodology)
+→ 详见 [性能分析方法论](/high-perf/2_methodology#一、use-方法-面向资源)
 
 ### Q4：接口突然变慢，你的排查思路是什么？（系统资源 → JVM → 线程/锁 → 外部依赖）
 
@@ -62,7 +62,7 @@ description: 指标与方法论、Profiler、JVM 层、池化、异步批量、�
 
 **常见坑**：一上来就看代码。线上「突然」变慢，先查最近有没有发布或改配置。
 
-→ 详见 [性能分析方法论](/high-perf/2_methodology)
+→ 详见 [性能分析方法论](/high-perf/2_methodology#三、瓶颈定位流程)
 
 ### Q5：Amdahl 定律对性能优化有什么指导意义？
 
@@ -73,7 +73,7 @@ description: 指标与方法论、Profiler、JVM 层、池化、异步批量、�
 - 并行也一样：有 10% 必须串行，加多少核最多也只快 10 倍
 - 微基准测出某方法快了 30%，要乘上它在接口里的占比，才是真实收益
 
-→ 详见 [性能分析方法论](/high-perf/2_methodology)
+→ 详见 [性能分析方法论](/high-perf/2_methodology#四、amdahl-定律-决定优化顺序)
 
 ## 二、分析工具与基准测试
 
@@ -97,7 +97,7 @@ asprof -d 30 -f /tmp/cpu.html <pid>   # async-profiler 抓 30 秒 CPU 火焰图
 
 **常见坑**：wall 图里 `park`、`epoll_wait` 很宽就以为找到了问题。它只说明线程在等，要按线程拆开（`-t`）看谁在等、等什么。
 
-→ 详见 [性能分析工具](/high-perf/3_profilers)
+→ 详见 [性能分析工具](/high-perf/3_profilers#二、读火焰图)
 
 ### Q7：线上 CPU 使用率飙高，如何定位到具体的代码行？
 
@@ -114,7 +114,7 @@ jstack <pid> | grep -A 30 "nid=0x3039"   # 看这个线程在执行什么
 - 偶发或多个线程分摊时，直接抓 30～60 秒 CPU 火焰图更可靠
 - 最忙的是 GC 线程时，问题在对象分配太多或内存泄漏，转查 GC 日志（见 Q12）
 
-→ 详见 [JVM 故障排查](/jvm/9_troubleshooting)、[线上诊断](/engineering/4_diagnosis)、[性能分析工具](/high-perf/3_profilers)
+→ 详见 [故障排查](/jvm/9_troubleshooting#十、cpu-使用率高)、[线上诊断](/engineering/4_diagnosis#三、按症状选命令)、[性能分析工具](/high-perf/3_profilers#一、async-profiler)
 
 ### Q8：JFR 能采集哪些信息？适合排查什么问题？
 
@@ -129,7 +129,7 @@ jstack <pid> | grep -A 30 "nid=0x3039"   # 看这个线程在执行什么
 jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 ```
 
-→ 详见 [性能分析工具](/high-perf/3_profilers)
+→ 详见 [性能分析工具](/high-perf/3_profilers#三、jfr-jdk-flight-recorder)
 
 ### Q9：为什么用 `System.nanoTime` 循环测性能不可靠？JMH 是如何解决的？
 
@@ -143,7 +143,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：拿 JMH 结果说系统能扛多少。JMH 只回答「A 写法比 B 快多少」，容量还得靠压测。
 
-→ 详见 [基准测试（JMH）](/high-perf/4_benchmark)
+→ 详见 [基准测试（JMH）](/high-perf/4_benchmark#一、为什么不能用-nanotime-循环)
 
 ## 三、JVM 层
 
@@ -163,7 +163,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：容器只给 1 核 CPU 时 JVM 会默认选 Serial，要显式指定收集器。
 
-→ 详见 [JVM 层性能策略](/high-perf/5_jvm_tuning)
+→ 详见 [JVM 层性能策略](/high-perf/5_jvm_tuning#一、按延迟-vs-吞吐选收集器)
 
 ### Q11：应用刚启动时 RT 毛刺明显，原因是什么？如何缓解？
 
@@ -177,7 +177,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：以为 AppCDS 能解决。它只加快类加载，解决不了 JIT 预热。
 
-→ 详见 [JVM 层性能策略](/high-perf/5_jvm_tuning)、[优雅上下线与变更](/high-avail/8_graceful_release)
+→ 详见 [JVM 层性能策略](/high-perf/5_jvm_tuning#四、jit-预热与冷启动毛刺)、[优雅上下线与变更](/high-avail/8_graceful_release#二、服务预热)
 
 ### Q12：为什么降低对象分配速率往往比调 GC 参数更有效？
 
@@ -190,7 +190,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：老年代每次 GC 后还一直涨，那是内存泄漏，调参没用，要 dump 堆分析。
 
-→ 详见 [JVM 层性能策略](/high-perf/5_jvm_tuning)
+→ 详见 [JVM 层性能策略](/high-perf/5_jvm_tuning#二、降低分配速率)
 
 ## 四、代码与池化
 
@@ -206,7 +206,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：以为 `new HashMap<>(n)` 放 n 个元素不会扩容。元素数超过「容量 × 0.75」就会扩容。
 
-→ 详见 [代码级优化](/high-perf/6_code_optimization)
+→ 详见 [代码级优化](/high-perf/6_code_optimization#二、集合预分配)
 
 ### Q14：为什么不建议用异常做流程控制？日志有哪些常见的性能坑？
 
@@ -219,7 +219,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：生产开全量 DEBUG，或在大循环里逐条打日志。
 
-→ 详见 [代码级优化](/high-perf/6_code_optimization)
+→ 详见 [代码级优化](/high-perf/6_code_optimization#六、热点路径上减少异常)
 
 ### Q15：数据库连接池的大小如何确定？连接池是不是越大越好？
 
@@ -233,7 +233,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：连接不够就加大池子。先看等待连接的线程数（pending）持续大于 0 且数据库本身不忙，才说明池真的小了。
 
-→ 详见 [池化技术](/high-perf/7_pooling)、[数据库连接池](/database/5_practice/3_connection_pool)
+→ 详见 [池化技术](/high-perf/7_pooling#二、连接池原理-为什么不是越大越好)、[数据库连接池](/database/5_practice/3_connection_pool#_4、池大小估算)
 
 ### Q16：如何发现和排查连接泄漏？
 
@@ -246,7 +246,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：手动管理连接。尽量交给框架（Spring 事务、MyBatis）统一借还。
 
-→ 详见 [池化技术](/high-perf/7_pooling)
+→ 详见 [池化技术](/high-perf/7_pooling#_4、连接泄漏检测)
 
 ### Q17：HTTP 客户端连接池需要关注哪些参数？为什么会出现 `NoHttpResponseException`？
 
@@ -259,7 +259,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：每次请求 new 一个客户端，连接池完全没用上。
 
-→ 详见 [池化技术](/high-perf/7_pooling)
+→ 详见 [池化技术](/high-perf/7_pooling#三、http-连接池)
 
 ### Q18：什么对象不应该池化？
 
@@ -270,7 +270,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 - 并发极高时池本身的锁会成为瓶颈，改用 `ThreadLocal` 每个线程一份
 - 虚拟线程：创建成本极低，不要池化；要限制下游并发，用信号量或连接池
 
-→ 详见 [池化技术](/high-perf/7_pooling)
+→ 详见 [池化技术](/high-perf/7_pooling#_2、什么时候不该池化)
 
 ## 五、异步、批量与 IO
 
@@ -290,7 +290,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 **常见坑**：不传线程池，用默认的 `commonPool`。它只有「核数 − 1」个线程，被阻塞 IO 占满会拖垮全局。
 
-→ 详见 [异步与批量](/high-perf/8_async_batch)
+→ 详见 [异步与批量](/high-perf/8_async_batch#_2、并行调用-completablefuture)
 
 ### Q20：`CompletableFuture.orTimeout` 超时后，底层任务会被取消吗？
 
@@ -300,7 +300,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 - 解决：HTTP / RPC 客户端自己必须设连接和读超时，而且不能大于这里的超时预算
 - `completeOnTimeout` 同理，只是超时后给一个默认值
 
-→ 详见 [异步与批量](/high-perf/8_async_batch)
+→ 详见 [异步与批量](/high-perf/8_async_batch#_2、并行调用-completablefuture)
 
 ### Q21：什么是对冲请求（Hedged Request）？有什么使用前提？
 
@@ -312,7 +312,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 - 下游整体过载时对冲会雪上加霜，要限制对冲比例，配合熔断限流
 - 优先用框架现成的能力，如 gRPC 的 `hedgingPolicy`
 
-→ 详见 [异步与批量](/high-perf/8_async_batch)、[性能分析方法论](/high-perf/2_methodology)
+→ 详见 [异步与批量](/high-perf/8_async_batch#二、长尾治理-对冲请求)、[性能分析方法论](/high-perf/2_methodology#_2、对冲请求-hedged-request)
 
 ### Q22：什么是请求合并？适合什么场景，有什么代价？
 
@@ -323,7 +323,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 - 实现要点：队列要有上限、攒够一批立刻发、查不到的 key 也要明确返回空、调用方设超时
 - 和 SingleFlight 的区别：SingleFlight 合并的是「相同 key」的并发请求（防缓存击穿），请求合并针对「不同 key」
 
-→ 详见 [异步与批量](/high-perf/8_async_batch)
+→ 详见 [异步与批量](/high-perf/8_async_batch#四、请求合并)
 
 ### Q23：什么是零拷贝？Kafka 为什么吞吐量高？开启 TLS 后有什么影响？
 
@@ -339,7 +339,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 **常见坑**：开 TLS 后不调整容量评估，吞吐会明显下降、CPU 上升。
 
-→ 详见 [IO 与网络优化](/high-perf/9_io_network)、[IO / NIO 专题](/java/18_topic_io)
+→ 详见 [IO 与网络优化](/high-perf/9_io_network#一、零拷贝-何时选用)、[IO 与 NIO](/java/18_topic_io#四、零拷贝)
 
 ### Q24：HTTP/1.1、HTTP/2、HTTP/3 在连接复用上有什么区别？
 
@@ -354,7 +354,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 - 复用连接是最便宜的优化：短连接每次都要握手，跨地域时光建连就要几十上百毫秒
 - 服务间调用用连接池 + Keep-Alive；高频内部调用可以考虑 gRPC
 
-→ 详见 [IO 与网络优化](/high-perf/9_io_network)
+→ 详见 [IO 与网络优化](/high-perf/9_io_network#_2、http-版本对比)
 
 ## 六、数据访问
 
@@ -368,7 +368,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 - 优化：加索引、调整联合索引列顺序、去掉索引列上的函数和隐式类型转换、改写 SQL
 - 例子：每天跑 10 次、每次 2 秒的报表，远不如每秒 500 次、每次 20ms 的列表查询压力大
 
-→ 详见 [数据访问性能](/high-perf/10_db_performance)
+→ 详见 [数据访问性能](/high-perf/10_db_performance#一、慢-sql-治理闭环)
 
 ### Q26：深分页为什么慢？有哪些优化方案？游标分页需要什么索引？
 
@@ -382,7 +382,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 **常见坑**：排序字段有重复值时只用它做游标，翻页会重复或漏数据；要带上 id 一起做游标。
 
-→ 详见 [数据访问性能](/high-perf/10_db_performance)、[MySQL 索引](/database/1_mysql/4_topic_index)
+→ 详见 [数据访问性能](/high-perf/10_db_performance#二、深分页)、[MySQL 索引](/database/1_mysql/4_topic_index#九、深度分页优化)
 
 ### Q27：JDBC 批量插入为什么没有变快？`rewriteBatchedStatements` 的作用是什么？
 
@@ -395,7 +395,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 **常见坑**：Hibernate 主键用 `IDENTITY`（数据库自增）时无法批量插入。
 
-→ 详见 [数据访问性能](/high-perf/10_db_performance)、[MySQL JDBC 驱动](/database/6_reference/2_jdbc_driver)
+→ 详见 [数据访问性能](/high-perf/10_db_performance#三、批量写入)、[MySQL JDBC 驱动](/database/6_reference/2_jdbc_driver#三、批量写入-rewritebatchedstatements)
 
 ### Q28：什么是 N+1 查询问题？如何发现和解决？
 
@@ -408,7 +408,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 **常见坑**：JPA 一对多 `JOIN FETCH` 和分页一起用，会把数据全查出来在内存里分页。
 
-→ 详见 [数据访问性能](/high-perf/10_db_performance)
+→ 详见 [数据访问性能](/high-perf/10_db_performance#四、n-1-查询)
 
 ### Q29：`IN` 列表过长会带来什么问题？
 
@@ -418,7 +418,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 - 范围分析用的内存超过上限（默认 8MB）时，会放弃走索引范围扫描
 - 批量接口、请求合并也一样，要限制单批的大小
 
-→ 详见 [数据访问性能](/high-perf/10_db_performance)
+→ 详见 [数据访问性能](/high-perf/10_db_performance#五、其他常见问题)
 
 ## 七、综合案例
 
@@ -434,7 +434,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 **常见坑**：只讲做了什么，不给数据。没有前后对比的数字，面试官没法判断收益。
 
-→ 详见 [端到端优化案例](/high-perf/11_case_study)
+→ 详见 [端到端优化案例](/high-perf/11_case_study#一、现象与目标)
 
 ### Q31：如何证明一项优化确实有效，而不是环境波动？
 
@@ -446,7 +446,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 - 看副作用：数据库 CPU、下游 QPS、缓存命中率有没有变差
 - 线上先灰度 1 台，和其他实例同时段对比 P99 和错误率
 
-→ 详见 [端到端优化案例](/high-perf/11_case_study)、[性能分析方法论](/high-perf/2_methodology)
+→ 详见 [端到端优化案例](/high-perf/11_case_study#_2、压测对比-验证整体收益)、[性能分析方法论](/high-perf/2_methodology#七、优化闭环)
 
 ### Q32：优化上线后，如何防止性能回归？
 
@@ -458,4 +458,4 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 - 监控：P99 超目标、连接池有等待等持续 1 分钟就告警
 - 沉淀：记录每次优化实验（包括无效的），复盘清单纳入评审
 
-→ 详见 [端到端优化案例](/high-perf/11_case_study)
+→ 详见 [端到端优化案例](/high-perf/11_case_study#_3、上线与防回归)

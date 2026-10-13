@@ -74,33 +74,7 @@ Boot 3.0 支持 Micrometer 1.10 引入的 Observation API——一次埋点同�
 
 ### 4、ProblemDetail：标准化错误响应（3.0）
 
-Framework 6.0 支持 RFC 7807（现为 RFC 9457）Problem Details，错误响应使用 `application/problem+json`。Boot 中开启：
-
-```yaml
-spring:
-  mvc:
-    problemdetails:
-      enabled: true
-```
-
-开启后框架内置异常（参数校验失败、405、415 等）统一输出 `type` / `title` / `status` / `detail` / `instance` 结构；业务异常可在 `@RestControllerAdvice` 中直接返回 `ProblemDetail`：
-
-```java
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
-
-@RestControllerAdvice
-public class GlobalExceptionHandler {
-
-    @ExceptionHandler(OrderNotFoundException.class)
-    public ProblemDetail handle(OrderNotFoundException ex) {
-        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
-        pd.setTitle("Order Not Found");
-        pd.setProperty("orderId", ex.getOrderId());   // 扩展字段
-        return pd;
-    }
-}
-```
+Framework 6.0 支持 RFC 7807（现为 RFC 9457）Problem Details，错误响应使用 `application/problem+json`；Boot 3 用 `spring.mvc.problemdetails.enabled=true` 开启后，框架内置异常（参数校验失败、405、415 等）统一输出 `type` / `title` / `status` / `detail` / `instance` 结构。从 2.x 升级时，前端若依赖旧的 `/error` JSON 字段，要同步调整。业务异常的写法、与统一 `Result` 包装的取舍见 [MVC · ProblemDetail](/spring/3_mvc#_2、problemdetail-推荐的错误响应格式)，Boot 侧配置见 [Web 开发 · 错误响应](/spring-boot/2_web_dev#四、错误响应-error-与-problemdetail)。
 
 ### 5、HTTP 客户端：HTTP Interface（3.0）与 RestClient（3.2）
 
@@ -223,7 +197,7 @@ Framework 7 废弃了自家基于 JSR 305 语义的空值注解（`org.springfra
 
 ### 5、API 版本控制
 
-Framework 7 在 Spring MVC 与 WebFlux 中内置 API 版本控制，版本可来自请求头、查询参数、媒体类型参数或路径，Boot 4 提供 `spring.mvc.apiversion.*` / `spring.webflux.apiversion.*` 自动配置：
+Framework 7 在 Spring MVC 与 WebFlux 中内置 API 版本控制，映射注解新增 `version` 属性（如 `@GetMapping(version = "1.2+")`），不再需要自写 `RequestCondition`；Boot 4 提供 `spring.mvc.apiversion.*` / `spring.webflux.apiversion.*` 自动配置：
 
 ```yaml
 spring:
@@ -234,80 +208,22 @@ spring:
         header: X-Version
 ```
 
-```java
-@RestController
-@RequestMapping("/account/{id}")
-public class AccountController {
-
-    @GetMapping(version = "1.1")      // 仅匹配 1.1
-    public Account getV1_1() { ... }
-
-    @GetMapping(version = "1.2+")     // 匹配 1.2 及以上已支持的版本
-    public Account getV1_2() { ... }
-}
-```
-
-支持的版本默认从控制器映射上声明的版本自动收集。请求的版本不在支持列表中会抛 `InvalidApiVersionException`，返回 400；启用版本控制后默认要求请求携带版本，缺失时抛 `MissingApiVersionException`（同样 400），配置了默认版本（如上例 `default`）则缺失时按默认版本处理。需要多种解析策略组合时，在 `WebMvcConfigurer#configureApiVersioning` 中编程配置。API 版本设计的通用规范（路径版本 vs 请求头版本）属于 API 设计话题，这里只讲框架支持。
+框架机制（版本解析、异常与废弃响应头）见 [MVC · API 版本控制](/spring/3_mvc#七、api-版本控制)，Boot 配置见 [Web 开发 · API 版本控制](/spring-boot/2_web_dev#_2、api-版本控制-boot-4)。
 
 ### 6、HTTP 服务客户端注册
 
-Boot 3 中使用 HTTP Interface 需要为每个接口手写 `HttpServiceProxyFactory` 的 Bean；Framework 7 新增 `@ImportHttpServices` 按分组批量注册，Boot 4 再用 `spring.http.serviceclient.<group>.*` 配置每组的地址、超时等：
-
-```java
-import org.springframework.web.service.registry.ImportHttpServices;
-
-@SpringBootApplication
-@ImportHttpServices(group = "inventory", basePackages = "com.example.client.inventory")
-public class Application { ... }
-```
-
-```yaml
-spring:
-  http:
-    clients:
-      connect-timeout: 1s           # 所有 HTTP 客户端的全局默认值
-    serviceclient:
-      inventory:
-        base-url: "http://inventory-service"
-        read-timeout: 2s
-```
-
-接口本身仍是普通的 `@GetExchange` / `@PostExchange` 声明，直接注入使用；按组定制（加统一请求头、拦截器）声明 `RestClientHttpServiceGroupConfigurer` Bean。微服务内部调用的方案对比见 [Spring Cloud 服务通信](/spring-cloud/3_communication)。
+Boot 3 中使用 HTTP Interface 需要为每个接口手写 `HttpServiceProxyFactory` 的 Bean；Framework 7 新增 `@ImportHttpServices` 按分组批量注册，Boot 4 再用 `spring.http.serviceclient.<group>.*` 配置每组的地址、超时等，接口直接注入使用。升级时可以把手写的代理工厂 Bean 换成分组注册。完整写法见 [Web 开发 · HTTP Service Clients](/spring-boot/2_web_dev#_3、http-service-clients)，微服务内部调用的方案对比见 [Spring Cloud 服务通信](/spring-cloud/3_communication)。
 
 ### 7、内置弹性注解：@Retryable / @ConcurrencyLimit
 
-Spring Retry 项目的核心能力被收进 Framework 7 本身，不再需要额外依赖：
+Spring Retry 项目的核心能力被收进 Framework 7 本身（包 `org.springframework.resilience.annotation`），用 `@EnableResilientMethods` 开启，不再需要额外依赖：
 
-```java
-import org.springframework.resilience.annotation.ConcurrencyLimit;
-import org.springframework.resilience.annotation.EnableResilientMethods;
-import org.springframework.resilience.annotation.Retryable;
-import org.springframework.web.client.RestClientException;
-
-@Configuration
-@EnableResilientMethods           // 开启 @Retryable 与 @ConcurrencyLimit
-public class ResilienceConfig { }
-
-@Service
-public class NotificationService {
-
-    // 仅对 RestClientException 重试：最多重试 4 次，100ms 起指数退避，单次等待上限 1s
-    @Retryable(includes = RestClientException.class,
-               maxRetries = 4, delay = 100, multiplier = 2, maxDelay = 1000)
-    public void send(Notification n) { ... }
-
-    // 同一时刻最多 10 个线程进入，适合在虚拟线程下保护下游
-    @ConcurrencyLimit(10)
-    public Report generate(Long id) { ... }
-}
-```
-
-- 默认重试任意异常、`maxRetries = 3`、间隔 1 秒；总调用次数 = 1 + `maxRetries`
-- 返回 `Mono` / `Flux` 的响应式方法会自动套上 Reactor 的重试
-- 编程式用法是 `org.springframework.core.retry.RetryTemplate` + `RetryPolicy`，注意它与 `@Retryable` 注解同名的 `org.springframework.core.retry.Retryable` 接口不是一个东西
+- `@Retryable`：方法级重试，`maxRetries` 不含首次调用（Spring Retry 的 `maxAttempts` 包含首次），没有 `@Recover`；返回 `Mono` / `Flux` 时自动套上 Reactor 重试
+- `@ConcurrencyLimit`：方法级并发上限，主要用于虚拟线程下保护下游
+- 编程式用法换成 `org.springframework.core.retry.RetryTemplate` + `RetryPolicy`
 - Boot 4 不再管理 Spring Retry 的依赖版本，继续用 Spring Retry 需显式写版本号
 
-它只覆盖方法级重试与并发上限；熔断、限流、舱壁等完整治理仍用 Resilience4j / Sentinel，系统级策略见 [高可用 - 限流熔断降级](/high-avail/0_overview)。
+用法、参数与迁移差异见 [Retry 重试](/spring/6_retry)。它只覆盖方法级重试与并发上限；熔断、限流、舱壁等完整治理仍用 Resilience4j / Sentinel，系统级策略见 [高可用 - 限流熔断降级](/high-avail/0_overview)。
 
 ### 8、移除与废弃
 

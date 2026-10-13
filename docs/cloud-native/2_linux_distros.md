@@ -187,39 +187,9 @@ sudo netplan apply
 
 没有特殊体积要求时，`eclipse-temurin:21-jre`（基于 Ubuntu，glibc）更省心；追求最小攻击面可以考虑 distroless 等只含运行时的镜像。
 
-### 2、多阶段构建示例
+### 2、多阶段构建
 
-以 Maven Wrapper 项目为例，构建阶段用 JDK 镜像编译打包，运行阶段只保留 JRE 和 jar：
-
-```dockerfile
-# 构建阶段
-FROM eclipse-temurin:21-jdk AS build
-WORKDIR /workspace
-COPY .mvn/ .mvn/
-COPY mvnw pom.xml ./
-RUN chmod +x mvnw && ./mvnw -B dependency:go-offline
-COPY src/ src/
-RUN ./mvnw -B package -DskipTests && cp target/*.jar app.jar
-
-# 运行阶段
-FROM eclipse-temurin:21-jre
-RUN groupadd --system app && useradd --system --gid app --no-create-home app
-WORKDIR /app
-COPY --from=build /workspace/app.jar app.jar
-USER app
-EXPOSE 8080
-ENTRYPOINT ["java", "-XX:MaxRAMPercentage=70", "-jar", "app.jar"]
-```
-
-```bash
-docker build -t order-service:1.0.0 .
-docker run --rm -p 8080:8080 order-service:1.0.0
-```
-
-- 先复制 `pom.xml` 下载依赖、再复制源码，源码变更时可复用依赖层缓存
-- `cp target/*.jar` 依赖 Spring Boot 打包后 `target/` 下只有一个可执行 jar（原始 jar 被重命名为 `.original`）
-- 运行阶段换成 Alpine 时，基础镜像改为 `eclipse-temurin:21-jre-alpine`，建用户改为 `addgroup -S app && adduser -S -G app app`
-- `ENTRYPOINT` 用 exec 形式，SIGTERM 才能直接到达 JVM；堆比例的取值依据见 [JVM 层性能策略](/high-perf/5_jvm_tuning)，镜像分层与构建细节见 [Docker](./5_docker)
+无论基础镜像选哪种，Java 镜像都用多阶段构建：构建阶段用 JDK 镜像编译打包，运行阶段只保留 JRE 和应用。运行阶段换成 Alpine 时，基础镜像要用 musl 构建的 `eclipse-temurin:21-jre-alpine`，建用户改用 BusyBox 的 `addgroup -S` / `adduser -S`。完整 Dockerfile、分层解压与 JVM 参数见 [Docker · 多阶段 Dockerfile](/cloud-native/5_docker#_1、多阶段-dockerfile)。
 
 ---
 

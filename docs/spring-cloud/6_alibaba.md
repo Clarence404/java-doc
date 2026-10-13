@@ -303,7 +303,7 @@ Nacos 3.x 默认开启鉴权，数据源同样需要配置 `username` / `passwor
 
 ### 1、依赖与版本
 
-Seata 已进入 Apache 基金会，2.x 起 Maven groupId 为 `org.apache.seata`，包名改为 `org.apache.seata.*`（保留了兼容旧 `io.seata` 包名的过渡模块）。SCA 2025.1 的 BOM 对应 Seata 2.5.0，seata-server 版本应与客户端一致。
+Seata 已进入 Apache 基金会，2.x 起 Maven groupId 为 `org.apache.seata`，包名改为 `org.apache.seata.*`（保留了兼容旧 `io.seata` 包名的过渡模块）。SCA 2025.1 的 BOM 自带 Seata 2.5.0，可显式覆盖到最新稳定版 2.6.0；无论选哪个，seata-server 与客户端版本保持一致。
 
 ```xml
 <dependency>
@@ -314,47 +314,11 @@ Seata 已进入 Apache 基金会，2.x 起 Maven groupId 为 `org.apache.seata`�
 
 ### 2、AT 模式两阶段
 
-三个角色：**TC**（事务协调者，独立部署的 seata-server）、**TM**（事务发起方）、**RM**（各参与方的数据源代理）。
-
-![Seata AT 模式两阶段流程](../assets/spring-cloud/seata-at.svg)
-
-1. **一阶段**：RM 拦截业务 SQL，解析出前后镜像写入 `undo_log` 表，与业务 SQL 在同一本地事务提交，提交前向 TC 注册分支并获取被修改行的**全局锁**；本地事务提交后立即释放数据库行锁
-2. **二阶段提交**：TC 通知各分支异步删除 `undo_log`、释放全局锁，开销很小
-3. **二阶段回滚**：RM 用后镜像校验当前数据未被全局事务之外的写入修改（被改过则无法自动回滚，需人工处理），再按前镜像生成反向 SQL 补偿
-
-隔离性要点：
-
-- **写隔离**：全局锁保证同一行在全局事务结束前不会被另一个全局事务修改
-- **读隔离**：全局层面默认是读未提交，其他事务可能读到一阶段已提交、但最终会回滚的数据；需要读已提交时，对读语句使用 `SELECT ... FOR UPDATE`，由 Seata 代理检查全局锁
-- 不经过 Seata 数据源代理的写入（其他系统直接改库）不受全局锁约束，是 AT 模式回滚失败的主要来源
+AT 模式由 TC（独立部署的 seata-server）、TM（`@GlobalTransactional` 发起方）、RM（参与方的数据源代理）协作：一阶段业务 SQL 与 `undo_log` 同一本地事务提交并持有全局锁，二阶段提交时异步删日志、回滚时按前镜像补偿。两阶段流程、读写隔离与回滚失败的原因见 [分布式事务 · AT 模式](/distributed/4_transaction#_3、at-模式)，本篇只讲接入。
 
 ### 3、代码与配置
 
-```java
-import org.apache.seata.spring.annotation.GlobalTransactional;
-
-@Service
-public class OrderAppService {
-
-    private final OrderMapper orderMapper;
-    private final StorageClient storageClient;
-    private final AccountClient accountClient;
-
-    public OrderAppService(OrderMapper orderMapper, StorageClient storageClient, AccountClient accountClient) {
-        this.orderMapper = orderMapper;
-        this.storageClient = storageClient;
-        this.accountClient = accountClient;
-    }
-
-    // 只加在事务发起方；任何一步抛出异常，TC 协调所有分支回滚
-    @GlobalTransactional(name = "create-order", timeoutMills = 30000, rollbackFor = Exception.class)
-    public void createOrder(OrderRequest req) {
-        orderMapper.insert(Order.from(req));     // 本地库
-        storageClient.deduct(req.skuId());       // 远程：库存服务
-        accountClient.debit(req.userId());       // 远程：账户服务
-    }
-}
-```
+`@GlobalTransactional` 只加在事务发起方（完整示例见 [分布式事务 · AT 模式](/distributed/4_transaction#_3、at-模式)），参与方只需接入 Seata 数据源代理。客户端配置：
 
 ```yaml
 seata:
@@ -378,14 +342,7 @@ seata:
 
 ### 4、模式选择
 
-| 模式 | 侵入性 | 隔离方式 | 适用 |
-|------|-------|---------|------|
-| **AT（默认）** | 无，依赖数据源代理 | 全局锁保证写隔离，读默认未提交 | 关系型数据库上的常规 CRUD |
-| TCC | 高，每个操作写 Try / Confirm / Cancel | Try 阶段预留资源，业务自行隔离 | 资金类、需要资源预留、涉及非数据库资源 |
-| Saga | 中，为每步写补偿 | 无隔离，靠补偿与业务设计 | 长流程、跨系统、包含外部服务 |
-| XA | 无，依赖数据库 XA | 数据库锁持续到二阶段结束，强一致 | 数据库支持 XA 且并发不高 |
-
-TCC 的空回滚、悬挂、幂等控制与各模式的完整对比见 [分布式事务](/distributed/4_transaction)。
+Spring Cloud 链路里默认用 AT（关系库常规 CRUD，零侵入）；资金类、需要资源预留或涉及非数据库资源用 TCC，长流程用 Saga，强一致低并发用 XA。四种模式的一致性、隔离与性能对比见 [分布式事务 · 四种模式](/distributed/4_transaction#_2、四种模式)，TCC 的空回滚、悬挂、幂等见 [TCC](/distributed/4_transaction#三、tcc)。
 
 ---
 
@@ -411,8 +368,7 @@ TCC 的空回滚、悬挂、幂等控制与各模式的完整对比见 [分布�
 - SCA 2025.1 取消 bootstrap，Nacos 配置统一 `spring.config.import`；Nacos 机制细节在注册发现与配置中心两篇
 - Sentinel 用 `@SentinelResource` 定义资源，`blockHandler` 处理规则拦截、`fallback` 处理业务异常；Feign 集成需 `feign.sentinel.enabled`
 - 生产规则必须持久化到 Nacos，数据流向是 Nacos → 应用，控制台改的规则不会写回
-- Seata 2.x 归属 Apache，包名 `org.apache.seata`；AT 模式一阶段写 `undo_log` 并取全局锁，二阶段异步删日志或按前镜像补偿
-- AT 全局层面默认读未提交，需要时用 `SELECT ... FOR UPDATE`；绕过数据源代理的写入会导致回滚失败
+- Seata 2.x 归属 Apache，包名 `org.apache.seata`；接入要点：发起方加 `@GlobalTransactional`、各参与库建 `undo_log`、XID 随调用透传、下游返回错误码时发起方要主动抛异常
 - 分布式事务能不用就不用，模式选择与理论在分布式模块
 
 ## 参考资料

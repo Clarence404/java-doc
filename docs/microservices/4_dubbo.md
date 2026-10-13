@@ -431,4 +431,4 @@ Spring Cloud OpenFeign 已进入功能完备状态，只做维护；Spring 生�
 - 序列化类检查：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/tasks/security/class-check/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/tasks/security/class-check/)
 - GitHub Releases：[https://github.com/apache/dubbo/releases](https://github.com/apache/dubbo/releases)
 
-> 返回：[微服务总览](./0_overview)
+> 下一篇：[接口调用顺序性](./5_call_ordering)

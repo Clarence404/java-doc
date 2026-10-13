@@ -166,7 +166,7 @@ Dockerfile 第一行写 `# syntax=docker/dockerfile:1`，构建器会使用最�
 ```dockerfile
 # syntax=docker/dockerfile:1
 
-FROM maven:3.9-eclipse-temurin-25 AS build
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /src
 COPY pom.xml .
 RUN --mount=type=cache,target=/root/.m2 mvn -B dependency:go-offline
@@ -175,7 +175,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn -B package -DskipTests \
     && cp target/*.jar application.jar \
     && java -Djarmode=tools -jar application.jar extract --layers --destination extracted
 
-FROM eclipse-temurin:25-jre
+FROM eclipse-temurin:21-jre
 RUN groupadd --system app && useradd --system --gid app --no-create-home app
 WORKDIR /app
 COPY --from=build /src/extracted/dependencies/ ./
@@ -196,9 +196,12 @@ docker run -d --name demo -p 8080:8080 --memory 1g demo-app:1.0.0
 
 - **最终镜像不含 JDK、Maven 和源码**：体积小，攻击面也小
 - **非 root 运行**：容器逃逸时影响更小，Kubernetes 的 `runAsNonRoot` 策略也要求这一点
+- **依赖层缓存**：先复制 `pom.xml` 下载依赖、再复制源码，源码变更时复用依赖层；用 Maven Wrapper 的项目改为先 `COPY .mvn/ mvnw pom.xml` 再执行 `./mvnw -B dependency:go-offline`
+- **`cp target/*.jar` 只匹配一个文件**：Spring Boot 打包后原始 jar 被重命名为 `.original`，`target/` 下只剩一个可执行 jar
+- **运行阶段换 Alpine**：基础镜像改为 `eclipse-temurin:21-jre-alpine`，BusyBox 没有 `groupadd`，建用户改为 `addgroup -S app && adduser -S -G app app`
 - **`-jar application.jar` 启动的是解压后的瘦 JAR**：它只包含应用代码，依赖通过 classpath 引用旁边的 `lib/` 目录；这种布局同时适合做 CDS / AOT 缓存，见 [启动优化](/spring-boot/14_startup)
-- **容器感知**：JDK 10 起 JVM 默认按 cgroup 限制计算堆大小和 CPU 数，用 `-XX:MaxRAMPercentage` 按比例设堆，不要写死 `-Xmx`；比例取多少、堆外内存怎么核算见 [GC 调优](/jvm/6_gc_tuning) 与 [JVM 层性能策略](/high-perf/5_jvm_tuning)
-- **JVM 参数可外置**：运行时用 `-e JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=70"` 覆盖，JVM 启动时会自动读取这个环境变量
+- **容器感知**：JDK 10 起 JVM 默认按 cgroup 限制计算堆大小和 CPU 数，用 `-XX:MaxRAMPercentage` 按比例设堆，不要写死 `-Xmx`；比例通常取 50～75（本篇示例统一用 75，堆外内存多的应用取低值），堆外内存怎么核算见 [GC 调优](/jvm/6_gc_tuning) 与 [JVM 层性能策略](/high-perf/5_jvm_tuning)
+- **JVM 参数可外置**：运行时用 `-e JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75"` 覆盖，JVM 启动时会自动读取这个环境变量
 
 > [!tip]
 > 不想维护 Dockerfile 时有两个选择：`mvn spring-boot:build-image` 用 Paketo Buildpacks 直接生成分层镜像（需要本机 Docker），Jib（`mvn compile jib:build`）不依赖 Docker 守护进程就能构建并推送镜像。Buildpacks 的启动优化参数见 [启动优化](/spring-boot/14_startup)。
@@ -207,9 +210,9 @@ docker run -d --name demo -p 8080:8080 --memory 1g demo-app:1.0.0
 
 | 类型 | 示例 | 适用 |
 |------|------|------|
-| 完整 JRE（Ubuntu） | `eclipse-temurin:25-jre` | 默认选择，自带 shell 方便排查 |
-| Alpine（musl） | `eclipse-temurin:25-jre-alpine` | 体积更小，注意 musl 与 glibc 的兼容差异 |
-| Distroless | `gcr.io/distroless/java25-debian13` | 无 shell、无包管理器，攻击面最小，排查要靠临时调试容器 |
+| 完整 JRE（Ubuntu） | `eclipse-temurin:21-jre` | 默认选择，自带 shell 方便排查 |
+| Alpine（musl） | `eclipse-temurin:21-jre-alpine` | 体积更小，注意 musl 与 glibc 的兼容差异，见 [Linux 发行版 · Alpine](/cloud-native/2_linux_distros#四、alpine-与容器基础镜像) |
+| Distroless | `gcr.io/distroless/java21-debian12` | 无 shell、无包管理器，攻击面最小，排查要靠临时调试容器 |
 
 ---
 
@@ -296,7 +299,7 @@ services:
       SPRING_DATASOURCE_USERNAME: demo
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
       SPRING_DATA_REDIS_HOST: redis
-      JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=70
+      JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=75
     depends_on:
       mysql:
         condition: service_healthy

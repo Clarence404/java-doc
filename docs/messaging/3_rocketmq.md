@@ -167,32 +167,13 @@ public class OrderCreatedConsumer implements RocketMQListener<MessageExt> {
         // 正常返回 = 消费成功；抛异常 = 稍后重试
     }
 }
-
-@Service
-@RequiredArgsConstructor
-public class PointsService {
-
-    private final ConsumeRecordMapper consumeRecordMapper;
-    private final PointsMapper pointsMapper;
-
-    @Transactional
-    public void grantPoints(String bizKey, OrderCreatedEvent event) {
-        try {
-            // 去重记录表：唯一键 (consumer_group, biz_key)，与业务写入在同一个本地事务
-            consumeRecordMapper.insert("order-points-group", bizKey);
-        } catch (DuplicateKeyException e) {
-            return;                              // 已处理过，直接视为成功
-        }
-        pointsMapper.addPoints(event.getUserId(), event.getAmount());
-    }
-}
 ```
 
-要点：
+`grantPoints` 内部按「去重记录与积分写入同一个本地事务」实现，写法、Redis 状态机方案和「`SETNX` 占位即完成」反模式统一见 [消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)，通用方案对比见 [系统架构 · 幂等设计](/architecture/5_idempotence)。RocketMQ 侧的要点：
 
-- **去重记录与业务写入必须在同一个本地事务**，业务失败时去重记录一起回滚，重投时能再次处理
-- 不能「先 Redis `SETNX` 占位、再处理」：处理失败后占位还在，重投会被误判为已处理而丢消息。业务不在 DB 时用 Redis 状态机：`SET key processing NX EX` → 处理 → 置为 `done`；失败则 `DEL` 让重投能重试；重投时看到 `processing` 说明另一实例在处理，应抛异常稍后重试，而不是直接确认跳过
-- 通用方案对比见 [系统架构 · 幂等设计](/architecture/5_idempotence)
+- **去重键取 `msg.getKeys()`**：发送时把订单号写进 `KEYS`，比 `msgId` 可靠（重试产生的重复消息 `msgId` 不同），控制台也能按 Key 查消息
+- **正常返回 = 成功，抛异常 = 重试**：已处理过的消息直接返回；看到「处理中」要抛异常等重投，不能返回成功
+- **`msg.getReconsumeTimes()` 可做分级处理**：比如超过若干次后记录告警、走人工补偿，避免一直重试到进死信队列才被发现（重试与死信见下文第八节）
 
 ---
 
@@ -392,7 +373,7 @@ public class OrderPointsDlqHandler implements RocketMQListener<MessageExt> {
 
 ### 2、重复消费
 
-生产者超时重试、消费者重启或 Rebalance 都会导致重复。按「五、2」的方式用**业务键 + 本地事务去重表**实现幂等。
+生产者超时重试、消费者重启或 Rebalance 都会导致重复。按「五、2」的方式用**业务键 + 本地事务去重表**实现幂等，写法见 [消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)。
 
 ### 3、消息积压
 

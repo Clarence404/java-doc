@@ -309,7 +309,7 @@ txTemplate.execute(status -> { recordRepo.save(record); return accountRepo.deduc
 - 用 `@Controller` 又想返回 JSON，就在方法上单独加 `@ResponseBody`
 - 前后端分离的 REST 接口统一用 `@RestController`
 
-→ 详见 [MVC](/spring/3_mvc)
+→ 详见 [MVC](/spring/3_mvc#_2、常用注解)
 
 ### Q23：过滤器（Filter）和拦截器（Interceptor）的区别？
 
@@ -328,18 +328,18 @@ txTemplate.execute(status -> { recordRepo.save(record); return accountRepo.deduc
 
 → 详见 [MVC](/spring/3_mvc#_3、filter-与-handlerinterceptor)、[Web 开发](/spring-boot/2_web_dev#五、filter-与拦截器的注册)
 
-### Q24：Servlet 的生命周期是怎样的？Servlet 是线程安全的吗？
+### Q24：Controller 是线程安全的吗？`DispatcherServlet` 什么时候初始化？
 
-**一句话**：每个 Servlet 只有一个实例：创建后调一次 `init`，每个请求调一次 `service`，卸载时调一次 `destroy`。同一个实例被多个线程同时调用，所以它不是线程安全的。
+**一句话**：Controller 默认是单例 Bean，一个实例同时服务所有请求线程，本身不是线程安全的；只要不在字段里存请求状态就没问题。`DispatcherServlet` 也一样是单实例多线程，Boot 默认等第一个请求才初始化它。
 
-- 默认第一次请求时才创建；配置 `load-on-startup` ≥ 0 时随容器启动创建
-- `service` 再按请求方法分给 `doGet`、`doPost`
-- 请求相关的数据只能放局部变量或 request 里，不能放实例字段
-- Spring MVC 只有一个 `DispatcherServlet`；Controller、Filter 也是单实例多线程，同样不能在字段里存请求状态
+- 单例多线程：Controller、Service、Filter 和 `DispatcherServlet` 都是一个实例被多个线程同时调用
+- 请求相关的数据放局部变量、方法参数或 request 里，不放实例字段
+- 确实要共享的可变状态，用线程安全容器或交给 Redis、数据库
+- 不推荐为此把 Controller 改成 prototype / request 作用域，把状态移出字段更简单
 
-**常见坑**：Boot 默认第一个请求才初始化 `DispatcherServlet`，首个请求偏慢，可设 `spring.mvc.servlet.load-on-startup=1`。
+**常见坑**：首个请求才初始化 `DispatcherServlet`，第一个请求偏慢，可设 `spring.mvc.servlet.load-on-startup=1`。
 
-→ 详见 [MVC](/spring/3_mvc)
+→ 详见 [IoC 容器](/spring/1_ioc#四、bean-作用域)、[MVC](/spring/3_mvc#一、dispatcherservlet-请求处理流程)
 
 ### Q25：Framework 6.1 起 MVC 参数校验有什么变化？`MethodArgumentNotValidException` 与 `HandlerMethodValidationException` 分别在什么时候抛出？
 

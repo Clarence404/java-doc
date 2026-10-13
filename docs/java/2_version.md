@@ -364,66 +364,15 @@ Java 25（2025-09）是 21 之后的 LTS，共 18 个 JEP。**正式定稿**的�
 
 ### 1、Scoped Values（正式，JEP 506）
 
-```java
-static final ScopedValue<User> CURRENT_USER = ScopedValue.newInstance();
-
-void handle(Request req) {
-    User user = authenticate(req);
-    ScopedValue.where(CURRENT_USER, user).run(() -> service.process(req));
-}
-
-// 调用链任意深处读取，无需逐层传参
-void audit() {
-    User user = CURRENT_USER.get();               // 未绑定时抛 NoSuchElementException
-    String name = CURRENT_USER.isBound() ? CURRENT_USER.get().name() : "anonymous";
-}
-```
-
-| 维度 | ThreadLocal | ScopedValue |
-|------|-------------|-------------|
-| 可变性 | `set` 随时修改 | 绑定后不可变，只能在内层重新绑定 |
-| 生命周期 | 直到 `remove()` 或线程结束，线程池中易泄漏 | 随 `run` / `call` 结束自动解绑 |
-| 子线程继承 | `InheritableThreadLocal` 在创建线程时拷贝 | 只有通过 `StructuredTaskScope.fork` 创建的子任务自动继承；普通 `new Thread`、线程池任务**不继承** |
-| 虚拟线程 | 每个线程一份副本，海量线程下内存放大 | 共享绑定，开销低 |
-
-ThreadLocal 的原理与泄漏问题见 [线程基础](./23_topic_thread_basics)。
+- 经 JDK 21–24 多轮预览后在 JDK 25 定稿：`ScopedValue.where(KEY, value).run(...)` / `.call(...)` 在有界范围内绑定**不可变**值，范围结束自动解绑
+- 定位是请求级只读上下文（当前用户、traceId），替代 `ThreadLocal` 的「随时可改、忘了 `remove()` 就泄漏」；只有 `StructuredTaskScope` fork 的子任务会继承，普通线程池不继承
+- 用法、与 `ThreadLocal` 的对比表见 [虚拟线程 · ScopedValue](./30_topic_virtual_thread#七、scopedvalue-jdk-25-正式)；ThreadLocal 的原理与泄漏问题见 [线程基础](./23_topic_thread_basics)
 
 ### 2、结构化并发（第五次预览，JEP 505）
 
-JDK 25 重新设计了 API：不再通过 `new StructuredTaskScope.ShutdownOnFailure()` 创建，而是用静态工厂 `open()` 并传入 `Joiner` 策略。需要 `--enable-preview`，且 JDK 26（JEP 525）、27（JEP 533）仍在预览并继续调整。
-
-```java
-// JDK 25 + --enable-preview
-Response handle(long id) throws InterruptedException {
-    try (var scope = StructuredTaskScope.open()) {    // 默认策略：全部成功，任一失败即取消其余
-        StructuredTaskScope.Subtask<User> user = scope.fork(() -> fetchUser(id));
-        StructuredTaskScope.Subtask<Order> order = scope.fork(() -> fetchOrder(id));
-        scope.join();                                  // 有子任务失败时抛 StructuredTaskScope.FailedException
-        return new Response(user.get(), order.get());
-    }   // 离开作用域时所有子任务都已结束，不会泄漏线程
-}
-
-// 其他策略：任一成功即返回（如多副本竞速）
-try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.<String>anySuccessfulResultOrThrow())) {
-    scope.fork(() -> queryReplica("a"));
-    scope.fork(() -> queryReplica("b"));
-    String first = scope.join();
-}
-```
-
-对比 JDK 21 的写法（JEP 453，同样是预览）：
-
-```java
-// JDK 21 + --enable-preview，在 JDK 25 上已无法编译
-try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
-    StructuredTaskScope.Subtask<User> user = scope.fork(() -> fetchUser(id));
-    StructuredTaskScope.Subtask<Order> order = scope.fork(() -> fetchOrder(id));
-    scope.join().throwIfFailed();
-    return new Response(user.get(), order.get());
-}
-```
-
-预览 API 每个版本都可能不兼容，生产代码在它定稿前更适合用 `CompletableFuture` 或虚拟线程 + `ExecutorService`。
+- JDK 25 重新设计 API：去掉 `new StructuredTaskScope.ShutdownOnFailure()` 子类写法，改为静态工厂 `StructuredTaskScope.open(Joiner)`，JDK 21 的预览代码在 25 上已无法编译
+- 仍需 `--enable-preview`，JDK 26（JEP 525）、27（JEP 533）继续预览并有不兼容调整；定稿前生产代码更适合用 `CompletableFuture` 或虚拟线程 + `ExecutorService`
+- 示例与 `Joiner` 策略见 [虚拟线程 · 结构化并发](./30_topic_virtual_thread#八、结构化并发-预览)
 
 ### 3、原始类型模式匹配（第三次预览，JEP 507）
 

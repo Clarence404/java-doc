@@ -460,38 +460,9 @@ spec:
 
 功能开关（Feature Flag）让新代码随版本部署到生产，但默认关闭，再按用户、租户、比例逐步打开。好处是回滚不需要重新部署，关开关即可；主干开发时未完成的功能也能安全合入，与 [Git 工作流](./1_git_workflow) 的主干开发配合使用。
 
-开关的取值来源可以是配置中心，也可以是专门的开关平台（Unleash、flagd、LaunchDarkly 等）。CNCF 的 OpenFeature 定义了与厂商无关的 SDK 接口，业务代码只依赖 OpenFeature API，后端换平台时只换 Provider：
+在发布流程里，开关的典型用法是：版本先以「开关关闭」部署到全部实例，再按内部账号 → 1% → 5% → 全量逐步打开，每一步观察与金丝雀相同的 SLO 指标；指标异常时直接关开关止损，比回滚部署快得多。生产开关的修改要和代码发布一样留审计记录，排障时才能关联到「刚刚改了哪个开关」。
 
-```java
-import dev.openfeature.sdk.Client;
-import dev.openfeature.sdk.ImmutableContext;
-import dev.openfeature.sdk.OpenFeatureAPI;
-import dev.openfeature.sdk.Value;
-import java.util.Map;
-
-public class CheckoutService {
-
-    private final Client flags = OpenFeatureAPI.getInstance().getClient();
-
-    public Receipt checkout(Order order) {
-        // targetingKey 用用户 ID，平台据此做按用户或按比例的稳定分桶
-        var ctx = new ImmutableContext(order.userId(),
-                Map.of("tenant", new Value(order.tenantId())));
-        if (flags.getBooleanValue("new-checkout", false, ctx)) {
-            return newCheckout(order);
-        }
-        return legacyCheckout(order);
-    }
-}
-```
-
-应用启动时调用一次 `OpenFeatureAPI.getInstance().setProviderAndWait(provider)` 注册具体平台的 Provider。默认值 `false` 是兜底：开关平台不可用时走旧逻辑。基于配置中心的简单实现与多环境开关配置见 [环境管理](./7_env_management)。
-
-开关的治理：
-
-- **分类型管理**：发布开关（灰度用，全量后删除）、运维开关（降级用，长期保留）、实验开关（A/B 用，实验结束删除），不同类型有不同的生命周期
-- **设负责人和到期时间**：发布开关全量后在下一个迭代删除代码分支，否则开关组合越来越多，测试覆盖不了
-- **变更有审计**：生产开关的修改和代码发布一样要有记录，故障排查时能关联到「刚刚改了哪个开关」
+开关的实现（配置中心驱动、OpenFeature）、类型与生命周期治理见 [环境管理 · 功能开关](/devops/7_env_management#五、功能开关-feature-flag)。
 
 ### 2、暗发布：用真实流量验证但不影响用户
 
@@ -606,25 +577,11 @@ Nacos、Apollo 都保留配置历史，可以回滚到任一版本。配置变�
 
 ### 1、DORA 指标
 
-DORA（DevOps Research and Assessment）用 5 个指标衡量软件交付表现，分为吞吐和稳定性两类：
-
-| 类别 | 指标 | 含义 |
-|------|------|------|
-| 吞吐 | 部署频率（Deployment frequency） | 一段时间内部署到生产的次数 |
-| 吞吐 | 变更前置时间（Change lead time） | 代码提交到在生产运行所需的时间 |
-| 吞吐 | 失败部署恢复时间（Failed deployment recovery time） | 部署失败、需要立即干预后，恢复服务所需的时间 |
-| 稳定性 | 变更失败率（Change fail rate） | 部署后需要立即干预（回滚、热修复）的比例 |
-| 稳定性 | 部署返工率（Deployment rework rate） | 因生产事故而触发的计划外部署所占的比例 |
-
-旧版四指标中的 MTTR 已被「失败部署恢复时间」取代：后者只统计由部署引起的故障，不混入硬件故障、外部依赖故障。DORA 的研究结论是吞吐和稳定性并不冲突，小批量、高频发布的团队往往两者都更好。
-
-落地时数据来源：
+DORA 的五项指标（吞吐：部署频率、变更前置时间、失败部署恢复时间；不稳定性：变更失败率、部署返工率）及其定义演变见 [DevOps 总览 · 交付效能度量](/devops/0_overview#三、交付效能度量-dora)。发布环节要保证的是这些指标有可靠的数据来源：
 
 - 部署频率、前置时间：CI/CD 流水线与 Git 提交时间，见 [CI/CD](./2_ci_cd)
 - 变更失败率、返工率：发布记录中标记为回滚或热修复的部署
 - 恢复时间：故障工单中「部署时间」到「恢复时间」的差值
-
-指标用于观察团队趋势，不要拿来做个人考核，否则数据会被「优化」得失去意义。
 
 ### 2、发布记录与复盘
 

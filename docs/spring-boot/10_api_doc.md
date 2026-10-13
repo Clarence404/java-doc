@@ -216,7 +216,7 @@ public record UserCreateDTO(
 
 ### 6、与 Framework 7 API 版本控制配合
 
-使用 Framework 7 内置的 API 版本控制（见 [Spring Boot 版本演进](./11_versions)）时，同一路径会因版本不同映射到不同方法。建议每个对外版本建一个 `GroupedOpenApi`，让每份文档只包含一个版本的接口；具体的按版本筛选方式随 springdoc 3.x 小版本演进，以官方文档为准。
+使用 Framework 7 内置的 API 版本控制（见 [Web 开发 · API 版本控制](./2_web_dev#_2、api-版本控制-boot-4)）时，同一路径会因版本不同映射到不同方法。建议每个对外版本建一个 `GroupedOpenApi`，让每份文档只包含一个版本的接口；具体的按版本筛选方式随 springdoc 3.x 小版本演进，以官方文档为准。
 
 ---
 

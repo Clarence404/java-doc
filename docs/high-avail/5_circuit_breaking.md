@@ -100,66 +100,27 @@ Half-Open 的探测结果决定下一步：探测成功则回到 Closed；探测
 
 ---
 
-## 五、最小示例
+## 五、参数对照与默认值
 
-**下面只给出最小可用配置，完整的 Sentinel 规则代码、事件监听与规则持久化见 [Spring Cloud Alibaba - Sentinel](/spring-cloud/6_alibaba)。**
+**两个框架的参数名不同，但要定的都是第三节那几项。** 配置与代码见 [服务治理 · Resilience4j 与 Sentinel](/spring-cloud/5_service_governance#_1、resilience4j-与-sentinel)（Resilience4j）和 [Spring Cloud Alibaba · 规则代码示例](/spring-cloud/6_alibaba#_3、规则代码示例)（Sentinel）。
 
-### 1、Sentinel：慢调用比例熔断
+| 要定的量 | Sentinel `DegradeRule` | Resilience4j `circuitbreaker` |
+|---------|-----------------------|------------------------------|
+| 统计窗口 | `statIntervalMs`（时间窗口） | `sliding-window-type` + `sliding-window-size` |
+| 最小请求数 | `minRequestAmount` | `minimum-number-of-calls` |
+| 异常比例阈值 | 异常比例策略的 `count`（0–1） | `failure-rate-threshold`（百分比） |
+| 慢调用判定 | `count`（RT 阈值，ms）+ `slowRatioThreshold` | `slow-call-duration-threshold` + `slow-call-rate-threshold` |
+| 熔断时长 | `timeWindow`（s） | `wait-duration-in-open-state` |
+| 半开探测 | 放行 1 个请求 | `permitted-number-of-calls-in-half-open-state` |
+| 不计入失败 | `@SentinelResource` 的 `exceptionsToIgnore` | `ignore-exceptions` |
 
-```java
-// 统计 10s 内请求：RT > 500ms 视为慢调用，慢调用比例 > 60% 且请求数 ≥ 10 时熔断 10s
-DegradeRule rule = new DegradeRule("queryInventory")
-        .setGrade(CircuitBreakerStrategy.SLOW_REQUEST_RATIO.getType())
-        .setCount(500)                 // 慢调用 RT 阈值（ms）
-        .setSlowRatioThreshold(0.6)    // 慢调用比例阈值
-        .setMinRequestAmount(10)       // 最小请求数
-        .setStatIntervalMs(10_000)     // 统计窗口（ms）
-        .setTimeWindow(10);            // 熔断时长（s）
-DegradeRuleManager.loadRules(Collections.singletonList(rule));
-```
-
-### 2、Resilience4j：失败率 + 慢调用率熔断
-
-```yaml
-resilience4j:
-  circuitbreaker:
-    instances:
-      inventory:
-        sliding-window-type: COUNT_BASED
-        sliding-window-size: 50                          # 统计最近 50 次调用
-        minimum-number-of-calls: 20                      # 至少 20 次才开始计算
-        failure-rate-threshold: 50                       # 失败率阈值 50%
-        slow-call-duration-threshold: 800ms              # 超过 800ms 视为慢调用
-        slow-call-rate-threshold: 60                     # 慢调用率阈值 60%
-        wait-duration-in-open-state: 10s                 # 熔断时长
-        permitted-number-of-calls-in-half-open-state: 5  # 半开探测请求数
-        ignore-exceptions:
-          - com.example.common.BusinessException         # 业务异常不计入失败
-```
-
-```java
-@Slf4j
-@Service
-public class InventoryClient {
-
-    @CircuitBreaker(name = "inventory", fallbackMethod = "queryFallback")
-    public Stock query(Long skuId) {
-        return restClient.get().uri("/api/stock/{id}", skuId).retrieve().body(Stock.class);
-    }
-
-    // 参数与原方法一致，最后加异常参数；熔断打开时收到 CallNotPermittedException
-    private Stock queryFallback(Long skuId, Throwable t) {
-        log.warn("库存查询降级 skuId={}, cause={}", skuId, t.toString());
-        return Stock.unknown(skuId);
-    }
-}
-```
+取值建议见第三节「关键参数怎么定」。
 
 ::: warning Resilience4j 默认值偏宽松
 `minimumNumberOfCalls` 与 `slidingWindowSize` 默认均为 100，`waitDurationInOpenState` 默认 60s，`slowCallDurationThreshold` 默认 60s。直接用默认值时，小流量接口几乎不会触发熔断，慢调用也基本不计入，**建议每个实例显式设置**。
 :::
 
-### 3、与重试的执行顺序
+### 1、与重试的执行顺序
 
 Resilience4j 注解叠加时，默认执行顺序由外到内为 `Retry → CircuitBreaker → RateLimiter → TimeLimiter → Bulkhead → 业务方法`。重试在最外层意味着每次重试都会经过熔断器统计；熔断打开后抛出的 `CallNotPermittedException` 必须配置为不重试，重试策略见 [超时、重试与隔离](./4_timeout_retry_bulkhead)。
 
@@ -167,13 +128,7 @@ Resilience4j 注解叠加时，默认执行顺序由外到内为 `Retry → Circ
 
 ## 六、OpenFeign 接入 Sentinel
 
-**开启 `feign.sentinel.enabled=true` 后，每个 Feign 方法自动成为一个 Sentinel 资源，失败或熔断时走 `fallbackFactory`。**
-
-- **资源名格式**：`HTTP方法:协议://服务名/路径`，如 `GET:http://order-service/api/orders/{id}`，在控制台按这个名字配熔断规则
-- **优先用 `fallbackFactory`**：它能拿到异常原因，便于区分"熔断拒绝"和"下游报错"
-- **非幂等接口不要静默返回成功**：创建、扣款等写操作降级时应抛出异常，让调用方明确感知失败
-
-依赖、配置与 `FallbackFactory` 完整代码见 [Spring Cloud Alibaba - Sentinel](/spring-cloud/6_alibaba)。
+开启 `feign.sentinel.enabled=true` 后每个 Feign 方法自动成为 Sentinel 资源；写操作降级时不能静默返回成功。资源名格式与 `FallbackFactory` 代码见 [Spring Cloud Alibaba · 与 OpenFeign 集成](/spring-cloud/6_alibaba#_4、与-openfeign-集成)。
 
 ---
 

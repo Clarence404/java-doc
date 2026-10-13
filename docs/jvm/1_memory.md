@@ -173,23 +173,10 @@ Young GC 时存活对象可能多到 Survivor 放不下，需要老年代兜底�
 
 ### 1、intern()
 
-`intern()` 的语义：常量池已有相等字符串则返回池中引用；没有则把当前字符串**的引用**登记进池并返回它（JDK 7+）。
+`intern()` 就是往这张表里查找或登记字符串：JDK 7+ 池中没有时登记的是堆上对象**的引用**，而 JDK 6 会把字符串复制到永久代。语义、`==` 示例与使用建议见 [String · 常量池与 ==](/java/11_topic_string#二、常量池与)。
 
-```java
-String s1 = new String("hello");   // "hello" 字面量已在常量池；s1 是堆上的新对象
-String s2 = s1.intern();           // 池中已有 "hello"，返回池中那个对象
-String s3 = "hello";               // 字面量，直接引用池中对象
-
-System.out.println(s1 == s2);  // false：s1 是另一个堆对象
-System.out.println(s2 == s3);  // true：同一个池中对象
-
-String s4 = new String("ab") + new String("c");  // 运行期拼接，池中还没有 "abc"
-s4.intern();                                      // JDK 7+：把 s4 的引用登记进池
-System.out.println(s4 == "abc");  // JDK 7+ 为 true；JDK 6 复制到永久代，为 false
-```
-
-- 适用场景：大量重复且取值有限的字符串（如编码、状态字段），`intern()` 可显著省内存
 - 池的桶数由 `-XX:StringTableSize` 决定，默认值随 JDK 版本不同，以所用 JDK 为准；intern 量很大时可调大，减少哈希冲突
+- `jcmd <pid> VM.stringtable` 或 `-XX:+PrintStringTableStatistics` 可查看表的条目数与桶分布
 
 ### 2、字符串去重（String Deduplication）
 

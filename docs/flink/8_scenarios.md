@@ -182,16 +182,18 @@ public class LoginRiskJob {
 
 ## 三、实时数仓分层
 
+分层的职责与建模规范见 [数仓分层与建模](/big-data/2_data_warehouse)，从埋点、Kafka、Paimon 到 StarRocks 与查询服务的完整链路见 [实时数仓实战](/big-data/9_realtime_dw)，Paimon 表格式与流式湖仓见 [数据湖与湖仓](/big-data/4_lakehouse)。本节只讲 Flink 侧的做法与取舍。
+
 ### 1、架构
 
 ![实时数仓分层（Kafka / Paimon）](../assets/flink/flink-realtime-dw.svg)
 
-| 层 | 内容 | 存储 | 产出方式 |
-|----|------|------|----------|
-| ODS | 业务库变更、埋点日志原样落地 | Paimon 主键表 / Kafka | Flink CDC Pipeline 整库同步；日志直接写 Kafka |
-| DWD | 清洗、去重、维度打宽后的明细 | Paimon 主键表 | Flink SQL 流式读 ODS，关联维表后写入 |
-| DWS | 按主题、粒度轻度汇总 | Paimon 聚合表 / Doris | Flink SQL 聚合 |
-| ADS | 面向应用的指标与宽表 | Doris / StarRocks | 汇总写入或直接在 OLAP 中建视图 |
+| 层 | Flink 侧做法 |
+|----|--------------|
+| ODS | 业务库用 Flink CDC Pipeline 整库同步进 Paimon；埋点日志直接写 Kafka |
+| DWD | Flink SQL 流式读 ODS，清洗、去重、关联维表后写 Paimon 主键表 |
+| DWS | Flink SQL 聚合，或交给 Paimon 聚合合并引擎写入即合并 |
+| ADS | 汇总写入 Doris / StarRocks，或在 OLAP 中直接建视图 / 物化视图 |
 
 ### 2、Kafka 还是 Paimon 做中间层
 
@@ -204,63 +206,25 @@ public class LoginRiskJob {
 
 常见组合是「延迟敏感的链路走 Kafka，其余走 Paimon」：大屏、风控直接消费 Kafka；数仓明细和汇总落在 Paimon，既能流式往下游传，又能被分析查询直接使用。
 
-### 3、关键代码
+### 3、Flink 侧的关键配置
 
 ODS：用 Flink CDC Pipeline 把业务库整库同步进 Paimon（`sink.type: paimon`），自动建表并跟随上游 Schema 演进，写法与 [Flink CDC](./6_cdc) 中同步 Doris 的管道相同。
 
-DWD：订单明细打宽。
+DWD / DWS：把去重、聚合下推给 Paimon 主键表的合并引擎，Flink 作业几乎不持有状态，升级和恢复都更轻：
 
-```sql
-CREATE CATALOG lake WITH (
-  'type' = 'paimon',
-  'warehouse' = 's3://lake/warehouse'
-);
-USE CATALOG lake;
+| 合并引擎 | 行为 | 适用层 |
+|----------|------|--------|
+| `deduplicate`（默认） | 同主键保留最后一条 | 业务库 CDC 明细（DWD 订单明细 `dwd_trade_order_detail_inc`） |
+| `first-row` | 同主键保留第一条，下游只收到插入 | 埋点按 `event_id` 去重 |
+| `aggregation` | 按字段聚合函数（`sum` 等）写入即合并 | DWS 汇总 |
+| `partial-update` | 多个作业各写一部分列，按主键拼成宽表 | 多流打宽 |
 
-CREATE TABLE IF NOT EXISTS dwd.dwd_order_detail (
-  order_id     BIGINT,
-  user_id      BIGINT,
-  user_level   STRING,
-  city         STRING,
-  amount       DECIMAL(18, 2),
-  status       STRING,
-  pay_time     TIMESTAMP(3),
-  dt           STRING,
-  PRIMARY KEY (dt, order_id) NOT ENFORCED
-) PARTITIONED BY (dt) WITH (
-  'bucket' = '8',
-  'changelog-producer' = 'lookup'     -- 为下游流读产出完整 changelog
-);
-
-INSERT INTO dwd.dwd_order_detail
-SELECT o.id, o.user_id, u.level, u.city, o.amount, o.status, o.pay_time,
-       DATE_FORMAT(o.pay_time, 'yyyy-MM-dd')
-FROM ods.ods_orders AS o
-LEFT JOIN ods.ods_user AS u
-  ON o.user_id = u.id;
-```
-
-DWS：用聚合合并引擎做预聚合，写入即合并。
-
-```sql
-CREATE TABLE IF NOT EXISTS dws.dws_city_gmv_day (
-  dt      STRING,
-  city    STRING,
-  gmv     DECIMAL(18, 2),
-  orders  BIGINT,
-  PRIMARY KEY (dt, city) NOT ENFORCED
-) WITH (
-  'merge-engine' = 'aggregation',
-  'fields.gmv.aggregate-function' = 'sum',
-  'fields.orders.aggregate-function' = 'sum',
-  'changelog-producer' = 'lookup'
-);
-```
+建表与作业 SQL 见 [实时数仓实战](/big-data/9_realtime_dw#三、dwd-清洗与去重) 与 [数据湖与湖仓](/big-data/4_lakehouse#八、flink-paimon-流式湖仓)。
 
 ### 4、设计要点
 
 - **Paimon 的 changelog**：主键表默认不为下游产出完整 changelog，下游要流式消费更新时设置 `changelog-producer`（`input` / `lookup` / `full-compaction`），`lookup` 在延迟和成本间较均衡。
-- **DWD 关联的是「当前」维度**：上例中 ODS 用户表是一张不断更新的表，Regular Join 会在维度变更时回撤并更新历史明细，状态也很大。只要「下单时刻的维度」时改用 Lookup Join，或在 Paimon 中用 Temporal Join；对比见下一节。
+- **DWD 关联的是「当前」维度**：ODS 用户表是一张不断更新的表，DWD 若用 Regular Join 关联，维度变更时会回撤并更新历史明细，状态也很大。只要「下单时刻的维度」时改用 Lookup Join，或在 Paimon 中用 Temporal Join；对比见下一节。
 - **分区与分桶**：按天分区便于过期清理；`bucket` 决定写入并行度上限，过少会成为写入瓶颈，过多会产生大量小文件。
 - **每层一个作业 vs 一个作业多层**：分作业便于独立升级和回溯，但端到端延迟是各层 checkpoint 间隔之和；对延迟敏感的指标不要堆太多层。
 - **ODS 用 CDC 一次拉全库**，下游所有作业都读 Paimon，避免每个作业都单独连业务库读 binlog。

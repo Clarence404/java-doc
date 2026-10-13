@@ -229,7 +229,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 - 条件要命中主键或唯一索引，否则锁的范围会变大（见 Q13）
 - 跨服务、跨库的互斥要用分布式锁
 
-→ 详见 [高并发面试题解答](/interview/13_high_con#q30-秒杀场景下同一行库存的高并发扣减如何优化)、[热点问题](/high-con/6_hotspot#三、写热点-热点行更新)
+→ 详见 [高并发面试题解答](/interview/13_high_con#q29-秒杀场景下同一行库存的高并发扣减如何优化)、[热点问题](/high-con/6_hotspot#三、写热点-热点行更新)
 
 ## 四、存储引擎
 
@@ -519,7 +519,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 - 分片键选得好，大部分查询只落到一个分片
 - 不按分片键的查询：用映射表、冗余表或搜索引擎
 
-→ 详见 [高并发面试题解答](/interview/13_high_con#q24-什么时候需要分库分表-分片键如何选择)、[数据层扩展](/high-con/5_data_scaling#四、分库分表)
+→ 详见 [高并发面试题解答](/interview/13_high_con#q23-什么时候需要分库分表-分片键如何选择)、[数据层扩展](/high-con/5_data_scaling#四、分库分表)
 
 ### Q37：ShardingSphere-JDBC 和 Proxy 有什么区别？跨分片查询和事务如何处理？
 
@@ -663,7 +663,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **常见坑**：报 Communications link failure，多半是连接被数据库或防火墙断了，池里还在用。
 
-→ 详见 [数据库连接池](/database/5_practice/3_connection_pool#_4、池大小估算)、[高并发面试题解答](/interview/13_high_con#q37-数据库连接池是不是越大越好-水平扩容时要注意什么)
+→ 详见 [数据库连接池](/database/5_practice/3_connection_pool#_4、池大小估算)、[高并发面试题解答](/interview/13_high_con#q36-服务水平扩容时-数据库连接池要怎么重新核算)
 
 ### Q47：PostgreSQL 为什么需要 PgBouncer？transaction 模式有什么限制？
 

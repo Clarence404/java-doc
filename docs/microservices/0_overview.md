@@ -18,6 +18,7 @@
 2. [微服务设计模式](./2_patterns)：拆分、通信、数据、可靠性、可观测与部署六类模式的目录，每个模式给出适用场景与主文档链接
 3. [服务网格](./3_service_mesh)：Istio 的控制面与数据面、流量管理、mTLS、Sidecar 与 Ambient 两种数据面，以及与 Spring Cloud 的取舍
 4. [Dubbo](./4_dubbo)：RPC 服务框架的调用流程、Triple 协议、负载均衡与集群容错、SPI 扩展机制，以及与 Spring Cloud 的选型
+5. [接口调用顺序性](./5_call_ordering)：同步调用为什么会乱序、怎样消除顺序依赖，以及按业务键路由、实例内串行与版本号兜底
 
 [高频面试题](./99_interview) 只列题目，答案在 [微服务面试题解答](/interview/11_microservices)。
 

@@ -105,6 +105,14 @@ System.out.println(s1 == s4.intern()); // true
 
 `intern()` 把字符串登记到 JVM 全局的 StringTable：池中已有相等字符串则返回池中引用，否则（JDK 7+）把当前对象的引用登记进去并返回它。
 
+```java
+String s5 = new String("ab") + new String("c");  // 运行期拼接，池中还没有 "abc"
+s5.intern();                                      // JDK 7+：把 s5 的引用登记进池
+System.out.println(s5 == "abc");                  // JDK 7+ 为 true；JDK 6 复制到永久代，为 false
+```
+
+适用场景是大量重复且取值有限的字符串（如编码、状态字段），可以显著省内存。其余情况注意：
+
 - 不要对用户输入、订单号、日志字段这类取值不受控的字符串 `intern()`，会导致 StringTable 膨胀、哈希冲突增多，并增加 GC 扫描负担
 - 需要对少量取值有限的字符串做规范化时，优先在业务层复用常量或枚举，或用应用层的 `Map` / Guava `Interner`，范围可控
 - 只想减少重复字符串占用的堆内存，可以开启 `-XX:+UseStringDeduplication`，它让内容相同的 String 共享底层数组，不改变 `==` 语义

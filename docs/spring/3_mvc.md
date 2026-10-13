@@ -490,7 +490,9 @@ public class AccountController {
 }
 ```
 
-请求的版本不受支持时抛 `InvalidApiVersionException`，启用后缺少版本时抛 `MissingApiVersionException`，两者都返回 400；`ApiVersionDeprecationHandler` 可以按 RFC 9745 / RFC 8594 为废弃版本输出 `Deprecation`、`Sunset` 响应头。Boot 4 的 `spring.mvc.apiversion.*` 配置见 [Spring Boot 版本演进](/spring-boot/11_versions)。
+支持的版本默认从控制器映射上声明的版本自动收集。请求的版本不在支持列表中时抛 `InvalidApiVersionException`；启用后默认要求请求携带版本，缺少时抛 `MissingApiVersionException`，两者都返回 400；配置了默认版本（`setDefaultVersion`）则缺失时按默认版本处理。多种解析策略可以在 `configureApiVersioning` 中组合；WebFlux 用 `WebFluxConfigurer` 的同名方法。`ApiVersionDeprecationHandler` 可以按 RFC 9745 / RFC 8594 为废弃版本输出 `Deprecation`、`Sunset` 响应头。
+
+Boot 4 用 `spring.mvc.apiversion.*` 属性代替上面的 Java 配置，见 [Web 开发 · API 版本控制](/spring-boot/2_web_dev#_2、api-版本控制-boot-4)；路径版本 vs 请求头版本等设计规范见 [API 设计规范](/engineering/7_api_design_rule)。
 
 ---
 

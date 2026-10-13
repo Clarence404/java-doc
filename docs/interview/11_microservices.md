@@ -104,9 +104,23 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [服务通信](/spring-cloud/3_communication#六、选型)、[RPC 协议](/protocols/5_rpc_protocols)
 
+### Q8：如何设计一个 RPC 框架？
+
+**一句话**：目标是让调用远程服务像调用本地方法：动态代理拦截调用 → 序列化 → 网络传输 → 服务端找到实现并调用 → 原路返回结果，再加上注册发现、负载均衡、容错这些治理能力。
+
+- 注册中心：提供方启动时注册地址，调用方订阅并在本地缓存列表，注册中心短暂故障时照样能调（Nacos、ZooKeeper）
+- 动态代理：调用方只依赖接口，代理把接口名、方法名、参数打包成请求（JDK 动态代理或字节码生成）
+- 序列化：二进制格式体积小、速度快（Protobuf、Hessian2），JSON 便于调试；不用 Java 原生序列化（慢，还有反序列化漏洞）
+- 网络传输：基于 Netty 长连接 + 自定义帧（魔数、版本、请求 ID、长度）；请求 ID 把异步返回的响应对应到正在等待的 Future 上
+- 负载均衡与容错：随机、轮询、最少活跃、一致性哈希；超时、失败换实例重试、快速失败、熔断；各环节用 SPI 做成可替换的插件
+
+**常见坑**：失败自动重试对非幂等的写接口会造成重复下单、重复扣款，写操作要关掉重试或保证幂等。
+
+→ 详见 [Dubbo](/microservices/4_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[RPC 协议](/protocols/5_rpc_protocols)
+
 ## 三、服务网格与 Dubbo
 
-### Q8：什么是服务网格？istiod 负责什么，控制面与数据面如何分工？
+### Q9：什么是服务网格？istiod 负责什么，控制面与数据面如何分工？
 
 **一句话**：服务网格把重试、熔断、加密、监控这些通信能力从业务代码里拿出来，交给和服务一起部署的代理去做。好处是和语言无关、改配置不用发版；代价是多一层代理和一套要运维的控制面。
 
@@ -116,7 +130,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [服务网格](/microservices/3_service_mesh#二、istio-架构)
 
-### Q9：Istio 的 Sidecar 模式与 Ambient 模式有什么区别？ztunnel 与 waypoint 各做什么？
+### Q10：Istio 的 Sidecar 模式与 Ambient 模式有什么区别？ztunnel 与 waypoint 各做什么？
 
 **一句话**：Sidecar 模式给每个 Pod 塞一个代理，什么都在 Pod 里做；Ambient 模式（1.24 起正式可用）业务 Pod 里没有代理，把工作拆给两类组件。
 
@@ -132,7 +146,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [服务网格](/microservices/3_service_mesh#三、数据面-sidecar-与-ambient)
 
-### Q10：为什么 VirtualService 的路由规则顺序很重要？
+### Q11：为什么 VirtualService 的路由规则顺序很重要？
 
 **一句话**：VirtualService 的路由规则从上往下匹配，第一条命中就生效。精确规则（比如按请求头去灰度版本）要写在前面，兜底规则放最后。
 
@@ -141,7 +155,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [服务网格](/microservices/3_service_mesh#_1、virtualservice-虚拟服务)
 
-### Q11：Istio 如何实现 mTLS？SPIFFE 身份是什么？网格下的链路追踪是零侵入的吗？
+### Q12：Istio 如何实现 mTLS？SPIFFE 身份是什么？网格下的链路追踪是零侵入的吗？
 
 **一句话**：istiod 给每个服务发短期证书并自动更换，代理之间自动加密互认（mTLS，双方都验对方证书），业务代码不用改。
 
@@ -152,7 +166,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [服务网格](/microservices/3_service_mesh#五、mtls-服务间加密)、[零信任架构](/security/9_zero_trust)
 
-### Q12：服务网格与 Spring Cloud 如何选？组合使用时要注意什么？
+### Q13：服务网格与 Spring Cloud 如何选？组合使用时要注意什么？
 
 **一句话**：纯 Java、要按业务参数做治理（比如按商品 ID 限流）选 Spring Cloud；多语言、全面上了 Kubernetes、有专门平台团队选 Istio。
 
@@ -167,7 +181,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [服务网格](/microservices/3_service_mesh#七、service-mesh-vs-spring-cloud)
 
-### Q13：Dubbo 的注册中心宕机为什么不影响已建立的调用？什么是应用级服务发现？
+### Q14：Dubbo 的注册中心宕机为什么不影响已建立的调用？什么是应用级服务发现？
 
 **一句话**：注册中心只是通讯录。消费方启动时把提供方地址缓存到本地，调用时直接和提供方长连接通信，不经过注册中心。所以它挂了，已有调用照常，只是感知不到新上线或下线的实例。
 
@@ -177,7 +191,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [Dubbo](/microservices/4_dubbo#二、架构与调用流程)
 
-### Q14：Triple 协议与 dubbo 协议有什么区别？
+### Q15：Triple 协议与 dubbo 协议有什么区别？
 
 **一句话**：dubbo 协议是 TCP 上的私有协议，快但不好跨语言、过不了普通网关；Triple 是 Dubbo 3 推荐的协议，基于 HTTP、兼容 gRPC，curl 和浏览器都能直接调。
 
@@ -191,7 +205,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [Dubbo](/microservices/4_dubbo#四、triple-协议)
 
-### Q15：Dubbo 默认的 failover 为什么对写操作是陷阱？
+### Q16：Dubbo 默认的 failover 为什么对写操作是陷阱？
 
 **一句话**：默认的 `failover` 失败就换一台重试（默认再试 2 次）。但超时不等于失败，提供方可能已经执行成功、只是回得慢，重试就会重复扣款、重复下单。
 
@@ -202,7 +216,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [Dubbo](/microservices/4_dubbo#_2、集群容错策略)、[幂等设计](/architecture/5_idempotence)
 
-### Q16：Dubbo SPI 与 Java SPI 有什么区别？`@Adaptive`、`@Activate` 做什么？
+### Q17：Dubbo SPI 与 Java SPI 有什么区别？`@Adaptive`、`@Activate` 做什么？
 
 **一句话**：Java 自带的 SPI（`ServiceLoader`）只能把所有实现全部加载出来遍历；Dubbo SPI 按名字取实现，用到哪个才创建哪个，还能自动注入依赖、自动套包装类。
 
@@ -213,7 +227,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [Dubbo](/microservices/4_dubbo#六、spi-扩展机制)、[SPI 机制](/java/20_topic_spi)
 
-### Q17：Dubbo 和 Spring Cloud 怎么选？
+### Q18：Dubbo 和 Spring Cloud 怎么选？
 
 **一句话**：内部服务高频互调、看重性能、团队熟悉 Dubbo，选 Dubbo；对外接口多、跨语言、想跟紧 Spring Boot 新版本，选 Spring Cloud。也常混用：内部 Dubbo，对外 REST。
 
@@ -228,7 +242,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 ## 四、微服务模式
 
-### Q18：BFF 是什么？和 API 网关有什么区别？
+### Q19：BFF 是什么？和 API 网关有什么区别？
 
 **一句话**：API 网关是所有客户端的统一大门，做鉴权、限流、路由这些通用的事；BFF（Backend for Frontend）是给某一类客户端专门做的接口层，比如 App 一个、Web 一个，负责合并请求、裁剪字段。
 
@@ -238,7 +252,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [微服务设计模式](/microservices/2_patterns#_2、bff-backend-for-frontend)
 
-### Q19：Database per Service 之后如何做跨服务查询？API Composition 还是 CQRS？
+### Q20：Database per Service 之后如何做跨服务查询？API Composition 还是 CQRS？
 
 **一句话**：简单查询、数据量小用 API Composition——同时调几个服务、在内存里拼结果；要跨服务分页、排序、复杂筛选就用 CQRS——专门维护一份给查询用的数据（比如 ES 宽表），靠事件异步更新。
 
@@ -248,7 +262,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [微服务设计模式](/microservices/2_patterns#三、数据管理模式)、[架构模式与风格](/architecture/2_arch_patterns)
 
-### Q20：Outbox 模式如何保证「写库 + 发消息」的原子性？
+### Q21：Outbox 模式如何保证「写库 + 发消息」的原子性？
 
 **一句话**：在同一个本地事务里同时写业务表和一张「待发消息表」（outbox），事务提交两者就一起生效；再由单独的进程把待发消息发到 MQ，发成功就标记完成，失败就重试。
 
@@ -259,7 +273,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [微服务设计模式](/microservices/2_patterns#_5、outbox-事务发件箱)、[分布式事务](/distributed/4_transaction)
 
-### Q21：Saga 的编排式与协同式有什么区别？
+### Q22：Saga 的编排式与协同式有什么区别？
 
 **一句话**：Saga 把跨服务的大事务拆成一串本地事务，中途失败就倒着执行补偿。编排式有一个「总指挥」统一调度；协同式没有总指挥，各服务听事件自己往下走。
 
@@ -273,7 +287,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [微服务设计模式](/microservices/2_patterns#_4、saga)、[分布式事务](/distributed/4_transaction#四、saga)
 
-### Q22：消费者驱动契约测试解决什么问题？
+### Q23：消费者驱动契约测试解决什么问题？
 
 **一句话**：服务各自发布，提供方改了接口很容易把调用方搞坏；契约测试让调用方写下「我需要你返回什么」，提供方在 CI 里用它验证，一旦改坏就构建失败。
 
@@ -285,7 +299,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 ## 五、分布式场景
 
-### Q23：微服务之间的分布式事务如何处理？
+### Q24：微服务之间的分布式事务如何处理？
 
 **一句话**：能不用分布式事务就不用。优先用最终一致方案（Outbox、事务消息、Saga、对账补偿），只有必须同步拿到一致结果的链路才用 Seata 这类方案。
 
@@ -296,7 +310,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [分布式事务](/distributed/4_transaction#九、方案选型)、[分布式面试题解答](/interview/10_distributed#三、分布式事务)
 
-### Q24：微服务接口如何实现幂等？
+### Q25：微服务接口如何实现幂等？
 
 **一句话**：超时重试、MQ 重复投递、Dubbo 自动重试都会让同一个请求来好几次，所以写接口必须幂等。核心是给每次操作一个唯一标识，服务端按它去重。
 
@@ -308,7 +322,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [幂等设计](/architecture/5_idempotence)、[系统架构面试题解答](/interview/15_architecture#三、幂等设计)
 
-### Q25：分布式接口请求的顺序性如何保证？
+### Q26：分布式接口请求的顺序性如何保证？
 
 **一句话**：先想办法让业务不依赖顺序；真要顺序，也只要求同一业务键（如订单号）内有序：同一个键路由到同一处、实例内串行执行，最后在数据层用版本号兜底。
 
@@ -319,9 +333,9 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：用分布式锁保证顺序。锁只保证同一时刻一个请求在执行，不保证谁先拿到，后发的请求照样可能先执行。
 
-→ 详见 [微服务设计模式](/microservices/2_patterns#_5、接口调用的顺序性)、[消息队列基础](/messaging/1_basics#五、顺序消息)
+→ 详见 [接口调用顺序性](/microservices/5_call_ordering)、[消息队列基础](/messaging/1_basics#五、顺序消息)
 
-### Q26：服务间如何传递认证信息与上下文（用户身份、灰度标记、traceId）？
+### Q27：服务间如何传递认证信息与上下文（用户身份、灰度标记、traceId）？
 
 **一句话**：都靠请求头一跳一跳往下传，每一跳都要转给下一跳，否则到第二跳就丢了。
 

@@ -141,31 +141,9 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [版本演进](/java/2_version#四、java-21-lts)
 
-### Q10：单例模式有几种写法？DCL 为什么要加 volatile？推荐哪种？
-
-**一句话**：常见有饿汉、懒汉、双重检查锁（DCL）、静态内部类、枚举五种；要懒加载用静态内部类，要防反射和序列化用枚举，实际项目里一般交给 Spring 管。
-
-- DCL 必须加 `volatile`：`new` 对象的「分配内存、执行构造器、赋值给变量」三步可能被重排序，别的线程会拿到还没构造完的对象
-- 五种写法的完整对比、防反射与反序列化的做法，统一在设计模式答案页
-
-→ 详见 [设计模式面试题解答](/interview/17_patterns#q3-单例模式有几种写法-推荐哪种)、[JMM 内存模型](/java/22_topic_jmm#七、双重检查锁-dcl)
-
-### Q11：`Arrays.sort()` 底层用的什么算法？对基本类型和对象有何不同？
-
-**一句话**：基本类型数组用双轴快速排序，对象数组用 TimSort。区别在于对象排序需要「稳定」，基本类型不需要。
-
-- 稳定的意思：值相等的元素排完后保持原来的先后顺序；对 `int` 无所谓，对对象有意义（比如先按时间排、再按状态排）
-- 双轴快排：快排的改进版，用两个基准值分三段，小区间改用插入排序
-- TimSort：归并 + 插入排序的组合，会利用数据里已经有序的片段，部分有序时接近 O(n)
-- `Collections.sort`、`List.sort` 最后也走 TimSort
-
-**常见坑**：比较器写成 `a - b` 可能溢出、违反比较规则，TimSort 会抛 `Comparison method violates its general contract!`；用 `Integer.compare` 或 `Comparator.comparing`。
-
-→ 详见 [排序算法](/algorithms/2_algorithms/1_sort#四、内置排序的实现)
-
 ## 二、语言机制
 
-### Q12：Error 和 Exception 的区别？受检与非受检异常如何判定？为什么业务异常通常继承 RuntimeException？异常的开销在哪？
+### Q10：Error 和 Exception 的区别？受检与非受检异常如何判定？为什么业务异常通常继承 RuntimeException？异常的开销在哪？
 
 **一句话**：`Error` 是 JVM 级的严重问题（如 OOM），程序不该处理；`Exception` 是程序能处理的异常。`RuntimeException` 和 `Error` 及其子类是非受检的，其他都是受检的，必须 catch 或声明 `throws`。
 
@@ -178,7 +156,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [异常体系](/java/10_topic_exception#一、异常层次结构)
 
-### Q13：finally 一定会执行吗？finally 里 return 会怎样？try-with-resources 中 `close()` 抛出的异常去哪了？
+### Q11：finally 一定会执行吗？finally 里 return 会怎样？try-with-resources 中 `close()` 抛出的异常去哪了？
 
 **一句话**：正常返回、抛异常、`break` / `continue` 时 finally 都会执行；只有 JVM 停了才不执行，比如 `System.exit()`、`kill -9`、JVM 崩溃。
 
@@ -188,7 +166,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [异常体系](/java/10_topic_exception#三、finally-与-try-with-resources)
 
-### Q14：String 为什么不可变？JDK 9 之后底层结构和 `+` 拼接有什么变化？循环里为什么还要用 StringBuilder？
+### Q12：String 为什么不可变？JDK 9 之后底层结构和 `+` 拼接有什么变化？循环里为什么还要用 StringBuilder？
 
 **一句话**：String 类是 `final` 的，内部数组是私有的且不对外暴露，所有「修改」方法都返回新对象，所以外面没有办法改它。
 
@@ -199,7 +177,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [String](/java/11_topic_string#一、不可变性与内存布局)
 
-### Q15：`new String("abc")` 创建了几个对象？什么情况下 `==` 比较字符串为 true？`intern()` 有什么风险？
+### Q13：`new String("abc")` 创建了几个对象？什么情况下 `==` 比较字符串为 true？`intern()` 有什么风险？
 
 **一句话**：最多两个：字面量 `"abc"` 放在字符串常量池里（已有就复用），`new` 再在堆上建一个新对象，内容一样但不是同一个对象。
 
@@ -209,9 +187,9 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 **常见坑**：对用户输入、订单号这种数量不受控的字符串调 `intern()`，常量池会越来越大、查找变慢、GC 负担加重。
 
-→ 详见 [String](/java/11_topic_string#二、常量池与)、[JVM 面试题解答](/interview/3_jvm)
+→ 详见 [String](/java/11_topic_string#二、常量池与)、[JVM 面试题解答](/interview/3_jvm#q9-string-intern-的作用和使用场景)
 
-### Q16：枚举的本质是什么？一定是 final 吗？为什么枚举单例能防反射和序列化破坏？`ordinal()` 能持久化吗？
+### Q14：枚举的本质是什么？一定是 final 吗？为什么枚举单例能防反射和序列化破坏？`ordinal()` 能持久化吗？
 
 **一句话**：枚举编译后就是一个继承 `java.lang.Enum` 的类，每个常量是它的 `static final` 实例，类加载时创建好。
 
@@ -224,7 +202,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [枚举](/java/12_topic_enum#一、枚举的本质)
 
-### Q17：静态嵌套类和内部类的区别？内部类 / 匿名类为什么会导致内存泄漏？
+### Q15：静态嵌套类和内部类的区别？内部类 / 匿名类为什么会导致内存泄漏？
 
 **一句话**：区别在于是否带着外部对象：内部类实例偷偷持有外部对象的引用，静态嵌套类没有。不需要访问外部对象时，一律加 `static`。
 
@@ -235,7 +213,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [内部类](/java/13_topic_inner_class#一、嵌套类的分类)
 
-### Q18：泛型的类型擦除是什么？擦除后为什么还能在运行时拿到 `List<User>` 的泛型类型？什么是桥方法？
+### Q16：泛型的类型擦除是什么？擦除后为什么还能在运行时拿到 `List<User>` 的泛型类型？什么是桥方法？
 
 **一句话**：泛型只在编译时检查类型，编译后类型参数被「擦掉」换成 `Object`（或上界），取值时自动插入强转。
 
@@ -248,7 +226,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [泛型](/java/14_topic_generics#二、类型擦除)
 
-### Q19：`List<? extends Number>` 为什么不能 add？PECS 是什么？为什么不能创建泛型数组？
+### Q17：`List<? extends Number>` 为什么不能 add？PECS 是什么？为什么不能创建泛型数组？
 
 **一句话**：`List<? extends Number>` 实际可能是 `List<Integer>`，也可能是 `List<Double>`，编译器不知道放什么才安全，所以只能读不能写。
 
@@ -259,7 +237,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [泛型](/java/14_topic_generics#四、pecs-原则)
 
-### Q20：反射有哪些典型应用？`getMethods()` 与 `getDeclaredMethods()`、`Class.forName` 与 `ClassLoader.loadClass` 有什么区别？
+### Q18：反射有哪些典型应用？`getMethods()` 与 `getDeclaredMethods()`、`Class.forName` 与 `ClassLoader.loadClass` 有什么区别？
 
 **一句话**：反射就是程序运行时查看并调用一个类的字段、方法、注解。Spring 依赖注入、MyBatis 结果映射、Jackson 序列化、JUnit 找测试方法都靠它。
 
@@ -275,7 +253,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [反射](/java/15_topic_reflection#二、成员查找语义)
 
-### Q21：反射为什么慢？JDK 18 之后实现有什么变化？JDK 17 之后反射访问 JDK 内部类报 `InaccessibleObjectException` 怎么处理？
+### Q19：反射为什么慢？JDK 18 之后实现有什么变化？JDK 17 之后反射访问 JDK 内部类报 `InaccessibleObjectException` 怎么处理？
 
 **一句话**：反射慢在每次都要查找方法、做权限检查、参数装箱，而且 JIT 不好优化。但具体慢多少要实测，不能一概而论。
 
@@ -286,7 +264,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [反射](/java/15_topic_reflection#五、实现与性能)
 
-### Q22：JDK 动态代理和 CGLIB 的区别？Spring / Spring Boot 默认用哪种？CGLIB 的 `invoke` 与 `invokeSuper` 有什么区别？
+### Q20：JDK 动态代理和 CGLIB 的区别？Spring / Spring Boot 默认用哪种？CGLIB 的 `invoke` 与 `invokeSuper` 有什么区别？
 
 **一句话**：JDK 动态代理通过实现接口来代理，只能代理接口；CGLIB 通过生成子类来代理，没有接口也行，但 `final` 类和 `final` / `private` / `static` 方法拦截不了。
 
@@ -305,7 +283,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 ## 三、IO 与数据
 
-### Q23：`SimpleDateFormat` 为什么线程不安全？`LocalDateTime`、`OffsetDateTime`、`ZonedDateTime`、`Instant` 有什么区别？
+### Q21：`SimpleDateFormat` 为什么线程不安全？`LocalDateTime`、`OffsetDateTime`、`ZonedDateTime`、`Instant` 有什么区别？
 
 **一句话**：`SimpleDateFormat` 把解析过程的中间结果存在一个共享的成员变量里，多线程同时用会互相覆盖。改用 `DateTimeFormatter`，它不可变，可以做成全局常量。
 
@@ -323,7 +301,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [日期与时间](/java/17_topic_time#二、java-time-类型模型)
 
-### Q24：数据库里时间该怎么存？MySQL `DATETIME` 与 `TIMESTAMP` 有什么区别？夏令时会带来什么问题？
+### Q22：数据库里时间该怎么存？MySQL `DATETIME` 与 `TIMESTAMP` 有什么区别？夏令时会带来什么问题？
 
 **一句话**：已经发生的事存 UTC 时刻，展示时再转成用户时区；未来的本地事件（如「每天 9 点开会」）存本地时间 + 时区；生日这种纯日期存 `LocalDate`。
 
@@ -337,7 +315,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [日期与时间](/java/17_topic_time#七、数据库映射)
 
-### Q25：Java IO 流有哪些分类？BIO / NIO / AIO 的区别？有了虚拟线程还需要 NIO / Netty 吗？
+### Q23：Java IO 流有哪些分类？BIO / NIO / AIO 的区别？有了虚拟线程还需要 NIO / Netty 吗？
 
 **一句话**：按数据单位分字节流（`InputStream` / `OutputStream`）和字符流（`Reader` / `Writer`，就是字节流加上编解码）；日常读写文件首选 `Files` 工具类。
 
@@ -355,7 +333,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [IO 与 NIO](/java/18_topic_io#一、io-体系结构)
 
-### Q26：零拷贝的原理？`transferTo` 与 `mmap` 各有什么限制？直接缓冲区的代价是什么？
+### Q24：零拷贝的原理？`transferTo` 与 `mmap` 各有什么限制？直接缓冲区的代价是什么？
 
 **一句话**：零拷贝就是少让 CPU 在内核和应用之间搬数据。普通的读再写要 CPU 拷 2 次；`transferTo`（底层是 Linux 的 `sendfile`）只拷 1 次，网卡支持时 0 次。
 
@@ -371,7 +349,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [IO 与 NIO](/java/18_topic_io#四、零拷贝)
 
-### Q27：序列化的作用？`serialVersionUID` 有什么用？类新增 / 删除字段后反序列化会怎样？
+### Q25：序列化的作用？`serialVersionUID` 有什么用？类新增 / 删除字段后反序列化会怎样？
 
 **一句话**：序列化是把对象转成字节，用来网络传输或存盘。`serialVersionUID` 是类的版本号，读的时候版本对不上就抛 `InvalidClassException`。
 
@@ -382,7 +360,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [序列化](/java/19_topic_serialization#一、java-原生序列化)
 
-### Q28：反序列化漏洞的原理？如何用 `ObjectInputFilter` 防护？序列化方案怎么选？
+### Q26：反序列化漏洞的原理？如何用 `ObjectInputFilter` 防护？序列化方案怎么选？
 
 **一句话**：`ObjectInputStream` 会按数据里写的类名创建对象并执行它的回调方法。攻击者拼出一串项目里已有的类，让回调层层触发，最后执行任意命令。只要反序列化不可信的数据，就有风险。
 
@@ -393,7 +371,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [序列化](/java/19_topic_serialization#五、反序列化安全)
 
-### Q29：SPI 是什么，与 API 有何区别？SPI 如何「打破」双亲委派？Dubbo SPI 和 Spring Boot 自动配置做了哪些增强？
+### Q27：SPI 是什么，与 API 有何区别？SPI 如何「打破」双亲委派？Dubbo SPI 和 Spring Boot 自动配置做了哪些增强？
 
 **一句话**：API 是别人写好实现给你调用；SPI 反过来，框架定好接口，由第三方提供实现，框架运行时自动发现并加载。Java 自带的 SPI 是 `ServiceLoader`，读 `META-INF/services/接口全名` 里写的实现类。
 
@@ -404,7 +382,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [SPI 机制](/java/20_topic_spi#二、java-原生-spi-serviceloader)
 
-### Q30：HashMap 的 put 流程？hash 为什么要 `h ^ (h >>> 16)`？容量为什么是 2 的幂？哈希冲突有哪些解决方式？
+### Q28：HashMap 的 put 流程？hash 为什么要 `h ^ (h >>> 16)`？容量为什么是 2 的幂？哈希冲突有哪些解决方式？
 
 **一句话**：HashMap 是数组 + 链表 / 红黑树。put 时先算 hash 定位到数组下标，没人就直接放，有人就比较 key，相同则覆盖，不同就挂到链表尾部。
 
@@ -415,7 +393,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [集合框架](/java/21_topic_collection#六、hashmap)
 
-### Q31：HashMap 何时树化、何时退化？扩容时元素如何迁移？JDK 7 并发扩容为什么会死循环？
+### Q29：HashMap 何时树化、何时退化？扩容时元素如何迁移？JDK 7 并发扩容为什么会死循环？
 
 **一句话**：链表长度超过 8 且数组长度至少 64 时转成红黑树；数组不到 64 时先扩容。树上节点减到 6 个及以下时退回链表。
 
@@ -428,7 +406,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [集合框架](/java/21_topic_collection#_3、树化与退化)
 
-### Q32：ArrayList 的扩容机制？ArrayList 与 LinkedList 怎么选？fail-fast 与弱一致迭代器有什么区别？
+### Q30：ArrayList 的扩容机制？ArrayList 与 LinkedList 怎么选？fail-fast 与弱一致迭代器有什么区别？
 
 **一句话**：`ArrayList` 第一次 `add` 时分配容量 10，不够时扩成原来的 1.5 倍并复制数组。几乎所有场景都选 `ArrayList`，`LinkedList` 很少有优势。
 
@@ -446,7 +424,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [集合框架](/java/21_topic_collection#_1、arraylist-vs-linkedlist)
 
-### Q33：`List.of`、`Arrays.asList`、`Collections.unmodifiableList` 有什么区别？JDK 21 Sequenced Collections 解决了什么问题？
+### Q31：`List.of`、`Arrays.asList`、`Collections.unmodifiableList` 有什么区别？JDK 21 Sequenced Collections 解决了什么问题？
 
 **一句话**：`List.of` 是真正不可变的；`Arrays.asList` 长度固定、和原数组共享数据；`Collections.unmodifiableList` 只是只读的「窗口」，底层集合变了它也跟着变。
 
@@ -462,7 +440,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 → 详见 [集合框架](/java/21_topic_collection#_2、不可变集合)
 
-### Q34：如何用 LinkedHashMap 实现 LRU？TreeSet / TreeMap 为什么可能「丢」元素？
+### Q32：如何用 LinkedHashMap 实现 LRU？TreeSet / TreeMap 为什么可能「丢」元素？
 
 **一句话**：`LinkedHashMap` 构造时传 `accessOrder = true`，每次访问会把元素移到末尾；再重写 `removeEldestEntry`，超出容量就删掉最前面（最久没用）的那个，就是 LRU。
 

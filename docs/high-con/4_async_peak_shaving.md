@@ -146,83 +146,12 @@ MQ 本身的消费模型与堆积处理见 [消息队列](/messaging/0_overview)
 | 异步步骤失败需回滚 | Saga：每个步骤定义补偿操作（如取消订单 → 回补库存） |
 | 状态长时间不一致 | 对账任务：定时比对上下游数据，发现差异自动修复或告警 |
 
-### 1、写入消息表
+从削峰的角度看，Outbox 的要点是**写库与投递解耦**：请求线程只做一次本地事务（业务表 + 消息表），投递交给后台中继按 MQ 能承受的速率推送，高峰期消息先积在表里，不会拖慢入口。多实例中继要避免重复投递：
 
-```java
-@Transactional(rollbackFor = Exception.class)
-public void createOrder(OrderCmd cmd) {
-    orderMapper.insert(Order.from(cmd));
-    // 同一事务写入消息表，保证"订单存在 ⇔ 消息存在"
-    outboxMapper.insert(new OutboxMsg("order-created", cmd.getOrderNo(), JSON.toJSONString(cmd)));
-}
-```
+- **`SELECT … FOR UPDATE SKIP LOCKED`**：各实例锁定不同的行并行投递，吞吐随实例数提升（MySQL 8.0+ / PostgreSQL 9.5+，需 `(status, …)` 索引）
+- **分布式锁 / 单实例调度**（ShedLock、XXL-JOB 单机路由）：实现简单，但投递吞吐受单实例限制
 
-### 2、中继投递：防止多实例重复投递
-
-**应用多实例部署时，每个实例的定时任务都会扫到同一批待发送消息**，必须保证同一条消息同一时刻只被一个实例处理。常用两种做法：
-
-| 做法 | 原理 | 特点 |
-|------|------|------|
-| `SELECT … FOR UPDATE SKIP LOCKED` | 各实例锁定不同的行，已被锁的行直接跳过 | 多实例并行投递，吞吐随实例数提升；需 MySQL 8.0+ / PostgreSQL 9.5+ |
-| 分布式锁 / 单实例调度 | 同一时刻只有一个实例执行中继任务（Redisson、ShedLock、XXL-JOB 单机路由） | 实现简单，但投递吞吐受单实例限制 |
-
-以 `SKIP LOCKED` 为例，锁定与标记在同一事务内完成：
-
-```java
-public interface OutboxMapper {
-    // 需要 (status, id) 索引，否则会锁住大量扫描到的行
-    @Select("SELECT * FROM outbox WHERE status = 0 ORDER BY id LIMIT #{limit} FOR UPDATE SKIP LOCKED")
-    List<OutboxMsg> lockPending(@Param("limit") int limit);
-
-    @Update("UPDATE outbox SET status = 1, sent_at = NOW() WHERE id = #{id}")
-    int markSent(@Param("id") long id);
-}
-
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class OutboxRelayService {
-
-    private final OutboxMapper outboxMapper;
-    private final MqProducer mqProducer;
-
-    /** 单批投递：事务提交前行锁一直持有，其他实例会跳过这些行 */
-    @Transactional(rollbackFor = Exception.class)
-    public int relayBatch(int limit) {
-        List<OutboxMsg> batch = outboxMapper.lockPending(limit);
-        for (OutboxMsg msg : batch) {
-            mqProducer.syncSend(msg.getTopic(), msg.getKey(), msg.getPayload()); // 同步发送，失败抛异常回滚本批
-            outboxMapper.markSent(msg.getId());
-        }
-        return batch.size();
-    }
-}
-
-@Slf4j
-@Component
-@RequiredArgsConstructor
-public class OutboxRelayJob {
-
-    private final OutboxRelayService relayService;
-
-    // 调度方法与事务方法分属两个 Bean，确保 @Transactional 经过代理生效
-    @Scheduled(fixedDelay = 1000)
-    public void relay() {
-        try {
-            int sent = relayService.relayBatch(100);
-            if (sent > 0) {
-                log.debug("outbox 投递 {} 条", sent);
-            }
-        } catch (Exception e) {
-            log.error("outbox 投递失败，下个周期重试", e);
-        }
-    }
-}
-```
-
-::: warning 仍然是"至少一次"
-消息发送成功但事务回滚（如后一条发送失败、`markSent` 失败）时，下个周期会再发一次，所以**消费端必须幂等**。批量不宜过大：事务内持有行锁并等待 MQ 响应，批越大锁持有越久。对投递延迟要求更高时，可改用 CDC（如 Debezium 监听 outbox 表的 Binlog）替代轮询。
-:::
+两种做法都是「至少一次」，消费端必须幂等。表结构、中继代码与 CDC 替代方案见 [分布式事务 · 本地消息表](/distributed/4_transaction#五、本地消息表-transactional-outbox)。
 
 分布式事务的完整方案（2PC、TCC、Saga、事务消息）见 [分布式事务](/distributed/4_transaction)；消息不丢失、不重复、顺序性等可靠性保障见 [消息队列](/messaging/0_overview)。
 

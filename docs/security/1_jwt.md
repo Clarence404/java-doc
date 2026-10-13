@@ -464,13 +464,13 @@ public class JwksController {
 | BFF + 会话 Cookie | 令牌不进浏览器 | 需要 CSRF 防护 | 浏览器应用推荐方案 |
 | Authorization 头（App、CLI、服务间） | 不涉及浏览器 | 浏览器不会自动带头，无 CSRF | 非浏览器客户端的标准做法 |
 
-**浏览器应用用 BFF**：RFC 10017（OAuth 2.0 for Browser-Based Applications，BCP 212，2026 年 8 月）把 BFF 列为最推荐的架构（业务应用和处理敏感数据的应用尤其如此）。BFF 是一个机密客户端，代替前端完成授权码 + PKCE 登录，AT / RT 保存在服务端会话里，浏览器只持有会话 Cookie；前端调用 BFF，BFF 附上 `Authorization: Bearer` 转发给资源服务。
+**浏览器应用用 BFF**：RFC 10017（OAuth 2.0 for Browser-Based Applications，BCP 212，2026 年 8 月）把 BFF 列为最推荐的架构（业务应用和处理敏感数据的应用尤其如此）。BFF 是一个机密客户端，代替前端完成授权码 + PKCE 登录，AT / RT 保存在服务端会话里，浏览器只持有会话 Cookie；前端调用 BFF，BFF 附上 `Authorization: Bearer` 转发给资源服务，AT 过期由 BFF 用 RT 续期；转发目标要限制在允许的后端地址内，避免 BFF 变成开放代理。
 
 会话 Cookie 的属性：
 
 - `HttpOnly`、`Secure` 必须开启，名称用 `__Host-` 前缀（强制 Secure、`Path=/`、不能设置 Domain，子域无法覆盖）。
-- `SameSite=Lax` 作为默认值。RFC 10017 建议尽量用 `Strict`，但 `Strict` 下从 IdP 回跳或从外部链接打开页面时首个请求不带 Cookie，登录回调和外链会表现为未登录，需要额外处理；`Lax` 兼容这些跳转，同时挡住跨站 POST。
-- **SameSite 不能替代 CSRF Token**：同站的其他子域被攻破时 SameSite 不起作用，`Lax` 也放行顶层 GET。BFF 必须另外校验 CSRF Token，或要求每个请求带自定义头并配合严格的 CORS。
+- `SameSite=Lax` 作为默认值。RFC 10017 建议尽量用 `Strict`，但 `Strict` 下从 IdP 回跳或从邮件、IM 外链打开页面时首个请求不带 Cookie，应用找不到登录前存在会话里的 `state`，登录回调失败、外链表现为未登录；`Lax` 兼容这些顶层 GET 跳转，同时挡住跨站 POST、iframe 和图片请求。IdP 用 `response_mode=form_post`（跨站 POST 回调）时连 `Lax` 也不带 Cookie，改用默认的 query 模式，或让回调不依赖会话（SSO 场景的细节见 [单点登录](./4_sso#_1、跨域名为什么也能-sso)）。
+- **SameSite 不能替代 CSRF Token**：同站的其他子域被攻破时 SameSite 不起作用，`Lax` 也放行顶层 GET。BFF 必须另外校验 CSRF Token，或要求每个请求带自定义头并配合严格的 CORS；也因为 `Lax` 放行 GET，任何有副作用的操作都不能用 GET。
 
 ```yaml
 server:
@@ -502,7 +502,7 @@ public class BffSecurityConfig {
 }
 ```
 
-BFF 转发请求时可以用 Spring Cloud Gateway 的 `TokenRelay` 过滤器，或给 `RestClient` 配置 OAuth2 客户端拦截器自动附加并刷新 AT，网关侧的做法见 [API 网关](/spring-cloud/2_api_gateway)。CSRF 与 XSS 的原理和其他防护手段见 [常见漏洞与防护](./8_vulnerabilities)。
+BFF 转发请求时可以用 Spring Cloud Gateway 的 `TokenRelay` 过滤器，或给 `RestClient` 配置 OAuth2 客户端拦截器自动附加并刷新 AT，网关侧的做法见 [API 网关](/spring-cloud/2_api_gateway)。CSRF 原理、哪些场景必须开启 CSRF 以及 `csrf.spa()` 的前端配合见 [常见漏洞与防护](./8_vulnerabilities#四、csrf-跨站请求伪造)。
 
 **非浏览器客户端**：移动 App 把令牌放在 Keychain / Android Keystore，服务端调用方放在密钥管理服务里，请求统一用 `Authorization: Bearer`。这类纯 Bearer 接口才可以关闭 CSRF（第五节的 `apiChain`）；同一个应用同时服务两类客户端时，用两条 `SecurityFilterChain` 分开配置。
 

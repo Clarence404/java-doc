@@ -93,11 +93,12 @@ GitHub 的规则集（Rulesets）是分支保护规则的新形态：可以叠�
 |------|---------|------|
 | Restrict deletions | 开启 | 防止误删 `main` |
 | Block force pushes | 开启 | 已发布的历史不可改写 |
-| Require a pull request before merging | 至少 1 人批准；新提交推送后作废旧批准；要求最后一次推送也被批准；要求评论全部解决；要求代码所有者评审 | 所有变更必须经过评审，且评审的是最终代码 |
+| Require a pull request before merging | 至少 1 人批准（核心仓库 2 人）；新提交推送后作废旧批准（Dismiss stale approvals）；要求最后一次推送由推送者以外的人批准；要求评论全部解决；要求代码所有者评审 | 所有变更必须经过评审，评审的是最终代码，且不能自己给自己放行 |
 | Require status checks to pass | 选中构建、单元测试、质量门禁等必需检查；勾选 Require branches to be up to date before merging | 合并前在最新的 `main` 上验证过 |
+| Require code scanning results | CodeQL 等扫描出高危告警时阻止合并 | 安全问题挡在合并前 |
 | Require linear history | 开启 | 只允许 Squash 或 Rebase 合并，`main` 上没有合并提交 |
 | Require a specific merge method | 只允许 squash | 一个 PR 对应 `main` 上的一个提交，便于回滚与生成变更日志 |
-| Bypass list | 只放发布机器人或少数管理员 | 紧急情况可绕过，但豁免要留痕、事后复盘 |
+| Bypass list | 只放发布机器人或少数管理员 | 紧急情况可绕过，但豁免要留痕、事后复盘；名单尽量短并定期审计 |
 
 另建一套针对 `v*` tag 的规则集，开启 Restrict updates 与 Restrict deletions，让已发布的 tag 不可移动、不可删除，保证同一个版本号永远指向同一份代码。
 
@@ -110,15 +111,24 @@ GitHub 的规则集（Rulesets）是分支保护规则的新形态：可以叠�
 *                                       @acme/backend-reviewers
 
 # 支付模块由支付组把关
-/src/main/java/com/acme/payment/        @acme/payment-team
+/src/main/java/com/acme/payment/        @acme/payment-team @acme/security
 
 # 数据库迁移脚本需要 DBA 批准
-/src/main/resources/db/migration/       @acme/dba
+**/db/migration/                        @acme/dba
 
 # 流水线与部署配置需要平台组批准
 /.github/workflows/                     @acme/platform
 /deploy/                                @acme/platform
+
+# CODEOWNERS 文件本身也要保护
+/.github/CODEOWNERS                     @acme/backend-leads
 ```
+
+注意几点：
+
+- 负责人必须对仓库有写权限，团队写法是 `@组织/团队`
+- 把 `CODEOWNERS` 文件本身也纳入保护，否则任何人都能改掉负责人
+- 数据库迁移脚本、CI 配置、鉴权与支付模块这类「改错代价大」的路径，单独指定负责人（可同时指定安全组，如 `@acme/payment-team @acme/security`）
 
 ### 3、合并队列：并发合并时保持 `main` 为绿
 

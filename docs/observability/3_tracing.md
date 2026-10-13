@@ -363,11 +363,31 @@ TraceQL 示例（Tempo）：
 | 日志 | 链路 | 日志中的 traceId 字段配置为 Loki 的 derived field，点击跳转到 Tempo / Jaeger |
 | 链路 | 指标 | Tempo metrics-generator 或 Collector 的 `span_metrics` connector 从 Span 生成请求数、错误数、耗时直方图 |
 
-关联的前提是字段一致：Micrometer Tracing 写入 MDC 的键是 `traceId` / `spanId`，OpenTelemetry Java agent 写入的是 `trace_id` / `span_id`，日志通过 OTLP 发到 Loki 时 trace-id 会作为结构化元数据 `trace_id`。团队内定一种，日志模板、Loki 派生字段和 Grafana 跳转配置都按它来。按 trace-id 查 Loki 的 LogQL：
+关联的前提是字段一致：Micrometer Tracing（Brave / OTel bridge）写入 MDC 的键是 `traceId` / `spanId`，OpenTelemetry Java agent 写入的是 `trace_id` / `span_id` / `trace_flags`，日志通过 OTLP 发到 Loki 时 trace-id 会作为结构化元数据 `trace_id`。团队内定一种，日志模板、Loki 派生字段和 Grafana 跳转配置都按它来。按 trace-id 查 Loki 的 LogQL：
 
 ```text
 {service_name="order-service"} | trace_id="4bf92f3577b34da6a3ce929d0e0e4736"
 ```
+
+Loki 的派生字段可以通过 Grafana provisioning 文件声明（日志里的字段名按上面统一后的写法匹配）：
+
+```yaml
+apiVersion: 1
+datasources:
+  - name: Loki
+    type: loki
+    uid: loki
+    url: http://loki-gateway.monitoring.svc
+    jsonData:
+      derivedFields:
+        - name: TraceID
+          matcherRegex: '"traceId":"(\w+)"'
+          datasourceUid: tempo
+          url: '$${__value.raw}'
+          urlDisplayLabel: 查看链路
+```
+
+`url` 中的 `$` 在 provisioning 文件里要写成 `$$` 转义；`datasourceUid` 必须与 Tempo 数据源的 `uid` 一致。traceId 不要做成 Loki 标签，原因见 [日志体系](./1_logging#_2、loki-的标签与基数)。
 
 ---
 

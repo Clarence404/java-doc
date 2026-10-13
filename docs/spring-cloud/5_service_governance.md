@@ -311,7 +311,25 @@ resilience4j:
         slow-call-rate-threshold: 50         # 慢调用比例 ≥ 50% 也打开熔断
         wait-duration-in-open-state: 10s     # 打开 10s 后进入半开
         permitted-number-of-calls-in-half-open-state: 5
+        ignore-exceptions:
+          - com.example.common.BusinessException   # 业务异常不计入失败
 ```
+
+注解写法的 fallback 方法签名与原方法一致，最后加一个异常参数；熔断打开时收到的是 `CallNotPermittedException`：
+
+```java
+@CircuitBreaker(name = "inventory", fallbackMethod = "queryFallback")
+public Stock query(Long skuId) {
+    return restClient.get().uri("/api/stock/{id}", skuId).retrieve().body(Stock.class);
+}
+
+private Stock queryFallback(Long skuId, Throwable t) {
+    log.warn("库存查询降级 skuId={}, cause={}", skuId, t.toString());
+    return Stock.unknown(skuId);
+}
+```
+
+Resilience4j 的 `minimum-number-of-calls`、`sliding-window-size` 默认 100，`wait-duration-in-open-state` 与 `slow-call-duration-threshold` 默认 60s，每个实例都要显式设置；各参数的取值依据见 [熔断 · 熔断策略与阈值](/high-avail/5_circuit_breaking#三、熔断策略与阈值)。
 
 - 熔断阈值怎么定、Sentinel 与 Resilience4j 的详细对比见 [熔断](/high-avail/5_circuit_breaking)
 - Sentinel 的资源定义、规则类型、Nacos 规则持久化与 OpenFeign 集成见 [Spring Cloud Alibaba](./6_alibaba)

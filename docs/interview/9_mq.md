@@ -10,7 +10,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 
 ## 一、MQ 基础
 
-### Q1：消息队列有哪些使用场景？（异步解耦、削峰填谷、广播通知）
+### Q1：消息队列有哪些使用场景？
 
 **一句话**：MQ 主要干三件事：解耦、削峰、异步。好处是上下游互不拖累，代价是要处理重复、乱序、积压和数据一致性这些新问题。
 
@@ -20,9 +20,9 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 - 广播：同一条事件，每个消费者组各收一份；也常用来汇集日志、埋点数据
 - 代价：多了一个要保证高可用的中间件，上下游变成「最终一致」，排查问题要靠消息轨迹
 
-→ 详见 [消息队列基础](/messaging/1_basics)
+→ 详见 [消息队列基础](/messaging/1_basics#一、核心作用)
 
-### Q2：消息队列的核心工作流程是什么？（Producer → Broker → Consumer）
+### Q2：消息队列的核心工作流程是什么？
 
 **一句话**：生产者发消息给 Broker（消息服务器）并等确认，Broker 存盘并复制到副本，消费者拿到消息处理成功后再确认。可靠性就建立在这几次确认上。
 
@@ -34,7 +34,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 
 **常见坑**：以为消费完消息就没了。Kafka、RocketMQ 消费后数据还在，可以按位点回放；RabbitMQ 普通队列确认后就删除。
 
-→ 详见 [消息队列基础](/messaging/1_basics)
+→ 详见 [消息队列基础](/messaging/1_basics#二、消息模型)
 
 ### Q3：Kafka、RocketMQ、RabbitMQ 的对比？各自适合什么场景？
 
@@ -52,7 +52,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 - 网上「百万 / 十万 / 万」的吞吐数字只能看相对大小，实际取决于消息大小和配置
 - 上了公有云优先考虑托管版；一个公司最好只用一到两种 MQ
 
-→ 详见 [MQ 选型](/messaging/6_selection)
+→ 详见 [MQ 选型](/messaging/6_selection#一、三大-mq-对比)
 
 ### Q4：RocketMQ 5.x 相比 4.x 有哪些主要变化？
 
@@ -64,7 +64,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 - POP 消费：Broker 按消息分配给消费者，消费者数量可以超过队列数
 - 高可用：新增 Controller 模式，主节点挂了自动从同步副本里选新主
 
-→ 详见 [RocketMQ](/messaging/3_rocketmq)
+→ 详见 [RocketMQ](/messaging/3_rocketmq#一、版本说明-4-x-与-5-x)
 
 ### Q5：RabbitMQ 延迟消息有哪几种实现方式？各有什么坑？
 
@@ -81,11 +81,11 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 
 **常见坑**：延迟消息到了直接关单。应该先确认订单还是「待支付」再取消，否则会误关已支付的订单。
 
-→ 详见 [RabbitMQ](/messaging/4_rabbitmq)
+→ 详见 [RabbitMQ](/messaging/4_rabbitmq#六、死信队列-dlx-与延迟消息)
 
 ## 二、消息可靠性
 
-### Q6：如何保证消息不丢失？（生产确认 + 持久化 + 消费 ACK）
+### Q6：如何保证消息不丢失？
 
 **一句话**：发送、存储、消费三个环节都要防：发送要等确认、Broker 要多副本、消费成功后再确认。做到这些得到的是「至少一次」，所以消费端还必须幂等。
 
@@ -98,9 +98,9 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 - 三种语义：先确认再处理是「最多一次」；处理完再确认是「至少一次」（业务默认）；「恰好一次」= 至少一次 + 幂等
 - Kafka 不丢数据靠多副本，不靠每条都刷盘
 
-**常见坑**：靠发送回调来补救失败。进程可能在回调前就崩了，要和数据库保持一致得用本地消息表（见 Q18）。
+**常见坑**：靠发送回调来补救失败。进程可能在回调前就崩了，要和数据库保持一致得用本地消息表（见 Q20）。
 
-→ 详见 [消息队列基础](/messaging/1_basics)、[Kafka](/messaging/2_kafka)
+→ 详见 [消息队列基础](/messaging/1_basics#三、可靠性-三层保障)、[Kafka](/messaging/2_kafka#三、消息可靠性)
 
 ### Q7：RocketMQ 的同步刷盘和异步刷盘有什么区别？
 
@@ -115,7 +115,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 - 同步复制要等从节点确认才返回；异步复制更快，但主节点宕机可能丢少量消息
 - 发送返回 `FLUSH_DISK_TIMEOUT` 这类状态时，消息到了 Broker 但没达到刷盘或复制要求，关键消息要告警
 
-→ 详见 [RocketMQ](/messaging/3_rocketmq)
+→ 详见 [RocketMQ](/messaging/3_rocketmq#三、存储结构)
 
 ### Q8：Kafka 的 ISR 机制是什么？如何保证数据不丢失？
 
@@ -129,9 +129,9 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 
 **常见坑**：把 `retries` 调小。这只会让网络闪断、Leader 切换这种能自动恢复的情况变成发送失败。
 
-→ 详见 [Kafka](/messaging/2_kafka)
+→ 详见 [Kafka](/messaging/2_kafka#_2、broker-侧-靠复制-不靠刷盘)
 
-### Q9：消息幂等性（重复消费）如何保证？（业务键去重：去重记录与业务写入同一本地事务 / Redis 状态机）
+### Q9：如何保证消息幂等（重复消费）？
 
 **一句话**：任何 MQ 都可能重复投递，消费端必须幂等。首选做法：用业务键（如订单号）写一条去重记录，和业务操作放在同一个数据库事务里，业务失败去重记录一起回滚。
 
@@ -143,7 +143,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 
 **常见坑**：先用 `SETNX` 写「已消费」标记再处理业务。业务失败后重投的消息会因为标记已存在被跳过，消息就丢了。
 
-→ 详见 [消息队列基础](/messaging/1_basics)
+→ 详见 [消息队列基础](/messaging/1_basics#四、幂等消费)
 
 ### Q10：Kafka 消费失败时为什么可能"跳过"消息？如何正确重试？
 
@@ -157,7 +157,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 
 **常见坑**：只配了 `DefaultErrorHandler` 没配死信。默认重试 9 次后只打一行日志就跳过了。
 
-→ 详见 [Kafka](/messaging/2_kafka)
+→ 详见 [Kafka](/messaging/2_kafka#四、消费失败处理与幂等消费)
 
 ## 三、消息顺序
 
@@ -172,9 +172,9 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 
 **常见坑**：消费者把消息丢进线程池异步处理，顺序就乱了。确实要并行时，按 key 哈希到固定的单线程里。
 
-→ 详见 [消息队列基础](/messaging/1_basics)
+→ 详见 [消息队列基础](/messaging/1_basics#五、顺序消息)
 
-### Q12：RocketMQ 如何实现顺序消息？（MessageGroup + FIFO 队列）
+### Q12：RocketMQ 如何实现顺序消息？
 
 **一句话**：4.x 是「同一个 hashKey 发到同一个队列，消费时锁住队列单线程处理」；5.x 把 Topic 声明成 FIFO 类型，发送时设 MessageGroup，同组有序、不同组并行。
 
@@ -185,7 +185,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 
 **常见坑**：不设最大重试次数（`maxReconsumeTimes`）。一条坏消息会永远卡住整个队列。
 
-→ 详见 [RocketMQ](/messaging/3_rocketmq)
+→ 详见 [RocketMQ](/messaging/3_rocketmq#_2、顺序消息)
 
 ### Q13：Kafka 如何保证分区内有序？跨分区能保证顺序吗？
 
@@ -199,11 +199,11 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 - 生产者开启幂等（3.0 起默认）时，重试也不会打乱分区内的顺序
 - 增加分区数会改变 key 落到哪个分区，扩容瞬间可能乱序
 
-→ 详见 [Kafka](/messaging/2_kafka)
+→ 详见 [Kafka](/messaging/2_kafka#六、顺序消息)
 
-## 四、高性能
+## 四、高性能与消费扩展
 
-### Q14：消息队列如何实现高效读写？（零拷贝 MMap/SendFile、顺序写入、PageCache）
+### Q14：消息队列如何实现高效读写？
 
 **一句话**：三招：顺序追加写（磁盘顺序写很快）、读写先走操作系统的页缓存（相当于内存）、零拷贝（少在内核和程序之间来回复制数据）。
 
@@ -218,7 +218,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：开了 TLS 还以为能零拷贝。加密必须在程序里做，sendfile 用不了，CPU 开销明显上升。
 
-→ 详见 [Kafka](/messaging/2_kafka)、[RocketMQ](/messaging/3_rocketmq)
+→ 详见 [Kafka](/messaging/2_kafka#七、高性能原理)、[RocketMQ](/messaging/3_rocketmq#三、存储结构)
 
 ### Q15：Kafka 为什么吞吐量这么高？
 
@@ -232,7 +232,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：`linger.ms` 调大能提高吞吐，但单条消息的延迟也会变大，要权衡。
 
-→ 详见 [Kafka](/messaging/2_kafka)
+→ 详见 [Kafka](/messaging/2_kafka#七、高性能原理)
 
 ### Q16：消息积压了怎么处理？
 
@@ -246,11 +246,43 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：直接重置位点跳过积压。这是最后手段，只在业务允许丢弃时用，事后要补数据。
 
-→ 详见 [消息队列基础](/messaging/1_basics)、[Kafka](/messaging/2_kafka)
+→ 详见 [消息队列基础](/messaging/1_basics#六、消息积压)、[Kafka](/messaging/2_kafka#_1、消息积压)
+
+### Q17：Kafka Rebalance 什么时候触发？怎么减少影响？
+
+**一句话**：Rebalance 就是消费者组重新分配分区。成员进出、心跳超时、处理太慢、分区数变化都会触发；老协议下全组先停再分，期间不消费还可能重复消费。办法是少触发、触发了也只动必要的分区。
+
+- 触发：消费者加入或退出、超过 `session.timeout.ms` 没心跳、两次 poll 间隔超过 `max.poll.interval.ms`、订阅的分区数变了
+- 别处理超时：单批处理时间要小于 `max.poll.interval.ms`，慢就调小 `max.poll.records`，而不是一味调大超时
+- 增量分配：经典协议用 `CooperativeStickyAssignor`，只迁移要变的分区，其余照常消费
+- 静态成员：设 `group.instance.id`，滚动重启时在超时内回来就不触发
+- 新协议（KIP-848，4.0 正式可用）：客户端设 `group.protocol=consumer`，由 Broker 增量分配，没有全组停顿
+
+**常见坑**：消费端处理慢就把 `max.poll.interval.ms` 调到很大。真卡死的消费者要很久才被踢出，它的分区一直没人消费。
+
+→ 详见 [Kafka](/messaging/2_kafka#_2、consumer-rebalance)
+
+### Q18：Kafka 的共享组（Share Group）是什么？和消费者组有什么区别？
+
+**一句话**：共享组（KIP-932，4.2 起生产可用）给 Kafka 补上了传统队列语义：多个消费者可以同时消费同一个分区，逐条确认，消费者数量不再受分区数限制，代价是不保证顺序。
+
+| 对比 | 消费者组 | 共享组 |
+|------|---------|--------|
+| 分区分配 | 一个分区只给组内一个消费者 | 多个消费者同时消费同一分区 |
+| 消费者上限 | 不超过分区数 | 不受分区数限制 |
+| 确认 | 累计提交位点 | 逐条确认：完成 / 放回重投 / 永久失败 / 延长锁 |
+| 顺序 | 分区内有序 | 不保证 |
+
+- 客户端换成 `KafkaShareConsumer`；记录取走后加锁，超时没确认会自动放回重投
+- 适合任务分发、竞争消费这类不要求顺序的场景；要顺序或 Exactly-Once 仍用消费者组
+
+**常见坑**：以为有内置死信 Topic。目前超过投递次数的记录只是归档不再投递，要死信得在拒绝前自己转发。
+
+→ 详见 [Kafka](/messaging/2_kafka#_4、共享组-queues-for-kafka)
 
 ## 五、分布式事务
 
-### Q17：如何用消息队列实现分布式事务最终一致性？
+### Q19：如何用消息队列实现分布式事务最终一致性？
 
 **一句话**：MQ 只能做到最终一致：保证「本地事务成功，消息一定发出去」，下游失败就重试 + 幂等，最后用对账兜底。常用做法是本地消息表或 RocketMQ 事务消息。
 
@@ -265,9 +297,9 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 - Kafka 事务管不到数据库，不能替代本地消息表
 - 需要回滚的强流程用 TCC / Saga
 
-→ 详见 [消息队列基础](/messaging/1_basics)
+→ 详见 [消息队列基础](/messaging/1_basics#八、分布式事务中的消息)
 
-### Q18：为什么不能在数据库事务里直接发 MQ 消息？本地消息表（Outbox）怎么做？
+### Q20：为什么不能在数据库事务里直接发 MQ 消息？本地消息表（Outbox）怎么做？
 
 **一句话**：数据库和 MQ 是两个系统，放不进一个事务。事务里发消息，可能「消息发了但事务回滚」，也可能「事务提交了但消息没发」。正确做法是把要发的消息和业务数据写进同一个本地事务，再由后台任务发出去。
 
@@ -278,9 +310,9 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：用 `@TransactionalEventListener(AFTER_COMMIT)` 发消息就以为可靠了。提交后、发送前进程崩溃照样丢，只适合不重要的通知。
 
-→ 详见 [消息队列基础](/messaging/1_basics)
+→ 详见 [消息队列基础](/messaging/1_basics#_1、本地消息表-transactional-outbox)
 
-### Q19：RocketMQ 事务消息的原理是什么？（半消息 + 本地事务 + 回查）
+### Q21：RocketMQ 事务消息的原理是什么？
 
 **一句话**：先发一条消费者看不到的「半消息」，再执行本地事务，成功就提交让消息可见，失败就删掉；结果没传到时，Broker 会定时来问生产者「这个事务到底成没成」（回查）。
 
@@ -292,9 +324,9 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：回查时查不到记录就返回 `ROLLBACK`。本地事务可能还没提交，应该返回 `UNKNOWN`，等超过合理时间仍查不到再回滚。
 
-→ 详见 [RocketMQ](/messaging/3_rocketmq)
+→ 详见 [RocketMQ](/messaging/3_rocketmq#七、事务消息)
 
-### Q20：本地消息表和 RocketMQ 事务消息的区别？
+### Q22：本地消息表和 RocketMQ 事务消息的区别？
 
 **一句话**：效果一样（本地事务成功，消息一定送达），区别在谁负责送：本地消息表靠自己的表和后台任务，跟用哪种 MQ 无关；事务消息交给 Broker 的半消息和回查，省了消息表，但只能用 RocketMQ。
 
@@ -308,11 +340,11 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 - 共同点：都是「至少一次」，下游都要幂等，都不会回滚上游
 - 已经在用 RocketMQ 的核心链路用事务消息；跨 MQ 或要统一管理时用本地消息表
 
-→ 详见 [RocketMQ](/messaging/3_rocketmq)、[消息队列基础](/messaging/1_basics)
+→ 详见 [RocketMQ](/messaging/3_rocketmq#七、事务消息)、[消息队列基础](/messaging/1_basics#_4、方案对比)
 
 ## 六、高可用
 
-### Q21：RocketMQ 如何保证高可用？（主从复制 + DLedger / 5.x Controller）
+### Q23：RocketMQ 如何保证高可用？
 
 **一句话**：NameServer（路由中心）无状态，部署多个、活一个就行；Broker 经历了三代：主从复制（主挂了不自动切）→ DLedger（用 Raft 投票自动选主）→ 5.x Controller（从同步副本里自动选主）。新集群优先用 Controller 模式。
 
@@ -321,9 +353,9 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 - Controller 模式：只从数据同步的副本里选主，不丢数据；2 副本就能工作，存储格式不变
 - 常见的可靠性组合：同步复制（或 Controller）+ 异步刷盘
 
-→ 详见 [RocketMQ](/messaging/3_rocketmq)
+→ 详见 [RocketMQ](/messaging/3_rocketmq#四、高可用)
 
-### Q22：Kafka 的副本机制是什么？Leader 宕机如何选举？
+### Q24：Kafka 的副本机制是什么？Leader 宕机如何选举？
 
 **一句话**：每个分区有多个副本，读写都走 Leader，其他副本从 Leader 拉数据同步。Leader 挂了，由 Controller 从 ISR（跟得上的副本）里选一个新 Leader，客户端刷新元数据后切过去。Kafka 4.0 起不再依赖 ZooKeeper。
 
@@ -335,9 +367,9 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：老集群直接升 4.x。必须先在 3.x 完成从 ZooKeeper 到 KRaft 的迁移。
 
-→ 详见 [Kafka](/messaging/2_kafka)
+→ 详见 [Kafka](/messaging/2_kafka#一、架构与核心概念)
 
-### Q23：RabbitMQ 的镜像队列（4.0 已移除）和 Quorum Queue 有什么区别？为什么要迁移？
+### Q25：RabbitMQ 的镜像队列和 Quorum 队列有什么区别？为什么要迁移？
 
 **一句话**：镜像队列是老的主从复制方案，RabbitMQ 4.0 已经删掉了；现在要复制的业务队列只能用 Quorum 队列（基于 Raft，多数节点写成功才确认），升级前必须先迁移。
 
@@ -352,9 +384,9 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 - 要回放、大量消费者或海量堆积时用 Stream 队列
 - 普通 Classic 队列即使持久化也只存一个节点，只适合可丢的临时数据
 
-→ 详见 [RabbitMQ](/messaging/4_rabbitmq)
+→ 详见 [RabbitMQ](/messaging/4_rabbitmq#七、高可用-quorum-队列与-streams)
 
-### Q24：如何设计一个消息队列？
+### Q26：如何设计一个消息队列？
 
 **一句话**：按一条消息的一生来讲：怎么收（网络）→ 怎么存（存储）→ 怎么投（消费）→ 怎么不丢不重（可靠性）→ 怎么扩容和容错（分区与副本），再补上事务、延迟、死信等能力，每处都说清取舍。
 
@@ -366,4 +398,4 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：只讲功能不讲取舍。要主动说：同步刷盘换可靠牺牲吞吐、分区多了 Rebalance 开销大、全局有序和高吞吐不可兼得；幂等消费最终还是交给业务。
 
-→ 详见 [MQ 选型](/messaging/6_selection)、[Kafka](/messaging/2_kafka)
+→ 详见 [Kafka](/messaging/2_kafka#一、架构与核心概念)、[MQ 选型](/messaging/6_selection#一、三大-mq-对比)

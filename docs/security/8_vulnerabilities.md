@@ -236,7 +236,7 @@ CSRF 是否需要防护，只取决于一件事：**凭据是不是浏览器自�
 | 令牌放在 httpOnly Cookie 里直接调 API | Cookie | 必须开启 |
 | 纯 API：移动端、服务间、第三方调用 | `Authorization: Bearer` 头，令牌不进 Cookie | 可以关闭 |
 
-结合 [JWT 令牌机制](./1_jwt) 中"浏览器端令牌不放 localStorage"的建议，本站对浏览器场景的统一做法是：**BFF + httpOnly 会话 Cookie + `SameSite=Lax` + CSRF Token**；只有不经浏览器 Cookie、只认 `Authorization` 头的无状态 API 才关闭 CSRF。
+浏览器场景的统一做法是 **BFF + HttpOnly 会话 Cookie + `SameSite=Lax` + CSRF Token**（令牌存放与 Cookie 属性见 [JWT 令牌机制](./1_jwt#九、token-存在哪里)）；只有不经浏览器 Cookie、只认 `Authorization` 头的无状态 API 才关闭 CSRF。
 
 ### 3、Spring Security 7 配置
 
@@ -289,21 +289,7 @@ public class SecurityConfig {
 
 ### 4、SameSite：用 Lax，不用 Strict
 
-```yaml
-server:
-  servlet:
-    session:
-      cookie:
-        same-site: lax     # 跨站的 POST / iframe / 图片请求不带 Cookie，跨站顶级 GET 导航仍带
-        secure: true
-        http-only: true
-```
-
-::: warning SameSite=Strict 会破坏 SSO 回调
-`Strict` 下，只要是从别的站点跳过来的请求，浏览器一律不带 Cookie。OIDC / SSO 登录时，IdP 把浏览器重定向回应用的回调地址，这是一次跨站的顶级导航：应用收不到会话 Cookie，就找不到登录前保存在会话里的 `state`，登录失败或要求重新登录。从邮件、IM 里点链接进入站点也会表现为"未登录"。因此会话 Cookie 统一用 `Lax`。若 IdP 使用 `response_mode=form_post`（跨站 POST 回调），连 `Lax` 也不会带 Cookie，需要改用默认的 query 模式。
-:::
-
-SameSite 只是纵深防御，不能替代 CSRF Token：同站（same-site）的子域被攻破时它不起作用；`Lax` 允许跨站顶级 GET，所以**任何有副作用的操作都不能用 GET**。
+`SameSite=Lax` 让跨站的 POST、iframe、图片请求不带 Cookie，是 CSRF 的纵深防御，但不能替代 CSRF Token：同站子域被攻破时它不起作用，`Lax` 又放行跨站顶级 GET，所以**任何有副作用的操作都不能用 GET**。为什么不用 `Strict`（会破坏 SSO 回调）以及会话 Cookie 的完整配置见 [JWT 令牌机制](./1_jwt#九、token-存在哪里)。
 
 ---
 

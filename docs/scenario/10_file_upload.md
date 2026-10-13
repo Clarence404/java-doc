@@ -373,6 +373,7 @@ Path chunkPath(String sha256, int index, int totalParts) {
 - **校验**：流式读取对象重算 SHA-256，一致标记 `VERIFIED`，不一致标记 `MISMATCH` 并告警
 - **缩略图**：从对象存储读取原图生成多个尺寸，写到确定性的键（如 `thumb/{fileObjectId}/300.webp`），重复消费只是覆盖，天然幂等；处理前检查像素尺寸上限，防止解压炸弹
 - **内容审核**：图片、文档送审核服务，结果回写文件状态
+- **视频转码**：视频上传后的转码、封面截图、HLS 切片与播放链路见 [点播与短视频](/media/7_vod)
 
 图片场景也可以不预生成，直接用云厂商的 URL 参数实时处理，再由 CDN 缓存：
 
@@ -387,7 +388,7 @@ https://cdn.example.com/images/photo.jpg?x-oss-process=image/crop,w_200,h_200
 
 - **持久性与可用性是两回事**：Amazon S3 的设计持久性为 99.999999999%（11 个 9），指数据不丢；可用性 SLA 另行约定，指能不能访问。各云厂商的数字以其官方文档为准
 - **公有云**：S3、阿里云 OSS、腾讯云 COS 等，配合 CDN 与生命周期规则（转低频、归档、过期删除）
-- **私有化**：MinIO 曾是最常见的选择，但现状已变：许可证为 AGPLv3，社区版先后移除了管理控制台、停止提供预编译二进制和镜像，GitHub 仓库已于 2026 年 4 月归档并声明不再维护，官方引导到商业产品 AIStor。新项目应评估 Ceph RGW、SeaweedFS、Garage 等替代方案，或继续使用 MinIO 时自行承担源码构建与安全更新
+- **私有化**：MinIO 社区版已停止维护，新项目优先评估 Ceph RGW、SeaweedFS 等替代方案；许可证变化时间线与自建方案对比见 [自建选型与 MinIO 现状](/architecture/4_object_storage#六、自建选型与-minio-现状)
 - **应用代码不绑定厂商**：用 AWS SDK for Java 2.x 的 S3 接口，通过 `endpointOverride` 切换后端
 
 ---

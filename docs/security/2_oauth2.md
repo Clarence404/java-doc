@@ -344,36 +344,9 @@ class OrderClient {
 
 ### 2、资源服务器
 
-```yaml
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://auth.example.com   # 自动获取 JWK Set，并校验 iss
-          audiences: order-service               # 校验 aud
-        # 不透明令牌改用 Introspection：
-        # opaquetoken:
-        #   introspection-uri: https://auth.example.com/oauth2/introspect
-        #   client-id: order-service
-        #   client-secret: ${ORDER_SERVICE_SECRET}
-```
+资源服务器只需 `oauth2ResourceServer(rs -> rs.jwt(...))` 加几项配置：`jwt.issuer-uri` 自动发现 JWK Set 并校验 `iss`，`jwt.audiences` 校验 `aud`；不透明令牌改配 `opaquetoken.introspection-uri` / `client-id` / `client-secret` 走第七节的 Introspection。默认把 `scope` claim 映射成 `SCOPE_xxx` 权限。
 
-```java
-@Bean
-SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
-    return http
-        .authorizeHttpRequests(a -> a
-            .requestMatchers(HttpMethod.GET, "/orders/**").hasAuthority("SCOPE_order.read")
-            .requestMatchers("/orders/**").hasAuthority("SCOPE_order.write")
-            .anyRequest().authenticated())
-        .oauth2ResourceServer(rs -> rs.jwt(Customizer.withDefaults()))
-        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .build();
-}
-```
-
-默认把 `scope` claim 映射成 `SCOPE_xxx` 权限。Keycloak 角色映射、网关作为资源服务器的写法见 [Spring SSO 接入](/spring/11_single_sign_on) 和 [Spring Security](/spring/9_security)。
+完整的依赖、过滤器链与 claims 到权限的映射见 [Spring Security](/spring/9_security#四、jwt-认证-oauth2-resource-server-推荐)，按 RFC 8725 逐项校验（算法白名单、`typ=at+jwt`、吊销）见 [JWT 令牌机制](./1_jwt#五、校验清单与-spring-security-实现)，Keycloak 角色映射、网关作为资源服务器的写法见 [Spring SSO 接入](/spring/11_single_sign_on)。
 
 ### 3、授权服务器
 

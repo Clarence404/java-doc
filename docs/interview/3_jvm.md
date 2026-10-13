@@ -1,11 +1,9 @@
 ---
-description: 内存结构、类加载、GC 原理与收集器、JIT、调优与排查
+description: 内存结构、类加载、字节码执行、GC 原理与收集器、JIT、调优与排查
 ---
 
 # JVM 面试题解答
 
-> 细节详见 [JVM 总览](/jvm/0_overview)。
->
 > 版本基线：JDK 21 / 25 LTS，与 JDK 8 / 17 不同处单独说明。
 
 ## 一、内存结构
@@ -19,7 +17,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 - 执行引擎：解释器逐条执行，JIT 把热点代码编译成机器码，垃圾收集器负责回收内存
 - 需要调用 C/C++ 库时走本地方法接口（JNI）
 
-→ 详见 [JVM 内存结构](/jvm/1_memory)
+→ 详见 [内存结构](/jvm/1_memory#一、运行时数据区)
 
 ### Q2：JVM 内存区域有哪些？各区域的作用是什么？
 
@@ -31,7 +29,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 - 方法区（JDK 8 起叫元空间）：存类的结构信息，用的是本地内存
 - 直接内存：NIO 用的堆外缓冲区，不属于规范定义的区域，但同样会 OOM
 
-→ 详见 [JVM 内存结构](/jvm/1_memory)
+→ 详见 [内存结构](/jvm/1_memory#一、运行时数据区)
 
 ### Q3：堆和栈的区别？堆和方法区的区别？
 
@@ -46,7 +44,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 
 - 局部变量是基本类型时值在栈上；是引用时栈上只存引用，对象本身在堆上
 
-→ 详见 [JVM 内存结构](/jvm/1_memory)
+→ 详见 [内存结构](/jvm/1_memory#一、运行时数据区)
 
 ### Q4：方法区在 JDK 8 后有什么变化？为什么用元空间替代永久代？
 
@@ -58,7 +56,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 
 **常见坑**：`MaxMetaspaceSize` 默认不设上限，建议显式设置；`MetaspaceSize` 是第一次触发元空间 GC 的阈值，不是初始大小。
 
-→ 详见 [JVM 内存结构](/jvm/1_memory)
+→ 详见 [内存结构](/jvm/1_memory#_5、方法区-元空间)
 
 ### Q5：Java 对象一定在堆上分配吗？
 
@@ -68,7 +66,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 - 标量替换依赖方法内联和逃逸分析，默认开启，但效果不稳定
 - 大多数对象分配在线程私有的 TLAB（堆里给每个线程划的一小块）里，它仍然是堆
 
-→ 详见 [JIT 编译](/jvm/7_jit)
+→ 详见 [JIT 编译](/jvm/7_jit#_3、逃逸分析-escape-analysis)
 
 ### Q6：什么是内存泄漏？和内存溢出的区别？
 
@@ -79,7 +77,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 - 常见泄漏：静态集合只加不删、监听器不注销、`ThreadLocal` 不 `remove()`、缓存没有上限
 - 排查：导出 heap dump，用 MAT 找是谁一直引用着这些对象
 
-→ 详见 [JVM 故障排查](/jvm/9_troubleshooting)
+→ 详见 [故障排查](/jvm/9_troubleshooting#三、outofmemoryerror-java-heap-space)
 
 ### Q7：OOM 有哪几种类型？各是什么原因？
 
@@ -97,7 +95,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 
 **常见坑**：把容器 OOMKilled 当成 JVM OOM；那是进程总内存超过容器限制被系统杀掉（退出码 137），没有 Java 异常也没有 heap dump。
 
-→ 详见 [JVM 故障排查](/jvm/9_troubleshooting)
+→ 详见 [故障排查](/jvm/9_troubleshooting#二、oom-类型总览)
 
 ### Q8：String 常量池在哪里？JDK 6 和 JDK 7+ 有什么区别？
 
@@ -107,7 +105,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 - 移到堆里的好处：不会再因为永久代太小而溢出
 - 这次迁移也改变了 `intern()` 的行为（见下题）
 
-→ 详见 [JVM 内存结构](/jvm/1_memory)
+→ 详见 [内存结构](/jvm/1_memory#五、string-常量池)
 
 ### Q9：String.intern() 的作用和使用场景？
 
@@ -119,7 +117,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 
 **常见坑**：对用户输入、订单号这类数量不受控的字符串调 `intern()`，常量池会越来越大。
 
-→ 详见 [JVM 内存结构](/jvm/1_memory)
+→ 详见 [内存结构](/jvm/1_memory#_1、intern)
 
 ## 二、类加载
 
@@ -133,7 +131,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 - 解析：把符号引用（名字）换成直接引用（地址），HotSpot 多数推迟到第一次用时
 - 初始化：执行静态赋值和 `static {}` 块，父类先于子类，JVM 保证只执行一次
 
-→ 详见 [类加载机制](/jvm/2_class_loading)
+→ 详见 [类加载机制](/jvm/2_class_loading#一、类加载过程)
 
 ### Q11：双亲委派模型的原理和作用？
 
@@ -144,7 +142,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 - 父子关系是通过 `parent` 字段组合的，不是继承
 - 就算绕过委派，也不能自己定义 `java.*` 包下的类
 
-→ 详见 [类加载机制](/jvm/2_class_loading)
+→ 详见 [类加载机制](/jvm/2_class_loading#四、双亲委派模型)
 
 ### Q12：如何打破双亲委派？为什么 Tomcat 要打破？
 
@@ -155,7 +153,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 - 热部署：新建一个加载器加载新版本的类，把旧加载器整个丢掉
 - Tomcat 为什么要打破：一个 Tomcat 部署多个应用，它们可能依赖同一个库的不同版本；按双亲委派只能共享一个版本，「先自己找」才能让各应用互相隔离
 
-→ 详见 [类加载机制](/jvm/2_class_loading)
+→ 详见 [类加载机制](/jvm/2_class_loading#五、打破双亲委派)
 
 ### Q13：类的初始化时机有哪些？（主动引用 vs 被动引用）
 
@@ -167,7 +165,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 - 被动引用三：引用编译期常量，常量已经在编译时复制到调用方
 - `ClassLoader.loadClass()` 只加载不初始化；`Class.forName(name)` 默认会初始化
 
-→ 详见 [类加载机制](/jvm/2_class_loading)
+→ 详见 [类加载机制](/jvm/2_class_loading#二、初始化时机-主动引用与被动引用)
 
 ### Q14：如何判断两个类是否相同？
 
@@ -176,7 +174,7 @@ description: 内存结构、类加载、GC 原理与收集器、JIT、调优与�
 - 同一个 `.class` 文件被两个加载器加载，就是两个不同的类：互相赋值抛 `ClassCastException`，`instanceof` 返回 false
 - 线上常见于热部署、插件化、多个应用共享对象，报出「`X cannot be cast to X`」这种怪错误
 
-→ 详见 [类加载机制](/jvm/2_class_loading)
+→ 详见 [类加载机制](/jvm/2_class_loading#_1、判断两个类是否相同)
 
 ### Q15：`static final` 常量为什么在准备阶段就能赋值？
 
@@ -188,7 +186,7 @@ public static final int MAX = 100;              // 准备阶段直接是 100
 public static final Object LOCK = new Object(); // 不是编译期常量，初始化阶段赋值
 ```
 
-→ 详见 [类加载机制](/jvm/2_class_loading)
+→ 详见 [类加载机制](/jvm/2_class_loading#_3、准备-preparation)
 
 ## 三、字节码执行
 
@@ -204,7 +202,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 
 - JIT 编译出的机器码照样会充分用 CPU 寄存器，栈式只是字节码层面的设计
 
-→ 详见 [字节码执行](/jvm/3_bytecode)
+→ 详见 [字节码执行](/jvm/3_bytecode#二、栈帧结构)
 
 ### Q17：`i++` 和 `++i` 的字节码有什么区别？
 
@@ -216,7 +214,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 
 **常见坑**：`i = i++` 之后 `i` 不变，因为先把旧值压栈，加 1 之后又用旧值覆盖了 `i`。
 
-→ 详见 [字节码执行](/jvm/3_bytecode)
+→ 详见 [字节码执行](/jvm/3_bytecode#_1、加载与存储)
 
 ### Q18：Lambda 为什么用 `invokedynamic` 实现，而不是编译成匿名内部类？
 
@@ -227,7 +225,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 之后执行：直接用绑定好的结果；不捕获变量的 Lambda 通常一直复用同一个实例
 - 和匿名类比：匿名类每个都生成一个 `Outer$1.class`，`this` 指匿名类自己；Lambda 的 `this` 指外面的对象
 
-→ 详见 [字节码执行](/jvm/3_bytecode)
+→ 详见 [字节码执行](/jvm/3_bytecode#四、invokedynamic-与-lambda)
 
 ## 四、垃圾回收
 
@@ -238,7 +236,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 引用计数的问题：A、B 互相引用但外面没人用它们，计数都不为 0，永远回收不掉
 - 四种引用强度：强引用不回收；软引用内存不够时回收；弱引用下次 GC 就回收；虚引用只用来收到「对象被回收了」的通知
 
-→ 详见 [GC 原理](/jvm/4_gc_theory)
+→ 详见 [GC 原理](/jvm/4_gc_theory#一、如何判断对象可以被回收)
 
 ### Q20：有哪些 GC Roots？为什么它们可以作为根？
 
@@ -251,7 +249,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 
 只回收一部分区域时（比如只回收年轻代），别的区域指向它的引用也要当成根，这些引用记在「卡表」里
 
-→ 详见 [GC 原理](/jvm/4_gc_theory)
+→ 详见 [GC 原理](/jvm/4_gc_theory#_2、可达性分析-jvm-采用)
 
 ### Q21：常见垃圾回收算法有哪些？
 
@@ -265,7 +263,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 
 - 年轻代用 Eden + 两个 Survivor 的方式复制，只浪费 10% 空间，不是一半
 
-→ 详见 [GC 原理](/jvm/4_gc_theory)
+→ 详见 [GC 原理](/jvm/4_gc_theory#三、gc-算法)
 
 ### Q22：分代收集的原理是什么？新生代和老年代用的是哪种算法？
 
@@ -276,7 +274,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 动态年龄：同年龄及以下的对象加起来超过 Survivor 一半，就把这个年龄当阈值
 - G1、分代 ZGC 也分代，只是每代是一组逻辑上的 Region，不是连续的一块
 
-→ 详见 [GC 原理](/jvm/4_gc_theory)、[JVM 内存结构](/jvm/1_memory)
+→ 详见 [GC 原理](/jvm/4_gc_theory#四、分代收集)、[内存结构](/jvm/1_memory#四、内存分配与晋升策略)
 
 ### Q23：Minor GC、Major GC 和 Full GC 的区别与触发条件？
 
@@ -287,7 +285,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - Full GC 触发：老年代放不下晋升的对象或大对象、元空间到阈值、并发收集来不及、调了 `System.gc()`
 - 目前只有 CMS 会单独回收老年代（真正意义上的 Major GC）
 
-→ 详见 [GC 原理](/jvm/4_gc_theory)
+→ 详见 [GC 原理](/jvm/4_gc_theory#五、gc-的分类与触发时机)
 
 ### Q24：Minor GC 需要扫描整个老年代吗？跨代引用怎么处理？
 
@@ -297,7 +295,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 写屏障：每次给引用赋值时，JIT 插入的一小段代码顺手更新卡表
 - G1 给每个 Region 维护一个 RSet，记录别的 Region 指向它的引用，原理相同
 
-→ 详见 [GC 原理](/jvm/4_gc_theory)
+→ 详见 [GC 原理](/jvm/4_gc_theory#_3、跨代引用-记忆集与卡表)
 
 ### Q25：什么是三色标记？并发标记为什么会漏标，CMS 和 G1 分别怎么解决？
 
@@ -308,7 +306,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - G1 用 SATB（开始时的快照）：删引用前先记下旧值，按标记开始时的样子算，破坏条件二，代价是多留一些本轮回收不掉的「浮动垃圾」
 - ZGC 不用这两种，靠染色指针和读屏障
 
-→ 详见 [GC 原理](/jvm/4_gc_theory)
+→ 详见 [GC 原理](/jvm/4_gc_theory#七、三色标记与并发标记)
 
 ### Q26：`System.gc()` 一定会触发 Full GC 吗？`-XX:+DisableExplicitGC` 有什么影响？
 
@@ -318,7 +316,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 堆外内存不够时 JDK 会主动调 `System.gc()` 来释放，禁用后这一步失效，最终报 `Direct buffer memory`
 - 想避免显式 GC 造成长停顿，用 `-XX:+ExplicitGCInvokesConcurrent`，让它改成一次并发 GC
 
-→ 详见 [GC 原理](/jvm/4_gc_theory)
+→ 详见 [GC 原理](/jvm/4_gc_theory#_3、system-gc-与-disableexplicitgc)
 
 ## 五、垃圾收集器
 
@@ -336,7 +334,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 
 - 机器 CPU 少于 2 个或内存小于 1792MB 时，JVM 默认选 Serial；生产环境建议显式指定收集器
 
-→ 详见 [GC 收集器](/jvm/5_gc_collectors)
+→ 详见 [GC 收集器](/jvm/5_gc_collectors#七、收集器对比)
 
 ### Q28：CMS 的垃圾回收过程？它有什么缺点？
 
@@ -347,7 +345,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 浮动垃圾：并发期间产生的新垃圾本轮收不掉，要提前启动；预留空间不够会退化成单线程 Full GC，停顿极长
 - JDK 14 已移除，新项目用 G1 或 ZGC
 
-→ 详见 [GC 收集器](/jvm/5_gc_collectors)
+→ 详见 [GC 收集器](/jvm/5_gc_collectors#_4、cms-concurrent-mark-sweep)
 
 ### Q29：G1 的工作原理？Region 是什么？为什么它能预测停顿时间？
 
@@ -360,7 +358,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 
 **常见坑**：用 `-Xmn` / `NewRatio` 固定年轻代大小，G1 没法自己调，停顿目标就失效了。
 
-→ 详见 [GC 收集器](/jvm/5_gc_collectors)
+→ 详见 [GC 收集器](/jvm/5_gc_collectors#三、g1-garbage-first)
 
 ### Q30：ZGC 如何实现低延迟？
 
@@ -373,7 +371,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 
 **常见坑**：堆给得太紧，回收赶不上分配，业务线程分配内存时会被卡住等待（Allocation Stall）。
 
-→ 详见 [GC 收集器](/jvm/5_gc_collectors)
+→ 详见 [GC 收集器](/jvm/5_gc_collectors#四、zgc-z-garbage-collector)
 
 ### Q31：什么是分代 ZGC？各 JDK 版本如何启用？
 
@@ -387,7 +385,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 
 - `SoftMaxHeapSize` 可以设一个软上限，平时尽量控制在它以下，突发时仍能用到 `-Xmx`
 
-→ 详见 [GC 收集器](/jvm/5_gc_collectors)
+→ 详见 [GC 收集器](/jvm/5_gc_collectors#_2、版本演进)
 
 ## 六、JIT 编译
 
@@ -401,7 +399,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 长时间运行的循环可以在循环中途切到编译后的代码（OSR）
 - 缓解预热：上线前先打预热流量、就绪探针放在预热之后、JDK 24+ 的 AOT 缓存
 
-→ 详见 [JIT 编译](/jvm/7_jit)
+→ 详见 [JIT 编译](/jvm/7_jit#二、分层编译-tiered-compilation)
 
 ### Q33：逃逸分析能保证对象在栈上分配吗？
 
@@ -411,7 +409,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 分析太复杂、或对象必须作为整体存在时，JIT 会放弃，对象照样在堆上分配
 - 准确说法：不逃逸的对象「有机会」被拆掉，从而不在堆上分配
 
-→ 详见 [JIT 编译](/jvm/7_jit)
+→ 详见 [JIT 编译](/jvm/7_jit#_3、逃逸分析-escape-analysis)
 
 ### Q34：方法内联有什么好处和代价？
 
@@ -422,7 +420,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 内联时的假设失效（比如加载了新子类），会退回解释执行
 - 实践：热点路径上的方法写短一点，别让一个调用点对应太多实现类
 
-→ 详见 [JIT 编译](/jvm/7_jit)
+→ 详见 [JIT 编译](/jvm/7_jit#_1、方法内联-method-inlining)
 
 ## 七、JVM 调优与排查
 
@@ -436,7 +434,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 收集器：`-XX:+UseG1GC` / `-XX:+UseZGC`，G1 用 `-XX:MaxGCPauseMillis` 设停顿目标
 - 诊断：`-XX:+HeapDumpOnOutOfMemoryError` 加 `-XX:HeapDumpPath` 保留 OOM 现场，`-Xlog:gc*` 打 GC 日志
 
-→ 详见 [GC 调优](/jvm/6_gc_tuning)
+→ 详见 [GC 调优](/jvm/6_gc_tuning#三、核心-jvm-参数)
 
 ### Q36：如何确定堆内存大小？`-Xms` 和 `-Xmx` 为什么推荐设成相同？
 
@@ -446,7 +444,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 堆在两个值之间扩缩时，会多做 GC、向系统申请或归还内存，带来停顿抖动
 - 设成一样也让容量规划更直观
 
-→ 详见 [GC 调优](/jvm/6_gc_tuning)
+→ 详见 [GC 调优](/jvm/6_gc_tuning#_1、内存大小)
 
 ### Q37：容器中如何设置 JVM 内存？为什么会被 OOMKilled？
 
@@ -457,7 +455,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 确认 OOMKilled：`kubectl describe pod` 看到 Reason: OOMKilled、退出码 137
 - 小配额容器（CPU < 2 或内存 < 1792MB）默认会选 Serial，要显式指定收集器
 
-→ 详见 [GC 调优](/jvm/6_gc_tuning)、[JVM 层性能策略](/high-perf/5_jvm_tuning)
+→ 详见 [GC 调优](/jvm/6_gc_tuning#四、容器环境)、[JVM 层性能策略](/high-perf/5_jvm_tuning#三、堆大小与容器内存)
 
 ### Q38：jcmd 和 NMT 能做什么？
 
@@ -470,7 +468,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 
 **常见坑**：容器里 attach 失败，多半是执行用户或 `/tmp` 目录和目标进程不一致，进容器内执行即可。
 
-→ 详见 [诊断工具](/jvm/8_monitoring_tools)
+→ 详见 [诊断工具](/jvm/8_monitoring_tools#二、jcmd-诊断命令总入口)、[诊断工具](/jvm/8_monitoring_tools#七、nmt-native-memory-tracking)
 
 ### Q39：如何排查 CPU 100% 问题？
 
@@ -487,7 +485,7 @@ jstack <pid> | grep "nid=0x<hex>" -A 30
 
 **常见坑**：以为死锁会导致 CPU 高；死锁线程是挂起的，不耗 CPU，表现是接口没响应。
 
-→ 详见 [JVM 故障排查](/jvm/9_troubleshooting)
+→ 详见 [故障排查](/jvm/9_troubleshooting#十、cpu-使用率高)
 
 ### Q40：如何排查内存溢出问题？线上能开 `-XX:+HeapDumpOnOutOfMemoryError` 吗？
 
@@ -498,7 +496,7 @@ jstack <pid> | grep "nid=0x<hex>" -A 30
 - 为什么线上要开：导出 dump 会停顿、要占磁盘，但 OOM 时服务本来就不可用了，没有 dump 就无从分析
 - 配合 `-XX:+ExitOnOutOfMemoryError` 让进程直接退出、由 K8s 重启；容器里 dump 目录要挂持久卷
 
-→ 详见 [JVM 故障排查](/jvm/9_troubleshooting)
+→ 详见 [故障排查](/jvm/9_troubleshooting#三、outofmemoryerror-java-heap-space)
 
 ### Q41：如何排查频繁 Full GC？
 
@@ -510,116 +508,4 @@ jstack <pid> | grep "nid=0x<hex>" -A 30
 - 元空间不够（日志里是 `Metadata GC Threshold`）：调大上限，查是不是动态生成了大量类
 - 有人调 `System.gc()`：找到调用方，或加 `-XX:+ExplicitGCInvokesConcurrent`
 
-→ 详见 [GC 调优](/jvm/6_gc_tuning)
-
-## 八、Java 内存模型（JMM）
-
-### Q42：JMM 是什么？解决了什么问题？
-
-**一句话**：JMM 是 Java 规范（JLS 第 17 章）里的一套规则，用 happens-before 规定一个线程的写什么时候能被其他线程看到，屏蔽不同 CPU 和 JIT 优化的差异，解决可见性、原子性、有序性问题。
-
-- 核心规则：happens-before（A hb B 就是 A 的结果对 B 可见），判断并发代码对不对就看有没有 hb 关系
-- 对开发者的承诺（DRF-SC）：程序没有数据竞争（正确用了 volatile、锁、final），运行结果就和顺序执行一样
-- 看不到新值的真正原因：JIT 把读提升出循环、Store Buffer、CPU 乱序，不是「缓存不一致」
-- 「主内存 + 工作内存」是 JSR-133 之前的老教学模型，帮助直观理解，现行规范里已经没有
-- 不要和 JVM 内存结构（堆、栈）混淆：一个讲并发规则，一个讲内存怎么划分
-
-→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
-
-### Q43：happens-before 有哪些规则？
-
-**一句话**：A happens-before B 的意思是：A 的结果对 B 可见，而且在 B 看来 A 排在前面。它不等于 A 在时间上先执行。
-
-- 程序顺序：同一线程里，前面的操作 hb 后面的
-- 锁：解锁 hb 之后对同一把锁的加锁；volatile：写 hb 之后对同一变量的读
-- 线程启动：`start()` hb 新线程里的所有操作；线程终止：线程里的所有操作 hb 别人从 `join()` 返回
-- 中断：`interrupt()` hb 被中断线程发现中断（另有一条 `finalize()` 规则，已废弃不用记）
-- 传递性：A hb B、B hb C，则 A hb C
-
-→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
-
-### Q44：volatile 能保证原子性吗？适合什么场景？
-
-**一句话**：不能。volatile 保证可见性和禁止重排序，但 `count++` 这种「读-改-写」三步操作仍然不是原子的。
-
-- 实现：编译器和 JIT 在 volatile 读写前后插入内存屏障（阻止重排序的指令），并且每次都真正去读写这个变量，不缓存在寄存器里
-- 适合：状态标志（`volatile boolean running`）、一写多读的配置、DCL 单例里的实例引用
-- 需要原子性时用 `AtomicInteger` / `LongAdder`，或加锁
-
-→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
-
-### Q45：为什么 DCL 单例需要 volatile？不加会有什么问题？
-
-**一句话**：`instance = new Singleton()` 分三步：分配内存、执行构造器、把地址赋给变量，后两步可能被调换。不加 volatile，别的线程可能拿到一个不为 null 但构造器还没跑完的对象。
-
-```java
-private static volatile Singleton instance;   // 关键在 volatile
-// getInstance()：if (instance == null) { synchronized (Singleton.class) { if (instance == null) instance = new Singleton(); } }
-```
-
-- 第一次检查是无锁的快速路径，第二次检查防止重复创建
-- 更简单的替代：静态内部类单例（JVM 保证类只初始化一次）、枚举单例
-
-→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
-
-### Q46：synchronized 除了互斥，还有什么内存语义？
-
-**一句话**：还保证可见性和有序性：前一个线程在锁里做的所有修改，下一个拿到同一把锁的线程一定能看到。
-
-- 对应 happens-before 的锁规则：解锁 hb 之后对同一把锁的加锁
-- 锁里的代码不会被重排序到锁外面
-- 所以 synchronized 同时提供原子性、可见性、有序性
-
-→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
-
-### Q47：final 字段的内存语义是什么？
-
-**一句话**：其他线程只要拿到了对象引用，就一定能看到它的 final 字段初始化之后的值；普通字段没有这个保证。
-
-- 原理：构造函数里对 final 字段的写，不会被重排到「把对象引用交出去」之后
-- 前提：构造过程中 `this` 没有泄露出去（没在构造函数里把 `this` 交给别人）
-- 这是 `String` 这类不可变对象不用加锁就能安全共享的基础
-
-→ 详见 [Java JMM 内存模型](/java/22_topic_jmm)
-
-## 九、虚拟线程
-
-### Q48：虚拟线程和平台线程的区别？
-
-**一句话**：平台线程和操作系统线程一一对应，很重，只能开几千个，所以要池化；虚拟线程（JDK 21 正式）由 JVM 调度，很多个虚拟线程轮流跑在少量平台线程上，可以开到百万级，不需要池化。
-
-- 底层的平台线程叫载体线程，数量默认约等于 CPU 核数
-- 提升的是阻塞型任务的吞吐量，不是单个任务的速度
-- 对下游的并发限制改用 `Semaphore` 或连接池控制
-- 创建：`Executors.newVirtualThreadPerTaskExecutor()`；Spring Boot 3.2+ 配 `spring.threads.virtual.enabled=true`
-
-→ 详见 [虚拟线程](/java/30_topic_virtual_thread)
-
-### Q49：虚拟线程的挂载/卸载（mount/unmount）机制是什么？
-
-**一句话**：虚拟线程运行时「挂」在某个载体线程上；遇到阻塞（IO、`sleep`、等锁）时，JDK 把它的调用栈存到堆上并「卸」下来，载体线程去跑别的虚拟线程；等阻塞结束，再挂到任意一个空闲载体线程上继续跑。
-
-- JDK 把 Socket IO、j.u.c 锁、`sleep` 等阻塞点都改造过了，业务代码写法不用变
-- 恢复时不是一次把整个栈拷回来，只先拷顶上几帧，用到再拷
-- 卸不下来的情况叫钉住（pinning），见第 51 题
-
-→ 详见 [虚拟线程](/java/30_topic_virtual_thread)
-
-### Q50：虚拟线程为什么不适合 CPU 密集型任务？
-
-**一句话**：虚拟线程的好处来自「阻塞时让出载体线程」；CPU 密集型任务不阻塞，一直占着载体线程，而载体线程数约等于核数，开再多虚拟线程也不会更快。
-
-- 还会让同一调度器上的 IO 型虚拟线程排队等待
-- CPU 密集型任务仍用固定大小的平台线程池或 `ForkJoinPool`
-
-→ 详见 [虚拟线程](/java/30_topic_virtual_thread)
-
-### Q51：虚拟线程中使用 synchronized 有什么问题？如何解决？
-
-**一句话**：JDK 21～23 里，虚拟线程在 `synchronized` 块里阻塞或调 `wait()` 会钉住载体线程，钉住的多了载体线程就不够用；这些版本上把锁内会阻塞的代码改成 `ReentrantLock`。JDK 24 起已修复，不用再改。
-
-- JDK 24+ 仍会钉住：本地代码（JNI / FFM）回调 Java 后在其中阻塞、类初始化时阻塞
-- 诊断：JFR 事件 `jdk.VirtualThreadPinned`（默认开启）、`jcmd <pid> Thread.dump_to_file -format=json`
-- 虚拟线程数量巨大，用 `ThreadLocal` 缓存大对象会放大内存；传上下文优先用 JDK 25 的 `ScopedValue`
-
-→ 详见 [虚拟线程](/java/30_topic_virtual_thread)
+→ 详见 [GC 调优](/jvm/6_gc_tuning#_1、full-gc-频繁)

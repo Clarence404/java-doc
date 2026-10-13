@@ -1,14 +1,14 @@
 ---
-description: 线程与中断、volatile、锁与 AQS、CAS、并发容器、ThreadLocal、线程池、虚拟线程
+description: 线程与中断、JMM 与 volatile、锁与 AQS、CAS、并发容器、ThreadLocal、线程池、虚拟线程
 ---
 
 # Java 并发面试题解答
 
-> 题目清单见 [Java 面试题](/java/99_interview)（本页答第四组「并发」，其余三组见 [Java 基础面试题解答](/interview/1_java)）；细节见 [Java 总览](/java/0_overview) 的并发部分，JMM、DCL、虚拟线程原理见 [JVM 面试题解答](/interview/3_jvm) Q42–Q51。
+> 题目清单见 [Java 面试题](/java/99_interview)；语言机制、IO 与集合的题目见 [Java 基础面试题解答](/interview/1_java)，细节见 [Java 总览](/java/0_overview) 的并发部分。
 >
 > 版本基线：JDK 21 / 25 LTS，与 JDK 8 / 17 不同处单独说明。
 
-## 四、并发
+## 一、并发
 
 ### Q1：Java 线程有哪 6 种状态？BLOCKED 和 WAITING 的区别？`wait()` 为什么必须在 while 循环里调用？
 
@@ -39,7 +39,18 @@ catch (InterruptedException e) { Thread.currentThread().interrupt(); }   // 恢�
 
 → 详见 [线程基础](/java/23_topic_thread_basics#四、中断-协作式取消)
 
-### Q3：volatile 的作用？为什么不能保证原子性？为什么普通 boolean 标志位的循环可能永远不退出？
+### Q3：JMM 是什么？happens-before 有哪些规则？final 字段有什么内存语义？
+
+**一句话**：JMM 是 Java 规范（JLS 第 17 章）里的并发规则，用 happens-before 规定一个线程的写什么时候对另一个线程可见；只要程序没有数据竞争（正确用了 volatile、锁、final），运行结果就和顺序执行一样（DRF-SC）。
+
+- happens-before（hb）：A hb B 表示 A 的结果对 B 可见、且在 B 看来 A 排在前面，不等于 A 在时间上先执行
+- 常用规则：同一线程内按程序顺序；解锁 hb 之后对同一把锁的加锁；volatile 写 hb 之后对同一变量的读；`start()` hb 新线程里的操作，线程里的操作 hb 别人从 `join()` 返回；以上可传递
+- final 字段：构造器里写入的 final 字段，别的线程只要拿到对象引用就一定看到初始化后的值，普通字段没有这个保证；前提是构造期间 `this` 没有逸出，这是 `String` 等不可变对象免锁共享的基础
+- 「主内存 + 工作内存」是 JSR-133 之前的老教学模型，现行规范里已经没有；JMM 也不是 JVM 内存结构（堆、栈），一个讲并发规则，一个讲内存划分
+
+→ 详见 [JMM 内存模型](/java/22_topic_jmm#三、happens-before)、[JMM 内存模型](/java/22_topic_jmm#六、final-字段与安全发布)
+
+### Q4：volatile 的作用？为什么不能保证原子性？为什么普通 boolean 标志位的循环可能永远不退出？
 
 **一句话**：volatile 保证可见性（一个线程写了，别的线程马上能读到）和有序性（前后的读写不会被重排到它另一侧），但不保证原子性。
 
@@ -56,7 +67,7 @@ catch (InterruptedException e) { Thread.currentThread().interrupt(); }   // 恢�
 
 → 详见 [JMM 内存模型](/java/22_topic_jmm#四、volatile-的精确语义)
 
-### Q4：synchronized 的锁升级过程是怎样的？JDK 15 / 18 / 23 之后有什么变化？
+### Q5：synchronized 的锁升级过程是怎样的？JDK 15 / 18 / 23 之后有什么变化？
 
 **一句话**：「无锁 → 偏向锁 → 轻量级锁 → 重量级锁」是 HotSpot 的内部优化，只适用于 JDK 8～14。新版本里偏向锁已经没有了，回答时要先说清是哪个 JDK。
 
@@ -69,7 +80,7 @@ catch (InterruptedException e) { Thread.currentThread().interrupt(); }   // 恢�
 
 → 详见 [synchronized](/java/24_topic_synchronized#四、hotspot-锁实现的版本演进)
 
-### Q5：synchronized 和 ReentrantLock 的区别？虚拟线程下应该用哪个？
+### Q6：synchronized 和 ReentrantLock 的区别？虚拟线程下应该用哪个？
 
 **一句话**：两者都是可重入的互斥锁，内存效果一样。默认用 `synchronized`，需要可中断、超时、公平、多个条件时才用 `ReentrantLock`；性能已经不是选型理由。
 
@@ -80,13 +91,13 @@ catch (InterruptedException e) { Thread.currentThread().interrupt(); }   // 恢�
 | 公平锁 | 不支持 | 可选 |
 | 条件等待 | 一个（`wait` / `notify`） | 多个 `Condition`，可精确唤醒 |
 
-- 虚拟线程：JDK 21～23 在 `synchronized` 块里做 IO 会「钉住」底层线程（让它没法去跑别的虚拟线程），这时改用 `ReentrantLock`
-- JDK 24 起这个问题已修复，两者又回到按功能选
+- 内存语义相同：前一个线程在锁里的修改，下一个拿到同一把锁的线程一定能看到，锁里的代码也不会被重排到锁外；只对同一把锁成立，锁不同对象之间没有这个保证
+- 虚拟线程：JDK 21～23 在 `synchronized` 块里做 IO 会「钉住」底层线程（让它没法去跑别的虚拟线程），这时改用 `ReentrantLock`；JDK 24 起已修复，两者又回到按功能选
 - 锁里只做内存操作、不阻塞的短代码块，任何版本都不用改
 
-→ 详见 [显式锁（Lock）](/java/25_topic_lock#七、synchronized-与-reentrantlock-对比)
+→ 详见 [显式锁（Lock）](/java/25_topic_lock#七、synchronized-与-reentrantlock-对比)、[JMM 内存模型](/java/22_topic_jmm#五、synchronized-与-lock-的内存语义)
 
-### Q6：AQS 的原理？等待线程是自旋还是挂起？ReentrantLock 的可重入与公平锁如何实现？
+### Q7：AQS 的原理？等待线程是自旋还是挂起？ReentrantLock 的可重入与公平锁如何实现？
 
 **一句话**：AQS 就是「一个 `state` 计数 + 一个排队的等待队列」。子类只规定 `state` 怎样算拿到、怎样算释放，排队、挂起、唤醒都由 AQS 做。
 
@@ -100,7 +111,7 @@ catch (InterruptedException e) { Thread.currentThread().interrupt(); }   // 恢�
 
 → 详见 [显式锁（Lock）](/java/25_topic_lock#二、aqs-原理)
 
-### Q7：读写锁能否升级 / 降级？StampedLock 的乐观读有哪些限制？
+### Q8：读写锁能否升级 / 降级？StampedLock 的乐观读有哪些限制？
 
 **一句话**：`ReentrantReadWriteLock` 能降级（拿着写锁再拿读锁，然后放写锁），不能升级：拿着读锁去要写锁，自己就把自己卡死了，因为写锁要等所有读锁释放。
 
@@ -113,7 +124,7 @@ catch (InterruptedException e) { Thread.currentThread().interrupt(); }   // 恢�
 
 → 详见 [显式锁（Lock）](/java/25_topic_lock#五、reentrantreadwritelock)
 
-### Q8：CAS 是什么？有哪些缺点？ABA 问题如何解决？LongAdder 为什么比 AtomicLong 快？
+### Q9：CAS 是什么？有哪些缺点？ABA 问题如何解决？LongAdder 为什么比 AtomicLong 快？
 
 **一句话**：CAS（比较并交换）是 CPU 提供的原子指令：内存里的值等于我预期的旧值，才写入新值，否则失败重试。原子类、AQS 都建立在它上面。
 
@@ -126,7 +137,7 @@ catch (InterruptedException e) { Thread.currentThread().interrupt(); }   // 恢�
 
 → 详见 [原子类（Atomic）](/java/26_topic_atomic#一、cas-原子操作的硬件基础)
 
-### Q9：ConcurrentHashMap 在 JDK 7 和 JDK 8 中有何不同？为什么不允许 null？`size()` 精确吗？先 get 再 put 安全吗？
+### Q10：ConcurrentHashMap 在 JDK 7 和 JDK 8 中有何不同？为什么不允许 null？`size()` 精确吗？先 get 再 put 安全吗？
 
 **一句话**：JDK 7 把 Map 分成固定几段，每段一把锁；JDK 8 起结构和 HashMap 一样，空位置用 CAS 放，非空位置只锁这一个位置的头节点，锁更细。
 
@@ -148,7 +159,7 @@ counts.merge(word, 1L, Long::sum);   // 正确的并发计数
 
 → 详见 [集合框架](/java/21_topic_collection#八、concurrenthashmap)
 
-### Q10：`CountDownLatch`、`CyclicBarrier`、`Semaphore` 的区别？CyclicBarrier 基于 AQS 吗？Semaphore 能用来限流吗？
+### Q11：`CountDownLatch`、`CyclicBarrier`、`Semaphore` 的区别？CyclicBarrier 基于 AQS 吗？Semaphore 能用来限流吗？
 
 **一句话**：`CountDownLatch` 是「等别人干完」，一次性的；`CyclicBarrier` 是「大家互相等到齐再一起走」，可重复用；`Semaphore` 是许可证，限制同时干活的数量。
 
@@ -165,7 +176,7 @@ counts.merge(word, 1L, Long::sum);   // 正确的并发计数
 
 → 详见 [同步工具类](/java/27_topic_juc_tools#八、对比与选型)
 
-### Q11：ThreadLocal 的原理？为什么会内存泄漏？InheritableThreadLocal 在线程池中为什么失效，跨线程传递上下文怎么做？
+### Q12：ThreadLocal 的原理？为什么会内存泄漏？InheritableThreadLocal 在线程池中为什么失效，跨线程传递上下文怎么做？
 
 **一句话**：值不存在 `ThreadLocal` 里，而是存在每个线程自己的一张 Map 里，`ThreadLocal` 只是 key。所以每个线程各拿各的，互不干扰。
 
@@ -178,7 +189,7 @@ counts.merge(word, 1L, Long::sum);   // 正确的并发计数
 
 → 详见 [线程基础](/java/23_topic_thread_basics#七、threadlocal)、[CompletableFuture](/java/29_topic_completable_future#七、上下文传递)
 
-### Q12：线程池的核心参数与任务提交流程？线程如何复用、非核心线程如何回收？
+### Q13：线程池的核心参数与任务提交流程？线程如何复用、非核心线程如何回收？
 
 **一句话**：提交顺序是「核心线程 → 队列 → 非核心线程 → 拒绝」，不是先把线程开到最大再排队。
 
@@ -192,7 +203,7 @@ counts.merge(word, 1L, Long::sum);   // 正确的并发计数
 
 → 详见 [线程池](/java/28_topic_thread_pool#一、threadpoolexecutor-底层原理)
 
-### Q13：线程池的队列和拒绝策略怎么选？为什么不推荐用 Executors 创建？运行时动态调整参数要注意什么？
+### Q14：线程池的队列和拒绝策略怎么选？为什么不推荐用 Executors 创建？运行时动态调整参数要注意什么？
 
 **一句话**：生产环境用有界队列 + 明确的拒绝策略，自己 `new ThreadPoolExecutor`。`Executors` 的方法不是队列无界（任务堆到 OOM），就是线程数无上限。
 
@@ -209,7 +220,7 @@ counts.merge(word, 1L, Long::sum);   // 正确的并发计数
 
 → 详见 [线程池](/java/28_topic_thread_pool#_7、blockingqueue-的选择)
 
-### Q14：`execute` 与 `submit` 的区别？submit 的异常去哪了？`shutdown` 与 `shutdownNow` 有什么区别？
+### Q15：`execute` 与 `submit` 的区别？submit 的异常去哪了？`shutdown` 与 `shutdownNow` 有什么区别？
 
 **一句话**：`execute` 没有返回值，任务异常会打印出来；`submit` 返回 `Future`，异常被存在 `Future` 里，不调 `get()` 就悄无声息。
 
@@ -222,7 +233,7 @@ counts.merge(word, 1L, Long::sum);   // 正确的并发计数
 
 → 详见 [线程池](/java/28_topic_thread_pool#二、任务提交与异常处理)
 
-### Q15：CompletableFuture 的回调由哪个线程执行？不传线程池用的是什么？异常与超时怎么处理？
+### Q16：CompletableFuture 的回调由哪个线程执行？不传线程池用的是什么？异常与超时怎么处理？
 
 **一句话**：不带 `Async` 的回调（如 `thenApply`）由完成上一步的线程执行，如果上一步已经完成，就由注册回调的线程当场执行；带 `Async` 又不传线程池时用全局共享的 `ForkJoinPool.commonPool()`。
 
@@ -235,21 +246,21 @@ counts.merge(word, 1L, Long::sum);   // 正确的并发计数
 
 → 详见 [CompletableFuture](/java/29_topic_completable_future#二、回调由哪个线程执行)
 
-### Q16：虚拟线程适合什么场景？为什么不能池化？JDK 24 之后还有哪些情况会钉住载体线程？
+### Q17：虚拟线程适合什么场景？为什么不能池化？JDK 24 之后还有哪些情况会钉住载体线程？
 
 **一句话**：虚拟线程适合大量阻塞 IO 的任务（一个请求一个线程的 Web 服务、调多个下游），提升的是同时能处理的任务数，不是单个任务的速度；CPU 密集型任务没有收益。
 
-- 不池化：虚拟线程创建很便宜，每个任务新建一个、用完就扔；池化反而把并发卡在池大小上
-- 限制对下游的并发数，改用 `Semaphore` 或连接池大小控制
-- 钉住（pinning）：虚拟线程阻塞时没法让出底层的平台线程（载体线程），连带它一起卡住
-- JDK 24 起 `synchronized` 和 `wait()` 不再钉住；剩下的情况是本地代码（JNI / FFM）回调 Java 后在其中阻塞、类初始化时阻塞
+- 原理：虚拟线程跑在少量平台线程（载体线程，默认约等于核数）上，阻塞时 JDK 把它的栈存到堆上并卸下（unmount），载体线程去跑别的，阻塞结束再挂到任意空闲载体线程上（mount）
+- 不池化：创建很便宜，每个任务新建一个、用完就扔，池化反而把并发卡在池大小上；限制对下游的并发改用 `Semaphore` 或连接池大小
+- 钉住（pinning）：阻塞时卸不下来，连带载体线程一起卡住；JDK 24 起 `synchronized` 和 `wait()` 不再钉住，剩下本地代码（JNI / FFM）回调 Java 后阻塞、类初始化时阻塞
 - 诊断：JFR 事件 `jdk.VirtualThreadPinned`；线程转储用 `jcmd <pid> Thread.dump_to_file`（`jstack` 看不到虚拟线程）
+- 创建：`Executors.newVirtualThreadPerTaskExecutor()`；Spring Boot 3.2+ 配 `spring.threads.virtual.enabled=true`
 
 **常见坑**：用 `ThreadLocal` 缓存大对象，百万个虚拟线程就是百万份。
 
 → 详见 [虚拟线程](/java/30_topic_virtual_thread#四、使用原则)
 
-### Q17：ScopedValue 和 ThreadLocal 有什么区别？结构化并发能用于生产吗？
+### Q18：ScopedValue 和 ThreadLocal 有什么区别？结构化并发能用于生产吗？
 
 **一句话**：`ScopedValue`（JDK 25 正式）在一段代码范围内绑定一个只读的值，范围结束自动解绑，适合当前用户、租户、traceId 这类请求级上下文。结构化并发到 JDK 25 仍是预览，不要用在生产。
 
@@ -268,7 +279,7 @@ ScopedValue.where(CURRENT_USER, user).run(() -> service.process(request));   // 
 
 → 详见 [虚拟线程](/java/30_topic_virtual_thread#七、scopedvalue-jdk-25-正式)
 
-### Q18：死锁的四个必要条件？如何预防、如何用 jstack 排查？活锁、饥饿与线程池饥饿死锁有什么区别？
+### Q19：死锁的四个必要条件？如何预防、如何用 jstack 排查？活锁、饥饿与线程池饥饿死锁有什么区别？
 
 **一句话**：死锁的四个条件是互斥、持有并等待、不可抢占、循环等待，破坏任意一个即可；最常用的是让所有线程按固定顺序加锁（比如按账户 ID 从小到大）。
 

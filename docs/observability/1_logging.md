@@ -89,14 +89,7 @@ Spring Boot 3.4 起内置 `ecs`、`gelf`、`logstash` 三种结构化格式，�
 
 ### 1、traceId 从哪里来
 
-引入 Micrometer Tracing 后，每个请求的 `traceId`、`spanId` 会被自动写入 MDC，结构化日志随之输出为 JSON 字段，跨线程池与响应式链路的传递方式见 [日志](/spring-boot/12_logging) 第五节。需要注意 MDC 键名在两条接入路线上不同：
-
-| 接入方式 | MDC 键 |
-|----------|--------|
-| Micrometer Tracing（Brave / OTel bridge） | `traceId`、`spanId` |
-| OpenTelemetry Java agent | `trace_id`、`span_id`、`trace_flags` |
-
-全公司应只用一条路线，或在平台侧统一字段名，否则 Grafana 的跳转规则要为每种写法各配一条。
+引入 Micrometer Tracing 后，每个请求的 `traceId`、`spanId` 会被自动写入 MDC，结构化日志随之输出为 JSON 字段，跨线程池与响应式链路的传递方式见 [日志](/spring-boot/12_logging) 第五节。MDC 键名在两条接入路线上不同（Micrometer Tracing 写 `traceId`，OpenTelemetry Java agent 写 `trace_id`），全公司应只用一条路线或在平台侧统一字段名，见 [链路追踪](./3_tracing#七、日志、指标与链路的关联)。
 
 ### 2、把 traceId 返回给调用方
 
@@ -139,28 +132,7 @@ public class TraceIdResponseFilter extends OncePerRequestFilter {
 
 ### 3、在 Grafana 中互相跳转
 
-- **日志 → 链路**：在 Loki 数据源上配置派生字段（derived field），用正则从日志行中提取 traceId，渲染成跳转到 Tempo 的链接
-- **链路 → 日志**：在 Tempo 数据源上配置 trace to logs，点击 Span 时按 traceId 和时间范围生成 Loki 查询
-
-Loki 数据源的派生字段可以通过 provisioning 文件声明：
-
-```yaml
-apiVersion: 1
-datasources:
-  - name: Loki
-    type: loki
-    uid: loki
-    url: http://loki-gateway.monitoring.svc
-    jsonData:
-      derivedFields:
-        - name: TraceID
-          matcherRegex: '"traceId":"(\w+)"'
-          datasourceUid: tempo
-          url: '$${__value.raw}'
-          urlDisplayLabel: 查看链路
-```
-
-`url` 中的 `$` 在 provisioning 文件里要写成 `$$` 转义；`datasourceUid` 必须与 Tempo 数据源的 `uid` 一致。
+日志 → 链路靠 Loki 数据源的派生字段（derived field），链路 → 日志靠 Tempo 数据源的 trace to logs，指标 → 链路靠 exemplar；三种跳转的配置（含 Loki 派生字段的 provisioning 文件）统一见 [链路追踪](./3_tracing#七、日志、指标与链路的关联)。
 
 ::: tip traceId 不要做成 Loki 标签
 traceId 每个请求都不同，做成标签会让每个请求成为一条独立的流，索引瞬间膨胀。它应该留在日志行里用过滤表达式查，或作为结构化元数据（structured metadata）存储，见第六节。
@@ -494,15 +466,9 @@ processors:
 
 ## 十、排障实战：按 traceId 串起一次慢请求
 
-以"下单接口 P99 突然升高"为例，演示三种信号如何配合：
+完整的「指标告警 → exemplar → 慢 Span → 按 traceId 查日志」流程见 [链路追踪](./3_tracing#八、排障实战-下单接口-p99-变慢)。日志在这条路径上多做一步「扩大范围确认」：从单条 trace 的日志里拿到关键报错后，用 LogQL 统计它是不是普遍现象、从什么时候开始，例如 `sum by (service_name) (count_over_time({k8s_namespace_name="order"} |= "获取连接超时" [15m]))`；只有 order-service 出现、且始于某次发布，就去对比那次发布的配置（如连接池上限被误改小）。
 
-1. **指标告警**：`http_server_requests_seconds` 的 P99 超过阈值触发告警，看板显示只有 `POST /orders` 变慢，错误率没有明显变化
-2. **从指标到链路**：在 P99 面板上点击 exemplar，打开一条慢 trace，瀑布图显示 `order-service → payment-gateway` 这一跳占了 3 秒
-3. **从链路到日志**：在该 Span 上点击"查看日志"，Grafana 按 traceId 生成 Loki 查询，看到 `PaymentClient` 连续三条 WARN：连接池获取连接超时，第三次重试成功
-4. **扩大范围确认**：用 `sum by (service_name) (count_over_time({k8s_namespace_name="order"} |= "获取连接超时" [15m]))` 统计，发现只有 order-service 出现，且从一次发布后开始
-5. **定位根因**：对比发布前后配置，支付客户端的连接池最大连接数被误改小，高峰期排队等待；回滚配置后 P99 恢复
-
-整个过程不需要登录任何一台机器，前提是三件事都做到了：日志是带 traceId 的结构化 JSON、采集链路补全了服务与命名空间标签、Grafana 中配置了信号间的跳转。
+整个过程不需要登录任何一台机器，前提是日志是带 traceId 的结构化 JSON、采集链路补全了服务与命名空间标签、Grafana 中配置了信号间的跳转。
 
 ---
 

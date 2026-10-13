@@ -438,12 +438,14 @@ public class OrderAppService {
 
 ## 六、多数据源
 
+只需按事务 `readOnly` 做一主一从路由时，手写 `AbstractRoutingDataSource` + `LazyConnectionDataSourceProxy` 就够了，见 [数据库连接池 · 读写分离多数据源](/database/5_practice/3_connection_pool#_3、读写分离多数据源)；多个库、多个分组时用 baomidou 的 dynamic-datasource。
+
 ### 1、dynamic-datasource
 
 ```xml
 <dependency>
     <groupId>com.baomidou</groupId>
-    <!-- Boot 4；Boot 3.x 为 dynamic-datasource-spring-boot3-starter -->
+    <!-- Boot 4；Boot 3.x 为 dynamic-datasource-spring-boot3-starter；不带后缀的 starter 只适用于 Boot 2 -->
     <artifactId>dynamic-datasource-spring-boot4-starter</artifactId>
     <version>4.5.0</version>
 </dependency>

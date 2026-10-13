@@ -161,7 +161,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign 与 HTTP 
 
 **常见坑**：灰度标记没有一跳一跳往下传，第二跳之后就回到了稳定版本。
 
-→ 详见 [服务治理](/spring-cloud/5_service_governance#二、负载均衡-spring-cloud-loadbalancer)、[高可用面试题解答](/interview/14_high_avail#q16-服务端负载均衡与客户端负载均衡-spring-cloud-loadbalancer-有什么区别)
+→ 详见 [服务治理](/spring-cloud/5_service_governance#二、负载均衡-spring-cloud-loadbalancer)、[高可用面试题解答](/interview/14_high_avail#q17-服务端负载均衡与客户端负载均衡-spring-cloud-loadbalancer-有什么区别)
 
 ### Q13：API 网关的作用是什么？Route、Predicate、Filter 分别是什么，请求如何流转？
 
@@ -265,7 +265,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign 与 HTTP 
 - 数据只从 Nacos 流向应用：控制台改的规则不会写回 Nacos，重启就丢，还可能被 Nacos 下一次推送覆盖
 - 解决：约定只在 Nacos 改规则；或改造控制台，让它把规则写进 Nacos
 
-→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_5、规则持久化-nacos-数据源)、[高可用面试题解答](/interview/14_high_avail#q31-sentinel-规则持久化到-nacos-后-控制台修改的规则为什么重启会丢失)
+→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_5、规则持久化-nacos-数据源)、[高可用面试题解答](/interview/14_high_avail#q32-sentinel-规则持久化到-nacos-后-控制台修改的规则为什么重启会丢失)
 
 ### Q21：Framework 7 的 `@Retryable` / `@ConcurrencyLimit` 与 Resilience4j、Sentinel 如何分工？
 
@@ -298,47 +298,23 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign 与 HTTP 
 
 ## 四、分布式事务
 
-### Q23：Seata AT 模式的原理是什么？一阶段和二阶段分别做了什么？
+### Q23：Seata 在 Spring Cloud 中怎么接入？有哪些常见坑？
 
-**一句话**：AT 模式靠代理数据源，自动记下「改之前和改之后的数据」作为回滚日志。一阶段业务 SQL 直接提交；二阶段成功就删日志，失败就按改之前的数据恢复。
+**一句话**：引入 `spring-cloud-starter-alibaba-seata`，独立部署 seata-server（TC），只在事务发起方加 `@GlobalTransactional`，参与方接入数据源代理并建好 `undo_log` 表即可。
 
-- 三个角色：TC（独立部署的 seata-server，协调者）、TM（加 `@GlobalTransactional` 的发起方）、RM（各参与方的数据源代理）
-- 一阶段：记录修改前后的数据写进 `undo_log`，和业务 SQL 在同一个本地事务提交；提交前向 TC 拿这些行的全局锁
-- 二阶段提交：异步删掉 `undo_log`、释放全局锁，开销很小
-- 二阶段回滚：先确认数据没被别人改过，再按修改前的数据生成反向 SQL 恢复
+- 版本：2.x 起 groupId 和包名都是 `org.apache.seata`；SCA 2025.1 BOM 自带 2.5.0，可覆盖到 2.6.0，seata-server 与客户端版本要一致
+- 配置：`tx-service-group` 经 `vgroup-mapping` 映射到 TC 集群名，`registry.type: nacos` 从 Nacos 发现 seata-server
+- XID 透传：OpenFeign 等常用客户端由 starter 自动处理；自定义客户端要把 `RootContext.getXID()` 放进请求头 `TX_XID`，下游再绑定
+- seata-server 生产用 db 或 raft 存储，多节点部署
+- AT 原理、读写隔离和四种模式怎么选见 [分布式面试题解答 Q17](/interview/10_distributed#q17-seata-at-的原理是什么-全局锁和读隔离是怎样的-回滚什么时候会失败)、[Q18](/interview/10_distributed#q18-seata-的-at、tcc、saga、xa-怎么选)
 
-**常见坑**：下游返回错误码而不抛异常时，发起方要自己抛异常，否则全局事务会被提交。
+**常见坑**：下游返回错误码而不抛异常时，发起方要自己判断并抛异常，否则全局事务会被提交。
 
-→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_2、at-模式两阶段)
-
-### Q24：Seata AT 模式的读写隔离如何保证？什么情况下回滚会失败？
-
-**一句话**：写靠全局锁隔离，同一行在全局事务结束前不会被另一个全局事务改；读默认是「读未提交」，可能读到一阶段已提交、但最后会回滚的数据。
-
-- 需要读已提交：查询用 `SELECT ... FOR UPDATE`，Seata 会检查全局锁
-- 回滚失败的主要原因：有绕过 Seata 的写入（别的系统、运维脚本直接改库）
-- 这种写入不受全局锁约束，回滚时发现数据对不上，只能人工处理
-
-→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_2、at-模式两阶段)
-
-### Q25：Seata AT、TCC、Saga、XA 模式如何选择？
-
-**一句话**：普通数据库增删改用 AT（业务代码不用改）；资金类、要预留资源用 TCC；长流程、跨外部系统用 Saga；数据库支持 XA、要强一致且并发不高用 XA。
-
-| 模式 | 业务改造量 | 隔离方式 |
-|------|----------|---------|
-| AT | 无 | 全局锁管写，读默认未提交 |
-| TCC | 大，每个操作写 Try / Confirm / Cancel 三个方法 | Try 阶段预留资源 |
-| Saga | 中，每步写补偿 | 无隔离，靠补偿 |
-| XA | 无 | 数据库锁一直持有到二阶段结束 |
-
-- TCC 的空回滚、悬挂、幂等等细节见分布式答案页
-
-→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_4、模式选择)、[分布式面试题解答](/interview/10_distributed#三、分布式事务)
+→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#四、seata-分布式事务)
 
 ## 五、消息与链路
 
-### Q26：Spring Cloud Stream 解决什么问题？`@StreamListener` 还能用吗？
+### Q24：Spring Cloud Stream 解决什么问题？`@StreamListener` 还能用吗？
 
 **一句话**：在业务代码和具体 MQ 之间加一层抽象（Binder），业务只写普通的 `Supplier` / `Function` / `Consumer` Bean，看不到任何 MQ API，换 MQ 只要换依赖和配置。
 
@@ -349,7 +325,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign 与 HTTP 
 
 → 详见 [Spring Cloud Stream](/spring-cloud/7_stream#一、解决什么问题)
 
-### Q27：Spring Cloud Stream 如何配置消费组、重试与死信？
+### Q25：Spring Cloud Stream 如何配置消费组、重试与死信？
 
 **一句话**：生产环境每个消费者都要显式配 `group`：同组的实例抢着消费（每条只处理一次），不同组各收一份。
 
@@ -362,7 +338,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign 与 HTTP 
 
 → 详见 [Spring Cloud Stream](/spring-cloud/7_stream#三、核心机制)
 
-### Q28：Sleuth 之后用什么做链路追踪？traceId 如何跨服务、跨线程、跨 MQ 传递？
+### Q26：Sleuth 之后用什么做链路追踪？traceId 如何跨服务、跨线程、跨 MQ 传递？
 
 **一句话**：Sleuth 不支持 Boot 3，已停止发布；现在统一用 Micrometer Tracing（底层可接 Brave 或 OpenTelemetry），Web、`RestClient`、Kafka 等常用组件都自动埋点。
 

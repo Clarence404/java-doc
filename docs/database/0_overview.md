@@ -43,20 +43,7 @@
 
 ## 四、选型原则
 
-| 问题 | 优先判断 |
-|------|----------|
-| 需要强事务与复杂关联查询 | MySQL / PostgreSQL 等关系型数据库 |
-| 全文检索、多条件组合搜索 | Elasticsearch / OpenSearch，数据以关系库为准、异步同步 |
-| 单机容量或写入到瓶颈 | 先读写分离与分库分表，再评估 TiDB、OceanBase；系统级扩展策略见 [数据层扩展](/high-con/5_data_scaling) |
-| 以时间序列写入与聚合为核心 | InfluxDB 3、TDengine、TimescaleDB 等时序数据库；监控指标存储用 Prometheus |
-| 大规模聚合分析 | ClickHouse、Apache Doris、StarRocks 等列式 OLAP |
-| 文档结构变化频繁 | MongoDB 等文档数据库 |
-
-工程上的几条底线：
-
-- 业务早期保持模型简单，不要过早引入分库分表和多种异构数据库
-- 上生产前明确 RPO / RTO、备份与恢复演练、慢 SQL 治理、连接池上限和索引变更流程
-- 跨库一致性优先用本地事务 + Outbox、Saga、幂等来解决，详见 [分布式事务](/distributed/4_transaction)
+先按数据模型与查询模式定大类（强事务 → 关系库，全文检索 → ES，大规模聚合 → 列式 OLAP，时间序列 → 时序库），再按规模、一致性和团队能力选具体产品；业务早期保持模型简单，不要过早引入分库分表和异构数据库。全景矩阵、按场景选型与工程底线见 [数据库选型参考](./6_reference/1_selection_guide)。
 
 ---
 

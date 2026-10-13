@@ -94,7 +94,9 @@ S3 分片的硬性限制：单片 5 MiB～5 GiB（最后一片不限下限），
 
 ## 三、转码编排：事件驱动
 
-转码命令本身见 [FFmpeg 与转码](./3_ffmpeg)，编排服务要解决的是：任务怎么投递、失败怎么重试、多个子任务怎么汇合。任务投递走消息队列，用队列长度做削峰，转码节点按消费速度横向扩容，消息队列选型见 [消息队列总览](/messaging/0_overview)。
+单个转码任务怎么执行（`transcode_job` 任务表、Worker 条件更新抢占、心跳超时接管、进度节流、重试分类）统一见 [FFmpeg 与转码](./3_ffmpeg#五、转码作为异步任务)；点播编排服务要解决的是另一层问题：一个视频的转码、截帧、审核三个子任务怎么扇出投递、怎么汇合成视频状态。任务投递走消息队列，用队列长度做削峰，消息队列选型见 [消息队列总览](/messaging/0_overview)。
+
+扇出时和 3_ffmpeg 一样用本地消息表（Outbox）：子任务和待发消息在同一个事务里落库，由投递任务异步发到 Kafka，保证「建了子任务就一定发出消息」；如果改成事务提交后在 `afterCommit` 里直接发送，进程在提交后、发送前崩溃，消息就丢了，视频会一直卡在 `PROCESSING`。
 
 ```java
 @Component
@@ -103,7 +105,7 @@ public class UploadedEventListener {
 
     private final VideoRepository videoRepository;
     private final MediaTaskRepository taskRepository;
-    private final KafkaTemplate<String, MediaTaskMessage> kafkaTemplate;
+    private final OutboxRepository outbox;
 
     @KafkaListener(topics = "vod.video.uploaded", groupId = "vod-orchestrator")
     @Transactional
@@ -115,23 +117,15 @@ public class UploadedEventListener {
         }
         for (TaskType type : List.of(TaskType.TRANSCODE, TaskType.SNAPSHOT, TaskType.MODERATION)) {
             taskRepository.insertIgnore(event.videoId(), type);   // INSERT IGNORE，依赖唯一键
+            // 同一事务写 Outbox，投递任务扫表发送到 vod.task.{type}，发送成功后标记已投递
+            outbox.save("vod.task." + type.topicSuffix(), String.valueOf(event.videoId()),
+                    new MediaTaskMessage(event.videoId(), type, event.sourceKey()));
         }
-        // 事务提交后再发消息，避免消息先到、数据库还没提交
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                for (TaskType type : TaskType.values()) {
-                    kafkaTemplate.send("vod.task." + type.topicSuffix(),
-                            String.valueOf(event.videoId()),
-                            new MediaTaskMessage(event.videoId(), type, event.sourceKey()));
-                }
-            }
-        });
     }
 }
 ```
 
-`afterCommit` 发送仍有「提交成功、发送失败」的窗口，对可靠性要求高的场景改用事务消息或本地消息表（Outbox），参见 [分布式事务](/distributed/4_transaction)。
+投递任务至少发送一次，消费端要按 `video_id + task_type` 幂等；Outbox 的表结构与投递任务见 [分布式事务](/distributed/4_transaction#五、本地消息表-transactional-outbox)。`TRANSCODE` 子任务的消费者就是 3_ffmpeg 里的转码 Worker，转码完成后回调下面的汇合逻辑。
 
 子任务完成后汇合：
 
@@ -155,9 +149,8 @@ public void onTaskFinished(long videoId, TaskType type, boolean success, JsonNod
 
 几条编排经验：
 
-- **转码节点只做计算**：节点从队列取任务，从对象存储下载源文件到本地盘，FFmpeg 处理完上传产物，再发完成消息；节点无状态，可以用 Kubernetes Job、Spot 实例或 GPU 节点按队列积压扩缩
-- **超时与重试分开**：转码时长与视频时长相关，超时阈值按「视频时长 × 系数 + 固定值」动态设置；可重试错误（下载失败、节点被回收）退避重试，不可重试错误（文件损坏、无视频轨）直接 `FAILED` 并通知创作者
-- **先探测再转码**：用 `ffprobe` 读出时长、分辨率、编码、旋转角度，据此裁剪码率阶梯，不给 720p 原片转 1080p
+- **汇合用行锁或版本号**：三个子任务的完成事件可能同时到达，`lockByVideoId` 锁住同一视频的子任务行再判断「是否全部完成」，否则两个事件都看到「还差一个」，视频永远停在 `PROCESSING`
+- **失败通知创作者**：任一子任务进入不可重试的 `FAILED`（文件损坏、无视频轨）时，视频置为 `FAILED` 并通知创作者重新上传
 - **云转码同理**：使用云厂商的媒体处理服务时，编排服务调用提交接口拿到 `jobId` 写入 `media_task.external_id`，完成结果通过回调或消息通知回来，回调要验签和幂等
 
 ---

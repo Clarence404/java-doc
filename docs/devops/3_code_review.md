@@ -58,44 +58,9 @@ Review 首先保证**主干代码整体健康度只升不降**，其次是知识
 
 ## 三、仓库配置：CODEOWNERS 与规则集
 
-### 1、CODEOWNERS：自动指派负责人
+评审约定要靠仓库配置强制，否则迟早被绕过。与评审直接相关的是四条规则：**CODEOWNERS + Require review from Code Owners**（按路径自动指派负责人，涉及的路径必须由对应负责人批准）、**Dismiss stale approvals**（新提交使旧批准失效）、**Require approval of the most recent reviewable push**（最后一次推送必须由推送者以外的人批准，防止自己给自己放行）、**Require conversation resolution**（评论线程全部解决才能合并）；批准人数建议 1 人，核心仓库 2 人。
 
-在 `.github/CODEOWNERS`（也可放在仓库根目录或 `docs/`）里按路径声明负责人。PR 触及对应路径时，GitHub 自动把负责人加为 Reviewer：
-
-```text
-# 语法与 .gitignore 类似；同一文件匹配多行时，最后一条匹配生效，所以兜底规则放最前
-*                         @acme/backend-leads
-
-/order-service/           @acme/order-team
-/payment-service/         @acme/payment-team @acme/security
-**/db/migration/          @acme/dba
-/.github/workflows/       @acme/platform
-/.github/CODEOWNERS       @acme/backend-leads
-```
-
-注意几点：
-
-- 负责人必须对仓库有写权限，团队写法是 `@组织/团队`
-- 把 `CODEOWNERS` 文件本身也纳入保护，否则任何人都能改掉负责人
-- 数据库迁移脚本、CI 配置、鉴权与支付模块这类「改错代价大」的路径，单独指定负责人
-
-### 2、规则集：把约定变成强制
-
-在仓库（或组织）的 Settings → Rules → Rulesets 中为 `main` 建一个规则集，推荐开启：
-
-| 规则 | 作用 |
-|------|------|
-| Require a pull request before merging | 禁止直接推送 `main` |
-| Required approvals：1（核心仓库 2） | 最少批准人数 |
-| Dismiss stale pull request approvals when new commits are pushed | 新提交使旧批准失效 |
-| Require review from Code Owners | 涉及的路径必须由对应 Code Owner 批准 |
-| Require approval of the most recent reviewable push | 最后一次推送必须由推送者以外的人批准，防止自己给自己放行 |
-| Require conversation resolution before merging | 所有评论线程解决后才能合并 |
-| Require status checks to pass | 指定 CI 中的构建、测试、扫描任务为必需检查 |
-| Require code scanning results | CodeQL 等扫描出高危告警时阻止合并 |
-| Allowed merge methods：Squash | 主干上一 PR 一提交，便于回滚和追溯 |
-
-规则集比旧的分支保护规则更灵活：可以一次作用于多个分支、在组织层统一下发，并可设置旁路名单（例如发布机器人）。旁路名单要尽量短，且定期审计。
+完整的 `main` 规则集、tag 规则集、旁路名单与 CODEOWNERS 示例见 [Git 工作流 · 分支保护与规则集](/devops/1_git_workflow#三、分支保护与规则集)。
 
 ---
 

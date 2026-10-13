@@ -474,59 +474,7 @@ Bot bot = AiServices.builder(Bot.class)
 
 ## 九、Agent 编排：langchain4j-agentic 与 LangGraph4j
 
-单个 AiService 加工具已经是一个简单 Agent；需要多个 Agent 按流程协作时有两个选择。
-
-**langchain4j-agentic**：LangChain4j 自带的模块（`dev.langchain4j:langchain4j-agentic`，beta 版本，官方明确为实验性，API 可能变化）。用 `@Agent` 标注单方法接口，再用 `AgenticServices` 组合：
-
-- `sequenceBuilder()` 顺序执行，`parallelBuilder()` 并行执行，`loopBuilder()` 循环直到满足退出条件或达到最大次数，`conditionalBuilder()` 按条件激活
-- `supervisorBuilder()` 由 LLM 规划下一步调用哪个子 Agent
-- `humanInTheLoopBuilder()` 在流程中插入等待人工输入的节点
-- 子 Agent 通过共享的 `AgenticScope` 按 `outputKey` 读写中间结果
-
-```java
-import java.util.Map;
-import dev.langchain4j.agentic.Agent;
-import dev.langchain4j.agentic.AgenticServices;
-import dev.langchain4j.agentic.UntypedAgent;
-
-public interface CreativeWriter {
-    @UserMessage("围绕主题 {{topic}} 写一个 3 句话的小故事")
-    @Agent(description = "根据主题写故事", outputKey = "story")
-    String write(@V("topic") String topic);
-}
-
-public interface AudienceEditor {
-    @UserMessage("把下面的故事改写得适合 {{audience}} 阅读：{{story}}")
-    @Agent(description = "按目标读者改写故事", outputKey = "story")
-    String edit(@V("story") String story, @V("audience") String audience);
-}
-
-CreativeWriter writer = AgenticServices.agentBuilder(CreativeWriter.class)
-        .chatModel(model)
-        .outputKey("story")
-        .build();
-AudienceEditor editor = AgenticServices.agentBuilder(AudienceEditor.class)
-        .chatModel(model)
-        .outputKey("story")
-        .build();
-
-UntypedAgent pipeline = AgenticServices.sequenceBuilder()
-        .subAgents(writer, editor)
-        .outputKey("story")
-        .build();
-
-String story = (String) pipeline.invoke(Map.of("topic", "分布式锁", "audience", "初级工程师"));
-```
-
-**LangGraph4j**：独立的开源项目（groupId `org.bsc.langgraph4j`，核心包 `langgraph4j-core`，与 LangChain4j 集成用 `langgraph4j-langchain4j`，版本号独立，截至 2026-10 为 1.9.x），用有状态的图（节点 + 边）描述流程，支持回环、条件分支和检查点持久化，适合需要中断恢复的长流程。
-
-| 场景 | 建议 |
-|------|------|
-| 单 Agent 加工具、RAG 问答 | AiServices 即可 |
-| 固定的顺序 / 并行 / 循环流程 | `langchain4j-agentic` 的工作流构建器 |
-| 流程复杂、需要检查点持久化与中断恢复 | LangGraph4j |
-
-Agent 的通用模式（ReAct、规划、多 Agent 协作）见 [AI Agent 智能体](../5_advanced/0_agent)。
+单个 AiService 加工具已经是一个简单 Agent；需要多个 Agent 按流程协作时，可以用 LangChain4j 自带的实验性模块 `langchain4j-agentic`（`@Agent` 接口 + `AgenticServices` 的 `sequenceBuilder` / `parallelBuilder` / `loopBuilder` / `conditionalBuilder` / `supervisorBuilder` / `humanInTheLoopBuilder`），需要检查点持久化与中断恢复时改用独立项目 LangGraph4j。示例代码、选型表与通用编排模式见 [AI Agent 智能体](../5_advanced/0_agent#_2、langchain4j-agentic-模块)。
 
 ---
 

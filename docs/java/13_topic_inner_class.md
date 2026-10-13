@@ -205,18 +205,7 @@ boolean mates = Outer.class.isNestmateOf(Outer.Inner.class); // true
 
 ## 七、Lambda 与匿名类的区别
 
-Lambda 不是匿名类的语法糖。javac 把 Lambda 体编译为外部类中的私有合成方法（如 `lambda$task$0`），在调用处生成 `invokedynamic`，运行时由 `LambdaMetafactory` 生成实现函数式接口的类（JDK 15 起为隐藏类）。底层原理见 [Lambda、Stream 与注解](./1_advanced)，这里只列出与匿名类的差异：
-
-| | Lambda | 匿名类 |
-|--|--------|--------|
-| 实现目标 | 只能是函数式接口 | 任意接口或类（含抽象类） |
-| `this` 含义 | 外围实例（Lambda 不引入新的作用域） | 匿名类实例自身 |
-| 变量遮蔽 | 参数和局部变量不能与外围局部变量同名 | 可以遮蔽 |
-| 编译产物 | 合成方法 + `invokedynamic`，不生成 `.class` 文件，运行时生成隐藏类 | 编译期生成 `Outer$1.class` |
-| 外部实例引用 | 只有 Lambda 体用到 `this` 或实例成员时才捕获 | JDK 17 及以前总是持有；JDK 18+ 用到时才持有 |
-| 实例分配 | 不捕获任何变量时通常复用同一个实例；捕获变量时每次求值创建新实例 | 每次求值都创建新实例 |
-
-两者捕获局部变量的规则相同：都只能捕获 effectively final 的局部变量。
+Lambda 不是匿名类的语法糖：它编译为私有合成方法 + `invokedynamic`，`this` 指外围实例，只在用到实例成员时才捕获外部引用，捕获局部变量的规则（effectively final）与匿名类相同；实现原理见 [Lambda、Stream 与注解](./1_advanced)，完整对比表见 [字节码执行 · invokedynamic 与 Lambda](/jvm/3_bytecode#四、invokedynamic-与-lambda)。
 
 ---
 

@@ -357,6 +357,27 @@ public class DataSourceConfig {
 
 业务代码在只读方法上标注 `@Transactional(readOnly = true)` 即走副本。Spring Framework 6.1.2 起 `LazyConnectionDataSourceProxy` 自身也支持 `setReadOnlyDataSource(...)`，只有一主一从时可以省掉自定义的路由类。
 
+需要按注解、租户等显式切换（而不是按 `readOnly`）时，路由键放在 `ThreadLocal` 里，`determineCurrentLookupKey()` 返回它，为 `null` 时落到默认数据源：
+
+```java
+public final class DataSourceContextHolder {
+    private static final ThreadLocal<String> CONTEXT = new ThreadLocal<>();
+    public static void set(String key) { CONTEXT.set(key); }
+    public static String get() { return CONTEXT.get(); }
+    public static void clear() { CONTEXT.remove(); }
+}
+
+DataSourceContextHolder.set("replica");
+try {
+    return userMapper.selectList(null);
+} finally {
+    DataSourceContextHolder.clear();   // 不清理会残留在线程池线程上，影响后续请求
+}
+```
+
+- **切面顺序**：没有 `LazyConnectionDataSourceProxy` 时，设置路由键的切面必须比事务切面先执行（`@Order` 值更小），已进入事务后再切换不会生效
+- 不想自己维护这套代码时用 baomidou 的 dynamic-datasource（`@DS` 注解），见 [数据访问 · 多数据源](/spring-boot/3_data_access#六、多数据源)
+
 ---
 
 ## 小结

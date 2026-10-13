@@ -222,51 +222,13 @@ public class LocalRateLimiter {
 
 ## 七、网关限流：Spring Cloud Gateway
 
-**`RequestRateLimiter` 过滤器 + `RedisRateLimiter`（Redis 令牌桶）实现集群级限流，业务服务无感知。**
+**`RequestRateLimiter` 过滤器 + `RedisRateLimiter`（Redis 令牌桶）实现集群级限流，业务服务无感知。** 策略上要注意三点：
 
-```yaml
-spring:
-  cloud:
-    gateway:  # Spring Cloud 2025.0+ 前缀；2024.0 及更早为 spring.cloud.gateway.routes
-      server:
-        webflux:
-          routes:
-            - id: order-service
-              uri: lb://order-service
-              predicates:
-                - Path=/api/orders/**
-              filters:
-                - name: RequestRateLimiter
-                  args:
-                    redis-rate-limiter.replenishRate: 100   # 每秒补充 100 个令牌
-                    redis-rate-limiter.burstCapacity: 200   # 桶容量，即允许的突发上限
-                    redis-rate-limiter.requestedTokens: 1   # 每个请求消耗的令牌数
-                    key-resolver: "#{@userKeyResolver}"     # 限流维度
-                    deny-empty-key: true                    # key 为空时拒绝（默认 true）
-                    empty-key-status: FORBIDDEN             # key 为空时返回的状态码（默认 403）
-```
+- **空 key 不要兜底成固定值**：否则所有匿名请求共用一个桶，匿名流量应单独路由、按 IP 限流
+- **默认不带 `Retry-After`**：触发限流时直接返回空响应体的 429，按第四节约定需要时自行补充
+- **真实 IP 从可信的 `X-Forwarded-For` 取**：经过 CDN / SLB 后 `getRemoteAddress()` 是代理地址
 
-```java
-@Configuration
-public class RateLimiterKeyConfig {
-
-    // 按用户限流：取鉴权过滤器注入的用户 ID；取不到时返回空，由 deny-empty-key 拒绝
-    @Bean
-    public KeyResolver userKeyResolver() {
-        return exchange -> Mono.justOrEmpty(
-                exchange.getRequest().getHeaders().getFirst("X-User-Id"));
-    }
-}
-```
-
-几个容易写错的地方：
-
-- **不要给空 key 兜底成固定值**：`defaultIfEmpty("anonymous")` 会让所有匿名请求共用一个桶，一个刷子就能把所有匿名用户挡在外面；匿名流量应走单独的路由、按 IP 限流
-- **触发限流时过滤器直接写 429 并结束响应，不抛异常**，所以 `ErrorWebExceptionHandler` 捕获不到；默认响应体为空，需要自定义响应体时要扩展 `RequestRateLimiterGatewayFilterFactory` 或写 `GlobalFilter`
-- 响应会带 `X-RateLimit-Remaining`、`X-RateLimit-Burst-Capacity` 等头，但**默认不带 `Retry-After`**，按第四节约定需要时自行补充
-- 按 IP 限流时，经过 CDN / SLB 后 `getRemoteAddress()` 是代理地址，要从可信的 `X-Forwarded-For` 中取真实 IP
-
-网关的完整配置见 [API 网关](/spring-cloud/2_api_gateway)。
+依赖、路由参数（`replenishRate` / `burstCapacity` / `deny-empty-key`）与 `KeyResolver` 代码见 [API 网关 · 限流](/spring-cloud/2_api_gateway#五、限流)。
 
 ---
 
@@ -282,16 +244,7 @@ public class RateLimiterKeyConfig {
 | 热点参数限流 | 按参数值分别计数，可对特定值单独设阈值 | 爆款商品 ID 单独限速 |
 | 集群流控 | Token Server 统一发放令牌 | 严格控制集群总量 |
 
-最小示例：
-
-```java
-FlowRule rule = new FlowRule("queryOrder");
-rule.setGrade(RuleConstant.FLOW_GRADE_QPS);  // 按 QPS 限流
-rule.setCount(100);                          // 单机阈值 100 QPS
-FlowRuleManager.loadRules(Collections.singletonList(rule));
-```
-
-`@SentinelResource` 注解、`blockHandler` 与 `fallback` 的区别、热点参数规则代码、规则持久化到 Nacos，见 [Spring Cloud Alibaba - Sentinel](/spring-cloud/6_alibaba)。
+`@SentinelResource` 注解、`blockHandler` 与 `fallback` 的区别、流控与热点参数规则代码、规则持久化到 Nacos，见 [Spring Cloud Alibaba · Sentinel](/spring-cloud/6_alibaba#三、sentinel-流控与熔断)。
 
 ---
 

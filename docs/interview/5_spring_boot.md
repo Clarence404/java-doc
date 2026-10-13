@@ -168,7 +168,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - 自定义 Filter 的 `@Order` 比 -100 小就在认证之前执行，比它大就在认证之后
 - `/error` 返回哪些字段由 `server.error.include-*` 控制，生产保持 `never`
 
-→ 详见 [Web 开发](/spring-boot/2_web_dev#四、错误响应-error-与-problemdetail)
+→ 详见 [Web 开发](/spring-boot/2_web_dev#四、错误响应-error-与-problemdetail)、[Web 开发](/spring-boot/2_web_dev#_1、-component-直接注册)
 
 ### Q14：`allowedOriginPatterns("*")` + `allowCredentials(true)` 有什么风险？
 
@@ -302,7 +302,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - Boot 4 起探针分组默认开启（Boot 3 只在检测到 K8s 时开启）
 - 数据库、Redis 这类共享依赖也不要放进就绪探针：依赖一抖，所有实例同时被摘流量，等于全站不可用
 
-→ 详见 [Actuator 监控](/spring-boot/7_actuator#四、存活-就绪探针与健康分组)、[高可用面试题解答](/interview/14_high_avail#q9-k8s-的-liveness-和-readiness-探针有什么区别-为什么探针不建议检查数据库等共享依赖)
+→ 详见 [Actuator 监控](/spring-boot/7_actuator#四、存活-就绪探针与健康分组)、[高可用面试题解答](/interview/14_high_avail#q10-k8s-的-liveness-和-readiness-探针有什么区别-为什么探针不建议检查数据库等共享依赖)
 
 ### Q25：如何用 Micrometer 写自定义业务指标？如何避免高基数？Observation API 做什么？
 

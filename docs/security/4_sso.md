@@ -169,14 +169,7 @@ Cookie 不能跨域名共享，所以 `a.com` 和 `b.net` 不可能共享同一�
 
 ### 2、前后端分离：用 BFF 而不是在浏览器里存令牌
 
-单页应用（SPA）直接在浏览器里完成授权码 + PKCE、把 Access Token 存在内存或 `localStorage`，技术上可行，但令牌暴露在 JavaScript 可及的范围里，一次 XSS 就能被盗用，静默续期又受第三方 Cookie 限制。
-
-IETF 的 OAuth 2.0 for Browser-Based Applications（2026 年 8 月发布为 RFC 10017，BCP）把 **BFF（Backend for Frontend）** 列为最安全的架构，推荐业务系统、敏感应用和处理个人数据的应用采用：
-
-1. 前端访问 BFF，未登录时 BFF 作为**机密客户端**发起授权码 + PKCE 流程
-2. 令牌保存在 BFF 服务端会话里，浏览器只拿到 `HttpOnly; Secure; SameSite=Lax` 的会话 Cookie
-3. 前端所有 API 请求发给 BFF，BFF 附上 Access Token 转发给后端服务，令牌过期由 BFF 用 Refresh Token 续期
-4. 因为改回了 Cookie 认证，BFF 必须开启 CSRF 防护，并限制转发目标只能是允许的后端地址
+SPA 直接在浏览器里存 Access Token，一次 XSS 就能被盗用，静默续期又受第三方 Cookie 限制。RFC 10017 推荐的做法是 BFF：BFF 作为机密客户端完成授权码 + PKCE 登录并在服务端保存令牌，浏览器只拿 HttpOnly 会话 Cookie，因此 BFF 必须开启 CSRF 防护。Cookie 属性、`SameSite` 取舍与 Spring 配置统一见 [JWT 令牌机制](/security/1_jwt#九、token-存在哪里)。
 
 BFF 常常就是 API 网关本身，见下一节。
 

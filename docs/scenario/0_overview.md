@@ -35,3 +35,5 @@
 - 事务消息、延迟消息、可靠投递与幂等消费 → [消息队列总览](/messaging/0_overview)
 - 分库分表、OLAP、搜索引擎 → [数据库总览](/database/0_overview)
 - 架构模式、幂等、冷热分离 → [系统架构总览](/architecture/0_overview)
+- 数仓、湖仓、离线批处理与实时数仓 → [大数据总览](/big-data/0_overview)
+- 音视频上传与转码、直播、通话信令 → [音视频总览](/media/0_overview)

@@ -443,64 +443,9 @@ public class MybatisPlusConfig {
 
 ### 3、数据源路由：AbstractRoutingDataSource
 
-读写分离、库级多租户都基于 Spring 的 `AbstractRoutingDataSource`：它本身是一个 `DataSource`，每次 `getConnection()` 时调用 `determineCurrentLookupKey()` 选出目标数据源。
+读写分离、库级多租户都基于 Spring 的 `AbstractRoutingDataSource`：它本身是一个 `DataSource`，每次 `getConnection()` 时调用 `determineCurrentLookupKey()` 选出目标数据源（按事务 `readOnly` 或 `ThreadLocal` 里的路由键）。关键约束是事务管理器在事务开始时就取连接，之后切换不生效，所以要么让路由在事务之前确定，要么包一层 `LazyConnectionDataSourceProxy` 把取连接推迟到第一条 SQL。完整配置与踩坑见 [数据库连接池 · 读写分离多数据源](/database/5_practice/3_connection_pool#_3、读写分离多数据源)。
 
-```java
-public class DataSourceContextHolder {
-    private static final ThreadLocal<String> CONTEXT = new ThreadLocal<>();
-    public static void set(String key) { CONTEXT.set(key); }
-    public static String get() { return CONTEXT.get(); }
-    public static void clear() { CONTEXT.remove(); }
-}
-
-public class RoutingDataSource extends AbstractRoutingDataSource {
-    @Override
-    protected Object determineCurrentLookupKey() {
-        return DataSourceContextHolder.get();  // 为 null 时使用默认数据源
-    }
-}
-
-@Configuration
-public class DataSourceConfig {
-
-    @Bean
-    @ConfigurationProperties("app.datasource.master")  // HikariCP 使用 jdbc-url 属性
-    public DataSource masterDataSource() {
-        return DataSourceBuilder.create().build();
-    }
-
-    @Bean
-    @ConfigurationProperties("app.datasource.slave")
-    public DataSource slaveDataSource() {
-        return DataSourceBuilder.create().build();
-    }
-
-    @Bean
-    @Primary  // 让 MyBatis、事务管理器注入的是路由数据源
-    public DataSource dataSource(@Qualifier("masterDataSource") DataSource master,
-                                 @Qualifier("slaveDataSource") DataSource slave) {
-        RoutingDataSource routing = new RoutingDataSource();
-        routing.setTargetDataSources(Map.<Object, Object>of("master", master, "slave", slave));
-        routing.setDefaultTargetDataSource(master);
-        return routing;
-    }
-}
-```
-
-手动切换时必须用 `try / finally` 清理，否则异常时 `ThreadLocal` 残留，会影响该线程后续的请求：
-
-```java
-DataSourceContextHolder.set("slave");
-try {
-    return userMapper.selectList(null);
-} finally {
-    DataSourceContextHolder.clear();
-}
-```
-
-**与事务的冲突**：`DataSourceTransactionManager` 在事务开始时就获取连接并绑定到线程，之后事务内的所有 SQL 都用这一个连接。因此路由键必须在事务开始**之前**设置：切换数据源的切面要比事务切面先执行（`@Order` 值更小）；已经进入事务后再切换不会生效。
-
-实际项目通常直接用 baomidou 的 dynamic-datasource（`@DS` 注解）。Boot 3 使用 `dynamic-datasource-spring-boot3-starter`，Boot 4 使用 `dynamic-datasource-spring-boot4-starter`，不带后缀的 `dynamic-datasource-spring-boot-starter` 只适用于 Boot 2。配置与用法见 [数据访问](/spring-boot/3_data_access) 的「多数据源」一节。跨库写入的一致性需要分布式事务，见 [分布式事务](/distributed/4_transaction)。
+实际项目通常直接用 baomidou 的 dynamic-datasource（`@DS` 注解），配置与事务陷阱见 [数据访问 · 多数据源](/spring-boot/3_data_access#六、多数据源)。跨库写入的一致性需要分布式事务，见 [分布式事务](/distributed/4_transaction)。
 
 ---
 

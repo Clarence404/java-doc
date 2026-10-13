@@ -411,6 +411,33 @@ feature:
 
 开关多了、需要按用户属性定向、审计和实验分析时，就该用专业平台：开源的 Unleash、Flagsmith、flagd，Java 生态的 FF4j，或商业 SaaS。CNCF 的 **OpenFeature** 定义了与厂商无关的开关 API 和 SDK：业务代码只依赖 OpenFeature 的 `Client`，背后接哪个平台由 Provider 决定，换平台不用改业务代码。
 
+```java
+import dev.openfeature.sdk.Client;
+import dev.openfeature.sdk.ImmutableContext;
+import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.Value;
+import java.util.Map;
+
+public class CheckoutService {
+
+    private final Client flags = OpenFeatureAPI.getInstance().getClient();
+
+    public Receipt checkout(Order order) {
+        // targetingKey 用用户 ID，平台据此做按用户或按比例的稳定分桶
+        var ctx = new ImmutableContext(order.userId(),
+                Map.of("tenant", new Value(order.tenantId())));
+        if (flags.getBooleanValue("new-checkout", false, ctx)) {
+            return newCheckout(order);
+        }
+        return legacyCheckout(order);
+    }
+}
+```
+
+应用启动时调用一次 `OpenFeatureAPI.getInstance().setProviderAndWait(provider)` 注册具体平台的 Provider。默认值 `false` 是兜底：开关平台不可用时走旧逻辑。
+
+无论用配置中心还是专业平台，**生产开关的修改都要有审计**：和代码发布一样留记录，故障排查时能关联到「刚刚改了哪个开关」。
+
 ---
 
 ## 六、环境数据管理

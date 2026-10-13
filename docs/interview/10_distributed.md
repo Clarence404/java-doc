@@ -100,6 +100,7 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 | etcd | 租约过期 | Raft 多数派 | K8s 环境现成 |
 | 数据库 | 无 | 本地事务 | 行锁或唯一索引，性能差 |
 
+- `synchronized`、`ReentrantLock` 只在一个 JVM 内有效，多实例部署时各锁各的，这才需要分布式锁
 - 秒杀扣库存、余额扣减不用锁做主手段，用 Lua 原子扣减或数据库条件更新
 
 → 详见 [分布式锁](/distributed/3_lock#八、方案对比与选型)
@@ -228,6 +229,7 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 
 **一句话**：一阶段解析 SQL 记录前后镜像写 `undo_log`，与业务 SQL 同一本地事务，拿到全局锁后提交；二阶段提交时只异步删 `undo_log`，回滚时用前镜像生成反向 SQL。
 
+- 三个角色：TC（独立部署的 seata-server，协调者）、TM（加 `@GlobalTransactional` 的发起方）、RM（参与方的数据源代理）
 - 写隔离：全局锁保证一个全局事务没结束前，其他全局事务改不了同一行
 - 读隔离：全局层面默认**读未提交**，能读到之后会回滚的数据；要读已提交用 `SELECT ... FOR UPDATE`，本地方法加 `@GlobalLock`
 - 回滚失败：后镜像与当前数据不一致，说明被 Seata 之外的写入改过（脏写），只能人工处理
@@ -235,7 +237,7 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 
 **常见坑**：其他系统绕过 Seata 数据源代理直接改同一张表，是回滚失败的主要来源。
 
-→ 详见 [分布式事务](/distributed/4_transaction#_3、at-模式)；依赖与配置见 [Spring Cloud 面试题解答](/interview/11_spring_cloud#四、分布式事务)
+→ 详见 [分布式事务](/distributed/4_transaction#_3、at-模式)；Spring Cloud 中的依赖与配置见 [Spring Cloud 面试题解答](/interview/11_spring_cloud#q23-seata-在-spring-cloud-中怎么接入-有哪些常见坑)
 
 ### Q18：Seata 的 AT、TCC、Saga、XA 怎么选？
 
@@ -246,7 +248,7 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 | AT | 最终一致 | 全局锁写隔离，读未提交 | 几乎无 | 较高，热点受限 |
 | TCC | 最终一致 | 业务资源预留 | 高 | 高 |
 | Saga | 最终一致 | 无 | 中 | 高 |
-| XA | 强一致 | 数据库 XA | 几乎无 | 低 |
+| XA | 强一致 | 数据库锁持有到二阶段结束 | 几乎无 | 低 |
 
 - Seata 2.x 是 Apache 孵化项目，groupId 和包名都是 `org.apache.seata`
 - 一个业务流程只选一种方案，不要 Seata 全局事务和事务消息混用
@@ -355,5 +357,7 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 - 粘性会话在实例宕机时丢会话，会话复制随实例数膨胀，都不适合规模化
 - Spring Boot 4 用 `spring-boot-starter-session-data-redis`，配置前缀 `spring.session.data.redis.*`；自己加 `@EnableRedisHttpSession` 会关掉自动配置
 - JWT 常用短期 Access Token + 可吊销的 Refresh Token；浏览器里放 HttpOnly Cookie，不放 `localStorage`
+
+**常见坑**：往 Session 里放大对象，每次请求都要序列化并经网络读写 Redis。
 
 → 详见 [分布式会话](/distributed/5_session#四、方案对比)、[JWT 令牌机制](/security/1_jwt)

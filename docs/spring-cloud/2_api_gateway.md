@@ -257,7 +257,27 @@ public class RateLimiterConfig {
 }
 ```
 
-同一应用里定义了多个 `KeyResolver` Bean 时，路由配置里要用 `key-resolver` 显式指定。限流算法对比、阈值怎么定、网关限流与应用内限流如何分层，见 [限流与过载保护](/high-avail/7_rate_limiting)。
+同一应用里定义了多个 `KeyResolver` Bean 时，路由配置里要用 `key-resolver` 显式指定。路由上的完整参数（上文路由配置只写了前两项）：
+
+```yaml
+filters:
+  - name: RequestRateLimiter
+    args:
+      redis-rate-limiter.replenishRate: 100   # 每秒补充 100 个令牌
+      redis-rate-limiter.burstCapacity: 200   # 桶容量，即允许的突发上限
+      redis-rate-limiter.requestedTokens: 1   # 每个请求消耗的令牌数
+      key-resolver: "#{@userKeyResolver}"     # 限流维度
+      deny-empty-key: true                    # key 为空时拒绝（默认 true）
+      empty-key-status: FORBIDDEN             # key 为空时返回的状态码（默认 403）
+```
+
+几个容易写错的地方：
+
+- **不要给空 key 兜底成固定值**：`defaultIfEmpty("anonymous")` 会让所有匿名请求共用一个桶，一个刷子就能把所有匿名用户挡在外面；匿名流量应走单独的路由、按 IP 限流
+- **触发限流时过滤器直接写 429 并结束响应，不抛异常**，所以 `ErrorWebExceptionHandler` 捕获不到；默认响应体为空，需要自定义响应体时要扩展 `RequestRateLimiterGatewayFilterFactory` 或写 `GlobalFilter`
+- 响应会带 `X-RateLimit-Remaining`、`X-RateLimit-Burst-Capacity` 等头，但**默认不带 `Retry-After`**，需要时自行补充
+
+限流算法对比、阈值怎么定、网关限流与应用内限流如何分层，见 [限流与过载保护](/high-avail/7_rate_limiting)。
 
 ---
 

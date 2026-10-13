@@ -234,23 +234,9 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 
 ## 四、访问控制
 
-### Q18：RBAC、ABAC、ACL 有什么区别？各适合什么场景？
+权限模型对比（RBAC / ABAC / ReBAC / ACL）与数据权限拦截见 [安全面试题解答 Q12](/interview/23_security#q12-rbac、abac、rebac、acl-有什么区别-怎么选)、[Q14](/interview/23_security#q14-数据权限-行级权限-怎么做)；正文见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac#五、模型对比与选型)、[权限系统架构设计](/architecture/6_access_control#四、数据权限拦截架构)。
 
-**一句话**：RBAC 通过角色关联权限，规则稳定、实现简单，是企业系统的主流；ABAC 按用户、资源、环境属性动态判断，适合细粒度和动态规则；ACL 给每个资源维护一份授权名单，适合文件这类资源级控制。
-
-| 模型 | 授权依据 | 适用 |
-|------|---------|------|
-| RBAC | 用户 → 角色 → 权限 | 企业内部系统 |
-| ABAC | 属性组合 + 策略 | 云平台、零信任、数据级规则 |
-| ACL | 资源上的用户列表 | 文件系统、单资源授权 |
-
-- RBAC 典型 5 张表：用户、角色、权限、用户-角色、角色-权限
-- 常见组合：RBAC 控制接口级，ABAC 控制数据级；角色爆炸时再迁移到 ABAC（OPA、Casbin）
-- Spring Security 方法级鉴权要 `@EnableMethodSecurity`；`hasRole('ADMIN')` 会自动加 `ROLE_` 前缀，权限码用 `hasAuthority`
-
-→ 详见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac#五、模型对比与选型)
-
-### Q19：鉴权放在网关还是服务？权限变更后如何及时生效？
+### Q18：鉴权放在网关还是服务？权限变更后如何及时生效？
 
 **一句话**：网关负责认证和粗粒度授权（URL、角色），服务负责细粒度授权和数据权限；权限数据必须缓存，难点是变更后多快生效。
 
@@ -261,15 +247,3 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 改一个角色的权限要失效所有持有该角色的用户，用户多时按角色维度缓存
 
 → 详见 [权限系统架构设计](/architecture/6_access_control#二、鉴权放在哪一层)；Token 刷新与吊销见 [JWT 令牌机制](/security/1_jwt)
-
-### Q20：数据权限（行级权限）如何统一拦截？
-
-**一句话**：在 SQL 层统一追加过滤条件，不要每个查询手写：用户上下文带上部门与数据范围，SQL 拦截器在执行前改写 WHERE。
-
-- MyBatis-Plus：实现 `MultiDataPermissionHandler`，把 `DataPermissionInterceptor` 注册到 `MybatisPlusInterceptor`，并放在分页拦截器之前
-- 条件用 JSqlParser 表达式构造、值来自服务端上下文，不拼字符串，避免 SQL 注入
-- 「本部门及子部门」不要每次递归查组织树：冗余 `ancestors` 路径或缓存子部门列表
-- 无用户上下文的调用（报表、定时任务）要显式声明跳过，而不是取不到用户就默认放开
-- 多租户 `tenant_id` 过滤和数据权限分两层拦截
-
-→ 详见 [权限系统架构设计](/architecture/6_access_control#四、数据权限拦截架构)
