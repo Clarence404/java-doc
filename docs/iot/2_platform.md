@@ -404,7 +404,7 @@ TCP 私有协议的帧格式设计、粘包拆包和心跳是通用问题，见 
 - ThingsBoard Create Alarm 节点：[https://thingsboard.io/docs/reference/rule-engine/nodes/action/create-alarm/](https://thingsboard.io/docs/reference/rule-engine/nodes/action/create-alarm/)
 - JetLinks 社区版：[https://github.com/jetlinks/jetlinks-community](https://github.com/jetlinks/jetlinks-community)
 - JetLinks 官方协议包：[https://github.com/jetlinks/jetlinks-official-protocol](https://github.com/jetlinks/jetlinks-official-protocol)
-- AWS IoT Analytics 停止支持说明：[https://docs.aws.amazon.com/iotanalytics/latest/userguide/iotanalytics-end-of-support.html](https://docs.aws.amazon.com/iotanalytics/latest/userguide/iotanalytics-end-of-support.html)
+- AWS IoT Analytics 停止支持说明：[https://docs.aws.amazon.com/zh_cn/iotanalytics/latest/userguide/iotanalytics-end-of-support.html](https://docs.aws.amazon.com/zh_cn/iotanalytics/latest/userguide/iotanalytics-end-of-support.html)
 - NGINX stream proxy 模块：[https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html)
 
 > 下一篇：[边缘计算](./3_edge) —— 云边端分工、EdgeX Foundry、KubeEdge 云边协同、边缘 AI 推理。

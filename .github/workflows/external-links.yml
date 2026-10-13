@@ -1,0 +1,37 @@
+name: 外链巡检
+
+# 每月 1 日检查「参考资料」里的外部链接；发现失效链接时开一个 Issue，不影响部署
+on:
+  schedule:
+    - cron: '0 2 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  external-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: 设置 Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: 检查外链
+        id: check
+        continue-on-error: true
+        run: python scripts/check_external_links.py --out link-report.md
+
+      - name: 有失效链接时开 Issue
+        if: steps.check.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "外链巡检：发现失效链接（$(date +%Y-%m)）" \
+            --body-file link-report.md

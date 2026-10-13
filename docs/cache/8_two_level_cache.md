@@ -251,7 +251,7 @@ public class UserCacheInvalidator {
 
 - Redis 官方文档 · Client-side caching：[https://redis.io/docs/latest/develop/reference/client-side-caching/](https://redis.io/docs/latest/develop/reference/client-side-caching/)
 - Redis 官方文档 · CLIENT TRACKING：[https://redis.io/docs/latest/commands/client-tracking/](https://redis.io/docs/latest/commands/client-tracking/)
-- Lettuce 文档 · Client-side caching：[https://redis.github.io/lettuce/advanced-usage/#client-side-caching](https://redis.github.io/lettuce/advanced-usage/#client-side-caching)
+- Lettuce API · ClientSideCaching：[https://javadoc.io/doc/io.lettuce/lettuce-core/latest/io/lettuce/core/support/caching/ClientSideCaching.html](https://javadoc.io/doc/io.lettuce/lettuce-core/latest/io/lettuce/core/support/caching/ClientSideCaching.html)
 - Spring Framework 文档 · Transaction-bound Events：[https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html)
 - Spring Data Redis 文档 · Redis Messaging (Pub/Sub)：[https://docs.spring.io/spring-data/redis/reference/redis/pubsub.html](https://docs.spring.io/spring-data/redis/reference/redis/pubsub.html)
 - Caffeine GitHub：[https://github.com/ben-manes/caffeine](https://github.com/ben-manes/caffeine)

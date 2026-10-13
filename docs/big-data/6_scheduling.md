@@ -455,7 +455,7 @@ Airflow 中可以用 3.1 起的 Deadline Alerts 为 DAG Run 配置"相对排队�
 
 ## 参考资料
 
-- DolphinScheduler 官方文档：[Apache DolphinScheduler Documentation](https://dolphinscheduler.apache.org/en-us/docs)
+- DolphinScheduler 官方文档：[Apache DolphinScheduler 文档（GitHub 源文件）](https://github.com/apache/dolphinscheduler/tree/dev/docs/docs/en)
 - DolphinScheduler 工作流定义、运行参数与补数：[Workflow Definition](https://github.com/apache/dolphinscheduler/blob/dev/docs/docs/en/guide/project/workflow-definition.md)
 - DolphinScheduler 工作流实例操作：[Workflow Instance](https://github.com/apache/dolphinscheduler/blob/dev/docs/docs/en/guide/project/workflow-instance.md)
 - DolphinScheduler 内置参数与时间格式：[Built-in Parameter](https://github.com/apache/dolphinscheduler/blob/dev/docs/docs/en/guide/parameter/built-in.md)

@@ -326,7 +326,7 @@ JDK 25 的训练运行放在 CI 镜像构建阶段，用预热 Runner 加一份�
 
 - 分层编译与 JIT 相关参数：[The java Command](https://docs.oracle.com/en/java/javase/25/docs/specs/man/java.html)
 - AOT 缓存：[JEP 483: Ahead-of-Time Class Loading & Linking](https://openjdk.org/jeps/483)、[JEP 514: Ahead-of-Time Command-Line Ergonomics](https://openjdk.org/jeps/514)、[JEP 515: Ahead-of-Time Method Profiling](https://openjdk.org/jeps/515)
-- Spring Boot 的 CDS 与 AOT 缓存：[Spring Boot Reference — Class Data Sharing](https://docs.spring.io/spring-boot/reference/packaging/class-data-sharing.html)
+- Spring Boot 的 CDS 与 AOT 缓存：[Spring Boot Reference — AOT Cache](https://docs.spring.io/spring-boot/reference/packaging/aot-cache.html)
 - 应用可用性状态：[Spring Boot Reference — Application Availability](https://docs.spring.io/spring-boot/reference/features/spring-application.html#features.spring-application.application-availability)
 - 探针配置：[Kubernetes — Configure Liveness, Readiness and Startup Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 - HikariCP 参数说明：[HikariCP README](https://github.com/brettwooldridge/HikariCP)

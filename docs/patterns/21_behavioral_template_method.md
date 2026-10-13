@@ -218,7 +218,7 @@ List<User> users = jdbcTemplate.query(
 
 - Refactoring.Guru Template Method：[https://refactoring.guru/design-patterns/template-method](https://refactoring.guru/design-patterns/template-method)
 - Java SE 21 `AbstractList`：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/AbstractList.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/AbstractList.html)
-- Jakarta Servlet `HttpServlet`：[https://jakarta.ee/specifications/servlet/6.0/apidocs/jakarta.servlet/jakarta/servlet/http/httpservlet](https://jakarta.ee/specifications/servlet/6.0/apidocs/jakarta.servlet/jakarta/servlet/http/httpservlet)
+- Jakarta Servlet `HttpServlet`：[https://jakarta.ee/specifications/servlet/6.0/apidocs/jakarta.servlet/jakarta/servlet/http/HttpServlet.html](https://jakarta.ee/specifications/servlet/6.0/apidocs/jakarta.servlet/jakarta/servlet/http/HttpServlet.html)
 - Spring Framework Using JdbcTemplate：[https://docs.spring.io/spring-framework/reference/data-access/jdbc/core.html](https://docs.spring.io/spring-framework/reference/data-access/jdbc/core.html)
 
 > 下一篇：[访问者模式](./22_behavioral_visitor) —— 双分派、record 元素、sealed + switch 替代方案。

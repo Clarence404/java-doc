@@ -532,7 +532,7 @@ BFF 转发请求时可以用 Spring Cloud Gateway 的 `TokenRelay` 过滤器，�
 - Spring Security 7 迁移（`typ` 校验变化）：[OAuth 2.0 Migrations](https://docs.spring.io/spring-security/reference/7.0/migration/servlet/oauth2.html)
 - Spring Security CSRF 与 SPA：[Cross Site Request Forgery (CSRF)](https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html)
 - Nimbus JOSE + JWT：[Nimbus JOSE + JWT 文档](https://connect2id.com/products/nimbus-jose-jwt)
-- OWASP：[JSON Web Token Cheat Sheet for Java](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html)
+- OWASP：[JSON Web Token Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_Cheat_Sheet.html)
 - 在线解码：[jwt.io](https://jwt.io/)
 
 > 下一篇：[OAuth2](./2_oauth2)

@@ -468,7 +468,7 @@ jobs:
 - openapi-generator Spring 生成器选项：[Documentation for the spring Generator](https://openapi-generator.tech/docs/generators/spring/)
 - openapi-generator Java 生成器选项：[Documentation for the java Generator](https://openapi-generator.tech/docs/generators/java/)
 - Redocly CLI lint 命令：[Redocly CLI lint](https://redocly.com/docs/cli/commands/lint)
-- Spectral 规则集：[Spectral 文档](https://docs.stoplight.io/docs/spectral/)
+- Spectral 规则集：[Spectral 文档](https://docs.stoplight.io/docs/spectral/674b27b261c3c-overview)
 - oasdiff GitHub Action：[oasdiff-action](https://github.com/oasdiff/oasdiff-action)
 - Prism Mock 服务：[Prism](https://github.com/stoplightio/prism)
 - Spring REST Docs：[Spring REST Docs](https://spring.io/projects/spring-restdocs)

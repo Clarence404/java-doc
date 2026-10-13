@@ -863,9 +863,9 @@ void delayedWithVirtualTime() {
 ## 参考资料
 
 - 官方文档：[https://docs.spring.io/spring-framework/reference/web/webflux.html](https://docs.spring.io/spring-framework/reference/web/webflux.html)
-- Project Reactor：[https://projectreactor.io/docs/core/release/reference/](https://projectreactor.io/docs/core/release/reference/)
-- Reactor 调度器：[https://projectreactor.io/docs/core/release/reference/coreFeatures/schedulers.html](https://projectreactor.io/docs/core/release/reference/coreFeatures/schedulers.html)
-- Reactor 上下文传播：[https://projectreactor.io/docs/core/release/reference/advanced-contextPropagation.html](https://projectreactor.io/docs/core/release/reference/advanced-contextPropagation.html)
+- Project Reactor：[https://docs.spring.io/projectreactor/reactor-core/docs/current/reference/html/](https://docs.spring.io/projectreactor/reactor-core/docs/current/reference/html/)
+- Reactor 调度器：[https://docs.spring.io/projectreactor/reactor-core/docs/current/reference/html/#schedulers](https://docs.spring.io/projectreactor/reactor-core/docs/current/reference/html/#schedulers)
+- Reactor 上下文传播：[https://docs.spring.io/projectreactor/reactor-core/docs/current/reference/html/#context.propagation](https://docs.spring.io/projectreactor/reactor-core/docs/current/reference/html/#context.propagation)
 - BlockHound：[https://github.com/reactor/BlockHound](https://github.com/reactor/BlockHound)
 - R2DBC 规范：[https://r2dbc.io/spec/1.0.0.RELEASE/spec/html/](https://r2dbc.io/spec/1.0.0.RELEASE/spec/html/)
 

@@ -332,7 +332,7 @@ public List<String> fetchUnreadSubjects(String user, String password) throws Mes
 - SPF RFC 7208：[https://www.rfc-editor.org/rfc/rfc7208.html](https://www.rfc-editor.org/rfc/rfc7208.html)
 - DKIM RFC 6376：[https://www.rfc-editor.org/rfc/rfc6376.html](https://www.rfc-editor.org/rfc/rfc6376.html)
 - DMARC RFC 7489：[https://www.rfc-editor.org/rfc/rfc7489.html](https://www.rfc-editor.org/rfc/rfc7489.html)
-- Google 邮件发件人指南：[https://support.google.com/a/answer/81126](https://support.google.com/a/answer/81126)
+- Google 邮件发件人指南：[https://support.google.com/mail/answer/81126](https://support.google.com/mail/answer/81126)
 - Spring Boot Sending Email：[https://docs.spring.io/spring-boot/reference/io/email.html](https://docs.spring.io/spring-boot/reference/io/email.html)
 - Jakarta Mail：[https://jakarta.ee/specifications/mail/](https://jakarta.ee/specifications/mail/)
 
