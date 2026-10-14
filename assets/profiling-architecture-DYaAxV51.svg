@@ -1,0 +1,64 @@
+<svg viewBox="0 0 900 400" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+    .label { font-size:11px; font-weight:700; fill:var(--b); }
+  </style>
+  <defs>
+    <marker id="arrow-prof-arch" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="450" y="28" text-anchor="middle">持续剖析架构：节点采集 → 服务端存储 → 火焰图查询，并与链路互相跳转</text>
+
+  <rect x="20" y="50" width="220" height="90" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="130" y="80" text-anchor="middle">eBPF Agent（DaemonSet）</text>
+  <text class="desc" x="130" y="102" text-anchor="middle">perf_event 采样整机进程</text>
+  <text class="desc" x="130" y="120" text-anchor="middle">无需改应用、无需重启</text>
+
+  <rect x="20" y="180" width="220" height="90" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="130" y="210" text-anchor="middle">Java 进程 + Profiling agent</text>
+  <text class="desc" x="130" y="232" text-anchor="middle">JFR / async-profiler</text>
+  <text class="desc" x="130" y="250" text-anchor="middle">标签 service · version · span_id</text>
+
+  <rect x="320" y="50" width="220" height="220" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="430" y="140" text-anchor="middle">Profiling 服务端</text>
+  <text class="desc" x="430" y="162" text-anchor="middle">Pyroscope / Parca</text>
+  <text class="desc" x="430" y="180" text-anchor="middle">按标签索引 · 对象存储</text>
+
+  <rect x="640" y="50" width="240" height="220" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="760" y="131" text-anchor="middle">Grafana 查询界面</text>
+  <text class="desc" x="760" y="153" text-anchor="middle">火焰图 / 差分火焰图</text>
+  <text class="desc" x="760" y="171" text-anchor="middle">按标签筛选与时间段对比</text>
+  <text class="desc" x="760" y="189" text-anchor="middle">Traces to Profiles</text>
+
+  <rect x="320" y="310" width="220" height="70" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="430" y="338" text-anchor="middle">Tempo（链路）</text>
+  <text class="desc" x="430" y="358" text-anchor="middle">Span 携带 profile 关联属性</text>
+
+  <line x1="240" y1="95" x2="318" y2="95" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-prof-arch)"/>
+  <text class="label" x="279" y="88" text-anchor="middle">pprof</text>
+  <line x1="240" y1="225" x2="318" y2="225" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-prof-arch)"/>
+  <text class="label" x="279" y="218" text-anchor="middle">JFR / pprof</text>
+  <line x1="540" y1="160" x2="638" y2="160" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-prof-arch)"/>
+  <text class="label" x="589" y="153" text-anchor="middle">查询</text>
+  <path d="M130,270 L130,345 L318,345" fill="none" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-prof-arch)"/>
+  <text class="label" x="224" y="338" text-anchor="middle">OTLP traces</text>
+  <path d="M540,345 L760,345 L760,272" fill="none" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-prof-arch)"/>
+  <text class="label" x="650" y="338" text-anchor="middle">慢 Span → 火焰图</text>
+</svg>

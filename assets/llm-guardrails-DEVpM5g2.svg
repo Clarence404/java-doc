@@ -1,0 +1,85 @@
+<svg viewBox="0 0 780 364" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0 0 L7 3.5 L0 7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="780" height="364" fill="var(--bg)"/>
+  <text x="390" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">护栏在请求链路中的位置</text>
+
+  <!-- 主链路 -->
+  <rect x="20" y="46" width="124" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="82" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">用户请求</text>
+  <text x="82" y="92" text-anchor="middle" font-size="11" fill="var(--muted)">已鉴权的身份</text>
+
+  <rect x="176" y="46" width="124" height="60" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="238" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">输入护栏</text>
+  <text x="238" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">进模型之前</text>
+
+  <rect x="332" y="46" width="124" height="60" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="394" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">模型 + 工具</text>
+  <text x="394" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">RAG / Tool Calling</text>
+
+  <rect x="488" y="46" width="124" height="60" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="550" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">输出护栏</text>
+  <text x="550" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">返回用户之前</text>
+
+  <rect x="644" y="46" width="124" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="706" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">返回用户</text>
+  <text x="706" y="92" text-anchor="middle" font-size="11" fill="var(--muted)">流式或整段</text>
+
+  <line x1="144" y1="76" x2="174" y2="76" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="300" y1="76" x2="330" y2="76" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="456" y1="76" x2="486" y2="76" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="612" y1="76" x2="642" y2="76" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 细节 -->
+  <line x1="238" y1="106" x2="238" y2="144" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="394" y1="106" x2="394" y2="144" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="550" y1="106" x2="550" y2="144" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="176" y="146" width="124" height="96" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.2"/>
+  <text x="238" y="170" text-anchor="middle" font-size="11" fill="var(--fg)">提示注入检测</text>
+  <text x="238" y="188" text-anchor="middle" font-size="11" fill="var(--fg)">敏感信息脱敏</text>
+  <text x="238" y="206" text-anchor="middle" font-size="11" fill="var(--fg)">长度与频率限制</text>
+  <text x="238" y="224" text-anchor="middle" font-size="11" fill="var(--fg)">话题范围识别</text>
+
+  <rect x="332" y="146" width="124" height="96" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.2"/>
+  <text x="394" y="170" text-anchor="middle" font-size="11" fill="var(--fg)">按场景的工具集</text>
+  <text x="394" y="188" text-anchor="middle" font-size="11" fill="var(--fg)">以当前用户身份执行</text>
+  <text x="394" y="206" text-anchor="middle" font-size="11" fill="var(--fg)">副作用人工确认</text>
+  <text x="394" y="224" text-anchor="middle" font-size="11" fill="var(--fg)">调用步数上限</text>
+
+  <rect x="488" y="146" width="124" height="96" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.2"/>
+  <text x="550" y="170" text-anchor="middle" font-size="11" fill="var(--fg)">Schema 格式校验</text>
+  <text x="550" y="188" text-anchor="middle" font-size="11" fill="var(--fg)">引用与事实核对</text>
+  <text x="550" y="206" text-anchor="middle" font-size="11" fill="var(--fg)">越权与敏感检查</text>
+  <text x="550" y="224" text-anchor="middle" font-size="11" fill="var(--fg)">外链与图片过滤</text>
+
+  <!-- 拦截出口 -->
+  <line x1="238" y1="242" x2="238" y2="280" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="550" y1="242" x2="550" y2="280" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="246" y="266" font-size="11" fill="var(--muted)">拦截</text>
+  <text x="558" y="266" font-size="11" fill="var(--muted)">拦截</text>
+
+  <rect x="176" y="282" width="436" height="62" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="394" y="306" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">拒答模板 / 降级到规则或人工</text>
+  <text x="394" y="328" text-anchor="middle" font-size="11" fill="var(--fg)">每次拦截记审计日志与 Trace 事件，回流到评估集</text>
+</svg>
