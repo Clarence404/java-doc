@@ -139,7 +139,7 @@ Chris Richardson 在「Refactoring a monolith into microservices」中总结了�
 - 资源消耗大或有特殊资源需求的模块：拆出后可独立扩容
 - 边界清晰、与其他模块耦合少的模块：拆分成本最低，适合作为第一个试点
 
-**数据迁移是最难的一步**：服务拆出后必须拥有自己的数据。常见做法是先让新服务通过 API 读写单体数据，再用双写或 CDC 同步（见 [CDC 工具](/database/5_practice/0_cdc_tools)）把数据迁到新库，最后切断对旧表的访问。
+**数据迁移是最难的一步**：服务拆出后必须拥有自己的数据。常见做法是先让新服务通过 API 读写单体数据，再用双写或 CDC 同步（见 [CDC 工具](/database/5_practice/0_cdc_tools)）把数据迁到新库，最后切断对旧表的访问。拆分依据、粒度判断与单个服务的完整抽取步骤见 [服务拆分](./1_service_split)。
 
 ---
 
@@ -158,4 +158,4 @@ Chris Richardson 在「Refactoring a monolith into microservices」中总结了�
 - StranglerFigApplication（Martin Fowler）：[https://martinfowler.com/bliki/StranglerFigApplication.html](https://martinfowler.com/bliki/StranglerFigApplication.html)
 - MonolithFirst（Martin Fowler）：[https://martinfowler.com/bliki/MonolithFirst.html](https://martinfowler.com/bliki/MonolithFirst.html)
 
-> 下一篇：[微服务设计模式](./2_patterns) —— 拆分、通信、数据、可靠性、部署等常用模式的目录与选用场景。
+> 下一篇：[服务拆分](./1_service_split) —— 按什么拆、拆多细、数据怎么分，以及用绞杀者模式一步步抽出服务。

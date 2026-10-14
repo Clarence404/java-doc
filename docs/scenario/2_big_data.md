@@ -109,7 +109,7 @@ Kafka 负责削峰与解耦，Flink 做清洗和实时聚合，明细进 ES 供�
 - 查询带时间范围，只命中少量索引
 - 不需要评分的条件放 `filter`（不计分、可缓存）
 
-原理与调优见 [搜索数据库](/database/4_nosql/3_search_db)。
+原理与调优见 [Elasticsearch 原理](/database/4_nosql/3_search_es)、[Elasticsearch 实战](/database/4_nosql/3_search_es_practice)。
 
 ### 3、实时计算：Flink
 

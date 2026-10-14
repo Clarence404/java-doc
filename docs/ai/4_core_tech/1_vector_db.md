@@ -146,7 +146,7 @@ LIMIT 5;
 几点补充：
 
 - Redis 的 Vector Set 是 Redis 8 新增的数据类型，Valkey 等分支没有；用法与缓存场景见 [缓存总览](/cache/0_overview)
-- Elasticsearch 的倒排索引与分词原理见 [搜索数据库](/database/4_nosql/3_search_db)，混合检索在 RAG 中的用法见 [RAG 检索增强生成](./2_rag)
+- Elasticsearch 的倒排索引与分词原理见 [Elasticsearch 原理](/database/4_nosql/3_search_es)，混合检索在 RAG 中的用法见 [RAG 检索增强生成](./2_rag)
 - Chroma 这类以 Python 为主的轻量库适合原型验证，Java 生产项目一般不选
 
 ### 1、选型建议

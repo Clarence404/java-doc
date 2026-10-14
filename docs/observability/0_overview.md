@@ -79,7 +79,7 @@ Grafana 官方提供 `grafana/otel-lgtm` 镜像，一个容器内集成了 OTel 
 - SLI / SLO、错误预算与燃烧速率告警 → [可用性度量](/high-avail/1_sla_slo)；故障分级、On-call 与复盘 → [故障应急与复盘](/high-avail/11_incident_response)
 - 分位数、吞吐与延迟指标的含义 → [性能指标](/high-perf/1_metrics)；RED / USE 方法 → [性能分析方法论](/high-perf/2_methodology)
 - Prometheus 本地 TSDB 与长期存储（VictoriaMetrics / Thanos / Mimir） → [时序数据库](/database/4_nosql/1_time_series_db)
-- Elasticsearch 索引与检索原理 → [搜索数据库](/database/4_nosql/3_search_db)
+- Elasticsearch 索引与检索原理 → [Elasticsearch 原理](/database/4_nosql/3_search_es)
 - JFR、jstack 等 JVM 诊断工具 → [诊断工具](/jvm/8_monitoring_tools)；Arthas 等线上诊断 → [线上诊断](/engineering/7_diagnosis)
 - Sidecar 代理自动产生的流量指标与链路 → [服务网格](/microservices/3_service_mesh)
 - 采集 Agent 的 DaemonSet 部署、Pod 日志路径 → [Kubernetes](/cloud-native/6_kubernetes)

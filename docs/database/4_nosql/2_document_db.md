@@ -338,4 +338,4 @@ db.sensor_readings.insertOne({
 - 时间序列集合：[https://www.mongodb.com/docs/manual/core/timeseries-collections/](https://www.mongodb.com/docs/manual/core/timeseries-collections/)
 - Java 同步驱动事务：[https://www.mongodb.com/docs/drivers/java/sync/current/crud/transactions/](https://www.mongodb.com/docs/drivers/java/sync/current/crud/transactions/)
 
-> 下一篇：[搜索数据库](./3_search_db) —— 倒排索引、分析器与 Elasticsearch / OpenSearch 的使用与选型
+> 下一篇：[搜索数据库](./3_search_db) —— 搜索库定位、各引擎速览、向量检索与选型

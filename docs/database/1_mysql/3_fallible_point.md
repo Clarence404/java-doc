@@ -366,4 +366,4 @@ gh-ost --alter="ADD COLUMN remark VARCHAR(64)" \
 - Online DDL 操作：[https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html](https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html)
 - gh-ost：[https://github.com/github/gh-ost](https://github.com/github/gh-ost)
 
-> 下一篇：[MySQL 索引](./4_topic_index) —— B+ 树、聚簇与二级索引、覆盖索引、最左前缀、索引失效与深度分页。
+> 下一篇：[MySQL 表设计规范](./3_table_design) —— 命名、主键选型、字段类型、NULL 与默认值、通用字段、索引规划与建表模板。

@@ -66,7 +66,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | 已用 PostgreSQL、搜索需求简单 | PostgreSQL 内置全文检索（`tsvector` + GIN），中文需分词扩展 |
 | 只需要关键词模糊匹配、数据量小 | 数据库前缀索引或 N-gram 全文索引 |
 
-数据库到搜索引擎的同步方式见 [搜索数据库](../4_nosql/3_search_db) 与 [CDC 工具](../5_practice/0_cdc_tools)。
+数据库到搜索引擎的同步方式见 [Elasticsearch 实战](../4_nosql/3_search_es_practice#五、与-mysql-同步) 与 [CDC 工具](../5_practice/0_cdc_tools)。
 
 ### 4、缓存与 KV
 

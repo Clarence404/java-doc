@@ -1,0 +1,75 @@
+<svg viewBox="0 0 760 418" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12" role="img" aria-label="电商服务拆分与依赖：网关聚合查询，订单同步调用库存与支付，其余协作走领域事件">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .pan { rx:8; ry:8; fill:var(--bg); stroke-width:1.5; }
+    .ttl { font-weight:700; font-size:13px; }
+    .sub { font-size:11px; fill:var(--muted); }
+    .lbl { font-size:11px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+    .evt { stroke:var(--y); stroke-width:1.5; fill:none; stroke-dasharray:5 4; marker-end:url(#e); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+    <marker id="e" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--y)"/>
+    </marker>
+  </defs>
+
+  <rect class="box" x="200" y="20" width="360" height="60" stroke="var(--p)"/>
+  <text class="ttl" x="380" y="44" text-anchor="middle" fill="var(--p)">API 网关 / BFF</text>
+  <text class="sub" x="380" y="64" text-anchor="middle">鉴权、路由、聚合查询（不承载业务规则）</text>
+
+  <line class="arr" x1="260" y1="80" x2="150" y2="124"/>
+  <line class="arr" x1="380" y1="80" x2="380" y2="124"/>
+  <line class="arr" x1="500" y1="80" x2="610" y2="124"/>
+
+  <rect class="box" x="20" y="126" width="220" height="60" stroke="var(--b)"/>
+  <text class="ttl" x="130" y="150" text-anchor="middle" fill="var(--b)">用户服务</text>
+  <text class="sub" x="130" y="170" text-anchor="middle">账号、收货地址、会员等级</text>
+
+  <rect class="box" x="270" y="126" width="220" height="60" stroke="var(--g)"/>
+  <text class="ttl" x="380" y="150" text-anchor="middle" fill="var(--g)">订单服务</text>
+  <text class="sub" x="380" y="170" text-anchor="middle">下单、订单状态机、订单查询</text>
+
+  <rect class="box" x="520" y="126" width="220" height="60" stroke="var(--b)"/>
+  <text class="ttl" x="630" y="150" text-anchor="middle" fill="var(--b)">商品服务</text>
+  <text class="sub" x="630" y="170" text-anchor="middle">商品、类目、价格</text>
+
+  <line class="arr" x1="330" y1="186" x2="290" y2="230"/>
+  <text class="lbl" x="290" y="212" text-anchor="end">同步：预占库存</text>
+  <line class="arr" x1="430" y1="186" x2="470" y2="230"/>
+  <text class="lbl" x="470" y="212" text-anchor="start">同步：创建支付单</text>
+
+  <rect class="box" x="145" y="232" width="220" height="60" stroke="var(--b)"/>
+  <text class="ttl" x="255" y="256" text-anchor="middle" fill="var(--b)">库存服务</text>
+  <text class="sub" x="255" y="276" text-anchor="middle">可售库存、预占、扣减、释放</text>
+
+  <rect class="box" x="395" y="232" width="220" height="60" stroke="var(--b)"/>
+  <text class="ttl" x="505" y="256" text-anchor="middle" fill="var(--b)">支付服务</text>
+  <text class="sub" x="505" y="276" text-anchor="middle">支付单、渠道回调、退款</text>
+
+  <line class="evt" x1="374" y1="186" x2="374" y2="336"/>
+  <line class="evt" x1="386" y1="338" x2="386" y2="188"/>
+  <line class="evt" x1="255" y1="338" x2="255" y2="294"/>
+  <text class="lbl" x="245" y="320" text-anchor="end">订阅 OrderCancelled</text>
+  <line class="evt" x1="505" y1="292" x2="505" y2="336"/>
+  <text class="lbl" x="515" y="320" text-anchor="start">发布 PaymentSucceeded</text>
+
+  <rect class="pan" x="20" y="338" width="720" height="60" stroke="var(--y)"/>
+  <text class="ttl" x="380" y="362" text-anchor="middle" fill="var(--y)">消息队列（领域事件）</text>
+  <text class="sub" x="380" y="382" text-anchor="middle">实线：同步调用　虚线：事件发布 / 订阅（订单发布 OrderCreated、OrderCancelled，订阅 PaymentSucceeded）</text>
+</svg>
