@@ -234,17 +234,9 @@ public class LocalRateLimiter {
 
 ## 八、Sentinel 限流
 
-**Sentinel 以"资源"为单位配置规则，除 QPS 限流外还支持并发线程数、热点参数、集群流控和系统自适应保护。**
+**Sentinel 以"资源"为单位配置规则，是上面几种策略的现成组合：** QPS 流控基于滑动窗口；流控效果的 Warm Up 对应冷启动预热、匀速排队对应漏桶；并发线程数流控即第九节的并发限流；热点参数限流按参数值分别计数；集群流控由 Token Server 统一发令牌。
 
-| 能力 | 说明 | 典型用法 |
-|------|------|---------|
-| QPS 流控 | 滑动窗口统计，超阈值按流控效果处理 | 接口级限流 |
-| 并发线程数流控 | 限制同时执行的线程数 | 慢接口、调用慢依赖的资源（见第九节） |
-| 流控效果 | 快速失败 / Warm Up（冷启动预热） / 匀速排队（漏桶） | 秒杀入口用快速失败，消息消费用匀速排队 |
-| 热点参数限流 | 按参数值分别计数，可对特定值单独设阈值 | 爆款商品 ID 单独限速 |
-| 集群流控 | Token Server 统一发放令牌 | 严格控制集群总量 |
-
-`@SentinelResource` 注解、`blockHandler` 与 `fallback` 的区别、流控与热点参数规则代码、规则持久化到 Nacos，见 [Spring Cloud Alibaba · Sentinel](/spring-cloud/6_alibaba#三、sentinel-流控与熔断)。
+规则类型、`@SentinelResource` 与 `blockHandler` / `fallback`、规则代码与 Nacos 持久化统一见 [Spring Cloud Alibaba · Sentinel](/spring-cloud/6_alibaba#三、sentinel-流控与熔断)。
 
 ---
 

@@ -89,39 +89,16 @@ Session 外置的完整方案对比（粘性会话、Session 复制、集中存�
 
 ## 五、自动扩缩容（HPA）
 
-**手动扩容响应慢，流量突增时来不及。** Kubernetes HPA（Horizontal Pod Autoscaler）按指标自动调整副本数，期望副本数 = `ceil(当前副本数 × 当前指标值 / 目标值)`。
+**手动扩容响应慢，流量突增时来不及。** Kubernetes HPA 按指标自动调整副本数，期望副本数 = `ceil(当前副本数 × 当前指标值 / 目标值)`；计算机制、`behavior` 字段与完整清单见 [Kubernetes · HPA](/cloud-native/6_kubernetes#_1、hpa)，这里只讲容量策略。
 
 ### 1、基础配置
 
-```yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: order-service
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: order-service
-  minReplicas: 4
-  maxReplicas: 40
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 60       # 目标 CPU 使用率，相对于容器的 requests 计算
-  behavior:
-    scaleUp:
-      stabilizationWindowSeconds: 0
-      policies:
-        - type: Percent
-          value: 100                   # 每 60s 最多翻倍
-          periodSeconds: 60
-    scaleDown:
-      stabilizationWindowSeconds: 300  # 缩容观察 5 分钟，防抖动
-```
+策略上要定四个量：
+
+- **`minReplicas`**：按平日峰值算出的保底实例数，扩容生效前靠它扛住突增
+- **`maxReplicas`**：按下游（DB 连接、MQ 分区）能承受的上限设，不是越大越好
+- **目标利用率**：低于单机容量点，留出扩容生效前的缓冲（见下方提示）
+- **扩缩节奏**：扩容快（如每 60s 最多翻倍）、缩容慢（稳定窗口 5 分钟），宁可多付几分钟资源也不要来回抖动
 
 ::: tip 60% 与容量规划的 70% 不矛盾
 - **扩容触发阈值（HPA 目标 60%）**：平均 CPU 超过它就开始加副本。它必须低于单机容量点，因为新 Pod 从调度到就绪需要 30 秒到数分钟，这段时间老实例要靠余量扛住增长。
@@ -135,7 +112,7 @@ spec:
 | 指标 | 适用性 | 说明 |
 |------|--------|------|
 | CPU 使用率 | 计算密集型服务首选 | 需要正确设置 `resources.requests`，否则使用率无意义 |
-| 内存使用率 | **不适合 JVM 服务** | JVM 堆扩张后通常不会归还给操作系统，内存占用与负载不成比例，容易只扩不缩 |
+| 内存使用率 | **不适合 JVM 服务** | 堆扩张后通常不归还操作系统，容易只扩不缩 |
 | QPS / 在途请求数 | IO 密集型服务 | CPU 很低但线程池已满时，CPU 指标感知不到；通过 Prometheus Adapter 或 KEDA 接入 |
 | MQ 积压量 | 异步消费服务 | 按 Lag 扩容消费者（Kafka 消费者数受分区数上限约束） |
 
@@ -147,8 +124,6 @@ spec:
 | 就绪过早 | Pod 刚启动就接流量，JIT 未编译时 RT 偏高 | `readinessProbe` 在预热完成后才返回成功 |
 | 下游扛不住 | 应用扩了 10 倍，DB 连接数也翻 10 倍 | 扩容前核算连接总量 = 实例数 × 单实例池大小，见 [并发参数调优](./7_concurrency_tuning) |
 | 缩容抖动 | 流量波动导致副本反复增减 | 设置缩容稳定窗口；配合优雅停机，见 [优雅上下线与变更](/high-avail/8_graceful_release) |
-
-K8s 基础与 Deployment 配置见 [Kubernetes](/cloud-native/6_kubernetes)。
 
 ---
 

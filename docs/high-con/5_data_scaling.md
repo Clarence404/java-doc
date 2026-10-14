@@ -70,7 +70,7 @@ try (HintManager hint = HintManager.getInstance()) {
 }
 ```
 
-延迟原因与并行复制优化见 [MySQL 主从复制](/database/1_mysql/9_topic_replication)。
+MySQL 侧的延迟原因、多线程回放与延迟监控见 [MySQL 主从与高可用 · 复制延迟](/database/1_mysql/9_topic_replication#五、复制延迟与多线程回放)。
 
 ---
 

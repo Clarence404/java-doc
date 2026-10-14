@@ -216,13 +216,7 @@ jcmd <pid> Compiler.codecache      # 查看 Code Cache 使用情况（JDK 9+）
 
 ### 2、GraalVM Native Image
 
-```bash
-native-image -jar app.jar   # 编译为原生可执行文件
-```
-
-- 构建期做静态分析（封闭世界假设），直接生成机器码，启动从秒级降到毫秒级，内存占用大幅降低
-- 代价：没有运行时 JIT，峰值吞吐通常低于 HotSpot；反射、动态代理、资源加载需要额外配置
-- Spring Boot 3 / 4 通过 Spring AOT 支持构建 Native Image
+**Native Image 是 JIT 的反面：构建期把可达代码一次性 AOT 编译成机器码，运行时不再有解释器和 JIT。** 换来毫秒级启动、无需预热、内存更低；代价是拿不到运行时 profile，峰值吞吐通常低于充分预热的 HotSpot。闭世界假设、反射登记与构建期初始化见 [原生镜像与云原生部署](/quarkus/3_native#一、原生构建流程)，Spring Boot 的接入见 [启动与部署优化](/spring-boot/13_startup#五、spring-aot-与-graalvm-native-image)。
 
 ### 3、HotSpot AOT 缓存（Project Leyden）
 

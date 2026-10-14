@@ -178,10 +178,7 @@ public class OrderBacklogHealthIndicator extends AbstractHealthIndicator {
 
 ### 1、探针
 
-| 分组 | 路径 | 含义 | 失败后果 |
-|------|------|------|---------|
-| `liveness` | `/actuator/health/liveness` | 进程是否还活着、能否自愈 | K8s 重启容器 |
-| `readiness` | `/actuator/health/readiness` | 是否可以接收流量 | 从 Service 端点中摘除，不重启 |
+Actuator 把 K8s 的存活 / 就绪探针映射为两个健康分组：`liveness` → `/actuator/health/liveness`，`readiness` → `/actuator/health/readiness`。探针语义与失败后果见 [冗余与故障转移 · Kubernetes 探针](/high-avail/2_redundancy_failover#_2、kubernetes-探针)。
 
 Boot 4 起探针分组**默认开启**（3.x 只在检测到 Kubernetes 环境时自动开启，其他环境需 `management.endpoint.health.probes.enabled=true`）。设置 `management.endpoint.health.probes.add-additional-paths=true` 后，还会在**业务端口**上提供 `/livez`、`/readyz`，适合探针必须走业务端口的场景。
 
@@ -198,22 +195,26 @@ management:
           include: livenessState    # 存活：只看应用自身
 ```
 
-**数据库、Redis 这类多个实例共享的依赖，两个探针都不要放**：放进存活探针，依赖一抖动所有 Pod 会被同时重启；放进就绪探针，所有实例会同时被摘流量，Service 后面一个可用端点都没有，局部故障被放大成整体不可用。依赖故障交给超时、熔断与降级处理，详见 [冗余与故障转移](/high-avail/2_redundancy_failover)。
+**数据库、Redis 这类多个实例共享的依赖，两个分组都不要 `include`**（`db`、`redis` 等健康指示器只留在总的 `/actuator/health` 里给监控看），原因见 [冗余与故障转移 · Kubernetes 探针](/high-avail/2_redundancy_failover#_2、kubernetes-探针)。
 
 ### 3、K8s 配置示例
 
+开启 `add-additional-paths` 后探针走业务端口（假设业务端口 8080、管理端口独立为 8081），业务端口卡死时探针才会失败：
+
 ```yaml
-startupProbe:                      # 慢启动应用先由 startupProbe 兜住，成功后才开始存活检查
-  httpGet: { path: /actuator/health/liveness, port: 8081 }
+startupProbe:
+  httpGet: { path: /livez, port: 8080 }
   periodSeconds: 5
   failureThreshold: 30
 livenessProbe:
-  httpGet: { path: /actuator/health/liveness, port: 8081 }
+  httpGet: { path: /livez, port: 8080 }
   periodSeconds: 10
 readinessProbe:
-  httpGet: { path: /actuator/health/readiness, port: 8081 }
+  httpGet: { path: /readyz, port: 8080 }
   periodSeconds: 5
 ```
+
+阈值取值见 [冗余与故障转移 · Kubernetes 探针](/high-avail/2_redundancy_failover#_2、kubernetes-探针)。
 
 应用可以通过发布 `AvailabilityChangeEvent` 主动切换就绪状态（例如预热完成后再 `ACCEPTING_TRAFFIC`）。停机时就绪状态如何先于连接关闭、与 K8s 的 `preStop` 怎么配合，见 [优雅上下线与变更](/high-avail/8_graceful_release)。
 

@@ -137,7 +137,7 @@ management:
 startupProbe:
   httpGet: { path: /livez, port: 8080 }
   periodSeconds: 5
-  failureThreshold: 30           # 最多给 150s 启动时间，启动慢的应用不必把 liveness 阈值放得很宽
+  failureThreshold: 30           # 最多给 150s 启动时间；不要改用很大的 liveness initialDelaySeconds，那会在整个运行期放宽故障检测
 livenessProbe:
   httpGet: { path: /livez, port: 8080 }
   periodSeconds: 10

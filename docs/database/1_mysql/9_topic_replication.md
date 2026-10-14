@@ -241,7 +241,7 @@ SET SESSION session_track_gtids = OWN_GTID;
 SELECT WAIT_FOR_EXECUTED_GTID_SET('3e11fa47-71ca-11e1-9e33-c80aa9429562:1-1000', 1);
 ```
 
-强制读主、按业务容忍度分级等系统级策略见 [数据层扩展](/high-con/5_data_scaling)。
+强制读主、写后窗口读主、按业务容忍度分级等应用层策略见 [数据层扩展 · 主从延迟处理策略](/high-con/5_data_scaling#_2、主从延迟处理策略)。
 
 ---
 
@@ -279,10 +279,7 @@ SELECT WAIT_FOR_EXECUTED_GTID_SET('3e11fa47-71ca-11e1-9e33-c80aa9429562:1-1000',
 
 ## 七、读写分离
 
-- **应用层**：ShardingSphere-JDBC 等在 JDBC 层识别读写语句，写主读从，无额外网络跳数
-- **代理层**：MySQL Router（InnoDB Cluster 自带读写分离端口）、ProxySQL，对应用透明，但多一跳且代理本身要做高可用
-- 读写分离一定会遇到复制延迟，MySQL 层面的手段见第五节，系统级策略见 [数据层扩展](/high-con/5_data_scaling)
-- 分库分表见 [分库分表与中间件](../5_practice/2_sharding)
+读写分离的实现方式（应用层 / 代理层 / 云数据库）与主从延迟处理策略见 [数据层扩展 · 读写分离](/high-con/5_data_scaling#二、读写分离)，ShardingSphere 配置见 [分库分表与中间件](../5_practice/2_sharding#四、读写分离配置)。MySQL 侧只补一点：用 InnoDB Cluster 时，MySQL Router 自带读写分离端口，可直接作为代理层使用；延迟的 MySQL 侧成因与调优见第五节。
 
 ---
 

@@ -182,7 +182,7 @@ try (HintManager hintManager = HintManager.getInstance()) {
 }
 ```
 
-复制延迟的系统级处理方式见 [数据层扩展](/high-con/5_data_scaling)。只需要读写分离、不需要分片时，也可以用 Spring 的 `AbstractRoutingDataSource` 自行路由，见 [数据库连接池](./3_connection_pool) 的多数据源一节。
+强制读主之外的主从延迟处理策略（写后窗口读主、等待 GTID、业务容忍等）见 [数据层扩展 · 主从延迟处理策略](/high-con/5_data_scaling#_2、主从延迟处理策略)。只需要读写分离、不需要分片时，也可以用 Spring 的 `AbstractRoutingDataSource` 自行路由，见 [数据库连接池](./3_connection_pool) 的多数据源一节。
 
 ---
 
@@ -223,15 +223,17 @@ try (HintManager hintManager = HintManager.getInstance()) {
 
 ## 七、ShardingSphere 中的跨分片问题
 
-分库分表要不要做、分片键怎么选、跨分片分页与聚合怎么处理，这些系统级策略统一见 [数据层扩展](/high-con/5_data_scaling)。
+分库分表要不要做、分片键怎么选、跨分片查询怎么规避，这些系统级策略统一见 [数据层扩展 · 分库分表](/high-con/5_data_scaling#四、分库分表)，本节只讲 ShardingSphere 怎么执行。
 
 ### 1、跨分片查询的执行方式
 
 ShardingSphere 把逻辑 SQL 改写为每个分片上的真实 SQL 并发执行，再做结果归并：
 
-- **排序分页**：`ORDER BY ... LIMIT 100, 10` 会被改写为每个分片 `LIMIT 0, 110`，在内存中归并后取第 101~110 条，偏移越大、分片越多越慢；深分页应改为游标分页（`WHERE id > ? ORDER BY id LIMIT 10`）
+- **排序分页**：`ORDER BY ... LIMIT 100, 10` 会被改写为每个分片 `LIMIT 0, 110`，在内存中归并后取第 101~110 条，偏移越大、分片越多越慢
 - **聚合**：`COUNT` / `SUM` 分片各自计算后累加，`AVG` 改写为 `SUM` 与 `COUNT` 后再除
-- **不带分片键的查询**：全路由到所有分片，应通过冗余表、映射表或搜索引擎避免
+- **不带分片键的查询**：全路由到所有分片
+
+深分页、广播查询、跨分片 JOIN 的规避手段见 [跨分片查询与事务](/high-con/5_data_scaling#_5、跨分片查询与事务)。
 
 ### 2、分布式事务
 
@@ -442,7 +444,7 @@ rules:
 |------|---------|
 | Java 应用，分片规则稳定 | ShardingSphere-JDBC |
 | 多语言团队、DBA 统一管控、需要迁移工具 | ShardingSphere-Proxy（常与 JDBC 混合部署） |
-| 单表数据量在千万级、单库能承受 | 先优化索引、归档历史数据、加缓存，暂不分库分表 |
+| 单表数据量在千万级、单库能承受 | 暂不分库分表，判断标准见 [数据层扩展](/high-con/5_data_scaling#四、分库分表) |
 | 需要强一致事务 + 透明水平扩展 | 分布式数据库，见 [分布式数据库](../3_relational/1_distributed_db) |
 | 只需要读写分离 | ShardingSphere 读写分离规则，或 `AbstractRoutingDataSource` |
 

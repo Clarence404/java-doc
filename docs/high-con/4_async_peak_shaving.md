@@ -96,10 +96,9 @@ public class OrderCreateConsumer implements RocketMQListener<OrderMsg> {
 
 - 监控**消费延迟（Lag）**：Kafka 看 consumer lag，RocketMQ 看消费组的堆积量（`diffTotal`）
 - 积压时先判断是"消费变慢"（下游故障）还是"生产突增"（正常洪峰），前者先修下游，盲目扩容只会加重下游压力
-- 临时扩容：增加消费者实例（Kafka 受分区数上限约束），或把消息转存到分区更多的临时 Topic 再并行消费
 - 对时效敏感的消息设置过期丢弃，避免处理已无意义的旧请求
 
-MQ 本身的消费模型与堆积处理见 [消息队列](/messaging/0_overview)。
+扩消费者、扩分区、临时转储、隔离毒丸等完整的排查与处置清单见 [消息队列基础 · 消息积压](/messaging/1_basics#六、消息积压)。
 
 ---
 

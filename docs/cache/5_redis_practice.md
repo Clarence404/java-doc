@@ -182,35 +182,19 @@ MEMORY USAGE user:1001                       # 单个 key 的内存占用（字�
 
 ## 三、热 Key
 
-**定义**：某个 key 的访问量远超其他 key，单个分片的 CPU 或网卡被打满。Cluster 中一个 key 永远只属于一个槽、一个主节点，分片本身分散不了单个热 key。
+**定义**：某个 key 的访问量远超其他 key，单个分片的 CPU 或网卡被打满。Cluster 中一个 key 只属于一个槽、一个主节点，加分片分散不了单个热 key。
 
-**发现**：
+**Redis 侧排查**：
 
 ```bash
-redis-cli --hotkeys -i 0.1    # 需要 maxmemory-policy 为 allkeys-lfu 或 volatile-lfu
+redis-cli --hotkeys -i 0.1    # 需要 maxmemory-policy 为 allkeys-lfu 或 volatile-lfu，否则直接报错
 ```
 
-也可以用客户端埋点统计访问频次、在代理层统计，或用 Redis 8 的 Top-k 结构（`TOPK.ADD` / `TOPK.LIST`）在服务端近似统计。
+- `MONITOR` 能看到全部命令，但会让实例吞吐明显下降，生产只在必要时短时开启
+- Redis 8 可用 Top-k 结构（`TOPK.ADD` / `TOPK.LIST`）在服务端近似统计
+- 多副本 key 不要用 hash tag（`{item:1}#0`），否则副本仍落在同一槽，可用 `CLUSTER KEYSLOT` 校验
 
-**Redis 侧的应对**：
-
-- **本地缓存**：在应用内用 Caffeine 缓存热 key 几秒，大部分请求不再访问 Redis，代价是短暂不一致
-
-```java
-private final Cache<String, String> localCache = Caffeine.newBuilder()
-        .expireAfterWrite(Duration.ofSeconds(5))
-        .maximumSize(1_000)
-        .build();
-
-public String get(String key) {
-    return localCache.get(key, k -> redis.opsForValue().get(k));
-}
-```
-
-- **多副本 key**：把 `hot:product:1001` 复制成 `hot:product:1001:0` ~ `:7`，后缀不同落在不同槽，读时随机选一个；写时要更新或删除全部副本
-- **读从节点**：读多写少且能接受复制延迟时，把读流量分给从节点
-
-热点的提前识别、多级缓存、请求合并等系统级策略见 [热点问题](/high-con/6_hotspot)，本地 + Redis 的两级缓存实现见 [两级缓存（L1 + L2）](./8_two_level_cache)。
+实时探测架构（客户端统计、集中式探测）与治理手段（本地缓存兜底、key 打散多副本、读从节点）见 [热点问题](/high-con/6_hotspot#一、热点-key-探测)；本地 + Redis 的两级缓存实现见 [两级缓存（L1 + L2）](./8_two_level_cache)。
 
 ---
 

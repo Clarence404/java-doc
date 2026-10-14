@@ -35,7 +35,7 @@ description: 热点 key 探测与治理、热点行更新（库存扣减）、�
 |------|------|------|------|
 | 客户端统计 | 应用内滑动窗口统计 key 访问次数 | 实现简单、无额外组件 | 单机视角，全局热点被分散到多实例后可能漏判 |
 | 代理层统计 | Twemproxy / Codis / 自研 Proxy 统计 | 全局视角 | 需要代理层 |
-| Redis 自带 | `redis-cli --hotkeys`（需 `maxmemory-policy` 为 LFU 类策略）、`MONITOR` | 无需改代码 | 离线分析；`MONITOR` 严重影响性能，生产慎用 |
+| Redis 自带 | `redis-cli --hotkeys`（需 `maxmemory-policy` 为 LFU 类策略）、`MONITOR`、Redis 8 的 Top-k（`TOPK.ADD` / `TOPK.LIST`） | 无需改代码 | `--hotkeys` 是离线扫描；`MONITOR` 严重影响性能，生产慎用 |
 | 集中式探测 | 客户端上报访问 → 计算集群汇总 → 推送热点列表 | 全局准确、秒级 | 需部署独立组件 |
 
 ### 2、集中式探测：JD-hotkey 的思路

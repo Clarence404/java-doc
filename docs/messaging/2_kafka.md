@@ -259,21 +259,16 @@ kafkaTemplate.executeInTransaction(ops -> {
 
 ## 六、顺序消息
 
-**Kafka 只保证同一分区内有序。** 需要有序的消息用同一个 key 发送（如 orderId），落到同一分区。
+**Kafka 只保证同一分区内有序**，按业务键路由、消费端串行这些通用做法见 [消息队列基础 · 顺序消息](/messaging/1_basics#五、顺序消息)。Kafka 侧的具体落点：
 
 ```java
-kafkaTemplate.send("order-events", orderId.toString(), payload);
+kafkaTemplate.send("order-events", orderId.toString(), payload);   // 消息 key = 业务键，同 key 同分区
 ```
 
-**消费端不需要 `concurrency=1`**：容器的每个消费线程负责若干分区，单个分区始终只由一个线程串行处理，`concurrency=3` 依然保证每个分区内有序，只是不同分区之间并行。真正会破坏顺序的情况：
-
-- **消费者内部异步化**：在监听方法里把消息丢给线程池处理，同一分区的消息就并发了。确需并行时按 key 哈希到固定的单线程队列，并在全部处理完成后再提交 offset
-- **生产者重试乱序**：关闭了幂等且 `max.in.flight.requests.per.connection > 1` 时，第一批失败重试、第二批先成功，就会乱序。保持幂等开启即可
-- **key 选错或为空**：key 为空时消息按粘性策略分散到各分区，不同步骤可能落到不同分区
-- **扩分区**：`hash(key) % 分区数` 变化，同一 key 前后落到不同分区，见第八节
-- **非阻塞重试 / 死信重放**：失败消息转到重试 Topic 后，后续消息先被处理；严格有序的业务要用阻塞重试
-
-全局有序只能用单分区，吞吐也就锁定在单分区的处理能力，一般只做到「业务键维度有序」。
+- **key 不能为空**：key 为空时消息按粘性策略分散到各分区，同一业务的不同步骤可能落到不同分区
+- **生产端保持幂等开启**：关闭幂等且 `max.in.flight.requests.per.connection > 1` 时，第一批失败重试、第二批先成功就会乱序；开启幂等（3.0+ 默认）且 in-flight ≤ 5 时 Broker 按序列号保序
+- **消费端不需要 `concurrency=1`**：单个分区始终只由容器的一个线程串行处理，`concurrency=3` 只是让不同分区并行
+- **严格有序用阻塞重试**：`@RetryableTopic` 非阻塞重试或死信重放会让后续消息先被处理；扩分区对 key 路由的影响见 [增加分区](#_3、增加分区)
 
 ---
 
@@ -295,16 +290,12 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);
 
 ### 1、消息积压
 
-积压的本质是**消费速度小于生产速度**。处理步骤：
+通用的排查与处置清单见 [消息队列基础 · 消息积压](/messaging/1_basics#六、消息积压)，Kafka 侧的工具与开关：
 
-- **先定位瓶颈**：看消费者 lag 是全部分区都涨还是个别分区涨。个别分区涨通常是热点 key 或某个实例卡住；全部涨才是整体消费能力不足
-- **扩消费者实例**：同一 Group 的有效消费者数不超过分区数，超出的会空闲
-- **扩分区**：消费者已和分区数相等时，增加分区再扩消费者。扩分区可在线执行，但会影响 key 的路由（见下文）
-- **提升单条处理速度**：批量消费（`@KafkaListener(batch = "true")`）+ 批量写库、减少同步远程调用、优化慢 SQL
-- **临时转储**：积压量巨大且消费逻辑无法快速提速时，先用一个轻量消费者把消息原样转到分区更多的临时 Topic，再用大量消费者并行处理
-- **跳过（最后手段）**：业务允许丢弃时，用 `kafka-consumer-groups.sh --reset-offsets --to-latest` 重置 offset，被跳过的数据需要事后补偿
-
-削峰本身的系统设计见 [高并发 · 异步与削峰](/high-con/4_async_peak_shaving)。
+- **看 Lag**：`kafka-consumer-groups.sh --describe --group <group>` 按分区列出 `LAG`，个别分区涨多是热点 key 或某个实例卡住，全部涨才是整体消费能力不足
+- **扩容上限**：同一 Group 的有效消费者数不超过分区数；扩分区可在线执行，但会改变 key 的路由（见 [增加分区](#_3、增加分区)）
+- **批量消费**：`@KafkaListener(batch = "true")` + 批量写库，配合调大 `max.poll.records`（单批耗时仍要小于 `max.poll.interval.ms`）
+- **跳过（最后手段）**：业务允许丢弃时用 `kafka-consumer-groups.sh --reset-offsets --to-latest --execute` 重置 offset（需先停掉该组消费者），被跳过的数据事后补偿
 
 ### 2、Consumer Rebalance
 

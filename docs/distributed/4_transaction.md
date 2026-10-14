@@ -261,65 +261,15 @@ public class OutboxRelayJob {
 
 ### 1、流程
 
-RocketMQ 把「本地事务 + 发消息」做成了两阶段，效果与本地消息表相同，但不需要自建消息表和投递程序：
-
-![RocketMQ 事务消息与回查](../assets/distributed/rocketmq-tx-message.svg)
-
-关键在回查：Broker 迟迟收不到二次确认时，会回调生产者查询本地事务状态。**回查可能在本地事务还没执行完时到达**（慢事务、大事务），此时查不到记录不代表失败，必须返回 `UNKNOW` 让 Broker 稍后再查；直接返回回滚会丢掉一条本该提交的消息。
+RocketMQ 把「本地事务 + 发消息」做成半消息 + 本地事务 + 回查的两阶段，效果与本地消息表相同，但省掉了消息表和投递程序；关键约束是**回查查不到记录时本地事务可能还在执行，必须返回 `UNKNOW` 让 Broker 稍后再查**。回查规则、实现与注意事项见 [RocketMQ · 事务消息](/messaging/3_rocketmq#七、事务消息)。
 
 ### 2、代码
 
-下面用 RocketMQ 的 Remoting 客户端（`rocketmq-client`，可连接 5.x Broker）。本地事务里建的订单本身就是「事务日志」，回查时按订单号查询：
+Spring Boot starter 写法（`txId` 与业务同事务落库、回查只查事务记录）见 [RocketMQ · 实现](/messaging/3_rocketmq#_1、实现)，原生 Remoting 客户端与 5.x gRPC 客户端的对应 API 也在那一节。选型上：
 
-```java
-// 发送：订单号放进用户属性，供回查使用
-Message msg = new Message("order-created", objectMapper.writeValueAsBytes(dto));
-msg.putUserProperty("orderNo", dto.getOrderNo());
-producer.sendMessageInTransaction(msg, dto);   // producer 是 TransactionMQProducer，已设置下面的监听器
-```
-
-```java
-@Component
-@RequiredArgsConstructor
-public class OrderTxListener implements TransactionListener {
-
-    private static final long CHECK_GRACE_MILLIS = Duration.ofMinutes(5).toMillis();
-
-    private final OrderService orderService;
-
-    @Override
-    public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
-        try {
-            orderService.createOrder((OrderDTO) arg);       // 本地事务：写订单表
-            return LocalTransactionState.COMMIT_MESSAGE;
-        } catch (Exception e) {
-            return LocalTransactionState.ROLLBACK_MESSAGE;
-        }
-    }
-
-    @Override
-    public LocalTransactionState checkLocalTransaction(MessageExt msg) {
-        String orderNo = msg.getUserProperty("orderNo");
-        if (orderService.exists(orderNo)) {
-            return LocalTransactionState.COMMIT_MESSAGE;
-        }
-        // 查不到：本地事务可能还在执行，未超过宽限期就让 Broker 稍后再查
-        long age = System.currentTimeMillis() - msg.getBornTimestamp();
-        return age < CHECK_GRACE_MILLIS
-                ? LocalTransactionState.UNKNOW
-                : LocalTransactionState.ROLLBACK_MESSAGE;
-    }
-}
-```
-
-要点：
-
-- `executeLocalTransaction` 返回 `UNKNOW` 或进程崩溃时，Broker 按 `transactionCheckInterval` 周期回查，超过 `transactionCheckMax` 次（默认 15）后丢弃半消息
-- 宽限期要大于本地事务的最长执行时间；更严谨的做法是在同一本地事务中写一张以事务 ID 为主键的事务日志表，回查只查日志
-- 5.x 的 gRPC 客户端（`rocketmq-client-java`）用 `TransactionChecker` 和 `producer.beginTransaction()`，语义相同
-- 消费端仍需幂等
-
-更多 RocketMQ 事务消息配置见 [RocketMQ](/messaging/3_rocketmq#七、事务消息)。
+- **已在用 RocketMQ 的核心链路**选事务消息，省一张表和一个投递任务，代价是绑定 RocketMQ、要实现回查接口
+- **不想绑定 MQ、或用的是 Kafka / RabbitMQ** 选 [本地消息表](#五、本地消息表-transactional-outbox)
+- 二者都只保证「上游写库 ⇔ 消息投递」，下游失败不会回滚上游；需要同步拿到一致结果用 [TCC](#三、tcc)，长流程多步补偿用 [Saga](#四、saga)
 
 ### 3、Kafka 为什么不行
 

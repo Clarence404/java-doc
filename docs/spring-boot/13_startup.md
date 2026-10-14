@@ -272,17 +272,14 @@ class AppRuntimeHints implements RuntimeHintsRegistrar {
 }
 ```
 
-提示可以用 `RuntimeHintsPredicates` 写单元测试校验。第三方库的提示 Spring 不负责，由 GraalVM 的 [reachability metadata 仓库](https://github.com/oracle/graalvm-reachability-metadata) 提供；库不在其中时，可以在 JVM 上挂 `-agentlib:native-image-agent=config-output-dir=...` 跑一遍应用，用 tracing agent 收集缺失的提示。
+提示可以用 `RuntimeHintsPredicates` 写单元测试校验。第三方库的提示 Spring 不负责，由 GraalVM 的 reachability metadata 仓库或 tracing agent 补齐，见 [原生镜像与云原生部署 · 反射与资源登记](/quarkus/3_native#二、反射与资源登记)。
 
 ### 4、限制
 
-Native Image 和 JVM 上的 Spring AOT 共享"封闭世界"假设，这是选型时最需要评估的：
+Native Image 和 JVM 上的 Spring AOT 共享"封闭世界"假设。classpath 构建期固定、提示漏登记只在走到该路径时才报错、构建慢、没有运行时 JIT、Java Agent 类工具不可照搬，这些通用限制见 [原生镜像与云原生部署 · 原生构建流程](/quarkus/3_native#一、原生构建流程)。Spring 特有的是：
 
-- **classpath 在构建期固定**，运行时不能再加 JAR、不能动态加载类
 - **Bean 定义不能在运行时改变**：`@Profile` 和按 profile 区分的配置受限；会决定 Bean 是否创建的属性（如 `@ConditionalOnProperty`、各种 `.enabled` 开关）在运行时改了不生效。需要"同一个包按环境开关组件"的应用要重新设计配置方式
-- **反射、资源、序列化、动态代理**都要有提示，漏了就是运行时 `ClassNotFoundException` / `NoSuchMethodException`，而且只在走到那条路径时才暴露，必须有足够的原生测试覆盖
-- **构建慢且吃资源**：一次构建通常是分钟级，内存占用大，CI 成本明显上升
-- **没有运行时 JIT**：峰值吞吐通常低于预热后的 HotSpot；依赖 Java Agent 做字节码增强的工具（部分 APM 探针、Arthas 等）无法照搬
+- **这一条在 JVM 上启用 AOT 代码（`spring.aot.enabled=true`）时同样成立**，不只是 Native 的问题
 
 适合的场景：Serverless 函数、CLI 工具、扩缩容极频繁的小服务、内存预算紧张的边缘部署。
 

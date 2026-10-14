@@ -208,9 +208,11 @@ rocketMQTemplate.syncSendDelayTimeSeconds("order-topic:TIMEOUT_CHECK", event, 30
 
 ### 2、顺序消息
 
+按业务键路由、消费端串行的通用原理见 [消息队列基础 · 顺序消息](/messaging/1_basics#五、顺序消息)，RocketMQ 两代 SDK 的写法：
+
 - **4.x**：`syncSendOrderly(topic, payload, hashKey)` 按 hashKey 选择同一个 MessageQueue；消费端设 `consumeMode = ConsumeMode.ORDERLY`，同一队列同一时刻只由一个线程处理
 - **5.x 新 SDK**：Topic 声明为 FIFO 类型，发送时设置 `MessageGroup`（如订单号），消费者组开启顺序投递；同一 MessageGroup 内有序，不同组之间并行
-- 顺序只在「同一个 key」内成立；生产端必须同步发送，异步并发发送会打乱顺序
+- 生产端必须同步发送（`syncSendOrderly` 底层是 `MessageQueueSelector`），异步并发发送会打乱顺序；顺序消费失败时整队列阻塞重试，见 [重试机制](#_2、重试机制)
 
 ```java
 @Component
@@ -307,6 +309,8 @@ public class OrderTxListener implements RocketMQLocalTransactionListener {
 - **回查只在「确定」时返回 COMMIT / ROLLBACK**：查不到记录不等于失败，本地事务可能还没提交；此时必须返回 `UNKNOWN`，否则会把即将成功的事务消息回滚掉
 - **回查依据必须持久化**：`txId` 要和业务数据在同一个事务里落库，回查只读这张表，不依赖内存状态
 - **回查可能落到其他实例**：Producer 集群中任一实例都可能收到回查，所以回查逻辑只能依赖数据库
+- **回查节奏**：Broker 按 `transactionCheckInterval` 周期回查，超过 `transactionCheckMax` 次后丢弃半消息；不确定窗口要大于本地事务的最长执行时间
+- **其他客户端写法**：原生 Remoting 客户端用 `TransactionMQProducer` + `TransactionListener`（状态枚举 `LocalTransactionState.UNKNOW`）；5.x gRPC 客户端（`rocketmq-client-java`）用 `TransactionChecker` 与 `producer.beginTransaction()`，语义相同
 - 事务消息只保证「生产端本地事务 ⇔ 消息投递」一致，**下游消费失败不会回滚上游**，下游仍需重试 + 幂等，必要时人工补偿
 - 不用 RocketMQ 时，等价方案是本地消息表（Transactional Outbox），见 [分布式 · 分布式事务](/distributed/4_transaction)
 
@@ -337,7 +341,7 @@ public class OrderTxListener implements RocketMQLocalTransactionListener {
 
 ### 3、死信处理
 
-死信 Topic 名为 `%DLQ%{ConsumerGroup}`，**默认权限为只写（perm=2），不能被订阅消费**，需先在控制台或用 `mqadmin updateTopic -p 6` 把权限改为可读写，再订阅处理：
+「退避重试 + 死信兜底」的通用原则见 [消息队列基础 · 重试与死信](/messaging/1_basics#七、重试与死信)。死信 Topic 名为 `%DLQ%{ConsumerGroup}`，**默认权限为只写（perm=2），不能被订阅消费**，需先在控制台或用 `mqadmin updateTopic -p 6` 把权限改为可读写，再订阅处理：
 
 ```java
 @Component
@@ -377,12 +381,11 @@ public class OrderPointsDlqHandler implements RocketMQListener<MessageExt> {
 
 ### 3、消息积压
 
-- **先止血**：确认消费者是否在报错重试（大量重试会放大积压），先修复毒消息或下游故障
-- **扩容消费者**：4.x 实例数超过 MessageQueue 数后多出的实例空闲，需同时增加队列数；5.x 用 POP 消费可突破这一限制
-- **提升单实例吞吐**：调大 `consumeThreadNumber`（并发模式）；原生 `DefaultMQPushConsumer` 可设 `consumeMessageBatchMaxSize` 批量消费（starter 的 `RocketMQListener` 是逐条回调）；把慢 IO 改为批量写
-- **临时转储**：积压巨大时，写一个临时消费者把消息快速转发到队列更多的新 Topic，再用大量实例消费新 Topic
-- **死信积压**：排查原因后写补偿脚本按 Key 重放，不要直接清空
-- 系统级的削峰与容量规划见 [高并发 · 异步与削峰](/high-con/4_async_peak_shaving)
+通用的排查与处置清单见 [消息队列基础 · 消息积压](/messaging/1_basics#六、消息积压)，RocketMQ 侧要点：
+
+- **扩容上限**：4.x 实例数超过 MessageQueue 数后多出的实例空闲，需同时增加队列数；5.x 用 POP 消费可突破这一限制
+- **提升单实例吞吐**：调大 `consumeThreadNumber`（并发模式）；原生 `DefaultMQPushConsumer` 可设 `consumeMessageBatchMaxSize` 批量消费（starter 的 `RocketMQListener` 是逐条回调）
+- **留意重试放大**：并发消费失败的消息回到 `%RETRY%{group}` 再投递，大量失败时先修复毒消息或下游故障；死信积压按 Key 重放，不要直接清空
 
 ---
 

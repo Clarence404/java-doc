@@ -122,6 +122,7 @@ public class OrderService {
 | **熔断降级** | 慢调用比例 / 异常比例 / 异常数 | 慢调用比例超阈值时熔断一段时间 |
 | **热点参数** | 对方法某个参数的特定值单独限流 | 对爆款 skuId 单独限流 |
 | **系统自适应** | Load / CPU / 入口 RT / 并发 / 全局 QPS | 整机保护的最后防线 |
+| **集群流控** | Token Server 统一发放令牌，按集群总量计数 | 需要严格控制集群总 QPS 的接口 |
 
 各类规则的原理与阈值设定见高可用模块：[熔断](/high-avail/5_circuit_breaking)、[降级](/high-avail/6_degradation)、[限流与过载保护](/high-avail/7_rate_limiting)。
 

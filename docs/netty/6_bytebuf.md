@@ -282,11 +282,11 @@ Created at:
 
 ## 六、零拷贝：两个层面要分清
 
-**"零拷贝"在 Netty 语境里有两层含义：操作系统层面的真零拷贝，以及 Netty 在用户态的"少拷贝"优化。**
+**"零拷贝"在 Netty 语境里有两层含义：操作系统层面的真零拷贝，以及 Netty 在用户态的"少拷贝"优化。** sendfile / mmap 的拷贝次数与原理见 [IO 与 NIO · 零拷贝](/java/18_topic_io#四、零拷贝)，本节只讲 Netty 怎么用。
 
 ### 1、操作系统层：FileRegion 与 sendfile
 
-发送文件时，`DefaultFileRegion` 底层调用 `FileChannel.transferTo()`，在 Linux 上对应 `sendfile` 系统调用，**数据直接从页缓存送到 Socket 缓冲区，不经过用户态**。原理见 [IO / NIO 专题 · 零拷贝](/java/18_topic_io#四、零拷贝)。
+`DefaultFileRegion` 底层就是 `FileChannel.transferTo()`（Linux 上即 `sendfile`）：
 
 ```java
 RandomAccessFile file = new RandomAccessFile("app.log", "r");
@@ -303,7 +303,7 @@ ctx.writeAndFlush(new DefaultFileRegion(file.getChannel(), 0, file.length()));
 |------|------|
 | `CompositeByteBuf` | 协议头和协议体各自一个 ByteBuf，逻辑上拼成一个整体，不复制数据 |
 | `Unpooled.wrappedBuffer(...)` | 把现有的 `byte[]` 或多个 ByteBuf 包装成一个 ByteBuf，不复制 |
-| `slice` / `readSlice` | 从大缓冲区中切出一段视图交给后续处理，不复制 |
+| `slice` / `readSlice` / `duplicate` | 从大缓冲区中切出一段视图交给后续处理，不复制（共享规则见 [派生缓冲区](#_3、派生缓冲区-共享还是拷贝)） |
 
 ```java
 // 头和体分别编码后组合发送，全程不拷贝
@@ -314,7 +314,7 @@ ctx.writeAndFlush(frame);
 
 ### 3、直接内存：省掉堆到内核的中转
 
-使用堆内存写 Socket 时，JDK 会先把数据复制到一块临时的堆外内存，再交给内核。**Netty 的 IO 读写默认使用直接内存，省掉了这一次拷贝**——这也是 Direct ByteBuf 需要池化的原因：分配贵，就复用。
+堆缓冲区做 IO 会多一次到临时直接缓冲区的拷贝（原因见 [直接缓冲区 vs 堆缓冲区](/java/18_topic_io#_3、直接缓冲区-vs-堆缓冲区)）。**Netty 的 IO 读写默认使用直接内存省掉这次拷贝**，又因直接内存分配贵，所以要池化复用。
 
 ---
 

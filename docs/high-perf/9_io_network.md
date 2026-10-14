@@ -12,25 +12,13 @@ description: 零拷贝与 IO 模型的选用、Keep-Alive / HTTP/2、压缩、�
 
 ## 一、零拷贝：何时选用
 
-**零拷贝只在"大块数据原样搬运"时收益明显**：文件下载、日志 / 消息文件发送、大文件读写。普通 JSON 接口的数据要经过业务处理和序列化，用不上零拷贝。
+**零拷贝只在"大块数据原样搬运"时收益明显**，原理与拷贝次数见 [IO 与 NIO · 零拷贝](/java/18_topic_io#四、零拷贝)，选用口诀：
 
-本篇只讲选型与取舍，零拷贝、IO 模型等原理见 java 与 netty 模块。四个方向与对应章节：
-
-| 方向 | 手段 | 本篇章节 |
-|------|------|---------|
-| 少拷贝 | 零拷贝 | 一 |
-| 少等待 | 合适的 IO 模型、连接复用 | 二、三 |
-| 少传输 | 压缩、序列化、CDN | 四、五、六 |
-| 少往返 | 批量接口、聚合、就近部署 | 七 |
-
-| 方案 | 系统调用 / Java API | 何时选用 | 典型应用 |
-|------|--------------------|---------|---------|
-| 内存映射 | `mmap` / `FileChannel.map()` | 需要在用户态读写文件内容，且文件可预先映射 | RocketMQ CommitLog |
-| 文件直传 | `sendfile` / `FileChannel.transferTo()` | 文件内容不加工、直接发往 Socket | Kafka 消费发送、Nginx 静态文件、Netty `FileRegion` |
-
-- 两种方案都要求数据**不经过用户态加工**。开启 TLS 后数据必须在用户态加密，`sendfile` 失效：**Kafka 开启 TLS 后 Broker 无法用 sendfile 向消费者发送数据**，吞吐会明显下降；Netty 启用 `SslHandler` 后也要改用 `ChunkedWriteHandler` 分块发送。
-- 直接内存（`allocateDirect`）和 Netty 的 `CompositeByteBuf` 属于**用户态少拷贝**，不是操作系统零拷贝，两者的区别见 [ByteBuf 与内存管理](/netty/6_bytebuf)。
-- 拷贝次数与原理见 [IO / NIO 专题](/java/18_topic_io)。
+- 文件内容不加工、直接发往 Socket → `sendfile`（`FileChannel.transferTo()`），如 Kafka 消费发送、Nginx 静态文件、Netty `FileRegion`
+- 需要在用户态随机读写大文件 → `mmap`（`FileChannel.map()`），如 RocketMQ CommitLog
+- 普通 JSON 接口要经过业务处理和序列化 → 用不上，别为它改造
+- 开启 TLS → `sendfile` 失效（必须在用户态加密），Kafka 吞吐会明显下降，Netty 改用 `ChunkedWriteHandler`
+- 直接内存、`CompositeByteBuf` 只是**用户态少拷贝**，不是操作系统零拷贝，见 [ByteBuf 与内存管理 · 零拷贝](/netty/6_bytebuf#六、零拷贝-两个层面要分清)
 
 ---
 

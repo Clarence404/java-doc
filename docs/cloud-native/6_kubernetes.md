@@ -230,17 +230,9 @@ JVM 参数推荐通过 `JAVA_TOOL_OPTIONS` 环境变量传入，JVM 启动时会
 
 ### 1、三种探针
 
-| 探针 | 回答的问题 | 失败后果 |
-|------|-----------|---------|
-| `startupProbe` | 启动完成了吗 | 超过阈值则重启容器；成功之前不执行另外两个探针 |
-| `livenessProbe` | 进程还活着吗 | 重启容器 |
-| `readinessProbe` | 现在能接流量吗 | 从 Service 后端摘除，不重启 |
+**`startupProbe` 问"启动完了吗"（成功前不执行另外两个），`livenessProbe` 问"还活着吗"（失败重启容器），`readinessProbe` 问"能接流量吗"（失败从 Service 后端摘除，不重启）。** 两条硬规则：liveness 和 readiness 都不检查 DB、Redis 等共享依赖；启动慢的 Java 服务用 `startupProbe` 兜住启动时间，而不是把 liveness 的 `initialDelaySeconds` 设得很大。
 
-**liveness 绝不能检查数据库、Redis 等外部依赖**：依赖一抖动，所有 Pod 会被同时重启，把局部故障放大成全量重启。readiness 是否包含共享依赖、为什么推荐只看应用自身状态，完整论证见 [冗余与故障转移 · Kubernetes 探针](/high-avail/2_redundancy_failover)。
-
-Spring Boot 的 Actuator 直接提供了对应的端点：`/actuator/health/liveness`、`/actuator/health/readiness`，开启 `management.endpoint.health.probes.add-additional-paths=true` 后还会在**业务端口**上暴露 `/livez`、`/readyz`。探针应该走业务端口，否则业务端口卡死时独立管理端口的探针仍可能返回成功。健康分组怎么配见 [Actuator 监控](/spring-boot/11_actuator)。
-
-启动慢的 Java 服务用 `startupProbe` 兜住启动时间，而不是把 liveness 的 `initialDelaySeconds` 设得很大：前者启动一完成就切换到正常的 liveness 检查，后者在整个运行期间都放宽了故障检测。
+每种探针该查什么、阈值怎么设、为什么要走业务端口，见 [冗余与故障转移 · Kubernetes 探针](/high-avail/2_redundancy_failover#_2、kubernetes-探针)；Spring Boot 对应的端点与健康分组见 [Actuator 监控 · 存活 / 就绪探针](/spring-boot/11_actuator#四、存活-就绪探针与健康分组)，完整清单见第八节实战。
 
 ### 2、滚动更新
 
@@ -305,8 +297,14 @@ spec:
           type: Utilization
           averageUtilization: 70     # 相对 requests 的百分比
   behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 0    # 扩容默认不设稳定窗口，指标一超就扩
+      policies:
+        - type: Percent
+          value: 100                   # 限速：每 60s 最多翻倍，避免预热期 CPU 偏高引发连锁扩容
+          periodSeconds: 60
     scaleDown:
-      stabilizationWindowSeconds: 300  # 缩容前观察 5 分钟，避免流量波动时反复伸缩
+      stabilizationWindowSeconds: 300  # 缩容前观察 5 分钟（默认值），避免流量波动时反复伸缩
 ```
 
 使用 HPA 时要注意：

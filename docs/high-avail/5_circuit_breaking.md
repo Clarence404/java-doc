@@ -94,8 +94,8 @@ Half-Open 的探测结果决定下一步：探测成功则回到 Closed；探测
 | 统计窗口 | 滑动时间窗口 | 计数窗口或时间窗口 | 滑动时间窗口 |
 | 隔离 | 并发线程数限制（信号量式） | 信号量 `Bulkhead` 与 `ThreadPoolBulkhead` | 线程池、信号量 |
 | 其他能力 | 限流、热点参数、系统自适应保护 | 限流、重试、超时（`TimeLimiter`）、缓存 | 请求合并、缓存 |
-| 规则配置 | 控制台、代码、配置中心动态推送 | 配置文件、代码 | 配置文件、Archaius |
-| 控制台 | 官方 Dashboard | 无，依赖 Actuator + Micrometer 监控 | Hystrix Dashboard |
+| 规则配置 | 控制台、代码、配置中心动态推送 | 配置文件、代码，改规则需重新加载配置 | 配置文件、Archaius |
+| 控制台 | 官方 Dashboard，自带实时监控 | 无，依赖 Actuator + Micrometer 监控 | Hystrix Dashboard |
 | Spring 集成 | Spring Cloud Alibaba | Spring Cloud CircuitBreaker、Spring Boot Starter | 已从 Spring Cloud 2020 移除 |
 
 ---

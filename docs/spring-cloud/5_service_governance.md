@@ -254,14 +254,7 @@ public class GrayHeaderInterceptor implements RequestInterceptor {
 
 ### 1、Resilience4j 与 Sentinel
 
-**Spring Cloud 中常用两套方案：Resilience4j（配合 Spring Cloud CircuitBreaker 抽象）与 Sentinel。** 选型取决于是否需要控制台与动态规则。
-
-| 对比 | Resilience4j | Sentinel |
-|------|-------------|----------|
-| 能力 | 熔断、重试、限流、舱壁（信号量 / 线程池）、TimeLimiter | 流控、熔断、热点参数限流、系统自适应保护 |
-| 规则配置 | 配置文件为主，改动需重新加载配置 | 控制台 + 动态数据源（Nacos 等） |
-| 可观测 | 通过 Micrometer 暴露指标 | 自带控制台实时监控 |
-| 适合 | 规则相对固定、希望轻量无外部组件 | 需要运营期动态调整规则、国内 Alibaba 技术栈 |
+**Spring Cloud 中常用两套方案：Resilience4j（配合 Spring Cloud CircuitBreaker 抽象）与 Sentinel。** 规则相对固定、希望轻量选 Resilience4j；需要控制台动态调规则、热点参数限流选 Sentinel，两者的完整对比见 [熔断 · 选型](/high-avail/5_circuit_breaking#四、选型-sentinel、resilience4j-与-hystrix)。下面只讲 Resilience4j 的接入，Sentinel 的接入见 [Spring Cloud Alibaba · Sentinel](./6_alibaba#三、sentinel-流控与熔断)。
 
 Boot 4 下通过 Spring Cloud CircuitBreaker 5.0 接入 Resilience4j，依赖 `spring-cloud-starter-circuitbreaker-resilience4j`，用框架无关的 `CircuitBreakerFactory` 编程式调用，以后换实现不改业务代码：
 
@@ -329,11 +322,7 @@ private Stock queryFallback(Long skuId, Throwable t) {
 }
 ```
 
-Resilience4j 的 `minimum-number-of-calls`、`sliding-window-size` 默认 100，`wait-duration-in-open-state` 与 `slow-call-duration-threshold` 默认 60s，每个实例都要显式设置；各参数的取值依据见 [熔断 · 熔断策略与阈值](/high-avail/5_circuit_breaking#三、熔断策略与阈值)。
-
-- 熔断阈值怎么定、Sentinel 与 Resilience4j 的详细对比见 [熔断](/high-avail/5_circuit_breaking)
-- Sentinel 的资源定义、规则类型、Nacos 规则持久化与 OpenFeign 集成见 [Spring Cloud Alibaba](./6_alibaba)
-- 限流算法与阈值见 [限流与过载保护](/high-avail/7_rate_limiting)
+Resilience4j 默认值偏宽松，每个实例都要显式设置；默认值、参数与 Sentinel 的对照和取值依据见 [熔断 · 参数对照与默认值](/high-avail/5_circuit_breaking#五、参数对照与默认值)，限流算法与阈值见 [限流与过载保护](/high-avail/7_rate_limiting)。
 
 ### 2、Framework 7 内置容错注解
 

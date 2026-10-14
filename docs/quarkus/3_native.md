@@ -16,7 +16,9 @@ Quarkus 可以借助 GraalVM / Mandrel 构建原生镜像，并一键生成容�
 
 ![Quarkus 原生镜像构建流水线](../assets/quarkus/quarkus-native-build.svg)
 
-`native-image` 的难点在于**闭世界假设**：构建期必须知道所有会被反射访问的类、动态代理接口和资源文件，否则运行时找不到。Spring 需要专门的 AOT 引擎在构建期「模拟启动」来推导这些信息；Quarkus 的扩展本来就在构建期处理元数据，**登记反射、资源、代理是扩展的分内工作**，因此用官方扩展的应用通常不需要手写 `reflect-config.json`。
+GraalVM Native Image 在构建期从 `main` 入口做静态（可达性）分析，只把可达的代码 AOT 编译成机器码，连同构建期初始化好的镜像堆一起写进一个原生可执行文件：启动从秒级降到毫秒级、常驻内存大幅降低，代价是运行时没有 JIT（峰值吞吐见第六节）、classpath 在构建期固定（不能运行时加 JAR、动态加载类或生成字节码）、依赖 Java Agent 做字节码增强的工具（部分 APM 探针、Arthas 等）无法照搬。
+
+`native-image` 的难点在于**闭世界假设**：构建期必须知道所有会被反射访问的类、动态代理接口和资源文件，否则运行时找不到，而且只在走到那条路径时才暴露。Spring 需要专门的 AOT 引擎在构建期「模拟启动」来推导这些信息；Quarkus 的扩展本来就在构建期处理元数据，**登记反射、资源、代理是扩展的分内工作**，因此用官方扩展的应用通常不需要手写 `reflect-config.json`。
 
 ### 2、Mandrel 与 GraalVM
 
@@ -83,6 +85,7 @@ public class ThirdPartyReflectionConfig {}
 - 嵌套类默认一并登记，不需要时用 `ignoreNested = true`
 - 需要 Java 序列化时加 `serialization = true`
 - 也可以用 GraalVM 标准方式，把 `reflect-config.json` 放在 `src/main/resources/META-INF/native-image/<groupId>/<artifactId>/`
+- 第三方库的元数据优先查 GraalVM 的 [reachability metadata 仓库](https://github.com/oracle/graalvm-reachability-metadata)；库不在其中时，可在 JVM 上挂 `-agentlib:native-image-agent=config-output-dir=...` 跑一遍应用，由 tracing agent 收集缺失的配置
 
 ### 3、资源文件
 
@@ -269,7 +272,7 @@ public class PaymentGatewayHealthCheck implements HealthCheck {
 - 容器镜像用 Jib 扩展最省事，JVM 模式的 `quarkus-app/` 布局天然分层，不要改成 uber-jar
 - Kubernetes 扩展生成清单作为起点，健康检查分 live / ready / started，存活探针不查外部依赖
 - 原生模式适合冷启动敏感与高密度部署，长期运行的高吞吐服务通常留在 JVM 模式
-- GraalVM Native Image 的通用原理（静态分析、闭世界假设、AOT 编译）见 [JIT 编译](/jvm/7_jit)，Spring Boot 的原生方案与 CDS / AOT 缓存对比见 [启动与部署优化](/spring-boot/13_startup)，本篇只讲了 Quarkus 特有的部分。
+- 本篇第一至三节同时是全站 GraalVM Native Image 通用原理（静态分析、闭世界假设、构建期初始化、反射登记）的主文档；AOT 与 JIT 的关系见 [JIT 编译](/jvm/7_jit)，Spring Boot 的原生方案与 CDS / AOT 缓存对比见 [启动与部署优化](/spring-boot/13_startup)
 
 ## 参考资料
 
