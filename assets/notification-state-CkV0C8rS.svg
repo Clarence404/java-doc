@@ -1,0 +1,79 @@
+<svg viewBox="0 0 680 332" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .lbl { fill:var(--muted); font-size:10px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">通知任务状态机</text>
+
+  <rect class="box" x="20" y="44" width="92" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="66" y="70" text-anchor="middle" fill="var(--p)">待处理</text>
+  <text class="sub" x="66" y="88" text-anchor="middle">PENDING</text>
+  <rect class="box" x="157" y="44" width="92" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="203" y="70" text-anchor="middle" fill="var(--b)">发送中</text>
+  <text class="sub" x="203" y="88" text-anchor="middle">SENDING</text>
+  <rect class="box" x="294" y="44" width="92" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="340" y="70" text-anchor="middle" fill="var(--y)">已提交</text>
+  <text class="sub" x="340" y="88" text-anchor="middle">SUBMITTED</text>
+  <rect class="box" x="431" y="44" width="92" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="477" y="70" text-anchor="middle" fill="var(--g)">已送达</text>
+  <text class="sub" x="477" y="88" text-anchor="middle">DELIVERED</text>
+  <rect class="box" x="568" y="44" width="92" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="614" y="70" text-anchor="middle" fill="var(--g)">已读</text>
+  <text class="sub" x="614" y="88" text-anchor="middle">READ</text>
+
+  <line class="arr" x1="112" y1="74" x2="155" y2="74"/>
+  <text class="lbl" x="134" y="68" text-anchor="middle">消费</text>
+  <line class="arr" x1="249" y1="74" x2="292" y2="74"/>
+  <text class="lbl" x="271" y="68" text-anchor="middle">受理</text>
+  <line class="arr" x1="386" y1="74" x2="429" y2="74"/>
+  <text class="lbl" x="408" y="68" text-anchor="middle">回执</text>
+  <line class="arr" x1="523" y1="74" x2="566" y2="74"/>
+  <text class="lbl" x="545" y="68" text-anchor="middle">点击</text>
+
+  <line class="arr" x1="66" y1="104" x2="66" y2="138"/>
+  <text class="lbl" x="72" y="125">频控 / 退订</text>
+  <line class="arr" x1="203" y1="104" x2="203" y2="138"/>
+  <text class="lbl" x="209" y="125">可重试错误</text>
+  <line class="arr" x1="340" y1="104" x2="340" y2="138"/>
+  <text class="lbl" x="346" y="125">失败回执</text>
+
+  <rect class="box" x="20" y="140" width="92" height="60" rx="8" stroke="var(--muted)"/>
+  <text class="name" x="66" y="166" text-anchor="middle" fill="var(--muted)">已过滤</text>
+  <text class="sub" x="66" y="184" text-anchor="middle">FILTERED</text>
+  <rect class="box" x="157" y="140" width="92" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="203" y="166" text-anchor="middle" fill="var(--y)">待重试</text>
+  <text class="sub" x="203" y="184" text-anchor="middle">退避后重发</text>
+  <rect class="box" x="294" y="140" width="92" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="340" y="166" text-anchor="middle" fill="var(--r)">失败</text>
+  <text class="sub" x="340" y="184" text-anchor="middle">FAILED</text>
+  <line class="arr" x1="249" y1="170" x2="292" y2="170"/>
+  <text class="lbl" x="271" y="164" text-anchor="middle">用尽</text>
+
+  <rect class="box" x="20" y="236" width="640" height="76" rx="8" stroke="var(--border)"/>
+  <text class="desc" x="340" y="260" text-anchor="middle">状态只前进：按状态序号条件更新，乱序或重复的回执不会把状态改回去</text>
+  <text class="desc" x="340" y="278" text-anchor="middle">号码无效、token 失效等不可重试错误直接失败；已提交超过 72 小时无回执记为回执超时</text>
+  <text class="desc" x="340" y="296" text-anchor="middle">已过滤也落记录并写明原因，客服能查到「为什么没收到」</text>
+</svg>

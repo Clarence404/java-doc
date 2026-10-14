@@ -1,0 +1,87 @@
+<svg viewBox="0 0 680 304" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+    .note { fill:var(--muted); font-size:11px; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">延迟任务服务整体架构</text>
+
+  <!-- 第一行：提交链路 -->
+  <rect class="layer" x="20" y="44" width="145" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="92.5" y="70" text-anchor="middle" fill="var(--p)">业务服务</text>
+  <text class="sub" x="92.5" y="88" text-anchor="middle">提交 / 取消 / 修改</text>
+  <line class="arr" x1="165" y1="74" x2="183" y2="74"/>
+
+  <rect class="layer" x="185" y="44" width="145" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="257.5" y="70" text-anchor="middle" fill="var(--p)">接入 API</text>
+  <text class="sub" x="257.5" y="88" text-anchor="middle">校验、限流、写库</text>
+  <line class="arr" x1="330" y1="74" x2="348" y2="74"/>
+
+  <rect class="layer" x="350" y="44" width="145" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="422.5" y="70" text-anchor="middle" fill="var(--b)">任务库 MySQL</text>
+  <text class="sub" x="422.5" y="88" text-anchor="middle">按天分区、逻辑分片</text>
+
+  <!-- 行间箭头 -->
+  <line class="arr" x1="257.5" y1="104" x2="257.5" y2="132"/>
+  <text class="note" x="266" y="123">5 分钟内到期直接入轮</text>
+  <line class="arr" x1="422.5" y1="104" x2="422.5" y2="132"/>
+  <text class="note" x="431" y="123">拉取到期任务</text>
+
+  <!-- 第二行：近期调度 -->
+  <rect class="layer" x="20" y="134" width="145" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="92.5" y="160" text-anchor="middle" fill="var(--g)">投递器</text>
+  <text class="sub" x="92.5" y="178" text-anchor="middle">CAS 改状态后发送</text>
+
+  <line class="arr" x1="185" y1="164" x2="167" y2="164"/>
+  <rect class="layer" x="185" y="134" width="145" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="257.5" y="160" text-anchor="middle" fill="var(--g)">内存时间轮</text>
+  <text class="sub" x="257.5" y="178" text-anchor="middle">1 秒一格</text>
+
+  <line class="arr" x1="350" y1="164" x2="332" y2="164"/>
+  <rect class="layer" x="350" y="134" width="145" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="422.5" y="160" text-anchor="middle" fill="var(--y)">预加载器</text>
+  <text class="sub" x="422.5" y="178" text-anchor="middle">每 30 秒拉未来 5 分钟</text>
+
+  <line class="arr" x1="515" y1="164" x2="497" y2="164"/>
+  <rect class="layer" x="515" y="134" width="145" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="587.5" y="160" text-anchor="middle" fill="var(--y)">协调中心</text>
+  <text class="sub" x="587.5" y="178" text-anchor="middle">分片归属与租约</text>
+
+  <line class="arr" x1="92.5" y1="194" x2="92.5" y2="222"/>
+
+  <!-- 第三行：执行链路 -->
+  <rect class="layer" x="20" y="224" width="145" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="92.5" y="250" text-anchor="middle" fill="var(--b)">MQ 业务 Topic</text>
+  <text class="sub" x="92.5" y="268" text-anchor="middle">至少一次投递</text>
+  <line class="arr" x1="165" y1="254" x2="183" y2="254"/>
+
+  <rect class="layer" x="185" y="224" width="145" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="257.5" y="250" text-anchor="middle" fill="var(--p)">业务消费者</text>
+  <text class="sub" x="257.5" y="268" text-anchor="middle">状态校验、幂等执行</text>
+  <line class="arr" x1="330" y1="254" x2="348" y2="254"/>
+
+  <rect class="layer" x="350" y="224" width="145" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="422.5" y="250" text-anchor="middle" fill="var(--r)">重试与死信</text>
+  <text class="sub" x="422.5" y="268" text-anchor="middle">退避重试、告警</text>
+</svg>
