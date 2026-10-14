@@ -449,4 +449,4 @@ public List<CartLineView> view(List<CartLine> lines) {
 - MySQL INSERT ... ON DUPLICATE KEY UPDATE：[https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html](https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html)
 - Spring Data Redis Scripting：[https://docs.spring.io/spring-data/redis/reference/redis/scripting.html](https://docs.spring.io/spring-data/redis/reference/redis/scripting.html)
 
-> 返回：[业务场景总览](./0_overview)
+> 下一篇：[消息通知中心](./20_notification) —— 多渠道统一发送、优先级隔离、频控与免打扰、供应商切换、回执状态机与站内信存储。

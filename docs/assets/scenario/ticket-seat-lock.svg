@@ -1,0 +1,61 @@
+<svg viewBox="0 0 680 410" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .layer { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; font-size:13px; }
+    .sub { fill:var(--muted); font-size:11px; }
+    .desc { fill:var(--fg); font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="340" y="26" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">选座锁座流程</text>
+
+  <rect class="layer" x="20" y="44" width="640" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="40" y="70" fill="var(--p)">1 读座位图</text>
+  <text class="sub" x="40" y="88">布局走 CDN</text>
+  <text class="desc" x="650" y="70" text-anchor="end">实时状态取「场次-区域」位图，1 位表示 1 个座位是否可选</text>
+  <text class="desc" x="650" y="88" text-anchor="end">服务端本地缓存约 1 秒，只用于展示，不作为锁座依据</text>
+  <line class="arr" x1="340" y1="104" x2="340" y2="132"/>
+
+  <rect class="layer" x="20" y="134" width="640" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="40" y="160" fill="var(--y)">2 Redis 锁座</text>
+  <text class="sub" x="40" y="178">一个 Lua 脚本</text>
+  <text class="desc" x="650" y="160" text-anchor="end">所选座位全部空闲才一起置位并记录 lockNo，任一被占整体失败</text>
+  <text class="desc" x="650" y="178" text-anchor="end">失败时返回被占座位，前端刷新座位图让用户重选</text>
+  <line class="arr" x1="340" y1="194" x2="340" y2="222"/>
+
+  <rect class="layer" x="20" y="224" width="640" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="40" y="250" fill="var(--b)">3 建单 + DB 锁座</text>
+  <text class="sub" x="40" y="268">同一本地事务</text>
+  <text class="desc" x="650" y="250" text-anchor="end">条件更新 AVAILABLE → LOCKED，影响行数必须等于座位数</text>
+  <text class="desc" x="650" y="268" text-anchor="end">不相等则回滚，并用 lockNo 撤销 Redis 置位</text>
+  <line class="arr" x1="178" y1="284" x2="178" y2="312"/>
+  <line class="arr" x1="502" y1="284" x2="502" y2="312"/>
+
+  <rect class="layer" x="20" y="314" width="316" height="76" rx="8" stroke="var(--g)"/>
+  <text class="name" x="178" y="338" text-anchor="middle" fill="var(--g)">4a 支付成功</text>
+  <text class="desc" x="178" y="356" text-anchor="middle">LOCKED → SOLD（条件带 lockNo）</text>
+  <text class="desc" x="178" y="374" text-anchor="middle">出票、绑定实名，位图保持已占</text>
+
+  <rect class="layer" x="344" y="314" width="316" height="76" rx="8" stroke="var(--r)"/>
+  <text class="name" x="502" y="338" text-anchor="middle" fill="var(--r)">4b 超时 / 取消</text>
+  <text class="desc" x="502" y="356" text-anchor="middle">关单后 LOCKED → AVAILABLE</text>
+  <text class="desc" x="502" y="374" text-anchor="middle">提交后清除 Redis 置位，座位回到座位图</text>
+</svg>
