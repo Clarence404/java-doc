@@ -166,8 +166,10 @@ function writeModuleNav(app) {
 }
 
 // 答案页（interview/*.md）的分组与题目：<InterviewList page="9_mq" /> 据此生成题单，题目链接到答案锚点
+// 另生成 interview-answers.js（每题的「一句话」），供题单的自测模式按需加载，不进主包
 function writeInterviewData(app) {
     const data = {};
+    const answers = {};
     for (const p of app.pages) {
         const rel = p.filePathRelative ?? '';
         if (!rel.startsWith('interview/') || rel.endsWith('0_overview.md')) continue;
@@ -175,9 +177,22 @@ function writeInterviewData(app) {
             title: h.title, slug: h.slug,
             questions: (h.children ?? []).filter(c => c.level === 3).map(c => ({title: c.title, slug: c.slug})),
         }));
-        data[rel.slice('interview/'.length, -3)] = {title: p.title, path: '/' + rel.replace(/\.md$/, ''), groups};
+        const key = rel.slice('interview/'.length, -3);
+        data[key] = {title: p.title, path: '/' + rel.replace(/\.md$/, ''), groups};
+        // 按顺序把 ### 小节与标题对应，取每节的「**一句话**：」
+        const slugs = groups.flatMap(g => g.questions.map(q => q.slug));
+        const sections = (p.content ?? '').split(/^### /m).slice(1);
+        if (sections.length !== slugs.length) {
+            console.warn(`[interview-answers] ${rel}：### 小节数 ${sections.length} 与题目数 ${slugs.length} 不一致，跳过`);
+            continue;
+        }
+        answers[key] = Object.fromEntries(slugs.map((slug, i) =>
+            [slug, sections[i].match(/^\*\*一句话\*\*[：:]\s*(.+)$/m)?.[1].trim() ?? '']));
     }
-    return app.writeTemp('interview-data.js', `export default ${JSON.stringify(data)};\n`);
+    return Promise.all([
+        app.writeTemp('interview-data.js', `export default ${JSON.stringify(data)};\n`),
+        app.writeTemp('interview-answers.js', `export default ${JSON.stringify(answers)};\n`),
+    ]);
 }
 
 // 新增 / 删除文章后重算侧边栏，覆盖主题数据临时文件（客户端通过 HMR 的 updateThemeData 即时生效）
