@@ -172,7 +172,7 @@ function writeInterviewData(app) {
     const answers = {};
     for (const p of app.pages) {
         const rel = p.filePathRelative ?? '';
-        if (!rel.startsWith('interview/') || rel.endsWith('0_overview.md')) continue;
+        if (!rel.startsWith('interview/') || rel.endsWith('0_overview.md') || /^interview\/9\d_/.test(rel)) continue;
         const groups = (p.headers ?? []).filter(h => h.level === 2).map(h => ({
             title: h.title, slug: h.slug,
             questions: (h.children ?? []).filter(c => c.level === 3).map(c => ({title: c.title, slug: c.slug})),

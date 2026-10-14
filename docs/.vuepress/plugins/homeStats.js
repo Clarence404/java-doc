@@ -31,7 +31,7 @@ export function answerGroups(docsDir, {page, groups}) {
 // 首页数字的统计规则：
 //   文章数 = 模块目录下（含子目录）的 .md，去掉 README、0_overview 总览页和 99_interview 题单
 //   题数   = 99_interview.md 中 <InterviewList> 引用的答案页分组里的题目（### 标题）；旧式题单数「- **」开头的行
-//   答案页 = docs/interview/ 下除 0_ 总览外的 .md
+//   答案页 = docs/interview/ 下除 0_ 总览与 90 号以后附录（如术语表）外的 .md
 //   图解   = docs/assets/ 下的 .svg
 const SKIP_DIRS = new Set(['.vuepress', 'assets', 'interview', 'public']);
 const QUESTION_LINE = /^\s*[-*] \*\*/;
@@ -69,7 +69,7 @@ export function computeHomeStats(docsDir) {
         modules[entry.name] = {articles, questions};
     }
     const answerPages = fs.readdirSync(path.join(docsDir, 'interview'))
-        .filter((f) => f.endsWith('.md') && !f.startsWith('0_')).length;
+        .filter((f) => f.endsWith('.md') && !f.startsWith('0_') && !/^9\d_/.test(f)).length;
     const svgs = listFiles(path.join(docsDir, 'assets'), '.svg').length;
     return {modules, answerPages, svgs};
 }

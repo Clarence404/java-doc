@@ -56,7 +56,8 @@ def main():
                 report('缺少文末「## 参考资料」')
             elif '## 小结' in text and text.index('## 参考资料') < text.index('## 小结'):
                 report('「## 参考资料」应放在「## 小结」之后')
-        if is_interview and name != '0_overview.md':
+        # 答案页：interview/ 下除 0_ 总览与 90 号以后附录（如术语表）外的页面
+        if is_interview and name != '0_overview.md' and not re.match(r'9\d_', name):
             if not (titles[path[:-3]] or '').endswith('面试题解答'):
                 report('答案页 H1 应为「X 面试题解答」')
             if not re.search(r'^### Q\d+：', text, re.M):
