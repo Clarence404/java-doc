@@ -1,0 +1,64 @@
+<svg viewBox="0 0 720 304" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <text x="360" y="24" text-anchor="middle" class="title">四种文件 IO 方式的数据路径</text>
+  <rect x="20" y="44" width="164" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="102" y="68" text-anchor="middle" class="name">Buffered IO</text>
+  <text x="102" y="90" text-anchor="middle" class="note">FileChannel.write</text>
+  <line x1="102" y1="104" x2="102" y2="132" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="134" width="164" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="102" y="158" text-anchor="middle" class="name">Page Cache</text>
+  <text x="102" y="180" text-anchor="middle" class="txt">CPU 拷贝，脏页后台回写</text>
+  <line x1="102" y1="194" x2="102" y2="222" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="192" y="44" width="164" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="274" y="68" text-anchor="middle" class="name">Direct IO</text>
+  <text x="274" y="90" text-anchor="middle" class="note">DIRECT 打开选项</text>
+  <line x1="274" y1="104" x2="274" y2="132" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="192" y="134" width="164" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="274" y="158" text-anchor="middle" class="name">不经 Page Cache</text>
+  <text x="274" y="180" text-anchor="middle" class="txt">缓冲区与偏移需块对齐</text>
+  <line x1="274" y1="194" x2="274" y2="222" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="364" y="44" width="164" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="446" y="68" text-anchor="middle" class="name">mmap</text>
+  <text x="446" y="90" text-anchor="middle" class="note">MappedByteBuffer</text>
+  <line x1="446" y1="104" x2="446" y2="132" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="364" y="134" width="164" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="446" y="158" text-anchor="middle" class="name">Page Cache</text>
+  <text x="446" y="180" text-anchor="middle" class="txt">页直接映射进进程，无拷贝</text>
+  <line x1="446" y1="194" x2="446" y2="222" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="536" y="44" width="164" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="618" y="68" text-anchor="middle" class="name">io_uring</text>
+  <text x="618" y="90" text-anchor="middle" class="note">JDK 无直接 API</text>
+  <line x1="618" y1="104" x2="618" y2="132" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="536" y="134" width="164" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="618" y="158" text-anchor="middle" class="name">SQ / CQ 共享环</text>
+  <text x="618" y="180" text-anchor="middle" class="txt">批量提交，异步收完成</text>
+  <line x1="618" y1="194" x2="618" y2="222" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="224" width="680" height="60" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="360" y="248" text-anchor="middle" class="name">块层与磁盘</text>
+  <text x="360" y="270" text-anchor="middle" class="txt">四种方式最终都经块层下发请求，由设备 DMA 搬运数据</text>
+</svg>

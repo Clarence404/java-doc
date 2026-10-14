@@ -217,3 +217,55 @@ description: 三大信号、RED 与 USE、日志、指标基数、PromQL、链�
 - 长短双窗口同时满足才触发：长窗口保证不是毛刺，短窗口保证恢复后告警及时解除
 
 → 详见 [可用性度量](/high-avail/1_sla_slo#_2、燃烧速率告警)
+
+## 五、持续剖析
+
+### Q16：什么是持续剖析？和出事后再抓火焰图有什么区别？
+
+**一句话**：持续剖析就是让 Profiler 在生产一直低频采样、按标签存起来，出事时直接回看那段时间的火焰图，而不是事后登录机器去抓。
+
+- 事后抓的问题：偶发尖刺等不到人登录就过去了，也没有「平时」的火焰图可对比
+- 做法：每个进程常驻采样器，每 10～60 秒把聚合后的调用栈连同 service、version、pod 标签上报
+- 开销：每秒几十次采样，CPU 开销通常在 1%～2% 以内，可以常开
+- 用法：选时间段看火焰图，或对两个版本 / 两个时间段做差分火焰图（变宽的帧就是新增开销）
+- 地位：指标、日志、链路之外的第四种信号，回答「代码层面钱花在哪」
+
+→ 详见 [持续剖析与 eBPF](/observability/6_profiling#一、为什么需要持续剖析)
+
+### Q17：eBPF 是什么？为什么说它开销低、对应用无侵入？
+
+**一句话**：eBPF 是能安全加载进 Linux 内核、在指定事件上运行的小程序，相当于内核里的沙箱插件，从内核视角观察所有进程，应用不用改也不用重启。
+
+- Verifier（校验器）：加载前检查程序能终止、不越界访问，不通过就拒绝，所以不会搞崩内核
+- JIT：字节码编译成本机指令，运行接近原生速度
+- 挂载点：kprobe（内核函数）、uprobe（用户态函数）、tracepoint（内核稳定事件点）、perf_event（定时采样）
+- Map：内核与用户态共享的键值表；剖析时在内核里只累加「栈 → 次数」，用户态隔几秒读一次汇总，所以开销低
+- CO-RE：借助内核 BTF 类型信息加载时重定位，一份程序跑多个内核版本
+
+**常见坑**：需要 root 或 `CAP_BPF` / `CAP_PERFMON`，K8s 上通常是特权 DaemonSet，要过安全评审；老内核（如 3.10）基本用不了。
+
+→ 详见 [持续剖析与 eBPF](/observability/6_profiling#四、ebpf-基础)
+
+### Q18：用 eBPF 剖析 Java 为什么火焰图上一堆 unknown？怎么解决？
+
+**一句话**：eBPF 拿到的是指令地址，C / Go 能查二进制符号表，而 Java 方法是 JIT 运行时生成的，地址只有 JVM 知道，所以需要额外手段把地址翻译成方法名。
+
+- perf map：JDK 17+ 用 `jcmd <pid> Compiler.perfmap` 导出地址到方法名的映射，但只是快照，要定期刷新
+- 保留帧指针：`-XX:+PreserveFramePointer`，栈展开才能穿过 Java 帧，有轻微性能损失
+- 运行时感知的展开器：OTel eBPF Profiler 直接读 HotSpot 内部结构还原 Java 帧
+- 务实做法：Java 服务用进程内 agent（async-profiler / Pyroscope agent）拿精确栈，eBPF 覆盖内核和其他语言进程
+
+→ 详见 [持续剖析与 eBPF](/observability/6_profiling#_4、java-的符号化难题)
+
+### Q19：怎么从一个慢 Span 直接看到对应的火焰图？
+
+**一句话**：采样时把当前 Span 的 `span_id` 作为标签写进 profile，Span 上也记一个关联属性，查询界面就能按 Span 过滤出只属于它的样本（trace-to-profile）。
+
+- 链路只能告诉你某个 Span 慢，Span 内部没埋点的代码是空白，火焰图正好补上
+- Java 接入：Pyroscope 提供 OTel 集成，agent 路线加扩展 jar，Micrometer 路线注册它的 `SpanProcessor` Bean
+- Grafana：在 Tempo 数据源配置 Traces to Profiles，慢 Span 上出现跳转入口
+- 前提：profile 与 trace 的 service 名、环境标签必须同源一致，否则对不上
+
+**常见坑**：OTel Profiles 信号还在 Alpha，生产上仍以 Pyroscope 等平台自身协议为主，别把标准当成已稳定。
+
+→ 详见 [持续剖析与 eBPF](/observability/6_profiling#_2、和其他信号的关系)

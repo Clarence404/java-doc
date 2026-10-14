@@ -15,7 +15,7 @@
 | 指标（Metrics） | 系统健康吗？趋势如何？ | 数值时间序列：指标名 + 标签 + 时间戳 + 值 | 存储与请求量无关，只与时间序列数（基数）有关 | Micrometer、Prometheus、Grafana | [指标监控](./2_metrics) |
 | 日志（Logs） | 具体发生了什么？ | 带时间戳的离散事件，最好是结构化 JSON | 与请求量线性增长，是最贵的信号 | Fluent Bit、Loki、Elasticsearch | [日志体系](./1_logging) |
 | 链路（Traces） | 一次请求经过了哪里，慢在哪一段？ | 由 Span 组成的调用树，靠 traceId 串联 | 通常需要采样 | Micrometer Tracing、OTel、Tempo、Jaeger | [链路追踪](./3_tracing) |
-| Profiles | 哪段代码消耗了 CPU / 内存？ | 带调用栈的采样数据，以火焰图呈现 | 持续低频采样，开销可控 | JFR、async-profiler、Pyroscope | 见 [性能分析工具](/high-perf/3_profilers) |
+| Profiles | 哪段代码消耗了 CPU / 内存？ | 带调用栈的采样数据，以火焰图呈现 | 持续低频采样，开销可控 | JFR、async-profiler、Pyroscope、eBPF | [持续剖析与 eBPF](./6_profiling)；火焰图读法见 [性能分析工具](/high-perf/3_profilers) |
 
 几条使用原则：
 
@@ -67,6 +67,7 @@ Grafana 官方提供 `grafana/otel-lgtm` 镜像，一个容器内集成了 OTel 
 2. **按信号逐个建设**：读 [日志体系](./1_logging)（采集链路、Loki / Elasticsearch 选型、LogQL），再读 [指标监控](./2_metrics)（指标类型、PromQL、基数控制）和 [链路追踪](./3_tracing)（上下文传播、采样、后端选型）。
 3. **把信号变成行动**：读 [告警体系](./4_alerting)，结合 [可用性度量](/high-avail/1_sla_slo) 中的 SLO 与燃烧速率，设计少而准的告警。
 4. **统一标准**：读 [OpenTelemetry](./5_opentelemetry)，理解 OTLP、Collector 和语义约定，把各信号的采集收敛到一套标准上。
+5. **补上代码层视角**：读 [持续剖析与 eBPF](./6_profiling)，让火焰图常驻在线并与链路关联，再用 eBPF 覆盖内核与非 Java 进程。
 
 复习时用 [高频面试题](./99_interview) 自测，答案在 [可观测性面试题解答](/interview/22_observability)。
 

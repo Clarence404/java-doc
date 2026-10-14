@@ -216,3 +216,57 @@ description: 进程线程协程、系统调用、虚拟内存、OOM Killer、Pag
 **常见坑**：`ProcessBuilder` 启动子进程后只 `waitFor` 不读输出，子进程写满管道阻塞，双方互相等待；要么读完输出，要么重定向，并且设超时。
 
 → 详见 [进程间通信与进程状态](/os/6_ipc_process#一、进程间通信)
+
+## 五、文件系统与磁盘 IO
+
+### Q17：inode、dentry、文件描述符是什么关系？硬链接和软链接有什么区别？
+
+**一句话**：inode 是文件本体（元数据和数据块位置，不含文件名），dentry 是「文件名 → inode」的目录项，fd 是进程 fd 表的下标，指向一次 `open` 产生的 file 对象（记录读写偏移）。
+
+- 改名只改目录项，所以同一文件系统内 `mv` 不复制数据
+- 硬链接：再加一个目录项指向同一个 inode，不能跨文件系统、不能指向目录
+- 软链接：独立的 inode，内容只是目标路径，原文件删了就悬空
+- `rm` 只删目录项，链接数为 0 且没有进程打开时才真正释放空间
+
+→ 详见 [文件系统与磁盘 IO](/os/7_file_io#一、vfs-与文件描述符)
+
+### Q18：iostat 里 %util 到 100% 就说明磁盘打满了吗？
+
+**一句话**：不一定。`%util` 只表示「设备有请求在处理的时间比例」，对一次只能干一件事的 HDD 才准；NVMe、云盘能并行处理很多请求，100% 时可能还有大量余量。
+
+- 先看 `r_await` / `w_await`（含排队的平均耗时），明显升高才是真慢
+- 再看 `aqu-sz`（在途请求数）和 `r/s`、`w/s`、`wkB/s` 是否顶到盘的 IOPS / 吞吐规格
+- 云盘触顶的典型信号：`w/s` 稳定在一个整数附近，正好是配额
+- 定位进程用 `pidstat -d 1`，看延迟分布用 `biolatency`
+
+**常见坑**：`iostat -x` 第一屏是开机以来的平均值，要看后面几屏。
+
+→ 详见 [文件系统与磁盘 IO](/os/7_file_io#_1、iostat-x-的关键列)
+
+### Q19：Buffered IO、Direct IO、mmap、io_uring 有什么区别？Java 怎么用？
+
+**一句话**：前三种是「数据走不走 Page Cache、要不要拷贝」的区别，io_uring 是「提交和等待能不能异步、批量」的区别。
+
+| 方式 | 经 Page Cache | Java 对应 | 适合 |
+|------|-------------|----------|------|
+| Buffered IO | 是 | `FileChannel.read` / `write` | 绝大多数应用 |
+| Direct IO | 否，需块对齐 | `ExtendedOpenOption.DIRECT` | 自带缓存的数据库 |
+| mmap | 直接映射，少一次拷贝 | `FileChannel.map()` | 大文件随机读写 |
+| io_uring | 都可 | JDK 无官方 API | 新一代存储引擎 |
+
+**常见坑**：Direct IO 不等于落盘，要持久化照样得 `fsync`；Linux 上的 `AsynchronousFileChannel` 是线程池模拟的，不是内核异步。
+
+→ 详见 [文件系统与磁盘 IO](/os/7_file_io#五、io-方式)
+
+### Q20：怎么安全地覆盖写一个配置文件，保证断电后不会是半截？
+
+**一句话**：不要原地覆盖，用「写临时文件 → `fsync` 临时文件 → `rename` 替换 → `fsync` 所在目录」，`rename` 在同一文件系统内是原子的，读者只会看到完整的旧文件或新文件。
+
+- 少了第一次 `fsync`：`rename` 可能先于数据落盘，断电后得到空文件
+- 少了目录 `fsync`：`rename` 本身可能丢失，重启后还是旧文件
+- Java 写法：`FileChannel.force(true)` + `Files.move(..., ATOMIC_MOVE)` + 对目录的 `FileChannel` 调 `force`
+- 文件系统日志只保证结构不坏，不保证没 `fsync` 的数据不丢
+
+**常见坑**：`fsync` 报错后不能简单重试，内核可能已把脏页标为干净，第二次会假装成功。
+
+→ 详见 [文件系统与磁盘 IO](/os/7_file_io#_2、原子替换文件)

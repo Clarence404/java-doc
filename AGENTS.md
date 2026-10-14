@@ -60,7 +60,7 @@ docs/
 | Spring | `docs/spring/` | IoC / AOP / WebFlux / Security |
 | Spring Boot | `docs/spring-boot/` | 自动配置 / Web / 数据访问 / Flyway / 日志 / 测试 / 版本演进 / 启动优化 |
 | Spring Cloud | `docs/spring-cloud/` | 注册发现 / 网关 / 服务通信 / 配置中心 / 治理 / Alibaba / Stream |
-| 测试工程 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD |
+| 测试工程 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD / 接口与 E2E |
 | Netty | `docs/netty/` | IO 模型 / Reactor / 核心组件 / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优 |
 | Vert.x | `docs/vertx/` | Event Loop / Verticle / Event Bus / Web / 响应式数据访问 / 集群 |
 | Quarkus | `docs/quarkus/` | 构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / Spring 迁移 / 其他 Java 框架 |
@@ -79,12 +79,12 @@ docs/
 | DevOps | `docs/devops/` | Git 工作流 / CI/CD / Code Review / 团队规范 |
 | 工程效率 | `docs/engineering/` | 构建工具 / 开发工具 / 代码质量 / 线上诊断 / API 规范 |
 | 实战手册 | `docs/handbook/` | 常用命令速查表 / 线上故障案例 |
-| 可观测性 | `docs/observability/` | 日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry |
-| 操作系统 | `docs/os/` | 进程线程与协程 / 用户态与系统调用 / 内存与 Page Cache / CPU 缓存与伪共享 / Load / 进程间通信 |
+| 可观测性 | `docs/observability/` | 日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry / 持续剖析 |
+| 操作系统 | `docs/os/` | 进程线程与协程 / 用户态与系统调用 / 内存与 Page Cache / CPU 缓存与伪共享 / Load / 进程间通信 / 文件与磁盘 IO |
 | 网络协议 | `docs/protocols/` | TCP/UDP / HTTP / TLS / DNS / gRPC / 数据库、邮件、文件协议 |
 | 应用安全 | `docs/security/` | 认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任 |
 | IoT | `docs/iot/` | 物联网架构 / 协议 / 开源平台 |
-| AI | `docs/ai/` | Function Calling / Spring AI / LangChain4j / RAG / Agent / MCP / API 接入 / AI 工具 |
+| AI | `docs/ai/` | Function Calling / Spring AI / LangChain4j / RAG / Agent / MCP / API 接入 / 评估上线 / AI 工具 |
 | 大数据 | `docs/big-data/` | 数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP 与数据服务 / 数据治理 / 实时数仓 |
 | 音视频 | `docs/media/` | 编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入 |
 

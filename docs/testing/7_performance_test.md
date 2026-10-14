@@ -605,3 +605,5 @@ jobs:
 - JMeter 命令行参数：[Getting Started: CLI mode](https://jmeter.apache.org/usermanual/get-started.html)
 - JMeter 组件参考（Thread Group、Open Model Thread Group、Duration Assertion）：[Component Reference](https://jmeter.apache.org/usermanual/component_reference.html)
 - wrk2（固定速率与协调遗漏修正）：[GitHub 仓库](https://github.com/giltene/wrk2)
+
+> 下一篇：[接口自动化与端到端测试](./8_api_e2e_test)

@@ -502,3 +502,5 @@ docker run --rm -p 3000:3000 -p 4317:4317 -p 4318:4318 grafana/otel-lgtm
 - Prometheus 接收 OTLP：[Using Prometheus as your OpenTelemetry backend](https://prometheus.io/docs/guides/opentelemetry/)
 - Loki 接收 OTLP：[Ingesting logs to Loki using OpenTelemetry Collector](https://grafana.com/docs/loki/latest/send-data/otel/)
 - 本地 LGTM 镜像：[grafana/docker-otel-lgtm](https://github.com/grafana/docker-otel-lgtm)
+
+> 下一篇：[持续剖析与 eBPF](./6_profiling)

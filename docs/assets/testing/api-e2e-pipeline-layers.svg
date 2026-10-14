@@ -1,0 +1,78 @@
+<svg viewBox="0 0 890 342" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-api-e2e-pipe" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="445" y="26" text-anchor="middle">分层测试在流水线中的位置</text>
+  <rect x="20" y="46" width="190" height="64" rx="8" fill="var(--bg)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="115" y="70" text-anchor="middle">PR 流水线</text>
+  <text class="desc" x="115" y="92" text-anchor="middle">每次提交，10 分钟内</text>
+  <line x1="210" y1="78" x2="238" y2="78" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-api-e2e-pipe)"/>
+  <line x1="115" y1="110" x2="115" y2="144" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-api-e2e-pipe)"/>
+  <rect x="20" y="146" width="190" height="100" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="115" y="170" text-anchor="middle">接口冒烟</text>
+  <text class="desc" x="115" y="192" text-anchor="middle">单元 / 集成 / 契约之后</text>
+  <text class="desc" x="115" y="210" text-anchor="middle">临时环境，几十条以内</text>
+  <text class="desc" x="115" y="228" text-anchor="middle">只测核心成功路径</text>
+  <line x1="115" y1="246" x2="115" y2="280" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-api-e2e-pipe)"/>
+  <rect x="20" y="282" width="190" height="40" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="115" y="307" text-anchor="middle">失败：PR 不能合并</text>
+  <rect x="240" y="46" width="190" height="64" rx="8" fill="var(--bg)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="335" y="70" text-anchor="middle">合并到 main</text>
+  <text class="desc" x="335" y="92" text-anchor="middle">自动部署 test 环境</text>
+  <line x1="430" y1="78" x2="458" y2="78" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-api-e2e-pipe)"/>
+  <line x1="335" y1="110" x2="335" y2="144" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-api-e2e-pipe)"/>
+  <rect x="240" y="146" width="190" height="100" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="335" y="170" text-anchor="middle">全量回归</text>
+  <text class="desc" x="335" y="192" text-anchor="middle">接口自动化全量</text>
+  <text class="desc" x="335" y="210" text-anchor="middle">E2E 关键路径</text>
+  <text class="desc" x="335" y="228" text-anchor="middle">失败自动建工单</text>
+  <line x1="335" y1="246" x2="335" y2="280" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-api-e2e-pipe)"/>
+  <rect x="240" y="282" width="190" height="40" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="335" y="307" text-anchor="middle">失败：阻止晋级 staging</text>
+  <rect x="460" y="46" width="190" height="64" rx="8" fill="var(--bg)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="555" y="70" text-anchor="middle">晋级 staging</text>
+  <text class="desc" x="555" y="92" text-anchor="middle">部署同一镜像 digest</text>
+  <line x1="650" y1="78" x2="678" y2="78" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-api-e2e-pipe)"/>
+  <line x1="555" y1="110" x2="555" y2="144" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-api-e2e-pipe)"/>
+  <rect x="460" y="146" width="190" height="100" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="555" y="170" text-anchor="middle">E2E 冒烟</text>
+  <text class="desc" x="555" y="192" text-anchor="middle">E2E 冒烟 + 回归</text>
+  <text class="desc" x="555" y="210" text-anchor="middle">契约 can-i-deploy</text>
+  <text class="desc" x="555" y="228" text-anchor="middle">性能基线（夜间）</text>
+  <line x1="555" y1="246" x2="555" y2="280" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-api-e2e-pipe)"/>
+  <rect x="460" y="282" width="190" height="40" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="555" y="307" text-anchor="middle">失败：阻止发布生产</text>
+  <rect x="680" y="46" width="190" height="64" rx="8" fill="var(--bg)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="775" y="70" text-anchor="middle">发布到生产</text>
+  <text class="desc" x="775" y="92" text-anchor="middle">灰度或全量之后</text>
+  <line x1="775" y1="110" x2="775" y2="144" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-api-e2e-pipe)"/>
+  <rect x="680" y="146" width="190" height="100" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text class="box-title" x="775" y="170" text-anchor="middle">线上验证</text>
+  <text class="desc" x="775" y="192" text-anchor="middle">部署后冒烟（只读）</text>
+  <text class="desc" x="775" y="210" text-anchor="middle">定时拨测 1–5 分钟</text>
+  <text class="desc" x="775" y="228" text-anchor="middle">多地域同时探测</text>
+  <line x1="775" y1="246" x2="775" y2="280" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-api-e2e-pipe)"/>
+  <rect x="680" y="282" width="190" height="40" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text class="box-title" x="775" y="307" text-anchor="middle">失败：回滚或告警值班</text>
+</svg>

@@ -1,0 +1,63 @@
+<svg viewBox="0 0 720 664" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .txt   { font-size: 12px; }
+    .note  { font-size: 12px; fill: var(--muted); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--fg)"/>
+    </marker>
+  </defs>
+  <text x="360" y="24" text-anchor="middle" class="title">从文件描述符到磁盘：VFS 三层对象与块层路径</text>
+  <rect x="20" y="44" width="680" height="60" rx="4" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="40" y="69" class="name">用户进程 · fd 表</text>
+  <text x="40" y="89" class="note">open() 返回的小整数</text>
+  <text x="680" y="80" text-anchor="end" class="txt">fd 0/1/2 是标准输入输出，3 起指向 file 对象</text>
+  <line x1="360" y1="104" x2="360" y2="132" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="134" width="680" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="40" y="159" class="name">file（打开文件）</text>
+  <text x="40" y="179" class="note">每次 open 一个</text>
+  <text x="680" y="170" text-anchor="end" class="txt">读写偏移、打开标志；fork / dup 后可被共享</text>
+  <line x1="360" y1="194" x2="360" y2="222" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="224" width="680" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="40" y="249" class="name">dentry（目录项）</text>
+  <text x="40" y="269" class="note">路径解析的结果</text>
+  <text x="680" y="260" text-anchor="end" class="txt">文件名 → inode，缓存在 dcache 中</text>
+  <line x1="360" y1="284" x2="360" y2="312" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="314" width="680" height="60" rx="4" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="40" y="339" class="name">inode（索引节点）</text>
+  <text x="40" y="359" class="note">每个文件一个</text>
+  <text x="680" y="350" text-anchor="end" class="txt">权限、大小、时间戳、数据块位置、链接数</text>
+  <line x1="360" y1="374" x2="360" y2="402" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="404" width="680" height="60" rx="4" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="40" y="429" class="name">文件系统 + Page Cache</text>
+  <text x="40" y="449" class="note">ext4 / xfs</text>
+  <text x="680" y="440" text-anchor="end" class="txt">按 inode 和偏移查缓存页，缺页或回写时提交 bio</text>
+  <line x1="360" y1="464" x2="360" y2="492" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="494" width="680" height="60" rx="4" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="40" y="519" class="name">块层（blk-mq）</text>
+  <text x="40" y="539" class="note">bio → request</text>
+  <text x="680" y="530" text-anchor="end" class="txt">合并相邻请求 → IO 调度器 → 硬件派发队列</text>
+  <line x1="360" y1="554" x2="360" y2="582" stroke="var(--fg)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="584" width="680" height="60" rx="4" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="40" y="609" class="name">驱动与设备</text>
+  <text x="40" y="629" class="note">NVMe / SATA / virtio</text>
+  <text x="680" y="620" text-anchor="end" class="txt">DMA 搬运数据，完成后中断通知内核</text>
+</svg>

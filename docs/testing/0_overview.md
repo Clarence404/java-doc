@@ -4,7 +4,7 @@ description: 测试金字塔与蜂巢、各层工具与版本基线、健康测�
 
 # 测试工程总览
 
-测试工程关心的是一套测试能否在每次提交时快速、稳定地回答：**这次改动能不能放心合并、放心上线**。本模块按层次讲单元测试、Mock、集成测试、契约测试、性能测试与 TDD，写的是与框架无关的方法和工具。
+测试工程关心的是一套测试能否在每次提交时快速、稳定地回答：**这次改动能不能放心合并、放心上线**。本模块按层次讲单元测试、Mock、集成测试、契约测试、接口与端到端测试、性能测试与 TDD，写的是与框架无关的方法和工具。
 
 **版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4.x、JUnit 6.1、AssertJ 3.27、Mockito 5.x、Testcontainers 2.0、Spring Cloud Contract 5.0（已移交 Stubborn）、Pact JVM 4.7、k6 2.x、Gatling 3.x、JMeter 5.6、JaCoCo 0.8、PIT 1.x
 
@@ -27,6 +27,7 @@ description: 测试金字塔与蜂巢、各层工具与版本基线、健康测�
 5. [Testcontainers](./5_testcontainers)：容器生命周期、等待策略、单例与复用、2.x 依赖变化
 6. [契约测试](./6_contract_test)：消费者驱动契约、Spring Cloud Contract、Pact 与 can-i-deploy
 7. [性能测试](./7_performance_test)：测试类型、开放与闭合负载模型、k6 / Gatling / JMeter
+8. [接口自动化与端到端测试](./8_api_e2e_test)：REST Assured、测试数据与临时环境、Playwright、Flaky 治理、CI 分层与线上拨测
 
 Spring 项目读完前三篇后接着读 [Spring Boot 测试](/spring-boot/10_testing)。
 
@@ -67,7 +68,7 @@ Spring 项目读完前三篇后接着读 [Spring Boot 测试](/spring-boot/10_te
 
 - **能不启动 Spring 就不启动**：构造器注入的类直接 `new` 出来测，比任何 Spring 测试都快，见 [Spring Boot 测试](/spring-boot/10_testing) 第一节
 - **数据库用真实的，不用 H2 冒充**：Testcontainers 让真实数据库的成本降到可以接受，H2 的兼容模式会掩盖方言差异
-- **端到端只留关键路径**：E2E 用例慢且脆，一个流程一两条冒烟即可，分支组合交给下层
+- **端到端只留关键路径**：E2E 用例慢且脆，一个流程一两条冒烟即可，分支组合交给下层，写法见 [接口自动化与端到端测试](./8_api_e2e_test)
 - **不在多层重复测同一件事**：单元测试已经穷举了折扣规则，集成测试只需验证「规则被调用、结果被正确落库」
 
 ---
@@ -108,7 +109,7 @@ Spring 项目读完前三篇后接着读 [Spring Boot 测试](/spring-boot/10_te
 | `mvn verify` | 集成测试（`*IT`），JaCoCo 报告 | Maven Failsafe + Testcontainers | PR 不能合并 |
 | 质量门禁 | 新代码覆盖率、静态检查 | SonarQube | PR 不能合并 |
 | 发布前 | 契约验证、`can-i-deploy` | Pact Broker / Spring Cloud Contract（已移交 Stubborn） | 阻止部署 |
-| 部署到预发后 | 端到端冒烟 | Playwright / REST Assured | 阻止晋级生产 |
+| 部署到预发后 | 端到端冒烟（见 [接口自动化与端到端测试](./8_api_e2e_test)） | Playwright / REST Assured | 阻止晋级生产 |
 | 夜间 / 版本前 | 性能基线、变异测试 | k6 / Gatling、PIT | 出报告，回归时建工单 |
 
 Surefire 与 Failsafe 的分工及配置见 [构建工具](/engineering/1_build_tools)。GitHub Actions 的 Ubuntu Runner 自带 Docker，Testcontainers 可以直接运行，不需要额外配置 Docker-in-Docker。
@@ -147,6 +148,7 @@ Spring Boot 项目里，JUnit、AssertJ、Mockito、Testcontainers 的版本都�
 - 测试蜂巢：[Testing of Microservices（Spotify Engineering）](https://engineering.atspotify.com/2018/01/testing-of-microservices)
 - Spring Cloud Contract：[Spring Cloud Contract](https://spring.io/projects/spring-cloud-contract)
 - Pact：[Pact Docs](https://docs.pact.io/)
+- Playwright for Java：[Playwright Java](https://playwright.dev/java/)
 - k6：[Grafana k6 Documentation](https://grafana.com/docs/k6/latest/)
 - PIT 变异测试：[PIT Mutation Testing](https://pitest.org/)
 

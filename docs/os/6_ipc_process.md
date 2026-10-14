@@ -214,3 +214,5 @@ ls -l /proc/<pid>/fd | grep deleted
 - JEP 380 Unix-Domain Socket Channels：[https://openjdk.org/jeps/380](https://openjdk.org/jeps/380)
 - Kubernetes 文档 Share Process Namespace between Containers in a Pod：[https://kubernetes.io/docs/tasks/configure-pod-container/share-process-namespace/](https://kubernetes.io/docs/tasks/configure-pod-container/share-process-namespace/)
 - tini：[https://github.com/krallin/tini](https://github.com/krallin/tini)
+
+> 下一篇：[文件系统与磁盘 IO](./7_file_io) —— Page Cache 之下，文件如何经过 VFS、文件系统和块层落到磁盘，以及怎么判断磁盘是不是瓶颈。
