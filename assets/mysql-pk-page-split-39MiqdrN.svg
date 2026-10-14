@@ -1,0 +1,67 @@
+<svg viewBox="0 0 760 324" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    text { font-family: system-ui, sans-serif; fill: var(--fg); }
+    .title { font-size: 14px; font-weight: 700; }
+    .name  { font-size: 13px; font-weight: 600; }
+    .desc  { font-size: 11px; fill: var(--muted); }
+    .txt   { font-size: 12px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="380" y="24" text-anchor="middle" class="title">主键顺序决定聚簇索引叶子页的写入方式</text>
+  <text x="195" y="56" text-anchor="middle" class="name" style="fill:var(--g)">自增 / 雪花 / UUIDv7：追加到最右页</text>
+  <text x="565" y="56" text-anchor="middle" class="name" style="fill:var(--r)">UUIDv4：随机插入中间页</text>
+
+  <!-- 左侧：顺序写入 -->
+  <rect x="257" y="72" width="100" height="36" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="307" y="95" text-anchor="middle" class="txt">新行（递增 key）</text>
+  <line x1="307" y1="108" x2="307" y2="144" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="33" y="146" width="100" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="83" y="171" text-anchor="middle" class="txt">页 1</text>
+  <text x="83" y="190" text-anchor="middle" class="desc">已写满</text>
+  <rect x="145" y="146" width="100" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="195" y="171" text-anchor="middle" class="txt">页 2</text>
+  <text x="195" y="190" text-anchor="middle" class="desc">已写满</text>
+  <rect x="257" y="146" width="100" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="307" y="171" text-anchor="middle" class="txt">页 3</text>
+  <text x="307" y="190" text-anchor="middle" class="desc">追加到末尾</text>
+  <line x1="195" y1="206" x2="195" y2="242" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="33" y="244" width="324" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="195" y="269" text-anchor="middle" class="txt">写满一页再开新页，几乎不分裂</text>
+  <text x="195" y="288" text-anchor="middle" class="desc">页填充率高，热点集中在最右页，Buffer Pool 命中率高</text>
+
+  <!-- 右侧：随机写入 -->
+  <rect x="515" y="72" width="100" height="36" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="565" y="95" text-anchor="middle" class="txt">新行（随机 key）</text>
+  <line x1="565" y1="108" x2="565" y2="144" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="403" y="146" width="100" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="453" y="171" text-anchor="middle" class="txt">页 1</text>
+  <text x="453" y="190" text-anchor="middle" class="desc">半满</text>
+  <rect x="515" y="146" width="100" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="565" y="171" text-anchor="middle" class="txt">页 2（已满）</text>
+  <text x="565" y="190" text-anchor="middle" class="desc">要插在中间</text>
+  <rect x="627" y="146" width="100" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="677" y="171" text-anchor="middle" class="txt">页 3</text>
+  <text x="677" y="190" text-anchor="middle" class="desc">半满</text>
+  <line x1="565" y1="206" x2="565" y2="242" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="403" y="244" width="324" height="60" rx="8" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="565" y="269" text-anchor="middle" class="txt">页 2 分裂成两页，各搬走约一半记录</text>
+  <text x="565" y="288" text-anchor="middle" class="desc">随机 IO 多、页填充率低、索引更大，冷页频繁换入换出</text>
+</svg>

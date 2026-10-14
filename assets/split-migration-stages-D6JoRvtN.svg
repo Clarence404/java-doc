@@ -1,0 +1,68 @@
+<svg viewBox="0 0 760 240" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12" role="img" aria-label="服务拆分迁移四阶段：网关接管、抽出新服务、迁移数据、切写并下线">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .pan { rx:8; ry:8; fill:var(--bg); stroke-width:1.5; }
+    .ttl { font-weight:700; font-size:13px; }
+    .sub { font-size:11px; fill:var(--muted); }
+    .tag { font-size:11px; font-weight:700; }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect class="box" x="20" y="20" width="156" height="150" stroke="var(--muted)"/>
+  <text class="ttl" x="98" y="46" text-anchor="middle" fill="var(--fg)">① 网关接管入口</text>
+  <text class="sub" x="98" y="72" text-anchor="middle">单体前加 API 网关</text>
+  <text class="sub" x="98" y="92" text-anchor="middle">路由全部透传到单体</text>
+  <text class="sub" x="98" y="112" text-anchor="middle">新功能不再进单体</text>
+  <text class="sub" x="98" y="132" text-anchor="middle">梳理模块与表的归属</text>
+  <text class="tag" x="98" y="156" text-anchor="middle" fill="var(--muted)">数据：单体库</text>
+
+  <line class="arr" x1="176" y1="95" x2="206" y2="95"/>
+
+  <rect class="box" x="208" y="20" width="156" height="150" stroke="var(--b)"/>
+  <text class="ttl" x="286" y="46" text-anchor="middle" fill="var(--b)">② 抽出新服务</text>
+  <text class="sub" x="286" y="72" text-anchor="middle">新服务 + 防腐层</text>
+  <text class="sub" x="286" y="92" text-anchor="middle">数据仍在单体库</text>
+  <text class="sub" x="286" y="112" text-anchor="middle">经单体 API 读写</text>
+  <text class="sub" x="286" y="132" text-anchor="middle">网关按比例灰度切流</text>
+  <text class="tag" x="286" y="156" text-anchor="middle" fill="var(--b)">数据：单体库为准</text>
+
+  <line class="arr" x1="364" y1="95" x2="394" y2="95"/>
+
+  <rect class="box" x="396" y="20" width="156" height="150" stroke="var(--y)"/>
+  <text class="ttl" x="474" y="46" text-anchor="middle" fill="var(--y)">③ 迁移数据</text>
+  <text class="sub" x="474" y="72" text-anchor="middle">建服务独享库</text>
+  <text class="sub" x="474" y="92" text-anchor="middle">CDC 同步存量与增量</text>
+  <text class="sub" x="474" y="112" text-anchor="middle">校验对账、灰度切读</text>
+  <text class="sub" x="474" y="132" text-anchor="middle">写入仍走旧表</text>
+  <text class="tag" x="474" y="156" text-anchor="middle" fill="var(--y)">数据：旧库为准</text>
+
+  <line class="arr" x1="552" y1="95" x2="582" y2="95"/>
+
+  <rect class="box" x="584" y="20" width="156" height="150" stroke="var(--g)"/>
+  <text class="ttl" x="662" y="46" text-anchor="middle" fill="var(--g)">④ 切写并下线</text>
+  <text class="sub" x="662" y="72" text-anchor="middle">停写、追平、切主写</text>
+  <text class="sub" x="662" y="92" text-anchor="middle">开启新库反向同步</text>
+  <text class="sub" x="662" y="112" text-anchor="middle">断开旧表访问</text>
+  <text class="sub" x="662" y="132" text-anchor="middle">删除单体旧代码</text>
+  <text class="tag" x="662" y="156" text-anchor="middle" fill="var(--g)">数据：新库为准</text>
+
+  <rect class="pan" x="20" y="186" width="720" height="34" stroke="var(--border)"/>
+  <text class="sub" x="380" y="207" text-anchor="middle">每一步都能回退：路由开关、读开关、写开关分别切回单体，反向同步保证旧库数据不缺</text>
+</svg>
