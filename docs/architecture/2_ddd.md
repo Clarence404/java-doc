@@ -344,6 +344,8 @@ com.example.order/
         └── OutboxRelay.java           # 投递任务：Outbox → MQ
 ```
 
+仓库布局、多模块拆分以及 COLA、Spring Modulith 等其他分包方式见 [工程结构与分包](./2_package_structure)。
+
 ### 2、应用服务
 
 远程调用不要放进数据库事务：事务期间会一直占用连接，远程调用慢或超时就形成长事务。先在事务外查询、组装，再开一个短事务完成写入：
@@ -416,4 +418,4 @@ public class PlaceOrderUseCase {
 - Spring Framework · Transaction-bound Events：[https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html)
 - microservices.io · Transactional Outbox：[https://microservices.io/patterns/data/transactional-outbox.html](https://microservices.io/patterns/data/transactional-outbox.html)
 
-> 下一篇：[幂等设计](./3_idempotence) —— HTTP 幂等语义与 Idempotency-Key，按插入、更新、消费、提交四类操作选方案，以及下单与支付回调的幂等落地。
+> 下一篇：[工程结构与分包](./2_package_structure) —— 仓库布局、Maven 模块划分与依赖方向、按层与按功能分包、对象归属，以及用 ArchUnit 与 Spring Modulith 守住边界。
