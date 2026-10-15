@@ -1,0 +1,66 @@
+<svg viewBox="0 0 660 340" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+    .title { font-weight: 700; font-size: 14px; }
+    .col { font-weight: 700; font-size: 13px; }
+    .pkg { font-weight: 700; font-size: 12px; font-family: Consolas, monospace; }
+    .sub { font-size: 10px; fill: var(--muted); }
+    .note { font-size: 11px; }
+  </style>
+  <rect width="660" height="340" fill="var(--bg)" rx="8"/>
+
+  <text x="330" y="26" class="title" text-anchor="middle">三种分包方式（同一个订单 + 用户系统）</text>
+
+  <!-- 按层分包 -->
+  <rect x="16" y="44" width="204" height="276" rx="8" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="118" y="68" class="col" text-anchor="middle" fill="var(--b)">按层分包</text>
+  <rect x="28" y="84" width="180" height="60" rx="5" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)"/>
+  <text x="118" y="106" class="pkg" text-anchor="middle">controller/</text>
+  <text x="118" y="126" class="sub" text-anchor="middle">Order / User Controller</text>
+  <rect x="28" y="152" width="180" height="60" rx="5" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)"/>
+  <text x="118" y="174" class="pkg" text-anchor="middle">service/</text>
+  <text x="118" y="194" class="sub" text-anchor="middle">Order / User Service</text>
+  <rect x="28" y="220" width="180" height="60" rx="5" fill="var(--b)" fill-opacity="0.10" stroke="var(--b)"/>
+  <text x="118" y="242" class="pkg" text-anchor="middle">mapper/</text>
+  <text x="118" y="262" class="sub" text-anchor="middle">Order / User Mapper</text>
+  <text x="118" y="304" class="note" text-anchor="middle" fill="var(--r)">改一个功能要跨 3 个包</text>
+
+  <!-- 按功能分包 -->
+  <rect x="228" y="44" width="204" height="276" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="330" y="68" class="col" text-anchor="middle" fill="var(--g)">按功能分包</text>
+  <rect x="240" y="84" width="180" height="60" rx="5" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)"/>
+  <text x="330" y="106" class="pkg" text-anchor="middle">order/</text>
+  <text x="330" y="126" class="sub" text-anchor="middle">Controller · Service · Mapper</text>
+  <rect x="240" y="152" width="180" height="60" rx="5" fill="var(--g)" fill-opacity="0.10" stroke="var(--g)"/>
+  <text x="330" y="174" class="pkg" text-anchor="middle">user/</text>
+  <text x="330" y="194" class="sub" text-anchor="middle">Controller · Service · Mapper</text>
+  <rect x="240" y="220" width="180" height="60" rx="5" fill="var(--card)" stroke="var(--border)"/>
+  <text x="330" y="242" class="pkg" text-anchor="middle">common/</text>
+  <text x="330" y="262" class="sub" text-anchor="middle">跨功能共享，越少越好</text>
+  <text x="330" y="304" class="note" text-anchor="middle" fill="var(--g)">改动集中在一个包</text>
+
+  <!-- 混合 -->
+  <rect x="440" y="44" width="204" height="276" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="542" y="68" class="col" text-anchor="middle" fill="var(--p)">混合：先功能后分层</text>
+  <rect x="452" y="84" width="180" height="60" rx="5" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)"/>
+  <text x="542" y="106" class="pkg" text-anchor="middle">order/</text>
+  <text x="542" y="126" class="sub" text-anchor="middle">web · app · domain · infra</text>
+  <rect x="452" y="152" width="180" height="60" rx="5" fill="var(--p)" fill-opacity="0.10" stroke="var(--p)"/>
+  <text x="542" y="174" class="pkg" text-anchor="middle">user/</text>
+  <text x="542" y="194" class="sub" text-anchor="middle">web · app · domain · infra</text>
+  <rect x="452" y="220" width="180" height="60" rx="5" fill="var(--card)" stroke="var(--border)"/>
+  <text x="542" y="242" class="pkg" text-anchor="middle">shared/</text>
+  <text x="542" y="262" class="sub" text-anchor="middle">跨模块的公共内核</text>
+  <text x="542" y="304" class="note" text-anchor="middle" fill="var(--p)">功能为界，包内再分层</text>
+</svg>
