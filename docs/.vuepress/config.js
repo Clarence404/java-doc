@@ -255,8 +255,11 @@ const DIR_TITLES = Object.fromEntries(ALL_MODULES.flatMap(m => [
 ]));
 
 export default defineUserConfig({
+    // head 里的路径不会自动加 base，必须写成带 /java-doc/ 的绝对路径，否则子页面会按相对路径找图标而 404
     head: [
-        ['link', {rel: 'icon', href: 'images/logo.png'}]
+        ['link', {rel: 'icon', href: '/java-doc/favicon.ico', sizes: 'any'}],
+        ['link', {rel: 'icon', type: 'image/png', href: '/java-doc/favicon.png'}],
+        ['link', {rel: 'apple-touch-icon', href: '/java-doc/apple-touch-icon.png'}],
     ],
     base: '/java-doc/',
     lang: 'zh-CN',
