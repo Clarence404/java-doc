@@ -66,7 +66,7 @@ java-doc/
 
 ## Getting Started
 
-**Requirements:** Node.js >= 18.20.5
+**Requirements:** Node.js >= 22.18.0 (the repository's `.nvmrc` pins the CI baseline)
 
 ```bash
 # Install dependencies
