@@ -9,9 +9,9 @@ on:
       - main
   workflow_dispatch:
 
-# 部署到 gh-pages 分支需要写权限；PR 只做构建与检查
+# 构建作业默认只读；部署作业按需单独申请 Pages 权限
 permissions:
-  contents: write
+  contents: read
 
 # 同一分支只保留最新一次运行
 concurrency:
@@ -19,13 +19,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-check-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
 
       - name: 设置 Node.js
         uses: actions/setup-node@v7
@@ -54,9 +52,28 @@ jobs:
         if: github.event_name != 'pull_request'
         run: touch docs/.vuepress/dist/.nojekyll
 
-      - name: 发布到 gh-pages
+      - name: 配置 GitHub Pages
         if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: actions/configure-pages@v5
+
+      - name: 上传 GitHub Pages 构件
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
         with:
-          branch: gh-pages
-          folder: docs/.vuepress/dist
+          path: docs/.vuepress/dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 发布到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

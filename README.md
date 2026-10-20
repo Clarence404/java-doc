@@ -103,7 +103,7 @@ npm run docs:build
 # Output: docs/.vuepress/dist/
 ```
 
-Deployment is automated via GitHub Actions on every push to `main` → deploys to `gh-pages` branch.
+Deployment is automated via GitHub Actions on every push to `main`: the site is built and checked first, then published through the official GitHub Pages artifact workflow.
 
 ---
 
