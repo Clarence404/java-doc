@@ -31,7 +31,8 @@ export const SUMMARY = {
         {text: '分布式架构', from: 10},
         {text: '三高架构', from: 12},
         {text: '架构设计', from: 15},
-        {text: '研发运维', from: 20},
+        {text: '研发效能', from: 20},
+        {text: '运维保障', from: 21},
         {text: '垂直领域', from: 24},
     ],
 };
