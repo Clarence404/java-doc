@@ -28,8 +28,7 @@ export const SUMMARY = {
         {text: '基础体系', from: 1},
         {text: '框架生态', from: 5},
         {text: '数据存储', from: 7},
-        {text: '分布式架构', from: 10},
-        {text: '三高架构', from: 12},
+        {text: '分布式系统', from: 10},
         {text: '架构设计', from: 15},
         {text: '研发效能', from: 20},
         {text: '运维保障', from: 21},
@@ -115,14 +114,10 @@ export const GROUPS = [
         ],
     },
     {
-        name: '分布式架构', tagline: '分布式理论到微服务落地', modules: [
+        name: '分布式系统', tagline: '分布式理论、微服务与高性能 · 高并发 · 高可用', modules: [
             {name: '分布式', dir: 'distributed', interview: ['10_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID'},
             {name: '微服务', dir: 'microservices', interview: ['11_microservices'], desc: '服务拆分 / 设计模式 / 服务网格 / Dubbo / 调用顺序'},
             {name: 'Spring Cloud', dir: 'spring-cloud', interview: ['11_spring_cloud'], desc: 'Nacos / Gateway / OpenFeign / Sentinel / Seata'},
-        ],
-    },
-    {
-        name: '三高架构', tagline: '高性能 · 高并发 · 高可用，系统级设计策略', modules: [
             {name: '高性能', dir: 'high-perf', interview: ['12_high_perf'], desc: '指标 / 方法论 / Profiler / JMH / 池化与异步 / IO 与数据库优化'},
             {name: '高并发', dir: 'high-con', interview: ['13_high_con'], desc: '接入层 / 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划'},
             {name: '高可用', dir: 'high-avail', interview: ['14_high_avail'], desc: 'SLA / 冗余切换 / 超时重试 / 熔断降级限流 / 多活容灾 / 应急复盘'},
