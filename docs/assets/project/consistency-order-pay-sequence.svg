@@ -1,0 +1,82 @@
+<svg viewBox="0 0 860 706" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+    .t { font-weight: 700; }
+    .d { font-size: 11px; fill: var(--muted); }
+    .lb { font-size: 11px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect width="860" height="706" fill="var(--bg)" rx="8"/>
+  <text x="430" y="28" text-anchor="middle" font-weight="700" font-size="14">下单、支付到库存确认的时序</text>
+
+  <!-- 参与方 -->
+  <rect x="20" y="44" width="140" height="40" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="90" y="69" text-anchor="middle" class="t">App</text>
+  <rect x="190" y="44" width="140" height="40" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="260" y="69" text-anchor="middle" class="t">mall-app（订单）</text>
+  <rect x="360" y="44" width="140" height="40" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="430" y="69" text-anchor="middle" class="t">inventory-service</text>
+  <rect x="530" y="44" width="140" height="40" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="600" y="69" text-anchor="middle" class="t">RocketMQ</text>
+  <rect x="700" y="44" width="140" height="40" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="770" y="69" text-anchor="middle" class="t">payment-service</text>
+
+  <!-- 生命线 -->
+  <line x1="90" y1="84" x2="90" y2="686" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="260" y1="84" x2="260" y2="686" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="430" y1="84" x2="430" y2="686" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="600" y1="84" x2="600" y2="686" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <line x1="770" y1="84" x2="770" y2="686" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="5 4"/>
+
+  <!-- 下单 -->
+  <line x1="90" y1="118" x2="258" y2="118" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="174" y="112" text-anchor="middle" class="lb">POST /api/orders</text>
+  <line x1="260" y1="156" x2="428" y2="156" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="344" y="150" text-anchor="middle" class="lb">reserve(orderNo)</text>
+  <rect x="335" y="170" width="190" height="32" rx="4" fill="var(--card)" stroke="var(--g)"/>
+  <text x="430" y="190" text-anchor="middle" class="d">预占：stock -n，reserved +n</text>
+  <line x1="430" y1="226" x2="262" y2="226" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="346" y="220" text-anchor="middle" class="lb">OK</text>
+  <rect x="160" y="240" width="200" height="32" rx="4" fill="var(--card)" stroke="var(--p)"/>
+  <text x="260" y="260" text-anchor="middle" class="d">本地事务：t_order + t_outbox</text>
+  <line x1="260" y1="294" x2="92" y2="294" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="176" y="288" text-anchor="middle" class="lb">201 Created</text>
+
+  <!-- 支付 -->
+  <line x1="90" y1="336" x2="768" y2="336" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="429" y="330" text-anchor="middle" class="lb">去支付（渠道收银台）</text>
+  <rect x="680" y="350" width="170" height="60" rx="4" fill="var(--card)" stroke="var(--r)"/>
+  <text x="765" y="374" text-anchor="middle" class="d">渠道回调验签</text>
+  <text x="765" y="394" text-anchor="middle" class="d">t_payment 成功 + t_outbox</text>
+  <line x1="770" y1="436" x2="602" y2="436" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="686" y="430" text-anchor="middle" class="lb">payment-succeeded</text>
+  <line x1="600" y1="474" x2="262" y2="474" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="431" y="468" text-anchor="middle" class="lb">order-payment-consumer 消费</text>
+  <rect x="165" y="488" width="190" height="60" rx="4" fill="var(--card)" stroke="var(--p)"/>
+  <text x="260" y="512" text-anchor="middle" class="d">订单 10 → 20（条件更新）</text>
+  <text x="260" y="532" text-anchor="middle" class="d">t_outbox：order-paid</text>
+
+  <!-- 确认库存 -->
+  <line x1="260" y1="574" x2="598" y2="574" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="429" y="568" text-anchor="middle" class="lb">order-paid</text>
+  <line x1="600" y1="612" x2="432" y2="612" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="516" y="606" text-anchor="middle" class="lb">confirm(orderNo)</text>
+  <rect x="340" y="626" width="180" height="60" rx="4" fill="var(--card)" stroke="var(--g)"/>
+  <text x="430" y="650" text-anchor="middle" class="d">RESERVED → CONFIRMED</text>
+  <text x="430" y="670" text-anchor="middle" class="d">reserved -n</text>
+</svg>

@@ -89,6 +89,7 @@ description: 资源路径、ProblemDetail 与模块错误码、下单幂等、�
 |---------|------|------|
 | `mall-common` | 无 | `VALIDATION_FAILED`、`UNAUTHORIZED`、`SYSTEM_ERROR` |
 | `mall-order` | `ORDER_` | `ORDER_NOT_FOUND`、`ORDER_STATUS_CONFLICT`、`ORDER_SKU_OFF_SHELF` |
+| `mall-product` | `PRODUCT_` | `PRODUCT_NOT_FOUND` |
 | `mall-inventory` | `STOCK_` | `STOCK_INSUFFICIENT` |
 | `mall-order` 的 `pay` 包 | `PAY_` | `PAY_AMOUNT_MISMATCH` |
 | `mall-user` | `USER_` | `USER_ADDRESS_NOT_FOUND` |
@@ -352,9 +353,9 @@ class PlaceOrderApiTests extends IntegrationTestBase {
 
 | 本篇的决策 | 带来的问题 | 在哪解决 |
 |-----------|-----------|---------|
-| 订单详情、列表直接查库 | 阶段二商品详情读约 2000 QPS，订单查询也跟着涨，数据库读压力大 | 下一篇「引入缓存」 |
-| 下单在一个同步事务里做完 | 发通知、积分等后续动作都塞进下单链路，响应变慢 | 「异步化」 |
-| 幂等靠单库唯一约束 | 拆服务后订单、库存、支付不在一个库里，一个事务包不住 | 「跨服务一致性」 |
+| 订单详情、列表直接查库 | 阶段二商品详情读约 2000 QPS，订单查询也跟着涨，数据库读压力大 | 下一篇 [引入缓存](./4_cache)：先缓存商品详情，订单查询走索引继续直查 |
+| 后续动作都同步执行 | 支付成功后的通知、积分等动作塞在回调里，第三方一慢就拖累下单 | [异步化](./5_async) |
+| 幂等靠单库唯一约束 | 拆服务后订单、库存、支付不在一个库里，一个事务包不住 | [跨服务一致性](./7_consistency) |
 | 幂等只认键、不比对请求体 | 客户端复用键的 bug 会被当成重放，悄悄返回旧订单 | 需要时在 [数据建模](./2_data_model) 的订单表上补请求摘要列 |
 | 没有限流与签名 | 大促时被刷接口没有防线 | 「稳定性」 |
 
@@ -381,4 +382,4 @@ class PlaceOrderApiTests extends IntegrationTestBase {
 - Spring Framework Reference · API Versioning：[https://docs.spring.io/spring-framework/reference/web/webmvc-versioning.html](https://docs.spring.io/spring-framework/reference/web/webmvc-versioning.html)
 - Jakarta Bean Validation 3.1 Specification：[https://jakarta.ee/specifications/bean-validation/3.1/](https://jakarta.ee/specifications/bean-validation/3.1/)
 
-> 返回：[项目演进总览](./0_overview)（下一篇「引入缓存」连载中）
+> 下一篇：[引入缓存](./4_cache) —— 读多写少的商品与订单查询怎么加缓存、怎么保证一致

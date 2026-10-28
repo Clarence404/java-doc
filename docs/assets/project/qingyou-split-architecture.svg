@@ -1,0 +1,77 @@
+<svg viewBox="0 0 720 424" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1;  --b:#0284c7;    --g:#059669;   --y:#d97706;   --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8;  --b:#38bdf8;    --g:#34d399;   --y:#fbbf24;   --r:#f87171;
+      }
+    }
+    .title { font-size:14px; font-weight:700; fill:var(--fg); }
+    .box-title { font-size:13px; font-weight:700; fill:var(--fg); }
+    .desc { font-size:11px; fill:var(--muted); }
+  </style>
+  <defs>
+    <marker id="arrow-qy-split" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
+    </marker>
+  </defs>
+  <text class="title" x="360" y="26" text-anchor="middle">阶段三：拆出库存与支付服务后的部署结构</text>
+
+  <rect x="250" y="44" width="220" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="68" text-anchor="middle">客户端与支付渠道</text>
+  <text class="desc" x="360" y="88" text-anchor="middle">App、H5、运营后台、支付回调</text>
+
+  <line x1="360" y1="104" x2="360" y2="132" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-qy-split)"/>
+
+  <rect x="250" y="134" width="220" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="158" text-anchor="middle">mall-gateway</text>
+  <text class="desc" x="360" y="178" text-anchor="middle">按路径路由、统一校验 JWT</text>
+
+  <rect x="520" y="134" width="170" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text class="box-title" x="605" y="158" text-anchor="middle">Nacos</text>
+  <text class="desc" x="605" y="178" text-anchor="middle">注册发现 + 配置中心</text>
+
+  <line x1="300" y1="194" x2="160" y2="222" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-qy-split)"/>
+  <line x1="360" y1="194" x2="360" y2="222" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-qy-split)"/>
+  <line x1="420" y1="194" x2="560" y2="222" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-qy-split)"/>
+
+  <rect x="30" y="224" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text class="box-title" x="130" y="248" text-anchor="middle">mall-app</text>
+  <text class="desc" x="130" y="268" text-anchor="middle">订单、商品、用户</text>
+
+  <line x1="230" y1="254" x2="258" y2="254" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-qy-split)"/>
+
+  <rect x="260" y="224" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="248" text-anchor="middle">inventory-service</text>
+  <text class="desc" x="360" y="268" text-anchor="middle">库存查询与扣减</text>
+
+  <rect x="490" y="224" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text class="box-title" x="590" y="248" text-anchor="middle">payment-service</text>
+  <text class="desc" x="590" y="268" text-anchor="middle">支付单、渠道对接与回调</text>
+
+  <line x1="130" y1="284" x2="130" y2="312" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-qy-split)"/>
+  <line x1="360" y1="284" x2="360" y2="312" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-qy-split)"/>
+  <line x1="590" y1="284" x2="590" y2="312" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-qy-split)"/>
+
+  <rect x="30" y="314" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="130" y="338" text-anchor="middle">qingyou_mall</text>
+  <text class="desc" x="130" y="358" text-anchor="middle">订单、商品、用户表</text>
+
+  <rect x="260" y="314" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="360" y="338" text-anchor="middle">qingyou_inventory</text>
+  <text class="desc" x="360" y="358" text-anchor="middle">t_inventory（独立实例）</text>
+
+  <rect x="490" y="314" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text class="box-title" x="590" y="338" text-anchor="middle">qingyou_payment</text>
+  <text class="desc" x="590" y="358" text-anchor="middle">t_payment</text>
+
+  <text class="desc" x="360" y="400" text-anchor="middle">横向箭头为 mall-app 调用库存服务；payment-service 回调 mall-app 的连线省略；三个服务都向 Nacos 注册</text>
+</svg>

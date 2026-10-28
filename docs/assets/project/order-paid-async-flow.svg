@@ -1,0 +1,73 @@
+<svg viewBox="0 0 760 530" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+    .t { font-weight: 700; }
+    .d { font-size: 11px; fill: var(--muted); }
+    .lb { font-size: 11px; fill: var(--r); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+  <rect width="760" height="530" fill="var(--bg)" rx="8"/>
+  <text x="380" y="30" text-anchor="middle" font-weight="700" font-size="14">支付成功后的异步链路</text>
+
+  <!-- A 回调与本地事务 -->
+  <rect x="20" y="50" width="200" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="120" y="76" text-anchor="middle" class="t">支付渠道回调</text>
+  <text x="120" y="96" text-anchor="middle" class="d">事务提交即应答 200</text>
+  <rect x="260" y="50" width="480" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="500" y="76" text-anchor="middle" class="t">PayCallbackService 本地事务</text>
+  <text x="500" y="96" text-anchor="middle" class="d">t_payment 置成功、t_order 10→20、INSERT t_outbox（order-paid）</text>
+  <line x1="220" y1="80" x2="258" y2="80" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- B 中继 -->
+  <rect x="20" y="150" width="720" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="380" y="176" text-anchor="middle" class="t">OutboxRelay 中继投递</text>
+  <text x="380" y="196" text-anchor="middle" class="d">提交后立即发送；每秒扫表兜底（FOR UPDATE SKIP LOCKED），发送成功置 SENT</text>
+  <line x1="500" y1="110" x2="500" y2="148" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- C Topic -->
+  <rect x="20" y="250" width="720" height="60" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="380" y="276" text-anchor="middle" class="t">RocketMQ 5 · Topic order-paid</text>
+  <text x="380" y="296" text-anchor="middle" class="d">普通消息，Keys = orderNo，每个消费组各收一份</text>
+  <line x1="380" y1="210" x2="380" y2="248" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- D 消费组 -->
+  <rect x="20" y="350" width="232" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="136" y="376" text-anchor="middle" class="t">points-consumer</text>
+  <text x="136" y="396" text-anchor="middle" class="d">mall-user 加积分</text>
+  <rect x="264" y="350" width="232" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="380" y="376" text-anchor="middle" class="t">notify-consumer</text>
+  <text x="380" y="396" text-anchor="middle" class="d">短信与 App 推送</text>
+  <rect x="508" y="350" width="232" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="624" y="376" text-anchor="middle" class="t">shipment-consumer</text>
+  <text x="624" y="396" text-anchor="middle" class="d">调用 WMS 建发货单</text>
+  <line x1="136" y1="310" x2="136" y2="348" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="380" y1="310" x2="380" y2="348" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="624" y1="310" x2="624" y2="348" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- E 重试与死信 -->
+  <rect x="20" y="450" width="720" height="60" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="380" y="476" text-anchor="middle" class="t">返回 FAILURE：按阶梯退避重投</text>
+  <text x="380" y="496" text-anchor="middle" class="d">超过最大投递次数进入 %DLQ%{消费组}，触发告警，修复后人工重发</text>
+  <line x1="136" y1="410" x2="136" y2="448" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr-r)"/>
+  <line x1="380" y1="410" x2="380" y2="448" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr-r)"/>
+  <line x1="624" y1="410" x2="624" y2="448" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr-r)"/>
+  <text x="390" y="434" class="lb">失败</text>
+</svg>

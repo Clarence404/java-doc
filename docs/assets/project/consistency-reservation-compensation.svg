@@ -1,0 +1,67 @@
+<svg viewBox="0 0 760 450" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+    .t { font-weight: 700; }
+    .d { font-size: 11px; fill: var(--muted); }
+    .lb { font-size: 11px; }
+    .lr { font-size: 11px; fill: var(--r); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+  <rect width="760" height="450" fill="var(--bg)" rx="8"/>
+  <text x="380" y="28" text-anchor="middle" font-weight="700" font-size="14">预占记录的状态流转与补偿路径</text>
+
+  <!-- 状态 -->
+  <rect x="30" y="150" width="150" height="60" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="105" y="176" text-anchor="middle" class="t">无预占记录</text>
+  <text x="105" y="196" text-anchor="middle" class="d">order_no + sku_id</text>
+
+  <rect x="280" y="150" width="180" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="370" y="176" text-anchor="middle" class="t">RESERVED 已预占</text>
+  <text x="370" y="196" text-anchor="middle" class="d">stock -n，reserved +n</text>
+
+  <rect x="580" y="50" width="160" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="660" y="76" text-anchor="middle" class="t">CONFIRMED 已确认</text>
+  <text x="660" y="96" text-anchor="middle" class="d">reserved -n</text>
+
+  <rect x="580" y="250" width="160" height="60" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="660" y="276" text-anchor="middle" class="t">RELEASED 已释放</text>
+  <text x="660" y="296" text-anchor="middle" class="d">stock +n，reserved -n</text>
+
+  <rect x="280" y="370" width="180" height="60" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="370" y="396" text-anchor="middle" class="t">迟到的 reserve</text>
+  <text x="370" y="416" text-anchor="middle" class="d">撞 uk_order_sku，拒绝</text>
+
+  <!-- 正常路径 -->
+  <line x1="180" y1="180" x2="278" y2="180" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="229" y="174" text-anchor="middle" class="lb">reserve</text>
+  <line x1="460" y1="165" x2="578" y2="90" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="500" y="100" text-anchor="middle" class="lb">支付成功：confirm</text>
+  <line x1="460" y1="195" x2="578" y2="270" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="560" y="300" text-anchor="end" class="lb">取消 / 下单失败 / 过期回查：release</text>
+
+  <!-- 空回滚 -->
+  <path d="M105,210 L105,340 L640,340 L640,312" fill="none" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr-r)"/>
+  <text x="372" y="332" text-anchor="middle" class="lr">release 先到：写入 RELEASED 占位（空回滚）</text>
+
+  <!-- 防悬挂 -->
+  <path d="M460,400 L700,400 L700,312" fill="none" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr-r)"/>
+  <text x="580" y="392" text-anchor="middle" class="lr">遇到占位记录（防悬挂）</text>
+</svg>
