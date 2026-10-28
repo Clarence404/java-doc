@@ -36,6 +36,7 @@ docs/
 ├── observability/  可观测性：日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry
 ├── os/             操作系统：进程线程 / 内核态与系统调用 / 内存与 Page Cache / CPU 缓存 / Load / IPC
 ├── patterns/       设计模式（23 种 GoF）
+├── project/        项目演进：以订单服务为例，从单体到分布式的工程决策串讲
 ├── protocols/      网络协议：TCP/UDP / HTTP / HTTPS 与 TLS / DNS / RPC / 数据库 / 邮件 / 文件
 ├── quarkus/        Quarkus：构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / 其他 Java 框架
 ├── scenario/       业务场景：秒杀 / 订单 / 短链 / Feed / 搜索等系统设计案例
@@ -76,6 +77,7 @@ docs/
 | NoSQL | `docs/nosql/` | 键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索 / 图 |
 | 缓存 | `docs/cache/` | Redis / Caffeine / 两级缓存 |
 | 系统架构 | `docs/architecture/` | 架构设计 / DDD / 幂等 / 对象存储 |
+| 项目演进 | `docs/project/` | 工程搭建 / 数据建模 / 接口设计 / 缓存 / 异步 / 服务拆分 / 一致性 / 稳定性 / 可观测与发布 |
 | 业务场景 | `docs/scenario/` | 海量数据 / 秒杀 / 订单 / 短链 / 排行榜 / Feed / 搜索 / 红包 / LBS / 幂等 |
 | 云原生 | `docs/cloud-native/` | Linux 运维 / Docker / Kubernetes / Helm / Terraform / Ansible / VPS |
 | DevOps | `docs/devops/` | Git 工作流 / CI/CD / Code Review / 团队规范 |
@@ -99,7 +101,7 @@ docs/
 框架层：  Spring → Spring Boot → Netty → Vert.x → Quarkus
 数据层：  数据库 → NoSQL → 缓存 → 消息队列
 分布式系统：分布式理论 → 微服务 → Spring Cloud → 高性能 → 高并发 → 高可用
-架构层：  设计模式 → 系统架构 → 业务场景
+架构层：  设计模式 → 系统架构 → 业务场景 → 项目演进
 研发效能：测试工程 → DevOps → 工程效率 → 实战手册
 运维保障：云原生 → 可观测性 → 应用安全
 新兴层：  IoT → AI → 大数据 → Flink → 音视频

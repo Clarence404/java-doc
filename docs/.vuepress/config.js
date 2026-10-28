@@ -351,6 +351,8 @@ export default defineUserConfig({
     // 处理vite 打包警告
     bundler: viteBundler({
         viteOptions: {
+            // 1000 端口被占用时直接报错退出，不悄悄换端口：避免旧的开发服务器进程还在、浏览器看到的是旧页面
+            server: {strictPort: true},
             build: {
                 rollupOptions: {
                     onwarn(warning, warn) {

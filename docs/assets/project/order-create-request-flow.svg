@@ -1,0 +1,80 @@
+<svg viewBox="0 0 730 580" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+    .t { font-weight: 700; }
+    .d { font-size: 11px; fill: var(--muted); }
+    .lb { font-size: 11px; fill: var(--r); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+  <rect width="730" height="580" fill="var(--bg)" rx="8"/>
+  <text x="365" y="30" text-anchor="middle" font-weight="700" font-size="14">POST /api/orders 请求处理链路</text>
+
+  <!-- 1 过滤器 -->
+  <rect x="30" y="50" width="380" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="220" y="76" text-anchor="middle" class="t">过滤器链</text>
+  <text x="220" y="96" text-anchor="middle" class="d">TraceIdFilter 写入 MDC，认证过滤器校验 Bearer Token</text>
+
+  <!-- 2 Controller -->
+  <rect x="30" y="140" width="380" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="220" y="166" text-anchor="middle" class="t">PlaceOrderController</text>
+  <text x="220" y="186" text-anchor="middle" class="d">绑定请求体，读取 Idempotency-Key 请求头</text>
+
+  <!-- 3 校验 -->
+  <rect x="30" y="230" width="380" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="220" y="256" text-anchor="middle" class="t">参数校验</text>
+  <text x="220" y="276" text-anchor="middle" class="d">@Validated(OnCreate.class)，Bean Validation 分组</text>
+
+  <!-- 4 应用服务 -->
+  <rect x="30" y="320" width="380" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="220" y="346" text-anchor="middle" class="t">PlaceOrderService</text>
+  <text x="220" y="366" text-anchor="middle" class="d">事务外计价；撞 uk_user_biz 则查出已有订单重放</text>
+
+  <!-- 5 Service -->
+  <rect x="30" y="410" width="380" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="220" y="436" text-anchor="middle" class="t">PlaceOrderTxService</text>
+  <text x="220" y="456" text-anchor="middle" class="d">按 sku_id 升序扣库存，同一事务写 t_order / t_order_item</text>
+
+  <!-- 6 响应 -->
+  <rect x="30" y="500" width="380" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="220" y="526" text-anchor="middle" class="t">成功响应</text>
+  <text x="220" y="546" text-anchor="middle" class="d">201 Created + Location，响应体为订单资源</text>
+
+  <!-- 主链路箭头 -->
+  <line x1="220" y1="110" x2="220" y2="138" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="220" y1="200" x2="220" y2="228" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="220" y1="290" x2="220" y2="318" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="220" y1="380" x2="220" y2="408" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="220" y1="470" x2="220" y2="498" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 异常处理 -->
+  <rect x="500" y="230" width="200" height="240" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="600" y="320" text-anchor="middle" class="t">GlobalExceptionHandler</text>
+  <text x="600" y="344" text-anchor="middle" class="d">转成 ProblemDetail</text>
+  <text x="600" y="364" text-anchor="middle" class="d">application/problem+json</text>
+  <text x="600" y="384" text-anchor="middle" class="d">附带 code、traceId</text>
+
+  <line x1="410" y1="260" x2="498" y2="260" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr-r)"/>
+  <text x="455" y="254" text-anchor="middle" class="lb">400</text>
+  <line x1="410" y1="350" x2="498" y2="350" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr-r)"/>
+  <text x="455" y="344" text-anchor="middle" class="lb">422</text>
+  <line x1="410" y1="440" x2="498" y2="440" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr-r)"/>
+  <text x="455" y="434" text-anchor="middle" class="lb">4xx / 5xx</text>
+</svg>

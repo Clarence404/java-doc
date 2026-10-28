@@ -380,8 +380,8 @@ svg, img{ display:block; }
 .mod__desc{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:4px; padding-right:24px; font-size:12.5px; line-height:1.6; color:var(--muted); }
 /* 窄卡片也显示模块简介：卡片高度由同一行最高的卡片决定，不显示会在中间留出大块空白 */
 .cell--s .mod__desc{ padding-right:0; font-size:12px; }
-/* 窄卡片模块少时，列表在剩余高度里均匀铺开，空白分摊到各模块之间 */
-.cell--s .mods{ flex:1; display:flex; flex-direction:column; justify-content:space-between; }
+/* 卡片高度由同一行最高的卡片决定：模块少的卡片，列表在剩余高度里均匀铺开，空白分摊到各模块之间（各档宽度都适用，分组文章数变化后宽度排名会变） */
+.cell .mods{ flex:1; display:flex; flex-direction:column; justify-content:space-between; }
 @media (max-width:639px){ .mod__desc{ -webkit-line-clamp:1; } }
 @media (hover:hover){
   .mod:hover .mod__name{ color:var(--accent); }
