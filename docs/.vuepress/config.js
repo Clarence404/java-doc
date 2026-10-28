@@ -250,6 +250,64 @@ const linkSuffixPlugin = {
     },
 };
 
+// 本篇相关面试题：从答案页每道题的「→ 详见」链接反推被引用的文章，写入该文章自己的页面数据（relatedQuestions），
+// 由 Layout 的 contentAfter 插槽里的 <RelatedQuestions /> 渲染；同一题链到同一篇多个小节只算一次，按小节在文中的先后排序
+function computeRelatedQuestions(app) {
+    const pages = Object.fromEntries(app.pages
+        .filter(p => p.filePathRelative)
+        .map(p => [p.filePathRelative.replace(/\.md$/, ''), p]));
+    // 目标文章的标题位置：锚点 → [所属二级标题, 在文中的序号]
+    const sectionsOf = (page) => {
+        const out = {};
+        let i = 0;
+        const walk = (hs, h2) => hs.forEach(h => {
+            const top = h.level === 2 ? h : h2;
+            out[h.slug] = [top?.title ?? '', i++];
+            walk(h.children ?? [], top);
+        });
+        walk(page.headers ?? [], null);
+        return out;
+    };
+    const related = {};
+    for (const [key, p] of Object.entries(pages)) {
+        if (!key.startsWith('interview/') || key.endsWith('0_overview') || /^interview\/9\d_/.test(key)) continue;
+        const page = key.slice('interview/'.length);
+        const answerName = p.title.replace(/面试题解答$/, '').trim();
+        const questions = (p.headers ?? []).filter(h => h.level === 2).flatMap(h => (h.children ?? []).filter(c => c.level === 3));
+        const blocks = (p.content ?? '').split(/^### /m).slice(1);
+        if (blocks.length !== questions.length) continue;
+        questions.forEach((q, qi) => {
+            const m = q.title.match(/^Q?(\d+)[：:]\s*(.*)$/);
+            const seen = new Set();
+            for (const line of blocks[qi].split('\n').filter(l => l.startsWith('→ 详见'))) {
+                for (const [, href, anchor] of line.matchAll(/\]\(([^)#\s]+)(?:#([^)\s]+))?\)/g)) {
+                    if (/^https?:/.test(href)) continue;
+                    const target = (href.startsWith('/') ? href.slice(1) : path.posix.normalize(`interview/${href}`)).replace(/\.(md|html)$/, '');
+                    const tp = pages[target];
+                    if (!tp || seen.has(target) || target.startsWith('interview/')) continue;
+                    seen.add(target);
+                    // 链到整篇（无锚点）或锚点找不到的题排在最后
+                    const [section, order] = (anchor && sectionsOf(tp)[decodeURIComponent(anchor)]) || ['', 1e6];
+                    (related[target] ??= []).push({
+                        page, answer: answerName, no: m ? m[1] : '', text: m ? m[2] : q.title,
+                        slug: q.slug, link: `/${key}#${q.slug}`, section, order,
+                    });
+                }
+            }
+        });
+    }
+    for (const [target, list] of Object.entries(related)) {
+        list.sort((a, b) => a.order - b.order);
+        pages[target].data.relatedQuestions = list;
+    }
+}
+
+const relatedQuestionsPlugin = {
+    name: 'related-questions',
+    // 页面数据在 prepare 阶段写入临时文件，这里在 init 之后补上；开发模式下答案页改动需重启才会反映到文章末尾
+    onInitialized: (app) => computeRelatedQuestions(app),
+};
+
 const moduleNavPlugin = {
     name: 'module-nav',
     onPrepared: (app) => writeModuleNav(app),
@@ -289,7 +347,7 @@ export default defineUserConfig({
     title: 'Java Doc',
     description: '实践是检验真理的唯一标准',
     // 首页知识星图的数字（文章数 / 题数 / 答案页 / SVG）在构建时统计
-    plugins: [homeStatsPlugin(docsRoot), moduleNavPlugin, linkSuffixPlugin],
+    plugins: [homeStatsPlugin(docsRoot), moduleNavPlugin, relatedQuestionsPlugin, linkSuffixPlugin],
     // 处理vite 打包警告
     bundler: viteBundler({
         viteOptions: {

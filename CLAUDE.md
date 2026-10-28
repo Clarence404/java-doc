@@ -162,6 +162,7 @@ description: 要点一、要点二、要点三
 | 面试题解「对应题目清单」 | `site.js` | 模块的 `interview` 字段（本模块题单对应的答案页） |
 | 模块题单（`99_interview`） | 答案页 | `<InterviewList page="…" />` 读取答案页的分组与题目自动生成 |
 | 总览页导航表「覆盖内容」 | Markdown 文件 | frontmatter `description` |
+| 文章末尾「本篇相关面试题」 | 答案页 | 构建时从每道题的「→ 详见」链接反推，写入被引用文章的页面数据，由 `layouts/Layout.vue` 的 `contentAfter` 插槽渲染，不改文章 |
 | 文章数 / 题数 / 答案页数 / SVG 数 | `.vuepress/plugins/homeStats.js` | 构建时扫描 `docs/` 自动统计，首页使用 |
 | 首页推荐博客、页脚 | `site.js` 的 `REFS` / `FOOTER` | 首页 |
 | 版本基线 | `site.js` 的 `BASELINE` | `interview/92_versions`（`<VersionBaseline />`）；`docs:check` 据此检查总览页「版本基线」行与引言「基线为」句 |

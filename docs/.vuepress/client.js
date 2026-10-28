@@ -1,5 +1,6 @@
 import {defineClientConfig} from 'vuepress/client';
 import HomeLayout from './layouts/HomeLayout.vue';
+import Layout from './layouts/Layout.vue';
 import ModuleNav from './components/ModuleNav.vue';
 import InterviewList from './components/InterviewList.vue';
 import LearningRoutes from './components/LearningRoutes.vue';
@@ -33,5 +34,6 @@ export default defineClientConfig({
         // 版本基线速查：<VersionBaseline />，由 site.js 的 BASELINE 生成
         app.component('VersionBaseline', VersionBaseline);
     },
-    layouts: {HomeLayout},
+    // Layout 覆盖主题默认布局，在正文之后加「本篇相关面试题」
+    layouts: {HomeLayout, Layout},
 });
