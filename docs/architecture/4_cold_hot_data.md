@@ -138,7 +138,7 @@ ALTER TABLE orders DROP PARTITION p202401;
 |------|---------|------|
 | 同库归档 | 归档表 / 分区表 | 最简单，归档表只保留主键与时间等少量索引 |
 | 跨库归档 | 独立的 MySQL 归档实例 | 大容量盘、少索引，业务查询方式不变 |
-| 冷数据仍要做统计分析 | ClickHouse / Apache Doris / StarRocks | 列存压缩比高；支持 TTL 与冷热存储策略（如按时间把分区移到低成本磁盘或对象存储），见 [列式与 OLAP 数据库](/database/4_nosql/0_column_db) |
+| 冷数据仍要做统计分析 | ClickHouse / Apache Doris / StarRocks | 列存压缩比高；支持 TTL 与冷热存储策略（如按时间把分区移到低成本磁盘或对象存储），见 [列式与 OLAP 数据库](/nosql/3_column_db) |
 | 分布式数据库 | TiDB Placement Rules in SQL | 手动把指定分区放到带特定标签的存储节点，不会按热度自动分层 |
 | 海量明细、极少访问 | 对象存储 + Parquet / Iceberg 湖表 | 成本最低，用 Trino、Spark 按需查询；对象存储的生命周期与归档类别见 [对象存储](./5_object_storage) |
 | 时序数据 | InfluxDB / TimescaleDB / TDengine | 内置保留策略与降采样 |

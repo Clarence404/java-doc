@@ -4,7 +4,7 @@ description: 宽列 HBase、ClickHouse / Doris / StarRocks、MergeTree、分布�
 
 # 列式与 OLAP 数据库
 
-> 前置阅读：[MySQL 索引](../1_mysql/4_topic_index)、[数据库选型参考](../6_reference/1_selection_guide)
+> 前置阅读：[MySQL 索引](/database/1_mysql/4_topic_index)、[数据库选型参考](/database/6_reference/1_selection_guide)
 
 「列式数据库」常被混指宽列存储（HBase）与列式 OLAP（ClickHouse、Doris）两类差别很大的产品。本篇讲 HBase 的 RowKey 设计、ClickHouse 的 MergeTree 与分布式表，以及选型。
 
@@ -31,7 +31,7 @@ HBase 的「列族」只决定哪些列放进同一组文件，每个列族内�
 
 ### 2、数据模型
 
-![HBase 数据模型](../../assets/database/hbase-data-model.svg)
+![HBase 数据模型](../assets/database/hbase-data-model.svg)
 
 - **Table** 按 RowKey 范围水平切分成多个 Region
 - **RowKey** 是唯一主键，数据按 RowKey 字典序存放
@@ -49,7 +49,7 @@ HBase 的「列族」只决定哪些列放进同一组文件，每个列族内�
 
 ### 3、架构组件
 
-![HBase 架构](../../assets/database/hbase-architecture.svg)
+![HBase 架构](../assets/database/hbase-architecture.svg)
 
 | 组件 | 职责 |
 |------|------|
@@ -60,7 +60,7 @@ HBase 的「列族」只决定哪些列放进同一组文件，每个列族内�
 
 ### 4、读写流程（LSM 树）
 
-![HBase LSM 写入与读取流程](../../assets/database/hbase-lsm-flow.svg)
+![HBase LSM 写入与读取流程](../assets/database/hbase-lsm-flow.svg)
 
 写入先追加 WAL 再写 MemStore，MemStore 满后 Flush 成 HFile，后台 Compaction 合并文件；读取依次查 BlockCache、MemStore 和多个 HFile 并合并版本，BloomFilter 用来跳过不含该行的文件。
 
@@ -121,7 +121,7 @@ public final class RowKeys {
 |------|----------------|----------|
 | 按 RowKey 点查 / 前缀扫描 | 适合，毫秒级 | — |
 | 海量明细写入（十亿行以上） | 适合 | — |
-| 时序数据 | 可以，但专用 TSDB 更省心 | [时序数据库](./1_time_series_db) |
+| 时序数据 | 可以，但专用 TSDB 更省心 | [时序数据库](./4_time_series_db) |
 | 复杂 SQL 查询 | 不适合 | Phoenix 或导入 OLAP 引擎 |
 | 多表 JOIN、聚合报表 | 不适合 | ClickHouse / Doris / StarRocks |
 | 数据量在千万行以内 | 不必要 | MySQL |
@@ -138,7 +138,7 @@ public final class RowKeys {
 
 ### 2、为什么列存适合分析
 
-![行存与列存的读取对比](../../assets/database/row-vs-column-store.svg)
+![行存与列存的读取对比](../assets/database/row-vs-column-store.svg)
 
 以 `SELECT sum(amount) FROM orders WHERE status = 'paid'` 为例：行存要把整行读进内存，列存只读 `status` 和 `amount` 两个列文件。
 
@@ -226,7 +226,7 @@ ALTER TABLE events MATERIALIZE INDEX idx_user_bf;
 
 ### 6、分布式表与副本
 
-![ClickHouse 分布式表与副本拓扑](../../assets/database/clickhouse-distributed.svg)
+![ClickHouse 分布式表与副本拓扑](../assets/database/clickhouse-distributed.svg)
 
 ```sql
 -- 1. 每个节点建本地表（带副本）
@@ -365,4 +365,4 @@ OLAP 在整体架构中的位置（读写分离到异构存储、冷热分层）
 - Apache Doris 数据模型：[https://doris.apache.org/docs/table-design/data-model/overview](https://doris.apache.org/docs/table-design/data-model/overview)
 - StarRocks 文档：[https://docs.starrocks.io/docs/introduction/StarRocks_intro/](https://docs.starrocks.io/docs/introduction/StarRocks_intro/)
 
-> 下一篇：[时序数据库](./1_time_series_db) —— 写多读少、按时间聚合与过期的时序数据怎么存
+> 下一篇：[时序数据库](./4_time_series_db) —— 写多读少、按时间聚合与过期的时序数据怎么存

@@ -12,7 +12,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 
 ## 一、全景选型矩阵
 
-每类数据库这里只给定位与取舍，原理与深入对比在各自的主文档里；国产数据库、TiDB / OceanBase 的详细对比分别见 [其他 RDBMS](../3_relational/0_other_rdbms) 与 [分布式数据库](../3_relational/1_distributed_db)。
+每类数据库这里只给定位与取舍，原理与深入对比在各自的主文档里；国产数据库、TiDB / OceanBase 的详细对比分别见 [其他 RDBMS](../3_relational/0_other_rdbms) 与 [分布式数据库](../3_relational/1_distributed_db)，NoSQL 各类见 [NoSQL 总览](/nosql/0_overview)，向量库与对象存储分别见 [向量数据库](/ai/4_core_tech/1_vector_db) 与 [对象存储](/architecture/5_object_storage)。
 
 | 数据库 | 类型 | 核心优势 | 典型场景 | 不适合 |
 |-------|------|---------|---------|-----------|
@@ -21,6 +21,8 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | **TiDB** | 分布式关系型 | MySQL 协议兼容、水平扩展、TiFlash 列存 HTAP | 单库容量瓶颈、实时 HTAP | 小数据量、对单次延迟极敏感 |
 | **OceanBase** | 分布式关系型 | Paxos 多副本、高压缩、多租户、MySQL / Oracle 兼容模式 | 金融核心、多租户 SaaS、Oracle 迁移 | 中小规模（资源与运维门槛高） |
 | **MongoDB** | 文档 | 灵活 Schema、嵌套文档、原生分片 | 内容管理、用户画像、IoT 元数据 | 大量多文档事务、复杂多表关联 |
+| **RocksDB / etcd** | 嵌入式 KV / 强一致 KV | RocksDB 进程内 LSM 引擎写入快；etcd 基于 Raft 强一致、支持 watch | 存储引擎底座、状态存储；配置、选主与元数据 | 复杂查询；etcd 不适合大数据量 |
+| **SQLite / DuckDB** | 嵌入式关系型 | 单文件、零运维；DuckDB 进程内列式分析 | 客户端与边缘存储、本地分析 | 高并发写入、多机共享 |
 | **Redis** | 内存 KV | 极低延迟、丰富数据结构 | 缓存、会话、排行榜、限流 | 数据量远超内存、需要复杂查询 |
 | **Elasticsearch / OpenSearch** | 搜索引擎 | 倒排索引全文检索、聚合、向量检索 | 商品搜索、日志检索 | 事务、频繁单行更新、作为主数据存储 |
 | **ClickHouse** | 列式 OLAP | 单表聚合极快、高压缩比 | 日志与行为分析、实时报表 | 高频点查与单行更新、事务 |
@@ -31,6 +33,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | **TimescaleDB** | 时序（PG 扩展） | 完整 SQL、超表自动分区、压缩 | 需要关联业务表的时序数据 | 超大规模纯指标场景 |
 | **Neo4j** | 图 | 原生图存储、Cypher | 知识图谱、社交关系、反欺诈 | 非关系遍历型查询 |
 | **Milvus** | 向量 | 十亿级向量 ANN 检索、多种索引 | 大规模 RAG、语义搜索、以图搜图 | 结构化查询 |
+| **S3 / MinIO** | 对象存储 | 海量非结构化文件、按量扩容、低成本 | 图片、视频、备份、数据湖底座 | 随机小块修改、低延迟事务读写 |
 
 产品热度与趋势可参考 [DB-Engines Ranking](https://db-engines.com/en/ranking)。
 
@@ -56,7 +59,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | 与 OLTP 同一份数据做实时分析 | TiDB + TiFlash | 免去同步链路 |
 | 离线数仓、湖仓 | Spark / Flink + Iceberg / Paimon，查询层用 Trino、Doris、StarRocks | 存储在对象存储 |
 
-列式与 OLAP 引擎的原理对比见 [列式与 OLAP 数据库](../4_nosql/0_column_db)。
+列式与 OLAP 引擎的原理对比见 [列式与 OLAP 数据库](/nosql/3_column_db)。
 
 ### 3、全文搜索
 
@@ -66,7 +69,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | 已用 PostgreSQL、搜索需求简单 | PostgreSQL 内置全文检索（`tsvector` + GIN），中文需分词扩展 |
 | 只需要关键词模糊匹配、数据量小 | 数据库前缀索引或 N-gram 全文索引 |
 
-数据库到搜索引擎的同步方式见 [Elasticsearch 实战](../4_nosql/3_search_es_practice#五、与-mysql-同步) 与 [CDC 工具](../5_practice/0_cdc_tools)。
+数据库到搜索引擎的同步方式见 [Elasticsearch 实战](/nosql/5_search_es_practice#五、与-mysql-同步) 与 [CDC 工具](../5_practice/0_cdc_tools)。
 
 ### 4、缓存与 KV
 
@@ -88,7 +91,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | 通用时序库 | InfluxDB 3 | 查询语言为 SQL 与 InfluxQL，不再支持 Flux |
 | 历史明细的大规模分析 | ClickHouse | 稀疏主键索引 + 跳数索引，`PARTITION BY toYYYYMM(ts)` 按月分区 |
 
-时序数据库的数据模型与存储原理见 [时序数据库](../4_nosql/1_time_series_db)。
+时序数据库的数据模型与存储原理见 [时序数据库](/nosql/4_time_series_db)。
 
 ### 6、文档与半结构化
 
@@ -97,7 +100,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | Schema 多变、嵌套文档、需要原生分片 | MongoDB |
 | 以关系模型为主、部分字段半结构化 | PostgreSQL JSONB + GIN 索引，或 MySQL JSON + 多值索引 |
 
-MongoDB 自 4.0 起支持副本集多文档 ACID 事务、4.2 起支持分片集群事务，但多文档事务有时长与大小限制、开销明显，模型设计应尽量让一次业务操作落在单个文档内。详见 [文档数据库](../4_nosql/2_document_db)。
+MongoDB 自 4.0 起支持副本集多文档 ACID 事务、4.2 起支持分片集群事务，但多文档事务有时长与大小限制、开销明显，模型设计应尽量让一次业务操作落在单个文档内。详见 [文档数据库](/nosql/2_document_db)。
 
 ### 7、向量检索与 RAG
 

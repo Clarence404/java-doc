@@ -15,7 +15,7 @@ docs/
 ├── big-data/       大数据：数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 治理 / 实时数仓
 ├── cache/          缓存：Redis / Caffeine
 ├── cloud-native/   云原生：Linux / Docker / Kubernetes / VPS
-├── database/       数据库：MySQL / 列存 / 分布式 / 时序 / 文档 / 搜索
+├── database/       数据库：存储引擎 / MySQL / PostgreSQL / 分布式数据库 / CDC / 分库分表
 ├── devops/         DevOps：Git 工作流 / CI/CD / Code Review / 团队规范
 ├── distributed/    分布式理论 / 锁 / 事务 / 会话
 ├── engineering/    工程效率：构建 / 工具链 / 代码质量 / 线上诊断 / API 规范
@@ -32,6 +32,7 @@ docs/
 ├── messaging/      消息队列：Kafka / RocketMQ / RabbitMQ
 ├── microservices/  微服务：概念 / 拆分 / 组件 / 模式
 ├── netty/          IO 模型 / Reactor / 核心组件 / ByteBuf / 编解码与私有协议 / 心跳 / WebSocket / SSE / 生产调优
+├── nosql/          NoSQL：键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图
 ├── observability/  可观测性：日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry
 ├── os/             操作系统：进程线程 / 内核态与系统调用 / 内存与 Page Cache / CPU 缓存 / Load / IPC
 ├── patterns/       设计模式（23 种 GoF）
@@ -71,7 +72,8 @@ docs/
 | 高性能 | `docs/high-perf/` | 指标 / 方法论 / JMH / 池化与异步 / IO 与数据库优化 / Profiler |
 | 消息队列 | `docs/messaging/` | Kafka / RocketMQ / RabbitMQ |
 | 微服务 | `docs/microservices/` | 拆分 / 注册发现 / 网关 / 模式 / Dubbo |
-| 数据库 | `docs/database/` | MySQL / 分库分表 / 各类 NoSQL |
+| 数据库 | `docs/database/` | 存储引擎 / MySQL / PostgreSQL / 分布式数据库 / 分库分表 |
+| NoSQL | `docs/nosql/` | 键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索 / 图 |
 | 缓存 | `docs/cache/` | Redis / Caffeine / 两级缓存 |
 | 系统架构 | `docs/architecture/` | 架构设计 / DDD / 幂等 / 对象存储 |
 | 业务场景 | `docs/scenario/` | 海量数据 / 秒杀 / 订单 / 短链 / 排行榜 / Feed / 搜索 / 红包 / LBS / 幂等 |
@@ -95,7 +97,7 @@ docs/
 ```
 基础层：  Java 特性 → JVM → 数据结构与算法 → 操作系统 → 网络协议
 框架层：  Spring → Spring Boot → Netty → Vert.x → Quarkus
-数据层：  数据库 → 缓存 → 消息队列
+数据层：  数据库 → NoSQL → 缓存 → 消息队列
 分布式系统：分布式理论 → 微服务 → Spring Cloud → 高性能 → 高并发 → 高可用
 架构层：  设计模式 → 系统架构 → 业务场景
 研发效能：测试工程 → DevOps → 工程效率 → 实战手册

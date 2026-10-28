@@ -4,7 +4,7 @@ description: MySQL 全文检索边界、商品 Mapping、Java API Client、CDC �
 
 # 搜索
 
-> 前置阅读：[Elasticsearch 原理](/database/4_nosql/3_search_es)、[CDC 工具](/database/5_practice/0_cdc_tools)
+> 前置阅读：[Elasticsearch 原理](/nosql/5_search_es)、[CDC 工具](/database/5_practice/0_cdc_tools)
 
 商品搜索要先判断何时需要专用搜索引擎，再解决索引、查询、同步与相关性问题。本篇讲 Mapping 与组合查询、MySQL → ES 同步、零停机重建、相关性调优，基线为 Elasticsearch 9。
 
@@ -73,7 +73,7 @@ LIMIT 20;
 
 业务始终通过别名 `products` 访问，物理索引带版本号（`products_v1`），方便后面零停机重建：
 
-Elasticsearch 的倒排索引与分析器见 [Elasticsearch 原理](/database/4_nosql/3_search_es)，Mapping 设计、深分页、别名等用法见 [Elasticsearch 实战](/database/4_nosql/3_search_es_practice)。
+Elasticsearch 的倒排索引与分析器见 [Elasticsearch 原理](/nosql/5_search_es)，Mapping 设计、深分页、别名等用法见 [Elasticsearch 实战](/nosql/5_search_es_practice)。
 
 ```http
 PUT /products_v1
@@ -244,7 +244,7 @@ Mapping 改字段类型、换分词器时必须重建。关键是**重建期间�
 2. **先**启动一个新的消费组（如 `es-sync-products-v2`）从当前位点消费 CDC 事件，直接写 `products_v2`，相当于对新索引双写
 3. **再**从 MySQL 按主键分批全量导入 `products_v2`，同样带外部版本号。导入与增量谁先谁后都不要紧，旧版本会被拒绝
 4. 恢复 `refresh_interval` 和副本数，等集群变绿，比对文档数、抽样比对内容
-5. 原子切换别名 `products` 到 `products_v2`（`_aliases` 请求见 [Elasticsearch 实战](/database/4_nosql/3_search_es_practice#_1、别名与零停机-reindex)），停掉 v1 消费组
+5. 原子切换别名 `products` 到 `products_v2`（`_aliases` 请求见 [Elasticsearch 实战](/nosql/5_search_es_practice#_1、别名与零停机-reindex)），停掉 v1 消费组
 6. `products_v1` 保留一段时间用于回滚，确认无误后删除
 
 ---
@@ -342,7 +342,7 @@ POST /products/_search
 | 优化点 | 方案 |
 |--------|------|
 | 结果缓存 | 热门查询的首页结果缓存 1 到 5 分钟，结合本地缓存挡读热点 |
-| 深分页 | 用户翻页限制在前 100 页左右；导出、无限滚动用 `search_after` + PIT，见 [Elasticsearch 实战](/database/4_nosql/3_search_es_practice#三、深分页) |
+| 深分页 | 用户翻页限制在前 100 页左右；导出、无限滚动用 `search_after` + PIT，见 [Elasticsearch 实战](/nosql/5_search_es_practice#三、深分页) |
 | 只取需要的字段 | `_source` includes，列表页不返回大字段 |
 | Filter 优先 | 不需要打分的条件放 filter 上下文 |
 | 副本 | 读多写少时增加副本提升读吞吐 |

@@ -1,0 +1,78 @@
+<svg viewBox="0 0 760 540" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">B+ 树与 LSM-Tree：结构与写路径对比</text>
+
+  <!-- 左列：B+ 树 -->
+  <text x="195" y="54" text-anchor="middle" font-weight="700" font-size="13" fill="var(--b)">B+ 树（原地更新）</text>
+
+  <rect class="box" x="45" y="66" width="300" height="60" rx="6" stroke="var(--b)"/>
+  <text x="195" y="89" text-anchor="middle" font-weight="600" fill="var(--fg)">写请求 INSERT / UPDATE</text>
+  <text x="195" y="109" text-anchor="middle" fill="var(--muted)">先追加 redo log（顺序写，保证持久）</text>
+
+  <line class="arr" x1="195" y1="126" x2="195" y2="160"/>
+
+  <rect class="box" x="45" y="162" width="300" height="60" rx="6" stroke="var(--b)"/>
+  <text x="195" y="185" text-anchor="middle" font-weight="600" fill="var(--fg)">缓冲池中从根找到目标叶子页</text>
+  <text x="195" y="205" text-anchor="middle" fill="var(--muted)">页不在内存时先随机读入</text>
+
+  <line class="arr" x1="195" y1="222" x2="195" y2="256"/>
+
+  <rect class="box" x="45" y="258" width="300" height="60" rx="6" stroke="var(--y)"/>
+  <text x="195" y="281" text-anchor="middle" font-weight="600" fill="var(--fg)">在页内原地修改，页变为脏页</text>
+  <text x="195" y="301" text-anchor="middle" fill="var(--muted)">页满则分裂，删空过半可合并</text>
+
+  <line class="arr" x1="195" y1="318" x2="195" y2="352"/>
+
+  <rect class="box" x="45" y="354" width="300" height="80" rx="6" stroke="var(--g)"/>
+  <text x="195" y="379" text-anchor="middle" font-weight="600" fill="var(--fg)">磁盘：一棵 B+ 树（固定大小的页）</text>
+  <text x="195" y="399" text-anchor="middle" fill="var(--muted)">根 → 内部节点 → 叶子页（双向链表）</text>
+  <text x="195" y="418" text-anchor="middle" fill="var(--muted)">后台刷脏：散落各处的页，随机写</text>
+
+  <line class="arr" x1="195" y1="434" x2="195" y2="468"/>
+
+  <rect class="box" x="45" y="470" width="300" height="50" rx="6" stroke="var(--p)"/>
+  <text x="195" y="500" text-anchor="middle" fill="var(--fg)">读：根到叶 3～4 页，范围查询顺叶子链表</text>
+
+  <!-- 右列：LSM-Tree -->
+  <text x="565" y="54" text-anchor="middle" font-weight="700" font-size="13" fill="var(--r)">LSM-Tree（追加写）</text>
+
+  <rect class="box" x="415" y="66" width="300" height="60" rx="6" stroke="var(--r)"/>
+  <text x="565" y="89" text-anchor="middle" font-weight="600" fill="var(--fg)">写请求 PUT / DELETE</text>
+  <text x="565" y="109" text-anchor="middle" fill="var(--muted)">先追加 WAL（顺序写，保证持久）</text>
+
+  <line class="arr" x1="565" y1="126" x2="565" y2="160"/>
+
+  <rect class="box" x="415" y="162" width="300" height="60" rx="6" stroke="var(--r)"/>
+  <text x="565" y="185" text-anchor="middle" font-weight="600" fill="var(--fg)">写入内存 MemTable（跳表有序）</text>
+  <text x="565" y="205" text-anchor="middle" fill="var(--muted)">写满后冻结为不可变 MemTable</text>
+
+  <line class="arr" x1="565" y1="222" x2="565" y2="256"/>
+
+  <rect class="box" x="415" y="258" width="300" height="60" rx="6" stroke="var(--y)"/>
+  <text x="565" y="281" text-anchor="middle" font-weight="600" fill="var(--fg)">Flush：整块顺序写成 SSTable</text>
+  <text x="565" y="301" text-anchor="middle" fill="var(--muted)">文件只写一次，之后不再修改</text>
+
+  <line class="arr" x1="565" y1="318" x2="565" y2="352"/>
+
+  <rect class="box" x="415" y="354" width="300" height="80" rx="6" stroke="var(--g)"/>
+  <text x="565" y="379" text-anchor="middle" font-weight="600" fill="var(--fg)">磁盘：多层 SSTable（L0 → L1 → … → Ln）</text>
+  <text x="565" y="399" text-anchor="middle" fill="var(--muted)">后台 Compaction 归并排序、丢弃旧版本</text>
+  <text x="565" y="418" text-anchor="middle" fill="var(--muted)">同一个 key 会被重写多次（写放大）</text>
+
+  <line class="arr" x1="565" y1="434" x2="565" y2="468"/>
+
+  <rect class="box" x="415" y="470" width="300" height="50" rx="6" stroke="var(--p)"/>
+  <text x="565" y="500" text-anchor="middle" fill="var(--fg)">读：查内存再逐层查文件，靠布隆过滤器剪枝</text>
+</svg>

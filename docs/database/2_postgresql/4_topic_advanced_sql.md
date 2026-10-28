@@ -271,7 +271,7 @@ GROUP BY ROLLUP (status, date_trunc('month', created_at));
 
 ## 五、全文检索
 
-PG 内置全文检索，能满足站内搜索、后台检索这类中等规模的需求；需要复杂相关性排序、聚合分析、海量数据横向扩展时再上 Elasticsearch，边界见 [搜索数据库](../4_nosql/3_search_db)。
+PG 内置全文检索，能满足站内搜索、后台检索这类中等规模的需求；需要复杂相关性排序、聚合分析、海量数据横向扩展时再上 Elasticsearch，边界见 [搜索数据库](/nosql/5_search_db)。
 
 | 类型 | 说明 |
 |------|------|

@@ -1,0 +1,50 @@
+<svg viewBox="0 0 700 390" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+  </style>
+  <text x="350" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">键值与嵌入式存储全景：部署形态 × 数据位置</text>
+  <rect class="box" x="20" y="40" width="325" height="150" stroke="var(--b)"/>
+  <text x="182" y="64" text-anchor="middle" fill="var(--b)" font-weight="700" font-size="13">嵌入式 · 内存为主</text>
+  <text x="101" y="100" text-anchor="middle" fill="var(--fg)" font-weight="700">Caffeine</text>
+  <text x="101" y="118" text-anchor="middle" fill="var(--muted)" font-size="11">Java 堆内本地缓存</text>
+  <text x="263" y="100" text-anchor="middle" fill="var(--fg)" font-weight="700">H2 内存模式</text>
+  <text x="263" y="118" text-anchor="middle" fill="var(--muted)" font-size="11">单元测试的数据库替身</text>
+  <text x="101" y="150" text-anchor="middle" fill="var(--fg)" font-weight="700">SQLite :memory:</text>
+  <text x="101" y="168" text-anchor="middle" fill="var(--muted)" font-size="11">进程内临时关系表</text>
+  <text x="263" y="150" text-anchor="middle" fill="var(--fg)" font-weight="700">Chronicle Map</text>
+  <text x="263" y="168" text-anchor="middle" fill="var(--muted)" font-size="11">堆外共享内存 KV</text>
+  <rect class="box" x="355" y="40" width="325" height="150" stroke="var(--r)"/>
+  <text x="517" y="64" text-anchor="middle" fill="var(--r)" font-weight="700" font-size="13">分布式 · 内存为主</text>
+  <text x="436" y="100" text-anchor="middle" fill="var(--fg)" font-weight="700">Redis / Valkey</text>
+  <text x="436" y="118" text-anchor="middle" fill="var(--muted)" font-size="11">缓存与内存数据结构</text>
+  <text x="598" y="100" text-anchor="middle" fill="var(--fg)" font-weight="700">Memcached</text>
+  <text x="598" y="118" text-anchor="middle" fill="var(--muted)" font-size="11">纯缓存，无持久化</text>
+  <text x="436" y="150" text-anchor="middle" fill="var(--fg)" font-weight="700">Hazelcast</text>
+  <text x="436" y="168" text-anchor="middle" fill="var(--muted)" font-size="11">分布式 Map 与计算</text>
+  <text x="598" y="150" text-anchor="middle" fill="var(--fg)" font-weight="700">Apache Ignite</text>
+  <text x="598" y="168" text-anchor="middle" fill="var(--muted)" font-size="11">内存数据网格</text>
+  <rect class="box" x="20" y="200" width="325" height="150" stroke="var(--g)"/>
+  <text x="182" y="224" text-anchor="middle" fill="var(--g)" font-weight="700" font-size="13">嵌入式 · 磁盘为主</text>
+  <text x="101" y="260" text-anchor="middle" fill="var(--fg)" font-weight="700">RocksDB</text>
+  <text x="101" y="278" text-anchor="middle" fill="var(--muted)" font-size="11">LSM 引擎，写多读少</text>
+  <text x="263" y="260" text-anchor="middle" fill="var(--fg)" font-weight="700">LMDB</text>
+  <text x="263" y="278" text-anchor="middle" fill="var(--muted)" font-size="11">B+ 树 + mmap，读多</text>
+  <text x="101" y="310" text-anchor="middle" fill="var(--fg)" font-weight="700">SQLite</text>
+  <text x="101" y="328" text-anchor="middle" fill="var(--muted)" font-size="11">单文件关系库</text>
+  <text x="263" y="310" text-anchor="middle" fill="var(--fg)" font-weight="700">DuckDB</text>
+  <text x="263" y="328" text-anchor="middle" fill="var(--muted)" font-size="11">进程内 OLAP</text>
+  <rect class="box" x="355" y="200" width="325" height="150" stroke="var(--p)"/>
+  <text x="517" y="224" text-anchor="middle" fill="var(--p)" font-weight="700" font-size="13">分布式 · 磁盘为主</text>
+  <text x="436" y="260" text-anchor="middle" fill="var(--fg)" font-weight="700">TiKV</text>
+  <text x="436" y="278" text-anchor="middle" fill="var(--muted)" font-size="11">Raft 多副本事务 KV</text>
+  <text x="598" y="260" text-anchor="middle" fill="var(--fg)" font-weight="700">etcd</text>
+  <text x="598" y="278" text-anchor="middle" fill="var(--muted)" font-size="11">强一致元数据存储</text>
+  <text x="436" y="310" text-anchor="middle" fill="var(--fg)" font-weight="700">HBase / Cassandra</text>
+  <text x="436" y="328" text-anchor="middle" fill="var(--muted)" font-size="11">海量宽列 KV</text>
+  <text x="598" y="310" text-anchor="middle" fill="var(--fg)" font-weight="700">DynamoDB</text>
+  <text x="598" y="328" text-anchor="middle" fill="var(--muted)" font-size="11">云托管 KV</text>
+  <text x="350" y="372" text-anchor="middle" fill="var(--muted)" font-size="11">嵌入式：以库的形式跑在应用进程里，无网络开销、无高可用；分布式：独立部署、多副本，换来容量与容错</text>
+</svg>

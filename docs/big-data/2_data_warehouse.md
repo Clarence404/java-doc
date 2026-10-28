@@ -380,7 +380,7 @@ SELECT * FROM dim_user_zip WHERE end_date = DATE '9999-12-31';
 - **宽表是一种物化手段，不是建模方法**：先按维度模型建好事实表和维度表，再根据高频查询有选择地物化宽表；直接为每个需求建一张宽表，就退化回了烟囱式开发
 - **放在 DWD 或 DWS 的末端**：DWD 宽表服务于明细查询和自助分析，DWS 宽表服务于固定的指标看板
 - **控制维度属性的数量**：只放高频使用的属性，低频属性在查询时再 JOIN 维度表
-- ClickHouse 擅长单表大宽表，Doris / StarRocks 的多表 JOIN 能力较强，可以少建宽表，选型见 [列式与 OLAP 数据库](/database/4_nosql/0_column_db)
+- ClickHouse 擅长单表大宽表，Doris / StarRocks 的多表 JOIN 能力较强，可以少建宽表，选型见 [列式与 OLAP 数据库](/nosql/3_column_db)
 
 ---
 

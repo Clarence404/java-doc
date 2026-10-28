@@ -373,7 +373,7 @@ Micrometer 默认使用累积（cumulative）时间性，与 Prometheus 的 Coun
 
 ### 5、存储与高可用
 
-Prometheus 单机、无副本，本地 TSDB 默认保留 15 天，定位是短期存储。高可用的常规做法是两份相同配置的 Prometheus 同时抓取，Alertmanager 负责告警去重；长期存储和多集群全局查询通过 `remote_write` 接 Thanos、VictoriaMetrics 或 Grafana Mimir。存储原理与方案对比见 [时序数据库](/database/4_nosql/1_time_series_db) 第四节，本篇不展开。
+Prometheus 单机、无副本，本地 TSDB 默认保留 15 天，定位是短期存储。高可用的常规做法是两份相同配置的 Prometheus 同时抓取，Alertmanager 负责告警去重；长期存储和多集群全局查询通过 `remote_write` 接 Thanos、VictoriaMetrics 或 Grafana Mimir。存储原理与方案对比见 [时序数据库](/nosql/4_time_series_db) 第四节，本篇不展开。
 
 ---
 
@@ -507,7 +507,7 @@ histogram_quantile(0.99,
 - Kubernetes 中用 ServiceMonitor 声明抓取目标；批任务用 Pushgateway，统一 OpenTelemetry 的场景可用 `--web.enable-otlp-receiver` 直接推 OTLP
 - PromQL 记住四条：先 rate 后 sum、`histogram_quantile` 保留 `le`、比例用速率之和相除、窗口至少 4 倍抓取间隔；高频查询沉淀为 recording rules，看板按 RED → 资源 → 依赖 → 业务排布并纳入版本管理
 
-相关内容：应用侧依赖、端点暴露与 `MeterRegistry` 基础用法见 [Actuator 监控](/spring-boot/11_actuator) 第六节；平均值与分位数、Little 定律见 [性能指标](/high-perf/1_metrics)；USE / RED 的排查用法见 [性能分析方法论](/high-perf/2_methodology)；Prometheus 本地 TSDB 与长期存储见 [时序数据库](/database/4_nosql/1_time_series_db) 第四节；SLO 与燃烧速率告警见 [可用性度量](/high-avail/1_sla_slo)；告警规则与 Alertmanager 见 [告警体系](./4_alerting)。
+相关内容：应用侧依赖、端点暴露与 `MeterRegistry` 基础用法见 [Actuator 监控](/spring-boot/11_actuator) 第六节；平均值与分位数、Little 定律见 [性能指标](/high-perf/1_metrics)；USE / RED 的排查用法见 [性能分析方法论](/high-perf/2_methodology)；Prometheus 本地 TSDB 与长期存储见 [时序数据库](/nosql/4_time_series_db) 第四节；SLO 与燃烧速率告警见 [可用性度量](/high-avail/1_sla_slo)；告警规则与 Alertmanager 见 [告警体系](./4_alerting)。
 
 ## 参考资料
 

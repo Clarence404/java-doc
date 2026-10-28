@@ -96,19 +96,20 @@ export const GROUPS = [
         ],
     },
     {
-        name: '数据存储', tagline: '关系型、缓存与消息中间件', modules: [
+        name: '数据存储', tagline: '关系型、NoSQL、缓存与消息中间件', modules: [
             {
                 name: '数据库', dir: 'database', interview: ['7_db'],
-                desc: 'MySQL / PostgreSQL / 分布式数据库 / NoSQL / CDC / 分库分表',
+                desc: '存储引擎 / MySQL / PostgreSQL / 分布式数据库 / CDC / 分库分表',
                 subdirs: {
+                    '0_fundamentals': '存储原理',
                     '1_mysql': {title: 'MySQL', sidebar: [{text: '核心专项', from: 4}]},
                     '2_postgresql': {title: 'PostgreSQL', sidebar: [{text: '核心专项', from: 2}]},
                     '3_relational': '关系库',
-                    '4_nosql': 'NoSQL',
                     '5_practice': '架构运维',
                     '6_reference': '参考延伸',
                 },
             },
+            {name: 'NoSQL', dir: 'nosql', interview: ['7_db'], desc: '键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图'},
             {name: '缓存', dir: 'cache', interview: ['8_cache'], desc: 'Redis / Redisson / Caffeine / 两级缓存 / 缓存一致性'},
             {name: '消息队列', dir: 'messaging', interview: ['9_mq'], desc: 'Kafka / RocketMQ / RabbitMQ 原理与选型'},
         ],
@@ -245,6 +246,18 @@ export const BASELINE = {
     ],
 };
 
+// 重定向：文章搬家后旧地址自动跳到新地址（@vuepress/plugin-redirect），键为旧路径、值为新路径，均不带 .html
+export const REDIRECTS = {
+    // 2026-10：database/4_nosql 拆为独立的 NoSQL 模块
+    '/database/4_nosql/0_column_db': '/nosql/3_column_db',
+    '/database/4_nosql/1_time_series_db': '/nosql/4_time_series_db',
+    '/database/4_nosql/2_document_db': '/nosql/2_document_db',
+    '/database/4_nosql/3_search_db': '/nosql/5_search_db',
+    '/database/4_nosql/3_search_es': '/nosql/5_search_es',
+    '/database/4_nosql/3_search_es_practice': '/nosql/5_search_es_practice',
+    '/database/4_nosql/4_graph_db': '/nosql/6_graph_db',
+};
+
 // 学习路线（interview/91_routes 页的 <LearningRoutes />）：按目标跨模块挑文章，标题与简介自动取文章的 H1 与 description
 // 字段：name 路线名、for 适合谁、time 总用时；stages 为阶段：title、time（可选）、note（可选提示）、items（docs/ 下的文章路径，不带 .md）
 export const ROUTES = [
@@ -272,7 +285,7 @@ export const ROUTES = [
     {
         name: '从 CRUD 到架构', for: '做了几年业务开发，想往架构方向走，按系统长大的顺序读', time: '约 1–2 个月',
         stages: [
-            {title: '把单体写扎实', items: ['database/1_mysql/3_table_design', 'database/1_mysql/7_topic_explain', 'architecture/3_idempotence', 'cache/10_cache_consistency', 'architecture/2_package_structure']},
+            {title: '把单体写扎实', items: ['database/0_fundamentals/1_storage_engine', 'database/1_mysql/3_table_design', 'database/1_mysql/7_topic_explain', 'architecture/3_idempotence', 'cache/10_cache_consistency', 'architecture/2_package_structure']},
             {title: '引入中间件', items: ['messaging/1_basics', 'high-con/4_async_peak_shaving', 'distributed/3_lock', 'distributed/4_transaction', 'distributed/8_id_generator']},
             {title: '拆分与治理', items: ['distributed/2_theorem', 'microservices/1_service_split', 'microservices/2_patterns', 'architecture/2_ddd', 'high-avail/4_timeout_retry_bulkhead', 'high-avail/5_circuit_breaking']},
             {title: '扛住流量', items: ['high-con/3_cache_architecture', 'high-con/5_data_scaling', 'high-con/6_hotspot', 'high-con/8_capacity_planning', 'high-avail/9_multi_active']},

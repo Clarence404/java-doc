@@ -4,7 +4,7 @@ description: Mapping 设计、bool 查询与聚合、深分页、别名与 ILM�
 
 # Elasticsearch 实战
 
-> 前置阅读：[Elasticsearch 原理](./3_search_es)、[CDC 工具](../5_practice/0_cdc_tools)
+> 前置阅读：[Elasticsearch 原理](./5_search_es)、[CDC 工具](/database/5_practice/0_cdc_tools)
 
 ES 用得好不好，主要看 Mapping 设计、查询写法和索引怎么滚动重建。本篇讲 Mapping 设计、查询与深分页、索引生命周期、与 MySQL 同步、性能调优、Java 客户端和常见故障，基线为 Elasticsearch 9。
 
@@ -160,7 +160,7 @@ GET /orders/_search
 
 ## 三、深分页
 
-`from + size` 每个分片都要返回 `from + size` 条结果（原理见 [Elasticsearch 原理](./3_search_es#_1、query-then-fetch)），默认不能超过 `index.max_result_window`（10000）。
+`from + size` 每个分片都要返回 `from + size` 条结果（原理见 [Elasticsearch 原理](./5_search_es#_1、query-then-fetch)），默认不能超过 `index.max_result_window`（10000）。
 
 | 方式 | 原理 | 适用 | 限制 |
 |------|------|------|------|
@@ -192,7 +192,7 @@ GET /_search
 
 改字段类型、换分词器都要新建索引重灌数据。业务始终通过别名访问，切换一次就完成：
 
-![别名切换实现零停机 Reindex](../../assets/database/es-alias-reindex.svg)
+![别名切换实现零停机 Reindex](../assets/database/es-alias-reindex.svg)
 
 ```http
 POST /_reindex?wait_for_completion=false&slices=auto
@@ -274,7 +274,7 @@ POST /logs-old/_split/logs-new
 - **乱序与重复**：写 ES 时用行上的版本号作为外部版本号（`version_type: external`），旧版本写入会被拒绝（409），直接忽略
 - **可观测**：监控同步延迟、失败重试、死信，并定期与主库对账
 
-CDC 工具的部署与选型见 [CDC 工具](../5_practice/0_cdc_tools)，多表关联成宽文档见 [Flink CDC](/flink/6_cdc)，商品搜索里完整的同步消费者代码见 [搜索](/scenario/9_search_system#五、数据同步-mysql-→-es)。
+CDC 工具的部署与选型见 [CDC 工具](/database/5_practice/0_cdc_tools)，多表关联成宽文档见 [Flink CDC](/flink/6_cdc)，商品搜索里完整的同步消费者代码见 [搜索](/scenario/9_search_system#五、数据同步-mysql-→-es)。
 
 ---
 
@@ -427,4 +427,4 @@ PUT /my_index/_settings
 - Elasticsearch Java API Client：[https://www.elastic.co/docs/reference/elasticsearch/clients/java](https://www.elastic.co/docs/reference/elasticsearch/clients/java)
 - OpenSearch Index State Management：[https://docs.opensearch.org/latest/im-plugin/ism/index/](https://docs.opensearch.org/latest/im-plugin/ism/index/)
 
-> 下一篇：[图数据库](./4_graph_db) —— 关系是一等公民：Neo4j、NebulaGraph 与图查询语言
+> 下一篇：[图数据库](./6_graph_db) —— 关系是一等公民：Neo4j、NebulaGraph 与图查询语言

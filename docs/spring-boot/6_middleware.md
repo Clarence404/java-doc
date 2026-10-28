@@ -17,8 +17,8 @@ Spring Boot 接入中间件主要是 Starter 与配置这一层「胶水」。�
 | Redis | `spring-boot-starter-data-redis` | `spring.data.redis.*` | JSON 序列化器换成 Jackson 3 版本 | [Redis 实战](/cache/5_redis_practice) |
 | Kafka | `spring-boot-starter-kafka` | `spring.kafka.*` | 新增 starter；JSON 序列化器换成 `JacksonJson*` | [Kafka](/messaging/2_kafka) |
 | RabbitMQ | `spring-boot-starter-amqp` | `spring.rabbitmq.*` | 消息转换器换成 `JacksonJsonMessageConverter` | [RabbitMQ](/messaging/4_rabbitmq) |
-| Elasticsearch | `spring-boot-starter-data-elasticsearch` | `spring.elasticsearch.*` | elasticsearch-java 9.x，底层改用 `Rest5Client` | [Elasticsearch 实战](/database/4_nosql/3_search_es_practice#七、java-客户端) |
-| MongoDB | `spring-boot-starter-data-mongodb` | `spring.mongodb.*` | 连接配置从 `spring.data.mongodb.*` 改名 | [文档数据库](/database/4_nosql/2_document_db) |
+| Elasticsearch | `spring-boot-starter-data-elasticsearch` | `spring.elasticsearch.*` | elasticsearch-java 9.x，底层改用 `Rest5Client` | [Elasticsearch 实战](/nosql/5_search_es_practice#七、java-客户端) |
+| MongoDB | `spring-boot-starter-data-mongodb` | `spring.mongodb.*` | 连接配置从 `spring.data.mongodb.*` 改名 | [文档数据库](/nosql/2_document_db) |
 
 几条共性：
 

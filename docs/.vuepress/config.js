@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import 'dotenv/config';
 import {computeHomeStats, homeStatsPlugin} from './plugins/homeStats.js';
-import {GROUPS, ROUTES, SUMMARY, overviewLink} from './site.js';
+import {GROUPS, REDIRECTS, ROUTES, SUMMARY, overviewLink} from './site.js';
 
 // 导航栏风格：统一读 .env 里的 NAVBAR_STYLE
 //   flat      → 所有模块平铺展开
@@ -324,6 +324,10 @@ export default defineUserConfig({
             },
             copyCode: {
                 showInMobile: true,
+            },
+            // 文章搬家后的旧地址跳转（主题自带 @vuepress/plugin-redirect），对照表在 site.js 的 REDIRECTS
+            redirect: {
+                config: Object.fromEntries(Object.entries(REDIRECTS).map(([from, to]) => [`${from}.html`, `${to}.html`])),
             },
             slimsearch: {
                 locales: {

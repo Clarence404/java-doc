@@ -4,7 +4,7 @@ description: MongoDB 8、文档建模、索引、聚合、副本集、分片、�
 
 # 文档数据库
 
-> 前置阅读：[MySQL 索引](../1_mysql/4_topic_index)、[列式与 OLAP 数据库](./0_column_db)
+> 前置阅读：[MySQL 索引](/database/1_mysql/4_topic_index)、[列式与 OLAP 数据库](./3_column_db)
 
 本篇以 MongoDB 8.x 为基线，讲文档建模（内嵌还是引用）、索引与聚合、副本集与分片集群、多文档事务的版本边界与代价，以及何时该用 MongoDB 而不是 MySQL。
 
@@ -131,7 +131,7 @@ db.stores.find({
 db.orders.find({ user_id: 123 }).explain("executionStats");
 ```
 
-全文检索方面，传统的 `text` 索引（`$text`）只有基础的词干与权重能力，不支持中文分词；Atlas 上用 Atlas Search（`$search`）和 Atlas Vector Search（`$vectorSearch`），自建版从 8.2 起以公开预览形式提供同样的能力。复杂搜索仍建议同步到 [搜索数据库](./3_search_db)。
+全文检索方面，传统的 `text` 索引（`$text`）只有基础的词干与权重能力，不支持中文分词；Atlas 上用 Atlas Search（`$search`）和 Atlas Vector Search（`$vectorSearch`），自建版从 8.2 起以公开预览形式提供同样的能力。复杂搜索仍建议同步到 [搜索数据库](./5_search_db)。
 
 ---
 
@@ -170,7 +170,7 @@ db.orders.aggregate([
 
 ## 六、副本集（Replica Set）
 
-![MongoDB 副本集（Replica Set）](../../assets/database/mongodb-replica-set.svg)
+![MongoDB 副本集（Replica Set）](../assets/database/mongodb-replica-set.svg)
 
 - **Primary** 处理所有写操作，写入记录到 oplog
 - **Secondary** 异步拉取 oplog 回放，可承担读请求（`readPreference=secondaryPreferred`）
@@ -193,7 +193,7 @@ mongodb://host1:27017,host2:27017,host3:27017/mydb?replicaSet=rs0&readPreference
 
 ## 七、分片集群（Sharding）
 
-![MongoDB 分片集群（Sharding）](../../assets/database/mongodb-sharding.svg)
+![MongoDB 分片集群（Sharding）](../assets/database/mongodb-sharding.svg)
 
 - **mongos**：无状态查询路由，可部署多个
 - **Config Server**：保存元数据与 chunk 分布，副本集部署；8.0 起可让它同时作为数据分片（Config Shard）
@@ -295,7 +295,7 @@ db.sensor_readings.insertOne({
 });
 ```
 
-数据量和写入速率更高时，选专用的 [时序数据库](./1_time_series_db)。
+数据量和写入速率更高时，选专用的 [时序数据库](./4_time_series_db)。
 
 ---
 
@@ -304,11 +304,11 @@ db.sensor_readings.insertOne({
 | 维度 | MongoDB | MySQL |
 |------|---------|-------|
 | 数据模型 | 文档（嵌套、数组、Schema 灵活） | 行（强 Schema） |
-| Schema 变更 | 不需要 DDL，应用兼容新旧结构即可 | 加列多为 INSTANT，大表其他 DDL 需 Online DDL / gh-ost 规划，见 [MySQL 避坑指南](../1_mysql/3_fallible_point) |
+| Schema 变更 | 不需要 DDL，应用兼容新旧结构即可 | 加列多为 INSTANT，大表其他 DDL 需 Online DDL / gh-ost 规划，见 [MySQL 避坑指南](/database/1_mysql/3_fallible_point) |
 | 关联查询 | `$lookup`（能力弱，建议建模时内嵌或应用层组装） | JOIN（成熟） |
 | 事务 | 单文档原子；多文档事务 4.0（副本集）/ 4.2（分片），有 60 秒与规模限制 | 完整 ACID |
 | 一致性 | 依赖写关注 / 读关注配置，默认 `w: "majority"` | 主库强一致，从库异步复制有延迟 |
-| 水平扩展 | 原生分片 | 需要中间件或分布式数据库，见 [分库分表与中间件](../5_practice/2_sharding) |
+| 水平扩展 | 原生分片 | 需要中间件或分布式数据库，见 [分库分表与中间件](/database/5_practice/2_sharding) |
 | 全文搜索 | 基础 `text` 索引；`$search` 需 Atlas 或 8.2 预览 | 弱，建议用 ES |
 | 适合场景 | 内容、画像、商品 SKU、配置元数据、IoT | 交易、账务等核心业务数据 |
 | 不适合场景 | 复杂报表、多表强一致事务 | 结构频繁变化、深层嵌套的数据 |
@@ -338,4 +338,4 @@ db.sensor_readings.insertOne({
 - 时间序列集合：[https://www.mongodb.com/docs/manual/core/timeseries-collections/](https://www.mongodb.com/docs/manual/core/timeseries-collections/)
 - Java 同步驱动事务：[https://www.mongodb.com/docs/drivers/java/sync/current/crud/transactions/](https://www.mongodb.com/docs/drivers/java/sync/current/crud/transactions/)
 
-> 下一篇：[搜索数据库](./3_search_db) —— 搜索库定位、各引擎速览、向量检索与选型
+> 下一篇：[列式与 OLAP 数据库](./3_column_db) —— 列式存储与 OLAP 引擎：HBase 宽列、ClickHouse、Apache Doris / StarRocks 的原理与选型

@@ -596,4 +596,4 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 - Hibernate ORM 文档：[https://hibernate.org/orm/documentation/](https://hibernate.org/orm/documentation/)
 - Jakarta Persistence 3.2：[https://jakarta.ee/specifications/persistence/3.2/](https://jakarta.ee/specifications/persistence/3.2/)
 
-> 下一篇：[列式与 OLAP 数据库](../4_nosql/0_column_db) —— 列式存储与 OLAP 引擎：ClickHouse、Apache Doris / StarRocks 的原理与选型。
+> 下一篇：[CDC 工具](../5_practice/0_cdc_tools) —— 从数据库变更日志实时捕获数据，同步到搜索、缓存与数仓

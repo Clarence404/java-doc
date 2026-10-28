@@ -1,0 +1,74 @@
+<svg viewBox="0 0 730 412" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="365" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">LSM-Tree 读写路径与多层 Compaction</text>
+
+  <!-- 写路径 -->
+  <rect class="box" x="20" y="44" width="150" height="60" rx="6" stroke="var(--muted)"/>
+  <text x="95" y="67" text-anchor="middle" font-weight="600" fill="var(--fg)">写请求</text>
+  <text x="95" y="87" text-anchor="middle" fill="var(--muted)">PUT / DELETE</text>
+
+  <line class="arr" x1="170" y1="74" x2="198" y2="74"/>
+
+  <rect class="box" x="200" y="44" width="150" height="60" rx="6" stroke="var(--r)"/>
+  <text x="275" y="67" text-anchor="middle" font-weight="600" fill="var(--r)">WAL</text>
+  <text x="275" y="87" text-anchor="middle" fill="var(--muted)">顺序追加，崩溃恢复</text>
+
+  <line class="arr" x1="350" y1="74" x2="378" y2="74"/>
+
+  <rect class="box" x="380" y="44" width="150" height="60" rx="6" stroke="var(--y)"/>
+  <text x="455" y="67" text-anchor="middle" font-weight="600" fill="var(--y)">MemTable</text>
+  <text x="455" y="87" text-anchor="middle" fill="var(--muted)">跳表，可读可写</text>
+
+  <line class="arr" x1="530" y1="74" x2="558" y2="74"/>
+
+  <rect class="box" x="560" y="44" width="150" height="60" rx="6" stroke="var(--y)"/>
+  <text x="635" y="67" text-anchor="middle" font-weight="600" fill="var(--y)">Immutable</text>
+  <text x="635" y="87" text-anchor="middle" fill="var(--muted)">只读，等待 Flush</text>
+
+  <!-- Flush 到 L0 -->
+  <line class="arr" x1="635" y1="104" x2="635" y2="138"/>
+  <text x="645" y="126" fill="var(--muted)">Flush</text>
+
+  <!-- 读路径 -->
+  <rect class="box" x="20" y="140" width="210" height="252" rx="6" stroke="var(--p)"/>
+  <text x="125" y="164" text-anchor="middle" font-weight="700" fill="var(--p)">读路径（Get key）</text>
+  <text x="34" y="192" fill="var(--fg)">① 活跃 MemTable</text>
+  <text x="34" y="218" fill="var(--fg)">② 不可变 MemTable</text>
+  <text x="34" y="244" fill="var(--fg)">③ L0 全部文件（新到旧）</text>
+  <text x="34" y="270" fill="var(--fg)">④ L1…Ln 每层至多 1 个文件</text>
+  <text x="34" y="300" fill="var(--muted)">布隆过滤器：不存在就跳过</text>
+  <text x="34" y="326" fill="var(--muted)">块索引：二分到数据块</text>
+  <text x="34" y="352" fill="var(--muted)">块缓存：热块不再读盘</text>
+  <text x="34" y="378" fill="var(--muted)">命中即返回最新版本</text>
+
+  <!-- 多层 SSTable -->
+  <rect class="box" x="260" y="140" width="450" height="60" rx="6" stroke="var(--g)"/>
+  <text x="485" y="163" text-anchor="middle" font-weight="600" fill="var(--fg)">L0：Flush 直接生成，文件之间 key 范围可重叠</text>
+  <text x="485" y="183" text-anchor="middle" fill="var(--muted)">文件数达到阈值触发 Compaction，堆积过多会限速写入</text>
+
+  <line class="arr" x1="485" y1="200" x2="485" y2="234"/>
+  <text x="495" y="222" fill="var(--muted)">Compaction</text>
+
+  <rect class="box" x="260" y="236" width="450" height="60" rx="6" stroke="var(--g)"/>
+  <text x="485" y="259" text-anchor="middle" font-weight="600" fill="var(--fg)">L1：整层有序，文件之间 key 不重叠</text>
+  <text x="485" y="279" text-anchor="middle" fill="var(--muted)">与 L0 重叠的文件一起归并，写出新文件</text>
+
+  <line class="arr" x1="485" y1="296" x2="485" y2="330"/>
+  <text x="495" y="318" fill="var(--muted)">Compaction</text>
+
+  <rect class="box" x="260" y="332" width="450" height="60" rx="6" stroke="var(--g)"/>
+  <text x="485" y="355" text-anchor="middle" font-weight="600" fill="var(--fg)">L2 … Ln：每层容量约为上一层 10 倍</text>
+  <text x="485" y="375" text-anchor="middle" fill="var(--muted)">约 90% 数据在最后一层，旧版本与墓碑在此清除</text>
+</svg>

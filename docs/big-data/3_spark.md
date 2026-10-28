@@ -550,7 +550,7 @@ Executor 的 JVM 堆（`spark.executor.memory`）扣除约 300MB 的保留内存
 - 读取分区看 `maxPartitionBytes`，Shuffle 分区看 `spark.sql.shuffle.partitions` 加 AQE 合并，写出前重分区控制小文件，覆盖分区表要开动态分区覆盖
 - 容器被杀先调 `memoryOverhead`，堆 OOM 先查分区大小与广播；调参前先用 `explain` 和 Spark UI 定位最慢的 Stage
 - 离线批处理与大规模 SQL 加工选 Spark，低延迟流处理与 CDC 选 Flink，湖仓架构里两者读写同一份表
-- 本篇只讲 Spark 自身：流处理、CDC 入湖与 Flink SQL 见 [Flink 总览](/flink/0_overview)；Doris / StarRocks 等 OLAP 引擎见 [列式与 OLAP 数据库](/database/4_nosql/0_column_db)；Iceberg / Paimon 表格式见 [数据湖与湖仓](./4_lakehouse)；作业编排见 [任务调度](./6_scheduling)
+- 本篇只讲 Spark 自身：流处理、CDC 入湖与 Flink SQL 见 [Flink 总览](/flink/0_overview)；Doris / StarRocks 等 OLAP 引擎见 [列式与 OLAP 数据库](/nosql/3_column_db)；Iceberg / Paimon 表格式见 [数据湖与湖仓](./4_lakehouse)；作业编排见 [任务调度](./6_scheduling)
 
 ## 参考资料
 

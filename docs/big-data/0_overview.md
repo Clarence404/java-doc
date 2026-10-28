@@ -8,7 +8,7 @@
 
 ## 一、后端视角下的数据平台
 
-后端工程师最常接触的是数据从哪里来（binlog、埋点、消息）、指标口径怎么定、加工好的数据怎么以接口形式提供出去。流计算细节在 [Flink](/flink/0_overview) 模块展开，列式与 OLAP 数据库原理在 [列式与 OLAP 数据库](/database/4_nosql/0_column_db)，本模块只讲它们在数据平台中的位置。全模块示例统一使用电商订单业务：`order_info`（订单）、`order_item`（订单明细）、`user_info`（用户）、`product`（商品），加上 App 端的浏览、加购埋点日志。
+后端工程师最常接触的是数据从哪里来（binlog、埋点、消息）、指标口径怎么定、加工好的数据怎么以接口形式提供出去。流计算细节在 [Flink](/flink/0_overview) 模块展开，列式与 OLAP 数据库原理在 [列式与 OLAP 数据库](/nosql/3_column_db)，本模块只讲它们在数据平台中的位置。全模块示例统一使用电商订单业务：`order_info`（订单）、`order_item`（订单明细）、`user_info`（用户）、`product`（商品），加上 App 端的浏览、加购埋点日志。
 
 业务系统（OLTP）和数据平台（OLAP / 数仓）处理的是同一份业务事实，但目标完全不同：
 
@@ -82,7 +82,7 @@ Java 后端和数据平台打交道，主要在四个接口上：
 
 - 流计算引擎：DataStream、事件时间与窗口、状态与 Checkpoint、Flink SQL → [Flink](/flink/0_overview)；Flink 实时数仓分层与维表关联 → [实战场景](/flink/8_scenarios)
 - 业务库实时同步：binlog 前置配置、Canal / Debezium / Flink CDC 对比 → [CDC 工具](/database/5_practice/0_cdc_tools)、[Flink CDC](/flink/6_cdc)
-- 列存原理、ClickHouse、Doris / StarRocks 数据模型 → [列式与 OLAP 数据库](/database/4_nosql/0_column_db)
+- 列存原理、ClickHouse、Doris / StarRocks 数据模型 → [列式与 OLAP 数据库](/nosql/3_column_db)
 - 数据集成与实时链路的消息总线 → [Kafka](/messaging/2_kafka)
 - 业务侧定时任务、XXL-JOB 等分布式调度 → [分布式调度](/distributed/6_job_scheduler)；审批类流程编排 → [工作流引擎](/distributed/7_work_flow)
 - 冷热分层与归档 → [数据冷热分离](/architecture/4_cold_hot_data)；对象存储原理与选型 → [对象存储](/architecture/5_object_storage)

@@ -4,7 +4,7 @@ description: 倒排索引与分词、Mapping 基础、分片副本、写入与�
 
 # Elasticsearch 原理
 
-> 前置阅读：[搜索数据库](./3_search_db)、[MySQL 索引](../1_mysql/4_topic_index)
+> 前置阅读：[搜索数据库](./5_search_db)、[MySQL 索引](/database/1_mysql/4_topic_index)
 
 Elasticsearch 是基于 Lucene 的分布式搜索引擎，靠倒排索引换取全文检索速度，靠分片副本做水平扩展。本篇讲倒排索引与分词、Mapping、写入与近实时、查询两阶段和集群机制，基线为 Elasticsearch 9。
 
@@ -22,7 +22,7 @@ Elasticsearch 是基于 Lucene 的分布式搜索引擎，靠倒排索引换取�
 | Replica | 副本 | 分片的副本，提供高可用和读扩展 |
 | Segment | — | Lucene 的不可变索引文件，一个分片由多个段组成 |
 
-OpenSearch 是 ES 7.10 的分叉，底层同样是 Lucene，本篇的倒排索引、段、近实时等机制对它同样适用，差异见 [搜索数据库](./3_search_db#二、各引擎速览)。
+OpenSearch 是 ES 7.10 的分叉，底层同样是 Lucene，本篇的倒排索引、段、近实时等机制对它同样适用，差异见 [搜索数据库](./5_search_db#二、各引擎速览)。
 
 ---
 
@@ -32,17 +32,17 @@ OpenSearch 是 ES 7.10 的分叉，底层同样是 Lucene，本篇的倒排索�
 
 全文检索的核心数据结构：**词项 → 文档 ID 列表（Posting List）**。
 
-![倒排索引（Inverted Index）结构](../../assets/database/es-inverted-index.svg)
+![倒排索引（Inverted Index）结构](../assets/database/es-inverted-index.svg)
 
 与 `LIKE '%keyword%'` 的全表扫描相比，倒排索引先在词典（FST 结构，前缀共享、常驻内存）中定位词项，再读取对应的 Posting List，多个词项时用跳表做交集。查询代价与词项长度、命中文档数和 Posting List 长度相关，而不是与全表数据量成正比。
 
-倒排索引擅长「哪些文档包含这个词」，却不擅长「这篇文档这个字段的值是多少」。排序和聚合需要后者，所以 Lucene 另外按列存了一份 **doc_values**（磁盘上的列式结构），`keyword`、数值、日期默认都开启。两者的使用取舍见 [Elasticsearch 实战](./3_search_es_practice#_2、聚合与-doc-values)。
+倒排索引擅长「哪些文档包含这个词」，却不擅长「这篇文档这个字段的值是多少」。排序和聚合需要后者，所以 Lucene 另外按列存了一份 **doc_values**（磁盘上的列式结构），`keyword`、数值、日期默认都开启。两者的使用取舍见 [Elasticsearch 实战](./5_search_es_practice#_2、聚合与-doc-values)。
 
 ### 2、分析器链
 
 文档写入和查询时，`text` 字段都要经过分析器处理成词项：
 
-![Elasticsearch 分析器处理链](../../assets/database/es-analyzer-pipeline.svg)
+![Elasticsearch 分析器处理链](../assets/database/es-analyzer-pipeline.svg)
 
 | 步骤 | 作用 | 常用实现 |
 |------|------|---------|
@@ -102,7 +102,7 @@ Mapping 决定每个字段怎么建索引：
 | `long` / `scaled_float` / `double` | 数值范围查询 | 用 BKD 树索引，范围查询高效 |
 | `date` | 时间范围查询 | 内部存为毫秒时间戳，支持多种输入格式 |
 | `nested` | 对象数组独立查询 | 每个对象是一个隐藏的子文档 |
-| `dense_vector` | 向量检索 | HNSW 索引，见 [搜索数据库](./3_search_db#三、向量与混合检索) |
+| `dense_vector` | 向量检索 | HNSW 索引，见 [搜索数据库](./5_search_db#三、向量与混合检索) |
 
 几条底层约束：
 
@@ -110,13 +110,13 @@ Mapping 决定每个字段怎么建索引：
 - **类型不能改**：字段一旦建好倒排索引和 doc_values，改类型就意味着所有段要重建，所以 ES 只允许新增字段，不允许改已有字段的类型，只能新建索引再 Reindex
 - **更新即重写**：段是不可变的，「更新」一个文档实际是标记删除旧文档再写入新文档，部分更新（`_update`）也是在内部读出 `_source` 合并后整篇重写
 
-Mapping 的设计方法（multi-field、关闭动态映射、nested 与扁平化）见 [Elasticsearch 实战](./3_search_es_practice#一、mapping-设计)。
+Mapping 的设计方法（multi-field、关闭动态映射、nested 与扁平化）见 [Elasticsearch 实战](./5_search_es_practice#一、mapping-设计)。
 
 ---
 
 ## 四、分片与副本
 
-![Elasticsearch 集群架构](../../assets/database/es-cluster.svg)
+![Elasticsearch 集群架构](../assets/database/es-cluster.svg)
 
 文档落到哪个分片由路由决定：
 
@@ -124,7 +124,7 @@ Mapping 的设计方法（multi-field、关闭动态映射、nested 与扁平化
 shard = hash(_routing) % number_of_primary_shards
 ```
 
-`_routing` 默认是文档 `_id`。公式依赖主分片数，所以**主分片数创建后不能直接修改**，否则已有文档都找不到了。在约束下可以用 `_split`（倍数扩）和 `_shrink`（因数缩）调整，操作方法见 [Elasticsearch 实战](./3_search_es_practice#_3、调整主分片数)。
+`_routing` 默认是文档 `_id`。公式依赖主分片数，所以**主分片数创建后不能直接修改**，否则已有文档都找不到了。在约束下可以用 `_split`（倍数扩）和 `_shrink`（因数缩）调整，操作方法见 [Elasticsearch 实战](./5_search_es_practice#_3、调整主分片数)。
 
 - **副本**：每个主分片可以有 0 到多个副本，副本数随时可调；同一分片的主副本不会分配在同一节点上
 - **读扩展**：查询可以落在主分片或任意副本上，副本越多读吞吐越高，但写入要同步到所有副本，写放大也越大
@@ -136,7 +136,7 @@ shard = hash(_routing) % number_of_primary_shards
 
 ### 1、写入链路
 
-![Elasticsearch 写入流程](../../assets/database/es-write-flow.svg)
+![Elasticsearch 写入流程](../assets/database/es-write-flow.svg)
 
 1. 客户端请求到达任意节点，该节点作为**协调节点**，按路由公式算出主分片
 2. 主分片写入内存 Buffer 并追加 Translog，然后把操作并行转发给所有 in-sync 副本
@@ -182,11 +182,11 @@ POST /logs-2026.09/_forcemerge?max_num_segments=1
 
 搜索请求分两个阶段执行，先找到「哪些文档」，再取「文档内容」：
 
-![Elasticsearch 查询两阶段](../../assets/database/es-query-then-fetch.svg)
+![Elasticsearch 查询两阶段](../assets/database/es-query-then-fetch.svg)
 
 - **Query 阶段**：协调节点把查询发给每个分片的一份副本（主或副本，按自适应副本选择挑响应最快的），各分片本地检索、打分，只返回排序靠前的 `from + size` 个 docID 和排序值
 - **Fetch 阶段**：协调节点全局排序后，只向持有最终结果的分片取 `_source`、生成高亮
-- **深分页为什么慢**：要拿第 10000 条起的 10 条，每个分片都要返回 10010 条，协调节点在内存里排序「分片数 × 10010」条，所以 `from + size` 默认被限制在 10000 以内，替代方案见 [Elasticsearch 实战](./3_search_es_practice#三、深分页)
+- **深分页为什么慢**：要拿第 10000 条起的 10 条，每个分片都要返回 10010 条，协调节点在内存里排序「分片数 × 10010」条，所以 `from + size` 默认被限制在 10000 以内，替代方案见 [Elasticsearch 实战](./5_search_es_practice#三、深分页)
 
 ### 2、相关性评分 BM25
 
@@ -232,7 +232,7 @@ ES 默认用 BM25 给 `match` 等全文查询打分，直觉上由三部分决�
 - **主副本分离**：同一分片的主分片与副本不能在同一节点；单节点集群因此永远是 yellow
 - **磁盘水位**：磁盘使用率达到 85%（low）后不再往该节点分配新分片，90%（high）开始把分片迁出，95%（flood stage）给该节点上的索引加只读块，写入直接报错
 - **机架 / 可用区感知**：配置 `cluster.routing.allocation.awareness.attributes: zone` 后，主副本会尽量分到不同可用区，单个可用区故障不丢数据
-- **集群健康**：green 表示主副本全部分配；yellow 表示主分片都在、有副本未分配；red 表示有主分片未分配，对应数据不可读写。排查方法见 [Elasticsearch 实战](./3_search_es_practice#_1、集群-red-与-yellow)
+- **集群健康**：green 表示主副本全部分配；yellow 表示主分片都在、有副本未分配；red 表示有主分片未分配，对应数据不可读写。排查方法见 [Elasticsearch 实战](./5_search_es_practice#_1、集群-red-与-yellow)
 
 ---
 
@@ -257,4 +257,4 @@ ES 默认用 BM25 给 `match` 等全文查询打分，直觉上由三部分决�
 - 磁盘水位设置：[https://www.elastic.co/docs/reference/elasticsearch/configuration-reference/cluster-level-shard-allocation-routing-settings](https://www.elastic.co/docs/reference/elasticsearch/configuration-reference/cluster-level-shard-allocation-routing-settings)
 - Lucene BM25Similarity：[https://lucene.apache.org/core/10_0_0/core/org/apache/lucene/search/similarities/BM25Similarity.html](https://lucene.apache.org/core/10_0_0/core/org/apache/lucene/search/similarities/BM25Similarity.html)
 
-> 下一篇：[Elasticsearch 实战](./3_search_es_practice) —— Mapping 设计、查询与分页、索引生命周期、同步、调优与故障排查
+> 下一篇：[Elasticsearch 实战](./5_search_es_practice) —— Mapping 设计、查询与分页、索引生命周期、同步、调优与故障排查

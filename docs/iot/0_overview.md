@@ -41,7 +41,7 @@
 - [网络协议 · TCP 与 UDP](/protocols/1_tcp_udp)：MQTT 跑在 TCP 上、CoAP 跑在 UDP 上，连接与重传行为的基础
 - [网络协议 · HTTPS 与 TLS](/protocols/3_https_tls)：MQTT over TLS、设备双向证书认证（mTLS）的原理
 - [Netty 总览](/netty/0_overview)：设备网关的线程模型、粘包拆包、[自定义私有协议](/netty/8_custom_protocol) 与 [心跳与连接管理](/netty/9_heartbeat)
-- [时序数据库](/database/4_nosql/1_time_series_db)：TDengine、InfluxDB、IoTDB 的数据模型与选型
+- [时序数据库](/nosql/4_time_series_db)：TDengine、InfluxDB、IoTDB 的数据模型与选型
 - [消息队列总览](/messaging/0_overview)：设备数据从 MQTT 桥接到 Kafka 后的削峰与分发
 - [Flink 总览](/flink/0_overview)：设备数据的窗口聚合与实时告警
 - [监控视频接入](/media/8_video_surveillance)：摄像头类设备走 RTSP / ONVIF / GB/T 28181 取流，与设备平台的集成方式

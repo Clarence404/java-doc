@@ -46,7 +46,7 @@ MCP（Model Context Protocol）由 Anthropic 于 2024 年发起，2025 年 12 �
 模型训练和算法原理不在本模块范围内，只讲「把模型当作外部服务，如何稳定、安全、可控地用好它」。版本说明：Spring Boot 3 项目对应 Spring AI 1.1.x，API 大体相同，差异在正文单独标出；LangChain4j 通过 `langchain4j-bom` 统一版本。模型型号、价格、上下文长度变化很快，正文只写模型家族和选型方法，具体数值以各厂商官方模型页为准。
 
 - 认证授权、API 安全、权限模型（工具最小权限、MCP 的 OAuth 授权） → [应用安全总览](/security/0_overview)
-- 关键词与向量混合检索（Elasticsearch / OpenSearch） → [搜索数据库](/database/4_nosql/3_search_db)
+- 关键词与向量混合检索（Elasticsearch / OpenSearch） → [搜索数据库](/nosql/5_search_db)
 - 大模型流式输出的传输层（SSE） → [SSE（Server-Sent Events）](/netty/11_sse)
 - 调用链路、Token 用量与延迟监控 → [可观测性总览](/observability/0_overview)
 - 限流、超时、重试、降级等调用外部服务的通用治理 → [高可用总览](/high-avail/0_overview)

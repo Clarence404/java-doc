@@ -1,0 +1,37 @@
+<svg viewBox="0 0 700 336" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+  </style>
+  <text x="350" y="22" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">etcd MVCC：revision、历史读与 Watch</text>
+  <text x="350" y="44" text-anchor="middle" fill="var(--muted)" font-size="11">全局 revision 单调递增，每个写事务 +1，旧版本按 revision 保留</text>
+  <rect class="box" x="20" y="56" width="157" height="60" stroke="var(--border)"/>
+  <text x="98" y="80" text-anchor="middle" fill="var(--border)" font-weight="700">rev 5</text>
+  <text x="98" y="98" text-anchor="middle" fill="var(--fg)" font-size="11" font-family="ui-monospace,monospace">put /config/a = 1</text>
+  <rect class="box" x="187" y="56" width="157" height="60" stroke="var(--border)"/>
+  <text x="265" y="80" text-anchor="middle" fill="var(--border)" font-weight="700">rev 6</text>
+  <text x="265" y="98" text-anchor="middle" fill="var(--fg)" font-size="11" font-family="ui-monospace,monospace">put /config/b = 2</text>
+  <rect class="box" x="354" y="56" width="157" height="60" stroke="var(--b)"/>
+  <text x="432" y="80" text-anchor="middle" fill="var(--b)" font-weight="700">rev 7</text>
+  <text x="432" y="98" text-anchor="middle" fill="var(--fg)" font-size="11" font-family="ui-monospace,monospace">put /config/a = 3</text>
+  <rect class="box" x="521" y="56" width="159" height="60" stroke="var(--y)"/>
+  <text x="600" y="80" text-anchor="middle" fill="var(--y)" font-weight="700">rev 8</text>
+  <text x="600" y="98" text-anchor="middle" fill="var(--fg)" font-size="11" font-family="ui-monospace,monospace">delete /config/b</text>
+  <rect class="box" x="20" y="146" width="213" height="80" stroke="var(--b)"/>
+  <text x="126" y="170" text-anchor="middle" fill="var(--b)" font-weight="700">当前读</text>
+  <text x="126" y="190" text-anchor="middle" fill="var(--fg)" font-size="11" font-family="ui-monospace,monospace">get /config/a → 3</text>
+  <text x="126" y="208" text-anchor="middle" fill="var(--muted)" font-size="11">mod_revision=7，version=2</text>
+  <rect class="box" x="243" y="146" width="214" height="80" stroke="var(--g)"/>
+  <text x="350" y="170" text-anchor="middle" fill="var(--g)" font-weight="700">历史读</text>
+  <text x="350" y="190" text-anchor="middle" fill="var(--fg)" font-size="11" font-family="ui-monospace,monospace">get /config/a --rev=6 → 1</text>
+  <text x="350" y="208" text-anchor="middle" fill="var(--muted)" font-size="11">压缩之前，任意 revision 都可读</text>
+  <rect class="box" x="467" y="146" width="213" height="80" stroke="var(--p)"/>
+  <text x="573" y="170" text-anchor="middle" fill="var(--p)" font-weight="700">Watch</text>
+  <text x="573" y="190" text-anchor="middle" fill="var(--fg)" font-size="11" font-family="ui-monospace,monospace">watch /config/ --rev=7</text>
+  <text x="573" y="208" text-anchor="middle" fill="var(--muted)" font-size="11">依次收到 rev 7 PUT、rev 8 DELETE</text>
+  <rect class="box" x="20" y="256" width="660" height="60" stroke="var(--r)"/>
+  <text x="350" y="280" text-anchor="middle" fill="var(--r)" font-weight="700">Compaction（压缩）</text>
+  <text x="350" y="298" text-anchor="middle" fill="var(--fg)" font-size="11">压缩到 rev 7 后更早的旧版本被清理；再从 rev 6 读或 Watch 会返回 ErrCompacted，客户端需重新全量拉取</text>
+</svg>

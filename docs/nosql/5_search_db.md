@@ -4,7 +4,7 @@ description: 搜索库定位、ES / OpenSearch / Solr / Meilisearch / 库内全�
 
 # 搜索数据库
 
-> 前置阅读：[MySQL 索引](../1_mysql/4_topic_index)、[文档数据库](./2_document_db)
+> 前置阅读：[MySQL 索引](/database/1_mysql/4_topic_index)、[文档数据库](./2_document_db)
 
 搜索数据库按关键词、相关性和过滤条件快速查找，通常是由业务库同步出来的查询侧索引，而不是主库。本篇讲搜索库的定位、各引擎速览、向量检索与选型，基线为 Elasticsearch 9 / OpenSearch 3。
 
@@ -12,7 +12,7 @@ description: 搜索库定位、ES / OpenSearch / Solr / Meilisearch / 库内全�
 
 ## 一、典型场景与定位
 
-索引数据通常由业务库经 CDC、消息队列或同步任务写入，同步方案见 [Elasticsearch 实战](./3_search_es_practice#五、与-mysql-同步)。
+索引数据通常由业务库经 CDC、消息队列或同步任务写入，同步方案见 [Elasticsearch 实战](./5_search_es_practice#五、与-mysql-同步)。
 
 | 场景 | 需求特点 | 常见方案 |
 |------|----------|----------|
@@ -41,8 +41,8 @@ description: 搜索库定位、ES / OpenSearch / Solr / Meilisearch / 库内全�
 
 基于 Lucene 的分布式搜索与分析引擎，当前主线为 9.x（2025 年 4 月 GA，基于 Lucene 10），8.0 起默认开启安全认证（TLS + 用户名密码）。功能最全、生态最成熟，覆盖站内搜索、日志分析（ELK）和向量检索。
 
-- 倒排索引与分词、写入与近实时、查询两阶段、集群选主等机制见 [Elasticsearch 原理](./3_search_es)
-- Mapping 设计、深分页、别名与 ILM、同步、调优与故障排查见 [Elasticsearch 实战](./3_search_es_practice)
+- 倒排索引与分词、写入与近实时、查询两阶段、集群选主等机制见 [Elasticsearch 原理](./5_search_es)
+- Mapping 设计、深分页、别名与 ILM、同步、调优与故障排查见 [Elasticsearch 实战](./5_search_es_practice)
 
 ### 2、OpenSearch
 
@@ -71,7 +71,7 @@ description: 搜索库定位、ES / OpenSearch / Solr / Meilisearch / 库内全�
 | PostgreSQL | `tsvector` / `tsquery` + GIN 索引，支持权重与排序函数 | 需要 zhparser、pg_jieba 等扩展 |
 | MongoDB | 传统 `$text` 索引；Atlas Search 基于 Lucene | `$text` 不支持中文分词 |
 
-共同的短板是相关性难调、分面聚合要多次查询、与业务库争资源。MySQL 与 ES 的逐项对比见 [搜索](/scenario/9_search_system#_1、mysql-全文检索够不够)，PG 全文检索的用法见 [PostgreSQL 高级 SQL](../2_postgresql/4_topic_advanced_sql)，MongoDB 的检索能力见 [文档数据库](./2_document_db)。
+共同的短板是相关性难调、分面聚合要多次查询、与业务库争资源。MySQL 与 ES 的逐项对比见 [搜索](/scenario/9_search_system#_1、mysql-全文检索够不够)，PG 全文检索的用法见 [PostgreSQL 高级 SQL](/database/2_postgresql/4_topic_advanced_sql)，MongoDB 的检索能力见 [文档数据库](./2_document_db)。
 
 ---
 
@@ -129,7 +129,7 @@ OpenSearch 通过 k-NN 插件和 Neural Search 提供类似能力，Solr 9 起�
 ## 五、常见风险
 
 - **把搜索库当主库**：适合做查询视图，不适合作为订单、库存、账户等强一致数据源
-- **Mapping 无治理**：动态映射让字段类型失控，生产索引建议 `dynamic: strict` 或模板约束，见 [Elasticsearch 实战](./3_search_es_practice#一、mapping-设计)
+- **Mapping 无治理**：动态映射让字段类型失控，生产索引建议 `dynamic: strict` 或模板约束，见 [Elasticsearch 实战](./5_search_es_practice#一、mapping-设计)
 - **同步链路不可观测**：监控延迟、失败重试、死信、漏同步，定期与主库对账
 - **大字段无节制入索引**：放大磁盘、内存和合并成本，区分可检索、可过滤和仅展示字段
 - **查询不设边界**：深分页、高基数聚合、前缀通配符查询都可能拖垮集群
@@ -141,7 +141,7 @@ OpenSearch 通过 k-NN 插件和 Neural Search 提供类似能力，Solr 9 起�
 ## 小结
 
 - 搜索库是查询侧投影，不做主库；与主库是最终一致，默认 1 秒可见
-- Elasticsearch 功能最全，原理与实战分别见 [Elasticsearch 原理](./3_search_es) 与 [Elasticsearch 实战](./3_search_es_practice)
+- Elasticsearch 功能最全，原理与实战分别见 [Elasticsearch 原理](./5_search_es) 与 [Elasticsearch 实战](./5_search_es_practice)
 - OpenSearch 由 Linux 基金会旗下基金会治理，3.x 与 ES 8 / 9 的 API 和客户端已不兼容，生命周期管理用 ISM
 - Solr 依赖 ZooKeeper、9 起支持向量，适合存量项目；Meilisearch / Typesense 适合轻量低运维场景
 - 数据量小时数据库内置全文检索就够用，中文需注意分词能力
@@ -159,4 +159,4 @@ OpenSearch 通过 k-NN 插件和 Neural Search 提供类似能力，Solr 9 起�
 - MySQL ngram 全文解析器：[https://dev.mysql.com/doc/refman/8.4/en/fulltext-search-ngram.html](https://dev.mysql.com/doc/refman/8.4/en/fulltext-search-ngram.html)
 - PostgreSQL 全文检索：[https://www.postgresql.org/docs/current/textsearch.html](https://www.postgresql.org/docs/current/textsearch.html)
 
-> 下一篇：[Elasticsearch 原理](./3_search_es) —— 倒排索引与分词、写入与近实时、查询两阶段与集群机制
+> 下一篇：[Elasticsearch 原理](./5_search_es) —— 倒排索引与分词、写入与近实时、查询两阶段与集群机制

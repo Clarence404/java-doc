@@ -4,7 +4,7 @@ description: 适用场景、属性图模型、Neo4j 与 Cypher、NebulaGraph、I
 
 # 图数据库
 
-> 前置阅读：[文档数据库](./2_document_db)、[PostgreSQL 高级 SQL](../2_postgresql/4_topic_advanced_sql)
+> 前置阅读：[文档数据库](./2_document_db)、[PostgreSQL 高级 SQL](/database/2_postgresql/4_topic_advanced_sql)
 
 图数据库擅长多跳关系查询，本篇讲它相对关系型 JOIN 的优势与边界、Neo4j（Cypher）与 NebulaGraph（nGQL）的基本用法、ISO GQL 标准与 Apache AGE，以及何时值得引入图数据库。
 
@@ -12,7 +12,7 @@ description: 适用场景、属性图模型、Neo4j 与 Cypher、NebulaGraph、I
 
 ## 一、为什么需要图数据库
 
-NoSQL 通常分为键值（Redis，见 [Redis 基础](../../cache/1_redis_base)）、文档、宽列和图四大类，本篇是最后一类。
+NoSQL 通常分为键值（Redis，见 [Redis 基础](/cache/1_redis_base)）、文档、宽列和图四大类，本篇是最后一类。
 
 ### 1、多跳关系的代价
 
@@ -179,7 +179,7 @@ GO 2 STEPS FROM 1 OVER follows YIELD dst(edge) AS fof;
 | **JanusGraph** | 构建在 Cassandra / HBase / ScyllaDB 之上 | Gremlin 查询，适合已有大数据存储设施的团队 |
 | 关系型 + 递归 CTE | PostgreSQL、MySQL 8.0+ 的 `WITH RECURSIVE` | 不引入新组件，适合层级树、浅层关系 |
 
-递归 CTE 的写法见 [PostgreSQL 高级 SQL](../2_postgresql/4_topic_advanced_sql)。
+递归 CTE 的写法见 [PostgreSQL 高级 SQL](/database/2_postgresql/4_topic_advanced_sql)。
 
 ---
 
@@ -223,4 +223,4 @@ GO 2 STEPS FROM 1 OVER follows YIELD dst(edge) AS fof;
 - Apache AGE：[https://age.apache.org/](https://age.apache.org/)
 - TuGraph：[https://tugraph.tech/](https://tugraph.tech/)
 
-> 下一篇：[CDC 工具](../5_practice/0_cdc_tools) —— 从数据库变更日志实时捕获数据，同步到搜索、缓存与数仓
+> 返回：[NoSQL 总览](./0_overview)

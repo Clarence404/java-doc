@@ -33,7 +33,7 @@ description: 存储扩展、深分页与预计算、日志链路与 ES 写入、
 
 ### 3、数仓分层
 
-数据量大到要做分析时，按 ODS（原始）→ DWD（明细）→ DWS（汇总）→ ADS（应用）分层沉淀，各层职责、引用规则与维度建模见 [数仓分层与建模](/big-data/2_data_warehouse)。查询侧的 OLAP 引擎选型、结果表设计与查询 API 见 [OLAP 查询与数据服务](/big-data/7_olap_service)，引擎本身的原理见 [列式与 OLAP 数据库](/database/4_nosql/0_column_db)。
+数据量大到要做分析时，按 ODS（原始）→ DWD（明细）→ DWS（汇总）→ ADS（应用）分层沉淀，各层职责、引用规则与维度建模见 [数仓分层与建模](/big-data/2_data_warehouse)。查询侧的 OLAP 引擎选型、结果表设计与查询 API 见 [OLAP 查询与数据服务](/big-data/7_olap_service)，引擎本身的原理见 [列式与 OLAP 数据库](/nosql/3_column_db)。
 
 ---
 
@@ -109,7 +109,7 @@ Kafka 负责削峰与解耦，Flink 做清洗和实时聚合，明细进 ES 供�
 - 查询带时间范围，只命中少量索引
 - 不需要评分的条件放 `filter`（不计分、可缓存）
 
-原理与调优见 [Elasticsearch 原理](/database/4_nosql/3_search_es)、[Elasticsearch 实战](/database/4_nosql/3_search_es_practice)。
+原理与调优见 [Elasticsearch 原理](/nosql/5_search_es)、[Elasticsearch 实战](/nosql/5_search_es_practice)。
 
 ### 3、实时计算：Flink
 

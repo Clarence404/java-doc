@@ -4,7 +4,7 @@ description: OLAP 引擎选型、JdbcClient 查询 API、物化视图与预聚�
 
 # OLAP 查询与数据服务
 
-> 前置阅读：[数仓分层与建模](./2_data_warehouse)、[任务调度](./6_scheduling)、[列式与 OLAP 数据库](/database/4_nosql/0_column_db)
+> 前置阅读：[数仓分层与建模](./2_data_warehouse)、[任务调度](./6_scheduling)、[列式与 OLAP 数据库](/nosql/3_column_db)
 
 数据服务层负责把数仓结果表安全、稳定地提供给后台、看板和导出等消费方。本篇讲 OLAP 选型、查询 API、物化视图与缓存、限流与异步导出、多租户，基线为 Spring Boot 4。
 
@@ -43,7 +43,7 @@ description: OLAP 引擎选型、JdbcClient 查询 API、物化视图与预聚�
 
 ### 1、从服务视角对比
 
-引擎原理与通用对比见 [列式与 OLAP 数据库](/database/4_nosql/0_column_db) 第四节，这里只看与"对外提供查询服务"相关的维度：
+引擎原理与通用对比见 [列式与 OLAP 数据库](/nosql/3_column_db) 第四节，这里只看与"对外提供查询服务"相关的维度：
 
 | 维度 | StarRocks | Apache Doris | ClickHouse |
 |------|-----------|--------------|------------|
@@ -566,7 +566,7 @@ StarRocks 对应的是 `INSERT INTO FILES(...) SELECT ...`，同样支持 CSV / 
 ## 小结
 
 - 数据服务层把便宜的查询做快、把昂贵的查询关进笼子；消费方经查询服务访问 OLAP，查询服务负责鉴权、租户过滤、限流、缓存和导出
-- 对外报表与指标接口优先 StarRocks / Doris（MySQL 协议、强 JOIN、实时更新），单表大宽表分析选 ClickHouse，小数据量用 MySQL 只读副本即可；引擎原理见 [列式与 OLAP 数据库](/database/4_nosql/0_column_db)
+- 对外报表与指标接口优先 StarRocks / Doris（MySQL 协议、强 JOIN、实时更新），单表大宽表分析选 ClickHouse，小数据量用 MySQL 只读副本即可；引擎原理见 [列式与 OLAP 数据库](/nosql/3_column_db)
 - 结果表按"租户 + 日期"设计键列、分区和分桶；注意去重类指标不能跨天相加
 - `JdbcClient` 查询：只读账号、引擎侧 `query_timeout` 加客户端 `socketTimeout`、小连接池；动态维度走枚举白名单，取值全部参数绑定；接口层限制日期区间和过滤条件
 - 核心报表由调度产出 ADS 表，实时看板用异步物化视图按分区增量刷新；关键接口直接查物化视图，返回数据截止时间

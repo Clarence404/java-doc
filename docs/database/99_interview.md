@@ -1,9 +1,9 @@
 ---
-description: 事务、索引、锁、存储引擎、SQL 优化、主从、PostgreSQL、分库分表、NoSQL、连接池与 CDC 题目清单
+description: 存储原理、事务、索引、锁、SQL 优化、主从、PostgreSQL、分库分表、连接池与 CDC 题目清单
 ---
 
 # 高频面试题
 
 > 题目由答案页自动生成，点击题目直接跳到答案；答案末尾的「详见」链接回到本模块正文。
 
-<InterviewList page="7_db" />
+<InterviewList page="7_db" groups="1-11" />

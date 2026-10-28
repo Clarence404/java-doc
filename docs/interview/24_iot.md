@@ -198,7 +198,7 @@ description: MQTT QoS 与会话、MQTT 5、协议选型、EMQX 与接入网关�
 - 分层保留：原始 7–30 天、5 分钟聚合 1 年、1 小时聚合 3–5 年；聚合层一定要存 `count`
 - 降采样在 TDengine 流计算或 Flink 里二选一，两边同时算会口径不一致
 
-→ 详见 [数据处理](/iot/4_data#三、tdengine-超表建模)、[时序数据库](/database/4_nosql/1_time_series_db)
+→ 详见 [数据处理](/iot/4_data#三、tdengine-超表建模)、[时序数据库](/nosql/4_time_series_db)
 
 ### Q16：设备离线检测为什么用 KeyedProcessFunction 而不用 CEP？告警放在哪一层？
 

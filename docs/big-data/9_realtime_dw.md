@@ -455,7 +455,7 @@ FROM paimon_lake.dws.dws_trade_sku_event_1d;
 - **按分区增量刷新**：StarRocks 从 3.2.1 起能在分区级别感知 Paimon 表的变化，每次刷新只重算有变化的分区，这里通常只有当天一个分区。物化视图的分区键必须包含在基表的分区键中，所以 Paimon 表用 `DATE` 类型的 `dt` 分区，物化视图直接 `PARTITION BY dt`
 - **只能定时刷新**：基于外部 Catalog 的物化视图不支持"基表变化即触发"，只支持固定间隔和手动刷新；新版本的 `SHOW CREATE MATERIALIZED VIEW` 会把 `ASYNC EVERY` 显示为 `SCHEDULE` 写法，含义相同
 - **`partition_ttl`** 让物化视图只保留最近 30 天，更早的数据需要时直接查外部 Catalog
-- 物化视图的透明改写、刷新资源隔离等更多用法见 [OLAP 查询与数据服务](./7_olap_service) 第五节，Doris / StarRocks 的数据模型见 [列式与 OLAP 数据库](/database/4_nosql/0_column_db)
+- 物化视图的透明改写、刷新资源隔离等更多用法见 [OLAP 查询与数据服务](./7_olap_service) 第五节，Doris / StarRocks 的数据模型见 [列式与 OLAP 数据库](/nosql/3_column_db)
 
 ### 3、服务账号
 

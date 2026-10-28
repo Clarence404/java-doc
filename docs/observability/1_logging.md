@@ -288,7 +288,7 @@ pipeline:
 - **日志量极大且有统计分析需求**：选 ClickHouse 或基于它的可观测性产品
 - 不要为了"什么都能查"把所有日志都全文索引——绝大多数查询都是"某服务、某时间段、某个 traceId 或关键字"，标签 + 扫描就足够
 
-Elasticsearch 的倒排索引与分片原理见 [Elasticsearch 原理](/database/4_nosql/3_search_es)。
+Elasticsearch 的倒排索引与分片原理见 [Elasticsearch 原理](/nosql/5_search_es)。
 
 ### 2、Loki 的标签与基数
 

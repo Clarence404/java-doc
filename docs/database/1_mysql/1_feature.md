@@ -341,7 +341,7 @@ SELECT id, VECTOR_DIM(vec) AS dim, VECTOR_TO_STRING(vec) AS v FROM doc_embedding
 | `DISTANCE()` 相似度计算 | 不支持 | 支持（`COSINE` / `DOT` / `EUCLIDEAN`） |
 | 向量索引（ANN） | 不支持，`VECTOR` 列不能作为索引键 | 由 HeatWave GenAI 提供 |
 
-在自建 MySQL 上做语义检索需要另选方案：PostgreSQL + pgvector、MariaDB 11.8 LTS 起的向量索引（见 [MariaDB](./2_maria_db)），或 Elasticsearch / OpenSearch 的向量检索（见 [搜索数据库](../4_nosql/3_search_db)）。
+在自建 MySQL 上做语义检索需要另选方案：PostgreSQL + pgvector、MariaDB 11.8 LTS 起的向量索引（见 [MariaDB](./2_maria_db)），或 Elasticsearch / OpenSearch 的向量检索（见 [搜索数据库](/nosql/5_search_db)）。
 
 ### 2、9.7 LTS 相对 8.4 的主要变化
 

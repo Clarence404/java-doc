@@ -214,7 +214,7 @@ esMapping:
   commitBatch: 3000
 ```
 
-MySQL 到搜索引擎的同步方案对比见 [Elasticsearch 实战](../4_nosql/3_search_es_practice#五、与-mysql-同步)。
+MySQL 到搜索引擎的同步方案对比见 [Elasticsearch 实战](/nosql/5_search_es_practice#五、与-mysql-同步)。
 
 ---
 

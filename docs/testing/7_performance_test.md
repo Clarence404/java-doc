@@ -284,7 +284,7 @@ k6 run -o experimental-prometheus-rw \
   -e BASE_URL=http://order-service.perf.svc:8080 perf/order-load.js
 ```
 
-写入的时间序列统一以 `k6_` 开头，趋势类指标按 `K6_PROMETHEUS_RW_TREND_STATS` 拆成多个序列，如 `k6_http_req_duration_p99`。Prometheus 的部署与长期存储见 [时序数据库](/database/4_nosql/1_time_series_db)。
+写入的时间序列统一以 `k6_` 开头，趋势类指标按 `K6_PROMETHEUS_RW_TREND_STATS` 拆成多个序列，如 `k6_http_req_duration_p99`。Prometheus 的部署与长期存储见 [时序数据库](/nosql/4_time_series_db)。
 
 不想搭监控时，用 k6 自带的 Web 看板，并在结束时导出一份 HTML 报告，方便归档和放进 CI 制品：
 

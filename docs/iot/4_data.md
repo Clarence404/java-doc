@@ -4,7 +4,7 @@ description: EMQX 转发 Kafka、Flink 2.x 告警与离线检测、TDengine 超�
 
 # 数据处理
 
-> 前置阅读：[时序数据库](/database/4_nosql/1_time_series_db)、[Flink 总览](/flink/0_overview)、[通信协议](./1_protocol)
+> 前置阅读：[时序数据库](/nosql/4_time_series_db)、[Flink 总览](/flink/0_overview)、[通信协议](./1_protocol)
 
 IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可视化。本篇讲 EMQX 转发 Kafka、Flink 清洗与告警、TDengine 超表、降采样与 Grafana，基线为 Flink 2.2。
 
@@ -40,7 +40,7 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 
 ### 3、存储选型结论
 
-选型细节见 [时序数据库](/database/4_nosql/1_time_series_db) 的「选型对比」，IoT 场景的结论是：
+选型细节见 [时序数据库](/nosql/4_time_series_db) 的「选型对比」，IoT 场景的结论是：
 
 - 设备量大、schema 一致的工业 / 能源采集：TDengine 或 Apache IoTDB（树模型天然对应「工厂 → 设备 → 测点」）
 - 团队已经重度使用 PostgreSQL、需要和业务表 JOIN：TimescaleDB
@@ -108,7 +108,7 @@ EMQX 内置 TDengine Sink，规则输出可以直接拼成 `INSERT` 语句写入
 
 ## 三、TDengine 超表建模
 
-时序数据库本身的存储模型、InfluxDB / TimescaleDB / IoTDB 的对比见 [时序数据库](/database/4_nosql/1_time_series_db)，本篇只讲 IoT 场景特有的建模。
+时序数据库本身的存储模型、InfluxDB / TimescaleDB / IoTDB 的对比见 [时序数据库](/nosql/4_time_series_db)，本篇只讲 IoT 场景特有的建模。
 
 ### 1、超表与子表
 

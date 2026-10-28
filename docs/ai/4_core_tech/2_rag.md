@@ -75,7 +75,7 @@ RAG 分为两个阶段：**索引阶段**离线把文档切块、向量化后写
 
 向量检索擅长语义相近，但对型号、错误码、人名、版本号这类精确词不敏感；BM25 关键词检索正好相反。两路并行检索后，用 **RRF（Reciprocal Rank Fusion）** 按名次合并：文档 d 的融合分数 = Σ 1 / (k + rankᵢ(d))，k 通常取 60，rankᵢ 是它在第 i 路结果中的名次。RRF 只看名次不看原始分数，所以不需要把余弦相似度和 BM25 分数归一化到同一尺度。
 
-- Elasticsearch / OpenSearch、Milvus 2.5+、Qdrant 都能在一个引擎里同时做 BM25（或稀疏向量）与稠密向量检索，原理见 [向量数据库](./1_vector_db) 与 [搜索数据库](/database/4_nosql/3_search_db)
+- Elasticsearch / OpenSearch、Milvus 2.5+、Qdrant 都能在一个引擎里同时做 BM25（或稀疏向量）与稠密向量检索，原理见 [向量数据库](./1_vector_db) 与 [搜索数据库](/nosql/5_search_db)
 - 自己融合两路结果也只需几行代码：
 
 ```java

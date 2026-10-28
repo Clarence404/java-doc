@@ -182,7 +182,7 @@ Binlog 同步工具见 [CDC 工具](/database/5_practice/0_cdc_tools)。分布�
 | 监控、IoT 指标 | 海量时序写入 | InfluxDB / TDengine | 直接写入 |
 | 计数、排行、会话 | 高频读写小数据 | Redis | 应用双写 / 异步回写 |
 
-异构存储是**最终一致**的，同步延迟通常在秒级，业务要能容忍"刚下的单搜不到"。各类存储的特点见 [搜索数据库](/database/4_nosql/3_search_db)、[列式与 OLAP 数据库](/database/4_nosql/0_column_db)。
+异构存储是**最终一致**的，同步延迟通常在秒级，业务要能容忍"刚下的单搜不到"。各类存储的特点见 [搜索数据库](/nosql/5_search_db)、[列式与 OLAP 数据库](/nosql/3_column_db)。
 
 ---
 
