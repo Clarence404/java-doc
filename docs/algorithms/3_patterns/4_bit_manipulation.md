@@ -69,7 +69,7 @@ boolean isPowerOfTwo(int n) {
 
 ### 4、取最低位的 1（lowbit）
 
-`n & -n` 只保留最低位的 1。补码下 `-n == ~n + 1`：取反后最低位的 1 及其右边变成「0 后面跟一串 1」，加 1 后进位恰好回到原来那一位。树状数组（Fenwick Tree）就是靠 lowbit 在 O(log n) 内跳转。
+`n & -n` 只保留最低位的 1。补码下 `-n == ~n + 1`：取反后最低位的 1 及其右边变成「0 后面跟一串 1」，加 1 后进位恰好回到原来那一位。树状数组（Fenwick Tree）就是靠 lowbit 在 O(log n) 内跳转，见 [并查集、单调栈与线段树](../1_data_structures/7_advanced#四、树状数组-fenwick-tree)。
 
 ```java
 int lowbit = n & -n;                   // 12（1100）→ 4（0100）

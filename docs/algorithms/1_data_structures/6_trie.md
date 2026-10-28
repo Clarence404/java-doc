@@ -238,4 +238,4 @@ int findMaximumXOR(int[] nums) {
 - OI Wiki · AC 自动机：[https://oi-wiki.org/string/ac-automaton/](https://oi-wiki.org/string/ac-automaton/)
 - LeetCode 208 实现 Trie (前缀树)：[https://leetcode.cn/problems/implement-trie-prefix-tree/](https://leetcode.cn/problems/implement-trie-prefix-tree/)
 
-> 下一篇：[搜索算法](../2_algorithms/0_search) —— 二分查找模板与边界、二分答案、DFS / BFS 模板。
+> 下一篇：[并查集、单调栈与线段树](./7_advanced) —— 并查集、单调栈与单调队列、树状数组、线段树与选型对比。

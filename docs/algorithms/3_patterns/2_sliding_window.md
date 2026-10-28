@@ -1,12 +1,12 @@
 ---
-description: 固定窗口与可变窗口模板、单调队列、最小覆盖子串、字母异位词、替换后的最长重复字符
+description: 固定窗口与可变窗口模板、窗口最值、最小覆盖子串、字母异位词、替换后的最长重复字符
 ---
 
 # 滑动窗口
 
 > 前置阅读：[双指针](./1_two_pointers)、[哈希表](../1_data_structures/2_hash_table)
 
-滑动窗口是同向双指针维护一段连续区间的技巧，适合子数组、子串类问题。本篇讲固定窗口与可变窗口两套模板、单调队列求窗口最值，以及最小覆盖子串、字母异位词等字符计数题。
+滑动窗口是同向双指针维护一段连续区间的技巧，适合子数组、子串类问题。本篇讲固定窗口与可变窗口两套模板、窗口最值的处理思路，以及最小覆盖子串、字母异位词等字符计数题。
 
 ---
 
@@ -57,24 +57,7 @@ double findMaxAverage(int[] nums, int k) {
 
 ### 2、滑动窗口最大值
 
-LeetCode 239 滑动窗口最大值：用**单调递减的双端队列**存下标，队头始终是当前窗口的最大值。新元素入队前，把队尾比它小的元素都弹出——它们比新元素先离开窗口，又比新元素小，不可能再成为最大值：
-
-```java
-int[] maxSlidingWindow(int[] nums, int k) {
-    int n = nums.length;
-    int[] res = new int[n - k + 1];
-    Deque<Integer> deque = new ArrayDeque<>();           // 存下标，对应的值单调递减
-    for (int i = 0; i < n; i++) {
-        if (!deque.isEmpty() && deque.peekFirst() <= i - k) deque.pollFirst();   // 队头已出窗口
-        while (!deque.isEmpty() && nums[deque.peekLast()] < nums[i]) deque.pollLast();
-        deque.offerLast(i);
-        if (i >= k - 1) res[i - k + 1] = nums[deque.peekFirst()];
-    }
-    return res;
-}
-```
-
-每个下标最多入队、出队各一次，O(n)。
+LeetCode 239 是固定窗口的变形：窗口照常进一个、出一个，但「窗口最大值」没法像和那样增量维护，要配一个单调递减的双端队列，队头始终是当前窗口的最大值，整体 O(n)。单调队列的模板与扩展用法见 [并查集、单调栈与线段树](../1_data_structures/7_advanced#三、单调队列)。
 
 ### 3、找到字符串中所有字母异位词
 
@@ -219,7 +202,7 @@ int characterReplacement(String s, int k) {
 ## 小结
 
 - 滑动窗口要求窗口扩大时某个量单调变化；有负数求和时改用前缀和
-- 固定窗口：进一个、出一个；窗口最值用单调递减双端队列
+- 固定窗口：进一个、出一个；窗口最值配合单调队列
 - 可变窗口求最长：不满足时收缩，收缩后更新答案；求最短：满足时先更新再收缩
 - 字符计数类题目：26 个字母用 `int[26]`，`valid` 的阈值是需要的字符种类数；`Integer` 比较用 `equals`
 - LeetCode 424 的窗口只扩不缩，`maxCount` 不必回退

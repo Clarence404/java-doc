@@ -67,9 +67,52 @@ description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL�
 
 → 详见 [存储引擎：B+ 树与 LSM-Tree](/database/0_fundamentals/1_storage_engine#_2、抖动与限速)
 
+### Q5：分布式文件系统的通用架构是怎样的？为什么元数据服务容易成为瓶颈？
+
+**一句话**：把系统拆成「元数据」和「数据」两条路：客户端先问元数据服务文件在哪，再直接找数据节点读写；数据节点能随便加机器，元数据服务却要扛住所有 `ls`、`open`、`rename`，所以最先撑不住。
+
+- 元数据：目录树、权限、文件由哪些块组成、每块在哪台机器，要求强一致
+- 分块：大文件切成定长块（HDFS 默认 128 MB）分散存放，读写可以多节点并行
+- 冗余：多副本（一般 3 份，跨机架放）或纠删码（6+3 约 1.5 倍空间），坏几台机器不丢数据
+- 租约：写文件前先领「独占写权限」，过期自动回收，保证同一时刻只有一个写者
+
+**常见坑**：小文件多、单目录文件数巨大、频繁 `stat` 都会打满元数据服务，要靠合并文件、拆目录来缓解。
+
+→ 详见 [分布式文件系统 · 核心架构要素](/database/0_fundamentals/1_storage_fs#二、核心架构要素)
+
+### Q6：HDFS、Ceph、JuiceFS 的架构有什么区别？各适合什么场景？
+
+**一句话**：三者都是元数据和数据分离，区别在元数据放哪：HDFS 全放 NameNode 内存，Ceph 用 CRUSH 算法直接算出数据位置，JuiceFS 把元数据交给 Redis / TiKV / 数据库、数据切块放对象存储。
+
+| 对比 | HDFS | Ceph | JuiceFS |
+|------|------|------|------|
+| 元数据 | NameNode 内存，HA + Federation 扩展 | MON 存集群拓扑，CRUSH 计算位置，MDS 只管 CephFS | 外部数据库 |
+| 数据 | DataNode 存 128 MB 块 | OSD 存 RADOS 对象 | 对象存储里的 4 MB 块 |
+| 接口 | HDFS API，只追加不随机写 | 块 RBD / 文件 CephFS / 对象 RGW | POSIX 挂载、HDFS SDK、S3 网关 |
+| 适合 | 存量 Hadoop 批处理 | 私有云统一存储、K8s 经 Rook 提供卷 | AI 训练数据、大数据存算分离 |
+
+- 新建数据平台多走「对象存储 + Iceberg 等表格式」的存算分离路线，HDFS 主要留在存量集群
+- Ceph 功能最全但运维门槛最高，没有专职存储团队时优先用云盘、NAS 和对象存储
+
+→ 详见 [分布式文件系统 · 选型与常见坑](/database/0_fundamentals/1_storage_fs#七、选型与常见坑)
+
+### Q7：HDFS 为什么怕小文件？NameNode 的高可用怎么做？
+
+**一句话**：每个文件、目录、块都要在 NameNode 内存里占一个对象，小文件一多 NameNode 堆就爆、重启变慢；高可用靠 Active / Standby 两个 NameNode 共享编辑日志，再由 ZooKeeper 自动切换。
+
+- 小文件的危害：NameNode 内存被占满，计算任务数随文件数暴增
+- 治理：写入端控制文件大小（百 MB 级）、定期合并，湖仓表格式自带 Compaction
+- HA：EditLog 写到 JournalNode 集群（QJM，多数派写成功才算），Standby 实时回放
+- 切换：ZKFC 借助 ZooKeeper 检测故障并选主，配合隔离（fencing）防止两个 Active
+- 扩展：Observer NameNode 分担读请求，Federation 让多个 NameNode 各管一部分目录
+
+**常见坑**：HA 解决的是可用性，不解决容量；文件数上限仍受单个 NameNode 内存限制，要靠 Federation 或控制小文件。
+
+→ 详见 [分布式文件系统 · HDFS](/database/0_fundamentals/1_storage_fs#三、hdfs)
+
 ## 二、事务与隔离级别
 
-### Q5：MySQL 有哪四种隔离级别？各自能解决什么问题？默认是哪一种？
+### Q8：MySQL 有哪四种隔离级别？各自能解决什么问题？默认是哪一种？
 
 **一句话**：从低到高是读未提交、读已提交（RC）、可重复读（RR）、串行化，级别越高防住的并发问题越多、性能越差。InnoDB 默认 RR，Oracle、PostgreSQL、SQL Server 默认 RC。
 
@@ -85,7 +128,7 @@ description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL�
 
 → 详见 [MySQL 事务与锁](/database/1_mysql/5_topic_transaction#_2、四种隔离级别)
 
-### Q6：脏读、不可重复读、幻读的区别？
+### Q9：脏读、不可重复读、幻读的区别？
 
 **一句话**：都是一个事务里读到了别的事务造成的变化。脏读是读到别人还没提交的数据；不可重复读是同一行读两次值变了；幻读是同一个条件查两次，多出了新插入的行。
 
@@ -98,7 +141,7 @@ description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL�
 
 → 详见 [MySQL 事务与锁](/database/1_mysql/5_topic_transaction#_1、三种并发读问题)
 
-### Q7：快照读和当前读有什么区别？RR 能在多大程度上避免幻读？
+### Q10：快照读和当前读有什么区别？RR 能在多大程度上避免幻读？
 
 **一句话**：普通 SELECT 是快照读，读的是事务开始时的「照片」，不加锁；`FOR UPDATE`、UPDATE、DELETE、INSERT 是当前读，读最新数据并加锁。RR 下只做快照读或只做当前读都不会幻读，两者混用就可能看到别人新插入的行。
 
@@ -111,7 +154,7 @@ description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL�
 
 → 详见 [MySQL 事务与锁](/database/1_mysql/5_topic_transaction#_3、快照读与当前读)
 
-### Q8：MVCC 的原理是什么？undo log 和 Read View 如何配合？RC 与 RR 有何不同？
+### Q11：MVCC 的原理是什么？undo log 和 Read View 如何配合？RC 与 RR 有何不同？
 
 **一句话**：MVCC 就是一行数据保留多个历史版本，读的时候挑一个「自己该看到的」版本，这样读不用加锁。
 
@@ -124,7 +167,7 @@ description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL�
 
 → 详见 [MySQL 事务与锁](/database/1_mysql/5_topic_transaction#三、mvcc-多版本并发控制)
 
-### Q9：redo log、undo log、binlog 有什么区别？两阶段提交如何保证崩溃恢复一致？
+### Q12：redo log、undo log、binlog 有什么区别？两阶段提交如何保证崩溃恢复一致？
 
 **一句话**：undo 用来回滚和提供历史版本；redo 用来宕机后把已提交但还没写到数据文件的修改补回来；binlog 是 MySQL 层的变更记录，用来做主从复制和按时间点恢复。
 
@@ -142,7 +185,7 @@ description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL�
 
 ## 三、索引
 
-### Q10：InnoDB 为什么用 B+ 树？B 树真的不能做范围查询吗？三层 B+ 树能存多少行？
+### Q13：InnoDB 为什么用 B+ 树？B 树真的不能做范围查询吗？三层 B+ 树能存多少行？
 
 **一句话**：B 树也能做范围查询，只是效率差。B+ 树非叶子节点只存键，一个节点能放更多键，树更矮；数据都在叶子上，叶子之间用链表串起来，范围查询找到起点后顺着往后读就行。
 
@@ -155,7 +198,7 @@ description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL�
 
 → 详见 [MySQL 索引](/database/1_mysql/4_topic_index#一、b-树数据结构)
 
-### Q11：聚簇索引和二级索引的区别？什么是回表和覆盖索引？
+### Q14：聚簇索引和二级索引的区别？什么是回表和覆盖索引？
 
 **一句话**：主键索引就是聚簇索引，叶子上存整行数据；二级索引叶子上只存「索引列 + 主键」。用二级索引查别的列，要拿主键再去主键索引查一次，这叫回表；要的列二级索引上都有，就不用回表，这叫覆盖索引。
 
@@ -170,7 +213,7 @@ description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL�
 
 → 详见 [MySQL 索引](/database/1_mysql/4_topic_index#三、聚簇索引与二级索引)
 
-### Q12：联合索引的最左前缀原则是什么？范围条件之后的列完全用不上吗？
+### Q15：联合索引的最左前缀原则是什么？范围条件之后的列完全用不上吗？
 
 **一句话**：联合索引 `(a, b, c)` 先按 a 排、a 相同再按 b 排，以此类推，所以必须从 a 开始连续用等值条件才能快速定位。遇到范围条件后，后面的列不能再缩小查找范围，但还能用来提前过滤，减少回表。
 
@@ -182,7 +225,7 @@ description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL�
 
 → 详见 [MySQL 索引](/database/1_mysql/4_topic_index#六、最左前缀原则)
 
-### Q13：索引失效的常见场景有哪些？
+### Q16：索引失效的常见场景有哪些？
 
 **一句话**：分两类：一是对索引列做了加工，索引的顺序用不上了；二是索引能用，但优化器算下来觉得全表扫描更便宜。到底走没走索引，以 `EXPLAIN` 为准。
 
@@ -196,7 +239,7 @@ description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL�
 
 → 详见 [MySQL 索引](/database/1_mysql/4_topic_index#七、索引失效的常见场景)
 
-### Q14：深度分页如何优化？
+### Q17：深度分页如何优化？
 
 **一句话**：`LIMIT 100000, 20` 要先读出 10 万行再扔掉，`SELECT *` 时每行还要回表。要跳页就用延迟关联，只查下一页就用游标翻页。
 
@@ -212,7 +255,7 @@ WHERE user_id = ? AND (create_time < ? OR (create_time = ? AND id < ?)) ORDER BY
 
 → 详见 [MySQL 索引](/database/1_mysql/4_topic_index#九、深度分页优化)
 
-### Q15：如何设计合理的索引？唯一索引和普通索引怎么选？
+### Q18：如何设计合理的索引？唯一索引和普通索引怎么选？
 
 **一句话**：围绕高频查询建联合索引，尽量做到覆盖索引，控制索引数量。数据该唯一就用唯一索引，不要为了那点写入性能改成普通索引。
 
@@ -227,7 +270,7 @@ WHERE user_id = ? AND (create_time < ? OR (create_time = ? AND id < ?)) ORDER BY
 
 ## 四、锁
 
-### Q16：InnoDB 有哪些锁？Record Lock、Gap Lock、Next-Key Lock 的区别和加锁规则？
+### Q19：InnoDB 有哪些锁？Record Lock、Gap Lock、Next-Key Lock 的区别和加锁规则？
 
 **一句话**：行锁分共享锁（S）和排他锁（X）；按锁的范围分：Record Lock 锁一条记录，Gap Lock 锁两条记录之间的空隙，Next-Key Lock 是两者加起来。RR 下当前读默认加 Next-Key Lock，而且是加在扫描到的每条索引记录上。
 
@@ -245,7 +288,7 @@ WHERE user_id = ? AND (create_time < ? OR (create_time = ? AND id < ?)) ORDER BY
 
 → 详见 [MySQL 事务与锁](/database/1_mysql/5_topic_transaction#五、锁)
 
-### Q17：没走索引的 UPDATE 会锁住哪些行？
+### Q20：没走索引的 UPDATE 会锁住哪些行？
 
 **一句话**：InnoDB 不会把行锁升级成表锁，但锁是加在扫描到的记录上的。没走索引就要扫全表，RR 下每一行和每个空隙都被锁住，效果上整张表都不能更新和插入。
 
@@ -261,7 +304,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MySQL 避坑指南](/database/1_mysql/3_fallible_point#_3、select-for-update-锁住了整张表)
 
-### Q18：死锁是怎么产生的？如何排查和预防？
+### Q21：死锁是怎么产生的？如何排查和预防？
 
 **一句话**：两个事务互相等对方手里的锁，谁也走不下去就是死锁。InnoDB 会自动发现，回滚其中一个，返回错误 1213。
 
@@ -274,7 +317,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MySQL 事务与锁](/database/1_mysql/5_topic_transaction#_6、死锁)
 
-### Q19：高并发下如何安全地修改同一行数据？
+### Q22：高并发下如何安全地修改同一行数据？
 
 **一句话**：最简单的是带条件的原子 UPDATE；逻辑复杂、冲突少用乐观锁（版本号），冲突多用悲观锁（`FOR UPDATE`）。单行写入量太大（如秒杀扣库存）时，要靠 Redis 预扣、分桶等系统层面的办法。
 
@@ -292,7 +335,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 ## 五、存储引擎
 
-### Q20：InnoDB 和 MyISAM 的区别？
+### Q23：InnoDB 和 MyISAM 的区别？
 
 **一句话**：InnoDB 支持事务、行锁、外键和崩溃后自动恢复；MyISAM 只有表锁、没有事务，崩溃后容易坏表。InnoDB 早就是默认引擎，新项目没有理由用 MyISAM。
 
@@ -306,7 +349,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [InnoDB 存储结构](/database/1_mysql/8_topic_innodb#七、存储引擎对比)
 
-### Q21：InnoDB 为什么推荐自增主键？不定义主键会怎样？
+### Q24：InnoDB 为什么推荐自增主键？不定义主键会怎样？
 
 **一句话**：数据按主键顺序存放。自增主键让新行总是加在最后，不用在中间插队挪数据（页分裂）；主键短，所有二级索引也更小。随机主键（如 UUID v4）会到处插，页分裂多、空间浪费大。
 
@@ -317,7 +360,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MySQL 索引](/database/1_mysql/4_topic_index#_1、聚簇索引-clustered-index)、[MySQL 表设计规范](/database/1_mysql/3_table_design#二、主键设计)
 
-### Q22：金额和时间字段用什么类型？DATETIME 和 TIMESTAMP 怎么选？
+### Q25：金额和时间字段用什么类型？DATETIME 和 TIMESTAMP 怎么选？
 
 **一句话**：金额用 `DECIMAL` 或以「分」为单位的 `BIGINT`，绝不用 `FLOAT` / `DOUBLE`；时间优先 `DATETIME(3)`，因为 `TIMESTAMP` 只能存到 2038 年。
 
@@ -331,7 +374,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MySQL 表设计规范](/database/1_mysql/3_table_design#三、字段类型选择)
 
-### Q23：为什么建议字段 NOT NULL？NULL 列能走索引吗？
+### Q26：为什么建议字段 NOT NULL？NULL 列能走索引吗？
 
 **一句话**：能走索引，`IS NULL` 照样用得上；建议 `NOT NULL` 是因为语义：NULL 带来三值逻辑和唯一约束失效，不是为了性能。
 
@@ -344,7 +387,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MySQL 表设计规范](/database/1_mysql/3_table_design#四、null-与默认值)
 
-### Q24：逻辑删除和唯一索引冲突怎么解决？
+### Q27：逻辑删除和唯一索引冲突怎么解决？
 
 **一句话**：让删除标记参与唯一索引，并且「未删除」只有一个固定值、「已删除」每行都不同。常用做法是 `deleted` 未删除为 0，删除时写入本行 id。
 
@@ -359,7 +402,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MySQL 表设计规范](/database/1_mysql/3_table_design#_2、逻辑删除)
 
-### Q25：什么时候做反范式冗余？冗余字段怎么保证一致？为什么不建外键？
+### Q28：什么时候做反范式冗余？冗余字段怎么保证一致？为什么不建外键？
 
 **一句话**：先做到第三范式，再为读性能有意识地冗余；冗余字段必须写清由谁、在什么时候同步。外键的检查和级联会加锁、分库后也建不了，所以互联网业务一般不建。
 
@@ -372,7 +415,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MySQL 表设计规范](/database/1_mysql/3_table_design#五、范式与反范式)
 
-### Q26：新建一张核心业务表，评审时要看哪些点？
+### Q29：新建一张核心业务表，评审时要看哪些点？
 
 **一句话**：按「命名 → 主键 → 类型 → NULL → 通用字段 → 索引 → 容量」过一遍，重点是主键选型、唯一约束和以后会不会分库分表。
 
@@ -386,7 +429,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MySQL 表设计规范](/database/1_mysql/3_table_design#_2、评审清单)
 
-### Q27：什么是页？InnoDB 的存储层次和行溢出是怎样的？
+### Q30：什么是页？InnoDB 的存储层次和行溢出是怎样的？
 
 **一句话**：页是 InnoDB 读写磁盘和缓存数据的最小单位，默认 16KB，B+ 树的一个节点就是一页。层次从大到小是：表空间 → 段 → 区 → 页 → 行。
 
@@ -399,7 +442,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [InnoDB 存储结构](/database/1_mysql/8_topic_innodb#一、表空间层次-段、区、页、行)
 
-### Q28：Buffer Pool 如何管理内存？Double Write 解决什么问题？MySQL 偶尔「抖」一下是什么原因？
+### Q31：Buffer Pool 如何管理内存？Double Write 解决什么问题？MySQL 偶尔「抖」一下是什么原因？
 
 **一句话**：Buffer Pool 是 InnoDB 在内存里缓存数据页的地方，用改进的 LRU 淘汰旧页。修改过的页（脏页）由后台慢慢写回磁盘；redo 快写满或空闲页不够时被迫集中写回，就是 MySQL 偶尔「抖一下」的常见原因。
 
@@ -411,7 +454,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 ## 六、SQL 执行与优化
 
-### Q29：一条 SQL 的执行流程是什么？SELECT 和 UPDATE 有何不同？
+### Q32：一条 SQL 的执行流程是什么？SELECT 和 UPDATE 有何不同？
 
 **一句话**：连接器验证身份 → 分析器检查语法和表、列是否存在 → 优化器选索引和 JOIN 顺序 → 执行器调用存储引擎取数据。UPDATE 多了写的步骤：加锁、写 undo、改内存里的页、写 redo 和 binlog，提交时走两阶段提交（见 Q5）。
 
@@ -422,7 +465,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [SQL 执行流程](/database/1_mysql/6_topic_execution#二、各组件职责)
 
-### Q30：EXPLAIN 各字段的含义？type 从好到差的顺序是什么？
+### Q33：EXPLAIN 各字段的含义？type 从好到差的顺序是什么？
 
 **一句话**：重点看四样：`type`（怎么访问表）、`key`（用了哪个索引）、`rows`（估计扫多少行）、`Extra`（有没有回表、额外排序、临时表）。type 常见的从好到差是 `const` > `eq_ref` > `ref` > `range` > `index` > `ALL`，核心查询至少要到 `range`。
 
@@ -435,7 +478,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain#一、explain-字段总览)
 
-### Q31：慢查询如何定位？优化器选错索引怎么办？
+### Q34：慢查询如何定位？优化器选错索引怎么办？
 
 **一句话**：打开慢查询日志 → 用 `pt-query-digest` 按总耗时找出最该优化的 SQL → 用 `EXPLAIN` 看执行计划。选错索引时从轻到重处理：更新统计信息、建直方图、加索引提示，最后才 `FORCE INDEX`。
 
@@ -446,7 +489,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain#四、慢-sql-定位)、[SQL 执行流程](/database/1_mysql/6_topic_execution#_4、优化器)
 
-### Q32：`COUNT(*)`、`COUNT(1)`、`COUNT(字段)` 的区别？
+### Q35：`COUNT(*)`、`COUNT(1)`、`COUNT(字段)` 的区别？
 
 **一句话**：`COUNT(*)` 和 `COUNT(1)` 一样快，都是数行数；`COUNT(主键)` 要取出主键值，稍慢；`COUNT(普通字段)` 只数不为 NULL 的值，意思都不一样。
 
@@ -456,7 +499,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain#六、count-的性能)
 
-### Q33：JOIN 是怎么执行的？8.0.20 之后 BNL 去哪了？
+### Q36：JOIN 是怎么执行的？8.0.20 之后 BNL 去哪了？
 
 **一句话**：被关联的表在关联字段上有索引时，驱动表每一行都拿去索引里查一次（Index Nested-Loop）；没有索引时，8.0.18 起用 Hash Join：把小的一边放进内存建哈希表，另一边逐行去查。8.0.20 起 Hash Join 完全取代了老的 BNL（块嵌套循环）。
 
@@ -467,7 +510,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain#七、join-原理与优化)
 
-### Q34：大表 DDL 为什么会卡住整张表？Online DDL 和 gh-ost 怎么选？
+### Q37：大表 DDL 为什么会卡住整张表？Online DDL 和 gh-ost 怎么选？
 
 **一句话**：改表结构要拿表的元数据写锁（MDL），只要有没提交的事务访问过这张表，DDL 就得等；而 DDL 一排队，后面所有读写这张表的请求都排在它后面，整张表就卡住了。真正危险的往往是等锁，不是 DDL 本身。
 
@@ -485,7 +528,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 ## 七、主从与高可用
 
-### Q35：MySQL 主从复制的原理？binlog 有哪几种格式？
+### Q38：MySQL 主从复制的原理？binlog 有哪几种格式？
 
 **一句话**：主库把变更写进 binlog；从库的接收线程把 binlog 拉过来存成 relay log（中继日志），再由回放线程执行一遍。默认是异步复制。binlog 有 ROW、STATEMENT、MIXED 三种格式，只推荐 ROW。
 
@@ -500,7 +543,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MySQL 主从与高可用](/database/1_mysql/9_topic_replication#二、复制原理)
 
-### Q36：GTID 和半同步复制分别解决什么问题？
+### Q39：GTID 和半同步复制分别解决什么问题？
 
 **一句话**：GTID 给每个事务一个全局编号，切换主库时从库能自动知道从哪接着复制，不用人工找 binlog 文件和位置。半同步解决异步复制下主库宕机丢最后几笔事务的问题：主库提交时至少等一个从库确认收到。
 
@@ -514,7 +557,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MySQL 主从与高可用](/database/1_mysql/9_topic_replication#三、gtid-复制)
 
-### Q37：主从延迟的原因和解决办法？为什么 `Seconds_Behind_Source` 不可靠？
+### Q40：主从延迟的原因和解决办法？为什么 `Seconds_Behind_Source` 不可靠？
 
 **一句话**：延迟主要来自主库的大事务和大表 DDL、从库回放不够并行、从库在跑大查询、没有主键的表。解决办法是拆小事务、所有表加主键、开多线程回放；业务上对实时性要求高的读走主库。
 
@@ -525,7 +568,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MySQL 主从与高可用](/database/1_mysql/9_topic_replication#五、复制延迟与多线程回放)
 
-### Q38：MySQL 有哪几种高可用方案？
+### Q41：MySQL 有哪几种高可用方案？
 
 **一句话**：自建首选官方的 InnoDB Cluster（组复制 MGR + MySQL Shell + MySQL Router），自动选主、切换不丢已提交事务；跨地域再加 ClusterSet；上云直接用托管服务。MHA 多年没更新，不建议新建。
 
@@ -542,7 +585,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MySQL 主从与高可用](/database/1_mysql/9_topic_replication#六、高可用方案)
 
-### Q39：MySQL 8.0 停止支持后如何升级？8.4 LTS 有哪些需要注意的变化？
+### Q42：MySQL 8.0 停止支持后如何升级？8.4 LTS 有哪些需要注意的变化？
 
 **一句话**：8.0 已在 2026 年 4 月停止维护，应升级到 8.4 LTS，之后再到 9.7 LTS；只能一个 LTS 一个 LTS 地升，不能跳。8.4 的风险主要是删掉了一些语法和配置，以及 InnoDB 默认值变了。
 
@@ -558,7 +601,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 ## 八、PostgreSQL
 
-### Q40：PostgreSQL 与 MySQL 的关键差异？如何选择？
+### Q43：PostgreSQL 与 MySQL 的关键差异？如何选择？
 
 **一句话**：最根本的区别在存储方式：PG 的数据放在堆表里，所有索引都直接指向行的物理位置，没有聚簇索引；旧版本数据留在表里，靠 VACUUM 清理；每个连接是一个进程。功能上 PG 的 SQL 支持、JSONB 和扩展更强。
 
@@ -577,7 +620,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [PostgreSQL 基础](/database/2_postgresql/0_overview#二、与-mysql-的差异-java-开发视角)
 
-### Q41：PG 的 MVCC 与 InnoDB 有何不同？RR 下什么时候会报 40001？
+### Q44：PG 的 MVCC 与 InnoDB 有何不同？RR 下什么时候会报 40001？
 
 **一句话**：InnoDB 是直接改行，旧值放进 undo；PG 不改旧行，UPDATE 等于把旧行标记为作废、再插入一行新的。PG 的 RR 下，要改的行在你开始之后被别人改过并提交了，就直接报 40001 错误，而不是像 InnoDB 那样基于最新值接着改。
 
@@ -592,7 +635,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MVCC 与 VACUUM](/database/2_postgresql/2_topic_mvcc#三、隔离级别-写给-mysql-用户)
 
-### Q42：VACUUM 解决什么问题？HOT 更新、表膨胀和 XID 回卷怎么处理？
+### Q45：VACUUM 解决什么问题？HOT 更新、表膨胀和 XID 回卷怎么处理？
 
 **一句话**：PG 的 UPDATE、DELETE 会留下作废的旧行，VACUUM 负责把它们的空间回收复用，还负责「冻结」老数据。清理不及时会导致表膨胀，严重时事务 ID 用完（XID 回卷），数据库会停止写入。
 
@@ -605,7 +648,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [MVCC 与 VACUUM](/database/2_postgresql/2_topic_mvcc#五、vacuum)
 
-### Q43：GIN、GiST、BRIN 等索引分别适合什么场景？
+### Q46：GIN、GiST、BRIN 等索引分别适合什么场景？
 
 **一句话**：B-tree 是默认，管等值、范围、排序；GIN 是倒排索引，管「包含」类查询（JSONB、数组、全文检索）；GiST 管地理位置和范围重叠；BRIN 只记每一块数据的最小最大值，适合按时间追加的超大表。
 
@@ -624,7 +667,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [PostgreSQL 索引类型](/database/2_postgresql/3_topic_index#九、如何选择)
 
-### Q44：PG 的流复制和逻辑复制有什么区别？`synchronous_commit` 和复制槽要注意什么？
+### Q47：PG 的流复制和逻辑复制有什么区别？`synchronous_commit` 和复制槽要注意什么？
 
 **一句话**：PG 只有一种日志 WAL，既管崩溃恢复也管复制，没有 binlog。流复制把 WAL 原样传过去，备库和主库一模一样、只读，用于高可用；逻辑复制把 WAL 解析成行变更，可以只同步部分表、跨大版本，用于升级、数据分发和 CDC。
 
@@ -638,7 +681,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 ## 九、分布式数据库与分库分表
 
-### Q45：什么时候需要分库分表？分片键如何选择？
+### Q48：什么时候需要分库分表？分片键如何选择？
 
 **一句话**：分库分表是最后一招。先优化索引和 SQL、加缓存、读写分离、归档冷数据，单库的容量、写入量或连接数确实扛不住了再拆。分片键选最常用的查询条件里分布均匀、不会修改的字段，比如 user_id。
 
@@ -649,7 +692,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [高并发面试题解答](/interview/13_high_con#q23-什么时候需要分库分表-分片键如何选择)、[数据层扩展](/high-con/5_data_scaling#四、分库分表)
 
-### Q46：ShardingSphere-JDBC 和 Proxy 有什么区别？跨分片查询和事务如何处理？
+### Q49：ShardingSphere-JDBC 和 Proxy 有什么区别？跨分片查询和事务如何处理？
 
 **一句话**：JDBC 版是应用里的一个 jar，当作数据库驱动用，没有额外网络开销，只支持 Java；Proxy 版是独立部署的数据库代理，任何语言都能连，方便统一管理，但多一跳网络、要自己做高可用。常见做法是应用用 JDBC 版，DBA 用 Proxy 版。
 
@@ -665,7 +708,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [分库分表与中间件](/database/5_practice/3_sharding#二、两种接入形态)
 
-### Q47：分库分表如何不停机迁移？以后扩容怎么做？
+### Q50：分库分表如何不停机迁移？以后扩容怎么做？
 
 **一句话**：迁移按「双写 → 历史数据迁移 → 校验对账 → 灰度切读 → 停旧写」五步走，每一步都能回退；扩容的关键是一开始就预分配足够多的逻辑分片，以后只搬整个库，不重新哈希每一行。
 
@@ -679,7 +722,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [分库分表与中间件](/database/5_practice/3_sharding#八、平滑迁移与扩容)、[数据层扩展](/high-con/5_data_scaling)
 
-### Q48：TiDB 的数据如何分片与复制？事务和 MySQL 有什么不同？
+### Q51：TiDB 的数据如何分片与复制？事务和 MySQL 有什么不同？
 
 **一句话**：TiDB 分三层：TiDB Server 负责计算 SQL，TiKV 负责存数据，PD 负责调度。数据按主键范围切成一个个 Region（默认 256 MiB），每个 Region 有多个副本用 Raft 协议保持一致，PD 负责拆分和搬迁 Region。
 
@@ -692,7 +735,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [分布式数据库](/database/3_relational/1_distributed_db#一、tidb)
 
-### Q49：分库分表和分布式数据库怎么选？TiDB、OceanBase、Aurora / PolarDB 有什么区别？
+### Q52：分库分表和分布式数据库怎么选？TiDB、OceanBase、Aurora / PolarDB 有什么区别？
 
 **一句话**：分库分表复用成熟的 MySQL，成本低，但跨分片 JOIN、事务、扩容都要业务和中间件自己扛；分布式数据库把这些做进了数据库内部，对业务透明，代价是新的运维体系和更多资源。分片键清楚、查询模式稳定就分库分表；要跨分片强一致事务或透明扩容就选分布式数据库。
 
@@ -709,7 +752,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 ## 十、连接池、CDC 与备份
 
-### Q50：连接池大小怎么设？`maxLifetime`、`keepaliveTime` 与 `wait_timeout` 是什么关系？
+### Q53：连接池大小怎么设？`maxLifetime`、`keepaliveTime` 与 `wait_timeout` 是什么关系？
 
 **一句话**：连接池不是越大越好。经验公式「数据库 CPU 核数 × 2 + 磁盘数」算的是数据库那边总共需要的活跃连接数，要分给所有应用实例。`maxLifetime` 要比数据库和防火墙的空闲超时都短，否则池里会留着已经被断开的连接。
 
@@ -722,7 +765,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [数据库连接池](/database/4_access/2_connection_pool#_4、池大小估算)、[高并发面试题解答](/interview/13_high_con#q36-服务水平扩容时-数据库连接池要怎么重新核算)
 
-### Q51：PostgreSQL 为什么需要 PgBouncer？transaction 模式有什么限制？
+### Q54：PostgreSQL 为什么需要 PgBouncer？transaction 模式有什么限制？
 
 **一句话**：PG 每个连接是一个进程，开销大，一般只能开几百个连接，微服务实例一多就不够用。PgBouncer 把大量客户端连接复用到少量真实连接上；生产常用 transaction 模式，事务结束就归还连接，代价是不能用会话级的状态。
 
@@ -739,7 +782,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [数据库连接池](/database/4_access/2_connection_pool#五、pgbouncer)
 
-### Q52：基于 binlog 的 CDC 原理是什么？Canal、Debezium、Flink CDC 怎么选？
+### Q55：基于 binlog 的 CDC 原理是什么？Canal、Debezium、Flink CDC 怎么选？
 
 **一句话**：CDC 工具把自己伪装成一个从库，从 MySQL 拉取 binlog，解析出每行改前改后的数据，转成事件发给下游。前提是 binlog 为 ROW 格式、账号有复制权限、`server_id` 不和别的从库重复。
 
@@ -757,7 +800,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [CDC 工具](/database/5_practice/0_cdc_tools#一、工具对比)、[Flink CDC](/flink/6_cdc)
 
-### Q53：如何设计 MySQL / PostgreSQL 的备份与时间点恢复（PITR）？
+### Q56：如何设计 MySQL / PostgreSQL 的备份与时间点恢复（PITR）？
 
 **一句话**：备份方案由两个目标决定：最多能丢多少数据（RPO）、最多多久恢复（RTO）。基本做法是「定期全量备份 + 持续归档日志」：全量提供起点，再用 binlog / WAL 把数据补到任意时间点。没做过恢复演练的备份等于没有备份。
 
@@ -777,7 +820,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 ## 十一、MyBatis 与 ORM
 
-### Q54：MyBatis 里 `#{}` 和 `${}` 有什么区别？
+### Q57：MyBatis 里 `#{}` 和 `${}` 有什么区别？
 
 **一句话**：`#{}` 会变成预编译语句里的 `?` 占位符，参数由 JDBC 绑定，安全；`${}` 是把值原样拼进 SQL 字符串，传什么就执行什么，有 SQL 注入风险。
 
@@ -794,7 +837,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [常见漏洞与防护](/security/8_vulnerabilities#_2、参数化查询)
 
-### Q55：MyBatis 插件（Interceptor）是怎么工作的？能拦截哪些对象？
+### Q58：MyBatis 插件（Interceptor）是怎么工作的？能拦截哪些对象？
 
 **一句话**：插件本质是 JDK 动态代理。MyBatis 创建四类核心对象时，会让每个插件把目标对象包一层代理，调用到声明过的方法就先进插件逻辑，再决定是否放行。
 
@@ -807,7 +850,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [ORM 框架](/database/4_access/1_orm_framework#五、插件-interceptor-原理)
 
-### Q56：MyBatis 的一级缓存和二级缓存有什么区别？生产中要开吗？
+### Q59：MyBatis 的一级缓存和二级缓存有什么区别？生产中要开吗？
 
 **一句话**：一级缓存在同一个 `SqlSession` 内生效，默认开启；二级缓存按 Mapper 的 namespace 跨 Session 共享，要在 Mapper 上声明 `<cache/>` 才生效。生产中业务数据一般不开二级缓存，改用 Redis。
 
@@ -825,7 +868,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [ORM 框架](/database/4_access/1_orm_framework#一、mybatis-缓存)
 
-### Q57：什么是延迟加载？MyBatis 和 Hibernate 分别怎么做？
+### Q60：什么是延迟加载？MyBatis 和 Hibernate 分别怎么做？
 
 **一句话**：查主对象时先不查关联对象，返回一个代理，等代码第一次访问关联属性时再发 SQL。好处是不用的关联不查，代价是遍历列表时容易变成 N+1 查询（查 1 次列表，再为每条记录各查 1 次）。
 
@@ -838,7 +881,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [ORM 框架](/database/4_access/1_orm_framework#_4、关联加载与-n-1)
 
-### Q58：MyBatis 怎么分页？PageHelper 和 MyBatis-Plus 分页的原理是什么？
+### Q61：MyBatis 怎么分页？PageHelper 和 MyBatis-Plus 分页的原理是什么？
 
 **一句话**：`RowBounds` 是内存分页，数据库仍返回全部结果，只适合小结果集；生产都用物理分页：插件拦截查询，先执行一条 COUNT，再按数据库方言给原 SQL 追加 `LIMIT`。
 
@@ -851,7 +894,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [ORM 框架](/database/4_access/1_orm_framework#二、分页原理)
 
-### Q59：MyBatis 和 JPA / Hibernate 怎么选？
+### Q62：MyBatis 和 JPA / Hibernate 怎么选？
 
 **一句话**：MyBatis 是「SQL 映射」，SQL 自己写、完全可控；Hibernate 是「对象映射」，操作对象由框架生成 SQL。复杂查询、报表、要 DBA 审 SQL 选 MyBatis；领域模型清晰、以整个聚合为单位读写选 JPA。
 
@@ -870,7 +913,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 ## 十二、NoSQL 与选型
 
-### Q60：MongoDB 如何建模？多文档事务有哪些限制？
+### Q63：MongoDB 如何建模？多文档事务有哪些限制？
 
 **一句话**：一起读的数据就放一起：一对一、一对少量且一起读写的子数据直接内嵌（订单和订单项），一对大量、多对多或要单独访问的用引用（用户和订单）。单个文档的写入本身是原子的，能内嵌就能避开多文档事务。
 
@@ -881,7 +924,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [文档数据库](/nosql/2_document_db#二、文档建模)
 
-### Q61：Elasticsearch 为什么能快速全文检索？写入后为什么不能立刻搜到？
+### Q64：Elasticsearch 为什么能快速全文检索？写入后为什么不能立刻搜到？
 
 **一句话**：ES 用的是倒排索引，就像书后面的索引页：从「词」直接查到「包含它的文档列表」，不用逐篇扫描。写入的数据先在内存里，要等 refresh（默认每 1 秒一次）生成新的段文件后才能被搜到，所以叫「近实时」。
 
@@ -894,7 +937,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [Elasticsearch 原理](/nosql/5_search_es#_1、倒排索引)、[Elasticsearch 原理](/nosql/5_search_es#_2、refresh、translog-与-flush)
 
-### Q62：ES 深分页怎么做？数据如何从数据库同步到 ES？
+### Q65：ES 深分页怎么做？数据如何从数据库同步到 ES？
 
 **一句话**：`from + size` 默认最多翻到第 10000 条，越往后越慢；翻页用 `search_after` 配合 PIT（固定一个时间点的视图），`scroll` 只用于离线导出。同步数据时以数据库为准，通过 CDC 或消息队列捕获变更，再写入 ES。
 
@@ -907,7 +950,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [Elasticsearch 实战](/nosql/5_search_es_practice#三、深分页)、[Elasticsearch 实战](/nosql/5_search_es_practice#五、与-mysql-同步)
 
-### Q63：ES 一次搜索请求是怎么执行的？相关性分数怎么算？
+### Q66：ES 一次搜索请求是怎么执行的？相关性分数怎么算？
 
 **一句话**：分两步走：先问每个分片「你那边最相关的是哪几条」，只拿回 ID 和分数（Query 阶段）；协调节点汇总排序后，再去对应分片取文档内容（Fetch 阶段）。分数默认用 BM25 算。
 
@@ -920,7 +963,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [Elasticsearch 原理](/nosql/5_search_es#六、读流程)
 
-### Q64：ES 集群怎么选主？怎么防止脑裂？
+### Q67：ES 集群怎么选主？怎么防止脑裂？
 
 **一句话**：有资格当主的节点互相投票，必须拿到过半数的票才能当选；网络断开时最多只有一边能凑够半数，另一边选不出主、不接受写入，所以不会出现两个主节点各写各的（脑裂）。
 
@@ -933,7 +976,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [Elasticsearch 原理](/nosql/5_search_es#_2、选主、脑裂与-quorum)
 
-### Q65：text 和 keyword 有什么区别？对象数组为什么会查出错误结果？
+### Q68：text 和 keyword 有什么区别？对象数组为什么会查出错误结果？
 
 **一句话**：`text` 会先分词再建索引，用来做全文搜索；`keyword` 不分词、整个值当一个词，用来精确匹配、排序和聚合。两种都要就用 multi-field，一个字段同时存两份。
 
@@ -946,7 +989,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [Elasticsearch 实战](/nosql/5_search_es_practice#一、mapping-设计)
 
-### Q66：bool 查询里 must 和 filter 有什么区别？聚合靠什么实现？
+### Q69：bool 查询里 must 和 filter 有什么区别？聚合靠什么实现？
 
 **一句话**：两者都要求必须命中，区别是 `must` 会算相关性分数，`filter` 不算分而且结果能缓存。「是不是」的条件（状态、类目、价格区间）放 `filter`，「有多相关」的关键词放 `must`。
 
@@ -961,7 +1004,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [Elasticsearch 实战](/nosql/5_search_es_practice#二、查询与聚合)
 
-### Q67：ES 字段类型建错了怎么改？日志这类数据的索引怎么管理？
+### Q70：ES 字段类型建错了怎么改？日志这类数据的索引怎么管理？
 
 **一句话**：字段类型建好后改不了，只能新建索引把数据重灌进去；业务一直通过别名访问，灌完后一次请求把别名从旧索引切到新索引，用户无感知。日志用数据流 + ILM 按大小或时间自动换新索引、过期整个删掉。
 
@@ -974,7 +1017,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [Elasticsearch 实战](/nosql/5_search_es_practice#四、索引生命周期)
 
-### Q68：ES 写入慢、集群变 yellow 或 red 怎么排查？
+### Q71：ES 写入慢、集群变 yellow 或 red 怎么排查？
 
 **一句话**：写入慢先看是不是一条条写、刷新太频繁；导入时用批量写、暂停 refresh、去掉副本。yellow 是有副本没分配，red 是有主分片没分配、那部分数据不能读写，先用 `allocation/explain` 看原因。
 
@@ -987,7 +1030,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [Elasticsearch 实战](/nosql/5_search_es_practice#六、性能调优)、[Elasticsearch 实战](/nosql/5_search_es_practice#_1、集群-red-与-yellow)
 
-### Q69：HBase、ClickHouse、Doris / StarRocks 有什么区别？ClickHouse 为什么不适合频繁更新？
+### Q72：HBase、ClickHouse、Doris / StarRocks 有什么区别？ClickHouse 为什么不适合频繁更新？
 
 **一句话**：HBase 是按行键排序的超大 KV 存储，擅长海量数据按 key 随机读写；ClickHouse、Doris、StarRocks 是列式分析数据库，每列单独存、压缩率高，擅长大范围统计。ClickHouse 每次写入都生成一个不可修改的数据块，改和删只能打标记或重写整块，所以不适合频繁更新。
 
@@ -1002,7 +1045,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [列式与 OLAP 数据库](/nosql/3_column_db#四、选型对比)
 
-### Q70：时序数据为什么不用 MySQL 存？什么时候需要图数据库？
+### Q73：时序数据为什么不用 MySQL 存？什么时候需要图数据库？
 
 **一句话**：时序数据写得多、按时间追加、按时间段统计、过期按时间整批删。MySQL 扛不住这么高频的写入，按时间删数据要 DELETE 海量行，压缩也差；时序数据库在这些方面都专门做了优化。图数据库适合查多层关系，比如「朋友的朋友的朋友」，关系型数据库每多一层就多一次 JOIN。
 
@@ -1019,7 +1062,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [时序数据库](/nosql/4_time_series_db#六、选型对比)、[图数据库](/nosql/6_graph_db#五、选型对比)
 
-### Q71：RocksDB 是什么？为什么 TiKV、Flink、Kafka Streams 都用它？
+### Q74：RocksDB 是什么？为什么 TiKV、Flink、Kafka Streams 都用它？
 
 **一句话**：RocksDB 不是一个服务，而是嵌进进程里的 KV 引擎库，数据存在本机磁盘，底层是 LSM-Tree，写入快、能存 TB 级。这些系统都需要「在本机持久化大量状态、又不想多一次网络调用」，高可用交给上层自己做。
 
@@ -1032,7 +1075,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [键值与嵌入式数据库](/nosql/1_kv_db#二、嵌入式-kv-引擎-rocksdb)
 
-### Q72：etcd 适合存什么？它的 revision 和 Watch 是怎么回事？
+### Q75：etcd 适合存什么？它的 revision 和 Watch 是怎么回事？
 
 **一句话**：etcd 是用 Raft 保证强一致的小型 KV，只适合存配置、选主、服务元数据这类「量小但必须正确」的数据，Kubernetes 的全部集群状态就存在里面。它给每次写入编一个全局递增的 revision，旧版本按 revision 保留，Watch 从指定 revision 开始推送变更，所以断线重连也不会漏事件。
 
@@ -1045,7 +1088,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 → 详见 [键值与嵌入式数据库](/nosql/1_kv_db#四、强一致小数据-kv-etcd)
 
-### Q73：单元测试用 H2 代替 MySQL 有什么问题？SQLite、DuckDB 又适合什么场景？
+### Q76：单元测试用 H2 代替 MySQL 有什么问题？SQLite、DuckDB 又适合什么场景？
 
 **一句话**：H2 启动快、不用 Docker，但它只是「部分兼容」生产库的语法，不会模拟真实的函数、锁和执行计划，测试全绿上线却报错是常事；只要用到数据库特有功能，就该改用 Testcontainers 跑真实库。SQLite 和 DuckDB 则是正经的嵌入式数据库，一个管本地存储，一个管本地分析。
 

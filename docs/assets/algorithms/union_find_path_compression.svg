@@ -1,0 +1,50 @@
+<svg viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+  <style>
+    :root{--fg:#1a1a2e;--muted:#6b7280;--bg:#f8f9fc;--card:#ffffff;--border:#e2e8f0;--p:#6366f1;--b:#0284c7;--g:#059669;--y:#d97706;--r:#dc2626;}
+    :root[data-theme="dark"]{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}
+    @media(prefers-color-scheme:dark){:root{--fg:#e5e7eb;--muted:#9ca3af;--bg:#1a1a2e;--card:#252540;--border:#3a3a5c;--p:#818cf8;--b:#38bdf8;--g:#34d399;--y:#fbbf24;--r:#f87171;}}
+    text{fill:var(--fg);}
+    .muted{fill:var(--muted);}
+    .card{fill:var(--card);stroke:var(--border);stroke-width:1.5;}
+    .hb{fill:var(--card);stroke:var(--b);stroke-width:2;}
+    .hg{fill:var(--card);stroke:var(--g);stroke-width:2;}
+    .hp{fill:var(--card);stroke:var(--p);stroke-width:2;}
+    .lg{fill:var(--g);font-weight:700;}
+    .lp{fill:var(--p);font-weight:700;}
+    .arr{stroke:var(--muted);stroke-width:1.5;fill:none;marker-end:url(#ah);}
+    .edge{stroke:var(--border);stroke-width:1.5;fill:none;}
+  </style>
+  <defs>
+    <marker id="ah" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text font-weight="700" x="320" y="24" text-anchor="middle" font-size="14">路径压缩：find(3) 之后，沿途节点直接挂到根上</text>
+  <text x="164" y="52" text-anchor="middle" class="muted">压缩前：一条链，find(3) 走 3 步</text>
+  <text x="484" y="52" text-anchor="middle" class="muted">压缩后：树高变为 1</text>
+  <rect class="hp" x="140" y="70" width="48" height="40" rx="6"/>
+  <text x="164" y="95" text-anchor="middle">0</text>
+  <rect class="card" x="140" y="150" width="48" height="40" rx="6"/>
+  <text x="164" y="175" text-anchor="middle">1</text>
+  <rect class="card" x="140" y="230" width="48" height="40" rx="6"/>
+  <text x="164" y="255" text-anchor="middle">2</text>
+  <rect class="card" x="140" y="310" width="48" height="40" rx="6"/>
+  <text x="164" y="335" text-anchor="middle">3</text>
+  <line class="arr" x1="164" y1="150" x2="164" y2="112"/>
+  <line class="arr" x1="164" y1="230" x2="164" y2="192"/>
+  <line class="arr" x1="164" y1="310" x2="164" y2="272"/>
+  <text x="164" y="380" text-anchor="middle" class="muted">路径：3 → 2 → 1 → 0（根）</text>
+  <rect class="hp" x="460" y="70" width="48" height="40" rx="6"/>
+  <text x="484" y="95" text-anchor="middle">0</text>
+  <rect class="hg" x="380" y="190" width="48" height="40" rx="6"/>
+  <text x="404" y="215" text-anchor="middle">1</text>
+  <rect class="hg" x="460" y="190" width="48" height="40" rx="6"/>
+  <text x="484" y="215" text-anchor="middle">2</text>
+  <rect class="hg" x="540" y="190" width="48" height="40" rx="6"/>
+  <text x="564" y="215" text-anchor="middle">3</text>
+  <line class="arr" x1="404" y1="190" x2="474" y2="112"/>
+  <line class="arr" x1="484" y1="190" x2="484" y2="112"/>
+  <line class="arr" x1="564" y1="190" x2="494" y2="112"/>
+  <text x="484" y="262" text-anchor="middle" class="muted">再次 find(1/2/3) 一步到根</text>
+  <text x="484" y="380" text-anchor="middle" class="muted">配合按秩合并，均摊 O(α(n))</text>
+</svg>

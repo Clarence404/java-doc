@@ -54,10 +54,10 @@ description: 按题型分类的 LeetCode 高频题、难度与考点、解题切
 |------|------|------|------|
 | LeetCode 20 有效的括号 | 简单 | 栈 | [栈与队列](../1_data_structures/1_stack_queue) |
 | LeetCode 232 用栈实现队列 | 简单 | 双栈 | [栈与队列](../1_data_structures/1_stack_queue) |
-| LeetCode 739 每日温度 | 中等 | 单调栈 | [栈与队列](../1_data_structures/1_stack_queue) |
-| LeetCode 84 柱状图中最大的矩形 | 困难 | 单调栈 | [栈与队列](../1_data_structures/1_stack_queue) |
+| LeetCode 739 每日温度 | 中等 | 单调栈 | [并查集、单调栈与线段树](../1_data_structures/7_advanced) |
+| LeetCode 84 柱状图中最大的矩形 | 困难 | 单调栈 | [并查集、单调栈与线段树](../1_data_structures/7_advanced) |
 | LeetCode 42 接雨水 | 困难 | 双指针 / 单调栈 | [双指针](../3_patterns/1_two_pointers) |
-| LeetCode 239 滑动窗口最大值 | 困难 | 单调双端队列 | [滑动窗口](../3_patterns/2_sliding_window) |
+| LeetCode 239 滑动窗口最大值 | 困难 | 单调双端队列 | [并查集、单调栈与线段树](../1_data_structures/7_advanced) |
 
 ---
 
@@ -126,9 +126,9 @@ description: 按题型分类的 LeetCode 高频题、难度与考点、解题切
 | LeetCode 752 打开转盘锁 | 中等 | BFS / 双向 BFS | [搜索算法](../2_algorithms/0_search) |
 | LeetCode 207 课程表 | 中等 | 拓扑排序 | [图](../1_data_structures/5_graph) |
 | LeetCode 210 课程表 II | 中等 | 拓扑排序 | [图](../1_data_structures/5_graph) |
-| LeetCode 547 省份数量 | 中等 | 并查集 / DFS | [图](../1_data_structures/5_graph) |
-| LeetCode 684 冗余连接 | 中等 | 并查集 | [图](../1_data_structures/5_graph) |
-| LeetCode 1971 寻找图中是否存在路径 | 简单 | 并查集 / BFS | [图](../1_data_structures/5_graph) |
+| LeetCode 547 省份数量 | 中等 | 并查集 / DFS | [并查集、单调栈与线段树](../1_data_structures/7_advanced) |
+| LeetCode 684 冗余连接 | 中等 | 并查集 | [并查集、单调栈与线段树](../1_data_structures/7_advanced) |
+| LeetCode 1971 寻找图中是否存在路径 | 简单 | 并查集 / BFS | [并查集、单调栈与线段树](../1_data_structures/7_advanced) |
 | LeetCode 743 网络延迟时间 | 中等 | Dijkstra | [图](../1_data_structures/5_graph) |
 
 ---

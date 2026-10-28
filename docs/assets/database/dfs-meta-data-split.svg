@@ -1,0 +1,56 @@
+<svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="350" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">分布式文件系统通用架构：元数据与数据分离</text>
+
+  <rect class="box" x="20" y="40" width="660" height="60" stroke="var(--b)"/>
+  <text x="350" y="64" text-anchor="middle" fill="var(--b)" font-weight="700">客户端：HDFS Client / Ceph 客户端 / JuiceFS FUSE</text>
+  <text x="350" y="84" text-anchor="middle" fill="var(--muted)" font-size="10">元数据走一条路、数据走另一条路，大流量不经过元数据服务</text>
+
+  <line class="arr" x1="140" y1="100" x2="140" y2="148"/>
+  <text x="148" y="128" fill="var(--fg)" font-size="10">① 查目录与块位置</text>
+  <line class="arr" x1="490" y1="100" x2="490" y2="148"/>
+  <text x="498" y="128" fill="var(--fg)" font-size="10">② 按块直连读写</text>
+
+  <rect class="box" x="20" y="150" width="240" height="100" stroke="var(--p)"/>
+  <text x="140" y="174" text-anchor="middle" fill="var(--p)" font-weight="700">元数据服务（控制面）</text>
+  <text x="140" y="196" text-anchor="middle" fill="var(--fg)" font-size="10">目录树、权限、文件 → 块位置</text>
+  <text x="140" y="214" text-anchor="middle" fill="var(--muted)" font-size="10">常驻内存，或存进 KV / 数据库</text>
+  <text x="140" y="232" text-anchor="middle" fill="var(--muted)" font-size="10">NameNode · MDS · Redis / TiKV</text>
+
+  <line class="arr" x1="300" y1="200" x2="262" y2="200"/>
+  <text x="281" y="195" text-anchor="middle" fill="var(--muted)" font-size="10">汇报</text>
+
+  <rect class="box" x="300" y="150" width="380" height="100" stroke="var(--g)"/>
+  <text x="490" y="170" text-anchor="middle" fill="var(--g)" font-weight="700">数据节点（数据面）</text>
+  <rect class="box" x="315" y="180" width="110" height="60" stroke="var(--border)"/>
+  <text x="370" y="204" text-anchor="middle" fill="var(--fg)" font-weight="600">节点 1</text>
+  <text x="370" y="222" text-anchor="middle" fill="var(--muted)" font-size="10">块 A1 · B2</text>
+  <rect class="box" x="435" y="180" width="110" height="60" stroke="var(--border)"/>
+  <text x="490" y="204" text-anchor="middle" fill="var(--fg)" font-weight="600">节点 2</text>
+  <text x="490" y="222" text-anchor="middle" fill="var(--muted)" font-size="10">块 A2 · B1</text>
+  <rect class="box" x="555" y="180" width="110" height="60" stroke="var(--border)"/>
+  <text x="610" y="204" text-anchor="middle" fill="var(--fg)" font-weight="600">节点 3</text>
+  <text x="610" y="222" text-anchor="middle" fill="var(--muted)" font-size="10">块 A1 · B1</text>
+
+  <rect class="box" x="20" y="280" width="213" height="60" stroke="var(--y)"/>
+  <text x="126" y="304" text-anchor="middle" fill="var(--y)" font-weight="700">分块</text>
+  <text x="126" y="324" text-anchor="middle" fill="var(--muted)" font-size="10">大文件切成定长块，多节点并行存取</text>
+  <rect class="box" x="243" y="280" width="213" height="60" stroke="var(--y)"/>
+  <text x="349" y="304" text-anchor="middle" fill="var(--y)" font-weight="700">冗余</text>
+  <text x="349" y="324" text-anchor="middle" fill="var(--muted)" font-size="10">多副本或纠删码，跨机架 / 故障域放置</text>
+  <rect class="box" x="466" y="280" width="213" height="60" stroke="var(--y)"/>
+  <text x="572" y="304" text-anchor="middle" fill="var(--y)" font-weight="700">一致性</text>
+  <text x="572" y="324" text-anchor="middle" fill="var(--muted)" font-size="10">租约保证单写者，客户端缓存要能失效</text>
+</svg>

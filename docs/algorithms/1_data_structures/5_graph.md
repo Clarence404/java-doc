@@ -321,42 +321,7 @@ void floyd(int[][] dist) {
 
 ## 七、并查集（Union-Find）
 
-并查集处理**动态连通性**：不断合并集合，并随时查询两个元素是否属于同一集合。每个集合用一棵树表示，根节点就是集合的代表元：
-
-```java
-class UnionFind {
-    private final int[] parent, rank;
-    private int count;                    // 当前集合个数
-
-    UnionFind(int n) {
-        parent = new int[n];
-        rank = new int[n];
-        count = n;
-        for (int i = 0; i < n; i++) parent[i] = i;
-    }
-
-    int find(int x) {                     // 路径压缩：查找时让路径上的节点直接指向根
-        if (parent[x] != x) parent[x] = find(parent[x]);
-        return parent[x];
-    }
-
-    boolean union(int x, int y) {         // 按秩合并：矮树挂到高树下面
-        int px = find(x), py = find(y);
-        if (px == py) return false;       // 已经在同一集合
-        if (rank[px] < rank[py]) { int t = px; px = py; py = t; }
-        parent[py] = px;
-        if (rank[px] == rank[py]) rank[px]++;
-        count--;
-        return true;
-    }
-
-    boolean connected(int x, int y) { return find(x) == find(y); }
-
-    int count() { return count; }
-}
-```
-
-同时使用路径压缩和按秩合并后，单次操作的均摊复杂度为 O(α(n))。α 是反阿克曼函数，增长极慢，在任何实际数据规模下都不超过 4，可视为常数。`union` 返回 `false` 意味着两点本来就连通，再加这条边就会成环，这正是 LeetCode 684「冗余连接」的解法。
+并查集处理无向图的**动态连通性**：不断合并两个集合，随时查询两点是否连通，路径压缩 + 按秩合并后单次操作均摊 O(α(n))。在图里它主要用来数连通分量和判环：`union(u, v)` 返回 `false` 说明两端本来就连通，再加这条边就会成环（LeetCode 684 冗余连接）。`UnionFind` 模板、复杂度分析与典型题见 [并查集、单调栈与线段树](./7_advanced#一、并查集-union-find)，下文 Kruskal 直接使用该模板。
 
 ---
 
@@ -364,7 +329,7 @@ class UnionFind {
 
 连通无向带权图的**最小生成树**是连接所有顶点、边权总和最小的树，恰好有 V − 1 条边。
 
-**Kruskal 算法**：把所有边按权重从小到大排序，依次尝试加入；用并查集判断，加入这条边不会成环（两端不在同一集合）就保留：
+**Kruskal 算法**：把所有边按权重从小到大排序，依次尝试加入；用并查集（`UnionFind` 模板见上一节链接）判断，加入这条边不会成环（两端不在同一集合）就保留：
 
 ```java
 // edges[i] = [u, v, w]；图不连通时返回 -1

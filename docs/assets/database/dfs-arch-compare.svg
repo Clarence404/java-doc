@@ -1,0 +1,55 @@
+<svg viewBox="0 0 700 350" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+    :root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    @media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+    .box { rx:6; ry:6; fill:var(--card); stroke-width:1.5; }
+    .arr { stroke:var(--muted); stroke-width:1.5; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="350" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">HDFS、Ceph、JuiceFS 架构对比（接口 / 元数据 / 数据）</text>
+
+  <rect class="box" x="20" y="40" width="213" height="290" stroke="var(--border)"/>
+  <text x="126" y="62" text-anchor="middle" fill="var(--y)" font-weight="700" font-size="13">HDFS</text>
+  <rect class="box" x="35" y="76" width="183" height="60" stroke="var(--b)"/>
+  <text x="126" y="100" text-anchor="middle" fill="var(--fg)" font-weight="600">HDFS Client</text>
+  <text x="126" y="118" text-anchor="middle" fill="var(--muted)" font-size="10">hdfs:// · FileSystem API</text>
+  <rect class="box" x="35" y="152" width="183" height="60" stroke="var(--p)"/>
+  <text x="126" y="176" text-anchor="middle" fill="var(--fg)" font-weight="600">NameNode（HA）</text>
+  <text x="126" y="194" text-anchor="middle" fill="var(--muted)" font-size="10">目录树与块映射全在内存</text>
+  <rect class="box" x="35" y="228" width="183" height="60" stroke="var(--g)"/>
+  <text x="126" y="252" text-anchor="middle" fill="var(--fg)" font-weight="600">DataNode × N</text>
+  <text x="126" y="270" text-anchor="middle" fill="var(--muted)" font-size="10">128 MB 块 · 三副本 / 纠删码</text>
+  <text x="126" y="310" text-anchor="middle" fill="var(--fg)" font-size="10">适合：存算一体的大文件批处理</text>
+
+  <rect class="box" x="243" y="40" width="213" height="290" stroke="var(--border)"/>
+  <text x="349" y="62" text-anchor="middle" fill="var(--r)" font-weight="700" font-size="13">Ceph</text>
+  <rect class="box" x="258" y="76" width="183" height="60" stroke="var(--b)"/>
+  <text x="349" y="100" text-anchor="middle" fill="var(--fg)" font-weight="600">RBD · CephFS · RGW</text>
+  <text x="349" y="118" text-anchor="middle" fill="var(--muted)" font-size="10">块 / 文件 / 对象三种接口</text>
+  <rect class="box" x="258" y="152" width="183" height="60" stroke="var(--p)"/>
+  <text x="349" y="176" text-anchor="middle" fill="var(--fg)" font-weight="600">MON + MDS</text>
+  <text x="349" y="194" text-anchor="middle" fill="var(--muted)" font-size="10">CRUSH 计算位置，MDS 仅文件用</text>
+  <rect class="box" x="258" y="228" width="183" height="60" stroke="var(--g)"/>
+  <text x="349" y="252" text-anchor="middle" fill="var(--fg)" font-weight="600">OSD × N（RADOS）</text>
+  <text x="349" y="270" text-anchor="middle" fill="var(--muted)" font-size="10">对象 · 多副本 / 纠删码</text>
+  <text x="349" y="310" text-anchor="middle" fill="var(--fg)" font-size="10">适合：私有云统一存储底座</text>
+
+  <rect class="box" x="466" y="40" width="213" height="290" stroke="var(--border)"/>
+  <text x="572" y="62" text-anchor="middle" fill="var(--b)" font-weight="700" font-size="13">JuiceFS</text>
+  <rect class="box" x="481" y="76" width="183" height="60" stroke="var(--b)"/>
+  <text x="572" y="100" text-anchor="middle" fill="var(--fg)" font-weight="600">JuiceFS 客户端</text>
+  <text x="572" y="118" text-anchor="middle" fill="var(--muted)" font-size="10">FUSE 挂载 · Java SDK · S3 网关</text>
+  <rect class="box" x="481" y="152" width="183" height="60" stroke="var(--p)"/>
+  <text x="572" y="176" text-anchor="middle" fill="var(--fg)" font-weight="600">元数据引擎</text>
+  <text x="572" y="194" text-anchor="middle" fill="var(--muted)" font-size="10">Redis · TiKV · MySQL · PG</text>
+  <rect class="box" x="481" y="228" width="183" height="60" stroke="var(--g)"/>
+  <text x="572" y="252" text-anchor="middle" fill="var(--fg)" font-weight="600">对象存储</text>
+  <text x="572" y="270" text-anchor="middle" fill="var(--muted)" font-size="10">S3 / OSS / Ceph RGW 存数据块</text>
+  <text x="572" y="310" text-anchor="middle" fill="var(--fg)" font-size="10">适合：AI 训练、存算分离</text>
+</svg>

@@ -111,7 +111,7 @@ int trap(int[] height) {
 }
 ```
 
-这题也可以用单调栈求解，见 [栈与队列](../1_data_structures/1_stack_queue)。
+这题也可以用单调栈求解，见 [并查集、单调栈与线段树](../1_data_structures/7_advanced#二、单调栈)。
 
 ### 5、验证回文串
 
@@ -266,4 +266,4 @@ ListNode removeNthFromEnd(ListNode head, int n) {
 - OI Wiki 双指针：[https://oi-wiki.org/misc/two-pointer/](https://oi-wiki.org/misc/two-pointer/)
 - LeetCode 142 环形链表 II：[https://leetcode.cn/problems/linked-list-cycle-ii/](https://leetcode.cn/problems/linked-list-cycle-ii/)
 
-> 下一篇：[滑动窗口](./2_sliding_window) —— 固定窗口与可变窗口模板、单调队列、最小覆盖子串、异位词。
+> 下一篇：[滑动窗口](./2_sliding_window) —— 固定窗口与可变窗口模板、窗口最值、最小覆盖子串、异位词。

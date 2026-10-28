@@ -270,4 +270,4 @@ ListNode getIntersectionNode(ListNode headA, ListNode headB) {
 - JDK 21 ArrayDeque API：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ArrayDeque.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ArrayDeque.html)
 - OpenJDK ArrayList 源码：[https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/util/ArrayList.java](https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/util/ArrayList.java)
 
-> 下一篇：[栈与队列](./1_stack_queue) —— 栈、单调栈、队列、双端队列与单调队列。
+> 下一篇：[栈与队列](./1_stack_queue) —— 栈与 `ArrayDeque`、括号匹配、队列与 BFS、双端队列。

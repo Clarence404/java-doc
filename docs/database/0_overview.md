@@ -12,7 +12,7 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 
 | 方向 | 内容 | 适合关注 |
 |------|------|----------|
-| **基础与选型** | 存储引擎：B+ 树与 LSM-Tree、数据库选型参考 | 理解各类数据库的读写特性，做技术选型 |
+| **基础与选型** | 存储引擎：B+ 树与 LSM-Tree、分布式文件系统、数据库选型参考 | 理解各类数据库的读写特性，做技术选型 |
 | **MySQL** | 基础、版本特性、MariaDB、避坑、表设计、索引、事务与锁、执行流程、EXPLAIN、InnoDB、主从与高可用 | Java 后端主力 OLTP 场景 |
 | **PostgreSQL** | 基础、版本特性、MVCC、索引、高级 SQL、复制与高可用 | 复杂 SQL、JSONB、GIS、分析型查询 |
 | **更多关系库** | 商业与国产库（Oracle、SQL Server、达梦、人大金仓、openGauss）、分布式数据库（TiDB / OceanBase） | 国产化迁移与水平扩展 |
@@ -29,7 +29,7 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 
 ## 三、推荐阅读路径
 
-1. [存储引擎：B+ 树与 LSM-Tree](./0_fundamentals/1_storage_engine)：先弄清 B+ 树和 LSM-Tree 两种存储引擎的取舍；要做技术决策时配合 [数据库选型参考](./0_fundamentals/2_selection_guide)
+1. [存储引擎：B+ 树与 LSM-Tree](./0_fundamentals/1_storage_engine)：先弄清 B+ 树和 LSM-Tree 两种存储引擎的取舍，需要了解 HDFS、Ceph 等文件级存储时读 [分布式文件系统](./0_fundamentals/1_storage_fs)；要做技术决策时配合 [数据库选型参考](./0_fundamentals/2_selection_guide)
 2. [MySQL 基础](./1_mysql/0_overview)：范式、视图、存储过程、账号与传输安全，以及 MySQL 核心专项的导读
 3. [MySQL 索引](./1_mysql/4_topic_index) 和 [MySQL 事务与锁](./1_mysql/5_topic_transaction)：补齐最高频的性能与并发问题，再按需读执行流程、EXPLAIN、InnoDB 与复制
 4. [MySQL 版本特性](./1_mysql/1_feature) 与 [MySQL 避坑指南](./1_mysql/3_fallible_point)：确认生产版本的行为差异和常见雷区
