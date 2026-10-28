@@ -146,7 +146,7 @@ export const GROUPS = [
                 ],
             },
             {
-                name: '项目演进', dir: 'project',
+                name: '项目演进', dir: 'project', interview: ['16_scenario_highlights'],
                 desc: '以订单服务为例，从单体到分布式：工程搭建 / 数据建模 / 缓存 / 异步 / 拆分 / 一致性 / 稳定性 / 发布',
             },
         ],
