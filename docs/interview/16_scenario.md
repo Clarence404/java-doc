@@ -886,7 +886,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 - 游标翻页还顺带解决了深分页越翻越慢的问题
 - 处理逻辑要幂等，任务中断后从上次的 lastId 继续
 
-→ 详见 [游标翻页](/database/1_mysql/4_topic_index#_3、方案三-游标翻页-适合「下一页」场景)、[深分页故障](/handbook/2_incidents/9_deep_paging)
+→ 详见 [游标翻页](/database/1_mysql/4_topic_index#_3、方案三-游标翻页-适合「下一页」场景)、[深分页拖垮数据库](/handbook/2_incidents/9_deep_paging)
 
 ### Q67：IP 地址在数据库里怎么存？
 

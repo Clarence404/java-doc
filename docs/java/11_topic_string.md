@@ -117,7 +117,7 @@ System.out.println(s5 == "abc");                  // JDK 7+ 为 true；JDK 6 复
 - 需要对少量取值有限的字符串做规范化时，优先在业务层复用常量或枚举，或用应用层的 `Map` / Guava `Interner`，范围可控
 - 只想减少重复字符串占用的堆内存，可以开启 `-XX:+UseStringDeduplication`，它让内容相同的 String 共享底层数组，不改变 `==` 语义
 
-StringTable 的位置演进、`-XX:StringTableSize` 与字符串去重的细节见 [运行时内存](/jvm/1_memory)；选型建议见 [代码级优化](/high-perf/6_code_optimization)。
+StringTable 的位置演进、`-XX:StringTableSize` 与字符串去重的细节见 [内存结构](/jvm/1_memory)；选型建议见 [代码级优化](/high-perf/6_code_optimization)。
 
 ---
 

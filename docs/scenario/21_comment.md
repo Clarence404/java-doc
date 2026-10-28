@@ -366,7 +366,7 @@ ZSet 的 Top N、分页命令与大 key 拆分见 [排行榜和积分](./7_rank_
 
 级联隐藏要分批：`UPDATE comment SET status = 4 WHERE obj_id = ? AND root_id = ? AND status = 1 AND id > ? ORDER BY id LIMIT 500`，循环到影响行数为 0，避免一个上万回复的楼在一个大事务里锁住大量行。回复数、评论总数按实际改动的行数扣减；也可以直接让计数服务对该楼重新对账。
 
-整篇内容被删除时不逐条删评论，把 `comment_subject.state` 改成关闭，评论区整体不可见；评论数据按冷数据策略归档，见 [冷热数据分离](/architecture/4_cold_hot_data)。
+整篇内容被删除时不逐条删评论，把 `comment_subject.state` 改成关闭，评论区整体不可见；评论数据按冷数据策略归档，见 [数据冷热分离](/architecture/4_cold_hot_data)。
 
 ### 3、折叠
 

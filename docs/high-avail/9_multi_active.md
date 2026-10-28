@@ -46,7 +46,7 @@ description: RPO / RTO、同城双活、两地三中心、异地多活、单元�
 | 数据库 | **通常仍是单主**：主库在机房 A，机房 B 为半同步从库；B 的写请求跨机房写 A |
 | 切换 | 机房 A 故障时，B 从库提升为主，GSLB 摘除 A 的入口 |
 
-准确地说，大多数"同城双活"是**应用双活、数据主备**。它投入相对可控，能防单机房故障，但防不了城市级灾难（地震、大范围断电）。MySQL 主从复制与半同步的细节见 [MySQL 主从复制](/database/1_mysql/9_topic_replication)。
+准确地说，大多数"同城双活"是**应用双活、数据主备**。它投入相对可控，能防单机房故障，但防不了城市级灾难（地震、大范围断电）。MySQL 主从复制与半同步的细节见 [MySQL 主从与高可用](/database/1_mysql/9_topic_replication)。
 
 ---
 
@@ -148,7 +148,7 @@ public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
 **单元化从源头减少写冲突，但复制回环、主键冲突、复制延迟仍要由同步组件和切流流程处理。**
 
-跨地域强一致与低延迟的取舍见 [CAP 理论](/distributed/2_theorem)。
+跨地域强一致与低延迟的取舍见 [分布式理论](/distributed/2_theorem)。
 
 单元之间仍需同步数据，用于容灾（对端保留备份分片）和全局数据下发。
 

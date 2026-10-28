@@ -412,7 +412,7 @@ public OrderView get(@PathVariable long id, @AuthenticationPrincipal Jwt jwt) {
 
 - 查不到时返回 404 而不是 403，不暴露"这个 ID 存在"
 - 对外 ID 用不可猜测的值（UUID、雪花 ID）能降低枚举风险，但**不能代替授权检查**
-- 管理员、客服等跨用户访问走单独的接口和权限，数据范围控制见 [访问控制](/architecture/6_access_control)
+- 管理员、客服等跨用户访问走单独的接口和权限，数据范围控制见 [权限系统架构设计](/architecture/6_access_control)
 
 ### BOPLA 与批量赋值：请求和响应都用专用 DTO
 

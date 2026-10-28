@@ -323,7 +323,7 @@ iotop -oP               # 只显示有 IO 的进程
 3. Java 进程内：`jstack` 看线程是否卡在 `FileOutputStream.write`、`FileChannel.force` 等调用上
 4. 延迟抖动而负载不高：用 `biolatency` 看分布，确认是否是云盘限速或设备本身
 
-实际案例：日志写满云盘 IOPS 拖慢接口见 [日志打印拖慢接口](/handbook/2_incidents/23_log_bottleneck)，磁盘写满与 `rm` 不释放空间见 [磁盘写满](/handbook/2_incidents/20_disk_full)，IO 导致 Load 高见 [Load 高而 CPU 低](/handbook/2_incidents/18_load_high_cpu_low)；命令清单见 [Linux 排查命令速查](/handbook/1_cheatsheet/0_linux)。
+实际案例：日志写满云盘 IOPS 拖慢接口见 [日志打印拖慢接口](/handbook/2_incidents/23_log_bottleneck)，磁盘写满与 `rm` 不释放空间见 [磁盘写满](/handbook/2_incidents/20_disk_full)，IO 导致 Load 高见 [Load 高但 CPU 不高](/handbook/2_incidents/18_load_high_cpu_low)；命令清单见 [Linux 排查命令速查](/handbook/1_cheatsheet/0_linux)。
 
 ---
 

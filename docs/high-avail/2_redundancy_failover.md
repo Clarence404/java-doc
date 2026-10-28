@@ -247,7 +247,7 @@ min-replicas-max-lag 10
 - **连接池能感知切换**：设置合理的 `maxLifetime`、连接校验，避免切换后长时间持有指向旧主的连接
 - **读写分离注意复制延迟**：写后立即读的场景强制走主库
 
-复制原理与延迟排查见 [MySQL 主从复制](/database/1_mysql/9_topic_replication)，Sentinel 与 Cluster 的配置见 [Redis 集群](/cache/3_redis_cluster)。
+复制原理与延迟排查见 [MySQL 主从与高可用](/database/1_mysql/9_topic_replication)，Sentinel 与 Cluster 的配置见 [Redis 集群](/cache/3_redis_cluster)。
 
 ---
 

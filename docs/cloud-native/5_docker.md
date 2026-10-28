@@ -199,12 +199,12 @@ docker run -d --name demo -p 8080:8080 --memory 1g demo-app:1.0.0
 - **依赖层缓存**：先复制 `pom.xml` 下载依赖、再复制源码，源码变更时复用依赖层；用 Maven Wrapper 的项目改为先 `COPY .mvn/ mvnw pom.xml` 再执行 `./mvnw -B dependency:go-offline`
 - **`cp target/*.jar` 只匹配一个文件**：Spring Boot 打包后原始 jar 被重命名为 `.original`，`target/` 下只剩一个可执行 jar
 - **运行阶段换 Alpine**：基础镜像改为 `eclipse-temurin:21-jre-alpine`，BusyBox 没有 `groupadd`，建用户改为 `addgroup -S app && adduser -S -G app app`
-- **`-jar application.jar` 启动的是解压后的瘦 JAR**：它只包含应用代码，依赖通过 classpath 引用旁边的 `lib/` 目录；这种布局同时适合做 CDS / AOT 缓存，见 [启动优化](/spring-boot/13_startup)
+- **`-jar application.jar` 启动的是解压后的瘦 JAR**：它只包含应用代码，依赖通过 classpath 引用旁边的 `lib/` 目录；这种布局同时适合做 CDS / AOT 缓存，见 [启动与部署优化](/spring-boot/13_startup)
 - **容器感知**：JDK 10 起 JVM 默认按 cgroup 限制计算堆大小和 CPU 数，用 `-XX:MaxRAMPercentage` 按比例设堆，不要写死 `-Xmx`；比例通常取 50～75（本篇示例统一用 75，堆外内存多的应用取低值），堆外内存怎么核算见 [GC 调优](/jvm/6_gc_tuning) 与 [JVM 层性能策略](/high-perf/5_jvm_tuning)
 - **JVM 参数可外置**：运行时用 `-e JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75"` 覆盖，JVM 启动时会自动读取这个环境变量
 
 > [!tip]
-> 不想维护 Dockerfile 时有两个选择：`mvn spring-boot:build-image` 用 Paketo Buildpacks 直接生成分层镜像（需要本机 Docker），Jib（`mvn compile jib:build`）不依赖 Docker 守护进程就能构建并推送镜像。Buildpacks 的启动优化参数见 [启动优化](/spring-boot/13_startup)。
+> 不想维护 Dockerfile 时有两个选择：`mvn spring-boot:build-image` 用 Paketo Buildpacks 直接生成分层镜像（需要本机 Docker），Jib（`mvn compile jib:build`）不依赖 Docker 守护进程就能构建并推送镜像。Buildpacks 的启动优化参数见 [启动与部署优化](/spring-boot/13_startup)。
 
 ### 2、基础镜像怎么选
 

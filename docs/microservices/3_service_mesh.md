@@ -195,7 +195,7 @@ spec:
           weight: 10
 ```
 
-南北向入口用 Gateway API 的 `Gateway` + `HTTPRoute` 即可，与 Ingress 的对比见 [Nginx 与 Ingress](/cloud-native/7_nginx_ingress)。
+南北向入口用 Gateway API 的 `Gateway` + `HTTPRoute` 即可，与 Ingress 的对比见 [Nginx、Ingress 与 Gateway API](/cloud-native/7_nginx_ingress)。
 
 ---
 

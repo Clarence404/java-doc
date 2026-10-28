@@ -23,7 +23,7 @@ description: 命名、类与 Lombok / record、注释、异常、日志、并发
 | 格式化与静态检查 | 规约本身 | [代码质量](/engineering/3_code_quality)：Spotless / Checkstyle / SonarQube 在 CI 中强制 |
 | 日志 | 编码层面的硬性规定 | [日志](/spring-boot/9_logging)：门面、配置、结构化日志、MDC |
 | REST 与统一响应 | 不展开 | [API 设计规范](/engineering/4_api_design_rule)：URL、状态码、响应体、分页、版本 |
-| 异常机制 | 业务异常体系 | [Java 异常](/java/10_topic_exception) |
+| 异常机制 | 业务异常体系 | [异常体系](/java/10_topic_exception) |
 
 - **机器能判断的交给工具**：缩进、import 顺序、行宽、大括号位置、未使用变量，由格式化工具和静态检查在 CI 中强制，不靠人记、也不在 Review 里讨论，配置见 [代码质量](/engineering/3_code_quality)
 - **需要理解语义的交给人**：命名是否达意、异常是否该捕获、事务边界是否正确，由作者自检和 [Code Review](./2_code_review) 把关
@@ -259,7 +259,7 @@ try {
 - **捕获具体类型**：不在业务代码里 `catch (Exception e)`，最外层的兜底交给全局处理器
 - **包装时保留原始异常**（`cause`），否则丢失根因堆栈
 - **不用异常控制正常流程**：查询不到数据返回空集合或 `Optional`，而不是抛异常再捕获
-- **`InterruptedException` 要么向上抛，要么恢复中断标志**（`Thread.currentThread().interrupt()`），机制细节见 [Java 异常](/java/10_topic_exception)
+- **`InterruptedException` 要么向上抛，要么恢复中断标志**（`Thread.currentThread().interrupt()`），机制细节见 [异常体系](/java/10_topic_exception)
 
 ### 2、业务异常体系
 
@@ -360,7 +360,7 @@ private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-
 
 - 新代码不使用 `Date`、`Calendar`：时间点用 `Instant`，带时区用 `ZonedDateTime` / `OffsetDateTime`，业务日期用 `LocalDate`
 - 年份模式写 `yyyy`，不要写 `YYYY`（基于周的年份，年末几天会算成下一年）
-- 服务器、数据库、JVM 统一时区，或统一存 UTC，展示时再转换；详见 [日期时间](/java/17_topic_time)
+- 服务器、数据库、JVM 统一时区，或统一存 UTC，展示时再转换；详见 [日期与时间](/java/17_topic_time)
 
 ### 3、金额
 

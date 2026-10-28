@@ -42,7 +42,7 @@ public String toJson(Object obj) throws JsonProcessingException {
 | `Pattern`、`ObjectMapper`（配置完成后）、`DateTimeFormatter` | `Matcher`、`SimpleDateFormat`、`StringBuilder` |
 
 - `String.matches()`、`String.split()`（多字符正则）、`String.replaceAll()` 内部每次都会编译正则，热点路径上应改用预编译的 `Pattern`。
-- `SimpleDateFormat` 非线程安全，JDK 8+ 使用 `DateTimeFormatter` 替代，见 [时间 API](/java/17_topic_time)。
+- `SimpleDateFormat` 非线程安全，JDK 8+ 使用 `DateTimeFormatter` 替代，见 [日期与时间](/java/17_topic_time)。
 
 ### 2、不要自作聪明地做对象池
 
@@ -71,7 +71,7 @@ Map<Long, User> index = new HashMap<>((int) (users.size() / 0.75f) + 1);
 
 - JDK 19+ 提供 `HashMap.newHashMap(int numMappings)`，Guava 提供 `Maps.newHashMapWithExpectedSize(n)`，可避免手动换算出错。
 - 常见误区：`new HashMap<>(users.size())` 并不能保证不扩容，因为阈值是 `容量 × 0.75`。
-- 集合的扩容机制见 [集合专题](/java/21_topic_collection)。
+- 集合的扩容机制见 [集合框架](/java/21_topic_collection)。
 
 ---
 
@@ -160,7 +160,7 @@ public void record(String key, Event event) {
 | 无锁化 | 计数用 `LongAdder`，状态更新用 CAS（`AtomicReference`） |
 | 不可变对象 / 线程封闭 | 不共享就不需要锁，如 `ThreadLocal`、每请求独立对象 |
 
-锁与原子类的原理见 [Lock 专题](/java/25_topic_lock)、[原子类专题](/java/26_topic_atomic)。
+锁与原子类的原理见 [显式锁（Lock）](/java/25_topic_lock)、[原子类（Atomic）](/java/26_topic_atomic)。
 
 ---
 
@@ -208,7 +208,7 @@ public boolean isNumber(String s) {
 ```
 
 - 业务异常若确实高频抛出且不需要栈信息，可以重写 `fillInStackTrace()` 或使用 `super(message, null, false, false)` 关闭栈追踪。
-- JVM 的 `-XX:+OmitStackTraceInFastThrow` 会让频繁抛出的内置异常丢失堆栈，排障时注意。异常体系见 [异常专题](/java/10_topic_exception)。
+- JVM 的 `-XX:+OmitStackTraceInFastThrow` 会让频繁抛出的内置异常丢失堆栈，排障时注意。异常机制见 [异常体系](/java/10_topic_exception)。
 
 ---
 

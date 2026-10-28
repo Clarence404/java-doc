@@ -43,7 +43,7 @@ Review 首先保证**主干代码整体健康度只升不降**，其次是知识
 |------|----------|------|------|
 | 作者自检 | 作者 | 拆分 PR、填写模板、本地构建通过、自己先通读一遍 diff | 第四节 |
 | 自动检查 | CI | 编译、单元 / 集成测试、格式检查（Spotless / Checkstyle）、静态分析与覆盖率（SonarQube / JaCoCo） | [CI/CD](./4_ci_cd)、[代码质量](/engineering/3_code_quality) |
-| 安全扫描 | CI / 平台 | CodeQL 等 SAST、密钥扫描（推送保护）、依赖漏洞扫描 | [漏洞防护](/security/8_vulnerabilities)、[依赖治理](/engineering/2_dependency_governance) |
+| 安全扫描 | CI / 平台 | CodeQL 等 SAST、密钥扫描（推送保护）、依赖漏洞扫描 | [常见漏洞与防护](/security/8_vulnerabilities)、[依赖治理](/engineering/2_dependency_governance) |
 | AI 预审 | 机器人（可选） | 自动留下评论和修改建议，供作者和 Reviewer 参考 | 第七节 |
 | 人工 Review | Reviewer / Code Owner | 设计、正确性、边界、可维护性等机器判断不了的问题 | 第五节 |
 | 合并 | 作者 | 所有必需检查通过、阻塞评论已解决后 Squash 合并到 `main` | [Git 工作流](./1_git_workflow) |
@@ -244,7 +244,7 @@ List<Order> pendingOrders = orderRepository.findByStatus(OrderStatus.PENDING);
 
 - **批准权留给人**：Copilot 的评审默认不计入必需批准数；即使组织开启了让 AI 参与批准的预览功能，也建议保留至少一名人类 Code Owner 的批准
 - **AI 评论按普通评论对待**：作者可以采纳、反驳或忽略，误报不需要强行修改；把高频误报整理进仓库的自定义指令或规则配置
-- **AI 生成的代码不降低标准**：无论代码来自人还是 AI，审查标准完全相同，作者对每一行负责，见 [AI 工具](/ai/6_tools/0_ai_tools)
+- **AI 生成的代码不降低标准**：无论代码来自人还是 AI，审查标准完全相同，作者对每一行负责，见 [AI 编程工具](/ai/6_tools/0_ai_tools)
 - **注意数据边界**：使用第三方 AI 服务前确认组织的代码外发策略
 
 ---

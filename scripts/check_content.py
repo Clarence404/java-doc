@@ -26,6 +26,66 @@ def articles():
                 yield os.path.join(root, f)
 
 
+LINK = re.compile(r'(?<!!)\[([^\]]+)\]\(([^)\s#]+)(#[^)\s]*)?\)')
+
+
+def norm(s):
+    return re.sub(r'[\s（）()「」：:、，,]', '', s).lower()
+
+
+def link_text_ok(text, h1, target, headings):
+    """链接文字能看出是同一篇：标题本身或其一部分、「模块 · 标题」「标题 · 小节」、目标页某个小节名、
+    指向题单写「X 面试题」、指向总览写模块名；上一篇 / 下一篇与代码文字不比较"""
+    if text in ('上一篇', '下一篇') or text.startswith('`'):
+        return True
+    nh = norm(h1)
+    for nt in (norm(p) for p in text.split(' · ')):
+        if nt == nh or nt in nh or nh in nt:
+            return True
+        if nt and any(nt in norm(h) for h in headings):
+            return True
+    nt = norm(text)
+    if target.endswith('99_interview') and nt.endswith('面试题'):
+        return True
+    if target.endswith('0_overview'):
+        base = nh[:-2] if nh.endswith('总览') else nh
+        if nt in (base, base + '模块', base + '模块总览', '模块总览') or nt.startswith(base):
+            return True
+    return False
+
+
+def check_link_texts(texts, titles):
+    """站内链接（不带锚点）的文字要能看出指向哪篇：文章改名后漏改的旧标题会在这里报出"""
+    headings = {k[:-3]: re.findall(r'^#{2,4} (.+)$', v, re.M) for k, v in texts.items()}
+    issues = []
+    for path, text in texts.items():
+        for i, line in enumerate(text.split('\n'), 1):
+            for m in LINK.finditer(line):
+                label, target, anchor = m.group(1).strip(), m.group(2), m.group(3)
+                if anchor or re.match(r'https?:|mailto:', target) or 'assets/' in target:
+                    continue
+                t = target.lstrip('/') if target.startswith('/') else os.path.normpath(
+                    os.path.join(os.path.dirname(path), target)).replace(os.sep, '/')
+                t = re.sub(r'\.(md|html)$', '', t)
+                if t.endswith('/'):
+                    t += '0_overview'
+                if titles.get(t) and not link_text_ok(label, titles[t], t, headings.get(t, [])):
+                    issues.append(f'{path}:{i}: 链接文字「{label}」与目标标题「{titles[t]}」对不上，可能是改名后的旧标题')
+    return issues
+
+
+def check_redirects(texts, site):
+    """site.js 的 REDIRECTS：旧地址不能再是现有文章（否则跳转覆盖文章），新地址必须存在"""
+    block = site.split('export const REDIRECTS', 1)[1].split('\n};', 1)[0] if 'export const REDIRECTS' in site else ''
+    issues = []
+    for old, new in re.findall(r"'(/[^']+)': '(/[^']+)'", block):
+        if f'{old.lstrip("/")}.md' in texts:
+            issues.append(f'site.js: REDIRECTS 的旧地址 {old} 仍是现有文章')
+        if f'{new.lstrip("/")}.md' not in texts:
+            issues.append(f'site.js: REDIRECTS 的新地址 {new} 不存在')
+    return issues
+
+
 VERSION = r'v?(\d+(?:\.\w+)*(?:\s*/\s*\d+(?:\.\w+)*)*)'
 
 
@@ -140,6 +200,10 @@ def main():
 
     # 版本基线：总览页「版本基线」行与引言「基线为」句中的版本须与 site.js 的 BASELINE 一致
     issues.extend(check_baseline(texts, site))
+
+    # 改名、搬家后引用要同步：链接文字对得上目标标题，跳转表指向现有文章
+    issues.extend(check_link_texts(texts, {k: v for k, v in titles.items() if v}))
+    issues.extend(check_redirects(texts, site))
 
     # 图片必须被引用
     alltext = '\n'.join(texts.values()) + site

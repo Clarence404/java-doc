@@ -360,9 +360,9 @@ jenv enable-plugin export                 # 让 JAVA_HOME 跟随切换，Maven /
 
 ### 5、AI 编码助手
 
-IDE 内的 AI 助手（JetBrains AI Assistant、GitHub Copilot 等）和命令行 Agent（Claude Code 等）已是日常工具。生成的代码同样要过格式化、静态分析和测试这道门禁，不因为是 AI 写的就放宽；选型与用法见 [AI 工具](/ai/6_tools/0_ai_tools)。
+IDE 内的 AI 助手（JetBrains AI Assistant、GitHub Copilot 等）和命令行 Agent（Claude Code 等）已是日常工具。生成的代码同样要过格式化、静态分析和测试这道门禁，不因为是 AI 写的就放宽；选型与用法见 [AI 编程工具](/ai/6_tools/0_ai_tools)。
 
-AI 编码助手详见 [AI 工具](/ai/6_tools/0_ai_tools)。
+AI 编码助手详见 [AI 编程工具](/ai/6_tools/0_ai_tools)。
 
 ---
 

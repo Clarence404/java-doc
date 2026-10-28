@@ -433,7 +433,7 @@ public class SlowInitDetector implements BeanPostProcessor {
 两条生产经验：
 
 - 在配置类中用 `@Bean` 声明 `BeanFactoryPostProcessor` 或 `BeanPostProcessor` 时，方法要声明为 `static`，否则配置类会被提前实例化，日志中出现「is not eligible for getting processed by all BeanPostProcessors」，其中的 `@Autowired`、AOP 都可能失效
-- BeanPostProcessor 自己依赖的 Bean 会被提前创建，同样得不到完整处理，BPP 的依赖要尽量少。完整的启动耗时分析用 Boot 的 `ApplicationStartup`，见 [启动优化](/spring-boot/13_startup)
+- BeanPostProcessor 自己依赖的 Bean 会被提前创建，同样得不到完整处理，BPP 的依赖要尽量少。完整的启动耗时分析用 Boot 的 `ApplicationStartup`，见 [启动与部署优化](/spring-boot/13_startup)
 
 ### 2、FactoryBean 与 SmartInitializingSingleton
 

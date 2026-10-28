@@ -334,7 +334,7 @@ KIP-932 引入的共享组（Share Group）给 Kafka 补上了传统队列语义
 - **监控**：4.2 起提供共享分区 lag 指标，可据此扩缩消费者
 - **适用**：任务分发、竞争消费、逐条确认且不要求顺序的场景；要求分区内顺序、Exactly-Once 或 Streams 处理时仍用消费者组
 
-与 Pulsar Shared 订阅、RabbitMQ 的对比见 [其他消息系统](./5_other_mq#二、kafka-的队列语义-share-group)。
+与 Pulsar Shared 订阅、RabbitMQ 的对比见 [其他 MQ · Kafka 的队列语义](./5_other_mq#二、kafka-的队列语义-share-group)。
 
 ---
 

@@ -41,7 +41,7 @@ public class NaiveBenchmark {
 | Profile 污染 | 同一 JVM 中先后测多个实现，前者收集的类型 profile 影响后者 | 测试顺序影响结论 |
 | GC 与噪声 | 测量期间偶发 GC、其他进程干扰 | 单次测量波动大 |
 
-JIT 的分层编译与优化手段见 [JIT 即时编译](/jvm/7_jit)。
+JIT 的分层编译与优化手段见 [JIT 编译](/jvm/7_jit)。
 
 ### 2、JMH 如何解决
 

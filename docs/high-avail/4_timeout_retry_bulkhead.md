@@ -191,7 +191,7 @@ Spring Framework 7（Boot 4）内置 `@Retryable`，配置类加 `@EnableResilie
 public Stock query(long skuId) { ... }
 ```
 
-Framework 7 **没有 `@Recover`**：重试耗尽后原始异常直接抛出，兜底写在调用方。参数语义、`RetryTemplate` 与自定义 `RetryPolicy` 详见 [Retry 重试](/spring/6_retry)；Boot 3 存量项目的 Spring Retry（`@Backoff` / `@Recover`）见同篇 [§六](/spring/6_retry#六、spring-retry-boot-3-存量项目)。
+Framework 7 **没有 `@Recover`**：重试耗尽后原始异常直接抛出，兜底写在调用方。参数语义、`RetryTemplate` 与自定义 `RetryPolicy` 详见 [Retry 重试](/spring/6_retry)；Boot 3 存量项目的 Spring Retry（`@Backoff` / `@Recover`）见同篇 [Retry 重试 · Spring Retry](/spring/6_retry#六、spring-retry-boot-3-存量项目)。
 
 ---
 

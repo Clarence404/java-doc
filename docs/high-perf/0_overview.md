@@ -48,7 +48,7 @@
 ### 1、先度量，再优化
 
 - 没有基线数据就无法判断优化是否有效，也无法说明收益。
-- 线上用 APM / 链路追踪 / 指标系统定位慢在哪里；微观代码用 [JMH 基准测试](./4_benchmark) 对比；整体容量用 [压测](/testing/7_performance_test) 验证。
+- 线上用 APM / 链路追踪 / 指标系统定位慢在哪里；微观代码用 [基准测试（JMH）](./4_benchmark) 对比；整体容量用 [压测](/testing/7_performance_test) 验证。
 
 ### 2、优化瓶颈，而不是凭感觉猜热点
 
@@ -116,7 +116,7 @@ GC、JIT、索引、Redis、Kafka、Netty 等具体技术的原理与调优在�
 - 缓存原理与实践 → [缓存](/cache/0_overview)
 - 数据库索引与 SQL → [数据库](/database/0_overview)
 - 消息队列 → [消息队列](/messaging/0_overview)
-- 网络 IO 模型 → [Netty](/netty/1_io_model)
+- 网络 IO 模型 → [IO 模型](/netty/1_io_model)
 - 线上诊断（Arthas 等）→ [线上诊断](/engineering/7_diagnosis)
 
 > 下一篇：[性能指标](./1_metrics) —— 优化之前，先把"快"和"慢"变成可度量的数字。

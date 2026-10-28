@@ -140,7 +140,7 @@ RocketMQ、Kafka 等各自适合什么场景，见 [消息队列总览](/messagi
 ![阿里云上的典型 Java 微服务部署](../assets/cloud-native/cloud-domestic-aliyun-arch.svg)
 
 - **入口层**：云解析 DNS 按运营商返回就近地址；静态资源走 CDN（回源 OSS），动态请求经 WAF 过滤后到 ALB
-- **接入层**：ALB 负责七层转发与 HTTPS 卸载，在 ACK 中可通过 ALB Ingress 直接作为集群入口，Ingress 的概念见 [Nginx 与 Ingress](./7_nginx_ingress)
+- **接入层**：ALB 负责七层转发与 HTTPS 卸载，在 ACK 中可通过 ALB Ingress 直接作为集群入口，Ingress 的概念见 [Nginx、Ingress 与 Gateway API](./7_nginx_ingress)
 - **应用层**：Spring Boot / Spring Cloud 服务部署在 ACK；也可以选 SAE，省去节点与集群运维
 - **控制面**：MSE 托管 Nacos，是服务注册与配置下发的旁路组件，不在请求链路上；它不可用时已有实例仍可依赖客户端缓存继续调用
 - **数据层**：PolarDB / RDS MySQL、Tair（兼容 Redis）、云消息队列 RocketMQ 版，均与 ACK 放在同一 VPC，通过内网地址访问

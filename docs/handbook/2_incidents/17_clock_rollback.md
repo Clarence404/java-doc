@@ -349,7 +349,7 @@ class SnowflakeIdGeneratorTest {
 | 时钟回拨的应对思路、workerId 分配 | [分布式 ID 生成 · 时钟回拨](/distributed/8_id_generator#_3、时钟回拨) |
 | 号段模式、Leaf、UidGenerator 选型 | [分布式 ID 生成 · 方案对比与选型](/distributed/8_id_generator#八、方案对比与选型) |
 | 幂等与唯一约束 | [幂等设计](/architecture/3_idempotence) |
-| 支付单与对账 | [支付系统](/scenario/14_payment)、[对账系统](/scenario/3_reconcile) |
+| 支付单与对账 | [支付系统](/scenario/14_payment)、[海量数据对账](/scenario/3_reconcile) |
 | systemd 与 journalctl | [Linux 概览 · systemd 与 journalctl](/cloud-native/1_linux#三、systemd-与-journalctl) |
 
 ---

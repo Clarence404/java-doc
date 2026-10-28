@@ -208,7 +208,7 @@ class PaymentEventListenerIT extends AbstractIT {
 - **不要用 `Thread.sleep`**：睡短了偶发失败，睡长了拖慢整个套件；`atMost` 只是上限，条件满足立即返回
 - **断言最终状态，而不是中间过程**：查数据库里的订单状态，比去拦截监听器方法更稳
 - **订单号用 UUID**：即使清理遗漏或测试并行，也不会读到别的测试的数据
-- 第二个测试验证「重复投递只生效一次」，这是 MQ 至少一次语义下必须有的保障，幂等设计见 [幂等性](/architecture/3_idempotence)
+- 第二个测试验证「重复投递只生效一次」，这是 MQ 至少一次语义下必须有的保障，通用做法见 [幂等设计](/architecture/3_idempotence)
 
 `@EmbeddedKafka`（spring-kafka-test）也能跑这个测试，但它和真实 Broker 的版本、配置不一定一致；已经在用 Testcontainers 时没有理由再引入它。
 

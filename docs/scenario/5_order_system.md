@@ -4,7 +4,7 @@ description: 状态机与条件更新、下单幂等与库存预占、消费支�
 
 # 订单
 
-> 前置阅读：[幂等方案总结](/architecture/3_idempotence)、[分布式事务](/distributed/4_transaction)、[消息队列基础](/messaging/1_basics)
+> 前置阅读：[幂等设计](/architecture/3_idempotence)、[分布式事务](/distributed/4_transaction)、[消息队列基础](/messaging/1_basics)
 
 订单的难点不在建表，而在**每个环节都会被重复调用**：用户重复提交、支付成功事件重复到达、MQ 重复投递、定时任务和消息同时关单。本篇的统一做法是唯一约束挡重复、状态条件更新挡并发、消息在事务提交之后发出，跨服务的一致性按流程选定一种方案。
 
@@ -146,7 +146,7 @@ public Order createOrder(CreateOrderCommand cmd) {
 
 - 远程调用放在事务里会拉长事务、占用连接，量大时把预占移到事务外，只把插入订单放进事务
 - 预占成功、建单失败（宕机、非唯一键异常）会留下**悬挂预占**：库存服务定时扫描超过 N 分钟的 `RESERVED` 记录，按 `biz_no` 向订单服务确认，没有订单就释放
-- 幂等方案的通用对比见 [幂等方案总结](/architecture/3_idempotence)
+- 幂等方案的通用对比见 [幂等设计](/architecture/3_idempotence)
 
 ---
 

@@ -41,7 +41,7 @@ Redis 也是键值存储，但定位是缓存与内存数据结构，主文档�
 
 ## 四、关联模块
 
-- [数据库总览](/database/0_overview)：关系库、存储原理、CDC 与数据库选型
+- [数据库总览](/database/0_overview)：存储引擎与选型、MySQL 与 PostgreSQL、应用接入、CDC 与运维
 - [缓存总览](/cache/0_overview)：Redis、Caffeine 与缓存一致性
 - [向量数据库](/ai/4_core_tech/1_vector_db)：Embedding 检索与 RAG 场景的专用存储
 - [对象存储](/architecture/5_object_storage)：图片、视频、备份等大文件的存储与直传

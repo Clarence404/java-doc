@@ -315,7 +315,7 @@ class ContextPropagationConfiguration {
 }
 ```
 
-Boot 4.0 起容器中有多个 `TaskDecorator` Bean 时会组合成 `CompositeTaskDecorator` 依次应用，不必再手工合并。`@Async` 与线程池配置见 [异步与定时任务](./7_async_schedule)。
+Boot 4.0 起容器中有多个 `TaskDecorator` Bean 时会组合成 `CompositeTaskDecorator` 依次应用，不必再手工合并。`@Async` 与线程池配置见 [异步任务与定时任务](./7_async_schedule)。
 
 ### 4、响应式链路
 
@@ -374,7 +374,7 @@ CVE-2021-44228（Log4Shell）：Log4j2 的 `log4j-core` 会解析日志消息中
 - 修复需升级 Log4j2 到修复版本（后续又陆续披露了 CVE-2021-45046 等关联漏洞，应使用 2.17.1 及以上），并持续用依赖扫描工具跟踪
 - 普适教训：**日志框架会处理不可信输入**，任何「对日志内容做解析/求值」的特性都是攻击面；依赖要有 SBOM 与漏洞扫描，能在一天内完成全量升级
 
-漏洞分类与防护见 [漏洞防护](/security/8_vulnerabilities)。
+漏洞分类与防护见 [常见漏洞与防护](/security/8_vulnerabilities)。
 
 ### 2、敏感信息与日志注入
 

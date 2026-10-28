@@ -222,7 +222,7 @@ Micrometer 的 [Context Propagation](https://docs.micrometer.io/context-propagat
 | `CompletableFuture.supplyAsync(..., executor)` | 传入上面装饰过的执行器，不要用默认的 `ForkJoinPool.commonPool()` |
 | 原生 `ExecutorService` | 用 `ContextExecutorService.wrap(...)` 包装 |
 
-配置代码见 [日志](/spring-boot/9_logging#五、mdc-与-traceid-传递)，线程池参数见 [异步与定时任务](/spring-boot/7_async_schedule)。
+配置代码见 [日志](/spring-boot/9_logging#五、mdc-与-traceid-传递)，线程池参数见 [异步任务与定时任务](/spring-boot/7_async_schedule)。
 
 ### 2、虚拟线程
 

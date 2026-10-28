@@ -12,7 +12,7 @@
 
 1. **Linux 与虚拟化**：先读 [Linux 概览](./1_linux) 与 [Linux 发行版](./2_linux_distros)，再读 [虚拟化概览](./3_virtual) 与 [虚拟化工具](./4_virtual_tools)，搭好本地实验环境。
 2. **容器与编排**：读 [Docker](./5_docker) 与 [Kubernetes](./6_kubernetes)，掌握镜像、容器和编排的核心模型。
-3. **交付链路**：读 [Nginx 与 Ingress](./7_nginx_ingress)、[Helm](./8_helm)、[Argo CD](./9_argocd)，形成从入口流量、打包到持续部署的链路；服务间流量治理再读 [服务网格部署](./10_service_mesh)。
+3. **交付链路**：读 [Nginx、Ingress 与 Gateway API](./7_nginx_ingress)、[Helm](./8_helm)、[Argo CD](./9_argocd)，形成从入口流量、打包到持续部署的链路；服务间流量治理再读 [服务网格部署](./10_service_mesh)。
 4. **基础设施即代码**：读 [Terraform](./11_terraform)、[Ansible](./12_ansible) 与 [cloud-init 与 Packer](./12_cloud_init)，把资源创建、镜像与主机配置纳入代码管理，再按 [IaC 工程实践](./12_iac_practice) 接入 PR 评审与 CI。
 5. **云平台与选购**：按需阅读 [云计算概览](./13_cloud_overview)，再看国内、国际云平台、Cloudflare 边缘服务与 VPS 选购。
 

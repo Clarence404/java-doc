@@ -41,7 +41,7 @@ AWS 中国区（`aws-cn` 分区）和 Azure 中国区与各自的全球区账号
 | **Lambda** | Serverless 函数，支持 Java 21 / 25 等运行时，按请求次数和执行时长计费 |
 | **Elastic Beanstalk** | PaaS，上传 jar 包即可完成部署，适合快速验证 |
 
-**Java 跑 Lambda 的冷启动**：JVM 启动加类加载让 Java 函数冷启动明显慢于 Node / Python。官方的解法是 **SnapStart**：发布函数版本时先执行初始化，把内存和磁盘状态做成快照，冷启动时直接从快照恢复。开启后要注意快照恢复的副作用，比如在初始化阶段生成的随机数、建立的网络连接，会被所有恢复出来的实例共享，要放到 `afterRestore` 钩子里重新处理。Java 25 运行时还用上了 JDK 的 AOT 缓存来进一步缩短启动。另一条路是用 GraalVM 原生镜像，见 [Quarkus 原生镜像](/quarkus/3_native)。
+**Java 跑 Lambda 的冷启动**：JVM 启动加类加载让 Java 函数冷启动明显慢于 Node / Python。官方的解法是 **SnapStart**：发布函数版本时先执行初始化，把内存和磁盘状态做成快照，冷启动时直接从快照恢复。开启后要注意快照恢复的副作用，比如在初始化阶段生成的随机数、建立的网络连接，会被所有恢复出来的实例共享，要放到 `afterRestore` 钩子里重新处理。Java 25 运行时还用上了 JDK 的 AOT 缓存来进一步缩短启动。另一条路是用 GraalVM 原生镜像，见 [原生镜像与云原生部署](/quarkus/3_native)。
 
 ### 2、存储
 
@@ -66,7 +66,7 @@ AWS 中国区（`aws-cn` 分区）和 Azure 中国区与各自的全球区账号
 | **ElastiCache** | 托管缓存，支持 Valkey / Redis OSS / Memcached 三种引擎，Valkey 引擎的定价低于 Redis OSS，是 AWS 推荐的新集群选择 |
 | **Redshift** | 列式数据仓库，适合 OLAP 分析 |
 
-ElastiCache 的 Valkey 是 Redis 改为非开源许可后由 Linux 基金会维护的开源分支，协议兼容 Redis，Spring Data Redis（Lettuce / Jedis）客户端无需改动。缓存的使用方式见 [Redis](/cache/0_overview)。
+ElastiCache 的 Valkey 是 Redis 改为非开源许可后由 Linux 基金会维护的开源分支，协议兼容 Redis，Spring Data Redis（Lettuce / Jedis）客户端无需改动。缓存的使用方式见 [缓存总览](/cache/0_overview)。
 
 ### 4、网络
 

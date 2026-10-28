@@ -91,7 +91,7 @@ Sentinel、Resilience4j、Nacos 等组件的框架配置在 [Spring Cloud 服务
 - 服务治理框架配置（Spring Cloud LoadBalancer、灰度路由、Resilience4j）→ [Spring Cloud 服务治理](/spring-cloud/5_service_governance)
 - Sentinel、Nacos 规则持久化 → [Spring Cloud Alibaba](/spring-cloud/6_alibaba)
 - 选主、共识与分布式一致性 → [分布式理论](/distributed/2_theorem)
-- MySQL 复制与 Redis 集群 → [MySQL 主从复制](/database/1_mysql/9_topic_replication)、[Redis 集群](/cache/3_redis_cluster)
+- MySQL 复制与 Redis 集群 → [MySQL 主从与高可用](/database/1_mysql/9_topic_replication)、[Redis 集群](/cache/3_redis_cluster)
 - 监控告警 → [可观测性](/observability/0_overview)
 - 重试的前提 → [幂等设计](/architecture/3_idempotence)
 - 答案汇总 → [高可用面试题解答](/interview/14_high_avail)

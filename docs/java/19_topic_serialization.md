@@ -271,7 +271,7 @@ try (ObjectInputStream in = new ObjectInputStream(input)) {
 - 不对不可信来源的数据做原生反序列化，对外接口用 JSON / Protobuf
 - 必须用原生序列化时，配置白名单式的 `jdk.serialFilter`（以 `!*` 结尾）
 - JSON 库关闭多态类型自动识别：Fastjson 不开 autoType，Jackson 不用 `enableDefaultTyping` / `activateDefaultTyping` 处理不可信输入
-- 及时升级有已知 gadget 的依赖，Web 层通用防护见 [常见漏洞防护](/security/8_vulnerabilities)
+- 及时升级有已知 gadget 的依赖，Web 层通用防护见 [常见漏洞与防护](/security/8_vulnerabilities)
 
 ---
 
