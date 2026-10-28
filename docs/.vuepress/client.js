@@ -3,6 +3,7 @@ import HomeLayout from './layouts/HomeLayout.vue';
 import ModuleNav from './components/ModuleNav.vue';
 import InterviewList from './components/InterviewList.vue';
 import LearningRoutes from './components/LearningRoutes.vue';
+import VersionBaseline from './components/VersionBaseline.vue';
 
 // 开发模式：修改 site.js / config.js 或新增文章时开发服务器会自动重启，
 // 这里在连接断开后轮询，服务器恢复即自动刷新浏览器（VuePress 默认只提示手动刷新）
@@ -29,6 +30,8 @@ export default defineClientConfig({
         app.component('InterviewList', InterviewList);
         // 学习路线：<LearningRoutes />，由 site.js 的 ROUTES 生成
         app.component('LearningRoutes', LearningRoutes);
+        // 版本基线速查：<VersionBaseline />，由 site.js 的 BASELINE 生成
+        app.component('VersionBaseline', VersionBaseline);
     },
     layouts: {HomeLayout},
 });

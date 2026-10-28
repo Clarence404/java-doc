@@ -2,7 +2,7 @@
 
 系统架构模块整理 Java 后端在「代码怎么组织、数据怎么分层、接口怎么可靠」上的通用设计：架构模式与 DDD、冷热分离与对象存储、幂等、权限系统与主数据。
 
-**版本基线（2026 年 10 月）**：JDK 21 / 25、Spring Boot 4、MySQL 8.4、Redis 8.x、RocketMQ 5.x、AWS SDK for Java 2.x、MyBatis-Plus 3.5
+**版本基线（2026 年 10 月）**：JDK 21 / 25、Spring Boot 4、MySQL 8.4、Redis 8、RocketMQ 5、AWS SDK for Java 2.x、MyBatis-Plus 3.5
 
 ---
 

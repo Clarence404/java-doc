@@ -6,7 +6,7 @@ description: 基本原则、System Prompt、Few-shot、推理模型、结构化�
 
 > 前置阅读：[大模型选型](./0_model)
 
-Prompt 工程就是把需求写清楚，让模型输出又好又稳。本篇讲基本原则、System Prompt 与 Few-shot、推理模型、结构化输出和注入防护，基线为 Spring AI 2.0、LangChain4j 1.x。
+Prompt 工程就是把需求写清楚，让模型输出又好又稳。本篇讲基本原则、System Prompt 与 Few-shot、推理模型、结构化输出和注入防护，基线为 Spring AI 2、LangChain4j 1.x。
 
 ---
 

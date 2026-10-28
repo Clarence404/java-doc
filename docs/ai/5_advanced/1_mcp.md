@@ -6,7 +6,7 @@ description: MCP 能力模型、规范演进、Streamable HTTP、Java 客户端�
 
 > 前置阅读：[Function Calling（工具调用）](../1_concepts/2_function_calling)、[AI Agent 智能体](./0_agent)
 
-MCP 是连接 AI 应用与外部工具、数据源的开放协议。本篇讲能力模型、传输演进、客户端与 Server 开发、认证与安全，基线为 Spring AI 2.0。
+MCP 是连接 AI 应用与外部工具、数据源的开放协议。本篇讲能力模型、传输演进、客户端与 Server 开发、认证与安全，基线为 Spring AI 2。
 
 ---
 

@@ -6,7 +6,7 @@ description: 测试金字塔与蜂巢、各层工具与版本基线、健康测�
 
 测试工程关心的是一套测试能否在每次提交时快速、稳定地回答：**这次改动能不能放心合并、放心上线**。本模块按层次讲单元测试、Mock、集成测试、契约测试、接口与端到端测试、性能测试与 TDD，写的是与框架无关的方法和工具。
 
-**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4.x、JUnit 6.1、AssertJ 3.27、Mockito 5.x、Testcontainers 2.0、Spring Cloud Contract 5.0（已移交 Stubborn）、Pact JVM 4.7、k6 2.x、Gatling 3.x、JMeter 5.6、JaCoCo 0.8、PIT 1.x
+**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、JUnit 6、AssertJ 3.27、Mockito 5、Testcontainers 2、Spring Cloud Contract 5.0、Pact JVM 4.7、k6 2.x、Gatling 3.x、JMeter 5.6、JaCoCo 0.8、PIT 1.x
 
 ---
 

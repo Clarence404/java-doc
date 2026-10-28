@@ -2,7 +2,7 @@
 
 Quarkus 是 Red Hat 主导的云原生 Java 框架，把 Spring Boot 在运行期做的扫描、代理生成和 Bean 装配挪到构建期，启动更快、内存更低。本模块从构建期增强讲到 REST、数据访问、原生镜像、响应式，以及迁移与框架对比。
 
-**版本基线（2026 年 10 月）**：Quarkus 3.40 LTS、JDK 21 / 25、Mandrel / GraalVM 25
+**版本基线（2026 年 10 月）**：Quarkus 3 LTS、JDK 21 / 25、Mandrel / GraalVM 25
 
 ---
 

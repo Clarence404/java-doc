@@ -31,7 +31,7 @@ Spark 的核心思路是把计算描述成一张由算子组成的有向无环�
 - **部署模式**：`--deploy-mode client` 时 Driver 跑在提交命令的机器上，适合交互调试；`cluster` 时 Driver 也由集群管理器拉起，生产作业一律用 cluster，避免提交机故障或网络抖动拖垮作业
 - **Driver 是单点**：Driver 进程挂掉整个应用失败；Executor 挂掉只会让其上的 Task 重新调度。不要在 Driver 上 `collect()` 大结果集，这是 Driver OOM 最常见的原因
 
-**版本基线**：本篇以 **Spark 4.2.x** 为准（2026 年 7 月发布，4.1.x、4.0.x 仍在维护）。Spark 4 只提供 **Scala 2.13** 构建，运行在 **Java 17 / 21 / 25** 上，不再支持 Java 8 / 11；Python 要求 3.10 及以上。
+**版本基线**：本篇以 **Spark 4.2** 为准（2026 年 7 月发布，4.1.x、4.0.x 仍在维护）。Spark 4.2 只提供 **Scala 2.13** 构建，运行在 **Java 17 / 21 / 25** 上，不再支持 Java 8 / 11；Python 要求 3.10 及以上。
 
 ::: tip Spark 4 的几个破坏性变化
 - **ANSI SQL 模式默认开启**（`spark.sql.ansi.enabled=true`）：非法类型转换、整数溢出、除以零会直接报错，而不是像 3.x 那样静默返回 `null`。从 3.x 迁移的作业如果依赖旧行为，先用 `try_cast`、`try_divide` 改写，不要简单地把开关关掉

@@ -2,7 +2,7 @@
 
 本模块以具体业务问题为线索，把缓存、消息、数据库、分布式与三高知识组合成完整方案，适合学完各技术模块后做综合练习。
 
-**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Redis 8.x、RocketMQ 5.x、MySQL 8.4 LTS、ShardingSphere 5.5、Flink 2.x
+**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Redis 8、RocketMQ 5、MySQL 8.4 LTS、ShardingSphere 5.5、Flink 2.2
 
 ---
 

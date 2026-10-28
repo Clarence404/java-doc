@@ -2,7 +2,7 @@
 
 缓存模块覆盖分布式缓存 Redis、本地缓存 Caffeine、两级缓存与 JetCache，以及缓存一致性和使用规范，负责 Redis 本身与缓存一致性的技术细节。
 
-**版本基线（2026 年 10 月）**：Redis 8.x、Valkey 9.x、Spring Data Redis 4、Redisson 4.x、Caffeine 3.x、JetCache 2.7.9（2.8 RC）
+**版本基线（2026 年 10 月）**：Redis 8、Valkey 9、Spring Data Redis 4、Redisson 4、Caffeine 3、JetCache 2.7.9
 
 ---
 
@@ -26,7 +26,7 @@
 
 ## 三、关联模块
 
-系统级的多级缓存架构与热点治理策略放在 [高并发](/high-con/0_overview)，分布式锁放在 [分布式](/distributed/0_overview)，限流放在 [高可用](/high-avail/0_overview)。版本说明：Redis 8.0 起改名 Redis Open Source，原 Redis Stack 的 JSON、Time Series、概率结构与查询引擎并入核心；Valkey 是 Redis 7.2.4 的 BSD 许可分支，不含这些新增模块；Valkey 9.0（2025-10）起支持 Hash 字段级 TTL、原子槽迁移与 Cluster 模式多数据库。Spring Data Redis 4 配置前缀为 `spring.data.redis.*`，JSON 序列化器换成 Jackson 3 版本；Redisson 4.0 起支持 Spring Boot 4。
+系统级的多级缓存架构与热点治理策略放在 [高并发](/high-con/0_overview)，分布式锁放在 [分布式](/distributed/0_overview)，限流放在 [高可用](/high-avail/0_overview)。版本说明：Redis 8.0 起改名 Redis Open Source，原 Redis Stack 的 JSON、Time Series、概率结构与查询引擎并入核心；Valkey 是 Redis 7.2.4 的 BSD 许可分支，不含这些新增模块；Valkey 9.0（2025-10）起支持 Hash 字段级 TTL、原子槽迁移与 Cluster 模式多数据库。Spring Data Redis 4 配置前缀为 `spring.data.redis.*`，JSON 序列化器换成 Jackson 3 版本；Redisson 4.0 起支持 Spring Boot 4；JetCache 稳定版为 2.7.9，2.8 仍处于 RC 阶段。
 
 - 缓存架构设计（多级缓存、预热、热点探测）→ [缓存架构设计](/high-con/3_cache_architecture)
 - 热点 Key / 热点行治理 → [热点问题](/high-con/6_hotspot)

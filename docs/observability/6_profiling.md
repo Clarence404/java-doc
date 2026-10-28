@@ -6,7 +6,7 @@ description: 持续剖析原理与开销、Java 方案、eBPF 原理、eBPF 剖�
 
 > 前置阅读：[性能分析工具](/high-perf/3_profilers)、[链路追踪](./3_tracing)、[用户态、内核态与系统调用](/os/2_kernel_mode)
 
-持续剖析（Continuous Profiling）让 Profiler 在生产环境一直低开销地采样，把「哪段代码在耗资源」变成可以随时回看的第四种信号。本篇讲持续剖析的原理与 Java 方案、eBPF 的工作方式与可观测用法、平台选型与落地风险，基线为 JDK 21、Linux 6.x。
+持续剖析（Continuous Profiling）让 Profiler 在生产环境一直低开销地采样，把「哪段代码在耗资源」变成可以随时回看的第四种信号。本篇讲持续剖析的原理与 Java 方案、eBPF 的工作方式与可观测用法、平台选型与落地风险，基线为 JDK 21、Linux 6。
 
 ---
 

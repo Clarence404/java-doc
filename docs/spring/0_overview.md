@@ -2,7 +2,7 @@
 
 本模块讲 Spring Framework 本身的机制与常用组件（IoC、AOP、MVC / WebFlux、事务、数据访问），以及 Spring Security、Batch、Integration 等周边项目。
 
-**版本基线（2026 年 10 月）**：Spring Framework 7.x、Spring Boot 4.x、Spring Security 7、JDK 21 / 25
+**版本基线（2026 年 10 月）**：Spring Framework 7、Spring Boot 4、Spring Security 7、JDK 21 / 25
 
 ---
 

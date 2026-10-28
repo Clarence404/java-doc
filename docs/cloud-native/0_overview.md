@@ -2,7 +2,7 @@
 
 本模块从 Linux 与虚拟化基础出发，覆盖容器与编排、基础设施自动化，以及公有云平台与 VPS 选购。
 
-**版本基线（2026 年 10 月）**：Kubernetes 1.37、Docker Compose v2、Helm 4、Argo CD 3.x、Ubuntu 26.04 LTS、RHEL 10
+**版本基线（2026 年 10 月）**：Kubernetes 1.37、Docker Compose v2、Helm 4、Argo CD 3、Ubuntu 26.04 LTS、RHEL 10
 
 ## 一、模块导航
 

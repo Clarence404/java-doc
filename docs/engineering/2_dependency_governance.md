@@ -6,7 +6,7 @@ description: BOM 策略、Enforcer 约束、Renovate / Dependabot、漏洞扫描
 
 > 前置阅读：[构建工具](./1_build_tools)
 
-依赖治理要管住版本、提前发现冲突、持续兜底漏洞和许可证风险，出事时能马上说清用了什么。本篇讲 BOM 与 Version Catalog、enforcer、Renovate、漏洞与 License 扫描、SBOM，基线为 Spring Boot 4.1。
+依赖治理要管住版本、提前发现冲突、持续兜底漏洞和许可证风险，出事时能马上说清用了什么。本篇讲 BOM 与 Version Catalog、enforcer、Renovate、漏洞与 License 扫描、SBOM，基线为 Spring Boot 4。
 
 ---
 

@@ -6,7 +6,7 @@ description: DevOps 生命周期、DORA 五项交付指标、模块导航与推�
 
 DevOps 把开发和运维放进同一条交付链路，用版本控制、自动化流水线和可度量的反馈，让变更又快又稳地到达生产。本模块讲 Java 后端团队要落地的分支、评审、规范、流水线、制品、环境与发布。
 
-**版本基线（2026 年 10 月）**：Git 2.56、GitHub Actions、Jenkins LTS 2.5xx、Kubernetes 1.37、Argo CD 3.x、SemVer 2.0.0、SLSA 1.2、JDK 21、Spring Boot 4
+**版本基线（2026 年 10 月）**：Git 2.56、GitHub Actions、Jenkins LTS 2.5xx、Kubernetes 1.37、Argo CD 3、SemVer 2.0.0、SLSA 1.2、JDK 21、Spring Boot 4
 
 ---
 

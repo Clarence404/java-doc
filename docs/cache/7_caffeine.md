@@ -6,7 +6,7 @@ description: W-TinyLFU、三种 Cache 用法、过期与刷新、容量控制、
 
 > 前置阅读：[集合框架](/java/21_topic_collection)、[Cache 抽象](/spring/5_cache)
 
-Caffeine 是 Java 的高性能进程内缓存库，Guava 官方也建议新项目改用它。本篇讲 W-TinyLFU、加载方式、过期与刷新和 Spring Boot 集成，基线为 Caffeine 3.x。
+Caffeine 是 Java 的高性能进程内缓存库，Guava 官方也建议新项目改用它。本篇讲 W-TinyLFU、加载方式、过期与刷新和 Spring Boot 集成，基线为 Caffeine 3。
 
 ---
 

@@ -2,7 +2,7 @@
 
 消息中间件（MQ）是分布式系统的异步通信层，用来解耦服务、削峰填谷、把非核心操作异步化。本模块先讲可靠性、幂等、顺序、积压等通用问题，再深入 Kafka、RocketMQ、RabbitMQ 并给出选型建议。
 
-**版本基线（2026 年 10 月）**：Kafka 4.x、RocketMQ 5.x、RabbitMQ 4.x、Spring Boot 4
+**版本基线（2026 年 10 月）**：Kafka 4、RocketMQ 5、RabbitMQ 4、Spring Boot 4
 
 ---
 

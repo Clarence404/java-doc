@@ -6,7 +6,7 @@ description: Arthas 附着与容器排障、按症状选命令、watch / trace /
 
 > 前置阅读：[诊断工具](/jvm/8_monitoring_tools)、[故障排查](/jvm/9_troubleshooting)
 
-Arthas 能在不重启、不改代码的前提下，在方法级别观察和干预线上 JVM。本篇讲容器与 K8s 中的附着、按症状选命令、类加载器用法、可回滚热修复与安全边界，基线为 Arthas 4.3。
+Arthas 能在不重启、不改代码的前提下，在方法级别观察和干预线上 JVM。本篇讲容器与 K8s 中的附着、按症状选命令、类加载器用法、可回滚热修复与安全边界，基线为 Arthas 4。
 
 ---
 

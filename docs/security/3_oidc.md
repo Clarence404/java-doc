@@ -6,7 +6,7 @@ description: ID Token、登录流程与校验、nonce、Discovery 与 JWKS、Use
 
 > 前置阅读：[OAuth2](./2_oauth2)、[JWT 令牌机制](./1_jwt)
 
-OIDC 是 OAuth 2 之上的身份认证层，回答「当前登录的用户是谁」。本篇讲 ID Token、Discovery 与各类登出，基线为 OpenID Connect Core 1.0（含勘误集 2）与 Spring Security 7.0。
+OIDC 是 OAuth 2 之上的身份认证层，回答「当前登录的用户是谁」。本篇讲 ID Token、Discovery 与各类登出，基线为 OpenID Connect Core 1.0（含勘误集 2）与 Spring Security 7。
 
 ---
 

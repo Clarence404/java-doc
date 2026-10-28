@@ -6,7 +6,7 @@ description: 结构与签名算法、RFC 8725 校验清单、双 Token 轮换与
 
 > 前置阅读：[HTTP](/protocols/2_http)、[分布式会话](/distributed/5_session)
 
-JWT 是一种令牌格式而非认证协议，可承载访问令牌、ID Token 或会话凭证。本篇讲结构与算法、校验、双 Token 与吊销、密钥轮换与存储，基线为 Spring Security 7.0。
+JWT 是一种令牌格式而非认证协议，可承载访问令牌、ID Token 或会话凭证。本篇讲结构与算法、校验、双 Token 与吊销、密钥轮换与存储，基线为 Spring Security 7。
 
 ---
 

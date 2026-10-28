@@ -6,7 +6,7 @@ description: OWASP API Top 10、调用方认证、HMAC 签名与防重放、API 
 
 > 前置阅读：[JWT 令牌机制](./1_jwt)、[OAuth2](./2_oauth2)、[Spring Security](/spring/9_security)
 
-API 安全要回答调用方是谁、能动哪些数据、能用多少资源三个问题。本篇讲认证选型、HMAC 防重放、API Key 管理、越权防护与安全配置，基线为 Spring Security 7.0。
+API 安全要回答调用方是谁、能动哪些数据、能用多少资源三个问题。本篇讲认证选型、HMAC 防重放、API Key 管理、越权防护与安全配置，基线为 Spring Security 7。
 
 ---
 

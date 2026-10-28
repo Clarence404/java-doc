@@ -2,7 +2,7 @@
 
 Spring Boot 模块从启动流程与自动配置原理出发，覆盖 Web、数据访问、中间件集成、配置、监控、Starter、版本演进、日志、测试与启动部署优化，只讲 Boot 在 Framework 之上的装配、配置与工程实践。
 
-**版本基线（2026 年 10 月）**：Spring Boot 4.x、Spring Framework 7.x、JDK 17 起步（推荐 21 / 25）
+**版本基线（2026 年 10 月）**：Spring Boot 4、Spring Framework 7、JDK 21 / 25
 
 ---
 

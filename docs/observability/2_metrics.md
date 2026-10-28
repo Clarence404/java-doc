@@ -6,7 +6,7 @@ description: 指标类型、RED / USE、自定义指标与基数控制、Prometh
 
 > 前置阅读：[日志体系](./1_logging)、[Actuator 监控](/spring-boot/11_actuator)
 
-指标是按时间采样的数值，体积小、可聚合，回答整体现在怎么样、和平时比有无变化。本篇讲指标模型与类型、基数控制、抓取配置、PromQL 与看板，基线为 Prometheus 3.x。
+指标是按时间采样的数值，体积小、可聚合，回答整体现在怎么样、和平时比有无变化。本篇讲指标模型与类型、基数控制、抓取配置、PromQL 与看板，基线为 Prometheus 3。
 
 ---
 

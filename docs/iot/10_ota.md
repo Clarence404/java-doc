@@ -6,7 +6,7 @@ description: SHA-256 与 Ed25519 / ECDSA 签名、防回滚、A/B 分区与自�
 
 > 前置阅读：[设备安全](./5_security)、[MQTT 客户端](./6_mqtt_client)
 
-OTA（Over-The-Air）是设备部署后修复漏洞、增加功能的唯一途径，也是风险最高的操作。本篇讲固件签名、版本防回滚、A/B 分区、分批灰度，基线为 JDK 21、Spring Boot 4.x。
+OTA（Over-The-Air）是设备部署后修复漏洞、增加功能的唯一途径，也是风险最高的操作。本篇讲固件签名、版本防回滚、A/B 分区、分批灰度，基线为 JDK 21、Spring Boot 4。
 
 ---
 

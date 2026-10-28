@@ -2,7 +2,7 @@
 
 大数据模块从 Java 后端的视角，讲业务数据怎样汇集、加工成统一口径，再以报表和接口交还给业务。重点是数仓建模、Spark、湖仓、数据集成、调度、OLAP 与治理，不追求覆盖整个 Hadoop 生态。
 
-**版本基线（2026 年 10 月）**：Spark 4.2（Iceberg 1.12 的 Spark 运行时只发布到 4.1，读写 Iceberg 的集群暂用 Spark 4.1）、Hadoop 3.5、Iceberg 1.12、Paimon 2.0、Hudi 1.2、Flink 2.2 / Flink CDC 3.6、DolphinScheduler 3.4、Airflow 3.3、SeaTunnel 3.0、Doris / StarRocks 4.1。
+**版本基线（2026 年 10 月）**：Spark 4.2、Hadoop 3.5、Iceberg 1.12、Paimon 2.0、Hudi 1.2、Flink 2.2 / Flink CDC 3.6、DolphinScheduler 3.4、Airflow 3.3、SeaTunnel 3.0、Doris / StarRocks 4.1
 
 ---
 
@@ -56,6 +56,7 @@ Java 后端和数据平台打交道，主要在四个接口上：
 - **存储与计算正在解耦**：数据以开放的表格式（Iceberg / Paimon）放在对象存储上，Spark、Flink、Trino、Doris 都能读写同一份数据，引擎可以按场景替换，原理见 [大数据基础](./1_basics) 第二节
 - **离线与实时在收敛**：早期离线（Hive / Spark）和实时（Kafka + Flink）是两套完全独立的链路；湖仓表格式支持流式读写后，越来越多团队用一套存储同时服务批和流，实践见 [实时数仓实战](./9_realtime_dw)
 - **调度和治理决定能否长期运行**：几百个任务之后，真正的痛点不是"能不能算出来"，而是"上游延迟了谁受影响""这个字段是从哪来的""昨天的数据对不对"
+- **Spark 与 Iceberg 的版本对齐**：Iceberg 1.12 的 Spark 运行时只发布到 Spark 4.1，读写 Iceberg 的集群暂用 Spark 4.1，其余场景按 Spark 4.2
 
 ---
 

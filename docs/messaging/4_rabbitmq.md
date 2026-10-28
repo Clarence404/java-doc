@@ -6,7 +6,7 @@ description: Exchange 四种类型、发布确认与回退、手动 ACK 与重�
 
 > 前置阅读：[消息队列基础](./1_basics)
 
-RabbitMQ 是 AMQP 0-9-1 的经典实现，强项是灵活路由和低延迟。本篇讲 Exchange 路由、确认 / 重试 / 死信、Quorum 队列与 Streams、延迟消息，基线为 RabbitMQ 4.x。
+RabbitMQ 是 AMQP 0-9-1 的经典实现，强项是灵活路由和低延迟。本篇讲 Exchange 路由、确认 / 重试 / 死信、Quorum 队列与 Streams、延迟消息，基线为 RabbitMQ 4。
 
 ---
 

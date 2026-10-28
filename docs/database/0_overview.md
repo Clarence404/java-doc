@@ -2,13 +2,13 @@
 
 数据库模块以 MySQL 为主线讲索引、事务与锁、InnoDB 与复制，再对比 PostgreSQL，覆盖国产与分布式关系库、ORM、各类 NoSQL，最后落到 CDC、备份、分库分表与连接池等工程实践。
 
-**版本基线（2026 年 10 月）**：MySQL 8.4、PostgreSQL 18、MariaDB 12.3、Connector/J 26.x（9.7 之后改用日历版本号）、HikariCP 7.x、ShardingSphere 5.5、Debezium 3.x
+**版本基线（2026 年 10 月）**：MySQL 8.4、PostgreSQL 18、MariaDB 12.3、Connector/J 26.x、HikariCP 7.x、ShardingSphere 5.5、Debezium 3.x
 
 ---
 
 ## 一、模块地图
 
-缓存、系统级的分库分表策略、分布式事务和 Spring 数据访问在各自模块展开，这里只讲数据库本身。版本说明：文中单独标出与 MySQL 9.7 LTS（之后改用 `YY.M` 日历版本号）及 8.0（2026 年 4 月停止维护）的差异，PostgreSQL 兼顾 17。
+缓存、系统级的分库分表策略、分布式事务和 Spring 数据访问在各自模块展开，这里只讲数据库本身。版本说明：文中单独标出与 MySQL 9.7 LTS（之后改用 `YY.M` 日历版本号）及 8.0（2026 年 4 月停止维护）的差异，PostgreSQL 兼顾 17；Connector/J 同样在 9.7 之后改用日历版本号，当前为 26.x。
 
 | 方向 | 内容 | 适合关注 |
 |------|------|----------|

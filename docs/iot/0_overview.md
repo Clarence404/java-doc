@@ -2,7 +2,7 @@
 
 本模块从 Java 后端视角讲物联网：设备协议、平台选型、边缘计算、数据存储与设备安全，再落到 Java 接入实战。单片机固件和射频硬件不在范围内。
 
-**版本基线（2026 年 10 月）**：MQTT 5.0、EMQX 5.9+ / 6.x（配置为 5.x 起的 HOCON 语法）、TDengine 3.x、KubeEdge 1.23、EdgeX Foundry 4.0、ThingsBoard 4.x、JDK 21、Spring Boot 4
+**版本基线（2026 年 10 月）**：MQTT 5.0、EMQX 5.9+ / 6.x、TDengine 3.x、KubeEdge 1.23、EdgeX Foundry 4.0、ThingsBoard 4.x、JDK 21、Spring Boot 4
 
 ---
 
@@ -36,7 +36,7 @@
 
 ## 三、关联模块
 
-版本说明：MQTT 3.1.1 仍是大量存量设备的默认版本，差异在正文标出；EMQX 从 5.9.0 起开源版与企业版合并，改用 BSL 1.1 许可，单节点生产免费、多节点集群需 License，细节见 [平台选型](./2_platform)，不想受此约束可选 Mosquitto、NanoMQ。
+版本说明：MQTT 3.1.1 仍是大量存量设备的默认版本，差异在正文标出；EMQX 从 5.9.0 起开源版与企业版合并，改用 BSL 1.1 许可，单节点生产免费、多节点集群需 License，细节见 [平台选型](./2_platform)，不想受此约束可选 Mosquitto、NanoMQ；EMQX 配置从 5.x 起使用 HOCON 语法。
 
 - [网络协议 · TCP 与 UDP](/protocols/1_tcp_udp)：MQTT 跑在 TCP 上、CoAP 跑在 UDP 上，连接与重传行为的基础
 - [网络协议 · HTTPS 与 TLS](/protocols/3_https_tls)：MQTT over TLS、设备双向证书认证（mTLS）的原理

@@ -6,7 +6,7 @@ description: ZSet 实时榜、日周月榜、同分先到先得、积分账户�
 
 > 前置阅读：[Redis 基础](/cache/1_redis_base)、[Redis 典型应用场景](/cache/4_redis_scenario)
 
-排行榜和积分是 Redis ZSet 最典型的落地场景。本篇讲实时榜与周期榜、同分排序、超大榜单与归档、可对账的积分系统，基线为 Redis 7.x。
+排行榜和积分是 Redis ZSet 最典型的落地场景。本篇讲实时榜与周期榜、同分排序、超大榜单与归档、可对账的积分系统，基线为 Redis 8。
 
 ---
 

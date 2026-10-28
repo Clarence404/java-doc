@@ -6,7 +6,7 @@ description: 进程 / 线程 / 协程、task_struct 与 clone、Java 线程模�
 
 > 前置阅读：[线程基础](/java/23_topic_thread_basics)
 
-进程是资源分配的单位，线程是 CPU 调度的单位，协程是在用户态自行调度的执行流。本篇讲三者区别、Linux 的进程与线程结构、Java 线程模型、上下文切换与调度器，基线为 Linux 6.x、JDK 21。
+进程是资源分配的单位，线程是 CPU 调度的单位，协程是在用户态自行调度的执行流。本篇讲三者区别、Linux 的进程与线程结构、Java 线程模型、上下文切换与调度器，基线为 Linux 6、JDK 21。
 
 ---
 

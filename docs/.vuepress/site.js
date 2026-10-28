@@ -200,6 +200,51 @@ export const GROUPS = [
 // ---------- 首页 ----------
 
 // 首页「延伸阅读」
+// 版本基线：全站默认版本的唯一来源。docs:check 对照它检查总览页「版本基线」行与文章引言「基线为」句中的版本写法，
+// interview/92_versions 页（<VersionBaseline />）据此生成速查表。升级时先改这里，再按 docs:check 的清单逐处修改
+// 版本只写主版本号；版本线本身就带次版本的（如 MySQL 8.4、Netty 4.2、Spring Cloud 2025.1、Kubernetes 1.37）写到次版本
+// 多个版本用「 / 」分隔，文章写其中任意一个都算一致；exceptions 登记有意写的其他版本（path 为 docs/ 下的路径前缀）
+export const BASELINE = {
+    date: '2026 年 10 月',
+    versions: [
+        {cat: '语言与运行时', name: 'JDK', ver: '21 / 25'},
+        {cat: '语言与运行时', name: 'Linux', ver: '6'},
+        {cat: '框架', name: 'Spring Framework', ver: '7'},
+        {cat: '框架', name: 'Spring Boot', ver: '4'},
+        {cat: '框架', name: 'Spring Cloud', ver: '2025.1'},
+        {cat: '框架', name: 'Spring Security', ver: '7'},
+        {cat: '框架', name: 'Spring AI', ver: '2'},
+        {cat: '框架', name: 'Netty', ver: '4.2'},
+        {cat: '框架', name: 'Vert.x', ver: '5'},
+        {cat: '框架', name: 'Quarkus', ver: '3'},
+        {cat: '数据存储', name: 'MySQL', ver: '8.4'},
+        {cat: '数据存储', name: 'PostgreSQL', ver: '18'},
+        {cat: '数据存储', name: 'Redis', ver: '8'},
+        {cat: '数据存储', name: 'Valkey', ver: '9'},
+        {cat: '数据存储', name: 'Elasticsearch', ver: '9'},
+        {cat: '中间件', name: 'Kafka', ver: '4'},
+        {cat: '中间件', name: 'RocketMQ', ver: '5'},
+        {cat: '中间件', name: 'RabbitMQ', ver: '4'},
+        {cat: '中间件', name: 'Redisson', ver: '4'},
+        {cat: '中间件', name: 'Caffeine', ver: '3'},
+        {cat: '大数据', name: 'Flink', ver: '2.2'},
+        {cat: '大数据', name: 'Spark', ver: '4.2'},
+        {cat: '云原生', name: 'Kubernetes', ver: '1.37'},
+        {cat: '云原生', name: 'Helm', ver: '4'},
+        {cat: '云原生', name: 'Argo CD', ver: '3'},
+        {cat: '云原生', name: 'Prometheus', ver: '3'},
+        {cat: '工具链', name: 'Maven', ver: '3.9'},
+        {cat: '工具链', name: 'Gradle', ver: '9'},
+        {cat: '工具链', name: 'JUnit', ver: '6'},
+        {cat: '工具链', name: 'Mockito', ver: '5'},
+        {cat: '工具链', name: 'Testcontainers', ver: '2'},
+        {cat: '工具链', name: 'Arthas', ver: '4'},
+    ],
+    exceptions: [
+        {path: 'flink/', name: 'JDK', ver: '17'},
+    ],
+};
+
 // 学习路线（interview/91_routes 页的 <LearningRoutes />）：按目标跨模块挑文章，标题与简介自动取文章的 H1 与 description
 // 字段：name 路线名、for 适合谁、time 总用时；stages 为阶段：title、time（可选）、note（可选提示）、items（docs/ 下的文章路径，不带 .md）
 export const ROUTES = [

@@ -6,7 +6,7 @@ description: HiveMQ 客户端、持久会话与重连、共享订阅、Spring In
 
 > 前置阅读：[通信协议](./1_protocol)
 
-Java 服务接入 MQTT 5 有独立客户端和 Spring 集成两种方式。本篇讲 HiveMQ 客户端、Spring Integration MQTT、持久会话与重连、共享订阅，基线为 JDK 21、Spring Boot 4.x。
+Java 服务接入 MQTT 5 有独立客户端和 Spring 集成两种方式。本篇讲 HiveMQ 客户端、Spring Integration MQTT、持久会话与重连、共享订阅，基线为 JDK 21、Spring Boot 4。
 
 ---
 

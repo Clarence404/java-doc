@@ -2,7 +2,7 @@
 
 可观测性回答的是：系统出问题时，能否**只凭它对外输出的信号**判断发生了什么、在哪里、为什么。本模块讲平台侧——信号怎么采集、存储、查询与告警。
 
-**版本基线（2026 年 10 月）**：Spring Boot 4.0 / 4.1、Micrometer 1.16 / 1.17、Micrometer Tracing 1.6 / 1.7、OpenTelemetry Java agent 2.32、Prometheus 3.15、Grafana 13.x、Loki 3.7、Tempo 3.x、Jaeger v2
+**版本基线（2026 年 10 月）**：Spring Boot 4、Micrometer 1.16 / 1.17、Micrometer Tracing 1.6 / 1.7、OpenTelemetry Java agent 2.32、Prometheus 3、Grafana 13.x、Loki 3.7、Tempo 3.x、Jaeger v2
 
 ---
 

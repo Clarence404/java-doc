@@ -6,7 +6,7 @@ description: OWASP Top 10:2025、注入、XSS、CSRF、SSRF、反序列化、XXE
 
 > 前置阅读：[JWT 令牌机制](./1_jwt)、[API 安全](./6_api_security)、[Spring Security](/spring/9_security)
 
-Java Web 漏洞的根源是把数据当成代码，或把「能连上」当成「被授权」。本篇对照 OWASP Top 10:2025 讲各类漏洞原理与防护写法和全站 CSRF 立场，基线为 Spring Security 7.0。
+Java Web 漏洞的根源是把数据当成代码，或把「能连上」当成「被授权」。本篇对照 OWASP Top 10:2025 讲各类漏洞原理与防护写法和全站 CSRF 立场，基线为 Spring Security 7。
 
 ---
 

@@ -6,7 +6,7 @@ description: 构建工具、开发工具、代码质量、线上诊断、API 文
 
 工程效率模块关注 Java 后端工程师每天手上用的东西：构建工具、IDE 与调试、代码质量与依赖治理、Arthas / JFR 线上诊断，以及 API 设计规范与接口文档。
 
-**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4.1、Spring Cloud 2025.1、Maven 3.9、Gradle 9.8、JaCoCo 0.8.14、springdoc-openapi 3.x、Arthas 4.x
+**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Spring Cloud 2025.1、Maven 3.9、Gradle 9、JaCoCo 0.8.14、springdoc-openapi 3.x、Arthas 4
 
 ![工程效率链路](../assets/engineering/overview-efficiency-map.svg)
 

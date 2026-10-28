@@ -2,7 +2,7 @@
 
 高并发系统设计的目标是流量变大时系统依然扛得住，并且流量翻倍时能靠加机器线性提升容量。本模块讲接入层、水平扩展、缓存、削峰、数据层扩展、热点与容量规划。
 
-**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Redis 8.x、RocketMQ 5.x、MySQL 8.4
+**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Redis 8、RocketMQ 5、MySQL 8.4
 
 ![高并发系统设计全景](../assets/concurrency/hc_overview.svg)
 

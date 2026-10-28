@@ -6,7 +6,7 @@ description: 测试替身分类、Mockito 5 打桩与验证、ArgumentCaptor、�
 
 > 前置阅读：[单元测试](./1_unit_test)
 
-Mock 测试用测试替身隔离被测代码的外部依赖。本篇讲 Mockito 打桩与验证、严格桩、何时不该 Mock、JDK 21+ 挂载 agent、WireMock 测试外部 HTTP，基线为 Mockito 5.x。
+Mock 测试用测试替身隔离被测代码的外部依赖。本篇讲 Mockito 打桩与验证、严格桩、何时不该 Mock、JDK 21+ 挂载 agent、WireMock 测试外部 HTTP，基线为 Mockito 5。
 
 ---
 

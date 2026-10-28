@@ -6,7 +6,7 @@ description: NoSuchMethodError、Arthas 定位类来源、dependency:tree、最�
 
 > 前置阅读：[构建工具](/engineering/1_build_tools)、[类加载机制](/jvm/2_class_loading)
 
-报表服务升级 SDK 后编译、测试、启动都通过，上线却抛 `NoSuchMethodError`。本篇复盘低版本 Guava 胜出的原因及定位与拦截手段，基线为 JDK 21、Maven 3。
+报表服务升级 SDK 后编译、测试、启动都通过，上线却抛 `NoSuchMethodError`。本篇复盘低版本 Guava 胜出的原因及定位与拦截手段，基线为 JDK 21、Maven 3.9。
 
 ---
 

@@ -6,7 +6,7 @@ description: 启动流程与生命周期事件、自动配置加载链路、条�
 
 > 前置阅读：[IoC 容器](/spring/1_ioc)
 
-Spring Boot 的核心是 `SpringApplication.run()` 启动流程与自动配置。本篇讲启动步骤与生命周期事件、自动配置链路、Boot 4 模块化、属性绑定与内嵌 Web 服务器，基线为 Spring Boot 4.x。
+Spring Boot 的核心是 `SpringApplication.run()` 启动流程与自动配置。本篇讲启动步骤与生命周期事件、自动配置链路、Boot 4 模块化、属性绑定与内嵌 Web 服务器，基线为 Spring Boot 4。
 
 ---
 

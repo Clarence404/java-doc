@@ -26,6 +26,53 @@ def articles():
                 yield os.path.join(root, f)
 
 
+VERSION = r'v?(\d+(?:\.\w+)*(?:\s*/\s*\d+(?:\.\w+)*)*)'
+
+
+def baseline_registry(site):
+    """读取 site.js 的 BASELINE：{产品: 允许的版本集合}，以及 [(路径前缀, 产品, 版本)] 例外"""
+    block = site.split('export const BASELINE', 1)[1].split('\n};', 1)[0] if 'export const BASELINE' in site else ''
+    body, _, exc = block.partition('exceptions:')
+    versions = {n: {x.strip() for x in v.split('/')} for n, v in re.findall(r"name: '([^']+)', ver: '([^']+)'", body)}
+    exceptions = re.findall(r"path: '([^']+)', name: '([^']+)', ver: '([^']+)'", exc)
+    return versions, exceptions
+
+
+def baseline_segments(text):
+    """版本基线写在哪：总览页的「版本基线」行、引言的「基线为」句，只看基线列表本身（到第一个「，；。」为止），括号里的补充说明不算"""
+    for i, line in enumerate(text.split('\n'), 1):
+        # 先去掉括号再截断，否则括号里的「，」会把括号截成半个
+        if line.startswith('**版本基线'):
+            seg = re.split(r'[。；]', re.sub(r'（[^）]*）', '', line), maxsplit=1)[0]
+        elif '基线为' in line:
+            seg = re.split(r'[，。；]', re.sub(r'（[^）]*）', '', line.split('基线为', 1)[1]), maxsplit=1)[0]
+        else:
+            continue
+        yield i, seg
+
+
+def baseline_mentions(seg, name):
+    """在一段文字里找「产品 版本」；前后紧挨别的单词时（如 Redisson、Spring Data Redis）不算"""
+    pattern = r'(?<![A-Za-z.\-])(?<!Data )' + re.escape(name) + r'(?![A-Za-z])\s*' + VERSION
+    for m in re.finditer(pattern, seg):
+        yield m.group(1)
+
+
+def check_baseline(texts, site):
+    versions, exceptions = baseline_registry(site)
+    issues = []
+    for path, text in texts.items():
+        for line_no, seg in baseline_segments(text):
+            for name, allowed in versions.items():
+                ok = allowed | {v for p, n, v in exceptions if n == name and path.startswith(p)}
+                for ver in baseline_mentions(seg, name):
+                    parts = [x.strip() for x in ver.split('/')]
+                    if any(x not in ok for x in parts):
+                        expect = ' / '.join(sorted(allowed))
+                        issues.append(f'{path}:{line_no}: 版本基线「{name} {ver}」与 site.js 的 BASELINE（{expect}）不一致')
+    return issues
+
+
 def main():
     issues = []
     texts = {rel(p): open(p, encoding='utf-8').read() for p in articles()}
@@ -90,6 +137,9 @@ def main():
         for p in re.findall(r"'([^']+)'", items):
             if f'{p}.md' not in texts:
                 issues.append(f'site.js: 学习路线引用的文章 {p}.md 不存在')
+
+    # 版本基线：总览页「版本基线」行与引言「基线为」句中的版本须与 site.js 的 BASELINE 一致
+    issues.extend(check_baseline(texts, site))
 
     # 图片必须被引用
     alltext = '\n'.join(texts.values()) + site

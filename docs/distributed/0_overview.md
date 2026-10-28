@@ -2,7 +2,7 @@
 
 本模块先从架构演进和分布式理论建立「一致性与可用性怎么取舍」的视角，再落到锁、事务、会话、调度、ID 生成等工程方案。
 
-**版本基线（2026 年 10 月）**：Redis 8.x、Redisson 4.x、Curator 5.x、jetcd 0.8.x、Apache Seata 2.5 / 2.6（SCA 2025.1 BOM 自带 2.5.0，最新 2.6.0）、RocketMQ 5.x、Kafka 4.x、XXL-JOB 3.x、Quartz 2.5、ElasticJob 3.0.x、PowerJob 5.x、Spring Boot 4
+**版本基线（2026 年 10 月）**：Redis 8、Redisson 4、Curator 5.x、jetcd 0.8.x、Apache Seata 2.5 / 2.6、RocketMQ 5、Kafka 4、XXL-JOB 3.x、Quartz 2.5、ElasticJob 3.0.x、PowerJob 5.x、Spring Boot 4
 
 ---
 
@@ -25,7 +25,7 @@
 
 ## 三、关联模块
 
-本模块是锁、事务、ID、会话的主文档；缓存一致性见 [缓存一致性](/cache/10_cache_consistency)，幂等见 [幂等设计](/architecture/3_idempotence)，消息可靠投递见 [消息队列基础](/messaging/1_basics)，分库分表见 [分库分表与中间件](/database/5_practice/2_sharding)。版本说明：Redis 8.4 起有原生 `DELEX key IFEQ value` 做比较后删除（Valkey 8.x 同理）；Redisson 4.x 锁 API 与 3.x 一致；Seata 仍为 Apache 孵化项目，groupId 为 `org.apache.seata`，客户端可沿用 SCA BOM 的 2.5.0 或显式覆盖到 2.6.0，seata-server 与客户端保持同一版本；Kafka 4.x 仅支持 KRaft；XXL-JOB 3.x 需 JDK 17+。
+本模块是锁、事务、ID、会话的主文档；缓存一致性见 [缓存一致性](/cache/10_cache_consistency)，幂等见 [幂等设计](/architecture/3_idempotence)，消息可靠投递见 [消息队列基础](/messaging/1_basics)，分库分表见 [分库分表与中间件](/database/5_practice/2_sharding)。版本说明：Redis 8.4 起有原生 `DELEX key IFEQ value` 做比较后删除（Valkey 8.x 同理）；Redisson 4.x 锁 API 与 3.x 一致；Seata 仍为 Apache 孵化项目，groupId 为 `org.apache.seata`，SCA 2025.1 BOM 自带 2.5.0，最新版为 2.6.0，客户端可沿用 BOM 的 2.5.0 或显式覆盖到 2.6.0，seata-server 与客户端保持同一版本；Kafka 4.x 仅支持 KRaft；XXL-JOB 3.x 需 JDK 17+。
 
 - [高并发总览](/high-con/0_overview) / [高可用总览](/high-avail/0_overview) / [高性能总览](/high-perf/0_overview)：系统级的扩展、容灾与性能策略
 - [微服务总览](/microservices/0_overview) / [Spring Cloud 总览](/spring-cloud/0_overview)：服务拆分、治理与 Seata 的配置落地

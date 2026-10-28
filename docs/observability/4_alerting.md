@@ -6,7 +6,7 @@ description: 好告警标准、Prometheus 告警规则、Alertmanager 路由抑�
 
 > 前置阅读：[指标监控](./2_metrics)、[Actuator 监控](/spring-boot/11_actuator)、[可用性度量](/high-avail/1_sla_slo)
 
-告警是指标出异常时把问题及时、准确通知到人的机制。本篇讲好告警标准、Prometheus 告警规则、Alertmanager 路由与降噪、Grafana Alerting 选型，基线为 Prometheus 3.x。
+告警是指标出异常时把问题及时、准确通知到人的机制。本篇讲好告警标准、Prometheus 告警规则、Alertmanager 路由与降噪、Grafana Alerting 选型，基线为 Prometheus 3。
 
 ---
 

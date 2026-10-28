@@ -6,7 +6,7 @@ description: "@Async 执行器与异常、@Scheduled 线程与 Cron、ShedLock /
 
 > 前置阅读：[线程池](/java/28_topic_thread_pool)
 
-`@Async` 和 `@Scheduled` 的行为取决于背后的执行器。本篇讲 `spring.task.*` 与自定义线程池、单线程调度与自调用失效、多实例重复执行、虚拟线程开关，基线为 Spring Boot 4.x。
+`@Async` 和 `@Scheduled` 的行为取决于背后的执行器。本篇讲 `spring.task.*` 与自定义线程池、单线程调度与自调用失效、多实例重复执行、虚拟线程开关，基线为 Spring Boot 4。
 
 ---
 

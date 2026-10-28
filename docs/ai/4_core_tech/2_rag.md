@@ -6,13 +6,13 @@ description: RAG 流程、切块、混合检索与 Rerank、效果评估、权�
 
 > 前置阅读：[Embedding 向量化](./0_embedding)、[向量数据库](./1_vector_db)
 
-RAG 就是先从知识库查出相关片段，再交给模型作答。本篇讲完整链路、切块与混合检索、Rerank、效果评估和权限与注入防护，基线为 Spring AI 2.0。
+RAG 就是先从知识库查出相关片段，再交给模型作答。本篇讲完整链路、切块与混合检索、Rerank、效果评估和权限与注入防护，基线为 Spring AI 2。
 
 ---
 
 ## 一、RAG 是什么
 
-本篇代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2.0.1 / LangChain4j 1.22.0。
+本篇代码基线为 JDK 21 / Spring Boot 4 / Spring AI 2 / LangChain4j 1.22.0。
 
 **RAG（Retrieval-Augmented Generation，检索增强生成）** 的思路是「先查资料，再回答」：用户提问时，先从知识库里检索出最相关的几段内容，拼进 Prompt 作为上下文，再让 LLM 基于这些内容作答。它解决三个问题：
 

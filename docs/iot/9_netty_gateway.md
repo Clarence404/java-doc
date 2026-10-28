@@ -12,7 +12,7 @@ description: 带 CRC 的私有协议帧、跳字节重新同步、心跳与鉴�
 
 ## 一、网关的职责
 
-典型存量设备如 DTU、充电桩、工控终端。本篇只讲 IoT 场景特有的部分，版本基线为 JDK 21、Netty 4.2、Spring Boot 4.x。
+典型存量设备如 DTU、充电桩、工控终端。本篇只讲 IoT 场景特有的部分，版本基线为 JDK 21、Netty 4.2、Spring Boot 4。
 
 ![多协议设备接入网关](../assets/iot/iot-gateway-arch.svg)
 

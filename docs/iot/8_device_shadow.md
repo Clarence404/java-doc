@@ -6,7 +6,7 @@ description: desired / reported / delta、版本号与乐观锁、Topic 设计�
 
 > 前置阅读：[MQTT 客户端](./6_mqtt_client)
 
-设备影子是云端为每台设备保存的一份 JSON 状态文档，应用读写影子，设备上线后再与影子对齐。本篇讲文档模型、Topic 与版本冲突、Redis + Lua 实现，基线为 JDK 21、Spring Boot 4.x。
+设备影子是云端为每台设备保存的一份 JSON 状态文档，应用读写影子，设备上线后再与影子对齐。本篇讲文档模型、Topic 与版本冲突、Redis + Lua 实现，基线为 JDK 21、Spring Boot 4。
 
 ---
 

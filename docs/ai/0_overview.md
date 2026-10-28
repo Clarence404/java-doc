@@ -2,7 +2,7 @@
 
 AI 模块从 Java 后端视角讲大模型应用开发：选模型、写 Prompt、工具调用，用 Spring AI / LangChain4j 接入模型，用 RAG 接入私有知识，用 Agent、MCP 编排工具。
 
-**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Spring AI 2.0、LangChain4j 1.22、MCP 规范 2026-07-28
+**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Spring AI 2、LangChain4j 1.22、MCP 规范 2026-07-28
 
 ---
 
