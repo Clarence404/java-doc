@@ -84,6 +84,13 @@ def main():
             if f'interview/{p}.md' not in texts:
                 issues.append(f'site.js: 答案页 interview/{p}.md 不存在')
 
+    # 学习路线（site.js 的 ROUTES）引用的文章必须存在
+    routes = site.split('export const ROUTES', 1)[1].split('\nexport ', 1)[0] if 'export const ROUTES' in site else ''
+    for items in re.findall(r"items: \[([^\]]*)\]", routes):
+        for p in re.findall(r"'([^']+)'", items):
+            if f'{p}.md' not in texts:
+                issues.append(f'site.js: 学习路线引用的文章 {p}.md 不存在')
+
     # 图片必须被引用
     alltext = '\n'.join(texts.values()) + site
     for root, _, files in os.walk(os.path.join(DOCS, 'assets')):

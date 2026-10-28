@@ -200,6 +200,52 @@ export const GROUPS = [
 // ---------- 首页 ----------
 
 // 首页「延伸阅读」
+// 学习路线（interview/91_routes 页的 <LearningRoutes />）：按目标跨模块挑文章，标题与简介自动取文章的 H1 与 description
+// 字段：name 路线名、for 适合谁、time 总用时；stages 为阶段：title、time（可选）、note（可选提示）、items（docs/ 下的文章路径，不带 .md）
+export const ROUTES = [
+    {
+        name: '新人入职', for: '刚加入 Java 后端团队，先能按团队规范写代码、上线，再慢慢深入', time: '约两周',
+        stages: [
+            {title: '团队规范', time: '第 1–2 天', items: ['devops/1_git_workflow', 'devops/3_dev_standards', 'devops/2_code_review', 'handbook/1_cheatsheet/1_git', 'handbook/1_cheatsheet/7_build']},
+            {title: '工程与框架', time: '第 3–5 天', items: ['architecture/2_package_structure', 'spring-boot/1_spring_boot', 'spring-boot/5_config', 'spring-boot/2_web_dev', 'engineering/4_api_design_rule', 'spring-boot/3_data_access', 'spring-boot/9_logging']},
+            {title: '数据与缓存', time: '第 6–8 天', items: ['database/1_mysql/3_table_design', 'database/1_mysql/4_topic_index', 'database/1_mysql/5_topic_transaction', 'database/1_mysql/3_fallible_point', 'cache/5_redis_practice', 'cache/10_cache_consistency']},
+            {title: '测试与上线', time: '第 9–10 天', items: ['testing/1_unit_test', 'spring-boot/10_testing', 'devops/4_ci_cd', 'devops/7_release_strategy', 'observability/1_logging', 'handbook/1_cheatsheet/0_linux']},
+        ],
+    },
+    {
+        name: '面试冲刺', for: '一周后有面试，以答案页为主，配合题单的自测模式', time: '7 天',
+        stages: [
+            {title: 'Java 与并发', time: 'Day 1', items: ['interview/1_java', 'interview/2_concurrent', 'java/28_topic_thread_pool']},
+            {title: 'JVM、操作系统与网络', time: 'Day 2', items: ['interview/3_jvm', 'interview/4_computer_os', 'interview/4_network']},
+            {title: 'Spring 全家桶', time: 'Day 3', items: ['interview/5_spring', 'interview/5_spring_boot', 'interview/11_spring_cloud']},
+            {title: '数据库、缓存与 MQ', time: 'Day 4', items: ['interview/7_db', 'interview/8_cache', 'interview/9_mq']},
+            {title: '分布式系统', time: 'Day 5', items: ['interview/10_distributed', 'interview/11_microservices', 'interview/13_high_con', 'interview/14_high_avail']},
+            {title: '系统设计与项目', time: 'Day 6', items: ['scenario/1_design_method', 'interview/16_scenario', 'interview/16_scenario_highlights', 'interview/15_architecture']},
+            {title: '查漏补缺', time: 'Day 7', note: '打开各模块的「高频面试题」，切到自测模式、范围选「只看不会」，把标过的题再过一遍', items: ['interview/4_algorithms', 'algorithms/4_practice/2_concurrency_coding', 'interview/90_glossary']},
+        ],
+    },
+    {
+        name: '从 CRUD 到架构', for: '做了几年业务开发，想往架构方向走，按系统长大的顺序读', time: '约 1–2 个月',
+        stages: [
+            {title: '把单体写扎实', items: ['database/1_mysql/3_table_design', 'database/1_mysql/7_topic_explain', 'architecture/3_idempotence', 'cache/10_cache_consistency', 'architecture/2_package_structure']},
+            {title: '引入中间件', items: ['messaging/1_basics', 'high-con/4_async_peak_shaving', 'distributed/3_lock', 'distributed/4_transaction', 'distributed/8_id_generator']},
+            {title: '拆分与治理', items: ['distributed/2_theorem', 'microservices/1_service_split', 'microservices/2_patterns', 'architecture/2_ddd', 'high-avail/4_timeout_retry_bulkhead', 'high-avail/5_circuit_breaking']},
+            {title: '扛住流量', items: ['high-con/3_cache_architecture', 'high-con/5_data_scaling', 'high-con/6_hotspot', 'high-con/8_capacity_planning', 'high-avail/9_multi_active']},
+            {title: '系统设计', items: ['scenario/1_design_method', 'scenario/4_seckill', 'scenario/5_order_system', 'scenario/17_counter']},
+        ],
+    },
+    {
+        name: '线上问题排查', for: '开始值班、需要处理线上故障，先有工具，再懂原理，最后看真实案例', time: '约 2 周',
+        stages: [
+            {title: '先把工具备好', items: ['handbook/1_cheatsheet/0_linux', 'handbook/1_cheatsheet/3_arthas', 'handbook/1_cheatsheet/4_jvm', 'engineering/7_diagnosis', 'jvm/8_monitoring_tools']},
+            {title: '方法与原理', items: ['high-perf/2_methodology', 'os/5_load_cpu', 'jvm/9_troubleshooting', 'high-perf/3_profilers']},
+            {title: '看得见系统', items: ['observability/1_logging', 'observability/2_metrics', 'observability/3_tracing', 'observability/6_profiling']},
+            {title: '典型案例', items: ['handbook/2_incidents/3_cpu_high', 'handbook/2_incidents/0_heap_oom', 'handbook/2_incidents/2_full_gc', 'handbook/2_incidents/4_thread_pool_exhausted', 'handbook/2_incidents/6_slow_sql_pool', 'handbook/2_incidents/12_mq_backlog', 'handbook/2_incidents/18_load_high_cpu_low']},
+            {title: '应急与复盘', items: ['high-avail/11_incident_response']},
+        ],
+    },
+];
+
 export const REFS = [
     {title: 'Java 全栈知识体系', host: 'pdai.tech', url: 'https://www.pdai.tech', desc: '体系完整，适合系统梳理'},
     {title: '小傅哥 bugstack 虫洞栈', host: 'bugstack.cn', url: 'https://bugstack.cn', desc: '源码解析与实战案例见长'},

@@ -161,6 +161,7 @@ description: 要点一、要点二、要点三
 | 总览页导航表「覆盖内容」 | Markdown 文件 | frontmatter `description` |
 | 文章数 / 题数 / 答案页数 / SVG 数 | `.vuepress/plugins/homeStats.js` | 构建时扫描 `docs/` 自动统计，首页使用 |
 | 首页推荐博客、页脚 | `site.js` 的 `REFS` / `FOOTER` | 首页 |
+| 学习路线 | `site.js` 的 `ROUTES` | `interview/91_routes`（`<LearningRoutes />`），文章标题与简介取文章 H1 与 `description` |
 
 ### 操作步骤
 
@@ -173,6 +174,7 @@ description: 要点一、要点二、要点三
 | 模块改名 | 改 `site.js` 的 `name`（导航短名改 `nav`）；总览页 `0_overview.md` 的 `# 标题`属于文章内容，按需同步 |
 | 新增答案页 | 在 `docs/interview/` 新建并编号（带 `description`，H1「X 面试题解答」），在 `site.js` 对应模块的 `interview` 字段加上该文件名；模块的 `99_interview.md` 写 `<InterviewList page="文件名" />`；如需新分组，改 `site.js` 中 `SUMMARY.sidebar` |
 | 调整首页推荐博客 / 页脚 | 改 `site.js` 的 `REFS` / `FOOTER` |
+| 调整学习路线 | 改 `site.js` 的 `ROUTES`（阶段里只写文章路径，`docs:check` 会报出不存在的路径） |
 | 新增一个分组（方向） | `site.js` 的 `GROUPS` 加一项，配色自动生成 |
 
 构建时若有文章缺少 `description`，控制台会输出 `[module-nav]` 警告并列出文件。

@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import 'dotenv/config';
 import {computeHomeStats, homeStatsPlugin} from './plugins/homeStats.js';
-import {GROUPS, SUMMARY, overviewLink} from './site.js';
+import {GROUPS, ROUTES, SUMMARY, overviewLink} from './site.js';
 
 // 导航栏风格：统一读 .env 里的 NAVBAR_STYLE
 //   flat      → 所有模块平铺展开
@@ -162,7 +162,29 @@ function writeModuleNav(app) {
     return Promise.all([
         app.writeTemp('module-nav.js', `export default ${JSON.stringify(nav)};\n`),
         writeInterviewData(app),
+        writeRoutesData(app),
     ]);
+}
+
+// 学习路线（site.js 的 ROUTES）：把文章路径换成标题、简介与链接，供 <LearningRoutes /> 渲染；路径不存在时告警
+function writeRoutesData(app) {
+    const pages = Object.fromEntries(app.pages
+        .filter(p => p.filePathRelative)
+        .map(p => [p.filePathRelative.replace(/\.md$/, ''), p]));
+    const missing = [];
+    const routes = ROUTES.map(r => ({
+        ...r,
+        stages: r.stages.map(s => ({
+            ...s,
+            items: s.items.map(item => {
+                const p = pages[item];
+                if (!p) missing.push(item);
+                return {path: item, link: '/' + item, title: p?.title ?? item, description: p?.frontmatter.description ?? ''};
+            }),
+        })),
+    }));
+    if (missing.length) console.warn(`[routes] site.js 的 ROUTES 引用了不存在的文章：${missing.join('、')}`);
+    return app.writeTemp('routes-data.js', `export default ${JSON.stringify(routes)};\n`);
 }
 
 // 答案页（interview/*.md）的分组与题目：<InterviewList page="9_mq" /> 据此生成题单，题目链接到答案锚点

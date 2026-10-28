@@ -345,7 +345,7 @@ onBeforeUnmount(() => { if (io) io.disconnect(); });
             <p class="kicker"><span>03</span>Route</p>
             <h2 id="ed-route-title" class="sec-title">{{ cn(groups.length) }}站，<br><span class="grad-text">从地基到边界。</span></h2>
           </div>
-          <p class="sec-dek">顺序读是一条完整路线，每一站也能单独进入；读完回到{{ SUMMARY.name }}复盘。</p>
+          <p class="sec-dek">顺序读是一条完整路线，每一站也能单独进入；读完回到{{ SUMMARY.name }}复盘。也可以<RouteLink class="link-u" to="/interview/91_routes">按目标选路线</RouteLink>。</p>
         </header>
 
         <ol class="route" data-reveal :style="{'--stops': groups.length + 1}">
