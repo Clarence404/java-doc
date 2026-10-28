@@ -323,7 +323,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 关联表用同一个分片键：如订单和订单明细都按 `user_id` 分，才能在同一分片内 JOIN
 - 优先选 `user_id`、`tenant_id` 这类业务核心维度
 
-→ 详见 [数据层扩展](/high-con/5_data_scaling#_2、分片键选择)、[分库分表与中间件](/database/5_practice/2_sharding#三、shardingsphere-jdbc-分库分表配置)
+→ 详见 [数据层扩展](/high-con/5_data_scaling#_2、分片键选择)、[分库分表与中间件](/database/5_practice/3_sharding#三、shardingsphere-jdbc-分库分表配置)
 
 ### Q24：哈希、范围、一致性哈希几种分片算法各有什么优缺点？
 

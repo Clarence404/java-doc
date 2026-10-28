@@ -52,7 +52,7 @@ HikariCP Wiki 给出的起点公式：`connections = 核数 × 2 + 有效磁盘�
 
 ### 3、关键参数
 
-HikariCP 是 Spring Boot 2.0 起的默认连接池。完整参数表、yaml 与 Druid 对比见 [数据库连接池](/database/5_practice/3_connection_pool)，这里只列与性能直接相关的几个：
+HikariCP 是 Spring Boot 2.0 起的默认连接池。完整参数表、yaml 与 Druid 对比见 [数据库连接池](/database/4_access/2_connection_pool)，这里只列与性能直接相关的几个：
 
 | 参数 | 性能关注点 |
 |------|-----------|

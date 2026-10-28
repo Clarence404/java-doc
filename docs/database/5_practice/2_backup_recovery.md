@@ -325,4 +325,4 @@ recovery_target_action = 'promote'
 - PostgreSQL 连续归档与 PITR：[https://www.postgresql.org/docs/current/continuous-archiving.html](https://www.postgresql.org/docs/current/continuous-archiving.html)
 - pg_combinebackup：[https://www.postgresql.org/docs/current/app-pgcombinebackup.html](https://www.postgresql.org/docs/current/app-pgcombinebackup.html)
 
-> 下一篇：[分库分表与中间件](./2_sharding) —— 用 ShardingSphere 5.5 的 JDBC 驱动与 YAML 规则落地分库分表、读写分离与数据迁移。
+> 下一篇：[分库分表与中间件](./3_sharding) —— 用 ShardingSphere 5.5 的 JDBC 驱动与 YAML 规则落地分库分表、读写分离与数据迁移。

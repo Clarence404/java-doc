@@ -146,7 +146,7 @@ ss -tan state time-wait | awk '{print $4}' | sort | uniq -c | sort -rn | head   
 
 处理顺序：
 
-1. **复用连接（根本解法）**：HTTP 客户端用连接池和 Keep-Alive，数据库、Redis 用连接池（见 [数据库连接池](/database/5_practice/3_connection_pool)），RPC 用长连接
+1. **复用连接（根本解法）**：HTTP 客户端用连接池和 Keep-Alive，数据库、Redis 用连接池（见 [数据库连接池](/database/4_access/2_connection_pool)），RPC 用长连接
 2. **让客户端先关**：服务端的空闲超时略长于客户端，TIME_WAIT 就留在分散的客户端上
 3. **`net.ipv4.tcp_tw_reuse`**：只对**主动发起的连接（connect 一方）**生效，允许复用处于 TIME_WAIT 超过 1 秒的四元组，依赖 TCP 时间戳（`tcp_timestamps`）防止旧报文混入；取值 0 关闭、1 全局开启、2 仅回环地址（当前内核默认 2）。它对服务端被动连接产生的 TIME_WAIT 无效
 4. **`net.ipv4.tcp_max_tw_buckets`**：TIME_WAIT 总数上限，超过后新的 TIME_WAIT 直接销毁并打印告警，是兜底保护

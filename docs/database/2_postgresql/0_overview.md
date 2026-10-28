@@ -96,7 +96,7 @@ spring:
     password: change-me
 ```
 
-依赖版本由 Spring Boot 管理，驱动类名可省略。表不在 `public` 下时用 `currentSchema` 指定，或在用户级别设置默认搜索路径：`ALTER ROLE app SET search_path = finance, public;`。数据源与连接池配置见 [数据访问](/spring-boot/3_data_access)、[数据库连接池](../5_practice/3_connection_pool)。
+依赖版本由 Spring Boot 管理，驱动类名可省略。表不在 `public` 下时用 `currentSchema` 指定，或在用户级别设置默认搜索路径：`ALTER ROLE app SET search_path = finance, public;`。数据源与连接池配置见 [数据访问](/spring-boot/3_data_access)、[数据库连接池](../4_access/2_connection_pool)。
 
 ### 3、常用客户端
 

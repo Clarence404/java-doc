@@ -48,7 +48,7 @@ CREATE TABLE accounts_0 PARTITION OF accounts FOR VALUES WITH (MODULUS 4, REMAIN
 -- ... REMAINDER 1 ~ 3 同理
 ```
 
-分区表上的主键 / 唯一约束必须包含分区键。单库分区与分库分表的取舍见 [分库分表与中间件](../5_practice/2_sharding)。
+分区表上的主键 / 唯一约束必须包含分区键。单库分区与分库分表的取舍见 [分库分表与中间件](../5_practice/3_sharding)。
 
 ### 2、标识列（10）
 
@@ -196,7 +196,7 @@ ORDER BY reads DESC NULLS LAST;
 
 ### 1、增量备份
 
-`pg_basebackup --incremental` 基于上次备份的 manifest 只拷贝变化的块，恢复前用 `pg_combinebackup` 合成完整备份。前提是服务端开启 `summarize_wal = on`，且 `pg_combinebackup` 只接受 plain 格式（目录）备份。完整流程与 PITR 见 [数据备份与恢复](../5_practice/1_backup_recovery)。
+`pg_basebackup --incremental` 基于上次备份的 manifest 只拷贝变化的块，恢复前用 `pg_combinebackup` 合成完整备份。前提是服务端开启 `summarize_wal = on`，且 `pg_combinebackup` 只接受 plain 格式（目录）备份。完整流程与 PITR 见 [数据备份与恢复](../5_practice/2_backup_recovery)。
 
 ### 2、SQL/JSON 查询函数与 JSON_TABLE
 

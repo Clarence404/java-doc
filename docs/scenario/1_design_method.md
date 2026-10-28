@@ -171,7 +171,7 @@ SLA 与几个 9 对应的停机时间见 [可用性度量](/high-avail/1_sla_slo
 |------|----------|--------------|--------|
 | 缓存 | 读多写少、读延迟 | 读 QPS 远超数据库能力 | [缓存架构设计](/high-con/3_cache_architecture)、[缓存一致性](/cache/10_cache_consistency) |
 | 消息队列 | 削峰、解耦、异步 | 写入有突发峰值，或一个动作触发多个下游 | [异步与削峰](/high-con/4_async_peak_shaving)、[MQ 选型](/messaging/6_selection) |
-| 分库分表 | 单库写入与容量上限 | 写 TPS 或单表行数超出单机能力 | [数据层扩展](/high-con/5_data_scaling)、[分库分表与中间件](/database/5_practice/2_sharding) |
+| 分库分表 | 单库写入与容量上限 | 写 TPS 或单表行数超出单机能力 | [数据层扩展](/high-con/5_data_scaling)、[分库分表与中间件](/database/5_practice/3_sharding) |
 | 搜索引擎 | 全文检索、多条件组合筛选 | 模糊查询、按非分片键的复杂查询 | [搜索数据库](/nosql/5_search_db)、[搜索](./9_search_system) |
 | 对象存储 + CDN | 图片、视频、文件 | 大对象、带宽占用高 | [对象存储](/architecture/5_object_storage)、[大文件上传](./10_file_upload) |
 | 分布式 ID | 全局唯一、趋势递增的主键 | 分库后自增主键不可用 | [分布式 ID 生成](/distributed/8_id_generator) |

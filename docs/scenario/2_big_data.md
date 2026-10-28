@@ -4,7 +4,7 @@ description: 存储扩展、深分页与预计算、日志链路与 ES 写入、
 
 # 海量数据架构选型
 
-> 前置阅读：[数据层扩展](/high-con/5_data_scaling)、[分库分表与中间件](/database/5_practice/2_sharding)
+> 前置阅读：[数据层扩展](/high-con/5_data_scaling)、[分库分表与中间件](/database/5_practice/3_sharding)
 
 遇到「存不下、查不快、算不完、写不进」时，关键是判断该把问题交给哪类方案。本篇讲各类方案的组合与选型，以及 HyperLogLog 这类概率结构的内存与误差。
 
@@ -25,7 +25,7 @@ description: 存储扩展、深分页与预计算、日志链路与 ES 写入、
 
 ### 1、分库分表
 
-垂直拆分按业务拆库，水平拆分按分片键（如 `user_id`）把一张大表拆成多张同构表。分片键选择、跨分片聚合与分页、扩容迁移见 [分库分表与中间件](/database/5_practice/2_sharding)；全局唯一 ID 可以用雪花算法、号段模式，或多主步长自增，见 [分布式 ID 生成](/distributed/8_id_generator)；跨分片事务尽量通过业务设计避免，必须时见 [分布式事务](/distributed/4_transaction)。
+垂直拆分按业务拆库，水平拆分按分片键（如 `user_id`）把一张大表拆成多张同构表。分片键选择、跨分片聚合与分页、扩容迁移见 [分库分表与中间件](/database/5_practice/3_sharding)；全局唯一 ID 可以用雪花算法、号段模式，或多主步长自增，见 [分布式 ID 生成](/distributed/8_id_generator)；跨分片事务尽量通过业务设计避免，必须时见 [分布式事务](/distributed/4_transaction)。
 
 ### 2、冷热分离
 

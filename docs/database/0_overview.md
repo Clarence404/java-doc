@@ -1,6 +1,6 @@
 # 数据库总览
 
-数据库模块从存储引擎原理讲起，以 MySQL 为主线讲索引、事务与锁、InnoDB 与复制，再对比 PostgreSQL，覆盖国产与分布式关系库、ORM，最后落到 CDC、备份、分库分表与连接池等工程实践。
+数据库模块从存储引擎与选型讲起，以 MySQL 为主线讲索引、事务与锁、InnoDB 与复制，再对比 PostgreSQL，覆盖国产与分布式关系库、Java 应用接入，最后落到 CDC、备份与分库分表。
 
 **版本基线（2026 年 10 月）**：MySQL 8.4、PostgreSQL 18、MariaDB 12.3、Connector/J 26.x、HikariCP 7.x、ShardingSphere 5.5、Debezium 3.x
 
@@ -12,12 +12,12 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 
 | 方向 | 内容 | 适合关注 |
 |------|------|----------|
-| **存储原理** | 存储引擎：B+ 树与 LSM-Tree、WAL、Compaction、读写放大 | 理解各类数据库读写特性的底层差异 |
-| **MySQL** | 基础、版本特性、MariaDB、避坑、索引、事务与锁、执行流程、EXPLAIN、InnoDB、主从与高可用 | Java 后端主力 OLTP 场景 |
+| **基础与选型** | 存储引擎：B+ 树与 LSM-Tree、数据库选型参考 | 理解各类数据库的读写特性，做技术选型 |
+| **MySQL** | 基础、版本特性、MariaDB、避坑、表设计、索引、事务与锁、执行流程、EXPLAIN、InnoDB、主从与高可用 | Java 后端主力 OLTP 场景 |
 | **PostgreSQL** | 基础、版本特性、MVCC、索引、高级 SQL、复制与高可用 | 复杂 SQL、JSONB、GIS、分析型查询 |
-| **关系库** | Oracle、达梦、人大金仓、分布式数据库（TiDB / OceanBase）、ORM 框架 | 国产化迁移、水平扩展与持久层选型 |
-| **架构运维** | CDC、备份恢复、分库分表、连接池 | 数据可靠性、扩展性与应用接入 |
-| **参考延伸** | Binlog Connector 源码、数据库选型、MySQL JDBC 驱动 | 原理阅读与技术方案决策 |
+| **更多关系库** | 商业与国产库（Oracle、SQL Server、达梦、人大金仓、openGauss）、分布式数据库（TiDB / OceanBase） | 国产化迁移与水平扩展 |
+| **应用接入** | ORM 框架、数据库连接池、MySQL JDBC 驱动 | Java 应用怎么连数据库、怎么用好连接 |
+| **数据同步与运维** | CDC 工具、binlog 连接器原理、备份恢复、分库分表与中间件 | 数据同步、可靠性与扩展性 |
 
 ---
 
@@ -29,14 +29,14 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 
 ## 三、推荐阅读路径
 
-1. [存储引擎：B+ 树与 LSM-Tree](./0_fundamentals/1_storage_engine)：先弄清 B+ 树和 LSM-Tree 两种存储引擎的取舍
+1. [存储引擎：B+ 树与 LSM-Tree](./0_fundamentals/1_storage_engine)：先弄清 B+ 树和 LSM-Tree 两种存储引擎的取舍；要做技术决策时配合 [数据库选型参考](./0_fundamentals/2_selection_guide)
 2. [MySQL 基础](./1_mysql/0_overview)：范式、视图、存储过程、账号与传输安全，以及 MySQL 核心专项的导读
 3. [MySQL 索引](./1_mysql/4_topic_index) 和 [MySQL 事务与锁](./1_mysql/5_topic_transaction)：补齐最高频的性能与并发问题，再按需读执行流程、EXPLAIN、InnoDB 与复制
 4. [MySQL 版本特性](./1_mysql/1_feature) 与 [MySQL 避坑指南](./1_mysql/3_fallible_point)：确认生产版本的行为差异和常见雷区
 5. [PostgreSQL 基础](./2_postgresql/0_overview)：对比 PostgreSQL 与 MySQL 在类型系统、MVCC、索引和高级 SQL 上的差异
 6. 单机到瓶颈时读 [分布式数据库](./3_relational/1_distributed_db)（TiDB / OceanBase）；分析、时序、文档、搜索等场景转到 [NoSQL 总览](/nosql/0_overview) 按需选读
-7. 工程落地读 [CDC 工具](./5_practice/0_cdc_tools)、[数据备份与恢复](./5_practice/1_backup_recovery)、[分库分表与中间件](./5_practice/2_sharding)、[数据库连接池](./5_practice/3_connection_pool) 和 [MySQL JDBC 驱动](./6_reference/2_jdbc_driver)
-8. 做技术决策时看 [数据库选型参考](./6_reference/1_selection_guide)
+7. 写 Java 代码前读应用接入：[ORM 框架](./4_access/1_orm_framework)、[数据库连接池](./4_access/2_connection_pool)、[MySQL JDBC 驱动](./4_access/3_jdbc_driver)
+8. 工程落地读 [CDC 工具](./5_practice/0_cdc_tools)、[数据备份与恢复](./5_practice/2_backup_recovery)、[分库分表与中间件](./5_practice/3_sharding)
 
 [高频面试题](./99_interview) 只列题目，答案在 [数据库面试题解答](/interview/7_db)。
 
@@ -44,7 +44,7 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 
 ## 四、选型原则
 
-先按数据模型与查询模式定大类（强事务 → 关系库，全文检索 → ES，大规模聚合 → 列式 OLAP，时间序列 → 时序库），再按规模、一致性和团队能力选具体产品；业务早期保持模型简单，不要过早引入分库分表和异构数据库。全景矩阵、按场景选型与工程底线见 [数据库选型参考](./6_reference/1_selection_guide)。
+先按数据模型与查询模式定大类（强事务 → 关系库，全文检索 → ES，大规模聚合 → 列式 OLAP，时间序列 → 时序库），再按规模、一致性和团队能力选具体产品；业务早期保持模型简单，不要过早引入分库分表和异构数据库。全景矩阵、按场景选型与工程底线见 [数据库选型参考](./0_fundamentals/2_selection_guide)。
 
 ---
 

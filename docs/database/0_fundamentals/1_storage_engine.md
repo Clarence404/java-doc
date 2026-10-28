@@ -272,7 +272,7 @@ RocksDB、TiKV、etcd 与嵌入式数据库的用法和选型见 [键值与嵌�
 - 磁盘是 HDD 还是 SSD，空间是否紧张，是否在意 SSD 寿命
 - 团队是否有能力调 LSM 参数；没有专门的存储团队时，成熟的 B+ 树关系库通常是更稳的默认选择
 
-整体数据库选型（关系库、分布式库与各类 NoSQL）见 [数据库选型指南](../6_reference/1_selection_guide)。
+整体数据库选型（关系库、分布式库与各类 NoSQL）见 [数据库选型指南](./2_selection_guide)。
 
 ---
 
@@ -295,4 +295,4 @@ RocksDB、TiKV、etcd 与嵌入式数据库的用法和选型见 [键值与嵌�
 - MySQL 8.4 Reference Manual：[InnoDB On-Disk Structures](https://dev.mysql.com/doc/refman/8.4/en/innodb-on-disk-structures.html)
 - Apache Cassandra Documentation：[Compaction](https://cassandra.apache.org/doc/latest/cassandra/managing/operating/compaction/overview.html)
 
-> 下一篇：[MySQL 基础](../1_mysql/0_overview) —— 从最常用的 B+ 树引擎 InnoDB 所在的 MySQL 开始，进入关系数据库的具体实践。
+> 下一篇：[数据库选型参考](./2_selection_guide) —— 全景选型矩阵、按场景选型、经典组合架构、评估维度、常见误区

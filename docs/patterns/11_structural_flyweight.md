@@ -138,7 +138,7 @@ System.out.println(a == b);        // true
 | 数量 | 等于内部状态的取值组合数 | 由池大小配置，与并发量相关 |
 | 例子 | `Integer` 缓存、字符串常量池、枚举 | HikariCP 连接池、`ThreadPoolExecutor` |
 
-连接池的原理见 [连接池](/database/5_practice/3_connection_pool)，线程池见 [线程池](/java/28_topic_thread_pool)。
+连接池的原理见 [连接池](/database/4_access/2_connection_pool)，线程池见 [线程池](/java/28_topic_thread_pool)。
 
 ### 2、享元 vs 单例
 

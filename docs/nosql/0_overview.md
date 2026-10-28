@@ -33,7 +33,7 @@ Redis 也是键值存储，但定位是缓存与内存数据结构，主文档�
 2. 按业务场景选读：对象模型多变读 [文档数据库](./2_document_db)，分析报表读 [列式与 OLAP 数据库](./3_column_db)，监控与 IoT 读 [时序数据库](./4_time_series_db)
 3. 搜索从 [搜索数据库](./5_search_db) 选型概览开始，再读 [Elasticsearch 原理](./5_search_es) 与 [Elasticsearch 实战](./5_search_es_practice)
 4. 嵌入式与强一致 KV 读 [键值与嵌入式数据库](./1_kv_db)，关系分析读 [图数据库](./6_graph_db)
-5. 做技术决策时看 [数据库选型参考](/database/6_reference/1_selection_guide)，它同时覆盖关系库与 NoSQL
+5. 做技术决策时看 [数据库选型参考](/database/0_fundamentals/2_selection_guide)，它同时覆盖关系库与 NoSQL
 
 [高频面试题](./99_interview) 只列题目，答案在 [数据库面试题解答](/interview/7_db) 的「NoSQL 与选型」分组。
 

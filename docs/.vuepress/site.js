@@ -99,14 +99,14 @@ export const GROUPS = [
         name: '数据存储', tagline: '关系型、NoSQL、缓存与消息中间件', modules: [
             {
                 name: '数据库', dir: 'database', interview: ['7_db'],
-                desc: '存储引擎 / MySQL / PostgreSQL / 分布式数据库 / CDC / 分库分表',
+                desc: '存储引擎与选型 / MySQL / PostgreSQL / 国产与分布式数据库 / ORM 与连接池 / CDC 与分库分表',
                 subdirs: {
-                    '0_fundamentals': '存储原理',
+                    '0_fundamentals': '基础与选型',
                     '1_mysql': {title: 'MySQL', sidebar: [{text: '核心专项', from: 4}]},
                     '2_postgresql': {title: 'PostgreSQL', sidebar: [{text: '核心专项', from: 2}]},
-                    '3_relational': '关系库',
-                    '5_practice': '架构运维',
-                    '6_reference': '参考延伸',
+                    '3_relational': '更多关系库',
+                    '4_access': '应用接入',
+                    '5_practice': '数据同步与运维',
                 },
             },
             {name: 'NoSQL', dir: 'nosql', interview: ['7_db'], desc: '键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图'},
@@ -256,6 +256,14 @@ export const REDIRECTS = {
     '/database/4_nosql/3_search_es': '/nosql/5_search_es',
     '/database/4_nosql/3_search_es_practice': '/nosql/5_search_es_practice',
     '/database/4_nosql/4_graph_db': '/nosql/6_graph_db',
+    // 2026-10：数据库模块重新分组（基础与选型、更多关系库、应用接入、数据同步与运维）
+    '/database/6_reference/1_selection_guide': '/database/0_fundamentals/2_selection_guide',
+    '/database/3_relational/2_orm_framework': '/database/4_access/1_orm_framework',
+    '/database/5_practice/3_connection_pool': '/database/4_access/2_connection_pool',
+    '/database/6_reference/2_jdbc_driver': '/database/4_access/3_jdbc_driver',
+    '/database/6_reference/0_binlog_connector_source': '/database/5_practice/1_binlog_connector_source',
+    '/database/5_practice/1_backup_recovery': '/database/5_practice/2_backup_recovery',
+    '/database/5_practice/2_sharding': '/database/5_practice/3_sharding',
 };
 
 // 学习路线（interview/91_routes 页的 <LearningRoutes />）：按目标跨模块挑文章，标题与简介自动取文章的 H1 与 description

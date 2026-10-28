@@ -4,7 +4,7 @@ description: TiDB 架构与事务、OceanBase 多副本与多租户、选型对�
 
 # 分布式数据库
 
-> 前置阅读：[MySQL 基础](../1_mysql/0_overview)、[其他 RDBMS](./0_other_rdbms)
+> 前置阅读：[MySQL 基础](../1_mysql/0_overview)、[商业与国产库](./0_other_rdbms)
 
 TiDB、OceanBase 这类分布式数据库对外提供 SQL 与事务，内部切片并多副本复制，加节点就能扩容。本篇讲两者的实现、MySQL 兼容差异及与 Aurora、PolarDB 的选型，基线为 TiDB 8.5 LTS、OceanBase 4.x。
 
@@ -188,7 +188,7 @@ CREATE TENANT biz_tenant
 | 运维难度 | 中等，组件较多 | 较高，需熟悉租户与资源模型 |
 | 典型场景 | MySQL 扩容、HTAP、互联网业务 | 金融核心、Oracle 迁移、多租户 SaaS |
 
-各类数据库的整体选型思路见 [数据库选型参考](../6_reference/1_selection_guide)；本节是 TiDB 与 OceanBase 对比的主文档。
+各类数据库的整体选型思路见 [数据库选型参考](../0_fundamentals/2_selection_guide)；本节是 TiDB 与 OceanBase 对比的主文档。
 
 ---
 
@@ -236,4 +236,4 @@ CREATE TENANT biz_tenant
 - Amazon Aurora DSQL：[https://docs.aws.amazon.com/aurora-dsql/latest/userguide/what-is-aurora-dsql.html](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/what-is-aurora-dsql.html)
 - PolarDB 文档：[https://help.aliyun.com/zh/polardb/](https://help.aliyun.com/zh/polardb/)
 
-> 下一篇：[ORM 框架](./2_orm_framework) —— MyBatis 的缓存、分页、Mapper 代理、执行器、TypeHandler 与插件原理，以及 Hibernate 的持久化上下文。
+> 下一篇：[ORM 框架](../4_access/1_orm_framework) —— MyBatis 的缓存、分页、Mapper 代理、执行器、TypeHandler 与插件原理，以及 Hibernate 的持久化上下文。

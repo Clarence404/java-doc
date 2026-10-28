@@ -20,7 +20,7 @@ Spring Boot 的数据访问可选 JdbcClient、JPA 或 MyBatis-Plus。本篇讲�
 | MyBatis | 手写 SQL（XML / 注解），完全可控 | 复杂 SQL、性能敏感、DBA 参与 SQL 审核 |
 | MyBatis-Plus | MyBatis 增强，内置单表 CRUD 与条件构造器 | 国内项目主流，单表操作多、复杂查询仍写 XML |
 
-一个项目里可以组合使用，例如 JPA 负责写模型、`JdbcClient` 负责报表查询，它们共用同一个数据源和事务管理器。ORM 框架本身的原理与对比见 [ORM 框架](/database/3_relational/2_orm_framework)。
+一个项目里可以组合使用，例如 JPA 负责写模型、`JdbcClient` 负责报表查询，它们共用同一个数据源和事务管理器。ORM 框架本身的原理与对比见 [ORM 框架](/database/4_access/1_orm_framework)。
 
 ---
 
@@ -41,7 +41,7 @@ spring:
       max-lifetime: 30m               # 小于数据库 wait_timeout
 ```
 
-Boot 默认使用 HikariCP，引入 `spring-boot-starter-jdbc`（JPA / MyBatis 的 starter 已间接包含）即自动配置 `DataSource`、`JdbcTemplate`、`JdbcClient` 与事务管理器。连接池大小的估算与参数含义见 [数据库连接池](/database/5_practice/3_connection_pool)。
+Boot 默认使用 HikariCP，引入 `spring-boot-starter-jdbc`（JPA / MyBatis 的 starter 已间接包含）即自动配置 `DataSource`、`JdbcTemplate`、`JdbcClient` 与事务管理器。连接池大小的估算与参数含义见 [数据库连接池](/database/4_access/2_connection_pool)。
 
 ### 2、JdbcClient
 
@@ -438,7 +438,7 @@ public class OrderAppService {
 
 ## 六、多数据源
 
-只需按事务 `readOnly` 做一主一从路由时，手写 `AbstractRoutingDataSource` + `LazyConnectionDataSourceProxy` 就够了，见 [数据库连接池 · 读写分离多数据源](/database/5_practice/3_connection_pool#_3、读写分离多数据源)；多个库、多个分组时用 baomidou 的 dynamic-datasource。
+只需按事务 `readOnly` 做一主一从路由时，手写 `AbstractRoutingDataSource` + `LazyConnectionDataSourceProxy` 就够了，见 [数据库连接池 · 读写分离多数据源](/database/4_access/2_connection_pool#_3、读写分离多数据源)；多个库、多个分组时用 baomidou 的 dynamic-datasource。
 
 ### 1、dynamic-datasource
 
@@ -489,7 +489,7 @@ public class UserQueryService {
 - **外层已开启 `@Transactional` 时，内层 `@DS` 切换无效**：事务开始时连接已经从 primary 取出并绑定到当前线程，后续操作都复用这个连接。读写分离时，「在写事务里调一个 `@DS("slave")` 的查询」实际上查的是主库
 - 一个方法里需要操作多个数据源时，`@DSTransactional` 提供本地多数据源事务，但它不是真正的分布式事务，提交阶段部分失败仍会不一致；跨库强一致写入见 [分布式事务](/distributed/4_transaction)
 - `@DS` 依赖 Spring AOP 代理，同类方法自调用时注解不生效
-- 从库存在复制延迟，「写完立即读」的场景要强制读主库；读写分离与分库分表的整体方案见 [分库分表与中间件](/database/5_practice/2_sharding)
+- 从库存在复制延迟，「写完立即读」的场景要强制读主库；读写分离与分库分表的整体方案见 [分库分表与中间件](/database/5_practice/3_sharding)
 
 ---
 

@@ -168,7 +168,7 @@ tls_version = TLSv1.2,TLSv1.3
 |------|------|------|
 | `innodb_buffer_pool_size` | 专用数据库服务器通常设为物理内存的 50%～75%；或开启 `innodb_dedicated_server` 自动计算 | [InnoDB 存储结构](./8_topic_innodb) |
 | `innodb_flush_log_at_trx_commit` + `sync_binlog` | 核心库保持「双 1」，保证提交后不丢 | [MySQL 事务与锁](./5_topic_transaction) |
-| `max_connections` | 不小于所有应用实例连接池上限之和再留余量 | [数据库连接池](../5_practice/3_connection_pool) |
+| `max_connections` | 不小于所有应用实例连接池上限之和再留余量 | [数据库连接池](../4_access/2_connection_pool) |
 | `binlog_expire_logs_seconds` | 按备份周期设置保留时间（8.4 已移除 `expire_logs_days`） | [MySQL 主从与高可用](./9_topic_replication) |
 | `character_set_server` / `collation_server` | 保持 8.x 默认的 `utf8mb4` / `utf8mb4_0900_ai_ci`，库表不要混用排序规则 | [MySQL 避坑指南](./3_fallible_point) |
 
@@ -185,7 +185,7 @@ tls_version = TLSv1.2,TLSv1.3
 | [InnoDB 存储结构](./8_topic_innodb) | 段 / 区 / 页、行格式、Buffer Pool、Double Write、刷脏 |
 | [MySQL 主从与高可用](./9_topic_replication) | Binlog、GTID、半同步、并行复制、Group Replication / InnoDB Cluster、读写分离 |
 
-分库分表的中间件实现见 [分库分表与中间件](../5_practice/2_sharding)，系统层面的拆分策略见 [数据层扩展](/high-con/5_data_scaling)。
+分库分表的中间件实现见 [分库分表与中间件](../5_practice/3_sharding)，系统层面的拆分策略见 [数据层扩展](/high-con/5_data_scaling)。
 
 ---
 

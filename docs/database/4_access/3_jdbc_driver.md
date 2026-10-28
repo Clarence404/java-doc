@@ -4,7 +4,7 @@ description: Connector/J 版本、URL 参数与时区、真假批量、大结果
 
 # MySQL JDBC 驱动
 
-> 前置阅读：[数据库连接池](../5_practice/3_connection_pool)
+> 前置阅读：[数据库连接池](./2_connection_pool)
 
 Connector/J 是 Java 应用与 MySQL 之间的必经组件，很多「数据库问题」其实出在驱动参数上。本篇讲版本选择、JDBC URL 关键参数（字符集、时区、TLS、批量、超时）、真假批量、大结果集读取模式、四层超时与服务端预编译。
 
@@ -159,7 +159,7 @@ try (PreparedStatement ps = conn.prepareStatement(sql,
 
 ## 小结
 
-连接池层面的配置（池大小、泄漏排查）见 [数据库连接池](../5_practice/3_connection_pool)；驱动与服务器之间的握手、`COM_STMT_PREPARE` 等协议细节见 [数据库协议](/protocols/6_database_protocols)。
+连接池层面的配置（池大小、泄漏排查）见 [数据库连接池](./2_connection_pool)；驱动与服务器之间的握手、`COM_STMT_PREPARE` 等协议细节见 [数据库协议](/protocols/6_database_protocols)。
 
 - 坐标是 `com.mysql:mysql-connector-j`，驱动类 `com.mysql.cj.jdbc.Driver`；连接器只有一条最新版本线，9.7 之后改为日历版本号（26.7）
 - URL 用 `characterEncoding=UTF-8`（映射为 utf8mb4）、`sslMode` 取代 `useSSL`，避免 `allowPublicKeyRetrieval=true` 与 `autoReconnect`
@@ -178,4 +178,4 @@ try (PreparedStatement ps = conn.prepareStatement(sql,
 - 预编译语句：[https://dev.mysql.com/doc/refman/8.4/en/sql-prepared-statements.html](https://dev.mysql.com/doc/refman/8.4/en/sql-prepared-statements.html)
 - HikariCP MySQL 配置建议：[https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration](https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration)
 
-> 返回：[数据库总览](/database/0_overview)
+> 下一篇：[CDC 工具](../5_practice/0_cdc_tools) —— binlog 前置配置、binlog-connector、Canal、Debezium 3.x、Flink CDC 选型

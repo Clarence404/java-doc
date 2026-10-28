@@ -21,7 +21,7 @@ description: 进程模型与连接池、流复制与同步级别、复制槽、�
 
 PG 18 仍没有内置连接池，生产环境通常是两层：应用内的 HikariCP 控制应用并发，外部的 PgBouncer 等代理把成百上千个客户端连接收敛成少量真实后端连接。
 
-PgBouncer 最常用 `transaction` 模式（事务结束即归还后端连接），代价是会话级状态不可用：`SET`（`SET LOCAL` 除外）、`LISTEN` / `NOTIFY`、会话级 advisory lock、`WITH HOLD` 游标。PgJDBC 默认在同一语句执行 5 次（`prepareThreshold`）后改用服务端预编译语句，需要 PgBouncer 1.21 及以上并开启 `max_prepared_statements`，旧版本则在 JDBC URL 上设 `prepareThreshold=0`。pool_mode 选择、两层池的大小计算等细节见 [数据库连接池](../5_practice/3_connection_pool)。
+PgBouncer 最常用 `transaction` 模式（事务结束即归还后端连接），代价是会话级状态不可用：`SET`（`SET LOCAL` 除外）、`LISTEN` / `NOTIFY`、会话级 advisory lock、`WITH HOLD` 游标。PgJDBC 默认在同一语句执行 5 次（`prepareThreshold`）后改用服务端预编译语句，需要 PgBouncer 1.21 及以上并开启 `max_prepared_statements`，旧版本则在 JDBC URL 上设 `prepareThreshold=0`。pool_mode 选择、两层池的大小计算等细节见 [数据库连接池](../4_access/2_connection_pool)。
 
 ---
 
@@ -213,4 +213,4 @@ MySQL 侧详见 [MySQL 主从与高可用](../1_mysql/9_topic_replication)。
 - Patroni：[https://patroni.readthedocs.io/](https://patroni.readthedocs.io/)
 - CloudNativePG：[https://cloudnative-pg.io/](https://cloudnative-pg.io/)
 
-> 下一篇：[其他 RDBMS](../3_relational/0_other_rdbms) —— Oracle、SQL Server 与达梦、人大金仓、openGauss 等国产库的方言差异和接入要点。
+> 下一篇：[商业与国产库](../3_relational/0_other_rdbms) —— Oracle、SQL Server 与达梦、人大金仓、openGauss 等国产库的方言差异和接入要点。

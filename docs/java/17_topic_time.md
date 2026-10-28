@@ -226,7 +226,7 @@ JPA 3.x / Hibernate 6 直接映射 `LocalDate`、`LocalDateTime`、`OffsetDateTi
 - **MySQL `DATETIME`**：按字面存储，不做时区换算，范围到 9999 年；存什么取什么，时区由应用约定（建议统一存 UTC）。
 - **MySQL `TIMESTAMP`**：写入时按会话 `time_zone` 转为 UTC 存储，读出时再转回会话时区；上限是 `2038-01-19 03:14:07` UTC，新表不建议再用。
 - **PostgreSQL `timestamptz`**：存的是 UTC 时刻，按会话 `TimeZone` 显示，是表达「时刻」最合适的列类型；`timestamp`（不带时区）等同于 `LocalDateTime`。
-- **MySQL Connector/J**：务必显式配置 `connectionTimeZone`（8.0.23 前叫 `serverTimezone`），否则驱动会根据服务器时区推断；服务器 `time_zone=SYSTEM` 且系统时区缩写为 `CST` 时，会被识别成美国中部时间，读写时间偏差 13 或 14 小时。参数细节见 [MySQL JDBC 驱动](/database/6_reference/2_jdbc_driver)。
+- **MySQL Connector/J**：务必显式配置 `connectionTimeZone`（8.0.23 前叫 `serverTimezone`），否则驱动会根据服务器时区推断；服务器 `time_zone=SYSTEM` 且系统时区缩写为 `CST` 时，会被识别成美国中部时间，读写时间偏差 13 或 14 小时。参数细节见 [MySQL JDBC 驱动](/database/4_access/3_jdbc_driver)。
 
 ---
 

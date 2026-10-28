@@ -129,7 +129,7 @@ client.connect(); // 阻塞当前线程；需要后台运行时用 connect(timeo
 - `DATE_AND_TIME_AS_LONG` 下 DATETIME 被当作 UTC 解析成毫秒数，需要按业务时区换算
 - 位点保存与业务处理不是原子的，重启后可能重复投递最后一个事务，下游必须幂等
 
-库的内部机制（协议握手、事件反序列化、GTID 推进、保活重连）见 [mysql-binlog-connector-java 原理](../6_reference/0_binlog_connector_source)。
+库的内部机制（协议握手、事件反序列化、GTID 推进、保活重连）见 [mysql-binlog-connector-java 原理](./1_binlog_connector_source)。
 
 ---
 
@@ -372,4 +372,4 @@ Flink CDC 不需要额外部署 Canal Server 或 Kafka Connect，直接在 Flink
 - MySQL binlog_row_metadata：[https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html](https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html)
 - Flink CDC：[https://nightlies.apache.org/flink/flink-cdc-docs-stable/](https://nightlies.apache.org/flink/flink-cdc-docs-stable/)
 
-> 下一篇：[数据备份与恢复](./1_backup_recovery) —— 按 RPO / RTO 设计备份策略，MySQL 与 PostgreSQL 的全量、增量与时间点恢复。
+> 下一篇：[mysql-binlog-connector-java 原理](./1_binlog_connector_source) —— BinaryLogClient 连接流程、事件循环、checksum 与 TableMap、GTID 位点、保活重连

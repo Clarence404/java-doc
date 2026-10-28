@@ -183,7 +183,7 @@ Kubernetes 集群网络见 [Kubernetes](/cloud-native/6_kubernetes)。
 
 ### 3、长连接不感知 DNS 变更
 
-DNS 只在**建立连接时**生效。连接池里的长连接会一直连着旧 IP，即使 DNS 已经切换。所以数据库、Redis、HTTP 连接池都要设置连接的最大存活时间（如 HikariCP 的 `maxLifetime`），让连接定期重建、重新解析，见 [数据库连接池](/database/5_practice/3_connection_pool)。
+DNS 只在**建立连接时**生效。连接池里的长连接会一直连着旧 IP，即使 DNS 已经切换。所以数据库、Redis、HTTP 连接池都要设置连接的最大存活时间（如 HikariCP 的 `maxLifetime`），让连接定期重建、重新解析，见 [数据库连接池](/database/4_access/2_connection_pool)。
 
 ---
 

@@ -4,7 +4,7 @@ description: BinaryLogClient 连接流程、事件循环、checksum 与 TableMap
 
 # mysql-binlog-connector-java 原理
 
-> 前置阅读：[CDC 工具](../5_practice/0_cdc_tools)、[MySQL 主从与高可用](../1_mysql/9_topic_replication)
+> 前置阅读：[CDC 工具](./0_cdc_tools)、[MySQL 主从与高可用](../1_mysql/9_topic_replication)
 
 mysql-binlog-connector-java 在应用里扮演 MySQL 副本，**只做协议与反序列化**。本篇按维护分支源码讲握手与事件循环、有状态的反序列化、GTID 位点推进与保活重连。
 
@@ -12,7 +12,7 @@ mysql-binlog-connector-java 在应用里扮演 MySQL 副本，**只做协议与�
 
 ## 一、连接流程
 
-原作者 shyiko 的仓库已归档，本篇分析的是 osheroff 持续维护分支（坐标 `com.zendesk:mysql-binlog-connector-java`，包名仍是 `com.github.shyiko.mysql.binlog`）的当前源码；使用示例统一放在 [CDC 工具](../5_practice/0_cdc_tools)。
+原作者 shyiko 的仓库已归档，本篇分析的是 osheroff 持续维护分支（坐标 `com.zendesk:mysql-binlog-connector-java`，包名仍是 `com.github.shyiko.mysql.binlog`）的当前源码；使用示例统一放在 [CDC 工具](./0_cdc_tools)。
 
 ![BinaryLogClient 连接、事件循环与保活重连](../../assets/database/binlog-client-flow.svg)
 
@@ -165,7 +165,7 @@ protected void updateGtidSet(Event event) {
 
 ### 1、位点持久化由使用方负责
 
-库只在内存中维护位点，进程重启后从哪里继续，完全取决于 `connect()` 前设置了什么。没有设置时，文件模式从服务器当前最新位置开始，中间的变更就丢了。正确做法是在事务边界（XID 或 DDL 对应的 QUERY）处把 `getGtidSet()` 写入外部存储，并让下游按主键或业务键幂等。完整写法见 [CDC 工具](../5_practice/0_cdc_tools) 的示例。
+库只在内存中维护位点，进程重启后从哪里继续，完全取决于 `connect()` 前设置了什么。没有设置时，文件模式从服务器当前最新位置开始，中间的变更就丢了。正确做法是在事务边界（XID 或 DDL 对应的 QUERY）处把 `getGtidSet()` 写入外部存储，并让下游按主键或业务键幂等。完整写法见 [CDC 工具](./0_cdc_tools) 的示例。
 
 ---
 
@@ -229,4 +229,4 @@ while (!keepAliveThreadExecutor.isShutdown()) {
 - MySQL binlog 事件格式：[https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_replication_binlog_event.html](https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_replication_binlog_event.html)
 - binlog_row_metadata：[https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html](https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html)
 
-> 下一篇：[数据库选型参考](./1_selection_guide) —— 按场景对比关系型、分析型、搜索、时序、文档、向量等存储，给出常见组合与选型误区。
+> 下一篇：[数据备份与恢复](./2_backup_recovery) —— RTO / RPO、mysqldump、XtraBackup 增量、binlog PITR、PG 增量备份、恢复演练

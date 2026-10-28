@@ -2,7 +2,7 @@
 description: Oracle 与 SQL Server 方言差异、达梦、人大金仓、openGauss 接入要点、国产库兼容对照
 ---
 
-# 其他 RDBMS
+# 商业与国产库
 
 > 前置阅读：[MySQL 基础](../1_mysql/0_overview)、[PostgreSQL 基础](../2_postgresql/0_overview)
 
@@ -163,7 +163,7 @@ CREATE TABLE orders (
 | 人大金仓 KingbaseES V9 | PostgreSQL | 支持（Oracle 模式） | 高 | 支持（MySQL 模式） | 政务、国产替代 |
 | openGauss / GaussDB | PostgreSQL 9.2 | 部分 | 较高 | 部分 | 运营商、华为生态 |
 
-分布式路线的 OceanBase、TiDB 以及云原生的 PolarDB 见 [分布式数据库](./1_distributed_db)；在关系库、NoSQL 之间如何选型见 [数据库选型参考](../6_reference/1_selection_guide)。
+分布式路线的 OceanBase、TiDB 以及云原生的 PolarDB 见 [分布式数据库](./1_distributed_db)；在关系库、NoSQL 之间如何选型见 [数据库选型参考](../0_fundamentals/2_selection_guide)。
 
 ---
 

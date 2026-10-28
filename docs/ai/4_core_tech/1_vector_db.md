@@ -281,7 +281,7 @@ public class KnowledgeStore {
 - 选型先看现有组件：PG 用 pgvector，ES 用 ES，Redis 用 Redis；独立部署选 Qdrant，亿级以上选 Milvus
 - Spring AI 2.0 用 `spring-ai-starter-vector-store-*` 与 `SearchRequest.builder()`，过滤条件用 `FilterExpressionBuilder` 构造，租户条件来自服务端
 
-数据库层面的全量选型对比见 [数据库选型参考](/database/6_reference/1_selection_guide)，全文检索引擎本身见 [搜索数据库](/nosql/5_search_db)。
+数据库层面的全量选型对比见 [数据库选型参考](/database/0_fundamentals/2_selection_guide)，全文检索引擎本身见 [搜索数据库](/nosql/5_search_db)。
 
 ## 参考资料
 

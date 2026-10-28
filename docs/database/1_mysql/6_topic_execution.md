@@ -40,7 +40,7 @@ MySQL 分为 **Server 层** 和 **存储引擎层** 两部分：
 
 直接用 DML 修改 `mysql.user` 等权限表不会立即生效，需要 `FLUSH PRIVILEGES`；生产中应始终用账户管理语句。要让被回收全局权限或改了密码的账号立刻失效，需要 `KILL` 它现有的连接。
 
-**空闲连接超时**：`wait_timeout` 默认 8 小时，超时后服务器断开连接，客户端再发语句时报 `2013 Lost connection to MySQL server during query` 或 `2006 MySQL server has gone away`。连接池的 `maxLifetime` 应小于 `wait_timeout`，详见 [数据库连接池](../5_practice/3_connection_pool)。
+**空闲连接超时**：`wait_timeout` 默认 8 小时，超时后服务器断开连接，客户端再发语句时报 `2013 Lost connection to MySQL server during query` 或 `2006 MySQL server has gone away`。连接池的 `maxLifetime` 应小于 `wait_timeout`，详见 [数据库连接池](../4_access/2_connection_pool)。
 
 **长连接内存**：执行过程中分配的部分内存挂在会话上，直到连接断开才释放，长连接累积可能占用大量内存。两种解法：
 

@@ -125,7 +125,7 @@ CREATE TABLE posts (
 ) DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 ```
 
-JDBC 连接串中用 Java 的编码名 `characterEncoding=UTF-8`，Connector/J 会映射为 `utf8mb4`；需要固定排序规则时再加 `connectionCollation=utf8mb4_0900_ai_ci`。完整参数见 [MySQL JDBC 驱动](../6_reference/2_jdbc_driver)。
+JDBC 连接串中用 Java 的编码名 `characterEncoding=UTF-8`，Connector/J 会映射为 `utf8mb4`；需要固定排序规则时再加 `connectionCollation=utf8mb4_0900_ai_ci`。完整参数见 [MySQL JDBC 驱动](../4_access/3_jdbc_driver)。
 
 ### 2、字符集或排序规则不一致导致索引失效
 

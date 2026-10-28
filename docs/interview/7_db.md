@@ -663,7 +663,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 - 跨分片分页：`LIMIT 100, 10` 会变成每个分片都查 `LIMIT 0, 110`，深分页要改成游标分页
 - 事务：支持本地事务、XA 和柔性事务（Seata），只管同一个 ShardingSphere 实例里的数据源
 
-→ 详见 [分库分表与中间件](/database/5_practice/2_sharding#二、两种接入形态)
+→ 详见 [分库分表与中间件](/database/5_practice/3_sharding#二、两种接入形态)
 
 ### Q47：分库分表如何不停机迁移？以后扩容怎么做？
 
@@ -677,7 +677,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **常见坑**：库和表都用 `h % 32` 路由，库下标永远等于表下标，每个库只有 1 张表有数据；表下标应取 `(h / 32) % 32`。
 
-→ 详见 [分库分表与中间件](/database/5_practice/2_sharding#八、平滑迁移与扩容)、[数据层扩展](/high-con/5_data_scaling)
+→ 详见 [分库分表与中间件](/database/5_practice/3_sharding#八、平滑迁移与扩容)、[数据层扩展](/high-con/5_data_scaling)
 
 ### Q48：TiDB 的数据如何分片与复制？事务和 MySQL 有什么不同？
 
@@ -705,7 +705,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **常见坑**：单表千万级、单库扛得住时，先优化索引、归档和加缓存，不急着上分库分表或分布式数据库。
 
-→ 详见 [分布式数据库](/database/3_relational/1_distributed_db#三、tidb-与-oceanbase-选型对比)、[分库分表与中间件](/database/5_practice/2_sharding#九、选型建议)
+→ 详见 [分布式数据库](/database/3_relational/1_distributed_db#三、tidb-与-oceanbase-选型对比)、[分库分表与中间件](/database/5_practice/3_sharding#九、选型建议)
 
 ## 十、连接池、CDC 与备份
 
@@ -720,7 +720,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **常见坑**：报 Communications link failure，多半是连接被数据库或防火墙断了，池里还在用。
 
-→ 详见 [数据库连接池](/database/5_practice/3_connection_pool#_4、池大小估算)、[高并发面试题解答](/interview/13_high_con#q36-服务水平扩容时-数据库连接池要怎么重新核算)
+→ 详见 [数据库连接池](/database/4_access/2_connection_pool#_4、池大小估算)、[高并发面试题解答](/interview/13_high_con#q36-服务水平扩容时-数据库连接池要怎么重新核算)
 
 ### Q51：PostgreSQL 为什么需要 PgBouncer？transaction 模式有什么限制？
 
@@ -737,7 +737,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **常见坑**：JDBC 预编译语句在旧版 PgBouncer 下会出错，要升级到 1.21 以上，或在 JDBC URL 加 `prepareThreshold=0`。
 
-→ 详见 [数据库连接池](/database/5_practice/3_connection_pool#五、pgbouncer)
+→ 详见 [数据库连接池](/database/4_access/2_connection_pool#五、pgbouncer)
 
 ### Q52：基于 binlog 的 CDC 原理是什么？Canal、Debezium、Flink CDC 怎么选？
 
@@ -773,7 +773,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **常见坑**：PG 做时间点恢复时忘了创建 `recovery.signal` 文件，数据库会正常启动并忽略所有恢复参数。
 
-→ 详见 [数据备份与恢复](/database/5_practice/1_backup_recovery)
+→ 详见 [数据备份与恢复](/database/5_practice/2_backup_recovery)
 
 ## 十一、MyBatis 与 ORM
 
@@ -805,7 +805,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **常见坑**：`Executor.query` 有 4 参数和 6 参数两个重载，只声明一个会漏拦截。
 
-→ 详见 [ORM 框架](/database/3_relational/2_orm_framework#五、插件-interceptor-原理)
+→ 详见 [ORM 框架](/database/4_access/1_orm_framework#五、插件-interceptor-原理)
 
 ### Q56：MyBatis 的一级缓存和二级缓存有什么区别？生产中要开吗？
 
@@ -823,7 +823,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **常见坑**：一级缓存命中返回的是同一个对象，修改它会污染后续查询结果。
 
-→ 详见 [ORM 框架](/database/3_relational/2_orm_framework#一、mybatis-缓存)
+→ 详见 [ORM 框架](/database/4_access/1_orm_framework#一、mybatis-缓存)
 
 ### Q57：什么是延迟加载？MyBatis 和 Hibernate 分别怎么做？
 
@@ -836,7 +836,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **常见坑**：把懒加载代理对象直接交给 Jackson 序列化，要么触发一串额外查询，要么因为代理类的内部字段序列化失败。
 
-→ 详见 [ORM 框架](/database/3_relational/2_orm_framework#_4、关联加载与-n-1)
+→ 详见 [ORM 框架](/database/4_access/1_orm_framework#_4、关联加载与-n-1)
 
 ### Q58：MyBatis 怎么分页？PageHelper 和 MyBatis-Plus 分页的原理是什么？
 
@@ -849,7 +849,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **常见坑**：`startPage` 后没有紧跟查询（中途抛异常或走了别的分支），分页参数留在线程里，被这个线程下一次查询误用。
 
-→ 详见 [ORM 框架](/database/3_relational/2_orm_framework#二、分页原理)
+→ 详见 [ORM 框架](/database/4_access/1_orm_framework#二、分页原理)
 
 ### Q59：MyBatis 和 JPA / Hibernate 怎么选？
 
@@ -866,7 +866,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 - 国内项目 MyBatis-Plus 更常见，单表 CRUD 不用写 SQL，复杂查询仍可回到 XML
 - 同一个项目可以混用：简单 CRUD 用 JPA，复杂报表用 MyBatis 或 `JdbcClient`
 
-→ 详见 [ORM 框架](/database/3_relational/2_orm_framework#_6、hibernate-与-mybatis-选型)
+→ 详见 [ORM 框架](/database/4_access/1_orm_framework#_6、hibernate-与-mybatis-选型)
 
 ## 十二、NoSQL 与选型
 

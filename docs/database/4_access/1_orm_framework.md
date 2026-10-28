@@ -443,7 +443,7 @@ public class MybatisPlusConfig {
 
 ### 3、数据源路由：AbstractRoutingDataSource
 
-读写分离、库级多租户都基于 Spring 的 `AbstractRoutingDataSource`：它本身是一个 `DataSource`，每次 `getConnection()` 时调用 `determineCurrentLookupKey()` 选出目标数据源（按事务 `readOnly` 或 `ThreadLocal` 里的路由键）。关键约束是事务管理器在事务开始时就取连接，之后切换不生效，所以要么让路由在事务之前确定，要么包一层 `LazyConnectionDataSourceProxy` 把取连接推迟到第一条 SQL。完整配置与踩坑见 [数据库连接池 · 读写分离多数据源](/database/5_practice/3_connection_pool#_3、读写分离多数据源)。
+读写分离、库级多租户都基于 Spring 的 `AbstractRoutingDataSource`：它本身是一个 `DataSource`，每次 `getConnection()` 时调用 `determineCurrentLookupKey()` 选出目标数据源（按事务 `readOnly` 或 `ThreadLocal` 里的路由键）。关键约束是事务管理器在事务开始时就取连接，之后切换不生效，所以要么让路由在事务之前确定，要么包一层 `LazyConnectionDataSourceProxy` 把取连接推迟到第一条 SQL。完整配置与踩坑见 [数据库连接池 · 读写分离多数据源](/database/4_access/2_connection_pool#_3、读写分离多数据源)。
 
 实际项目通常直接用 baomidou 的 dynamic-datasource（`@DS` 注解），配置与事务陷阱见 [数据访问 · 多数据源](/spring-boot/3_data_access#六、多数据源)。跨库写入的一致性需要分布式事务，见 [分布式事务](/distributed/4_transaction)。
 
@@ -596,4 +596,4 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 - Hibernate ORM 文档：[https://hibernate.org/orm/documentation/](https://hibernate.org/orm/documentation/)
 - Jakarta Persistence 3.2：[https://jakarta.ee/specifications/persistence/3.2/](https://jakarta.ee/specifications/persistence/3.2/)
 
-> 下一篇：[CDC 工具](../5_practice/0_cdc_tools) —— 从数据库变更日志实时捕获数据，同步到搜索、缓存与数仓
+> 下一篇：[数据库连接池](./2_connection_pool) —— HikariCP 参数与池大小估算、Druid 配置与监控、PgBouncer、泄漏排查、读写分离多数据源

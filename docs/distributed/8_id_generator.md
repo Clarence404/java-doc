@@ -151,7 +151,7 @@ NTP 校时、人工改时间、虚拟机迁移都可能让系统时间倒退，�
 
 - **workerId 冲突**：Hutool `IdUtil.getSnowflake()`、MyBatis-Plus 默认 `IdentifierGenerator` 在未指定时用 MAC 地址和进程号推导 workerId，容器中进程号常常都是 1、网卡信息也可能雷同，存在冲突风险。生产环境应显式分配：从配置中心、数据库表或 ZooKeeper / etcd 领取，或用 K8s StatefulSet 的序号
 - **前端精度丢失**：64 位 ID 超过 JavaScript `Number.MAX_SAFE_INTEGER`（2^53 − 1），前端会把末几位变成 0。接口中把 ID 序列化为字符串（Jackson 的 `ToStringSerializer` 或全局把 `Long` 序列化为字符串）
-- **分片倾斜**：低 QPS 时每毫秒往往只生成一个 ID，序列号几乎总是 0，再按 `id % 分片数` 路由会严重倾斜。分片键应先做哈希，或让序列号从随机值起步，见 [分库分表与中间件](/database/5_practice/2_sharding)
+- **分片倾斜**：低 QPS 时每毫秒往往只生成一个 ID，序列号几乎总是 0，再按 `id % 分片数` 路由会严重倾斜。分片键应先做哈希，或让序列号从随机值起步，见 [分库分表与中间件](/database/5_practice/3_sharding)
 
 ShardingSphere 内置 `SNOWFLAKE` 主键生成器，用分库分表中间件时可以直接使用。
 

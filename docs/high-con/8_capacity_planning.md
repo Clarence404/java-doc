@@ -193,7 +193,7 @@ public class StressRoutingDataSource extends AbstractRoutingDataSource {
 }
 ```
 
-ShardingSphere 也提供影子库功能，可按列值或 Hint 把压测 SQL 路由到影子库，见 [分库分表与中间件](/database/5_practice/2_sharding)。影子库要提前按生产数据量级准备数据，否则压出来的是"小表性能"。
+ShardingSphere 也提供影子库功能，可按列值或 Hint 把压测 SQL 路由到影子库，见 [分库分表与中间件](/database/5_practice/3_sharding)。影子库要提前按生产数据量级准备数据，否则压出来的是"小表性能"。
 
 ### 3、下游 Mock 与挡板
 

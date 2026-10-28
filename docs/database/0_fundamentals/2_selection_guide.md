@@ -12,7 +12,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 
 ## 一、全景选型矩阵
 
-每类数据库这里只给定位与取舍，原理与深入对比在各自的主文档里；国产数据库、TiDB / OceanBase 的详细对比分别见 [其他 RDBMS](../3_relational/0_other_rdbms) 与 [分布式数据库](../3_relational/1_distributed_db)，NoSQL 各类见 [NoSQL 总览](/nosql/0_overview)，向量库与对象存储分别见 [向量数据库](/ai/4_core_tech/1_vector_db) 与 [对象存储](/architecture/5_object_storage)。
+每类数据库这里只给定位与取舍，原理与深入对比在各自的主文档里；国产数据库、TiDB / OceanBase 的详细对比分别见 [商业与国产库](../3_relational/0_other_rdbms) 与 [分布式数据库](../3_relational/1_distributed_db)，NoSQL 各类见 [NoSQL 总览](/nosql/0_overview)，向量库与对象存储分别见 [向量数据库](/ai/4_core_tech/1_vector_db) 与 [对象存储](/architecture/5_object_storage)。
 
 | 数据库 | 类型 | 核心优势 | 典型场景 | 不适合 |
 |-------|------|---------|---------|-----------|
@@ -46,9 +46,9 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | 条件 | 首选 | 备注 |
 |------|------|------|
 | 单库可承受（千万级单表、几千 QPS） | MySQL；复杂查询多选 PostgreSQL | 先把索引、SQL、缓存做好 |
-| 单库容量或写入成为瓶颈，愿意改造应用 | MySQL + ShardingSphere 分库分表 | 见 [分库分表与中间件](../5_practice/2_sharding) |
+| 单库容量或写入成为瓶颈，愿意改造应用 | MySQL + ShardingSphere 分库分表 | 见 [分库分表与中间件](../5_practice/3_sharding) |
 | 需要透明水平扩展与分布式事务 | TiDB / OceanBase | 见 [分布式数据库](../3_relational/1_distributed_db) |
-| 信创或 Oracle 迁移 | 达梦、人大金仓、OceanBase Oracle 模式 | 见 [其他 RDBMS](../3_relational/0_other_rdbms) |
+| 信创或 Oracle 迁移 | 达梦、人大金仓、OceanBase Oracle 模式 | 见 [商业与国产库](../3_relational/0_other_rdbms) |
 
 ### 2、OLAP
 
@@ -221,4 +221,4 @@ MySQL 9.x 社区版只有 `VECTOR` 类型与 `STRING_TO_VECTOR`、`VECTOR_DIM` �
 - InfluxDB 3 Core 查询数据：[https://docs.influxdata.com/influxdb3/core/query-data/](https://docs.influxdata.com/influxdb3/core/query-data/)
 - MongoDB 事务：[https://www.mongodb.com/docs/manual/core/transactions/](https://www.mongodb.com/docs/manual/core/transactions/)
 
-> 下一篇：[MySQL JDBC 驱动](./2_jdbc_driver) —— Connector/J 的版本、URL 关键参数、批量写入、大结果集读取与超时体系。
+> 下一篇：[MySQL 基础](../1_mysql/0_overview) —— 数据库范式、视图、存储过程、账号与传输安全、基础配置、核心专项导读

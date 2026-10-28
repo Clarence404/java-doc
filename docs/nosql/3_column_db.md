@@ -4,7 +4,7 @@ description: 宽列 HBase、ClickHouse / Doris / StarRocks、MergeTree、分布�
 
 # 列式与 OLAP 数据库
 
-> 前置阅读：[MySQL 索引](/database/1_mysql/4_topic_index)、[数据库选型参考](/database/6_reference/1_selection_guide)
+> 前置阅读：[MySQL 索引](/database/1_mysql/4_topic_index)、[数据库选型参考](/database/0_fundamentals/2_selection_guide)
 
 「列式数据库」常被混指宽列存储（HBase）与列式 OLAP（ClickHouse、Doris）两类差别很大的产品。本篇讲 HBase 的 RowKey 设计、ClickHouse 的 MergeTree 与分布式表，以及选型。
 

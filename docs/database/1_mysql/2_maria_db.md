@@ -156,7 +156,7 @@ MySQL 侧对应的方案是 Group Replication / InnoDB Cluster，见 [MySQL 主�
 Percona 是另一个 MySQL 兼容阵营，常与 MariaDB 一起比较：
 
 - **Percona Server for MySQL**：跟随 MySQL 版本的增强发行版，与 MySQL 完全兼容，额外提供线程池、审计插件等
-- **Percona XtraBackup**：按 MySQL 版本线发布（8.0 / 8.4 等），只支持 MySQL 和 Percona Server；MariaDB 10.3 起请用 `mariadb-backup`。备份方案见 [数据备份与恢复](../5_practice/1_backup_recovery)
+- **Percona XtraBackup**：按 MySQL 版本线发布（8.0 / 8.4 等），只支持 MySQL 和 Percona Server；MariaDB 10.3 起请用 `mariadb-backup`。备份方案见 [数据备份与恢复](../5_practice/2_backup_recovery)
 - **Percona Toolkit**：`pt-query-digest` 的用法见 [EXPLAIN 与 SQL 优化](./7_topic_explain)，`pt-online-schema-change` 见 [MySQL 避坑指南](./3_fallible_point)
 
 ---

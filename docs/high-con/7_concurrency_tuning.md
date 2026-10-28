@@ -129,7 +129,7 @@ Spring Boot 3.2+ 配置 `spring.threads.virtual.enabled=true` 后，Tomcat 为�
 - **水平扩容前重新核算**：实例数从 40 扩到 80，单实例池不调小就会超过上限，新实例启动即报 `Too many connections`
 - 多个服务共用一个库时，上限要在各服务之间分配，而不是每个服务都按全量计算
 
-连接池为什么不是越大越好、HikariCP 经验公式（公式中的核数是**数据库服务器**的核数，算出的是数据库侧总连接数）、泄漏检测见 [池化技术](/high-perf/7_pooling)；Hikari 参数表与完整配置见 [数据库连接池](/database/5_practice/3_connection_pool)。
+连接池为什么不是越大越好、HikariCP 经验公式（公式中的核数是**数据库服务器**的核数，算出的是数据库侧总连接数）、泄漏检测见 [池化技术](/high-perf/7_pooling)；Hikari 参数表与完整配置见 [数据库连接池](/database/4_access/2_connection_pool)。
 
 ---
 

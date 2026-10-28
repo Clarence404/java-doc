@@ -47,7 +47,7 @@ description: 读写分离与主从延迟、冷热分离、分库分表、分片�
 | 代理层 | ShardingSphere-Proxy、MySQL Router、ProxySQL | 对应用透明，多语言 | 多一跳网络，代理需高可用 |
 | 云数据库 | RDS 读写分离地址 | 开箱即用 | 依赖云厂商 |
 
-ShardingSphere 读写分离配置见 [分库分表与中间件](/database/5_practice/2_sharding)。
+ShardingSphere 读写分离配置见 [分库分表与中间件](/database/5_practice/3_sharding)。
 
 ### 2、主从延迟处理策略
 
@@ -138,7 +138,7 @@ MySQL 侧的延迟原因、多线程回放与延迟监控见 [MySQL 主从与高
 | 一致性哈希 | 哈希环 + 虚拟节点 | 扩容只迁移部分数据 | 实现复杂，分布需虚拟节点调匀 |
 | 映射表 | 路由表记录 key → 分片 | 最灵活，可单独迁移大租户 | 多一次查询，路由表本身要高可用 |
 
-一致性哈希原理见 [一致性哈希](/distributed/9_consistent_hashing)，ShardingSphere 内置算法类型与配置见 [分库分表与中间件](/database/5_practice/2_sharding)。
+一致性哈希原理见 [一致性哈希](/distributed/9_consistent_hashing)，ShardingSphere 内置算法类型与配置见 [分库分表与中间件](/database/5_practice/3_sharding)。
 
 ### 4、分布式 ID
 
@@ -164,7 +164,7 @@ MySQL 侧的延迟原因、多线程回放与延迟监控见 [MySQL 主从与高
 
 ### 6、扩容迁移
 
-**分片数从 N 扩到 2N 是分库分表中最复杂的操作**，策略上要做到两点：迁移按「双写 → 历史数据迁移 → 校验对账 → 灰度切读 → 停旧写」平滑推进，每一步都有开关可回退；第一次拆分时就规划足够的逻辑分片（如 1024 张表），让扩容只搬整张表而不是重新哈希每一行。各步做法、ShardingSphere 迁移作业、预分配逻辑分片与倍数扩容的细节见 [分库分表与中间件 · 平滑迁移与扩容](/database/5_practice/2_sharding#八、平滑迁移与扩容)。
+**分片数从 N 扩到 2N 是分库分表中最复杂的操作**，策略上要做到两点：迁移按「双写 → 历史数据迁移 → 校验对账 → 灰度切读 → 停旧写」平滑推进，每一步都有开关可回退；第一次拆分时就规划足够的逻辑分片（如 1024 张表），让扩容只搬整张表而不是重新哈希每一行。各步做法、ShardingSphere 迁移作业、预分配逻辑分片与倍数扩容的细节见 [分库分表与中间件 · 平滑迁移与扩容](/database/5_practice/3_sharding#八、平滑迁移与扩容)。
 
 Binlog 同步工具见 [CDC 工具](/database/5_practice/0_cdc_tools)。分布式数据库（TiDB、OceanBase）可以免去应用层分片，代价是运维体系与成本，见 [分布式数据库](/database/3_relational/1_distributed_db)。
 

@@ -19,7 +19,7 @@ MySQL 主从复制靠 binlog 把主库变更同步到从库，是读写分离和
 Binlog 是 **Server 层**的二进制日志，记录所有**修改数据的操作**（DML 与 DDL），不记录 SELECT。三个用途：
 
 1. **复制**：主库通过 binlog 把变更传给从库
-2. **时间点恢复**：全量备份加 binlog 回放到指定时间点，见 [数据备份与恢复](../5_practice/1_backup_recovery)
+2. **时间点恢复**：全量备份加 binlog 回放到指定时间点，见 [数据备份与恢复](../5_practice/2_backup_recovery)
 3. **数据订阅**：Canal、Debezium 等 CDC 工具伪装成从库消费 binlog，见 [CDC 工具](../5_practice/0_cdc_tools) 与 [Flink CDC](/flink/6_cdc)
 
 binlog 与 redo log 的区别、两阶段提交与崩溃恢复见 [MySQL 事务与锁](./5_topic_transaction)。
@@ -279,7 +279,7 @@ SELECT WAIT_FOR_EXECUTED_GTID_SET('3e11fa47-71ca-11e1-9e33-c80aa9429562:1-1000',
 
 ## 七、读写分离
 
-读写分离的实现方式（应用层 / 代理层 / 云数据库）与主从延迟处理策略见 [数据层扩展 · 读写分离](/high-con/5_data_scaling#二、读写分离)，ShardingSphere 配置见 [分库分表与中间件](../5_practice/2_sharding#四、读写分离配置)。MySQL 侧只补一点：用 InnoDB Cluster 时，MySQL Router 自带读写分离端口，可直接作为代理层使用；延迟的 MySQL 侧成因与调优见第五节。
+读写分离的实现方式（应用层 / 代理层 / 云数据库）与主从延迟处理策略见 [数据层扩展 · 读写分离](/high-con/5_data_scaling#二、读写分离)，ShardingSphere 配置见 [分库分表与中间件](../5_practice/3_sharding#四、读写分离配置)。MySQL 侧只补一点：用 InnoDB Cluster 时，MySQL Router 自带读写分离端口，可直接作为代理层使用；延迟的 MySQL 侧成因与调优见第五节。
 
 ---
 

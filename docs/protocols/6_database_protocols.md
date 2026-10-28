@@ -64,7 +64,7 @@ MySQL 客户端与服务端之间交换的每个包（Packet）都有 4 字节�
 - **快速认证**：服务端缓存里已有该账号（之前成功认证过），客户端发的 SHA-256 scramble 校验通过即可，口令不出现在网络上
 - **完整认证**：缓存未命中（服务重启后第一次、刚改过密码等）时服务端要拿到口令本身：连接已是 TLS（或 Unix socket 等本机安全通道）时客户端直接发口令明文；没有 TLS 时客户端用服务端的 RSA 公钥加密口令再发
 
-**常见坑**：不开 TLS 时，完整认证需要驱动先拿到 RSA 公钥，Connector/J 报 `Public Key Retrieval is not allowed`。正确做法是开启 TLS（`sslMode=REQUIRED` 或更严格），或用 `serverRSAPublicKeyFile` 指定本地公钥；`allowPublicKeyRetrieval=true` 会让中间人有机会伪造公钥。`sslMode` 自 Connector/J 8.0.13 起取代了已废弃的 `useSSL`，参数细节见 [MySQL JDBC 驱动](/database/6_reference/2_jdbc_driver)。
+**常见坑**：不开 TLS 时，完整认证需要驱动先拿到 RSA 公钥，Connector/J 报 `Public Key Retrieval is not allowed`。正确做法是开启 TLS（`sslMode=REQUIRED` 或更严格），或用 `serverRSAPublicKeyFile` 指定本地公钥；`allowPublicKeyRetrieval=true` 会让中间人有机会伪造公钥。`sslMode` 自 Connector/J 8.0.13 起取代了已废弃的 `useSSL`，参数细节见 [MySQL JDBC 驱动](/database/4_access/3_jdbc_driver)。
 
 ### 4、预编译语句
 
@@ -105,7 +105,7 @@ PostgreSQL 的前后端协议（当前为 3.x 版本）以「消息」为单位�
 | 简单查询 | `Q`（SQL 文本） | `T` 行描述 → 若干 `D` 数据行 → `C` CommandComplete → `Z` | 一个消息可以包含多条 SQL，参数只能拼在文本里 |
 | 扩展查询 | `P` Parse → `B` Bind → `D` Describe → `E` Execute → `S` Sync | 对应的确认消息、数据行，最后 `Z` | 解析与执行分离，参数单独传输，支持二进制格式和具名语句复用 |
 
-pgjdbc 默认用扩展查询协议，同一条 `PreparedStatement` 执行达到 `prepareThreshold`（默认 5）次后切换为具名的服务端预编译语句。经过 PgBouncer 事务模式时这一点容易出问题，见 [数据库连接池](/database/5_practice/3_connection_pool)。
+pgjdbc 默认用扩展查询协议，同一条 `PreparedStatement` 执行达到 `prepareThreshold`（默认 5）次后切换为具名的服务端预编译语句。经过 PgBouncer 事务模式时这一点容易出问题，见 [数据库连接池](/database/4_access/2_connection_pool)。
 
 ### 4、其他子协议
 
@@ -182,8 +182,8 @@ Redis 6.0 引入 RESP3，连接默认仍是 RESP2，客户端发 `HELLO 3` 后�
 - Connector/J 默认客户端预编译，线上发的还是 `COM_QUERY`；结果集结尾在协商 `CLIENT_DEPRECATE_EOF` 后是 OK 包
 - PostgreSQL 消息是 1 字节类型 + 4 字节长度；认证默认 SCRAM-SHA-256，pgjdbc 默认用 Parse / Bind / Execute 的扩展查询协议
 - RESP2 只有五种类型，RESP3 通过 `HELLO 3` 开启，增加了 Map、Set、Double、Push 等类型，客户端缓存的失效通知依赖 Push
-- 连接池参数、池大小估算、`Communications link failure` 排查见 [数据库连接池](/database/5_practice/3_connection_pool)
-- Connector/J 的 URL 参数、批量写入、超时体系见 [MySQL JDBC 驱动](/database/6_reference/2_jdbc_driver)
+- 连接池参数、池大小估算、`Communications link failure` 排查见 [数据库连接池](/database/4_access/2_connection_pool)
+- Connector/J 的 URL 参数、批量写入、超时体系见 [MySQL JDBC 驱动](/database/4_access/3_jdbc_driver)
 - Redis Pipeline、事务、Lua 的用法见 [Redis 核心原理](/cache/2_redis_core)
 
 ## 参考资料

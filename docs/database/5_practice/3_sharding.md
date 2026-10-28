@@ -182,7 +182,7 @@ try (HintManager hintManager = HintManager.getInstance()) {
 }
 ```
 
-强制读主之外的主从延迟处理策略（写后窗口读主、等待 GTID、业务容忍等）见 [数据层扩展 · 主从延迟处理策略](/high-con/5_data_scaling#_2、主从延迟处理策略)。只需要读写分离、不需要分片时，也可以用 Spring 的 `AbstractRoutingDataSource` 自行路由，见 [数据库连接池](./3_connection_pool) 的多数据源一节。
+强制读主之外的主从延迟处理策略（写后窗口读主、等待 GTID、业务容忍等）见 [数据层扩展 · 主从延迟处理策略](/high-con/5_data_scaling#_2、主从延迟处理策略)。只需要读写分离、不需要分片时，也可以用 Spring 的 `AbstractRoutingDataSource` 自行路由，见 [数据库连接池](../4_access/2_connection_pool) 的多数据源一节。
 
 ---
 
@@ -472,4 +472,4 @@ rules:
 - MySQL 复制过滤（replicate-do-db）：[https://dev.mysql.com/doc/refman/8.4/en/replication-options-replica.html](https://dev.mysql.com/doc/refman/8.4/en/replication-options-replica.html)
 - 选题参考：doocs/advanced-java：[https://github.com/doocs/advanced-java](https://github.com/doocs/advanced-java)
 
-> 下一篇：[数据库连接池](./3_connection_pool) —— HikariCP 与 Druid 的参数、池大小估算、泄漏排查，以及 PostgreSQL 前置的 PgBouncer。
+> 返回：[数据库总览](../0_overview)

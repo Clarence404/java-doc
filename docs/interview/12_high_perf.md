@@ -234,7 +234,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：连接不够就加大池子。先看等待连接的线程数（pending）持续大于 0 且数据库本身不忙，才说明池真的小了。
 
-→ 详见 [池化技术](/high-perf/7_pooling#二、连接池原理-为什么不是越大越好)、[数据库连接池](/database/5_practice/3_connection_pool#_4、池大小估算)
+→ 详见 [池化技术](/high-perf/7_pooling#二、连接池原理-为什么不是越大越好)、[数据库连接池](/database/4_access/2_connection_pool#_4、池大小估算)
 
 ### Q16：如何发现和排查连接泄漏？
 
@@ -396,7 +396,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 **常见坑**：Hibernate 主键用 `IDENTITY`（数据库自增）时无法批量插入。
 
-→ 详见 [数据访问性能](/high-perf/10_db_performance#三、批量写入)、[MySQL JDBC 驱动](/database/6_reference/2_jdbc_driver#三、批量写入-rewritebatchedstatements)
+→ 详见 [数据访问性能](/high-perf/10_db_performance#三、批量写入)、[MySQL JDBC 驱动](/database/4_access/3_jdbc_driver#三、批量写入-rewritebatchedstatements)
 
 ### Q28：什么是 N+1 查询问题？如何发现和解决？
 
