@@ -28,7 +28,7 @@ Event Loop 是一个循环处理事件的线程：网络数据到达、定时器
 
 ### 2、黄金法则：永远不要阻塞 Event Loop
 
-一个 Event Loop 线程要服务成百上千个连接。如果某个 Handler 里调用了 `Thread.sleep()`、同步 JDBC、`future.get()`、`synchronized` 等锁等待、大文件的同步读写或者一次 200 ms 的 CPU 密集计算，**这个线程上排队的所有其他请求都会被一起拖住**。在 8 核机器上只有 16 个 Event Loop，阻塞两三个就足以让 P99 延迟飙升。
+一个 Event Loop 上排着成百上千个连接，任何一个 Handler 阻塞都会拖住同线程上的所有请求，这条原则与 Netty 完全相同，见 [Channel 与 EventLoop · 业务线程池](/netty/4_channel_eventloop#四、业务线程池-不要阻塞-eventloop)。Vert.x 默认 8 核机器只有 16 个 Event Loop，阻塞两三个就足以让 P99 飙升；阻塞代码要交给 `executeBlocking`、Worker Verticle 或虚拟线程 Verticle（见第二、三节），并用下面的阻塞线程检查器兜底发现。
 
 常见的隐性阻塞来源：
 

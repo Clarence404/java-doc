@@ -534,7 +534,7 @@ A03 软件供应链失败覆盖的范围比"依赖有 CVE"更广：依赖本身�
 
 ## 十一、越权访问
 
-越权在 OWASP 2025 版中仍排第一。最常见的是 **BOLA**（Broken Object Level Authorization，对象级越权）：接口只校验了"已登录"，没有校验"这条数据是不是你的"。
+越权在 OWASP 2025 版中仍排第一，在 OWASP API Security Top 10 中对象级越权同样排第一。最常见的是 **BOLA**（Broken Object Level Authorization，对象级越权）：接口只校验了"已登录"，没有校验"这条数据是不是你的"。
 
 ```java
 // 错误：任何登录用户把 orderId 换一个数字就能看别人的订单
@@ -562,7 +562,8 @@ Optional<Order> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long us
 ```
 
 - 用户 ID 一律取自认证主体，绝不信任请求参数或请求体里的 `userId`
-- 对外暴露的 ID 可以用不可猜测的 UUID，但这只是增加枚举难度，不能替代归属校验
+- 对外暴露的 ID 可以用不可猜测的值（UUID、雪花 ID），但这只是增加枚举难度，不能替代归属校验
+- 管理员、客服等需要跨用户访问的场景，走单独的接口和权限，不在普通接口里开后门
 - 垂直越权（普通用户调管理接口）靠接口级授权解决，见 [权限模型：RBAC 与 ABAC](./5_rbac_abac) 与 [Spring Security](/spring/9_security) 的方法级权限
 - "只能看本部门数据"这类行级数据权限，统一在 SQL 层追加过滤条件，实现见 [权限系统架构设计](/architecture/6_access_control)
 

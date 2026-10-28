@@ -156,6 +156,14 @@ JDK 动态代理与 CGLIB 的实现原理、限制和排查方法见 [动态代�
 | `@EnableAspectJAutoProxy(proxyTargetClass = true)` | CGLIB |
 | Spring Boot 2.0+（`spring.aop.proxy-target-class` 默认 `true`） | CGLIB，有接口也一样 |
 
+Spring Boot 默认一律用 CGLIB，是为了无论按接口还是按实现类注入，都不会因为代理类型报 `BeanNotOfRequiredTypeException`。需要改回 JDK 代理时：
+
+```yaml
+spring:
+  aop:
+    proxy-target-class: false
+```
+
 选择依据是**能力而不是性能**：在现代 JDK 上两种代理的调用开销差别可以忽略，远小于通知本身的逻辑。CGLIB 通过生成子类实现，因此 `final` 类无法代理，`final`、`private`、`static` 方法无法被拦截。
 
 需要在不用注解的场景下给对象加通知，可以用 `ProxyFactory`：

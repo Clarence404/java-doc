@@ -51,7 +51,7 @@ Kafka、CDC 基础、Kubernetes、监控等通用知识在各自模块展开，�
 
 ## 四、关联模块
 
-- [Kafka](/messaging/2_kafka)：Flink 最常见的 Source 与 Sink，分区、消费组和事务机制在那里展开
+- [Kafka 架构与存储](/messaging/2_kafka)、[Kafka 生产与消费](/messaging/2_kafka_client)：Flink 最常见的 Source 与 Sink，分区与副本、消费组和事务机制分别在这两篇展开
 - [CDC 工具](/database/5_practice/0_cdc_tools)：binlog 原理，以及 Canal、Debezium、Flink CDC 的横向选型；[MySQL 主从与高可用](/database/1_mysql/9_topic_replication) 讲 binlog 格式与 GTID
 - [幂等设计](/architecture/3_idempotence)：Sink 端幂等写入与消费端去重的通用做法
 - [Kubernetes](/cloud-native/6_kubernetes)：Flink on Kubernetes 用到的基础概念，更多内容见 [云原生总览](/cloud-native/0_overview)

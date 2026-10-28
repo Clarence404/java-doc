@@ -15,7 +15,7 @@ Spring Boot 接入中间件主要是 Starter 与配置这一层「胶水」。�
 | 中间件 | Boot 4 Starter | 配置前缀 | Boot 4 主要变化 | 深入阅读 |
 |--------|---------------|---------|----------------|---------|
 | Redis | `spring-boot-starter-data-redis` | `spring.data.redis.*` | JSON 序列化器换成 Jackson 3 版本 | [Redis 实战](/cache/5_redis_practice) |
-| Kafka | `spring-boot-starter-kafka` | `spring.kafka.*` | 新增 starter；JSON 序列化器换成 `JacksonJson*` | [Kafka](/messaging/2_kafka) |
+| Kafka | `spring-boot-starter-kafka` | `spring.kafka.*` | 新增 starter；JSON 序列化器换成 `JacksonJson*` | [Kafka 架构与存储](/messaging/2_kafka) |
 | RabbitMQ | `spring-boot-starter-amqp` | `spring.rabbitmq.*` | 消息转换器换成 `JacksonJsonMessageConverter` | [RabbitMQ](/messaging/4_rabbitmq) |
 | Elasticsearch | `spring-boot-starter-data-elasticsearch` | `spring.elasticsearch.*` | elasticsearch-java 9.x，底层改用 `Rest5Client` | [Elasticsearch 实战](/nosql/5_search_es_practice#七、java-客户端) |
 | MongoDB | `spring-boot-starter-data-mongodb` | `spring.mongodb.*` | 连接配置从 `spring.data.mongodb.*` 改名 | [文档数据库](/nosql/2_document_db) |
@@ -188,7 +188,7 @@ public class OrderEventConsumer {
 
 **不要在监听方法里 catch 异常后只打日志**：offset 照常提交，消息就此丢失。也不要在默认的 `record` / `batch` 模式下声明 `Acknowledgment` 参数，它只在 `ack-mode: manual` / `manual_immediate` 下可用。
 
-失败处理只需声明一个 `CommonErrorHandler` Bean（`DefaultErrorHandler` + `DeadLetterPublishingRecoverer`），Boot 会自动把它装配到监听容器工厂。重试策略、死信、幂等消费、Outbox 的完整写法见 [Kafka](/messaging/2_kafka)。
+失败处理只需声明一个 `CommonErrorHandler` Bean（`DefaultErrorHandler` + `DeadLetterPublishingRecoverer`），Boot 会自动把它装配到监听容器工厂。重试策略、死信、幂等消费、Outbox 的完整写法见 [Kafka 生产与消费](/messaging/2_kafka_client)。
 
 ---
 

@@ -277,7 +277,7 @@ Java 侧的开源实现是 [Eclipse Milo](https://github.com/eclipse-milo/milo)�
 | 智能家居短距组网 | Zigbee（经网关桥接 MQTT） |
 | 存量 PLC、仪表接入 | Modbus RTU / TCP |
 | 新建产线、需要语义互操作 | OPC UA |
-| 海量设备数据进入大数据平台 | MQTT 接入，Broker 桥接到 [Kafka](/messaging/2_kafka) |
+| 海量设备数据进入大数据平台 | MQTT 接入，Broker 桥接到 [Kafka 架构与存储](/messaging/2_kafka) |
 
 ---
 

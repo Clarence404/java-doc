@@ -99,7 +99,7 @@ CREATE TABLE user_gmv (
 - 主键必填，主键列写入消息 key，同一 key 的更新落在同一分区，保证分区内有序；`-D` 写成 value 为 null 的墓碑消息，配合 `cleanup.policy=compact` 主题天然就是一张「最新值表」。
 - 两个 buffer-flush 参数都大于 0 才生效，缓冲期间同 key 只保留最后一条，能显著降低写放大。
 - 作为**源表**时，upsert-kafka 读出来是 upsert 流，规划器会自动加一个 `ChangelogNormalize` 算子把它补成完整 changelog——这个算子要按主键缓存全部最新值，是隐藏的状态大户。
-- Kafka 本身的分区、副本、事务等机制见 [Kafka](/messaging/2_kafka)。
+- Kafka 本身的分区、副本机制见 [Kafka 架构与存储](/messaging/2_kafka)，事务见 [Kafka 生产与消费 · 幂等生产者与事务](/messaging/2_kafka_client#三、幂等生产者与事务-exactly-once)。
 
 ### 3、JDBC：结果表与维表
 

@@ -15,7 +15,7 @@
 ## 二、推荐阅读路径
 
 1. [消息队列基础](./1_basics)：解耦削峰异步、消息模型，以及不丢、不重、有序、积压、事务一致的通用解法
-2. [Kafka](./2_kafka)：分区日志、副本与 KRaft、高吞吐原理，大数据与事件流场景的首选
+2. [Kafka 架构与存储](./2_kafka)：分区日志、副本与 KRaft、高吞吐原理、Streams 与 Connect，大数据与事件流场景的首选；接着读 [Kafka 生产与消费](./2_kafka_client)：Spring Boot 接入、失败处理与幂等消费、事务与 Exactly-Once、顺序消息
 3. [RocketMQ](./3_rocketmq)：事务消息、定时消息、顺序消息，国内业务消息的主力
 4. [RabbitMQ](./4_rabbitmq)：AMQP 交换机路由、仲裁队列，灵活路由与中低并发业务解耦
 5. [其他 MQ](./5_other_mq)：Apache Pulsar 与其他常见消息系统的定位

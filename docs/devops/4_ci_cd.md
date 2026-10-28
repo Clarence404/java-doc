@@ -376,13 +376,9 @@ jobs:
 
 ## 五、拉取式部署：GitOps
 
-上面的 `deploy.yml` 是**推送式**：CI 持有集群凭证，主动改集群。集群多、权限要求严格时，更常见的做法是**拉取式** GitOps：
+上面的 `deploy.yml` 是**推送式**：CI 持有集群凭证，主动改集群。集群多、权限要求严格时改用**拉取式** GitOps：CI 不再调用 kubectl，只向配置仓库提交镜像 digest 的变更，由集群内的 Argo CD 拉取同步；推送与拉取的权限边界、漂移纠正与回滚对比见 [Argo CD · GitOps 与拉取模型](/cloud-native/9_argocd#一、gitops-与拉取模型)。
 
 ![推送式与拉取式部署对比](../assets/devops/ci-cd-push-vs-pull.svg)
-
-- CI 不再调用 kubectl，而是向配置仓库提交（或开 PR）一行镜像 digest 的变更
-- 集群内的 Argo CD 持续比对配置仓库与集群实际状态，发现差异就同步；有人手工改了集群，也会被拉回期望状态
-- 集群 API 无需对 CI 开放，审计记录就是配置仓库的提交历史，回滚等于 `git revert`
 
 CI 中更新配置仓库的核心一步，以 Kustomize 为例：
 
@@ -393,7 +389,7 @@ git commit -am "deploy order-service ${DIGEST}"
 git push
 ```
 
-推送配置仓库需要一个只对该仓库有写权限的 GitHub App 令牌或 Deploy Key，不要复用个人 PAT。也可以不改 CI，由 Argo CD Image Updater 监听镜像仓库自动回写。Application、同步策略与多集群管理见 [Argo CD](/cloud-native/9_argocd)。
+推送配置仓库需要一个只对该仓库有写权限的 GitHub App 令牌或 Deploy Key，不要复用个人 PAT。也可以不改 CI，由 Argo CD Image Updater 监听镜像仓库自动回写。
 
 ---
 

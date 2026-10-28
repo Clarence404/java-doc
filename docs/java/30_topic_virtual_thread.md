@@ -165,7 +165,7 @@ public class InventoryClient {
 
 ### 2、JDK 21–23：synchronized 是主要来源
 
-在 JDK 21–23 中，对象监视器由 OS 线程持有，虚拟线程在 `synchronized` 内部阻塞（包括在 `synchronized` 里做 IO、或调用 `Object.wait()`）时无法卸载。典型的坑是：自己的代码没有问题，但用到的老版本 JDBC 驱动、连接池、日志框架在热点路径上用了 `synchronized`。
+在 JDK 21–23 中，对象监视器由 OS 线程持有，虚拟线程在 `synchronized` 内部阻塞（包括在 `synchronized` 里做 IO、`sleep`、调用 `Object.wait()`，或在其中等待进入另一个 monitor）时无法卸载。典型的坑是：自己的代码没有问题，但用到的老版本 JDBC 驱动、连接池、日志框架在热点路径上用了 `synchronized`。
 
 这些版本上的应对：
 
@@ -180,7 +180,7 @@ JEP 491 让虚拟线程可以独立于载体线程获取、持有、释放监视
 仍然会钉住的情况只剩少数：
 
 - 栈上有 native 帧：通过 JNI 或 FFM API 调用本地代码，本地代码又回调 Java 并在其中阻塞；
-- 类加载、类初始化：在 `<clinit>` 中阻塞，或等待另一个线程完成某个类的初始化。
+- 类加载、类初始化：加载类时阻塞、在 `<clinit>`（`static {}`）中阻塞，或等待另一个线程完成某个类的初始化。
 
 ### 4、版本建议
 

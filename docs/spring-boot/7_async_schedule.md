@@ -488,13 +488,13 @@ spring:
 
 ### 2、收益边界
 
-虚拟线程的价值是**让阻塞变得便宜**：线程在等 IO（数据库、HTTP 调用）时让出载体线程。典型的「一个请求大部分时间在等下游」的 Web 应用收益明显；CPU 密集型任务没有收益，还失去了线程池的并发上限保护，计算任务继续用固定大小的平台线程池。
+虚拟线程让阻塞变得便宜，等下游 IO 为主的 Web 应用收益明显；CPU 密集型任务没有收益，还失去了线程池的并发上限保护，计算任务继续用固定大小的平台线程池。原理与适用边界见 [虚拟线程 · 什么时候不用](/java/30_topic_virtual_thread#十、什么时候不用)。
 
 ### 3、三个必知的坑
 
-1. **钉住（pinning）**：JDK 21–23 上，虚拟线程在 `synchronized` 块内阻塞会连同载体线程一起被钉住，高并发下吞吐退化；JDK 24 起（JEP 491）已解决。仍在 21 上运行时要排查热点路径上的 `synchronized` + 阻塞，生产基线建议 JDK 25
-2. **并发上限消失**：虚拟线程不该池化，原来靠线程池大小兜底的「最多 N 个任务同时打下游」没有了。对下游的并发控制改用连接池上限、`Semaphore`，或 Framework 7 的 `@ConcurrencyLimit`（需 `@EnableResilientMethods`，见 [Retry 重试 · 并发限制](/spring/6_retry#三、并发限制-concurrencylimit)）；开关打开时也可以用 `spring.task.execution.simple.concurrency-limit` 给 `@Async` 整体设上限
-3. **`ThreadLocal` 成本**：每个任务一个虚拟线程，靠 `ThreadLocal` 缓存昂贵对象的做法失效且放大内存；上下文传递在 JDK 25 起可用 `ScopedValue`，见 [虚拟线程](/java/30_topic_virtual_thread)
+1. **钉住（pinning）**：JDK 21–23 上 `synchronized` 内阻塞会钉住载体线程，JDK 24 起已解决，生产基线建议 JDK 25，见 [虚拟线程 · 钉住（Pinning）](/java/30_topic_virtual_thread#五、钉住-pinning)
+2. **并发上限消失**：原来靠线程池大小兜底的「最多 N 个任务同时打下游」没有了。Boot 侧可用 `spring.task.execution.simple.concurrency-limit` 给 `@Async` 整体设上限，或用 Framework 7 的 `@ConcurrencyLimit`（需 `@EnableResilientMethods`，见 [Retry 重试 · 并发限制](/spring/6_retry#三、并发限制-concurrencylimit)）；对下游的连接池上限、`Semaphore` 同样有效
+3. **`ThreadLocal` 成本**：靠 `ThreadLocal` 缓存昂贵对象的做法失效且放大内存，上下文传递改用 `ScopedValue`，见 [虚拟线程 · ScopedValue（JDK 25 正式）](/java/30_topic_virtual_thread#七、scopedvalue-jdk-25-正式)
 
 **与线程池的取舍**：IO 密集的异步任务直接用虚拟线程开关，不再手工调 `corePoolSize`；需要明确的限流语义（最多同时 N 个任务）时，用 `@ConcurrencyLimit` / `Semaphore`，或保留一个有界的平台线程池。
 

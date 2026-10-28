@@ -92,7 +92,7 @@ public class SingletonDCL {
 }
 ```
 
-`new` 分三步：分配内存 → 执行构造方法 → 把引用赋给 `instance`。没有 `volatile` 时后两步可能重排，别的线程会在第一次检查处拿到一个构造还没跑完的对象。重排的细节和图示见 [JMM 内存模型](/java/22_topic_jmm#七、双重检查锁-dcl)，这里不再展开。
+去掉 `volatile`，别的线程可能在第一次检查处拿到一个构造还没跑完的对象。为什么会重排、`volatile` 如何建立 happens-before，见 [JMM 内存模型 · 双重检查锁（DCL）](/java/22_topic_jmm#七、双重检查锁-dcl)。
 
 ### 4、静态内部类（Holder，推荐）
 

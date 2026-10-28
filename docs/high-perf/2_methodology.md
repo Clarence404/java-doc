@@ -41,16 +41,9 @@ USE 的优点是**覆盖完整、不遗漏**，适合"系统整体变慢但不�
 
 ## 二、RED 方法：面向服务
 
-**对每个服务（或接口）采集请求速率、错误、耗时三个指标：**
+**对每个服务（或接口）看请求速率（Rate）、错误（Errors）、耗时分布（Duration）三项**，指标定义、与四个黄金信号的关系以及 Micrometer 中的数据来源见 [指标监控 · RED、USE 与四个黄金信号](/observability/2_metrics#三、该看哪些指标-red、use-与四个黄金信号)。
 
-| 指标 | 含义 | Prometheus 示例 |
-|------|------|-----------------|
-| Rate | 每秒请求数 | `rate(http_server_requests_seconds_count[1m])` |
-| Errors | 每秒失败请求数或错误率 | 状态码 5xx 的 rate |
-| Duration | 请求耗时分布（分位数） | `histogram_quantile(0.99, ...)` |
-
-- RED 回答"**哪个服务、哪个接口**有问题"，USE 回答"**哪种资源**有问题"，两者互补：先用 RED 找到慢接口，再用 USE 查它所在机器与依赖的资源。
-- Spring Boot + Micrometer 暴露的 `http.server.requests` 指标就是 RED 所需的数据；分位数直方图需开启 `management.metrics.distribution.percentiles-histogram.http.server.requests=true`。监控体系建设见 [可观测性](/observability/0_overview)。
+在性能分析里，RED 回答"**哪个服务、哪个接口**有问题"，USE 回答"**哪种资源**有问题"，两者互补：先用 RED 找到慢接口，再用 USE 查它所在机器与依赖的资源，具体步骤见下一节。
 
 ---
 

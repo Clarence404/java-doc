@@ -315,6 +315,8 @@ public class KnowledgeIngestService {
 }
 ```
 
+从文件批量加载时用 `FileSystemDocumentLoader.loadDocuments(path, parser)`：它默认只按纯文本解析，PDF 需要引入 `langchain4j-document-parser-apache-pdfbox` 并传入 `ApachePdfBoxDocumentParser`，Word 等格式用 Apache Tika 解析器；权限元数据（如 `dept`、`tenant`）要在入库前写进 `doc.metadata()`。
+
 ### 3、查询：带权限过滤的 ContentRetriever
 
 `dynamicFilter` 在每次检索时按查询上下文生成过滤条件，这里用对话的 `@MemoryId`（即用户 ID）查出该用户可见的部门：

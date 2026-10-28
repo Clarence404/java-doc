@@ -24,27 +24,7 @@ description: 分派与重写、抽象类与接口、equals / hashCode、Integer 
 
 ### 2、静态分派与动态分派
 
-Java 的方法选择分两步，很多「多态失灵」的问题都出在把这两步混为一谈：
-
-- **静态分派（重载）**：编译期由 javac 按参数的**声明类型**选定方法签名
-- **动态分派（重写）**：运行期由 `invokevirtual` / `invokeinterface` 按接收者的**实际类型**找实现
-
-```java
-class Animal { String name() { return "animal"; } }
-class Dog extends Animal { @Override String name() { return "dog"; } }
-
-class Printer {
-    static String print(Animal a) { return "Animal:" + a.name(); }
-    static String print(Dog d)    { return "Dog:" + d.name(); }
-}
-
-Animal a = new Dog();
-Printer.print(a);   // "Animal:dog"
-// 选哪个 print：看 a 的声明类型 Animal（编译期，静态分派）
-// a.name() 调哪个实现：看 a 的实际类型 Dog（运行期，动态分派）
-```
-
-所以 Java 是「静态多分派、动态单分派」：重载可以按多个参数的类型选，重写只按接收者一个对象选。需要按参数的运行期类型分发时，过去用访问者模式，JDK 21 起用 switch 模式匹配更直接，见 [Record、Sealed 与模式匹配](./12_topic_record)。字节码层面的指令与虚方法表见 [字节码执行 · 静态分派与动态分派](/jvm/3_bytecode#_4、静态分派与动态分派)。
+Java 的方法选择分两步，很多「多态失灵」的问题都出在把这两步混为一谈：重载是**静态分派**，编译期按参数的**声明类型**选签名；重写是**动态分派**，运行期按接收者的**实际类型**找实现。所以 `Animal a = new Dog(); print(a)` 会选中 `print(Animal)`，但其中 `a.name()` 调的是 `Dog` 的实现。对比表、字节码指令与虚方法表见 [字节码执行 · 静态分派与动态分派](/jvm/3_bytecode#_4、静态分派与动态分派)。
 
 ### 3、重载与重写的规则
 

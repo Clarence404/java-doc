@@ -272,7 +272,7 @@ MySQL 的 binlog 与账号前置配置、Canal / Debezium 的事件结构见 [CD
 
 ### 1、Debezium + Kafka Connect
 
-Debezium MySQL Connector 作为 Source 把每张表的变更写入一个 Kafka 主题（`<topic.prefix>.<库>.<表>`），再由 Sink Connector 写到目标端。Kafka 在中间起到**缓冲和多路分发**的作用：同一份订单变更可以同时供湖仓入湖、搜索索引更新、缓存失效等多个下游消费。Kafka Connect 的概念与 Debezium Source 的完整配置见 [Kafka](/messaging/2_kafka) 第十节，这里给出写入 Iceberg 的 Sink（Iceberg 1.7 起官方自带 Kafka Connect Sink）：
+Debezium MySQL Connector 作为 Source 把每张表的变更写入一个 Kafka 主题（`<topic.prefix>.<库>.<表>`），再由 Sink Connector 写到目标端。Kafka 在中间起到**缓冲和多路分发**的作用：同一份订单变更可以同时供湖仓入湖、搜索索引更新、缓存失效等多个下游消费。Kafka Connect 的概念与 Debezium Source 的完整配置见 [Kafka 架构与存储 · Kafka Connect](/messaging/2_kafka#六、kafka-connect)，这里给出写入 Iceberg 的 Sink（Iceberg 1.7 起官方自带 Kafka Connect Sink）：
 
 ```json
 {
@@ -386,7 +386,7 @@ WHEN NOT MATCHED AND s.is_deleted = 0 THEN INSERT
 | Paimon | 主键表 | 同主键后写覆盖先写，`sequence.field` 指定按业务时间判断新旧 |
 | Doris / StarRocks | Unique Key / Primary Key 模型 | 同主键覆盖；配合 Stream Load 的 label 去重，同一 label 不会重复导入 |
 | MySQL 等关系库 | `INSERT ... ON DUPLICATE KEY UPDATE` 或先删后插（同一事务） | 目标表必须有主键或唯一键 |
-| Kafka | 幂等生产者 + 事务 | 见 [Kafka](/messaging/2_kafka) 第五节；下游消费者仍需自行去重 |
+| Kafka | 幂等生产者 + 事务 | 见 [Kafka 生产与消费 · 幂等生产者与事务](/messaging/2_kafka_client#三、幂等生产者与事务-exactly-once)；下游消费者仍需自行去重 |
 
 几条原则：
 

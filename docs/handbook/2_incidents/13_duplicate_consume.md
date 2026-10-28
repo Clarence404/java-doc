@@ -244,9 +244,9 @@ Pod 被驱逐、节点宕机、OOM 都会让消费者来不及提交 offset。Ka
 ## 七、涉及知识点
 
 - 消费幂等的两种正确写法与常见错误：[消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)
-- Kafka 下的重复来源与去重键：[Kafka · 幂等消费](/messaging/2_kafka#_3、幂等消费)
+- Kafka 下的重复来源与去重键：[Kafka 生产与消费 · 幂等消费](/messaging/2_kafka_client#_3、幂等消费)
 - 唯一约束、条件更新、Token 等通用方案：[幂等设计](/architecture/3_idempotence)
-- 生产者幂等与事务的边界：[Kafka · 幂等生产者与事务](/messaging/2_kafka#五、幂等生产者与事务-exactly-once)
+- 生产者幂等与事务的边界：[Kafka 生产与消费 · 幂等生产者与事务](/messaging/2_kafka_client#三、幂等生产者与事务-exactly-once)
 - 优雅停机与 Kubernetes 配合：[优雅上下线与变更](/high-avail/8_graceful_release#一、优雅停机)
 - Arthas `jad`：[线上诊断](/engineering/7_diagnosis#_1、jad-确认运行的是哪份代码)
 

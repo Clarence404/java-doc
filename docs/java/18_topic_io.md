@@ -215,12 +215,12 @@ try (FileChannel file = FileChannel.open(path, StandardOpenOption.READ)) {
 ```
 
 - 在 Linux 上，目标是 `SocketChannel` 时走 `sendfile`；单次调用最多传输约 2 GB，大文件必须循环
-- 数据不经过用户态，应用无法修改内容。**开启 TLS 后必须在用户态加密，sendfile 失效**，Kafka、Netty 的 HTTPS 文件下载都受此影响，见 [Kafka](/messaging/2_kafka) 与 [IO 与网络优化](/high-perf/9_io_network)
+- 数据不经过用户态，应用无法修改内容。**开启 TLS 后必须在用户态加密，sendfile 失效**，Kafka、Netty 的 HTTPS 文件下载都受此影响，见 [Kafka 架构与存储](/messaging/2_kafka) 与 [IO 与网络优化](/high-perf/9_io_network)
 - Netty 的 `DefaultFileRegion` 底层就是 `transferTo`，见 [ByteBuf](/netty/6_bytebuf)
 
 ### 2、map（mmap）
 
-`FileChannel.map()` 返回 `MappedByteBuffer`，读写它就是读写页缓存，适合随机读写大文件（RocketMQ 的 CommitLog 就是 mmap）。限制有两条：
+`FileChannel.map()` 返回 `MappedByteBuffer`，读写它就是读写页缓存，适合随机读写大文件（RocketMQ 的 CommitLog 就是 mmap）。缺页、脏页回写与 `msync` 等内核机制见 [内存管理与 Page Cache · mmap](/os/3_memory#六、mmap)。Java 侧的限制有两条：
 
 - 单个映射最大 `Integer.MAX_VALUE` 字节（约 2 GB），更大的文件要分段映射
 - 没有公开的 unmap 方法，映射要等 Buffer 被 GC 才释放，期间文件在 Windows 上无法删除

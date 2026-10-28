@@ -4,7 +4,7 @@ description: 消费者同步调用慢下游导致 Kafka 积压、lag 与成员�
 
 # MQ 消息积压
 
-> 前置阅读：[消息队列基础](/messaging/1_basics#六、消息积压)、[Kafka](/messaging/2_kafka#_1、消息积压)
+> 前置阅读：[消息队列基础](/messaging/1_basics#六、消息积压)、[Kafka 生产与消费](/messaging/2_kafka_client#_1、消息积压)
 
 大促开场后履约消息积压 175 万条，根因是消费逻辑里新加的一次同步调用。本篇按现象到预防完整复盘，基线为 Spring Boot 4、Kafka 4（新消费者组协议）。
 
@@ -177,7 +177,7 @@ spring:
       concurrency: 4
 ```
 
-**分区数按峰值预留**：峰值 2000 条/秒、单线程按 150 条/秒估算需要 14 个线程，看似够用，但下游一抖单条耗时就会翻倍，24 个分区没有扩容空间；扩到 48 个分区，平时仍用 24 个线程，需要时可直接扩到 48（扩分区对 key 路由的影响见 [Kafka · 增加分区](/messaging/2_kafka#_3、增加分区)）。
+**分区数按峰值预留**：峰值 2000 条/秒、单线程按 150 条/秒估算需要 14 个线程，看似够用，但下游一抖单条耗时就会翻倍，24 个分区没有扩容空间；扩到 48 个分区，平时仍用 24 个线程，需要时可直接扩到 48（扩分区对 key 路由的影响见 [Kafka 架构与存储 · 增加分区](/messaging/2_kafka#_1、增加分区)）。
 
 ---
 
@@ -211,8 +211,8 @@ spring:
 ## 七、涉及知识点
 
 - 积压的排查与处置清单：[消息队列基础 · 消息积压](/messaging/1_basics#六、消息积压)
-- Rebalance 触发条件与新消费者组协议：[Kafka · Consumer Rebalance](/messaging/2_kafka#_2、consumer-rebalance)
-- 失败重试与死信 Topic：[Kafka · DefaultErrorHandler](/messaging/2_kafka#_2、defaulterrorhandler-deadletterpublishingrecoverer)
+- Rebalance 触发条件与新消费者组协议：[Kafka 生产与消费 · Consumer Rebalance](/messaging/2_kafka_client#_2、consumer-rebalance)
+- 失败重试与死信 Topic：[Kafka 生产与消费 · DefaultErrorHandler](/messaging/2_kafka_client#_2、defaulterrorhandler-deadletterpublishingrecoverer)
 - 超时值怎么定：[超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead#一、超时)
 - 削峰的系统设计：[异步与削峰](/high-con/4_async_peak_shaving)
 - Arthas `trace`：[线上诊断](/engineering/7_diagnosis#_3、trace-拆解方法内部耗时)

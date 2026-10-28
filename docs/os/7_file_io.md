@@ -171,7 +171,7 @@ Kafka 把消息追加到分段日志、RocketMQ 追加到 CommitLog，RocksDB、
 
 - HDD 上把毫秒级寻道变成连续传输，吞吐相差两个数量级
 - SSD 上大块顺序写的写放大最小、延迟最稳定
-- 追加写配合 Page Cache 与预读，消费者读刚写入的数据几乎不碰盘，见 [内存管理与 Page Cache](./3_memory#七、为什么-kafka-与-rocketmq-依赖-page-cache) 与 [Kafka 高性能原理](/messaging/2_kafka#七、高性能原理)
+- 追加写配合 Page Cache 与预读，消费者读刚写入的数据几乎不碰盘，见 [内存管理与 Page Cache](./3_memory#七、为什么-kafka-与-rocketmq-依赖-page-cache) 与 [Kafka 高性能原理](/messaging/2_kafka#三、高性能原理)
 
 代价是读路径变复杂（LSM 要查多层文件）和后台 compaction 带来的写放大。
 

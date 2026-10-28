@@ -4,7 +4,7 @@ description: Apache Pulsar 存算分离与订阅模式、与 Kafka 的差异、K
 
 # 其他 MQ
 
-> 前置阅读：[Kafka](./2_kafka)、[RocketMQ](./3_rocketmq)、[RabbitMQ](./4_rabbitmq)
+> 前置阅读：[Kafka 架构与存储](./2_kafka)、[RocketMQ](./3_rocketmq)、[RabbitMQ](./4_rabbitmq)
 
 在平台化、多租户、跨地域复制等需求下，Pulsar 常被放进三大 MQ 之外的候选名单。本篇先讲 Pulsar 解决什么问题、代价是什么，再速览其他常见消息系统的定位，下一篇统一做选型。
 
@@ -68,7 +68,7 @@ Pulsar 把「怎么分发给消费者」交给**订阅（Subscription）**决定
 
 ## 二、Kafka 的队列语义：Share Group
 
-KIP-932（Share Group，即 Queues for Kafka）让多个消费者共享消费同一分区并逐条确认，Kafka 4.2（2026-02）起 GA，相当于 Pulsar 的 Shared 订阅（不保证顺序）。已有 Kafka 集群、需要竞争消费的场景可以不再额外引入 RabbitMQ；确认类型、重投上限与限制见 [Kafka · 共享组](./2_kafka#_4、共享组-queues-for-kafka)。
+KIP-932（Share Group，即 Queues for Kafka）让多个消费者共享消费同一分区并逐条确认，Kafka 4.2（2026-02）起 GA，相当于 Pulsar 的 Shared 订阅（不保证顺序）。已有 Kafka 集群、需要竞争消费的场景可以不再额外引入 RabbitMQ；确认类型、重投上限与限制见 [Kafka 架构与存储 · 共享组](/messaging/2_kafka#_2、共享组-queues-for-kafka)。
 
 ---
 

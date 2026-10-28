@@ -211,7 +211,7 @@ Assistant assistant = AiServices.builder(Assistant.class)
         .build();
 ```
 
-本地 Server 用 `StdioMcpTransport`（`command(List.of("npx", "-y", "..."))`）。`McpClient` 持有连接，应用关闭时调用 `close()`。
+远程 Server 需要授权时，用 `StreamableHttpMcpTransport.builder().customHeaders(Map.of("Authorization", "Bearer " + accessToken))` 带上按 OAuth 流程获取的令牌。本地 Server 用 `StdioMcpTransport`（`command(List.of("npx", "-y", "..."))`）。`McpClient` 持有连接，应用关闭时调用 `close()`。
 
 ---
 

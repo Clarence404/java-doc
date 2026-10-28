@@ -69,7 +69,7 @@ DataStream<String> raw = env.fromSource(source, WatermarkStrategy.noWatermarks()
 - **并行度不要超过分区数**：多出来的 SourceReader 拿不到分片会空闲，空闲 Reader 不产生水位线会卡住下游窗口（解法见[时间、水位线与窗口](./3_time_window)的 idleness）。
 - 有界读取（补数、回溯）用 `.setBounded(OffsetsInitializer.timestamp(...))`，读到指定位置后作业自然结束。
 
-Kafka 本身的分区、消费组与事务机制见 [Kafka](/messaging/2_kafka)。
+Kafka 本身的分区机制见 [Kafka 架构与存储](/messaging/2_kafka)，消费组与事务见 [Kafka 生产与消费](/messaging/2_kafka_client)。
 
 ---
 

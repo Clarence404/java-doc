@@ -114,13 +114,13 @@ public synchronized void dec();
 
 ## 三、对象头与锁状态位
 
-HotSpot 中每个对象的对象头包含 Mark Word（64 位 JVM 上 8 字节）和类型指针。Mark Word 的最低 2 位是锁标志：`01` 未锁定、`00` 轻量级锁定、`10` 已膨胀为 ObjectMonitor、`11` 供 GC 标记使用。各状态下 Mark Word 的完整位布局见 [内存结构](/jvm/1_memory)。
+HotSpot 中每个对象的对象头包含 Mark Word（64 位 JVM 上 8 字节）和类型指针。Mark Word 的最低 2 位是锁标志：`01` 未锁定、`00` 轻量级锁定、`10` 已膨胀为 ObjectMonitor、`11` 供 GC 标记使用。各状态下 Mark Word 的完整位布局与紧凑对象头见 [内存结构 · Mark Word](/jvm/1_memory#_1、mark-word)。
 
 几个和锁相关的要点：
 
 - **identity hashCode 与锁互相影响**：未锁定时哈希值直接存在 Mark Word 中。JDK 8 中，对一个偏向锁对象调用 `Object.hashCode()` / `System.identityHashCode()` 会撤销偏向；栈锁状态下哈希值存在被替换出去的原 Mark Word 中，需要时可能触发膨胀
 - **`wait()` 一定会膨胀**：WaitSet 只存在于 ObjectMonitor 中
-- **紧凑对象头**：JDK 25 起 `-XX:+UseCompactObjectHeaders`（JEP 519）成为正式特性，把 Mark Word 与类指针压缩进 8 字节，默认不开启；它依赖新轻量级锁，不支持旧的栈锁
+- **紧凑对象头**（JDK 25 正式，JDK 27 起默认开启）依赖新轻量级锁，不支持旧的栈锁
 
 ---
 
@@ -233,24 +233,7 @@ public String join(String a, String b) {
 
 ## 八、虚拟线程与 pinning
 
-虚拟线程在阻塞时会从载体线程（carrier thread）上卸载，让载体去运行其他虚拟线程。**pinning（钉住）** 指虚拟线程阻塞时无法卸载，连同载体线程一起阻塞。
-
-| 版本 | `synchronized` 中阻塞的行为 |
-|------|---------------------------|
-| JDK 21 ~ 23 | 在 `synchronized` 块或方法中执行阻塞操作（IO、`sleep`、`Object.wait`、等待进入另一个 monitor）会钉住载体线程。载体线程数默认等于 CPU 核数，大量钉住会让所有虚拟线程停摆 |
-| JDK 24+ | JEP 491：虚拟线程可以在持有、等待或进入 monitor 时卸载，`synchronized` 不再导致 pinning |
-
-JDK 24 之后仍会钉住的情况：
-
-- 栈上存在本地方法帧：JNI 或 FFM API 调用的本地代码回调到 Java 后阻塞
-- 在类初始化器（`static {}`）中阻塞，或等待另一个线程完成类初始化
-- 加载类时阻塞
-
-排查与应对：
-
-- 使用 JFR 事件 `jdk.VirtualThreadPinned` 定位钉住的位置（JDK 24 起事件中会给出钉住原因）；`-Djdk.tracePinnedThreads` 在 JDK 24 中已移除
-- 仍在 JDK 21 的项目：把包住阻塞 IO 的 `synchronized` 改为 `ReentrantLock`，或升级到 JDK 25 LTS
-- 虚拟线程的完整内容见 [虚拟线程](./30_topic_virtual_thread)
+JDK 21–23 中，虚拟线程在 `synchronized` 内阻塞（IO、`sleep`、`Object.wait()`、等待进入另一个 monitor）会连同载体线程一起被钉住，大量钉住会让所有虚拟线程停摆；还停在 JDK 21 的项目，要把包住阻塞 IO 的 `synchronized` 改为 `ReentrantLock`。JDK 24 的 JEP 491 让虚拟线程可以在持有、等待或进入 monitor 时卸载，`synchronized` 不再导致钉住。钉住的原理、仍会钉住的情况与 JFR 排查见 [虚拟线程 · 钉住（Pinning）](./30_topic_virtual_thread#五、钉住-pinning)。
 
 ---
 

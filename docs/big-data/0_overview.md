@@ -83,7 +83,7 @@ Java 后端和数据平台打交道，主要在四个接口上：
 - 流计算引擎：DataStream、事件时间与窗口、状态与 Checkpoint、Flink SQL → [Flink](/flink/0_overview)；Flink 实时数仓分层与维表关联 → [实战场景](/flink/8_scenarios)
 - 业务库实时同步：binlog 前置配置、Canal / Debezium / Flink CDC 对比 → [CDC 工具](/database/5_practice/0_cdc_tools)、[Flink CDC](/flink/6_cdc)
 - 列存原理、ClickHouse、Doris / StarRocks 数据模型 → [列式与 OLAP 数据库](/nosql/3_column_db)
-- 数据集成与实时链路的消息总线 → [Kafka](/messaging/2_kafka)
+- 数据集成与实时链路的消息总线 → [Kafka 架构与存储](/messaging/2_kafka)
 - 业务侧定时任务、XXL-JOB 等分布式调度 → [分布式调度](/distributed/6_job_scheduler)；审批类流程编排 → [工作流引擎](/distributed/7_work_flow)
 - 冷热分层与归档 → [数据冷热分离](/architecture/4_cold_hot_data)；对象存储原理与选型 → [对象存储](/architecture/5_object_storage)
 - 海量数据场景的整体选型 → [海量数据架构选型](/scenario/2_big_data)；读写分离到异构存储 → [数据层扩展](/high-con/5_data_scaling)

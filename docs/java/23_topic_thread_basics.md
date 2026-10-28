@@ -365,18 +365,7 @@ TTL 的核心是在任务包装器里做三步，简称 CRR：
 
 ### 5、ScopedValue（JDK 25）
 
-在虚拟线程场景中，`ThreadLocal` 有两个问题：百万级虚拟线程各自持有一份副本，内存放大明显；值可变、生命周期不受控。JDK 25 正式发布的 `ScopedValue`（JEP 506）提供了替代：**不可变、只在一个代码块的动态作用域内有效、作用域结束自动解绑**。
-
-```java
-private static final ScopedValue<String> TRACE_ID = ScopedValue.newInstance();
-
-void handle(Request req) {
-    ScopedValue.where(TRACE_ID, req.traceId())
-               .run(() -> service.process(req));   // process 及其调用链中可 TRACE_ID.get()
-}                                                   // 离开 run 后自动失效，无需 remove
-```
-
-结构化并发 `StructuredTaskScope` 中 fork 的子任务会自动继承 ScopedValue 绑定，但结构化并发在 JDK 25 仍是预览特性。更多见 [虚拟线程](./30_topic_virtual_thread)。
+在虚拟线程场景中，`ThreadLocal` 的每线程副本会随百万级虚拟线程放大内存，且值可变、生命周期靠 `remove()` 手动控制。JDK 25 正式发布的 `ScopedValue`（JEP 506）是替代方案：值不可变，只在 `ScopedValue.where(...).run(...)` 的代码块内有效，离开后自动解绑。用法、与 `ThreadLocal` 的对比见 [虚拟线程 · ScopedValue（JDK 25 正式）](./30_topic_virtual_thread#七、scopedvalue-jdk-25-正式)。
 
 ### 6、选型
 

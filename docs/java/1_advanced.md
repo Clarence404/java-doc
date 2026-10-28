@@ -39,51 +39,7 @@ int sum = list.stream().mapToInt(Integer::intValue).sum();
 
 ### 2、底层实现：invokedynamic + LambdaMetafactory
 
-![Lambda 的编译与链接](../assets/java/java-lambda-indy.svg)
-
-Lambda **不是**匿名内部类的语法糖，编译后也不会产生 `Outer$1.class` 这样的类文件。过程分两段：
-
-**编译期（javac）**
-
-1. Lambda 体被脱糖成当前类中的一个私有方法 `lambda$<所在方法>$<序号>`。不引用 `this` 时是 `static` 方法，引用了 `this`（包括访问实例字段）时是实例方法；捕获的局部变量变成该方法的前置参数。
-2. 在 Lambda 出现的位置生成一条 `invokedynamic` 指令，引导方法（bootstrap method）指向 `LambdaMetafactory.metafactory`，静态参数里带上接口方法签名和第 1 步生成方法的 `MethodHandle`。
-
-```java
-public class Demo {
-    public static void main(String[] args) {
-        int factor = 3;
-        Function<Integer, Integer> f = x -> x * factor;
-        System.out.println(f.apply(2));
-    }
-}
-```
-
-```shell
-$ javac Demo.java && javap -c -p Demo
-  public static void main(java.lang.String[]);
-       ...
-       3: invokedynamic #7,  0   // InvokeDynamic #0:apply:(I)Ljava/util/function/Function;
-       ...
-  private static java.lang.Integer lambda$main$0(int, java.lang.Integer);
-```
-
-可以看到：捕获的 `factor` 成了 `lambda$main$0` 的第一个参数，`invokedynamic` 的调用签名 `(I)Function` 表示「传入捕获值，返回一个 Function 实例」。
-
-**运行期（首次执行该调用点）**
-
-1. JVM 调用引导方法 `LambdaMetafactory.metafactory`，它在运行时生成一个实现了 `Function` 的类：JDK 15 起通过 `Lookup.defineHiddenClass` 定义为**隐藏类**（JEP 371，此前用的是 `Unsafe.defineAnonymousClass`），类名形如 `Demo$$Lambda/0x...`，不能被其他类按名引用。
-2. 该类的 `apply` 方法直接调用 `lambda$main$0`，捕获值保存在它的 final 字段里。
-3. 引导方法返回一个 `CallSite`，调用点被链接到它；之后再执行这行代码不再走引导过程。
-
-**捕获与非捕获的区别**：非捕获 Lambda（不引用任何外部变量）链接后每次求值返回同一个实例；捕获 Lambda 每次求值都 `new` 一个实例来装捕获值。这是当前 HotSpot 的实现行为，规范并不保证 Lambda 实例的同一性，所以不要用 `==` 比较 Lambda，也不要拿 Lambda 当锁或 Map 的 key。
-
-为什么选择 `invokedynamic` 而不是直接编译成内部类：
-
-- 类文件更少更小，不会每个 Lambda 都多一个 `.class`
-- 生成策略留给运行时决定，JDK 升级（如改用隐藏类）不需要重新编译用户代码
-- 首次链接有成本（生成类、解析方法句柄），对启动时间敏感的场景可借助 CDS / AOT 缓存，见 [启动与部署优化](/spring-boot/13_startup)
-
-可序列化的 Lambda（目标类型实现了 `Serializable`）会改用 `LambdaMetafactory.altMetafactory`，并在宿主类生成 `$deserializeLambda$` 方法；除非框架需要（如部分 RPC 框架序列化 Lambda），一般不要让 Lambda 可序列化。`invokedynamic` 指令本身的执行过程见 [字节码执行](/jvm/3_bytecode)。
+Lambda **不是**匿名内部类的语法糖，编译后也不会产生 `Outer$1.class`：javac 把 Lambda 体变成本类的私有方法 `lambda$main$0`，在使用处放一条 `invokedynamic`；首次执行时由 `LambdaMetafactory` 在内存里生成实现函数式接口的隐藏类并链接调用点，之后直接复用。对使用者最重要的一条推论：规范不保证 Lambda 实例的同一性，不要用 `==` 比较 Lambda，也不要拿它当锁或 Map 的 key。`javap` 示例、捕获值如何传递、可序列化 Lambda 与启动成本见 [字节码执行 · invokedynamic 与 Lambda](/jvm/3_bytecode#四、invokedynamic-与-lambda)。
 
 ### 3、Lambda 与匿名内部类的区别
 

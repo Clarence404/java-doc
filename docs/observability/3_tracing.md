@@ -274,7 +274,7 @@ spring:
 - 消息经过 Kafka Connect、Flink 等中间处理后再被消费，上下文是否保留取决于中间组件是否透传记录头
 - 消费者与生产者在时间上可能相隔很久（积压、重试），瀑布图上的长空白不代表处理慢，应看 CONSUMER Span 自身的耗时
 
-Kafka 本身的使用见 [Kafka](/messaging/2_kafka)。RabbitMQ 对应的属性是 `spring.rabbitmq.template.observation-enabled` 与 `spring.rabbitmq.listener.simple.observation-enabled`（`direct` 容器同理）。
+Kafka 本身的使用见 [Kafka 架构与存储](/messaging/2_kafka)。RabbitMQ 对应的属性是 `spring.rabbitmq.template.observation-enabled` 与 `spring.rabbitmq.listener.simple.observation-enabled`（`direct` 容器同理）。
 
 ---
 

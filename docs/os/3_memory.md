@@ -196,7 +196,7 @@ Java 中对应 `FileChannel.map()`，它的 2 GB 限制、无法主动解除映�
 | 刷盘策略 | 默认交给操作系统回写，持久性靠多副本 | 默认异步刷盘，可配置同步刷盘 |
 | 发送给消费者 | `sendfile` 零拷贝 | 从映射区读取后发送 |
 
-因此部署这类中间件时，**机器内存的大头应留给 Page Cache 而不是 JVM 堆**；同一台机器上混部其他吃内存的进程，会挤占缓存，导致消费者读盘、延迟上升。具体配置见 [Kafka](/messaging/2_kafka) 与 [RocketMQ](/messaging/3_rocketmq)。
+因此部署这类中间件时，**机器内存的大头应留给 Page Cache 而不是 JVM 堆**；同一台机器上混部其他吃内存的进程，会挤占缓存，导致消费者读盘、延迟上升。具体配置见 [Kafka 架构与存储](/messaging/2_kafka) 与 [RocketMQ](/messaging/3_rocketmq)。
 
 ---
 

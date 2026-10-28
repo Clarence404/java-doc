@@ -35,18 +35,7 @@ MySQL 内部原理见 [MySQL 索引](/database/1_mysql/4_topic_index)、[SQL 执
 
 ## 二、深分页
 
-**`LIMIT offset, n` 需要先读出 offset + n 行再丢弃前 offset 行，offset 越大越慢**；后台导出、爬虫翻页场景下经常拖垮数据库。
-
-| 方案 | 做法 | 优点 | 局限 |
-|------|------|------|------|
-| 延迟关联 | 子查询先用覆盖索引查出 n 个主键，再关联回表 | 改动小，支持跳页 | 仍需扫描 offset 行索引，只是省掉回表 |
-| 游标 / Seek 分页 | 记录上一页最后一条的排序值和 id，`WHERE (create_time, id) < (?, ?)` 语义的条件 + `LIMIT n` | 耗时与页数无关，性能最好 | 不支持随机跳页；排序值不唯一时要带上 id 组成复合游标 |
-| 限制最大页数 | 产品层面限制只能翻前 N 页 | 简单有效 | 需要产品配合 |
-| 搜索引擎 | 复杂条件 + 深分页交给 ES（`search_after`） | 适合多条件检索 | 引入数据同步 |
-
-- 带过滤条件的查询（如 `WHERE user_id = ? ORDER BY create_time DESC`）只需联合索引 `(user_id, create_time)`：InnoDB 二级索引叶子节点本身就带主键 id，并按 id 作为最后一个排序维度，复合游标可以直接利用。
-- 批量导出、数据迁移这类**全量遍历**一律按主键游标：`WHERE id > ? ORDER BY id LIMIT 1000`。
-- 各方案的完整 SQL 写法（含过滤条件与复合游标）见 [MySQL 索引 · 深度分页优化](/database/1_mysql/4_topic_index)。
+`LIMIT offset, n` 要先读出 offset + n 行再丢弃前 offset 行，offset 越大越慢，后台导出、爬虫翻页时经常拖垮数据库。治理上先限制最大页数，列表和导出改成游标翻页（`WHERE id > ? ORDER BY id LIMIT 1000`），必须跳页的后台列表用延迟关联，多条件检索交给 ES。各方案的 SQL 写法与取舍见 [MySQL 索引 · 深度分页优化](/database/1_mysql/4_topic_index#九、深度分页优化)，线上案例见 [深分页拖垮数据库](/handbook/2_incidents/9_deep_paging)。
 
 ---
 

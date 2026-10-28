@@ -371,104 +371,13 @@ assistant.chat("请解释 Java 虚拟线程")
 
 ## 七、RAG
 
-核心组件是 `EmbeddingStoreIngestor`（加载、切块、向量化、入库）和 `EmbeddingStoreContentRetriever`（按问题检索并注入提示词）。`FileSystemDocumentLoader` 默认只按纯文本解析，PDF 需要引入 `langchain4j-document-parser-apache-pdfbox` 并传入解析器，Word 等格式用 Apache Tika 解析器。
-
-```java
-import java.nio.file.Path;
-import java.util.List;
-import dev.langchain4j.data.document.Document;
-import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
-import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentParser;
-import dev.langchain4j.data.document.splitter.DocumentSplitters;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
-import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
-
-EmbeddingModel embeddingModel = OpenAiEmbeddingModel.builder()
-        .apiKey(System.getenv("OPENAI_API_KEY"))
-        .modelName(System.getenv("OPENAI_EMBEDDING_MODEL"))
-        .build();
-
-EmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();   // 生产换成向量库实现
-
-List<Document> documents = FileSystemDocumentLoader.loadDocuments(
-        Path.of("/data/knowledge"), new ApachePdfBoxDocumentParser());
-documents.forEach(doc -> doc.metadata().put("tenant", "acme"));   // 入库时写入权限元数据
-
-EmbeddingStoreIngestor.builder()
-        .documentSplitter(DocumentSplitters.recursive(500, 50))
-        .embeddingModel(embeddingModel)
-        .embeddingStore(embeddingStore)
-        .build()
-        .ingest(documents);
-```
-
-检索器绑定到 AiServices，并按当前用户的租户做元数据过滤：
-
-```java
-import static dev.langchain4j.store.embedding.filter.MetadataFilterBuilder.metadataKey;
-
-import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
-
-public interface KnowledgeAssistant {
-    String ask(String question);
-}
-
-EmbeddingStoreContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
-        .embeddingStore(embeddingStore)
-        .embeddingModel(embeddingModel)
-        .maxResults(5)
-        .minScore(0.6)
-        .dynamicFilter(query -> metadataKey("tenant").isEqualTo(currentTenant()))
-        .build();
-
-KnowledgeAssistant assistant = AiServices.builder(KnowledgeAssistant.class)
-        .chatModel(model)
-        .contentRetriever(retriever)
-        .build();
-```
-
-切块策略、混合检索、重排与评估见 [RAG 检索增强生成](../4_core_tech/2_rag)，向量库选型见 [向量数据库](../4_core_tech/1_vector_db)。
+LangChain4j 的 RAG 由两个组件组成：`EmbeddingStoreIngestor` 负责加载、切块、向量化、入库，`EmbeddingStoreContentRetriever` 按问题检索并注入提示词，通过 `AiServices.builder(...).contentRetriever(retriever)` 绑定，`dynamicFilter` 按当前用户做元数据过滤；需要查询路由、混合检索与重排时换成 `.retrievalAugmentor(...)`。完整的索引与带权限过滤的查询代码见 [RAG 检索增强生成 · LangChain4j 实战](../4_core_tech/2_rag#六、langchain4j-实战)，向量库选型见 [向量数据库](../4_core_tech/1_vector_db)。
 
 ---
 
 ## 八、MCP 客户端
 
-`langchain4j-mcp` 模块把远端 MCP Server 的工具接成 `ToolProvider`，和本地工具一样参与工具调用：
-
-```java
-import java.util.Map;
-import dev.langchain4j.mcp.McpToolProvider;
-import dev.langchain4j.mcp.client.DefaultMcpClient;
-import dev.langchain4j.mcp.client.McpClient;
-import dev.langchain4j.mcp.client.transport.McpTransport;
-import dev.langchain4j.mcp.client.transport.http.StreamableHttpMcpTransport;
-
-McpTransport transport = StreamableHttpMcpTransport.builder()
-        .url("https://mcp.example.com/mcp")
-        .customHeaders(Map.of("Authorization", "Bearer " + accessToken))   // 令牌按 OAuth 流程获取
-        .build();
-
-McpClient mcpClient = DefaultMcpClient.builder()
-        .key("docs-server")
-        .transport(transport)
-        .build();
-
-McpToolProvider toolProvider = McpToolProvider.builder()
-        .mcpClients(mcpClient)
-        .filterToolNames("search_docs", "get_doc")   // 只放行需要的工具
-        .build();
-
-Bot bot = AiServices.builder(Bot.class)
-        .chatModel(model)
-        .toolProvider(toolProvider)
-        .build();
-```
-
-本地子进程形式的 MCP Server 用 `StdioMcpTransport`。第三方 MCP Server 的工具描述和返回内容都可能被投毒，接入前审查来源、只放行白名单工具，远程 HTTP 传输按 MCP 规范用 OAuth 授权。协议细节见 [MCP 协议](../5_advanced/1_mcp)。
+`langchain4j-mcp` 模块用 `DefaultMcpClient` + `StreamableHttpMcpTransport`（本地子进程用 `StdioMcpTransport`）连接远端 MCP Server，再包成 `McpToolProvider` 通过 `.toolProvider(...)` 交给 AiServices，和本地工具一样参与工具调用；接入第三方 Server 时用 `filterToolNames` 只放行白名单工具。完整示例见 [MCP 协议 · LangChain4j MCP Client](../5_advanced/1_mcp#五、langchain4j-mcp-client)，认证与工具投毒防护见 [MCP 协议 · 安全](../5_advanced/1_mcp#七、安全)。
 
 ---
 

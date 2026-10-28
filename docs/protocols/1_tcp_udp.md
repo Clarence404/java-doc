@@ -283,7 +283,7 @@ public class KeepAliveDemo {
 }
 ```
 
-即便调小参数，keepalive 也只能证明**对端内核还活着**，证明不了对端应用能正常处理请求（进程卡死、线程池打满时内核照样回探测包）。中间的 NAT、负载均衡空闲超时也可能比探测间隔更短。所以长连接服务以**应用层心跳**为准，TCP keepalive 只做兜底，设计方法见 [心跳与连接管理](/netty/9_heartbeat)。
+即便调小参数，keepalive 也只能证明**对端内核还活着**，进程卡死、线程池打满或中间 NAT / 负载均衡提前清掉空闲连接时都发现不了，所以长连接服务以应用层心跳为准、keepalive 只做兜底，原因与设计见 [心跳与连接管理 · 为什么需要应用层心跳](/netty/9_heartbeat#一、为什么需要应用层心跳)。
 
 另外注意区分：HTTP 的 `Connection: keep-alive` 是 HTTP 层的连接复用，和 TCP keepalive 探测没有关系。
 

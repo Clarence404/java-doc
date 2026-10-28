@@ -113,6 +113,8 @@ TCP 层面的原理（三次握手、TIME_WAIT 等）见 [TCP 与 UDP](/protocol
 
 **结论：`writeAndFlush` 不会阻塞也不会拒绝，对端读得慢时数据会一直堆在出站缓冲区里，最终撑爆直接内存；写之前必须检查 `isWritable()`。**
 
+背压的一般概念（下游声明还能处理多少、上游无法减速时只能缓冲、丢弃或失败）见 [WebFlux · 背压](/spring/8_webflux#九、背压-backpressure)，这里只讲 Netty 用写水位和 `autoRead` 落地的方式。
+
 ### 1、为什么会 OOM
 
 - 每个 Channel 有一个 `ChannelOutboundBuffer`，`write` 的数据先进入这里，等 socket 可写时再真正发出。

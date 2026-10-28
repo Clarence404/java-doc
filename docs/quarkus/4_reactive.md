@@ -4,7 +4,7 @@ description: Mutiny 与 Reactor、Kafka 响应式消息、ack 与失败策略、
 
 # 响应式与消息
 
-> 前置阅读：[REST 与数据访问](./2_rest_data)、[WebFlux](/spring/8_webflux)、[Kafka](/messaging/2_kafka)
+> 前置阅读：[REST 与数据访问](./2_rest_data)、[WebFlux](/spring/8_webflux)、[Kafka 架构与存储](/messaging/2_kafka)
 
 Quarkus 的响应式编程基于 Mutiny，消息集成基于 SmallRye Reactive Messaging。本篇讲 Mutiny 用法与线程语义及与 Reactor 的差异、可靠的 Kafka 消费与生产、事件总线的适用范围，以及何时用虚拟线程代替响应式写法。
 
@@ -209,7 +209,7 @@ mp.messaging.outgoing.order-events.acks=all
 
 - `send` 返回的 `CompletionStage` 在 Broker 确认后完成，**需要可靠投递时要等待或处理它的失败**，不能发完就忘
 - Emitter 内部有缓冲区，下游跟不上时会溢出报错，可用 `@OnOverflow` 配置策略
-- 「数据库写入 + 发消息」的一致性问题不能靠 Emitter 解决，仍需事务消息或 Outbox 模式，见 [Kafka](/messaging/2_kafka)
+- 「数据库写入 + 发消息」的一致性问题不能靠 Emitter 解决，仍需事务消息或 Outbox 模式，见 [分布式事务 · 本地消息表](/distributed/4_transaction#五、本地消息表-transactional-outbox)
 
 ---
 
@@ -301,7 +301,7 @@ public class InvoiceFacade {
 - `@Blocking` 默认保持顺序，提高吞吐优先加 `concurrency`；生产端要处理 `send` 的结果
 - 事件总线是进程内、非持久的，只用于应用内解耦与卸载阻塞工作
 - 请求-响应式业务优先同步写法 + 虚拟线程，流式与消息管道用 Mutiny
-- Reactor 的执行模型、背压、调度器等通用概念已在 [WebFlux](/spring/8_webflux) 中展开，Kafka 本身的可靠性配置、幂等消费、Exactly-Once 见 [Kafka](/messaging/2_kafka)。
+- Reactor 的执行模型、背压、调度器等通用概念已在 [WebFlux](/spring/8_webflux) 中展开，Kafka 本身的可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，幂等消费与 Exactly-Once 见 [Kafka 生产与消费](/messaging/2_kafka_client)。
 
 ## 参考资料
 

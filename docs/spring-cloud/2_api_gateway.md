@@ -339,25 +339,7 @@ spring:
 
 ### 2、按请求头选实例（LoadBalancer Hint）
 
-灰度实例与稳定实例共用服务名，用实例元数据区分。网关里的 `ReactiveLoadBalancerClientFilter` 会把请求头放进 `RequestDataContext`，Spring Cloud LoadBalancer 的 Hint 过滤器据此选实例：
-
-```yaml
-# 网关
-spring:
-  cloud:
-    loadbalancer:
-      hint-header-name: X-Version          # 默认 X-SC-LB-Hint
----
-# 灰度实例（order-service 的 canary 部署）
-spring:
-  cloud:
-    nacos:
-      discovery:
-        metadata:
-          hint: canary
-```
-
-网关侧还要把实例列表供应链配置为 `withDiscoveryClient().withCaching().withHints()`，配置类写法见 [服务治理 · 区域优先与 Hint 路由](./5_service_governance)。带 `X-Version: canary` 的请求优先落到灰度实例，找不到时回落到全部实例；需要「无标记请求必须避开灰度实例」或按用户 ID 百分比放量时，用自定义 `ReactorServiceInstanceLoadBalancer`，同样见服务治理一篇。灰度标记必须逐跳透传，否则第二跳之后就回到稳定版本。
+灰度实例与稳定实例共用服务名，用实例元数据（如 Nacos `metadata.hint: canary`）区分。网关里的 `ReactiveLoadBalancerClientFilter` 会把请求头放进 `RequestDataContext`，只要在网关配置 `spring.cloud.loadbalancer.hint-header-name: X-Version` 并在实例列表供应链加上 `withHints()`，带 `X-Version: canary` 的请求就会优先落到灰度实例，找不到时回落到全部实例。配置类与实例元数据写法见 [服务治理 · 区域优先与 Hint 路由](/spring-cloud/5_service_governance#_3、区域优先与-hint-路由)；「无标记请求必须避开灰度实例」、按用户 ID 百分比放量要自定义负载均衡器，见 [服务治理 · 自定义负载均衡器：灰度路由](/spring-cloud/5_service_governance#_4、自定义负载均衡器-灰度路由)，灰度标记的逐跳透传见 [服务治理 · 灰度标记透传](/spring-cloud/5_service_governance#_5、灰度标记透传)。
 
 发布策略（蓝绿、金丝雀、K8s Ingress 灰度）的整体设计见 [优雅上下线与变更](/high-avail/8_graceful_release)。
 

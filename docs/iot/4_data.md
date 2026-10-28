@@ -98,7 +98,7 @@ WHERE is_not_null(payload.temp)
 | 分区数 | 按峰值吞吐与 Flink 并行度规划 | Flink Source 并行度不应超过分区数 |
 | 缓冲 | 开启内存 + 磁盘缓冲 | Kafka 短暂不可用时，EMQX 侧先缓冲，恢复后续传 |
 
-5.9 之前，Kafka 等数据集成属于 EMQX 企业版功能，开源版没有；5.9 起统一为一个版本。Kafka 本身的分区、消费组与可靠性配置见 [Kafka](/messaging/2_kafka)。
+5.9 之前，Kafka 等数据集成属于 EMQX 企业版功能，开源版没有；5.9 起统一为一个版本。Kafka 本身的分区与可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，消费组见 [Kafka 生产与消费](/messaging/2_kafka_client)。
 
 ### 4、小规模：规则引擎直写 TDengine
 

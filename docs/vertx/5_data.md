@@ -329,7 +329,7 @@ producer.send(KafkaProducerRecord.create("order-events", String.valueOf(orderId)
     .onFailure(err -> log.error("send failed", err));
 ```
 
-`createShared` 按名字在多个 Verticle 实例之间共享同一个生产者（配置以第一次创建为准），避免每个实例各开一套连接与缓冲区。`acks`、幂等生产者、分区与顺序、Rebalance 等 Kafka 自身的可靠性话题见 [Kafka](/messaging/2_kafka)。
+`createShared` 按名字在多个 Verticle 实例之间共享同一个生产者（配置以第一次创建为准），避免每个实例各开一套连接与缓冲区。`acks`、幂等生产者、分区与顺序、Rebalance 等 Kafka 自身的可靠性话题见 [Kafka 架构与存储](/messaging/2_kafka)。
 
 ---
 

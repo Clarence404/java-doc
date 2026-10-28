@@ -398,21 +398,11 @@ spring:
 
 ### BOLA：每次按"当前用户 + 对象 ID"查
 
-对象级授权失效排在 OWASP API Top 10 第一位。根因是只校验了"登录了没有"，没校验"这条数据是不是你的"：
+对象级授权失效排在 OWASP API Top 10 第一位，原理、错误写法与 404 而非 403 的理由见 [常见漏洞与防护 · 越权访问](/security/8_vulnerabilities#十一、越权访问)。在资源服务器里落地时检查三点：
 
-```java
-@GetMapping("/api/orders/{id}")
-public OrderView get(@PathVariable long id, @AuthenticationPrincipal Jwt jwt) {
-    // 错误写法：orderRepository.findById(id)，任何登录用户改 ID 就能看别人的订单
-    return orderRepository.findByIdAndUserId(id, jwt.getSubject())
-            .map(OrderView::from)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-}
-```
-
-- 查不到时返回 404 而不是 403，不暴露"这个 ID 存在"
-- 对外 ID 用不可猜测的值（UUID、雪花 ID）能降低枚举风险，但**不能代替授权检查**
-- 管理员、客服等跨用户访问走单独的接口和权限，数据范围控制见 [权限系统架构设计](/architecture/6_access_control)
+- 用户标识只取 `@AuthenticationPrincipal Jwt` 的 `jwt.getSubject()`，不信任路径、参数或请求体里的 `userId`
+- 每个带对象 ID 的接口都用 `findByIdAndUserId(id, jwt.getSubject())` 这类带归属条件的查询，查不到统一返回 404
+- 跨用户访问（管理员、客服）走单独的接口与权限，数据范围控制见 [权限系统架构设计](/architecture/6_access_control)
 
 ### BOPLA 与批量赋值：请求和响应都用专用 DTO
 

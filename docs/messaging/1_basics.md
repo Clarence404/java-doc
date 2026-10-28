@@ -190,7 +190,7 @@ try {
 6. **跳过（最后手段）**：业务允许丢弃时把消费位点重置到最新，被跳过的数据事后补偿；死信积压则排查原因后按业务键重放，不要直接清空
 7. **事后复盘**：按峰值评估消费能力与分区数，配置 Lag 告警
 
-系统层面的削峰与限速设计见 [异步与削峰](/high-con/4_async_peak_shaving)，各 MQ 的命令与参数见 [Kafka · 消息积压](/messaging/2_kafka#_1、消息积压)、[RocketMQ · 消息积压](/messaging/3_rocketmq#_3、消息积压)、[RabbitMQ · 消息积压](/messaging/4_rabbitmq#_3、消息积压)。
+系统层面的削峰与限速设计见 [异步与削峰](/high-con/4_async_peak_shaving)，各 MQ 的命令与参数见 [Kafka 生产与消费 · 消息积压](/messaging/2_kafka_client#_1、消息积压)、[RocketMQ · 消息积压](/messaging/3_rocketmq#_3、消息积压)、[RabbitMQ · 消息积压](/messaging/4_rabbitmq#_3、消息积压)。
 
 ---
 
@@ -293,4 +293,4 @@ TCC、Saga 等完整的分布式事务方案见 [分布式 · 分布式事务](/
 - RocketMQ 事务消息：[RocketMQ: Transaction Message](https://rocketmq.apache.org/docs/featureBehavior/04transactionmessage/)
 - 本地消息表（事务发件箱）：[Pattern: Transactional Outbox](https://microservices.io/patterns/data/transactional-outbox.html)
 
-> 下一篇：[Kafka](./2_kafka) —— 以分区日志为核心的事件流平台，看它如何把吞吐、持久化与回放做到极致。
+> 下一篇：[Kafka 架构与存储](./2_kafka) —— 以分区日志为核心的事件流平台，看它如何把吞吐、持久化与回放做到极致。

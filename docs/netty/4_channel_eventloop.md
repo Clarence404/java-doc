@@ -174,7 +174,7 @@ loop.schedule(() -> {
 
 ## 四、业务线程池：不要阻塞 EventLoop
 
-**EventLoop 线程只做"搬数据"，查库、调 RPC、复杂计算这类慢操作必须交给独立线程池，否则一个慢请求会卡住同线程上的所有连接。** Netty 中有两种常见做法。
+**EventLoop 线程只做"搬数据"，查库、调 RPC、复杂计算这类慢操作必须交给独立线程池，否则一个慢请求会卡住同线程上的所有连接。** 典型的阻塞操作包括 `Thread.sleep()`、同步 JDBC、`future.get()`、`synchronized` 等锁等待、大文件的同步读写以及上百毫秒的 CPU 密集计算。Netty 中有两种常见做法。
 
 ### 1、方式一：为 Handler 指定 EventExecutorGroup
 

@@ -100,7 +100,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 
 **常见坑**：靠发送回调来补救失败。进程可能在回调前就崩了，要和数据库保持一致得用本地消息表（见 Q20）。
 
-→ 详见 [消息队列基础](/messaging/1_basics#三、可靠性-三层保障)、[Kafka](/messaging/2_kafka#三、消息可靠性)
+→ 详见 [消息队列基础](/messaging/1_basics#三、可靠性-三层保障)、[Kafka 架构与存储](/messaging/2_kafka#二、消息可靠性)
 
 ### Q7：RocketMQ 的同步刷盘和异步刷盘有什么区别？
 
@@ -129,7 +129,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 
 **常见坑**：把 `retries` 调小。这只会让网络闪断、Leader 切换这种能自动恢复的情况变成发送失败。
 
-→ 详见 [Kafka](/messaging/2_kafka#_2、broker-侧-靠复制-不靠刷盘)
+→ 详见 [Kafka 架构与存储](/messaging/2_kafka#_2、broker-侧-靠复制-不靠刷盘)
 
 ### Q9：如何保证消息幂等（重复消费）？
 
@@ -157,7 +157,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 
 **常见坑**：只配了 `DefaultErrorHandler` 没配死信。默认重试 9 次后只打一行日志就跳过了。
 
-→ 详见 [Kafka](/messaging/2_kafka#四、消费失败处理与幂等消费)
+→ 详见 [Kafka 生产与消费](/messaging/2_kafka_client#二、消费失败处理与幂等消费)
 
 ## 三、消息顺序
 
@@ -199,7 +199,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 - 生产者开启幂等（3.0 起默认）时，重试也不会打乱分区内的顺序
 - 增加分区数会改变 key 落到哪个分区，扩容瞬间可能乱序
 
-→ 详见 [Kafka](/messaging/2_kafka#六、顺序消息)
+→ 详见 [Kafka 生产与消费](/messaging/2_kafka_client#四、顺序消息)
 
 ## 四、高性能与消费扩展
 
@@ -218,7 +218,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：开了 TLS 还以为能零拷贝。加密必须在程序里做，sendfile 用不了，CPU 开销明显上升。
 
-→ 详见 [Kafka](/messaging/2_kafka#七、高性能原理)、[RocketMQ](/messaging/3_rocketmq#三、存储结构)
+→ 详见 [Kafka 架构与存储](/messaging/2_kafka#三、高性能原理)、[RocketMQ](/messaging/3_rocketmq#三、存储结构)
 
 ### Q15：Kafka 为什么吞吐量这么高？
 
@@ -232,7 +232,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：`linger.ms` 调大能提高吞吐，但单条消息的延迟也会变大，要权衡。
 
-→ 详见 [Kafka](/messaging/2_kafka#七、高性能原理)
+→ 详见 [Kafka 架构与存储](/messaging/2_kafka#三、高性能原理)
 
 ### Q16：消息积压了怎么处理？
 
@@ -246,7 +246,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：直接重置位点跳过积压。这是最后手段，只在业务允许丢弃时用，事后要补数据。
 
-→ 详见 [消息队列基础](/messaging/1_basics#六、消息积压)、[Kafka](/messaging/2_kafka#_1、消息积压)
+→ 详见 [消息队列基础](/messaging/1_basics#六、消息积压)、[Kafka 生产与消费](/messaging/2_kafka_client#_1、消息积压)
 
 ### Q17：Kafka Rebalance 什么时候触发？怎么减少影响？
 
@@ -260,7 +260,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：消费端处理慢就把 `max.poll.interval.ms` 调到很大。真卡死的消费者要很久才被踢出，它的分区一直没人消费。
 
-→ 详见 [Kafka](/messaging/2_kafka#_2、consumer-rebalance)
+→ 详见 [Kafka 生产与消费](/messaging/2_kafka_client#_2、consumer-rebalance)
 
 ### Q18：Kafka 的共享组（Share Group）是什么？和消费者组有什么区别？
 
@@ -278,7 +278,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：以为有内置死信 Topic。目前超过投递次数的记录只是归档不再投递，要死信得在拒绝前自己转发。
 
-→ 详见 [Kafka](/messaging/2_kafka#_4、共享组-queues-for-kafka)
+→ 详见 [Kafka 架构与存储](/messaging/2_kafka#_2、共享组-queues-for-kafka)
 
 ## 五、分布式事务
 
@@ -367,7 +367,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：老集群直接升 4.x。必须先在 3.x 完成从 ZooKeeper 到 KRaft 的迁移。
 
-→ 详见 [Kafka](/messaging/2_kafka#一、架构与核心概念)
+→ 详见 [Kafka 架构与存储](/messaging/2_kafka#一、架构与核心概念)
 
 ### Q25：RabbitMQ 的镜像队列和 Quorum 队列有什么区别？为什么要迁移？
 
@@ -398,4 +398,4 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：只讲功能不讲取舍。要主动说：同步刷盘换可靠牺牲吞吐、分区多了 Rebalance 开销大、全局有序和高吞吐不可兼得；幂等消费最终还是交给业务。
 
-→ 详见 [Kafka](/messaging/2_kafka#一、架构与核心概念)、[MQ 选型](/messaging/6_selection#一、三大-mq-对比)
+→ 详见 [Kafka 架构与存储](/messaging/2_kafka#一、架构与核心概念)、[MQ 选型](/messaging/6_selection#一、三大-mq-对比)

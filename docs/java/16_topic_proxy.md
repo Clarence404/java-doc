@@ -179,20 +179,7 @@ UserServiceImpl proxy = type.getDeclaredConstructor().newInstance();
 
 ## 四、Spring 中的代理选择
 
-Spring 默认用哪种代理，要区分 Spring Framework 和 Spring Boot：
-
-- **Spring Framework**：`@EnableAspectJAutoProxy` 的 `proxyTargetClass` 默认为 `false`——Bean 实现了接口就用 JDK 动态代理，没有接口才用 CGLIB；
-- **Spring Boot 2.0 起**：`spring.aop.proxy-target-class` 默认为 `true`，即**默认一律使用 CGLIB**，有接口也一样。这样无论按接口还是按实现类注入都不会因为代理类型报 `BeanNotOfRequiredTypeException`。
-
-需要改回 JDK 代理时：
-
-```yaml
-spring:
-  aop:
-    proxy-target-class: false
-```
-
-无论哪种代理，Spring AOP 的调用都经过「代理对象 → 拦截器链 → 目标 Bean」，目标 Bean 内部的 `this.xxx()` 不经过代理，`@Transactional`、`@Async`、`@Cacheable` 都会因此失效。修复方式有三种：拆到另一个 Bean（首选）、注入自身代理、`AopContext.currentProxy()`。最后一种**必须**开启 `@EnableAspectJAutoProxy(exposeProxy = true)`，否则调用时抛 `IllegalStateException`（提示设置 `exposeProxy`）。拦截器链、通知顺序与自调用的完整分析见 [AOP](/spring/2_aop#六、自调用失效问题)。
+纯 Spring Framework 默认「有接口用 JDK 动态代理、没接口用 CGLIB」，Spring Boot 2.0 起 `spring.aop.proxy-target-class` 默认为 `true`，一律用 CGLIB。无论哪种代理，目标 Bean 内部的 `this.xxx()` 都不经过代理，`@Transactional`、`@Async`、`@Cacheable` 会因此失效。选择规则与切换方式见 [AOP · Spring 的代理选择](/spring/2_aop#四、spring-的代理选择)，自调用的修复见 [AOP · 自调用失效问题](/spring/2_aop#六、自调用失效问题)。
 
 ---
 

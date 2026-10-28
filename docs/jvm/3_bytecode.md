@@ -127,6 +127,8 @@ feed(a);      // 静态分派：按声明类型 Animal 选中 feed(Animal)，而
 a.speak();    // 动态分派：运行期按实际类型 Dog 调用 Dog.speak()
 ```
 
+所以 Java 是「静态多分派、动态单分派」：重载可以按多个参数的声明类型选，重写只按接收者一个对象的实际类型选。需要按参数的运行期类型分发时，过去用访问者模式，JDK 21 起用 switch 模式匹配更直接，见 [Record、Sealed 与模式匹配](/java/12_topic_record)。
+
 HotSpot 为每个类维护**虚方法表（vtable）**和**接口方法表（itable）**，动态分派时按索引查表，避免逐级搜索父类；JIT 还会借助类型 profiling 做内联缓存与去虚化，详见 [JIT 编译](./7_jit)。
 
 ---
@@ -135,15 +137,41 @@ HotSpot 为每个类维护**虚方法表（vtable）**和**接口方法表（ita
 
 **`invokedynamic`（JDK 7 引入）把"调用哪个方法"推迟到运行期由用户指定的引导方法决定；Lambda、JDK 9+ 的字符串拼接（`StringConcatFactory`）都建立在它之上。**
 
+![Lambda 的编译与链接](../assets/java/java-lambda-indy.svg)
+
+javac 编译时做两件事：
+
+1. 把 Lambda 体脱糖成本类的私有方法 `lambda$<所在方法>$<序号>`：不引用 `this` 时是 `static` 方法，引用了 `this`（包括访问实例字段）时是实例方法；捕获的局部变量变成该方法的前置参数
+2. 在使用处生成一条 `invokedynamic` 指令，引导方法为 `LambdaMetafactory.metafactory`，静态参数里带上接口方法签名和第 1 步生成方法的 `MethodHandle`
+
 ```java
-list.stream().filter(x -> x > 10).collect(toList());
+public class Demo {
+    public static void main(String[] args) {
+        int factor = 3;
+        Function<Integer, Integer> f = x -> x * factor;
+        System.out.println(f.apply(2));
+    }
+}
 ```
 
-javac 编译时做两件事：把 Lambda 体生成为本类的私有方法（如 `lambda$main$0`），并在使用处生成一条 `invokedynamic` 指令，其引导方法为 `LambdaMetafactory.metafactory`。运行期流程：
+```shell
+$ javac Demo.java && javap -c -p Demo
+  public static void main(java.lang.String[]);
+       ...
+       3: invokedynamic #7,  0   // InvokeDynamic #0:apply:(I)Ljava/util/function/Function;
+       ...
+  private static java.lang.Integer lambda$main$0(int, java.lang.Integer);
+```
 
-1. **首次执行**该 `invokedynamic`：调用引导方法 `LambdaMetafactory`，在内存中生成实现 `Predicate` 接口的类（JDK 15+ 为隐藏类 Hidden Class，JEP 371），返回一个 `CallSite` 并与这条指令**链接**
-2. **后续执行**同一条 `invokedynamic`：直接走已链接的 `CallSite` 拿到函数式接口实例，不再调用引导方法；不捕获变量的 Lambda 通常每次返回同一个实例
-3. `filter` 内部调用 `Predicate.test()` 时，走的是普通的 **`invokeinterface`**，最终委托到 `lambda$main$0`
+捕获的 `factor` 成了 `lambda$main$0` 的第一个参数，`invokedynamic` 的调用签名 `(I)Function` 表示「传入捕获值，返回一个 Function 实例」。运行期流程：
+
+1. **首次执行**该 `invokedynamic`：调用引导方法 `LambdaMetafactory`，在内存中生成实现 `Function` 接口的类：JDK 15 起通过 `Lookup.defineHiddenClass` 定义为**隐藏类**（JEP 371，此前用 `Unsafe.defineAnonymousClass`），类名形如 `Demo$$Lambda/0x...`，不能被其他类按名引用；该类的 `apply` 直接调用 `lambda$main$0`，捕获值保存在它的 final 字段里。引导方法返回一个 `CallSite` 并与这条指令**链接**
+2. **后续执行**同一条 `invokedynamic`：直接走已链接的 `CallSite` 拿到函数式接口实例，不再调用引导方法
+3. 调用方执行 `f.apply()` 时，走的是普通的 **`invokeinterface`**，最终委托到 `lambda$main$0`
+
+**捕获与非捕获**：非捕获 Lambda 链接后每次求值返回同一个实例；捕获 Lambda 每次求值都 `new` 一个实例来装捕获值。这是当前 HotSpot 的实现行为，规范并不保证 Lambda 实例的同一性，所以不要用 `==` 比较 Lambda，也不要拿 Lambda 当锁或 Map 的 key。
+
+选择 `invokedynamic` 而不是直接编译成内部类，好处是类文件更少更小、生成策略留给运行时（JDK 升级改用隐藏类无需重新编译）；代价是首次链接有成本（生成类、解析方法句柄），对启动时间敏感的场景可借助 CDS / AOT 缓存，见 [启动与部署优化](/spring-boot/13_startup)。可序列化的 Lambda（目标类型实现了 `Serializable`）会改用 `LambdaMetafactory.altMetafactory`，并在宿主类生成 `$deserializeLambda$` 方法；除非框架需要（如部分 RPC 框架序列化 Lambda），一般不要让 Lambda 可序列化。
 
 与匿名内部类相比：
 

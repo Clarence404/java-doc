@@ -226,6 +226,8 @@ min-replicas-to-write 1
 min-replicas-max-lag 10
 ```
 
+Fencing Token 的原理与存储侧条件写的代码见 [分布式锁 · 租约过期与 Fencing Token](/distributed/3_lock#三、租约过期与-fencing-token)：选主的任期号和锁的递增编号是同一个思路，正确性最终靠存储层拒绝旧编号的写入。
+
 ---
 
 ## 七、数据层高可用

@@ -4,7 +4,7 @@ description: 流与批、选型对比、JobManager / TaskManager / Slot、算子
 
 # Flink 概览
 
-> 前置阅读：[Kafka](/messaging/2_kafka)
+> 前置阅读：[Kafka 架构与存储](/messaging/2_kafka)
 
 Flink 是一个有状态的分布式流计算引擎。本篇讲它解决什么问题、与 Spark Streaming / Kafka Streams 怎么选、作业如何拆成 Task 运行及 2.x 的破坏性变化，基线为 Flink 2.2。
 
@@ -57,7 +57,7 @@ env.setRuntimeMode(RuntimeExecutionMode.STREAMING);  // 默认，持续计算
 
 ### 2、选型建议
 
-- **数据进出都在 Kafka、逻辑简单、不想维护计算集群**：Kafka Streams，它就是应用里的一个库，扩容等于多起几个实例。详见 [Kafka](/messaging/2_kafka) 的 Kafka Streams 一节。
+- **数据进出都在 Kafka、逻辑简单、不想维护计算集群**：Kafka Streams，它就是应用里的一个库，扩容等于多起几个实例。详见 [Kafka 架构与存储](/messaging/2_kafka) 的 Kafka Streams 一节。
 - **已有 Spark 离线数仓、对延迟要求是分钟级**：Spark Structured Streaming，复用技术栈与资源。
 - **多源异构、大状态、毫秒级延迟、需要事件时间语义或 CDC 入湖**：Flink。国内实时数仓、实时风控、数据同步的事实标准。
 - **Storm**：不建议新项目选用，社区与生态已明显落后。

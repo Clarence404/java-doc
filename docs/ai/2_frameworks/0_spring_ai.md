@@ -369,23 +369,7 @@ ActorFilms films = chatClient.prompt()
 
 ### 1、RAG
 
-Spring AI 用 Advisor 接入检索增强：`QuestionAnswerAdvisor`（依赖 `spring-ai-vector-store-advisor`）在调用前按用户问题查 `VectorStore`，把命中文档拼进上下文；`RetrievalAugmentationAdvisor`（依赖 `spring-ai-rag`）把查询改写、检索、合并、上下文增强拆成可替换的模块，适合需要定制流程的场景。多租户场景一定要在检索时带上过滤条件，只返回当前用户有权访问的文档：
-
-```java
-String answer = chatClient.prompt()
-        .advisors(QuestionAnswerAdvisor.builder(vectorStore)
-                .searchRequest(SearchRequest.builder()
-                        .topK(5)
-                        .similarityThreshold(0.6)
-                        .filterExpression("tenant == '" + tenantId + "'")   // tenantId 来自服务端登录态
-                        .build())
-                .build())
-        .user("公司请假流程是什么？")
-        .call()
-        .content();
-```
-
-文档切块、混合检索、重排与评估见 [RAG 检索增强生成](../4_core_tech/2_rag)，向量库内部原理与选型见 [向量数据库](../4_core_tech/1_vector_db)。
+Spring AI 用 Advisor 接入检索增强：`QuestionAnswerAdvisor`（依赖 `spring-ai-vector-store-advisor`）在调用前按用户问题查 `VectorStore` 并把命中文档拼进上下文；`RetrievalAugmentationAdvisor`（依赖 `spring-ai-rag`）把查询改写、检索、合并、上下文增强拆成可替换的模块。多租户场景检索时必须带上 `filterExpression`，过滤值取自服务端登录态。依赖、索引与带权限过滤的完整代码见 [RAG 检索增强生成 · Spring AI 实战](../4_core_tech/2_rag#五、spring-ai-实战)，向量库原理与选型见 [向量数据库](../4_core_tech/1_vector_db)。
 
 ### 2、MCP
 

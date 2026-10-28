@@ -134,7 +134,7 @@ spring:
 
 ### 2、消息消费：用 Awaitility 等结果
 
-被测代码：order-service 消费支付成功事件，把订单置为已支付（消费者的可靠性配置见 [Kafka](/messaging/2_kafka)）。
+被测代码：order-service 消费支付成功事件，把订单置为已支付（消费者的失败处理与幂等见 [Kafka 生产与消费 · 消费失败处理与幂等消费](/messaging/2_kafka_client#二、消费失败处理与幂等消费)）。
 
 ```java
 @Component

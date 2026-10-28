@@ -67,11 +67,12 @@ if (lock.tryLock(3, 10, TimeUnit.SECONDS)) {
 }
 ```
 
-- **看门狗**：不指定 `leaseTime` 时，锁的默认过期时间为 `lockWatchdogTimeout`（默认 30 秒），持锁期间每隔 `lockWatchdogTimeout / 3`（10 秒）续期一次；持锁的 Redisson 实例宕机后不再续期，锁最多 30 秒后自动释放
-- **指定 `leaseTime` 的风险**：业务一旦超过 `leaseTime`，锁已过期、另一个线程已拿到锁，原线程仍在执行，互斥被打破；之后原线程 `unlock()` 会抛 `IllegalMonitorStateException`。耗时不确定的业务应使用看门狗
+- **看门狗**：只在不指定 `leaseTime` 时生效（`lock()`、`tryLock(waitTime, unit)`），锁的默认过期时间为 `lockWatchdogTimeout`（默认 30 秒），持锁期间每隔 `lockWatchdogTimeout / 3`（10 秒）续期一次；持锁的 Redisson 实例宕机后不再续期，锁最多 30 秒后自动释放
+- **续期只看进程，不看业务**：续期取决于 JVM 和 Redisson 客户端是否存活，不管业务线程是否还在推进；业务线程卡死而进程活着，锁会被一直续下去，持锁代码要自带超时
+- **指定 `leaseTime` 的风险**：`lock(10, SECONDS)`、`tryLock(3, 10, SECONDS)` 都不会续期，到点即释放；业务一旦超过 `leaseTime`，锁已过期、另一个线程已拿到锁，原线程仍在执行，互斥被打破；之后原线程 `unlock()` 会抛 `IllegalMonitorStateException`。耗时不确定的业务应使用看门狗
 - **解锁前判断持有者**：`isHeldByCurrentThread()` 避免在超时、未拿到锁等分支里误解锁；Redisson 解锁本身会校验持有者，不会删掉别人的锁
 - **看门狗不是万能的**：长时间 GC 停顿、网络分区期间，锁仍可能过期而原持有者不知情。对正确性要求严格的写操作，需要在资源侧校验 fencing token（见下一小节）
-- **可重入**：锁在 Redis 中是一个 Hash，field 为「Redisson 实例 UUID + 线程 ID」，value 为重入次数，同一线程重复加锁计数加 1，计数减到 0 才删除 key
+- **可重入**：锁在 Redis 中是一个 Hash，field 为「Redisson 实例 UUID + 线程 ID」（只用线程 ID 会在不同 JVM 间冲突），value 为重入次数，同一线程重复加锁计数加 1，计数减到 0 才删除 key
 
 ### 2、RFencedLock：带 fencing token 的锁
 

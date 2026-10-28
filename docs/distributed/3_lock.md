@@ -92,30 +92,9 @@ public class RedisLock {
 
 ### 2、Redisson 与看门狗
 
-手写锁很难处理好续期、可重入和等待。生产中一般直接用 Redisson（API 细节见 [Redisson](/cache/6_redisson)）：
+手写锁很难处理好续期、可重入和等待，生产中一般直接用 Redisson 的 `RLock`：不传 leaseTime 时看门狗按 30 秒过期、每 10 秒续期，进程崩溃后锁最多 30 秒释放；传了 leaseTime 就不续期，业务超时会打破互斥。
 
-```java
-RLock lock = redisson.getLock("lock:order:" + orderId);
-if (!lock.tryLock(3, TimeUnit.SECONDS)) {          // 最多等 3 秒，不传 leaseTime → 启用看门狗
-    throw new BizException("处理中，请稍后重试");
-}
-try {
-    // 业务逻辑
-} finally {
-    if (lock.isHeldByCurrentThread()) {
-        lock.unlock();
-    }
-}
-```
-
-看门狗的真实行为：
-
-- **只在不指定 leaseTime 时生效**（`lock()`、`tryLock(waitTime, unit)`）。调用 `lock(10, SECONDS)` 或 `tryLock(3, 10, SECONDS)` 指定了 leaseTime，就不会续期，到点即释放
-- 默认锁过期时间是 `lockWatchdogTimeout` = 30 秒，每 10 秒（三分之一）续期一次
-- 续期只看 JVM 和 Redisson 客户端是否存活，**不看业务线程是否还在正常推进**。业务线程卡死而进程活着，锁会被一直续下去
-- 进程崩溃后续期停止，锁最多 30 秒后过期
-
-可重入：Redisson 用 Hash 存锁，field 是 `客户端 UUID:线程 ID`（只用线程 ID 会在不同 JVM 间冲突），value 是重入次数，减到 0 才删除 key。
+从分布式锁的角度看，看门狗只解决「业务没做完锁先过期」：续期只看进程是否存活，业务线程卡死时锁会被一直续下去；GC 停顿、网络分区期间续期同样会失效，正确性仍要靠下一节的 Fencing Token。API 用法、续期参数与可重入实现见 [Redisson · RLock：看门狗与 leaseTime](/cache/6_redisson#_1、rlock-看门狗与-leasetime)。
 
 ### 3、主从切换导致锁丢失
 
@@ -167,7 +146,7 @@ try {
 }
 ```
 
-ZooKeeper 可以用临时顺序节点的序号或节点的 `czxid` 作为 token，etcd 可以用锁 key 的 `CreateRevision`。
+ZooKeeper 可以用临时顺序节点的序号或节点的 `czxid` 作为 token，etcd 可以用锁 key 的 `CreateRevision`。主备切换时的同类问题（脑裂、旧主继续写）及多数派仲裁、STONITH 等防护见 [冗余与故障转移 · 脑裂与 fencing](/high-avail/2_redundancy_failover#六、脑裂与-fencing)。
 
 ---
 

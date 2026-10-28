@@ -43,7 +43,7 @@ GraalVM 的通用原理、虚拟线程和 Reactor 在各自模块展开，这里
 - [JIT 编译](/jvm/7_jit)：GraalVM Native Image 的静态分析、闭世界假设与 AOT 编译原理
 - [WebFlux](/spring/8_webflux)：Reactor 的执行模型与背压，可与 Mutiny 对照
 - [虚拟线程](/java/30_topic_virtual_thread)：`@RunOnVirtualThread` 的基础，钉住与 ThreadLocal 的坑
-- [Kafka](/messaging/2_kafka)：Kafka 本身的可靠性配置、幂等消费与 Exactly-Once
+- [Kafka 生产与消费](/messaging/2_kafka_client)：Kafka 的幂等消费与 Exactly-Once，可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)
 - [Kubernetes](/cloud-native/6_kubernetes)：Kubernetes 扩展生成的部署清单与健康探针，更多内容见 [云原生总览](/cloud-native/0_overview)
 - [指标监控](/observability/2_metrics) / [OpenTelemetry](/observability/5_opentelemetry)：Micrometer 指标与链路追踪，更多内容见 [可观测性总览](/observability/0_overview)
 
