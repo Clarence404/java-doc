@@ -148,7 +148,6 @@ export const GROUPS = [
             {
                 name: '项目演进', dir: 'project',
                 desc: '以订单服务为例，从单体到分布式：工程搭建 / 数据建模 / 缓存 / 异步 / 拆分 / 一致性 / 稳定性 / 发布',
-                stub: '连载中',
             },
         ],
     },
@@ -303,6 +302,7 @@ export const ROUTES = [
             {title: '拆分与治理', items: ['distributed/2_theorem', 'microservices/1_service_split', 'microservices/2_patterns', 'architecture/2_ddd', 'high-avail/4_timeout_retry_bulkhead', 'high-avail/5_circuit_breaking']},
             {title: '扛住流量', items: ['high-con/3_cache_architecture', 'high-con/5_data_scaling', 'high-con/6_hotspot', 'high-con/8_capacity_planning', 'high-avail/9_multi_active']},
             {title: '系统设计', items: ['scenario/1_design_method', 'scenario/4_seckill', 'scenario/5_order_system', 'scenario/17_counter']},
+            {title: '串成一个项目', items: ['project/0_overview', 'project/7_consistency', 'project/8_stability', 'project/10_retrospective']},
         ],
     },
     {

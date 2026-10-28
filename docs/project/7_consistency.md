@@ -288,4 +288,4 @@ public void markPaid(PaymentSucceeded msg) {
 - Chris Richardson · Pattern: Saga：[https://microservices.io/patterns/data/saga.html](https://microservices.io/patterns/data/saga.html)
 - Apache RocketMQ · 事务消息：[https://rocketmq.apache.org/zh/docs/featureBehavior/04transactionmessage](https://rocketmq.apache.org/zh/docs/featureBehavior/04transactionmessage)
 
-> 返回：[项目演进总览](./0_overview)（下一篇「稳定性」连载中）
+> 下一篇：[稳定性](./8_stability) —— 大促前的超时重试、限流熔断降级、压测与容量评估

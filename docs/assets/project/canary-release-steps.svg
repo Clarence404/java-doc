@@ -1,0 +1,61 @@
+<svg viewBox="0 0 950 300" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+    .t { font-weight: 700; }
+    .d { font-size: 11px; fill: var(--muted); }
+    .lb { font-size: 11px; }
+    .lr { font-size: 11px; fill: var(--r); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+  <rect width="950" height="300" fill="var(--bg)" rx="8"/>
+  <text x="475" y="30" text-anchor="middle" font-weight="700" font-size="14">金丝雀发布：每步自动分析，不达标自动中止</text>
+  <rect x="20" y="60" width="150" height="90" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="95" y="88" text-anchor="middle" class="t">GitHub Actions</text>
+  <text x="95" y="112" text-anchor="middle" class="d">verify · 构建镜像</text>
+  <text x="95" y="134" text-anchor="middle" class="d">digest 写入 GitOps 仓库</text>
+  <line x1="170" y1="105" x2="208" y2="105" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="210" y="60" width="150" height="90" rx="6" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
+  <text x="285" y="88" text-anchor="middle" class="t">Argo CD 同步</text>
+  <text x="285" y="112" text-anchor="middle" class="d">PreSync：Flyway 迁移</text>
+  <text x="285" y="134" text-anchor="middle" class="d">更新 Rollout 镜像</text>
+  <line x1="360" y1="105" x2="398" y2="105" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="400" y="60" width="150" height="90" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="475" y="88" text-anchor="middle" class="t">金丝雀 5%</text>
+  <text x="475" y="112" text-anchor="middle" class="d">暂停 5 分钟</text>
+  <text x="475" y="134" text-anchor="middle" class="d">分析错误率与 P99</text>
+  <line x1="550" y1="105" x2="588" y2="105" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="590" y="60" width="150" height="90" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="665" y="88" text-anchor="middle" class="t">金丝雀 25%</text>
+  <text x="665" y="112" text-anchor="middle" class="d">暂停 10 分钟</text>
+  <text x="665" y="134" text-anchor="middle" class="d">分析错误率与 P99</text>
+  <line x1="740" y1="105" x2="778" y2="105" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="780" y="60" width="150" height="90" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="855" y="88" text-anchor="middle" class="t">全量 100%</text>
+  <text x="855" y="112" text-anchor="middle" class="d">旧 Pod 逐个下线</text>
+  <text x="855" y="134" text-anchor="middle" class="d">preStop 先注销 Nacos</text>
+  <rect x="400" y="220" width="340" height="60" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="570" y="246" text-anchor="middle" class="t">分析不达标：自动中止</text>
+  <text x="570" y="266" text-anchor="middle" class="d">金丝雀缩容，流量回到稳定版本，目标 5 分钟内</text>
+  <line x1="475" y1="150" x2="475" y2="218" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <text x="483" y="189" text-anchor="start" class="lr">不达标</text>
+  <line x1="665" y1="150" x2="665" y2="218" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <text x="673" y="189" text-anchor="start" class="lr">不达标</text>
+</svg>

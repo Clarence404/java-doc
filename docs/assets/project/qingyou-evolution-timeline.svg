@@ -1,0 +1,75 @@
+<svg viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+    .t { font-weight: 700; font-size: 14px; }
+    .d { font-size: 11px; fill: var(--muted); }
+    .i { font-size: 12px; }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <rect width="1000" height="300" fill="var(--bg)" rx="8"/>
+  <text x="500" y="28" text-anchor="middle" font-weight="700" font-size="14">青柚商城订单服务的四个阶段</text>
+
+  <!-- 阶段一 -->
+  <rect x="21" y="48" width="214" height="232" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="128" y="76" text-anchor="middle" class="t">阶段一 · 单体起步</text>
+  <text x="128" y="98" text-anchor="middle" font-size="12" font-weight="700" fill="var(--p)">日订单 1 万 · 峰值 20 QPS</text>
+  <text x="128" y="118" text-anchor="middle" class="d">3 人 · 两台云主机</text>
+  <text x="128" y="152" text-anchor="middle" class="i">模块化单体 + ArchUnit</text>
+  <text x="128" y="178" text-anchor="middle" class="i">雪花 ID + 独立 order_no</text>
+  <text x="128" y="204" text-anchor="middle" class="i">条件更新扣库存</text>
+  <text x="128" y="230" text-anchor="middle" class="i">Idempotency-Key 幂等</text>
+  <text x="128" y="256" text-anchor="middle" class="d">定时扫描关单</text>
+
+  <!-- 阶段二 -->
+  <rect x="269" y="48" width="214" height="232" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="376" y="76" text-anchor="middle" class="t">阶段二 · 读多扛流量</text>
+  <text x="376" y="98" text-anchor="middle" font-size="12" font-weight="700" fill="var(--b)">日订单 10 万 · 详情读 2000 QPS</text>
+  <text x="376" y="118" text-anchor="middle" class="d">读压力大 · 同步调用拖慢下单</text>
+  <text x="376" y="152" text-anchor="middle" class="i">Caffeine + Redis 两级缓存</text>
+  <text x="376" y="178" text-anchor="middle" class="i">Cache Aside + 延迟双删</text>
+  <text x="376" y="204" text-anchor="middle" class="i">RocketMQ + t_outbox</text>
+  <text x="376" y="230" text-anchor="middle" class="i">t_consume_record 去重</text>
+  <text x="376" y="256" text-anchor="middle" class="d">定时消息关单 + 扫描兜底</text>
+
+  <!-- 阶段三 -->
+  <rect x="517" y="48" width="214" height="232" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="624" y="76" text-anchor="middle" class="t">阶段三 · 拆分服务</text>
+  <text x="624" y="98" text-anchor="middle" font-size="12" font-weight="700" fill="var(--g)">日订单 100 万 · 20 人 4 组</text>
+  <text x="624" y="118" text-anchor="middle" class="d">发布互相阻塞 · 需独立扩容</text>
+  <text x="624" y="152" text-anchor="middle" class="i">拆出库存、支付服务</text>
+  <text x="624" y="178" text-anchor="middle" class="i">Nacos + 网关 + K8s</text>
+  <text x="624" y="204" text-anchor="middle" class="i">库存预占 TCC 风格</text>
+  <text x="624" y="230" text-anchor="middle" class="i">支付消息 + 消费幂等</text>
+  <text x="624" y="256" text-anchor="middle" class="d">预占过期回查 + 每日对账</text>
+
+  <!-- 阶段四 -->
+  <rect x="765" y="48" width="214" height="232" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="872" y="76" text-anchor="middle" class="t">阶段四 · 大促稳定性</text>
+  <text x="872" y="98" text-anchor="middle" font-size="12" font-weight="700" fill="var(--y)">大促下单峰值 5000 QPS</text>
+  <text x="872" y="118" text-anchor="middle" class="d">流量尖峰 · 故障扩散 · 难定位</text>
+  <text x="872" y="152" text-anchor="middle" class="i">超时、熔断、舱壁、降级</text>
+  <text x="872" y="178" text-anchor="middle" class="i">网关限流 + 下单频控</text>
+  <text x="872" y="204" text-anchor="middle" class="i">热点 SKU 库存分桶</text>
+  <text x="872" y="230" text-anchor="middle" class="i">OTel 链路 + SLO 告警</text>
+  <text x="872" y="256" text-anchor="middle" class="d">金丝雀发布 + 自动回滚</text>
+
+  <!-- 阶段间箭头 -->
+  <line x1="235" y1="164" x2="267" y2="164" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="483" y1="164" x2="515" y2="164" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="731" y1="164" x2="763" y2="164" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

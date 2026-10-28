@@ -156,7 +156,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 }
 ```
 
-校验失败时把字段错误放进 `errors` 扩展字段的写法（覆盖 `handleMethodArgumentNotValid`）与主文档一致，见 [API 设计规范](/engineering/4_api_design_rule)；`traceId` 由过滤器链最前面的 `TraceIdFilter` 写入 MDC，阶段四接入链路追踪后换成 Micrometer Tracing 生成的值，字段名不变。
+校验失败时把字段错误放进 `errors` 扩展字段的写法（覆盖 `handleMethodArgumentNotValid`）与主文档一致，见 [API 设计规范](/engineering/4_api_design_rule)；`traceId` 由过滤器链最前面的 `TraceIdFilter` 写入 MDC，阶段四接入链路追踪后改取 OpenTelemetry 上下文里的 trace ID，字段名不变（见 [可观测与发布](./9_observability_release)）。
 
 ---
 

@@ -1,0 +1,60 @@
+<svg viewBox="0 0 760 650" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+    .t { font-weight: 700; }
+    .d { font-size: 11px; fill: var(--muted); }
+    .lb { font-size: 11px; }
+    .lr { font-size: 11px; fill: var(--r); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+  <rect width="760" height="650" fill="var(--bg)" rx="8"/>
+  <text x="380" y="28" text-anchor="middle" font-weight="700" font-size="14">大促下单链路的分层保护</text>
+  <rect x="20" y="44" width="720" height="90" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380" y="68" text-anchor="middle" class="t">客户端（App）</text>
+  <text x="200" y="94" text-anchor="middle" class="d">提交后按钮置灰</text>
+  <text x="560" y="94" text-anchor="middle" class="d">重试沿用同一 Idempotency-Key</text>
+  <text x="380" y="116" text-anchor="middle" class="d">收到 429 / 503 按 Retry-After 退避</text>
+  <line x1="380" y1="134" x2="380" y2="166" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="168" width="720" height="90" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="380" y="192" text-anchor="middle" class="t">mall-gateway：RequestRateLimiter</text>
+  <text x="200" y="218" text-anchor="middle" class="d">按「用户 + 接口」的 Redis 令牌桶</text>
+  <text x="560" y="218" text-anchor="middle" class="d">下单每人每秒 1 次，突发 3 次</text>
+  <text x="380" y="240" text-anchor="middle" class="d">整体超时 3s，POST 不配重试</text>
+  <line x1="380" y1="258" x2="380" y2="290" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="292" width="720" height="90" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="380" y="316" text-anchor="middle" class="t">mall-app：下单入口</text>
+  <text x="200" y="342" text-anchor="middle" class="d">频控：同一 SKU 待支付最多 2 单</text>
+  <text x="560" y="342" text-anchor="middle" class="d">活动 SKU 支付超时 5 分钟</text>
+  <text x="380" y="364" text-anchor="middle" class="d">降级开关 qingyou.degrade.*：推荐、积分展示、订单列表</text>
+  <line x1="380" y1="382" x2="380" y2="414" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="416" width="720" height="90" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="380" y="440" text-anchor="middle" class="t">mall-app → inventory-service</text>
+  <text x="200" y="466" text-anchor="middle" class="d">舱壁：每 Pod 并发 ≤ 60</text>
+  <text x="560" y="466" text-anchor="middle" class="d">熔断实例 inventory-reserve</text>
+  <text x="200" y="488" text-anchor="middle" class="d">超时：连接 200ms / 读 500ms</text>
+  <text x="560" y="488" text-anchor="middle" class="d">被拒或熔断：SYSTEM_BUSY 快速失败</text>
+  <line x1="380" y1="506" x2="380" y2="538" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="540" width="720" height="90" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="380" y="564" text-anchor="middle" class="t">inventory-service</text>
+  <text x="200" y="590" text-anchor="middle" class="d">活动 SKU：t_inventory_bucket × 10 桶</text>
+  <text x="560" y="590" text-anchor="middle" class="d">order_no 哈希选桶，桶空换桶</text>
+  <text x="380" y="612" text-anchor="middle" class="d">普通 SKU：t_inventory 单行条件更新</text>
+</svg>
