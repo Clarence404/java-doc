@@ -96,5 +96,5 @@
 - 观察者模式在 Spring 中的落地 → [事件机制](/spring/7_event)
 - IoC 容器中的工厂、单例、模板方法 → [Spring 总览](/spring/0_overview)
 - 架构层面的模式（分层、CQRS、DDD） → [系统架构总览](/architecture/0_overview)
-- 分布式系统层面的模式（熔断、Saga、Sidecar） → [微服务设计模式](/microservices/2_patterns)
+- 分布式系统层面的模式（熔断、Saga、Sidecar） → [微服务设计模式](/microservices/3_patterns)
 - 本模块高频问题的答案汇总 → [设计模式面试题解答](/interview/17_patterns)

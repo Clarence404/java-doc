@@ -8,7 +8,7 @@
 
 ## 一、模块地图
 
-微服务拆分与中间件选型在 [微服务](/microservices/0_overview) 与 [Spring Cloud](/spring-cloud/0_overview) 模块展开，业务系统的完整设计案例在 [业务场景](/scenario/0_overview) 模块，这里不重复。示例代码统一使用构造器注入。
+微服务拆分与中间件选型在 [微服务](/microservices/0_overview) 模块展开，业务系统的完整设计案例在 [业务场景](/scenario/0_overview) 模块，这里不重复。示例代码统一使用构造器注入。
 
 | 方向 | 内容 | 适合关注 |
 |------|------|----------|
@@ -38,7 +38,7 @@
 
 ## 四、关联模块
 
-- 服务拆分、通信与治理 → [微服务](/microservices/0_overview) / [Spring Cloud](/spring-cloud/0_overview)
+- 服务拆分、通信与治理 → [微服务](/microservices/0_overview)
 - 分布式锁、分布式事务、分布式 ID → [分布式](/distributed/0_overview)
 - MQ 可靠投递、事务消息与消费幂等 → [消息队列](/messaging/0_overview)
 - 缓存一致性与两级缓存 → [缓存](/cache/0_overview)

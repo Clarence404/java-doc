@@ -82,6 +82,6 @@ Grafana 官方提供 `grafana/otel-lgtm` 镜像，一个容器内集成了 OTel 
 - Prometheus 本地 TSDB 与长期存储（VictoriaMetrics / Thanos / Mimir） → [时序数据库](/nosql/4_time_series_db)
 - Elasticsearch 索引与检索原理 → [Elasticsearch 原理](/nosql/5_search_es)
 - JFR、jstack 等 JVM 诊断工具 → [诊断工具](/jvm/8_monitoring_tools)；Arthas 等线上诊断 → [线上诊断](/engineering/7_diagnosis)
-- Sidecar 代理自动产生的流量指标与链路 → [服务网格](/microservices/3_service_mesh)
+- Sidecar 代理自动产生的流量指标与链路 → [服务网格](/microservices/21_service_mesh)
 - 采集 Agent 的 DaemonSet 部署、Pod 日志路径 → [Kubernetes](/cloud-native/6_kubernetes)
 - 日志脱敏与审计日志 → [数据安全](/security/7_data_security)

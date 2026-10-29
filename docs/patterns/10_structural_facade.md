@@ -122,7 +122,7 @@ public class OrderController {
 
 SLF4J 是最典型的外观：业务代码只依赖 `slf4j-api`，换日志实现只需要换依赖，代码不用改。门面、实现与桥接包的关系见 [日志](/spring-boot/9_logging)。
 
-微服务网关常被比作「系统级外观」：客户端只认网关一个入口，背后有多少服务对外不可见。这是架构层面的类比，网关的具体能力见 [API 网关](/spring-cloud/2_api_gateway)。
+微服务网关常被比作「系统级外观」：客户端只认网关一个入口，背后有多少服务对外不可见。这是架构层面的类比，网关的具体能力见 [API 网关](/microservices/11_api_gateway)。
 
 ---
 

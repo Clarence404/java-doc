@@ -280,7 +280,7 @@ spring:
       - optional:vault://                      # Spring Cloud Vault
 ```
 
-Nacos 的接入与命名空间、分组规划见 [配置中心](/spring-cloud/4_config_center)。
+Nacos 的接入与命名空间、分组规划见 [配置中心](/microservices/13_config_center)。
 
 ---
 
@@ -308,7 +308,7 @@ Boot 本身只在启动时绑定配置，**运行时修改配置需要 Spring Cl
 - `@ConfigurationProperties` 的 JavaBean 类会在刷新事件中**原地重新绑定**，不需要 `@RefreshScope`；record 等构造器绑定的类不可变，不会被重新绑定
 - `@Value` 注入的字段只有所在 Bean 标了 `@RefreshScope` 才会更新
 
-刷新原理、Nacos 推送与配置中心选型见 [配置中心](/spring-cloud/4_config_center)。
+刷新原理、Nacos 推送与配置中心选型见 [配置中心](/microservices/13_config_center)。
 
 ---
 

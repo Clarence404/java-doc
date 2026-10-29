@@ -4,7 +4,7 @@ description: 负载均衡与灰度路由、熔断限流、Framework 7 容错注�
 
 # 服务治理
 
-> 前置阅读：[服务通信](./3_communication)
+> 前置阅读：[服务通信](./12_communication)
 
 服务治理让服务调用在故障与变更下仍然可控。本篇讲负载均衡与灰度路由、熔断限流、超时重试与优雅上下线，基线为 Spring Cloud 2025.1。
 
@@ -14,7 +14,7 @@ description: 负载均衡与灰度路由、熔断限流、Framework 7 容错注�
 
 服务治理覆盖一次调用从进入系统到落到实例的全过程：
 
-![服务治理全景](../assets/spring-cloud/governance-overview.svg)
+![服务治理全景](../assets/microservices/governance-overview.svg)
 
 | 环节 | Spring Cloud 落地 | 原理与策略 |
 |------|------------------|-----------|
@@ -221,7 +221,7 @@ public class GrayLoadBalancerClientsConfig {
 
 `RequestDataContext` 由各负载均衡集成负责构造：Gateway、`@LoadBalanced WebClient.Builder`、`@LoadBalanced RestClient.Builder`、HTTP Service Clients 与 OpenFeign，请求头可以直接读到。`RestTemplate` 的集成仍可用，但 `RestTemplate` 已在 Framework 7.1 中废弃，新代码用 `RestClient`。
 
-只需按比例放量、不要求同一用户落在同一版本时，也可以把灰度版本注册成独立服务名，在网关用 `Weight` 断言分流，见 [API 网关 · 灰度路由](/spring-cloud/2_api_gateway#七、灰度路由)。
+只需按比例放量、不要求同一用户落在同一版本时，也可以把灰度版本注册成独立服务名，在网关用 `Weight` 断言分流，见 [API 网关 · 灰度路由](/microservices/11_api_gateway#七、灰度路由)。
 
 ### 5、灰度标记透传
 
@@ -246,7 +246,7 @@ public class GrayHeaderInterceptor implements RequestInterceptor {
 }
 ```
 
-- HTTP Service Clients / `RestClient` 用 `ClientHttpRequestInterceptor` 做同样的事，写法见 [服务通信](./3_communication)
+- HTTP Service Clients / `RestClient` 用 `ClientHttpRequestInterceptor` 做同样的事，写法见 [服务通信](./12_communication)
 - `RequestContextHolder` 绑定在请求线程上，切换到线程池执行时会丢失，异步场景需要用 TransmittableThreadLocal、Micrometer Context Propagation 或链路追踪的 Baggage 传递，见 [虚拟线程](/java/30_topic_virtual_thread) 与 [链路追踪](/observability/3_tracing)
 - MQ 消息同样要把标记写进消息头，消费端按标记选择灰度或稳定的消费组
 
@@ -256,7 +256,7 @@ public class GrayHeaderInterceptor implements RequestInterceptor {
 
 ### 1、Resilience4j 与 Sentinel
 
-**Spring Cloud 中常用两套方案：Resilience4j（配合 Spring Cloud CircuitBreaker 抽象）与 Sentinel。** 规则相对固定、希望轻量选 Resilience4j；需要控制台动态调规则、热点参数限流选 Sentinel，两者的完整对比见 [熔断 · 选型](/high-avail/5_circuit_breaking#四、选型-sentinel、resilience4j-与-hystrix)。下面只讲 Resilience4j 的接入，Sentinel 的接入见 [Spring Cloud Alibaba · Sentinel](./6_alibaba#三、sentinel-流控与熔断)。
+**Spring Cloud 中常用两套方案：Resilience4j（配合 Spring Cloud CircuitBreaker 抽象）与 Sentinel。** 规则相对固定、希望轻量选 Resilience4j；需要控制台动态调规则、热点参数限流选 Sentinel，两者的完整对比见 [熔断 · 选型](/high-avail/5_circuit_breaking#四、选型-sentinel、resilience4j-与-hystrix)。下面只讲 Resilience4j 的接入，Sentinel 的接入见 [Spring Cloud Alibaba · Sentinel](./15_alibaba#三、sentinel-流控与熔断)。
 
 Boot 4 下通过 Spring Cloud CircuitBreaker 5.0 接入 Resilience4j，依赖 `spring-cloud-starter-circuitbreaker-resilience4j`，用框架无关的 `CircuitBreakerFactory` 编程式调用，以后换实现不改业务代码：
 
@@ -377,7 +377,7 @@ Framework 7 的 `RetryTemplate` 也移入了 spring-core，编程式重试不再
 
 ## 四、超时与重试
 
-OpenFeign 默认超时（连接 10s、读取 60s）远大于合理值，必须按服务显式配置；Spring Cloud OpenFeign 默认使用 `Retryer.NEVER_RETRY` 不重试，需要重试时只对幂等接口开启，并控制重试放大。超时取值、分层超时推导、退避与重试预算见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)，Feign 的超时配置项见 [服务通信](./3_communication)。
+OpenFeign 默认超时（连接 10s、读取 60s）远大于合理值，必须按服务显式配置；Spring Cloud OpenFeign 默认使用 `Retryer.NEVER_RETRY` 不重试，需要重试时只对幂等接口开启，并控制重试放大。超时取值、分层超时推导、退避与重试预算见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)，Feign 的超时配置项见 [服务通信](./12_communication)。
 
 ---
 
@@ -385,7 +385,7 @@ OpenFeign 默认超时（连接 10s、读取 60s）远大于合理值，必须�
 
 上线先预热再放量，下线先注销、等调用方刷新实例列表，再处理完在途请求后退出：
 
-![优雅上下线流程](../assets/spring-cloud/graceful-online-offline.svg)
+![优雅上下线流程](../assets/microservices/graceful-online-offline.svg)
 
 停机顺序、`server.shutdown: graceful`、K8s `preStop`、预热与权重爬升的完整说明见 [优雅上下线与变更](/high-avail/8_graceful_release)。
 
@@ -445,4 +445,4 @@ spring:
 - Spring Cloud CircuitBreaker：[https://docs.spring.io/spring-cloud-circuitbreaker/reference/](https://docs.spring.io/spring-cloud-circuitbreaker/reference/)
 - Spring Framework Resilience Features：[https://docs.spring.io/spring-framework/reference/core/resilience.html](https://docs.spring.io/spring-framework/reference/core/resilience.html)
 
-> 下一篇：[Spring Cloud Alibaba](./6_alibaba) —— 国内最常用的落地组合：版本对齐、Sentinel 规则与持久化、Seata AT 模式。
+> 下一篇：[Spring Cloud Alibaba](./15_alibaba) —— 国内最常用的落地组合：版本对齐、Sentinel 规则与持久化、Seata AT 模式。

@@ -4,7 +4,7 @@ description: NIST 800-207 原则与组件、身份感知代理、SPIFFE 与 mTLS
 
 # 零信任架构
 
-> 前置阅读：[权限模型：RBAC 与 ABAC](./5_rbac_abac)、[HTTPS 与 TLS](/protocols/3_https_tls)、[服务网格](/microservices/3_service_mesh)
+> 前置阅读：[权限模型：RBAC 与 ABAC](./5_rbac_abac)、[HTTPS 与 TLS](/protocols/3_https_tls)、[服务网格](/microservices/21_service_mesh)
 
 零信任假设内网和外网一样不可信，访问只取决于身份、设备、上下文和目标资源。本篇讲 NIST SP 800-207 的 PE / PA / PEP 分工、身份感知代理和工作负载身份落地。
 
@@ -143,7 +143,7 @@ spec:
 
 ## 五、Istio 中的零信任
 
-服务网格的架构、Sidecar 与 Ambient 的取舍见 [服务网格](/microservices/3_service_mesh)，这里只讲安全相关的三类资源。istiod 内置的 CA 为每个工作负载签发 SPIFFE 格式的证书（如 `spiffe://cluster.local/ns/production/sa/order-service`），默认 24 小时有效并自动轮换；需要对接企业 PKI 时，可以通过 istio-csr 等方式接入 cert-manager 作为外部 CA。
+服务网格的架构、Sidecar 与 Ambient 的取舍见 [服务网格](/microservices/21_service_mesh)，这里只讲安全相关的三类资源。istiod 内置的 CA 为每个工作负载签发 SPIFFE 格式的证书（如 `spiffe://cluster.local/ns/production/sa/order-service`），默认 24 小时有效并自动轮换；需要对接企业 PKI 时，可以通过 istio-csr 等方式接入 cert-manager 作为外部 CA。
 
 ### 1、PeerAuthentication：全网格强制 mTLS
 

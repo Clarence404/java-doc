@@ -150,7 +150,7 @@ public record Money(String currency, long cents) implements Serializable {
 各框架要点：
 
 - **Kryo**：已注册的类写数字 ID，未注册的类写全类名；Kryo 5 默认要求注册（`setRegistrationRequired(true)`）。`Kryo` 实例**不是线程安全的**，用 `Pool<Kryo>` 或 `ThreadLocal` 复用。Spark 默认用 `JavaSerializer`，需设置 `spark.serializer=org.apache.spark.serializer.KryoSerializer` 才用 Kryo；Flink 用自己的 `TypeSerializer`，只在遇到无法识别的泛型类型时回退到 Kryo
-- **Hessian2 / Fastjson2 与 Dubbo**：Dubbo 2.x 默认 hessian2；3.2.0 起 dubbo 协议默认改为 fastjson2；3.3.0 起又改回 hessian2，升级时可用 `prefer-serialization=fastjson2,hessian2` 保持一致。Triple 协议在 IDL 模式下用 Protobuf，详见 [Dubbo](/microservices/4_dubbo)
+- **Hessian2 / Fastjson2 与 Dubbo**：Dubbo 2.x 默认 hessian2；3.2.0 起 dubbo 协议默认改为 fastjson2；3.3.0 起又改回 hessian2，升级时可用 `prefer-serialization=fastjson2,hessian2` 保持一致。Triple 协议在 IDL 模式下用 Protobuf，详见 [Dubbo](/microservices/20_dubbo)
 - **Fastjson**：1.x 的 `autoType` 机制多次出现远程代码执行漏洞，这是业界转向 Fastjson2 或 Jackson 的主因；Fastjson2 默认关闭 autoType，开启时必须配置白名单
 - 序列化方式对性能的影响与选型建议见 [IO 与网络优化](/high-perf/9_io_network)
 

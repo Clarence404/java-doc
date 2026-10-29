@@ -128,7 +128,7 @@ degrade:
 
 ### 3、Sentinel 熔断规则的动态管理
 
-熔断降级规则同样应放在配置中心动态下发。需要注意数据流向：**`sentinel-datasource-nacos` 只负责从 Nacos 拉取并监听规则**，Sentinel 控制台默认把规则直接推到应用内存，不会写回 Nacos，应用重启后控制台上改的规则就丢了。要让"控制台修改 → 持久化到 Nacos"，需要改造 Dashboard 的规则发布逻辑，或者约定只在 Nacos 中修改规则。数据源配置与规则 JSON 见 [Spring Cloud Alibaba - Sentinel](/spring-cloud/6_alibaba)。
+熔断降级规则同样应放在配置中心动态下发。需要注意数据流向：**`sentinel-datasource-nacos` 只负责从 Nacos 拉取并监听规则**，Sentinel 控制台默认把规则直接推到应用内存，不会写回 Nacos，应用重启后控制台上改的规则就丢了。要让"控制台修改 → 持久化到 Nacos"，需要改造 Dashboard 的规则发布逻辑，或者约定只在 Nacos 中修改规则。数据源配置与规则 JSON 见 [Spring Cloud Alibaba - Sentinel](/microservices/15_alibaba)。
 
 ---
 

@@ -86,10 +86,10 @@
 
 ## 七、关联模块
 
-Sentinel、Resilience4j、Nacos 等组件的框架配置在 [Spring Cloud 服务治理](/spring-cloud/5_service_governance) 与 [Spring Cloud Alibaba](/spring-cloud/6_alibaba) 中展开，本模块只讲原理、选型与阈值。
+Sentinel、Resilience4j、Nacos 等组件的框架配置在 [Spring Cloud 服务治理](/microservices/14_service_governance) 与 [Spring Cloud Alibaba](/microservices/15_alibaba) 中展开，本模块只讲原理、选型与阈值。
 
-- 服务治理框架配置（Spring Cloud LoadBalancer、灰度路由、Resilience4j）→ [Spring Cloud 服务治理](/spring-cloud/5_service_governance)
-- Sentinel、Nacos 规则持久化 → [Spring Cloud Alibaba](/spring-cloud/6_alibaba)
+- 服务治理框架配置（Spring Cloud LoadBalancer、灰度路由、Resilience4j）→ [Spring Cloud 服务治理](/microservices/14_service_governance)
+- Sentinel、Nacos 规则持久化 → [Spring Cloud Alibaba](/microservices/15_alibaba)
 - 选主、共识与分布式一致性 → [分布式理论](/distributed/2_theorem)
 - MySQL 复制与 Redis 集群 → [MySQL 主从与高可用](/database/1_mysql/9_topic_replication)、[Redis 集群](/cache/3_redis_cluster)
 - 监控告警 → [可观测性](/observability/0_overview)

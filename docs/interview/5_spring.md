@@ -717,7 +717,7 @@ Mono.fromCallable(() -> legacyClient.fetch(id)).subscribeOn(Schedulers.boundedEl
 
 **常见坑**：不设超时，默认可能无限等待，所有客户端都要设超时。
 
-→ 详见 [Web 开发](/spring-boot/2_web_dev#七、http-客户端)、[服务通信](/spring-cloud/3_communication)
+→ 详见 [Web 开发](/spring-boot/2_web_dev#七、http-客户端)、[服务通信](/microservices/12_communication)
 
 ### Q53：Framework 7 内置的 `@Retryable` 与 Spring Retry 有什么区别？`@ConcurrencyLimit` 为什么和虚拟线程有关？
 

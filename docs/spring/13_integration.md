@@ -262,7 +262,7 @@ Spring Cloud Stream **构建在 Spring Integration 之上**：Binding 背后就�
 | 与 MQ 的关系 | 每种 MQ 一个 Adapter 模块，手动编排 | 通过 Binder 适配 Kafka、RabbitMQ、Pulsar 等，切换中间件只改配置 |
 | 适用 | 复杂多协议集成管道 | 服务间发布 / 订阅事件 |
 
-详见 [Spring Cloud Stream](/spring-cloud/7_stream)。
+详见 [Spring Cloud Stream](/microservices/16_stream)。
 
 ---
 

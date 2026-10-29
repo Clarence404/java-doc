@@ -200,7 +200,7 @@ HTTP/2 让所有调用复用少量长连接，这对四层负载均衡是个坑�
 
 - **问题**：L4 负载均衡（如 Kubernetes Service 的默认 ClusterIP）只在建连时选一次后端，之后同一条连接上的所有请求都打到同一个 Pod，扩容后新 Pod 也分不到流量
 - **方案一，客户端负载均衡**：用 `dns:///` 解析出全部实例地址（配合 Headless Service），再选 `round_robin` 策略，客户端对每个实例各建一条连接
-- **方案二，L7 代理**：Envoy、Nginx（`grpc_pass`）或服务网格按请求分发，见 [服务网格](/microservices/3_service_mesh)
+- **方案二，L7 代理**：Envoy、Nginx（`grpc_pass`）或服务网格按请求分发，见 [服务网格](/microservices/21_service_mesh)
 - **连接存活**：客户端 `keepAliveTime` 定期发 HTTP/2 PING，防止中间设备悄悄断开空闲连接；服务端要用 `permitKeepAliveTime` 放行，否则过于频繁的 PING 会被服务端以 `GOAWAY` 断开
 
 ### 7、浏览器访问
@@ -393,8 +393,8 @@ SOAP 是 W3C 标准的 XML 消息协议，配套用 WSDL 描述接口，通常�
 - Spring Boot 4.1 起自带 gRPC starter，4.0 用 Spring gRPC 1.0，3.x 存量项目可用社区 starter
 - Thrift 主要存在于存量大数据组件，SOAP 主要用于对接银行、政务等老系统
 - REST 风格的 URL、状态码、版本约定见 [API 设计规范](/engineering/4_api_design_rule)
-- 服务间调用怎么选（HTTP Service Clients / OpenFeign / gRPC / Dubbo / 异步消息）见 [服务通信](/spring-cloud/3_communication)
-- Dubbo 与 Triple 协议见 [Dubbo](/microservices/4_dubbo)
+- 服务间调用怎么选（HTTP Service Clients / OpenFeign / gRPC / Dubbo / 异步消息）见 [服务通信](/microservices/12_communication)
+- Dubbo 与 Triple 协议见 [Dubbo](/microservices/20_dubbo)
 - AMQP 是消息协议而不是 RPC：RabbitMQ 经典用法是 AMQP 0-9-1，AMQP 1.0 是另一套协议，见 [RabbitMQ](/messaging/4_rabbitmq)
 
 ## 参考资料

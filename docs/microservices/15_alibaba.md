@@ -4,7 +4,7 @@ description: 版本对齐、Nacos 部署要点、Sentinel 资源与规则、规�
 
 # Spring Cloud Alibaba
 
-> 前置阅读：[服务治理](./5_service_governance)
+> 前置阅读：[服务治理](./14_service_governance)
 
 Nacos + Sentinel + Seata 是国内最常用的 Spring Cloud 落地组合。本篇讲版本对齐、Sentinel 的资源定义、规则配置、OpenFeign 集成与 Nacos 持久化，以及 Seata AT 模式的两阶段机制与生产配置。
 
@@ -14,11 +14,11 @@ Nacos + Sentinel + Seata 是国内最常用的 Spring Cloud 落地组合。本�
 
 | 能力 | 抽象层 | Alibaba 落地实现 |
 |------|-------|-----------------|
-| 注册发现 | [注册发现](./1_service_registry) | Nacos Discovery |
-| 配置中心 | [配置中心](./4_config_center) | Nacos Config |
-| 限流熔断 | [服务治理](./5_service_governance) | Sentinel |
+| 注册发现 | [注册发现](./10_service_registry) | Nacos Discovery |
+| 配置中心 | [配置中心](./13_config_center) | Nacos Config |
+| 限流熔断 | [服务治理](./14_service_governance) | Sentinel |
 | 分布式事务 | [分布式事务](/distributed/4_transaction) | Seata |
-| 消息驱动 | [Spring Cloud Stream](./7_stream) | RocketMQ Binder |
+| 消息驱动 | [Spring Cloud Stream](./16_stream) | RocketMQ Binder |
 
 **版本对齐是第一大坑**：Spring Boot、Spring Cloud、Spring Cloud Alibaba 三者强绑定，必须按官方版本说明对表选择。
 
@@ -62,7 +62,7 @@ Spring Cloud 2025.1.2 起支持 Boot 4.1，升级 Boot 小版本前先确认 SCA
 
 ## 二、Nacos
 
-Nacos 的注册发现机制（gRPC 长连接、临时与持久实例、保护阈值）见 [注册发现](./1_service_registry)，配置接入与刷新链路见 [配置中心](./4_config_center)。生产部署要点：
+Nacos 的注册发现机制（gRPC 长连接、临时与持久实例、保护阈值）见 [注册发现](./10_service_registry)，配置接入与刷新链路见 [配置中心](./13_config_center)。生产部署要点：
 
 - 集群至少 3 节点，外置 MySQL 存储，客户端配置多个地址或通过 VIP / 域名访问
 - 放通端口：8848（HTTP）、9848（客户端 gRPC）、9849（节点间 gRPC）；Nacos 3.x 的控制台使用独立端口（文档示例为 8080）
@@ -237,7 +237,7 @@ public class OrderClientFallbackFactory implements FallbackFactory<OrderClient> 
 }
 ```
 
-OpenFeign 已功能冻结，新项目的调用方式与 Resilience4j 方案见 [服务通信](./3_communication) 与 [服务治理](./5_service_governance)。网关层流控使用 `spring-cloud-alibaba-sentinel-gateway` 适配模块，与 Gateway Server WebFlux 在 Boot 4 上的兼容性以 SCA 发布说明为准。
+OpenFeign 已功能冻结，新项目的调用方式与 Resilience4j 方案见 [服务通信](./12_communication) 与 [服务治理](./14_service_governance)。网关层流控使用 `spring-cloud-alibaba-sentinel-gateway` 适配模块，与 Gateway Server WebFlux 在 Boot 4 上的兼容性以 SCA 发布说明为准。
 
 ### 5、规则持久化（Nacos 数据源）
 
@@ -359,7 +359,7 @@ Spring Cloud 链路里默认用 AT（关系库常规 CRUD，零侵入）；资�
 | 消息 | RocketMQ（Spring Cloud Stream Binder 或原生客户端） | 事务消息覆盖大部分最终一致场景 |
 | 可观测 | Micrometer Tracing + SkyWalking / Prometheus | 链路、指标、日志关联 traceId |
 
-![Spring Cloud Alibaba 技术栈](../assets/spring-cloud/sca-stack.svg)
+![Spring Cloud Alibaba 技术栈](../assets/microservices/sca-stack.svg)
 
 ---
 
@@ -380,4 +380,4 @@ Spring Cloud 链路里默认用 AT（关系库常规 CRUD，零侵入）；资�
 - Apache Seata：[https://seata.apache.org/](https://seata.apache.org/)
 - Nacos：[https://nacos.io/docs/latest/what-is-nacos/](https://nacos.io/docs/latest/what-is-nacos/)
 
-> 下一篇：[Spring Cloud Stream](./7_stream) —— 用 Binder 抽象屏蔽具体 MQ，函数式模型下的消费组、分区与死信。
+> 下一篇：[Spring Cloud Stream](./16_stream) —— 用 Binder 抽象屏蔽具体 MQ，函数式模型下的消费组、分区与死信。

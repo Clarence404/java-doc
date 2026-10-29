@@ -4,7 +4,7 @@ description: 调用流程、Boot 3.5 接入、Triple 协议、负载均衡与容
 
 # Dubbo
 
-> 前置阅读：[RPC 协议](/protocols/5_rpc_protocols)、[服务通信](/spring-cloud/3_communication)
+> 前置阅读：[RPC 协议](/protocols/5_rpc_protocols)、[服务通信](/microservices/12_communication)
 
 Dubbo 是 Apache 的 RPC 服务框架。本篇讲调用流程、Spring Boot + Nacos 搭建、Triple 协议、负载均衡与集群容错、SPI 扩展，基线为 Dubbo 3.3（需停留在 Spring Boot 3.5）。
 
@@ -393,7 +393,7 @@ private OrderService orderService;
 - **泛化调用**（`GenericService`）：不依赖接口 jar，按接口名、方法名和参数直接调用，网关、测试平台常用
 - **隐式参数**（`RpcContext` attachment）：跨服务透传租户 ID、灰度标记等上下文，见上一节的过滤器
 - **可观测性**：Dubbo 3.2 起基于 Micrometer 提供指标与链路追踪集成（`dubbo-spring-boot-observability-starter` 等），可对接 OpenTelemetry / Zipkin，追踪体系见 [链路追踪](/observability/3_tracing)
-- **限流熔断**：通常与 Sentinel 组合，见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba)；分布式事务用 Seata，见 [分布式事务](/distributed/4_transaction)
+- **限流熔断**：通常与 Sentinel 组合，见 [Spring Cloud Alibaba](/microservices/15_alibaba)；分布式事务用 Seata，见 [分布式事务](/distributed/4_transaction)
 
 ---
 
@@ -408,7 +408,7 @@ private OrderService orderService;
 | Spring Boot 版本 | 目前停留在 Boot 3.5 | 随 Spring 官方节奏，已支持 Boot 4 |
 | 生态 | 国内成熟，常与 Nacos / Sentinel / Seata 组合 | 全球主流，Spring 官方维护 |
 
-Spring Cloud OpenFeign 已进入功能完备状态，只做维护；Spring 生态的新项目用 Framework 的 HTTP Service Clients，见 [服务通信](/spring-cloud/3_communication)。
+Spring Cloud OpenFeign 已进入功能完备状态，只做维护；Spring 生态的新项目用 Framework 的 HTTP Service Clients，见 [服务通信](/microservices/12_communication)。
 
 **选型速记**：内部服务间高频调用、性能敏感、团队熟悉 Dubbo → Dubbo；对外暴露多、跨语言、希望紧跟 Spring Boot 版本 → Spring Cloud。两者也常混用：内部 Dubbo，边界 REST。
 
@@ -431,4 +431,4 @@ Spring Cloud OpenFeign 已进入功能完备状态，只做维护；Spring 生�
 - 序列化类检查：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/tasks/security/class-check/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/tasks/security/class-check/)
 - GitHub Releases：[https://github.com/apache/dubbo/releases](https://github.com/apache/dubbo/releases)
 
-> 下一篇：[接口调用顺序性](./5_call_ordering)
+> 下一篇：[服务网格](./21_service_mesh) —— 把服务治理从 SDK 下沉到基础设施层，看 Istio 的 Sidecar 与 Ambient 两种数据面。

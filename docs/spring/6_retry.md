@@ -19,7 +19,7 @@ Spring Framework 7 内置了 `@Retryable`、`@ConcurrencyLimit` 等弹性能力�
 | Resilience4j / Spring Cloud CircuitBreaker | 任意 | 需要熔断、舱壁、限流、时间限制等组合能力时使用 |
 | Reactor `retryWhen(Retry.backoff(...))` | WebFlux | 响应式链路内部的重试，见 [WebFlux](./8_webflux) |
 
-> Framework 7 的核心重试只解决「重试」和「并发限制」，**没有熔断**。熔断、降级仍用 Resilience4j 或 Sentinel，见 [服务治理 · 限流与熔断](/spring-cloud/5_service_governance)。
+> Framework 7 的核心重试只解决「重试」和「并发限制」，**没有熔断**。熔断、降级仍用 Resilience4j 或 Sentinel，见 [服务治理 · 限流与熔断](/microservices/14_service_governance)。
 
 哪些错误该重试、指数退避与抖动的原理、重试放大与重试预算见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)；熔断见 [熔断](/high-avail/5_circuit_breaking)。
 
@@ -284,7 +284,7 @@ public class StockService {
 - 只重试**幂等**操作与**瞬时**错误（连接失败、超时、429/503），4xx 业务错误不重试
 - 重试次数要和上游超时预算匹配：上游 3 秒超时，下游重试 4 次、每次 1 秒，用户早已收到超时
 - 多层重试会成倍放大流量（网关、Feign、业务代码各最多调用 3 次即 3 × 3 × 3 = 27 倍），只在一层重试
-- 下游持续故障时重试只会加剧故障，需要熔断快速失败。Resilience4j 中重试与熔断的装配顺序见 [熔断 · 与重试的执行顺序](/high-avail/5_circuit_breaking)；Spring Cloud 中的接入见 [服务治理](/spring-cloud/5_service_governance)
+- 下游持续故障时重试只会加剧故障，需要熔断快速失败。Resilience4j 中重试与熔断的装配顺序见 [熔断 · 与重试的执行顺序](/high-avail/5_circuit_breaking)；Spring Cloud 中的接入见 [服务治理](/microservices/14_service_governance)
 
 ---
 

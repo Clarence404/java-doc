@@ -14,7 +14,7 @@ Spring Cloud Stream 用 Binder 抽象和函数式编程模型屏蔽具体 MQ 的
 
 直接用 MQ 原生客户端时，**业务代码和具体 MQ 深度耦合**：换 MQ 等于重写消息层，测试也必须起真实中间件。Spring Cloud Stream 在中间加了一层 Binder 抽象：
 
-![Spring Cloud Stream Binder 抽象](../assets/spring-cloud/stream-binder.svg)
+![Spring Cloud Stream Binder 抽象](../assets/microservices/stream-binder.svg)
 
 - **业务函数**：普通的 `Supplier` / `Function` / `Consumer` Bean，不出现任何 MQ API
 - **Binding**：函数的输入输出与目标地址（destination）之间的逻辑通道，命名为 `<函数名>-in-<N>` / `<函数名>-out-<N>`
@@ -198,7 +198,7 @@ spring:
 ```
 
 - Spring 官方维护 Kafka、RabbitMQ Binder 及 Test Binder（`spring-cloud-stream-test-binder`，测试时不用启动中间件）
-- RocketMQ Binder 由 Spring Cloud Alibaba 提供（`spring-cloud-starter-stream-rocketmq`），SCA 2025.1 对应 RocketMQ 5.3.1，见 [Spring Cloud Alibaba](./6_alibaba)
+- RocketMQ Binder 由 Spring Cloud Alibaba 提供（`spring-cloud-starter-stream-rocketmq`），SCA 2025.1 对应 RocketMQ 5.3.1，见 [Spring Cloud Alibaba](./15_alibaba)
 - 以 `spring.cloud.stream.kafka.*`、`spring.cloud.stream.rabbit.*` 开头的 Binder 专属配置需要同步迁移，死信、确认模式等语义并不完全等价，切换后要回归验证
 
 ---
@@ -233,4 +233,4 @@ spring:
 - Spring Cloud Function：[https://docs.spring.io/spring-cloud-function/reference/](https://docs.spring.io/spring-cloud-function/reference/)
 - Kafka Binder：[https://docs.spring.io/spring-cloud-stream/reference/kafka/kafka-binder/usage.html](https://docs.spring.io/spring-cloud-stream/reference/kafka/kafka-binder/usage.html)
 
-> 返回：[Spring Cloud 总览](./0_overview)
+> 下一篇：[Dubbo](./20_dubbo) —— 另一条 SDK 路线：面向接口的 RPC 服务框架与 Triple 协议。

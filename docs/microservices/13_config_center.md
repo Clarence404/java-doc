@@ -4,7 +4,7 @@ description: spring.config.import 接入、gRPC 推送刷新、@RefreshScope 与
 
 # 配置中心
 
-> 前置阅读：[注册发现](./1_service_registry)
+> 前置阅读：[注册发现](./10_service_registry)
 
 配置中心让配置脱离安装包，支持动态刷新、环境隔离、集中管理与敏感信息保护。本篇讲 Nacos Config 接入、刷新链路、`@RefreshScope` 与属性重绑定、环境隔离与配置分层，基线为 Spring Boot 4 / Spring Cloud 2025.1。
 
@@ -181,7 +181,7 @@ Boot 自身的配置加载顺序、Profile 与 `@ConfigurationProperties` 校验
 
 ## 三、动态刷新原理
 
-![Nacos 2.x+ 配置动态刷新链路](../assets/spring-cloud/nacos-config-refresh.svg)
+![Nacos 2.x+ 配置动态刷新链路](../assets/microservices/nacos-config-refresh.svg)
 
 1. 配置在控制台或 OpenAPI 发布后，Nacos Server 持久化内容并更新 MD5
 2. Server 通过 gRPC 长连接向订阅了该 dataId 的客户端推送变更通知（只是通知，不带内容）
@@ -248,4 +248,4 @@ Nacos 1.x 与 2.x+ 的差异：
 - Spring Boot 外部化配置（Importing Additional Data）：[https://docs.spring.io/spring-boot/reference/features/external-config.html](https://docs.spring.io/spring-boot/reference/features/external-config.html)
 - Apollo：[https://www.apolloconfig.com/](https://www.apolloconfig.com/)
 
-> 下一篇：[服务治理](./5_service_governance) —— 负载均衡、灰度路由、限流熔断在 Spring Cloud 中的落地。
+> 下一篇：[服务治理](./14_service_governance) —— 负载均衡、灰度路由、限流熔断在 Spring Cloud 中的落地。

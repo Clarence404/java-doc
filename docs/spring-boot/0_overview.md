@@ -30,7 +30,7 @@ Spring Boot 模块从启动流程与自动配置原理出发，覆盖 Web、数�
 Spring Framework 本身的 IoC、AOP、事务与 MVC 机制在 [Spring 总览](/spring/0_overview) 模块讲解。3.x 的差异在文中单独标注。
 
 - [Spring 总览](/spring/0_overview)：IoC、AOP、事务、MVC 等 Framework 机制，本模块只讲 Boot 层面的装配
-- [Spring Cloud 总览](/spring-cloud/0_overview)：注册发现、网关、服务通信等微服务组件
+- [微服务总览](/microservices/0_overview)：注册发现、网关、服务通信等 Spring Cloud 组件
 - [测试工程总览](/testing/0_overview)：测试分层、Mock 与 Testcontainers
 - [可观测性总览](/observability/0_overview)：日志采集、指标与链路追踪平台
 - [版本演进](/java/2_version)：各 JDK 版本的语言与平台特性

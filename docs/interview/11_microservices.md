@@ -49,7 +49,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 好的拆分：一个需求通常只改一个服务；一个需求要改五个服务还得按顺序发布，就是拆错了
 - 防过度拆分：服务数量和团队维护能力匹配；总是一起改的模块不要拆开
 
-→ 详见 [服务拆分](/microservices/1_service_split#三、拆分粒度)、[DDD 领域驱动设计](/architecture/2_ddd)
+→ 详见 [服务拆分](/microservices/2_service_split#三、拆分粒度)、[DDD 领域驱动设计](/architecture/2_ddd)
 
 ### Q4：如何把单体迁移到微服务？绞杀者模式怎么做？
 
@@ -61,7 +61,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 先抽：变化频繁、边界清楚、耦合少的模块
 - 数据迁移最难：先让新服务通过接口读写老数据，再双写或用 CDC（监听数据库变更日志）同步到新库，最后断开旧表
 
-→ 详见 [微服务优势与挑战](/microservices/1_pros_and_cons#六、单体到微服务的迁移策略)、[服务拆分](/microservices/1_service_split#五、拆分步骤)
+→ 详见 [微服务优势与挑战](/microservices/1_pros_and_cons#六、单体到微服务的迁移策略)、[服务拆分](/microservices/2_service_split#五、拆分步骤)
 
 ### Q5：什么是模块化单体？为什么常建议先做模块化单体再拆？
 
@@ -73,7 +73,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：只按包名分了模块，却允许互相直接查表，拆的时候数据依然缠在一起。
 
-→ 详见 [服务拆分](/microservices/1_service_split#_2、模块化单体)
+→ 详见 [服务拆分](/microservices/2_service_split#_2、模块化单体)
 
 ### Q6：康威定律对服务拆分有什么影响？什么是逆康威操作？
 
@@ -85,7 +85,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：只画了服务边界没调团队，跨团队需求会慢慢把边界侵蚀掉。
 
-→ 详见 [服务拆分](/microservices/1_service_split#_3、团队结构与康威定律)
+→ 详见 [服务拆分](/microservices/2_service_split#_3、团队结构与康威定律)
 
 ### Q7：单体里被多个模块共用的表，拆服务时怎么拆？
 
@@ -99,7 +99,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 - 快照还是引用看语义：订单要的是下单那一刻的价格，所以存快照
 
-→ 详见 [服务拆分](/microservices/1_service_split#_2、共享表的拆法)
+→ 详见 [服务拆分](/microservices/2_service_split#_2、共享表的拆法)
 
 ### Q8：拆服务时，数据怎么从单体库平滑迁到新服务的库？
 
@@ -113,7 +113,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：跳过最后一步，旧表还被报表、定时任务偷偷读写，数据慢慢就对不上了。
 
-→ 详见 [服务拆分](/microservices/1_service_split#_3、双写与数据迁移)
+→ 详见 [服务拆分](/microservices/2_service_split#_3、双写与数据迁移)
 
 ### Q9：服务之间同步调用链太深有什么问题？怎么治理？
 
@@ -124,7 +124,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 积分、通知、统计等非核心步骤改成发事件，不放在同步链上
 - 禁止循环依赖，用链路追踪的服务依赖图定期检查；每个远程调用都设超时
 
-→ 详见 [服务拆分](/microservices/1_service_split#_3、调用链深度)
+→ 详见 [服务拆分](/microservices/2_service_split#_3、调用链深度)
 
 ## 二、通信与 RPC
 
@@ -140,7 +140,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 - 注册中心不在调用路径上：它短暂故障时，调用方用本地缓存的列表照样能调
 
-→ 详见 [微服务设计模式](/microservices/2_patterns#_3、服务发现-service-discovery)
+→ 详见 [微服务设计模式](/microservices/3_patterns#_3、服务发现-service-discovery)
 
 ### Q11：服务间同步调用与异步消息怎么选？
 
@@ -151,7 +151,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 同步要注意：每次调用都设超时，调用链别太深
 - 异步要注意：消息可靠投递、重复消费要幂等（同一消息处理多次结果一样）、最终一致
 
-→ 详见 [微服务设计模式](/microservices/2_patterns#_4、同步与异步通信)、[消息队列基础](/messaging/1_basics)
+→ 详见 [微服务设计模式](/microservices/3_patterns#_4、同步与异步通信)、[消息队列基础](/messaging/1_basics)
 
 ### Q12：gRPC、Dubbo 与 HTTP（REST）分别适合什么场景？
 
@@ -165,7 +165,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：gRPC 用长连接，四层负载均衡只在建连时分配一次，请求会全落在一台上，要按请求做均衡。
 
-→ 详见 [服务通信](/spring-cloud/3_communication#六、选型)、[RPC 协议](/protocols/5_rpc_protocols)
+→ 详见 [服务通信](/microservices/12_communication#六、选型)、[RPC 协议](/protocols/5_rpc_protocols)
 
 ### Q13：如何设计一个 RPC 框架？
 
@@ -179,7 +179,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：失败自动重试对非幂等的写接口会造成重复下单、重复扣款，写操作要关掉重试或保证幂等。
 
-→ 详见 [Dubbo](/microservices/4_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[RPC 协议](/protocols/5_rpc_protocols)
+→ 详见 [Dubbo](/microservices/20_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[RPC 协议](/protocols/5_rpc_protocols)
 
 ## 三、服务网格与 Dubbo
 
@@ -191,7 +191,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 数据面：真正转发流量的代理（Sidecar 模式是每个 Pod 一个 Envoy；Ambient 模式是 ztunnel + waypoint），负责路由、负载均衡、加密和监控数据
 - 早期的 Pilot、Citadel、Galley 已合并成 istiod，按功能理解即可
 
-→ 详见 [服务网格](/microservices/3_service_mesh#二、istio-架构)
+→ 详见 [服务网格](/microservices/21_service_mesh#二、istio-架构)
 
 ### Q15：Istio 的 Sidecar 模式与 Ambient 模式有什么区别？ztunnel 与 waypoint 各做什么？
 
@@ -207,7 +207,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 | 七层能力 | 默认就有 | 部署 waypoint 后才有 |
 | 适合 | 每个服务都要完整治理 | 主要为了加密 / 零信任、想省资源 |
 
-→ 详见 [服务网格](/microservices/3_service_mesh#三、数据面-sidecar-与-ambient)
+→ 详见 [服务网格](/microservices/21_service_mesh#三、数据面-sidecar-与-ambient)
 
 ### Q16：为什么 VirtualService 的路由规则顺序很重要？
 
@@ -216,7 +216,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 写反了：兜底规则会接走所有请求，后面的灰度规则永远不生效
 - 对比：Kubernetes Gateway API（`HTTPRoute`）按规则的精确程度排优先级，不看书写顺序
 
-→ 详见 [服务网格](/microservices/3_service_mesh#_1、virtualservice-虚拟服务)
+→ 详见 [服务网格](/microservices/21_service_mesh#_1、virtualservice-虚拟服务)
 
 ### Q17：Istio 如何实现 mTLS？SPIFFE 身份是什么？网格下的链路追踪是零侵入的吗？
 
@@ -227,7 +227,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 平滑接入：先用 `PERMISSIVE`（明文和加密都收），全部接好后切 `STRICT`
 - 链路追踪不是完全零侵入：代理只看到单次请求，应用要把收到的追踪头转发到下游请求上；Spring Boot 接入 Micrometer Tracing 后自动处理
 
-→ 详见 [服务网格](/microservices/3_service_mesh#五、mtls-服务间加密)、[零信任架构](/security/9_zero_trust)
+→ 详见 [服务网格](/microservices/21_service_mesh#五、mtls-服务间加密)、[零信任架构](/security/9_zero_trust)
 
 ### Q18：服务网格与 Spring Cloud 如何选？组合使用时要注意什么？
 
@@ -242,7 +242,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：一起用时同一能力两边都开，比如重试两边都配，重试次数会相乘。网格管加密和统一监控，SDK 管业务级治理。
 
-→ 详见 [服务网格](/microservices/3_service_mesh#七、service-mesh-vs-spring-cloud)
+→ 详见 [服务网格](/microservices/21_service_mesh#七、service-mesh-vs-spring-cloud)
 
 ### Q19：Dubbo 的注册中心宕机为什么不影响已建立的调用？什么是应用级服务发现？
 
@@ -252,7 +252,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 这样也和 Spring Cloud、Kubernetes 的「按应用 / 服务」模型对齐
 - 3.x 默认接口级和应用级都注册，兼容老消费方；全部升级后设 `dubbo.registry.register-mode=instance` 只留应用级
 
-→ 详见 [Dubbo](/microservices/4_dubbo#二、架构与调用流程)
+→ 详见 [Dubbo](/microservices/20_dubbo#二、架构与调用流程)
 
 ### Q20：Triple 协议与 dubbo 协议有什么区别？
 
@@ -266,7 +266,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：3.2 起默认严格检查序列化类，DTO 不实现 `Serializable` 会调用失败。
 
-→ 详见 [Dubbo](/microservices/4_dubbo#四、triple-协议)
+→ 详见 [Dubbo](/microservices/20_dubbo#四、triple-协议)
 
 ### Q21：Dubbo 默认的 failover 为什么对写操作是陷阱？
 
@@ -277,7 +277,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 记日志这类旁路调用：`failsafe`（出错直接忽略）
 - 发通知这类：`failback`（失败后在后台重发）
 
-→ 详见 [Dubbo](/microservices/4_dubbo#_2、集群容错策略)、[幂等设计](/architecture/3_idempotence)
+→ 详见 [Dubbo](/microservices/20_dubbo#_2、集群容错策略)、[幂等设计](/architecture/3_idempotence)
 
 ### Q22：Dubbo SPI 与 Java SPI 有什么区别？`@Adaptive`、`@Activate` 做什么？
 
@@ -288,7 +288,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - Wrapper：自动包在实现外面的一层，统一加监听、过滤逻辑，类似 AOP
 - 协议、负载均衡、容错策略、过滤器、序列化都是通过 Dubbo SPI 装配的
 
-→ 详见 [Dubbo](/microservices/4_dubbo#六、spi-扩展机制)、[SPI 机制](/java/20_topic_spi)
+→ 详见 [Dubbo](/microservices/20_dubbo#六、spi-扩展机制)、[SPI 机制](/java/20_topic_spi)
 
 ### Q23：Dubbo 和 Spring Cloud 怎么选？
 
@@ -301,7 +301,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 | 治理 | 框架自带 | 多个组件拼起来 |
 | Spring Boot 4 | 目前基于 Boot 3.5，以官方发布为准 | 已支持 |
 
-→ 详见 [Dubbo](/microservices/4_dubbo#八、dubbo-vs-spring-cloud-选型)
+→ 详见 [Dubbo](/microservices/20_dubbo#八、dubbo-vs-spring-cloud-选型)
 
 ## 四、微服务模式
 
@@ -313,7 +313,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 常见组合：网关在前做通用能力，后面按客户端类型分多个 BFF
 - 目的：避免一个「万能网关」被各端的需求拉扯
 
-→ 详见 [微服务设计模式](/microservices/2_patterns#_2、bff-backend-for-frontend)
+→ 详见 [微服务设计模式](/microservices/3_patterns#_2、bff-backend-for-frontend)
 
 ### Q25：Database per Service 之后如何做跨服务查询？API Composition 还是 CQRS？
 
@@ -323,7 +323,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - CQRS：查询灵活，代价是读到的数据会有短暂延迟
 - 「独占数据」指的是归属权：同一个 MySQL 实例上分不同库、只授权给对应服务也可以；但禁止多个服务直接读写同一张表
 
-→ 详见 [微服务设计模式](/microservices/2_patterns#三、数据管理模式)、[架构模式与风格](/architecture/1_arch_patterns)
+→ 详见 [微服务设计模式](/microservices/3_patterns#三、数据管理模式)、[架构模式与风格](/architecture/1_arch_patterns)
 
 ### Q26：Outbox 模式如何保证「写库 + 发消息」的原子性？
 
@@ -334,7 +334,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 消息可能发多次，消费方要按业务键幂等
 - 用 RocketMQ 时也可以直接用它的事务消息
 
-→ 详见 [微服务设计模式](/microservices/2_patterns#_5、outbox-事务发件箱)、[分布式事务](/distributed/4_transaction)
+→ 详见 [微服务设计模式](/microservices/3_patterns#_5、outbox-事务发件箱)、[分布式事务](/distributed/4_transaction)
 
 ### Q27：Saga 的编排式与协同式有什么区别？
 
@@ -348,7 +348,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：Saga 没有隔离性，中间状态别人看得到，要靠「处理中」这类状态设计和补偿幂等兜底。
 
-→ 详见 [微服务设计模式](/microservices/2_patterns#_4、saga)、[分布式事务](/distributed/4_transaction#四、saga)
+→ 详见 [微服务设计模式](/microservices/3_patterns#_4、saga)、[分布式事务](/distributed/4_transaction#四、saga)
 
 ### Q28：消费者驱动契约测试解决什么问题？
 
@@ -358,7 +358,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 契约由调用方定义，所以叫「消费者驱动」
 - 常用工具：Spring Cloud Contract、Pact
 
-→ 详见 [微服务设计模式](/microservices/2_patterns#_4、消费者驱动契约测试-consumer-driven-contract)、[契约测试](/testing/6_contract_test)
+→ 详见 [微服务设计模式](/microservices/3_patterns#_4、消费者驱动契约测试-consumer-driven-contract)、[契约测试](/testing/6_contract_test)
 
 ## 五、分布式场景
 
@@ -396,7 +396,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：用分布式锁保证顺序。锁只保证同一时刻一个请求在执行，不保证谁先拿到，后发的请求照样可能先执行。
 
-→ 详见 [接口调用顺序性](/microservices/5_call_ordering)、[消息队列基础](/messaging/1_basics#五、顺序消息)
+→ 详见 [接口调用顺序性](/microservices/4_call_ordering)、[消息队列基础](/messaging/1_basics#五、顺序消息)
 
 ### Q32：服务间如何传递认证信息与上下文（用户身份、灰度标记、traceId）？
 
@@ -408,4 +408,4 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：请求上下文绑定在当前线程上，切到线程池或 `@Async` 后就拿不到了，要用 `TaskDecorator` 等方式手动带过去。
 
-→ 详见 [API 网关](/spring-cloud/2_api_gateway#四、统一鉴权-网关作为-oauth2-资源服务器)、[服务治理](/spring-cloud/5_service_governance#_5、灰度标记透传)
+→ 详见 [API 网关](/microservices/11_api_gateway#四、统一鉴权-网关作为-oauth2-资源服务器)、[服务治理](/microservices/14_service_governance#_5、灰度标记透传)

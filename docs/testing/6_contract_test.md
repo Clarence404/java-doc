@@ -4,7 +4,7 @@ description: 消费者驱动契约、Spring Cloud Contract、Pact 与 Broker、c
 
 # 契约测试
 
-> 前置阅读：[Mock 测试](./2_mock)、[集成测试](./3_integration_test)、[微服务设计模式](/microservices/2_patterns)
+> 前置阅读：[Mock 测试](./2_mock)、[集成测试](./3_integration_test)、[微服务设计模式](/microservices/3_patterns)
 
 契约测试在端到端测试和 Mock 之间保证服务之间的接口兼容。本篇讲消费者驱动契约流程、Spring Cloud Contract、Pact JVM、Pact Broker 与 can-i-deploy，基线为 Spring Boot 4。
 

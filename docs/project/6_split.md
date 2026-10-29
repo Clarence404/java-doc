@@ -4,7 +4,7 @@ description: 先拆库存与支付、模块 api 变远程接口、按服务拆�
 
 # 拆分服务
 
-> 前置阅读：[工程搭建](./1_project_setup)、[服务拆分](/microservices/1_service_split)、[注册发现](/spring-cloud/1_service_registry)
+> 前置阅读：[工程搭建](./1_project_setup)、[服务拆分](/microservices/2_service_split)、[注册发现](/microservices/10_service_registry)
 
 日订单涨到 100 万、团队扩到 20 人后，一个 jar 让 4 个小组的发布互相阻塞，库存和支付也没法单独扩容。本篇讲先拆什么、数据库怎么拆、Spring Cloud 选型与 Kubernetes 部署，基线为 Spring Boot 4、Spring Cloud 2025.1、Kubernetes 1.37。
 
@@ -20,7 +20,7 @@ description: 先拆库存与支付、模块 api 变远程接口、按服务拆�
 - **扩容**：活动时吃紧的只有库存扣减和支付回调，却只能把整个 `mall-app`（每实例 8 G 堆）成倍扩，连带数据库连接数一起翻倍
 - **隔离**：支付渠道的商户密钥和证书对所有模块可见，任何一个模块的依赖漏洞都会波及支付
 
-这正是 [服务拆分 · 什么时候该拆](/microservices/1_service_split#一、什么时候该拆、什么时候不该拆) 里列的三个信号：团队规模、发布冲突、差异化扩容，三者同时出现了。
+这正是 [服务拆分 · 什么时候该拆](/microservices/2_service_split#一、什么时候该拆、什么时候不该拆) 里列的三个信号：团队规模、发布冲突、差异化扩容，三者同时出现了。
 
 ---
 
@@ -44,7 +44,7 @@ description: 先拆库存与支付、模块 api 变远程接口、按服务拆�
 | 用户 | 量小、变更少 | 几乎每个请求都要查用户 | 暂不拆 |
 | 订单 | 核心域，交易组独占 | 依赖其余所有模块，最难拆 | 不拆，作为留在单体里的核心 |
 
-先拆的标准是**边界清楚、收益明显、出错可回退**。库存和支付在阶段一就有独立的 `api` 包和独立的表，是最容易拆干净的两块；按变更频率和非功能需求划分的依据见 [服务拆分 · 拆分依据](/microservices/1_service_split#二、拆分依据)。
+先拆的标准是**边界清楚、收益明显、出错可回退**。库存和支付在阶段一就有独立的 `api` 包和独立的表，是最容易拆干净的两块；按变更频率和非功能需求划分的依据见 [服务拆分 · 拆分依据](/microservices/2_service_split#二、拆分依据)。
 
 ---
 
@@ -58,7 +58,7 @@ description: 先拆库存与支付、模块 api 变远程接口、按服务拆�
 
 | 不做 | 原因 | 什么时候做 |
 |------|------|-----------|
-| 服务网格 | 只有 4 个 Java 服务，负载均衡、超时都由 Spring Cloud 在进程内完成；Sidecar 的运维成本远大于收益，取舍见 [服务网格](/microservices/3_service_mesh#_3、落地取舍) | 出现多语言服务、需要服务间 mTLS 时再评估 |
+| 服务网格 | 只有 4 个 Java 服务，负载均衡、超时都由 Spring Cloud 在进程内完成；Sidecar 的运维成本远大于收益，取舍见 [服务网格](/microservices/21_service_mesh#_3、落地取舍) | 出现多语言服务、需要服务间 mTLS 时再评估 |
 | 继续拆订单 | 下单、查询、取消都归交易组，共享 `t_order` 和状态机，拆开只会多出分布式事务 | 交易组再分组、或订单查询压力独立变大时 |
 | 拆商品、用户 | 见上表，扩 `mall-app` 实例即可 | 商品组与交易组的发布冲突明显时 |
 | 每服务一个仓库 | 仍在 `qingyou-mall` 一个仓库，按模块各自打镜像、各自流水线即可独立发布 | 跨组代码评审成为瓶颈时 |
@@ -132,20 +132,20 @@ try {
 
 ## 五、按服务拆库与数据迁移
 
-拆分后每个服务只连自己的库，账号也分开：`qingyou_mall`（订单、商品、用户）、`qingyou_inventory`（`t_inventory`）、`qingyou_payment`（`t_payment`）。库存是写热点，单独一个 MySQL 8.4 实例；支付库暂时和 `qingyou_mall` 共用实例、账号隔离。原则见 [服务拆分 · 每服务独享库](/microservices/1_service_split#_1、每服务独享库) 与 [微服务设计模式 · Database per Service](/microservices/2_patterns#_1、database-per-service)。
+拆分后每个服务只连自己的库，账号也分开：`qingyou_mall`（订单、商品、用户）、`qingyou_inventory`（`t_inventory`）、`qingyou_payment`（`t_payment`）。库存是写热点，单独一个 MySQL 8.4 实例；支付库暂时和 `qingyou_mall` 共用实例、账号隔离。原则见 [服务拆分 · 每服务独享库](/microservices/2_service_split#_1、每服务独享库) 与 [微服务设计模式 · Database per Service](/microservices/3_patterns#_1、database-per-service)。
 
 迁移按「先拆部署、再拆数据」走，以库存为例：
 
 ![库存数据从 qingyou_mall 迁到 qingyou_inventory 的四步](../assets/project/qingyou-db-split-steps.svg)
 
-- **① 先拆部署**：`inventory-service` 上线，但数据源仍指向 `qingyou_mall`，只用一个只能访问 `t_inventory` 的账号；网关和 `mall-app` 按比例切流量过去，有问题切回单体内的实现即可，这一步就是 [绞杀者模式](/microservices/2_patterns#_2、绞杀者-strangler-fig)
+- **① 先拆部署**：`inventory-service` 上线，但数据源仍指向 `qingyou_mall`，只用一个只能访问 `t_inventory` 的账号；网关和 `mall-app` 按比例切流量过去，有问题切回单体内的实现即可，这一步就是 [绞杀者模式](/microservices/3_patterns#_2、绞杀者-strangler-fig)
 - **② 建新库并同步**：订阅 `qingyou_mall` 的 binlog，把 `t_inventory` 的存量和增量同步到 `qingyou_inventory`，工具选型见 [CDC 工具](/database/5_practice/0_cdc_tools)
 - **③ 对账与演练**：比对行数与分段 checksum，在预发环境完整演练一次切换与回切
 - **④ 停写切换**：凌晨低峰停写库存接口数秒，等增量追平后切数据源，同时开反向同步，保留一周再断开，最后回收旧表的写权限
 
-**不在业务代码里双写**：库存是条件更新 `stock >= ?`，两边各执行一次，任何一边失败都会让两个库的库存对不上，而且没有可以兜底的「正确值」；binlog 同步只有一个写入源，出错可以重放。双写与 CDC 的取舍、每一步的回退方式见 [服务拆分 · 双写与数据迁移](/microservices/1_service_split#_3、双写与数据迁移)。
+**不在业务代码里双写**：库存是条件更新 `stock >= ?`，两边各执行一次，任何一边失败都会让两个库的库存对不上，而且没有可以兜底的「正确值」；binlog 同步只有一个写入源，出错可以重放。双写与 CDC 的取舍、每一步的回退方式见 [服务拆分 · 双写与数据迁移](/microservices/2_service_split#_3、双写与数据迁移)。
 
-`t_inventory` 只有约 8 万行（一个 SKU 一行，含已下架），同步和对账都在分钟级；`t_payment` 每天新增约 100 万行，步骤相同，只是同步要提前几天开始。拆库后运营后台里「订单联表支付单」的报表不能再跨库 JOIN，改成从数仓查，见 [服务拆分 · 跨服务查询](/microservices/1_service_split#_3、跨服务查询)。
+`t_inventory` 只有约 8 万行（一个 SKU 一行，含已下架），同步和对账都在分钟级；`t_payment` 每天新增约 100 万行，步骤相同，只是同步要提前几天开始。拆库后运营后台里「订单联表支付单」的报表不能再跨库 JOIN，改成从数仓查，见 [服务拆分 · 跨服务查询](/microservices/2_service_split#_3、跨服务查询)。
 
 ---
 
@@ -159,7 +159,7 @@ try {
 | 服务调用 | OpenFeign / HTTP 接口客户端 | HTTP 接口客户端 | 框架内置，接口可以服务端客户端共用；OpenFeign 只剩维护 |
 | 负载均衡 | Spring Cloud LoadBalancer | 默认轮询 | 实例同构，暂不需要权重或区域路由 |
 
-Spring Cloud 版本取 2025.1，Spring Cloud Alibaba 版本跟随它的 BOM，对表见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba)。
+Spring Cloud 版本取 2025.1，Spring Cloud Alibaba 版本跟随它的 BOM，对表见 [Spring Cloud Alibaba](/microservices/15_alibaba)。
 
 ### 1、Nacos：注册与配置
 
@@ -185,7 +185,7 @@ spring:
       - nacos:inventory-service.yaml                         # 本服务配置，缺了启动失败
 ```
 
-接入与刷新机制见 [注册发现 · Spring Cloud 接入](/spring-cloud/1_service_registry#四、spring-cloud-接入) 和 [配置中心 · Nacos Config 接入](/spring-cloud/4_config_center#二、nacos-config-接入)。
+接入与刷新机制见 [注册发现 · Spring Cloud 接入](/microservices/10_service_registry#四、spring-cloud-接入) 和 [配置中心 · Nacos Config 接入](/microservices/13_config_center#二、nacos-config-接入)。
 
 ### 2、mall-gateway：只路由 /api
 
@@ -210,7 +210,7 @@ spring:
             response-timeout: 5s
 ```
 
-对外路径保持 [接口设计](./3_api_design) 里的样子，客户端无感；库存不对外暴露，商品详情里的库存由 `mall-app` 查。网关作为资源服务器统一校验 JWT，下游服务仍用同一把公钥再校验一次，不只凭请求头里的用户 ID 放行，写法见 [API 网关 · 统一鉴权](/spring-cloud/2_api_gateway#四、统一鉴权-网关作为-oauth2-资源服务器)。
+对外路径保持 [接口设计](./3_api_design) 里的样子，客户端无感；库存不对外暴露，商品详情里的库存由 `mall-app` 查。网关作为资源服务器统一校验 JWT，下游服务仍用同一把公钥再校验一次，不只凭请求头里的用户 ID 放行，写法见 [API 网关 · 统一鉴权](/microservices/11_api_gateway#四、统一鉴权-网关作为-oauth2-资源服务器)。
 
 ### 3、HTTP 接口客户端与超时
 
@@ -244,7 +244,7 @@ RestClientHttpServiceGroupConfigurer remoteErrorConfigurer(JsonMapper jsonMapper
 }
 ```
 
-为什么不选 OpenFeign、客户端组的注册与透传请求头，见 [服务通信 · 选型](/spring-cloud/3_communication#六、选型)；熔断、重试与限流放到「稳定性」一篇。
+为什么不选 OpenFeign、客户端组的注册与透传请求头，见 [服务通信 · 选型](/microservices/12_communication#六、选型)；熔断、重试与限流放到「稳定性」一篇。
 
 ---
 

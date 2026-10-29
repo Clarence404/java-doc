@@ -573,7 +573,7 @@ public ProductApi productApi(RestClient.Builder builder) {
 
 - 新代码的同步调用用 `RestClient`；调用的接口多、希望收口成接口时用 HTTP Service Clients
 - 响应式技术栈用 WebClient，见 [WebFlux](/spring/8_webflux)
-- 微服务内部调用：Spring Cloud OpenFeign 已进入功能完备（feature-complete）状态，新项目优先 HTTP Service Clients 配合服务发现与负载均衡，存量 OpenFeign 可继续使用，见 [服务通信](/spring-cloud/3_communication)
+- 微服务内部调用：Spring Cloud OpenFeign 已进入功能完备（feature-complete）状态，新项目优先 HTTP Service Clients 配合服务发现与负载均衡，存量 OpenFeign 可继续使用，见 [服务通信](/microservices/12_communication)
 - `RestTemplate` 只在存量代码中维持，趁改动时逐步替换为 `RestClient`（两者可以共用同一个底层 `ClientHttpRequestFactory`）
 
 ---

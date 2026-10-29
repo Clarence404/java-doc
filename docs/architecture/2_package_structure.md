@@ -278,7 +278,7 @@ void verifyModules() {
 }
 ```
 
-依赖坐标、`FreezingArchRule` 渐进治理等细节见 [代码质量 · ArchUnit](/engineering/3_code_quality#五、archunit-把架构约定写成测试)，模块化单体的取舍见 [服务拆分 · 模块化单体](/microservices/1_service_split#_2、模块化单体)。
+依赖坐标、`FreezingArchRule` 渐进治理等细节见 [代码质量 · ArchUnit](/engineering/3_code_quality#五、archunit-把架构约定写成测试)，模块化单体的取舍见 [服务拆分 · 模块化单体](/microservices/2_service_split#_2、模块化单体)。
 
 ---
 

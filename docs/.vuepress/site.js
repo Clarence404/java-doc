@@ -117,8 +117,15 @@ export const GROUPS = [
     {
         name: '分布式系统', tagline: '分布式理论、微服务与高性能 · 高并发 · 高可用', modules: [
             {name: '分布式', dir: 'distributed', interview: ['10_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID'},
-            {name: '微服务', dir: 'microservices', interview: ['11_microservices'], desc: '服务拆分 / 设计模式 / 服务网格 / Dubbo / 调用顺序'},
-            {name: 'Spring Cloud', dir: 'spring-cloud', interview: ['11_spring_cloud'], desc: 'Nacos / Gateway / OpenFeign / Sentinel / Seata'},
+            {
+                name: '微服务', dir: 'microservices', interview: ['11_microservices', '11_spring_cloud'],
+                desc: '服务拆分 / 设计模式 / Spring Cloud（Nacos、Gateway、服务治理、Alibaba）/ Dubbo / 服务网格',
+                sidebar: [
+                    {text: '概念与拆分', from: 1},
+                    {text: 'Spring Cloud', from: 10},
+                    {text: '其他路线', from: 20},
+                ],
+            },
             {name: '高性能', dir: 'high-perf', interview: ['12_high_perf'], desc: '指标 / 方法论 / Profiler / JMH / 池化与异步 / IO 与数据库优化'},
             {name: '高并发', dir: 'high-con', interview: ['13_high_con'], desc: '接入层 / 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划'},
             {name: '高可用', dir: 'high-avail', interview: ['14_high_avail'], desc: 'SLA / 冗余切换 / 超时重试 / 熔断降级限流 / 多活容灾 / 应急复盘'},
@@ -268,6 +275,21 @@ export const REDIRECTS = {
     '/database/6_reference/0_binlog_connector_source': '/database/5_practice/1_binlog_connector_source',
     '/database/5_practice/1_backup_recovery': '/database/5_practice/2_backup_recovery',
     '/database/5_practice/2_sharding': '/database/5_practice/3_sharding',
+    // 2026-10：Spring Cloud 模块并入微服务模块
+    '/spring-cloud/0_overview': '/microservices/0_overview',
+    '/spring-cloud/1_service_registry': '/microservices/10_service_registry',
+    '/spring-cloud/2_api_gateway': '/microservices/11_api_gateway',
+    '/spring-cloud/3_communication': '/microservices/12_communication',
+    '/spring-cloud/4_config_center': '/microservices/13_config_center',
+    '/spring-cloud/5_service_governance': '/microservices/14_service_governance',
+    '/spring-cloud/6_alibaba': '/microservices/15_alibaba',
+    '/spring-cloud/7_stream': '/microservices/16_stream',
+    '/spring-cloud/99_interview': '/microservices/99_interview',
+    '/microservices/1_service_split': '/microservices/2_service_split',
+    '/microservices/2_patterns': '/microservices/3_patterns',
+    '/microservices/3_service_mesh': '/microservices/21_service_mesh',
+    '/microservices/4_dubbo': '/microservices/20_dubbo',
+    '/microservices/5_call_ordering': '/microservices/4_call_ordering',
 };
 
 // 学习路线（interview/91_routes 页的 <LearningRoutes />）：按目标跨模块挑文章，标题与简介自动取文章的 H1 与 description
@@ -299,7 +321,7 @@ export const ROUTES = [
         stages: [
             {title: '把单体写扎实', items: ['database/0_fundamentals/1_storage_engine', 'database/1_mysql/3_table_design', 'database/1_mysql/7_topic_explain', 'architecture/3_idempotence', 'cache/10_cache_consistency', 'architecture/2_package_structure']},
             {title: '引入中间件', items: ['messaging/1_basics', 'high-con/4_async_peak_shaving', 'distributed/3_lock', 'distributed/4_transaction', 'distributed/8_id_generator']},
-            {title: '拆分与治理', items: ['distributed/2_theorem', 'microservices/1_service_split', 'microservices/2_patterns', 'architecture/2_ddd', 'high-avail/4_timeout_retry_bulkhead', 'high-avail/5_circuit_breaking']},
+            {title: '拆分与治理', items: ['distributed/2_theorem', 'microservices/2_service_split', 'microservices/3_patterns', 'architecture/2_ddd', 'high-avail/4_timeout_retry_bulkhead', 'high-avail/5_circuit_breaking']},
             {title: '扛住流量', items: ['high-con/3_cache_architecture', 'high-con/5_data_scaling', 'high-con/6_hotspot', 'high-con/8_capacity_planning', 'high-avail/9_multi_active']},
             {title: '系统设计', items: ['scenario/1_design_method', 'scenario/4_seckill', 'scenario/5_order_system', 'scenario/17_counter']},
             {title: '串成一个项目', items: ['project/0_overview', 'project/7_consistency', 'project/8_stability', 'project/10_retrospective']},

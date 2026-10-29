@@ -4,7 +4,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 # Spring Cloud 面试题解答
 
-> 题目清单见 [Spring Cloud 面试题](/spring-cloud/99_interview)，模块入口见 [Spring Cloud 总览](/spring-cloud/0_overview)；拆分、通信、服务网格等架构题见 [微服务面试题解答](/interview/11_microservices)，分布式事务理论见 [分布式面试题解答](/interview/10_distributed)。
+> 题目清单见 [微服务面试题](/microservices/99_interview)，模块入口见 [微服务总览](/microservices/0_overview)；拆分、通信、服务网格等架构题见 [微服务面试题解答](/interview/11_microservices)，分布式事务理论见 [分布式面试题解答](/interview/10_distributed)。
 >
 > 版本基线：Spring Boot 4.x、Spring Cloud 2025.1.x、Spring Cloud Alibaba 2025.1.0.0（Nacos 3.x）。
 
@@ -23,7 +23,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 每个 Spring Cloud 版本只支持特定的 Boot 版本，SCA 再跟着 Spring Cloud 走
 - 升级 Boot 前先确认对应的 Spring Cloud 和 SCA 已经发布；Dubbo 这类非 Spring 组件要单独核对
 
-→ 详见 [Spring Cloud 总览](/spring-cloud/0_overview#三、版本与选型速查)、[Spring Cloud Alibaba](/spring-cloud/6_alibaba#一、定位与版本对齐)
+→ 详见 [微服务总览 · Spring Cloud 版本与选型速查](/microservices/0_overview#三、spring-cloud-版本与选型速查)、[Spring Cloud Alibaba](/microservices/15_alibaba#一、定位与版本对齐)
 
 ### Q2：注册中心如何选型？Nacos、Eureka、Consul、ZooKeeper、Kubernetes 有什么区别？
 
@@ -37,7 +37,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 | Eureka | AP | 无 | 只维护 |
 | ZooKeeper | CP | 无 | Dubbo 老项目 |
 
-→ 详见 [注册发现](/spring-cloud/1_service_registry#二、注册中心对比)
+→ 详见 [注册发现](/microservices/10_service_registry#二、注册中心对比)
 
 ### Q3：注册中心为什么更适合 AP？ZooKeeper 做注册中心有什么问题？
 
@@ -47,7 +47,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 大量服务的临时节点和变更通知，也会给 ZooKeeper 带来很大压力
 - 注册中心不在调用路径上，短暂故障时调用方用缓存的列表继续调
 
-→ 详见 [注册发现](/spring-cloud/1_service_registry#二、注册中心对比)、[分布式理论](/distributed/2_theorem)
+→ 详见 [注册发现](/microservices/10_service_registry#二、注册中心对比)、[分布式理论](/distributed/2_theorem)
 
 ### Q4：Nacos 的临时实例和持久实例有什么区别？AP / CP 是由什么决定的？
 
@@ -63,7 +63,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 **常见坑**：「按集群切换 AP / CP 模式」是 1.x 的老说法；2.x 起同一个服务里也不能混用两种实例。
 
-→ 详见 [注册发现](/spring-cloud/1_service_registry#_2、临时实例与持久实例)
+→ 详见 [注册发现](/microservices/10_service_registry#_2、临时实例与持久实例)
 
 ### Q5：Nacos 2.x / 3.x 怎么判断实例健康？需要放通哪些端口？
 
@@ -76,7 +76,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 **常见坑**：防火墙只开了 8848，2.x 客户端连不上；Nacos 3.x 默认开启鉴权，客户端要配用户名和密码。
 
-→ 详见 [注册发现](/spring-cloud/1_service_registry#_1、连接模型-grpc-长连接)
+→ 详见 [注册发现](/microservices/10_service_registry#_1、连接模型-grpc-长连接)
 
 ### Q6：Nacos 的保护阈值是什么？Nacos Server 全挂了服务还能调用吗？
 
@@ -86,7 +86,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 但这时新实例发现不了，下线的实例也剔除不掉
 - 避免单点：客户端配多个地址或域名；集群至少 3 个节点、用外部 MySQL
 
-→ 详见 [注册发现](/spring-cloud/1_service_registry#_3、保护阈值与本地容灾)
+→ 详见 [注册发现](/microservices/10_service_registry#_3、保护阈值与本地容灾)
 
 ### Q7：Spring Cloud Alibaba 2025.1 为什么不再支持 bootstrap？如何用 `spring.config.import` 接入 Nacos？
 
@@ -97,7 +97,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 数据源这类不该运行时改的配置，加 `refreshEnabled=false`
 - 升级时把 `bootstrap.yml` 里的 Nacos 地址、命名空间等全部搬到 `application.yml`
 
-→ 详见 [配置中心](/spring-cloud/4_config_center#_1、依赖与-spring-config-import)
+→ 详见 [配置中心](/microservices/13_config_center#_1、依赖与-spring-config-import)
 
 ### Q8：配置中心动态刷新的原理是什么？Nacos 怎么把变更通知到客户端？
 
@@ -108,7 +108,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 背景：1.x 用 HTTP 长轮询（服务端挂住约 30 秒），连接多时服务端压力大，2.x 起被 gRPC 推送取代
 - 兜底：客户端定期全量比对 MD5，还会存本地快照，Nacos 不可用时也能靠快照启动
 
-→ 详见 [配置中心](/spring-cloud/4_config_center#三、动态刷新原理)
+→ 详见 [配置中心](/microservices/13_config_center#三、动态刷新原理)
 
 ### Q9：`@RefreshScope` 的原理是什么？`@Value` 与 `@ConfigurationProperties` 的刷新有什么区别？
 
@@ -123,7 +123,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - `@Value` 字段只有所在 Bean 加了 `@RefreshScope` 才会更新
 - record 这类构造器绑定的配置类不可变，不会被刷新
 
-→ 详见 [配置中心](/spring-cloud/4_config_center#_2、读取配置)
+→ 详见 [配置中心](/microservices/13_config_center#_2、读取配置)
 
 ## 二、调用与网关
 
@@ -136,7 +136,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - `base-url` 写成普通地址时不走负载均衡，适合调外部 API
 - 迁移主要是换注解：`@FeignClient` + `@GetMapping` 改成 `@HttpExchange` + `@GetExchange`
 
-→ 详见 [服务通信](/spring-cloud/3_communication#二、http-service-clients-推荐)
+→ 详见 [服务通信](/microservices/12_communication#二、http-service-clients-推荐)
 
 ### Q11：OpenFeign 的工作原理是什么？为什么配置了 fallback 却不生效？
 
@@ -149,7 +149,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 **常见坑**：默认读超时 60 秒，远大于合理值，必须按服务显式配置；写接口的降级不能假装返回成功。
 
-→ 详见 [服务通信](/spring-cloud/3_communication#_2、降级生效的前提)
+→ 详见 [服务通信](/microservices/12_communication#_2、降级生效的前提)
 
 ### Q12：Spring Cloud LoadBalancer 有哪些内置能力？如何基于它实现灰度路由？
 
@@ -161,7 +161,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 **常见坑**：灰度标记没有一跳一跳往下传，第二跳之后就回到了稳定版本。
 
-→ 详见 [服务治理](/spring-cloud/5_service_governance#二、负载均衡-spring-cloud-loadbalancer)、[高可用面试题解答](/interview/14_high_avail#q17-服务端负载均衡与客户端负载均衡-spring-cloud-loadbalancer-有什么区别)
+→ 详见 [服务治理](/microservices/14_service_governance#二、负载均衡-spring-cloud-loadbalancer)、[高可用面试题解答](/interview/14_high_avail#q17-服务端负载均衡与客户端负载均衡-spring-cloud-loadbalancer-有什么区别)
 
 ### Q13：API 网关的作用是什么？Route、Predicate、Filter 分别是什么，请求如何流转？
 
@@ -174,7 +174,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 **常见坑**：WebFlux 版网关跑在少量事件循环线程上，过滤器里同步查 Redis、数据库会卡住整个网关。
 
-→ 详见 [API 网关](/spring-cloud/2_api_gateway#二、核心概念与请求链路)
+→ 详见 [API 网关](/microservices/11_api_gateway#二、核心概念与请求链路)
 
 ### Q14：Gateway Server WebFlux 与 Server MVC 如何选？2025.x 的依赖与配置前缀有何变化？
 
@@ -188,7 +188,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 **常见坑**：升级后旧的 `spring.cloud.gateway.routes` 不再生效，路由会悄悄丢失、也不报错；升级后用 actuator 的 `gateway/routes` 端点核对。
 
-→ 详见 [API 网关](/spring-cloud/2_api_gateway#一、两种形态-server-webflux-与-server-mvc)
+→ 详见 [API 网关](/microservices/11_api_gateway#一、两种形态-server-webflux-与-server-mvc)
 
 ### Q15：网关统一鉴权怎么做？如何防止下游收到伪造的用户请求头？
 
@@ -198,7 +198,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 下游只信网关加的请求头，前提是下游只能从网关访问（网络隔离）；做不到就把 `Authorization` 原样转发，让下游自己再验一次
 - 网关同时作为 OAuth2 客户端时，用 `TokenRelay` 过滤器把令牌转发给下游
 
-→ 详见 [API 网关](/spring-cloud/2_api_gateway#四、统一鉴权-网关作为-oauth2-资源服务器)、[JWT 令牌机制](/security/1_jwt)
+→ 详见 [API 网关](/microservices/11_api_gateway#四、统一鉴权-网关作为-oauth2-资源服务器)、[JWT 令牌机制](/security/1_jwt)
 
 ### Q16：网关灰度路由为什么不能用路由 metadata？正确做法是什么？
 
@@ -212,7 +212,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 按请求头选时，实例列表要配 `withDiscoveryClient().withCaching().withHints()`
 - 灰度标记必须一跳一跳往下传
 
-→ 详见 [API 网关](/spring-cloud/2_api_gateway#七、灰度路由)
+→ 详见 [API 网关](/microservices/11_api_gateway#七、灰度路由)
 
 ## 三、服务治理
 
@@ -231,7 +231,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 不是 Netflix 的 OpenFeign 也已功能冻结，新项目用 HTTP Service Clients
 - Spring Cloud Config 不是 Netflix 组件，仍在维护
 
-→ 详见 [Spring Cloud 总览](/spring-cloud/0_overview#三、版本与选型速查)
+→ 详见 [微服务总览 · Spring Cloud 版本与选型速查](/microservices/0_overview#三、spring-cloud-版本与选型速查)
 
 ### Q18：什么是服务雪崩？Spring Cloud 中有哪些治理手段？
 
@@ -243,7 +243,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 隔离：给不同下游分开的线程或并发额度（Resilience4j Bulkhead、Sentinel 并发数）
 - 重试：只对幂等接口、只在一层做
 
-→ 详见 [服务治理](/spring-cloud/5_service_governance#一、服务治理全景)、[高可用面试题解答](/interview/14_high_avail#五、熔断)
+→ 详见 [服务治理](/microservices/14_service_governance#一、服务治理全景)、[高可用面试题解答](/interview/14_high_avail#五、熔断)
 
 ### Q19：Sentinel 的核心原理（Slot 链、滑动窗口）是什么？
 
@@ -254,7 +254,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 滑动窗口：默认把 1 秒分成 2 个 500ms 的小格，环形数组循环复用，统计时把窗口内的格子加起来
 - 为什么用滑动窗口：避免固定窗口在两个窗口交界处瞬间放进两倍流量
 
-→ 详见 [限流与过载保护](/high-avail/7_rate_limiting#八、sentinel-限流)、[Spring Cloud Alibaba](/spring-cloud/6_alibaba#三、sentinel-流控与熔断)
+→ 详见 [限流与过载保护](/high-avail/7_rate_limiting#八、sentinel-限流)、[Spring Cloud Alibaba](/microservices/15_alibaba#三、sentinel-流控与熔断)
 
 ### Q20：Sentinel 有哪些流控效果和熔断策略？规则如何持久化？
 
@@ -265,7 +265,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 数据只从 Nacos 流向应用：控制台改的规则不会写回 Nacos，重启就丢，还可能被 Nacos 下一次推送覆盖
 - 解决：约定只在 Nacos 改规则；或改造控制台，让它把规则写进 Nacos
 
-→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_5、规则持久化-nacos-数据源)、[高可用面试题解答](/interview/14_high_avail#q32-sentinel-规则持久化到-nacos-后-控制台修改的规则为什么重启会丢失)
+→ 详见 [Spring Cloud Alibaba](/microservices/15_alibaba#_5、规则持久化-nacos-数据源)、[高可用面试题解答](/interview/14_high_avail#q32-sentinel-规则持久化到-nacos-后-控制台修改的规则为什么重启会丢失)
 
 ### Q21：Framework 7 的 `@Retryable` / `@ConcurrencyLimit` 与 Resilience4j、Sentinel 如何分工？
 
@@ -283,7 +283,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 **常见坑**：几个一起用时重试只在一层开，否则次数相乘。
 
-→ 详见 [服务治理](/spring-cloud/5_service_governance#_2、framework-7-内置容错注解)、[Retry 重试](/spring/6_retry)
+→ 详见 [服务治理](/microservices/14_service_governance#_2、framework-7-内置容错注解)、[Retry 重试](/spring/6_retry)
 
 ### Q22：如何按 API 版本把请求路由到不同实例？
 
@@ -294,7 +294,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 调用方：只挑实例元数据 `API_VERSION` 匹配的实例
 - 前提：接口尽量向后兼容（只加字段不删），真有破坏性改动才发新版本
 
-→ 详见 [服务治理](/spring-cloud/5_service_governance#六、服务版本与兼容性)
+→ 详见 [服务治理](/microservices/14_service_governance#六、服务版本与兼容性)
 
 ## 四、分布式事务
 
@@ -310,7 +310,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 **常见坑**：下游返回错误码而不抛异常时，发起方要自己判断并抛异常，否则全局事务会被提交。
 
-→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#四、seata-分布式事务)
+→ 详见 [Spring Cloud Alibaba](/microservices/15_alibaba#四、seata-分布式事务)
 
 ## 五、消息与链路
 
@@ -323,7 +323,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 还能用 Test Binder 测试，不用真起 MQ
 - 代价：各 MQ 的高级特性（RocketMQ 事务消息、Kafka Streams 等）被屏蔽，用得深就直接用原生客户端
 
-→ 详见 [Spring Cloud Stream](/spring-cloud/7_stream#一、解决什么问题)
+→ 详见 [Spring Cloud Stream](/microservices/16_stream#一、解决什么问题)
 
 ### Q25：Spring Cloud Stream 如何配置消费组、重试与死信？
 
@@ -336,7 +336,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 **常见坑**：重试和消费者重新分配分区都会导致重复投递，消费逻辑必须幂等。
 
-→ 详见 [Spring Cloud Stream](/spring-cloud/7_stream#三、核心机制)
+→ 详见 [Spring Cloud Stream](/microservices/16_stream#三、核心机制)
 
 ### Q26：Sleuth 之后用什么做链路追踪？traceId 如何跨服务、跨线程、跨 MQ 传递？
 

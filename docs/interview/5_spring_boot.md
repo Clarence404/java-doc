@@ -137,7 +137,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - `vault://`：从 Vault 拉取密钥
 - Spring Cloud 2020.0 起默认不用 bootstrap 配置了，配置中心统一走这个入口
 
-→ 详见 [配置管理](/spring-boot/5_config#四、spring-config-import)、[配置中心](/spring-cloud/4_config_center)
+→ 详见 [配置管理](/spring-boot/5_config#四、spring-config-import)、[配置中心](/microservices/13_config_center)
 
 ## 四、Web 与数据访问
 

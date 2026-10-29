@@ -280,7 +280,7 @@ rule.setParamFlowItemList(List.of(hot));
 ParamFlowRuleManager.loadRules(List.of(rule));
 ```
 
-线程池隔离与舱壁模式见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)，限流算法见 [限流与过载保护](/high-avail/7_rate_limiting)，Sentinel 规则持久化见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba)。
+线程池隔离与舱壁模式见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)，限流算法见 [限流与过载保护](/high-avail/7_rate_limiting)，Sentinel 规则持久化见 [Spring Cloud Alibaba](/microservices/15_alibaba)。
 
 ---
 

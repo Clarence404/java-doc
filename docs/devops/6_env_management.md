@@ -240,7 +240,7 @@ spring:
 4. 提交 prod 变更审批，先用 Beta 发布推给指定实例验证
 5. 全量发布到 prod，保留历史版本以便回滚
 
-更进一步的做法是把各环境的 Nacos 配置文件也放进 Git 仓库，通过流水线调用 Nacos OpenAPI 发布，让配置变更与代码一样走 PR 评审。分组规划、刷新链路与 `@RefreshScope` 的取舍见 [配置中心](/spring-cloud/4_config_center)。
+更进一步的做法是把各环境的 Nacos 配置文件也放进 Git 仓库，通过流水线调用 Nacos OpenAPI 发布，让配置变更与代码一样走 PR 评审。分组规划、刷新链路与 `@RefreshScope` 的取舍见 [配置中心](/microservices/13_config_center)。
 
 ---
 

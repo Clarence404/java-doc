@@ -126,7 +126,7 @@ resilience4j:
 
 - **`STOCK_INSUFFICIENT` 不计入失败**：`RemoteFailurePredicate` 只把超时、连接失败和 5xx 记为失败，4xx 是正常的业务结果，否则爆款卖完时熔断器会误以为库存服务坏了
 - **舱壁用信号量而不是线程池**：调用仍在 Tomcat 线程里执行，没有线程切换；配额按 [性能指标 · 指标之间的关系：Little 定律](/high-perf/1_metrics#四、指标之间的关系-little-定律) 估：大促时每个 Pod 约 310 QPS，P99 30ms 时稳态并发约 10，取 60 能容忍 P99 涨到约 200ms；再慢就拒绝，最多占住 60 个线程，其余 140 个线程留给商品详情和订单查询
-- 参数含义与 Resilience4j 的接入方式见 [服务治理 · Resilience4j 与 Sentinel](/spring-cloud/5_service_governance#_1、resilience4j-与-sentinel)，信号量与线程池舱壁的取舍见 [超时、重试与隔离 · 信号量隔离](/high-avail/4_timeout_retry_bulkhead#_2、信号量隔离)
+- 参数含义与 Resilience4j 的接入方式见 [服务治理 · Resilience4j 与 Sentinel](/microservices/14_service_governance#_1、resilience4j-与-sentinel)，信号量与线程池舱壁的取舍见 [超时、重试与隔离 · 信号量隔离](/high-avail/4_timeout_retry_bulkhead#_2、信号量隔离)
 
 ### 3、下单侧：被拒绝就是确定失败
 
@@ -242,7 +242,7 @@ KeyResolver userRouteKeyResolver() {
 }
 ```
 
-`RedisRateLimiter` 的 Redis key 只由 `KeyResolver` 的结果决定，所以要把路由 ID 拼进去，否则同一用户在所有路由上共用一个桶。未登录请求取不到 principal，按默认的 `deny-empty-key` 直接拒绝；商品详情这类匿名可访问的接口走单独的路由，不挂这个过滤器。限流用的是阶段二那套 Redis 8 主从，Redis 故障时 `RedisRateLimiter` 默认放行，这是有意的选择：限流挂了不能让下单跟着挂。参数含义见 [API 网关 · 限流](/spring-cloud/2_api_gateway#五、限流)，各层限流的分工见 [限流与过载保护 · 限流放在哪一层](/high-avail/7_rate_limiting#二、限流放在哪一层)。
+`RedisRateLimiter` 的 Redis key 只由 `KeyResolver` 的结果决定，所以要把路由 ID 拼进去，否则同一用户在所有路由上共用一个桶。未登录请求取不到 principal，按默认的 `deny-empty-key` 直接拒绝；商品详情这类匿名可访问的接口走单独的路由，不挂这个过滤器。限流用的是阶段二那套 Redis 8 主从，Redis 故障时 `RedisRateLimiter` 默认放行，这是有意的选择：限流挂了不能让下单跟着挂。参数含义见 [API 网关 · 限流](/microservices/11_api_gateway#五、限流)，各层限流的分工见 [限流与过载保护 · 限流放在哪一层](/high-avail/7_rate_limiting#二、限流放在哪一层)。
 
 ### 2、下单频控
 

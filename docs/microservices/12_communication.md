@@ -4,7 +4,7 @@ description: HTTP Service Clients、负载均衡 RestClient、OpenFeign、gRPC �
 
 # 服务通信
 
-> 前置阅读：[注册发现](./1_service_registry)
+> 前置阅读：[注册发现](./10_service_registry)
 
 服务间同步调用在 Spring Cloud 2025.1 下推荐 HTTP Service Clients + LoadBalancer。本篇讲它的写法、OpenFeign 的维护状态与存量配置，以及 HTTP、gRPC、Dubbo 3 与异步消息的选型。
 
@@ -133,7 +133,7 @@ public class HttpServiceClientConfig {
 }
 ```
 
-`RequestContextHolder` 绑定在处理请求的线程上，切到线程池或 `@Async` 后取不到值，需要显式传递上下文，见 [虚拟线程](/java/30_topic_virtual_thread) 中的上下文传播与 [服务治理 · 灰度标记透传](./5_service_governance)。
+`RequestContextHolder` 绑定在处理请求的线程上，切到线程池或 `@Async` 后取不到值，需要显式传递上下文，见 [虚拟线程](/java/30_topic_virtual_thread) 中的上下文传播与 [服务治理 · 灰度标记透传](./14_service_governance)。
 
 ### 4、命令式调用：@LoadBalanced RestClient
 
@@ -237,7 +237,7 @@ public class UserClientFallback implements UserFeignClient {
 }
 ```
 
-需要区分「熔断拒绝」与「下游报错」时用 `fallbackFactory` 拿到异常原因，Sentinel 下的写法见 [Spring Cloud Alibaba](./6_alibaba)。
+需要区分「熔断拒绝」与「下游报错」时用 `fallbackFactory` 拿到异常原因，Sentinel 下的写法见 [Spring Cloud Alibaba](./15_alibaba)。
 
 ### 3、超时与压缩
 
@@ -260,7 +260,7 @@ spring:
           enabled: true
 ```
 
-OpenFeign 默认连接 10s、读取 60s，远大于合理值，必须显式配置；默认不重试。超时取值与重试预算见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)。透传请求头实现 `RequestInterceptor`，写法与上文拦截器相同，示例见 [服务治理 · 灰度标记透传](./5_service_governance)。
+OpenFeign 默认连接 10s、读取 60s，远大于合理值，必须显式配置；默认不重试。超时取值与重试预算见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)。透传请求头实现 `RequestInterceptor`，写法与上文拦截器相同，示例见 [服务治理 · 灰度标记透传](./14_service_governance)。
 
 ---
 
@@ -277,7 +277,7 @@ gRPC 基于 HTTP/2 + Protobuf，`.proto` 文件即契约，自动生成多语言
 
 ## 五、Dubbo 3
 
-Dubbo 3 的 Triple 协议基于 HTTP/2、兼容 gRPC，同时保留高性能的 Dubbo 协议，自带注册发现（可用 Nacos）、负载均衡与服务治理，适合 Java 为主、调用量大、需要接口级治理的团队。Dubbo 的接入基于 Spring Boot 3.5，Boot 4 适配以官方发布为准。完整内容见 [Dubbo](/microservices/4_dubbo)。
+Dubbo 3 的 Triple 协议基于 HTTP/2、兼容 gRPC，同时保留高性能的 Dubbo 协议，自带注册发现（可用 Nacos）、负载均衡与服务治理，适合 Java 为主、调用量大、需要接口级治理的团队。Dubbo 的接入基于 Spring Boot 3.5，Boot 4 适配以官方发布为准。完整内容见 [Dubbo](/microservices/20_dubbo)。
 
 ---
 
@@ -299,7 +299,7 @@ Dubbo 3 的 Triple 协议基于 HTTP/2、兼容 gRPC，同时保留高性能的 
 
 ## 七、异步通信
 
-下单后通知、积分、统计等非核心操作适合用消息解耦：发送方只保证消息可靠投递，消费方各自订阅、独立扩缩。消息模型、可靠投递与幂等消费见 [消息队列总览](/messaging/0_overview)，屏蔽具体 MQ 的 Spring 编程模型见 [Spring Cloud Stream](./7_stream)。
+下单后通知、积分、统计等非核心操作适合用消息解耦：发送方只保证消息可靠投递，消费方各自订阅、独立扩缩。消息模型、可靠投递与幂等消费见 [消息队列总览](/messaging/0_overview)，屏蔽具体 MQ 的 Spring 编程模型见 [Spring Cloud Stream](./16_stream)。
 
 ---
 
@@ -320,4 +320,4 @@ Dubbo 3 的 Triple 协议基于 HTTP/2、兼容 gRPC，同时保留高性能的 
 - Spring Cloud OpenFeign：[https://docs.spring.io/spring-cloud-openfeign/reference/](https://docs.spring.io/spring-cloud-openfeign/reference/)
 - gRPC：[https://grpc.io/docs/](https://grpc.io/docs/)
 
-> 下一篇：[配置中心](./4_config_center) —— 用 `spring.config.import` 接入 Nacos Config，理解 gRPC 推送下的配置刷新链路。
+> 下一篇：[配置中心](./13_config_center) —— 用 `spring.config.import` 接入 Nacos Config，理解 gRPC 推送下的配置刷新链路。

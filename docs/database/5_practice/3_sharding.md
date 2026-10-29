@@ -299,7 +299,7 @@ public class ReadRouter {
 }
 ```
 
-`Math.clamp` 是 JDK 21 新增的方法；配置中心的动态刷新见 [配置中心](/spring-cloud/4_config_center)。
+`Math.clamp` 是 JDK 21 新增的方法；配置中心的动态刷新见 [配置中心](/microservices/13_config_center)。
 
 ### 2、用 ShardingSphere 迁移作业
 

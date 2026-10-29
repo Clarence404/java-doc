@@ -47,10 +47,10 @@
 
 ## 三、关联模块
 
-Spring Boot 的自动配置与工程化放在 [Spring Boot](/spring-boot/0_overview) 模块，微服务组件放在 [Spring Cloud](/spring-cloud/0_overview) 模块。最低要求 JDK 17；与 Framework 6.x / Boot 3.x 行为不同的地方在文中单独标出。
+Spring Boot 的自动配置与工程化放在 [Spring Boot](/spring-boot/0_overview) 模块，Spring Cloud 微服务组件放在 [微服务](/microservices/0_overview) 模块。最低要求 JDK 17；与 Framework 6.x / Boot 3.x 行为不同的地方在文中单独标出。
 
 - [Spring Boot](/spring-boot/0_overview)：自动配置、Starter、配置体系、测试与启动优化；版本差异见 [Spring Boot 版本演进](/spring-boot/14_versions)
-- [Spring Cloud](/spring-cloud/0_overview)：注册发现、网关、服务调用、配置中心与治理
+- [微服务总览](/microservices/0_overview)：Spring Cloud 的注册发现、网关、服务调用、配置中心与治理
 - [Java · 动态代理](/java/16_topic_proxy)：JDK 代理与 CGLIB 的实现细节，AOP 与事务的底层
 - [Java · 虚拟线程](/java/30_topic_virtual_thread)：Framework 6.1 / Boot 3.2 起的虚拟线程支持
 - [数据库 · MySQL 事务与锁](/database/1_mysql/5_topic_transaction)：隔离级别、MVCC 与锁，事务管理的数据库侧

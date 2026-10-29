@@ -40,7 +40,7 @@ OWASP 在 2023 年发布了第二版 API Security Top 10。前几名几乎都是
 | OAuth2 Bearer Token（JWT） | 自家前端、App、第三方应用 | 标准化，有过期与作用域 | 需要授权服务器；Token 泄露期内可被冒用 |
 | mTLS | 服务间调用、高安全合作方 | 身份绑定到证书，传输层即完成认证 | 证书签发与轮换要有配套体系，见 [零信任架构](./9_zero_trust) |
 
-**网关统一认证**：多服务时把认证放到网关（Spring Cloud Gateway、APISIX、Kong 等），网关做验签、验 Token、限流，再把调用方身份通过内部头传给下游。下游服务仍要校验来源（只接受来自网关或网格内的流量，或再次校验 JWT），不能因为"网关验过了"就信任任意请求里的身份头。网关作为 Resource Server 的配置见 [API 网关](/spring-cloud/2_api_gateway)。
+**网关统一认证**：多服务时把认证放到网关（Spring Cloud Gateway、APISIX、Kong 等），网关做验签、验 Token、限流，再把调用方身份通过内部头传给下游。下游服务仍要校验来源（只接受来自网关或网格内的流量，或再次校验 JWT），不能因为"网关验过了"就信任任意请求里的身份头。网关作为 Resource Server 的配置见 [API 网关](/microservices/11_api_gateway)。
 
 ---
 

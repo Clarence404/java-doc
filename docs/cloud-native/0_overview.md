@@ -27,6 +27,6 @@
 - 弹性扩缩容与多活容灾 → [水平扩展与无状态化](/high-con/2_scale_out) / [多活与容灾](/high-avail/9_multi_active)
 - 健康检查、探针与故障转移 → [冗余与故障转移](/high-avail/2_redundancy_failover)；优雅停机与滚动发布 → [优雅上下线与变更](/high-avail/8_graceful_release)
 - 应用侧健康端点与探针分组 → [Actuator 监控](/spring-boot/11_actuator)
-- 服务网格的架构与选型 → [服务网格](/microservices/3_service_mesh)
+- 服务网格的架构与选型 → [服务网格](/microservices/21_service_mesh)
 - 证书与 TLS 终止 → [HTTPS 与 TLS](/protocols/3_https_tls)
 - 镜像签名、SBOM 与供应链安全 → [应用安全总览](/security/0_overview)

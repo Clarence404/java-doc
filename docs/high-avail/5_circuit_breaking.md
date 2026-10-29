@@ -102,7 +102,7 @@ Half-Open 的探测结果决定下一步：探测成功则回到 Closed；探测
 
 ## 五、参数对照与默认值
 
-**两个框架的参数名不同，但要定的都是第三节那几项。** 配置与代码见 [服务治理 · Resilience4j 与 Sentinel](/spring-cloud/5_service_governance#_1、resilience4j-与-sentinel)（Resilience4j）和 [Spring Cloud Alibaba · 规则代码示例](/spring-cloud/6_alibaba#_3、规则代码示例)（Sentinel）。
+**两个框架的参数名不同，但要定的都是第三节那几项。** 配置与代码见 [服务治理 · Resilience4j 与 Sentinel](/microservices/14_service_governance#_1、resilience4j-与-sentinel)（Resilience4j）和 [Spring Cloud Alibaba · 规则代码示例](/microservices/15_alibaba#_3、规则代码示例)（Sentinel）。
 
 | 要定的量 | Sentinel `DegradeRule` | Resilience4j `circuitbreaker` |
 |---------|-----------------------|------------------------------|
@@ -128,7 +128,7 @@ Resilience4j 注解叠加时，默认执行顺序由外到内为 `Retry → Circ
 
 ## 六、OpenFeign 接入 Sentinel
 
-开启 `feign.sentinel.enabled=true` 后每个 Feign 方法自动成为 Sentinel 资源；写操作降级时不能静默返回成功。资源名格式与 `FallbackFactory` 代码见 [Spring Cloud Alibaba · 与 OpenFeign 集成](/spring-cloud/6_alibaba#_4、与-openfeign-集成)。
+开启 `feign.sentinel.enabled=true` 后每个 Feign 方法自动成为 Sentinel 资源；写操作降级时不能静默返回成功。资源名格式与 `FallbackFactory` 代码见 [Spring Cloud Alibaba · 与 OpenFeign 集成](/microservices/15_alibaba#_4、与-openfeign-集成)。
 
 ---
 

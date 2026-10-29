@@ -60,7 +60,7 @@ spring:
         read-timeout: 1s
 ```
 
-HTTP Service Clients 的注册方式见 [服务通信](/spring-cloud/3_communication#二、http-service-clients-推荐)；存量 OpenFeign 的超时配置（`spring.cloud.openfeign.client.config.*`）见同篇 [超时与压缩](/spring-cloud/3_communication#_3、超时与压缩)。
+HTTP Service Clients 的注册方式见 [服务通信](/microservices/12_communication#二、http-service-clients-推荐)；存量 OpenFeign 的超时配置（`spring.cloud.openfeign.client.config.*`）见同篇 [超时与压缩](/microservices/12_communication#_3、超时与压缩)。
 
 ::: warning 注意框架自带的超时
 叠加 Spring Cloud CircuitBreaker（Resilience4j 实现）时，TimeLimiter 也会生效，其默认超时很短（1s），可能先于客户端的读取超时触发。建议显式配置 TimeLimiter，并让两者取值一致。

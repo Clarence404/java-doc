@@ -224,7 +224,7 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 
 - Spring Cloud LoadBalancer 替代了已停维的 Ribbon，默认轮询，可自定义按版本 / 标签做灰度路由
 
-→ 详见 [负载均衡](/high-avail/3_load_balancing#五、客户端负载均衡)、[服务治理](/spring-cloud/5_service_governance#二、负载均衡-spring-cloud-loadbalancer)
+→ 详见 [负载均衡](/high-avail/3_load_balancing#五、客户端负载均衡)、[服务治理](/microservices/14_service_governance#二、负载均衡-spring-cloud-loadbalancer)
 
 ### Q18：负载均衡如何配合健康检查摘除故障实例？会话保持有哪些做法？
 
@@ -361,7 +361,7 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 - `fallback` 方法参数和原方法一样，可以多加一个 `Throwable`
 - 非幂等写操作的兜底不要假装成功，要明确报错
 
-→ 详见 [Spring Cloud Alibaba](/spring-cloud/6_alibaba#_1、资源定义与兜底)、[熔断](/high-avail/5_circuit_breaking#六、openfeign-接入-sentinel)
+→ 详见 [Spring Cloud Alibaba](/microservices/15_alibaba#_1、资源定义与兜底)、[熔断](/high-avail/5_circuit_breaking#六、openfeign-接入-sentinel)
 
 ---
 
@@ -407,7 +407,7 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 - 解决一：改造 Sentinel 控制台，让它修改规则时写入 Nacos，应用再从 Nacos 监听生效
 - 解决二：约定只在 Nacos 里改规则，控制台只用来看
 
-→ 详见 [降级](/high-avail/6_degradation#_3、sentinel-熔断规则的动态管理)、[Spring Cloud Alibaba](/spring-cloud/6_alibaba#_5、规则持久化-nacos-数据源)
+→ 详见 [降级](/high-avail/6_degradation#_3、sentinel-熔断规则的动态管理)、[Spring Cloud Alibaba](/microservices/15_alibaba#_5、规则持久化-nacos-数据源)
 
 ### Q33：降级逻辑设计时要注意什么？为什么非幂等写操作不能静默降级？
 

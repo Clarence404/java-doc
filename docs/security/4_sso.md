@@ -246,7 +246,7 @@ spring:
 - 网关的安全配置开启 `oauth2Login()`；令牌默认保存在内存版的 `ReactiveOAuth2AuthorizedClientService` 里，网关多实例时改用 `WebSessionServerOAuth2AuthorizedClientRepository` 把令牌存进会话，再用 Spring Session 把会话放进 Redis，否则请求落到另一个实例就找不到令牌
 - 下游服务按资源服务器方式校验签名、`iss`、`exp`，并校验 `aud` 是否包含自己，防止拿发给别的服务的令牌来调用；配置见 [Spring Security](/spring/9_security)
 - 服务之间继续调用时，要么继续透传用户令牌，要么用客户端凭证换服务身份令牌（必要时用 RFC 8693 令牌交换缩小权限范围），见 [零信任架构](/security/9_zero_trust)
-- 网关路由、限流和作为资源服务器的写法见 [API 网关](/spring-cloud/2_api_gateway)
+- 网关路由、限流和作为资源服务器的写法见 [API 网关](/microservices/11_api_gateway)
 
 ---
 

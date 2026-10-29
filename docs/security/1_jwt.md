@@ -502,7 +502,7 @@ public class BffSecurityConfig {
 }
 ```
 
-BFF 转发请求时可以用 Spring Cloud Gateway 的 `TokenRelay` 过滤器，或给 `RestClient` 配置 OAuth2 客户端拦截器自动附加并刷新 AT，网关侧的做法见 [API 网关](/spring-cloud/2_api_gateway)。CSRF 原理、哪些场景必须开启 CSRF 以及 `csrf.spa()` 的前端配合见 [常见漏洞与防护](./8_vulnerabilities#四、csrf-跨站请求伪造)。
+BFF 转发请求时可以用 Spring Cloud Gateway 的 `TokenRelay` 过滤器，或给 `RestClient` 配置 OAuth2 客户端拦截器自动附加并刷新 AT，网关侧的做法见 [API 网关](/microservices/11_api_gateway)。CSRF 原理、哪些场景必须开启 CSRF 以及 `csrf.spa()` 的前端配合见 [常见漏洞与防护](./8_vulnerabilities#四、csrf-跨站请求伪造)。
 
 **非浏览器客户端**：移动 App 把令牌放在 Keychain / Android Keystore，服务端调用方放在密钥管理服务里，请求统一用 `Authorization: Bearer`。这类纯 Bearer 接口才可以关闭 CSRF（第五节的 `apiChain`）；同一个应用同时服务两类客户端时，用两条 `SecurityFilterChain` 分开配置。
 

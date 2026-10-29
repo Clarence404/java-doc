@@ -4,7 +4,7 @@ description: Istio 架构、Sidecar 与 Ambient、流量管理、mTLS、可观�
 
 # 服务网格
 
-> 前置阅读：[微服务设计模式](./2_patterns)、[Kubernetes](/cloud-native/6_kubernetes)
+> 前置阅读：[微服务设计模式](./3_patterns)、[Kubernetes](/cloud-native/6_kubernetes)
 
 服务网格把服务治理从应用代码下沉到基础设施层。本篇讲 Istio 的控制面 / 数据面结构、Sidecar 与 Ambient 两种数据面、流量路由与 mTLS 配置，以及 Spring Cloud、Dubbo 与服务网格之间的取舍。
 
@@ -248,7 +248,7 @@ istiod 作为 CA 为每个工作负载签发短期证书并自动轮转，证书
 
 **选型建议**：
 
-- 纯 Java 微服务、团队以业务开发为主 → Spring Cloud / Spring Cloud Alibaba（见 [Alibaba](/spring-cloud/6_alibaba)）
+- 纯 Java 微服务、团队以业务开发为主 → Spring Cloud / Spring Cloud Alibaba（见 [Alibaba](/microservices/15_alibaba)）
 - 多语言混合、已上 Kubernetes、有专职平台团队 → Istio
 - 两者也可组合使用：网格负责 mTLS、L4 策略和统一遥测，SDK 保留需要业务语义的治理（如参数级限流、业务降级）；此时要避免同一能力两处重复配置，例如重试只在一层开启，否则重试次数会相乘
 
@@ -276,7 +276,7 @@ istiod 作为 CA 为每个工作负载签发短期证书并自动轮转，证书
 | **南北向** | 集群外部客户端 → 集群内部服务 | API 网关 / Ingress（鉴权、限流、协议转换、对外 API 管理） |
 | **东西向** | 集群内服务 ↔ 服务 | 服务网格（服务发现、负载均衡、熔断、mTLS、遥测） |
 
-两者是互补关系：API 网关管入口，服务网格管内部调用。Istio 也提供入口网关处理南北向流量，但面向外部开发者的 API 管理（开放平台、计费、文档）通常仍交给专门的 API 网关，见 [API 网关](/spring-cloud/2_api_gateway)。
+两者是互补关系：API 网关管入口，服务网格管内部调用。Istio 也提供入口网关处理南北向流量，但面向外部开发者的 API 管理（开放平台、计费、文档）通常仍交给专门的 API 网关，见 [API 网关](/microservices/11_api_gateway)。
 
 ### 3、落地取舍
 
@@ -308,4 +308,4 @@ istiod 作为 CA 为每个工作负载签发短期证书并自动轮转，证书
 - Envoy 文档：[https://www.envoyproxy.io/docs/](https://www.envoyproxy.io/docs/)
 - Linkerd 发布模型：[https://linkerd.io/releases/](https://linkerd.io/releases/)
 
-> 下一篇：[Dubbo](./4_dubbo) —— 另一条 SDK 路线：面向接口的 RPC 服务框架与 Triple 协议。
+> 返回：[微服务总览](./0_overview)

@@ -95,7 +95,7 @@ description: 微服务定义与原则、与 SOA 的区别、单体瓶颈、优�
 
 ## 五、何时拆分
 
-拆分没有「多少人、多少行代码」的硬阈值，按 MonolithFirst 的思路先用单体跑通业务、看清边界，出现发布互相阻塞、迭代节奏差异大、扩展需求不同等信号时再拆。信号不够强时先做**模块化单体**，将来模块边界就是服务边界。判断信号、前提条件与模块化单体的落地见 [服务拆分 · 什么时候该拆、什么时候不该拆](./1_service_split#一、什么时候该拆、什么时候不该拆)。
+拆分没有「多少人、多少行代码」的硬阈值，按 MonolithFirst 的思路先用单体跑通业务、看清边界，出现发布互相阻塞、迭代节奏差异大、扩展需求不同等信号时再拆。信号不够强时先做**模块化单体**，将来模块边界就是服务边界。判断信号、前提条件与模块化单体的落地见 [服务拆分 · 什么时候该拆、什么时候不该拆](./2_service_split#一、什么时候该拆、什么时候不该拆)。
 
 ---
 
@@ -128,7 +128,7 @@ Chris Richardson 在「Refactoring a monolith into microservices」中总结了�
 - 资源消耗大或有特殊资源需求的模块：拆出后可独立扩容
 - 边界清晰、与其他模块耦合少的模块：拆分成本最低，适合作为第一个试点
 
-**数据迁移是最难的一步**：服务拆出后必须拥有自己的数据。常见做法是先让新服务通过 API 读写单体数据，再用双写或 CDC 同步（见 [CDC 工具](/database/5_practice/0_cdc_tools)）把数据迁到新库，最后切断对旧表的访问。拆分依据、粒度判断与单个服务的完整抽取步骤见 [服务拆分](./1_service_split)。
+**数据迁移是最难的一步**：服务拆出后必须拥有自己的数据。常见做法是先让新服务通过 API 读写单体数据，再用双写或 CDC 同步（见 [CDC 工具](/database/5_practice/0_cdc_tools)）把数据迁到新库，最后切断对旧表的访问。拆分依据、粒度判断与单个服务的完整抽取步骤见 [服务拆分](./2_service_split)。
 
 ---
 
@@ -147,4 +147,4 @@ Chris Richardson 在「Refactoring a monolith into microservices」中总结了�
 - StranglerFigApplication（Martin Fowler）：[https://martinfowler.com/bliki/StranglerFigApplication.html](https://martinfowler.com/bliki/StranglerFigApplication.html)
 - MonolithFirst（Martin Fowler）：[https://martinfowler.com/bliki/MonolithFirst.html](https://martinfowler.com/bliki/MonolithFirst.html)
 
-> 下一篇：[服务拆分](./1_service_split) —— 按什么拆、拆多细、数据怎么分，以及用绞杀者模式一步步抽出服务。
+> 下一篇：[服务拆分](./2_service_split) —— 按什么拆、拆多细、数据怎么分，以及用绞杀者模式一步步抽出服务。

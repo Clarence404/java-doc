@@ -4,7 +4,7 @@ description: 注册发现核心概念、注册中心对比、Nacos 2.x+ gRPC 机
 
 # 注册发现
 
-> 前置阅读：[Spring Cloud 总览](./0_overview)
+> 前置阅读：[微服务总览](./0_overview)
 
 微服务实例的 IP 和端口随扩缩容、重启、故障迁移不断变化，注册发现解决**地址动态感知**和**自动上下线**两件事。本篇讲客户端发现链路、注册中心选型、Nacos 2.x / 3.x 的连接模型、临时与持久实例、保护阈值，以及在 Spring Cloud 2025.1 中接入。
 
@@ -23,11 +23,11 @@ description: 注册发现核心概念、注册中心对比、Nacos 2.x+ gRPC 机
 | **客户端发现** | 调用方自己拿实例列表并做负载均衡（Spring Cloud 模式） |
 | **服务端发现** | 调用方只访问一个固定地址，由负载均衡器或 Kubernetes Service 选实例 |
 
-Spring Cloud 用 `ServiceRegistry`（注册）、`DiscoveryClient` / `ReactiveDiscoveryClient`（发现）两组接口做抽象，Nacos、Consul、Eureka、Kubernetes 各自实现；负载均衡统一交给 Spring Cloud LoadBalancer，见 [服务治理](./5_service_governance)。
+Spring Cloud 用 `ServiceRegistry`（注册）、`DiscoveryClient` / `ReactiveDiscoveryClient`（发现）两组接口做抽象，Nacos、Consul、Eureka、Kubernetes 各自实现；负载均衡统一交给 Spring Cloud LoadBalancer，见 [服务治理](./14_service_governance)。
 
 ### 2、一次调用的完整链路
 
-![服务注册与发现流程](../assets/spring-cloud/registry-flow.svg)
+![服务注册与发现流程](../assets/microservices/registry-flow.svg)
 
 1. 提供者启动、Web 容器就绪后，Spring Cloud 自动注册（`AbstractAutoServiceRegistration` 监听 `WebServerInitializedEvent`）
 2. 消费者首次调用某服务时订阅该服务，拉取实例列表
@@ -110,7 +110,7 @@ spring:
 
 ### 1、依赖与配置
 
-版本由 `spring-cloud-alibaba-dependencies` BOM 管理，对表方式见 [Spring Cloud Alibaba](./6_alibaba)。
+版本由 `spring-cloud-alibaba-dependencies` BOM 管理，对表方式见 [Spring Cloud Alibaba](./15_alibaba)。
 
 ```xml
 <dependency>
@@ -135,7 +135,7 @@ spring:
           zone: zone-a
 ```
 
-不需要 `@EnableDiscoveryClient`，引入 starter 后自动注册。调用方用服务名访问实例的写法（`@LoadBalanced RestClient`、HTTP Service Clients、OpenFeign）见 [服务通信](./3_communication)。
+不需要 `@EnableDiscoveryClient`，引入 starter 后自动注册。调用方用服务名访问实例的写法（`@LoadBalanced RestClient`、HTTP Service Clients、OpenFeign）见 [服务通信](./12_communication)。
 
 ### 2、注册时机与下线
 
@@ -164,4 +164,4 @@ spring:
 - Spring Cloud Commons（DiscoveryClient / ServiceRegistry）：[https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/common-abstractions.html](https://docs.spring.io/spring-cloud-commons/reference/spring-cloud-commons/common-abstractions.html)
 - Consul：[https://developer.hashicorp.com/consul/docs](https://developer.hashicorp.com/consul/docs)
 
-> 下一篇：[API 网关](./2_api_gateway) —— 统一入口上的路由、鉴权、限流与灰度，以及 Gateway Server WebFlux 与 Server MVC 的选择。
+> 下一篇：[API 网关](./11_api_gateway) —— 统一入口上的路由、鉴权、限流与灰度，以及 Gateway Server WebFlux 与 Server MVC 的选择。

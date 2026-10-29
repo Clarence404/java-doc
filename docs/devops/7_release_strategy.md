@@ -270,7 +270,7 @@ spec:
           weight: 10
 ```
 
-VirtualService 的 `http` 规则按书写顺序匹配，第一条命中即生效，这点和 Gateway API 不同。Istio Ambient 模式下 L7 路由由 waypoint 代理执行，官方推荐用 Gateway API 的 HTTPRoute 表达；Sidecar 与 Ambient 的选择、DestinationRule 的连接池与异常剔除，见 [服务网格](/microservices/3_service_mesh)。
+VirtualService 的 `http` 规则按书写顺序匹配，第一条命中即生效，这点和 Gateway API 不同。Istio Ambient 模式下 L7 路由由 waypoint 代理执行，官方推荐用 Gateway API 的 HTTPRoute 表达；Sidecar 与 Ambient 的选择、DestinationRule 的连接池与异常剔除，见 [服务网格](/microservices/21_service_mesh)。
 
 ### 3、Ingress 注解方式（存量）
 
@@ -317,7 +317,7 @@ spec:
 | 地域 / 机房 | 按机房分批发布，或网关按 IP 归属路由 | 分区域放量，缩小故障半径 |
 | 租户 | 网关或功能开关按 tenantId 判断 | SaaS 产品分租户灰度 |
 
-按比例分流时，同一个用户的多次请求可能落在不同版本上。需要「同一用户始终看到同一版本」的场景，用按用户 ID 路由或功能开关，而不是纯权重。Spring Cloud 体系下按请求头路由的负载均衡实现见 [Spring Cloud 服务治理](/spring-cloud/5_service_governance)。
+按比例分流时，同一个用户的多次请求可能落在不同版本上。需要「同一用户始终看到同一版本」的场景，用按用户 ID 路由或功能开关，而不是纯权重。Spring Cloud 体系下按请求头路由的负载均衡实现见 [Spring Cloud 服务治理](/microservices/14_service_governance)。
 
 ---
 

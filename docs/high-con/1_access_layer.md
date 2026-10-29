@@ -133,7 +133,7 @@ http {
 
 - 网关要保持无状态，才能在四层负载均衡后面水平扩展
 - 网关只做通用横切逻辑，不写业务逻辑，否则每次业务变更都要改网关
-- Spring Cloud Gateway 的路由与过滤器配置见 [API 网关](/spring-cloud/2_api_gateway)
+- Spring Cloud Gateway 的路由与过滤器配置见 [API 网关](/microservices/11_api_gateway)
 
 ---
 

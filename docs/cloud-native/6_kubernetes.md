@@ -345,7 +345,7 @@ Service 的 ClusterIP 是一个虚拟 IP，任何网卡上都没有。真正的�
 - **kube-proxy 模式**：Linux 上推荐 `nftables` 模式（1.33 GA）；`iptables` 模式仍是默认值，规则多时更新慢；`ipvs` 模式在 1.35 已弃用
 - **eBPF 替代**：Cilium 等 CNI 可以完全替代 kube-proxy，在内核中用 eBPF 完成 Service 转发
 
-Service 做的是 **L4 连接级负载均衡**：HTTP/1.1 长连接、gRPC（HTTP/2 多路复用）会一直打在同一个 Pod 上，扩容后新 Pod 分不到流量。gRPC 服务要用客户端负载均衡（headless Service + 客户端解析多个 IP）或服务网格，见 [服务网格](/microservices/3_service_mesh)。
+Service 做的是 **L4 连接级负载均衡**：HTTP/1.1 长连接、gRPC（HTTP/2 多路复用）会一直打在同一个 Pod 上，扩容后新 Pod 分不到流量。gRPC 服务要用客户端负载均衡（headless Service + 客户端解析多个 IP）或服务网格，见 [服务网格](/microservices/21_service_mesh)。
 
 ### 3、CoreDNS
 
@@ -366,7 +366,7 @@ DNS 协议本身、Java 的 DNS 缓存（`networkaddress.cache.ttl`）见 [DNS](
 ### 4、南北向与东西向流量
 
 - **南北向**（集群外 → 集群内）：外部负载均衡 → Ingress 控制器或 Gateway API 实现 → Service → Pod。社区的 ingress-nginx 控制器已于 2026 年 3 月停止维护，新集群推荐使用 Gateway API，见 [Nginx、Ingress 与 Gateway API](./7_nginx_ingress)
-- **东西向**（服务之间）：默认直接走 Service；需要 mTLS、细粒度流量治理时引入服务网格，见 [服务网格](/microservices/3_service_mesh)
+- **东西向**（服务之间）：默认直接走 Service；需要 mTLS、细粒度流量治理时引入服务网格，见 [服务网格](/microservices/21_service_mesh)
 - **网络隔离**：NetworkPolicy 定义哪些 Pod 可以访问哪些 Pod，默认全部放通；需要 CNI 插件支持（Calico、Cilium 支持，Flannel 不支持）
 
 ---

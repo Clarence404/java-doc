@@ -357,7 +357,7 @@ public class HttpClientDemo {
 
 - 同步调用用 `CLIENT.send(request, BodyHandlers.ofString())`，在虚拟线程里调用不会占用平台线程
 - 一定要设 `connectTimeout` 和请求级 `timeout`，默认没有超时
-- 在 Spring 应用里通常用 `RestClient`（Spring 6.1+）或 `WebClient`，它们可以以 JDK HttpClient 为底层实现；服务间调用的选型见 [服务通信](/spring-cloud/3_communication)
+- 在 Spring 应用里通常用 `RestClient`（Spring 6.1+）或 `WebClient`，它们可以以 JDK HttpClient 为底层实现；服务间调用的选型见 [服务通信](/microservices/12_communication)
 
 ---
 

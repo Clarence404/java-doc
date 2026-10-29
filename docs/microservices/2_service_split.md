@@ -62,7 +62,7 @@ class ModularityTests {
 
 ### 1、业务能力
 
-按「企业做什么」列出业务能力（下单、支付、库存、营销、履约），每项能力对应一个候选服务。业务能力比组织结构和技术分层都稳定，适合作为拆分初稿；电商的能力划分表见 [微服务设计模式](./2_patterns#一、服务拆分模式)。
+按「企业做什么」列出业务能力（下单、支付、库存、营销、履约），每项能力对应一个候选服务。业务能力比组织结构和技术分层都稳定，适合作为拆分初稿；电商的能力划分表见 [微服务设计模式](./3_patterns#一、服务拆分模式)。
 
 它的局限是粒度偏粗、不处理「同一个词在不同能力里含义不同」的问题，所以需要限界上下文细化。
 
@@ -140,7 +140,7 @@ class ModularityTests {
 
 ### 1、每服务独享库
 
-服务拆开但共用一个库，等于没拆：任何一张表的 DDL 都会波及多个服务，任何一个服务的慢查询都会拖垮别人。每个服务**独占**自己的数据，其他服务只能通过它的 API 或事件访问。「独占」指逻辑所有权，同一个 MySQL 实例上的不同 schema 加上按服务授权的账号也能满足，详见 [微服务设计模式](./2_patterns#三、数据管理模式)。
+服务拆开但共用一个库，等于没拆：任何一张表的 DDL 都会波及多个服务，任何一个服务的慢查询都会拖垮别人。每个服务**独占**自己的数据，其他服务只能通过它的 API 或事件访问。「独占」指逻辑所有权，同一个 MySQL 实例上的不同 schema 加上按服务授权的账号也能满足，详见 [微服务设计模式](./3_patterns#三、数据管理模式)。
 
 ### 2、共享表的拆法
 
@@ -163,7 +163,7 @@ class ModularityTests {
 - **API 组合**：BFF 或查询服务并行调用各服务后在内存拼接，适合数据量小、要求实时的查询
 - **CQRS 读模型**：各服务发布领域事件，由专门的查询服务物化一张宽表（常放在 Elasticsearch），适合分页、排序、复杂过滤，代价是秒级延迟
 
-两者的适用边界见 [微服务设计模式](./2_patterns#三、数据管理模式)，读模型的投影实现见 [架构模式与风格](/architecture/1_arch_patterns#四、cqrs-命令查询职责分离)。
+两者的适用边界见 [微服务设计模式](./3_patterns#三、数据管理模式)，读模型的投影实现见 [架构模式与风格](/architecture/1_arch_patterns#四、cqrs-命令查询职责分离)。
 
 ### 4、跨服务一致性
 
@@ -359,4 +359,4 @@ spring:
 - Spring Modulith Reference：[https://docs.spring.io/spring-modulith/reference/](https://docs.spring.io/spring-modulith/reference/)
 - Spring Cloud Gateway Weight Route Predicate：[https://docs.spring.io/spring-cloud-gateway/reference/spring-cloud-gateway-server-webflux/request-predicates-factories.html](https://docs.spring.io/spring-cloud-gateway/reference/spring-cloud-gateway-server-webflux/request-predicates-factories.html)
 
-> 下一篇：[微服务设计模式](./2_patterns) —— 拆分、通信、数据、可靠性、部署等常用模式的目录与选用场景。
+> 下一篇：[微服务设计模式](./3_patterns) —— 拆分、通信、数据、可靠性、部署等常用模式的目录与选用场景。

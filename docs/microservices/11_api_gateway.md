@@ -4,7 +4,7 @@ description: Server WebFlux 与 MVC、请求链路、OAuth2 鉴权、限流、CO
 
 # API 网关
 
-> 前置阅读：[注册发现](./1_service_registry)
+> 前置阅读：[注册发现](./10_service_registry)
 
 网关把鉴权、限流、跨域、日志等横切关注点收敛到统一入口，免去客户端直连各服务、每个服务各写一遍。本篇讲 Spring Cloud Gateway 2025.x 的两种形态、请求链路，以及鉴权、限流、跨域、灰度路由的生产配置与网关选型。
 
@@ -48,7 +48,7 @@ description: Server WebFlux 与 MVC、请求链路、OAuth2 鉴权、限流、CO
 | **GlobalFilter** | 全局过滤器，对所有路由生效，通过 Bean 声明 |
 | **Order** | 过滤器执行顺序，值越小越先执行 Pre 逻辑、越后执行 Post 逻辑 |
 
-![Gateway Server WebFlux 请求处理链路](../assets/spring-cloud/gateway-pipeline.svg)
+![Gateway Server WebFlux 请求处理链路](../assets/microservices/gateway-pipeline.svg)
 
 1. `RoutePredicateHandlerMapping` 按路由顺序逐个匹配断言，命中第一个即停止
 2. `FilteringWebHandler` 把所有 `GlobalFilter` 与该路由的 `GatewayFilter` 合并，按 `Order` 排成一条链
@@ -339,7 +339,7 @@ spring:
 
 ### 2、按请求头选实例（LoadBalancer Hint）
 
-灰度实例与稳定实例共用服务名，用实例元数据（如 Nacos `metadata.hint: canary`）区分。网关里的 `ReactiveLoadBalancerClientFilter` 会把请求头放进 `RequestDataContext`，只要在网关配置 `spring.cloud.loadbalancer.hint-header-name: X-Version` 并在实例列表供应链加上 `withHints()`，带 `X-Version: canary` 的请求就会优先落到灰度实例，找不到时回落到全部实例。配置类与实例元数据写法见 [服务治理 · 区域优先与 Hint 路由](/spring-cloud/5_service_governance#_3、区域优先与-hint-路由)；「无标记请求必须避开灰度实例」、按用户 ID 百分比放量要自定义负载均衡器，见 [服务治理 · 自定义负载均衡器：灰度路由](/spring-cloud/5_service_governance#_4、自定义负载均衡器-灰度路由)，灰度标记的逐跳透传见 [服务治理 · 灰度标记透传](/spring-cloud/5_service_governance#_5、灰度标记透传)。
+灰度实例与稳定实例共用服务名，用实例元数据（如 Nacos `metadata.hint: canary`）区分。网关里的 `ReactiveLoadBalancerClientFilter` 会把请求头放进 `RequestDataContext`，只要在网关配置 `spring.cloud.loadbalancer.hint-header-name: X-Version` 并在实例列表供应链加上 `withHints()`，带 `X-Version: canary` 的请求就会优先落到灰度实例，找不到时回落到全部实例。配置类与实例元数据写法见 [服务治理 · 区域优先与 Hint 路由](/microservices/14_service_governance#_3、区域优先与-hint-路由)；「无标记请求必须避开灰度实例」、按用户 ID 百分比放量要自定义负载均衡器，见 [服务治理 · 自定义负载均衡器：灰度路由](/microservices/14_service_governance#_4、自定义负载均衡器-灰度路由)，灰度标记的逐跳透传见 [服务治理 · 灰度标记透传](/microservices/14_service_governance#_5、灰度标记透传)。
 
 发布策略（蓝绿、金丝雀、K8s Ingress 灰度）的整体设计见 [优雅上下线与变更](/high-avail/8_graceful_release)。
 
@@ -355,9 +355,9 @@ spring:
 | 扩展方式 | Java 过滤器，可直接复用 Spring 生态 | Lua / Go 插件 | Lua / 多语言插件 | Wasm、Lua 扩展 |
 | 适合 | Java 微服务体系，鉴权逻辑与业务耦合较深 | 企业 API 管理 | 高性能流量网关 | 运行在 K8s 上、已使用或计划使用服务网格 |
 
-常见分层：入口用 Nginx / APISIX / Envoy 做流量网关（TLS 终止、WAF、全局限流），其后用 Spring Cloud Gateway 做业务网关（鉴权、聚合、灰度）。服务网格中东西向流量的治理见 [服务网格](/microservices/3_service_mesh)。
+常见分层：入口用 Nginx / APISIX / Envoy 做流量网关（TLS 终止、WAF、全局限流），其后用 Spring Cloud Gateway 做业务网关（鉴权、聚合、灰度）。服务网格中东西向流量的治理见 [服务网格](/microservices/21_service_mesh)。
 
-网关在架构中的位置与 BFF 模式见 [微服务设计模式](/microservices/2_patterns)。
+网关在架构中的位置与 BFF 模式见 [微服务设计模式](/microservices/3_patterns)。
 
 ---
 
@@ -378,4 +378,4 @@ spring:
 - Spring Security OAuth2 Resource Server（Reactive）：[https://docs.spring.io/spring-security/reference/reactive/oauth2/resource-server/jwt.html](https://docs.spring.io/spring-security/reference/reactive/oauth2/resource-server/jwt.html)
 - Kubernetes Gateway API：[https://gateway-api.sigs.k8s.io/](https://gateway-api.sigs.k8s.io/)
 
-> 下一篇：[服务通信](./3_communication) —— 网关之后的服务间调用：HTTP Service Clients、OpenFeign、gRPC 与 Dubbo 如何选。
+> 下一篇：[服务通信](./12_communication) —— 网关之后的服务间调用：HTTP Service Clients、OpenFeign、gRPC 与 Dubbo 如何选。

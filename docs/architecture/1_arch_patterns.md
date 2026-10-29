@@ -258,7 +258,7 @@ public class Order {
 | **事件驱动（EDA）** | 服务 + 消息中间件 | 异步事件 | 解耦、异步、削峰 | 最终一致、事件演进、调试困难 |
 | **Serverless** | 函数 | 事件触发 | 低频任务、突发流量 | 冷启动、状态管理、厂商绑定 |
 
-单体与微服务的取舍见 [微服务优势与挑战](/microservices/1_pros_and_cons)，服务拆分与常用模式见 [微服务设计模式](/microservices/2_patterns)。
+单体与微服务的取舍见 [微服务优势与挑战](/microservices/1_pros_and_cons)，服务拆分与常用模式见 [微服务设计模式](/microservices/3_patterns)。
 
 ---
 

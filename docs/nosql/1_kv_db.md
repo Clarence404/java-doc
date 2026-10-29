@@ -168,7 +168,7 @@ etcd 是用 Go 写的强一致 KV，Raft 复制、所有写入走 Leader，**底
 
 **Kubernetes 的全部集群状态都存在 etcd**（默认前缀 `/registry`）：API Server 是唯一直接读写 etcd 的组件，对象的 `resourceVersion` 就来自 etcd 的 revision，控制器的 List + Watch 机制直接建立在 etcd Watch 之上。etcd 慢或空间满，整个集群的变更都会卡住。
 
-用 etcd 做分布式锁（Lease + `create_revision` 排队）见 [分布式锁](/distributed/3_lock#六、etcd-分布式锁)；作为注册中心与 Nacos、Consul 的对比见 [注册发现 · 注册中心对比](/spring-cloud/1_service_registry#二、注册中心对比)。
+用 etcd 做分布式锁（Lease + `create_revision` 排队）见 [分布式锁](/distributed/3_lock#六、etcd-分布式锁)；作为注册中心与 Nacos、Consul 的对比见 [注册发现 · 注册中心对比](/microservices/10_service_registry#二、注册中心对比)。
 
 ---
 

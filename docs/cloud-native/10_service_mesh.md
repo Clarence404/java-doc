@@ -12,11 +12,11 @@ description: 云原生栈中的位置、Sidecar 与 Ambient 安装、平台前�
 
 ## 一、在云原生栈中的位置
 
-概念、流量管理与选型取舍见主文 [服务网格](/microservices/3_service_mesh)。
+概念、流量管理与选型取舍见主文 [服务网格](/microservices/21_service_mesh)。
 
 - **南北向流量**（集群外 → 集群内）：由 Ingress 或 Gateway API 的网关负责，见 [Nginx、Ingress 与 Gateway API](./7_nginx_ingress)
 - **东西向流量**（服务 → 服务）：由服务网格接管，提供 mTLS、重试超时、流量切分与统一遥测
-- 数据面有两种形态：每个 Pod 注入 Envoy 的 **Sidecar 模式**，以及每节点 ztunnel 负责 L4、按需部署 waypoint 负责 L7 的 **Ambient 模式**（Istio 1.24 起 GA）。两者的原理与对比见 [服务网格 · 数据面](/microservices/3_service_mesh)，mTLS 的协议基础见 [HTTPS 与 TLS](/protocols/3_https_tls)
+- 数据面有两种形态：每个 Pod 注入 Envoy 的 **Sidecar 模式**，以及每节点 ztunnel 负责 L4、按需部署 waypoint 负责 L7 的 **Ambient 模式**（Istio 1.24 起 GA）。两者的原理与对比见 [服务网格 · 数据面](/microservices/21_service_mesh)，mTLS 的协议基础见 [HTTPS 与 TLS](/protocols/3_https_tls)
 
 下文以 Istio 为例，截至 2026 年 10 月最新版本为 1.31。
 
@@ -100,7 +100,7 @@ kubectl rollout restart deployment -n production
 
 ## 小结
 
-- 网关管南北向，网格管东西向；数据面有 Sidecar 与 Ambient 两种，原理和选型看 [服务网格](/microservices/3_service_mesh)
+- 网关管南北向，网格管东西向；数据面有 Sidecar 与 Ambient 两种，原理和选型看 [服务网格](/microservices/21_service_mesh)
 - 生产用 Helm 安装，Ambient 需要 `base`、Gateway API CRD、istiod、`istio-cni`、ztunnel 五部分
 - Ambient 对节点 CNI 与托管平台有要求，装前先查平台前置条件
 - 升级先控制面后数据面：Sidecar 要滚动重启业务 Pod，Ambient 升级 ztunnel 要先排空节点

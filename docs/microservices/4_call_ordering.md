@@ -4,7 +4,7 @@ description: 乱序成因、消除顺序依赖、按业务键路由、实例内�
 
 # 接口调用顺序性
 
-> 前置阅读：[微服务设计模式](./2_patterns)、[一致性哈希](/distributed/9_consistent_hashing)
+> 前置阅读：[微服务设计模式](./3_patterns)、[一致性哈希](/distributed/9_consistent_hashing)
 
 同步调用中请求的执行顺序并不等于发送顺序，「先创建后更新」到了服务端可能反过来。本篇讲同步调用（RPC / HTTP）的乱序成因、如何消除顺序依赖，以及「同 key 路由 → 实例内串行 → 版本号兜底」三道防线，基线为 JDK 21、Spring Boot 4。
 
@@ -142,4 +142,4 @@ public class OrderStatusRepository {
 - Nginx upstream hash：[https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash)
 - Istio DestinationRule（consistentHash）：[https://istio.io/latest/docs/reference/config/networking/destination-rule/](https://istio.io/latest/docs/reference/config/networking/destination-rule/)
 
-> 返回：[微服务总览](./0_overview)
+> 下一篇：[注册发现](./10_service_registry) —— 进入 Spring Cloud 落地：注册中心选型与 Nacos 的连接、实例与接入

@@ -212,7 +212,7 @@ spring:
 
 ### 6、HTTP 服务客户端注册
 
-Boot 3 中使用 HTTP Interface 需要为每个接口手写 `HttpServiceProxyFactory` 的 Bean；Framework 7 新增 `@ImportHttpServices` 按分组批量注册，Boot 4 再用 `spring.http.serviceclient.<group>.*` 配置每组的地址、超时等，接口直接注入使用。升级时可以把手写的代理工厂 Bean 换成分组注册。完整写法见 [Web 开发 · HTTP Service Clients](/spring-boot/2_web_dev#_3、http-service-clients)，微服务内部调用的方案对比见 [Spring Cloud 服务通信](/spring-cloud/3_communication)。
+Boot 3 中使用 HTTP Interface 需要为每个接口手写 `HttpServiceProxyFactory` 的 Bean；Framework 7 新增 `@ImportHttpServices` 按分组批量注册，Boot 4 再用 `spring.http.serviceclient.<group>.*` 配置每组的地址、超时等，接口直接注入使用。升级时可以把手写的代理工厂 Bean 换成分组注册。完整写法见 [Web 开发 · HTTP Service Clients](/spring-boot/2_web_dev#_3、http-service-clients)，微服务内部调用的方案对比见 [Spring Cloud 服务通信](/microservices/12_communication)。
 
 ### 7、内置弹性注解：@Retryable / @ConcurrencyLimit
 

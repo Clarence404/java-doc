@@ -72,7 +72,7 @@ tracestate: congo=t61rcWkgMzE
 | SkyWalking | `sw8` | 只在 SkyWalking 体系内通用 |
 | Jaeger | `uber-trace-id` | Jaeger 原生客户端已退役，迁移到 W3C |
 
-新老系统混跑时，让 Propagator 同时支持多种格式：Spring Boot 用 `management.tracing.propagation.type=w3c,b3` 发送多种头，或用 `management.tracing.propagation.consume` 只控制接收的格式；OpenTelemetry SDK 用 `OTEL_PROPAGATORS=tracecontext,baggage,b3multi`。网关、Sidecar 和所有服务的格式必须有交集，否则链路会在格式不一致的那一跳断开。Service Mesh 场景下应用仍需把入站头带到出站请求，见 [服务网格](/microservices/3_service_mesh)。
+新老系统混跑时，让 Propagator 同时支持多种格式：Spring Boot 用 `management.tracing.propagation.type=w3c,b3` 发送多种头，或用 `management.tracing.propagation.consume` 只控制接收的格式；OpenTelemetry SDK 用 `OTEL_PROPAGATORS=tracecontext,baggage,b3multi`。网关、Sidecar 和所有服务的格式必须有交集，否则链路会在格式不一致的那一跳断开。Service Mesh 场景下应用仍需把入站头带到出站请求，见 [服务网格](/microservices/21_service_mesh)。
 
 ### 3、Baggage
 

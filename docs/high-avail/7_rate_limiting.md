@@ -228,7 +228,7 @@ public class LocalRateLimiter {
 - **默认不带 `Retry-After`**：触发限流时直接返回空响应体的 429，按第四节约定需要时自行补充
 - **真实 IP 从可信的 `X-Forwarded-For` 取**：经过 CDN / SLB 后 `getRemoteAddress()` 是代理地址
 
-依赖、路由参数（`replenishRate` / `burstCapacity` / `deny-empty-key`）与 `KeyResolver` 代码见 [API 网关 · 限流](/spring-cloud/2_api_gateway#五、限流)。
+依赖、路由参数（`replenishRate` / `burstCapacity` / `deny-empty-key`）与 `KeyResolver` 代码见 [API 网关 · 限流](/microservices/11_api_gateway#五、限流)。
 
 ---
 
@@ -236,7 +236,7 @@ public class LocalRateLimiter {
 
 **Sentinel 以"资源"为单位配置规则，是上面几种策略的现成组合：** QPS 流控基于滑动窗口；流控效果的 Warm Up 对应冷启动预热、匀速排队对应漏桶；并发线程数流控即第九节的并发限流；热点参数限流按参数值分别计数；集群流控由 Token Server 统一发令牌。
 
-规则类型、`@SentinelResource` 与 `blockHandler` / `fallback`、规则代码与 Nacos 持久化统一见 [Spring Cloud Alibaba · Sentinel](/spring-cloud/6_alibaba#三、sentinel-流控与熔断)。
+规则类型、`@SentinelResource` 与 `blockHandler` / `fallback`、规则代码与 Nacos 持久化统一见 [Spring Cloud Alibaba · Sentinel](/microservices/15_alibaba#三、sentinel-流控与熔断)。
 
 ---
 
