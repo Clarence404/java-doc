@@ -191,7 +191,7 @@ public void onPaySuccess(PaySuccessEvent e) {             // 事件至少投递�
 | 定时扫描 | 每分钟扫 `status = 待支付 AND created_at < now - 15m` | 简单可靠，有分钟级延迟，量大时需分片扫描；适合作为兜底；多实例部署用 XXL-JOB 或 ShedLock 保证单实例执行，见 [分布式调度](/distributed/6_job_scheduler) |
 | RocketMQ 5.x 定时消息 | 下单时发 15 分钟后投递的消息 | 精确、可靠，推荐；4.x 只有 18 个固定级别，没有 15 分钟 |
 | RabbitMQ 延迟 | 延迟消息插件，或 TTL + 死信队列 | 可用；TTL 方案有队头阻塞，不同时长要分队列 |
-| Redisson 延迟队列 | 基于 Redis ZSet 的 `RDelayedQueue` | 轻量，可靠性取决于 Redis 持久化 |
+| Redisson 延迟队列 | 基于 Redis ZSet 的 `RDelayedQueue` | 已被 Redisson 标记废弃（替代品 `RReliableQueue` 仅 PRO 版提供），不推荐新用；可靠性还取决于 Redis 持久化 |
 | Redis 过期通知 | key 过期发事件 | 不可靠：通知不持久化，订阅方断开即丢，不建议 |
 | 内存时间轮 | Netty `HashedWheelTimer` | 重启丢失，只能配合持久化与扫描使用 |
 

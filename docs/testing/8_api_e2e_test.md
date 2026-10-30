@@ -187,7 +187,7 @@ class OrderApiTest extends ApiTestSupport {
                 .post("/api/orders")
             .then()
                 .statusCode(409)
-                .body("code", equalTo("STOCK_NOT_ENOUGH"));
+                .body("code", equalTo("STOCK_INSUFFICIENT"));
     }
 
     @AfterEach

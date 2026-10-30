@@ -32,7 +32,7 @@ spring:
     timeout-per-shutdown-phase: 30s        # 每个生命周期阶段的最长等待时间
 ```
 
-`graceful` 模式下，Tomcat / Jetty / Undertow 收到停机信号后停止接收新请求，等待在途请求完成，超过 `timeout-per-shutdown-phase` 则强制关闭。
+`graceful` 模式下，内嵌 Tomcat / Jetty（Boot 4 已移除 Undertow）收到停机信号后停止接收新请求，等待在途请求完成，超过 `timeout-per-shutdown-phase` 则强制关闭。
 
 自定义线程池也要等待任务完成，否则停机时队列中的任务会被丢弃（使用 Spring Boot 自动配置的执行器时，对应配置为 `spring.task.execution.shutdown.await-termination` 与 `await-termination-period`）：
 

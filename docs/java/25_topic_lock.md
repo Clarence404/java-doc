@@ -384,7 +384,7 @@ public void moveIfAtOrigin(double newX, double newY) {
 
 - 默认用 `synchronized`：代码短、不会忘记释放，JVM 还能做锁消除、锁粗化等优化
 - 需要可中断、超时、公平、多条件、读写分离、运行时自省时用 `Lock`
-- 虚拟线程：在 JDK 21–23 上，如果同步块里有 IO 等阻塞操作，用 `ReentrantLock` 替换 `synchronized` 可以避免钉住载体线程；**升级到 JDK 24+ 后这条理由不再成立**。JDK 24+ 仍会钉住的情况只剩栈上有 native 方法 / 外部函数帧，以及在类初始化器中阻塞或等待其他线程完成类初始化。JDK 24 起 `-Djdk.tracePinnedThreads` 已移除，排查钉住改用 JFR 的 `jdk.VirtualThreadPinned` 事件。虚拟线程本身见 [线程池](./28_topic_thread_pool) 的虚拟线程一节
+- 虚拟线程：在 JDK 21–23 上，如果同步块里有 IO 等阻塞操作，用 `ReentrantLock` 替换 `synchronized` 可以避免钉住载体线程；**升级到 JDK 24+ 后这条理由不再成立**。JDK 24+ 仍会钉住的情况只剩栈上有 native 方法 / 外部函数帧，以及在类初始化器中阻塞或等待其他线程完成类初始化。JDK 24 起 `-Djdk.tracePinnedThreads` 已移除，排查钉住改用 JFR 的 `jdk.VirtualThreadPinned` 事件。钉住的原理与诊断见 [虚拟线程 · 钉住（Pinning）](./30_topic_virtual_thread#五、钉住-pinning)
 
 ---
 

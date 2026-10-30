@@ -136,7 +136,7 @@ jstat、jcmd、JFR 等在线观测手段见 [诊断工具](./8_monitoring_tools)
 ```bash
 -XX:MaxTenuringThreshold=15        # 晋升年龄上限（默认 15，也是最大值）
 -XX:TargetSurvivorRatio=50         # Survivor 目标占用率，动态年龄判断以此为界
--XX:PretenureSizeThreshold=4m      # 大对象直接进老年代的阈值，仅 Serial / ParNew 有效
+-XX:PretenureSizeThreshold=4m      # 大对象直接进老年代的阈值，仅 Serial 有效（G1 走 Humongous 区）
 ```
 
 ::: warning
@@ -282,7 +282,7 @@ java -Xms4g -Xmx4g \
 |------|------|
 | 堆整体偏小，活跃数据接近老年代容量 | 按活跃数据量的 3～4 倍增大堆 |
 | 对象过早晋升（Survivor 放不下、年龄阈值过小） | 适当增大年轻代或 Survivor，调大 `MaxTenuringThreshold` |
-| 大对象过多 | 优化代码；G1 调大 `G1HeapRegionSize`；Serial / ParNew 才能用 `PretenureSizeThreshold` |
+| 大对象过多 | 优化代码；G1 调大 `G1HeapRegionSize`；只有 Serial 才能用 `PretenureSizeThreshold` |
 | 元空间不足 | 调大 `MaxMetaspaceSize`，排查动态代理、脚本引擎等导致的类加载泄漏 |
 | 代码显式调用 `System.gc()` | 定位调用方；需要保留时用 `-XX:+ExplicitGCInvokesConcurrent` |
 | 内存泄漏 | dump 后用 MAT 分析，见 [故障排查](./9_troubleshooting) |

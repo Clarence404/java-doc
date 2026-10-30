@@ -149,7 +149,7 @@ public class HttpVerticle extends VerticleBase {
 几个容易混淆的点：
 
 - **Vert.x 的 Future 没有背压**：`Future` 只表示单个结果。流式数据用 `ReadStream` / `WriteStream` 的 `pause()` / `resume()` 与 `pipeTo()` 做流控，概念上弱于 Reactive Streams 的 `request(n)`。需要复杂流处理时，可以用 Vert.x 的 RxJava 3 或 Mutiny 绑定。WebFlux 的背压与操作符见 [WebFlux](/spring/8_webflux)。
-- **Quarkus 不是 Vert.x 的竞争者，而是上层**：Quarkus REST、反应式路由、反应式数据源都跑在 Vert.x 的 Event Loop 上，在 Quarkus 里可以直接注入 `Vertx` 实例使用原生 API。
+- **Quarkus 不是 Vert.x 的竞争者，而是上层**：Quarkus REST、反应式路由、反应式数据源都跑在 Vert.x 的 Event Loop 上，在 Quarkus 里可以直接注入 `Vertx` 实例使用原生 API。注意版本对应：Quarkus 3.x 底层仍是 Vert.x 4.5，Vert.x 5 要到 Quarkus 4（截至 2026-10 处于 Beta，计划 2026 年底 GA），所以在 Quarkus 3 里直接用 Vert.x API 时按 4.x 的写法来。
 - **虚拟线程改变了权衡**：JDK 21 以后，「为了高并发必须写响应式代码」的理由大幅减弱，见 [虚拟线程](/java/30_topic_virtual_thread)。Vert.x 的价值更多落在「轻量 + 协议丰富 + 事件驱动模型」上，而不只是「非阻塞」。
 
 ---

@@ -164,9 +164,11 @@ Protocol protocol = ApplicationModel.defaultModel()
 
 ```properties
 # META-INF/spring.factories
-org.springframework.boot.env.EnvironmentPostProcessor=\
+org.springframework.boot.EnvironmentPostProcessor=\
   com.example.MyEnvironmentPostProcessor
 ```
+
+Boot 4 把 `EnvironmentPostProcessor` 从 `org.springframework.boot.env` 移到了 `org.springframework.boot`；旧接口和旧键在 4.0 仍可用但已标记废弃，后续版本会删除。
 
 ### 2、自动配置的登记方式
 

@@ -237,7 +237,7 @@ services:
       - "3306:3306"
 
   kafka:
-    image: apache/kafka:4.1.0
+    image: apache/kafka:4.1.2
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller

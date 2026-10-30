@@ -247,7 +247,7 @@ Order order = ScopedValue.where(RequestContext.CURRENT_USER, user).call(() -> or
 ## 八、结构化并发（预览）
 
 ::: warning 预览特性
-`StructuredTaskScope` 在 JDK 25（JEP 505，第五次预览）和 JDK 26（JEP 525，第六次预览）中仍是**预览 API**，编译和运行都要加 `--enable-preview`，且每个版本都有不兼容调整。下面的代码基于 JDK 25；不要在生产中依赖它，除非团队接受随 JDK 升级修改代码。
+`StructuredTaskScope` 在 JDK 21–27 均为**预览 API**（JDK 25 为 JEP 505 第五次预览，JDK 27 为 JEP 533 第七次预览），JDK 28 计划转正（JEP 543），编译和运行都要加 `--enable-preview`，且每个版本都有不兼容调整。下面的代码基于 JDK 25；不要在生产中依赖它，除非团队接受随 JDK 升级修改代码。
 :::
 
 结构化并发把"一个任务拆成几个并发子任务"当作一个整体：子任务的生命周期不超过父任务的代码块，一个失败时其余自动取消，取消父任务时子任务一起取消，线程转储中能看到父子关系。
@@ -300,7 +300,7 @@ Spring Boot 3.2+、JDK 21+ 设置 `spring.threads.virtual.enabled=true`，Tomcat
 - 钉住：JDK 21–23 的 `synchronized` 内阻塞与 `Object.wait()` 会钉住载体线程；JDK 24（JEP 491）已解决，只剩 native 帧与类初始化等少数情况
 - 诊断用 `jcmd Thread.dump_to_file -format=json` 与 JFR `jdk.VirtualThreadPinned`；`-Djdk.tracePinnedThreads` 在 JDK 24 已移除
 - `ScopedValue` 在 JDK 25 正式，是不可变、自动解绑的上下文传递方式，只通过 `StructuredTaskScope` 继承
-- 结构化并发在 JDK 25 / 26 仍是预览，API 每版都在变
+- 结构化并发到 JDK 27 仍是预览，API 每版都在变，JDK 28 计划转正
 - CPU 密集型任务、需要池化限流语义的场景不用虚拟线程；JDK 25 LTS 是推荐的生产基线
 
 ## 参考资料

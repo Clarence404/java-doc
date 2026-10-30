@@ -249,6 +249,7 @@ export FLINK_HOME=/opt/flink
 
 - **Kafka Sink 默认把所有记录写到 0 号分区**（`partition.strategy = all-to-zero`），整库同步时必须改为 `hash-by-key`，否则单分区成为瓶颈；同一主键仍落在同一分区，保证行级有序。
 - 默认 topic 名为 `库.表`，可用 `sink.tableId-to-topic.mapping` 或 `topic` 自定义。
+- StarRocks 管道 Sink 由 Flink CDC 自己发布 `-2.2` 构件，可在 Flink 2.2 上运行；Flink SQL / DataStream 作业写 StarRocks 用的是 StarRocks 官方连接器，只支持到 Flink 1.20，Flink 2.x 下改写 Doris 或「写 Paimon + StarRocks 外部 Catalog / 物化视图」，见 [实时数仓实战 · 五、StarRocks：外部 Catalog 与物化视图](/big-data/9_realtime_dw#五、starrocks-外部-catalog-与物化视图)。
 - Doris / StarRocks 的自动建表只按上游主键生成分桶与主键，分区、副本、冷热策略需要用 `table.create.properties.*` 补充，或者提前手工建表。
 - Paimon 主键表能直接产出 changelog 给下游 Flink 继续消费，是实时数仓分层的常用底座，见 [实战场景](./8_scenarios)。
 

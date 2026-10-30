@@ -358,7 +358,7 @@ try (ExecutorService vt = Executors.newVirtualThreadPerTaskExecutor()) {
 }
 ```
 
-这种写法里一个子任务失败，另一个仍会跑完，`close()` 也会等它。需要"一个失败就取消其余"时，JDK 25 / 26 提供了**预览中**的结构化并发 `StructuredTaskScope`，见 [虚拟线程](./30_topic_virtual_thread)。
+这种写法里一个子任务失败，另一个仍会跑完，`close()` 也会等它。需要"一个失败就取消其余"时，可以用结构化并发 `StructuredTaskScope`（JDK 21–27 均为**预览**，JDK 28 计划转正），见 [虚拟线程](./30_topic_virtual_thread)。
 
 | 场景 | 推荐 |
 |------|------|

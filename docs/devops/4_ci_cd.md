@@ -225,7 +225,7 @@ jobs:
 
 ### 1、OIDC 取代长期密钥
 
-部署 Job 需要集群凭证。不要把 kubeconfig 或云厂商 AccessKey 存进 Secrets，而是让 GitHub 签发的 OIDC 令牌去云上换一个**几分钟有效**的临时角色：
+部署 Job 需要集群凭证。不要把 kubeconfig 或云厂商 AccessKey 存进 Secrets，而是让 GitHub 签发的 OIDC 令牌（本身只有几分钟有效）去云上换一份**短期临时凭证**（默认 1 小时，可在角色上配置）：
 
 - 云端：在 IAM（阿里云为 RAM）中登记 GitHub 的 OIDC 身份提供商，创建部署角色，信任策略限定 `sub` 为 `repo:acme/order-service:environment:production` 这类具体环境
 - Workflow：Job 申请 `id-token: write`，用 `aws-actions/configure-aws-credentials` 换取临时凭证

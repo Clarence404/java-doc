@@ -129,7 +129,7 @@ public class PayService {
 | 支持位置 | 构造器、方法、字段、参数 | 字段、setter（不支持构造器） |
 | 可选依赖 | `required = false` | 不支持 |
 
-Spring 6 起只识别 `jakarta.*` 注解：项目里残留的 `javax.annotation.Resource`、`javax.annotation.PostConstruct` 会被**静默忽略**，升级时要全局替换。
+Spring 6 以 `jakarta.*` 注解为主、仍兼容 `javax.*`；Framework 7（Boot 4）起不再支持 `javax.annotation` 与 `javax.inject`，残留的 `javax.annotation.Resource`、`javax.annotation.PostConstruct` 会被**静默忽略**，升级时要全局替换。
 
 ### 3、注入是怎么发生的
 

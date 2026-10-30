@@ -216,13 +216,13 @@ public boolean isNumber(String s) {
 
 ```java
 // Bad：无论是否输出，字符串拼接和 toString() 都会执行
-log.debug("order detail: " + order + ", items: " + JSON.toJSONString(items));
+log.debug("order detail: " + order + ", items: " + jsonMapper.writeValueAsString(items));
 
 // Good：占位符延迟格式化；昂贵参数用级别判断或 Supplier
 log.debug("order detail: {}, items: {}", order, items.size());
 
 if (log.isDebugEnabled()) {
-    log.debug("items json: {}", JSON.toJSONString(items));
+    log.debug("items json: {}", jsonMapper.writeValueAsString(items));
 }
 ```
 

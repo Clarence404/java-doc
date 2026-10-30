@@ -51,7 +51,7 @@ Spring AI 的 API 分两层：底层 `ChatModel` 对接各家厂商，上层 `Ch
 <dependencies>
   <dependency>
     <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-web</artifactId>
+    <artifactId>spring-boot-starter-webmvc</artifactId>
   </dependency>
   <!-- 以 OpenAI 为例，换厂商只换这个 Starter -->
   <dependency>

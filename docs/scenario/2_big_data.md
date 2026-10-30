@@ -76,15 +76,17 @@ MySQL 没有物化视图（PostgreSQL、Oracle、ClickHouse 有），常见做�
 ```sql
 -- daily_sales_summary 上有 UNIQUE KEY uk_day_category (stat_date, category_id)
 INSERT INTO daily_sales_summary (stat_date, category_id, total_amount)
-SELECT DATE(created_at), category_id, SUM(amount)
-FROM orders
-WHERE created_at >= CURDATE() - INTERVAL 1 DAY
-  AND created_at <  CURDATE()
-GROUP BY DATE(created_at), category_id
-ON DUPLICATE KEY UPDATE total_amount = VALUES(total_amount);
+SELECT * FROM (
+    SELECT DATE(created_at) AS stat_date, category_id, SUM(amount) AS total_amount
+    FROM orders
+    WHERE created_at >= CURDATE() - INTERVAL 1 DAY
+      AND created_at <  CURDATE()
+    GROUP BY DATE(created_at), category_id
+) AS s
+ON DUPLICATE KEY UPDATE total_amount = s.total_amount;
 ```
 
-> MySQL 8.0.20 起 `VALUES()` 写法已弃用但仍可用，新写法是行别名：`INSERT ... SELECT * FROM (SELECT ...) AS s ON DUPLICATE KEY UPDATE total_amount = s.total_amount`。
+> 引用插入值用别名（8.0.19+）：`INSERT ... VALUES` 写成 `INSERT ... VALUES (...) AS new ON DUPLICATE KEY UPDATE col = new.col`，`INSERT ... SELECT` 像上面这样包一层派生表再引用 `s.col`；旧的 `VALUES(col)` 函数 8.0.20 起已废弃。
 
 ---
 

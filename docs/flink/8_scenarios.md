@@ -193,7 +193,7 @@ public class LoginRiskJob {
 | ODS | 业务库用 Flink CDC Pipeline 整库同步进 Paimon；埋点日志直接写 Kafka |
 | DWD | Flink SQL 流式读 ODS，清洗、去重、关联维表后写 Paimon 主键表 |
 | DWS | Flink SQL 聚合，或交给 Paimon 聚合合并引擎写入即合并 |
-| ADS | 汇总写入 Doris / StarRocks，或在 OLAP 中直接建视图 / 物化视图 |
+| ADS | 汇总写入 Doris，或由 OLAP 读湖表建视图 / 物化视图；StarRocks 官方 Flink 连接器只支持到 Flink 1.20，Flink 2.x 作业改走 Paimon + StarRocks 外部 Catalog / 物化视图，见 [实时数仓实战 · 五、StarRocks：外部 Catalog 与物化视图](/big-data/9_realtime_dw#五、starrocks-外部-catalog-与物化视图) |
 
 ### 2、Kafka 还是 Paimon 做中间层
 

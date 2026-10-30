@@ -139,7 +139,7 @@ Mark Word 存储对象运行时数据，其内容随锁状态复用。64 位 JVM
 | 策略 | 规则 | 关键参数 |
 |------|------|---------|
 | 优先在 Eden 分配 | 绝大多数新对象在 Eden 中诞生 | `-Xmn` / `-XX:NewRatio` |
-| 大对象直接进老年代 | 仅 Serial / ParNew 支持；G1 中 ≥ Region 一半的对象作为 Humongous 对象直接分配到 Humongous Region | `-XX:PretenureSizeThreshold` |
+| 大对象直接进老年代 | 当前只有 Serial 支持（早年的 ParNew 已随 CMS 在 JDK 14 移除）；G1 中 ≥ Region 一半的对象作为 Humongous 对象直接分配到 Humongous Region | `-XX:PretenureSizeThreshold` |
 | 长期存活对象晋升 | 每熬过一次 Young GC 年龄 +1，达到阈值晋升 | `-XX:MaxTenuringThreshold`（默认 15） |
 | 动态年龄判断 | 见下文 | `-XX:TargetSurvivorRatio`（默认 50） |
 | 空间分配担保 | 见下文 | — |
@@ -181,7 +181,7 @@ Young GC 时存活对象可能多到 Survivor 放不下，需要老年代兜底�
 ### 2、字符串去重（String Deduplication）
 
 ```bash
-# G1 自 JDK 8u20 支持；JDK 18 起 Serial / Parallel / ZGC / Shenandoah 也支持
+# G1 自 JDK 8u20 支持，Shenandoah 也早已支持；JDK 18 起 Serial / Parallel / ZGC 新增支持
 -XX:+UseStringDeduplication
 ```
 
@@ -200,7 +200,7 @@ Young GC 时存活对象可能多到 Survivor 放不下，需要老年代兜底�
 - JDK 7 起静态变量与字符串常量池都在堆中；JDK 8 起方法区由元空间实现，只存类元数据等，建议显式设置 `MaxMetaspaceSize`
 - 对象 = 对象头（Mark Word + Klass Pointer [+ 数组长度]）+ 实例数据 + 对齐填充；`UseCompressedOops` 管引用、`UseCompressedClassPointers` 管类指针，前者受 32GB 堆限制
 - 对象分配走 TLAB → Eden 共享区 → Young GC；TLAB 大小自适应
-- 晋升看年龄阈值、动态年龄（累计超过 `TargetSurvivorRatio`）与大对象规则；`PretenureSizeThreshold` 只对 Serial / ParNew 有效，G1 用 Humongous 对象
+- 晋升看年龄阈值、动态年龄（累计超过 `TargetSurvivorRatio`）与大对象规则；`PretenureSizeThreshold` 只对 Serial 有效，G1 用 Humongous 对象
 
 ## 参考资料
 

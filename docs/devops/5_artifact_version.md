@@ -391,9 +391,9 @@ jobs:
       id-token: write        # keyless 签名与 attestation 都需要 OIDC 令牌
       attestations: write    # 写入 GitHub Artifact Attestations
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '21'

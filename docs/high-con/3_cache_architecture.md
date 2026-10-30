@@ -82,6 +82,7 @@ public class HotItemWarmer implements ApplicationRunner {
     private final ItemMapper itemMapper;
     private final Cache<Long, ItemDTO> localCache;          // Caffeine
     private final StringRedisTemplate redis;
+    private final JsonMapper jsonMapper;                  // Jackson 3：tools.jackson.databind.json.JsonMapper
 
     @Override
     public void run(ApplicationArguments args) {
@@ -91,7 +92,7 @@ public class HotItemWarmer implements ApplicationRunner {
             localCache.put(item.getId(), item);
             // Redis TTL 加随机抖动，避免同时过期
             long ttl = 3600 + ThreadLocalRandom.current().nextInt(600);
-            redis.opsForValue().set("item:" + item.getId(), JSON.toJSONString(item),
+            redis.opsForValue().set("item:" + item.getId(), jsonMapper.writeValueAsString(item),
                     ttl, TimeUnit.SECONDS);
         }
     }

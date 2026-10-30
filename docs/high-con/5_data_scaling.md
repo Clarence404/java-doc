@@ -176,13 +176,13 @@ Binlog 同步工具见 [CDC 工具](/database/5_practice/0_cdc_tools)。分布�
 
 | 场景 | 痛点 | 引入存储 | 同步方式 |
 |------|------|----------|----------|
-| 商品搜索、多条件筛选 | `LIKE`、多字段组合索引失效 | Elasticsearch | Binlog → Canal → MQ → ES |
+| 商品搜索、多条件筛选 | `LIKE`、多字段组合索引失效 | Elasticsearch | Binlog → Debezium / Flink CDC →（MQ）→ ES（存量系统也常见 Canal） |
 | 运营报表、实时统计 | 大表聚合拖垮主库 | ClickHouse / Doris | CDC 实时同步 |
 | 用户画像、宽表 | 列多且稀疏 | HBase / 列存 | 离线 + 实时 |
 | 监控、IoT 指标 | 海量时序写入 | InfluxDB / TDengine | 直接写入 |
 | 计数、排行、会话 | 高频读写小数据 | Redis | 应用双写 / 异步回写 |
 
-异构存储是**最终一致**的，同步延迟通常在秒级，业务要能容忍"刚下的单搜不到"。各类存储的特点见 [搜索数据库](/nosql/5_search_db)、[列式与 OLAP 数据库](/nosql/3_column_db)。
+异构存储是**最终一致**的，同步延迟通常在秒级，业务要能容忍"刚下的单搜不到"。各类存储的特点见 [搜索数据库](/nosql/5_search_db)、[列式与 OLAP 数据库](/nosql/3_column_db)，CDC 工具选型见 [CDC 工具](/database/5_practice/0_cdc_tools)。
 
 ---
 

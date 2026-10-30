@@ -48,7 +48,7 @@ mvn dependency:tree
 mvn clean verify
 ```
 
-CI 中推荐 `mvn -B verify`（`-B` 为批处理模式，不输出交互式进度）；只有发布流水线才需要 `deploy`，本地极少需要 `install`，多模块之间的引用用 `-pl` / `-am` 解决（见第五节）。
+CI 中推荐 `mvn -B verify`（`-B` 为批处理模式，不输出交互式进度）；只有发布流水线才需要 `deploy`，本地极少需要 `install`，多模块之间的引用用 `-pl` / `-am` 解决（见第六节）。
 
 ---
 

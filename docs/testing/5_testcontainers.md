@@ -24,7 +24,7 @@ Testcontainers 通过 Docker API 为测试拉起真实的 PostgreSQL、Redis、K
 | 共享测试环境 | 所有人连同一个 test 库 | 与真实环境一致 | 数据互相污染，环境一挂全体变红，无法并行 |
 | Testcontainers | 每次测试拉起与生产同版本的容器 | 真实 SQL、约束、事务、协议细节 | 需要 Docker，首次拉镜像慢 |
 
-Testcontainers 的价值在于三点：**版本与生产一致**（`postgres:17-alpine` 就是线上那个大版本）、**每次全新**（没有上次残留的数据）、**用完即删**（不污染开发机）。代价是启动时间和对 Docker 的依赖，这两点本篇第八、九节分别处理。
+Testcontainers 的价值在于三点：**版本与生产一致**（`postgres:18-alpine` 就是线上那个大版本）、**每次全新**（没有上次残留的数据）、**用完即删**（不污染开发机）。代价是启动时间和对 Docker 的依赖，这两点本篇第八、九节分别处理。
 
 ---
 
@@ -137,7 +137,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 class JdbcOrderRepositoryTest {
 
     @Container
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17-alpine")
+    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:18-alpine")
             .withDatabaseName("orders")
             .withInitScript("db/schema.sql");
 
@@ -209,7 +209,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 
 class WaitStrategyExamples {
 
-    GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
+    GenericContainer<?> redis = new GenericContainer<>("redis:8-alpine")
             .withExposedPorts(6379)
             .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
 
@@ -284,7 +284,7 @@ import io.lettuce.core.api.sync.RedisCommands;
 class OrderCacheRedisTest {
 
     @Container
-    static GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
+    static GenericContainer<?> redis = new GenericContainer<>("redis:8-alpine")
             .withExposedPorts(6379)
             .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
 
@@ -432,7 +432,7 @@ class NetworkExample {
 
     static Network network = Network.newNetwork();
 
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17-alpine")
+    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:18-alpine")
             .withNetwork(network)
             .withNetworkAliases("db");
 
@@ -481,7 +481,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 public abstract class AbstractPostgresIT {
 
     protected static final PostgreSQLContainer POSTGRES =
-            new PostgreSQLContainer("postgres:17-alpine")
+            new PostgreSQLContainer("postgres:18-alpine")
                     .withDatabaseName("orders")
                     .withInitScript("db/schema.sql");
 
@@ -544,7 +544,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 class ReusableExample {
 
-    static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine")
+    static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:18-alpine")
             .withDatabaseName("orders")
             .withReuse(true);
 
@@ -564,7 +564,7 @@ class ReusableExample {
 
 ### 3、其他提速手段
 
-- **固定镜像 tag 并预拉取**：写 `postgres:17-alpine` 而不是 `latest`，CI 中可以在测试前 `docker pull`，或把镜像层缓存起来
+- **固定镜像 tag 并预拉取**：写 `postgres:18-alpine` 而不是 `latest`，CI 中可以在测试前 `docker pull`，或把镜像层缓存起来
 - **私有镜像仓库代理**：公司网络访问 Docker Hub 慢或受限时，设置 `hub.image.name.prefix=registry.example.com/mirror/`（或环境变量 `TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX`），Testcontainers 会给所有 Docker Hub 镜像自动加前缀，代码里的镜像名不用改
 - **选轻量镜像**：`-alpine` 变体、`apache/kafka-native` 启动更快
 - **只在需要时启动**：单元测试不要继承集成测试基类；用 Failsafe 把带容器的测试分开，见 [集成测试 · Surefire 与 Failsafe 分离](./3_integration_test#六、maven-surefire-与-failsafe-分离)

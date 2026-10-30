@@ -409,7 +409,7 @@ class OrderFlowIT {
 
     @Container
     @ServiceConnection
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:17-alpine");
+    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:18-alpine");
 
     @Test
     void placeOrder() { /* ... */ }
@@ -430,13 +430,13 @@ public class ContainersConfig {
     @Bean
     @ServiceConnection
     PostgreSQLContainer postgres() {
-        return new PostgreSQLContainer("postgres:17-alpine");
+        return new PostgreSQLContainer("postgres:18-alpine");
     }
 
     @Bean
     @ServiceConnection(name = "redis")
     GenericContainer<?> redis() {
-        return new GenericContainer<>("redis:7-alpine").withExposedPorts(6379);
+        return new GenericContainer<>("redis:8-alpine").withExposedPorts(6379);
     }
 }
 

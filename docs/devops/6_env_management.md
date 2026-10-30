@@ -69,7 +69,7 @@ jobs:
     # 在仓库 Settings → Environments 中为 prod 配置 Required reviewers，审批通过后才会执行
     environment: ${{ inputs.target }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: 校验 digest 格式
         env:

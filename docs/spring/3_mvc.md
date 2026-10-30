@@ -216,9 +216,10 @@ import tools.jackson.databind.DeserializationFeature;
 public class JacksonConfig {
 
     // Boot 4：在自动配置的 JsonMapper 上追加定制
+    // Jackson 3 默认忽略未知字段（Jackson 2 默认报错），需要严格校验请求体时再打开
     @Bean
     JsonMapperBuilderCustomizer jsonCustomizer() {
-        return builder -> builder.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        return builder -> builder.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 }
 ```
@@ -237,7 +238,6 @@ public class WebConverterConfig implements WebMvcConfigurer {
     public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
         JsonMapper jsonMapper = JsonMapper.builder()
                 .findAndAddModules()
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .build();
         builder.withJsonConverter(new JacksonJsonHttpMessageConverter(jsonMapper));
     }
@@ -281,104 +281,29 @@ Framework 6.0 起支持 RFC 9457（原 RFC 7807）Problem Details，响应类型
 - `ErrorResponse` / `ErrorResponseException`：携带状态码、响应头和 `ProblemDetail` 的异常契约，Spring MVC 的内置异常都实现了它
 - `ResponseEntityExceptionHandler`：处理全部 Spring MVC 内置异常并输出 `ProblemDetail` 的基类
 
-Boot 中设置 `spring.mvc.problemdetails.enabled=true` 会自动注册一个 `ResponseEntityExceptionHandler`，前提是容器里没有其他该类型的 Bean。生产项目通常自己继承它，在同一个类中处理业务异常：
+Boot 中设置 `spring.mvc.problemdetails.enabled=true` 会自动注册一个 `ResponseEntityExceptionHandler`，前提是容器里没有其他该类型的 Bean。生产项目通常自己继承它，在同一个类中处理业务异常，骨架如下：
 
 ```java
-@Getter
-public class BizException extends RuntimeException {
-
-    private final ErrorCode errorCode;
-
-    public BizException(ErrorCode errorCode, String detail) {
-        super(detail);
-        this.errorCode = errorCode;
-    }
-}
-
-@Getter
-@RequiredArgsConstructor
-public enum ErrorCode {
-    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "订单不存在"),
-    STOCK_NOT_ENOUGH(HttpStatus.CONFLICT, "库存不足"),
-    PARAM_INVALID(HttpStatus.BAD_REQUEST, "参数校验失败");
-
-    private final HttpStatus status;
-    private final String title;
-}
-
-@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    // 业务异常：状态码与错误码来自枚举
+    // 业务异常：状态码、标题、业务码都来自错误码枚举
     @ExceptionHandler(BizException.class)
     public ProblemDetail handleBiz(BizException ex) {
-        ErrorCode code = ex.getErrorCode();
-        ProblemDetail pd = ProblemDetail.forStatusAndDetail(code.getStatus(), ex.getMessage());
-        pd.setTitle(code.getTitle());
-        pd.setProperty("code", code.name());
+        ErrorCode ec = ex.getErrorCode();
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(ec.status(), ex.getMessage());
+        pd.setTitle(ec.title());
+        pd.setProperty("code", ec.code());           // 扩展字段，序列化时展开到顶层
         return pd;
-    }
-
-    // @RequestBody @Valid 校验失败：覆写父类方法，不能再写 @ExceptionHandler，否则映射重复启动失败
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex, HttpHeaders headers,
-            HttpStatusCode status, WebRequest request) {
-        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
-                .collect(Collectors.toMap(
-                        FieldError::getField,
-                        fe -> Objects.requireNonNullElse(fe.getDefaultMessage(), "invalid"),
-                        (first, second) -> first,          // 同一字段多个约束失败时保留第一条，避免 Duplicate key
-                        LinkedHashMap::new));
-        ProblemDetail body = ex.getBody();
-        body.setDetail(ErrorCode.PARAM_INVALID.getTitle());
-        body.setProperty("code", ErrorCode.PARAM_INVALID.name());
-        body.setProperty("errors", errors);
-        return handleExceptionInternal(ex, body, headers, status, request);
-    }
-
-    // 6.1+ 内置方法校验失败（路径 / 查询参数上的约束）
-    @Override
-    protected ResponseEntity<Object> handleHandlerMethodValidationException(
-            HandlerMethodValidationException ex, HttpHeaders headers,
-            HttpStatusCode status, WebRequest request) {
-        List<String> errors = ex.getAllErrors().stream()
-                .map(MessageSourceResolvable::getDefaultMessage)
-                .toList();
-        ProblemDetail body = ex.getBody();
-        body.setDetail(ErrorCode.PARAM_INVALID.getTitle());
-        body.setProperty("code", ErrorCode.PARAM_INVALID.name());
-        body.setProperty("errors", errors);
-        return handleExceptionInternal(ex, body, headers, status, request);
-    }
-
-    // Service 层 @Validated 方法校验失败
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
-        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ErrorCode.PARAM_INVALID.getTitle());
-        pd.setProperty("code", ErrorCode.PARAM_INVALID.name());
-        pd.setProperty("errors", ex.getConstraintViolations().stream()
-                .map(ConstraintViolation::getMessage)
-                .toList());
-        return pd;
-    }
-
-    // 兜底：记录完整堆栈，对外只返回通用信息，不泄露内部细节
-    @ExceptionHandler(Exception.class)
-    public ProblemDetail handleUnknown(Exception ex) throws Exception {
-        if (ex instanceof AccessDeniedException || ex instanceof AuthenticationException) {
-            throw ex;                                  // 交还给 Spring Security 处理成 401 / 403
-        }
-        log.error("未处理的异常", ex);
-        return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "服务器内部错误");
     }
 }
 ```
 
-几点说明：
+错误码枚举、`BizException`、校验失败与兜底处理的完整代码以 [API 设计规范 · Spring 中的实现](/engineering/4_api_design_rule#_2、spring-中的实现) 为准。几点机制上的说明：
 
-- `ConstraintViolationException`、`ConstraintViolation` 来自 `jakarta.validation`；`AccessDeniedException`、`AuthenticationException` 来自 Spring Security，未使用时删掉这段判断
+- `@RequestBody @Valid` 校验失败要覆写父类的 `handleMethodArgumentNotValid`，不能再写同类型的 `@ExceptionHandler`，否则映射重复、启动失败；6.1+ 路径 / 查询参数上的约束失败对应覆写 `handleHandlerMethodValidationException`
+- Service 层 `@Validated` 方法校验抛的是 `jakarta.validation` 的 `ConstraintViolationException`，不在父类处理范围内，需要单独写 `@ExceptionHandler`
+- 用 `@ExceptionHandler(Exception.class)` 兜底时，遇到 Spring Security 的 `AccessDeniedException`、`AuthenticationException` 要原样抛出，交还给 Security 处理成 401 / 403
 - `@ExceptionHandler` 的匹配按异常继承层次取最近的，所以兜底的 `Exception` 不会抢走父类中更具体的 Spring MVC 异常映射
 - `title`、`detail` 支持国际化：`ResponseEntityExceptionHandler` 按 `problemDetail.title.<异常全限定名>` 等消息码从 `MessageSource` 解析
 - 异常也可以直接继承 `ErrorResponseException`，此时无需写 `@ExceptionHandler`，父类会统一渲染

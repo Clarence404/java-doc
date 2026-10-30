@@ -24,7 +24,7 @@ StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironm
 ```java
 Configuration conf = new Configuration();
 conf.set(RestartStrategyOptions.RESTART_STRATEGY, "exponential-delay");
-conf.set(PipelineOptions.GENERIC_TYPES, false);   // 禁止 Kryo 回退，见第八节
+conf.set(PipelineOptions.GENERIC_TYPES, false);   // 禁止 Kryo 回退，见第九节
 StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
 env.setParallelism(4);
 env.enableCheckpointing(60_000);

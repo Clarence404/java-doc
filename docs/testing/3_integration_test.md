@@ -55,7 +55,7 @@ Spring 项目里，集成测试通常是 `@SpringBootTest` 加载完整上下文
 | 方式 | 例子 | 优点 | 问题 |
 |------|------|------|------|
 | 内存替身 | H2 代替 PostgreSQL、`@EmbeddedKafka`、嵌入式 Redis | 无需 Docker，启动快 | 方言、函数、锁行为与生产不同；「测试绿、上线红」 |
-| 真实容器 | Testcontainers 启动 `postgres:17-alpine`、`apache/kafka` | 与生产同版本同行为；每次全新、互不干扰 | 需要 Docker；首次拉镜像慢 |
+| 真实容器 | Testcontainers 启动 `postgres:18-alpine`、`apache/kafka` | 与生产同版本同行为；每次全新、互不干扰 | 需要 Docker；首次拉镜像慢 |
 | 共享测试环境 | 连公司的 dev / test 数据库 | 不用本地资源 | 数据被别人改、并发跑互相踩；环境挂了测试全红 |
 
 推荐顺序：**真实容器优先，内存替身只用于确实没有差异的场景，共享环境不用于自动化测试**。
@@ -86,13 +86,13 @@ public class ContainersConfig {
     @Bean
     @ServiceConnection
     PostgreSQLContainer postgres() {
-        return new PostgreSQLContainer("postgres:17-alpine");
+        return new PostgreSQLContainer("postgres:18-alpine");
     }
 
     @Bean
     @ServiceConnection
     KafkaContainer kafka() {
-        return new KafkaContainer("apache/kafka:4.1.0");
+        return new KafkaContainer("apache/kafka:4.1.2");
     }
 }
 ```
@@ -576,7 +576,7 @@ JUnit 的并行由配置参数控制，适合无共享状态的单元测试。�
 - **一次 `verify` 跑完两类测试**：项目不大时最简单，Failsafe 的失败会让 `verify` 失败、阻止合并
 - **测试多时拆成两个 Job**：单元测试 Job 跑 `./mvnw test`，几分钟给出反馈；集成测试 Job 跑 `./mvnw verify -DskipUTs=true`，二者并行
 - **Docker 可用性**：GitHub Actions 的 Ubuntu Runner 自带 Docker，Testcontainers 开箱即用；自建 Runner 运行在容器里时要处理 Docker-in-Docker 或挂载宿主 Docker Socket，具体见 [Testcontainers](./5_testcontainers)
-- **固定镜像 tag**：容器镜像写明版本（`postgres:17-alpine` 而不是 `postgres:latest`），否则某天上游发布新版本，测试会在没人改代码的情况下变红
+- **固定镜像 tag**：容器镜像写明版本（`postgres:18-alpine` 而不是 `postgres:latest`），否则某天上游发布新版本，测试会在没人改代码的情况下变红
 - **失败时保留报告**：`failsafe-reports` 里有每个测试的输出和堆栈，上传为构建产物
 
 ### 2、拆分 Job 的示例

@@ -72,7 +72,7 @@ dev 验证通过后，提一个 PR 把 staging 的 `ref` 改成新版本；stagi
 
 ![OIDC 换取云凭证](../assets/cloud-native/iac-oidc-credentials.svg)
 
-GitHub Actions 给每个 Job 签发一个短期 JWT，云厂商 STS 校验其中的 `aud` 和 `sub` 后，换出约 1 小时有效的临时凭证。仓库里不再有 AccessKey，泄露面和轮换成本都大幅下降。关键是**按 `sub` 拆角色**：
+GitHub Actions 给每个 Job 签发一个几分钟有效的 OIDC 令牌（JWT），云厂商 STS 校验其中的 `aud` 和 `sub` 后，换出默认 1 小时有效（可在角色上配置）的临时凭证。仓库里不再有 AccessKey，泄露面和轮换成本都大幅下降。关键是**按 `sub` 拆角色**：
 
 ```hcl
 # 在 AWS 侧用 Terraform 声明 apply 角色的信任策略：只有 production 环境的 Job 能扮演

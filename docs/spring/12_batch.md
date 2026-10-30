@@ -166,8 +166,8 @@ public JdbcBatchItemWriter<User> dbWriter(DataSource dataSource) {
     return new JdbcBatchItemWriterBuilder<User>()
         .dataSource(dataSource)
         .sql("""
-             INSERT INTO users (id, name, email) VALUES (:id, :name, :email)
-             ON DUPLICATE KEY UPDATE name = VALUES(name), email = VALUES(email)
+             INSERT INTO users (id, name, email) VALUES (:id, :name, :email) AS new
+             ON DUPLICATE KEY UPDATE name = new.name, email = new.email
              """)                                 // 幂等写入：重启重做某个 chunk 时不会主键冲突
         .itemSqlParameterSourceProvider(u -> new MapSqlParameterSource()
             .addValue("id", u.id())

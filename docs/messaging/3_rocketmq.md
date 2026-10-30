@@ -158,11 +158,12 @@ public class OrderMessageProducer {
 public class OrderCreatedConsumer implements RocketMQListener<MessageExt> {
 
     private final PointsService pointsService;
+    private final JsonMapper jsonMapper;      // Jackson 3：tools.jackson.databind.json.JsonMapper
 
     @Override
     public void onMessage(MessageExt msg) {
         String bizKey = msg.getKeys();          // 业务键，缺失时再退回 msg.getMsgId()
-        OrderCreatedEvent event = JSON.parseObject(msg.getBody(), OrderCreatedEvent.class);
+        OrderCreatedEvent event = jsonMapper.readValue(msg.getBody(), OrderCreatedEvent.class);
         pointsService.grantPoints(bizKey, event);
         // 正常返回 = 消费成功；抛异常 = 稍后重试
     }
