@@ -19,7 +19,7 @@ description: Serial / Parallel / CMS / G1 / ZGC / Shenandoah 对比、分代 ZGC
 | 收集器 | 负责区域 | 线程 | 算法 | 状态 |
 |-------|---------|------|------|------|
 | Serial | 年轻代 | 单线程 | 复制 | 可用 |
-| ParNew | 年轻代 | 多线程 | 复制 | JDK 9 废弃、JDK 10 移除 |
+| ParNew | 年轻代 | 多线程 | 复制 | JDK 10 移除 `-XX:+UseParNewGC`，随 CMS 在 JDK 14 移除 |
 | Parallel Scavenge | 年轻代 | 多线程 | 复制 | 可用 |
 | Serial Old | 老年代 | 单线程 | 标记-整理 | 可用 |
 | Parallel Old | 老年代 | 多线程 | 标记-整理 | 可用 |
@@ -222,7 +222,7 @@ G1 记录每个 Region 的存活对象比例和历史回收耗时，每次在 `M
 
 ## 小结
 
-- 经典收集器分年轻代 / 老年代成对使用；**ParNew 在 JDK 10 移除、CMS 在 JDK 14 移除**
+- 经典收集器分年轻代 / 老年代成对使用；**ParNew 随 CMS 在 JDK 14 移除**（JDK 10 移除的只是 `-XX:+UseParNewGC` 参数）
 - **Parallel** 吞吐优先，是 JDK 8 默认；**G1** 用 Region + 回收收益排序实现可预测停顿，JDK 9 起默认，Full GC 自 JDK 10 并行
 - **ZGC** 靠染色指针 + 读屏障实现并发转移，JDK 21 引入分代、JDK 23 默认分代、JDK 24 移除非分代
 - **Shenandoah** 自 JDK 13 起用 LRB 取代 Brooks 指针，同样是并发整理

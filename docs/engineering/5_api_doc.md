@@ -133,7 +133,7 @@ springdoc-openapi-maven-plugin 在 `integration-test` 阶段请求 `/v3/api-docs
 # src/main/resources/application-openapi.yml
 springdoc:
   api-docs:
-    enabled: true                 # 默认关闭，只在生成文档时打开
+    enabled: true                 # springdoc 默认开启，主配置里已关闭，只在生成文档时打开
   writer-with-order-by-keys: true # 按键排序输出，避免同样的代码生成出不同的 diff
 spring:
   autoconfigure:

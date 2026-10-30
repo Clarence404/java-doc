@@ -196,7 +196,7 @@ public class PendingActionController {
 
 ### 1、定义工具
 
-`@ToolParam` 的描述会进入参数 Schema；不写时参数名依赖 `-parameters` 编译选项，否则模型看到的是 `arg0`：
+`@ToolParam` 的描述会进入参数 Schema，但它没有 name 属性，参数名始终靠反射获取，必须开启 `-parameters` 编译选项，否则模型看到的是 `arg0`：
 
 ```java
 import org.springframework.ai.tool.annotation.Tool;

@@ -66,7 +66,7 @@ spring:
 | 随机 | 自定义配置返回 `RandomLoadBalancer` | 见下方示例 |
 | 区域优先 | `spring.cloud.loadbalancer.configurations: zone-preference` | 优先选择元数据 `zone` 与调用方相同的实例，同区无实例时使用全部实例 |
 | 主动健康检查 | `configurations: health-check` | SCL 自行探测实例健康端点，适合实例列表不来自注册中心的场景 |
-| 同实例优先 | `configurations: same-instance-preference` | 重试时优先选择上次的实例 |
+| 同实例优先 | `configurations: same-instance-preference` | 优先选择上一次选中的实例（仍可用时），相当于实例粘滞 |
 | 基于请求的粘滞 | `configurations: request-based-sticky-session` | 按 Cookie 中的实例 ID 路由 |
 | Hint 路由 | 构建器 `withHints()` | 按请求头与实例元数据 `hint` 匹配 |
 | 加权 | `configurations: weighted` 或构建器 `withWeighted()`（Spring Cloud Commons 4.1 / 2023.0 起） | 按实例元数据 `weight` 加权，缺省为 1 |

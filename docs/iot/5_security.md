@@ -264,7 +264,7 @@ EMQX 5.9 起的许可变化见 [平台选型](./2_platform)。
 | 认证（authentication） | 你是谁、能不能连上来 | `authentication` 认证链；配置后未认证的客户端直接被拒绝 |
 | 授权（authorization） | 你能发布 / 订阅哪些 Topic | `authorization.sources` 按顺序匹配，都不命中时按 `no_match` 处理 |
 
-拒绝匿名连接是认证层的事；授权层做 Topic 粒度的最小权限，并用 `no_match = deny` 加末尾 `{deny, all}` 兜底。
+拒绝匿名连接是认证层的事；授权层做 Topic 粒度的最小权限，并用 `no_match = deny` 兜底。
 
 ### 2、授权配置
 
@@ -290,16 +290,24 @@ authorization {
 %% 1. 任何客户端都不能订阅全量通配和系统主题（{eq, ...} 表示按字面匹配，不展开通配符）
 {deny, all, subscribe, ["$SYS/#", {eq, "#"}, {eq, "+/#"}]}.
 
-%% 2. 后台服务：订阅所有设备上报，向任意设备下发指令
-{allow, {username, "iot-backend"}, subscribe, ["devices/+/telemetry", "devices/+/event"]}.
-{allow, {username, "iot-backend"}, publish, ["devices/+/cmd"]}.
+%% 2. 后台服务：订阅所有设备的上报、在线状态、指令响应、OTA 进度和影子请求，向任意设备下发指令、OTA 任务和影子响应
+{allow, {username, "iot-backend"}, subscribe,
+ ["devices/+/telemetry", "devices/+/event", "devices/+/status", "devices/+/response", "gateways/+/status",
+  "devices/+/ota/status", "shadow/+/update", "shadow/+/get"]}.
+{allow, {username, "iot-backend"}, publish,
+ ["devices/+/cmd", "devices/+/ota/cmd", "shadow/+/update/+", "shadow/+/delta", "shadow/+/get/accepted"]}.
 
-%% 3. 设备：只能发布自己的上报，只能订阅自己的指令
-{allow, all, publish, ["devices/${clientid}/telemetry", "devices/${clientid}/event"]}.
-{allow, all, subscribe, ["devices/${clientid}/cmd"]}.
+%% 3. 设备：只能发布自己的上报、在线状态（含遗嘱）、指令响应、OTA 进度和影子请求，只能订阅自己的指令、OTA 任务和影子响应
+{allow, all, publish,
+ ["devices/${clientid}/telemetry", "devices/${clientid}/event", "devices/${clientid}/status",
+  "devices/${clientid}/response", "gateways/${clientid}/status", "devices/${clientid}/ota/status",
+  "shadow/${clientid}/update", "shadow/${clientid}/get"]}.
+{allow, all, subscribe,
+ ["devices/${clientid}/cmd", "devices/${clientid}/ota/cmd",
+  "shadow/${clientid}/update/+", "shadow/${clientid}/delta", "shadow/${clientid}/get/accepted"]}.
 
-%% 4. 兜底：其余一律拒绝
-{deny, all}.
+%% 4. 末尾不写 {deny, all}：它会让文件对所有请求都给出结果，排在后面的内置数据库永远查不到；
+%%    其余请求交给 no_match = deny 拒绝
 ```
 
 - **占位符**：5.x 用 `${clientid}`、`${username}`，4.x 的 `%c`、`%u` 不再生效
@@ -373,7 +381,7 @@ WHERE result = 'deny'
 | 原则 | IoT 中的做法 |
 |------|-------------|
 | 每个设备独立身份 | 一机一密或设备证书，禁止同型号共用凭证 |
-| 最小权限 | ACL 只放行 `devices/${clientid}/...`，后台服务按职责拆分账号 |
+| 最小权限 | ACL 只放行 `devices/${clientid}/...` 与 `shadow/${clientid}/...`，后台服务按职责拆分账号 |
 | 持续验证 | JWT 带 `exp`，EMQX 默认在令牌过期后断开连接（`disconnect_after_expire`），设备重连时重新认证；令牌有效期加随机抖动，避免大批设备同时过期、同时重连 |
 | 微隔离 | 按区域划分设备网段，网关作为唯一出口，Broker 不直接暴露在公网 |
 | 全程可观测 | 认证、授权、上下线事件全部进入 SIEM |
@@ -393,7 +401,7 @@ WHERE result = 'deny'
 | 阶段 | 措施 |
 |------|------|
 | 一、基础 | 只开放 8883，关闭 1883；配置认证器，拒绝未认证连接；每台设备独立凭证 |
-| 二、权限 | 部署 ACL，设备只能访问自己的 Topic；`no_match = deny` + 末尾 `{deny, all}`；API Key 最小权限 |
+| 二、权限 | 部署 ACL，设备只能访问自己的 Topic；`no_match = deny` 兜底，文件规则末尾不写 `{deny, all}`；API Key 最小权限 |
 | 三、设备 | 私钥放安全芯片；量产禁用 UART / JTAG；删除测试账号与默认口令 |
 | 四、固件 | OTA 签名验签、防回滚、A/B 分区、安全启动 |
 | 五、隔离 | 设备网段微分段，管理端口只对内网开放 |
@@ -406,7 +414,7 @@ WHERE result = 'deny'
 - IoT 安全的难点在规模、物理可接触和长期无人值守，凭证必须一机一密、可自动轮换和吊销
 - 密码类方案用 HMAC 签名 + 时间戳，DeviceSecret 不上网；认证服务要校验 clientid 与设备身份一致
 - 证书方案选 ECDSA P-256，私钥在设备内生成、永不离开设备；EMQX 用 `verify_peer` + `fail_if_no_peer_cert = true` 强制 mTLS，用 `peer_cert_as_clientid = cn` 绑定身份
-- EMQX 5.x 授权用 `${clientid}` 占位符、`{eq, ...}` 字面匹配，`no_match = deny` 加 `{deny, all}` 兜底；REST API 用 API Key，请求体是数组
+- EMQX 5.x 授权用 `${clientid}` 占位符、`{eq, ...}` 字面匹配，`no_match = deny` 兜底（文件规则末尾不写 `{deny, all}`，否则后面的数据源查不到）；REST API 用 API Key，请求体是数组
 - OTA 要签名、防回滚、A/B 分区与安全启动，细节在 OTA 篇
 - 设备安全事件来自规则引擎的 `$events/...`，不是审计日志；零信任落地为独立身份、最小权限、持续验证、微隔离和全程可观测
 

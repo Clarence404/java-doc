@@ -206,7 +206,11 @@ spring:
 ```java
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -215,6 +219,7 @@ public record Telemetry(String deviceId, long ts, double temperature, double hum
 @Repository
 public class TelemetryWriter {
 
+    private static final Logger log = LoggerFactory.getLogger(TelemetryWriter.class);
     private static final Pattern DEVICE_ID = Pattern.compile("^[A-Za-z0-9_]{1,60}$");
     // 未列出的 TAG（product、location）为 NULL，由设备台账同步时 SET TAG 补齐
     private static final String SQL = """
@@ -228,9 +233,11 @@ public class TelemetryWriter {
     }
 
     public void writeBatch(List<Telemetry> batch) {
-        List<Telemetry> valid = batch.stream()
-                .filter(t -> DEVICE_ID.matcher(t.deviceId()).matches())
-                .toList();
+        Map<Boolean, List<Telemetry>> parts = batch.stream()
+                .collect(Collectors.partitioningBy(t -> DEVICE_ID.matcher(t.deviceId()).matches()));
+        // 不合法的设备 ID 不能静默丢弃：记日志（生产中可再转发到死信 Topic）
+        parts.get(false).forEach(t -> log.warn("非法设备 ID，已跳过 deviceId={}", t.deviceId()));
+        List<Telemetry> valid = parts.get(true);
         jdbc.batchUpdate(SQL, valid, valid.size(), (ps, t) -> {
             ps.setString(1, "d_" + t.deviceId());
             ps.setString(2, t.deviceId());

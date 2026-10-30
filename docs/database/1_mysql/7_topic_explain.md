@@ -69,7 +69,7 @@ WHERE u.city = '杭州' AND o.status = 'paid';
 
 - `rows`（预估）与 `actual ... rows`（实际）差一个数量级以上，说明统计信息不准，先 `ANALYZE TABLE` 或建直方图（`ANALYZE TABLE t UPDATE HISTOGRAM ON col`）
 - `actual time=a..b` 中 a 是返回第一行的耗时、b 是返回全部行的耗时（毫秒，包含子迭代器）；`loops` 大于 1 时是每次循环的平均值，乘以 `loops` 才是该节点总耗时
-- `EXPLAIN ANALYZE` 会真正执行语句，支持 `SELECT`、多表 `UPDATE` / `DELETE` 和 `TABLE`，生产环境慎用；它固定输出 TREE 格式
+- `EXPLAIN ANALYZE` 会真正执行语句，支持 `SELECT`、多表 `UPDATE` / `DELETE` 和 `TABLE`，生产环境慎用；默认输出 TREE 格式，8.3 起也支持 `FORMAT=JSON`（需 `explain_json_format_version=2`）
 
 ---
 

@@ -122,7 +122,7 @@ public final class GatewayMqttClient implements AutoCloseable {
 ```java
     private CompletableFuture<Mqtt5SubAck> subscribe() {
         // 共享订阅：同组多个实例分摊消息，每条只投递给组内一个实例
-        String filter = "$share/" + settings.sharedGroup() + "/devices/+/data";
+        String filter = "$share/" + settings.sharedGroup() + "/devices/+/telemetry";
         return client.subscribeWith()
                 .topicFilter(filter)
                 .qos(MqttQos.AT_LEAST_ONCE)
@@ -131,7 +131,7 @@ public final class GatewayMqttClient implements AutoCloseable {
 
     public CompletableFuture<?> sendCommand(String deviceId, String json) {
         return client.publishWith()
-                .topic("devices/" + deviceId + "/command")
+                .topic("devices/" + deviceId + "/cmd")
                 .qos(MqttQos.AT_LEAST_ONCE)
                 .messageExpiryInterval(300)               // 设备 5 分钟内没上线，指令自动作废
                 .payload(json.getBytes(StandardCharsets.UTF_8))
@@ -200,7 +200,7 @@ PEM 格式的证书和私钥先用 `openssl pkcs12 -export` 合成 PKCS12，比�
 
 ![Spring Integration MQTT 消息流](../assets/iot/mqtt-spring-integration.svg)
 
-入站：适配器订阅 `devices/+/data` 与 `devices/+/ota/status` 两个过滤器，消息进入路由器，按 `MqttHeaders.RECEIVED_TOPIC` 分发到遥测通道或 OTA 状态通道，每个通道只有一个处理器。出站：业务代码调用 `MqttGateway`，消息经出站通道交给 v5 出站 Handler 发布。两个方向共用一个 `ClientManager`，即一个 MQTT 连接。
+入站：适配器订阅 `devices/+/telemetry` 与 `devices/+/ota/status` 两个过滤器，消息进入路由器，按 `MqttHeaders.RECEIVED_TOPIC` 分发到遥测通道或 OTA 状态通道，每个通道只有一个处理器。出站：业务代码调用 `MqttGateway`，消息经出站通道交给 v5 出站 Handler 发布。两个方向共用一个 `ClientManager`，即一个 MQTT 连接。
 
 ### 2、依赖
 
@@ -271,7 +271,7 @@ public class MqttIntegrationConfig {
                                            MqttProperties props) {
         String share = "$share/" + props.sharedGroup() + "/";
         var adapter = new Mqttv5PahoMessageDrivenChannelAdapter(clientManager,
-                share + "devices/+/data",
+                share + "devices/+/telemetry",
                 share + "devices/+/ota/status");   // 两个过滤器都要订阅，否则 OTA 状态永远收不到
         adapter.setQos(1, 1);
         return IntegrationFlow.from(adapter)
@@ -338,7 +338,7 @@ public class TelemetryHandler {
 
     @ServiceActivator(inputChannel = "telemetryChannel")
     public void handle(@Header(MqttHeaders.RECEIVED_TOPIC) String topic, byte[] payload) {
-        String deviceId = topic.split("/")[1];   // devices/{deviceId}/data
+        String deviceId = topic.split("/")[1];   // devices/{deviceId}/telemetry
         // 只做轻量转发，按 deviceId 分区保证同一设备有序
         kafka.send("iot.telemetry", deviceId, new String(payload, StandardCharsets.UTF_8));
     }

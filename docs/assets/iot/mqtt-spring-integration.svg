@@ -35,7 +35,7 @@
   <text class="sub" x="450" y="134" text-anchor="middle">按 RECEIVED_TOPIC</text>
   <rect class="box" x="570" y="50" width="170" height="60" stroke="var(--y)"/>
   <text class="lbl" x="655" y="76" text-anchor="middle" fill="var(--y)">遥测处理</text>
-  <text class="sub" x="655" y="94" text-anchor="middle">devices/+/data</text>
+  <text class="sub" x="655" y="94" text-anchor="middle">devices/+/telemetry</text>
   <rect class="box" x="570" y="130" width="170" height="60" stroke="var(--y)"/>
   <text class="lbl" x="655" y="156" text-anchor="middle" fill="var(--y)">OTA 状态处理</text>
   <text class="sub" x="655" y="174" text-anchor="middle">devices/+/ota/status</text>

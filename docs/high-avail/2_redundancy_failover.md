@@ -164,8 +164,7 @@ readinessProbe:
 ```text
 vrrp_script chk_nginx {
     script "/etc/keepalived/check_nginx.sh"   # Nginx 进程不存在时返回非 0
-    interval 2
-    weight -20                                # 检查失败则降低优先级，触发切换
+    interval 2                                # 不配 weight：连续失败 fall 次即进入 FAULT，释放 VIP
     fall 3
     rise 2
 }
@@ -185,6 +184,8 @@ vrrp_instance VI_1 {
     }
 }
 ```
+
+两台都配 `state BACKUP` + `nopreempt` 时，降低优先级不会让对端接管（nopreempt 下对端不会因为优先级更高去抢），所以检测脚本**不配 `weight`**：脚本连续失败后本机进入 FAULT 状态、主动释放 VIP，Backup 收不到通告后接管。Nginx 恢复后本机回到 BACKUP，不会抢回 VIP。若希望主机恢复后自动抢回，就去掉 `nopreempt`，这时才可以用 `weight` 调优先级。
 
 ### 2、注册中心摘除的时效
 

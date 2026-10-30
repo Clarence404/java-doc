@@ -76,7 +76,7 @@ description: MQTT QoS 与会话、MQTT 5、协议选型、EMQX 与接入网关�
 
 ### Q6：共享订阅是什么？平台服务横向扩容时怎么消费设备消息？
 
-**一句话**：共享订阅让同一组的多个订阅者分摊消息，每条只投给其中一个；后端多实例都订阅 `$share/worker/devices/+/data`，就是天然的负载均衡。
+**一句话**：共享订阅让同一组的多个订阅者分摊消息，每条只投给其中一个；后端多实例都订阅 `$share/worker/devices/+/telemetry`，就是天然的负载均衡。
 
 - 不用共享订阅时，每个实例都订阅全量 Topic，消息被重复处理
 - 组内分配策略（随机、轮询、按 Client ID 哈希）由 Broker 决定，协议不规定
@@ -300,7 +300,7 @@ description: MQTT QoS 与会话、MQTT 5、协议选型、EMQX 与接入网关�
 
 ### Q24：EMQX 的认证和授权怎么分工？怎么限制设备只能访问自己的 Topic？
 
-**一句话**：认证回答「你是谁、能不能连」，授权回答「能发布 / 订阅哪些 Topic」；ACL 用 `${clientid}` 占位符只放行 `devices/${clientid}/...`，最后用 `no_match = deny` 加 `{deny, all}` 兜底。
+**一句话**：认证回答「你是谁、能不能连」，授权回答「能发布 / 订阅哪些 Topic」；ACL 用 `${clientid}` 占位符只放行 `devices/${clientid}/...` 与 `shadow/${clientid}/...`，用 `no_match = deny` 兜底。
 
 - 配置了认证器后，未通过认证的客户端直接被拒，不再需要单独的「禁止匿名」规则
 - 认证服务必须校验 clientid 与设备身份一致：否则设备拿 `+` 当 clientid，`devices/${clientid}/cmd` 就成了通配订阅

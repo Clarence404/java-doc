@@ -33,9 +33,9 @@ description: 热点 key 探测与治理、热点行更新、分桶库存、合�
 
 | 方式 | 原理 | 优点 | 缺点 |
 |------|------|------|------|
-| 客户端统计 | 应用内滑动窗口统计 key 访问次数 | 实现简单、无额外组件 | 单机视角，全局热点被分散到多实例后可能漏判 |
+| 客户端统计 | 应用内按时间窗口统计 key 访问次数；也可每次访问调 Redis 8 的 `TOPK.ADD` 上报、`TOPK.LIST` 取 Top-k | 实现简单、无额外组件 | 单机视角，全局热点被分散到多实例后可能漏判 |
 | 代理层统计 | Twemproxy / Codis / 自研 Proxy 统计 | 全局视角 | 需要代理层 |
-| Redis 自带 | `redis-cli --hotkeys`（需 `maxmemory-policy` 为 LFU 类策略）、`MONITOR`、Redis 8 的 Top-k（`TOPK.ADD` / `TOPK.LIST`） | 无需改代码 | `--hotkeys` 是离线扫描；`MONITOR` 严重影响性能，生产慎用 |
+| Redis 自带 | `redis-cli --hotkeys`（需 `maxmemory-policy` 为 LFU 类策略）、`MONITOR` | 无需改代码 | `--hotkeys` 是对线上实例的一次性全量扫描，非实时且有扫描开销；`MONITOR` 严重影响性能，生产慎用 |
 | 集中式探测 | 客户端上报访问 → 计算集群汇总 → 推送热点列表 | 全局准确、秒级 | 需部署独立组件 |
 
 ### 2、集中式探测：JD-hotkey 的思路
@@ -55,25 +55,38 @@ JD-hotkey 是集中式探测的典型实现：
 没有集中式组件时，可以先在单机做近似统计，访问次数超阈值就晋升到本地缓存：
 
 ```java
-/** 基于 Caffeine 的单机热点统计：约 1 秒窗口内访问超阈值即判定为热点 */
+/** 基于 Caffeine 的单机热点统计：1 秒窗口内访问超阈值即判定为热点，热点身份保留一段时间 */
 public class HotKeyDetector {
 
-    private static final int THRESHOLD = 500;
+    private static final int THRESHOLD = 50;   // 明显低于热点在单机分摊到的 QPS
 
     private final Cache<String, LongAdder> counter = Caffeine.newBuilder()
-            .expireAfterWrite(1, TimeUnit.SECONDS)   // 写入 1 秒后过期，近似滚动窗口
+            .expireAfterWrite(1, TimeUnit.SECONDS)   // 写入 1 秒后过期，近似固定窗口
             .maximumSize(100_000)
             .build();
 
+    // 判定为热点后保留 30 秒，避免每个新窗口的前 THRESHOLD 次请求又打到 Redis
+    private final Cache<String, Boolean> hotKeys = Caffeine.newBuilder()
+            .expireAfterWrite(30, TimeUnit.SECONDS)
+            .maximumSize(10_000)
+            .build();
+
     public boolean isHot(String key) {
+        if (hotKeys.getIfPresent(key) != null) {
+            return true;
+        }
         LongAdder adder = counter.get(key, k -> new LongAdder());
         adder.increment();
-        return adder.sum() >= THRESHOLD;
+        if (adder.sum() >= THRESHOLD) {
+            hotKeys.put(key, Boolean.TRUE);
+            return true;
+        }
+        return false;
     }
 }
 ```
 
-阈值按"单实例 QPS × 该 key 占比"估算，并结合实例数：100 个实例时，全局 5 万 QPS 的热点在单机只有约 500 QPS。
+阈值按"单实例 QPS × 该 key 占比"估算，并结合实例数：100 个实例时，全局 5 万 QPS 的热点在单机只有约 500 QPS，阈值要明显低于这个值，否则每个窗口的前几百次请求仍会打到 Redis。
 
 ---
 

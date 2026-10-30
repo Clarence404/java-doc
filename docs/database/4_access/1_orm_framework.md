@@ -203,9 +203,6 @@ public void batchInsert(List<User> users) {
 自定义时继承 `BaseTypeHandler`，它已经处理了参数为 `null` 的情况，子类只需实现非空写入与可空读取：
 
 ```java
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
@@ -215,9 +212,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.json.JsonMapper;
+
 public abstract class JsonListTypeHandler<E> extends BaseTypeHandler<List<E>> {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = JsonMapper.builder().build();
 
     private final JavaType listType;
 
@@ -230,7 +231,7 @@ public abstract class JsonListTypeHandler<E> extends BaseTypeHandler<List<E>> {
             throws SQLException {
         try {
             ps.setString(i, MAPPER.writeValueAsString(parameter));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new SQLException("List 序列化为 JSON 失败", e);
         }
     }
@@ -256,7 +257,7 @@ public abstract class JsonListTypeHandler<E> extends BaseTypeHandler<List<E>> {
         }
         try {
             return MAPPER.readValue(json, listType);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new SQLException("JSON 解析为 List 失败: " + json, e);
         }
     }

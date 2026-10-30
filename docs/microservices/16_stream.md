@@ -60,7 +60,7 @@ public class OrderStreamConfig {
         return settleService::process;
     }
 
-    // Consumer = 消费者；方法名不能叫 notify，会与 Object.notify() 冲突而无法编译
+    // Consumer = 消费者；无参方法不能叫 notify / wait（与 Object 的 final 方法冲突，无法编译），带参数也建议避开
     @Bean
     public Consumer<SettleEvent> notifyUser(NotifyService notifyService) {
         return notifyService::send;
@@ -221,7 +221,7 @@ spring:
 
 - Stream 用 Binder 抽象屏蔽具体 MQ，业务只写 `Supplier` / `Function` / `Consumer`，Binding 名为 `<函数名>-in/out-<N>`
 - `@StreamListener` 等注解模型已在 Stream 4.0 移除；多个函数用 `spring.cloud.function.definition` 声明
-- 函数 Bean 不能命名为 `notify`、`wait` 等与 `Object` final 方法同名的名字；依赖通过 `@Bean` 方法参数注入
+- 无参的函数 Bean 方法不能命名为 `notify`、`wait` 等与 `Object` final 方法同名的名字，带参数的虽能编译也建议避开；依赖通过 `@Bean` 方法参数注入
 - 事件触发的发送用 `StreamBridge`，与本地事务的一致性用事务消息或 Outbox 解决
 - 消费 Binding 必须配置 group；分区抽象保证同一业务键有序，Kafka Binder 下交给 Kafka 原生分区
 - 重试耗尽进死信：Kafka 用 `enable-dlq`，RabbitMQ 用 `auto-bind-dlq`；消费逻辑必须幂等

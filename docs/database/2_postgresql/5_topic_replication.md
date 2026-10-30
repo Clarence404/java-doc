@@ -76,8 +76,8 @@ FROM pg_stat_replication;
 |----|-----------|-----------|
 | `off` | 不等本地 WAL 落盘（崩溃可能丢最近几百毫秒的已提交事务，但不会导致数据不一致） | 类似 `innodb_flush_log_at_trx_commit = 0` |
 | `local` | 本地 WAL 落盘 | “双 1”的单机部分 |
-| `remote_write` | 同步备库已收到并写入操作系统缓存（未 fsync） | 最接近 AFTER_SYNC 半同步（备库写入 relay log 后确认） |
-| `on`（默认） | 同步备库 WAL 已刷盘 | 强于 MySQL 半同步 |
+| `remote_write` | 同步备库已收到并写入操作系统缓存（未 fsync） | 弱于 MySQL 半同步：备库只写到 OS 缓存，备库主机宕机仍可能丢 |
+| `on`（默认） | 同步备库 WAL 已刷盘 | 与 AFTER_SYNC 半同步对等（备库把事件写入 relay log 并刷盘后确认） |
 | `remote_apply` | 同步备库已重放，备库上能读到 | MySQL 无直接对应 |
 
 `synchronous_commit` 可以按事务设置：核心交易保持同步，日志、埋点这类非关键写入在事务里执行 `SET LOCAL synchronous_commit = off;` 降低延迟。
@@ -183,7 +183,7 @@ spring.datasource.url=jdbc:postgresql://node1:5432,node2:5432,node3:5432/mydb?ta
 |---|---|---|
 | 复制载体 | WAL（物理）/ 逻辑解码 | binlog（逻辑，推荐 ROW） |
 | 位点 | LSN | GTID / 文件名 + 位置 |
-| 接近半同步的配置 | `synchronous_commit = remote_write` + `synchronous_standby_names` | semi-sync（AFTER_SYNC） |
+| 对等半同步的配置 | `synchronous_commit = on` + `synchronous_standby_names` | semi-sync（AFTER_SYNC） |
 | 备库重放 | startup 单进程重放；写入量大或与备库查询冲突时可能积压 | 8.0.27 起默认多线程应用（`replica_parallel_workers = 4`） |
 | 自动故障切换 | 需 Patroni、CloudNativePG 等外部组件 | InnoDB Cluster（MGR + MySQL Shell + MySQL Router）或 Orchestrator 等 |
 | 跨版本复制 | 逻辑复制可跨任意受支持版本 | 支持从低版本源复制到高一个系列的副本（如 8.0 → 8.4 LTS → 9.x） |
@@ -197,7 +197,7 @@ MySQL 侧详见 [MySQL 主从与高可用](../1_mysql/9_topic_replication)。
 - PG 每连接一进程，生产必须两层池：HikariCP + PgBouncer；transaction 模式下的预编译语句需要 PgBouncer 1.21+ 或 `prepareThreshold=0`
 - WAL 同时承担崩溃恢复与复制，没有独立 binlog；物理复制让备库与主库逐字节一致
 - 搭建备库要准备 `REPLICATION` 角色和 `pg_hba.conf` 的 replication 条目，`hot_standby_feedback` 以主库膨胀为代价换备库查询不被取消
-- `synchronous_commit` 的远程级别只在配置了 `synchronous_standby_names` 时生效；默认 `on` 等待备库刷盘，`remote_write` 才是与 MySQL 半同步最接近的级别
+- `synchronous_commit` 的远程级别只在配置了 `synchronous_standby_names` 时生效；默认 `on` 等待备库刷盘，与 MySQL 半同步对等；`remote_write` 只等备库写到 OS 缓存，比半同步弱
 - 复制槽防止 WAL 被提前删除，也可能撑爆磁盘；用 `max_slot_wal_keep_size`（13+）、`idle_replication_slot_timeout`（18+）兜底并监控 `wal_status`
 - 逻辑复制需要主键或 REPLICA IDENTITY，不复制 DDL、序列和大对象；CDC 工具通过逻辑复制槽 + `pgoutput` 读取变更
 - 故障切换靠外部组件：Patroni 最常见，CloudNativePG 不依赖 Patroni；JDBC 可用多主机 + `targetServerType` 免代理

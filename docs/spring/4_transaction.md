@@ -213,7 +213,7 @@ Spring 参考文档建议：除非依赖「受检异常提交」的 EJB 式语�
 
 ### 3、超时与多数据源
 
-- `timeout`（秒）从事务开始计时，在下一次执行 SQL 时检查，超时抛 `TransactionTimedOutException`；它无法中断正在执行的慢 SQL 或方法中的非数据库耗时
+- `timeout`（秒）从事务开始计时：经 `JdbcTemplate`、MyBatis-Spring、JPA 执行 SQL 时，剩余时间会通过 `Statement#setQueryTimeout` 下发，慢 SQL 到点由驱动中断；执行前已超时则直接抛 `TransactionTimedOutException`。它管不到方法中的非数据库耗时，也管不到绕开 Spring 直接拿连接执行的 SQL
 - 多数据源时每个数据源一个事务管理器，`@Transactional` 默认使用 `@Primary` 的那个，访问其他数据源要显式指定：`@Transactional(transactionManager = "orderTxManager")`。一个 `@Transactional` 只能管理一个数据源，跨库一致性见 [分布式事务](/distributed/4_transaction)
 
 ---

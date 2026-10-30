@@ -150,8 +150,11 @@ WHEN NOT MATCHED THEN
 
 ```sql
 CREATE PUBLICATION pub_active_users FOR TABLE users (id, name, email)
-  WHERE (status = 'active');
+  WHERE (status = 'active')
+  WITH (publish = 'insert');
 ```
+
+发布默认也包含 UPDATE / DELETE，这时行过滤只能引用复制标识（replica identity，默认是主键）里的列，否则主库上对该表的 UPDATE / DELETE 会直接报错。所以上例只发布 INSERT；要同步更新和删除，就让过滤条件只用复制标识里的列，或设 `REPLICA IDENTITY FULL`（WAL 会明显变大）。
 
 ### 3、其他
 

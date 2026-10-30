@@ -121,7 +121,7 @@ Supplier<Stock> call = Retry.decorateSupplier(retry, () -> inventoryClient.query
 **重试预算**可以用令牌桶思路实现（gRPC 的 retryThrottling 与此类似）：
 
 ```java
-/** 重试预算示意：每次成功调用返还 ratio 个额度，每次重试消耗 1 个，额度不足则放弃重试 */
+/** 重试预算示意：每次成功调用返还 ratio 个额度，每次失败判定是否重试时消耗 1 个（最后一次失败也会扣，实际比按重试次数计更保守），额度不足则放弃重试 */
 public final class RetryBudget {
 
     private final double maxTokens;

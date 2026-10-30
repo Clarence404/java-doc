@@ -111,7 +111,7 @@ public class PayService {
     }
 
     public PayClient route(String channel) {
-        PayClient client = clients.get(channel + "Client")   // alipay → alipayClient;
+        PayClient client = clients.get(channel + "Client");  // alipay → alipayClient
         if (client == null) {
             throw new IllegalArgumentException("不支持的支付渠道: " + channel);
         }
@@ -346,7 +346,7 @@ public class TenantService {
 - **销毁顺序**：`@PreDestroy` → `DisposableBean#destroy` → 自定义 `destroy-method`；只有单例会被回调。`@Bean` 默认会推断名为 `close` 或 `shutdown` 的公共方法作为销毁方法
 
 ```java
-import jakarta.annotation.PostConstruct;   // Spring 6+ 只识别 jakarta 包
+import jakarta.annotation.PostConstruct;   // Framework 7 起只识别 jakarta 包
 import jakarta.annotation.PreDestroy;
 
 @Slf4j
@@ -556,7 +556,7 @@ public class DynamicDispatcher {
 ## 小结
 
 - `ApplicationContext.refresh()` 的关键是三步：第 5 步 BeanFactoryPostProcessor 把配置类解析成 `BeanDefinition`，第 6 步注册 BeanPostProcessor，第 11 步实例化全部非懒加载单例
-- 注入优先用构造器，可选依赖用 `ObjectProvider`，多实现用 `@Primary` / `@Qualifier` / `Map<String, T>`；Spring 6 起只识别 `jakarta.annotation.*`
+- 注入优先用构造器，可选依赖用 `ObjectProvider`，多实现用 `@Primary` / `@Qualifier` / `Map<String, T>`；Framework 7 起只识别 `jakarta.annotation.*`
 - `@Bean` 有 full / lite 两种模式，lite 模式下方法互调会创建新对象，依赖应写成方法参数；`@Import` 的 `ImportSelector` / `ImportBeanDefinitionRegistrar` 是 Boot 自动配置与 `@EnableXxx` 的基础
 - 单例依赖 prototype 用 `ObjectProvider` / `@Lookup`，依赖 request / session 作用域用作用域代理
 - 生命周期：实例化 → 属性填充 → Aware → 初始化前（含 `@PostConstruct`）→ 初始化 → 初始化后（生成 AOP 代理）→ 就绪 → 销毁

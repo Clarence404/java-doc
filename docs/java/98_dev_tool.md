@@ -305,7 +305,7 @@ limiter.acquire();
 |-------|----------|------|
 | `ImmutableList.of` / `ImmutableMap.of` | `List.of` / `Map.of` / `Set.copyOf`（不可修改、不允许 null） | 9 / 10 |
 | `Joiner.on(",").join(...)` | `String.join` / `Collectors.joining` | 8 |
-| `Strings.isNullOrEmpty` / `repeat` | `String.isBlank` / `String.repeat` | 11 |
+| `Strings.isNullOrEmpty` / `repeat` | `s == null \|\| s.isEmpty()`（`isBlank` 还会把纯空白当空，且要先判 null） / `String.repeat` | 11 |
 | `IntMath.checkedAdd` | `Math.addExact` / `Math.multiplyExact` | 8 |
 | `Files.asCharSource(...).read()` | `Files.readString` | 11 |
 | `Lists.newArrayList(...)` | `new ArrayList<>(List.of(...))` | 9 |

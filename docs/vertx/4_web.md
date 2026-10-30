@@ -37,7 +37,8 @@ public class ApiVerticle extends VerticleBase {
     // 1. 平台级 Handler：所有请求都经过
     router.route().handler(LoggerHandler.create());
     router.route().handler(ResponseTimeHandler.create());
-    router.route().handler(TimeoutHandler.create(5_000));          // 5s 未响应返回 503
+    // 5s 未响应返回 503；SSE 长连接排除在外，否则首条消息前就会被判超时
+    router.routeWithRegex("^(?!/api/stream/).*").handler(TimeoutHandler.create(5_000));
 
     // 2. 请求体：只挂在需要的路径上，排除流式上传的 /api/files/
     router.routeWithRegex("^/api/(?!files/).*")
@@ -323,7 +324,7 @@ Future<User> user = breaker.execute(() -> getUser(id))          // Supplier<Futu
 
 ### 1、SSE
 
-Vert.x Web 没有专门的 SSE Handler，用分块响应即可：
+Vert.x Web 没有专门的 SSE Handler，用分块响应即可。SSE 是长连接，路径 `/api/stream/` 已在第一节排除了 `TimeoutHandler`：
 
 ```java
 router.get("/api/stream/prices").handler(ctx -> {

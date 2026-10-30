@@ -134,7 +134,7 @@ public final class TokenProvider {
 
 - 测试账号是专用的，权限最小化，凭据放 CI 的 Secrets，不同环境用不同账号
 - 越权场景（普通用户访问管理接口、A 用户查 B 的订单）准备多个身份，每个身份单独缓存 token
-- token 不要打印到日志里；REST Assured 的日志过滤器可以用 `LogConfig.blacklistHeader("Authorization")` 屏蔽
+- token 不要打印到日志里；REST Assured 的日志过滤器可以用 `RestAssured.config().logConfig(LogConfig.logConfig().blacklistHeader("Authorization"))` 屏蔽
 
 ### 4、完整示例：下单接口
 
@@ -165,7 +165,7 @@ class OrderApiTest extends ApiTestSupport {
                 .body(matchesJsonSchemaInClasspath("schemas/order.json"))
                 .body("status", equalTo("CREATED"))
                 .body("items", hasSize(1))
-                .body("totalAmount", equalTo("199.00"))
+                .body("totalAmount", equalTo("199.00"))         // 约定金额按字符串输出，输出数字时见下方要点
                 .extract().jsonPath().getLong("id");
 
         given(spec)
@@ -204,7 +204,7 @@ class OrderApiTest extends ApiTestSupport {
 - **状态码 + 业务字段 + 结构**三层都断言：状态码说明协议层，`status` / `code` 说明业务结果，JSON Schema 说明结构没有被悄悄改掉
 - **JSON Schema 放 `src/test/resources/schemas/`**，校验必填字段、类型、枚举值；REST Assured 的 `json-schema-validator` 模块基于 draft-04，Schema 文件按这个版本写。有 OpenAPI 文档时可以从中导出，避免两份定义不一致
 - **只断言关心的字段**，不比对整个响应体，否则新增一个无关字段就会让所有用例失败
-- 金额用字符串或 `BigDecimal` 比较，不用浮点数
+- 金额用字符串或 `BigDecimal` 比较，不用浮点数；接口把金额输出成 JSON 数字时，REST Assured 默认按 `Float` 解析，要先配置 `JsonConfig.jsonConfig().numberReturnType(NumberReturnType.BIG_DECIMAL)`，再用 `equalTo(new BigDecimal("199.00"))` 断言
 
 ### 5、数据驱动：@ParameterizedTest
 

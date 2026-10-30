@@ -369,7 +369,7 @@ SDK 把这些状态码映射为具体异常，例如 OpenAI SDK 的 `BadRequestE
 
 ### 2、重试
 
-OpenAI 和 Anthropic 的 Java SDK 都内置重试：默认 2 次，对连接错误、429、5xx 等可重试错误做指数退避，并遵循 `retry-after` 响应头（OpenAI SDK 还会重试 408、409）。大多数情况下只需要调 `maxRetries` 和 `timeout`，不必自己写重试循环。
+OpenAI 和 Anthropic 的 Java SDK 都内置重试：默认 2 次，对连接错误、408、409、429 与 5xx 做指数退避，并遵循 `retry-after` 响应头。大多数情况下只需要调 `maxRetries` 和 `timeout`，不必自己写重试循环。
 
 需要自己控制的通常是更上层的策略：重试仍失败时切换备用模型、对非幂等的工具调用避免重复执行、给整次用户请求设总超时。这类逻辑用 Resilience4j 等组件实现，与 SDK 内置重试不要叠加过多层，否则一次失败会被放大成几十次请求。超时、重试与熔断的通用原则见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)。
 

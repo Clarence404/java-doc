@@ -55,7 +55,7 @@
   <text class="box-title" x="480" y="204" text-anchor="middle">推送 + 来源证明</text>
   <text class="desc" x="480" y="226" text-anchor="middle">记录 digest · SLSA</text>
   <rect x="210" y="178" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
-  <text class="box-title" x="290" y="204" text-anchor="middle">部署 staging</text>
+  <text class="box-title" x="290" y="204" text-anchor="middle">部署 test</text>
   <text class="desc" x="290" y="226" text-anchor="middle">按 digest 滚动更新</text>
   <rect x="20" y="178" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
   <text class="box-title" x="100" y="204" text-anchor="middle">发布后验证</text>
@@ -66,19 +66,19 @@
 
   <line x1="100" y1="242" x2="100" y2="290" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
   <text class="label" x="108" y="271">打 tag v*</text>
-  <text class="lane" x="750" y="280" text-anchor="end">阶段三：发布（同一 digest 晋级，人工审批）</text>
+  <text class="lane" x="750" y="280" text-anchor="end">阶段三：发布（tag 部署 staging，审批后晋级生产）</text>
   <rect x="20" y="292" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
   <text class="box-title" x="100" y="318" text-anchor="middle">解析 digest</text>
   <text class="desc" x="100" y="340" text-anchor="middle">不重新构建，只加版本标签</text>
   <rect x="210" y="292" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
-  <text class="box-title" x="290" y="318" text-anchor="middle">环境审批</text>
-  <text class="desc" x="290" y="340" text-anchor="middle">production 保护规则</text>
+  <text class="box-title" x="290" y="318" text-anchor="middle">部署 staging</text>
+  <text class="desc" x="290" y="340" text-anchor="middle">验收 · 回归</text>
   <rect x="400" y="292" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
-  <text class="box-title" x="480" y="318" text-anchor="middle">部署生产</text>
-  <text class="desc" x="480" y="340" text-anchor="middle">滚动 / 金丝雀</text>
+  <text class="box-title" x="480" y="318" text-anchor="middle">手动晋级</text>
+  <text class="desc" x="480" y="340" text-anchor="middle">production 审批</text>
   <rect x="590" y="292" width="160" height="64" rx="8" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
-  <text class="box-title" x="670" y="318" text-anchor="middle">验证或回滚</text>
-  <text class="desc" x="670" y="340" text-anchor="middle">rollout undo</text>
+  <text class="box-title" x="670" y="318" text-anchor="middle">部署生产</text>
+  <text class="desc" x="670" y="340" text-anchor="middle">验证失败 rollout undo</text>
   <line x1="180" y1="324" x2="208" y2="324" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
   <line x1="370" y1="324" x2="398" y2="324" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>
   <line x1="560" y1="324" x2="588" y2="324" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-cicd-pipe)"/>

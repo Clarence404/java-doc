@@ -195,6 +195,10 @@ services:
     <<: *emqx
     container_name: emqx1
     hostname: node1.emqx.local
+    # Docker 内置 DNS 不解析 hostname，节点名要配成网络别名才能互相解析
+    networks:
+      emqx-net:
+        aliases: [node1.emqx.local]
     environment: &emqx-env
       EMQX_NODE_NAME: emqx@node1.emqx.local
       EMQX_CLUSTER__DISCOVERY_STRATEGY: static
@@ -210,6 +214,9 @@ services:
     <<: *emqx
     container_name: emqx2
     hostname: node2.emqx.local
+    networks:
+      emqx-net:
+        aliases: [node2.emqx.local]
     environment:
       <<: *emqx-env
       EMQX_NODE_NAME: emqx@node2.emqx.local
@@ -220,6 +227,9 @@ services:
     <<: *emqx
     container_name: emqx3
     hostname: node3.emqx.local
+    networks:
+      emqx-net:
+        aliases: [node3.emqx.local]
     environment:
       <<: *emqx-env
       EMQX_NODE_NAME: emqx@node3.emqx.local

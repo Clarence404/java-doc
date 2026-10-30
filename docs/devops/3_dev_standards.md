@@ -62,8 +62,8 @@ boolean hasPermission;
 ```
 
 ```java
-// 反例：POJO 的布尔字段带 is 前缀，部分序列化框架会把属性名解析成 deleted 而不是 isDeleted
-private Boolean isDeleted;
+// 反例：POJO 的基本类型布尔字段带 is 前缀，getter 是 isDeleted()，部分序列化框架会把属性名解析成 deleted 而不是 isDeleted
+private boolean isDeleted;
 
 // 正例：字段名不带 is，getter 由 Lombok / IDE 按规范生成
 private boolean deleted;

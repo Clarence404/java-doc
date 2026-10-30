@@ -15,7 +15,7 @@ description: 表空间与页、行格式、Buffer Pool、Double Write、刷脏�
 ### 1、存储层次
 
 ```sql
--- 8.0 起默认每张表独立表空间（*.ibd 文件）
+-- 5.6.6 起默认每张表独立表空间（*.ibd 文件）
 SHOW VARIABLES LIKE 'innodb_file_per_table';  -- ON
 ```
 

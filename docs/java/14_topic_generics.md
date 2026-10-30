@@ -322,7 +322,7 @@ System.out.println(t);   // java.util.Map<java.lang.String, java.util.List<java.
 
 | 场景 | API |
 |------|-----|
-| Jackson 反序列化 | `mapper.readValue(json, new TypeReference<List<User>>() {})`；动态拼装用 `TypeFactory.constructCollectionType(List.class, User.class)` |
+| Jackson 反序列化 | `mapper.readValue(json, new TypeReference<List<User>>() {})`；动态拼装用 `mapper.getTypeFactory().constructCollectionType(List.class, User.class)` |
 | Spring `RestClient` / `RestTemplate` / `WebClient` | `new ParameterizedTypeReference<List<User>>() {}` |
 | Spring 内部解析泛型 | `ResolvableType.forField(field).resolveGeneric(0)`，可以沿继承链解析类型变量 |
 | Gson | `new TypeToken<List<User>>() {}.getType()`；动态拼装用 `TypeToken.getParameterized(List.class, User.class)` |

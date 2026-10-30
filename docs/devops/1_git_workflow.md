@@ -60,7 +60,7 @@ Git Flow 由 Vincent Driessen 在 2010 年提出，用 `main` 记录生产版本
 存量项目从 Git Flow 迁到 GitHub Flow 的步骤：
 
 1. 把 `develop` 合进 `main`，确认 `main` 可发布后冻结 `develop` 的写入
-2. 把 CI 中针对 `develop` 的触发条件改为针对 PR 与 `main`，部署改为「合并后部署到测试环境、按 tag 或审批晋级到生产」
+2. 把 CI 中针对 `develop` 的触发条件改为针对 PR 与 `main`，部署改为「合并后部署到测试环境、按 tag 晋级到预发、审批后晋级到生产」
 3. 正在开发的 `feature/*` 分支改为以 `main` 为目标重新提 PR
 4. 删除 `develop`，在仓库设置中把默认分支确认为 `main`
 

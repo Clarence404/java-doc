@@ -171,7 +171,7 @@ public class SafeSingleton implements Serializable {
 }
 ```
 
-构造方法里的检查只能挡住常规的反射调用，`Unsafe.allocateInstance` 之类的手段仍能绕过；需要严格防护时直接用枚举。
+构造方法里的检查只能挡住常规的反射调用，`Unsafe.allocateInstance` 之类的手段仍能绕过；DCL 的实例是懒创建的，反射抢在第一次 `getInstance()` 之前调用时检查看到的还是 null，同样拦不住。需要严格防护时直接用枚举。
 
 ### 7、五种实现对比
 
@@ -179,7 +179,7 @@ public class SafeSingleton implements Serializable {
 |------|---------|--------|---------|--------|---------|
 | 懒汉式 | 否 | 是 | 否 | 否 | 仅单线程环境 |
 | 饿汉式 | 是 | 否（首次访问类即创建） | 需 `readResolve` | 需构造方法检查 | 实例轻量、必然会用到 |
-| DCL | 是（必须 `volatile`） | 是 | 需 `readResolve` | 需构造方法检查 | 需要按参数延迟构造等 Holder 做不到的场景 |
+| DCL | 是（必须 `volatile`） | 是 | 需 `readResolve` | 构造方法检查挡不住「先反射、后 `getInstance()`」 | 需要按参数延迟构造等 Holder 做不到的场景 |
 | 静态内部类（Holder） | 是 | 是 | 需 `readResolve` | 需构造方法检查 | **首选**：普通懒加载单例 |
 | 枚举 | 是 | 否（首次访问枚举类即创建） | 是 | 是 | **首选**：需要防序列化 / 反射破坏 |
 
@@ -230,7 +230,7 @@ public class SafeSingleton implements Serializable {
 
 - 单例 = 私有构造 + 自持唯一实例 + 静态访问点；唯一性只在一个 ClassLoader 内成立
 - 普通懒加载用 Holder，要防序列化与反射用枚举；DCL 必须加 `volatile`，一般不作首选
-- 非枚举单例要防破坏：`readResolve` 挡反序列化，构造方法检查挡常规反射
+- 非枚举单例要防破坏：`readResolve` 挡反序列化，构造方法检查挡常规反射（DCL 只在实例已创建后才挡得住）
 - Spring 单例 Bean 是「每容器、每 bean 名一个」，Spring 应用里优先交给容器管理而不是手写
 
 ## 参考资料

@@ -101,7 +101,7 @@ try {
 // 多重捕获：多个不相关的异常共用一段处理逻辑，e 隐式为 final
 try {
     parseAndSave(input);
-} catch (JsonProcessingException | SQLException e) {
+} catch (JacksonException | SQLException e) {   // Jackson 3：tools.jackson.core.JacksonException
     throw new BusinessException("IMPORT_FAILED", "导入失败", e);
 }
 

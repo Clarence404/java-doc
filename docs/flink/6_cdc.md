@@ -83,7 +83,7 @@ binlog 格式与主从复制原理见 [MySQL 主从与高可用](/database/1_mys
 
 | 参数 | 默认 | 说明 |
 |------|------|------|
-| `server-id` | 5400–6400 随机 | CDC 以「伪从库」身份连接，**整个 MySQL 集群内唯一**；增量快照下配置区间（如 `5401-5404`），区间大小须大于源并行度 |
+| `server-id` | 5400–6400 随机 | CDC 以「伪从库」身份连接，**整个 MySQL 集群内唯一**；增量快照下配置区间（如 `5401-5404`），区间大小须 ≥ 源并行度 |
 | `scan.incremental.snapshot.chunk.size` | 8096 | 每个 chunk 行数；越大单次 SELECT 越久、checkpoint 越慢，越小 chunk 越多、元数据越大 |
 | `scan.incremental.snapshot.chunk.key-column` | 主键第一列 | 无主键表必须指定；用非主键列可能导致数据不一致 |
 | `scan.startup.mode` | `initial` | `initial` 全量 + 增量；`latest-offset` / `earliest-offset` / `specific-offset` / `timestamp` 只读 binlog；`snapshot` 只做全量 |
@@ -287,7 +287,7 @@ export FLINK_HOME=/opt/flink
 
 - Flink CDC 3.x 是基于 Flink 的数据集成框架：Source 连接器用于「CDC + 计算」，YAML Pipeline 用于整库同步、分表合并与 Schema 演进；3.6 同时支持 Flink 1.20 与 2.2，构件以 `-1.20` / `-2.2` 后缀区分
 - 无锁增量快照：按 chunk 并行读全量，用 LOW / HIGH 位点之间的 binlog 修正每个 chunk，之后单 reader 续读 binlog；不加读锁、可断点续传
-- MySQL 侧准备：最小权限账号、ROW + FULL 镜像、足够的 binlog 保留期、GTID；`server-id` 区间全集群唯一且大于并行度
+- MySQL 侧准备：最小权限账号、ROW + FULL 镜像、足够的 binlog 保留期、GTID；`server-id` 区间全集群唯一且大小 ≥ 并行度
 - 必须开 checkpoint：它既是增量阶段开始的前提，也是 Sink 提交和故障恢复的依据
 - Schema 演进默认 `lenient`，不丢数据；`drop.column` 通常排除；新增表要区分「只同步增量」与「补全量」两种开关
 - Sink：Paimon 精确一次，Doris / StarRocks 靠主键 upsert 幂等；Kafka Sink 默认全写 0 号分区，必须改为 `hash-by-key`

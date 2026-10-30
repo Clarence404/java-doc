@@ -353,7 +353,7 @@ description: 选型与架构、DataStream、水位线与窗口、状态与 Check
 
 **一句话**：账号要 `SELECT`、`SHOW DATABASES`、`REPLICATION SLAVE`、`REPLICATION CLIENT` 四个权限；binlog 要用 `ROW` 格式、`binlog_row_image = FULL`。CDC 是伪装成从库连 MySQL 的，`server-id` 必须在整个 MySQL 集群里唯一，冲突时连接会被踢掉。
 
-- `server-id` 配一个区间（如 `5401-5404`），区间大小要大于 Source 并行度；每个作业分配独立区间并登记
+- `server-id` 配一个区间（如 `5401-5404`），区间大小要 ≥ Source 并行度；每个作业分配独立区间并登记
 - binlog 保留时间要长于作业最长停机时间，否则恢复时找不到位点，只能重做全量
 - 有主从切换的场景要开启 GTID
 

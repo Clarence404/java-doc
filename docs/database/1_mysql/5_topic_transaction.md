@@ -362,7 +362,7 @@ KILL 12345;
 
 **常见根因**：`autocommit=0` 后忘记提交、事务内做 RPC 或长循环、`@Transactional` 包了不该包的慢逻辑（文件上传、外部接口调用）。
 
-> **实践守则**：事务内只做数据库操作，控制在毫秒到百毫秒级；监控 `innodb_trx` 中超过 N 秒的事务和 `Innodb_history_list_length`（未清理的 undo 历史长度），超阈值告警。
+> **实践守则**：事务内只做数据库操作，控制在毫秒到百毫秒级；监控 `innodb_trx` 中超过 N 秒的事务和 History list length（未清理的 undo 历史长度，查 `information_schema.INNODB_METRICS` 中 `NAME = 'trx_rseg_history_len'`，或看 `SHOW ENGINE INNODB STATUS`；`Innodb_history_list_length` 状态变量只有 Percona 版才有），超阈值告警。
 
 ---
 

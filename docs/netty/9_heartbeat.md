@@ -378,6 +378,11 @@ public class SessionManager {
         }
     }
 
+    /** 按用户查本机连接，不在本机时返回 null */
+    public Channel channelOf(String userId) {
+        return sessions.get(userId);
+    }
+
     public boolean push(String userId, Object msg) {
         Channel ch = sessions.get(userId);
         if (ch == null || !ch.isActive()) {

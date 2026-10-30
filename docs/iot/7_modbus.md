@@ -260,7 +260,7 @@ public class ModbusCollector implements SmartLifecycle {
     private void pollSafely(DeviceProfile device) {
         try {
             Map<String, Double> metrics = device.poll();   // 批量读取 + RegisterDecoder 解码
-            mqtt.publish("devices/" + device.id() + "/data", 0, Json.write(metrics));
+            mqtt.publish("devices/" + device.id() + "/telemetry", 0, Json.write(metrics));
         } catch (Exception e) {
             // 异常不能抛出，否则该任务会被调度器静默取消
             log.warn("采集失败 device={}", device.id(), e);

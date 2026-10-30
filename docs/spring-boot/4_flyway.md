@@ -63,7 +63,6 @@ db/migration/
 ├── V1__init_schema.sql
 ├── V1_1__add_user_phone.sql          # 版本 1.1
 ├── V2__create_order_tables.sql
-├── V3__Backfill_order_status.java    # Java 迁移也可以放在这里
 └── R__view_order_summary.sql         # 可重复迁移
 ```
 

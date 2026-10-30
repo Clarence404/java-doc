@@ -288,7 +288,7 @@ WHERE event_id IS NOT NULL
 
 - **去重状态在 Paimon 而不在 Flink**：等价于 Flink SQL 的 `ROW_NUMBER()` 去重，但不需要在 Flink 状态里存几亿个 `event_id`，也不用为状态 TTL 纠结
 - **下游只收到插入**：配合 `changelog-producer = 'lookup'`，流式读取 DWD 的下游只会看到每个主键的第一条 `+I` 记录，没有回撤，这是 DWS 能用简单累加的前提。`first-row` 只支持 `none` 和 `lookup` 两种 changelog 产出方式，流读必须用 `lookup`
-- **主键带上分区字段**：Paimon 分区表的主键必须包含分区字段，所以去重范围是"同一天内"。回放产生的重复事件 `server_ts` 不变、落在同一天，能被去掉；极少数跨零点的客户端重试会各留一条，可以接受
+- **主键带上分区字段**：固定桶（本表 `bucket = 8`）的 Paimon 分区表，主键必须包含分区字段，所以去重范围是"同一天内"。回放产生的重复事件 `server_ts` 不变、落在同一天，能被去掉；极少数跨零点的客户端重试会各留一条，可以接受
 - **可见性**：`first-row` 表的 level-0 文件要在 compaction 后才可见，默认同步 compaction，不要为了吞吐开启异步 compaction，否则下游会额外延迟
 
 ### 2、consumer-id
@@ -532,7 +532,7 @@ public class RealtimeMetricRepository {
 }
 ```
 
-`query(MinutePoint.class)` 对 record 使用 `DataClassRowMapper`，会把 `minute_ts` 这类下划线列名映射到 `minuteTs` 组件。
+`query(MinutePoint.class)` 对 record 使用 `SimplePropertyRowMapper`（构造器绑定），会把 `minute_ts` 这类下划线列名映射到 `minuteTs` 组件。
 
 ```java
 @Component

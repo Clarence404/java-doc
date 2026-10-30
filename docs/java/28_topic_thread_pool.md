@@ -583,7 +583,7 @@ private static void setOrClear(Map<String, String> context) {
 
 | 坑 | 现象 | 解决 |
 |----|------|------|
-| 使用 `Executors` 创建 | `newFixedThreadPool` / `newSingleThreadExecutor` 无界队列积压 OOM；`newCachedThreadPool` / `newScheduledThreadPool` 线程数无上限 | 手动 `new ThreadPoolExecutor`，有界队列 + 明确拒绝策略 |
+| 使用 `Executors` 创建 | `newFixedThreadPool` / `newSingleThreadExecutor` / `newScheduledThreadPool` 无界队列积压 OOM；`newCachedThreadPool` 线程数无上限 | 手动 `new ThreadPoolExecutor`，有界队列 + 明确拒绝策略 |
 | 父子任务共用一个线程池 | 父任务占满线程并等待子任务，子任务在队列里排队 → **线程池饥饿死锁** | 父子任务使用不同线程池，或改为 `CompletableFuture` 异步编排，不在池内阻塞等待 |
 | `submit` 后不调用 `get` | 异常被吞掉，问题无从排查 | 任务内 try-catch，或重写 `afterExecute` |
 | 周期任务抛异常 | 后续调度静默停止 | 任务体整体 try-catch |

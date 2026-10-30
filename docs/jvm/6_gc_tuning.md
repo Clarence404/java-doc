@@ -55,7 +55,7 @@ JDK 8 使用旧参数：
 -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=20M
 ```
 
-一条 G1 Young GC 的摘要日志（JDK 17，`-Xlog:gc`）大致如下，依次为 GC 编号、类型与原因、回收前 → 回收后（堆总大小）、停顿时长：
+一条 G1 Young GC 的摘要日志（JDK 17，`-Xlog:gc:file=gc.log:time,level,tags`）大致如下，依次为 GC 编号、类型与原因、回收前 → 回收后（堆总大小）、停顿时长：
 
 ```text
 [2025-03-01T10:15:30.123+0800][info][gc] GC(42) Pause Young (Normal) (G1 Evacuation Pause) 1843M->412M(4096M) 18.532ms

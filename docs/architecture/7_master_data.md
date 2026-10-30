@@ -83,7 +83,7 @@ JSON 列只解决「字段可扩展」，不解决查询性能：按 JSON 内的
 -- 做法一：固定的关键字段用生成列 + 唯一索引（如客户的统一社会信用代码）
 ALTER TABLE mdm_object
     ADD COLUMN credit_code VARCHAR(32)
-        GENERATED ALWAYS AS (ext_data ->> '$.creditCode') STORED,
+        GENERATED ALWAYS AS (NULLIF(ext_data ->> '$.creditCode', 'null')) STORED,   -- 值为 JSON null 时 ->> 返回字符串 'null'，转成 SQL NULL
     ADD UNIQUE KEY uk_type_credit (type_code, credit_code);   -- NULL 不参与唯一性比较
 
 -- 做法二：元数据里配置的唯一字段写入唯一键表，与正式数据同事务

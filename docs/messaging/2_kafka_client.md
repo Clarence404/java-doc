@@ -56,10 +56,10 @@ spring:
 @RequiredArgsConstructor
 public class OrderEventProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;      // Jackson 3：tools.jackson.databind.json.JsonMapper
 
-    public CompletableFuture<SendResult<String, String>> sendOrderCreated(Order order) throws JsonProcessingException {
-        String payload = objectMapper.writeValueAsString(order);
+    public CompletableFuture<SendResult<String, String>> sendOrderCreated(Order order) {
+        String payload = jsonMapper.writeValueAsString(order);   // Jackson 3 的异常是非受检的
         // key = orderId：同一订单的消息落到同一分区，保证分区内有序
         return kafkaTemplate.send("order-events", order.getId().toString(), payload)
             .whenComplete((result, ex) -> {
@@ -85,12 +85,12 @@ public class OrderEventProducer {
 @RequiredArgsConstructor
 public class OrderEventConsumer {
     private final OrderService orderService;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     @KafkaListener(topics = "order-events", groupId = "order-processor",
                    concurrency = "3")   // 3 个消费线程，超过分区数的线程会空闲
     public void consume(ConsumerRecord<String, String> record) throws Exception {
-        OrderEvent event = objectMapper.readValue(record.value(), OrderEvent.class);
+        OrderEvent event = jsonMapper.readValue(record.value(), OrderEvent.class);
         orderService.handle(event);     // 内部做幂等，见第二节
         // 正常返回 → 容器提交 offset；抛异常 → 交给 DefaultErrorHandler 重试 / 进死信
     }
@@ -131,8 +131,8 @@ public class KafkaErrorConfig {
         backOff.setMaxInterval(10000);
 
         DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backOff);
-        // 重试也没用的异常，直接进死信
-        handler.addNotRetryableExceptions(JsonProcessingException.class, IllegalArgumentException.class);
+        // 重试也没用的异常，直接进死信（JacksonException 为 Jackson 3 的 tools.jackson.core.JacksonException）
+        handler.addNotRetryableExceptions(JacksonException.class, IllegalArgumentException.class);
         return handler;
     }
 }

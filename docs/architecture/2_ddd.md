@@ -173,6 +173,9 @@ public class Order {                                          // 聚合根
         return copy;
     }
 
+    /** 仅供仓储在写库成功后回写版本号，避免同一用例里再次 save 时重复 INSERT 或被误判为并发修改 */
+    public void syncVersion(long version) { this.version = version; }
+
     public OrderId getId() { return id; }
     public Long getVersion() { return version; }
     public List<OrderLine> getLines() { return Collections.unmodifiableList(lines); }
@@ -235,8 +238,11 @@ public class OrderRepositoryImpl implements OrderRepository {
         OrderPO po = OrderPO.from(order);
         if (order.getVersion() == null) {                     // 新建：不能用 version == 0 判断，入库后的初始版本也是 0
             orderMapper.insert(po);
-        } else if (orderMapper.updateWithVersion(po) == 0) {   // WHERE id = ? AND version = ?
+            order.syncVersion(0L);
+        } else if (orderMapper.updateWithVersion(po) == 0) {   // WHERE id = ? AND version = ?，SET version = version + 1
             throw new OptimisticLockingFailureException("订单已被并发修改: " + order.getId());
+        } else {
+            order.syncVersion(order.getVersion() + 1);
         }
         lineMapper.replaceAll(po.getId(), OrderLinePO.from(order.getLines()));
     }

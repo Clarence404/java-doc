@@ -388,7 +388,7 @@ public class OrderSimulation extends Simulation {
 - `injectOpen` 里的「用户」是按到达率注入的，每个用户走完场景就结束，对应 k6 的到达率执行器；`rampUsersPerSec(...).to(...)` 是到达率的线性爬坡。
 - `#{userId}` 是 Gatling 表达式语言，引用 Feeder 或 `saveAs` 存入会话的值。
 - 任意一条断言失败，本次模拟就判定为失败，可用作 CI 门禁。运行结束后在 `target/gatling/` 下生成 HTML 报告。
-- 字段初始化先于实例初始化块执行，所以 `setUp` 写在初始化块里可以安全引用上面的字段。
+- 字段初始化与实例初始化块按书写顺序执行，字段写在初始化块之前，所以 `setUp` 写在初始化块里可以安全引用上面的字段。
 
 ---
 

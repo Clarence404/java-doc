@@ -27,7 +27,7 @@ java.io 面向阻塞的流，java.nio 面向缓冲区与通道并用 Selector �
 | `ObjectInputStream / ObjectOutputStream` | Java 原生序列化，见 [序列化](./19_topic_serialization) |
 | `ByteArrayInputStream / ByteArrayOutputStream` | 内存字节数组，常用于拼装报文 |
 
-JDK 9 起 `InputStream` 自带 `readAllBytes()`、`readNBytes(n)`、`transferTo(out)`，不必再手写 `while (read != -1)` 循环。
+JDK 9 起 `InputStream` 自带 `readAllBytes()`、`transferTo(out)`，JDK 11 又加了 `readNBytes(n)`，不必再手写 `while (read != -1)` 循环。
 
 ### 2、字符流核心类
 

@@ -546,7 +546,7 @@ JDK 13+ 需要加 JVM 参数 `-XX:+AllowRedefinitionToAddDeleteMethods`（如配
 | 能力 | 版本要求 | 说明 |
 |------|----------|------|
 | `boundedElastic` 基于虚拟线程 | Reactor 3.6+，Java 21+ | 设置系统属性 `-Dreactor.schedulers.defaultBoundedElasticOnVirtualThreads=true`，`Schedulers.boundedElastic()` 改为每个任务新建一个虚拟线程（不再保留空闲线程池），包装阻塞调用的成本更低 |
-| WebFlux 阻塞控制器方法放到独立执行器 | Framework 6.1+ / Boot 3.2+ | 返回值不是响应式类型的控制器方法被视为阻塞方法，通过 `WebFluxConfigurer#configureBlockingExecution` 指定执行器；Boot 自动使用 `applicationTaskExecutor`，开启 `spring.threads.virtual.enabled=true` 后即为虚拟线程 |
+| WebFlux 阻塞控制器方法放到独立执行器 | Framework 6.1+ / Boot 3.2+ | 返回值不是响应式类型的控制器方法被视为阻塞方法，通过 `WebFluxConfigurer#configureBlockingExecution` 指定执行器；没有自定义 `Executor` 时 Boot 自动使用 `applicationTaskExecutor`，开启 `spring.threads.virtual.enabled=true` 后即为虚拟线程 |
 
 虚拟线程让「阻塞式写法 + 高并发」变得廉价，削弱了为扩展性而引入 WebFlux 的理由；但背压、流式处理、取消传播、组合多个异步源这些能力仍是响应式独有的。
 

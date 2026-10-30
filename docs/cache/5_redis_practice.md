@@ -58,9 +58,9 @@ Lettuce 默认所有线程**共享一条**基于 Netty 的连接（`shareNativeC
 | 同步 / 异步 / 响应式 | 都支持 | 只有同步 |
 | Spring Boot 默认 | 是 | 否，需排除 Lettuce 后引入 |
 | Cluster 拓扑刷新 | 支持自适应刷新 | 支持 |
+| 推荐 | 首选 | 兼容老项目 |
 
 连接池大小的经验值：Jedis 每条命令独占一个连接，`maxTotal` 约等于访问 Redis 的线程峰值；Redisson 用 `connectionPoolSize`（默认 64）和 `connectionMinimumIdleSize`（默认 24）控制每个节点的连接数，一般保持默认即可。
-| 推荐 | 首选 | 兼容老项目 |
 
 ### 3、RedisTemplate 序列化
 
@@ -156,8 +156,8 @@ public class CacheConfig {
 @Service
 public class ProductService {
 
-    @Cacheable(cacheNames = "product", key = "#id", unless = "#result == null", sync = true)
-    public Product getById(Long id) { ... }        // sync = true：同一 key 并发未命中时只放一个线程查库
+    @Cacheable(cacheNames = "product", key = "#id", sync = true)
+    public Product getById(Long id) { ... }        // sync = true：同一 key 并发未命中时只放一个线程查库；不能再加 unless
 
     @Transactional
     @CacheEvict(cacheNames = "product", key = "#product.id")
@@ -168,6 +168,8 @@ public class ProductService {
     public void delete(Long id) { ... }
 }
 ```
+
+`sync = true` 不能和 `unless` 同时使用，否则启动时抛 `IllegalStateException`；上例去掉了 `unless`，查不到时缓存 `NullValue` 占位，顺带挡住穿透。若必须按结果决定是否缓存，就去掉 `sync`，改用分布式锁等方式防击穿。
 
 更新时用 `@CacheEvict` 删缓存，而不是 `@CachePut` 写缓存：两个并发更新的「写库」与「写缓存」可能交错，导致缓存里留下旧值且长期不过期；删除后由下一次读请求回填，配合 TTL 可以收敛。这仍是最终一致而非强一致，并发窗口、延迟双删和基于 binlog 的失效方案见 [缓存一致性](./10_cache_consistency)。
 

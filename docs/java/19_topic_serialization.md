@@ -283,7 +283,7 @@ try (ObjectInputStream in = new ObjectInputStream(input)) {
 - **拷贝构造器或静态工厂**：`new Order(other)`，嵌套对象逐层显式拷贝，意图清楚
 - 慎用 `clone()`：浅拷贝、绕过构造器、与 `final` 字段冲突（《Effective Java》第 13 条）
 - MapStruct 等映射工具**不是深拷贝工具**：同类型的嵌套属性默认直接复制引用，集合会新建但元素仍是同一批对象
-- Jackson 的 `convertValue` 在目标类型与源对象类型相同时直接返回原对象；需要 JSON 往返时用 `readValue(writeValueAsBytes(obj), Type.class)`
+- Jackson 的 `convertValue` 会经序列化重建对象（2.10 之前类型相同时直接返回原对象），但它不是专门的深拷贝工具；需要 JSON 往返时用 `readValue(writeValueAsBytes(obj), Type.class)`
 
 ---
 

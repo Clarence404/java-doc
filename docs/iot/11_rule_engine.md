@@ -28,7 +28,7 @@ SELECT
   clientid,
   payload.temperature AS temperature
 FROM
-  "devices/+/data"
+  "devices/+/telemetry"
 WHERE
   payload.temperature > 80
 ```
@@ -221,7 +221,7 @@ public class ActionDispatcher {
             }
             switch (action) {
                 case AlarmAction a -> notifier.send(a.receiver(), Templates.render(a.template(), msg));
-                case CommandAction c -> mqtt.publish("devices/" + c.targetDeviceId() + "/command", 1, c.command());
+                case CommandAction c -> mqtt.publish("devices/" + c.targetDeviceId() + "/cmd", 1, c.command());
                 case WebhookAction w -> webhookPool.submit(() -> callWebhook(w, msg));
             }
         }

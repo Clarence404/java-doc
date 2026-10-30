@@ -120,6 +120,9 @@ public class DeptDataPermissionHandler implements MultiDataPermissionHandler {
         if (scope.all()) {
             return null;                                  // 全部数据权限
         }
+        if (scope.deptIds().isEmpty()) {                  // 没有任何部门权限：返回恒假条件，避免生成语法错误的 IN ()
+            return new EqualsTo(new LongValue(1), new LongValue(0));
+        }
         Column deptId = new Column(table, "dept_id");     // 有别名时按别名限定列
         List<LongValue> ids = scope.deptIds().stream().map(LongValue::new).toList();
         return new InExpression(deptId, new ParenthesedExpressionList<>(ids));

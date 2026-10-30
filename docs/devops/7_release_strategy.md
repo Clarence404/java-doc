@@ -380,7 +380,7 @@ spec:
   metrics:
     - name: success-rate
       interval: 1m                    # 每分钟查一次
-      failureLimit: 2                 # 累计失败 2 次即判定分析失败
+      failureLimit: 2                 # 允许失败 2 次，第 3 次失败才判定分析失败
       successCondition: result[0] >= 0.99
       provider:
         prometheus:

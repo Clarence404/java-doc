@@ -142,7 +142,7 @@ public class OrderAsyncListener {
 }
 ```
 
-- Spring Boot 已自动配置名为 `applicationTaskExecutor` 的执行器，`@Async` 不指定名称时使用它，线程池参数用 `spring.task.execution.pool.*` 调整；开启 `spring.threads.virtual.enabled=true` 后改为虚拟线程执行，见 [虚拟线程](/java/30_topic_virtual_thread)
+- 容器里没有自定义 `Executor` 时，Spring Boot 自动配置名为 `applicationTaskExecutor` 的执行器，`@Async` 不指定名称时使用它（像上面这样声明了 `eventExecutor` 后自动配置会退让，不指定名称的 `@Async` 也会落到 `eventExecutor`），线程池参数用 `spring.task.execution.pool.*` 调整；开启 `spring.threads.virtual.enabled=true` 后改为虚拟线程执行，见 [虚拟线程](/java/30_topic_virtual_thread)
 - 异步监听器的异常**不会**传回发布方，`void` 方法的异常交给 `AsyncUncaughtExceptionHandler`（默认只打日志），需要实现 `AsyncConfigurer` 自定义处理与告警
 - 异步执行时 `ThreadLocal` 中的内容（如 `SecurityContext`、MDC 中的 traceId）不会自动传递，需要 `TaskDecorator` 处理，见 [日志 · traceId](/spring-boot/9_logging)
 - 线程池参数怎么定、拒绝策略怎么选见 [线程池](/java/28_topic_thread_pool)

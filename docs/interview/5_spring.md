@@ -63,7 +63,7 @@ description: IoC、Bean 生命周期、AOP、事务、MVC、常用组件、WebFl
 - 都匹配不上时 `@Autowired` 抛 `NoUniqueBeanDefinitionException`
 - 策略分发时可以直接注入 `Map<String, T>`（key 是 Bean 名）或 `List<T>`，比手动 `getBean` 好测试
 
-**常见坑**：Spring 6 起只认 `jakarta.*`，残留的 `javax.annotation.Resource` / `PostConstruct` 会被直接忽略，不报错。
+**常见坑**：Framework 7（Boot 4）起只认 `jakarta.*`，残留的 `javax.annotation.Resource` / `PostConstruct` 会被直接忽略，不报错。
 
 → 详见 [IoC 容器](/spring/1_ioc#_2、多个候选-bean-的消歧义)
 

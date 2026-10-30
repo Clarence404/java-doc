@@ -45,9 +45,9 @@ CI/CD 把代码从提交到上线的构建、测试、部署串成自动化流�
 | 事件 | 跑什么 | 产出 |
 |------|--------|------|
 | PR 指向 main（含后续推送） | 构建、测试、质量门禁、安全扫描 | 检查结果，作为分支保护的必需检查 |
-| 推送到 main（即 PR 合并） | 同上，再构建镜像、签发来源证明、部署 staging | 镜像 `sha-<commit>` 及其 digest |
-| 推送 tag `v*` | 解析该提交已有镜像的 digest，加版本标签，审批后部署生产 | 镜像 `1.4.0`（与 `sha-<commit>` 同一 digest） |
-| 手动 `workflow_dispatch` | 重新部署某个 digest，用于回滚或补发 | 无新制品 |
+| 推送到 main（即 PR 合并） | 同上，再构建镜像、签发来源证明、部署 test | 镜像 `sha-<commit>` 及其 digest |
+| 推送 tag `v*` | 解析该提交已有镜像的 digest，加版本标签，部署 staging | 镜像 `1.4.0`（与 `sha-<commit>` 同一 digest） |
+| 手动 `workflow_dispatch`（选择 tag） | staging 验收后审批晋级生产；也用于回滚或补发 | 无新制品 |
 
 几点约定：
 
@@ -187,15 +187,15 @@ jobs:
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
-  deploy-staging:
-    name: 部署 staging
+  deploy-test:
+    name: 部署 test
     needs: image
     uses: ./.github/workflows/deploy.yml
     permissions:
       contents: read
       id-token: write
     with:
-      environment: staging
+      environment: test
       image: ghcr.io/acme/order-service@${{ needs.image.outputs.digest }}
 ```
 
@@ -227,7 +227,7 @@ jobs:
 
 部署 Job 需要集群凭证，但不把 kubeconfig 或 AccessKey 存进 Secrets：Job 申请 `id-token: write`，用 `aws-actions/configure-aws-credentials` 拿 GitHub 签发的 OIDC 令牌换一份短期临时凭证，再现取 kubeconfig（见下面 deploy.yml 的前三步）。云端身份提供商、按 `sub` 拆角色的信任策略与 `sub` 格式变化见 [IaC 工程实践 · OIDC：不在仓库里存长期密钥](/cloud-native/12_iac_practice#_1、oidc-不在仓库里存长期密钥)。
 
-### 2、deploy.yml：被 staging 和生产共用
+### 2、deploy.yml：被各环境共用
 
 ```yaml
 # .github/workflows/deploy.yml
@@ -304,13 +304,13 @@ jobs:
 
 要点：
 
-- **环境级变量**：`vars.K8S_NAMESPACE`、`vars.DEPLOY_ROLE_ARN` 等配置在 GitHub 的 Environment 上，staging 与 production 各一套，同一份 Workflow 自动取到对应值；这里只放非敏感配置
-- **环境保护**：`production` 环境配置必需审批人、禁止自审、只允许 tag `v*` 部署；审批通过前 Job 不会开始，也拿不到 OIDC 令牌
+- **环境级变量**：`vars.K8S_NAMESPACE`、`vars.DEPLOY_ROLE_ARN` 等配置在 GitHub 的 Environment 上，test、staging 与 production 各一套，同一份 Workflow 自动取到对应值；这里只放非敏感配置
+- **环境保护**：`production` 环境配置必需审批人、禁止自审、只允许 tag `v*` 部署（晋级时在 tag 上手动运行 release.yml）；审批通过前 Job 不会开始，也拿不到 OIDC 令牌
 - **变更记录**：`--record` 自 kubectl 1.22 起已废弃，改为写 `kubernetes.io/change-cause` 注解，`kubectl rollout history` 中即可看到每个版本的来源
 - **指标口径**：Spring Boot 通过 Micrometer 暴露的是 `http_server_requests_seconds_count`，错误率必须是「5xx 速率 / 总速率」的比值；`job` 标签取决于 Prometheus 的抓取配置。`jq -r` 去掉引号，`// "0"` 处理无数据的情况，比较用 `awk`，不依赖 `bc`
 - **边界**：这只是滚动更新加一道指标检查，不是金丝雀。按流量比例放量、自动分析和中止属于渐进式交付，用 Argo Rollouts 或网关权重实现，见 [发布策略](./7_release_strategy)；Deployment、探针与滚动参数见 [Kubernetes](/cloud-native/6_kubernetes)
 
-### 3、release.yml：tag 触发，晋级同一个 digest
+### 3、release.yml：tag 部署 staging，手动晋级生产
 
 ```yaml
 # .github/workflows/release.yml
@@ -318,7 +318,8 @@ name: Release
 
 on:
   push:
-    tags: ['v*']
+    tags: ['v*']            # 推 tag：部署 staging
+  workflow_dispatch:        # staging 验收后，在 Actions 页面选同一个 tag 手动运行：晋级生产
 
 permissions:
   contents: read
@@ -352,9 +353,22 @@ jobs:
           docker buildx imagetools create --tag "${IMAGE}:${GITHUB_REF_NAME#v}" "$SRC"
           echo "digest=${DIGEST}" >> "$GITHUB_OUTPUT"
 
+  deploy-staging:
+    name: 部署 staging
+    needs: promote
+    if: ${{ github.event_name == 'push' }}
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      environment: staging
+      image: ghcr.io/acme/order-service@${{ needs.promote.outputs.digest }}
+
   deploy-production:
     name: 部署生产
     needs: promote
+    if: ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/v') }}
     uses: ./.github/workflows/deploy.yml
     permissions:
       contents: read
@@ -364,7 +378,7 @@ jobs:
       image: ghcr.io/acme/order-service@${{ needs.promote.outputs.digest }}
 ```
 
-`imagetools create` 只是给已有清单加一个标签，digest 不变，所以 `1.4.0` 与 `sha-<commit>` 指向同一份字节。调用可复用工作流时 `with` 中不能使用 `env` 上下文，因此镜像名写成字面量（也可以放进仓库变量 `vars`）。版本号规则与镜像标签策略见 [制品与版本管理](./5_artifact_version)。
+`imagetools create` 只是给已有清单加一个标签，digest 不变，所以 `1.4.0` 与 `sha-<commit>` 指向同一份字节；手动运行时重复打同一个标签，结果不变。推 tag 只部署 staging，生产要在 staging 验收后手动运行、再经过 `production` 环境的审批，两次部署的是同一个 digest。调用可复用工作流时 `with` 中不能使用 `env` 上下文，因此镜像名写成字面量（也可以放进仓库变量 `vars`）。版本号规则与镜像标签策略见 [制品与版本管理](./5_artifact_version)。
 
 ---
 
@@ -506,8 +520,20 @@ pipeline {
                     }
                 }
 
-                stage('部署 staging') {
+                stage('部署 test') {
                     when { branch 'main' }
+                    steps {
+                        withKubeConfig([credentialsId: 'kubeconfig-test']) {
+                            sh '''
+                                kubectl -n test set image deployment/order-service app="$IMAGE:sha-$GIT_COMMIT"
+                                kubectl -n test rollout status deployment/order-service --timeout=5m
+                            '''
+                        }
+                    }
+                }
+
+                stage('部署 staging') {
+                    when { tag 'v*' }
                     steps {
                         withKubeConfig([credentialsId: 'kubeconfig-staging']) {
                             sh '''
@@ -526,7 +552,7 @@ pipeline {
                 beforeInput true
             }
             input {
-                message '确认部署到生产环境？'
+                message 'staging 验收通过，确认晋级到生产环境？'
                 ok '发布'
                 submitter 'release-managers'
             }
@@ -556,7 +582,7 @@ pipeline {
 
 - **审批不占执行器**：顶层 `agent none`，生产阶段的 `input` 在分配 Agent 之前执行，等审批的几个小时里不占用构建机；`beforeInput true` 让非 tag 构建在弹出审批前就跳过
 - **密钥不插值**：`docker login` 放在单引号 `sh` 中、用 `--password-stdin`，避免密钥出现在命令行和 Jenkins 的不安全插值警告里
-- **显式命名空间**：每条 kubectl 都带 `-n`，不依赖 kubeconfig 的当前上下文；staging 与生产使用不同的凭证
+- **显式命名空间**：每条 kubectl 都带 `-n`，不依赖 kubeconfig 的当前上下文；各环境使用不同的凭证
 - **覆盖率**：旧的 JaCoCo 插件已停止维护，改用 Coverage 插件的 `recordCoverage`
 - **制品不可变**：镜像标签用 `sha-<commit>`，镜像仓库开启标签不可变（Harbor、ECR 都支持），tag 构建部署的就是 main 上已构建的那个镜像
 
@@ -615,7 +641,7 @@ deploy-production:
 
 - `workflow.rules` 只为 MR、默认分支和 `v*` tag 创建流水线，不会出现分支流水线与 MR 流水线重复
 - `id_tokens` 让 GitLab 签发带指定 `aud` 的 JWT，AWS CLI 读取 `AWS_WEB_IDENTITY_TOKEN_FILE` 与 `AWS_ROLE_ARN` 后自动换取临时凭证；`DEPLOY_ROLE_ARN` 等放在 CI/CD 变量中
-- `production` 设为受保护环境并指定可部署人员，`when: manual` 的按钮才只对他们可点
+- `production` 设为受保护环境并指定可部署人员，`when: manual` 的按钮才只对他们可点；test（默认分支）与 staging（tag）的部署 Job 写法相同，只换 `environment`、命名空间并去掉 `when: manual`，tag 流水线先自动部署 staging，验收后再点生产
 - 镜像构建 Job 可用 Docker-in-Docker 或 Buildah，思路与 GitHub Actions 相同，此处从略
 
 ---
@@ -624,7 +650,7 @@ deploy-production:
 
 - **折叠的 `run:` 加反斜杠**：`run: kubectl set image deployment/app \` 后面换行续写，没有 `|` 时 YAML 会把换行折叠成空格，Shell 收到的是「反斜杠 + 空格」，参数被拆坏。多行命令一律写 `run: |`
 - **部署 `latest`**：标签内容会变，无法追溯也无法回滚；而且 Deployment 中的镜像字符串不变，`kubectl set image` 不会触发滚动更新。按 digest 或 `sha-<commit>` 部署
-- **发布时重新构建**：tag 触发重新 `mvn package` 和 `docker build`，产出的 digest 与 staging 验证过的不同。tag 只做晋级
+- **发布时重新构建**：tag 触发重新 `mvn package` 和 `docker build`，产出的 digest 与 test 验证过的不同。tag 只做晋级
 - **错误率用绝对值**：`rate(...{status=~"5.."}[5m]) > 0.01` 比较的是每秒请求数，不是百分比；`jq` 不加 `-r` 输出带引号的字符串，后续数值比较直接报错
 - **以为 `rollout status` 会推进发布**：它只是等待并观察当前滚动更新结束，不会「全量」任何东西
 - **Secrets 在 fork PR 中为空**：Sonar、镜像推送这类需要密钥的 Step 要加条件跳过，否则外部贡献者的 PR 永远红
@@ -635,9 +661,9 @@ deploy-production:
 
 ## 小结
 
-- 主干开发下流水线只有三种触发：PR 跑门禁，合并到 main 构建一次并部署 staging，tag 晋级同一个 digest 到生产
+- 主干开发下流水线按事件触发：PR 跑门禁，合并到 main 构建一次并部署 test，tag 把同一个 digest 晋级到 staging，验收后手动审批晋级生产
 - Workflow 默认 `contents: read`，写权限按 Job 申请；`concurrency` 让 PR 只保留最新运行、同一环境串行部署；矩阵、依赖缓存和镜像层缓存控制耗时
-- 部署用 OIDC 换短期凭证，环境保护规则决定谁能拿到生产凭证；部署逻辑抽成可复用工作流，staging 与生产共用一份
+- 部署用 OIDC 换短期凭证，环境保护规则决定谁能拿到生产凭证；部署逻辑抽成可复用工作流，各环境共用一份
 - 推送式简单直接，拉取式 GitOps 把集群凭证留在集群内，适合多集群与严格隔离
 - 流水线本身是攻击面：第三方 Action 固定到提交 SHA，不在 `pull_request_target` 中执行 fork 代码，用户输入经环境变量进入 Shell
 - 门禁配置、发布策略、制品签名、环境划分各有归属文章，流水线只负责把它们串起来

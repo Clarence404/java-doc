@@ -23,7 +23,7 @@ Spring Cache 是基于 AOP 的缓存抽象。本篇讲注解语义与 SpEL Key�
 
 - `cacheNames` 与 `value` 互为别名，推荐写 `cacheNames`，语义更清楚
 - 一个 `cacheName` 对应 Redis 中的一个 Key 前缀（默认 `users::`），对应 Caffeine 中的一个独立 Cache 实例
-- 除了普通返回值，Framework 6.1 起 `@Cacheable` 也支持 `CompletableFuture`、`Mono`、`Flux` 返回类型（需要底层 Cache 支持异步读取，Redis 与 Caffeine 均支持）
+- 除了普通返回值，Framework 6.1 起 `@Cacheable` 也支持 `CompletableFuture`、`Mono`、`Flux` 返回类型（需要底层 Cache 支持异步读取：Redis 直接支持，Caffeine 要先在 `CaffeineCacheManager` 上调用 `setAsyncCacheMode(true)`）
 
 ---
 

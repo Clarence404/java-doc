@@ -114,7 +114,7 @@ curl -X POST http://localhost:8081/actuator/loggers/com.example.order \
 | `ssl` | 配置了 SSL Bundle | 证书过期为 DOWN，临近过期给出警告 |
 | `livenessstate` / `readinessstate` | 探针开启时 | 应用可用性状态，见第四节 |
 
-用 `management.health.<key>.enabled=false` 关闭单个指示器。**不要再写一个叫 `database` / `redis` 的自定义指示器去重复检查**：内置的不会因此被替换，`/health` 里会出现两份，还多一倍连接开销。
+用 `management.health.<key>.enabled=false` 关闭单个指示器。**不要再写自定义指示器去重复检查数据库 / Redis**：Bean 名与内置的不同（如 `databaseHealthIndicator`）时，`/health` 里会和 `db` 并列出现两份，还多一倍连接开销；Bean 名恰好是 `dbHealthIndicator` / `redisHealthIndicator` 时则会顶替内置指示器。
 
 ### 2、自定义业务健康检查
 

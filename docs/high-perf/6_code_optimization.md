@@ -17,29 +17,29 @@ description: 对象复用、集合预分配、字符串、装箱、锁、异常�
 一些对象创建或初始化代价很高，且线程安全，应作为常量复用：
 
 ```java
-// Bad：每次调用都编译正则、创建 ObjectMapper
+// Bad：每次调用都编译正则、创建 JsonMapper（Jackson 3）
 public boolean isValid(String email) {
     return Pattern.compile("^[\\w.-]+@[\\w.-]+$").matcher(email).matches();
 }
-public String toJson(Object obj) throws JsonProcessingException {
-    return new ObjectMapper().writeValueAsString(obj);
+public String toJson(Object obj) {
+    return JsonMapper.builder().build().writeValueAsString(obj);
 }
 
 // Good：线程安全的对象作为 static final 复用
 private static final Pattern EMAIL = Pattern.compile("^[\\w.-]+@[\\w.-]+$");
-private static final ObjectMapper MAPPER = new ObjectMapper();
+private static final JsonMapper MAPPER = JsonMapper.builder().build();
 
 public boolean isValid(String email) {
     return EMAIL.matcher(email).matches();
 }
-public String toJson(Object obj) throws JsonProcessingException {
+public String toJson(Object obj) {
     return MAPPER.writeValueAsString(obj);
 }
 ```
 
 | 可安全复用（线程安全） | 不可直接共享（非线程安全） |
 |------------------------|----------------------------|
-| `Pattern`、`ObjectMapper`（配置完成后）、`DateTimeFormatter` | `Matcher`、`SimpleDateFormat`、`StringBuilder` |
+| `Pattern`、`JsonMapper` / `ObjectMapper`、`DateTimeFormatter` | `Matcher`、`SimpleDateFormat`、`StringBuilder` |
 
 - `String.matches()`、`String.split()`（多字符正则）、`String.replaceAll()` 内部每次都会编译正则，热点路径上应改用预编译的 `Pattern`。
 - `SimpleDateFormat` 非线程安全，JDK 8+ 使用 `DateTimeFormatter` 替代，见 [日期与时间](/java/17_topic_time)。

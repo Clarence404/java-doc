@@ -359,7 +359,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return lambdaUpdate()
             .set(User::getPhone, phone)
             .eq(User::getId, userId)
-            .update();                                   // updatedAt 由自动填充处理
+            .update(new User());                         // 传入实体才会触发 updateFill 填充 updatedAt，无参 update() 不触发
     }
 }
 ```

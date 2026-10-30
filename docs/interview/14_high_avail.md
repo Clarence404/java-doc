@@ -146,9 +146,9 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 
 **一句话**：Keepalived 用 VRRP 协议在几台机器间选出优先级最高的当主，主持有虚拟 IP（VIP）并定期发心跳；备机收不到心跳或主机健康检查失败时，备机接管 VIP，秒级完成切换。
 
-- 用 `track_script` 定时检查 Nginx 等进程，失败就降低本机优先级，触发切换
-- 两台都配成 BACKUP + `nopreempt`（不抢占），避免原主恢复后又把 VIP 抢回来，多抖一次
-- 风险是脑裂：两台之间心跳断了，会都以为自己是主，同时持有 VIP，需要第三方仲裁（见 Q11）
+- 用 `track_script` 定时检查 Nginx 等进程，连续失败就进入 FAULT 状态、释放 VIP，由备机接管
+- 两台都配成 BACKUP + `nopreempt`（不抢占），避免原主恢复后又把 VIP 抢回来，多抖一次；这时检测脚本不能靠 `weight` 降优先级，降了对端也不会接管
+- 风险是脑裂：两台之间心跳断了，会都以为自己是主，同时持有 VIP，需要第三方仲裁（见 Q12）
 
 → 详见 [冗余与故障转移](/high-avail/2_redundancy_failover#_1、keepalived-vip)
 

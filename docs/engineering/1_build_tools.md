@@ -228,8 +228,9 @@ mvnd 适合本地反复构建的大型多模块工程；CI 每次都是全新环
 
 ```xml
 <properties>
-  <!-- 自定义开关：-DskipUTs=true 时只跳过单元测试 -->
-  <skipUTs>false</skipUTs>
+  <!-- 自定义开关：-DskipUTs=true 时只跳过单元测试；默认跟随 -DskipTests -->
+  <skipTests>false</skipTests>
+  <skipUTs>${skipTests}</skipUTs>
 </properties>
 
 <build>

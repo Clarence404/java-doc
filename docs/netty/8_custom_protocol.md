@@ -169,6 +169,10 @@ public class ProtocolEncoder extends MessageToByteEncoder<ProtocolMessage> {
     protected void encode(ChannelHandlerContext ctx,
                           ProtocolMessage msg, ByteBuf out) {
         byte[] payload = msg.getPayload();
+        if (payload.length > 0xFFFF) {
+            // 长度字段只有 2 字节，超长会被截断成低 16 位，接收端拆帧错位
+            throw new EncoderException("payload too large: " + payload.length);
+        }
         out.writeShort(ProtocolMessage.MAGIC);  // Magic
         out.writeByte(msg.getVersion());        // Version
         out.writeByte(msg.getCommand());        // Command

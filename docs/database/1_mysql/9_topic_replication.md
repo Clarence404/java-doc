@@ -195,7 +195,7 @@ START REPLICA IO_THREAD;
 |------|---------|
 | 5.6 | 按库并行，单库场景无效 |
 | 5.7 | `LOGICAL_CLOCK`：主库同一组提交的事务在从库并行回放 |
-| 8.0 | 主库用 WRITESET 记录事务修改的行，不冲突的事务即可并行，并行度不再依赖主库的组提交 |
+| 8.0 | 新增 WRITESET：主库记录事务修改的行，不冲突的事务即可并行，并行度不再依赖主库的组提交；但默认仍是 COMMIT_ORDER，需显式设置 `binlog_transaction_dependency_tracking=WRITESET` |
 | 8.0.27 起 | 多线程回放默认开启：`replica_parallel_workers=4`、`replica_preserve_commit_order=ON` |
 | 8.4 | `binlog_transaction_dependency_tracking` 已移除，主库固定使用 WRITESET；`replica_parallel_type` 自 8.0.29 弃用，固定为 LOGICAL_CLOCK |
 

@@ -525,7 +525,7 @@ public class AuthorizationServerConfig {
 
 ### 3、客户端与授权记录持久化
 
-默认的内存实现重启即丢失，生产环境用 JDBC 实现。建表脚本在 jar 包内 `org/springframework/security/oauth2/server/authorization/` 目录下（`oauth2-registered-client-schema.sql`、`oauth2-authorization-schema.sql`、`oauth2-authorization-consent-schema.sql`），用 Flyway 纳入版本管理。
+默认的内存实现重启即丢失，生产环境用 JDBC 实现。建表脚本在 jar 包内 `org/springframework/security/oauth2/server/authorization/` 目录下（`client/oauth2-registered-client-schema.sql`、`oauth2-authorization-schema.sql`、`oauth2-authorization-consent-schema.sql`），用 Flyway 纳入版本管理。
 
 ```java
 @Configuration

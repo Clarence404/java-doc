@@ -200,7 +200,7 @@ public non-sealed class BankTransfer implements Payment {}   // 允许继续扩�
 - **有帮助的 NullPointerException**（Java 14 引入，JEP 358；Java 15 起默认开启）：异常信息直接指出哪个变量为 null，如 `Cannot invoke "String.length()" because "user.name" is null`
 - **`Stream.toList()`**（Java 16）：返回不可修改列表，见 [Lambda 与 Stream](./1_advanced)
 - **ZGC、Shenandoah 转为正式**（Java 15）
-- **隐藏类**（Java 15，JEP 371）：Lambda 与动态代理生成的类改用它定义
+- **隐藏类**（Java 15，JEP 371）：Lambda、字符串拼接等运行时生成的类改用它定义（`Proxy` 生成的动态代理类仍是普通类）
 
 ### 7、JDK 内部 API 强封装（Java 16 / 17）——11 → 17 的头号迁移问题
 

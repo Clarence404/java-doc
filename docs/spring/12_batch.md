@@ -369,8 +369,12 @@ jobOperator.recover(last);    // 6.0 新增：把异常中断（如进程被强�
 @Bean
 public Partitioner idRangePartitioner(JdbcTemplate jdbcTemplate) {
     return gridSize -> {
-        long min = jdbcTemplate.queryForObject("SELECT MIN(id) FROM orders", Long.class);
-        long max = jdbcTemplate.queryForObject("SELECT MAX(id) FROM orders", Long.class);
+        Long minId = jdbcTemplate.queryForObject("SELECT MIN(id) FROM orders", Long.class);
+        Long maxId = jdbcTemplate.queryForObject("SELECT MAX(id) FROM orders", Long.class);
+        if (minId == null || maxId == null) {
+            return Map.of();                           // 表为空时 MIN / MAX 返回 null，不分区
+        }
+        long min = minId, max = maxId;
         long size = (max - min) / gridSize + 1;
         Map<String, ExecutionContext> partitions = new HashMap<>();
         for (int i = 0; i < gridSize; i++) {

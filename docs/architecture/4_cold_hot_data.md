@@ -92,7 +92,7 @@ public class OrderArchiver {
 
 - 业务代码不变，CDC 工具（Canal、Debezium、Flink CDC）读取 binlog 投递到 Kafka，工具对比见 [CDC 工具](/database/5_practice/0_cdc_tools)
 - 归档消费者按主键 upsert 写入冷库，消息重复或重放都不会产生重复数据
-- 热库仍需按策略清理过期数据；清理产生的 DELETE 也会进入 binlog，归档消费者要**忽略归档清理产生的删除**（例如按表或执行账号过滤），否则冷库数据会被一起删掉
+- 热库仍需按策略清理过期数据；清理产生的 DELETE 也会进入 binlog，归档消费者要**忽略归档清理产生的删除**（ROW 格式 binlog 不记录执行账号，没法按账号区分；可按被删记录的 `created_at` 早于归档切割点来判断，或干脆不同步 DELETE），否则冷库数据会被一起删掉
 - 适合写入量大、冷库需要近实时数据的场景，如日志、埋点、订单明细同步到分析库
 
 如果业务本身需要发事件，也可以在业务事务里写 Outbox 表，再由投递任务发送，效果相同，见 [消息队列基础](/messaging/1_basics)。

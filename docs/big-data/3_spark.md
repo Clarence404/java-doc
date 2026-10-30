@@ -119,7 +119,7 @@ topCategory.show(20, false);
 | ANSI 模式默认开启 | 4.0 | 类型转换和算术错误显式报错，配合 `try_cast` / `try_divide` 处理脏数据 |
 | `VARIANT` 类型 | 4.0 引入，4.1 GA | 存半结构化 JSON（如订单扩展属性），比存字符串再 `from_json` 解析快 |
 | SQL 管道语法 `\|>` | 4.0 | `FROM t \|> WHERE ... \|> AGGREGATE ...` 按书写顺序表达处理步骤 |
-| `MERGE INTO` | 4.0 | 对支持行级操作的表（Iceberg、Delta 等）做 upsert |
+| `MERGE INTO` | SQL 3.0 起；4.0 新增 DataFrame `mergeInto` API | 对支持行级操作的表（Iceberg、Delta 等）做 upsert |
 | SQL 脚本 | 4.1 GA，默认开启 | 在一段 SQL 里写变量、`IF`、`WHILE`、异常处理 |
 | 递归 CTE | 4.1 | 类目树、组织架构等层级展开 |
 | `QUALIFY` 子句 | 4.2 | 直接按窗口函数结果过滤，取"每个用户最近一笔订单"不再需要套子查询 |
@@ -255,7 +255,7 @@ public class OrderGmvDailyJob {
                         coalesce(col("root_name"), lit("未知")).alias("root_category"))
                 .agg(
                         sum("pay_amount").alias("gmv"),
-                        count(lit(1)).alias("order_cnt"),
+                        countDistinct(col("order_id")).alias("order_cnt"),
                         countDistinct(col("user_id")).alias("buyer_cnt"));
 
         // 5. 结果复用两次，先缓存，避免上游重算
@@ -393,12 +393,12 @@ Shuffle 涉及磁盘写、网络传输和反序列化，是 Spark 作业里最�
 | 配置 | 默认值 | 含义 |
 |------|--------|------|
 | `spark.sql.adaptive.enabled` | `true` | AQE 总开关 |
-| `spark.sql.adaptive.skewJoin.enabled` | `true` | 自动拆分排序合并 Join 中的倾斜分区 |
+| `spark.sql.adaptive.skewJoin.enabled` | `true` | 自动拆分 Shuffle 类 Join（排序合并与 Shuffled Hash）中的倾斜分区 |
 | `spark.sql.adaptive.skewJoin.skewedPartitionFactor` | `5.0` | 分区大小超过中位数的倍数 |
 | `spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes` | `256MB` | 同时还要超过这个绝对值才判定为倾斜 |
 | `spark.sql.adaptive.forceOptimizeSkewedJoin` | `false` | 即使会引入额外 Shuffle 也强制做倾斜优化 |
 
-AQE 的倾斜处理只覆盖**排序合并 Join**，对 `groupBy` 聚合的倾斜无能为力，也不一定能识别"不够大但明显偏多"的分区。
+AQE 的倾斜处理只覆盖 **Shuffle 类 Join**（排序合并与 Shuffled Hash），对 `groupBy` 聚合的倾斜无能为力，也不一定能识别"不够大但明显偏多"的分区。
 
 **第二步：处理空值和大 key**。`null` key 本来就关联不上任何维度，可以先拆出来单独处理，再 `unionByName` 回去：
 

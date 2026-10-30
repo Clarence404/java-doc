@@ -322,7 +322,7 @@ DataStream<EnrichedOrder> enriched = orders
 ```
 
 - 广播状态在每个并行实例上各存一份全量，维表 10 万行、并行度 32 就是 320 万行的内存与 checkpoint 体积，只适合小维表。
-- 作业启动时，事实流可能先于维表流到达，关联出 null。处理办法：维表未加载完成前把事实数据缓存在 keyed state 中延后处理，或把关联不上的数据输出到侧输出流稍后补偿。
+- 作业启动时，事实流可能先于维表流到达，关联出 null。处理办法：把关联不上的事实数据缓存在 keyed state 中、等维度到达后再补发（需改为 `orders.keyBy(...)` + `KeyedBroadcastProcessFunction`，本例的非 keyed 写法拿不到 keyed state），或把关联不上的数据输出到侧输出流稍后补偿。
 - 广播流的顺序在各并行实例间不保证一致，维度更新不要依赖「先 A 后 B」的跨 key 顺序。
 
 ---
@@ -337,7 +337,7 @@ DataStream<EnrichedOrder> enriched = orders
 
 ## 参考资料
 
-- FlinkCEP（2.3）：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/libs/cep/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/libs/cep/)
+- FlinkCEP（2.2）：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/libs/cep/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/libs/cep/)
 - 窗口 TVF：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/window-tvf/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/window-tvf/)
 - Join：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/joins/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/joins/)
 - Apache Paimon：[https://paimon.apache.org/docs/master/](https://paimon.apache.org/docs/master/)

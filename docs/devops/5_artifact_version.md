@@ -210,12 +210,12 @@ Nexus 里常用三种仓库：
 
 | 标签 | 用途 | 是否用于部署 |
 |------|------|-------------|
-| `{git-sha}`（如 `3f9c2a1`） | 每次构建的主标签，对应唯一提交 | 可以，配合 tag 不可变 |
+| `sha-{git-sha}`（如 `sha-3f9c2a1…`，40 位完整提交号） | 每次构建的主标签，对应唯一提交 | 可以，配合 tag 不可变 |
 | `{version}`（如 `1.3.0`） | 发版归档，便于人查找 | 可以，配合 tag 不可变 |
 | `main` / `latest` | 指向最新构建，方便本地拉取 | 禁止 |
 | `@sha256:...` | 内容寻址 | **推荐**，生产清单最终落到 digest |
 
-团队内统一用 7 位短 SHA（`git rev-parse --short=7 HEAD`），CI、Harbor、部署清单里都用同一种写法，排查时才对得上。
+团队内统一用 `sha-` 加 40 位完整提交号（`docker/metadata-action` 的 `type=sha,format=long`，Shell 中为 `sha-$(git rev-parse HEAD)`），CI、Harbor、部署清单里都用同一种写法，排查时才对得上；[CI/CD](./4_ci_cd) 的发布流水线也按这个格式查找已有镜像。
 
 ### 2、按 digest 部署
 
@@ -223,9 +223,9 @@ Nexus 里常用三种仓库：
 
 ```bash
 IMAGE=harbor.example.com/backend/my-app
-GIT_SHA=$(git rev-parse --short=7 HEAD)
+GIT_SHA=$(git rev-parse HEAD)
 
-docker buildx build --push -t "${IMAGE}:${GIT_SHA}" \
+docker buildx build --push -t "${IMAGE}:sha-${GIT_SHA}" \
   --metadata-file build-meta.json .
 DIGEST=$(jq -r '."containerimage.digest"' build-meta.json)   # sha256:...
 
@@ -242,7 +242,7 @@ images:
     digest: sha256:6f1d0c3e9a...   # 由 CI 写入，渲染后 Pod 的 image 为 my-app@sha256:...
 ```
 
-按 digest 部署后：回滚就是把 digest 改回上一个；即使有人覆盖了某个 tag，线上也不受影响；签名校验也是针对 digest 的（见第六节）。已有镜像查 digest 用 `docker buildx imagetools inspect harbor.example.com/backend/my-app:3f9c2a1`。
+按 digest 部署后：回滚就是把 digest 改回上一个；即使有人覆盖了某个 tag，线上也不受影响；签名校验也是针对 digest 的（见第六节）。已有镜像查 digest 用 `docker buildx imagetools inspect harbor.example.com/backend/my-app:sha-<提交号>`。
 
 ### 3、Harbor 镜像仓库
 
@@ -250,7 +250,7 @@ images:
 |------|------|
 | 项目（Project） | 按团队或业务线划分，如 `backend`、`charts`，权限按项目授予 |
 | 机器人账号 | CI 推送、集群拉取各用一个，只授予对应项目的 push / pull 权限，不用个人账号 |
-| Tag 不可变规则 | 对 `backend/**` 下匹配 `v*`、7 位 SHA 的 tag 开启不可变，推送同名 tag 会被拒绝 |
+| Tag 不可变规则 | 对 `backend/**` 下匹配 `sha-*` 与版本号的 tag 开启不可变，推送同名 tag 会被拒绝 |
 | 保留策略 | 只保留最近 N 个或 N 天内被拉取过的制品，定期垃圾回收 |
 | 代理缓存 | 建 proxy cache 项目代理 Docker Hub，避开限流并统一扫描 |
 | 签名与 Referrer | 原生识别 cosign 签名、SBOM 等 OCI 附属制品，删除镜像时一并清理 |
@@ -312,15 +312,15 @@ LABEL org.opencontainers.image.revision="${GIT_COMMIT}"       org.opencontainers
 构建阶段复制 JAR 时写确切文件名（pom 里配 `<finalName>app</finalName>`，再 `COPY target/app.jar`）；写 `target/*.jar` 时，一旦目录里有多个 Jar（如 sources Jar），`COPY` 会因目标不是目录而失败。
 
 ```bash
-GIT_SHA=$(git rev-parse --short=7 HEAD)
+GIT_SHA=$(git rev-parse HEAD)
 docker build \
-  --build-arg GIT_COMMIT="$(git rev-parse HEAD)" \
+  --build-arg GIT_COMMIT="${GIT_SHA}" \
   --build-arg BUILD_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   --build-arg VERSION="${VERSION}" \
-  -t "harbor.example.com/backend/my-app:${GIT_SHA}" .
+  -t "harbor.example.com/backend/my-app:sha-${GIT_SHA}" .
 
 # 查看追溯信息
-docker inspect --format '{{json .Config.Labels}}' "harbor.example.com/backend/my-app:${GIT_SHA}"
+docker inspect --format '{{json .Config.Labels}}' "harbor.example.com/backend/my-app:sha-${GIT_SHA}"
 ```
 
 用 `docker/build-push-action` 时，可以搭配 `docker/metadata-action` 自动生成这组 OCI Label 与标签。
@@ -359,8 +359,7 @@ name: release-image
 
 on:
   push:
-    branches: [main]
-    tags: ['v*']
+    branches: [main]         # 只在 main 上构建一次；发版 tag 不重新构建，见下文
 
 permissions:
   contents: read
@@ -386,9 +385,6 @@ jobs:
 
       - run: ./mvnw -B verify
 
-      - name: 计算短 SHA
-        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
-
       - uses: docker/setup-buildx-action@v4
 
       - uses: docker/login-action@v4
@@ -403,10 +399,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.IMAGE }}:${{ env.SHORT_SHA }}
+          tags: ${{ env.IMAGE }}:sha-${{ github.sha }}
           build-args: |
             GIT_COMMIT=${{ github.sha }}
-            VERSION=${{ github.ref_name }}
 
       - name: 生成 SLSA 溯源证明
         uses: actions/attest@v4
@@ -424,6 +419,7 @@ jobs:
 ```
 
 - 签名、证明都针对 **digest**，签 tag 没有意义（tag 可被改指向）
+- 这个 workflow 只监听 main：`sha-<提交号>` 标签不可变，tag 时再构建并推送同名标签会被 Harbor 拒绝，重新构建也会产出另一个 digest。发版时用 `docker buildx imagetools create --tag "${IMAGE}:1.3.0" "${IMAGE}:sha-${GITHUB_SHA}"` 给已有 digest 加版本标签（完整写法见 [CI/CD](./4_ci_cd) 的 release.yml），digest 不变，签名与证明依然有效
 - `actions/attest` 不传 `sbom-path` 时默认生成 SLSA build provenance；传入 SBOM 文件则生成 SBOM 证明
 - 示例中的官方 Action 用主版本号便于阅读；生产中所有第三方 Action 都应固定到完整 commit SHA，由 Renovate / Dependabot 负责升级（原因见第七节的 trivy-action 事件）
 
@@ -435,10 +431,10 @@ jobs:
 DIGEST=sha256:6f1d0c3e9a...   # 替换为实际 digest
 IMAGE=harbor.example.com/backend/my-app
 
-# 验证签名：只认 example/my-app 仓库 release-image.yml 在 main 或 v* tag 上的构建
+# 验证签名：只认 example/my-app 仓库 release-image.yml 在 main 上的构建
 cosign verify "${IMAGE}@${DIGEST}" \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-  --certificate-identity-regexp '^https://github\.com/example/my-app/\.github/workflows/release-image\.yml@refs/(heads/main|tags/v.*)$'
+  --certificate-identity-regexp '^https://github\.com/example/my-app/\.github/workflows/release-image\.yml@refs/heads/main$'
 
 # 验证溯源证明：确认由 example/my-app 仓库构建
 gh attestation verify "oci://${IMAGE}@${DIGEST}" -R example/my-app
@@ -467,7 +463,7 @@ spec:
         keyless:
           identities:
             - issuer: 'https://token.actions.githubusercontent.com'
-              subjectRegExp: '^https://github\.com/example/my-app/\.github/workflows/release-image\.yml@refs/(heads/main|tags/v.*)$'
+              subjectRegExp: '^https://github\.com/example/my-app/\.github/workflows/release-image\.yml@refs/heads/main$'
   validations:
     - expression: >-
         images.containers.map(image, verifyImageSignatures(image, [attestors.cosign])).all(e, e > 0)
@@ -490,7 +486,7 @@ brew install trivy
 
 # 扫描镜像，HIGH 及以上漏洞返回非 0
 trivy image --exit-code 1 --severity HIGH,CRITICAL --ignore-unfixed \
-  harbor.example.com/backend/my-app:3f9c2a1
+  "harbor.example.com/backend/my-app:sha-$(git rev-parse HEAD)"
 ```
 
 GitHub Actions 中，在第六节 `build` job 的「构建并推送」步骤之后追加扫描步骤，并给该 job 的 `permissions` 加上 `security-events: write`（上传 SARIF 需要）：

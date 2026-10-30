@@ -267,7 +267,7 @@ public class OtaDispatcher {
     public void dispatch() {
         // 只取正在进行的批次中、满足前置条件的设备，每轮最多 50 台（限速）
         for (OtaTask task : tasks.findDispatchable(50)) {
-            mqtt.publish("devices/" + task.getDeviceId() + "/ota/command", 1, commands.build(task));
+            mqtt.publish("devices/" + task.getDeviceId() + "/ota/cmd", 1, commands.build(task));
             tasks.transition(task.getId(), task.getDeviceId(), OtaStatus.NOTIFIED,
                     OtaStatus.NOTIFIED.allowedFrom(), null);
         }

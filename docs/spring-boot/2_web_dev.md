@@ -130,7 +130,7 @@ public class OrderController {
 
 `PageResult`、`OrderVO`（record）、`ExportFormat`（枚举）为项目自定义类型。几个容易忽略的点：
 
-- **`@PathVariable Long id` 不写名字依赖编译参数 `-parameters`**。Framework 6.1 起不再从调试信息推断参数名，`spring-boot-starter-parent` 已默认开启；自建父 POM 或 Gradle 项目要自己加，否则运行时报找不到参数名
+- **`@PathVariable Long id` 不写名字依赖编译参数 `-parameters`**。Framework 6.1 起不再从调试信息推断参数名，`spring-boot-starter-parent` 与 Boot 的 Gradle 插件已默认开启；不用 parent 的 Maven 项目要自己加，否则运行时报找不到参数名
 - 导出文件名用 `ContentDisposition` 构造，直接字符串拼接既有中文乱码问题，也有响应头注入风险
 - 枚举参数（`OrderStatus`、`ExportFormat`）由框架自动转换，非法值会返回 400
 
