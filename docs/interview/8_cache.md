@@ -175,8 +175,7 @@ description: Redis 数据类型与编码、线程模型与持久化、过期与�
 
 - 采样数调大更接近真实 LRU，但更耗 CPU
 - LFU（4.0+）用对数计数器加衰减表示频率，比 LRU 更不怕「扫描一次就把热点挤掉」
-- 手写 LRU 最短写法：`new LinkedHashMap<>(cap, 0.75f, true)`（按访问顺序）并重写 `removeEldestEntry` 返回 `size() > cap`
-- 面试要 O(1) 手写版本时：HashMap 存 key → 节点，双向链表维护访问顺序，访问时移到表尾、超容量删表头
+- 手写 LRU（`LinkedHashMap` 写法和哈希表 + 双向链表的 O(1) 写法），完整答案见 [算法面试题解答](/interview/4_algorithms) Q9
 
 → 详见 [Redis 核心原理](/cache/2_redis_core#三、缓存淘汰策略)
 

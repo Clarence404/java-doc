@@ -61,9 +61,10 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 
 **一句话**：燃烧速率 = 实际错误率 /（1 − SLO），表示「照现在的速度，预算多快会烧完」。固定错误率阈值分不清短暂抖动和长期小问题，燃烧速率只在真正威胁 SLO 时才告警。
 
+- 错误预算 = 1 − SLO，如 99.9% 的月预算约 43 分钟；燃烧速率为 1 表示刚好在周期结束时用完
 - 固定阈值的问题：几秒的尖刺会误报，长时间的小幅出错又会漏报
-- 常用做法：1 小时内燃烧速率超过 14.4（烧掉 30 天预算的 2%）就立刻叫人
-- 用长短两个窗口同时判断：长窗口确认问题真实存在，短窗口保证恢复后告警能及时消失
+- 常用做法：1 小时 + 5 分钟两个窗口，燃烧速率超过 14.4（1 小时烧掉 30 天预算的 2%）就立刻叫人
+- 长短窗口同时满足才触发：长窗口确认问题真实存在，短窗口保证恢复后告警能及时消失
 
 → 详见 [可用性度量](/high-avail/1_sla_slo#_2、燃烧速率告警)
 
@@ -130,13 +131,16 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 |------|---------|---------|
 | liveness | 重启容器 | 进程自己是否卡死（死锁等） |
 | readiness | 摘流量，不重启 | 本实例是否准备好（预热完、没在停机） |
-| startup | 启动超时就重启 | 是否启动完成，期间不跑另外两个探针 |
+| startup | 启动超时就重启 | 是否启动完成，期间不跑另外两个探针，专门兜住 Java 慢启动 |
 
 - 查共享依赖的后果：数据库一抖，所有实例同时失败，要么一起重启，要么全被摘光，局部故障变成全站不可用
-- 而且摘流量也没用：换哪个实例，连的都是同一个数据库
-- 依赖出问题应该靠超时、熔断、降级处理
+- 而且摘流量也没用：换哪个实例，连的都是同一个数据库；依赖出问题应该靠超时、熔断、降级处理
+- Spring Boot Actuator 直接提供 `/actuator/health/liveness`、`/readiness`（Boot 4 起探针分组默认开启，Boot 3 只在检测到 K8s 时开启）
+- 探针走业务端口（可额外暴露 `/livez`、`/readyz`），否则业务端口卡死时管理端口还在返回成功
 
-→ 详见 [冗余与故障转移](/high-avail/2_redundancy_failover#_2、kubernetes-探针)
+**常见坑**：靠把 liveness 的 `initialDelaySeconds` 设很大来等启动，结果整个运行期的故障检测都被放宽了；慢启动交给 startupProbe。
+
+→ 详见 [冗余与故障转移](/high-avail/2_redundancy_failover#_2、kubernetes-探针)、[Kubernetes](/cloud-native/6_kubernetes#_1、三种探针)、[Actuator 监控](/spring-boot/11_actuator#四、存活-就绪探针与健康分组)
 
 ### Q11：Keepalived 如何实现 VIP 漂移？
 
@@ -404,6 +408,7 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 
 **一句话**：因为数据是单向流动的：应用只会从 Nacos 读规则，而控制台改的规则只推到应用内存，不会写回 Nacos。应用一重启，重新从 Nacos 加载，控制台改的就没了。
 
+- 规则默认只在内存里，重启就丢；生产用 `sentinel-datasource-nacos` 从 Nacos 读规则并监听变化，控制台改的规则还可能被 Nacos 下一次推送覆盖
 - 解决一：改造 Sentinel 控制台，让它修改规则时写入 Nacos，应用再从 Nacos 监听生效
 - 解决二：约定只在 Nacos 里改规则，控制台只用来看
 
@@ -537,12 +542,13 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 preStop: { exec: { command: ["sh", "-c", "sleep 15"] } }
 ```
 
+- 终止顺序：标记 Terminating 并开始摘流量 → `preStop` → SIGTERM → 超过宽限期 SIGKILL
 - `preStop` 等待一般 10～20 秒，覆盖 K8s、注册中心和客户端缓存的刷新时间；微服务里先在 `preStop` 主动从注册中心注销
 - `terminationGracePeriodSeconds`（总宽限期，超时直接强杀）要 ≥ preStop 等待 + 应用停机时间 + 余量
 
-**常见坑**：Dockerfile 用 shell 形式启动，JVM 收不到 SIGTERM（应该用 exec 形式 `ENTRYPOINT ["java", "-jar", "app.jar"]`）。
+**常见坑**：Dockerfile 用 shell 形式启动，JVM 收不到 SIGTERM，宽限期一到被强杀（应该用 exec 形式 `ENTRYPOINT ["java", "-jar", "app.jar"]`）。
 
-→ 详见 [优雅上下线与变更](/high-avail/8_graceful_release#_3、kubernetes-配合)
+→ 详见 [优雅上下线与变更](/high-avail/8_graceful_release#_3、kubernetes-配合)、[Kubernetes](/cloud-native/6_kubernetes#_3、优雅终止)
 
 ### Q44：PodDisruptionBudget 的作用是什么？它能约束滚动更新吗？
 
@@ -558,10 +564,13 @@ preStop: { exec: { command: ["sh", "-c", "sleep 15"] } }
 
 **一句话**：新实例刚启动时代码还没被 JIT 编译成机器码、缓存是空的、连接池没建好，响应明显偏慢，直接接满流量可能被打垮，甚至触发熔断连锁故障。做法是「预热完再就绪 + 权重慢慢放大」。
 
-- 启动时主动调一遍核心接口、加载热点数据、提前建好连接
-- Spring Boot 等所有 `ApplicationRunner` 跑完才标记可接流量，预热逻辑放在 Runner 里，readiness 自然会等
-- 注意注册中心往往在 Web 容器启动时就注册了，比预热完成更早，可以关掉自动注册、预热后再注册
-- 权重预热：Dubbo 内置（默认 10 分钟线性增长），其他框架需发布平台或自定义负载均衡逐步调权重
+- 启动时主动调几轮核心接口、加载热点数据、连接池提前建好连接
+- Spring Boot 等所有 `ApplicationRunner` 跑完才标记可接流量，预热逻辑放在 Runner 里，readiness 自然会等；注册中心往往在 Web 容器启动时就注册了，可以关掉自动注册、预热后再注册
+- 权重预热：Dubbo 内置（默认 10 分钟线性增长），Envoy 有 slow start，其他框架需发布平台或自定义负载均衡逐步调权重
+- CPU 给够：启动期 JIT 编译线程大量占 CPU，CPU limit 偏小还会被限流，把毛刺放大
+- 定位：按 Pod 和启动时长拆分 P99，只有新实例慢就是冷启动问题；缩短启动可用 AppCDS（JDK 21）或 AOT 缓存（JDK 25）
+
+**常见坑**：以为 AppCDS 能解决预热，它只加快类加载，解决不了 JIT 预热；为省 CPU 只开 C1（`TieredStopAtLevel=1`），稳态性能会一直打折扣。
 
 → 详见 [优雅上下线与变更](/high-avail/8_graceful_release#二、服务预热)、[JVM 层性能策略](/high-perf/5_jvm_tuning#四、jit-预热与冷启动毛刺)
 

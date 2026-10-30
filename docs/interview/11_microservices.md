@@ -213,8 +213,9 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **一句话**：VirtualService 的路由规则从上往下匹配，第一条命中就生效。精确规则（比如按请求头去灰度版本）要写在前面，兜底规则放最后。
 
-- 写反了：兜底规则会接走所有请求，后面的灰度规则永远不生效
-- 对比：Kubernetes Gateway API（`HTTPRoute`）按规则的精确程度排优先级，不看书写顺序
+- 写反了：不带 `match` 的兜底规则会接走所有请求，后面的灰度规则永远不生效
+- 对比：Kubernetes Gateway API（`HTTPRoute`）按规则的精确程度排优先级，带 Header 匹配的规则自动优先于不带的，不看书写顺序
+- Istio 推荐用 Gateway API 配入口网关和 Ambient waypoint 的路由，换过去就不用操心规则顺序
 
 → 详见 [服务网格](/microservices/21_service_mesh#_1、virtualservice-虚拟服务)
 
@@ -329,61 +330,33 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **一句话**：在同一个本地事务里同时写业务表和一张「待发消息表」（outbox），事务提交两者就一起生效；再由单独的进程把待发消息发到 MQ，发成功就标记完成，失败就重试。
 
-- 为什么不能在事务里直接发 MQ：可能事务回滚了消息却已发出，或事务提交了消息却没发成功
-- 投递方式：定时扫 outbox 表（简单，但有延迟和数据库压力），或监听数据库变更日志（CDC，如 Debezium，延迟低）
-- 消息可能发多次，消费方要按业务键幂等
-- 用 RocketMQ 时也可以直接用它的事务消息
-
-→ 详见 [微服务设计模式](/microservices/3_patterns#_5、outbox-事务发件箱)、[分布式事务](/distributed/4_transaction)
+→ 完整答案见 [消息队列面试题解答](/interview/9_mq) Q20；正文详见 [微服务设计模式](/microservices/3_patterns#_5、outbox-事务发件箱)、[分布式事务](/distributed/4_transaction)
 
 ### Q27：Saga 的编排式与协同式有什么区别？
 
-**一句话**：Saga 把跨服务的大事务拆成一串本地事务，中途失败就倒着执行补偿。编排式有一个「总指挥」统一调度；协同式没有总指挥，各服务听事件自己往下走。
+**一句话**：编排式有一个「总指挥」统一调度，流程清楚好监控，适合步骤多、补偿复杂；协同式没有总指挥，各服务听事件自己往下走，适合步骤少。
 
-| 对比 | 编排式 | 协同式 |
-|------|-------|-------|
-| 控制 | 协调者集中调度 | 各服务监听事件自主推进 |
-| 流程可见性 | 清楚，好监控 | 步骤多了难追踪 |
-| 适合 | 步骤多、补偿复杂 | 步骤少 |
-
-**常见坑**：Saga 没有隔离性，中间状态别人看得到，要靠「处理中」这类状态设计和补偿幂等兜底。
-
-→ 详见 [微服务设计模式](/microservices/3_patterns#_4、saga)、[分布式事务](/distributed/4_transaction#四、saga)
+→ 完整答案见 [分布式面试题解答](/interview/10_distributed) Q16；正文详见 [微服务设计模式](/microservices/3_patterns#_4、saga)、[分布式事务](/distributed/4_transaction#四、saga)
 
 ### Q28：消费者驱动契约测试解决什么问题？
 
 **一句话**：服务各自发布，提供方改了接口很容易把调用方搞坏；契约测试让调用方写下「我需要你返回什么」，提供方在 CI 里用它验证，一旦改坏就构建失败。
 
-- 比端到端测试便宜：不用把一堆服务都拉起来
-- 契约由调用方定义，所以叫「消费者驱动」
-- 常用工具：Spring Cloud Contract、Pact
-
-→ 详见 [微服务设计模式](/microservices/3_patterns#_4、消费者驱动契约测试-consumer-driven-contract)、[契约测试](/testing/6_contract_test)
+→ 完整答案见 [测试工程面试题解答](/interview/20_testing) Q11；正文详见 [微服务设计模式](/microservices/3_patterns#_4、消费者驱动契约测试-consumer-driven-contract)、[契约测试](/testing/6_contract_test)
 
 ## 五、分布式场景
 
 ### Q29：微服务之间的分布式事务如何处理？
 
-**一句话**：能不用分布式事务就不用。优先用最终一致方案（Outbox、事务消息、Saga、对账补偿），只有必须同步拿到一致结果的链路才用 Seata 这类方案。
+**一句话**：能不用分布式事务就不用；优先用最终一致方案（Outbox、事务消息、Saga、对账补偿），只有必须同步拿到一致结果的链路才用 TCC、Seata 这类方案。
 
-- 下单后通知别的服务、允许短暂不一致：Outbox / 事务消息 + 幂等消费
-- 长流程、跨外部系统：Saga
-- 资金类、要先预留资源：TCC（先冻结，再确认或取消）
-- 普通数据库增删改、要同步一致、并发不高：Seata AT
-
-→ 详见 [分布式事务](/distributed/4_transaction#九、方案选型)、[分布式面试题解答](/interview/10_distributed#三、分布式事务)
+→ 完整答案见 [分布式面试题解答](/interview/10_distributed) Q13；正文详见 [分布式事务](/distributed/4_transaction#九、方案选型)
 
 ### Q30：微服务接口如何实现幂等？
 
-**一句话**：超时重试、MQ 重复投递、Dubbo 自动重试都会让同一个请求来好几次，所以写接口必须幂等。核心是给每次操作一个唯一标识，服务端按它去重。
+**一句话**：超时重试、MQ 重复投递、Dubbo 自动重试都会让同一个请求来好几次，所以写接口必须幂等；核心是给每次操作一个唯一标识，服务端按它去重。
 
-- 唯一索引（如订单号）：插入类操作，最简单可靠
-- 去重表，和业务写入放在同一个本地事务：MQ 消费、通用写接口
-- Token：先领一个 token，提交时删掉，删成功才处理，用于防表单重复提交
-- 状态机 / 乐观锁（`WHERE status = ?` 或版本号）：状态流转、扣减类操作
-- Redis `SET NX`：高并发快速判重，但要有数据库兜底
-
-→ 详见 [幂等设计](/architecture/3_idempotence)、[系统架构面试题解答](/interview/15_architecture#三、幂等设计)
+→ 完整答案见 [系统架构面试题解答](/interview/15_architecture) Q18；正文详见 [幂等设计](/architecture/3_idempotence)
 
 ### Q31：分布式接口请求的顺序性如何保证？
 

@@ -312,11 +312,12 @@ description: JWT、防撞库与 MFA、OAuth2 / OIDC / SSO、权限模型、接�
 
 **一句话**：防 SQL 注入只有一招：参数化查询，让输入永远只当数据；MyBatis 里 `#{}` 是参数化，`${}` 是直接拼字符串。
 
-| 写法 | 实现 | 安全性 |
-|------|------|--------|
-| `#{}` | `PreparedStatement` 的 `?` 占位符 | 安全 |
-| `${}` | 直接字符串替换 | 不安全，只能配白名单 |
+| 写法 | 实现 | 安全性 | 能否用于表名、列名 |
+|------|------|--------|-----------------|
+| `#{}` | `PreparedStatement` 的 `?` 占位符 | 安全 | 不能（会被当成字符串加引号） |
+| `${}` | 直接字符串替换 | 不安全 | 能，但值必须来自白名单 |
 
+- `#{}` 只换参数值、SQL 文本固定不变，预编译语句可以复用；`${}` 每次值不同 SQL 文本就不同
 - 动态排序、表名只能用 `${}` 时，把前端值映射成代码里写死的列名（如枚举）
 - LIKE 也用 `#{}`：`CONCAT('%', #{kw}, '%')`，不要写 `'%${kw}%'`
 - MyBatis-Plus 的 `last()`、`apply()` 拼用户输入同样会注入
@@ -352,12 +353,11 @@ description: JWT、防撞库与 MFA、OAuth2 / OIDC / SSO、权限模型、接�
 
 ### Q25：反序列化漏洞是怎么回事？
 
-**一句话**：共同根因是「数据决定了要实例化哪个类」，攻击者构造数据触发危险类的方法链（gadget 链）执行任意代码；防法就是不让外部数据决定类型。
+**一句话**：共同根因是「数据决定了要实例化哪个类」，攻击者构造数据触发项目里已有类的回调方法链（gadget 链）执行任意代码；防法就是不让外部数据决定类型。
 
-- Java 原生序列化：不对不可信数据做 `readObject`，遗留系统用 `ObjectInputFilter` 白名单
+- Java 原生序列化：不对不可信数据做 `readObject`；遗留系统用 `ObjectInputFilter`（JDK 9 起，8u121 也有）配白名单，如 `-Djdk.serialFilter=com.example.*;!*`
 - Fastjson 1.x：AutoType 黑名单多次被绕过，2.x 默认关闭，不要手动开
-- Jackson：多态用 `@JsonTypeInfo(use = Id.NAME)` 加子类型列表，不用 `Id.CLASS`
-- 确需全局 Default Typing 时，必须配限定包前缀的类型校验器
+- Jackson：多态用 `@JsonTypeInfo(use = Id.NAME)` 加子类型列表，不用 `Id.CLASS`；确需全局 Default Typing 时，必须配限定包前缀的类型校验器
 - 对外接口一律用 JSON / Protobuf
 
 → 详见 [常见漏洞与防护](/security/8_vulnerabilities#六、不安全的反序列化)

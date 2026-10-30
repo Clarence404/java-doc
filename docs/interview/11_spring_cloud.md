@@ -261,11 +261,9 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 **一句话**：流控有三种效果：快速失败（默认）、预热（冷启动时慢慢放量）、匀速排队（削峰）；熔断按慢调用比例、异常比例、异常数三种策略触发。
 
 - 熔断状态：关闭（正常）→ 打开（直接拒绝）→ 半开（放少量请求试探，好了就恢复）
-- 规则默认只在内存里，重启就丢；生产用 `sentinel-datasource-nacos` 从 Nacos 读规则并监听变化
-- 数据只从 Nacos 流向应用：控制台改的规则不会写回 Nacos，重启就丢，还可能被 Nacos 下一次推送覆盖
-- 解决：约定只在 Nacos 改规则；或改造控制台，让它把规则写进 Nacos
+- 规则默认只在内存里，重启就丢，生产要持久化到 Nacos；持久化后控制台改的规则为什么还会丢，完整答案见 [高可用面试题解答](/interview/14_high_avail) Q32
 
-→ 详见 [Spring Cloud Alibaba](/microservices/15_alibaba#_5、规则持久化-nacos-数据源)、[高可用面试题解答](/interview/14_high_avail#q32-sentinel-规则持久化到-nacos-后-控制台修改的规则为什么重启会丢失)
+→ 详见 [Spring Cloud Alibaba](/microservices/15_alibaba#_5、规则持久化-nacos-数据源)
 
 ### Q21：Framework 7 的 `@Retryable` / `@ConcurrencyLimit` 与 Resilience4j、Sentinel 如何分工？
 

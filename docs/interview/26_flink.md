@@ -295,7 +295,9 @@ description: 选型与架构、DataStream、水位线与窗口、状态与 Check
 
 **一句话**：这条 SQL 的结果会更新（比如不开窗的 `GROUP BY` 或普通 Join），而普通 `kafka` 连接器只能追加写。两种解法：Sink 换成声明了主键的 upsert-kafka；或者把查询改成窗口聚合、Interval Join 这类只追加的写法。
 
+- 怎么确认：`EXPLAIN CHANGELOG_MODE SELECT ...` 会给每个算子标出 `changelogMode`，带 `UB` / `UA` / `D` 就是更新流
 - upsert-kafka 把主键写进消息 key，删除写成值为空的消息，配合 compact 主题就是一张「最新值表」
+- 两个 `sink.buffer-flush.*` 参数都大于 0 时，缓冲期内同一个 key 只留最后一条，能明显降低写放大
 
 **常见坑**：upsert-kafka 当源表读时，Flink 会自动加一个按主键缓存全部最新值的算子，是隐藏的状态大户。
 
@@ -332,7 +334,8 @@ description: 选型与架构、DataStream、水位线与窗口、状态与 Check
 **一句话**：默认是 0，也就是**永不清理**，这是 SQL 作业上线后状态无限增长的头号原因。TTL 的意思是「多久没被访问就清理」；清理后同一个 key 再来数据会被当成新 key：聚合从 0 开始算，Join 匹配不到旧数据。TTL 本质是拿正确性换资源。
 
 - 三种粒度：整个作业用 `table.exec.state.ttl`；单个查询用 `STATE_TTL` 提示按表设置；单个算子要改编译出的执行计划
-- TTL 按业务上同一个 key 最长的间隔来定，并监控状态大小
+- `STATE_TTL` 适用于 Regular Join 和分组聚合，表有别名时必须用别名，典型如订单表留 1 天、支付表留 2 小时
+- TTL 按业务上同一个 key 最长的间隔来定，不是越小越好，并监控状态大小
 
 → 详见 [Flink SQL 与 Table API](/flink/5_sql#_1、三个粒度的-ttl)
 

@@ -219,11 +219,11 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 | 时长 | 秒级短流程 | 可以是分钟到天的长流程 |
 | 场景 | 扣款、扣积分 | 订单全流程、旅行预订 |
 
-- 编排：中心编排器驱动，流程集中、易监控，编排器要持久化每一步（Seata Saga 状态机、Temporal）
-- 协同：各服务发事件接力，松耦合，但流程分散难追踪
-- 隔离对策：语义锁（中间状态）、可交换的更新（增减而不是覆盖）、执行前重读校验
+- 编排：中心编排器（「总指挥」）驱动，流程集中、易监控，适合步骤多、补偿复杂的流程；编排器要持久化每一步（Seata Saga 状态机、Temporal）
+- 协同：各服务监听事件接力推进，松耦合，但步骤多了流程分散难追踪，适合步骤少的流程
+- 隔离对策：语义锁（「处理中」这类中间状态）、可交换的更新（增减而不是覆盖）、执行前重读校验
 
-→ 详见 [分布式事务](/distributed/4_transaction#四、saga)
+→ 详见 [分布式事务](/distributed/4_transaction#四、saga)、[微服务设计模式](/microservices/3_patterns#_4、saga)
 
 ### Q17：Seata AT 的原理是什么？全局锁和读隔离是怎样的？回滚什么时候会失败？
 
@@ -259,12 +259,12 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 
 **一句话**：不在数据库事务里直接发 MQ；用本地消息表（业务表和消息表同一本地事务，投递任务发 MQ）或 RocketMQ 事务消息（半消息 + 本地事务 + 回查），消费端幂等。
 
-- 本地消息表：提交后立即投递，扫表兜底；多实例扫表用 `SKIP LOCKED`；也可以用 CDC 读 binlog 投递
+- 本地消息表的具体做法，完整答案见 [消息队列面试题解答](/interview/9_mq) Q20
 - 回查可能在本地事务还没执行完时到达，查不到记录不代表失败，要返回 `UNKNOW` 让 Broker 稍后再查
 - Kafka 事务只保证多分区写入的原子性，绑不了外部数据库，「写库 + 发消息」仍要本地消息表或 CDC
 - 跨企业回调用最大努力通知 + 对账查询兜底
 
-→ 详见 [分布式事务](/distributed/4_transaction#五、本地消息表-transactional-outbox)、[消息队列面试题解答](/interview/9_mq#五、分布式事务)
+→ 详见 [分布式事务](/distributed/4_transaction#五、本地消息表-transactional-outbox)
 
 ## 四、分布式 ID
 
@@ -335,14 +335,15 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 
 ### Q25：多实例下 `@Scheduled` 重复执行怎么解决？XXL-JOB 怎么保证只执行一次？
 
-**一句话**：每个实例的 `@Scheduled` 都会触发，任务被执行 N 次。轻量做法是 ShedLock 抢锁执行，任务多时上调度平台（XXL-JOB、ElasticJob、PowerJob），由调度中心决定何时触发、交给哪个执行器。
+**一句话**：每个实例的 `@Scheduled` 都会触发，任务被执行 N 次。只要「只执行一次」用 ShedLock 抢锁执行；需要管理界面、手动触发、失败重试、告警、分片时上调度平台（XXL-JOB、ElasticJob、PowerJob），由调度中心决定何时触发、交给哪个执行器。
 
-- ShedLock：`lockAtMostFor` 必须大于任务正常耗时；Quartz 集群靠 `QRTZ_LOCKS` 行锁
+- ShedLock：`lockAtMostFor` 必须大于任务正常耗时；只保证同一时刻最多一个实例在跑，不补跑、不分片；要持久化触发器、错过了补跑可用 Quartz 集群（靠 `QRTZ_LOCKS` 行锁）
 - XXL-JOB 2.1.0 起自研调度：`xxl_job_lock` 行锁保证同一时刻只有一个调度实例扫描到期任务，再用时间轮触发；3.x 要求 JDK 17+
+- XXL-JOB 接入 Boot 没有自动配置，要手动声明 `XxlJobSpringExecutor`；访问令牌从环境变量读，执行器端口只对调度中心开放
 - 大任务用分片广播：执行器拿到 `shardIndex` / `shardTotal`，只处理 `id % total = index` 的数据
 - 重试、故障转移、人工重跑都会重复处理，任务本身必须幂等
 
-→ 详见 [分布式调度](/distributed/6_job_scheduler#一、多实例下的定时任务问题)
+→ 详见 [分布式调度](/distributed/6_job_scheduler#一、多实例下的定时任务问题)、[异步任务与定时任务](/spring-boot/7_async_schedule#三、多实例下的定时任务)
 
 ### Q26：分布式 Session 有哪些方案？Spring Session 和 JWT 怎么选？
 

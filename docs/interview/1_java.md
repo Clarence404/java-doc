@@ -44,8 +44,7 @@ description: Lambda 与 Stream、版本特性、异常、String、泛型、反�
 
 **一句话**：Lambda 不是匿名内部类的简写。编译时只变成一个私有方法，第一次运行时 JVM 才临时生成实现类。
 
-- 编译后：Lambda 体变成当前类里的一个私有方法，不会多出 `Outer$1.class` 文件
-- 运行时：第一次执行到这一行时，JVM 动态生成一个实现类（`invokedynamic` 指令负责这件事），之后直接复用
+- 底层实现：Lambda 体编译成当前类的私有方法，不会多出 `Outer$1.class`；第一次执行时由 `invokedynamic` 动态生成实现类，为什么这样设计见 [JVM 面试题解答](/interview/3_jvm) Q18
 - 和匿名内部类的区别：Lambda 里的 `this` 指外面的对象，匿名类里的 `this` 指它自己；Lambda 只能用于只有一个抽象方法的接口
 - 为什么变量必须不变：Lambda 拿到的是变量值的一份拷贝，外面改了它看不到，所以干脆禁止修改；要累加就用 `AtomicInteger`
 
@@ -272,9 +271,9 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 |------|-------------|-------|
 | 原理 | 实现目标接口 | 继承目标类 |
 | 要求 | 必须有接口 | 类不能是 `final` |
-| 拦截不了 | 接口以外的方法 | `final` / `private` / `static` 方法 |
+| 拦截不了 | 接口以外的方法 | `final` / `private` / `static` 方法（不报错，静默失效） |
 
-- Spring 默认：有接口用 JDK 代理，没有用 CGLIB；Spring Boot 2.0 起默认统一用 CGLIB
+- Spring 默认：有接口用 JDK 代理，没有用 CGLIB；Spring Boot 2.0 起默认统一用 CGLIB，避免按实现类注入时报类型错误
 - `invokeSuper(proxy, args)`：在代理对象上调父类方法，类内部自己调自己也会被拦截
 - `invoke(target, args)`：转给另一个目标对象，类内部自己调自己不会被拦截，这就是 Spring AOP 自调用失效的原因
 - 两者性能在现代 JDK 上差不多，不是选型依据
@@ -375,12 +374,11 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 ### Q27：反序列化漏洞的原理？如何用 `ObjectInputFilter` 防护？序列化方案怎么选？
 
-**一句话**：`ObjectInputStream` 会按数据里写的类名创建对象并执行它的回调方法。攻击者拼出一串项目里已有的类，让回调层层触发，最后执行任意命令。只要反序列化不可信的数据，就有风险。
+**一句话**：`ObjectInputStream` 会按数据里写的类名创建对象并执行它的回调方法，攻击者拼出一串项目里已有的类就能执行任意命令；对外接口不用 Java 原生序列化，遗留场景用 `ObjectInputFilter` 白名单。
 
-- 根本解法：对外接口不用 Java 原生序列化，改用 JSON 或 Protobuf
 - `ObjectInputFilter`（JDK 9 起，8u121 也有）：用 `-Djdk.serialFilter=com.example.*;!*` 配白名单，只允许自己的类
-- 同类问题：Fastjson 1.x 的 `autoType` 允许 JSON 指定类名；Jackson 不要对外部输入开启全局默认类型
 - 选型：对外 HTTP 接口用 JSON（Jackson）；跨语言 RPC 用 Protobuf（gRPC）；Java 内部高性能传输用 Kryo、Hessian2
+- 漏洞原理和 Fastjson、Jackson 的防法，完整答案见 [应用安全面试题解答](/interview/23_security) Q25
 
 → 详见 [序列化](/java/19_topic_serialization#五、反序列化安全)
 
@@ -462,8 +460,7 @@ super(16, 0.75f, true);   // 构造器里：按访问顺序排列
 protected boolean removeEldestEntry(Map.Entry<K, V> eldest) { return size() > capacity; }
 ```
 
-- 它不是线程安全的，连 `get` 都会改链表；生产环境的本地缓存用 Caffeine
 - TreeSet / TreeMap 用比较器判断「是否同一个元素」，而不是 `equals`；比较结果为 0 就当作重复
 - 例子：按年龄排序的 `TreeSet<User>`，同龄的第二个用户加不进去；要用 `thenComparing` 再加一个区分字段
 
-→ 详见 [集合框架](/java/21_topic_collection#七、linkedhashmap)、[Caffeine](/cache/7_caffeine)；不借助 LinkedHashMap 手写 LRU 见 [算法面试题解答](/interview/4_algorithms#q9-如何手写一个-lru-缓存)
+→ 详见 [集合框架](/java/21_topic_collection#七、linkedhashmap)、[Caffeine](/cache/7_caffeine)；手写 LRU 的完整答案见 [算法面试题解答](/interview/4_algorithms) Q9

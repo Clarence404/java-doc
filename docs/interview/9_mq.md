@@ -224,8 +224,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **一句话**：Kafka 本质是一个分区化的顺序日志：顺序写、读走页缓存和零拷贝、所有操作都按批处理，再用多分区把压力分到多台机器上。
 
-- 顺序追加写，读写都走操作系统页缓存，不给 JVM 增加 GC 压力
-- 消费时用 sendfile 零拷贝，数据直接从缓存送到网卡
+- 存储层：顺序追加写、读写走操作系统页缓存（不给 JVM 增加 GC 压力）、消费用 sendfile 零拷贝，原理见 Q14
 - 批量 + 压缩：生产者攒一批再发，整批压缩，Broker 原样存，消费者解压
 - 分区并行：分区分布在多台 Broker 上，生产和消费都能水平扩展
 - 消费只是移动位点，多个消费者组读同一份数据不用额外写
@@ -238,15 +237,15 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **一句话**：积压就是生产比消费快。先止血（找出卡住的原因），再扩容（加消费者，必要时加分区），最后复盘消费能力和告警。
 
-- 先排查：是所有分区都涨（整体能力不够），还是个别分区涨（热点 key、某个实例卡住）；下游有没有慢 SQL、超时
+- 先分清是消费变慢（下游慢 SQL、超时）还是生产突然变多：消费变慢先修下游，盲目加消费者只会把下游压得更惨；再看是所有分区都涨（整体能力不够）还是个别分区涨（热点 key、某个实例卡住）
 - 隔离坏消息：反复失败的消息转死信，不然扩容也没用
-- 扩消费者：Kafka 实例数超过分区数就闲着了，要同时加分区；RabbitMQ 可以直接加
+- 扩消费者：Kafka 实例数超过分区数就闲着了，要同时加分区，或把消息转到分区更多的临时 Topic 再用大量实例消费；RabbitMQ 可以直接加
 - 提升单实例能力：批量拉取、批量写库，减少同步远程调用
-- 应急：暂停非核心消费组；或者把消息先转到分区更多的临时 Topic 再用大量实例消费
+- 应急：暂停非核心消费组；时效性强的旧消息过期就丢；平时 Kafka 看 lag、RocketMQ 看堆积量，持续增长就告警
 
 **常见坑**：直接重置位点跳过积压。这是最后手段，只在业务允许丢弃时用，事后要补数据。
 
-→ 详见 [消息队列基础](/messaging/1_basics#六、消息积压)、[Kafka 生产与消费](/messaging/2_kafka_client#_1、消息积压)
+→ 详见 [消息队列基础](/messaging/1_basics#六、消息积压)、[Kafka 生产与消费](/messaging/2_kafka_client#_1、消息积压)、[异步与削峰](/high-con/4_async_peak_shaving#_3、积压的监控与处理)
 
 ### Q17：Kafka Rebalance 什么时候触发？怎么减少影响？
 
@@ -305,12 +304,12 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 - 第 1 步：同一个事务里写业务表和消息表（状态 `NEW`），要么都成功，要么都失败
 - 第 2 步：后台任务扫描 `NEW` 消息发到 MQ，收到确认后标记 `SENT`，失败下次再发
-- 第 3 步：可能重复发，消费端必须幂等
-- 多实例扫表用 `SELECT ... FOR UPDATE SKIP LOCKED` 避免重复扫到同一条；也可以用 CDC（读 binlog）推送
+- 第 3 步：可能重复发，消费端必须按业务键幂等
+- 多实例扫表用 `SELECT ... FOR UPDATE SKIP LOCKED` 避免重复扫到同一条；也可以用 CDC（如 Debezium 读 binlog）推送，延迟更低、不压数据库；用 RocketMQ 时也可以直接用它的事务消息
 
 **常见坑**：用 `@TransactionalEventListener(AFTER_COMMIT)` 发消息就以为可靠了。提交后、发送前进程崩溃照样丢，只适合不重要的通知。
 
-→ 详见 [消息队列基础](/messaging/1_basics#_1、本地消息表-transactional-outbox)
+→ 详见 [消息队列基础](/messaging/1_basics#_1、本地消息表-transactional-outbox)、[微服务设计模式](/microservices/3_patterns#_5、outbox-事务发件箱)
 
 ### Q21：RocketMQ 事务消息的原理是什么？
 

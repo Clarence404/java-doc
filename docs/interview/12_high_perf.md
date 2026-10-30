@@ -46,6 +46,7 @@ description: 指标与方法论、Profiler、JVM 层、池化、异步批量、�
 | RED | 服务、接口 | 请求量、错误、耗时 | 监控大盘和告警 |
 
 - 饱和度比使用率更说明问题：比如线程池队列在堆积、连接池有人在等
+- 耗时看 P95 / P99，平均值会被大量快请求掩盖长尾
 - Spring Boot 的 `http.server.requests` 指标就是现成的 RED 数据
 
 → 详见 [性能分析方法论](/high-perf/2_methodology#一、use-方法-面向资源)、[性能分析方法论 · RED 方法](/high-perf/2_methodology#二、red-方法-面向服务)
@@ -103,19 +104,7 @@ asprof -d 30 -f /tmp/cpu.html <pid>   # async-profiler 抓 30 秒 CPU 火焰图
 
 **一句话**：先找到最耗 CPU 的线程，到 `jstack` 输出里按 `nid` 找到它，栈顶就是热点代码。
 
-```bash
-top -H -p <pid>                          # 找到高 CPU 的线程 ID，如 12345
-jstack <pid> | grep -A 30 "nid=12345 "   # JDK 18+ 的 nid 是十进制，直接搜
-```
-
-- JDK 17 及更早 `nid` 是十六进制，要先 `printf "%x\n" 12345` 转成 `3039` 再搜 `nid=0x3039`
-
-- 用 Arthas 更快：`thread -n 3` 直接列出最忙的 3 个线程和调用栈
-- 一次 `jstack` 只是瞬间快照，连抓 3～5 次，反复出现的才是热点
-- 偶发或多个线程分摊时，直接抓 30～60 秒 CPU 火焰图更可靠
-- 最忙的是 GC 线程时，问题在对象分配太多或内存泄漏，转查 GC 日志（见 Q12）
-
-→ 详见 [故障排查](/jvm/9_troubleshooting#十、cpu-使用率高)、[线上诊断](/engineering/7_diagnosis#三、按症状选命令)、[性能分析工具](/high-perf/3_profilers#一、async-profiler)
+→ 完整答案见 [JVM 面试题解答](/interview/3_jvm) Q38；正文详见 [故障排查](/jvm/9_troubleshooting#十、cpu-使用率高)、[线上诊断](/engineering/7_diagnosis#三、按症状选命令)、[性能分析工具](/high-perf/3_profilers#一、async-profiler)
 
 ### Q8：JFR 能采集哪些信息？适合排查什么问题？
 
@@ -168,17 +157,9 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 ### Q11：应用刚启动时 RT 毛刺明显，原因是什么？如何缓解？
 
-**一句话**：刚启动时代码还没被 JIT 编译成高效的机器码，加上类加载、连接池和缓存都是空的，一上来就接满流量就会变慢。解决办法是先预热、再接流量、慢慢加量。
+**一句话**：刚启动时代码还没被 JIT 编译成高效的机器码，加上类加载、连接池和缓存都是空的，一上来就接满流量就会变慢；解决办法是先预热、再接流量、慢慢加量。
 
-- 预热：启动后、标记就绪前，主动调几轮核心接口
-- 就绪后置：预热放在 `ApplicationRunner` 里，做完 readiness 探针才通过
-- 逐步放量：负载均衡给新实例慢慢加权重（如 Dubbo warmup、Envoy slow start）
-- 提前初始化：连接池建好最小连接、缓存预加载
-- CPU 给够：CPU 限额太小，JIT 编译会很慢
-
-**常见坑**：以为 AppCDS 能解决。它只加快类加载，解决不了 JIT 预热。
-
-→ 详见 [JVM 层性能策略](/high-perf/5_jvm_tuning#四、jit-预热与冷启动毛刺)、[优雅上下线与变更](/high-avail/8_graceful_release#二、服务预热)
+→ 完整答案见 [高可用面试题解答](/interview/14_high_avail) Q45；正文详见 [JVM 层性能策略](/high-perf/5_jvm_tuning#四、jit-预热与冷启动毛刺)、[优雅上下线与变更](/high-avail/8_graceful_release#二、服务预热)
 
 ### Q12：为什么降低对象分配速率往往比调 GC 参数更有效？
 
@@ -226,9 +207,9 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **一句话**：不是越大越好。连接池大小取决于数据库能同时处理多少请求，超出后数据库忙着切换和抢锁，反而更慢。先用经验公式估，再用 Little 定律校验。
 
-- 经验公式：`数据库服务器核数 × 2 + 磁盘数`，这是数据库侧的总连接数，多个应用实例要分摊
+- 经验公式：`数据库服务器核数 × 2 + 磁盘数`，这是数据库侧的总连接数，多个应用实例要分摊（如 16 核 SSD 约 33 个，4 个实例每个配 8～10 个）
 - Little 定律：所需连接数 = 单实例 QPS × 每次占用连接的时间；算出来太大，先缩短占用时间（优化慢 SQL、事务里不调 RPC）
-- 全局上限：所有实例的最大连接数加起来不超过数据库 `max_connections` 的 80%，扩容前重新算
+- 全局上限：所有实例的最大连接数加起来不超过数据库 `max_connections` 的 80%，扩容前重新算（见 [高并发面试题解答](/interview/13_high_con) Q36）
 - `connectionTimeout` 默认 30 秒，线上建议 2～5 秒，拿不到连接快速失败
 - `maxLifetime` 要比数据库、防火墙的空闲超时短几十秒
 
@@ -328,7 +309,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 ### Q23：什么是零拷贝？Kafka 为什么吞吐量高？开启 TLS 后有什么影响？
 
-**一句话**：零拷贝就是数据不经过程序加工、直接在内核里从文件送到网卡，少了几次复制。Kafka 吞吐高靠顺序写、页缓存、批量压缩和分区并行，发给消费者时用了零拷贝。开 TLS 后数据必须在程序里加密，零拷贝就用不了了。
+**一句话**：零拷贝就是数据不经过程序加工、直接在内核里从文件送到网卡，少了几次复制；开 TLS 后数据必须在程序里加密，零拷贝就用不了了。
 
 | 方式 | Java API | 谁在用 |
 |------|----------|-------|
@@ -337,6 +318,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 - 只有「大块数据原样搬运」时收益明显；普通 JSON 接口要序列化，用不上
 - Netty 的 `CompositeByteBuf`、直接内存属于程序里的「少拷贝」，不是操作系统的零拷贝
+- Kafka 吞吐高还靠顺序写、页缓存、批量压缩和分区并行，完整答案见 [消息队列面试题解答](/interview/9_mq) Q15
 
 **常见坑**：开 TLS 后不调整容量评估，吞吐会明显下降、CPU 上升。
 
@@ -373,17 +355,9 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 ### Q26：深分页为什么慢？有哪些优化方案？游标分页需要什么索引？
 
-**一句话**：`LIMIT 100000, 10` 要先读出 100010 行再扔掉前 10 万行，页越深越慢。首选游标分页：记住上一页最后一条，下一页从它后面接着查。
+**一句话**：`LIMIT 100000, 10` 要先读出 100010 行再扔掉前 10 万行，页越深越慢；首选游标分页，记住上一页最后一条，下一页从它后面接着查，索引按「过滤列 + 排序列」建。
 
-- 游标分页：`WHERE (create_time, id) < (上页最后的值) ORDER BY ... LIMIT 10`，缺点是不能随机跳页
-- 必须跳页时用延迟关联：先在索引上只查出 10 个 id，再回表取完整数据
-- 也可以让产品限制最多翻几页，或改用搜索引擎（ES `search_after`）
-- 索引：过滤列 + 排序列建联合索引，如 `WHERE user_id = ? ORDER BY create_time` 建 `(user_id, create_time)`
-- 批量导出、数据迁移一律按主键游标：`WHERE id > ? ORDER BY id LIMIT 1000`
-
-**常见坑**：排序字段有重复值时只用它做游标，翻页会重复或漏数据；要带上 id 一起做游标。
-
-→ 详见 [数据访问性能](/high-perf/10_db_performance#二、深分页)、[MySQL 索引](/database/1_mysql/4_topic_index#九、深度分页优化)
+→ 完整答案见 [数据库面试题解答](/interview/7_db) Q17；正文详见 [数据访问性能](/high-perf/10_db_performance#二、深分页)、[MySQL 索引](/database/1_mysql/4_topic_index#九、深度分页优化)
 
 ### Q27：JDBC 批量插入为什么没有变快？`rewriteBatchedStatements` 的作用是什么？
 

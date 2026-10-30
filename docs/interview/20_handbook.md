@@ -14,14 +14,7 @@ description: CPU 飙高、OOM 与 Full GC、线程卡死、慢 SQL 与锁表、�
 
 **一句话**：先分清是 GC 线程还是业务线程在忙，再用 `top -H` 找到最忙的线程，拿线程 ID 去线程栈里看它在执行什么，多抓几次确认停在同一位置。
 
-- GC 指标正常才去看业务线程；GC 频繁就转去查内存（见 Q3）
-- `top -H -p <pid>` 找最忙的线程，`jstack` / `jcmd Thread.print` 抓线程栈，按 `nid` 对上（新版 JDK 的 `nid` 是十进制，老版本要转十六进制）
-- Arthas `thread -n 3` 一步列出最忙的线程和栈
-- 方法卡住不返回时，用 Arthas `watch ... -b` 在入口抓入参，拿到触发输入再本地复现
-
-**常见坑**：只抓一次栈就下结论；正则嵌套量词（如 `(a+)+`）遇到特定输入会回溯爆炸，校验前要先限长。
-
-→ 详见 [CPU 飙高 · 排查过程](/handbook/2_incidents/3_cpu_high#三、排查过程)
+→ 完整答案见 [JVM 面试题解答](/interview/3_jvm) Q38；正文详见 [CPU 飙高 · 排查过程](/handbook/2_incidents/3_cpu_high#三、排查过程)
 
 ### Q2：OOM 了怎么定位？堆溢出和 Metaspace 溢出查法有什么不同？
 
@@ -200,17 +193,7 @@ description: CPU 飙高、OOM 与 Full GC、线程卡死、慢 SQL 与锁表、�
 
 **一句话**：Java OOM 是 JVM 自己在某块内存里申请不到空间抛的异常，进程还活着；OOMKilled 是容器总内存超过 limit 被内核直接杀掉，退出码 137，没有 Java 异常也没有 dump。
 
-| 对比 | Java OOM | OOMKilled |
-|------|----------|-----------|
-| 谁触发 | JVM | 内核（cgroup） |
-| 证据 | `OutOfMemoryError` 日志、heap dump | `kubectl describe pod` 的 `Last State: OOMKilled`、退出码 137 |
-| 看什么指标 | 堆 / 元空间使用 | 容器工作集 / limit |
-
-- 堆「已提交」才是堆实际占用的物理内存，剩下的空间要装下直接内存、元空间、线程栈等堆外内存
-- 用 NMT（启动加 `-XX:NativeMemoryTracking=summary`，再 `jcmd VM.native_memory`）核算堆外各区域
-- 修复：`MaxRAMPercentage` 降到 50%～65%，直接内存、元空间显式封顶，加「工作集 / limit」告警
-
-→ 详见 [容器被 OOMKilled · 排查过程](/handbook/2_incidents/15_oom_killed#三、排查过程)
+→ 完整答案见 [操作系统面试题解答](/interview/4_computer_os) Q10；正文详见 [容器被 OOMKilled · 排查过程](/handbook/2_incidents/15_oom_killed#三、排查过程)
 
 ### Q15：Kubernetes 里调用外部接口偶发「恰好慢 5 秒」，怎么查？
 
@@ -244,14 +227,7 @@ description: CPU 飙高、OOM 与 Full GC、线程卡死、慢 SQL 与锁表、�
 
 **一句话**：Linux 的 Load 不只数在跑的任务，还数卡在不可中断等待（D 状态）里的任务；CPU 闲而 Load 高，多半是一批线程卡在 IO 上，比如 NFS 不响应。
 
-- `vmstat 1` 看 `b` 列，`ps -eLo stat,wchan` 找 D 状态线程，`/proc/<pid>/task/<tid>/stack` 看卡在内核哪里
-- 卡在本地 IO 的 Java 线程在线程栈里仍显示 `RUNNABLE`，要和系统线程状态对照看
-- `hard` 挂载的 NFS 一卡，所有访问该目录的进程都会进入 D 状态，`df` 也会卡住
-- 修复：访问共享存储放独立线程池并设超时，告警补上 D 状态任务数和 IO 压力（PSI）
-
-**常见坑**：只按「CPU 高」的思路解读 Load 告警，前面十几分钟都在找 CPU 消耗。
-
-→ 详见 [Load 高但 CPU 不高 · 排查过程](/handbook/2_incidents/18_load_high_cpu_low#三、排查过程)
+→ 完整答案见 [操作系统面试题解答](/interview/4_computer_os) Q14；正文详见 [Load 高但 CPU 不高 · 排查过程](/handbook/2_incidents/18_load_high_cpu_low#三、排查过程)
 
 ### Q18：发版后 MySQL CPU 打满，怎么找到是哪条 SQL？
 
@@ -299,14 +275,7 @@ description: CPU 飙高、OOM 与 Full GC、线程卡死、慢 SQL 与锁表、�
 
 **一句话**：这是冷启动：热点代码还没被 JIT 编译成机器码、类和连接池按需初始化、本地缓存是空的，实例一就绪就接满流量，前几分钟自然慢。
 
-- 按 Pod 和启动时长拆分 P99，只有新实例慢就是冷启动问题
-- 启动期 JIT 编译线程大量占 CPU，CPU limit 偏小时还会被限流，把问题放大
-- 修复：预热完成再就绪、连接池固定大小并提前建连、缓存预加载，给编译留足 CPU
-- 缩短启动：JDK 21 用 AppCDS，JDK 25 可用 AOT 缓存，训练时带上预热流量效果更好
-
-**常见坑**：为省 CPU 只开 C1（`TieredStopAtLevel=1`），稳态性能会一直打折扣。
-
-→ 详见 [启动后 RT 飙高 · 排查过程](/handbook/2_incidents/22_warmup_rt#三、排查过程)
+→ 完整答案见 [高可用面试题解答](/interview/14_high_avail) Q45；正文详见 [启动后 RT 飙高 · 排查过程](/handbook/2_incidents/22_warmup_rt#三、排查过程)
 
 ### Q22：CPU 不高、下游都正常，接口却变慢，会不会是日志的问题？
 

@@ -126,8 +126,9 @@ description: 进程线程协程、系统调用、虚拟内存、OOM Killer、Pag
 **一句话**：`OutOfMemoryError` 是 JVM 发现堆或元空间满了抛的异常，进程还活着；OOM Killer 是内核发现整机（或容器）物理内存耗尽，直接用 `SIGKILL` 杀进程，应用连日志都来不及打。
 
 - Linux 默认允许超额分配（overcommit），申请时只粗查，真用完时才由 OOM Killer 按评分挑进程
-- 容器里堆没满却被杀，多半是直接内存、线程栈、元空间等堆外部分把总量撑过了 limit
-- 被 OOM Killer 杀掉的进程退出码是 137（128 + SIGKILL），用 `dmesg -T | grep -i "killed process"` 确认
+- 容器里堆没满却被杀，多半是直接内存、线程栈、元空间等堆外部分把总量撑过了 limit；用 NMT（启动加 `-XX:NativeMemoryTracking=summary`，再 `jcmd <pid> VM.native_memory`）核算堆外各区域
+- 确认被杀：退出码 137（128 + SIGKILL），`dmesg -T | grep -i "killed process"`；K8s 里 `kubectl describe pod` 显示 `Last State: OOMKilled`
+- 修复：`MaxRAMPercentage` 降到 50%～65%，直接内存、元空间显式封顶，加「工作集 / limit」告警
 
 | 对比 | OutOfMemoryError | OOM Killer |
 |------|------------------|------------|
@@ -135,7 +136,7 @@ description: 进程线程协程、系统调用、虚拟内存、OOM Killer、Pag
 | 原因 | 堆 / 元空间等达到 JVM 上限 | 物理内存（或 cgroup `memory.max`）耗尽 |
 | 现象 | 异常栈、可配置堆转储 | 进程突然消失，退出码 137，`dmesg` 有记录 |
 
-→ 详见 [内存管理与 Page Cache](/os/3_memory#_3、超额分配与-oom-killer)
+→ 详见 [内存管理与 Page Cache](/os/3_memory#_3、超额分配与-oom-killer)、[容器被 OOMKilled · 排查过程](/handbook/2_incidents/15_oom_killed#三、排查过程)
 
 ### Q11：write 返回成功，数据就落盘了吗？
 
@@ -185,12 +186,14 @@ description: 进程线程协程、系统调用、虚拟内存、OOM Killer、Pag
 **一句话**：Linux 的 Load 统计的是 R（运行或排队等 CPU）加 D（不可中断睡眠）状态的线程数，Load 高 CPU 低说明排队的大多是 D 状态，在等磁盘、网络存储或内存回收，而不是在抢 CPU。
 
 - Load 要和逻辑核数比；统计单位是线程，不是进程
-- 常见成因：磁盘慢或打满、NFS / 云盘抖动、内存紧张导致直接回收或换页
-- 排查：`vmstat 1` 的 `b` 列看阻塞在 IO 上的任务数（D 状态的主要部分，完整计数用 `ps -eLo stat | grep -c ^D`），`ps -eLo stat,wchan` 看线程卡在哪个内核函数，`iostat -x 1` 看磁盘延迟
-- `wa` 只作参考：它只在 CPU 空闲时才计入；更准的是 PSI（`/proc/pressure/io`）
-- 容器里 `/proc/loadavg` 是宿主机的，判断容器缺不缺 CPU 看 cgroup 的 PSI 和 `cpu.stat` 限流计数
+- 常见成因：磁盘慢或打满、NFS / 云盘抖动（`hard` 挂载的 NFS 一卡，访问它的线程全进 D 状态，连 `df` 都会卡住）、内存紧张导致直接回收或换页
+- 排查：`vmstat 1` 的 `b` 列看阻塞在 IO 上的任务数（完整计数用 `ps -eLo stat | grep -c ^D`），`ps -eLo stat,wchan` 和 `/proc/<pid>/task/<tid>/stack` 看线程卡在哪个内核函数，`iostat -x 1` 看磁盘延迟
+- 卡在 IO 上的 Java 线程在 jstack 里仍显示 `RUNNABLE`，要和系统线程状态对照看；修复上把访问共享存储放进独立线程池并设超时
+- `wa` 只作参考（只在 CPU 空闲时才计入），更准的是 PSI（`/proc/pressure/io`）；容器里 `/proc/loadavg` 是宿主机的，看 cgroup 的 PSI 和 `cpu.stat` 限流计数
 
-→ 详见 [Load 与 CPU 利用率](/os/5_load_cpu#二、load-高而-cpu-低)
+**常见坑**：只按「CPU 高」的思路解读 Load 告警，前面十几分钟都在找 CPU 消耗。
+
+→ 详见 [Load 与 CPU 利用率](/os/5_load_cpu#二、load-高而-cpu-低)、[Load 高但 CPU 不高 · 排查过程](/handbook/2_incidents/18_load_high_cpu_low#三、排查过程)
 
 ### Q15：僵尸进程和孤儿进程是什么？容器里的 PID 1 要注意什么？
 

@@ -169,10 +169,9 @@ description: IoC、Bean 生命周期、AOP、事务、MVC、常用组件、WebFl
 
 **一句话**：纯 Spring 下，Bean 实现了接口就用 JDK 代理，否则用 CGLIB；Spring Boot 2.0 起默认一律用 CGLIB，避免按实现类注入时报类型错误。
 
-- 选哪种看能力不看性能，现代 JDK 上两者开销差不多
-- CGLIB 是生成子类：`final` 类代理不了；`final`、`private`、`static` 方法不会被拦截，而且不报错
 - Spring 自带一份 CGLIB（在 `spring-core` 里），不依赖外部 CGLIB 包
 - 代理在 Bean 初始化之后生成，匹配到切点就用代理替换原对象
+- 两种代理的原理、限制与性能对比，完整答案见 [Java 基础面试题解答](/interview/1_java) Q20
 
 **常见坑**：把 `@Transactional` 写在 `final` 方法上，事务静默失效。
 
@@ -306,8 +305,9 @@ txTemplate.execute(status -> { recordRepo.save(record); return accountRepo.deduc
 
 **一句话**：`@RestController` = `@Controller` + `@ResponseBody`。`@Controller` 的方法返回值默认当作页面名去渲染页面；`@RestController` 的所有方法返回值都直接转成 JSON 写进响应体。
 
+- 原理：带 `@ResponseBody` 的返回值由 `HttpMessageConverter` 直接写进响应体，不走视图解析
 - 用 `@Controller` 又想返回 JSON，就在方法上单独加 `@ResponseBody`
-- 前后端分离的 REST 接口统一用 `@RestController`
+- 前后端分离的 REST 接口统一用 `@RestController`，全局异常处理对应用 `@RestControllerAdvice`
 
 → 详见 [MVC](/spring/3_mvc#_2、常用注解)
 

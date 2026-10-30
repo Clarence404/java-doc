@@ -57,15 +57,15 @@ description: TCP 握手挥手与 TIME_WAIT、拥塞控制、HTTP 演进与缓存
 
 ### Q5：TIME_WAIT 过多有什么影响？怎么处理？
 
-**一句话**：先看是哪一端。服务端大量 TIME_WAIT 只占点内存，不会耗尽端口；真正会出事的是客户端或网关频繁向同一上游建短连接，把临时端口用光。
+**一句话**：TIME_WAIT 出现在主动关闭连接的一方，要等 2MSL 才释放，大量出现基本是短连接造成的。先看是哪一端：服务端大量 TIME_WAIT 只占点内存，不会耗尽端口；真正会出事的是客户端或网关频繁向同一上游建短连接，把临时端口用光。
 
 | 场景 | 影响 | 处理 |
 |------|------|------|
 | 服务端主动关短连接 | 占内存和 conntrack 表项，所有连接共用监听端口 | 改长连接；让服务端空闲超时略长于客户端，由客户端先关 |
-| 客户端 / 网关调上游 | 临时端口耗尽（默认约 2.8 万个），报 `Cannot assign requested address` | 连接池 + Keep-Alive；开 `tcp_tw_reuse`；扩大 `ip_local_port_range` |
+| 客户端 / 网关调上游 | 临时端口耗尽（默认约 2.8 万个），报 `Cannot assign requested address` | 连接池 + Keep-Alive；开 `tcp_tw_reuse`；扩大 `ip_local_port_range`（如 `10000 65535`） |
 
 - 统计：`ss -s` 看汇总，`ss -tan state time-wait` 按目标地址聚合（`netstat` 已不推荐）
-- `tcp_tw_reuse` 只对 connect 发起方生效，依赖 TCP 时间戳；`tcp_max_tw_buckets` 是总数上限的兜底
+- 先改成复用连接，再考虑调内核参数；`tcp_tw_reuse` 只对 connect 发起方生效，依赖 TCP 时间戳；`tcp_max_tw_buckets` 是总数上限的兜底
 
 **常见坑**：`tcp_tw_recycle` 在 NAT 下会误丢 SYN，Linux 4.12 已删除；`SO_REUSEADDR` 只让监听端口能快速重启绑定，不减少 TIME_WAIT。
 
@@ -346,15 +346,13 @@ description: TCP 握手挥手与 TIME_WAIT、拥塞控制、HTTP 演进与缓存
 
 ### Q26：CDN 的原理是什么？正向代理和反向代理有什么区别？
 
-**一句话**：CDN 把可公开、可缓存的内容放到离用户最近的边缘节点，靠 DNS 把用户导到就近节点，源站只处理未命中和动态请求；正向代理替客户端出去，反向代理替服务端接进来。
+**一句话**：CDN 靠 DNS 把用户导到就近的边缘节点，节点缓存可公开、可缓存的内容，未命中才回源；正向代理替客户端出去，反向代理替服务端接进来。
 
-- 调度：业务域名 CNAME 到 CDN 的调度域名，由 CDN 的 DNS 按地域、运营商返回边缘节点 IP
-- 缓存：边缘节点按 `Cache-Control` 缓存，未命中或过期时回源；静态资源文件名带内容哈希，可以长期缓存
-- 回源保护：大量节点同时回源会冲垮源站，要开回源合并、大促前预热
+- CDN 的调度、缓存与回源保护，完整答案见 [高并发面试题解答](/interview/13_high_con) Q7
 - 正向代理：客户端配置它去访问外部，服务端看到的是代理，如企业上网代理
 - 反向代理：部署在服务端前面，客户端以为它就是服务器，如 Nginx、API 网关，负责负载均衡、TLS 卸载、限流
 
-→ 详见 [接入层架构](/high-con/1_access_layer#三、cdn-与动静分离)、[HTTP · 正向代理与反向代理](/protocols/2_http#十二、正向代理与反向代理)
+→ 详见 [HTTP · 正向代理与反向代理](/protocols/2_http#十二、正向代理与反向代理)、[接入层架构](/high-con/1_access_layer#三、cdn-与动静分离)
 
 ### Q27：从浏览器输入 URL 到页面展示，中间发生了什么？
 

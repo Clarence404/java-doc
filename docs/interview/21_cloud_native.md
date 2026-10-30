@@ -27,15 +27,7 @@ description: Linux 信号与排查、容器原理与 Java 镜像、Kubernetes �
 
 **一句话**：先用 `top -Hp` 找到最吃 CPU 的线程，再到 `jstack` 输出里按 `nid` 找到这个线程的调用栈。
 
-- `top` 或 `ps --sort=-%cpu` 先确认是哪个 Java 进程
-- `top -Hp <pid>`：按线程看 CPU，记下最高的线程 ID（十进制）
-- JDK 18+ 的 `nid` 也是十进制，`jstack <pid> | grep -A 20 'nid=<tid> '` 直接看栈；JDK 17 及更早要先 `printf '%x\n' <tid>` 转十六进制
-- 多抓几次栈对比，同一位置反复出现才是热点；常见是死循环、正则回溯、频繁 GC
-- 嫌手工麻烦就用 Arthas 的 `thread -n 3` 一步出结果
-
-**常见坑**：最热的线程是 GC 线程时，问题在内存（对象分配太多或堆太小），应该转去看 GC 日志。
-
-→ 详见 [Linux 概览](/cloud-native/1_linux#_2、定位-java-进程的高-cpu-线程)
+→ 完整答案见 [JVM 面试题解答](/interview/3_jvm) Q38；正文详见 [Linux 概览](/cloud-native/1_linux#_2、定位-java-进程的高-cpu-线程)
 
 ### Q3：报 Too many open files 怎么排查和解决？
 
@@ -116,7 +108,7 @@ description: Linux 信号与排查、容器原理与 Java 镜像、Kubernetes �
 - 不设 CPU limit 时 JVM 看到整台节点的核数，GC 线程和线程池偏大，用 `-XX:ActiveProcessorCount` 指定
 - 加 `-XX:+ExitOnOutOfMemoryError`，堆溢出时直接退出让 K8s 重启
 
-→ 详见 [Kubernetes](/cloud-native/6_kubernetes#_3、jvm-在容器里)
+→ 详见 [Kubernetes](/cloud-native/6_kubernetes#_3、jvm-在容器里)；OOMKilled 与 Java OOM 的区别见 [操作系统面试题解答](/interview/4_computer_os) Q10
 
 ## 三、Kubernetes
 
@@ -167,14 +159,7 @@ description: Linux 信号与排查、容器原理与 Java 镜像、Kubernetes �
 
 **一句话**：startup 管「启动完了没」，liveness 管「还活着没」（失败就重启），readiness 管「能不能接流量」（失败就摘流量但不重启）；liveness 绝不能查数据库这类外部依赖。
 
-- startupProbe：成功之前另外两个探针不执行，专门兜住 Java 慢启动
-- livenessProbe 查外部依赖的后果：数据库一抖，所有 Pod 同时重启，小故障放大成全量故障
-- Spring Boot Actuator 直接提供 `/actuator/health/liveness`、`/readiness`，还能在业务端口暴露 `/livez`、`/readyz`
-- 探针走业务端口，否则业务端口卡死时管理端口还在返回成功
-
-**常见坑**：靠把 liveness 的 `initialDelaySeconds` 设很大来等启动，结果整个运行期的故障检测都被放宽了。
-
-→ 详见 [Kubernetes](/cloud-native/6_kubernetes#_1、三种探针)
+→ 完整答案见 [高可用面试题解答](/interview/14_high_avail) Q10；正文详见 [Kubernetes](/cloud-native/6_kubernetes#_1、三种探针)
 
 ### Q13：滚动更新怎么做到不中断？Pod 下线时怎么优雅终止？
 
@@ -182,10 +167,7 @@ description: Linux 信号与排查、容器原理与 Java 镜像、Kubernetes �
 
 - `maxSurge`：最多多出几个 Pod；`maxUnavailable`：最多几个不可用
 - 新版本一直不就绪，滚动会卡住，旧 Pod 继续服务；超时只标记失败，**不会自动回滚**，要 `kubectl rollout undo`
-- 终止顺序：标记 Terminating 并开始摘流量 → `preStop` sleep 几秒 → SIGTERM → 超过宽限期 SIGKILL
-- `terminationGracePeriodSeconds` ≥ preStop 等待 + 应用停机超时 + 余量
-
-**常见坑**：shell 形式启动导致 SIGTERM 到不了 JVM，应用一直不知道要停，宽限期一到被强杀。
+- Pod 下线的终止顺序、`preStop` 与宽限期怎么配，完整答案见 [高可用面试题解答](/interview/14_high_avail) Q43
 
 → 详见 [Kubernetes](/cloud-native/6_kubernetes#_3、优雅终止)
 

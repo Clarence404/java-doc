@@ -241,11 +241,12 @@ description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL�
 
 ### Q17：深度分页如何优化？
 
-**一句话**：`LIMIT 100000, 20` 要先读出 10 万行再扔掉，`SELECT *` 时每行还要回表。要跳页就用延迟关联，只查下一页就用游标翻页。
+**一句话**：`LIMIT 100000, 20` 要先读出 10 万行再扔掉，`SELECT *` 时每行还要回表。只查下一页首选游标翻页，必须跳页就用延迟关联。
 
 - 延迟关联：子查询在覆盖索引上只取 20 个 id，外层再按 id 查整行，只回表 20 次
-- 游标翻页：记住上一页最后一条的排序值和 id，下一页用 `WHERE` 接着查，速度和页数无关
-- 游标翻页不能随意跳到第 N 页；产品上也可以限制最大页数
+- 游标翻页：记住上一页最后一条的排序值和 id，下一页用 `WHERE` 接着查，速度和页数无关；索引按「过滤列 + 排序列」建联合索引，如 `(user_id, create_time)`
+- 游标翻页不能随意跳到第 N 页；产品上也可以限制最大页数，或改用搜索引擎（ES `search_after`）
+- 批量导出、数据迁移一律按主键游标：`WHERE id > ? ORDER BY id LIMIT 1000`
 
 ```sql
 WHERE user_id = ? AND (create_time < ? OR (create_time = ? AND id < ?)) ORDER BY create_time DESC, id DESC LIMIT 20
@@ -253,7 +254,7 @@ WHERE user_id = ? AND (create_time < ? OR (create_time = ? AND id < ?)) ORDER BY
 
 **常见坑**：排序字段可能重复，游标必须带上 id，否则会漏数据或重复。
 
-→ 详见 [MySQL 索引](/database/1_mysql/4_topic_index#九、深度分页优化)
+→ 详见 [MySQL 索引](/database/1_mysql/4_topic_index#九、深度分页优化)、[数据访问性能](/high-perf/10_db_performance#二、深分页)
 
 ### Q18：如何设计合理的索引？唯一索引和普通索引怎么选？
 
@@ -683,14 +684,9 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 ### Q48：什么时候需要分库分表？分片键如何选择？
 
-**一句话**：分库分表是最后一招。先优化索引和 SQL、加缓存、读写分离、归档冷数据，单库的容量、写入量或连接数确实扛不住了再拆。分片键选最常用的查询条件里分布均匀、不会修改的字段，比如 user_id。
+**一句话**：分库分表是最后一招，单库的容量、写入量或连接数确实扛不住了再拆；分片键选最常用的查询条件里分布均匀、不会修改的字段，比如 user_id。
 
-- 垂直拆分：按业务拆成不同的库
-- 水平拆分：按分片键把一张表的行分散到多个库表
-- 分片键选得好，大部分查询只落到一个分片
-- 不按分片键的查询：用映射表、冗余表或搜索引擎
-
-→ 详见 [高并发面试题解答](/interview/13_high_con#q23-什么时候需要分库分表-分片键如何选择)、[数据层扩展](/high-con/5_data_scaling#四、分库分表)
+→ 完整答案见 [高并发面试题解答](/interview/13_high_con) Q23；正文详见 [数据层扩展](/high-con/5_data_scaling#四、分库分表)
 
 ### Q49：ShardingSphere-JDBC 和 Proxy 有什么区别？跨分片查询和事务如何处理？
 
@@ -754,16 +750,15 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 ### Q53：连接池大小怎么设？`maxLifetime`、`keepaliveTime` 与 `wait_timeout` 是什么关系？
 
-**一句话**：连接池不是越大越好。经验公式「数据库 CPU 核数 × 2 + 磁盘数」算的是数据库那边总共需要的活跃连接数，要分给所有应用实例。`maxLifetime` 要比数据库和防火墙的空闲超时都短，否则池里会留着已经被断开的连接。
+**一句话**：连接池不是越大越好，按「数据库 CPU 核数 × 2 + 磁盘数」估出数据库侧的总连接数，再分给所有应用实例。`maxLifetime` 要比数据库和防火墙的空闲超时都短，否则池里会留着已经被断开的连接。
 
-- 例子：数据库 16 核 SSD，总共约 33 个连接，4 个应用实例每个配 8～10 个就够
-- 所有实例的连接池加起来（包括扩容后）不要超过数据库 `max_connections` 的约 80%
 - `keepaliveTime` 要小于所有空闲超时中最短的那个，定期探活
 - 池被用光时：先查慢 SQL 和长事务，再看是否连接泄漏（`leakDetectionThreshold` 可以定位）
+- 池大小怎么估、为什么不是越大越好，完整答案见 [高性能面试题解答](/interview/12_high_perf) Q15
 
 **常见坑**：报 Communications link failure，多半是连接被数据库或防火墙断了，池里还在用。
 
-→ 详见 [数据库连接池](/database/4_access/2_connection_pool#_4、池大小估算)、[高并发面试题解答](/interview/13_high_con#q36-服务水平扩容时-数据库连接池要怎么重新核算)
+→ 详见 [数据库连接池](/database/4_access/2_connection_pool#_4、池大小估算)
 
 ### Q54：PostgreSQL 为什么需要 PgBouncer？transaction 模式有什么限制？
 
@@ -824,18 +819,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **一句话**：`#{}` 会变成预编译语句里的 `?` 占位符，参数由 JDBC 绑定，安全；`${}` 是把值原样拼进 SQL 字符串，传什么就执行什么，有 SQL 注入风险。
 
-- 默认一律用 `#{}`；`LIKE` 也用 `#{}`，在 SQL 里用 `CONCAT('%', #{kw}, '%')` 拼通配符
-- `#{}` 只换参数值、SQL 文本固定不变，预编译语句可以复用；`${}` 每次值不同 SQL 文本就不同
-- 动态排序、动态表名只能用 `${}`：把前端传来的字段名映射成代码里写死的列名再传进去
-
-| 写法 | 实现 | 安全 | 能否用于表名、列名 |
-|------|------|------|-----------------|
-| `#{}` | `PreparedStatement` 的 `?` | 安全 | 不能（会被当成字符串加引号） |
-| `${}` | 字符串替换 | 不安全 | 能，但值必须来自白名单 |
-
-**常见坑**：为了省事写 `'%${kw}%'`，搜索框直接成了注入入口。
-
-→ 详见 [常见漏洞与防护](/security/8_vulnerabilities#_2、参数化查询)
+→ 完整答案见 [应用安全面试题解答](/interview/23_security) Q22；正文详见 [常见漏洞与防护](/security/8_vulnerabilities#_2、参数化查询)
 
 ### Q58：MyBatis 插件（Interceptor）是怎么工作的？能拦截哪些对象？
 

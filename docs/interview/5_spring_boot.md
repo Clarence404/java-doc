@@ -80,6 +80,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **一句话**：前四个事件发布时容器还没刷新，`@Component` 的 Bean 根本还没创建，自然收不到。这类监听器要写在 `META-INF/spring.factories` 里，或者启动前用 `application.addListeners(...)` 注册。
 
+- 前四个事件：Starting → EnvironmentPrepared → ContextInitialized → Prepared，都在容器刷新之前
 - 想在加载配置阶段修改配置，用 `EnvironmentPostProcessor`
 - 监听 `ContextRefreshedEvent` 可能被触发多次（父子容器、手动刷新），一次性的初始化逻辑放到 `ApplicationReadyEvent`
 
@@ -157,6 +158,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 - 常见症状：静态资源 404，日期格式和 `spring.jackson.*` 配置不起作用
 - 想定制 MVC，实现 `WebMvcConfigurer` 接口即可，不要加 `@EnableWebMvc`
+- `WebMvcConfigurer` 是在默认配置上叠加：加拦截器（`addInterceptors`）、跨域等都在它里面做，Boot 的默认装配照常保留
 
 → 详见 [Web 开发](/spring-boot/2_web_dev#_1、starter-与默认装配)
 
@@ -236,9 +238,9 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 ### Q19：Lettuce 需要连接池吗？Kafka 消息反序列化失败为什么会卡住分区？
 
-**一句话**：Lettuce 的连接是线程安全的，默认所有线程共用一个连接，普通命令不需要连接池；只有 `BLPOP` 这类阻塞命令和 `MULTI` 事务才需要。Kafka 的反序列化发生在拉取消息时，一条格式错误的消息会让每次拉取都失败，位置一直前进不了，分区就卡住了。
+**一句话**：Lettuce 的连接是线程安全的，默认所有线程共用一个连接，普通命令不需要连接池。Kafka 的反序列化发生在拉取消息时，一条格式错误的消息会让每次拉取都失败，位置一直前进不了，分区就卡住了。
 
-- Lettuce 连接池要生效还得引入 `commons-pool2`，否则 `pool` 配置被悄悄忽略
+- Lettuce 什么时候才会用到池、为什么配了不生效，完整答案见 [高并发面试题解答](/interview/13_high_con) Q37
 - Kafka 解法：用 `ErrorHandlingDeserializer` 包一层，配合 `DeadLetterPublishingRecoverer` 把坏消息送进死信 Topic
 - `trusted.packages` 只写事件类所在的包
 
@@ -272,13 +274,9 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 ### Q22：多实例部署时如何让定时任务只执行一次？（ShedLock vs XXL-JOB）
 
-**一句话**：`@Scheduled` 只管本进程，部署 N 个实例就执行 N 次。只要「只执行一次」用 ShedLock 加分布式锁；需要管理界面、手动触发、失败重试、告警、分片时用 XXL-JOB 这类调度平台。
+**一句话**：`@Scheduled` 只管本进程，部署 N 个实例就执行 N 次；只要「只执行一次」用 ShedLock 加分布式锁，需要管理界面、失败重试、分片时用 XXL-JOB 这类调度平台。
 
-- ShedLock：`lockAtMostFor`（锁最长持有时间）要明显大于任务正常耗时；只保证同一时刻最多一个实例在跑，不补跑、不分片
-- XXL-JOB：没有 Boot 自动配置，要手动声明 `XxlJobSpringExecutor`；访问令牌从环境变量读，执行器端口只对调度中心开放
-- 需要持久化触发器、错过了要补跑，可以用 Quartz 集群
-
-→ 详见 [异步任务与定时任务](/spring-boot/7_async_schedule#三、多实例下的定时任务)、[分布式调度](/distributed/6_job_scheduler)
+→ 完整答案见 [分布式面试题解答](/interview/10_distributed) Q25；正文详见 [异步任务与定时任务](/spring-boot/7_async_schedule#三、多实例下的定时任务)、[分布式调度](/distributed/6_job_scheduler)
 
 ## 六、运维与可观测
 
@@ -298,11 +296,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **一句话**：存活探针问「进程还活着吗」，失败了 K8s 会重启容器；就绪探针问「能接流量吗」，失败了只是不给它分流量，不重启。
 
-- 如果存活探针里检查了数据库，数据库一抖，所有 Pod 会被同时重启，一个依赖故障被放大成全部重启
-- Boot 4 起探针分组默认开启（Boot 3 只在检测到 K8s 时开启）
-- 数据库、Redis 这类共享依赖也不要放进就绪探针：依赖一抖，所有实例同时被摘流量，等于全站不可用
-
-→ 详见 [Actuator 监控](/spring-boot/11_actuator#四、存活-就绪探针与健康分组)、[高可用面试题解答](/interview/14_high_avail#q10-k8s-的-liveness-和-readiness-探针有什么区别-为什么探针不建议检查数据库等共享依赖)
+→ 完整答案见 [高可用面试题解答](/interview/14_high_avail) Q10；正文详见 [Actuator 监控](/spring-boot/11_actuator#四、存活-就绪探针与健康分组)
 
 ### Q25：如何用 Micrometer 写自定义业务指标？如何避免高基数？Observation API 做什么？
 
