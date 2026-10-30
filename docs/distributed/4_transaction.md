@@ -157,6 +157,8 @@ Saga 没有隔离：T1 提交后，在 Saga 结束前其他事务就能看到它
 3. 失败的记录按退避策略重试，超过上限告警
 4. 消费方按消息 ID 或业务键做幂等，因为投递可能重复
 
+![本地消息表（Transactional Outbox）](../assets/distributed/mq-outbox.svg)
+
 ```sql
 CREATE TABLE outbox_message (
     id           BIGINT       PRIMARY KEY,
@@ -253,7 +255,27 @@ public class OutboxRelayJob {
 消息发送成功但事务回滚（如后一条发送失败、`markSent` 失败）时，下个周期会再发一次，所以消费端必须幂等。批量不宜过大：事务内持有行锁并等待 MQ 响应，批越大锁持有越久。示例省略了失败重试计数，生产中发送失败的记录应累加 `retry_count`、按退避推迟 `next_retry_at`，超过上限置为 `FAILED` 并告警。
 :::
 
-各 MQ 的发送确认机制与事务消息的对比见 [消息队列基础](/messaging/1_basics#八、分布式事务中的消息)。
+投递时 `syncSend` 要等 Broker 确认才算成功，各 MQ 的发送确认机制见 [消息队列基础 · 可靠性：三层保障](/messaging/1_basics#三、可靠性-三层保障)。
+
+### 4、只做「提交后发送」为什么不够
+
+对一致性要求不高的通知类消息，有时会省掉消息表，只在事务提交后发送：
+
+```java
+@Transactional
+public void pay(String orderNo) {
+    orderMapper.markPaid(orderNo);
+    eventPublisher.publishEvent(new OrderPaidEvent(orderNo));   // 只是登记，事务提交后才触发
+}
+
+@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+public void onPaid(OrderPaidEvent evt) {
+    kafkaTemplate.send("order-paid", evt.getOrderNo(), evt)       // spring-kafka 3.x 起返回 CompletableFuture
+            .whenComplete((r, ex) -> { if (ex != null) log.error("发送失败", ex); });
+}
+```
+
+它避免了「事务回滚但消息已发出」，但**提交后到发送前进程崩溃、或异步发送失败，消息仍会丢**，只适合非关键通知；需要可靠性时它只能作为本地消息表的「立即投递」快路径，必须有扫表兜底。另外 `@TransactionalEventListener` 只在有活动事务时生效，没有事务时事件默认被丢弃（除非设置 `fallbackExecution = true`）。
 
 ---
 
@@ -400,6 +422,7 @@ public interface AccountTccAction {
 | 本地消息表 / Outbox | 最终一致 | 高 | 中 | 写库后通知下游，通用，不绑定 MQ |
 | RocketMQ 事务消息 | 最终一致 | 高 | 中（实现回查） | 已使用 RocketMQ 的核心链路 |
 | 最大努力通知 | 尽力而为 + 对账 | 高 | 低 | 跨企业回调 |
+| 提交后发送（不落消息表） | 可能丢 | 最高 | 最低 | 非关键通知 |
 | TCC | 最终一致，业务隔离 | 高 | 高 | 资金、库存预留，需要同步结果 |
 | Saga | 最终一致，无隔离 | 高 | 中 | 长流程、跨多个服务或外部系统 |
 | Seata AT | 最终一致，全局锁写隔离 | 中 | 低 | 内部系统、非热点数据、需要同步结果 |

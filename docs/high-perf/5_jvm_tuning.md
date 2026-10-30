@@ -27,10 +27,8 @@ description: 收集器选型、降低分配速率、堆与容器内存、JIT 预
 
 选型要点：
 
-- **默认不一定是 G1**：JVM 判断不是"服务器级机器"（可用 CPU 少于 2 个，或内存小于约 1792MB）时会选 Serial。容器 CPU limit 为 1 时尤其要注意，建议**显式指定收集器**。
-- **分代 ZGC 的版本差异**：JDK 21 需要 `-XX:+ZGenerational` 才启用分代模式；JDK 23 起分代成为默认模式，JDK 24 移除了非分代模式，此时只写 `-XX:+UseZGC` 即可。
-- **ZGC 的代价**：并发回收会占用额外 CPU，堆需要留出余量（分配速度快于回收时会出现 Allocation Stall）；ZGC 不使用压缩指针，小堆场景内存占用可能高于 G1。CPU 已经紧张的服务换 ZGC 前先压测。
-- **Shenandoah** 定位与 ZGC 相近，在多数 OpenJDK 发行版中可用（Oracle JDK 不包含），选用前确认所用发行版。
+- **显式指定收集器**：JDK 26 及以前，小规格容器（CPU < 2 或内存 < 1792MB）默认会落到 Serial；默认选择规则与按场景选型见 [GC 收集器 · 选型指南](/jvm/5_gc_collectors#八、选型指南)。
+- **ZGC 不是免费的**：并发回收占用额外 CPU、堆要留余量，CPU 已经紧张的服务换 ZGC 前先压测；JDK 23 起只写 `-XX:+UseZGC` 即为分代模式。
 - 停顿不是 P99 的主要来源时，换收集器收益有限——先用下文第五节的方法确认。
 
 ---
@@ -67,43 +65,9 @@ JIT 的逃逸分析可以把未逃逸的小对象做标量替换，不在堆上�
 
 ## 三、堆大小与容器内存
 
-**容器里最常见的问题不是 GC 慢，而是进程总内存超过 limit 被内核杀掉（OOMKilled，退出码 137），这种情况下不会有 Java 的 OOM 日志和堆 dump。**
+**容器里最常见的问题不是 GC 慢，而是进程总内存超过 limit 被内核杀掉（OOMKilled），这时不会有 Java 的 OOM 日志和堆 dump。**
 
-### 1、容器感知
-
-- JDK 10 起默认开启 `-XX:+UseContainerSupport`（8u191 起也已支持），JVM 按容器的内存与 CPU limit 计算默认堆大小和线程数。cgroup v2 需要 JDK 15+（或 11.0.16、8u372 之后的更新版本）。
-- 默认 `-XX:MaxRAMPercentage=25`，即最大堆只有容器内存的 1/4，对大多数服务偏保守。
-- CPU limit 会影响 GC 线程数、JIT 编译线程数和 `ForkJoinPool.commonPool` 的并行度；必要时用 `-XX:ActiveProcessorCount` 显式指定。
-
-### 2、堆只是进程内存的一部分
-
-| 内存区域 | 说明 | 控制参数 |
-|----------|------|----------|
-| 堆 | 对象分配 | `-Xmx` 或 `-XX:MaxRAMPercentage` |
-| Metaspace | 类元数据，类多、动态代理多的应用可达数百 MB | `-XX:MaxMetaspaceSize` |
-| 直接内存 | NIO / Netty 直接缓冲区，默认上限约等于最大堆 | `-XX:MaxDirectMemorySize` |
-| 线程栈 | Linux x64 默认每线程 1MB，几百个线程就是几百 MB | `-Xss`、控制线程数 |
-| Code Cache | JIT 编译后的机器码，分层编译下默认预留 240MB | `-XX:ReservedCodeCacheSize` |
-| GC 与其他 native | GC 数据结构、JNI、glibc malloc arena 等 | 用 NMT 观察 |
-
-这些区域都计入容器内存配额，所以 **`MaxRAMPercentage` 通常取 50～75%**：堆外用量大的应用（Netty、大量线程）取低值。准确比例用 NMT 实测：`-XX:NativeMemoryTracking=summary` 启动后执行 `jcmd <pid> VM.native_memory summary`。
-
-### 3、推荐配置
-
-```bash
-# 容器内：按比例设置堆，初始与最大一致，避免运行中扩缩堆带来的抖动
-java -XX:InitialRAMPercentage=70 -XX:MaxRAMPercentage=70 \
-     -XX:MaxDirectMemorySize=512m \
-     -XX:MaxMetaspaceSize=256m \
-     -XX:+UseG1GC \
-     -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/dump/ \
-     -XX:+ExitOnOutOfMemoryError \
-     -jar app.jar
-```
-
-- 显式设置 `-Xmx` 时，`MaxRAMPercentage` 不再生效，两者二选一。
-- `-XX:+ExitOnOutOfMemoryError` 让进程在 OOM 后立即退出、由编排系统重启，避免"半死不活"地继续接流量；堆 dump 路径应挂载到持久卷。
-- `-XX:+AlwaysPreTouch` 启动时预先触碰堆内存页，避免运行期的缺页开销，但会拉长启动时间，大堆低延迟服务可以考虑。
+策略上记住三点：堆只是进程内存的一部分，`MaxRAMPercentage` 通常取 50～75%（Netty、线程多等堆外用量大的应用取低值）；初始堆与最大堆设成一致，避免运行中扩缩堆的抖动；比例以 NMT 实测为准，不要凭经验把堆设满。容器感知、各内存区域构成与推荐参数见 [GC 调优 · 容器环境](/jvm/6_gc_tuning#四、容器环境)，被 OOMKilled 后的排查见 [故障排查](/jvm/9_troubleshooting#八、容器-oomkilled)。
 
 ---
 
@@ -141,33 +105,9 @@ AppCDS 主要缩短类加载，**解决不了 JIT 预热**；长期运行的在�
 
 ---
 
-## 五、GC 日志与何时需要调优
+## 五、何时需要 GC 调优
 
-GC 参数细节见 [GC 调优](/jvm/6_gc_tuning)，工具见 [JVM 诊断工具](/jvm/8_monitoring_tools)。
-
-### 1、开启 GC 日志
-
-**生产环境应常开 GC 日志，开销很小，是判断要不要调优的唯一依据。**
-
-```bash
--Xlog:gc*,safepoint:file=/data/logs/gc.log:time,uptime,level,tags:filecount=10,filesize=20m
-```
-
-分析工具（GCEasy、GCViewer、JMC）见 [GC 调优](/jvm/6_gc_tuning)。
-
-### 2、关键指标
-
-| 指标 | 怎么看 | 异常信号 |
-|------|--------|----------|
-| 停顿分布 | 停顿的 P99 / Max，并与接口 P99 毛刺的时间点对照 | 停顿接近或超过接口延迟 SLO |
-| GC 时间占比 | 一段时间内 GC 停顿总时长 / 墙钟时间 | 持续超过几个百分点（常见经验阈值约 5%） |
-| 分配速率 | 见第二节 | 明显高于同类服务，Young GC 每秒多次 |
-| 晋升速率与老年代 | 每次 GC 后老年代占用（近似活跃数据量） | 持续单调上涨 → 疑似内存泄漏，调参数无用 |
-| Full GC | G1 日志中的 `Pause Full` | 稳态下出现即需排查 |
-| 失败事件 | G1 的 `To-space exhausted` / Evacuation Failure，ZGC 的 `Allocation Stall` | 堆余量不足或分配过快 |
-| Safepoint | `safepoint` 日志中的到达时间与总停顿 | 非 GC 原因的停顿（如线程迟迟到达不了安全点、频繁 jstack / 堆转储） |
-
-### 3、判断流程
+**生产环境应常开 GC 日志，它是判断要不要调优的唯一依据：先确认 GC 停顿与 P99 毛刺相关，再动参数。** 日志开启参数、关键指标与分析工具见 [GC 调优 · GC 日志分析](/jvm/6_gc_tuning#二、gc-日志分析)，在线观测见 [JVM 诊断工具](/jvm/8_monitoring_tools)。
 
 | 现象 | 结论 | 下一步 |
 |------|------|--------|
@@ -175,7 +115,7 @@ GC 参数细节见 [GC 调优](/jvm/6_gc_tuning)，工具见 [JVM 诊断工具](
 | 老年代 GC 后持续上涨 | 内存泄漏 | 堆 dump 分析，见 [JVM 故障排查](/jvm/9_troubleshooting) |
 | Young GC 过频、分配速率高 | 分配过多 | 用分配火焰图降低分配速率（第二节） |
 | 停顿本身超过 SLO，分配已合理 | 收集器或堆不合适 | 调大堆 / 调整 `MaxGCPauseMillis` / 换分代 ZGC，见 [GC 调优](/jvm/6_gc_tuning) |
-| 容器被 OOMKilled | 堆外内存未计入 | 按第三节用 NMT 核算，调低堆比例或限制直接内存 |
+| 容器被 OOMKilled | 堆外内存未计入 | 用 NMT 核算堆外，调低堆比例或限制直接内存，见 [GC 调优 · 容器环境](/jvm/6_gc_tuning#四、容器环境) |
 
 每次只改一个参数，并用压测对比改动前后的 P99 与 CPU，见 [性能分析方法论](./2_methodology) 的优化闭环。
 
@@ -185,7 +125,7 @@ GC 参数细节见 [GC 调优](/jvm/6_gc_tuning)，工具见 [JVM 诊断工具](
 
 - 先修代码再调 JVM：多数服务用 G1 + 合理堆大小即可，P99 敏感且 CPU 有余量时考虑分代 ZGC，批处理用 Parallel
 - 分配速率决定 GC 频率，用分配火焰图定位并降低，比调参更有效
-- 容器内堆只是进程内存的一部分，`MaxRAMPercentage` 取 50～75%，用 NMT 核算堆外，避免 OOMKilled
+- 容器内堆只是进程内存的一部分，`MaxRAMPercentage` 取 50～75%，以 NMT 实测为准，避免 OOMKilled
 - 冷启动毛刺用"预热流量 + 就绪后置 + 预热权重"解决；AppCDS 缩短启动，CRaC / Leyden 按成熟度谨慎选用
 - 常开 GC 日志，先确认 GC 与 P99 相关再调优，每次只改一个参数
 
@@ -193,8 +133,7 @@ GC 参数细节见 [GC 调优](/jvm/6_gc_tuning)，工具见 [JVM 诊断工具](
 
 - 收集器选择与调优：[HotSpot Virtual Machine Garbage Collection Tuning Guide (Java 21)](https://docs.oracle.com/en/java/javase/21/gctuning/)
 - 分代 ZGC：[JEP 439: Generational ZGC](https://openjdk.org/jeps/439)
-- -Xlog 统一日志与 MaxRAMPercentage 等参数：[Java SE 21: The java Command](https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html)
-- 堆外内存排查：[Java SE 21: Native Memory Tracking](https://docs.oracle.com/en/java/javase/21/vm/native-memory-tracking.html)
+- MaxRAMPercentage 等参数：[Java SE 21: The java Command](https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html)
 - AOT 类加载与链接（Leyden）：[JEP 483: Ahead-of-Time Class Loading & Linking](https://openjdk.org/jeps/483)
 - 检查点恢复：[OpenJDK Project CRaC](https://openjdk.org/projects/crac/)
 

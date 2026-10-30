@@ -47,66 +47,9 @@ spring:
 
 自动配置的 RedisCacheManager 默认使用 **JDK 序列化**，值不可读且要求实现 `Serializable`，生产上一般换成 JSON 序列化，见下一节。
 
-### 2、Redis CacheManager（Spring Data Redis 4 / Jackson 3）
+### 2、Redis CacheManager
 
-Boot 4 对应 Spring Data Redis 4.0，默认 JSON 库换成 **Jackson 3**（包名 `tools.jackson`）。原来的 `GenericJackson2JsonRedisSerializer` 被标记为待移除，替代品是 `GenericJacksonJsonRedisSerializer`：
-
-```java
-import java.time.Duration;
-import java.util.Map;
-import org.springframework.boot.cache.autoconfigure.RedisCacheManagerBuilderCustomizer;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair;
-import org.springframework.data.redis.serializer.RedisSerializer;
-import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-
-@Configuration
-@EnableCaching
-public class RedisCacheConfig {
-
-    @Bean
-    public RedisCacheConfiguration redisCacheConfiguration() {
-        // 只允许反序列化本项目的类型，避免多态反序列化漏洞
-        var typeValidator = BasicPolymorphicTypeValidator.builder()
-            .allowIfSubType("com.example.")
-            .allowIfSubType("java.util.")
-            .allowIfSubType("java.time.")
-            .allowIfSubType("java.math.")
-            .build();
-
-        RedisSerializer<Object> valueSerializer = GenericJacksonJsonRedisSerializer.builder()
-            .enableDefaultTyping(typeValidator)       // 写入 @class 类型信息，读回原类型
-            .enableSpringCacheNullValueSupport()      // 允许缓存 null（序列化 NullValue）
-            .build();
-
-        return RedisCacheConfiguration.defaultCacheConfig()
-            .entryTtl(Duration.ofHours(1))
-            .serializeKeysWith(SerializationPair.fromSerializer(RedisSerializer.string()))
-            .serializeValuesWith(SerializationPair.fromSerializer(valueSerializer));
-    }
-
-    // 不同 cacheName 不同 TTL：在自动配置的 RedisCacheManager 上追加，不必自己 new
-    @Bean
-    public RedisCacheManagerBuilderCustomizer perCacheTtl(RedisCacheConfiguration base) {
-        return builder -> builder.withInitialCacheConfigurations(Map.of(
-            "users",    base.entryTtl(Duration.ofMinutes(30)),
-            "products", base.entryTtl(Duration.ofHours(2)),
-            "configs",  base.entryTtl(Duration.ofDays(1))
-        ));
-    }
-}
-```
-
-要点：
-
-- **默认类型信息**：旧的 `GenericJackson2JsonRedisSerializer` 默认开启 default typing，新的 `GenericJacksonJsonRedisSerializer` **默认不开启**。不开启时读回来是 `LinkedHashMap`，强转业务类型会抛 `ClassCastException`；需要多态时用 `enableDefaultTyping(validator)`，不要用 `enableUnsafeDefaultTyping()`
-- **数据兼容**：Jackson 3 写出的 JSON 可能与 Jackson 2 不同。升级时要么清空缓存，要么在迁移期继续用 `GenericJackson2JsonRedisSerializer` 读旧数据
-- **自定义 Bean 的方式**：Boot 发现容器里有 `RedisCacheConfiguration` Bean 会直接用它作为默认配置，此时 `spring.cache.redis.time-to-live` 等属性不再生效（TTL 写在 Bean 里）；按缓存名差异化用 `RedisCacheManagerBuilderCustomizer`。完全自己声明 `RedisCacheManager` 也可以，但自动配置整体退出
-- Boot 3.x 项目继续使用 `GenericJackson2JsonRedisSerializer` 即可，写法与上面相同；`RedisCacheManagerBuilderCustomizer` 在 3.x 的包名是 `org.springframework.boot.autoconfigure.cache`
+生产上声明一个 `RedisCacheConfiguration` Bean，把值换成 JSON 序列化：Boot 4 用 Jackson 3 的 `GenericJacksonJsonRedisSerializer`，它默认不写类型信息（读回是 `LinkedHashMap`），需要多态时配白名单校验器开启；按缓存名设不同 TTL 用 `RedisCacheManagerBuilderCustomizer`，不必自己 new `RedisCacheManager`。注意有了这个 Bean 后 `spring.cache.redis.time-to-live` 等属性不再生效，完整配置与升级兼容见 [Redis 实战 · Spring Cache 配置](/cache/5_redis_practice#_4、spring-cache-配置)。
 
 ### 3、空值策略与缓存穿透
 
@@ -129,23 +72,7 @@ spring:
       spec: maximumSize=1000,expireAfterWrite=600s,recordStats
 ```
 
-需要按缓存名设置不同策略时，声明 `CaffeineCacheManager` 并逐个 `registerCustomCache`：
-
-```java
-@Bean
-public CacheManager caffeineCacheManager() {
-    CaffeineCacheManager manager = new CaffeineCacheManager();
-    manager.setCaffeine(Caffeine.newBuilder()
-        .maximumSize(1_000)
-        .expireAfterWrite(Duration.ofMinutes(10))
-        .recordStats());                     // 配合 Actuator 暴露命中率
-    manager.registerCustomCache("dict",
-        Caffeine.newBuilder().maximumSize(100).expireAfterWrite(Duration.ofHours(1)).build());
-    return manager;
-}
-```
-
-容器里同时有多个 CacheManager 时，用 `@Primary` 指定默认的，注解上用 `cacheManager = "caffeineCacheManager"` 选另一个。Caffeine 的淘汰算法、过期策略、统计见 [Caffeine](/cache/7_caffeine)。
+同时引入 Redis 时自动配置会优先选 Redis，需要 `spring.cache.type=caffeine` 显式指定。按缓存名设置不同策略（自定义 `CaffeineCacheManager`）、与 Redis 的 CacheManager 共存，以及淘汰算法、过期策略、统计见 [Caffeine · Spring Boot 集成](/cache/7_caffeine#五、spring-boot-集成)。
 
 ### 5、两级缓存
 

@@ -474,68 +474,18 @@ enforcer.enforce("bob", "/api/orders/1001", "DELETE");     // false：staff 只�
 
 ## 八、Spring Security 方法级授权
 
-URL 级授权只能看到路径和身份，涉及具体业务对象的判断放在方法级更合适。Spring Security 7 的方法安全全部基于 `AuthorizationManager`：`@EnableMethodSecurity` 开启后，`@PreAuthorize` 由 `PreAuthorizeAuthorizationManager` 在方法执行前求值；7.0 还新增了 `AuthorizationManagerFactory`，统一创建 `hasRole`、`hasAuthority` 等判定，需要全局修改角色前缀或信任解析器时声明一个该类型的 Bean。
+URL 级授权只能看到路径和身份，涉及具体业务对象的判断放在方法级更合适：`@EnableMethodSecurity` 开启后，`@PreAuthorize` 在方法执行前求值，底层同样基于 `AuthorizationManager`。
 
-Spring Security 的完整接线代码（加载权限、动态 URL 权限、注解模板）见 [Spring Security](/spring/9_security)。
+三种模型落到方法上的对应关系：
 
-把三种模型接到方法上：
+| 模型 | 方法级写法 |
+|------|-----------|
+| RBAC0 | `@PreAuthorize("hasAuthority('document:create')")`，判断权限码 |
+| RBAC1 | 声明 `RoleHierarchy`，`hasRole('MANAGER')` 时 `ADMIN` 也能通过 |
+| ABAC / ReBAC | `@PreAuthorize("@documentAuthz.canEdit(#documentId, authentication)")` 委托给 Bean，Bean 内部查业务库、调 OPA 或 OpenFGA |
 
-```java
-@Configuration
-@EnableMethodSecurity
-public class MethodSecurityConfig {
-
-    // RBAC1：角色继承，ADMIN 自动拥有 MANAGER 和 STAFF 的权限
-    @Bean
-    static RoleHierarchy roleHierarchy() {
-        return RoleHierarchyImpl.withDefaultRolePrefix()
-            .role("ADMIN").implies("MANAGER")
-            .role("MANAGER").implies("STAFF")
-            .build();
-    }
-
-    // 让 @PreAuthorize 中的 hasRole 也认角色继承
-    @Bean
-    static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
-        DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
-        handler.setRoleHierarchy(roleHierarchy);
-        return handler;
-    }
-}
-
-@Service
-public class DocumentService {
-
-    // RBAC：权限码
-    @PreAuthorize("hasAuthority('document:create')")
-    public void create(DocumentCreateCmd cmd) { /* ... */ }
-
-    // ABAC / ReBAC：复杂判断委托给 Bean，Bean 内部可以查业务库、调 OPA 或 OpenFGA
-    @PreAuthorize("@documentAuthz.canEdit(#documentId, authentication)")
-    public void edit(Long documentId, DocumentEditCmd cmd) { /* ... */ }
-}
-
-@Component("documentAuthz")
-public class DocumentAuthorization {
-
-    private final DocumentRepository documents;
-
-    public DocumentAuthorization(DocumentRepository documents) {
-        this.documents = documents;
-    }
-
-    public boolean canEdit(Long documentId, Authentication auth) {
-        return documents.findById(documentId)
-            .map(doc -> doc.ownerId().equals(auth.getName())
-                     || doc.editorIds().contains(auth.getName()))
-            .orElse(false);
-    }
-}
-```
-
-- 方法级授权基于代理，**同类内部调用不生效**；`#documentId` 按参数名引用，依赖 `-parameters` 编译参数（Spring Boot 构建插件默认开启）
-- `@PostAuthorize` 在方法执行后判断，只适合只读方法；`@PostFilter` 在内存中过滤集合，大数据量要用数据权限在 SQL 层过滤
-- `@PreAuthorize` 的更多写法（权限注解模板、动态 URL 权限的 `AuthorizationManager` 实现）见 [Spring Security · 方法级权限](/spring/9_security)
+- 方法级授权基于代理，**同类内部调用不生效**；`@PostFilter` 在内存中过滤集合，大数据量要用数据权限在 SQL 层过滤
+- 委托 Bean 的完整写法、角色继承配置、权限注解模板见 [Spring Security · 方法级权限](/spring/9_security#六、方法级权限)，动态 URL 权限的 `AuthorizationManager` 实现见同篇第七节
 
 ---
 

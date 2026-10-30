@@ -172,18 +172,7 @@ Boot 4 把 `EnvironmentPostProcessor` 从 `org.springframework.boot.env` 移到�
 
 ### 2、自动配置的登记方式
 
-| 版本 | 自动配置登记位置 |
-|------|------------------|
-| Boot 2.6 及以前 | `spring.factories` 中的 `org.springframework.boot.autoconfigure.EnableAutoConfiguration` 键 |
-| Boot 2.7 | 引入 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 与 `@AutoConfiguration`，旧方式仍兼容 |
-| Boot 3.0 起 | **只认** `AutoConfiguration.imports`，`spring.factories` 中的 `EnableAutoConfiguration` 键不再生效 |
-
-```text
-# META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
-com.example.autoconfigure.MyAutoConfiguration
-```
-
-`ImportCandidates.load()` 读取这个文件，交给 `AutoConfigurationImportSelector` 过滤（`@Conditional*`）和排序（`@AutoConfiguration(before = ..., after = ...)`）。与原生 SPI 相比，Spring 补上了条件激活、排序和依赖注入：被发现的不是实例，而是配置类，最终由 IoC 容器创建 Bean。自动配置原理见 [Spring Boot](/spring-boot/1_spring_boot)。
+自动配置类不再走 `spring.factories`，而是登记在专用的 `AutoConfiguration.imports` 文件里（Boot 2.7 引入，3.0 起只认它），由 `ImportCandidates.load()` 读取后交给 `AutoConfigurationImportSelector` 过滤和排序。从 SPI 视角看，Spring 补上了原生 SPI 缺的条件激活、排序和依赖注入：被发现的不是实例，而是配置类，最终由 IoC 容器创建 Bean。登记位置的版本演进与加载链路见 [启动流程与自动配置 · 自动配置原理](/spring-boot/1_spring_boot#三、自动配置原理)。
 
 ---
 

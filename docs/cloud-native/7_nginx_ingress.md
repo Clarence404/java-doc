@@ -239,7 +239,7 @@ kubectl apply --server-side -f \
   https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.3/standard-install.yaml
 ```
 
-### 3、完整示例：HTTPS 入口 + 灰度
+### 3、完整示例：HTTPS 入口与业务路由
 
 先准备两个命名空间和证书。生产环境证书一般由 cert-manager 自动签发和续期，这里用已有证书演示：
 
@@ -305,7 +305,7 @@ spec:
             statusCode: 301
 ```
 
-应用开发者在自己的 `shop` 命名空间写 HTTPRoute，把 10% 的流量切到新版本：
+应用开发者在自己的 `shop` 命名空间写 HTTPRoute，挂到 `infra` 命名空间的 Gateway 上：
 
 ```yaml
 apiVersion: gateway.networking.k8s.io/v1
@@ -328,13 +328,11 @@ spec:
       timeouts:
         request: 30s               # 整个请求的超时
       backendRefs:
-        - name: order-v1
+        - name: order
           port: 8080
-          weight: 90
-        - name: order-v2
-          port: 8080
-          weight: 10
 ```
+
+权重灰度只需把 `backendRefs` 拆成新旧两个 Service 并各写 `weight`，按请求头固定走新版本、逐步放量的完整写法见 [发布策略 · Gateway API：HTTPRoute 权重](/devops/7_release_strategy#_1、gateway-api-httproute-权重-推荐)。
 
 验证：
 
@@ -349,7 +347,7 @@ GW_IP=$(kubectl get gateway public-gw -n infra -o jsonpath='{.status.addresses[0
 curl --resolve shop.example.com:443:$GW_IP https://shop.example.com/api/orders
 ```
 
-证书是自签名的话，`curl` 需要加 `-k` 或用 `--cacert` 指定 CA。按请求头灰度、流量镜像等更多写法，以及网格内东西向流量的 Gateway API 用法，见 [服务网格](/microservices/21_service_mesh)；发布流程层面的灰度策略见 [发布策略](/devops/7_release_strategy)。
+证书是自签名的话，`curl` 需要加 `-k` 或用 `--cacert` 指定 CA。网格内东西向流量的 Gateway API 用法见 [服务网格](/microservices/21_service_mesh)，发布流程层面的灰度策略见 [发布策略](/devops/7_release_strategy)。
 
 ### 4、证书自动化
 

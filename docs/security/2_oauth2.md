@@ -266,81 +266,7 @@ Spring Boot 4 的三个 OAuth starter（旧名 `spring-boot-starter-oauth2-*` �
 
 ### 1、客户端：登录与调用下游 API
 
-一个门户应用：用户通过授权码模式登录，后台再用客户端凭证调订单服务。两个注册共用同一个授权服务器：
-
-```yaml
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          portal:                                   # 用户登录：授权码模式
-            provider: auth
-            client-id: portal-web
-            client-secret: ${PORTAL_CLIENT_SECRET}
-            authorization-grant-type: authorization_code
-            scope: openid, profile, order.read      # 带 openid 即走 OIDC 登录
-          order-api:                                # 服务间调用：客户端凭证模式
-            provider: auth
-            client-id: portal-backend
-            client-secret: ${PORTAL_BACKEND_SECRET}
-            authorization-grant-type: client_credentials
-            scope: order.read
-        provider:
-          auth:
-            issuer-uri: https://auth.example.com    # 启动时读取元数据，自动发现各端点
-```
-
-```java
-import static org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId;
-
-@Configuration
-@EnableWebSecurity
-public class OAuth2ClientConfig {
-
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-            .authorizeHttpRequests(a -> a
-                .requestMatchers("/", "/error").permitAll()
-                .anyRequest().authenticated())
-            .oauth2Login(Customizer.withDefaults())     // 授权码登录，回调地址 /login/oauth2/code/{registrationId}
-            .oauth2Client(Customizer.withDefaults())
-            .build();
-    }
-
-    @Bean
-    RestClient orderRestClient(RestClient.Builder builder, OAuth2AuthorizedClientManager manager) {
-        return builder
-            .baseUrl("https://order.example.com")
-            .requestInterceptor(new OAuth2ClientHttpRequestInterceptor(manager))  // 自动获取、缓存、刷新令牌
-            .build();
-    }
-}
-
-@Service
-class OrderClient {
-
-    private final RestClient orderRestClient;
-
-    OrderClient(RestClient orderRestClient) {
-        this.orderRestClient = orderRestClient;
-    }
-
-    String findOrder(long id) {
-        return orderRestClient.get()
-            .uri("/orders/{id}", id)
-            .attributes(clientRegistrationId("order-api"))   // 指定用哪个注册换令牌
-            .retrieve()
-            .body(String.class);
-    }
-}
-```
-
-- `OAuth2ClientHttpRequestInterceptor` 按注册的 `authorization-grant-type` 获取令牌，过期前自动刷新，并加上 `Authorization` 头
-- 若下游用 HTTP Interface 声明，可在接口或方法上加 `@ClientRegistrationId("order-api")`，再注册一个 `OAuth2RestClientHttpServiceGroupConfigurer.from(manager)` Bean，效果相同（Spring Security 7 支持类型级注解）
-- 默认的 `OAuth2AuthorizedClientManager` 依赖当前 HTTP 请求；在定时任务等没有请求上下文的线程里调用客户端凭证，需要自定义一个 `AuthorizedClientServiceOAuth2AuthorizedClientManager`
-- 授权码登录的 PKCE：公共客户端（不配 `client-secret`、`client-authentication-method: none`）自动启用；机密客户端可在 `ClientRegistration` 的 `ClientSettings` 上设置 `requireProofKey(true)`，前提是授权服务器支持
+客户端只需在 `spring.security.oauth2.client` 下按用途配多个 `registration`（用户登录用 `authorization_code`、服务间调用用 `client_credentials`），`provider` 只配 `issuer-uri` 即可自动发现各端点；过滤器链开启 `oauth2Login()` / `oauth2Client()`，调下游时给 `RestClient` 加 `OAuth2ClientHttpRequestInterceptor` 自动获取、缓存、刷新令牌。公共客户端自动启用 PKCE，机密客户端可显式要求。完整配置、HTTP Interface 写法与无请求上下文时的注意点见 [Spring SSO 接入 · OIDC Client 与资源服务器](/spring/11_single_sign_on#五、oidc-client-与资源服务器)。
 
 ### 2、资源服务器
 
@@ -350,34 +276,7 @@ class OrderClient {
 
 ### 3、授权服务器
 
-Spring Authorization Server 自 **Spring Security 7.0 起并入 Spring Security 主项目**，坐标为 `org.springframework.security:spring-security-oauth2-authorization-server`，版本跟随 Spring Security；授权码模式默认要求 PKCE。开发环境用属性就能注册客户端：
-
-```yaml
-spring:
-  security:
-    oauth2:
-      authorizationserver:
-        issuer: https://auth.example.com
-        client:
-          portal-web:
-            registration:
-              client-id: portal-web
-              client-secret: ${PORTAL_CLIENT_SECRET_HASH}   # 存 {bcrypt} 前缀的哈希，不存明文
-              client-authentication-methods: client_secret_basic
-              authorization-grant-types: authorization_code, refresh_token
-              redirect-uris: https://portal.example.com/login/oauth2/code/portal
-              scopes: openid, profile, order.read
-            require-authorization-consent: true
-          portal-backend:
-            registration:
-              client-id: portal-backend
-              client-secret: ${PORTAL_BACKEND_SECRET_HASH}
-              client-authentication-methods: client_secret_basic
-              authorization-grant-types: client_credentials
-              scopes: order.read
-```
-
-Boot 会自动配置协议端点过滤器链、表单登录和内存版客户端存储，适合本地联调。生产环境需要两条过滤器链、JDBC 持久化客户端与授权记录、固定并轮换签名密钥，完整代码见 [Spring SSO 接入：Spring Authorization Server 实战](/spring/11_single_sign_on#七、spring-authorization-server-实战)。
+Spring Authorization Server 自 **Spring Security 7.0 起并入 Spring Security 主项目**，坐标为 `org.springframework.security:spring-security-oauth2-authorization-server`，版本跟随 Spring Security；授权码模式默认要求 PKCE。开发环境用 `spring.security.oauth2.authorizationserver.client.*` 属性就能注册客户端，由 Boot 自动配置协议端点过滤器链、表单登录和内存版客户端存储，适合本地联调。生产环境需要两条过滤器链、JDBC 持久化客户端与授权记录、固定并轮换签名密钥，完整代码见 [Spring SSO 接入：Spring Authorization Server 实战](/spring/11_single_sign_on#七、spring-authorization-server-实战)。
 
 ---
 

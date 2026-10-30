@@ -228,7 +228,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：手动管理连接。尽量交给框架（Spring 事务、MyBatis）统一借还。
 
-→ 详见 [池化技术](/high-perf/7_pooling#_4、连接泄漏检测)
+→ 详见 [数据库连接池 · 连接泄漏排查](/database/4_access/2_connection_pool#六、连接泄漏排查)
 
 ### Q17：HTTP 客户端连接池需要关注哪些参数？为什么会出现 `NoHttpResponseException`？
 

@@ -54,48 +54,7 @@ Boot 默认使用 Lettuce。Lettuce 的连接是线程安全的，默认所有�
 
 ### 2、序列化（Jackson 3）
 
-Boot 自动配置的 `RedisTemplate<Object, Object>` 使用 JDK 序列化，Redis 里看到的是不可读的字节；`StringRedisTemplate` 读写纯字符串。存对象时自定义模板：
-
-```java
-@Configuration
-public class RedisConfig {
-
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
-        // 只允许反序列化本项目和 JDK 常用包下的类型，防止反序列化攻击
-        PolymorphicTypeValidator validator = BasicPolymorphicTypeValidator.builder()
-            .allowIfSubType("com.example.")
-            .allowIfSubType("java.util.")
-            .allowIfSubType("java.math.")
-            .build();
-
-        GenericJacksonJsonRedisSerializer json = GenericJacksonJsonRedisSerializer.builder()
-            .enableDefaultTyping(validator)     // 写入类型信息，读回时还原为原类型
-            .build();
-
-        RedisTemplate<String, Object> tpl = new RedisTemplate<>();
-        tpl.setConnectionFactory(factory);
-        tpl.setKeySerializer(RedisSerializer.string());
-        tpl.setHashKeySerializer(RedisSerializer.string());
-        tpl.setValueSerializer(json);
-        tpl.setHashValueSerializer(json);
-        return tpl;
-    }
-}
-```
-
-`PolymorphicTypeValidator` 与 `BasicPolymorphicTypeValidator` 来自 `tools.jackson.databind.jsontype` 包。
-
-| Spring Data Redis 4（Boot 4，Jackson 3） | Spring Data Redis 3（Boot 3，Jackson 2，已废弃） |
-|-----------------------------------------|----------------------------------------------|
-| `GenericJacksonJsonRedisSerializer` | `GenericJackson2JsonRedisSerializer` |
-| `JacksonJsonRedisSerializer<T>` | `Jackson2JsonRedisSerializer<T>` |
-| `JacksonHashMapper` | `Jackson2HashMapper` |
-
-- **新的 `GenericJacksonJsonRedisSerializer` 默认不开启 default typing**，旧版默认开启；不开启时读回的对象是 `LinkedHashMap`，需要类型信息就像上面一样显式开启并配校验器
-- 只存一种类型时，用 `new JacksonJsonRedisSerializer<>(OrderVO.class)` 建专用模板，不写类型信息，JSON 更干净，也没有多态反序列化风险
-- 不要用 `enableUnsafeDefaultTyping()`，它允许反序列化任意类型，Redis 数据被篡改即可触发远程代码执行
-- 升级时 Jackson 3 写出的 JSON 可能与旧格式不同。过渡期可以继续用已废弃的 `GenericJackson2JsonRedisSerializer` 读旧数据，或者给新格式的 key 换前缀，等旧 key 过期
+Boot 自动配置的 `RedisTemplate<Object, Object>` 使用 JDK 序列化，Redis 里看到的是不可读的字节；`StringRedisTemplate` 读写纯字符串。存对象时自定义 `RedisTemplate`：key 用 `RedisSerializer.string()`，value 用 Jackson 3 版的 `GenericJacksonJsonRedisSerializer`（取代已废弃的 `GenericJackson2JsonRedisSerializer`，默认不写类型信息，需要时配白名单校验器开启）或按类型的 `JacksonJsonRedisSerializer<T>`。完整配置、新旧类名对照与升级兼容见 [Redis 实战 · RedisTemplate 序列化](/cache/5_redis_practice#_3、redistemplate-序列化)。
 
 ### 3、常见坑
 
@@ -104,9 +63,9 @@ public class RedisConfig {
 | key 显示为乱码 | 默认模板用 JDK 序列化 | key 用 `RedisSerializer.string()`，或直接用 `StringRedisTemplate` |
 | value 读回是 `LinkedHashMap` | 没有类型信息 | 按类型建专用模板，或开启 default typing 并配置校验器 |
 | `pool` 配置不生效 | 缺少 `commons-pool2` | 引入依赖；普通命令场景其实不需要连接池 |
-| 命令超时、连接卡住 | `KEYS`、大 key、`HGETALL` 大哈希等慢命令阻塞单线程的 Redis | 用 `SCAN` 替代 `KEYS`，拆分大 key，见 [Redis 实战](/cache/5_redis_practice) |
+| 命令超时、连接卡住 | `KEYS`、大 key、`HGETALL` 大哈希等慢命令阻塞单线程的 Redis | 用 `SCAN` 替代 `KEYS`，拆分大 key，见 [Redis 实战 · 性能优化与监控](/cache/5_redis_practice#四、性能优化与监控) |
 
-缓存注解（`@Cacheable`）的配置见 [Redis 实战](/cache/5_redis_practice)，分布式锁用 [Redisson](/cache/6_redisson)，不要用 `setIfAbsent` 手写，原因见 [分布式锁](/distributed/3_lock)。
+缓存注解（`@Cacheable`）的 Redis 配置见 [Redis 实战 · Spring Cache 配置](/cache/5_redis_practice#_4、spring-cache-配置)，分布式锁用 [Redisson](/cache/6_redisson)，不要用 `setIfAbsent` 手写，原因见 [分布式锁](/distributed/3_lock)。
 
 ---
 

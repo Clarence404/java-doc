@@ -184,18 +184,15 @@ public void onPaySuccess(PaySuccessEvent e) {             // 事件至少投递�
 
 ## 六、超时关单
 
-### 1、方案对比
+### 1、方案选择
 
-| 方案 | 原理 | 评价 |
-|------|------|------|
-| 定时扫描 | 每分钟扫 `status = 待支付 AND created_at < now - 15m` | 简单可靠，有分钟级延迟，量大时需分片扫描；适合作为兜底；多实例部署用 XXL-JOB 或 ShedLock 保证单实例执行，见 [分布式调度](/distributed/6_job_scheduler) |
-| RocketMQ 5.x 定时消息 | 下单时发 15 分钟后投递的消息 | 精确、可靠，推荐；4.x 只有 18 个固定级别，没有 15 分钟 |
-| RabbitMQ 延迟 | 延迟消息插件，或 TTL + 死信队列 | 可用；TTL 方案有队头阻塞，不同时长要分队列 |
-| Redisson 延迟队列 | 基于 Redis ZSet 的 `RDelayedQueue` | 已被 Redisson 标记废弃（替代品 `RReliableQueue` 仅 PRO 版提供），不推荐新用；可靠性还取决于 Redis 持久化 |
-| Redis 过期通知 | key 过期发事件 | 不可靠：通知不持久化，订阅方断开即丢，不建议 |
-| 内存时间轮 | Netty `HashedWheelTimer` | 重启丢失，只能配合持久化与扫描使用 |
+订单关单的特点是延迟固定（15 分钟）、量大、不需要取消（支付后到期的关单消息会被状态条件更新拦下），所以选**RocketMQ 5.x 定时消息 + 定时扫表兜底**：
 
-各类延迟消息的原理见 [RocketMQ](/messaging/3_rocketmq#_1、延迟消息-4-x-固定级别-vs-5-x-任意时间) 的延迟消息一节，常用组合是**定时消息 + 定时扫描兜底**。
+- **定时消息负责准时**：下单事务提交后发一条 15 分钟后投递的消息；RocketMQ 4.x 只有 18 个固定级别，没有 15 分钟，需要 5.x
+- **扫表负责不漏**：每分钟扫 `status = 待支付 AND created_at < now - 16m`，兜住消息发送失败、Broker 故障的订单；多实例部署用 XXL-JOB 或 ShedLock 保证单实例执行，见 [分布式调度](/distributed/6_job_scheduler)
+- **不用的方案**：Redis key 过期通知不持久化、订阅方断线即丢；Redisson `RDelayedQueue` 已标记废弃；内存时间轮重启即丢
+
+六类延迟方案的精度、规模、可靠性对比与选型见 [延迟任务 · 方案全景与选型](./23_delay_task#二、方案全景与选型)。
 
 ### 2、事务提交后再发定时消息
 

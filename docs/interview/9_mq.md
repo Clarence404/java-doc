@@ -309,7 +309,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 
 **常见坑**：用 `@TransactionalEventListener(AFTER_COMMIT)` 发消息就以为可靠了。提交后、发送前进程崩溃照样丢，只适合不重要的通知。
 
-→ 详见 [消息队列基础](/messaging/1_basics#_1、本地消息表-transactional-outbox)、[微服务设计模式](/microservices/3_patterns#_5、outbox-事务发件箱)
+→ 详见 [分布式事务 · 本地消息表](/distributed/4_transaction#五、本地消息表-transactional-outbox)、[微服务设计模式](/microservices/3_patterns#_5、outbox-事务发件箱)
 
 ### Q21：RocketMQ 事务消息的原理是什么？
 
@@ -339,7 +339,7 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 - 共同点：都是「至少一次」，下游都要幂等，都不会回滚上游
 - 已经在用 RocketMQ 的核心链路用事务消息；跨 MQ 或要统一管理时用本地消息表
 
-→ 详见 [RocketMQ](/messaging/3_rocketmq#七、事务消息)、[消息队列基础](/messaging/1_basics#_4、方案对比)
+→ 详见 [RocketMQ](/messaging/3_rocketmq#七、事务消息)、[分布式事务 · 方案选型](/distributed/4_transaction#九、方案选型)
 
 ## 六、高可用
 

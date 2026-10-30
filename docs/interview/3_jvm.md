@@ -448,7 +448,7 @@ public static final Object LOCK = new Object(); // 不是编译期常量，初�
 - 小配额容器（CPU < 2 或内存 < 1792MB）默认会选 Serial，要显式指定收集器
 - 怎么确认被 OOMKilled、和 Java OOM 的区别，完整答案见 [操作系统面试题解答](/interview/4_computer_os) Q10
 
-→ 详见 [GC 调优](/jvm/6_gc_tuning#四、容器环境)、[JVM 层性能策略](/high-perf/5_jvm_tuning#三、堆大小与容器内存)
+→ 详见 [GC 调优 · 容器环境](/jvm/6_gc_tuning#四、容器环境)
 
 ### Q37：jcmd 和 NMT 能做什么？
 

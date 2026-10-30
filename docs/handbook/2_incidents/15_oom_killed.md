@@ -4,7 +4,7 @@ description: Pod 反复重启退出码 137、堆监控正常但 RSS 超 limit、
 
 # 容器被 OOMKilled
 
-> 前置阅读：[故障排查](/jvm/9_troubleshooting)、[JVM 层性能策略](/high-perf/5_jvm_tuning)
+> 前置阅读：[故障排查](/jvm/9_troubleshooting)、[GC 调优](/jvm/6_gc_tuning)
 
 订单服务在大促期间 Pod 反复重启，堆内存曲线却一直健康，没有任何 `OutOfMemoryError` 和 heap dump。本篇复盘一次典型的容器 OOMKilled，基线为 JDK 21、Spring Boot 4、Kubernetes 1.37（cgroup v2）。
 
@@ -282,7 +282,7 @@ JVM 面板补充：堆**已提交**、元空间、直接内存（`jvm_buffer_mem
 |--------|------|
 | OOM 类型与容器 OOMKilled 的区别 | [故障排查 · 容器 OOMKilled](/jvm/9_troubleshooting#八、容器-oomkilled) |
 | 直接内存 OOM | [故障排查 · Direct buffer memory](/jvm/9_troubleshooting#六、outofmemoryerror-direct-buffer-memory) |
-| 容器感知、堆外内存构成与推荐参数 | [JVM 层性能策略 · 堆大小与容器内存](/high-perf/5_jvm_tuning#三、堆大小与容器内存) |
+| 容器感知、堆外内存构成与推荐参数 | [GC 调优 · 容器环境](/jvm/6_gc_tuning#四、容器环境) |
 | NMT 与 jcmd | [诊断工具 · NMT](/jvm/8_monitoring_tools#七、nmt-native-memory-tracking) |
 | 运行时内存区域 | [内存结构](/jvm/1_memory) |
 | requests / limits 与 QoS | [Kubernetes · 资源模型与 QoS](/cloud-native/6_kubernetes#三、资源模型与-qos) |

@@ -70,6 +70,8 @@ JDK 8 使用旧参数：
 | GC 时间占比 | GC 总耗时 / 运行时间 | 占比高说明吞吐受损，也是 CPU 飙升的常见原因 |
 | 回收后老年代占用 | 每次 Mixed / Full GC 后的老年代大小，即活跃数据量 | 持续上涨、回收不掉：疑似内存泄漏 |
 | 晋升速率 | 每次 Young GC 晋升到老年代的数据量 | 过高：Survivor 放不下或对象过早晋升 |
+| 分配速率 | 约等于 Eden 大小 / Young GC 间隔 | 明显高于同类服务：先从代码减少分配，而不是调参 |
+| Safepoint | `-Xlog:safepoint` 中的到达耗时与总停顿 | 非 GC 原因的停顿：线程迟迟到达不了安全点、频繁 jstack / 堆转储 |
 
 常见的 GC 触发原因：
 
@@ -81,6 +83,7 @@ JDK 8 使用旧参数：
 | `System.gc()` | 代码或框架显式调用 |
 | `To-space exhausted` / `Evacuation Failure` | G1 转移时找不到空闲 Region，老年代或预留空间不足，可能继而 Full GC |
 | `Pause Full` | Full GC，G1 下出现即需重点排查 |
+| `Allocation Stall` | ZGC 回收跟不上分配，业务线程被迫等待，需加大堆或降低分配速率 |
 
 ### 3、可视化工具
 
@@ -90,7 +93,7 @@ JDK 8 使用旧参数：
 | **GCViewer** | 开源桌面工具，展示 GC 时间线、停顿分布、吞吐量 |
 | **JDK Mission Control（JMC）** | 需单独下载，配合 JFR 录制分析 GC、分配热点、锁竞争 |
 
-jstat、jcmd、JFR 等在线观测手段见 [诊断工具](./8_monitoring_tools)；如何根据日志判断"是否需要调优"可参考 [JVM 层性能策略](/high-perf/5_jvm_tuning)。
+jstat、jcmd、JFR 等在线观测手段见 [诊断工具](./8_monitoring_tools)。
 
 ---
 
@@ -160,21 +163,37 @@ jstat、jcmd、JFR 等在线观测手段见 [诊断工具](./8_monitoring_tools)
 
 ## 四、容器环境
 
-**容器里 JVM 最常见的问题不是 GC 慢，而是进程总内存超过 limit 被内核杀掉（OOMKilled），这时既没有 Java OOM 日志也没有堆 dump。**
+**容器里 JVM 最常见的问题不是 GC 慢，而是进程总内存超过 limit 被内核杀掉（OOMKilled，退出码 137），这时既没有 Java OOM 日志也没有堆 dump。**
 
-- **容器感知**：JDK 10 起（8u191 回移）默认开启 `-XX:+UseContainerSupport`，JVM 按容器的内存与 CPU limit 计算默认堆大小、GC 线程数
-- **按比例设置堆**：用 `-XX:MaxRAMPercentage` / `-XX:InitialRAMPercentage` 替代固定的 `-Xmx` / `-Xms`，规格调整时无需改参数；默认 `MaxRAMPercentage=25` 偏保守，通常取 50～75
-- **给堆外留足空间**：元空间、直接内存、线程栈、Code Cache、GC 自身数据结构都计入容器内存，堆外占用大的应用（Netty、线程多）取低比例，并显式限制 `MaxDirectMemorySize`、`MaxMetaspaceSize`
+### 1、容器感知
+
+- **默认开启**：JDK 10 起（8u191 回移）默认开启 `-XX:+UseContainerSupport`，JVM 按容器的内存与 CPU limit 计算默认堆大小、GC 线程数；cgroup v2 需要 JDK 15+（或 11.0.16、8u372 之后的更新版本）
+- **按比例设置堆**：用 `-XX:MaxRAMPercentage` / `-XX:InitialRAMPercentage` 替代固定的 `-Xmx` / `-Xms`，规格调整时无需改参数；默认 `MaxRAMPercentage=25` 偏保守，通常取 50～75；显式设置 `-Xmx` 时比例参数不再生效，两者二选一
+- **CPU limit 的影响**：GC 线程数、JIT 编译线程数和 `ForkJoinPool.commonPool` 的并行度都按 CPU limit 计算，必要时用 `-XX:ActiveProcessorCount` 显式指定
 - **小规格容器**：JDK 26 及以前，CPU < 2 或内存 < 1792MB 时 JVM 会默认选 Serial；JDK 27 起（JEP 523）所有环境默认 G1。无论哪个版本都建议显式指定收集器
 
+### 2、堆只是进程内存的一部分
+
+| 内存区域 | 说明 | 控制参数 |
+|----------|------|----------|
+| 堆 | 对象分配 | `-Xmx` 或 `-XX:MaxRAMPercentage` |
+| Metaspace | 类元数据，类多、动态代理多的应用可达数百 MB | `-XX:MaxMetaspaceSize` |
+| 直接内存 | NIO / Netty 直接缓冲区，默认上限约等于最大堆 | `-XX:MaxDirectMemorySize` |
+| 线程栈 | Linux x64 默认每线程 1MB，几百个线程就是几百 MB | `-Xss`、控制线程数 |
+| Code Cache | JIT 编译后的机器码，分层编译下默认预留 240MB | `-XX:ReservedCodeCacheSize` |
+| GC 与其他 native | GC 数据结构、JNI、glibc malloc arena 等 | 用 NMT 观察 |
+
+这些区域都计入容器内存配额：堆外占用大的应用（Netty、线程多）取低比例，并显式限制 `MaxDirectMemorySize`、`MaxMetaspaceSize`。准确比例用 NMT 实测：`-XX:NativeMemoryTracking=summary` 启动后执行 `jcmd <pid> VM.native_memory summary`，见 [诊断工具](./8_monitoring_tools)。
+
+### 3、推荐配置
+
 ```bash
-java -XX:InitialRAMPercentage=70 -XX:MaxRAMPercentage=70 \
-     -XX:MaxDirectMemorySize=512m -XX:MaxMetaspaceSize=256m \
-     -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError \
-     -jar app.jar
+# 容器内：按比例设置堆，初始与最大一致，避免运行中扩缩堆带来的抖动
+java -XX:InitialRAMPercentage=70 -XX:MaxRAMPercentage=70      -XX:MaxDirectMemorySize=512m -XX:MaxMetaspaceSize=256m      -XX:+UseG1GC      -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/data/dump/      -XX:+ExitOnOutOfMemoryError      -jar app.jar
 ```
 
-cgroup 版本兼容、各内存区域占比、NMT 实测方法详见 [JVM 层性能策略](/high-perf/5_jvm_tuning)。
+- 堆 dump 路径挂载到持久卷，OOM 后由编排系统重启（见上一节 OOM 保护）
+- `-XX:+AlwaysPreTouch` 启动时预先触碰堆内存页，避免运行期的缺页开销，但会拉长启动时间，大堆低延迟服务可以考虑
 
 ---
 
@@ -305,7 +324,7 @@ java -Xms4g -Xmx4g \
 - 先定**目标**（吞吐 / 延迟 / 内存），再用 **GC 日志**定位问题阶段和原因，每次只改一个参数
 - **NewRatio 是老年代 / 年轻代**，调大年轻代变小；G1 下不要固定年轻代大小
 - G1 优先设定堆和 `MaxGCPauseMillis`，IHOP 默认自适应；**调小 Region 不能减少停顿**
-- OOM 后用 **`ExitOnOutOfMemoryError`** 退出并由编排系统重启；容器中用 **`MaxRAMPercentage`** 并给堆外留余量
+- OOM 后用 **`ExitOnOutOfMemoryError`** 退出并由编排系统重启；容器中用 **`MaxRAMPercentage`**（50～75%）并用 NMT 核算堆外，避免 OOMKilled
 - ZGC 重点是给足堆空间，JDK 23+ 只需 `-XX:+UseZGC`
 
 ## 参考资料
@@ -313,6 +332,7 @@ java -Xms4g -Xmx4g \
 - G1 调优官方指南：[Garbage-First (G1) Garbage Collector Tuning](https://docs.oracle.com/en/java/javase/21/gctuning/garbage-first-garbage-collector-tuning.html)
 - ZGC 官方指南：[The Z Garbage Collector](https://docs.oracle.com/en/java/javase/21/gctuning/z-garbage-collector.html)
 - JVM 参数参考（含 MaxRAMPercentage、OOM 相关参数）：[The java Command](https://docs.oracle.com/en/java/javase/21/docs/specs/man/java.html)
+- 堆外内存排查：[Native Memory Tracking](https://docs.oracle.com/en/java/javase/21/vm/native-memory-tracking.html)
 - 统一日志 -Xlog：[JEP 158: Unified JVM Logging](https://openjdk.org/jeps/158)
 - 分代 ZGC 成为默认：[JEP 474: ZGC: Generational Mode by Default](https://openjdk.org/jeps/474)
 

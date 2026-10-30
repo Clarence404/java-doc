@@ -95,7 +95,7 @@ Istio 1.22 起 `networking.istio.io/v1` 与 `security.istio.io/v1` 已 GA，Virt
 
 ### 1、VirtualService（虚拟服务）
 
-定义「请求被路由到哪里」。**`http` 下的路由按顺序匹配，第一条命中即生效**，所以带 `match` 的精确规则必须放在前面，不带 `match` 的兜底路由放最后：
+定义「请求被路由到哪里」，是网格内东西向灰度（服务 A 调服务 B，不经过入口网关）的主要手段。`hosts` 是必填字段，写调用方访问的服务名；版本由下文 DestinationRule 的 subset 区分。**`http` 下的路由按顺序匹配，第一条命中即生效**，所以带 `match` 的精确规则必须放在前面，不带 `match` 的兜底路由放最后。下面是一个金丝雀发布的例子：
 
 ```yaml
 apiVersion: networking.istio.io/v1
@@ -165,35 +165,17 @@ spec:
 
 ### 3、Kubernetes Gateway API
 
-Istio 也支持用 Kubernetes Gateway API 配置流量，并推荐它作为入口网关和 Ambient waypoint 的路由 API。Gateway API 不使用子集，而是每个版本一个 Service；规则按匹配的精确程度决定优先级，带 Header 匹配的规则优先于不带的：
+Istio 也支持用 Kubernetes Gateway API 配置流量，并推荐它作为入口网关和 Ambient waypoint 的路由 API。Gateway API 不使用子集，而是每个版本一个 Service；规则按匹配的精确程度决定优先级，带 Header 匹配的规则优先于不带的，与书写顺序无关。东西向路由与入口路由的写法只差在 `parentRefs`，挂到服务上而不是 Gateway 上，由 waypoint 执行：
 
 ```yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: order-service
-spec:
   parentRefs:
     - group: ""
       kind: Service              # 东西向路由：挂到服务上，由 waypoint 执行
       name: order-service
       port: 8080
-  rules:
-    - matches:
-        - headers:
-            - name: x-canary
-              value: "true"
-      backendRefs:
-        - name: order-service-v2
-          port: 8080
-    - backendRefs:
-        - name: order-service-v1
-          port: 8080
-          weight: 90
-        - name: order-service-v2
-          port: 8080
-          weight: 10
 ```
+
+`rules` 部分（请求头固定走 v2、其余按 90 / 10 分流）与入口金丝雀完全相同，见 [发布策略 · Gateway API：HTTPRoute 权重](/devops/7_release_strategy#_1、gateway-api-httproute-权重-推荐)。
 
 南北向入口用 Gateway API 的 `Gateway` + `HTTPRoute` 即可，与 Ingress 的对比见 [Nginx、Ingress 与 Gateway API](/cloud-native/7_nginx_ingress)。
 

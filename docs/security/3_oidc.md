@@ -232,66 +232,9 @@ OIDC 的登出分三类：**RP 发起登出**（RP-Initiated Logout，RP 把浏�
 
 ## 九、Spring Boot 接入
 
-引入 `spring-boot-starter-security-oauth2-client`，`registration` 与 `provider` 用同一个 ID 关联：
+引入 `spring-boot-starter-security-oauth2-client`，`registration`（scope 必须含 `openid`）与 `provider`（只配 `issuer-uri`，靠 Discovery 发现端点与 JWKS）关联后开启 `oauth2Login()`，上文的协议细节就由框架完成：生成并核对 `state` / `nonce`，公共客户端自动启用 PKCE，用 JWKS 校验 ID Token 的签名、`iss`、`aud`、`exp`、`nonce` 并合并 UserInfo 得到 `OidcUser`。
 
-```yaml
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          keycloak:                                  # registrationId，回调地址为 /login/oauth2/code/keycloak
-            client-id: portal-web
-            client-secret: ${PORTAL_CLIENT_SECRET}
-            authorization-grant-type: authorization_code
-            scope: openid, profile, email            # 必须包含 openid 才会走 OIDC
-        provider:
-          keycloak:
-            issuer-uri: https://auth.example.com/realms/demo   # 读取 Discovery，自动配置各端点与 JWKS
-```
-
-```java
-@Configuration
-@EnableWebSecurity
-public class OidcLoginConfig {
-
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                            ClientRegistrationRepository registrations) throws Exception {
-        // RP 发起登出：本地会话销毁后，重定向到 OP 的 end_session_endpoint 并带上 id_token_hint
-        OidcClientInitiatedLogoutSuccessHandler logoutSuccessHandler =
-            new OidcClientInitiatedLogoutSuccessHandler(registrations);
-        logoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}/");
-
-        return http
-            .authorizeHttpRequests(a -> a
-                .requestMatchers("/", "/error").permitAll()
-                .anyRequest().authenticated())
-            .oauth2Login(Customizer.withDefaults())
-            .logout(l -> l.logoutSuccessHandler(logoutSuccessHandler))
-            .build();
-    }
-}
-
-@RestController
-class MeController {
-
-    record Me(String sub, String name, String email) {}
-
-    @GetMapping("/me")
-    Me me(@AuthenticationPrincipal OidcUser user) {
-        return new Me(user.getSubject(), user.getFullName(), user.getEmail());
-    }
-}
-```
-
-Spring Security 在这套配置下自动完成的事：
-
-- 生成 `state` 与 `nonce`，回调时核对；公共客户端自动启用 PKCE
-- 用 JWKS 校验 ID Token 的签名、`iss`、`aud`、`exp`、`nonce`（`OidcIdTokenValidator`），并按需调用 UserInfo 合并 claims，得到 `OidcUser`
-- 登出时通过 `OidcClientInitiatedLogoutSuccessHandler` 走 RP-Initiated Logout；后端通道登出用 `.oidcLogout(l -> l.backChannel(Customizer.withDefaults()))` 开启
-
-Keycloak 角色映射、后端通道登出的完整配置与集群下的会话处理见 [Spring SSO 接入](/spring/11_single_sign_on)。
+配置与过滤器链见 [Spring SSO 接入 · OIDC Client 与资源服务器](/spring/11_single_sign_on#五、oidc-client-与资源服务器)；RP-Initiated Logout、后端通道登出、Keycloak 角色映射与集群下的会话处理见 [Spring SSO 接入 · Keycloak 实战](/spring/11_single_sign_on#六、keycloak-实战)。
 
 ---
 

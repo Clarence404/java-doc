@@ -118,7 +118,7 @@ public class RedisCacheAutoConfiguration {
 com.example.cache.RedisCacheAutoConfiguration
 ```
 
-这个文件从 **Boot 2.7** 开始支持，3.x、4.x 都只认它；`spring.factories` 中 `EnableAutoConfiguration` 键的注册方式在 3.0 已删除。只有还要兼容 2.6 及更早版本时，才需要两种文件并存。
+3.x、4.x 只认这个文件，写在 `spring.factories` 里的自动配置会静默失效；登记位置的版本演进见 [启动流程与自动配置 · 登记文件的演进](./1_spring_boot#_2、登记文件的演进)。
 
 ### 4、注解处理器
 

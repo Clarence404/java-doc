@@ -167,9 +167,28 @@ public class LoginRiskJob {
 }
 ```
 
-依赖：`flink-cep`、`flink-connector-kafka`、`flink-json`（`JsonDeserializationSchema`），版本与 Flink 对齐。
+依赖：`flink-cep`、`flink-connector-kafka`、`flink-json`（`JsonDeserializationSchema`），版本与 Flink 对齐；`flink-cep` 不在 Flink 发行包的 `lib` 里，需要打进作业 jar。
 
-### 3、设计要点
+### 3、连续性与量词
+
+模式写错多半错在连续性上，几个容易混淆的写法：
+
+| 写法 | 语义 |
+|------|------|
+| `next()` | 严格连续：下一条事件必须匹配，中间不能夹别的事件 |
+| `followedBy()` | 宽松连续：中间可以夹不匹配的事件，取第一个匹配的 |
+| `followedByAny()` | 非确定宽松连续：中间每个匹配的事件都会产生一条匹配，结果最多、状态最大 |
+| `times(3)` | 量词内部默认宽松连续，「5 条里有 3 条失败」也会匹配 |
+| `times(3).consecutive()` | 3 条必须相邻，中间夹一条正常事件就重新计数 |
+| `timesOrMore(3)` / `oneOrMore()` | 不设上限的量词，必须配 `within`，否则部分匹配无限积累 |
+| `skipPastLastEvent()` | 一次匹配后跳过已用事件，持续异常不会每来一条就告警一次 |
+
+两类需求不适合 CEP：
+
+- **「某事没有发生」**：如「设备 90 秒内没有上报」。只有一个 `begin` 节点的模式收到第一条事件就匹配完成，不会超时；用 `KeyedProcessFunction` + 处理时间定时器表达更直接，见 [DataStream API · 定时器的语义](./2_datastream#_2、定时器的语义)
+- **阈值频繁调整的计数规则**：见下文「规则动态化」
+
+### 4、设计要点
 
 - **CEP 默认按事件时间**：同一用户的事件在进入 NFA 前按时间戳排序，乱序容忍度由水位线决定；不需要严格时序时可调用 `inProcessingTime()` 降低延迟。
 - **`within` 是状态边界**：超过 5 分钟的部分匹配会被清理，状态不会无限增长；没有 `within` 的模式加上 `timesOrMore` 会让状态失控。

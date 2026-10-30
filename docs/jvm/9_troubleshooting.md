@@ -178,7 +178,7 @@ dmesg -T | grep -i "killed process" # 宿主机内核日志
 | 线程过多 | 每个线程栈默认约 1MB，控制线程数 |
 | 本地库 / glibc malloc arena | NMT 总量与 RSS 差距大时怀疑这里，可调 `MALLOC_ARENA_MAX` 或换用 jemalloc |
 
-用 NMT 核算各区域占用：启动加 `-XX:NativeMemoryTracking=summary`，运行中执行 `jcmd <pid> VM.native_memory summary`。容器内存配置的完整思路见 [JVM 层性能策略](/high-perf/5_jvm_tuning)。
+用 NMT 核算各区域占用：启动加 `-XX:NativeMemoryTracking=summary`，运行中执行 `jcmd <pid> VM.native_memory summary`。容器内存配置的完整思路见 [GC 调优 · 容器环境](./6_gc_tuning#四、容器环境)。
 
 ---
 

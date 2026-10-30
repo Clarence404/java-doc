@@ -414,7 +414,7 @@ txTemplate.execute(status -> { recordRepo.save(record); return accountRepo.deduc
 
 **常见坑**：用 `enableUnsafeDefaultTyping()` 允许反序列化任意类型，Redis 数据被篡改就可能远程执行代码。
 
-→ 详见 [Cache 抽象](/spring/5_cache#_2、redis-cachemanager-spring-data-redis-4-jackson-3)、[中间件集成](/spring-boot/6_middleware#_2、序列化-jackson-3)
+→ 详见 [Redis 实战 · RedisTemplate 序列化](/cache/5_redis_practice#_3、redistemplate-序列化)、[Redis 实战 · Spring Cache 配置](/cache/5_redis_practice#_4、spring-cache-配置)
 
 ### Q30：`@Cacheable(sync = true)` 能解决集群下的缓存击穿吗？
 

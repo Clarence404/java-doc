@@ -190,7 +190,7 @@ OOMScoreAdjust=-500
 - systemd 托管 Java 服务与 journalctl：[Linux 概览](/cloud-native/1_linux#三、systemd-与-journalctl)
 - 内核 OOM 与容器 OOMKilled 的区别：[故障排查](/jvm/9_troubleshooting#八、容器-oomkilled)
 - JVM 内存构成与堆外内存核算：[容器被 OOMKilled](./15_oom_killed)
-- 堆大小与物理内存的配比：[JVM 层性能策略](/high-perf/5_jvm_tuning#三、堆大小与容器内存)
+- 堆大小与物理内存的配比：[GC 调优 · 容器环境](/jvm/6_gc_tuning#四、容器环境)
 - OOM 查看命令：[Linux 排查命令速查](/handbook/1_cheatsheet/0_linux#二、内存)
 
 ---

@@ -487,7 +487,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 多个服务共用一个库时，这个上限要在服务之间分
 - 单个池该多大、为什么不是越大越好见 [高性能面试题解答 Q15](/interview/12_high_perf#q15-数据库连接池的大小如何确定-连接池是不是越大越好)
 
-→ 详见 [并发参数调优](/high-con/7_concurrency_tuning#三、数据库连接池)、[池化技术](/high-perf/7_pooling#二、连接池原理-为什么不是越大越好)
+→ 详见 [并发参数调优](/high-con/7_concurrency_tuning#三、数据库连接池)、[数据库连接池 · 池大小估算](/database/4_access/2_connection_pool#_4、池大小估算)
 
 ### Q37：Lettuce 需要配置连接池吗？什么时候池才会被使用？
 
@@ -500,7 +500,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 
 **常见坑**：Redis 变慢就调大 `max-active`（普通命令根本不走池，应该先查命令延迟和大 key）。
 
-→ 详见 [并发参数调优](/high-con/7_concurrency_tuning#四、redis-客户端连接池)
+→ 详见 [Redis 实战 · 依赖与配置](/cache/5_redis_practice#_1、依赖与配置)、[并发参数调优](/high-con/7_concurrency_tuning#四、redis-客户端连接池)
 
 ### Q38：服务器出现大量 TIME_WAIT 是什么原因？如何解决？
 

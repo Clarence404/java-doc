@@ -64,6 +64,19 @@ env.setRuntimeMode(RuntimeExecutionMode.STREAMING);  // 默认，持续计算
 
 > Flink 的代价是运维复杂度：需要一个独立集群、状态存储（对象存储 / HDFS）、作业升级要走 Savepoint。团队没有平台化能力时，优先考虑云厂商托管的 Flink 服务。
 
+### 3、与 Spark 批处理的分工
+
+Spark 与 Flink 都号称「流批一体」，但出发点相反：Spark 以批为本体，流处理默认是微批；Flink 以流为本体，批是有界的流。资源模型也不同：Spark 批作业跑完即释放资源，Flink 流作业常驻、长期占用资源。所以两者在数据平台里通常是互补而不是二选一：
+
+| 任务 | 选择 |
+|------|------|
+| T+1 离线数仓、历史数据回刷、复杂多表加工、特征工程与数据科学（PySpark、MLlib） | Spark |
+| 秒级以内的实时指标、实时风控、数据库变更实时入湖 | Flink |
+| 已有 Spark 体系、能接受分钟级延迟的准实时任务 | Spark Structured Streaming，复用技术栈 |
+| 湖仓架构 | Flink 实时写入 Iceberg / Paimon，Spark 负责离线合并、批量回刷和重度分析，两者读写同一份表 |
+
+Spark 自身的架构与调优见 [Spark](/big-data/3_spark)，两者组合成实时数仓的完整方案见 [实时数仓实战](/big-data/9_realtime_dw)。
+
 ---
 
 ## 三、运行时架构

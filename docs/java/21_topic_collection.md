@@ -273,7 +273,7 @@ public class LruCache<K, V> extends LinkedHashMap<K, V> {
 }
 ```
 
-它不是线程安全的，访问顺序模式下连 `get` 都会修改链表。生产环境的本地缓存用 Caffeine（W-TinyLFU 淘汰、并发安全、支持过期），见 [Caffeine](/cache/7_caffeine)。
+它不是线程安全的，访问顺序模式下连 `get` 都会修改链表，多线程共享时至少要用 `Collections.synchronizedMap` 包装、整体加锁（读写锁也不行）。生产环境的本地缓存用 Caffeine（W-TinyLFU 淘汰、并发安全、支持过期），见 [Caffeine](/cache/7_caffeine)。
 
 ---
 

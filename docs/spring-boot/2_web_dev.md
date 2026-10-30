@@ -136,26 +136,7 @@ public class OrderController {
 
 ### 2、API 版本控制（Boot 4）
 
-Framework 7 内置 API 版本控制，Boot 4 通过 `spring.mvc.apiversion.*`（WebFlux 为 `spring.webflux.apiversion.*`）配置版本来源，版本可来自请求头、查询参数、媒体类型参数或路径：
-
-```yaml
-spring:
-  mvc:
-    apiversion:
-      default: 1.0
-      use:
-        header: X-API-Version
-```
-
-```java
-@GetMapping(path = "/{id}", version = "1.1")      // 仅匹配 1.1
-public OrderVO getV1_1(@PathVariable Long id) { ... }
-
-@GetMapping(path = "/{id}", version = "1.2+")     // 1.2 及以上
-public OrderDetailVO getV1_2(@PathVariable Long id) { ... }
-```
-
-配置了 `default` 时，缺少版本的请求按默认版本处理；未配置时缺少版本返回 400。版本解析、支持版本的收集、异常与废弃响应头等框架机制见 [MVC · API 版本控制](/spring/3_mvc#七、api-版本控制)。
+Framework 7 内置 API 版本控制，控制器用 `@GetMapping(path = "/{id}", version = "1.2+")` 声明版本；Boot 4 通过 `spring.mvc.apiversion.*`（WebFlux 为 `spring.webflux.apiversion.*`）配置版本从请求头、查询参数、路径还是媒体类型参数中解析，以及默认版本。属性写法、匹配规则与废弃响应头见 [MVC · API 版本控制](/spring/3_mvc#七、api-版本控制)。
 
 ---
 

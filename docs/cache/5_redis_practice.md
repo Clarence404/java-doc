@@ -48,7 +48,7 @@ spring:
           max-wait: 1s          # 取连接超时，快速失败
 ```
 
-Lettuce 默认所有线程**共享一条**基于 Netty 的连接（`shareNativeConnection = true`），普通 `GET` / `SET` 不走连接池，不引入 commons-pool2 也能正常工作。连接池只在阻塞命令（`BLPOP`、`XREAD BLOCK`）、`MULTI` 事务等需要独占连接时使用，所以不要靠调大 `max-active` 解决 Redis 慢的问题，详见 [并发参数调优](/high-con/7_concurrency_tuning)。
+Lettuce 默认所有线程**共享一条**基于 Netty 的连接（`shareNativeConnection = true`），普通 `GET` / `SET` 不走连接池，不引入 commons-pool2 也能正常工作。连接池只在阻塞命令（`BLPOP`、`XREAD BLOCK`）、`MULTI` 事务等需要独占连接时使用，所以不要靠调大 `max-active` 解决 Redis 慢的问题。若调用 `setShareNativeConnection(false)` 关闭共享，所有操作都会走连接池，此时 `max-active` 要按访问 Redis 的线程峰值估算。
 
 ### 2、Lettuce 与 Jedis
 
@@ -58,11 +58,19 @@ Lettuce 默认所有线程**共享一条**基于 Netty 的连接（`shareNativeC
 | 同步 / 异步 / 响应式 | 都支持 | 只有同步 |
 | Spring Boot 默认 | 是 | 否，需排除 Lettuce 后引入 |
 | Cluster 拓扑刷新 | 支持自适应刷新 | 支持 |
+
+连接池大小的经验值：Jedis 每条命令独占一个连接，`maxTotal` 约等于访问 Redis 的线程峰值；Redisson 用 `connectionPoolSize`（默认 64）和 `connectionMinimumIdleSize`（默认 24）控制每个节点的连接数，一般保持默认即可。
 | 推荐 | 首选 | 兼容老项目 |
 
 ### 3、RedisTemplate 序列化
 
-默认的 JDK 序列化不可读、体积大，还要求类实现 `Serializable`，一般改为 key 用字符串、value 用 JSON。Spring Data Redis 4 以 Jackson 3（包名 `tools.jackson`）为主：原来的 `Jackson2JsonRedisSerializer` / `GenericJackson2JsonRedisSerializer` 已废弃，对应的新类是 `JacksonJsonRedisSerializer` / `GenericJacksonJsonRedisSerializer`。
+Boot 自动配置的 `RedisTemplate<Object, Object>` 用 JDK 序列化，不可读、体积大，还要求类实现 `Serializable`，一般改为 key 用字符串、value 用 JSON。Spring Data Redis 4 以 Jackson 3（包名 `tools.jackson`）为主，Jackson 2 版序列化器均已废弃：
+
+| Spring Data Redis 4（Boot 4，Jackson 3） | Spring Data Redis 3（Boot 3，Jackson 2，已废弃） |
+|-----------------------------------------|----------------------------------------------|
+| `GenericJacksonJsonRedisSerializer` | `GenericJackson2JsonRedisSerializer` |
+| `JacksonJsonRedisSerializer<T>` | `Jackson2JsonRedisSerializer<T>` |
+| `JacksonHashMapper` | `Jackson2HashMapper` |
 
 ```java
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
@@ -71,16 +79,20 @@ import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 @Configuration
 public class RedisConfig {
 
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
-        // 只允许反序列化本项目和必要的 JDK 类型，防止缓存数据被篡改后触发反序列化漏洞
-        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+    // 只允许反序列化本项目和必要的 JDK 类型，防止缓存数据被篡改后触发反序列化漏洞
+    static PolymorphicTypeValidator typeValidator() {
+        return BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType("com.example.")
                 .allowIfSubType("java.util.")
                 .allowIfSubType("java.time.")
+                .allowIfSubType("java.math.")
                 .build();
+    }
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
         GenericJacksonJsonRedisSerializer json = GenericJacksonJsonRedisSerializer.builder()
-                .enableDefaultTyping(ptv)        // 写入类型信息，读取时还原具体类型
+                .enableDefaultTyping(typeValidator())   // 写入类型信息，读取时还原具体类型
                 .build();
 
         RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -96,14 +108,15 @@ public class RedisConfig {
 
 几点说明：
 
-- **不要用无校验的默认类型**：`LaissezFaireSubTypeValidator` 或 builder 的 `enableUnsafeDefaultTyping()` 允许反序列化任意类，缓存数据一旦可被写入就可能被利用执行任意代码。能确定类型时，优先用 `JacksonJsonRedisSerializer<>(Product.class)` 这种不带类型信息的序列化器
+- **新版默认不写类型信息**：旧的 `GenericJackson2JsonRedisSerializer` 默认开启 default typing，新的 `GenericJacksonJsonRedisSerializer` **默认不开启**，读回来是 `LinkedHashMap`，强转业务类型会抛 `ClassCastException`；需要多态时像上面一样用 `enableDefaultTyping(validator)` 显式开启
+- **不要用无校验的默认类型**：`LaissezFaireSubTypeValidator` 或 builder 的 `enableUnsafeDefaultTyping()` 允许反序列化任意类，缓存数据一旦可被写入就可能被利用执行任意代码。能确定类型时，优先用 `new JacksonJsonRedisSerializer<>(Product.class)` 建专用模板，不写类型信息，JSON 更干净，也没有多态反序列化风险
 - **Jackson 3 内置 java.time 支持**，不再需要注册 `JavaTimeModule`
-- **升级时注意兼容**：Jackson 3 写出的 JSON 可能与 Jackson 2 不同，已有缓存数据可先继续用 Jackson 2 序列化器读取，或在升级时清空缓存（缓存数据本来就应可重建）
+- **升级时注意兼容**：Jackson 3 写出的 JSON 可能与 Jackson 2 不同。过渡期可继续用已废弃的 Jackson 2 序列化器读旧数据，或给新格式的 key 换前缀等旧 key 过期，或直接清空缓存（缓存数据本来就应可重建）；Boot 3.x 项目继续用 `GenericJackson2JsonRedisSerializer`，写法相同
 - 只存字符串时直接用 Boot 自动配置的 `StringRedisTemplate`
 
 ### 4、Spring Cache 配置
 
-不必继承已废弃的 `CachingConfigurerSupport`，也不建议自己 new 一个 `RedisCacheManager`（会让 `spring.cache.redis.*` 配置失效）。声明一个 `RedisCacheConfiguration` Bean 作为默认配置，再用 `RedisCacheManagerBuilderCustomizer` 按缓存名微调：
+自动配置的 `RedisCacheManager` 同样默认用 JDK 序列化。不必继承已废弃的 `CachingConfigurerSupport`，也不建议自己 new 一个 `RedisCacheManager`（自动配置会整体退出）。声明一个 `RedisCacheConfiguration` Bean 作为默认配置，再用 `RedisCacheManagerBuilderCustomizer` 按缓存名微调：
 
 ```java
 @EnableCaching
@@ -112,23 +125,32 @@ public class CacheConfig {
 
     @Bean
     public RedisCacheConfiguration redisCacheConfiguration() {
+        RedisSerializer<Object> json = GenericJacksonJsonRedisSerializer.builder()
+                .enableDefaultTyping(RedisConfig.typeValidator())   // 同上一节的白名单校验器
+                .enableSpringCacheNullValueSupport()                // 允许缓存 null（序列化 NullValue）
+                .build();
         return RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(30))
-                .serializeKeysWith(RedisSerializationContext.SerializationPair
-                        .fromSerializer(RedisSerializer.string()));
+                .serializeKeysWith(SerializationPair.fromSerializer(RedisSerializer.string()))
+                .serializeValuesWith(SerializationPair.fromSerializer(json));
     }
 
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheCustomizer(RedisCacheConfiguration base) {
         return builder -> builder
                 .transactionAware()   // 在事务提交后才真正执行 put / evict
+                .withCacheConfiguration("configs", base.entryTtl(Duration.ofDays(1)))
                 .withCacheConfiguration("product", base
                         .entryTtl(Duration.ofMinutes(10))
-                        .serializeValuesWith(RedisSerializationContext.SerializationPair
+                        .serializeValuesWith(SerializationPair
                                 .fromSerializer(new JacksonJsonRedisSerializer<>(Product.class))));
     }
 }
 ```
+
+- **Bean 优先于属性**：容器里有 `RedisCacheConfiguration` Bean 时 Boot 直接用它作为默认配置，`spring.cache.redis.time-to-live` 等属性不再生效（TTL 写在 Bean 里）；按缓存名差异化用 `RedisCacheManagerBuilderCustomizer`（`withCacheConfiguration` 逐个加，或 `withInitialCacheConfigurations` 传 Map）
+- **缓存 null 需要显式支持**：JSON 序列化器要开启 `enableSpringCacheNullValueSupport()` 才能写入 Spring Cache 的 `NullValue` 占位，空值策略与穿透防护见 [Cache 抽象](/spring/5_cache#_3、空值策略与缓存穿透)
+- Boot 3.x 中 `RedisCacheManagerBuilderCustomizer` 的包名是 `org.springframework.boot.autoconfigure.cache`，Boot 4 移到 `org.springframework.boot.cache.autoconfigure`
 
 ```java
 @Service

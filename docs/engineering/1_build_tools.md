@@ -196,9 +196,16 @@ mvnd 适合本地反复构建的大型多模块工程；CI 每次都是全新环
 
 ### 3、单元测试与集成测试分开跑
 
-surefire 默认只运行 `**/Test*.java`、`**/*Test.java`、`**/*Tests.java`、`**/*TestCase.java`，`*IT.java` 本来就不会被它执行，不需要额外排除。集成测试交给 failsafe，它在 `integration-test` 阶段运行 `*IT.java`，并在 `verify` 阶段才判定失败，保证 `post-integration-test` 的清理动作一定执行：
+单元测试交给 surefire，集成测试交给 failsafe，靠类名区分，不要用 `<excludes>` 硬拆：
 
-JaCoCo、Sonar 与格式化插件见 [代码质量](./3_code_quality)。
+| 插件 | 默认匹配 | 生命周期阶段 | 失败处理 |
+|------|----------|--------------|----------|
+| surefire | `**/Test*.java`、`**/*Test.java`、`**/*Tests.java`、`**/*TestCase.java` | `test` | 立即让构建失败 |
+| failsafe | `**/IT*.java`、`**/*IT.java`、`**/*ITCase.java` | `integration-test` 运行，`verify` 判定 | 先记下失败，等 `post-integration-test` 执行完清理再在 `verify` 判定 |
+
+`*IT.java` 本来就不会被 surefire 执行，不需要额外排除。JaCoCo、Sonar 与格式化插件见 [代码质量](./3_code_quality)。
+
+继承 `spring-boot-starter-parent` 时，parent 已管理两个插件的版本，并为 failsafe 配好了 `integration-test` / `verify` 目标和 `classesDirectory`，只需声明插件：
 
 ```xml
 <build>
@@ -212,6 +219,40 @@ JaCoCo、Sonar 与格式化插件见 [代码质量](./3_code_quality)。
     <plugin>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-failsafe-plugin</artifactId>
+    </plugin>
+  </plugins>
+</build>
+```
+
+不用 parent（例如公司有统一父 POM、只导入 Boot BOM）时，版本、目标与 `classesDirectory` 都要自己写：
+
+```xml
+<properties>
+  <!-- 自定义开关：-DskipUTs=true 时只跳过单元测试 -->
+  <skipUTs>false</skipUTs>
+</properties>
+
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-surefire-plugin</artifactId>
+      <version>3.6.0</version>
+      <configuration>
+        <skipTests>${skipUTs}</skipTests>
+        <excludedGroups>flaky</excludedGroups>
+      </configuration>
+    </plugin>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-failsafe-plugin</artifactId>
+      <version>3.6.0</version>
+      <configuration>
+        <!-- spring-boot:repackage 之后 jar 结构变了，让 failsafe 直接用编译输出目录 -->
+        <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+        <excludedGroups>flaky</excludedGroups>
+        <argLine>-Duser.timezone=UTC</argLine>
+      </configuration>
       <executions>
         <execution>
           <goals>
@@ -225,7 +266,21 @@ JaCoCo、Sonar 与格式化插件见 [代码质量](./3_code_quality)。
 </build>
 ```
 
-以上片段假设使用 `spring-boot-starter-parent`，它已管理两个插件的版本，并为 failsafe 配好了 `classesDirectory`（否则 `repackage` 之后 failsafe 找不到原始 class）。不用 parent 时需自行写上版本（当前为 3.6.0）。常用开关：`-DskipTests` 跳过两者的执行，`-DskipITs` 只跳过集成测试，`-Dtest=OrderServiceTest` 只跑指定单测。集成测试的写法见 [集成测试](/testing/3_integration_test)。
+`integration-test` 和 `verify` 两个目标缺一不可：只绑定 `integration-test` 时，集成测试失败了构建依然显示成功。`excludedGroups` 用来跳过打了 `@Tag("flaky")` 的隔离用例。
+
+常用命令：
+
+```bash
+./mvnw test                                   # 只跑单元测试
+./mvnw verify                                 # 单元测试 + 集成测试
+./mvnw verify -DskipUTs=true                  # 只跑集成测试（依赖上面的自定义开关）
+./mvnw verify -DskipITs                       # 只跳过集成测试
+./mvnw verify -DskipTests                     # 两者都跳过（仍会编译测试代码）
+./mvnw test -Dtest=OrderServiceTest           # 只跑指定单测
+./mvnw verify -Dit.test='PaymentEventListenerIT#duplicateEventIsHarmless'   # 只跑一个集成测试方法
+```
+
+`-Dit.test` 是 failsafe 的过滤参数，surefire 对应的是 `-Dtest`；只用 `-Dit.test` 时仍会跑全部单元测试，想只跑这一个 IT 再加 `-DskipUTs=true`。Gradle 没有 failsafe，对应做法是用 [JVM Test Suite 插件](https://docs.gradle.org/current/userguide/jvm_test_suite_plugin.html) 声明一个 `integrationTest` 套件（源码放 `src/integrationTest/java`），再让 `check` 依赖它。单元测试与集成测试的边界、命名约定见 [集成测试 · 为什么要两个插件](/testing/3_integration_test#_1、为什么要两个插件)。
 
 ### 4、Spring Boot 的 Maven 配置
 

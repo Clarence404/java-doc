@@ -211,6 +211,8 @@ spec:
         - path:
             type: PathPrefix
             value: /api/orders
+      timeouts:
+        request: 30s               # 整个请求的超时，标准字段
       backendRefs:
         - name: order-v1
           port: 8080
@@ -220,57 +222,11 @@ spec:
           weight: 10
 ```
 
-`order-v1` 和 `order-v2` 是分别选中新旧版本 Pod 的两个 Service。Gateway API 按匹配的精确程度选规则，带请求头条件的规则优先于只有路径条件的规则，与书写顺序无关。
+`order-v1` 和 `order-v2` 是分别选中新旧版本 Pod 的两个 Service（Gateway API 不用子集，每个版本一个 Service）。Gateway API 按匹配的精确程度选规则，带请求头条件的规则优先于只有路径条件的规则，与书写顺序无关。上例挂在入口 Gateway 上，管的是南北向流量；同样的 `rules` 把 `parentRefs` 改成 `kind: Service` 挂到服务上，就由 Istio Ambient 的 waypoint 执行东西向灰度，见 [服务网格 · Kubernetes Gateway API](/microservices/21_service_mesh#_3、kubernetes-gateway-api)。
 
 ### 2、Istio：VirtualService + DestinationRule
 
-服务网格内的东西向调用（服务 A 调服务 B）不经过入口网关，灰度要在网格里做。Istio 的 API 从 1.22 起提供 `v1` 版本，`hosts` 是必填字段，版本用 DestinationRule 的 subset 区分：
-
-```yaml
-apiVersion: networking.istio.io/v1
-kind: DestinationRule
-metadata:
-  name: order
-  namespace: shop
-spec:
-  host: order
-  subsets:
-    - name: v1
-      labels:
-        version: v1
-    - name: v2
-      labels:
-        version: v2
----
-apiVersion: networking.istio.io/v1
-kind: VirtualService
-metadata:
-  name: order
-  namespace: shop
-spec:
-  hosts:
-    - order                        # 匹配调用方访问的服务名
-  http:
-    - match:                       # 精确规则在前：按请求头固定走 v2
-        - headers:
-            x-canary:
-              exact: "true"
-      route:
-        - destination:
-            host: order
-            subset: v2
-    - route:                       # 兜底规则在后：按权重分流
-        - destination:
-            host: order
-            subset: v1
-          weight: 90
-        - destination:
-            host: order
-            subset: v2
-          weight: 10
-```
-
-VirtualService 的 `http` 规则按书写顺序匹配，第一条命中即生效，这点和 Gateway API 不同。Istio Ambient 模式下 L7 路由由 waypoint 代理执行，官方推荐用 Gateway API 的 HTTPRoute 表达；Sidecar 与 Ambient 的选择、DestinationRule 的连接池与异常剔除，见 [服务网格](/microservices/21_service_mesh)。
+服务网格内的东西向调用（服务 A 调服务 B）不经过入口网关，灰度要在网格里做：DestinationRule 按 Pod 的 `version` 标签划出 v1 / v2 子集，VirtualService 先写「带 `x-canary` 请求头固定走 v2」的精确规则，再写按 90 / 10 分流的兜底规则。注意 VirtualService 的 `http` 规则按书写顺序匹配、第一条命中即生效，这点和 Gateway API 不同。完整 YAML 与 DestinationRule 的连接池、异常剔除见 [服务网格 · VirtualService（虚拟服务）](/microservices/21_service_mesh#_1、virtualservice-虚拟服务)。
 
 ### 3、Ingress 注解方式（存量）
 

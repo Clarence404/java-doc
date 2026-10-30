@@ -1,12 +1,12 @@
 ---
-description: 协议流程、各家差异、tool_choice、strict 模式、@Tool 用法、工具安全
+description: 协议流程、各家差异、tool_choice、strict 模式、框架封装、工具安全
 ---
 
 # Function Calling（工具调用）
 
 > 前置阅读：[Prompt 工程](./1_prompt)
 
-Function Calling 让模型用结构化方式请求调用外部工具，是 Agent 与 MCP 的基础。本篇讲两轮协议、各家差异、tool_choice 与 strict 模式、@Tool 写法和工具安全。
+Function Calling 让模型用结构化方式请求调用外部工具，是 Agent 与 MCP 的基础。本篇讲两轮协议、各家差异、tool_choice 与 strict 模式、框架封装和工具安全。
 
 ---
 
@@ -167,87 +167,12 @@ String run(List<Message> messages, List<ToolSpec> tools) {
 
 ## 五、框架中的 @Tool
 
-### 1、Spring AI 2.0
+直接对接 API 时，上面的工具定义、调用意图解析、结果回传和多轮循环都要自己写；Java 框架把它们封装成注解加自动循环，开发者只写带描述的 Java 方法：
 
-```java
-import org.springframework.ai.chat.model.ToolContext;
-import org.springframework.ai.tool.annotation.Tool;
-import org.springframework.ai.tool.annotation.ToolParam;
+- **Spring AI**：方法上标 `@Tool(description = …)`、参数用 `@ToolParam`，通过 `ChatClient` 的 `.tools(...)` 按请求注册；用户、租户等身份经 `ToolContext` 传给工具、不发给模型。写法见 [Spring AI · Tool Calling](../2_frameworks/0_spring_ai#五、tool-calling)
+- **LangChain4j**：方法上标 `@Tool`、参数用 `@P`，在 `AiServices.builder(...).tools(...)` 中绑定，身份用 `@ToolMemoryId` 取。写法见 [LangChain4j · Tools](../2_frameworks/1_langchain4j#五、tools)
 
-public record OrderStatus(String orderNo, String status, String logistics) {}
-
-@Component
-public class OrderTools {
-
-    private final OrderService orderService;
-
-    public OrderTools(OrderService orderService) {
-        this.orderService = orderService;
-    }
-
-    @Tool(description = "按订单号查询订单状态和物流信息。用户询问订单进度、发货、物流时使用。只能查询当前登录用户自己的订单")
-    public OrderStatus getOrderStatus(
-            @ToolParam(description = "订单号，如 202610090001") String orderNo,
-            ToolContext toolContext) {
-        Long userId = (Long) toolContext.getContext().get("userId");   // 身份来自应用，不来自模型
-        return orderService.findStatus(userId, orderNo);
-    }
-}
-
-@Service
-public class SupportAssistant {
-
-    private final ChatClient chatClient;
-    private final OrderTools orderTools;
-
-    public SupportAssistant(ChatClient.Builder builder, OrderTools orderTools) {
-        this.chatClient = builder.build();
-        this.orderTools = orderTools;
-    }
-
-    public String chat(Long userId, String question) {
-        return chatClient.prompt()
-            .user(question)
-            .tools(orderTools)
-            .toolContext(Map.of("userId", userId))
-            .call()
-            .content();
-    }
-}
-```
-
-- `@Tool` 的 `name` 默认取方法名，`description` 就是给模型看的 Prompt；`@ToolParam` 的参数默认必填，可设 `required = false`
-- `ToolContext` 里的数据只传给工具，不会发给模型，适合放用户 ID、租户 ID 等身份信息
-- 工具循环由框架自动完成；2.0 默认对每轮的工具调用次数设了上限，可通过 `spring.ai.tools.limits.max-calls-per-tool-default`、`spring.ai.tools.limits.max-total-tool-calls` 调整
-- 需要在执行前插入审批步骤时，可以关闭自动循环，用 `ToolCallingManager` 自己驱动每一轮，详见 [Spring AI](../2_frameworks/0_spring_ai)
-
-### 2、LangChain4j 1.x
-
-```java
-import dev.langchain4j.agent.tool.P;
-import dev.langchain4j.agent.tool.Tool;
-import dev.langchain4j.service.AiServices;
-
-public class WeatherTools {
-
-    @Tool("查询指定城市的当前天气。用户询问天气、气温、是否下雨时使用")
-    public String getWeather(@P("城市名，如：北京") String city) {
-        return weatherClient.current(city);
-    }
-}
-
-interface Assistant {
-    String chat(String message);
-}
-
-Assistant assistant = AiServices.builder(Assistant.class)
-    .chatModel(chatModel)
-    .tools(new WeatherTools())
-    .maxToolCallingRoundTrips(8)     // 限制工具循环轮数
-    .build();
-```
-
-工具方法抛出的异常信息默认会作为工具结果交给模型，让它自行修正参数或换一种方式；`@Tool` 的 `returnBehavior` 可以让工具结果直接返回给调用方而不再经过模型。AI Service 的其他用法见 [LangChain4j](../2_frameworks/1_langchain4j)。
+两者的工具描述都是给模型看的 Prompt，都要限制工具循环轮数（Spring AI 的 `spring.ai.tools.limits.*`、LangChain4j 的 `maxToolCallingRoundTrips`）。
 
 ---
 

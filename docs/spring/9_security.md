@@ -427,7 +427,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {     // 不加 @Compone
 
 ### 1、@PreAuthorize / @PostAuthorize
 
-`@EnableMethodSecurity` 开启后，以下注解基于 `AuthorizationManager` 实现（取代旧的 `@EnableGlobalMethodSecurity`）：
+`@EnableMethodSecurity` 开启后，以下注解基于 `AuthorizationManager` 实现（取代旧的 `@EnableGlobalMethodSecurity`），如 `@PreAuthorize` 由 `PreAuthorizeAuthorizationManager` 在方法执行前求值。Security 7.0 新增 `AuthorizationManagerFactory`，统一创建 `hasRole`、`hasAuthority` 等判定，需要全局修改角色前缀或信任解析器时声明一个该类型的 Bean。
 
 ```java
 @Service
@@ -455,7 +455,59 @@ public class OrderService {
 - `@PostAuthorize` 在方法**执行之后**判断，方法里的写操作已经发生，只适合只读方法
 - 集合过滤可用 `@PreFilter` / `@PostFilter`，但它在内存中过滤，大数据量应在 SQL 层做数据权限，见 [权限系统架构设计](/architecture/6_access_control)
 
-### 2、权限注解模板
+### 2、复杂规则委托给 Bean
+
+涉及具体业务对象的判断（是否本人、是否编辑者、所在部门）写在 SpEL 里既难读也难测，用 `@beanName.method(...)` 委托给一个普通 Bean，返回 `boolean`：
+
+```java
+@Component("orderPermission")                     // SpEL 中 @orderPermission 引用的就是这个 Bean 名
+public class OrderPermission {
+
+    private final OrderRepository orders;
+
+    public OrderPermission(OrderRepository orders) {
+        this.orders = orders;
+    }
+
+    public boolean canEdit(Long orderId, Authentication auth) {
+        return orders.findById(orderId)
+            .map(o -> o.ownerId().equals(auth.getName())
+                   || o.editorIds().contains(auth.getName()))
+            .orElse(false);                       // 查不到按无权处理
+    }
+}
+```
+
+- Bean 内部可以查业务库、调 OPA 或 OpenFGA 等外部策略引擎，ABAC / ReBAC 规则都从这里接入，模型对比见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)
+- 判定逻辑是普通方法，可以直接写单元测试，不必启动 Security 上下文
+
+### 3、角色继承
+
+RBAC1 的角色继承用 `RoleHierarchy` 声明，`ADMIN` 自动拥有 `MANAGER` 和 `STAFF` 的权限；同时交给方法安全的表达式处理器，让 `@PreAuthorize` 中的 `hasRole` 也认继承关系：
+
+```java
+@Configuration
+@EnableMethodSecurity
+public class MethodSecurityConfig {
+
+    @Bean
+    static RoleHierarchy roleHierarchy() {
+        return RoleHierarchyImpl.withDefaultRolePrefix()
+            .role("ADMIN").implies("MANAGER")
+            .role("MANAGER").implies("STAFF")
+            .build();
+    }
+
+    @Bean
+    static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
+        DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+        handler.setRoleHierarchy(roleHierarchy);
+        return handler;
+    }
+}
+```
+
+### 4、权限注解模板
 
 权限码散落在大量 SpEL 字符串里不好维护，可以定义元注解（Security 6.4+ 支持模板参数）：
 

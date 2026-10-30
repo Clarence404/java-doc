@@ -438,75 +438,9 @@ Spring Data 的 `Pageable` 参数解析默认**页码从 0 开始**，参数名�
 
 这张表就是 [API 文档](./5_api_doc) 中 oasdiff 在 CI 里检查的内容，判断规则交给工具执行，不靠人工记忆。
 
-### 3、Spring Framework 7 内置版本控制
+### 3、在 Spring 中落地
 
-Framework 7 在 Spring MVC 和 WebFlux 中内置了 API 版本控制，不再需要自己写 `RequestCondition`。版本可以从请求头、查询参数、媒体类型参数或路径段中解析；Boot 4 提供 `spring.mvc.apiversion.*` 属性来配置，属性写法见 [Spring Boot 版本演进](/spring-boot/14_versions)。路径版本要配合废弃处理器使用时，用 Java 配置更直观：
-
-```java
-import java.net.URI;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.accept.StandardApiVersionDeprecationHandler;
-import org.springframework.web.servlet.config.annotation.ApiVersionConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-@Configuration
-public class ApiVersionConfig implements WebMvcConfigurer {
-
-    @Override
-    public void configureApiVersioning(ApiVersionConfigurer configurer) {
-        StandardApiVersionDeprecationHandler deprecation = new StandardApiVersionDeprecationHandler();
-        deprecation.configureVersion("1")
-                .setDeprecationDate(ZonedDateTime.of(2026, 7, 1, 0, 0, 0, 0, ZoneOffset.UTC))
-                .setDeprecationLink(URI.create("https://developer.example.com/changelog/v1-deprecation"))
-                .setSunsetDate(ZonedDateTime.of(2027, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
-
-        configurer.usePathSegment(1)            // /api/{version}/...，下标从 0 开始，api 是第 0 段
-                .addSupportedVersions("1", "2")
-                .setDeprecationHandler(deprecation);
-    }
-}
-```
-
-```java
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-@RequestMapping("/api/{version}/orders")
-public class OrderController {
-
-    private final OrderQueryService queryService;
-
-    public OrderController(OrderQueryService queryService) {
-        this.queryService = queryService;
-    }
-
-    @GetMapping(path = "/{id}", version = "1")     // 只匹配 v1
-    public OrderViewV1 getV1(@PathVariable String id) {
-        return queryService.getV1(id);
-    }
-
-    @GetMapping(path = "/{id}", version = "2+")    // 匹配 v2 及以上已支持的版本
-    public OrderViewV2 getV2(@PathVariable String id) {
-        return queryService.getV2(id);
-    }
-}
-```
-
-| 要点 | 说明 |
-|------|------|
-| 版本解析 | 默认用 `SemanticApiVersionParser` 解析，`v1` 的前缀 `v` 会被跳过，按 `1.0.0` 比较 |
-| 版本匹配 | `"1"` 只匹配该版本；`"2+"` 匹配 2 及以上已支持的版本；不写 `version` 的映射优先级最低 |
-| 不支持的版本 | 抛 `InvalidApiVersionException`，返回 400 |
-| 缺少版本 | 默认要求必须带版本，否则抛 `MissingApiVersionException`（400）；设置了默认版本时按默认版本处理 |
-| 路径段解析器 | 必须声明 `{version}` URI 变量；它不会返回「无版本」，因此不能和其他解析器组合，除非使用带 `Predicate<RequestPath>` 的重载（7.0.6 起） |
-| 废弃提示 | 请求命中 v1 时，`StandardApiVersionDeprecationHandler` 自动加上 `Deprecation`、`Sunset`、`Link` 响应头 |
-
-文档侧的配合方式（每个版本一个 `GroupedOpenApi`）见 [接口文档](/spring-boot/8_api_doc)。
+Spring 项目直接用 Framework 7 内置的 API 版本控制，不再自己写 `RequestCondition`：对外 API 用路径段解析主版本，内部服务可用请求头；映射上用 `@GetMapping(version = "1")` / `version = "2+"` 区分实现，旧版本交给废弃处理器自动输出下一节的响应头。配置代码、匹配规则与 Boot 4 的 `spring.mvc.apiversion.*` 属性见 [MVC · API 版本控制](/spring/3_mvc#七、api-版本控制)，文档侧每个版本一个 `GroupedOpenApi` 的配合方式见 [接口文档](/spring-boot/8_api_doc)。
 
 ---
 

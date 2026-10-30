@@ -409,7 +409,11 @@ public class WebConfig implements WebMvcConfigurer {
 
 ## 七、API 版本控制
 
-Framework 7 在 Spring MVC 和 WebFlux 中内置 API 版本控制，版本可以从请求头、查询参数、路径段或媒体类型参数中解析：
+Framework 7 在 Spring MVC 和 WebFlux 中内置 API 版本控制，不再需要自己写 `RequestCondition`。本节是站内版本控制实现的主文档；该选哪种版本策略、什么变更才升主版本等规范见 [API 设计规范 · 版本管理](/engineering/4_api_design_rule#八、版本管理)。
+
+### 1、声明与解析策略
+
+版本可以从请求头、查询参数、路径段或媒体类型参数中解析，在 `configureApiVersioning` 中配置，映射注解用 `version` 属性声明：
 
 ```java
 @Configuration
@@ -433,9 +437,69 @@ public class AccountController {
 }
 ```
 
-支持的版本默认从控制器映射上声明的版本自动收集。请求的版本不在支持列表中时抛 `InvalidApiVersionException`；启用后默认要求请求携带版本，缺少时抛 `MissingApiVersionException`，两者都返回 400；配置了默认版本（`setDefaultVersion`）则缺失时按默认版本处理。多种解析策略可以在 `configureApiVersioning` 中组合；WebFlux 用 `WebFluxConfigurer` 的同名方法。`ApiVersionDeprecationHandler` 可以按 RFC 9745 / RFC 8594 为废弃版本输出 `Deprecation`、`Sunset` 响应头。
+多种解析策略可以在 `configureApiVersioning` 中组合；WebFlux 用 `WebFluxConfigurer` 的同名方法。
 
-Boot 4 用 `spring.mvc.apiversion.*` 属性代替上面的 Java 配置，见 [Web 开发 · API 版本控制](/spring-boot/2_web_dev#_2、api-版本控制-boot-4)；路径版本 vs 请求头版本等设计规范见 [API 设计规范](/engineering/4_api_design_rule)。
+### 2、匹配规则与异常
+
+| 要点 | 说明 |
+|------|------|
+| 版本解析 | 默认用 `SemanticApiVersionParser` 解析，`v1` 的前缀 `v` 会被跳过，按 `1.0.0` 比较 |
+| 版本匹配 | `"1.1"` 只匹配该版本；`"1.2+"` 匹配 1.2 及以上已支持的版本；不写 `version` 的映射优先级最低 |
+| 支持的版本 | 默认从控制器映射上声明的版本自动收集，也可用 `addSupportedVersions` 显式声明 |
+| 不支持的版本 | 抛 `InvalidApiVersionException`，返回 400 |
+| 缺少版本 | 启用后默认要求请求携带版本，否则抛 `MissingApiVersionException`（400）；配置了默认版本（`setDefaultVersion`）则按默认版本处理 |
+| 路径段解析器 | 必须声明 `{version}` URI 变量；它不会返回「无版本」，因此不能和其他解析器组合，除非使用带 `Predicate<RequestPath>` 的重载（7.0.6 起） |
+
+### 3、路径版本与废弃响应头
+
+对外 API 常把主版本放在路径里，并在旧版本进入废弃期后输出废弃响应头。`StandardApiVersionDeprecationHandler` 按 RFC 9745 / RFC 8594 为命中废弃版本的请求自动加上 `Deprecation`、`Sunset`、`Link` 响应头：
+
+```java
+@Configuration
+public class ApiVersionConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configureApiVersioning(ApiVersionConfigurer configurer) {
+        StandardApiVersionDeprecationHandler deprecation = new StandardApiVersionDeprecationHandler();
+        deprecation.configureVersion("1")
+                .setDeprecationDate(ZonedDateTime.of(2026, 7, 1, 0, 0, 0, 0, ZoneOffset.UTC))
+                .setDeprecationLink(URI.create("https://developer.example.com/changelog/v1-deprecation"))
+                .setSunsetDate(ZonedDateTime.of(2027, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC));
+
+        configurer.usePathSegment(1)            // /api/{version}/...，下标从 0 开始，api 是第 0 段
+                .addSupportedVersions("1", "2")
+                .setDeprecationHandler(deprecation);
+    }
+}
+
+@RestController
+@RequestMapping("/api/{version}/orders")
+public class OrderController {
+
+    @GetMapping(path = "/{id}", version = "1")     // 只匹配 v1
+    public OrderViewV1 getV1(@PathVariable String id) { /* ... */ }
+
+    @GetMapping(path = "/{id}", version = "2+")    // 匹配 v2 及以上已支持的版本
+    public OrderViewV2 getV2(@PathVariable String id) { /* ... */ }
+}
+```
+
+响应头的格式与下线步骤见 [API 设计规范 · 废弃与下线](/engineering/4_api_design_rule#九、废弃与下线)；文档侧每个版本一个 `GroupedOpenApi` 的配合方式见 [接口文档](/spring-boot/8_api_doc)。
+
+### 4、Boot 4 属性配置
+
+Boot 4 用 `spring.mvc.apiversion.*`（WebFlux 为 `spring.webflux.apiversion.*`）属性代替上面的 Java 配置：
+
+```yaml
+spring:
+  mvc:
+    apiversion:
+      default: 1.0
+      use:
+        header: X-API-Version
+```
+
+配置了 `default` 时，缺少版本的请求按默认版本处理；未配置时缺少版本返回 400。废弃处理器等属性覆盖不到的定制，仍用 `WebMvcConfigurer` 补充。
 
 ---
 
@@ -446,7 +510,7 @@ Boot 4 用 `spring.mvc.apiversion.*` 属性代替上面的 Java 配置，见 [We
 - 6.1+ 去掉 Controller 类上的 `@Validated`，同时处理 `MethodArgumentNotValidException` 和 `HandlerMethodValidationException`；`toMap` 收集字段错误要提供合并函数
 - Framework 7 / Boot 4 默认 Jackson 3，转换器为 `JacksonJsonHttpMessageConverter`；Boot 中用 `spring.jackson.*` 或 `JsonMapperBuilderCustomizer` 定制，不要自己 new Mapper；纯 Spring 用 `configureMessageConverters(HttpMessageConverters.ServerBuilder)`
 - 统一异常处理推荐继承 `ResponseEntityExceptionHandler` 输出 `ProblemDetail`，校验异常覆写父类方法，兜底异常不泄露内部信息
-- Framework 7 内置 API 版本控制，`@GetMapping(version = "1.2+")` 声明版本
+- Framework 7 内置 API 版本控制，`@GetMapping(version = "1.2+")` 声明版本；路径版本配合 `StandardApiVersionDeprecationHandler` 输出废弃响应头，Boot 4 用 `spring.mvc.apiversion.*` 配置
 
 响应式栈见 [WebFlux](./8_webflux)。
 

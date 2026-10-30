@@ -146,34 +146,9 @@ UPDATE t_stock SET stock = stock - 1 WHERE item_id = 1001 AND stock > 0;
 
 ### 2、Redis 预扣 + 异步落库
 
-把库存预加载到 Redis，用 Lua 保证"判断 + 扣减"原子执行，扣减成功后发 MQ 异步落库：
+把库存预加载到 Redis，用一个 Lua 脚本把「库存 key 是否已预热、是否已购、库存是否足够、扣减、记已购」原子地做完，扣减成功后发 MQ，由消费端幂等、匀速地落库。行锁排队从数据库移到了单线程执行的 Redis，单分片可达数万次/秒。
 
-```lua
--- KEYS[1] = stock:{itemId}, KEYS[2] = bought:{itemId}（已购用户集合）
--- ARGV[1] = userId, ARGV[2] = 购买数量
-if redis.call('SISMEMBER', KEYS[2], ARGV[1]) == 1 then
-    return -2                                  -- 重复购买
-end
-local stock = tonumber(redis.call('GET', KEYS[1]) or '0')
-local num = tonumber(ARGV[2])
-if stock < num then
-    return -1                                  -- 库存不足
-end
-redis.call('DECRBY', KEYS[1], num)
-redis.call('SADD', KEYS[2], ARGV[1])
-return stock - num
-```
-
-```java
-Long result = redis.execute(DEDUCT_SCRIPT,
-        List.of("stock:{" + itemId + "}", "bought:{" + itemId + "}"),   // hash tag 保证两个 key 同槽
-        String.valueOf(userId), "1");
-if (result != null && result >= 0) {
-    mqProducer.send("stock-deduct", new DeductMsg(itemId, userId, 1));  // 消费端幂等落库
-}
-```
-
-**要点**：DB 最终更新由 MQ 匀速完成；需要对账任务核对 Redis 与 DB 的库存，处理 MQ 发送失败、订单超时未支付回补等情况。完整方案见 [秒杀](/scenario/4_seckill)。
+**要点**：脚本里必须区分「库存 key 不存在（未预热）」和「库存为 0（售罄）」，否则预热失败会被当成售罄；库存 key 与已购集合用 hash tag 放进同一个槽。DB 最终更新由 MQ 匀速完成，需要对账任务核对 Redis 与 DB 的库存，处理 MQ 发送失败、订单超时未支付回补等情况。脚本、回补与对账的完整写法见 [秒杀 · 一个 Lua 脚本完成限购与扣减](/scenario/4_seckill#_2、一个-lua-脚本完成限购与扣减)。
 
 ### 3、分桶库存
 

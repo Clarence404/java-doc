@@ -520,24 +520,7 @@ Executor 的 JVM 堆（`spark.executor.memory`）扣除约 300MB 的保留内存
 
 ## 十、Spark 与 Flink 怎么选
 
-两者都是"流批一体"的分布式计算引擎，但出发点相反：Spark 以批为本体，流处理（Structured Streaming）默认是微批；Flink 以流为本体，批是有界的流。
-
-| 维度 | Spark | Flink |
-|------|-------|-------|
-| 擅长 | 离线批处理、大规模 SQL 加工、机器学习与数据科学 | 低延迟流处理、大状态计算、CDC 实时同步 |
-| 流处理延迟 | 微批通常为秒级；4.1 起 Structured Streaming 新增实时模式（Real-Time Mode），可达亚秒级 | 毫秒级，逐条处理 |
-| 状态与时间语义 | 支持事件时间与水位线，状态能力在追赶 | 状态后端、Checkpoint、事件时间处理都是核心设计 |
-| SQL 与生态 | Spark SQL 最成熟，湖仓表格式和数据科学工具（PySpark、MLlib）支持最全 | Flink SQL 流式语义完整，CDC 生态强 |
-| 资源模型 | 作业运行完即释放资源 | 常驻作业，长期占用资源 |
-
-实践中两者通常是互补关系，而不是二选一：
-
-- **T+1 离线数仓、历史数据回刷、复杂多表加工、特征工程**：Spark
-- **秒级以内的实时指标、实时风控、数据库变更实时入湖**：Flink
-- **已有 Spark 体系、能接受分钟级延迟的准实时任务**：Spark Structured Streaming，复用技术栈
-- **湖仓架构**：常见组合是 Flink 负责实时写入 Iceberg / Paimon，Spark 负责离线合并、批量回刷和重度分析，两者读写同一份表
-
-更细的对比（包括 Kafka Streams）见 [Flink 概览](/flink/1_basics) 第一节；Flink 的部署与调优见 [部署与运维](/flink/7_deployment)；把两者组合成实时数仓的完整方案见 [实时数仓实战](./9_realtime_dw)。
+两者出发点相反：Spark 以批为本体，流处理默认是微批（4.1 起新增亚秒级的实时模式）；Flink 以流为本体，批是有界的流。实践中是互补关系：T+1 离线数仓、历史回刷、复杂多表加工与数据科学用 Spark，秒级实时指标、实时风控、CDC 入湖用 Flink，湖仓架构里 Flink 实时写入、Spark 离线合并与重度分析，读写同一份表。逐维度的对比（含 Spark Structured Streaming、Kafka Streams）与分工表见 [Flink 概览 · 为什么选 Flink：与其他方案对比](/flink/1_basics#二、为什么选-flink-与其他方案对比)，组合成实时数仓的完整方案见 [实时数仓实战](./9_realtime_dw)。
 
 ---
 

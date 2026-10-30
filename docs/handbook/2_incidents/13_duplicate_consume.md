@@ -177,7 +177,7 @@ ALTER TABLE t_points_log
 
 ### 2、根治
 
-**去重记录与业务写入放在同一个本地事务**，业务失败则一起回滚，重投时可以再次处理（写法与原理见 [消息队列基础 · 方案一](/messaging/1_basics#_1、方案一-去重记录与业务写入在同一个本地事务-首选)）：
+**去重记录与业务写入放在同一个本地事务**，业务失败则一起回滚，重投时可以再次处理（写法与原理见 [幂等设计 · 消费幂等](/architecture/3_idempotence#五、消费幂等-同事务去重记录)）：
 
 ```java
 @Transactional(rollbackFor = Exception.class)

@@ -123,7 +123,7 @@ public class CacheWarmUpRunner implements ApplicationRunner {
 ![自动配置的加载链路](../assets/spring-boot/auto-config-flow.svg)
 
 - `AutoConfigurationImportSelector` 是 `DeferredImportSelector`：**等所有用户配置类都解析完才执行**，所以自动配置里的 `@ConditionalOnMissingBean` 能看到用户自己声明的 Bean，用户 Bean 永远优先
-- 候选列表来自所有 jar 里的 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`，每行一个全限定类名
+- 候选列表由 `ImportCandidates.load()` 读取所有 jar 里的 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`，每行一个全限定类名
 - 快速过滤阶段读取编译期生成的 `META-INF/spring-autoconfigure-metadata.properties`，不加载类就能判断 `@ConditionalOnClass` 等条件，这是数百个候选类不拖慢启动的关键
 - 排除方式：`@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)`、`excludeName`（类不在 classpath 时用字符串），或配置 `spring.autoconfigure.exclude`
 
@@ -135,7 +135,12 @@ public class CacheWarmUpRunner implements ApplicationRunner {
 | 2.7 | 新增 `AutoConfiguration.imports` 与 `@AutoConfiguration` | 两种方式并存 |
 | 3.x / 4.x | 只认 `AutoConfiguration.imports` | `spring.factories` 里的 `EnableAutoConfiguration` 键不再生效 |
 
-`spring.factories` 并没有废弃，它仍负责 `ApplicationListener`、`EnvironmentPostProcessor`、`FailureAnalyzer` 等启动期扩展点。从 2.x 升级时，自定义 Starter 必须把自动配置类迁到 `AutoConfiguration.imports`，否则会**静默失效**。完整的 Starter 写法见 [自定义 Starter](./12_custom_starter)。
+```text
+# META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+com.example.autoconfigure.MyAutoConfiguration
+```
+
+只有还要兼容 2.6 及更早版本的 Starter，才需要两种文件并存。`spring.factories` 并没有废弃，它仍负责 `ApplicationListener`、`EnvironmentPostProcessor`、`FailureAnalyzer` 等启动期扩展点。从 2.x 升级时，自定义 Starter 必须把自动配置类迁到 `AutoConfiguration.imports`，否则会**静默失效**。完整的 Starter 写法见 [自定义 Starter](./12_custom_starter)。
 
 ### 3、Boot 4 的模块化自动配置
 

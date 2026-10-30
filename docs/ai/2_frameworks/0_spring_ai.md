@@ -248,7 +248,7 @@ public class ChatService {
 
 ### 1、定义工具
 
-`@Tool` 的 `description` 是模型判断何时调用的唯一依据，要写清楚用途和返回内容；参数说明用 `@ToolParam`，Javadoc 不会发给模型。返回值可以是 record，框架会序列化成 JSON。
+`@Tool` 的 `name` 默认取方法名，`description` 是模型判断何时调用的唯一依据，要写清楚用途和返回内容；参数说明用 `@ToolParam`，Javadoc 不会发给模型。返回值可以是 record，框架会序列化成 JSON。
 
 ```java
 import org.springframework.ai.tool.annotation.Tool;
@@ -312,7 +312,8 @@ public Order findOrder(@ToolParam(description = "订单号") String orderId, Too
 ### 4、2.0 的工具循环
 
 - 循环由 `ToolCallingAdvisor` 驱动，ChatClient 自动注册，不需要手动添加；直接调用 `ChatModel` 时返回的 tool call 不会被自动执行
-- 默认上限是每个工具 40 次、每轮共 150 次，超限后以特定结束原因返回，防止模型陷入死循环
+- 默认上限是每个工具 40 次、每轮共 150 次，超限后以特定结束原因返回，防止模型陷入死循环；用 `spring.ai.tools.limits.max-calls-per-tool-default`、`spring.ai.tools.limits.max-total-tool-calls` 调整
+- 需要在执行前插入审批步骤时，可以对单次请求加 `AdvisorParams.toolCallingAdvisorAutoRegister(false)` 关闭自动执行（全局用 `spring.ai.chat.client.tool-calling.enabled=false`），再用 `ToolCallingManager` 自己驱动每一轮
 - 工具抛出 `RuntimeException` 时默认把异常消息回传给模型，受检异常和 `Error` 直接抛出；`spring.ai.tools.throw-exception-on-error=true` 改为全部抛给调用方。异常消息会进入模型上下文，不要在里面带内部细节
 - 1.x 的 `toolNames(...)`（按 Bean 名解析工具）和 `FunctionCallback` 已删除，统一用 `@Tool` 或 `ToolCallback` Bean
 

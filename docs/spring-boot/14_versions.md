@@ -197,18 +197,7 @@ Framework 7 废弃了自家基于 JSR 305 语义的空值注解（`org.springfra
 
 ### 5、API 版本控制
 
-Framework 7 在 Spring MVC 与 WebFlux 中内置 API 版本控制，映射注解新增 `version` 属性（如 `@GetMapping(version = "1.2+")`），不再需要自写 `RequestCondition`；Boot 4 提供 `spring.mvc.apiversion.*` / `spring.webflux.apiversion.*` 自动配置：
-
-```yaml
-spring:
-  mvc:
-    apiversion:
-      default: 1.0.0
-      use:
-        header: X-Version
-```
-
-框架机制（版本解析、异常与废弃响应头）见 [MVC · API 版本控制](/spring/3_mvc#七、api-版本控制)，Boot 配置见 [Web 开发 · API 版本控制](/spring-boot/2_web_dev#_2、api-版本控制-boot-4)。
+Framework 7 在 Spring MVC 与 WebFlux 中内置 API 版本控制，映射注解新增 `version` 属性（如 `@GetMapping(version = "1.2+")`），不再需要自写 `RequestCondition`，Boot 4 提供 `spring.mvc.apiversion.*` / `spring.webflux.apiversion.*` 自动配置；用法见 [MVC · API 版本控制](/spring/3_mvc#七、api-版本控制)。
 
 ### 6、HTTP 服务客户端注册
 
@@ -302,7 +291,7 @@ mvn -U org.openrewrite.maven:rewrite-maven-plugin:run \
 |------|------|------|
 | JDK | 编译失败 | 构建与运行环境升到 Java 17+（建议直接 21） |
 | `javax.*` 包名 | 大量编译错误；第三方库运行时 `NoClassDefFoundError: javax/servlet/...` | 全局替换为 `jakarta.*`（只换 Jakarta EE 规范的包）；升级不支持 Jakarta 的三方库 |
-| 自动配置注册 | 自定义 starter 不生效 | `spring.factories` 中 `EnableAutoConfiguration` 键的注册方式在 3.0 删除，改写到 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`（2.7 起已支持），见 [自定义 Starter](./12_custom_starter) |
+| 自动配置注册 | 自定义 starter 不生效 | `spring.factories` 中 `EnableAutoConfiguration` 键的注册方式在 3.0 删除，改写到 `META-INF/spring/…AutoConfiguration.imports`，见 [启动流程与自动配置 · 登记文件的演进](./1_spring_boot#_2、登记文件的演进) |
 | 尾斜杠匹配 | `/orders/` 返回 404，原来能匹配 `/orders` | Framework 6 默认关闭尾斜杠匹配；客户端改用规范路径，过渡期可在 `configurePathMatch` 中 `setUseTrailingSlashMatch(true)`（4.x 已删除该选项） |
 | Hibernate 6 | 依赖坐标找不到；HQL / 主键生成行为变化 | groupId 改为 `org.hibernate.orm`；`spring.jpa.hibernate.use-new-id-generator-mappings` 已删除，检查 ID 生成策略与原生 SQL |
 | Redis 配置前缀 | 连不上 Redis（仍连 localhost） | `spring.redis.*` 改为 `spring.data.redis.*` |

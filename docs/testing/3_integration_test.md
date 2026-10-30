@@ -347,56 +347,7 @@ Flaky 测试指代码没变、结果时红时绿的测试。它的危害不在�
 
 ### 2、时间：注入 Clock
 
-```java
-@Configuration
-class ClockConfig {
-
-    @Bean
-    Clock clock() {
-        return Clock.systemUTC();
-    }
-}
-
-@Service
-class OrderTimeoutService {
-
-    private static final Duration PAY_TIMEOUT = Duration.ofMinutes(30);
-
-    private final Clock clock;
-
-    OrderTimeoutService(Clock clock) {
-        this.clock = clock;
-    }
-
-    boolean isPayTimeout(Order order) {
-        return order.getCreatedAt().plus(PAY_TIMEOUT).isBefore(Instant.now(clock));
-    }
-}
-```
-
-集成测试里用 Framework 6.2+ 的 `@TestBean` 替换成固定时钟。它按字段名查找同名的静态工厂方法：
-
-```java
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
-
-import org.springframework.test.context.bean.override.convention.TestBean;
-
-class OrderTimeoutIT extends AbstractIT {
-
-    @TestBean
-    Clock clock;
-
-    static Clock clock() {
-        return Clock.fixed(Instant.parse("2026-10-01T10:00:00Z"), ZoneOffset.UTC);
-    }
-
-    // 测试中以固定时间为基准构造 createdAt，断言 29 分钟未超时、31 分钟超时
-}
-```
-
-`@TestBean` 同样参与上下文缓存键，只在确实依赖时间的测试类里用；纯逻辑部分在单元测试里直接 `new OrderTimeoutService(fixedClock)` 更简单。
+业务代码不直接调用 `Instant.now()`，而是注入 `Clock` Bean；集成测试里用 `@TestBean` 把它换成固定时钟，就能稳定断言「29 分钟未超时、31 分钟超时」这类边界。写法见 [单元测试 · 注入 Clock](./1_unit_test#_1、注入-clock)。
 
 ### 3、顺序：让依赖暴露出来
 
@@ -443,68 +394,9 @@ junit.jupiter.testclass.order.default=org.junit.jupiter.api.ClassOrderer$Random
 
 所以命名本身就是配置：**单元测试以 `Test` 结尾，集成测试以 `IT` 结尾**，前面的 `PaymentEventListenerIT`、`PaymentGatewayClientIT` 都遵守这个约定。
 
-### 2、pom 配置
+### 2、插件配置与常用命令
 
-继承 `spring-boot-starter-parent` 时，parent 已经在 `pluginManagement` 中管理了两个插件的版本，并为 Failsafe 配好了 `integration-test` / `verify` 目标和 `classesDirectory`，在 `build/plugins` 中声明 Failsafe 即可启用（写法见 [构建工具 · 单元测试与集成测试分开跑](/engineering/1_build_tools)）。不用 parent（例如公司有统一父 POM、只导入 Boot BOM）时，完整配置如下：
-
-```xml
-<properties>
-    <!-- 自定义开关：-DskipUTs=true 时只跳过单元测试 -->
-    <skipUTs>false</skipUTs>
-</properties>
-
-<build>
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.6.0</version>
-            <configuration>
-                <skipTests>${skipUTs}</skipTests>
-                <excludedGroups>flaky</excludedGroups>
-            </configuration>
-        </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <version>3.6.0</version>
-            <configuration>
-                <!-- spring-boot:repackage 之后 jar 结构变了，让 Failsafe 直接用编译输出目录 -->
-                <classesDirectory>${project.build.outputDirectory}</classesDirectory>
-                <excludedGroups>flaky</excludedGroups>
-                <argLine>-Duser.timezone=UTC</argLine>
-            </configuration>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>integration-test</goal>
-                        <goal>verify</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-</build>
-```
-
-`integration-test` 和 `verify` 两个目标缺一不可：只绑定 `integration-test` 时，集成测试失败了构建依然显示成功。
-
-### 3、常用命令
-
-```bash
-./mvnw test                                   # 只跑单元测试
-./mvnw verify                                 # 单元测试 + 集成测试
-./mvnw verify -DskipUTs=true                  # 只跑集成测试（依赖上面的自定义开关）
-./mvnw verify -DskipITs                       # 只跳过集成测试
-./mvnw verify -Dit.test=PaymentEventListenerIT                    # 只跑一个集成测试类
-./mvnw verify -Dit.test='PaymentEventListenerIT#duplicateEventIsHarmless'   # 只跑一个方法
-```
-
-`-Dit.test` 是 Failsafe 的过滤参数，Surefire 对应的是 `-Dtest`。同时还会跑全部单元测试；想只跑这一个 IT，再加 `-DskipUTs=true`。
-
-### 4、Gradle 的对应做法
-
-Gradle 没有 Failsafe，惯用做法是 [JVM Test Suite 插件](https://docs.gradle.org/current/userguide/jvm_test_suite_plugin.html)：声明一个 `integrationTest` 套件，源码放在 `src/integrationTest/java`，生成独立的 `integrationTest` 任务，再让 `check` 依赖它。效果与 Maven 相同：`./gradlew test` 只跑单元测试，`./gradlew check` 两者都跑。
+继承 `spring-boot-starter-parent` 时只需在 `build/plugins` 中声明 Failsafe；不用 parent 时要自己写版本、绑定 `integration-test` 与 `verify` 两个目标（缺一不可，否则集成测试失败了构建仍显示成功）并指定 `classesDirectory`。完整 pom、`-DskipUTs` / `-DskipITs` / `-Dit.test` 等常用命令以及 Gradle 的对应做法见 [构建工具 · 单元测试与集成测试分开跑](/engineering/1_build_tools#_3、单元测试与集成测试分开跑)。
 
 ---
 
@@ -574,7 +466,7 @@ JUnit 的并行由配置参数控制，适合无共享状态的单元测试。�
 集成测试应该在每个 PR 上跑，而不是只在夜间构建里跑：合并之后才发现的问题，修复成本和定位难度都高得多。完整的流水线编排见 [CI/CD](/devops/4_ci_cd)，集成测试相关的要点：
 
 - **一次 `verify` 跑完两类测试**：项目不大时最简单，Failsafe 的失败会让 `verify` 失败、阻止合并
-- **测试多时拆成两个 Job**：单元测试 Job 跑 `./mvnw test`，几分钟给出反馈；集成测试 Job 跑 `./mvnw verify -DskipUTs=true`，二者并行
+- **测试多时拆成两个 Job**：单元测试 Job 跑 `./mvnw test`，几分钟给出反馈；集成测试 Job 跑 `./mvnw verify -DskipUTs=true`（`skipUTs` 是 pom 里的自定义开关，见 [构建工具 · 单元测试与集成测试分开跑](/engineering/1_build_tools#_3、单元测试与集成测试分开跑)），二者并行
 - **Docker 可用性**：GitHub Actions 的 Ubuntu Runner 自带 Docker，Testcontainers 开箱即用；自建 Runner 运行在容器里时要处理 Docker-in-Docker 或挂载宿主 Docker Socket，具体见 [Testcontainers](./5_testcontainers)
 - **固定镜像 tag**：容器镜像写明版本（`postgres:18-alpine` 而不是 `postgres:latest`），否则某天上游发布新版本，测试会在没人改代码的情况下变红
 - **失败时保留报告**：`failsafe-reports` 里有每个测试的输出和堆栈，上传为构建产物

@@ -191,7 +191,13 @@ public class CaffeineCacheConfig {
 }
 ```
 
-自定义 `CacheManager` 后自动配置整体失效，`spring.cache.caffeine.spec` 不再生效。`@Cacheable` 等注解的用法、`sync = true` 防击穿、`@CacheEvict` 与事务的时机见 [Cache 抽象](/spring/5_cache)。
+自定义 `CacheManager` 后自动配置整体失效，`spring.cache.caffeine.spec` 不再生效；`recordStats()` 开启后 Actuator 才能暴露命中率（见下一节）。
+
+### 3、与 Redis CacheManager 共存
+
+本地缓存放字典、配置，Redis 放业务数据时，容器里会同时有两个 `CacheManager`：用 `@Primary` 标出默认的那个，其余在注解上指定，如 `@Cacheable(cacheNames = "dict", cacheManager = "caffeineCacheManager")`（值为 Bean 名）。需要同一份数据先查本地再查 Redis 时，见 [两级缓存（L1 + L2）](./8_two_level_cache)。
+
+`@Cacheable` 等注解的用法、`sync = true` 防击穿、`@CacheEvict` 与事务的时机见 [Cache 抽象](/spring/5_cache)。
 
 ---
 

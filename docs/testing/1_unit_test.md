@@ -681,6 +681,30 @@ void acceptsCouponOneSecondBeforeExpiry() {
 }
 ```
 
+同一个 `Clock` Bean 在 Spring 集成测试里也能替换：用 Framework 6.2+ 的 `@TestBean` 换成固定时钟，它按字段名查找同名的静态工厂方法：
+
+```java
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+
+import org.springframework.test.context.bean.override.convention.TestBean;
+
+class OrderTimeoutIT extends AbstractIT {
+
+    @TestBean
+    Clock clock;
+
+    static Clock clock() {
+        return Clock.fixed(Instant.parse("2026-10-01T10:00:00Z"), ZoneOffset.UTC);
+    }
+
+    // 被测的 OrderTimeoutService 构造器注入 Clock；以固定时间为基准构造 createdAt，断言 29 分钟未超时、31 分钟超时
+}
+```
+
+`@TestBean` 参与上下文缓存键，只在确实依赖时间的测试类里用；纯逻辑部分直接在单元测试里 `new` 业务类、传入 `Clock.fixed(...)` 更简单。集成测试基类 `AbstractIT` 见 [集成测试](./3_integration_test)。
+
 ### 2、注入随机数
 
 订单号生成器同时依赖时间和随机数，两者都注入：

@@ -250,88 +250,27 @@ public class TelemetryWriter {
 
 ## 四、Flink 2.x 实时处理
 
-本节代码基于 Flink 2.2.x：`SourceFunction` / `SinkFunction` 与 `Time` 类已在 2.0 删除，统一使用 `KafkaSource` + `fromSource`、Sink V2 与 `java.time.Duration`。API 细节见 [DataStream API](/flink/2_datastream)，水位线与窗口见 [时间、水位线与窗口](/flink/3_time_window)。
-
-Flink API 的完整讲解见 [Flink](/flink/0_overview) 模块。
+Flink 在这条链路里只做三件事：按设备做窗口聚合、离线检测和连续异常告警，结果写入 TDengine。`KafkaSource`、水位线、窗口函数、定时器与 Sink V2 的通用写法见 [Flink 总览](/flink/0_overview) 模块，本节只讲 IoT 场景下的取舍。
 
 ### 1、读取 Kafka 与事件时间
 
-```java
-import java.time.Duration;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.connector.kafka.source.KafkaSource;
-import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.flink.formats.json.JsonDeserializationSchema;
-import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+用 `KafkaSource` + `fromSource` 读 `iot.telemetry`，时间戳取设备上报的 `ts`（`Telemetry` 即上文的 record，字段名与规则 SQL 的输出一致），写法见 [DataStream API · KafkaSource](/flink/2_datastream#_2、kafkasource)。设备数据的水位线有三点要按 IoT 特点设置：
 
-StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-env.enableCheckpointing(60_000);
-
-KafkaSource<Telemetry> source = KafkaSource.<Telemetry>builder()
-        .setBootstrapServers("kafka:9092")
-        .setTopics("iot.telemetry")
-        .setGroupId("iot-telemetry-job")
-        .setStartingOffsets(OffsetsInitializer.latest())
-        .setValueOnlyDeserializer(new JsonDeserializationSchema<>(Telemetry.class))
-        .build();
-
-DataStream<Telemetry> telemetry = env.fromSource(source,
-        WatermarkStrategy.<Telemetry>forBoundedOutOfOrderness(Duration.ofSeconds(10))
-                .withTimestampAssigner((t, ignored) -> t.ts())
-                .withIdleness(Duration.ofMinutes(1)),     // 某些分区长时间没数据时不卡住水位线
-        "kafka-telemetry").uid("kafka-telemetry");
-```
-
-`Telemetry` 即上文的 record，字段名与规则 SQL 的输出一致。设备补传的数据如果晚于水位线太多，会被窗口丢弃；需要保留时用侧输出收集迟到数据，见 [时间、水位线与窗口](/flink/3_time_window) 的「迟到数据」。
+- **乱序容忍取 10 秒左右**：`forBoundedOutOfOrderness(Duration.ofSeconds(10))` 覆盖设备时钟偏差与网络抖动；设得太大会拖慢所有窗口的输出
+- **一定要配 `withIdleness`**：部分设备集中在少数 Kafka 分区，夜间或分批停机时某些分区长时间没数据，不配空闲检测水位线会被卡住，见 [时间、水位线与窗口 · 空闲检测](/flink/3_time_window#_4、空闲检测-idleness)
+- **断网补传的数据**：晚于水位线太多会被窗口丢弃；需要保留时用侧输出收集迟到数据再补算或直接落库，见 [时间、水位线与窗口 · 迟到数据](/flink/3_time_window#三、迟到数据)
 
 ### 2、窗口聚合：5 分钟均温超限
 
-```java
-import org.apache.flink.api.common.functions.AggregateFunction;
-import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
-import org.apache.flink.util.Collector;
+按 `deviceId` 分组，开 5 分钟事件时间滚动窗口，用 `AggregateFunction` 增量累加 `[sum, count]`（不缓存窗口内原始数据），再用 `ProcessWindowFunction` 补上设备 ID 与窗口结束时间，最后 `filter(avg > 80)` 输出告警候选。增量聚合与全量聚合的组合写法见 [时间、水位线与窗口 · 窗口函数](/flink/3_time_window#五、窗口函数)。
 
-public record AvgTemp(String deviceId, long windowEnd, double avg) {}
-
-/** 增量聚合：累加器只存 [sum, count]，不缓存窗口内的原始数据 */
-public class AvgTempAgg implements AggregateFunction<Telemetry, double[], Double> {
-    public double[] createAccumulator() { return new double[2]; }
-    public double[] add(Telemetry t, double[] acc) { acc[0] += t.temperature(); acc[1]++; return acc; }
-    public Double getResult(double[] acc) { return acc[1] == 0 ? 0 : acc[0] / acc[1]; }
-    public double[] merge(double[] a, double[] b) { a[0] += b[0]; a[1] += b[1]; return a; }
-}
-
-/** 给聚合结果补上设备 ID 与窗口结束时间 */
-public class AttachWindow extends ProcessWindowFunction<Double, AvgTemp, String, TimeWindow> {
-    @Override
-    public void process(String deviceId, Context ctx, Iterable<Double> avgs, Collector<AvgTemp> out) {
-        out.collect(new AvgTemp(deviceId, ctx.window().getEnd(), avgs.iterator().next()));
-    }
-}
-
-// 作业中
-DataStream<AvgTemp> hot = telemetry
-        .keyBy(Telemetry::deviceId)
-        .window(TumblingEventTimeWindows.of(Duration.ofMinutes(5)))
-        .aggregate(new AvgTempAgg(), new AttachWindow())
-        .filter(a -> a.avg() > 80.0)
-        .uid("avg-temp-5m");
-```
+同一个窗口顺便算出 `max / min / count`，就能直接作为降采样结果写库，见五.3。
 
 ### 3、离线检测：KeyedProcessFunction + 定时器
 
-「30 秒内没有心跳就告警」本质是「每来一条数据就把定时器往后推」，用 `KeyedProcessFunction` 最直接：
+「90 秒内没有数据就告警」本质是「每来一条数据就把定时器往后推」，用 `KeyedProcessFunction` 最直接：
 
 ```java
-import org.apache.flink.api.common.functions.OpenContext;
-import org.apache.flink.api.common.state.ValueState;
-import org.apache.flink.api.common.state.ValueStateDescriptor;
-import org.apache.flink.api.common.typeinfo.Types;
-import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
-
 public record DeviceStatus(String deviceId, String status, long ts) {}
 
 public class OfflineDetector extends KeyedProcessFunction<String, Telemetry, DeviceStatus> {
@@ -342,10 +281,8 @@ public class OfflineDetector extends KeyedProcessFunction<String, Telemetry, Dev
 
     @Override
     public void open(OpenContext openContext) {
-        timerState = getRuntimeContext().getState(
-                new ValueStateDescriptor<>("offline-timer", Types.LONG));
-        offlineState = getRuntimeContext().getState(
-                new ValueStateDescriptor<>("offline", Types.BOOLEAN));
+        timerState = getRuntimeContext().getState(new ValueStateDescriptor<>("offline-timer", Types.LONG));
+        offlineState = getRuntimeContext().getState(new ValueStateDescriptor<>("offline", Types.BOOLEAN));
     }
 
     @Override
@@ -375,152 +312,28 @@ public class OfflineDetector extends KeyedProcessFunction<String, Telemetry, Dev
 // 作业中：telemetry.keyBy(Telemetry::deviceId).process(new OfflineDetector()).uid("offline-detector");
 ```
 
-- **为什么用处理时间定时器**：设备不发数据时，这台设备不会推动事件时间；所有设备同时断网（如机房断电）时水位线整体停住，事件时间定时器永远不触发
-- **为什么不用 CEP**：只有一个 `begin("heartbeat")` 的模式在收到第一条心跳时就已匹配完成，不会超时，也就不会产生离线告警；「没有发生某事」用定时器表达更清楚
+- **为什么用处理时间定时器**：设备不发数据时不会推动事件时间，所有设备同时断网（如机房断电）时水位线整体停住，事件时间定时器永远不触发
+- **为什么不用 CEP**：「没有发生某事」CEP 表达不了，见 [实战场景 · 连续性与量词](/flink/8_scenarios#_3、连续性与量词)
 - **与 EMQX 上下线事件互补**：`$events/client/disconnected` 只说明 TCP 连接断了；连接还在但不再上报（采集模块死机）只能靠这里的数据超时检测
-- **定时器成本**：每条数据都删一次、注册一次定时器。上报频率很高时，可以把 `fireAt` 向上取整到秒，只有取整值变化时才重新注册
+- **定时器成本**：上报频率很高时，把 `fireAt` 向上取整到秒，只有取整值变化时才重新注册
 
 ### 4、连续超温：CEP
 
-「连续 3 次采集都超过 80°C」是有顺序的事件模式，适合用 CEP：
+「连续 3 次采集都超过 80°C」是有顺序的事件模式，用 CEP：
 
 ```java
-import java.util.List;
-import java.util.Map;
-import org.apache.flink.cep.CEP;
-import org.apache.flink.cep.PatternStream;
-import org.apache.flink.cep.functions.PatternProcessFunction;
-import org.apache.flink.cep.nfa.aftermatch.AfterMatchSkipStrategy;
-import org.apache.flink.cep.pattern.Pattern;
-import org.apache.flink.cep.pattern.conditions.SimpleCondition;
-
-public record Alert(String deviceId, String type, double value, long ts) {}
-
 Pattern<Telemetry, ?> overheat = Pattern
         .<Telemetry>begin("hot", AfterMatchSkipStrategy.skipPastLastEvent())
         .where(SimpleCondition.of(t -> t.temperature() > 80.0))
-        .times(3).consecutive()              // 严格连续：中间夹一条正常读数就不算
+        .times(3).consecutive()              // 严格相邻：中间夹一条正常读数就不算
         .within(Duration.ofMinutes(5));       // 部分匹配最多保留 5 分钟，控制状态大小
-
-PatternStream<Telemetry> matches = CEP.pattern(telemetry.keyBy(Telemetry::deviceId), overheat);
-
-DataStream<Alert> alerts = matches.process(new PatternProcessFunction<Telemetry, Alert>() {
-    @Override
-    public void processMatch(Map<String, List<Telemetry>> match, Context ctx, Collector<Alert> out) {
-        List<Telemetry> hot = match.get("hot");
-        Telemetry last = hot.get(hot.size() - 1);
-        out.collect(new Alert(last.deviceId(), "OVERHEAT", last.temperature(), last.ts()));
-    }
-}).uid("overheat-cep");
 ```
 
-CEP 连续性的几个容易写错的地方：
-
-| 写法 | 语义 |
-|------|------|
-| `next()` | 严格连续，下一条必须匹配 |
-| `followedBy()` | 宽松连续，中间可以夹不匹配的事件 |
-| `times(3)` | 默认宽松连续，「5 条里有 3 条超温」也会匹配 |
-| `times(3).consecutive()` | 3 条必须相邻 |
-| `skipPastLastEvent()` | 一次匹配后跳过已用事件，持续高温不会每来一条就告警一次 |
-
-依赖 `flink-cep`，版本与 Flink 对齐（2.2.x）；它不在 Flink 发行包里，需要打进作业 jar。风控类 CEP 的完整示例见 [实战场景](/flink/8_scenarios)。
+按 `deviceId` 分区后交给 `CEP.pattern`，在 `PatternProcessFunction` 里取 `hot` 的最后一条输出告警。最常见的错误是漏写 `consecutive()`：`times(3)` 默认宽松连续，「5 条里有 3 条超温」也会告警；其余写法与连续性对比见 [实战场景 · 连续性与量词](/flink/8_scenarios#_3、连续性与量词)。
 
 ### 5、写入 TDengine：Sink V2
 
-Flink 2.x 没有现成的 TDengine 官方 Sink，按 Sink V2 写一个批量 Writer 即可，Checkpoint 前 `flush` 保证至少一次；配合上文「同一 `ts` 覆盖写」，重放不会产生重复数据：
-
-```java
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.regex.Pattern;
-import org.apache.flink.api.connector.sink2.Sink;
-import org.apache.flink.api.connector.sink2.SinkWriter;
-import org.apache.flink.api.connector.sink2.WriterInitContext;
-
-public class TdengineSink implements Sink<Telemetry> {
-
-    private final String url;     // jdbc:TAOS-WS://tdengine:6041/iot_db，账号密码从作业参数或密钥管理读取
-    private final String user;
-    private final String password;
-
-    public TdengineSink(String url, String user, String password) {
-        this.url = url;
-        this.user = user;
-        this.password = password;
-    }
-
-    @Override
-    public SinkWriter<Telemetry> createWriter(WriterInitContext context) throws IOException {
-        try {
-            return new Writer(DriverManager.getConnection(url, user, password));
-        } catch (SQLException e) {
-            throw new IOException("连接 TDengine 失败", e);
-        }
-    }
-
-    private static final class Writer implements SinkWriter<Telemetry> {
-        private static final int BATCH = 1000;
-        private static final Pattern DEVICE_ID = Pattern.compile("^[A-Za-z0-9_]{1,60}$");
-        private final Connection conn;
-        private final PreparedStatement ps;
-        private int pending;
-
-        Writer(Connection conn) throws SQLException {
-            this.conn = conn;
-            this.ps = conn.prepareStatement(
-                    "INSERT INTO sensors (tbname, device_id, ts, temperature, humidity) VALUES (?, ?, ?, ?, ?)");
-        }
-
-        @Override
-        public void write(Telemetry t, Context context) throws IOException {
-            if (!DEVICE_ID.matcher(t.deviceId()).matches()) {
-                return;                                   // 生产中输出到侧输出 / 死信 Topic
-            }
-            try {
-                ps.setString(1, "d_" + t.deviceId());
-                ps.setString(2, t.deviceId());
-                ps.setTimestamp(3, new Timestamp(t.ts()));
-                ps.setFloat(4, (float) t.temperature());
-                ps.setFloat(5, (float) t.humidity());
-                ps.addBatch();
-                if (++pending >= BATCH) {
-                    flush(false);
-                }
-            } catch (SQLException e) {
-                throw new IOException(e);
-            }
-        }
-
-        @Override
-        public void flush(boolean endOfInput) throws IOException {   // Checkpoint 前也会调用
-            if (pending == 0) {
-                return;
-            }
-            try {
-                ps.executeBatch();
-                pending = 0;
-            } catch (SQLException e) {
-                throw new IOException("TDengine 批量写入失败", e);
-            }
-        }
-
-        @Override
-        public void close() throws Exception {
-            ps.close();
-            conn.close();
-        }
-    }
-}
-
-// 作业中：telemetry.sinkTo(new TdengineSink(url, user, password)).uid("tdengine-sink");
-```
-
-写入失败直接抛异常让作业按重启策略恢复，从上一个 Checkpoint 重放即可。
+Flink 2.x 没有官方 TDengine Sink，按 Sink V2 写一个 `SinkWriter` 即可：`write` 里沿用三.4 的参数绑定批量写入（设备 ID 先过白名单再拼子表名），攒满一批或在 `flush`（Checkpoint 前调用）时 `executeBatch`。这样是至少一次，配合 TDengine「同一子表同一 `ts` 覆盖写」，从 Checkpoint 重放不会产生重复行；写入失败直接抛异常，让作业按重启策略恢复。Sink V2 的结构见 [DataStream API · Sink V2 的结构](/flink/2_datastream#_1、sink-v2-的结构)，幂等 Sink 的原理见 [状态与容错 · 幂等 Sink：更简单的选择](/flink/4_state_checkpoint#_3、幂等-sink-更简单的选择)。
 
 ---
 

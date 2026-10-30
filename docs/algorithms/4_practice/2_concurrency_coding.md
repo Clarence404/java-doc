@@ -460,14 +460,7 @@ public class RaceBarrier {
 }
 ```
 
-| 对比 | CountDownLatch | CyclicBarrier |
-|------|----------------|---------------|
-| 谁等谁 | 一个或多个线程等其他线程把计数减到 0 | 参与的线程互相等待 |
-| 能否复用 | 一次性 | 每轮结束自动重置 |
-| 到齐后的动作 | 无 | 构造时可传一个屏障动作 |
-| 有人出异常 | 不影响其他线程，计数可能永远减不到 0 | 屏障破损，其余线程收到 `BrokenBarrierException` |
-
-两者的原理与更多用法见 [同步工具类](/java/27_topic_juc_tools)；阶段数或参与方数会变化时用 `Phaser`。
+答题时点出两者区别：`CountDownLatch` 是一方等多方、一次性，计数方异常也要在 `finally` 里 `countDown`；`CyclicBarrier` 是多方互等、每轮自动重置，有人中途退出时其余线程收到 `BrokenBarrierException`。底层实现与完整对比见 [同步工具类 · 对比与选型](/java/27_topic_juc_tools#八、对比与选型)；阶段数或参与方数会变化时用 `Phaser`。
 
 ---
 
@@ -671,42 +664,11 @@ public class BatchTimeout {
 
 ## 八、LRU 缓存
 
-题目：实现容量固定的 LRU（最近最少使用）缓存，`get` / `put` 都是 O(1)，满了淘汰最久没被访问的条目。
+题目：实现容量固定的 LRU（最近最少使用）缓存，`get` / `put` 都是 O(1)，满了淘汰最久没被访问的条目。「哈希表定位 + 双向链表调顺序」的数据结构原理见 [哈希表 · LinkedHashMap 实现 LRU](/algorithms/1_data_structures/2_hash_table#_3、linkedhashmap-实现-lru)。
 
 ### 1、LinkedHashMap 版
 
-`LinkedHashMap` 开启访问顺序后，每次访问都把条目移到链表尾部，再重写 `removeEldestEntry` 就能自动淘汰：
-
-```java
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-public class LinkedLru<K, V> extends LinkedHashMap<K, V> {
-    private final int capacity;
-
-    public LinkedLru(int capacity) {
-        super(16, 0.75f, true);                                 // accessOrder = true：按访问顺序排列
-        this.capacity = capacity;
-    }
-
-    @Override
-    protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-        return size() > capacity;                               // 插入后超出容量就删掉最久未访问的
-    }
-
-    public static void main(String[] args) {
-        Map<Integer, String> cache = Collections.synchronizedMap(new LinkedLru<>(2));
-        cache.put(1, "one");
-        cache.put(2, "two");
-        cache.get(1);
-        cache.put(3, "three");
-        System.out.println(cache.keySet());                     // [1, 3]
-    }
-}
-```
-
-访问顺序模式下 `get` 也会修改链表，多线程使用必须整体加锁，这里用 `Collections.synchronizedMap` 包装。原理见 [集合框架](/java/21_topic_collection#七、linkedhashmap)。
+开启访问顺序（`accessOrder = true`）再重写 `removeEldestEntry` 即可，代码见 [集合框架 · LinkedHashMap](/java/21_topic_collection#七、linkedhashmap)。多线程题目里要注意访问顺序模式下 `get` 也会修改链表，必须用 `Collections.synchronizedMap` 包装或整体加锁。
 
 ### 2、手写版：HashMap + 双向链表
 

@@ -294,6 +294,7 @@ OrderAssistant assistant = AiServices.builder(OrderAssistant.class)
         .chatMemoryProvider(id -> MessageWindowChatMemory.withMaxMessages(20))
         .tools(new OrderTools())
         .executeToolsConcurrently()   // 同一轮返回多个工具调用时并发执行
+        .maxToolCallingRoundTrips(8)  // 限制工具循环轮数
         .build();
 ```
 
@@ -302,6 +303,7 @@ OrderAssistant assistant = AiServices.builder(OrderAssistant.class)
 ### 3、错误处理与补偿
 
 - 工具抛异常时默认把异常消息回传给模型，可能泄露内部细节；用 `toolExecutionErrorHandler` / `toolArgumentsErrorHandler` 改成返回通用错误或直接失败
+- `@Tool` 的 `returnBehavior` 可以让工具结果直接返回给调用方，不再经过模型二次加工
 - 模型调用了不存在的工具时默认抛异常，可以用 `hallucinatedToolNameStrategy` 改为回复模型一条提示
 - `@CompensateFor` 标注某个方法是另一个 `@Tool` 的补偿动作，在 builder 上开启 `compensateOnToolErrors(true)` 后，后续工具失败时会按逆序调用已成功工具的补偿方法；它只是声明式的补偿钩子，不是数据库事务，补偿逻辑本身要幂等
 

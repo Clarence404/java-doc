@@ -188,7 +188,7 @@ jcmd <pid> Compiler.codecache      # 查看 Code Cache 使用情况（JDK 9+）
 
 - JDK 9 起 Code Cache 分段（JEP 197）：非方法代码、带 profile 代码（C1）、不带 profile 代码（C2）三段分开管理
 - 满时日志出现 `CodeCache is full. Compiler has been disabled.`；大应用、动态生成类多的应用需要关注
-- Code Cache 计入进程内存，容器中核算内存时不要漏掉，见 [JVM 层性能策略](/high-perf/5_jvm_tuning)
+- Code Cache 计入进程内存，容器中核算内存时不要漏掉，见 [GC 调优 · 容器环境](./6_gc_tuning#四、容器环境)
 
 **`PrintCompilation` 输出中常见标记：**
 

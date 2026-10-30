@@ -123,49 +123,13 @@ Spring Boot 3.2+ 配置 `spring.threads.virtual.enabled=true` 后，Tomcat 为�
 
 ## 三、数据库连接池
 
-**扩容时必须核算的是全局上限：`所有应用实例 maximumPoolSize 之和 ≤ 数据库 max_connections × 80%`。** 剩下 20% 留给 DBA 运维、监控、定时任务与故障时的连接重建。
-
-- 这是**上限，不是目标值**：MySQL `max_connections=2000`、服务 40 个实例时，单实例池**最多** 40；实际大小应按 Little 定律与压测确定，通常远小于上限（单实例 QPS 500、每次持有连接 10ms，平均只需约 5 个连接）
-- **水平扩容前重新核算**：实例数从 40 扩到 80，单实例池不调小就会超过上限，新实例启动即报 `Too many connections`
-- 多个服务共用一个库时，上限要在各服务之间分配，而不是每个服务都按全量计算
-
-连接池为什么不是越大越好、HikariCP 经验公式（公式中的核数是**数据库服务器**的核数，算出的是数据库侧总连接数）、泄漏检测见 [池化技术](/high-perf/7_pooling)；Hikari 参数表与完整配置见 [数据库连接池](/database/4_access/2_connection_pool)。
+**扩容时必须核算的是全局上限：`所有应用实例 maximumPoolSize 之和 ≤ 数据库 max_connections × 80%`。** 这是上限而不是目标值，单实例池的实际大小按 Little 定律与压测确定；实例数翻倍（或 HPA 扩到 `maxReplicas`）前单实例池不调小，新实例启动即报 `Too many connections`，多个服务共用一个库时上限还要在服务之间分配。经验公式、核算示例与 HikariCP 参数见 [数据库连接池 · 池大小估算](/database/4_access/2_connection_pool#_4、池大小估算)。
 
 ---
 
 ## 四、Redis 客户端连接池
 
-**先看客户端的连接模型，再决定要不要池：Lettuce 共享连接即可扛高 QPS，Jedis 必须用池。**
-
-| 客户端 | 连接模型 | 调优要点 |
-|--------|----------|----------|
-| Lettuce（Spring Boot 默认） | 基于 Netty，单连接多路复用，线程安全 | 默认共享一条连接；阻塞命令、事务才需要池 |
-| Jedis | 阻塞 IO，一个连接同时只能处理一个请求 | 必须用连接池，`maxTotal` ≈ 并发访问 Redis 的线程峰值 |
-| Redisson | 基于 Netty，内置连接池 | 调整 `connectionPoolSize`、`connectionMinimumIdleSize` |
-
-```yaml
-spring:
-  data:
-    redis:
-      timeout: 500ms                  # 命令超时：Redis 应该很快，超时设短
-      lettuce:
-        pool:                         # 需引入 commons-pool2 才生效
-          enabled: true
-          max-active: 16
-          max-idle: 16
-          min-idle: 4
-          max-wait: 200ms
-```
-
-::: warning Lettuce 开了池，普通命令也不走池
-Spring Data Redis 的 `LettuceConnectionFactory` 默认 `shareNativeConnection = true`：即使配置了连接池，普通的 `GET` / `SET` 等非阻塞、非事务命令**仍然走同一条共享连接**，`max-active` 对它们基本不起作用。池只在以下情况被使用：
-
-- 阻塞命令（`BLPOP`、`BRPOP`、`XREAD BLOCK` 等），避免阻塞共享连接
-- 事务（`MULTI` / `EXEC`、`WATCH`），需要独占连接
-- 显式调用 `setShareNativeConnection(false)` 后，所有操作都从池中借连接
-
-因此排查 Redis 慢时，先看共享连接上的命令延迟与大 key，而不是一味调大 `max-active`。
-:::
+先看客户端的连接模型再决定要不要池：Lettuce（Spring Boot 默认）单连接多路复用，普通命令走共享连接，配了池也只服务阻塞命令与事务，调大 `max-active` 解决不了 Redis 慢；Jedis 一个连接同时只能处理一个请求，必须用池（`maxTotal` ≈ 访问 Redis 的线程峰值）。配置与原因见 [Redis 实战 · 依赖与配置](/cache/5_redis_practice#_1、依赖与配置)。
 
 ---
 

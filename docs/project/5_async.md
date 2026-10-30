@@ -74,7 +74,7 @@ description: 同步与异步的划分、RocketMQ 选型、本地消息表 t_outb
 | RocketMQ 事务消息 | 半消息 + 本地事务 + 回查 | 要写回查接口，业务代码绑死 RocketMQ API |
 | **本地消息表** | 同一事务写业务表和 `t_outbox`，中继投递 | 多一张表和一个投递任务，消息至少一次 |
 
-三种方案的原理对比见 [消息队列基础 · 方案对比](/messaging/1_basics#_4、方案对比)。
+三种方案的原理对比见 [分布式事务 · 方案选型](/distributed/4_transaction#九、方案选型)。
 
 ---
 

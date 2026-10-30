@@ -214,26 +214,83 @@ SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 </dependency>
 ```
 
+一个门户应用：用户通过授权码模式登录，后台再用客户端凭证调订单服务。`registration` 通过 `provider` 字段关联到同一个授权服务器（两者同名时可省略 `provider`）：
+
 ```yaml
 spring:
   security:
     oauth2:
       client:
         registration:
-          sso:                                   # registrationId
+          sso:                                   # registrationId，用户登录：授权码模式
+            provider: auth
             client-id: order-web
             client-secret: ${SSO_CLIENT_SECRET}
-            scope: openid, profile, email
+            scope: openid, profile, email        # 必须包含 openid 才会走 OIDC
             authorization-grant-type: authorization_code
             # redirect-uri 默认 {baseUrl}/login/oauth2/code/{registrationId}，一般不必写
+          order-api:                             # 服务间调用：客户端凭证模式（见下一小节）
+            provider: auth
+            client-id: order-web-backend
+            client-secret: ${ORDER_BACKEND_SECRET}
+            authorization-grant-type: client_credentials
+            scope: order.read
         provider:
-          sso:
-            issuer-uri: https://auth.example.com   # 启动时读取 /.well-known/openid-configuration，自动发现所有端点
+          auth:
+            issuer-uri: https://auth.example.com   # 启动时读取 /.well-known/openid-configuration，自动发现所有端点与 JWKS
 ```
 
-`SecurityFilterChain` 中加 `.oauth2Login(Customizer.withDefaults())` 即可完成登录。
+```java
+@Configuration
+@EnableWebSecurity
+public class OidcClientConfig {
 
-### 2、微服务作为资源服务器
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+            .authorizeHttpRequests(a -> a
+                .requestMatchers("/", "/error").permitAll()
+                .anyRequest().authenticated())
+            .oauth2Login(Customizer.withDefaults())     // 授权码登录
+            .oauth2Client(Customizer.withDefaults())    // 让应用以客户端身份获取令牌调下游
+            .build();
+    }
+}
+```
+
+登录成功后用 `@AuthenticationPrincipal OidcUser user` 取当前用户（`getSubject()`、`getFullName()`、`getEmail()`），示例见第六节。Spring Security 在这套配置下自动完成：
+
+- 生成 `state` 与 `nonce`，回调时核对；公共客户端（不配 `client-secret`、`client-authentication-method: none`）自动启用 PKCE，机密客户端可在 `ClientRegistration` 的 `ClientSettings` 上设置 `requireProofKey(true)`，前提是授权服务器支持
+- 用 JWKS 校验 ID Token 的签名、`iss`、`aud`、`exp`、`nonce`（`OidcIdTokenValidator`），并按需调用 UserInfo 合并 claims，得到 `OidcUser`
+- 登出走 RP-Initiated Logout（`OidcClientInitiatedLogoutSuccessHandler`）、接收后端通道登出（`.oidcLogout(l -> l.backChannel(...))`）的写法见第六节
+
+### 2、调用下游 API：客户端凭证
+
+给 `RestClient` 加上 `OAuth2ClientHttpRequestInterceptor`，按注册的 `authorization-grant-type` 获取令牌、过期前自动刷新，并加上 `Authorization` 头：
+
+```java
+import static org.springframework.security.oauth2.client.web.client.RequestAttributeClientRegistrationIdResolver.clientRegistrationId;
+
+@Bean
+RestClient orderRestClient(RestClient.Builder builder, OAuth2AuthorizedClientManager manager) {
+    return builder
+        .baseUrl("https://order.example.com")
+        .requestInterceptor(new OAuth2ClientHttpRequestInterceptor(manager))  // 自动获取、缓存、刷新令牌
+        .build();
+}
+
+// 调用时指定用哪个注册换令牌
+String order = orderRestClient.get()
+    .uri("/orders/{id}", id)
+    .attributes(clientRegistrationId("order-api"))
+    .retrieve()
+    .body(String.class);
+```
+
+- 若下游用 HTTP Interface 声明，可在接口或方法上加 `@ClientRegistrationId("order-api")`，再注册一个 `OAuth2RestClientHttpServiceGroupConfigurer.from(manager)` Bean，效果相同（Spring Security 7 支持类型级注解）
+- 默认的 `OAuth2AuthorizedClientManager` 依赖当前 HTTP 请求；在定时任务等没有请求上下文的线程里调用客户端凭证，需要自定义一个 `AuthorizedClientServiceOAuth2AuthorizedClientManager`
+
+### 3、微服务作为资源服务器
 
 微服务不参与登录，只校验网关或前端传来的 access_token：
 
@@ -352,7 +409,7 @@ public class KeycloakSecurityConfig {
 **Keycloak 默认只把 `realm_access.roles` 放进 access_token**，ID Token 和 UserInfo 中没有。所以在 `oauth2Login` 应用里读角色有两个前提选项：
 
 - 在 Keycloak 的 Client Scopes → `roles` → Mappers → `realm roles` 中打开「Add to ID token」（或「Add to userinfo」）
-- 或者不在登录端取角色，而是让后端资源服务器从 access_token 读取（见第五节第 2 小节），这也是微服务架构中更常见的做法
+- 或者不在登录端取角色，而是让后端资源服务器从 access_token 读取（见第五节第 3 小节），这也是微服务架构中更常见的做法
 
 打开 ID Token 映射后，用 `GrantedAuthoritiesMapper` 把角色加入权限集合（容器中存在该 Bean 时 `oauth2Login` 会自动使用）：
 
@@ -537,7 +594,33 @@ public class ClientInitializer implements ApplicationRunner {
 }
 ```
 
-简单场景也可以只用配置：`spring.security.oauth2.authorizationserver.client.<id>.registration.*`，由 Boot 自动生成内存版 `RegisteredClientRepository`。
+简单场景（本地联调）也可以只用配置，由 Boot 自动生成内存版 `RegisteredClientRepository`：
+
+```yaml
+spring:
+  security:
+    oauth2:
+      authorizationserver:
+        issuer: https://auth.example.com
+        client:
+          portal-web:
+            registration:
+              client-id: portal-web
+              client-secret: ${PORTAL_CLIENT_SECRET_HASH}   # 存 {bcrypt} 前缀的哈希，不存明文
+              client-authentication-methods: client_secret_basic
+              authorization-grant-types: authorization_code, refresh_token
+              redirect-uris: https://portal.example.com/login/oauth2/code/portal
+              scopes: openid, profile, order.read
+            require-authorization-consent: true
+          portal-backend:
+            registration:
+              client-id: portal-backend
+              client-secret: ${PORTAL_BACKEND_SECRET_HASH}
+              client-authentication-methods: client_secret_basic
+              authorization-grant-types: client_credentials
+              scopes: order.read
+```
+
 
 ### 5、签名密钥与 Token 定制
 

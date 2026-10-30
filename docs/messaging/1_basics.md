@@ -78,69 +78,21 @@ description: 解耦削峰异步、消息模型、可靠性三层保障、幂等�
 
 ## 四、幂等消费
 
-生产者重试、消费者处理成功但确认失败、Rebalance 后位点回退，都会让同一条消息被投递多次。业务层要保证**同一消息处理多次与处理一次效果相同**，通用方案见 [系统架构 · 幂等设计](/architecture/3_idempotence)，这里只讲消费端的两种正确写法。
+在至少一次语义下，重复投递是常态而不是异常：
 
-::: warning 常见错误：「SETNX 占位成功 → 直接处理」
-先写「已消费」标记再处理业务，一旦业务失败或进程崩溃，重投的消息会因为标记已存在被直接跳过——**消息就这样丢了**。去重标记必须与业务结果绑定，而不是先于业务写入。
-:::
+| 重复来源 | 发生在哪 |
+|----------|----------|
+| 生产者没收到确认就重试，实际 Broker 已写入 | 生产端 |
+| 消费者处理成功，但提交位点 / ACK 前崩溃或超时 | 消费端 |
+| Rebalance、重启后从上次提交的位点重新拉取 | 消费端 |
+| 本地消息表投递任务重发、死信重投、人工补发 | 业务侧 |
 
-**去重键优先用业务键**（订单号 + 动作类型），而不是 Broker 的 msgId：生产者重试发出的两条消息 msgId 可能不同，业务键才真正代表「同一件事」。
+Kafka 幂等生产者只能消除「生产者重试」这一种重复，其余都发生在 Broker 之外，所以**去重只能放在消费端的业务层**，MQ 自身做不到。两条原则：
 
-### 1、方案一：去重记录与业务写入在同一个本地事务（首选）
+- **去重键用业务键**（订单号 + 动作类型），不用 Broker 的 msgId：生产者重试、业务补发时 msgId 会变，业务键才代表「同一件事」
+- **去重标记与业务结果绑定**：首选「去重记录与业务写入在同一个本地事务」；业务结果不在同一个库时用 Redis「处理中 / 已完成」状态机，看到「处理中」不能确认跳过。「`SETNX` 占位成功就直接处理」是最常见的错误写法，业务失败后重投的消息会被当成重复跳过
 
-```sql
-CREATE TABLE t_consume_record (
-  biz_key    VARCHAR(64) NOT NULL,   -- 业务键，如订单号
-  consumer   VARCHAR(64) NOT NULL,   -- 消费方，如 points
-  created_at DATETIME    NOT NULL,
-  PRIMARY KEY (biz_key, consumer)
-);
-```
-
-```java
-@Transactional(rollbackFor = Exception.class)
-public void onOrderPaid(OrderPaidEvent evt) {
-    try {
-        consumeRecordMapper.insert(evt.getOrderNo(), "points");   // 唯一键兜底
-    } catch (DuplicateKeyException e) {
-        return;                                                   // 已处理过：直接确认消息
-    }
-    pointsService.addPoints(evt.getUserId(), evt.getAmount());    // 与去重记录同事务提交
-}
-```
-
-- 业务失败 → 整个事务回滚，去重记录也不存在，重投时可以再次处理
-- 并发重复投递 → 后到的事务在唯一键上等待，前者提交后它得到冲突，自然跳过
-- 适用于消费结果落在**同一个数据库**的场景，资金、库存类业务首选
-- 上例按 MySQL 写法：唯一键冲突不会中止事务；PostgreSQL 中语句报错会使整个事务失效，应改用 `INSERT ... ON CONFLICT DO NOTHING` 并按影响行数判断
-
-### 2、方案二：Redis 状态机（处理中 / 已完成）
-
-当业务结果不在同一个库，或需要在 DB 之前挡住大量重复时，用带状态的占位，而不是「占位即完成」：
-
-```java
-String key = "consume:points:" + evt.getOrderNo();
-Boolean first = redis.opsForValue()
-        .setIfAbsent(key, "PROCESSING", Duration.ofMinutes(5));  // TTL 大于最长处理时间
-
-if (!Boolean.TRUE.equals(first)) {
-    if ("DONE".equals(redis.opsForValue().get(key))) {
-        return;                                    // 已完成：确认消息
-    }
-    throw new RetryLaterException("消息处理中");    // 处理中：不确认，稍后重投
-}
-try {
-    pointsService.addPoints(evt.getUserId(), evt.getAmount());
-    redis.opsForValue().set(key, "DONE", Duration.ofDays(7));
-} catch (Exception e) {
-    redis.delete(key);                             // 释放占位，让重投可以重新处理
-    throw e;
-}
-```
-
-- 看到 `PROCESSING` 时**不能确认后跳过**，只能抛错 / 退避等待重投，否则前一个处理若失败，这条消息就丢了
-- Redis 与业务库不是原子的：业务已提交但 `DONE` 没写成功时，占位过期后会再处理一次，所以业务操作本身仍需具备幂等能力（如更新带状态条件），或在关键链路改用方案一
-- `DONE` 的保留时间要覆盖消息可能被重投的最长时间窗口
+两种写法的代码、并发重复与 PostgreSQL 下的差异见 [幂等设计 · 消费幂等](/architecture/3_idempotence#五、消费幂等-同事务去重记录) 与 [幂等设计 · Redis 状态机](/architecture/3_idempotence#六、redis-状态机-加速层)。
 
 ---
 
@@ -223,54 +175,12 @@ try {
 - 在事务中发消息：发送成功但提交失败，同上；发送超时还会拉长事务、占住连接
 - 先提交再发消息：提交后进程崩溃或发送失败，消息丢失
 
-所以**不要把「在 DB 事务里发 MQ」当作一致性方案**。可选的正确做法：
+所以**不要把「在 DB 事务里发 MQ」当作一致性方案**。从 MQ 的角度，可靠的做法只有两类：
 
-### 1、本地消息表（Transactional Outbox）
+- **本地消息表（Outbox）**：业务表与消息表同一本地事务写入，再由投递任务（或 CDC）发到 MQ；不依赖 MQ 的特殊能力，任何 MQ 都能用，见 [分布式事务 · 本地消息表](/distributed/4_transaction#五、本地消息表-transactional-outbox)
+- **RocketMQ 事务消息**：半消息 + 本地事务 + 回查，省掉消息表，代价是绑定 RocketMQ、要实现回查接口，见 [RocketMQ · 事务消息](/messaging/3_rocketmq#七、事务消息)
 
-![本地消息表（Transactional Outbox）](../assets/messaging/mq-outbox.svg)
-
-1. 在同一个本地事务里写业务表和消息表（状态 `NEW`），两者同时成功或同时失败
-2. 投递任务扫描 `NEW` 状态的消息发送到 MQ，成功后标记为 `SENT`；失败则累加重试次数下次再发
-3. 消费端幂等，因为投递任务可能重复发送
-
-投递任务可以是定时轮询（多实例时用 `SELECT ... FOR UPDATE SKIP LOCKED`（MySQL 8.0+ / PostgreSQL）或分片避免重复扫描），也可以用 CDC 订阅 binlog 推送，见 [CDC 工具](/database/5_practice/0_cdc_tools)。它不依赖 MQ 的特殊能力，任何 MQ 都能用。
-
-### 2、事务消息（RocketMQ）
-
-RocketMQ 把「本地事务 + 发消息」做成了两阶段：先发**半消息**（消费者不可见）→ 执行本地事务 → 根据结果提交或回滚半消息；若 Broker 长时间收不到结果，会**回查**生产者的本地事务状态；回查时本地事务仍未有结论可返回 `UNKNOWN`，Broker 稍后继续回查，超过回查上限后按配置丢弃半消息。效果与本地消息表一致，但省去了消息表与投递任务，代价是绑定 RocketMQ，且要实现回查接口。
-
-> Kafka 也有「事务」，但它保证的是多条消息写入多个分区的原子性（以及「消费-处理-生产」的 Exactly Once），**无法与数据库事务绑定**，不能替代本地消息表。
-
-### 3、提交后发送（弱保证）
-
-对一致性要求不高的通知类消息，可以在事务提交后再发：
-
-```java
-@Transactional
-public void pay(String orderNo) {
-    orderMapper.markPaid(orderNo);
-    eventPublisher.publishEvent(new OrderPaidEvent(orderNo));   // 只是登记，事务提交后才触发
-}
-
-@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-public void onPaid(OrderPaidEvent evt) {
-    kafkaTemplate.send("order-paid", evt.getOrderNo(), evt)       // spring-kafka 3.x 返回 CompletableFuture
-            .whenComplete((r, ex) -> { if (ex != null) log.error("发送失败", ex); });
-}
-```
-
-它避免了「事务回滚但消息已发出」，但**提交后到发送前进程崩溃、或异步发送失败，消息仍会丢**——需要可靠性的场景仍应使用本地消息表。另外 `@TransactionalEventListener` 只在有活动事务时生效，没有事务时事件默认被丢弃（除非设置 `fallbackExecution = true`）。
-
-### 4、方案对比
-
-| 方案 | 一致性 | 侵入性 | 适用场景 |
-|------|-------|-------|---------|
-| **本地消息表 / Outbox** | 最终一致，可靠 | 需要消息表与投递任务 | 通用首选，不绑定 MQ |
-| **事务消息** | 最终一致，可靠 | 实现回查接口，绑定 RocketMQ | 已使用 RocketMQ 的核心链路 |
-| **最大努力通知** | 尽力而为，按策略重试有限次数，提供对账查询兜底 | 低 | 跨企业回调，如支付结果通知 |
-| **提交后发送** | 可能丢 | 最低 | 非关键通知 |
-
-TCC、Saga 等完整的分布式事务方案见 [分布式 · 分布式事务](/distributed/4_transaction)。
+Kafka 的事务只保证多分区写入的原子性，无法与数据库事务绑定，不能替代本地消息表。两类做法都是至少一次投递，下游仍要按第四节幂等消费；「提交后直接发送」的弱保证写法、最大努力通知与各方案对比见 [分布式事务 · 方案选型](/distributed/4_transaction#九、方案选型)。
 
 ---
 

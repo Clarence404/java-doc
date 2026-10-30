@@ -24,7 +24,7 @@ Spring Boot 服务的启动时间由类加载、Bean 创建和 JIT 预热三块�
 
 ### 2、内存同样是部署成本
 
-启动快往往伴随内存小：加载的类少、元数据少，同样规格的节点能放更多实例。容器内存怎么分配给堆、Metaspace、线程栈等区域见 [JVM 层性能策略](/high-perf/5_jvm_tuning)，本篇只讲 Spring Boot 侧能做什么。
+启动快往往伴随内存小：加载的类少、元数据少，同样规格的节点能放更多实例。容器内存怎么分配给堆、Metaspace、线程栈等区域见 [GC 调优 · 容器环境](/jvm/6_gc_tuning#四、容器环境)，本篇只讲 Spring Boot 侧能做什么。
 
 ::: tip 先判断值不值得
 长期运行、扩缩容不频繁的在线服务，几十秒启动通常可以接受，用"预热流量 + 就绪后置"处理冷启动毛刺就够了（见 [优雅上下线与变更](/high-avail/8_graceful_release)）。只有启动时间真正卡住扩容、Serverless 或发布效率时，才值得投入下面成本较高的方案。
@@ -384,7 +384,7 @@ ENTRYPOINT ["java", "-XX:AOTCache=app.aot", "-XX:MaxRAMPercentage=75", "-jar", "
 
 ### 3、内存设置
 
-- 容器里不要写死 `-Xmx`，用 `-XX:MaxRAMPercentage` 按 limit 比例设置；堆以外还有 Metaspace、线程栈、直接内存、Code Cache，比例一般取 50～75%，具体分析见 [JVM 层性能策略](/high-perf/5_jvm_tuning)
+- 容器里不要写死 `-Xmx`，用 `-XX:MaxRAMPercentage` 按 limit 比例设置；堆以外还有 Metaspace、线程栈、直接内存、Code Cache，比例一般取 50～75%，具体分析见 [GC 调优 · 容器环境](/jvm/6_gc_tuning#四、容器环境)
 - 官方文档把「缩短启动时间、降低内存占用」同时列为 CDS / AOT 缓存的收益，内存规格可在启用后重新压测确定
 
 ### 4、和 K8s 探针配合
