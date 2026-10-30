@@ -62,7 +62,7 @@ mysqlbinlog -v --base64-output=decode-rows mysql-bin.000001
 
 ### 1、线程模型
 
-![MySQL 主从复制原理](../../assets/mysql/mysql-replication.svg)
+![MySQL 主从复制原理](../../assets/database/mysql-replication.svg)
 
 | 线程 | 所在节点 | 职责 |
 |------|---------|------|

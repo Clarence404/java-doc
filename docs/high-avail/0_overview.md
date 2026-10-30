@@ -1,6 +1,6 @@
 # 高可用总览
 
-高可用模块聚焦**系统级的高可用策略**：如何度量、如何消除单点、如何防住下游故障与上游过载、如何让变更和机房故障不停服。本篇给出全局视图：故障从哪里来、各用什么手段应对、按什么顺序阅读本模块。
+高可用模块聚焦**系统级的高可用策略**：如何度量、如何消除单点、如何防住下游故障与上游过载、如何让变更和机房故障不停服。
 
 **版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Spring Cloud 2025.1、Resilience4j 2.x、Sentinel 1.8、Chaos Mesh 2.x
 
@@ -86,9 +86,9 @@
 
 ## 七、关联模块
 
-Sentinel、Resilience4j、Nacos 等组件的框架配置在 [Spring Cloud 服务治理](/microservices/14_service_governance) 与 [Spring Cloud Alibaba](/microservices/15_alibaba) 中展开，本模块只讲原理、选型与阈值。
+Sentinel、Resilience4j、Nacos 等组件的框架配置在 [微服务 · 服务治理](/microservices/14_service_governance) 与 [Spring Cloud Alibaba](/microservices/15_alibaba) 中展开，本模块只讲原理、选型与阈值。
 
-- 服务治理框架配置（Spring Cloud LoadBalancer、灰度路由、Resilience4j）→ [Spring Cloud 服务治理](/microservices/14_service_governance)
+- 服务治理框架配置（Spring Cloud LoadBalancer、灰度路由、Resilience4j）→ [微服务 · 服务治理](/microservices/14_service_governance)
 - Sentinel、Nacos 规则持久化 → [Spring Cloud Alibaba](/microservices/15_alibaba)
 - 选主、共识与分布式一致性 → [分布式理论](/distributed/2_theorem)
 - MySQL 复制与 Redis 集群 → [MySQL 主从与高可用](/database/1_mysql/9_topic_replication)、[Redis 集群](/cache/3_redis_cluster)

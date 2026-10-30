@@ -317,7 +317,7 @@ spec:
 | 地域 / 机房 | 按机房分批发布，或网关按 IP 归属路由 | 分区域放量，缩小故障半径 |
 | 租户 | 网关或功能开关按 tenantId 判断 | SaaS 产品分租户灰度 |
 
-按比例分流时，同一个用户的多次请求可能落在不同版本上。需要「同一用户始终看到同一版本」的场景，用按用户 ID 路由或功能开关，而不是纯权重。Spring Cloud 体系下按请求头路由的负载均衡实现见 [Spring Cloud 服务治理](/microservices/14_service_governance)。
+按比例分流时，同一个用户的多次请求可能落在不同版本上。需要「同一用户始终看到同一版本」的场景，用按用户 ID 路由或功能开关，而不是纯权重。Spring Cloud 体系下按请求头路由的负载均衡实现见 [微服务 · 服务治理](/microservices/14_service_governance)。
 
 ---
 
@@ -628,3 +628,5 @@ DORA 的五项指标（吞吐：部署频率、变更前置时间、失败部署
 - Flagger：[Flagger 文档](https://docs.flagger.app/)
 - OpenFeature Java SDK：[open-feature/java-sdk](https://github.com/open-feature/java-sdk)
 - DORA 指标：[DORA's software delivery performance metrics](https://dora.dev/guides/dora-metrics/)
+
+> 返回：[DevOps 总览](./0_overview)

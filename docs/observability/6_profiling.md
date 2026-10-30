@@ -267,3 +267,5 @@ eBPF 剖析器拿到的是指令地址，需要「符号化」成函数名。C�
 - BPF CO-RE：[BPF CO-RE reference guide](https://nakryiko.com/posts/bpf-core-reference-guide/)
 - bcc 工具集：[iovisor/bcc](https://github.com/iovisor/bcc)；bpftrace：[bpftrace](https://github.com/bpftrace/bpftrace)
 - 火焰图与 off-CPU 分析：[Brendan Gregg: Flame Graphs](https://www.brendangregg.com/flamegraphs.html)
+
+> 返回：[可观测性总览](./0_overview)

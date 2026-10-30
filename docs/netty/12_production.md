@@ -431,4 +431,4 @@ public static void registerPendingTasks(MeterRegistry registry, EventLoopGroup g
 - 泄漏检测级别：[ResourceLeakDetector (Netty API)](https://netty.io/4.2/api/io/netty/util/ResourceLeakDetector.html)
 - 优雅停机 shutdownGracefully：[EventExecutorGroup (Netty API)](https://netty.io/4.2/api/io/netty/util/concurrent/EventExecutorGroup.html)
 
-> 回到 [模块总览](./0_overview) 查看完整学习路径，或前往 [Netty 面试题解答](/interview/6_netty) 复习高频问题。
+> 返回：[Netty 总览](./0_overview)

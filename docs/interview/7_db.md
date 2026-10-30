@@ -922,7 +922,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 - 写入默认要多数节点确认（`w: "majority"`）；从从节点读可能读到旧数据
 - 分片键要覆盖主要查询条件；单调递增的键做范围分片会形成写热点
 
-→ 详见 [文档数据库](/nosql/2_document_db#二、文档建模)
+→ 详见 [文档数据库](/nosql/2_document_db#二、文档建模)、[文档数据库 · 多文档事务](/nosql/2_document_db#八、多文档事务)
 
 ### Q64：Elasticsearch 为什么能快速全文检索？写入后为什么不能立刻搜到？
 

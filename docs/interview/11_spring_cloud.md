@@ -323,7 +323,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 还能用 Test Binder 测试，不用真起 MQ
 - 代价：各 MQ 的高级特性（RocketMQ 事务消息、Kafka Streams 等）被屏蔽，用得深就直接用原生客户端
 
-→ 详见 [Spring Cloud Stream](/microservices/16_stream#一、解决什么问题)
+→ 详见 [Spring Cloud Stream](/microservices/16_stream#一、解决什么问题)、[Spring Cloud Stream · 函数式编程模型](/microservices/16_stream#二、函数式编程模型)
 
 ### Q25：Spring Cloud Stream 如何配置消费组、重试与死信？
 

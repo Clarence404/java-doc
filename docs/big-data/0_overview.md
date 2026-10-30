@@ -53,7 +53,7 @@ Java 后端和数据平台打交道，主要在四个接口上：
 几个理解整张图的要点：
 
 - **数据怎么组织比用什么引擎更重要**：同样的 Spark，分层清楚、口径统一的数仓好维护；ODS 直接出报表、每个需求一张宽表的数仓，换什么引擎都会失控。所以本模块先讲 [数仓分层与建模](./2_data_warehouse)，再讲引擎
-- **存储与计算正在解耦**：数据以开放的表格式（Iceberg / Paimon）放在对象存储上，Spark、Flink、Trino、Doris 都能读写同一份数据，引擎可以按场景替换，原理见 [大数据基础](./1_basics) 第二节
+- **存储与计算正在解耦**：数据以开放的表格式（Iceberg / Paimon）放在对象存储上，Spark、Flink、Trino、Doris 都能读写同一份数据，引擎可以按场景替换，原理见 [大数据基础](./1_basics) 第五节
 - **离线与实时在收敛**：早期离线（Hive / Spark）和实时（Kafka + Flink）是两套完全独立的链路；湖仓表格式支持流式读写后，越来越多团队用一套存储同时服务批和流，实践见 [实时数仓实战](./9_realtime_dw)
 - **调度和治理决定能否长期运行**：几百个任务之后，真正的痛点不是"能不能算出来"，而是"上游延迟了谁受影响""这个字段是从哪来的""昨天的数据对不对"
 - **Spark 与 Iceberg 的版本对齐**：Iceberg 1.12 的 Spark 运行时只发布到 Spark 4.1，读写 Iceberg 的集群暂用 Spark 4.1，其余场景按 Spark 4.2
@@ -72,7 +72,7 @@ Java 后端和数据平台打交道，主要在四个接口上：
 2. **先学怎么组织数据**：读 [数仓分层与建模](./2_data_warehouse)（ODS / DWD / DWS / ADS、维度建模、缓慢变化维、指标定义），这是后面所有文章的共同语言。
 3. **掌握批处理与存储**：读 [Spark](./3_spark)（执行模型、Shuffle、Spark SQL 调优）和 [数据湖与湖仓](./4_lakehouse)（Iceberg / Paimon / Hudi 的表格式原理与选型）。
 4. **把链路串起来**：读 [数据集成](./5_data_integration) 和 [任务调度](./6_scheduling)，理解数据如何进出平台、几百个任务如何按依赖可靠运行；实时同步细节对照 [Flink CDC](/flink/6_cdc)。
-5. **面向使用与长期运营**：读 [OLAP 查询与数据服务](./7_olap_service) 与 [数据治理](./8_governance)，最后在 [实时数仓实战](./9_realtime_dw) 中把 Flink、Paimon、Doris 组合成一条完整的实时链路。
+5. **面向使用与长期运营**：读 [OLAP 查询与数据服务](./7_olap_service) 与 [数据治理](./8_governance)，最后在 [实时数仓实战](./9_realtime_dw) 中把 Flink、Paimon、StarRocks 组合成一条完整的实时链路。
 
 复习时用 [高频面试题](./99_interview) 自测，答案在 [大数据面试题解答](/interview/26_bigdata)。
 

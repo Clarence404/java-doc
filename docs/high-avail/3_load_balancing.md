@@ -116,7 +116,7 @@ SCL 的常用能力：
 - **Hint 路由**：按请求头与实例元数据匹配，可实现简单的灰度路由
 - **自定义策略**：实现 `ReactorServiceInstanceLoadBalancer`，按版本、标签等规则挑选实例
 
-区域优先、Hint 配置与自定义灰度负载均衡器的完整代码见 [Spring Cloud 服务治理](/microservices/14_service_governance)。
+区域优先、Hint 配置与自定义灰度负载均衡器的完整代码见 [微服务 · 服务治理](/microservices/14_service_governance)。
 
 ::: warning 灰度路由的关键是标记透传
 按请求头路由到灰度实例，只在第一跳生效是不够的：链路上每个服务都要把灰度标记透传到下一跳（Feign 拦截器、MQ 消息头），否则下游会回到稳定版本。

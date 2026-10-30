@@ -22,7 +22,7 @@ description: 同步转异步模式、削峰填谷与消费速率、用户侧排�
 | **受理 + 异步回执** | 立即返回受理号，客户端通过轮询 / 回调 / WebSocket 获取结果 | 秒杀下单、报表导出、批量导入 |
 | **写缓冲（Write-Behind）** | 先写 Redis 或内存队列，后台批量落库 | 点赞数、浏览量、埋点 |
 
-![MQ 异步削峰](../assets/concurrency/mq.svg)
+![MQ 异步削峰](../assets/high-con/mq.svg)
 
 ### 2、收益与代价
 

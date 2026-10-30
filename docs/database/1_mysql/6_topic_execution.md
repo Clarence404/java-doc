@@ -14,7 +14,7 @@ description: Server 层与存储引擎层、连接器与权限生效、优化器
 
 MySQL 分为 **Server 层** 和 **存储引擎层** 两部分：
 
-![一条 SQL 在 MySQL 中的执行流程](../../assets/mysql/mysql-sql-execution.svg)
+![一条 SQL 在 MySQL 中的执行流程](../../assets/database/mysql-sql-execution.svg)
 
 | 层次 | 包含组件 | 职责 |
 |------|---------|------|

@@ -87,7 +87,7 @@ MVCC 让**普通读不加锁**，通过版本链实现读写并发。
 
 UPDATE 不覆盖旧版本：旧值写入 undo log，新版本的 `DB_ROLL_PTR` 指向它，形成版本链。快照读时用 Read View 判断每个版本是否可见（图中简写为 trx_id / roll_ptr）：
 
-![MVCC 版本链与 Read View 可见性判断](../../assets/mysql/mysql-mvcc-version-chain.svg)
+![MVCC 版本链与 Read View 可见性判断](../../assets/database/mysql-mvcc-version-chain.svg)
 
 Read View 有四个字段：`m_ids`（创建时活跃的事务 ID 列表）、`min_trx_id`（`m_ids` 最小值）、`max_trx_id`（下一个待分配的事务 ID）、`creator_trx_id`（创建者自身 ID）。对版本链上每个版本的 `DB_TRX_ID` 依次判断：
 
@@ -156,7 +156,7 @@ binlog 与复制见 [MySQL 主从与高可用](./9_topic_replication)。
 
 redo 与 binlog 分属两层，必须保证二者对「哪些事务已提交」的结论一致：否则主库恢复出的数据与从库、备份回放出的数据不同。InnoDB 用以 binlog 为协调者的内部 XA 两阶段提交解决：
 
-![redo / undo / binlog 两阶段提交与崩溃恢复](../../assets/mysql/mysql-two-phase-commit.svg)
+![redo / undo / binlog 两阶段提交与崩溃恢复](../../assets/database/mysql-two-phase-commit.svg)
 
 **执行阶段**（DML 语句执行时，尚未提交）：
 
@@ -215,7 +215,7 @@ redo 与 binlog 分属两层，必须保证二者对「哪些事务已提交」�
 
 间隙锁之间互相兼容（两个事务可以同时持有同一间隙的 Gap Lock），它们只和插入意向锁冲突。最后一个间隙由索引页上的 supremum 伪记录承载：
 
-![行锁形态与 Next-Key Lock 区间划分](../../assets/mysql/mysql-next-key-lock.svg)
+![行锁形态与 Next-Key Lock 区间划分](../../assets/database/mysql-next-key-lock.svg)
 
 ### 4、RR 下的加锁规则
 
@@ -277,7 +277,7 @@ WHERE OBJECT_NAME = 't';
 
 **例一：加锁顺序相反**
 
-![死锁场景：两事务交叉持有锁](../../assets/mysql/mysql-deadlock.svg)
+![死锁场景：两事务交叉持有锁](../../assets/database/mysql-deadlock.svg)
 
 | 步骤 | 事务 A | 事务 B |
 |:--:|------|------|

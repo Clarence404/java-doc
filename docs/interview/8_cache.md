@@ -65,7 +65,7 @@ description: Redis 数据类型与编码、线程模型与持久化、过期与�
 - 业务只用基础命令时两者几乎可以互换；用了 Redis 8 内置类型，就要确认部署环境是 Redis 8
 - AGPLv3 对「修改后以网络服务形式提供」有开源义务，私有化交付前做好许可评估
 
-→ 详见 [缓存总览](/cache/0_overview)
+→ 详见 [Redis 基础 · 许可演变：Redis 与 Valkey](/cache/1_redis_base#五、许可演变-redis-与-valkey)、[缓存总览](/cache/0_overview)
 
 ## 二、线程模型与持久化
 

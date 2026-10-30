@@ -4,19 +4,19 @@
 
 **版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Redis 8、RocketMQ 5、MySQL 8.4
 
-![高并发系统设计全景](../assets/concurrency/hc_overview.svg)
-
 ---
 
 ## 一、核心要点
 
+![高并发系统设计全景](../assets/high-con/hc_overview.svg)
+
 **高并发关注的是"规模"**：请求量从 1k QPS 涨到 10w QPS 时，瓶颈在哪里、如何扩展、如何削峰、如何应对热点。单次请求快不快是高性能的问题，故障时停不停服是高可用的问题。
 
-![高并发系统核心](../assets/concurrency/hc_sys.svg)
+![高并发系统核心](../assets/high-con/hc_sys.svg)
 
 一个典型的高并发架构，涵盖从接入层到存储层的各个环节：
 
-![高并发设计方案](../assets/concurrency/hc_sys_demo.svg)
+![高并发设计方案](../assets/high-con/hc_sys_demo.svg)
 
 高并发设计的基本思路可归纳为四句话：
 

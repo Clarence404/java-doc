@@ -611,7 +611,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 **常见坑**：只罗列技术名词不讲取舍；数字前后矛盾或明显夸大（如单机 Redis 扛百万 QPS）；把通用八股当项目难点。
 
-→ 详见 [项目难点与亮点面试题解答](/interview/16_scenario_highlights)（18 个亮点的逐题讲法）、[分库分表与中间件](/database/5_practice/3_sharding#八、平滑迁移与扩容)
+→ 详见 [项目难点与亮点面试题解答](/interview/16_scenario_highlights)（21 个亮点的逐题讲法）、[分库分表与中间件](/database/5_practice/3_sharding#八、平滑迁移与扩容)
 
 ### Q45：拿到一道系统设计题，你会怎么推进？
 
@@ -897,4 +897,4 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 - 范围查询：IP 归属地库按 `(start_ip, end_ip)` 整数区间存，查询时直接做数值比较
 - 只用来记日志、不做范围查询时，存字符串也可以，可读性更好
 
-→ 详见 [索引设计原则](/database/1_mysql/4_topic_index#十、索引设计原则)
+→ 详见 [MySQL 表设计规范 · 字符串](/database/1_mysql/3_table_design#_3、字符串)

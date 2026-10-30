@@ -35,7 +35,7 @@ description: 读写分离与主从延迟、冷热分离、分库分表、分片�
 
 **主库负责写入，从库负责查询，利用主从复制把读压力分散到多个从节点。**
 
-![读写分离](../assets/concurrency/read_write_split.svg)
+![读写分离](../assets/high-con/read_write_split.svg)
 
 适用前提是读多写少、读流量是瓶颈。读写分离**不能提升写能力**，写瓶颈需要分库分表。
 
@@ -96,11 +96,11 @@ MySQL 侧的延迟原因、多线程回放与延迟监控见 [MySQL 主从与高
 
 **垂直分库**：按业务域拆分，用户库、订单库、商品库各自独立，与服务拆分一一对应。
 
-![数据分离-分库](../assets/concurrency/db_split.svg)
+![数据分离-分库](../assets/high-con/db_split.svg)
 
 **水平分表**：同一业务的大表按规则（如 `user_id % 16`）拆成多张表，再分散到多个库。
 
-![数据分离-分表](../assets/concurrency/table_split.svg)
+![数据分离-分表](../assets/high-con/table_split.svg)
 
 | 拆分方式 | 解决问题 | 代价 |
 |----------|----------|------|

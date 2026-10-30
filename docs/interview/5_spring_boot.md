@@ -244,7 +244,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **常见坑**：在监听方法里 catch 异常后只打日志，消息被确认消费，就此丢失。
 
-→ 详见 [中间件集成](/spring-boot/6_middleware)、[Kafka 架构与存储](/messaging/2_kafka)
+→ 详见 [中间件集成 · Redis 连接配置](/spring-boot/6_middleware#_1、连接配置)、[中间件集成 · Kafka 依赖与配置](/spring-boot/6_middleware#_1、依赖与配置)
 
 ### Q20：`@Async` 默认用哪个执行器？为什么开启虚拟线程后 `@Async` 可能不受影响？
 

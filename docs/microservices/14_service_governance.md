@@ -219,7 +219,7 @@ public class GrayLoadBalancerClientsConfig {
 }
 ```
 
-`RequestDataContext` 由各负载均衡集成负责构造：Gateway、`@LoadBalanced WebClient.Builder`、`@LoadBalanced RestClient.Builder`、HTTP Service Clients 与 OpenFeign，请求头可以直接读到。`RestTemplate` 的集成仍可用，但 `RestTemplate` 已在 Framework 7.1 中废弃，新代码用 `RestClient`。
+`RequestDataContext` 由各负载均衡集成负责构造：Gateway、`@LoadBalanced WebClient.Builder`、`@LoadBalanced RestClient.Builder`、HTTP Service Clients 与 OpenFeign，请求头可以直接读到。`RestTemplate` 的集成仍可用，但 `RestTemplate` 计划在 Framework 7.1 标记 `@Deprecated`，新代码用 `RestClient`。
 
 只需按比例放量、不要求同一用户落在同一版本时，也可以把灰度版本注册成独立服务名，在网关用 `Weight` 断言分流，见 [API 网关 · 灰度路由](/microservices/11_api_gateway#七、灰度路由)。
 

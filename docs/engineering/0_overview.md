@@ -8,11 +8,11 @@ description: 构建工具、开发工具、代码质量、线上诊断、API 文
 
 **版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Spring Cloud 2025.1、Maven 3.9、Gradle 9、JaCoCo 0.8.14、springdoc-openapi 3.x、Arthas 4
 
-![工程效率链路](../assets/engineering/overview-efficiency-map.svg)
-
 ---
 
 ## 一、模块导航
+
+![工程效率链路](../assets/engineering/overview-efficiency-map.svg)
 
 <ModuleNav />
 

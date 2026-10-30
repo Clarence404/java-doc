@@ -1,6 +1,6 @@
 # Java 总览
 
-本模块覆盖 Java 语言本身：语言机制、IO 与集合、并发编程（JMM、锁、线程池、虚拟线程等）以及各版本新特性。JVM 原理与 Spring 等框架在各自模块展开，这里只一句话带过并给出链接。
+本模块覆盖 Java 语言本身：语言机制、IO 与集合、并发编程（JMM、锁、线程池、虚拟线程等）以及各版本新特性。
 
 **版本基线（2026 年 10 月）**：JDK 21 / 25
 
@@ -34,7 +34,7 @@
 11. [反射](./15_topic_reflection)：Class 对象、反射调用、MethodHandle 与模块封装
 12. [动态代理](./16_topic_proxy)：JDK 代理与 CGLIB / ByteBuddy
 
-**IO 与数据（17–21）**
+**核心类库（17–21）**
 
 13. [日期与时间](./17_topic_time)：`java.time` 体系与时区处理
 14. [IO 与 NIO](./18_topic_io)：流体系、Buffer / Channel / Selector、零拷贝
@@ -64,6 +64,8 @@
 ---
 
 ## 三、关联模块
+
+JVM 原理与 Spring 等框架在各自模块展开，本模块只一句话带过并给出链接。
 
 - [JVM 总览](/jvm/0_overview)：内存结构、类加载、GC、JIT 与调优，本模块涉及运行时原理处都链接到这里
 - [Netty · IO 模型](/netty/1_io_model)：BIO / NIO / 多路复用与 epoll 原理

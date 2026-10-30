@@ -1,6 +1,6 @@
 # NoSQL 总览
 
-NoSQL 模块按数据模型讲关系库之外的存储：键值、文档、宽列与列式、时序、搜索和图，每类讲清原理、主流产品与选型边界。底层的 B+ 树与 LSM-Tree 差异是读懂这些产品的前提，建议先读 [存储引擎：B+ 树与 LSM-Tree](/database/0_fundamentals/1_storage_engine)。
+NoSQL 模块按数据模型讲关系库之外的存储：键值、文档、宽列与列式、时序、搜索和图，每类讲清原理、主流产品与选型边界。
 
 **版本基线（2026 年 10 月）**：MongoDB 8、Elasticsearch 9、OpenSearch 3、InfluxDB 3、Doris / StarRocks 4.1、Neo4j 5
 

@@ -675,7 +675,7 @@ preStop: { exec: { command: ["sh", "-c", "sleep 15"] } }
 - 实验设置自动恢复时间，准备一键回滚；指标越过停止线（如成功率 < 99.5%）立刻停
 - 实验前通知相关团队和值班，免得被当成真故障
 
-→ 详见 [混沌工程](/high-avail/10_chaos_engineering#二、实验原则)
+→ 详见 [混沌工程 · 实验流程](/high-avail/10_chaos_engineering#一、实验流程)、[混沌工程 · 实验原则](/high-avail/10_chaos_engineering#二、实验原则)
 
 ### Q55：如何用故障注入验证熔断、降级是否生效？
 

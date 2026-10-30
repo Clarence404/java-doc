@@ -18,7 +18,7 @@ description: HTTP Service Clients、负载均衡 RestClient、OpenFeign、gRPC �
 | **同步 RPC** | gRPC（HTTP/2 + Protobuf）、Dubbo 3（Triple / Dubbo 协议） | 强类型契约，序列化开销小，支持流式 | 内部高频调用、多语言服务 |
 | **异步消息** | Kafka / RocketMQ / RabbitMQ、Spring Cloud Stream | 解耦、削峰、最终一致 | 事件驱动、非核心链路异步化 |
 
-**Spring 生态的 HTTP 客户端在 Framework 7 中完成了换代**：`RestTemplate` 在 7.1 中标记为废弃（计划 8.0 移除），同步调用用 `RestClient`，声明式接口用 HTTP Service Clients；Spring Cloud OpenFeign 自 2022.0 起功能冻结，只接受缺陷修复，官方建议新项目迁移到 HTTP Service Clients。`RestClient` 与 HTTP 接口在 Boot 中的通用用法见 [Web 开发](/spring-boot/2_web_dev)，版本差异见 [Spring Boot 版本演进](/spring-boot/14_versions)。
+**Spring 生态的 HTTP 客户端在 Framework 7 中完成了换代**：`RestTemplate` 已在 7.0 文档中标为不推荐，计划在 7.1 加 `@Deprecated`、8.0 移除（7.1 计划 2026.11 发布），同步调用用 `RestClient`，声明式接口用 HTTP Service Clients；Spring Cloud OpenFeign 自 2022.0 起功能冻结，只接受缺陷修复，官方建议新项目迁移到 HTTP Service Clients。`RestClient` 与 HTTP 接口在 Boot 中的通用用法见 [Web 开发](/spring-boot/2_web_dev)，版本差异见 [Spring Boot 版本演进](/spring-boot/14_versions)。
 
 ---
 
@@ -306,7 +306,7 @@ Dubbo 3 的 Triple 协议基于 HTTP/2、兼容 gRPC，同时保留高性能的 
 ## 小结
 
 - 同步调用的推荐写法是 HTTP Service Clients：`@HttpExchange` 声明接口，`@ImportHttpServices` 按组注册，LoadBalancer 5.0 起自动按组名（服务名）负载均衡
-- 命令式调用用 `@LoadBalanced RestClient.Builder`；`RestTemplate` 在 Framework 7.1 已废弃
+- 命令式调用用 `@LoadBalanced RestClient.Builder`；`RestTemplate` 计划在 Framework 7.1 标记 `@Deprecated`
 - OpenFeign 自 2022.0 起功能冻结，存量项目可继续用；`fallback` 只有在开启 CircuitBreaker（Resilience4j）或 Sentinel 集成后才生效
 - 写接口的降级不能静默返回成功；默认超时过大，必须按服务显式配置
 - `RequestContextHolder` 是线程绑定的，异步与线程池场景要显式传递请求头

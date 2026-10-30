@@ -325,7 +325,7 @@ npx --yes @openapitools/openapi-generator-cli generate \
   -o build/order-client
 ```
 
-前端常用 `-g typescript-fetch` 或 `-g typescript-axios`。Spring 体系内的服务间调用也可以选 `-g spring --library spring-http-interface`，生成 HTTP Interface 声明，配合 Boot 4 的 `@ImportHttpServices` 注册（见 [Spring Cloud 服务通信](/microservices/12_communication)）。生成的 SDK 应作为独立制品发布，版本号跟随 API 版本，不要让每个调用方各自生成一份。
+前端常用 `-g typescript-fetch` 或 `-g typescript-axios`。Spring 体系内的服务间调用也可以选 `-g spring --library spring-http-interface`，生成 HTTP Interface 声明，配合 Boot 4 的 `@ImportHttpServices` 注册（见 [微服务 · 服务通信](/microservices/12_communication)）。生成的 SDK 应作为独立制品发布，版本号跟随 API 版本，不要让每个调用方各自生成一份。
 
 ---
 

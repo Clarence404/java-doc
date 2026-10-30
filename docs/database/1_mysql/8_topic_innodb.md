@@ -73,7 +73,7 @@ undo log 与 redo log 在事务中的作用见 [MySQL 事务与锁](./5_topic_tr
 
 InnoDB 的核心内存区，缓存数据页和索引页，读写都先经过它：
 
-![InnoDB Buffer Pool 结构](../../assets/mysql/mysql-buffer-pool.svg)
+![InnoDB Buffer Pool 结构](../../assets/database/mysql-buffer-pool.svg)
 
 | 链表 | 管理对象 | 行为 |
 |------|---------|------|

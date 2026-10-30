@@ -62,7 +62,7 @@ Session 外置的完整方案对比（粘性会话、Session 复制、集中存�
 
 **拆分让流量特征不同的模块独立扩容**，避免"一个模块的流量拖垮整个应用"。
 
-![系统拆分](../assets/concurrency/sys_split.svg)
+![系统拆分](../assets/high-con/sys_split.svg)
 
 | 拆分原则 | 说明 |
 |----------|------|

@@ -60,7 +60,7 @@ description: Linux 信号与排查、容器原理与 Java 镜像、Kubernetes �
 - `vmstat 1` 的 `r` 列是运行队列长度，比 load 更实时
 - 看三个数的趋势：1 分钟远大于 15 分钟说明负载正在上升
 
-→ 详见 [Linux 概览](/cloud-native/1_linux#_1、按资源选命令)
+→ 详见 [Load 与 CPU 利用率 · Load Average 是什么](/os/5_load_cpu#一、load-average-是什么)
 
 ## 二、容器
 

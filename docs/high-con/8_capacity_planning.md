@@ -256,7 +256,7 @@ ShardingSphere 也提供影子库功能，可按列值或 Hint 把压测 SQL 路
 
 ### 1、监控关键指标
 
-![服务监控](../assets/concurrency/monitor.svg)
+![服务监控](../assets/high-con/monitor.svg)
 
 | 类别 | 指标 | 关注点 |
 |------|------|--------|

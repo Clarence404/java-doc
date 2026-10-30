@@ -354,7 +354,7 @@ description: TCP 握手挥手与 TIME_WAIT、拥塞控制、HTTP 演进与缓存
 - 正向代理：客户端配置它去访问外部，服务端看到的是代理，如企业上网代理
 - 反向代理：部署在服务端前面，客户端以为它就是服务器，如 Nginx、API 网关，负责负载均衡、TLS 卸载、限流
 
-→ 详见 [接入层架构](/high-con/1_access_layer#三、cdn-与动静分离)
+→ 详见 [接入层架构](/high-con/1_access_layer#三、cdn-与动静分离)、[HTTP · 正向代理与反向代理](/protocols/2_http#十二、正向代理与反向代理)
 
 ### Q27：从浏览器输入 URL 到页面展示，中间发生了什么？
 

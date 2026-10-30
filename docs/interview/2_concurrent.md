@@ -122,7 +122,7 @@ catch (InterruptedException e) { Thread.currentThread().interrupt(); }   // 恢�
 
 **常见坑**：持有 `StampedLock` 写锁时再调 `writeLock()` / `readLock()`，会自己锁死自己。
 
-→ 详见 [显式锁（Lock）](/java/25_topic_lock#五、reentrantreadwritelock)
+→ 详见 [显式锁（Lock）](/java/25_topic_lock#五、reentrantreadwritelock)、[显式锁（Lock） · StampedLock](/java/25_topic_lock#六、stampedlock)
 
 ### Q9：CAS 是什么？有哪些缺点？ABA 问题如何解决？LongAdder 为什么比 AtomicLong 快？
 
@@ -258,7 +258,7 @@ counts.merge(word, 1L, Long::sum);   // 正确的并发计数
 
 **常见坑**：用 `ThreadLocal` 缓存大对象，百万个虚拟线程就是百万份。
 
-→ 详见 [虚拟线程](/java/30_topic_virtual_thread#四、使用原则)
+→ 详见 [虚拟线程](/java/30_topic_virtual_thread#四、使用原则)、[虚拟线程 · 钉住（Pinning）](/java/30_topic_virtual_thread#五、钉住-pinning)
 
 ### Q18：ScopedValue 和 ThreadLocal 有什么区别？结构化并发能用于生产吗？
 

@@ -48,7 +48,7 @@ description: 指标与方法论、Profiler、JVM 层、池化、异步批量、�
 - 饱和度比使用率更说明问题：比如线程池队列在堆积、连接池有人在等
 - Spring Boot 的 `http.server.requests` 指标就是现成的 RED 数据
 
-→ 详见 [性能分析方法论](/high-perf/2_methodology#一、use-方法-面向资源)
+→ 详见 [性能分析方法论](/high-perf/2_methodology#一、use-方法-面向资源)、[性能分析方法论 · RED 方法](/high-perf/2_methodology#二、red-方法-面向服务)
 
 ### Q4：接口突然变慢，你的排查思路是什么？（系统资源 → JVM → 线程/锁 → 外部依赖）
 

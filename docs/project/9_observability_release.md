@@ -79,7 +79,7 @@ agent 只负责链路，指标仍走 Micrometer：agent 2.x 默认不桥接 Micr
 
 - **一次请求一个 traceId**：agent 在 `mall-gateway` 入口生成 Trace，经 HTTP 头 `traceparent` 传到 `mall-app` 和 `inventory-service`，经消息属性传到消费者；每一跳的耗时、SQL、Redis 命令都在同一个 Trace 里
 - **日志带 traceId**：agent 往 MDC 写 `trace_id`、`span_id`，结构化日志原样输出成 JSON 字段；Grafana 里从 Tempo 的 Span 点「查看日志」，就是按这个字段过滤 Loki
-- **指标带 exemplar**：延迟直方图的桶上附带一个样本请求的 traceId，P99 面板上点一下尖刺就能打开那次慢请求
+- **指标暂不带 exemplar**：Micrometer 要给直方图附带 traceId，得有 `SpanContext` 来源（Micrometer Tracing，或 agent 的 Micrometer 桥接），青柚两者都没开；即使开了，尾部采样丢掉的普通 Trace 对应的 exemplar 也点不开。从 P99 尖刺到链路，按服务、接口和时间窗在 Tempo 里用 TraceQL 查慢 Trace
 
 Collector 分两层：每个节点一个 DaemonSet 接收本节点 Pod 的 OTLP 并读取容器日志；Span 按 traceId 转发给网关层的 3 个副本做尾部采样，错误、慢于 800ms 的 Trace 全部保留，其余保留 10%。部署方式见 [OpenTelemetry · 在 Kubernetes 上部署](/observability/5_opentelemetry#六、在-kubernetes-上部署)，采样策略的取舍见 [链路追踪 · 采样策略](/observability/3_tracing#五、采样策略)。
 

@@ -15,7 +15,7 @@ description: 模块化单体的仓库与模块划分、按功能分包、父 POM
 项目启动时的约束很明确：
 
 - **人**：3 个全栈开发，没有专职运维和测试
-- **量**：预估日订单 1 万，下单峰值约 20 QPS，一台 4 核 8 G 的机器就扛得住
+- **量**：预估日订单 1 万，下单峰值按大促保守预估约 20 QPS，一台 4 核 8 G 的机器就扛得住
 - **时间**：两个月内上线下单、支付、发货通知的主链路
 - **部署**：两台云主机 + 一个云数据库 MySQL 8.4（一主一从，从库只做备份），前面挂云负载均衡
 
@@ -31,7 +31,7 @@ description: 模块化单体的仓库与模块划分、按功能分包、父 POM
 | **模块化单体** | 一个仓库、多个 Maven 模块、打成一个 jar；模块之间只能走对方的 `api` 包 | 部署和单体一样简单，边界由编译与测试守住 | 要多花一两天搭骨架，写跨模块调用时多一层接口 |
 | 微服务 | 订单、商品、库存、用户各自独立部署 | 独立发布、独立扩容 | 需要注册发现、网关、远程调用、分布式事务、链路追踪，3 个人维护不过来 |
 
-拆不拆、什么时候拆的判断标准见 [服务拆分](/microservices/2_service_split)：团队规模、发布冲突、扩容需求三者都还没出现，现在拆只有成本没有收益。
+拆不拆、什么时候拆的判断标准见 [服务拆分](/microservices/2_service_split)：发布互相阻塞、迭代节奏差异、扩展需求不同三个信号都还没出现（3 个人共用一个发布节奏，各模块负载也差不多），现在拆只有成本没有收益。
 
 ---
 
@@ -127,7 +127,7 @@ mall-order/src/main/java/com/qingyou/order/
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.1.1</version> <!-- 取 4.x 最新补丁版 -->
+    <version>4.0.6</version> <!-- 取 4.0.x 最新补丁版，与 Spring Cloud 2025.1 / SCA 2025.1.0.0 对表 -->
 </parent>
 
 <groupId>com.qingyou</groupId>
@@ -181,7 +181,7 @@ Maven 与 Gradle 的取舍见 [构建工具](/engineering/1_build_tools)，BOM�
 | 格式 | Spotless（palantir-java-format） | 格式差异；`./mvnw spotless:apply` 一键修复，不在 Review 里争格式 |
 | 规范 | Checkstyle | 命名、禁止通配符导入、禁止 `System.out` 等少量硬规则 |
 | 架构边界 | ArchUnit | 跨模块引用 `api` 以外的包、模块间循环依赖 |
-| 测试 | JUnit 5 + Testcontainers | 单元测试与带真实 MySQL 的集成测试 |
+| 测试 | JUnit 6 + Testcontainers | 单元测试与带真实 MySQL 的集成测试 |
 
 其中最关键的是 ArchUnit：模块化单体的边界如果只靠约定，赶工期时一定会被打穿。规则写成测试放在 `mall-app` 里（它能看到所有模块的类）：
 

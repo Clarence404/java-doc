@@ -20,7 +20,7 @@ description: 先拆库存与支付、模块 api 变远程接口、按服务拆�
 - **扩容**：活动时吃紧的只有库存扣减和支付回调，却只能把整个 `mall-app`（每实例 8 G 堆）成倍扩，连带数据库连接数一起翻倍
 - **隔离**：支付渠道的商户密钥和证书对所有模块可见，任何一个模块的依赖漏洞都会波及支付
 
-这正是 [服务拆分 · 什么时候该拆](/microservices/2_service_split#一、什么时候该拆、什么时候不该拆) 里列的三个信号：团队规模、发布冲突、差异化扩容，三者同时出现了。
+这正是 [服务拆分 · 什么时候该拆](/microservices/2_service_split#一、什么时候该拆、什么时候不该拆) 里列的三个信号：发布互相阻塞（别组问题导致整包回滚）、迭代节奏差异（支付组接渠道要快发，只能等每周四的大版本）、扩展需求不同（吃紧的只有库存扣减和支付回调），三者同时出现了。团队扩到 20 人只是背景，主文档并不按人数判断。
 
 ---
 
@@ -159,7 +159,7 @@ try {
 | 服务调用 | OpenFeign / HTTP 接口客户端 | HTTP 接口客户端 | 框架内置，接口可以服务端客户端共用；OpenFeign 只剩维护 |
 | 负载均衡 | Spring Cloud LoadBalancer | 默认轮询 | 实例同构，暂不需要权重或区域路由 |
 
-Spring Cloud 版本取 2025.1，Spring Cloud Alibaba 版本跟随它的 BOM，对表见 [Spring Cloud Alibaba](/microservices/15_alibaba)。
+Spring Boot 取 4.0.x、Spring Cloud 取 2025.1；Spring Cloud Alibaba 有自己的 BOM（`spring-cloud-alibaba-dependencies`），按官方版本对表导入 2025.1.0.0，对表见 [Spring Cloud Alibaba](/microservices/15_alibaba)。
 
 ### 1、Nacos：注册与配置
 
@@ -324,7 +324,7 @@ spec:
 
 ## 小结
 
-- 拆分的触发条件是团队规模、发布冲突、差异化扩容同时出现，而不是日订单到了某个数
+- 拆分的触发条件是发布互相阻塞、迭代节奏差异、扩展需求不同同时出现，而不是日订单或人数到了某个数
 - 先拆边界清楚、收益明显的库存和支付；订单、商品、用户留在 `mall-app`，不拆订单、不上服务网格
 - 模块化单体的 `api` 包直接变成远程契约：`InventoryApi` 加 `@HttpExchange`，服务端实现、客户端注入，订单代码不改
 - 每服务独享库，数据按「先拆部署 → binlog 同步 → 对账 → 停写切换」迁移，不在业务代码里双写

@@ -336,7 +336,7 @@ description: JWT、防撞库与 MFA、OAuth2 / OIDC / SSO、权限模型、接�
 
 **常见坑**：以为 HttpOnly Cookie 能防 XSS，它只防脚本读 Cookie，挡不住脚本以用户身份发请求。
 
-→ 详见 [常见漏洞与防护](/security/8_vulnerabilities#四、csrf-跨站请求伪造)
+→ 详见 [常见漏洞与防护 · XSS 跨站脚本](/security/8_vulnerabilities#三、xss-跨站脚本)、[常见漏洞与防护 · CSRF 跨站请求伪造](/security/8_vulnerabilities#四、csrf-跨站请求伪造)
 
 ### Q24：什么是 SSRF？怎么防？
 

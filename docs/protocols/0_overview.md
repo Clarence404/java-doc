@@ -4,11 +4,11 @@
 
 **版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Linux 内核 5.x / 6.x
 
-![后端视角的协议分层](../assets/protocols/protocol-layers.svg)
-
 ---
 
 ## 一、模块导航
+
+![后端视角的协议分层](../assets/protocols/protocol-layers.svg)
 
 <ModuleNav />
 

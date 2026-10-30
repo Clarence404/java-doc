@@ -1,12 +1,12 @@
 ---
-description: 五种基础类型、Bitmap / HLL / GEO / Stream、Redis 8 内置类型、字段过期、底层编码
+description: 五种基础类型、Bitmap / HLL / GEO / Stream、Redis 8 内置类型、字段过期、底层编码、许可
 ---
 
 # Redis 基础
 
 > 前置阅读：[缓存总览](./0_overview)
 
-Redis 是基于内存的键值数据库，每种数据类型按数据量自动在紧凑编码和通用编码之间切换。本篇讲各类型的命令、用途与底层编码，基线为 Redis 8。
+Redis 是基于内存的键值数据库，每种数据类型按数据量自动在紧凑编码和通用编码之间切换。本篇讲各类型的命令、用途、底层编码与许可演变，基线为 Redis 8。
 
 ---
 
@@ -202,6 +202,22 @@ JSON.GET user:1 $.name
 
 ---
 
+## 五、许可演变：Redis 与 Valkey
+
+Redis 的许可在 2024–2025 年改过两次，选型和私有化交付前要先确认用的是哪个版本、对应哪种许可。
+
+| 版本 | 许可 | 说明 |
+|------|------|------|
+| 7.2.x 及以前 | BSD-3-Clause | 宽松许可，可自由修改、商用和托管 |
+| 7.4 起 | RSALv2 / SSPLv1 双许可 | 两者都不是 OSI 认可的开源许可，主要限制云厂商把 Redis 作为托管服务售卖 |
+| 8.0 起 | RSALv2 / SSPLv1 / AGPLv3 三选一 | 改名 Redis Open Source，新增的 AGPLv3 是 OSI 认可的开源许可 |
+
+- **AGPLv3 的义务**：修改了 Redis 源码并以网络服务形式提供给他人使用时，要公开修改后的源码；只当业务后端用、不改源码，一般不触发，但私有化交付前仍要做许可评估
+- **Valkey**：Redis 7.2.4 的分支，由 Linux 基金会维护，保持 BSD 许可，命令与 RESP 协议兼容，云厂商的托管版普遍提供
+- **怎么选**：只用基础类型和命令时两者几乎可以互换，Spring Data Redis、Redisson 都能直接连；用了第三节的 Redis 8 内置类型，就要确认部署环境是 Redis 8，Valkey 需另装模块
+
+---
+
 ## 小结
 
 - 五种基础类型覆盖绝大多数缓存需求；对象优先用 String（整体读写）或 Hash（单字段更新），大集合用 `*SCAN` 分批读
@@ -211,6 +227,7 @@ JSON.GET user:1 $.name
 - Stream 有消费组和 PEL，但持久化与复制是异步的，强可靠消息用专业 MQ
 - Redis 8 内置 JSON、Bloom / Cuckoo、Top-k、t-digest、Time Series、查询引擎和 Vector Set；Valkey 需要另装模块
 - Valkey 9.x 兼容基础类型与命令（Hash 字段级 TTL 自 Valkey 9.0 起支持），但不含 Redis 8 新增的内置类型
+- 许可：7.4 起改为 RSALv2 / SSPLv1 双许可，8.0 起增加 AGPLv3 三选一；Valkey 由 Linux 基金会维护，保持 BSD 许可
 
 ## 参考资料
 
@@ -220,6 +237,7 @@ JSON.GET user:1 $.name
 - SET（含 NX / PX 与锁模式说明）：[https://redis.io/docs/latest/commands/set/](https://redis.io/docs/latest/commands/set/)
 - Redis Streams：[https://redis.io/docs/latest/develop/data-types/streams/](https://redis.io/docs/latest/develop/data-types/streams/)
 - Probabilistic data types：[https://redis.io/docs/latest/develop/data-types/probabilistic/](https://redis.io/docs/latest/develop/data-types/probabilistic/)
+- Redis 许可说明：[https://redis.io/legal/licenses/](https://redis.io/legal/licenses/)
 - Valkey 文档：[https://valkey.io/docs/](https://valkey.io/docs/)
 
 > 下一篇：[Redis 核心原理](./2_redis_core) —— 线程模型、RDB / AOF 持久化、淘汰与过期、事务、Pipeline 与 Lua。

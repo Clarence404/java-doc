@@ -285,7 +285,7 @@ SELECT count() FROM events_all WHERE event_date = today();
 | 维度 | Apache Doris | StarRocks |
 |------|--------------|-----------|
 | 归属 | Apache 顶级项目 | Linux 基金会项目（StarRocks 公司主导） |
-| 版本 | 3.x 稳定，4.0 于 2025 年发布（向量检索、全文检索增强） | 3.x 稳定，4.0 于 2025 年 10 月发布 |
+| 版本 | 4.x 为当前稳定版（基线 4.1）；4.0 起增强向量检索、全文检索 | 4.x 为当前稳定版（基线 4.1）；4.0 于 2025 年 10 月发布 |
 | 存算分离 | 3.0 起支持 | 3.0 起支持 |
 | 数据湖 | Hive / Iceberg / Hudi / Paimon 外表查询 | 同样支持，Iceberg 集成较深 |
 

@@ -158,3 +158,5 @@ description: Maven 与 Gradle 的构建、跳过与单测、多模块、依赖�
 - Gradle 依赖排查：[Viewing and Debugging Dependencies](https://docs.gradle.org/current/userguide/viewing_debugging_dependencies.html)
 - Spring Boot Maven 插件运行：[Running your Application with Maven](https://docs.spring.io/spring-boot/maven-plugin/run.html)
 - Spring Boot Gradle 插件运行：[Running your Application with Gradle](https://docs.spring.io/spring-boot/gradle-plugin/running.html)
+
+> 下一篇：[堆内存溢出](../2_incidents/0_heap_oom)

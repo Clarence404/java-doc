@@ -14,7 +14,7 @@ description: 多级缓存分层、命中率叠加与一致性取舍、缓存预�
 
 本篇只讲系统级的分层与策略，Redis、Caffeine 等技术细节见 [缓存模块](/cache/0_overview)。
 
-![缓存加速](../assets/concurrency/cache.svg)
+![缓存加速](../assets/high-con/cache.svg)
 
 一个请求从用户到数据库，可以在五个层级被缓存拦截：
 

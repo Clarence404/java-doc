@@ -468,7 +468,7 @@ CORS 只是浏览器的读取限制，不是鉴权手段，非浏览器客户端
 
 | 客户端 | 风格 | 状态 | 适用 |
 |--------|------|------|------|
-| `RestTemplate` | 模板方法 | Framework 7.1 起标记 `@Deprecated`，计划在 8.0 移除；Boot 只提供 `RestTemplateBuilder`，不提供实例 | 只维护存量代码 |
+| `RestTemplate` | 模板方法 | 计划在 Framework 7.1 标记 `@Deprecated`、8.0 移除；Boot 只提供 `RestTemplateBuilder`，不提供实例 | 只维护存量代码 |
 | `RestClient`（6.1 / Boot 3.2+） | 同步、Fluent 链式 | 同步场景的推荐方案 | 新代码的同步调用 |
 | `WebClient` | 响应式 | 持续维护 | WebFlux 应用、需要非阻塞 |
 | HTTP Service Clients（`@HttpExchange` 接口） | 声明式接口 | Framework 6 引入；Framework 7 / Boot 4 新增分组注册与配置 | 调用面较宽的外部 API、服务间调用 |
@@ -651,7 +651,7 @@ spring:
 - 未处理的异常最终走 `/error`，Filter 里的异常进不了 `@RestControllerAdvice`；`spring.mvc.problemdetails.enabled=true` 让 MVC 异常以 RFC 9457 格式返回
 - Filter 用 `@Component` 或 `FilterRegistrationBean` 注册，二选一；相对 Spring Security（-100）的顺序决定它在认证前还是认证后执行
 - CORS 携带凭证时必须用明确的来源白名单，`allowedOriginPatterns("*")` + 凭证等于对所有网站开放
-- 同步调用用 `RestClient`，接口化调用用 HTTP Service Clients（Boot 4 的 `@ImportHttpServices` + `spring.http.serviceclient.*`），`RestTemplate` 在 Framework 7.1 被废弃；所有客户端都要设超时
+- 同步调用用 `RestClient`，接口化调用用 HTTP Service Clients（Boot 4 的 `@ImportHttpServices` + `spring.http.serviceclient.*`），`RestTemplate` 计划在 Framework 7.1 标记 `@Deprecated`；所有客户端都要设超时
 - 内嵌 Tomcat：1 个 Acceptor、1 个 Poller、最多 `threads.max`（200）个工作线程；IO 型请求大部分时间在等待，所以默认值远大于 N + 1，调大前先看下游连接池；开启虚拟线程后 `max-connections` 是容器层唯一的闸门
 
 ## 参考资料

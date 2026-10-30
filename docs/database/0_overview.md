@@ -30,13 +30,13 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 ## 三、推荐阅读路径
 
 1. [存储引擎：B+ 树与 LSM-Tree](./0_fundamentals/1_storage_engine)：先弄清 B+ 树和 LSM-Tree 两种存储引擎的取舍，需要了解 HDFS、Ceph 等文件级存储时读 [分布式文件系统](./0_fundamentals/1_storage_fs)；要做技术决策时配合 [数据库选型参考](./0_fundamentals/2_selection_guide)
-2. [MySQL 基础](./1_mysql/0_overview)：范式、视图、存储过程、账号与传输安全，以及 MySQL 核心专项的导读
+2. [MySQL 基础](./1_mysql/0_overview)：范式、视图、存储过程、账号与传输安全，以及 MySQL 核心专项的导读；建表前读 [MySQL 表设计规范](./1_mysql/3_table_design)，统一命名、字段类型、主键与索引约定
 3. [MySQL 索引](./1_mysql/4_topic_index) 和 [MySQL 事务与锁](./1_mysql/5_topic_transaction)：补齐最高频的性能与并发问题，再按需读执行流程、EXPLAIN、InnoDB 与复制
-4. [MySQL 版本特性](./1_mysql/1_feature) 与 [MySQL 避坑指南](./1_mysql/3_fallible_point)：确认生产版本的行为差异和常见雷区
+4. [MySQL 版本特性](./1_mysql/1_feature) 与 [MySQL 避坑指南](./1_mysql/3_fallible_point)：确认生产版本的行为差异和常见雷区；使用 MariaDB 时按需阅读 [MariaDB](./1_mysql/2_maria_db)
 5. [PostgreSQL 基础](./2_postgresql/0_overview)：对比 PostgreSQL 与 MySQL 在类型系统、MVCC、索引和高级 SQL 上的差异
-6. 单机到瓶颈时读 [分布式数据库](./3_relational/1_distributed_db)（TiDB / OceanBase）；分析、时序、文档、搜索等场景转到 [NoSQL 总览](/nosql/0_overview) 按需选读
+6. 单机到瓶颈时读 [分布式数据库](./3_relational/1_distributed_db)（TiDB / OceanBase），国产化迁移按需阅读 [商业与国产库](./3_relational/0_other_rdbms)；分析、时序、文档、搜索等场景转到 [NoSQL 总览](/nosql/0_overview) 按需选读
 7. 写 Java 代码前读应用接入：[ORM 框架](./4_access/1_orm_framework)、[数据库连接池](./4_access/2_connection_pool)、[MySQL JDBC 驱动](./4_access/3_jdbc_driver)
-8. 工程落地读 [CDC 工具](./5_practice/0_cdc_tools)、[数据备份与恢复](./5_practice/2_backup_recovery)、[分库分表与中间件](./5_practice/3_sharding)
+8. 工程落地读 [CDC 工具](./5_practice/0_cdc_tools)、[数据备份与恢复](./5_practice/2_backup_recovery)、[分库分表与中间件](./5_practice/3_sharding)；想了解 binlog 订阅原理时按需阅读 [mysql-binlog-connector-java 原理](./5_practice/1_binlog_connector_source)
 
 [高频面试题](./99_interview) 只列题目，答案在 [数据库面试题解答](/interview/7_db)。
 

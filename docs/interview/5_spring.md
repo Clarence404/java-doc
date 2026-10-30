@@ -683,7 +683,7 @@ Mono.fromCallable(() -> legacyClient.fetch(id)).subscribeOn(Schedulers.boundedEl
 | Spring Cloud Stream | 服务间发布 / 订阅事件，想保留换 MQ 的自由 |
 | 原生 Spring Kafka / AMQP | 只是消费一个主题 |
 
-→ 详见 [Spring Integration](/spring/13_integration#六、apache-camel-对比)
+→ 详见 [Spring Integration · 与 Spring Cloud Stream 的区别](/spring/13_integration#五、与-spring-cloud-stream-的区别)、[Spring Integration · Apache Camel 对比](/spring/13_integration#六、apache-camel-对比)
 
 ## 十、版本演进
 
@@ -698,7 +698,7 @@ Mono.fromCallable(() -> legacyClient.fetch(id)).subscribeOn(Schedulers.boundedEl
 | 6.1 | 3.2 | 虚拟线程、`RestClient`、`JdbcClient`、MVC 内置参数校验 |
 | 7.0 | 4.0 | Jakarta EE 11、Jackson 3、API 版本控制、内置 `@Retryable` |
 
-- 7.1 起 `RestTemplate` 标记为废弃，计划 8.0 删除
+- `RestTemplate` 计划在 7.1 标记 `@Deprecated`、8.0 删除
 
 → 详见 [Spring 总览](/spring/0_overview#_2、版本演进)、[Spring Boot 版本演进](/spring-boot/14_versions)
 
@@ -708,7 +708,7 @@ Mono.fromCallable(() -> legacyClient.fetch(id)).subscribeOn(Schedulers.boundedEl
 
 | 客户端 | 风格 | 现状 |
 |--------|------|------|
-| `RestTemplate` | 模板方法 | 7.1 废弃，计划 8.0 删除 |
+| `RestTemplate` | 模板方法 | 计划 7.1 标记废弃、8.0 删除 |
 | `RestClient` | 同步、链式调用 | 同步场景首选 |
 | `WebClient` | 响应式 | 继续维护 |
 | HTTP Service Clients | 声明式接口 | 推荐用于微服务内部调用，替代 OpenFeign |

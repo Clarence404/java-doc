@@ -302,3 +302,5 @@ spec:
 - Kubernetes：[Service Account Token Volume Projection](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#launch-a-pod-using-service-account-token-projection)
 - Cloudflare Zero Trust：[Cloudflare Access](https://developers.cloudflare.com/cloudflare-one/access-controls/policies/)、[Validate JWTs](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/)、[Device posture](https://developers.cloudflare.com/cloudflare-one/reusable-components/posture-checks/)
 - OpenID Shared Signals：[OpenID Shared Signals Framework 1.0](https://openid.net/specs/openid-sharedsignals-framework-1_0-final.html)、[OpenID Continuous Access Evaluation Profile 1.0](https://openid.net/specs/openid-caep-1_0-final.html)
+
+> 返回：[应用安全总览](./0_overview)

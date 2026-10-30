@@ -292,7 +292,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 **常见坑**：Boot 4 的 Jackson 3 默认 `FAIL_ON_NULL_FOR_PRIMITIVES` 开启，record 里 `int` 组件在 JSON 中缺失会反序列化失败，可选字段用包装类型。
 
-→ 详见 [Record、Sealed 与模式匹配](/java/12_topic_record#四、实战-用-sealed-record-switch-建模支付结果)
+→ 详见 [Record、Sealed 与模式匹配 · Record](/java/12_topic_record#一、record-透明的数据载体)、[Record、Sealed 与模式匹配 · Sealed](/java/12_topic_record#二、sealed-限定子类型)
 
 ## 三、IO 与数据
 

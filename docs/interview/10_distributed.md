@@ -282,7 +282,7 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 - JDK 21 / 25 只内置 v3 / v4，v7 要用第三方库；MySQL 用 `BINARY(16)` 存，PostgreSQL 18 起有 `uuidv7()`
 - 对外的订单号、短码不要直接暴露有序 ID，能被推算出业务量
 
-→ 详见 [分布式 ID 生成](/distributed/8_id_generator#二、uuid)
+→ 详见 [分布式 ID 生成](/distributed/8_id_generator#二、uuid)、[分布式 ID 生成 · 方案对比与选型](/distributed/8_id_generator#八、方案对比与选型)
 
 ### Q21：Snowflake 的结构是什么？时钟回拨和生产中有哪些坑？
 

@@ -1,5 +1,5 @@
 ---
-description: 方法与状态码、缓存、Cookie 与会话、长连接、HTTP/2、HTTP/3 与 QUIC、HttpClient
+description: 方法与状态码、缓存、Cookie 与会话、长连接、HTTP/2、HTTP/3 与 QUIC、HttpClient、代理
 ---
 
 # HTTP
@@ -369,6 +369,48 @@ public class HttpClientDemo {
 
 ---
 
+## 十二、正向代理与反向代理
+
+两者都是夹在客户端与服务端之间转发 HTTP 的中间节点，区别在于替谁工作：正向代理替客户端出去，反向代理替服务端接进来。
+
+| 对比项 | 正向代理 | 反向代理 |
+|------|---------|---------|
+| 代表谁 | 客户端 | 服务端 |
+| 谁来配置 | 客户端显式配置（浏览器代理设置、`HTTPS_PROXY` 环境变量、JVM 的 `https.proxyHost`） | 服务端部署，客户端无感知，以为它就是服务器 |
+| 服务端看到的来源 | 代理的 IP | 反向代理的 IP，客户端原始 IP 靠 `X-Forwarded-For` / `Forwarded` 传递 |
+| 典型用途 | 企业上网出口、访问审计、内网服务调用外部 API 的统一出口 | 负载均衡、TLS 卸载、缓存、限流、按路径路由、隐藏后端拓扑 |
+| 常见实现 | Squid、企业安全网关 | Nginx、Envoy、HAProxy、API 网关 |
+
+**正向代理访问 HTTPS**：客户端先发 `CONNECT host:443` 让代理建一条 TCP 隧道，代理只转发加密字节、看不到内容；要做内容审计，就得在代理上做 TLS 解密，并给客户端安装企业根证书。
+
+**Nginx 作为反向代理**：
+
+```nginx
+upstream order_backend {
+    server 10.0.0.11:8080;
+    server 10.0.0.12:8080;
+    keepalive 32;                      # 到后端的长连接池
+}
+
+server {
+    listen 443 ssl;                    # TLS 在这里终结，后端走明文 HTTP
+    location /api/ {
+        proxy_pass http://order_backend;
+        proxy_http_version 1.1;        # 配合 keepalive，默认 1.0 每次新建连接
+        proxy_set_header Connection "";
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+后端要拿到客户端真实 IP 与协议，Spring Boot 设置 `server.forward-headers-strategy=native`（由 Tomcat 的 `RemoteIpValve` 解析），并且只信任来自已知代理网段的头，否则客户端可以自己伪造 `X-Forwarded-For`。
+
+**与 CDN 的关系**：CDN 本质上是分布在各地的反向代理集群加缓存，边缘节点替源站接收请求，按 `Cache-Control` / `s-maxage` 缓存，未命中再回源；调度靠 DNS 把用户导到就近节点，见 [接入层架构 · CDN 与动静分离](/high-con/1_access_layer#三、cdn-与动静分离)。一条请求常见的路径是「客户端 → CDN 边缘 → 云负载均衡 / Nginx → API 网关 → 服务」，每一层都是反向代理，`X-Forwarded-For` 逐层追加。
+
+---
+
 ## 小结
 
 - 语义与传输分离：方法、状态码、头部、缓存在 RFC 9110 / 9111 中统一定义，1.1、2、3 只是不同的传输方式
@@ -379,6 +421,7 @@ public class HttpClientDemo {
 - HTTP/2 用二进制帧和流在一条 TCP 上多路复用，消除了 HTTP 层队头阻塞，但 TCP 层仍在；Server Push 已被 103 Early Hints 取代
 - HTTP/3 基于 QUIC：流独立、内置 TLS 1.3、0-RTT（可重放，只用于幂等请求）、连接迁移
 - JDK 11+ 的 `HttpClient` 默认协商 HTTP/2，要复用实例并显式设置超时
+- 正向代理替客户端出去，反向代理替服务端接进来；CDN 是带缓存的分布式反向代理，经过代理后原始 IP 靠 `X-Forwarded-For` 传递，只信任已知代理
 - HTTPS 的握手与证书放在下一篇；REST 接口的 URL 与状态码约定见 [API 设计规范](/engineering/4_api_design_rule)。
 
 ## 参考资料

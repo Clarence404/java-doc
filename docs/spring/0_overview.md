@@ -1,6 +1,6 @@
 # Spring 总览
 
-本模块讲 Spring Framework 本身的机制与常用组件（IoC、AOP、MVC / WebFlux、事务、数据访问），以及 Spring Security、Batch、Integration 等周边项目。
+本模块讲 Spring Framework 本身的机制与常用组件（IoC、AOP、MVC / WebFlux、事务），以及 Spring Security、Batch、Integration 等周边项目。
 
 **版本基线（2026 年 10 月）**：Spring Framework 7、Spring Boot 4、Spring Security 7、JDK 21 / 25
 
@@ -16,18 +16,21 @@
 
 按侧边栏分组顺序阅读，每篇末尾的「下一篇」串起整条链路。
 
-**核心容器（1–4）**
+**核心特性（1–4）**
 
 1. [IoC 容器](./1_ioc)：refresh 流程、依赖注入、Bean 定义来源、作用域、生命周期、扩展点与循环依赖
 2. [AOP](./2_aop)：通知类型与执行顺序、切点表达式、代理选择、自调用失效
 3. [MVC](./3_mvc)：DispatcherServlet 流程、参数解析与校验、消息转换、ProblemDetail 异常处理、API 版本
 4. [事务管理](./4_transaction)：@Transactional 原理、传播行为、回滚规则、编程式事务与失效场景
 
-**常用组件（5–8）**
+**常用组件（5–7）**
 
 5. [Cache 抽象](./5_cache)：缓存注解、CacheManager、Redis 序列化与常见陷阱
 6. [Retry 重试](./6_retry)：退避策略与熔断，Framework 7 内置弹性注解
 7. [事件机制](./7_event)：同步 / 异步事件、事务事件与事件驱动解耦
+
+**响应式 Web（8）**
+
 8. [WebFlux](./8_webflux)：Reactor、背压、WebClient 与 R2DBC
 
 **安全（9–11）**

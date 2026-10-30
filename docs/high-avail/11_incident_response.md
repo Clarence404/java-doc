@@ -197,4 +197,4 @@ P0 / P1 故障要明确分工，避免所有人都在排查、没人对外同步
 - [Google SRE Book - Managing Incidents](https://sre.google/sre-book/managing-incidents/)
 - [Postmortem Culture](https://sre.google/sre-book/postmortem-culture/)
 
-> 下一篇：回到 [模块总览](./0_overview) —— 回顾高可用的整体知识地图。
+> 返回：[高可用总览](./0_overview)

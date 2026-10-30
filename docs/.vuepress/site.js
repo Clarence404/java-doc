@@ -51,7 +51,7 @@ export const GROUPS = [
             },
             {
                 name: 'JVM', dir: 'jvm', interview: ['3_jvm'],
-                desc: '内存结构 / 类加载 / GC 原理与收集器 / JIT / 诊断与故障排查',
+                desc: '内存结构 / 类加载 / 字节码执行 / GC 原理与收集器 / JIT / GC 调优 / 诊断与故障排查',
                 sidebar: [
                     {text: '运行时', from: 1},
                     {text: '垃圾回收', from: 4},
@@ -71,7 +71,7 @@ export const GROUPS = [
         name: '框架生态', tagline: 'Spring 全家桶、网络与响应式框架', modules: [
             {
                 name: 'Spring', dir: 'spring', interview: ['5_spring'],
-                desc: 'IoC / AOP / Bean 生命周期 / 事务 / MVC / Security',
+                desc: 'IoC / AOP / 事务 / MVC / WebFlux / Cache 与事件 / Security / Batch 与 Integration',
                 sidebar: [
                     {text: '核心特性', from: 1},
                     {text: '常用组件', from: 5},
@@ -82,7 +82,7 @@ export const GROUPS = [
             },
             {
                 name: 'Spring Boot', dir: 'spring-boot', interview: ['5_spring_boot'],
-                desc: '自动配置 / Web / 数据访问 / 日志 / 测试 / Actuator / 版本演进 / 启动优化',
+                desc: '自动配置 / 配置管理 / Web / 数据访问与 Flyway / 中间件集成 / 自定义 Starter / 日志 / 测试 / Actuator / 版本演进 / 启动优化',
                 sidebar: [
                     {text: '开发基础', from: 1},
                     {text: '功能集成', from: 6},
@@ -90,7 +90,7 @@ export const GROUPS = [
                     {text: '扩展与演进', from: 12},
                 ],
             },
-            {name: 'Netty', dir: 'netty', interview: ['6_netty'], desc: 'IO 模型 / Reactor / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优'},
+            {name: 'Netty', dir: 'netty', interview: ['6_netty'], desc: 'IO 模型 / Reactor / Channel 与 Pipeline / ByteBuf / 粘包拆包与私有协议 / 心跳 / WebSocket / SSE / 生产调优'},
             {name: 'Vert.x', dir: 'vertx', interview: ['6_vertx'], desc: 'Event Loop / Verticle / Event Bus / Web / 响应式数据访问 / 集群'},
             {name: 'Quarkus', dir: 'quarkus', interview: ['6_quarkus'], desc: '构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / Spring 迁移 / 其他框架'},
         ],
@@ -99,7 +99,7 @@ export const GROUPS = [
         name: '数据存储', tagline: '关系型、NoSQL、缓存与消息中间件', modules: [
             {
                 name: '数据库', dir: 'database', interview: ['7_db'],
-                desc: '存储引擎与选型 / MySQL / PostgreSQL / 国产与分布式数据库 / ORM 与连接池 / CDC 与分库分表',
+                desc: '存储引擎与选型 / MySQL / PostgreSQL / 国产与分布式数据库 / ORM 与连接池 / CDC / 备份恢复 / 分库分表',
                 subdirs: {
                     '0_fundamentals': '基础与选型',
                     '1_mysql': {title: 'MySQL', sidebar: [{text: '核心专项', from: 4}]},
@@ -111,24 +111,24 @@ export const GROUPS = [
             },
             {name: 'NoSQL', dir: 'nosql', interview: ['7_db'], desc: '键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图'},
             {name: '缓存', dir: 'cache', interview: ['8_cache'], desc: 'Redis / Redisson / Caffeine / 两级缓存 / 缓存一致性'},
-            {name: '消息队列', dir: 'messaging', interview: ['9_mq'], desc: 'Kafka / RocketMQ / RabbitMQ 原理与选型'},
+            {name: '消息队列', dir: 'messaging', interview: ['9_mq'], desc: '可靠性与幂等 / 顺序与积压 / Kafka / RocketMQ / RabbitMQ / Pulsar / 选型'},
         ],
     },
     {
         name: '分布式系统', tagline: '分布式理论、微服务与高性能 · 高并发 · 高可用', modules: [
-            {name: '分布式', dir: 'distributed', interview: ['10_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID'},
+            {name: '分布式', dir: 'distributed', interview: ['10_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID / 会话 / 调度与工作流 / 一致性哈希'},
             {
                 name: '微服务', dir: 'microservices', interview: ['11_microservices', '11_spring_cloud'],
-                desc: '服务拆分 / 设计模式 / Spring Cloud（Nacos、Gateway、服务治理、Alibaba）/ Dubbo / 服务网格',
+                desc: '服务拆分 / 设计模式 / 调用顺序性 / Spring Cloud（Nacos、Gateway、服务治理、Alibaba、Stream）/ Dubbo / 服务网格',
                 sidebar: [
                     {text: '概念与拆分', from: 1},
                     {text: 'Spring Cloud', from: 10},
                     {text: '其他路线', from: 20},
                 ],
             },
-            {name: '高性能', dir: 'high-perf', interview: ['12_high_perf'], desc: '指标 / 方法论 / Profiler / JMH / 池化与异步 / IO 与数据库优化'},
+            {name: '高性能', dir: 'high-perf', interview: ['12_high_perf'], desc: '指标 / 方法论 / Profiler / JMH / 池化与异步 / IO 与数据库优化 / JVM 与代码级优化 / 案例'},
             {name: '高并发', dir: 'high-con', interview: ['13_high_con'], desc: '接入层 / 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划'},
-            {name: '高可用', dir: 'high-avail', interview: ['14_high_avail'], desc: 'SLA / 冗余切换 / 超时重试 / 熔断降级限流 / 多活容灾 / 应急复盘'},
+            {name: '高可用', dir: 'high-avail', interview: ['14_high_avail'], desc: 'SLA / 冗余切换 / 负载均衡 / 超时重试 / 熔断降级限流 / 优雅上下线 / 多活容灾 / 混沌工程 / 应急复盘'},
         ],
     },
     {
@@ -142,7 +142,7 @@ export const GROUPS = [
                     {text: '行为型', from: 13},
                 ],
             },
-            {name: '系统架构', dir: 'architecture', interview: ['15_architecture'], desc: '架构模式 / DDD / 幂等 / 对象存储 / 权限系统'},
+            {name: '系统架构', dir: 'architecture', interview: ['15_architecture'], desc: '架构模式 / DDD / 工程结构与分包 / 幂等 / 对象存储 / 权限系统 / 冷热分离 / 主数据'},
             {
                 name: '业务场景', dir: 'scenario', interview: ['16_scenario', '16_scenario_highlights'],
                 desc: '设计方法 / 海量数据 / 秒杀 / 订单 / 短链 / 排行榜 / Feed 流 / 搜索 / 红包 / LBS / 商品详情 / 支付 / 优惠券 / IM / 计数 / 扫码登录 / 购物车 / 通知中心 / 评论 / 库存票务 / 延迟任务',
@@ -174,7 +174,7 @@ export const GROUPS = [
         name: '运维保障', tagline: '云原生、可观测性与安全', modules: [
             {
                 name: '云原生', dir: 'cloud-native', interview: ['21_cloud_native'],
-                desc: 'Linux / Docker / Kubernetes / Helm / Terraform / 云平台',
+                desc: 'Linux / 虚拟化 / Docker / Kubernetes / Gateway API / Helm / Argo CD / Terraform / Ansible / 云平台 / VPS',
                 sidebar: [
                     {text: '操作系统', from: 1},
                     {text: '虚拟化', from: 3},
@@ -184,14 +184,14 @@ export const GROUPS = [
                 ],
             },
             {name: '可观测性', dir: 'observability', interview: ['22_observability'], desc: '日志 / 指标与 PromQL / 链路追踪 / 告警 / OpenTelemetry / 持续剖析'},
-            {name: '应用安全', dir: 'security', interview: ['23_security'], desc: 'JWT / OAuth2 / OIDC / SSO / RBAC / API 安全 / 零信任'},
+            {name: '应用安全', dir: 'security', interview: ['23_security'], desc: '认证登录与 MFA / JWT / OAuth2 / OIDC / SSO / RBAC / API 安全 / 数据安全 / 漏洞防护 / 零信任'},
         ],
     },
     {
         name: '垂直领域', tagline: 'IoT、AI、大数据与实时计算、音视频，拓展技术边界', modules: [
             {
                 name: 'IoT', dir: 'iot', interview: ['24_iot'],
-                desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / OTA',
+                desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / 设备影子 / OTA / 规则引擎 / 数据处理 / 设备安全',
                 sidebar: [
                     {text: '原理与选型', from: 1},
                     {text: '接入实战', from: 6},
@@ -199,7 +199,7 @@ export const GROUPS = [
             },
             {
                 name: 'AI', dir: 'ai', interview: ['25_ai'],
-                desc: 'Spring AI / LangChain4j / RAG / Agent / MCP / 本地模型 / 评估上线',
+                desc: 'Prompt 与 Function Calling / Spring AI / LangChain4j / Embedding 与向量库 / RAG / Agent / MCP / 本地模型与微调 / 评估上线 / AI 编程工具',
                 subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 编程工具'},
             },
             {name: '大数据', dir: 'big-data', interview: ['26_bigdata'], desc: '数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 数据治理 / 实时数仓'},

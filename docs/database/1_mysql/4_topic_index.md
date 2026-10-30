@@ -72,7 +72,7 @@ Buffer Pool 与页结构见 [InnoDB 存储结构](./8_topic_innodb)。
 - 查询时先在二级索引上找到主键，再去聚簇索引取整行，这一步叫**回表**
 - 二级索引在索引列值相同时按主键有序，这个特性在深度分页的复合游标中会用到
 
-![聚簇索引与二级索引结构](../../assets/mysql/mysql-index-structure.svg)
+![聚簇索引与二级索引结构](../../assets/database/mysql-index-structure.svg)
 
 ---
 
@@ -266,7 +266,7 @@ SELECT * FROM t_order WHERE status = 1;
 
 **Index Condition Pushdown**，MySQL 5.6 引入：把能用索引列判断的 WHERE 条件下推到存储引擎，在二级索引上先过滤，再回表。
 
-![ICP 执行流对比](../../assets/mysql/mysql-icp.svg)
+![ICP 执行流对比](../../assets/database/mysql-icp.svg)
 
 ```sql
 -- 联合索引 idx_name_age(name, age)

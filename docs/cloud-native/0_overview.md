@@ -14,7 +14,7 @@
 2. **容器与编排**：读 [Docker](./5_docker) 与 [Kubernetes](./6_kubernetes)，掌握镜像、容器和编排的核心模型。
 3. **交付链路**：读 [Nginx、Ingress 与 Gateway API](./7_nginx_ingress)、[Helm](./8_helm)、[Argo CD](./9_argocd)，形成从入口流量、打包到持续部署的链路；服务间流量治理再读 [服务网格部署](./10_service_mesh)。
 4. **基础设施即代码**：读 [Terraform](./11_terraform)、[Ansible](./12_ansible) 与 [cloud-init 与 Packer](./12_cloud_init)，把资源创建、镜像与主机配置纳入代码管理，再按 [IaC 工程实践](./12_iac_practice) 接入 PR 评审与 CI。
-5. **云平台与选购**：按需阅读 [云计算概览](./13_cloud_overview)，再看国内、国际云平台、Cloudflare 边缘服务与 VPS 选购。
+5. **云平台与选购**：按需阅读 [云计算概览](./13_cloud_overview)，再看 [国内云平台](./14_cloud_domestic)、[国际云平台](./15_cloud_global)、[Cloudflare 边缘服务](./16_cloudflare) 与 [VPS 选购](./17_vps_intro)。
 
 复习时用 [高频面试题](./99_interview) 自测，答案在 [云原生面试题解答](/interview/21_cloud_native)。
 

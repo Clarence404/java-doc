@@ -94,4 +94,4 @@ MQ 选型起作用的往往不是谁性能最高，而是消息语义（事务�
 - RabbitMQ 官方文档：[RabbitMQ Documentation](https://www.rabbitmq.com/docs)
 - Pulsar 官方文档：[Apache Pulsar Docs](https://pulsar.apache.org/docs/)
 
-> 学完本模块，可到面试题解复习：[消息队列面试题解答](/interview/9_mq) —— 高频问题与标准答案汇总。
+> 返回：[消息队列总览](./0_overview)
