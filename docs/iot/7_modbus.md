@@ -106,6 +106,7 @@ public final class ModbusTcpSource implements AutoCloseable {
 ### 2、读取保持寄存器
 
 ```java
+import com.digitalpetri.modbus.exceptions.ModbusExecutionException;
 import com.digitalpetri.modbus.exceptions.ModbusResponseException;
 import com.digitalpetri.modbus.exceptions.ModbusTimeoutException;
 import com.digitalpetri.modbus.pdu.ReadHoldingRegistersRequest;
@@ -120,6 +121,9 @@ try {
     log.warn("从站异常响应 fc={} code={}", e.getFunctionCode(), e.getExceptionCode());
 } catch (ModbusTimeoutException e) {
     log.warn("请求超时，从站离线或网络中断");
+} catch (ModbusExecutionException e) {
+    // 受检异常，必须处理：连接未建立、编解码失败等执行错误
+    log.warn("请求执行失败", e);
 }
 ```
 

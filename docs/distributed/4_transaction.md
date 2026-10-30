@@ -319,7 +319,7 @@ Kafka 事务保证的是**多个分区写入的原子性**，以及「消费-处
 
 ### 1、简介
 
-Seata 由阿里巴巴开源，2023 年进入 Apache 孵化器（截至 2026 年 10 月仍为孵化项目），2.x 起 groupId 为 `org.apache.seata`、包名为 `org.apache.seata.*`。版本上，SCA 2025.1 的 BOM 自带 2.5.0，最新稳定版为 2.6.0，可在 BOM 之外显式覆盖；无论选哪个，seata-server 与客户端都要保持同一版本。架构有三个角色：
+Seata 由阿里巴巴开源，2023 年进入 Apache 孵化器（截至 2026 年 10 月仍为孵化项目），2.1 起 groupId 为 `org.apache.seata`、包名为 `org.apache.seata.*`（2.0.0 仍为 `io.seata`）。版本上，SCA 2025.1 的 BOM 自带 2.5.0，最新稳定版为 2.6.0，可在 BOM 之外显式覆盖；无论选哪个，seata-server 与客户端都要保持同一版本。架构有三个角色：
 
 - **TC**（Transaction Coordinator）：独立部署的 seata-server，维护全局事务和分支状态、管理全局锁
 - **TM**（Transaction Manager）：发起全局事务的一方，即标注 `@GlobalTransactional` 的方法

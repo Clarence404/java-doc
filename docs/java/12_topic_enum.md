@@ -249,7 +249,7 @@ JDK 21 之前，`case` 只能写不带类名的常量，且选择子类型必须
 
 ### 3、Jackson
 
-Jackson 默认按 `name()` 序列化与反序列化。接口约定用 code 时：
+Jackson 2 默认按 `name()` 序列化与反序列化；Jackson 3 把 `EnumFeature.WRITE_ENUMS_USING_TO_STRING` / `READ_ENUMS_USING_TO_STRING` 改为默认开启，改按 `toString()` 读写，没重写 `toString()` 时结果与 `name()` 相同，重写过的枚举升级后 JSON 会变。接口约定用 code 时：
 
 ```java
 public enum OrderStatus {

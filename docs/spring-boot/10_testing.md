@@ -359,7 +359,7 @@ class PaymentClientTests {
 | `@MockitoBean` / `@MockitoSpyBean` | Spring Framework 6.2+（`org.springframework.test.context.bean.override.mockito`） | 当前唯一方案 |
 | `@TestBean` | Spring Framework 6.2+ | 用工厂方法返回的真实对象替换 Bean |
 
-迁移基本是改注解和 import；区别在于 `@MockitoBean` 只能写在**测试类**（及其父类、接口、`@Nested` 外层类）上，不能再写在 `@Configuration` 类里。Framework 7 起还可以覆盖原型等非单例 Bean。
+迁移基本是改注解和 import；区别在于 `@MockitoBean` 只能写在**测试类**（及其父类、接口、`@Nested` 外层类）上，不能再写在 `@Configuration` 类里。Framework 7 起还可以覆盖原型等非单例 Bean（替换后按单例处理）。
 
 ### 2、在多个测试类间共享同一组 Mock
 

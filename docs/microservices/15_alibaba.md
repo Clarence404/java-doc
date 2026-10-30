@@ -66,7 +66,7 @@ Nacos 的注册发现机制（gRPC 长连接、临时与持久实例、保护阈
 
 - 集群至少 3 节点，外置 MySQL 存储，客户端配置多个地址或通过 VIP / 域名访问
 - 放通端口：8848（HTTP）、9848（客户端 gRPC）、9849（节点间 gRPC）；Nacos 3.x 的控制台使用独立端口（文档示例为 8080）
-- Nacos 3.x 服务端要求 JDK 17，默认开启鉴权，客户端配置 `spring.cloud.nacos.username` / `password`
+- Nacos 3.x 服务端要求 JDK 17，控制台默认开启鉴权；客户端 API 鉴权（`nacos.core.auth.enabled`）默认关闭，生产应打开，客户端配置 `spring.cloud.nacos.username` / `password`
 - 命名空间、分组、dataId 的规划在接入前定好，后期迁移代价很大
 
 ---
@@ -273,7 +273,7 @@ spring:
             rule-type: degrade
 ```
 
-Nacos 3.x 默认开启鉴权，数据源同样需要配置 `username` / `password`。Nacos 中 `order-service-degrade-rules` 的内容（`grade` 0 = 慢调用比例，1 = 异常比例，2 = 异常数）：
+Nacos 开启客户端 API 鉴权（`nacos.core.auth.enabled=true`，生产建议开启）后，数据源同样需要配置 `username` / `password`。Nacos 中 `order-service-degrade-rules` 的内容（`grade` 0 = 慢调用比例，1 = 异常比例，2 = 异常数）：
 
 ```json
 [
@@ -322,7 +322,7 @@ Slot 链本身可以扩展：1.7.2 起 `ProcessorSlot` 就是 SPI 接口（之�
 
 ### 1、依赖与版本
 
-Seata 已进入 Apache 基金会，2.x 起 Maven groupId 为 `org.apache.seata`，包名改为 `org.apache.seata.*`（保留了兼容旧 `io.seata` 包名的过渡模块）。SCA 2025.1 的 BOM 自带 Seata 2.5.0，可显式覆盖到最新稳定版 2.6.0；无论选哪个，seata-server 与客户端版本保持一致。
+Seata 已进入 Apache 基金会，2.1 起 Maven groupId 为 `org.apache.seata`（2.0.0 及以前为 `io.seata`），包名同步改为 `org.apache.seata.*`（保留了兼容旧 `io.seata` 包名的过渡模块）。SCA 2025.1 的 BOM 自带 Seata 2.5.0，可显式覆盖到最新稳定版 2.6.0；无论选哪个，seata-server 与客户端版本保持一致。
 
 ```xml
 <dependency>
@@ -387,7 +387,7 @@ Spring Cloud 链路里默认用 AT（关系库常规 CRUD，零侵入）；资�
 - SCA 2025.1 取消 bootstrap，Nacos 配置统一 `spring.config.import`；Nacos 机制细节在注册发现与配置中心两篇
 - Sentinel 用 `@SentinelResource` 定义资源，`blockHandler` 处理规则拦截、`fallback` 处理业务异常；Feign 集成需 `feign.sentinel.enabled`；规则靠 Slot 链生效：先建调用树与统计节点，再依次过黑白名单、系统保护、流控、熔断，可用 SPI 插入自定义 Slot
 - 生产规则必须持久化到 Nacos，数据流向是 Nacos → 应用，控制台改的规则不会写回
-- Seata 2.x 归属 Apache，包名 `org.apache.seata`；接入要点：发起方加 `@GlobalTransactional`、各参与库建 `undo_log`、XID 随调用透传、下游返回错误码时发起方要主动抛异常
+- Seata 归属 Apache，2.1 起包名 `org.apache.seata`；接入要点：发起方加 `@GlobalTransactional`、各参与库建 `undo_log`、XID 随调用透传、下游返回错误码时发起方要主动抛异常
 - 分布式事务能不用就不用，模式选择与理论在分布式模块
 
 ## 参考资料

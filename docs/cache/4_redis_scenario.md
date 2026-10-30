@@ -40,19 +40,22 @@ Long rank = redis.opsForZSet().reverseRank("rank:game:202610", userId);
 
 ### 1、Redis 8 原生 Bloom
 
-Redis 8 内置 `BF.*` 命令，过滤器的位数组和哈希计算都在服务端，一次往返完成。Spring Data Redis 没有专用 API，可以通过 `execute` 发原生命令：
+Redis 8 内置 `BF.*` 命令，过滤器的位数组和哈希计算都在服务端，一次往返完成。Spring Data Redis 没有专用 API，用 Lua 脚本包一层调用最稳妥：
 
 ```java
 // 初始化一次：误判率 0.1%，预计 100 万元素；已存在时会报错，可在部署脚本中执行
 // BF.RESERVE bf:product 0.001 1000000
 
+private static final RedisScript<Long> BF_EXISTS =
+        RedisScript.of("return redis.call('BF.EXISTS', KEYS[1], ARGV[1])", Long.class);
+
 public boolean mightContain(long productId) {
-    Object r = redis.execute((RedisCallback<Object>) conn -> conn.execute("BF.EXISTS",
-            "bf:product".getBytes(StandardCharsets.UTF_8),
-            String.valueOf(productId).getBytes(StandardCharsets.UTF_8)));
+    Long r = redis.execute(BF_EXISTS, List.of("bf:product"), String.valueOf(productId));
     return Long.valueOf(1L).equals(r);
 }
 ```
+
+不要用 `conn.execute("BF.EXISTS", ...)` 直接发：Lettuce 驱动下，Spring Data Redis 对不认识的命令默认按字节数组解析返回值，`BF.EXISTS` 返回的是整数（RESP3 下是布尔），解析时会抛 `UnsupportedOperationException`。脚本里 `redis.call` 的结果按 RESP2 转成整数返回，两种驱动都能正常拿到 `Long`。
 
 需要删除元素时改用 Cuckoo 过滤器（`CF.ADD` / `CF.DEL` / `CF.EXISTS`）。
 

@@ -136,6 +136,7 @@ DPO 样本额外包含一条「更好的回答」和一条「更差的回答」�
 model_name_or_path: <base-model>   # 基座模型，如 Hugging Face 上的 Qwen 系列 Instruct 模型
 template: <template>               # 与基座匹配的对话模板，见 LLaMA-Factory 文档
 stage: sft
+do_train: true                     # 必须显式打开，默认 false 时会跳过训练
 finetuning_type: lora
 lora_rank: 16
 quantization_bit: 4                # 4 bit 加载基座，即 QLoRA

@@ -99,7 +99,7 @@ description: 云边分工、EdgeX Foundry 部署、KubeEdge 云边协同与设�
 `edgex-compose` 仓库按版本提供 Compose 文件。默认的 Compose 文件启用安全模式（API 网关 + 密钥存储），此时直接调用各服务的 REST 端口会返回 401，需要先获取 JWT。本地体验用非安全模式：
 
 ```bash
-# 下载 4.0 的非安全模式 Compose 文件（ARM 设备用 docker-compose-no-secty-arm64.yml）
+# 下载 4.0 的非安全模式 Compose 文件（4.0 镜像是多架构的，ARM64 设备用同一个文件）
 curl https://raw.githubusercontent.com/edgexfoundry/edgex-compose/v4.0/docker-compose-no-secty.yml -o docker-compose.yml
 docker compose up -d
 docker compose ps

@@ -127,7 +127,6 @@ public class CacheConfig {
     public RedisCacheConfiguration redisCacheConfiguration() {
         RedisSerializer<Object> json = GenericJacksonJsonRedisSerializer.builder()
                 .enableDefaultTyping(RedisConfig.typeValidator())   // 同上一节的白名单校验器
-                .enableSpringCacheNullValueSupport()                // 允许缓存 null（序列化 NullValue）
                 .build();
         return RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(30))
@@ -149,7 +148,7 @@ public class CacheConfig {
 ```
 
 - **Bean 优先于属性**：容器里有 `RedisCacheConfiguration` Bean 时 Boot 直接用它作为默认配置，`spring.cache.redis.time-to-live` 等属性不再生效（TTL 写在 Bean 里）；按缓存名差异化用 `RedisCacheManagerBuilderCustomizer`（`withCacheConfiguration` 逐个加，或 `withInitialCacheConfigurations` 传 Map）
-- **缓存 null 需要显式支持**：JSON 序列化器要开启 `enableSpringCacheNullValueSupport()` 才能写入 Spring Cache 的 `NullValue` 占位，空值策略与穿透防护见 [Cache 抽象](/spring/5_cache#_3、空值策略与缓存穿透)
+- **null 占位不走值序列化器**：允许缓存 null 时（默认，`disableCachingNullValues()` 关闭），`RedisCache` 把 `NullValue` 直接写成固定的 JDK 序列化字节，读回时按字节比对还原，不经过配置的值序列化器；所以只认 `Product` 的 `JacksonJsonRedisSerializer` 也能缓存 null，`enableSpringCacheNullValueSupport()` 只在直接用该序列化器读写 `NullValue`（如 `RedisTemplate`）时才需要。空值策略与穿透防护见 [Cache 抽象](/spring/5_cache#_3、空值策略与缓存穿透)
 - Boot 3.x 中 `RedisCacheManagerBuilderCustomizer` 的包名是 `org.springframework.boot.autoconfigure.cache`，Boot 4 移到 `org.springframework.boot.cache.autoconfigure`
 
 ```java

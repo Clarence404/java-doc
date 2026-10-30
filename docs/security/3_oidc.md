@@ -232,7 +232,7 @@ OIDC 的登出分三类：**RP 发起登出**（RP-Initiated Logout，RP 把浏�
 
 ## 九、Spring Boot 接入
 
-引入 `spring-boot-starter-security-oauth2-client`，`registration`（scope 必须含 `openid`）与 `provider`（只配 `issuer-uri`，靠 Discovery 发现端点与 JWKS）关联后开启 `oauth2Login()`，上文的协议细节就由框架完成：生成并核对 `state` / `nonce`，公共客户端自动启用 PKCE，用 JWKS 校验 ID Token 的签名、`iss`、`aud`、`exp`、`nonce` 并合并 UserInfo 得到 `OidcUser`。
+引入 `spring-boot-starter-security-oauth2-client`，`registration`（scope 必须含 `openid`）与 `provider`（只配 `issuer-uri`，靠 Discovery 发现端点与 JWKS）关联后开启 `oauth2Login()`，上文的协议细节就由框架完成：生成并核对 `state` / `nonce`，授权码模式默认启用 PKCE（Security 7 起机密客户端也默认启用），用 JWKS 校验 ID Token 的签名、`iss`、`aud`、`exp`、`nonce` 并合并 UserInfo 得到 `OidcUser`。
 
 配置与过滤器链见 [Spring SSO 接入 · OIDC Client 与资源服务器](/spring/11_single_sign_on#五、oidc-client-与资源服务器)；RP-Initiated Logout、后端通道登出、Keycloak 角色映射与集群下的会话处理见 [Spring SSO 接入 · Keycloak 实战](/spring/11_single_sign_on#六、keycloak-实战)。
 

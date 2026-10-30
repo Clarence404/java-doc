@@ -174,7 +174,7 @@ WHERE  id = ? AND status = 'PENDING';
 
 ## 五、状态机框架
 
-Spring Statemachine 曾是 Spring 生态里的状态机框架。2025 年 4 月 Spring 团队宣布不再以开源方式维护它，4.0.x 是最后的开源版本线，后续版本只提供给 Tanzu Spring 商业客户，GitHub 仓库已标注不再维护。新项目不建议再引入。
+Spring Statemachine 曾是 Spring 生态里的状态机框架。2025 年 4 月 Spring 团队宣布不再以开源方式维护它，4.0.x 是最后的开源版本线，后续版本只提供给 Tanzu Spring 商业客户，GitHub 仓库已于 2026 年 7 月归档为只读。新项目不建议再引入。
 
 可选的替代方案：
 

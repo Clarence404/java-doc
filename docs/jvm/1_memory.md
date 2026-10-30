@@ -108,6 +108,7 @@ Mark Word 存储对象运行时数据，其内容随锁状态复用。64 位 JVM
 - 32GB 的来源：4 字节引用可表示 2³² 个地址，按 8 字节对齐寻址即 2³² × 8 = 32GB；调大 `ObjectAlignmentInBytes` 可提高上限，但填充浪费也会增加
 - 堆从 31GB 调到 33GB，压缩指针失效，可用对象容量可能反而下降，**大堆要么控制在 32GB 以下，要么明显高于它**
 - JDK 15 之前 `UseCompressedClassPointers` 依赖 `UseCompressedOops`，关闭后者会一并关闭前者；JDK 15 起两者解耦
+- `UseCompressedClassPointers` 在 JDK 25 被标为废弃，JDK 27 起成为过时参数（设置会被忽略并告警），64 位 JVM 的类指针始终压缩；表中「对象头变为 16 字节」只适用于 JDK 26 及以前手动关闭的情况
 
 ---
 

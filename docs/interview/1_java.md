@@ -322,7 +322,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 | 存什么 | 写什么存什么，不转时区 | 按连接时区转成 UTC 存，读时再转回 |
 | 范围 | 1000 ~ 9999 年 | 1970 ~ 2038 年 |
 
-- 驱动连接串显式写 `serverTimezone=Asia/Shanghai`，否则 MySQL 显示 `CST` 时，旧驱动可能当成美国时间，差 13 或 14 小时
+- 驱动连接串显式写 `connectionTimeZone=Asia/Shanghai`（旧名 `serverTimezone`），否则 MySQL 显示 `CST` 时，旧驱动可能当成美国时间，差 13 或 14 小时
 - 夏令时：拨快时有一段本地时间不存在，拨慢时有一段出现两次；`plusDays(1)` 和 `plusHours(24)` 在切换那天结果不同
 
 → 详见 [日期与时间](/java/17_topic_time#七、数据库映射)

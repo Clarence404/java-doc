@@ -255,7 +255,7 @@ public class OrderTransactionalListener {
 
 ### 2、AFTER_COMMIT 里写库：必须 REQUIRES_NEW
 
-AFTER_COMMIT 阶段原事务已经提交，但事务资源（连接、`EntityManager`）**仍绑定在当前线程上**。此时监听器里的数据库写操作会「加入」这个已经提交完毕的事务，不会再被提交——更新静默丢失，或者抛出 `TransactionRequiredException` 后被框架吞掉只打 DEBUG 日志。
+AFTER_COMMIT 阶段原事务已经提交，但事务资源（连接、`EntityManager`）**仍绑定在当前线程上**。此时监听器里的数据库写操作会「加入」这个已经提交完毕的事务，不会再被提交——更新静默丢失，或者抛出 `TransactionRequiredException` 后被框架吞掉，只留一条 ERROR 日志（`TransactionSynchronization.afterCompletion threw exception`），调用方感知不到。
 
 正确写法是让监听器开启一个**新事务**：
 

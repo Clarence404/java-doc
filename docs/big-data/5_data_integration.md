@@ -188,7 +188,7 @@ sink {
     password = "${DORIS_PASSWORD}"
     database = "ods"
     table = "ods_order_info_inc"
-    sink.label-prefix = "ods_order_info_inc_${start}"
+    sink.label-prefix = "ods_order_info_inc_${start}_${run_id}"
     sink.enable-2pc = "true"
     doris.config {
       format = "json"
@@ -203,13 +203,13 @@ sink {
 ```bash
 # 变量值不能含空格；密码不经 -i 传，直接读环境变量 SRC_PASSWORD / DORIS_PASSWORD
 ./bin/seatunnel.sh --config config/order_info_to_doris.conf \
-  -i start=2026-10-09 -i end=2026-10-10 \
+  -i start=2026-10-09 -i end=2026-10-10 -i run_id=$(date +%s) \
   -m cluster
 ```
 
 - `plugin_output` / `plugin_input` 用来连接上下游（旧名 `result_table_name` / `source_table_name` 已废弃）
 - MySQL 驱动 Jar 需要自行放到 `$SEATUNNEL_HOME/lib/`（Zeta 引擎）
-- Doris 目标表建议用 **Unique Key 模型**，`APPEND_DATA` 加主键覆盖写，重跑同一时间窗结果不变；`sink.enable-2pc` 开启两阶段提交，`sink.label-prefix` 要全局唯一
+- Doris 目标表建议用 **Unique Key 模型**，`APPEND_DATA` 加主键覆盖写，重跑同一时间窗结果不变；`sink.enable-2pc` 开启两阶段提交，此时 label 为「前缀 + checkpoint ID」，`sink.label-prefix` 要全局唯一，所以前缀里带上每次运行的 `run_id`，否则重跑同一窗口会生成同名 label 而被 Doris 拒绝；重跑幂等靠的是 Unique Key 覆盖，不是 label
 - `-m local` 在本机启动一个临时引擎，调试用；`-m cluster`（默认）提交到已部署的 Zeta 集群
 
 ### 2、实时同步：MySQL-CDC 多表入湖

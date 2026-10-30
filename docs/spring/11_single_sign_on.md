@@ -195,7 +195,7 @@ SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 在 IdP 侧需要登记：
 
 - **ACS 地址**（断言消费端点）：`{baseUrl}/login/saml2/sso/{registrationId}`
-- **SP Entity ID**：默认 `{baseUrl}/saml2/service-provider-metadata/{registrationId}`，也就是 metadata 地址
+- **SP Entity ID**：默认 `{baseUrl}/saml2/service-provider-metadata/{registrationId}`；开启 `saml2Metadata()` 后 metadata 默认发布在 `/saml2/metadata`，同时响应 `/saml2/metadata/{registrationId}` 和上面的 Entity ID 路径
 
 角色映射：断言中的组属性在 `Saml2AuthenticatedPrincipal#getAttribute(...)` 中，用 `GrantedAuthoritiesMapper` 或自定义 `OpenSaml5AuthenticationProvider` 的 response 转换器映射为 `ROLE_xxx`。
 
@@ -260,7 +260,7 @@ public class OidcClientConfig {
 
 登录成功后用 `@AuthenticationPrincipal OidcUser user` 取当前用户（`getSubject()`、`getFullName()`、`getEmail()`），示例见第六节。Spring Security 在这套配置下自动完成：
 
-- 生成 `state` 与 `nonce`，回调时核对；公共客户端（不配 `client-secret`、`client-authentication-method: none`）自动启用 PKCE，机密客户端可在 `ClientRegistration` 的 `ClientSettings` 上设置 `requireProofKey(true)`，前提是授权服务器支持
+- 生成 `state` 与 `nonce`，回调时核对；Security 7 起 `ClientSettings.requireProofKey` 默认为 `true`，授权码模式的客户端（公共与机密）都默认启用 PKCE；授权服务器不支持机密客户端 PKCE 时设为 `false` 关闭
 - 用 JWKS 校验 ID Token 的签名、`iss`、`aud`、`exp`、`nonce`（`OidcIdTokenValidator`），并按需调用 UserInfo 合并 claims，得到 `OidcUser`
 - 登出走 RP-Initiated Logout（`OidcClientInitiatedLogoutSuccessHandler`）、接收后端通道登出（`.oidcLogout(l -> l.backChannel(...))`）的写法见第六节
 
@@ -568,15 +568,14 @@ public class ClientInitializer implements ApplicationRunner {
                 .clientId("order-spa")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("https://order.example.com/callback")
                 .postLogoutRedirectUri("https://order.example.com/")
                 .scope(OidcScopes.OPENID)
                 .scope(OidcScopes.PROFILE)
                 .clientSettings(ClientSettings.builder().requireProofKey(true).build())
+                // 默认不给公共客户端（认证方式 none）签发 Refresh Token，令牌过期后重新走授权码；需要长会话改用 BFF
                 .tokenSettings(TokenSettings.builder()
                     .accessTokenTimeToLive(Duration.ofMinutes(15))
-                    .reuseRefreshTokens(false)             // Refresh Token 轮换
                     .build())
                 .build());
         }

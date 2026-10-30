@@ -470,6 +470,7 @@ public class OrderPermission {
     }
 
     public boolean canEdit(Long orderId, Authentication auth) {
+        // ownerId / editorIds 存的是用户名（String）；若存 Long 型用户 ID，要先把 auth.getName() 转成 Long，否则 equals 恒为 false
         return orders.findById(orderId)
             .map(o -> o.ownerId().equals(auth.getName())
                    || o.editorIds().contains(auth.getName()))

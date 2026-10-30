@@ -186,7 +186,7 @@ public enum OtaStatus {
         return switch (this) {
             case PENDING -> Set.of();
             case NOTIFIED -> Set.of(PENDING);
-            case DOWNLOADING -> Set.of(NOTIFIED);
+            case DOWNLOADING -> Set.of(PENDING, NOTIFIED);   // 设备上报可能先于 NOTIFIED 落库
             case VERIFYING -> Set.of(DOWNLOADING);
             case INSTALLING -> Set.of(VERIFYING);
             case SUCCESS, ROLLED_BACK -> Set.of(INSTALLING);
@@ -196,7 +196,7 @@ public enum OtaStatus {
 }
 ```
 
-状态更新用条件更新一次完成"检查 + 修改"，天然防并发、防乱序、防重复：
+状态更新用条件更新一次完成"检查 + 修改"，天然防并发、防重复，乱序到达的倒退上报会被拒绝（不是重排）：
 
 ```java
 public interface OtaTaskRepository extends JpaRepository<OtaTask, Long> {
@@ -276,7 +276,7 @@ public class OtaDispatcher {
 ```
 
 - 创建升级活动的接口只写库（活动 + 批次 + 任务，同一事务），立刻返回；真正下发由调度器异步完成，HTTP 请求不会因为设备数量多而超时
-- MQTT 发送不放在数据库事务里：事务回滚时消息已经发出、无法撤回；这里先发消息再条件更新，进程在两步之间崩溃时下一轮会重发，设备按 `taskId` 去重即可。需要严格保证"写库与发消息一致"时用本地消息表，见 [分布式事务](/distributed/4_transaction)
+- MQTT 发送不放在数据库事务里：事务回滚时消息已经发出、无法撤回；这里先发消息再条件更新，进程在两步之间崩溃时下一轮会重发，设备按 `taskId` 去重即可。设备的 `DOWNLOADING` 上报可能比 `NOTIFIED` 先落库，所以状态机允许从 `PENDING` 直接进入 `DOWNLOADING`，随后那次 `NOTIFIED` 更新因来源状态不符自然失败，任务不会卡到超时。需要严格保证"写库与发消息一致"时用本地消息表，见 [分布式事务](/distributed/4_transaction)
 - 另起一个定时任务扫描长时间停在中间状态的任务，标记为 `TIMEOUT`，计入批次失败率
 - 多实例部署时调度器只能有一个在跑，用分布式锁或调度框架保证，见 [分布式调度](/distributed/6_job_scheduler)
 

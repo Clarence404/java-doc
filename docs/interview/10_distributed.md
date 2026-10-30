@@ -250,7 +250,7 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 | Saga | 最终一致 | 无 | 中 | 高 |
 | XA | 强一致 | 数据库锁持有到二阶段结束 | 几乎无 | 低 |
 
-- Seata 2.x 是 Apache 孵化项目，groupId 和包名都是 `org.apache.seata`
+- Seata 是 Apache 孵化项目，2.1 起 groupId 和包名都是 `org.apache.seata`
 - 一个业务流程只选一种方案，不要 Seata 全局事务和事务消息混用
 
 → 详见 [分布式事务](/distributed/4_transaction#_2、四种模式)

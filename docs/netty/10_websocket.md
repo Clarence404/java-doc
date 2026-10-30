@@ -167,7 +167,8 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
         // 3. 聚合为 FullHttpRequest：握手需要完整请求
         pipeline.addLast(new HttpObjectAggregator(65536));
         // 4. 可选：permessage-deflate 压缩扩展，需配合 allowExtensions=true
-        pipeline.addLast(new WebSocketServerCompressionHandler());
+        //    参数是解压后的上限，与最大帧一致；无参构造已废弃，等于不设上限，有解压炸弹风险
+        pipeline.addLast(new WebSocketServerCompressionHandler(65536));
         // 5. 协议处理：握手、Ping/Pong、Close、分片校验；最大帧 64KB（按业务显式设置）
         pipeline.addLast(new WebSocketServerProtocolHandler(websocketPath, null, true, 65536));
         // 6. 业务帧处理

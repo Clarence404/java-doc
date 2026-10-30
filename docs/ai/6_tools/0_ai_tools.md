@@ -80,7 +80,7 @@ Java 团队的主力 IDE 多是 IntelliJ IDEA，首先确认工具对 JetBrains 
 | 文件 | 读取方 |
 |------|--------|
 | `AGENTS.md` | 跨工具的开放约定，Codex、Cursor、GitHub Copilot 编程 Agent、Gemini CLI、Junie 等均支持，由 Agentic AI Foundation 维护 |
-| `CLAUDE.md` | Claude Code；仓库已有 `AGENTS.md` 时也可以读取它 |
+| `CLAUDE.md` | Claude Code；仓库只有 `AGENTS.md` 时直接读取它，两者都有时只读 `CLAUDE.md`，可在其中用 `@AGENTS.md` 导入 |
 | `.github/copilot-instructions.md` | GitHub Copilot 仓库级指令，另可用 `.github/instructions/*.instructions.md` 按路径生效 |
 | `.cursor/rules/*.mdc` | Cursor 项目规则 |
 

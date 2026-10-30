@@ -349,7 +349,7 @@ SELECT id, VECTOR_DIM(vec) AS dim, VECTOR_TO_STRING(vec) AS v FROM doc_embedding
 - **Instant DDL 行版本上限提高到 255**（9.1）
 - **原企业版功能进入社区版**：复制 applier 指标、Group Replication 流控统计、资源管理、按数据新旧选主等高可用观测能力，以及遥测（Telemetry）
 - **企业版新增动态数据脱敏**；JavaScript 存储程序（基于 GraalVM 的 MLE）仍只在企业版和 HeatWave 中提供
-- **复制默认值调整**：`binlog_transaction_dependency_history_size` 默认值提高到 1000000（9.5）；`replica_parallel_type` 在 9.x 中被移除，多线程副本固定按逻辑时钟并行应用
+- **复制默认值调整**：`binlog_transaction_dependency_history_size` 默认值提高到 1000000（9.5）；`replica_parallel_type` 被移除（9.5），多线程副本固定按逻辑时钟并行应用
 
 ### 3、选择建议
 

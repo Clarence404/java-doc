@@ -436,7 +436,7 @@ updates:
 ### 2、fork PR 与 pull_request_target
 
 - 来自 fork 的 `pull_request` 运行时，`GITHUB_TOKEN` 只读、拿不到 Secrets 和 OIDC 令牌，这是安全的默认行为，需要密钥的 Step 用条件跳过即可
-- 不要为了让 fork PR 拿到密钥而改用 `pull_request_target` 再检出 PR 代码：那等于用仓库的权限执行陌生人的代码。checkout v7 起，在 `pull_request_target` 和 `workflow_run` 中检出 fork PR 的代码会被直接拦截
+- 不要为了让 fork PR 拿到密钥而改用 `pull_request_target` 再检出 PR 代码：那等于用仓库的权限执行陌生人的代码。checkout v7 起，在 `pull_request_target` 和 `workflow_run` 中检出 fork PR 的代码默认会被拦截，只有显式设置 `allow-unsafe-pr-checkout: true` 才放行
 
 ### 3、表达式注入
 

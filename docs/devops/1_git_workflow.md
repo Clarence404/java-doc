@@ -79,7 +79,7 @@ Git Flow 由 Vincent Driessen 在 2010 年提出，用 `main` 记录生产版本
 | 文档 | `docs/<简述>` | `docs/api-changelog` |
 | 旧版本维护（仅多版本产品） | `release/<主版本>.<次版本>.x` | `release/1.4.x` |
 
-命名要求：全小写、单词用连字符分隔、简述不超过 5 个单词。GitHub 规则集没有直接限制分支名的规则，需要强制时在 CI 中校验，或用规则集的 `Restrict creations` 只允许特定人员创建 `release/*`。
+命名要求：全小写、单词用连字符分隔、简述不超过 5 个单词。GitHub 规则集里限制分支名格式的规则属于元数据限制，只对 Enterprise 计划开放；其他计划需要强制时在 CI 中校验，或用规则集的 `Restrict creations` 只允许特定人员创建 `release/*`。
 
 ---
 

@@ -329,9 +329,9 @@ JetBrains 数据库工具的几个实用点：结果集表格可直接改值后�
 ```bash
 curl -s "https://get.sdkman.io" | bash
 sdk list java | grep tem                 # 查看 Temurin 的可用 Identifier
-sdk install java 21.0.12+1.1-tem          # 以 sdk list java 实际输出的 Identifier 为准
-sdk use java 21.0.12+1.1-tem              # 仅当前 shell 生效
-sdk default java 21.0.12+1.1-tem          # 设为全局默认
+sdk install java 21.0.13.0+9-tem         # 以 sdk list java 实际输出的 Identifier 为准
+sdk use java 21.0.13.0+9-tem             # 仅当前 shell 生效
+sdk default java 21.0.13.0+9-tem         # 设为全局默认
 
 sdk env init                              # 在项目根目录生成 .sdkmanrc，记录当前版本
 sdk env                                   # 进入项目后切换到 .sdkmanrc 中的版本

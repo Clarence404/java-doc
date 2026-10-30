@@ -222,7 +222,7 @@ Spring Boot 项目引入 `spring-boot-starter-test`（Boot 4 按技术引入 `sp
     <plugin>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-surefire-plugin</artifactId>
-      <version>3.5.6</version>
+      <version>3.6.0</version>
     </plugin>
   </plugins>
 </build>
@@ -302,7 +302,7 @@ class LifecycleDemoTest {
 - **默认每个测试方法都会新建一个测试类实例**，所以实例字段天然隔离，不需要在 `@AfterEach` 里手动清理。`@TestInstance(Lifecycle.PER_CLASS)` 可以改成整个类共用一个实例，此时 `@BeforeAll` 不必是 `static`，但字段状态会在测试之间残留，单元测试里很少需要
 - 测试类和测试方法不需要 `public`，包级可见即可
 - **假设**（`assumeTrue` / `assumeFalse` / `assumingThat`）不满足时测试被标记为跳过而不是失败；不要用它掩盖本该修复的环境问题
-- `@TempDir` 注入的临时目录在测试结束后自动删除，6.1 起还可以配置删除策略
+- `@TempDir` 注入的临时目录在测试结束后自动删除；5.9 起可用 `cleanup` 属性设置清理时机（如 `CleanupMode.ON_SUCCESS` 失败时保留现场），6.1 起还可以配置删除策略（如忽略删除失败）
 
 ### 4、@DisplayName 与 @Nested
 
@@ -379,7 +379,7 @@ junit.jupiter.execution.parallel.mode.classes.default = concurrent
 
 | 变化 | 影响 |
 |------|------|
-| 最低 Java 17、Kotlin 2.1 | 还在 Java 8 / 11 的项目只能停留在 JUnit 5 |
+| 最低 Java 17、Kotlin 2.2 | 还在 Java 8 / 11 的项目只能停留在 JUnit 5 |
 | Platform、Jupiter、Vintage 版本号统一为 6.x | 不再有 Platform 1.x 与 Jupiter 5.x 两套版本号，用 BOM 管理即可 |
 | 包名不变，仍为 `org.junit.jupiter.*` | 测试代码基本不用改，主要是删除已废弃 API 的用法 |
 | Vintage 引擎废弃 | JUnit 4 测试应尽快迁移；Spring Framework 7 也废弃了 `SpringRunner` 等 JUnit 4 支持类 |

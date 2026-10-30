@@ -184,7 +184,7 @@ description: IoC、Bean 生命周期、AOP、事务、MVC、常用组件、WebFl
 - 外层的意思：进入时最先执行，退出时最后执行
 - 事务切面默认优先级最低，处在最内层
 - 分布式锁、重试这类要包住事务的切面，给一个更小的 `@Order`，保证事务提交后才释放锁或重试
-- 要在事务里写审计记录的切面，`@Order` 要比事务大
+- 要在事务里写审计记录的切面，先用 `@EnableTransactionManagement(order = ...)` 把事务调高，再让切面的 `@Order` 比它大（事务默认已是最低，没法更低）
 - 同一切面里两个同类型通知（如两个 `@Before`）顺序不确定，应合并或拆开
 
 → 详见 [AOP](/spring/2_aop#二、通知类型与执行顺序)
@@ -396,7 +396,7 @@ txTemplate.execute(status -> { recordRepo.save(record); return accountRepo.deduc
 **一句话**：缓存 null 是防穿透的手段：查不到的 key 也存一个空值进缓存，下次直接命中，不再打到数据库。关掉 null 缓存后，查不存在的 id 每次都会查库。
 
 - 缓存 null 时 TTL 要短，否则新增的数据很久查不到
-- 用 JSON 序列化缓存 null，要开启 `enableSpringCacheNullValueSupport()`
+- `RedisCacheManager` 缓存 null 时，`NullValue` 占位不经过配置的值序列化器，用 JSON 序列化器也不用额外开关
 - 海量随机 key 的攻击，用布隆过滤器挡在前面更省内存
 
 **常见坑**：开了 `disableCachingNullValues()` 后，方法返回 null 会直接抛 `IllegalArgumentException`，必须加 `unless = "#result == null"`。

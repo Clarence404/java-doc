@@ -57,7 +57,7 @@ spring:
 
 | 做法 | 效果 | 注意 |
 |------|------|------|
-| 缓存 null（默认，配合短 TTL） | 不存在的 Key 也命中缓存，挡住穿透 | JSON 序列化需 `enableSpringCacheNullValueSupport()`；TTL 要短，避免数据新增后长时间查不到 |
+| 缓存 null（默认，配合短 TTL） | 不存在的 Key 也命中缓存，挡住穿透 | `RedisCacheManager` 的 null 占位不走值序列化器，JSON 序列化也能用；TTL 要短，避免数据新增后长时间查不到 |
 | `disableCachingNullValues()` | null 不进缓存，穿透直达数据库 | 此时 `@Cacheable` 方法返回 null 会抛 `IllegalArgumentException`，必须加 `unless = "#result == null"` |
 | 布隆过滤器前置 | 海量随机 Key 攻击时更省内存 | 见 [缓存最佳实践](/cache/11_cache_rule) 的穿透防护与 [Redis 典型应用场景](/cache/4_redis_scenario) |
 

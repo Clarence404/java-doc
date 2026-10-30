@@ -74,7 +74,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 9849：集群节点之间的 gRPC
 - Nacos 3.x 控制台独立端口（默认 8080），与服务端端口分开
 
-**常见坑**：防火墙只开了 8848，2.x 客户端连不上；Nacos 3.x 默认开启鉴权，客户端要配用户名和密码。
+**常见坑**：防火墙只开了 8848，2.x 客户端连不上；Nacos 3.x 默认只给控制台和管理 API 开鉴权，客户端 API 鉴权要手动打开，打开后客户端要配用户名和密码。
 
 → 详见 [注册发现](/microservices/10_service_registry#_1、连接模型-grpc-长连接)
 
@@ -300,7 +300,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 **一句话**：引入 `spring-cloud-starter-alibaba-seata`，独立部署 seata-server（TC），只在事务发起方加 `@GlobalTransactional`，参与方接入数据源代理并建好 `undo_log` 表即可。
 
-- 版本：2.x 起 groupId 和包名都是 `org.apache.seata`；SCA 2025.1 BOM 自带 2.5.0，可覆盖到 2.6.0，seata-server 与客户端版本要一致
+- 版本：2.1 起 groupId 和包名都是 `org.apache.seata`；SCA 2025.1 BOM 自带 2.5.0，可覆盖到 2.6.0，seata-server 与客户端版本要一致
 - 配置：`tx-service-group` 经 `vgroup-mapping` 映射到 TC 集群名，`registry.type: nacos` 从 Nacos 发现 seata-server
 - XID 透传：OpenFeign 等常用客户端由 starter 自动处理；自定义客户端要把 `RootContext.getXID()` 放进请求头 `TX_XID`，下游再绑定
 - seata-server 生产用 db 或 raft 存储，多节点部署

@@ -150,7 +150,7 @@ record 天然不可变、自带 `equals` / `hashCode`；字段少、可选项少
 ```java
 @Value                              // 所有字段 private final，只有 getter，不可变
 @Builder(toBuilder = true)          // toBuilder() 基于已有对象改几个字段生成新对象
-@Jacksonized                        // 让 Jackson 反序列化走 Builder（Lombok 1.18.14+）
+@Jacksonized                        // 让 Jackson 反序列化走 Builder（Lombok 1.18.14+；Jackson 3 需 1.18.44+ 并在 lombok.config 设 lombok.jacksonized.jacksonVersion）
 public class CreateOrderRequest {
     @NonNull Long userId;
     @NonNull Long productId;
@@ -168,7 +168,7 @@ CreateOrderRequest req = CreateOrderRequest.builder()
         .build();
 ```
 
-不要用 `@Builder` + `@Data`：`@Data` 会生成 setter，对象不再不可变；而且没有无参构造方法，Jackson 反序列化会失败。要么 `@Value @Builder @Jacksonized`，要么直接用 record。
+不要用 `@Builder` + `@Data`：`@Data` 会生成 setter，对象不再不可变；而且没有无参构造方法，Jackson 反序列化可能失败。要么 `@Value @Builder @Jacksonized`，要么直接用 record。
 
 ---
 

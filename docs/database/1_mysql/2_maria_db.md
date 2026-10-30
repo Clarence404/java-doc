@@ -19,7 +19,7 @@ MariaDB 由两方共同维护：
 - **MariaDB plc**（原 MariaDB Corporation）：商业公司，承担大部分开发工作并提供企业版（MariaDB Enterprise Server）和订阅支持，2024 年被 K1 私有化
 - **MariaDB Foundation**：非营利基金会，负责社区版的发布治理和开源许可的延续
 
-存储引擎方面，5.5 ~ 10.1 默认使用 Percona 的 XtraDB，10.2 起改回 InnoDB。此后 MariaDB 的 InnoDB 与 MySQL 独立演进，差异越来越大，例如 11.0 移除了 Change Buffer。
+存储引擎方面，5.1 ~ 10.1 默认使用 Percona 的 XtraDB，10.2 起改回 InnoDB。此后 MariaDB 的 InnoDB 与 MySQL 独立演进，差异越来越大，例如 11.0 移除了 Change Buffer。
 
 ---
 

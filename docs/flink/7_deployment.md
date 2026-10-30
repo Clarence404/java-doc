@@ -78,7 +78,7 @@ spec:
 | `savepoint` | 先做 savepoint 再停，用它启动新版本 | 有状态作业，作业健康时 |
 | `last-state` | 用 HA 元数据里最近的 checkpoint 恢复，不需要作业健康 | 有状态作业，需要开启 HA |
 
-生产建议 `savepoint` 为主；作业已经不健康、做不出 savepoint 时，`last-state` 能从最近的 checkpoint 拉起。两者都依赖持久化的 checkpoint / savepoint 目录和 Kubernetes HA。
+生产建议 `savepoint` 为主；作业已经不健康、做不出 savepoint 时，`last-state` 能从最近的 checkpoint 拉起。两者都依赖持久化的 checkpoint / savepoint 目录；`last-state` 还依赖 HA 元数据，`savepoint` 模式不强制 HA，但开启 HA 后作业不健康时才能回退到 `last-state` 的行为。
 
 ---
 

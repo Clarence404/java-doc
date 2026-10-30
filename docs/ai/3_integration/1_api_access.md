@@ -297,7 +297,10 @@ GenerateContentResponse vision = client.models.generateContent(
 try (ResponseStream<GenerateContentResponse> stream =
              client.models.generateContentStream(model, "介绍一下 Kafka 的 ISR 机制", config)) {
     for (GenerateContentResponse chunk : stream) {
-        System.out.print(chunk.text());
+        String text = chunk.text();   // 只含结束信息的分片没有文本，返回 null
+        if (text != null) {
+            System.out.print(text);
+        }
     }
 }
 ```

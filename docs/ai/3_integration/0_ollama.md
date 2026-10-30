@@ -266,7 +266,7 @@ float[] vector = response.content().vector();
 | `OLLAMA_MAX_QUEUE` | 512 | 排队请求上限，超出返回 503 |
 | `OLLAMA_MAX_LOADED_MODELS` | GPU 数 × 3，纯 CPU 为 3 | 同时加载的模型数（前提是内存放得下） |
 | `OLLAMA_KEEP_ALIVE` | 5m | 模型空闲多久后卸载，负数表示常驻，0 表示用完即卸载；请求里的 `keep_alive` 优先 |
-| `OLLAMA_CONTEXT_LENGTH` | 4096（以官方 FAQ 为准） | 默认上下文长度 |
+| `OLLAMA_CONTEXT_LENGTH` | 按显存自动选择：小于 24 GiB 为 4k，24–48 GiB 为 32k，48 GiB 及以上为 256k | 默认上下文长度 |
 | `OLLAMA_FLASH_ATTENTION` | 支持时自动启用 | 设为 0 强制关闭 |
 | `OLLAMA_KV_CACHE_TYPE` | `f16` | KV Cache 量化，`q8_0` 约省一半内存，`q4_0` 约省四分之三，精度略降 |
 | `OLLAMA_MODELS` | 各系统用户目录下 | 模型存储路径 |
@@ -322,7 +322,7 @@ Docker 用 `-e OLLAMA_NUM_PARALLEL=4`；Windows 在系统环境变量里设置�
 - Ollama 适合开发、离线和小规模内网场景，高并发生产推理考虑专门的推理服务，应用侧通过 OpenAI 兼容接口平滑切换
 - 原生 `/api/chat` 支持流式、工具调用、JSON Schema 结构化输出和思考模式，兼容接口覆盖 Chat Completions、Embeddings 与无状态 Responses
 - 模型按家族和用途选，尺寸由内存决定：权重加 KV Cache，后者随上下文长度和并发线性增长
-- 默认上下文较短，RAG 场景要显式调大 `num_ctx` 或 `OLLAMA_CONTEXT_LENGTH`，否则检索内容会被静默截断
+- 默认上下文按显存自动选择，24 GiB 以下只有 4k，RAG 场景要显式调大 `num_ctx` 或 `OLLAMA_CONTEXT_LENGTH`，否则检索内容会被静默截断
 - 并发由 `OLLAMA_NUM_PARALLEL` 控制，Linux 服务通过 `systemctl edit` 设置环境变量
 - API 无鉴权，对外暴露必须经过带认证和 TLS 的网关；需要数据不出本机时关闭云功能
 
