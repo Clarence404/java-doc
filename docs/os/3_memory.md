@@ -137,24 +137,9 @@ Page Cache 是内核用空闲物理内存缓存文件内容的机制，以页为
 
 写入密集的服务偶尔出现 `write` 延迟尖刺，常见原因就是脏页触到了 `dirty_ratio`。大内存机器上按比例算出的阈值可能有几十 GB，一次回写时间很长，可以改用 `vm.dirty_background_bytes` / `vm.dirty_bytes` 设成固定字节数。
 
-### 2、fsync：确保落盘
+### 2、需要落盘时
 
-需要持久化保证时，必须在 `write` 之后显式同步：
-
-| 系统调用 | 作用 | Java API |
-|---------|------|---------|
-| `fsync(fd)` | 把文件的脏页和元数据（大小、修改时间等）写到磁盘，等磁盘确认后返回 | `FileChannel.force(true)`、`FileDescriptor.sync()` |
-| `fdatasync(fd)` | 只同步数据和读取数据必需的元数据（如文件大小），通常更快 | `FileChannel.force(false)` |
-| `O_SYNC` / `O_DSYNC` 打开文件 | 每次 `write` 都等同于随后做一次 `fsync` / `fdatasync` | `StandardOpenOption.SYNC` / `DSYNC` |
-| `msync` | 同步 `mmap` 映射区域的脏页 | `MappedByteBuffer.force()` |
-
-`fsync` 的耗时取决于磁盘：本地 NVMe SSD 通常在百微秒到毫秒级，云盘与机械盘可达数毫秒以上。所以需要持久化的系统都会想办法**摊薄 fsync**：MySQL 用组提交让一批事务共享一次 redo 刷盘（见 [MySQL 事务与锁](/database/1_mysql/5_topic_transaction)），日志框架的异步 Appender 不在每行日志后刷盘。
-
-新建文件后，只对文件 `fsync` 还不够，文件名记录在所在目录中，还要对**目录**做一次 `fsync`，否则断电后可能找不到这个文件。
-
-### 3、O_DIRECT：绕过 Page Cache
-
-以 `O_DIRECT` 打开的文件，读写直接在用户缓冲区和磁盘之间进行，不经过 Page Cache，但要求缓冲区地址、长度和偏移都按块大小对齐。它适合**自己管理缓存**的程序，例如 InnoDB 有自己的 Buffer Pool，再经过一层 Page Cache 就是重复缓存。JDK 10 起可以用 `ExtendedOpenOption.DIRECT` 打开 `FileChannel`。
+`write` 成功只说明数据进了 Page Cache，需要持久化保证时必须在 `write` 之后显式调用 `fsync` / `fdatasync`（Java 为 `FileChannel.force`），新建文件还要对所在目录做一次 `fsync`；绕过 Page Cache 的 `O_DIRECT` 适合自带 Buffer Pool 的引擎。各调用推进到哪一层、对应的 Java API、`fsync` 成本与 Direct IO 的用法见 [文件系统与磁盘 IO · 持久化语义](./7_file_io#六、持久化语义) 与 [文件系统与磁盘 IO · Direct IO](./7_file_io#_2、direct-io)。
 
 ---
 
@@ -218,7 +203,7 @@ cgroup v2 把容器内进程读写文件产生的 Page Cache 也**计入容器�
 - 主缺页要读磁盘，代价是毫秒级；`AlwaysPreTouch` 把首次触碰堆页的代价挪到启动时；大页减少 TLB 未命中
 - 内存耗尽时内核的 OOM Killer 直接杀进程，与 JVM 的 `OutOfMemoryError` 不同；Swap 会让 GC 停顿急剧变长，Java 服务应避免换页
 - 普通文件读写都经过 Page Cache：读有命中与预读，写只拷贝进缓存并标记脏页，由 flusher 线程在脏页超阈值时回写，或在脏页超过约 30 秒后的下一轮回写（每 5 秒唤醒）中写出，即约 30–35 秒
-- `write` 成功不等于落盘，需要持久化时用 `fsync` / `fdatasync`（`FileChannel.force`），并通过组提交等方式摊薄成本
+- `write` 成功不等于落盘，需要持久化时用 `fsync` / `fdatasync`（`FileChannel.force`），细节见文件系统与磁盘 IO 的持久化语义一节
 - `mmap` 直接访问 Page Cache，省去一次拷贝和逐次系统调用，适合大文件随机读写
 - Kafka、RocketMQ 把缓存交给 Page Cache，因此内存要留给操作系统；容器中的 Page Cache 计入内存用量，监控看 working set
 

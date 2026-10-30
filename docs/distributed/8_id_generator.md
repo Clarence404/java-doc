@@ -140,10 +140,30 @@ public final class SnowflakeIdGenerator {
 
 NTP 校时、人工改时间、虚拟机迁移都可能让系统时间倒退，若不处理会生成重复 ID。应对思路：
 
-- 小幅回拨（几毫秒）：等待时钟追上，上面的实现就是这样
+- 小幅回拨（几毫秒）：等待时钟追上，上面的实现就是这样；回拨可能到秒级时可改用下面的「借用后续毫秒」
 - 大幅回拨：拒绝发号并告警，由调用方重试到其他节点；或切换到预留的备用 workerId
 - 启动时校验：记录上次使用的时间戳，启动时发现当前时间更早就拒绝启动（Leaf 的做法）
 - 不依赖实时时钟：用自增的「逻辑秒」代替系统时间（UidGenerator 的做法）
+
+**可选方案：借用后续毫秒（逻辑时钟前推）**。回拨幅度在阈值内（如秒级）时不等待，而是把时间戳「冻结」在 `lastTimestamp` 上继续递增序列号，序列号用完就前推到下一毫秒，相当于让 ID 的时间戳暂时跑在系统时钟前面，等系统时钟追上后自然恢复：
+
+```java
+if (now < lastTimestamp) {
+    long offset = lastTimestamp - now;
+    if (offset > MAX_BORROW_MS) {                        // 如 3000：超过阈值仍然拒绝发号
+        throw new IllegalStateException("时钟回拨 " + offset + "ms，拒绝生成 ID");
+    }
+    now = lastTimestamp;                                 // 冻结时间戳，继续递增序列号
+}
+// 序列号用完时：now = lastTimestamp + 1，借用下一毫秒而不是自旋等待
+```
+
+- **适用**：回拨可能达到百毫秒到秒级（虚拟机迁移、NTP 步进），等待会让发号线程卡住几百毫秒到数秒，接口超时比 ID 时间戳略超前更难接受
+- **代价一**：回拨期间 ID 的时间戳超前真实时间，借用量最多等于阈值，按 ID 解码出的时间不准；依赖「ID 时间 ≤ 当前时间」的逻辑（如按 ID 时间做分区路由）要留出余量
+- **代价二**：借用量只在内存里，进程重启后会丢。必须把 `lastTimestamp` 持久化（如随 workerId 租约续期写回 Redis / 数据库），启动时当前时间早于它就拒绝启动或等待
+- **观测**：把借用时长 `lastTimestamp - 当前时间` 暴露为指标，持续大于 0 说明时钟在回拨或发号过快
+
+阈值内借用、超过阈值拒绝，两种做法的边界取决于能容忍多长的发号阻塞；真实事故中的取舍见 [时钟回拨导致 ID 重复](/handbook/2_incidents/17_clock_rollback)。
 
 服务器侧应让 NTP 平滑调整（slew）而不是跳变（step）。
 
@@ -265,7 +285,7 @@ Leaf 的开源仓库自 2020 年前后基本不再更新，可以作为设计参
 - 全局唯一是硬要求，有序与不泄露业务量要权衡
 - UUID v1 并不有序；UUID v7 按时间有序，是需要 UUID 主键时的首选，MySQL 存 `BINARY(16)`
 - 多主步长自增要用 `SET GLOBAL` / `SET PERSIST` 或配置文件，会话级设置无效
-- Snowflake 要处理时钟回拨、显式分配 workerId，并把 ID 以字符串形式返回给前端
+- Snowflake 要处理时钟回拨（小幅等待或借用后续毫秒，大幅拒绝发号）、显式分配 workerId，并把 ID 以字符串形式返回给前端
 - 号段模式在一个事务内 `UPDATE` 后 `SELECT` 领取号段，双 Buffer 预取；ID 只在节点内递增
 - Leaf-Segment 只依赖数据库，Leaf-Snowflake 用 ZooKeeper 分配 workerId 并校验时钟
 - UidGenerator 的 CachedUidGenerator 用自增秒计数器借用未来时间，规避时钟回拨

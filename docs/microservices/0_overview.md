@@ -42,13 +42,7 @@
 
 ## 三、Spring Cloud 版本与选型速查
 
-**版本对应**（三者强绑定，按官方版本说明对表选择）：
-
-| Spring Boot | Spring Cloud | Spring Cloud Alibaba | 说明 |
-|------|------|------|------|
-| 4.0.x | 2025.1.x（Oakwood） | 2025.1.0.0（Nacos 3.1.1、Sentinel 1.8.9、Seata 2.5.0） | 本站基线，取消 bootstrap，统一 `spring.config.import` |
-| 4.1.x | 2025.1.2 及以上 | 以 SCA 发布说明为准 | Spring Cloud 2025.1.2 起支持 Boot 4.1 |
-| 3.5.x | 2025.0.x（Northfields） | 2025.0.0.0（Nacos 3.0.3） | 存量项目，开源支持已于 2026-06 结束 |
+**版本对应**：Spring Boot、Spring Cloud、Spring Cloud Alibaba 三者强绑定，本站基线为 Boot 4.0.x + Spring Cloud 2025.1 + SCA 2025.1.0.0，完整对表见 [Spring Cloud Alibaba · 定位与版本对齐](./15_alibaba#一、定位与版本对齐)。
 
 **Netflix 组件替代关系**（老项目升级时对照）：
 

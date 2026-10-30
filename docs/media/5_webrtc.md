@@ -567,30 +567,12 @@ Java 后端接入 SFU 的方式基本一致：**SFU 负责媒体，业务后端�
 
 ## 八、WHIP 与 WHEP
 
-WebRTC 刻意不规定信令，带来的问题是：每个媒体服务器、每家云厂商的信令都不一样，OBS 这类通用推流软件无法"用 WebRTC 推到任意服务器"。WHIP / WHEP 用最朴素的 HTTP 统一了这一步：
+WebRTC 刻意不规定信令，OBS、FFmpeg 这类通用工具因此无法"用 WebRTC 推到任意服务器"。WHIP（推流，RFC 9725）与 WHEP（拉流，仍是草案）用 `POST` SDP offer、返回 `201` + SDP answer、`DELETE` 结束会话的 HTTP 交互把这一步标准化，协议细节、交互示例与 FFmpeg / OBS 推流命令见 [流媒体协议 · WHIP 与 WHEP](./2_protocols#_2、whip-与-whep)。
 
-- **WHIP**（WebRTC-HTTP Ingestion Protocol，RFC 9725，2025 年发布）：用于**推流**。客户端 `POST` 一段 SDP offer（`Content-Type: application/sdp`）到 WHIP 端点，服务器返回 `201 Created`，响应体是 SDP answer，`Location` 头指向本次会话资源；结束推流时对该资源发 `DELETE`。认证一般用 `Authorization: Bearer` 令牌，后续候选可用 `PATCH`（`application/trickle-ice-sdpfrag`）补发
-- **WHEP**（WebRTC-HTTP Egress Protocol）：用于**拉流播放**，流程与 WHIP 对称。截至 2026 年仍是 IETF wish 工作组的 Internet-Draft，尚未成为 RFC
+站在 WebRTC 后端的角度，要点只有两条：
 
-```http
-POST /whip/live/room1001 HTTP/1.1
-Host: push.example.com
-Content-Type: application/sdp
-Authorization: Bearer eyJhbGciOi...
-
-v=0
-o=- 5228595038118931041 2 IN IP4 127.0.0.1
-...
-
-HTTP/1.1 201 Created
-Content-Type: application/sdp
-Location: /whip/live/room1001/session/6f1c2a
-
-v=0
-...
-```
-
-意义在于：主播用 OBS（30 版起内置 WHIP 输出）或浏览器即可以亚秒级延迟推流，SRS、LiveKit Ingress、MediaMTX 等都支持 WHIP 接入。对 Java 后端来说，**WHIP 端点的 Bearer token 就是推流鉴权的落点**：由业务后端签发，媒体服务器回调或自行校验，思路与 [直播系统设计](./6_live_streaming) 第三节的 RTMP 推流鉴权一致。
+- **WHIP 端点的 Bearer token 就是推流鉴权的落点**：由业务后端签发，媒体服务器回调或由 Java 网关校验后再转发，思路与 [直播系统设计](./6_live_streaming) 第三节的 RTMP 推流鉴权一致
+- **有了 WHIP 就不必为推流自建信令**：第六节的 WebSocket 信令只在通话、会议这类双向互动场景才需要，单向推流 / 拉流直接对接 SRS、LiveKit Ingress、MediaMTX 等服务器的 WHIP / WHEP 端点
 
 ---
 

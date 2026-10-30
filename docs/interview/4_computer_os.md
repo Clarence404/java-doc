@@ -146,7 +146,7 @@ description: 进程线程协程、系统调用、虚拟内存、OOM Killer、Pag
 - `fdatasync` 只同步数据和必需的元数据，通常比 `fsync` 快；新建文件还要对所在目录做一次 `fsync`
 - `fsync` 慢（毫秒级），所以 MySQL 用组提交、日志框架用异步刷盘来摊薄
 
-→ 详见 [内存管理与 Page Cache](/os/3_memory#五、write、fsync-与脏页回写)
+→ 详见 [内存管理与 Page Cache](/os/3_memory#五、write、fsync-与脏页回写)、[文件系统与磁盘 IO · 持久化语义](/os/7_file_io#六、持久化语义)
 
 ### Q12：mmap 和 read / write 有什么区别？Kafka 为什么要依赖 Page Cache？
 

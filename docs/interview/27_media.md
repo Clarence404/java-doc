@@ -93,7 +93,7 @@ description: 编码与 GOP、转码与转封装、协议与延迟、服务器回
 - WHIP（RFC 9725）：`POST` SDP offer，返回 `201` + answer + `Location`，结束时 `DELETE`，鉴权用 Bearer Token
 - WHEP 是对称的拉流协议，截至 2026 年仍是 IETF 草案，但主流服务器已支持
 
-→ 详见 [流媒体协议](/media/2_protocols#_1、webrtc-为什么快)、[WebRTC 实时通信](/media/5_webrtc#八、whip-与-whep)
+→ 详见 [流媒体协议](/media/2_protocols#_1、webrtc-为什么快)、[流媒体协议 · WHIP 与 WHEP](/media/2_protocols#_2、whip-与-whep)
 
 ## 三、流媒体服务器与 WebRTC
 
@@ -121,7 +121,7 @@ description: 编码与 GOP、转码与转封装、协议与延迟、服务器回
 
 **常见坑**：SRS 要求 HTTP 200 且 `code` 为 0 才放行，返回别的值会直接断开客户端。
 
-→ 详见 [流媒体服务器](/media/4_media_server#四、http-回调-鉴权与状态)、[源站回调鉴权](/media/6_live_streaming#_2、源站回调鉴权)、[监控与管理 API](/media/4_media_server#七、监控与管理-api)
+→ 详见 [流媒体服务器](/media/4_media_server#四、http-回调-鉴权与状态)、[流媒体服务器 · Spring Boot 回调控制器](/media/4_media_server#_3、spring-boot-回调控制器)、[监控与管理 API](/media/4_media_server#七、监控与管理-api)
 
 ### Q9：WebRTC 怎么穿越 NAT？STUN 和 TURN 有什么区别？
 

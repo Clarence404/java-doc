@@ -24,10 +24,10 @@ Nacos + Sentinel + Seata 是国内最常用的 Spring Cloud 落地组合。本�
 
 | Spring Cloud Alibaba | Spring Cloud | Spring Boot | Nacos | Sentinel | Seata | RocketMQ |
 |------|------|------|------|------|------|------|
-| 2025.1.0.0 | 2025.1.x | 4.0.x | 3.1.1 | 1.8.9 | 2.5.0 | 5.3.1 |
-| 2025.0.0.0 | 2025.0.x | 3.5.x | 3.0.3 | 1.8.9 | 2.5.0 | 5.3.1 |
+| 2025.1.0.0 | 2025.1.x（Oakwood） | 4.0.x | 3.1.1 | 1.8.9 | 2.5.0 | 5.3.1 |
+| 2025.0.0.0 | 2025.0.x（Northfields） | 3.5.x | 3.0.3 | 1.8.9 | 2.5.0 | 5.3.1 |
 
-Spring Cloud 2025.1.2 起支持 Boot 4.1，升级 Boot 小版本前先确认 SCA 对应版本已发布。
+Spring Cloud 2025.1.2 起支持 Boot 4.1，升级 Boot 小版本前先确认 SCA 对应版本已发布；Boot 3.5 的开源支持已于 2026-06 结束，2025.0 这一行只适合存量项目。
 
 ```xml
 <parent>

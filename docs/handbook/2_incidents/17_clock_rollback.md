@@ -216,62 +216,12 @@ maxslewrate 500                  # 平滑调整速率上限（ppm），1.8 秒�
 
 ### 3、发号器
 
-```java
-public final class SnowflakeIdGenerator {
+自研发号器下线，改用平台统一的雪花组件，回拨处理采用「借用后续毫秒」，结构与代码见 [分布式 ID 生成 · 时钟回拨](/distributed/8_id_generator#_3、时钟回拨)。与主文档默认的「≤5ms 等时钟追上」相比，这次的差异是：
 
-    private static final long EPOCH = 1735689600000L;          // 2025-01-01T00:00:00Z
-    private static final long WORKER_BITS = 10L;
-    private static final long SEQUENCE_BITS = 12L;
-    private static final long SEQUENCE_MASK = ~(-1L << SEQUENCE_BITS);
-    private static final long MAX_BORROW_MS = 3_000L;           // 最多借用 3 秒
-
-    private final InstantSource clock;                          // 可注入，便于测试
-    private final long workerId;
-    private long lastTimestamp;
-    private long sequence;
-
-    public SnowflakeIdGenerator(InstantSource clock, long workerId, long persistedLastTimestamp) {
-        long now = clock.millis();
-        if (now < persistedLastTimestamp) {                     // 上次运行记录的时间比现在还晚：拒绝启动
-            throw new IllegalStateException("时钟落后上次运行 " + (persistedLastTimestamp - now) + "ms");
-        }
-        this.clock = clock;
-        this.workerId = workerId;
-        this.lastTimestamp = persistedLastTimestamp;
-    }
-
-    public synchronized long nextId() {
-        long now = clock.millis();
-        if (now < lastTimestamp) {
-            long offset = lastTimestamp - now;
-            if (offset > MAX_BORROW_MS) {
-                throw new ClockBackwardException(offset);       // 大幅回拨：拒绝发号，由调用方失败重试到其他实例
-            }
-            now = lastTimestamp;                                // 小幅回拨：沿用上一毫秒，继续递增序列号
-        }
-        if (now == lastTimestamp) {
-            sequence = (sequence + 1) & SEQUENCE_MASK;
-            if (sequence == 0) {
-                now = lastTimestamp + 1;                        // 本毫秒用完：借用下一毫秒
-            }
-        } else {
-            sequence = 0L;
-        }
-        lastTimestamp = now;
-        return ((now - EPOCH) << (WORKER_BITS + SEQUENCE_BITS)) | (workerId << SEQUENCE_BITS) | sequence;
-    }
-
-    /** 当前借用的时长，暴露为指标；持续大于 0 说明时钟在回拨或发号过快。 */
-    public synchronized long borrowedMillis() {
-        return Math.max(0, lastTimestamp - clock.millis());
-    }
-}
-```
-
-- **回拨不超过 3 秒**：不等待、不报错，把时间戳「冻结」在上一毫秒继续递增，序列号用完就借下一毫秒，ID 始终单调递增
-- **回拨超过 3 秒**：拒绝发号，比生成重复 ID 安全得多
-- **重启后**：workerId 租约续期时（每秒一次）把 `lastTimestamp` 一并写回 Redis，新进程领取同一 workerId 时读出并校验，防止「回拨后重启」绕过内存里的检查
-- `borrowedMillis()` 注册为 Micrometer Gauge `id.generator.borrowed.ms`
+- **为什么借用而不是等待**：这次回拨 1.83 秒，等待意味着发号线程整整卡 1.8 秒，下单、支付接口会成片超时；借用只让 ID 时间戳暂时超前，不阻塞发号
+- **阈值取 3 秒**：覆盖本次 1.83 秒并留余量；chrony 改为运行期只平滑调整后，秒级回拨只可能来自节点启动或虚拟机迁移，超过 3 秒仍拒绝发号（抛出 `ClockBackwardException`），由调用方重试到其他实例
+- **重启校验**：workerId 租约每秒续期时把 `lastTimestamp` 一并写回 Redis，新进程领取同一 workerId 时读出并校验，防止「回拨后重启」绕过内存里的检查；组件构造参数为 `(InstantSource clock, long workerId, long persistedLastTimestamp)`，时钟可注入，便于下面的测试
+- **指标**：借用时长注册为 Micrometer Gauge `id.generator.borrowed.ms`
 
 ---
 

@@ -246,7 +246,7 @@ v=0
 ...（SDP answer）
 ```
 
-推流结束时客户端发送 `DELETE /whip/room1001/sessions/7f3a9c` 释放会话；ICE 候选的增量更新用 `PATCH` 发往同一个会话地址。对后端而言，WHIP 端点就是一个普通的 HTTP 接口，鉴权用标准的 Bearer Token，非常适合由 Java 网关做认证后再转发给媒体服务器。
+推流结束时客户端发送 `DELETE /whip/room1001/sessions/7f3a9c` 释放会话；ICE 候选的增量更新用 `PATCH`（`Content-Type: application/trickle-ice-sdpfrag`）发往同一个会话地址。对后端而言，WHIP 端点就是一个普通的 HTTP 接口，鉴权用标准的 Bearer Token，非常适合由 Java 网关做认证后再转发给媒体服务器。
 
 FFmpeg 8.0 起内置实验性的 `whip` 封装器，要求视频为不带 B 帧的 H.264、音频为 Opus：
 

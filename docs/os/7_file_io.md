@@ -236,10 +236,13 @@ Direct IO **不等于落盘**：它跳过 Page Cache，但设备自身的写缓�
 |------|-------|------|
 | `write` | Page Cache | 进程崩溃不丢，断电或内核崩溃会丢 |
 | `fdatasync` | 持久介质 | 只同步数据和必要元数据（如文件大小），Java 为 `force(false)` |
-| `fsync` | 持久介质 | 连同时间戳等全部元数据，Java 为 `force(true)` |
+| `fsync` | 持久介质 | 连同时间戳等全部元数据，Java 为 `force(true)`、`FileDescriptor.sync()` |
 | `O_SYNC` / `O_DSYNC` | 持久介质 | 每次 `write` 都隐含一次同步，Java 为 `StandardOpenOption.SYNC` / `DSYNC` |
+| `msync` | 持久介质 | 同步 `mmap` 映射区域的脏页，Java 为 `MappedByteBuffer.force()` |
 
-`fsync` 会让内核向设备发出缓存刷新（FLUSH / FUA）命令，所以设备写缓存也被覆盖；带掉电保护电容的企业级 SSD 能更快完成这一步。脏页回写参数与 `fsync` 成本见 [内存管理与 Page Cache · write、fsync 与脏页回写](./3_memory#五、write、fsync-与脏页回写)。
+`fsync` 会让内核向设备发出缓存刷新（FLUSH / FUA）命令，所以设备写缓存也被覆盖；带掉电保护电容的企业级 SSD 能更快完成这一步。`write` 之后什么时候自动回写、相关内核参数见 [内存管理与 Page Cache · write、fsync 与脏页回写](./3_memory#五、write、fsync-与脏页回写)。
+
+`fsync` 的耗时取决于磁盘：本地 NVMe SSD 通常在百微秒到毫秒级，云盘与机械盘可达数毫秒以上。所以需要持久化的系统都会想办法**摊薄 fsync**：MySQL 用组提交让一批事务共享一次 redo 刷盘（见 [MySQL 事务与锁](/database/1_mysql/5_topic_transaction)），日志框架的异步 Appender 不在每行日志后刷盘。
 
 ### 2、原子替换文件
 

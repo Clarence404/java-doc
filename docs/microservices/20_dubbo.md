@@ -408,8 +408,6 @@ private OrderService orderService;
 | Spring Boot 版本 | 目前停留在 Boot 3.5 | 随 Spring 官方节奏，已支持 Boot 4 |
 | 生态 | 国内成熟，常与 Nacos / Sentinel / Seata 组合 | 全球主流，Spring 官方维护 |
 
-Spring Cloud OpenFeign 已进入功能完备状态，只做维护；Spring 生态的新项目用 Framework 的 HTTP Service Clients，见 [服务通信](/microservices/12_communication)。
-
 **选型速记**：内部服务间高频调用、性能敏感、团队熟悉 Dubbo → Dubbo；对外暴露多、跨语言、希望紧跟 Spring Boot 版本 → Spring Cloud。两者也常混用：内部 Dubbo，边界 REST。
 
 ---

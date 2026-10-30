@@ -128,70 +128,15 @@ public class StreamSigner {
 
 ### 2、源站回调鉴权
 
-以 SRS 为例，在 vhost 的 `http_hooks` 中配置 `on_publish` 指向业务服务。SRS 在客户端开始推流时以 JSON POST 回调，请求体包含 `action`、`client_id`、`ip`、`vhost`、`app`、`stream`、`param`（推流 URL 的查询串，如 `?expire=...&sign=...`）、`server_id` 等字段；**业务服务返回 HTTP 200 且 `code` 为 0 才放行**，否则 SRS 断开推流。完整配置见 [流媒体服务器](./4_media_server)。
+源站（以 SRS 为例）在客户端开始推流时以 `on_publish` 回调业务服务，推流地址上的 `?expire=...&sign=...` 原样出现在回调的 `param` 字段；业务服务返回 HTTP 200 且 `code` 为 0 才放行，否则源站断开推流。直播业务侧在回调里要守住这几点：
 
-```java
-public record SrsHook(String action,
-                      @JsonProperty("client_id") String clientId,
-                      String ip, String vhost, String app, String stream, String param,
-                      @JsonProperty("server_id") String serverId) {}
+- **推流鉴权**：解析 `param` 取出 `expire` 与 `sign`，用上一小节的 `StreamSigner` 校验，过期或签名不符直接拒绝
+- **开播校验**：房间存在且审核通过、主播未被封禁，全部满足才把房间置为"直播中"并发布开播事件
+- **防双推**：多台源站时两路推流可能落到不同机器，用 Redis `SET NX` 按流名占位、推流期间续期，抢不到就拒绝
+- **断流宽限期**：`on_unpublish` 不立刻判定下播，只记"中断"，30 到 60 秒内重新 `on_publish` 视为续播；释放占位时按 `client_id` 比较，防止旧连接的下播事件关掉新连接
+- **回调要快、只对内网开放**：源站同步等待回调结果，只做 Redis 级别的校验，耗时操作发到消息队列；回调路径放在 `/internal/` 下，网关不对外暴露
 
-@Slf4j
-@RestController
-@RequestMapping("/internal/srs")
-@RequiredArgsConstructor
-public class SrsCallbackController {
-
-    private final StreamSigner signer;
-    private final LiveRoomService roomService;
-
-    @PostMapping("/on_publish")
-    public Map<String, Integer> onPublish(@RequestBody SrsHook hook) {
-        MultiValueMap<String, String> query = parseParam(hook.param());
-        String sign = query.getFirst("sign");
-        long expire = parseLong(query.getFirst("expire"));
-        boolean ok = sign != null
-                && signer.verify(hook.app(), hook.stream(), expire, sign)
-                && roomService.markLive(hook.stream(), hook.serverId(), hook.clientId());
-        if (!ok) {
-            log.warn("推流鉴权失败 stream={} ip={}", hook.stream(), hook.ip());
-        }
-        return Map.of("code", ok ? 0 : 403);
-    }
-
-    @PostMapping("/on_unpublish")
-    public Map<String, Integer> onUnpublish(@RequestBody SrsHook hook) {
-        roomService.markInterrupted(hook.stream(), hook.clientId());   // 先记"中断"，宽限期后再判定下播
-        return Map.of("code", 0);
-    }
-
-    private static MultiValueMap<String, String> parseParam(String param) {
-        if (param == null || param.length() <= 1) {
-            return new LinkedMultiValueMap<>();
-        }
-        String q = param.startsWith("?") ? param.substring(1) : param;
-        return UriComponentsBuilder.newInstance().query(q).build().getQueryParams();
-    }
-
-    private static long parseLong(String s) {
-        try {
-            return s == null ? 0L : Long.parseLong(s);
-        } catch (NumberFormatException e) {
-            return 0L;                                                // 0 一定已过期，校验自然失败
-        }
-    }
-}
-```
-
-`roomService.markLive` 里做业务校验：房间存在且审核通过、主播未被封禁、同一 `streamKey` 当前没有另一路在推（用 Redis `SET live:pusher:{streamKey} {clientId} NX EX 60` 占位，推流期间定时续期），全部满足才把房间置为"直播中"并发布开播事件。多台源站时两路推流可能落到不同机器，单台 SRS 的同名流互斥管不到，这个占位就是防双推的唯一关口。
-
-`roomService.markInterrupted` 只在占位值等于本次 `clientId` 时才删除占位（Lua 脚本比较后删除），并把房间记为"中断"、记下中断时间；宽限期内新连接的 `on_publish` 重新抢到占位即视为续播，超时仍未恢复由定时任务判定下播、结算时长。按 `clientId` 比较是为了防误关：重连时新连接的 `on_publish` 可能先于旧连接的 `on_unpublish` 到达，旧连接的下播事件因 `clientId` 不匹配不会删掉新连接的占位；新连接若因旧占位未释放被拒，推流 SDK 自动重试几秒即可。
-
-几条工程约束：
-
-- **回调接口只对内网开放**：路径放在 `/internal/` 下，网关不对外暴露，并校验来源 IP 或在回调 URL 中带上内部令牌
-- **回调要快**：SRS 同步等待回调结果，业务服务内只做 Redis 级别的校验，耗时操作（发通知、写统计）发到消息队列异步处理
-- **断流宽限期**：`on_unpublish` 不立刻判定下播，主播网络抖动重连很常见，宽限 30 到 60 秒内重新 `on_publish` 视为续播，观众侧播放器自动重试即可
+回调的配置、请求字段、Spring Boot 控制器代码与上述校验的实现细节见 [流媒体服务器 · Spring Boot 回调控制器](./4_media_server#_3、spring-boot-回调控制器)。
 
 ---
 

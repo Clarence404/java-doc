@@ -154,29 +154,16 @@ public void onPaid(PayNotify n) {
 
 ### 2、中继投递
 
-中继既服务「提交后立即发」，也服务「每秒扫表兜底」；两台应用机同时跑，用 `FOR UPDATE SKIP LOCKED` 让同一行只被一个线程处理，原理见 [分布式事务 · 中继投递代码](/distributed/4_transaction#_3、中继投递代码)：
+`OutboxRelay` 有两个入口：`relayOne(id)` 供上面的 `afterCommit` 立即发送，`relayBatch(100)` 由 `OutboxRelayJob` 每秒调用、扫表兜底。两台应用机同时跑，扫表用 `FOR UPDATE SKIP LOCKED` 让同一行只被一个线程处理，加锁查询、事务边界与调度 Bean 的拆分和主文档一致，见 [分布式事务 · 中继投递代码](/distributed/4_transaction#_3、中继投递代码)。青柚特有的只在发送这一步：
 
 ```java
-// com.qingyou.order.outbox.OutboxRelay
-@Transactional
-public void relayOne(long id) {
-    OutboxRecord r = outboxMapper.lockPendingById(id);    // 已发送或被别的线程锁住时返回 null
-    if (r != null) send(r);
-}
-
-@Transactional
-public int relayBatch(int limit) {                         // OutboxRelayJob 每秒调用一次，limit = 100
-    List<OutboxRecord> batch = outboxMapper.lockPending(limit);
-    batch.forEach(this::send);
-    return batch.size();
-}
-
+// com.qingyou.order.outbox.OutboxRelay（节选）
 private void send(OutboxRecord r) {
     MessageBuilder b = provider.newMessageBuilder()
             .setTopic(r.topic())
             .setKeys(r.msgKey())                           // 控制台按订单号查消息，消费端按它去重
             .setBody(r.payload().getBytes(StandardCharsets.UTF_8));
-    if (r.deliverAt() != null) {
+    if (r.deliverAt() != null) {                           // 超时关单：交给 RocketMQ 定时消息
         b.setDeliveryTimestamp(r.deliverAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
     }
     try {
