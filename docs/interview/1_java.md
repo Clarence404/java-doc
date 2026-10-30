@@ -50,7 +50,7 @@ description: Lambda 与 Stream、版本特性、异常、String、泛型、反�
 
 **常见坑**：`Function`、`Consumer` 等接口不能抛受检异常，Lambda 内要捕获后包装成非受检异常再抛。
 
-→ 详见 [Lambda 与 Stream](/java/1_advanced#_2、底层实现-invokedynamic-lambdametafactory)、[内部类](/java/13_topic_inner_class#七、lambda-与匿名类的区别)
+→ 详见 [字节码执行](/jvm/3_bytecode#四、invokedynamic-与-lambda)、[内部类](/java/13_topic_inner_class#七、lambda-与匿名类的区别)
 
 ### Q4：Stream 的惰性求值是什么？有状态 / 无状态 / 短路操作有哪些？`Collectors.toMap` 有哪些坑？`Stream.toList()` 与 `Collectors.toList()` 有什么区别？
 
@@ -138,7 +138,7 @@ User u = findUser(id).orElseGet(this::createDefault);   // 找不到时才创建
 return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(double w, double h) -> w * h; };
 ```
 
-→ 详见 [版本演进](/java/2_version#四、java-21-lts)
+→ 详见 [版本演进](/java/2_version#四、java-21-lts)、[版本演进 · Java 25（LTS）](/java/2_version#六、java-25-lts)
 
 ## 二、语言机制
 

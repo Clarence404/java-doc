@@ -229,13 +229,13 @@ public void closeByActivity(long activityId) throws InterruptedException {
         // 按主键游标分页取 500 条待关闭订单（走 idx_activity_status，不加锁的快照读）
         List<Long> ids = orderMapper.findUnpaidIds(activityId, lastId, 500);
         if (ids.isEmpty()) break;
-        // 每批一个短事务：只做本库的状态更新和日志写入
+        // 每批一个短事务：只做本库的状态更新、日志和本地消息表写入
         transactionTemplate.executeWithoutResult(s -> {
             orderMapper.closeByIds(ids, OrderStatus.UNPAID);   // WHERE id IN (...) AND status = 1
             orderLogMapper.batchInsert(OrderLog.closed(ids, "ops"));
+            // 同一事务写本地消息表，提交后由投递任务发给库存服务异步释放，进程崩溃也不丢
+            outboxMapper.insert(OutboxMessage.ordersClosed(ids));
         });
-        // 事务提交后发事件，由库存服务异步释放（本地消息表保证不丢）
-        eventPublisher.publishOrdersClosed(ids);
         lastId = ids.getLast();
         Thread.sleep(50);                                      // 给在线流量让路
     }

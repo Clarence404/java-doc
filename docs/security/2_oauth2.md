@@ -249,7 +249,7 @@ Bearer 令牌的根本问题是"谁拿到谁能用"。发送方约束（sender-c
 Spring Security 资源服务器已支持校验 DPoP 绑定的访问令牌（JWT 与不透明令牌均可），Spring Authorization Server 也能签发 DPoP 绑定令牌。
 
 ::: warning BFF 是浏览器应用的首选
-SPA 直接做公共客户端（授权码 + PKCE，令牌存在 JS 内存）在规范上可行，但任何 XSS 都能拿到令牌。IETF 的《OAuth 2.0 for Browser-Based Applications》草案把 BFF（Backend for Frontend）列为最推荐的架构：OAuth 流程和令牌都在后端完成，浏览器与 BFF 之间用会话 Cookie，再配合 CSRF 防护，见 [常见漏洞与防护](./8_vulnerabilities)。
+SPA 直接做公共客户端（授权码 + PKCE，令牌存在 JS 内存）在规范上可行，但任何 XSS 都能拿到令牌。RFC 10017（OAuth 2.0 for Browser-Based Applications，2026 年 8 月发布）把 BFF（Backend for Frontend）列为最推荐的架构：OAuth 流程和令牌都在后端完成，浏览器与 BFF 之间用会话 Cookie，再配合 CSRF 防护，见 [常见漏洞与防护](./8_vulnerabilities)。
 :::
 
 ---
@@ -304,7 +304,7 @@ Spring Authorization Server 自 **Spring Security 7.0 起并入 Spring Security 
 - 发送方约束令牌：[RFC 9449 - DPoP](https://datatracker.ietf.org/doc/html/rfc9449)、[RFC 8705 - Mutual-TLS Client Authentication and Certificate-Bound Access Tokens](https://datatracker.ietf.org/doc/html/rfc8705)
 - 授权服务器元数据与 iss 参数：[RFC 8414 - Authorization Server Metadata](https://datatracker.ietf.org/doc/html/rfc8414)、[RFC 9207 - Authorization Server Issuer Identification](https://datatracker.ietf.org/doc/html/rfc9207)
 - 资源指示：[RFC 8707 - Resource Indicators for OAuth 2.0](https://datatracker.ietf.org/doc/html/rfc8707)
-- 浏览器应用架构：[OAuth 2.0 for Browser-Based Applications（IETF 草案）](https://datatracker.ietf.org/doc/draft-ietf-oauth-browser-based-apps/)
+- 浏览器应用架构：[RFC 10017 - OAuth 2.0 for Browser-Based Applications](https://www.rfc-editor.org/rfc/rfc10017.html)
 - Spring Security OAuth2 Client：[OAuth2 Authorized Clients](https://docs.spring.io/spring-security/reference/servlet/oauth2/client/authorized-clients.html)、[HTTP Service Clients Integration](https://docs.spring.io/spring-security/reference/features/integrations/rest/http-service-client.html)
 - Spring Security 资源服务器 DPoP：[DPoP-bound Access Tokens](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/dpop-tokens.html)
 - Spring Authorization Server：[OAuth 2.0 Authorization Server - Getting Started](https://docs.spring.io/spring-security/reference/servlet/oauth2/authorization-server/getting-started.html)

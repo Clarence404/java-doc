@@ -365,7 +365,7 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 - `fallback` 方法参数和原方法一样，可以多加一个 `Throwable`
 - 非幂等写操作的兜底不要假装成功，要明确报错
 
-→ 详见 [Spring Cloud Alibaba](/microservices/15_alibaba#_1、资源定义与兜底)、[熔断](/high-avail/5_circuit_breaking#六、openfeign-接入-sentinel)
+→ 详见 [Spring Cloud Alibaba](/microservices/15_alibaba#_1、资源定义与兜底)
 
 ---
 

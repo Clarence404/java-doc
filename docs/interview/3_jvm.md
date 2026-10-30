@@ -118,7 +118,7 @@ description: 内存结构、类加载、字节码执行、GC 原理与收集器�
 
 **常见坑**：对用户输入、订单号这类数量不受控的字符串调 `intern()`，常量池会越来越大。
 
-→ 详见 [内存结构](/jvm/1_memory#_1、intern)
+→ 详见 [String · intern 的使用建议](/java/11_topic_string#_3、intern-的使用建议)、[内存结构](/jvm/1_memory#_1、intern)
 
 ## 二、类加载
 

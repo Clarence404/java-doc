@@ -62,6 +62,7 @@ stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
 const ws = new WebSocket(`wss://rtc.example.com/ws/signal?ticket=${ticket}`);
 const send = (type, to, data) => ws.send(JSON.stringify({ type, to, data }));
+let peerId;                                   // 当前通话对端，发 offer 或收到 offer 时确定
 
 // 4. 每收集到一个候选就发给对方（Trickle ICE）
 pc.onicecandidate = ({ candidate }) => {

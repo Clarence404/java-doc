@@ -103,7 +103,7 @@ cloud-init analyze blame
 
 ## 三、用 cloud-config 准备一台 Java 服务器
 
-下面的 user-data 让一台全新的 Ubuntu 24.04 开机后自动完成：建运行用户、装 JRE 21、写 systemd 服务文件和应用配置、下载 jar、启动服务。用户名、目录和 unit 内容与 [Linux 概览](./1_linux) 中的 systemd 示例一致；RHEL 系把包名换成 `java-21-openjdk-headless` 即可。
+下面的 user-data 让一台全新的 Ubuntu 26.04 开机后自动完成：建运行用户、装 JRE 21、写 systemd 服务文件和应用配置、下载 jar、启动服务。用户名、目录和 unit 内容与 [Linux 概览](./1_linux) 中的 systemd 示例一致；RHEL 系把包名换成 `java-21-openjdk-headless` 即可。
 
 ```yaml
 #cloud-config
@@ -206,7 +206,7 @@ Packer 是 HashiCorp 的镜像构建工具：读取 HCL2 模板，临时启动�
 
 ### 1、模板示例
 
-下面以 AWS 为例（`amazon` 插件最成熟），基于最新的 Ubuntu 24.04 官方镜像构建一个带 JRE 21、node_exporter 和 OpenTelemetry Java Agent 的基础镜像。阿里云对应的是 `hashicorp/alicloud` 插件的 `alicloud-ecs` builder，结构相同。
+下面以 AWS 为例（`amazon` 插件最成熟），基于最新的 Ubuntu 26.04 官方镜像构建一个带 JRE 21、node_exporter 和 OpenTelemetry Java Agent 的基础镜像。阿里云对应的是 `hashicorp/alicloud` 插件的 `alicloud-ecs` builder，结构相同。
 
 ```hcl
 # java-base.pkr.hcl
@@ -249,7 +249,7 @@ source "amazon-ebs" "java_base" {
 
   source_ami_filter {
     filters = {
-      name                = "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"
+      name                = "ubuntu/images/hvm-ssd-gp3/ubuntu-resolute-26.04-amd64-server-*"
       root-device-type    = "ebs"
       virtualization-type = "hvm"
     }
@@ -410,7 +410,7 @@ data "aws_ami" "java_base" {
 
 ---
 
-## 七、三个工具的分工与容器时代的位置
+## 七、四个工具的分工与容器时代的位置
 
 | 阶段 | 工具 | 负责什么 | 频率 |
 |------|------|------|------|

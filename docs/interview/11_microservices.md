@@ -24,7 +24,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 该拆的信号：多个团队抢同一个发布窗口、模块迭代节奏差别大、个别模块要单独扩容
 - 先别拆的信号：业务边界还模糊、团队小、容器化和监控等基础设施没跟上（先在单体内做模块化）
 
-→ 详见 [微服务优势与挑战](/microservices/1_pros_and_cons#五、何时拆分)
+→ 详见 [服务拆分](/microservices/2_service_split#一、什么时候该拆、什么时候不该拆)
 
 ### Q2：微服务和 SOA 的区别是什么？
 
@@ -336,7 +336,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **一句话**：编排式有一个「总指挥」统一调度，流程清楚好监控，适合步骤多、补偿复杂；协同式没有总指挥，各服务听事件自己往下走，适合步骤少。
 
-→ 完整答案见 [分布式面试题解答](/interview/10_distributed) Q16；正文详见 [微服务设计模式](/microservices/3_patterns#_4、saga)、[分布式事务](/distributed/4_transaction#四、saga)
+→ 完整答案见 [分布式面试题解答](/interview/10_distributed) Q16；正文详见 [分布式事务](/distributed/4_transaction#四、saga)
 
 ### Q28：消费者驱动契约测试解决什么问题？
 

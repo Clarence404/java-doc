@@ -156,7 +156,7 @@ Optional<String> o = Optional.ofNullable(System.getenv("APP_ENV"));
 EnumSet<DayOfWeek> weekend = EnumSet.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 ```
 
-相比构造方法的好处：有名字（`ofNullable` 比构造方法更能表达意图）、可以返回缓存实例、可以返回子类型（`EnumSet.of` 按元素个数返回 `RegularEnumSet` 或 `JumboEnumSet`）。
+相比构造方法的好处：有名字（`ofNullable` 比构造方法更能表达意图）、可以返回缓存实例、可以返回子类型（`EnumSet.of` 按枚举类型的常量总数返回实现：不超过 64 个用 `RegularEnumSet`，否则用 `JumboEnumSet`，与传入几个元素无关）。
 
 ---
 

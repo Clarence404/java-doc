@@ -208,10 +208,9 @@ dump 目录改挂持久卷，避免重启丢现场。
 
 ```yaml
 - alert: JvmHeapAfterGcHigh
-  # GC 后老年代占用仍超过 85%，比"堆使用率高"更能反映泄漏
+  # GC 后老年代占用仍超过 85%，比"堆使用率高"更能反映泄漏（Micrometer：live = 最近一次 GC 后的老年代占用）
   expr: |
-    jvm_memory_used_bytes{area="heap", id="G1 Old Gen"}
-      / jvm_memory_max_bytes{area="heap", id="G1 Old Gen"} > 0.85
+    jvm_gc_live_data_size_bytes / jvm_gc_max_data_size_bytes > 0.85
   for: 10m
   labels: {severity: warning}
 - alert: JvmFullGcFrequent

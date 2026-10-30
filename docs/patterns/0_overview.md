@@ -57,7 +57,7 @@
 | 16 | 中介者（Mediator） | 行为型 | 集中管理对象间通信 | `java.util.Timer`、`ExecutorService`（Refactoring.Guru 列举） |
 | 17 | 备忘录（Memento） | 行为型 | 保存 / 恢复对象状态 | 编辑器撤销 / 重做、快照恢复 |
 | 18 | 观察者（Observer） | 行为型 | 状态变化自动通知 | Spring 事件（`@EventListener`）、`PropertyChangeListener` |
-| 19 | 状态（State） | 行为型 | 状态驱动行为切换 | 订单状态机、Spring Statemachine |
+| 19 | 状态（State） | 行为型 | 状态驱动行为切换 | 订单状态机、COLA StateMachine |
 | 20 | 策略（Strategy） | 行为型 | 算法族可互换 | `Comparator`、线程池 `RejectedExecutionHandler` |
 | 21 | 模板方法（Template Method） | 行为型 | 固定骨架，子类实现步骤 | `AbstractList`、`AbstractApplicationContext.refresh()` |
 | 22 | 访问者（Visitor） | 行为型 | 不修改类增加操作 | `FileVisitor`（`Files.walkFileTree`）、Spring `BeanDefinitionVisitor` |

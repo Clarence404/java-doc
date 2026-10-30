@@ -254,7 +254,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 滑动窗口：默认把 1 秒分成 2 个 500ms 的小格，环形数组循环复用，统计时把窗口内的格子加起来
 - 为什么用滑动窗口：避免固定窗口在两个窗口交界处瞬间放进两倍流量
 
-→ 详见 [限流与过载保护](/high-avail/7_rate_limiting#八、sentinel-限流)、[Spring Cloud Alibaba](/microservices/15_alibaba#三、sentinel-流控与熔断)
+→ 详见 [Spring Cloud Alibaba · Slot 链：规则是怎么生效的](/microservices/15_alibaba#_6、slot-链-规则是怎么生效的)、[限流与过载保护](/high-avail/7_rate_limiting#八、sentinel-限流)
 
 ### Q20：Sentinel 有哪些流控效果和熔断策略？规则如何持久化？
 

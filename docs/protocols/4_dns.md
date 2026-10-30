@@ -193,7 +193,7 @@ DNS 只在**建立连接时**生效。连接池里的长连接会一直连着旧
 
 | 属性 | 默认值 | 含义 |
 |------|--------|------|
-| `networkaddress.cache.ttl` | 由实现决定，OpenJDK 在未启用 SecurityManager 时为 30 秒；启用 SecurityManager 时永久缓存 | 解析成功的结果缓存多少秒，`-1` 表示永久 |
+| `networkaddress.cache.ttl` | 由实现决定，OpenJDK 在未启用 SecurityManager 时为 30 秒；启用 SecurityManager 时永久缓存（仅 JDK 23 及以前，JDK 24 起 JEP 486 已无法启用 SecurityManager） | 解析成功的结果缓存多少秒，`-1` 表示永久 |
 | `networkaddress.cache.negative.ttl` | 10 秒 | 解析失败的结果缓存多少秒，`0` 表示不缓存 |
 | `networkaddress.cache.stale.ttl` | 未设置，即不使用过期记录 | 记录过期且重新解析失败时，旧结果还能继续使用多少秒，用于 DNS 短暂故障时保持可用；JDK 21 的 API 文档已包含 |
 
@@ -226,7 +226,7 @@ public class DnsCacheDemo {
 
 **常见坑**：
 
-- 老应用开着 SecurityManager 时，解析结果永久缓存，域名切换后必须重启。即使没有开启，30 秒的固定缓存也意味着 JVM 不会遵守你在 DNS 上设的更短 TTL
+- 老应用（JDK 23 及以前）开着 SecurityManager 时，解析结果永久缓存，域名切换后必须重启。即使没有开启，30 秒的固定缓存也意味着 JVM 不会遵守你在 DNS 上设的更短 TTL
 - 负缓存会放大故障：DNS 抖动期间一次解析失败，会让后续 10 秒内的同名解析都直接失败
 - JDK 18 起提供 `InetAddressResolver` SPI（JEP 418），可以替换 JVM 的解析实现，例如接入自研的服务发现或 HTTPDNS；Netty 则有自带的异步 `DnsNameResolver`，不占用 IO 线程
 

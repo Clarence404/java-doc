@@ -12,7 +12,7 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 
 ## 一、IoT 数据链路
 
-整条链路：设备经 MQTT 上报，EMQX 规则引擎转发到 Kafka，Flink 做清洗、窗口聚合与告警，结果写入 TDengine 超表，再用降采样控制存储、用 Grafana 出看板和告警。版本基线：EMQX 5.9+ / 6.x（配置为 5.x 起的 HOCON 语法）、Flink 2.2.x + `flink-connector-kafka:5.0.0-2.2`、TDengine 3.3.x / 3.4.x + `taos-jdbcdriver` 3.9.x、JDK 21 / Spring Boot 4。
+整条链路：设备经 MQTT 上报，EMQX 规则引擎转发到 Kafka，Flink 做清洗、窗口聚合与告警，结果写入 TDengine 超表，再用降采样控制存储、用 Grafana 出看板和告警。版本基线：EMQX 5.9+ / 6.x（配置为 5.x 起的 HOCON 语法）、Flink 2.2.x + `flink-connector-kafka:5.0.0-2.2`、TDengine 3.4.x + `taos-jdbcdriver` 3.9.x、JDK 21 / Spring Boot 4。
 
 ### 1、IoT 数据的特点
 

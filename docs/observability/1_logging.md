@@ -159,7 +159,7 @@ traceId 每个请求都不同，做成标签会让每个请求成为一条独立
 
 | Agent | 实现 | 特点 | 适合 |
 |-------|------|------|------|
-| OpenTelemetry Collector | Go | `filelog` receiver 读取容器日志，与指标、链路共用一套配置和 OTLP 协议；处理器生态丰富 | 新建平台、希望三种信号统一采集 |
+| OpenTelemetry Collector | Go | `file_log` receiver 读取容器日志，与指标、链路共用一套配置和 OTLP 协议；处理器生态丰富 | 新建平台、希望三种信号统一采集 |
 | Fluent Bit | C | 内存占用很小，Kubernetes 元数据过滤器成熟，直接输出到 Loki、Elasticsearch、Kafka 等 | 资源敏感的节点 Agent |
 | Vector | Rust | 内置 VRL 转换语言，转换与路由能力强，可同时做 Agent 和聚合层 | 需要复杂清洗、多目标路由 |
 | Filebeat / Elastic Agent | Go | Elastic 官方，与 Elasticsearch 的索引模板、Ingest Pipeline 配套 | 已经是 Elastic 技术栈 |
@@ -175,7 +175,7 @@ extensions:
     directory: /var/lib/otelcol/file_storage   # 持久化读取位点，Collector 重启后不重复、不丢失
 
 receivers:
-  filelog:
+  file_log:
     include:
       - /var/log/pods/*/*/*.log
     exclude:
@@ -193,7 +193,7 @@ processors:
     check_interval: 1s
     limit_percentage: 80
     spike_limit_percentage: 25
-  k8sattributes:
+  k8s_attributes:
     auth_type: serviceAccount
     pod_association:
       - sources:
@@ -215,22 +215,23 @@ processors:
   batch: {}
 
 exporters:
-  otlphttp/loki:
+  otlp_http/loki:
     endpoint: http://loki-gateway.monitoring.svc/otlp
 
 service:
   extensions: [file_storage]
   pipelines:
     logs:
-      receivers: [filelog]
-      processors: [memory_limiter, k8sattributes, resource, batch]
-      exporters: [otlphttp/loki]
+      receivers: [file_log]
+      processors: [memory_limiter, k8s_attributes, resource, batch]
+      exporters: [otlp_http/loki]
 ```
 
-- `container` 解析器从文件路径中解析出 `k8s.namespace.name`、`k8s.pod.name`、`k8s.pod.uid`、`k8s.container.name` 等资源属性；`k8sattributes` 再按 Pod UID 去 Kubernetes API 查询 Deployment 名和 Pod 标签，需要为 Collector 的 ServiceAccount 授予读取 Pod、ReplicaSet 等资源的 RBAC 权限
+- `container` 解析器从文件路径中解析出 `k8s.namespace.name`、`k8s.pod.name`、`k8s.pod.uid`、`k8s.container.name` 等资源属性；`k8s_attributes` 再按 Pod UID 去 Kubernetes API 查询 Deployment 名和 Pod 标签，需要为 Collector 的 ServiceAccount 授予读取 Pod、ReplicaSet 等资源的 RBAC 权限
 - `memory_limiter` 放在处理器链的第一位，内存接近上限时拒绝新数据，避免 Collector 被 OOMKill
 - 应用输出的 JSON 原样作为日志正文（body）存入 Loki，查询时用 `| json` 解析；Loki 把 `service.name`、`k8s.namespace.name` 等资源属性转为索引标签 `service_name`、`k8s_namespace_name`（点号替换为下划线），其余属性存为结构化元数据
-- 向 Loki 发送日志请使用 `otlphttp` exporter 并指向 `/otlp` 路径，这是 Loki 3 推荐的原生 OTLP 接入方式
+- 向 Loki 发送日志请使用 `otlp_http` exporter 并指向 `/otlp` 路径，这是 Loki 3 推荐的原生 OTLP 接入方式
+- 组件名采用 Collector 的 snake_case 新名（`file_log`、`k8s_attributes`、`otlp_http`），旧名 `filelog`、`k8sattributes`、`otlphttp` 作为弃用别名仍可用，见 [OpenTelemetry](./5_opentelemetry)
 
 ### 4、Fluent Bit 采集配置
 
@@ -478,7 +479,7 @@ processors:
 - 级别语义全团队统一：ERROR 必须可行动，生产默认 INFO，DEBUG 用 Actuator 临时开启；同一异常只记录一次，防止日志风暴
 - 全公司选定一种结构化格式（如 ECS），message 写固定文本、业务键放独立字段；Pod、节点等基础设施字段交给采集 Agent 补充
 - traceId 由 Micrometer Tracing 写入 MDC，在响应头中返回给调用方；Grafana 用派生字段和 trace to logs 打通日志与链路；traceId 永远不做 Loki 标签
-- Kubernetes 下应用只写 stdout，由 DaemonSet Agent（OTel Collector `filelog`、Fluent Bit、Vector）采集，持久化读取位点，`memory_limiter` 放第一位
+- Kubernetes 下应用只写 stdout，由 DaemonSet Agent（OTel Collector `file_log`、Fluent Bit、Vector）采集，持久化读取位点，`memory_limiter` 放第一位
 - 以排障为主选 Loki（只索引标签、成本低），需要全文检索选 Elasticsearch，海量分析选 ClickHouse；Loki 标签只放低基数维度，高基数值放结构化元数据
 - LogQL 先用标签选流、再用行过滤器筛选、最后解析；指标查询用于临时分析，长期看板基于 Micrometer 指标
 - 成本控制靠源头控量、管道丢噪声、存储限流、分级保留与冷热分层；脱敏以源头为主、管道兜底、存储层做权限隔离

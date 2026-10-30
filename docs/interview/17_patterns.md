@@ -6,7 +6,7 @@ description: 设计原则、单例与工厂、代理与装饰器、策略与模�
 
 > 题目清单见 [设计模式面试题](/patterns/99_interview)；细节见 [设计模式总览](/patterns/0_overview)。JDK 动态代理与 CGLIB 的实现差异见 [Java 基础面试题解答](/interview/1_java)，Spring AOP 与事务失效见 [Spring 面试题解答](/interview/5_spring)。
 >
-> 版本基线：示例代码默认 JDK 21（record、sealed、switch 模式匹配），Spring 类名以 Spring Framework 6.x / 7.x 为准；模式定义以 GoF 原书与 Refactoring.Guru 为准。
+> 版本基线：示例代码默认 JDK 21（record、sealed、switch 模式匹配），Spring 类名以 Spring Framework 7 为准；模式定义以 GoF 原书与 Refactoring.Guru 为准。
 
 ## 一、设计原则
 
@@ -120,7 +120,7 @@ description: 设计原则、单例与工厂、代理与装饰器、策略与模�
 
 **常见坑**：把 Spring `scope=prototype` 或 `BeanUtils.copyProperties` 当成原型模式。前者每次 new 一个新实例，后者只是浅层属性复制。
 
-→ 详见 [原型模式](/patterns/5_creational_prototype#_2、浅拷贝与深拷贝)
+→ 详见 [原型模式](/patterns/5_creational_prototype#_2、浅拷贝与深拷贝)、[原型模式 · 实现（JDK 21）](/patterns/5_creational_prototype#二、实现-jdk-21)
 
 ## 三、结构型模式
 

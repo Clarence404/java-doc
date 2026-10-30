@@ -55,7 +55,7 @@ public class OrderController {
 ### 4、版本状态
 
 - **Micronaut 5.0** 于 2026 年 5 月 GA，**Java 基线提升到 Java 25**，`micronaut-jackson-databind` 升级到 Jackson 3，移除 RxJava 2 支持
-- 截至 2026 年 8 月底最新为 5.1.x；仍在 Java 17 / 21 上的项目只能停留在 4.x 线
+- 截至 2026 年 10 月最新为 5.2.x（5.2.0 于 9 月发布）；仍在 Java 17 / 21 上的项目只能停留在 4.x 线
 
 ### 5、适合谁
 

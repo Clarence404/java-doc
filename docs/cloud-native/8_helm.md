@@ -224,14 +224,24 @@ spec:
           env:
             - name: JAVA_TOOL_OPTIONS
               value: {{ .Values.javaOpts | quote }}
-          readinessProbe:
+          startupProbe:
             httpGet:
-              path: /actuator/health/readiness
+              path: /actuator/health/liveness
               port: http
+            periodSeconds: 5
+            failureThreshold: 30          # 最多给 150s 启动时间
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: http
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            periodSeconds: 5
+            failureThreshold: 3
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 ```

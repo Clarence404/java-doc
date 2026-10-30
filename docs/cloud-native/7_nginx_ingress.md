@@ -20,7 +20,7 @@ Kubernetes 官方已冻结 Ingress API、推荐改用 Gateway API，社区版 in
 
 1. **外部负载均衡**：云厂商的 SLB / NLB，或自建 LVS，负责四层转发，给入口一个固定的公网 IP
 2. **七层入口**：Nginx、Ingress 控制器或 Gateway API 实现，按域名和路径路由、卸载 TLS
-3. **Service**：集群内的稳定访问点，入口控制器通常直接读取它背后的 Endpoints，把请求发给 Pod
+3. **Service**：集群内的稳定访问点，入口控制器通常直接读取它背后的 EndpointSlice，把请求发给 Pod
 4. **Pod**：真正处理请求的应用实例
 
 虚拟机时代，第 2 跳就是一台手工维护配置的 Nginx。到了 Kubernetes，Pod 的 IP 随时在变，手写 `upstream` 不再可行，于是有了**控制器模式**：用户只声明「哪个域名、哪个路径转给哪个 Service」，控制器监听这些资源，自动生成并热加载代理配置。Ingress 和 Gateway API 就是这份声明的两代标准。

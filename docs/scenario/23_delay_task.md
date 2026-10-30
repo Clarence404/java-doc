@@ -112,7 +112,7 @@ CREATE TABLE delay_task (
 );
 ```
 
-- **按到期日分区**：预加载只扫今天（跨零点时加上明天）的分区；已执行完的历史分区保留 7 天后直接 `DROP PARTITION`，不用逐行删除
+- **按到期日分区**：预加载的条件只有上限（`execute_at < 窗口末尾`），分区裁剪排除的是未来的分区；待执行任务绝大多数在今天（跨零点时加上明天）的分区，之前的分区只剩少量过期未投递的任务，借 `idx_scan` 很快扫完。已执行完的历史分区保留 7 天后直接 `DROP PARTITION`（删前确认没有 `status = 0` 的任务），不用逐行删除
 - MySQL 分区表要求主键和唯一键都包含分区列，所以主键是 `(id, execute_at)`，唯一键是 `(biz_type, biz_key, execute_at)`，后者让业务方重复提交同一任务时只插入一次
 - `idx_scan` 让预加载按「分片 + 状态 + 时间范围」走索引，每个节点只碰自己的分片
 - 逻辑分片按 `biz_key` 计算，同一业务对象的任务总在同一分片；1024 个逻辑分片再映射到若干物理库，扩容时搬分片而不是改哈希，做法见 [一致性哈希](/distributed/9_consistent_hashing)
@@ -295,7 +295,7 @@ if (rows == 0) return;
 ## 参考资料
 
 - Apache RocketMQ 定时 / 延时消息：[https://rocketmq.apache.org/docs/featureBehavior/02delaymessage/](https://rocketmq.apache.org/docs/featureBehavior/02delaymessage/)
-- Netty `HashedWheelTimer` API：[https://netty.io/4.1/api/io/netty/util/HashedWheelTimer.html](https://netty.io/4.1/api/io/netty/util/HashedWheelTimer.html)
+- Netty `HashedWheelTimer` API：[https://netty.io/4.2/api/io/netty/util/HashedWheelTimer.html](https://netty.io/4.2/api/io/netty/util/HashedWheelTimer.html)
 - Varghese & Lauck, Hashed and Hierarchical Timing Wheels（1987）：[https://dl.acm.org/doi/10.1145/41457.37504](https://dl.acm.org/doi/10.1145/41457.37504)
 - Apache Kafka, Purgatory Redesign Proposal（分层时间轮）：[https://cwiki.apache.org/confluence/display/KAFKA/Purgatory+Redesign+Proposal](https://cwiki.apache.org/confluence/display/KAFKA/Purgatory+Redesign+Proposal)
 - JDK 21 `DelayQueue`：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/DelayQueue.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/DelayQueue.html)

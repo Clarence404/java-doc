@@ -152,7 +152,7 @@ ts=2026-10-08 21:12:41.207; [cost=0.012ms] result=@ArrayList[
 ]
 ```
 
-订单服务用 `AbstractRoutingDataSource` 做读写分离：`@Transactional(readOnly = true)` 的方法一律路由到从库。订单详情接口就是只读方法，支付回调写主库后，用户紧接着刷新详情，读到的是延迟中的从库。
+订单服务用 `AbstractRoutingDataSource` 做读写分离（外面包了一层 `LazyConnectionDataSourceProxy`，第一条 SQL 执行时才取连接，路由才能读到事务的 `readOnly` 标志，见 [数据库连接池 · 读写分离多数据源](/database/4_access/2_connection_pool#_3、读写分离多数据源)），`@Transactional(readOnly = true)` 的方法一律路由到从库。订单详情接口就是只读方法，支付回调写主库后，用户紧接着刷新详情，读到的是延迟中的从库。
 
 ---
 
@@ -179,6 +179,8 @@ ts=2026-10-08 21:12:41.207; [cost=0.012ms] result=@ArrayList[
 **写后读走主库**：支付、下单、取消等写操作完成后，给该用户打一个短时"读主"标记，标记期内的读请求路由到主库：
 
 ```java
+// 注册为 Bean 时必须包 LazyConnectionDataSourceProxy：事务开启时就取连接，那时 readOnly 还没设到线程上，
+// 不包的话 isCurrentTransactionReadOnly() 永远是 false，全部落主库
 public class RoutingDataSource extends AbstractRoutingDataSource {
     @Override
     protected Object determineCurrentLookupKey() {

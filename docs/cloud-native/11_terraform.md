@@ -93,10 +93,10 @@ data "alicloud_instance_types" "c2m4" {
   system_disk_category = "cloud_essd"
 }
 
-# 查最新的 Ubuntu 24.04 公共镜像
+# 查最新的 Ubuntu 26.04 公共镜像
 data "alicloud_images" "ubuntu" {
   owners      = "system"
-  name_regex  = "^ubuntu_24_04_x64"
+  name_regex  = "^ubuntu_26_04_x64"
   most_recent = true
 }
 

@@ -39,8 +39,9 @@ public class ApiVerticle extends VerticleBase {
     router.route().handler(ResponseTimeHandler.create());
     router.route().handler(TimeoutHandler.create(5_000));          // 5s 未响应返回 503
 
-    // 2. 请求体：只挂在需要的路径上
-    router.route("/api/*").handler(BodyHandler.create().setBodyLimit(1024 * 1024));
+    // 2. 请求体：只挂在需要的路径上，排除流式上传的 /api/files/
+    router.routeWithRegex("^/api/(?!files/).*")
+        .handler(BodyHandler.create().setBodyLimit(1024 * 1024));
 
     // 3. 业务子路由
     router.route("/api/orders/*").subRouter(new OrderRoutes(vertx).router());
@@ -110,7 +111,7 @@ router.put("/api/files/:name").handler(ctx -> {
 });
 ```
 
-`pipeTo` 内部用 `pause()` / `resume()` 做流控，避免慢磁盘拖爆内存。注意文件名一定要做路径穿越校验。
+`pipeTo` 内部用 `pause()` / `resume()` 做流控，避免慢磁盘拖爆内存。注意文件名一定要做路径穿越校验。流式路由的路径不能被 BodyHandler 覆盖：BodyHandler 会先把整个请求体读进内存，超过 1 MB 直接返回 413，到不了这里，所以前面的 BodyHandler 用正则排除了 `/api/files/`。
 
 ---
 

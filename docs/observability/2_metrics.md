@@ -323,7 +323,7 @@ metadata:
   name: order-service
   namespace: order
   labels:
-    release: kube-prometheus-stack   # 需匹配 Prometheus 资源的 serviceMonitorSelector
+    release: monitoring        # 需匹配 Prometheus 的 serviceMonitorSelector，默认是 Helm release 名
 spec:
   selector:
     matchLabels:

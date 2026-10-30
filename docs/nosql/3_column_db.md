@@ -25,7 +25,7 @@ HBase 的「列族」只决定哪些列放进同一组文件，每个列族内�
 - 设计目标：百亿行级数据的**按 RowKey 随机实时读写**
 - 适合：用户行为明细、消息存储、Feed、画像宽表、设备明细等「按键查」的海量数据
 - 不适合：多表 JOIN、频繁的大范围聚合分析、数据量不大（千万行以内用 MySQL 即可）
-- 版本：稳定线为 2.5 / 2.6，3.0 仍处于 beta 阶段
+- 版本：2.5 / 2.6 仍是存量主力，3.0 已于 2026 年 8 月发布首个 GA 版本（要求 JDK 17+），新集群可评估 3.x
 
 同属宽列存储的 **Apache Cassandra** 采用无中心的对等架构（无 Master、无 HDFS 依赖），可调一致性级别，适合多数据中心写入；国内大数据生态里 HBase 更常见，本篇不展开 Cassandra。
 
@@ -132,7 +132,7 @@ public final class RowKeys {
 
 ### 1、定位与版本
 
-- 最初由 Yandex 开发并于 2016 年开源，2021 年独立为 ClickHouse Inc.，Apache 2.0 协议，当前主线为 25.x（每月发版，LTS 为每年的 .3 与 .8 版本）
+- 最初由 Yandex 开发并于 2016 年开源，2021 年独立为 ClickHouse Inc.，Apache 2.0 协议，当前主线为 26.x（每月发版，LTS 为每年的 .3 与 .8 版本）
 - 擅长：亿级到百亿级数据的聚合查询秒级返回，批量写入吞吐高
 - 不擅长：高并发单行点查、频繁的单行更新、多表大 JOIN、强事务
 
@@ -263,7 +263,7 @@ SELECT count() FROM events_all WHERE event_date = today();
 | 操作 | 方式 | 说明 |
 |------|------|------|
 | 删除 | 轻量级 `DELETE FROM t WHERE ...`（23.3 起 GA） | 先给行打删除标记，查询时过滤，后台 Merge 时物理删除 |
-| 更新 | 轻量级 `UPDATE t SET ... WHERE ...`（25.7 引入，目前为 Beta，基于 patch part） | 表需开启 `enable_block_number_column` 与 `enable_block_offset_column`；只写入变更的列，查询时叠加，仍不适合高频单行更新 |
+| 更新 | 轻量级 `UPDATE t SET ... WHERE ...`（25.7 引入，26.10 起 GA，基于 patch part） | 表需开启 `enable_block_number_column` 与 `enable_block_offset_column`；只写入变更的列，查询时叠加，仍不适合高频单行更新 |
 | 删除 / 更新（旧方式） | `ALTER TABLE ... DELETE / UPDATE`（Mutation） | 重写受影响的整个 Part，开销大，适合低频批量修正 |
 | 按版本覆盖 | `ReplacingMergeTree` + `FINAL` / `argMax` | 把更新转成追加新版本 |
 | 事务 | 单次 INSERT 的一个数据块是原子的 | 多语句事务仍是实验特性，不要按 OLTP 事务使用 |
@@ -348,7 +348,7 @@ OLAP 在整体架构中的位置（读写分离到异构存储、冷热分层）
 - ClickHouse 的 MergeTree：分区用于裁剪与整块删除，ORDER BY 即稀疏索引；新增跳数索引要 `MATERIALIZE INDEX` 才覆盖存量数据
 - ReplacingMergeTree 只在 Merge 时、分区内去重，查询需 `FINAL` 或 `argMax`
 - INSERT 本地表只写当前节点的 shard，按分片键分发要写分布式表或由客户端路由
-- 删除用轻量级 DELETE，更新可用 25.7 起的轻量级 UPDATE（Beta），但都不适合高频单行修改；单次 INSERT 块原子，无 OLTP 事务
+- 删除用轻量级 DELETE，更新可用轻量级 UPDATE（25.7 引入，26.10 起 GA），但都不适合高频单行修改；单次 INSERT 块原子，无 OLTP 事务
 - 写入每批 1 万到 10 万行，小客户端多就开 `async_insert`
 - 需要多表 JOIN 和实时更新时选 Doris / StarRocks（MySQL 协议、主键模型）
 

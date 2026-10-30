@@ -141,6 +141,7 @@ public class KafkaErrorConfig {
 Spring Boot 检测到 `CommonErrorHandler` 类型的 Bean 会自动装配到监听容器工厂。要点：
 
 - **阻塞重试**：错误处理器把失败位置 seek 回去、退避后重新拉取，重试期间该分区后续消息等待，顺序不乱；单次退避间隔加上处理耗时要小于 `max.poll.interval.ms`，否则会触发 Rebalance
+- **不配 recoverer 的默认行为**：`new DefaultErrorHandler()` 的默认退避是 `FixedBackOff(0, 9)`，即不等待地重试 9 次（共 10 次投递），之后默认 recoverer 只把这条记录打一行 ERROR 日志，offset 照常提交，消息就此跳过；所以生产环境一定要配死信 recoverer
 - **死信**：死信消息带有原 Topic、分区、offset、异常栈等 Header，便于排查；需要有消费者或告警盯着 DLT，修复后可重放
 - **非阻塞重试**：对时延不敏感、允许乱序的场景可用 `@RetryableTopic`，失败消息转到重试 Topic 延迟处理，主分区不被卡住；代价是同一 key 的消息可能乱序
 

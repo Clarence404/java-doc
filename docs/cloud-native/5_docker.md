@@ -69,7 +69,7 @@ docker load -i nginx-1.28.tar
 ```bash
 docker run -d --name web -p 8080:80 --restart unless-stopped \
   --memory 512m --cpus 1 nginx:1.28   # 后台运行，并限制内存与 CPU
-docker run -it --rm ubuntu:24.04 bash # 交互式临时容器，退出即删除
+docker run -it --rm ubuntu:26.04 bash # 交互式临时容器，退出即删除
 
 docker ps                             # 运行中的容器；-a 包含已停止的
 docker logs -f --tail 100 web         # 跟随日志
@@ -197,7 +197,7 @@ docker run -d --name demo -p 8080:8080 --memory 1g demo-app:1.0.0
 - **最终镜像不含 JDK、Maven 和源码**：体积小，攻击面也小
 - **非 root 运行**：容器逃逸时影响更小，Kubernetes 的 `runAsNonRoot` 策略也要求这一点
 - **依赖层缓存**：先复制 `pom.xml` 下载依赖、再复制源码，源码变更时复用依赖层；用 Maven Wrapper 的项目改为先 `COPY .mvn/ mvnw pom.xml` 再执行 `./mvnw -B dependency:go-offline`
-- **`cp target/*.jar` 只匹配一个文件**：Spring Boot 打包后原始 jar 被重命名为 `.original`，`target/` 下只剩一个可执行 jar
+- **`cp target/*.jar` 默认只匹配一个文件**：Spring Boot Maven 插件 repackage 后把原始 jar 改名为 `*.jar.original`，`target/` 下只剩一个可执行 jar；若项目还产出 sources / javadoc 等其他 jar，通配符会匹配多个文件导致 `cp` 失败，这时在 pom 里写 `<finalName>` 并复制确切文件名，见 [制品与版本管理](/devops/5_artifact_version)
 - **运行阶段换 Alpine**：基础镜像改为 `eclipse-temurin:21-jre-alpine`，BusyBox 没有 `groupadd`，建用户改为 `addgroup -S app && adduser -S -G app app`
 - **`-jar application.jar` 启动的是解压后的瘦 JAR**：它只包含应用代码，依赖通过 classpath 引用旁边的 `lib/` 目录；这种布局同时适合做 CDS / AOT 缓存，见 [启动与部署优化](/spring-boot/13_startup)
 - **容器感知**：JDK 10 起 JVM 默认按 cgroup 限制计算堆大小和 CPU 数，用 `-XX:MaxRAMPercentage` 按比例设堆，不要写死 `-Xmx`；比例通常取 50～75（本篇示例统一用 75，堆外内存多的应用取低值），堆外内存怎么核算见 [GC 调优 · 容器环境](/jvm/6_gc_tuning#四、容器环境)
@@ -212,7 +212,7 @@ docker run -d --name demo -p 8080:8080 --memory 1g demo-app:1.0.0
 |------|------|------|
 | 完整 JRE（Ubuntu） | `eclipse-temurin:21-jre` | 默认选择，自带 shell 方便排查 |
 | Alpine（musl） | `eclipse-temurin:21-jre-alpine` | 体积更小，注意 musl 与 glibc 的兼容差异，见 [Linux 发行版 · Alpine](/cloud-native/2_linux_distros#四、alpine-与容器基础镜像) |
-| Distroless | `gcr.io/distroless/java21-debian12` | 无 shell、无包管理器，攻击面最小，排查要靠临时调试容器 |
+| Distroless | `gcr.io/distroless/java21-debian13` | 无 shell、无包管理器，攻击面最小，排查要靠临时调试容器 |
 
 ---
 

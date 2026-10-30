@@ -167,11 +167,11 @@ WHERE processlist_command = 'Query' AND processlist_time > 2
 
 ```sql
 ALTER TABLE t_order
-  ADD INDEX idx_merchant_status_pay (merchant_id, status, pay_time),
+  ADD INDEX idx_merchant_pay (merchant_id, pay_time),
   ALGORITHM = INPLACE, LOCK = NONE;
 ```
 
-上线后同一查询 `actual time` 降到 3ms，扫描行数 40。
+索引不带 `status`：若建成 `(merchant_id, status, pay_time)`，`status IN (2, 3)` 是两段范围，合起来不再按 `pay_time` 有序，仍要 filesort。`(merchant_id, pay_time)` 可以按 `pay_time` 倒序扫描、回表过滤 `status`，凑够 20 条就停；有支付时间的订单绝大多数处于 2、3 状态，过滤掉的很少。上线后 EXPLAIN 中不再出现 `Using filesort`，扫描行数降到百行以内。
 
 **加查询超时**，慢 SQL 不再无限占连接：
 

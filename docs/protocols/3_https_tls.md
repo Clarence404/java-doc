@@ -236,7 +236,7 @@ server:
     client-auth: need          # mTLS：need 必须带客户端证书，want 可选；单向 TLS 删掉这一行
 ```
 
-热加载目前支持 Tomcat 和 Netty 两种内嵌服务器，配合 cert-manager、Certbot 自动续期后无需重启应用。
+热加载目前只支持 Tomcat 和 Netty 两种内嵌服务器（Jetty 不支持），配合 cert-manager、Certbot 自动续期后无需重启应用。
 
 **客户端（调用私有 CA 签发证书的内部服务，并携带客户端证书）**：
 

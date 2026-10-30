@@ -148,7 +148,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 | Parallel | 较长，但吞吐最高 | 批处理、离线计算 |
 | Serial | 长 | 1 核或很小内存的容器 |
 
-- JDK 21 开分代 ZGC 要写 `-XX:+UseZGC -XX:+ZGenerational`，JDK 23 起分代是默认
+- 分代 ZGC 直接 `-XX:+UseZGC`，版本差异见 [JVM 面试题解答](/interview/3_jvm) Q31
 - 如果 P99 主要不是 GC 停顿造成的，换收集器帮助不大
 
 **常见坑**：容器只给 1 核 CPU 时 JVM 会默认选 Serial，要显式指定收集器。
@@ -201,7 +201,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：生产开全量 DEBUG，或在大循环里逐条打日志。
 
-→ 详见 [代码级优化](/high-perf/6_code_optimization#六、热点路径上减少异常)
+→ 详见 [代码级优化](/high-perf/6_code_optimization#六、热点路径上减少异常)、[代码级优化 · 日志开销](/high-perf/6_code_optimization#七、日志开销)
 
 ### Q15：数据库连接池的大小如何确定？连接池是不是越大越好？
 

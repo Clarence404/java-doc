@@ -155,7 +155,7 @@ description: MQ 场景与选型、不丢消息与幂等、顺序消息、零拷�
 - 转重试 Topic（`@RetryableTopic`）：主分区不卡，但同一个 key 可能乱序
 - 参数错误、反序列化失败这类重试也没用的异常，直接进死信
 
-**常见坑**：只配了 `DefaultErrorHandler` 没配死信。默认重试 9 次后只打一行日志就跳过了。
+**常见坑**：只配了 `DefaultErrorHandler` 没配死信。默认不等待地重试 9 次（共投递 10 次），之后只打一行 ERROR 日志就跳过了。
 
 → 详见 [Kafka 生产与消费](/messaging/2_kafka_client#二、消费失败处理与幂等消费)
 

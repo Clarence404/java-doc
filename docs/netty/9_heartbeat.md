@@ -79,7 +79,7 @@ new IdleStateHandler(60, 0, 0, TimeUnit.SECONDS);
 protected void initChannel(SocketChannel ch) {
     ch.pipeline()
       .addLast(new IdleStateHandler(90, 0, 0, TimeUnit.SECONDS)) // 空闲检测（每个连接独立实例）
-      .addLast(new LengthFieldBasedFrameDecoder(65535, 4, 2, 0, 0))
+      .addLast(new LengthFieldBasedFrameDecoder(65535 + 6, 4, 2, 0, 0)) // 帧头 6 字节，同私有协议篇
       .addLast(new ProtocolDecoder())
       .addLast(new ProtocolEncoder())
       .addLast(new HeartbeatServerHandler())                      // 处理空闲事件与 PING
@@ -254,7 +254,7 @@ public class ReconnectClient {
                      protected void initChannel(SocketChannel ch) {
                          ch.pipeline()
                            .addLast(new IdleStateHandler(0, 30, 0, TimeUnit.SECONDS))
-                           .addLast(new LengthFieldBasedFrameDecoder(65535, 4, 2, 0, 0))
+                           .addLast(new LengthFieldBasedFrameDecoder(65535 + 6, 4, 2, 0, 0)) // 帧头 6 字节，同私有协议篇
                            .addLast(new ProtocolDecoder())
                            .addLast(new ProtocolEncoder())
                            .addLast(new HeartbeatClientHandler())

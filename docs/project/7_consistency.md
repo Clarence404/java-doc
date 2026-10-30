@@ -136,7 +136,8 @@ public ReserveResult reserve(String orderNo, List<ReserveLine> lines) {
 @Transactional(rollbackFor = Exception.class)
 public void release(String orderNo, List<ReserveLine> lines) {
     for (ReserveLine l : lines.stream().sorted(comparing(ReserveLine::skuId)).toList()) {
-        // INSERT ... status = 3 ON DUPLICATE KEY UPDATE id = id：插入成功说明从没预占过
+        // INSERT IGNORE ... status = 3：返回 1 说明从没预占过，返回 0 说明记录已存在
+        // 不用 ON DUPLICATE KEY UPDATE id = id：Connector/J 默认返回 found rows，已存在也返回 1
         if (reservationMapper.insertReleasedIfAbsent(orderNo, l) == 1) {
             continue;                   // 空回滚：不动库存，只留下占位，挡住迟到的 reserve
         }

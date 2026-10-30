@@ -30,8 +30,7 @@ description: 测试分层、单元测试、覆盖率、测试替身、Testcontai
 - 测试里不写 `if`、循环和计算，期望值直接写字面量，否则会和实现犯同样的错
 - 时间、随机数通过注入 `Clock` 等方式固定下来
 
-**常见坑**：
-- 测私有方法、过度断言无关字段、捕获异常后什么都不做，测试看着绿其实没验证
+**常见坑**：测私有方法、过度断言无关字段、捕获异常后什么都不做，测试看着绿其实没验证
 
 → 详见 [单元测试](/testing/1_unit_test#五、好的单元测试长什么样)
 
@@ -44,8 +43,7 @@ description: 测试分层、单元测试、覆盖率、测试替身、Testcontai
 - PIT 很慢，只对核心领域模块开，放夜间流水线，不进 PR 必过门禁
 - 门槛看新代码覆盖率（Sonar 质量门禁 ≥ 80%），整体覆盖率只看趋势
 
-**常见坑**：
-- 把覆盖率或杀死率设成团队 KPI，结果大家补没有断言的测试凑数
+**常见坑**：把覆盖率或杀死率设成团队 KPI，结果大家补没有断言的测试凑数
 
 → 详见 [单元测试](/testing/1_unit_test#八、覆盖率与变异测试)
 
@@ -76,8 +74,7 @@ description: 测试分层、单元测试、覆盖率、测试替身、Testcontai
 - `RestClient`、`JdbcTemplate` 等第三方类型：包一层自己的接口再 Mock，接口实现用 WireMock / Testcontainers 测
 - 仓储优先用内存 Fake，测试只关心最终状态，被测代码多查一次也不用改测试
 
-**常见坑**：
-- 一个测试里五六个 `when`、Mock 返回 Mock、重构不改行为却大面积变红，都是过度 Mock 的信号
+**常见坑**：一个测试里五六个 `when`、Mock 返回 Mock、重构不改行为却大面积变红，都是过度 Mock 的信号
 
 → 详见 [Mock 测试](/testing/2_mock#八、fake-与「什么时候不要-mock」)
 
@@ -102,10 +99,9 @@ description: 测试分层、单元测试、覆盖率、测试替身、Testcontai
 - Boot 的 `@MockBean` / `@SpyBean` 在 Boot 4 已删除，改用 Spring Framework 的 `@MockitoBean` / `@MockitoSpyBean`
 - 提速：把「外部依赖一律 Mock」收敛成一个组合注解，所有集成测试共用同一组 Mock
 
-**常见坑**：
-- 同一个 Bean 在不同测试类里的 Mock 字段名不一致，也会被当成不同上下文
+**常见坑**：同一个 Bean 在不同测试类里的 Mock 字段名不一致，也会被当成不同上下文
 
-→ 详见 [Spring Boot 测试](/spring-boot/10_testing#_3、为什么-mockitobean-会拖慢测试)
+→ 详见 [Spring Boot 测试](/spring-boot/10_testing#_3、为什么-mockitobean-会拖慢测试)、[Mock 测试 · Spring 中的 Mock](/testing/2_mock#十二、spring-中的-mock)
 
 ## 三、集成与契约测试
 
@@ -171,8 +167,7 @@ description: 测试分层、单元测试、覆盖率、测试替身、Testcontai
 - 适合：业务规则、状态机、修 Bug（先写复现测试）、公共库 API
 - 不适合：探索性原型、UI 视觉、很薄的胶水代码；需求不清时先澄清
 
-**常见坑**：
-- 步子太大长时间红着，或测实现细节导致每次重构都改一堆测试
+**常见坑**：步子太大长时间红着，或测实现细节导致每次重构都改一堆测试
 
 → 详见 [TDD 测试驱动开发](/testing/4_tdd#五、什么时候用-tdd)
 

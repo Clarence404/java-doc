@@ -407,6 +407,6 @@ B+ 树是 B 树的变种：**数据只存在叶子节点**，内部节点只存 
 - Hello 算法 · 树：[https://www.hello-algo.com/chapter_tree/](https://www.hello-algo.com/chapter_tree/)
 - OpenJDK TreeMap 源码（`fixAfterInsertion` / `fixAfterDeletion`）：[https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/util/TreeMap.java](https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/util/TreeMap.java)
 - JDK 21 TreeMap API：[https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/TreeMap.html)
-- MySQL 8.0 Reference Manual · The Physical Structure of an InnoDB Index：[https://dev.mysql.com/doc/refman/8.0/en/innodb-physical-structure.html](https://dev.mysql.com/doc/refman/8.0/en/innodb-physical-structure.html)
+- MySQL 8.4 Reference Manual · The Physical Structure of an InnoDB Index：[https://dev.mysql.com/doc/refman/8.4/en/innodb-physical-structure.html](https://dev.mysql.com/doc/refman/8.4/en/innodb-physical-structure.html)
 
 > 下一篇：[堆](./4_heap) —— 二叉堆、上浮与下沉、建堆、堆排序、优先队列与 Top K。

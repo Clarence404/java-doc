@@ -223,7 +223,7 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 - 协同：各服务监听事件接力推进，松耦合，但步骤多了流程分散难追踪，适合步骤少的流程
 - 隔离对策：语义锁（「处理中」这类中间状态）、可交换的更新（增减而不是覆盖）、执行前重读校验
 
-→ 详见 [分布式事务](/distributed/4_transaction#四、saga)、[微服务设计模式](/microservices/3_patterns#_4、saga)
+→ 详见 [分布式事务](/distributed/4_transaction#四、saga)
 
 ### Q17：Seata AT 的原理是什么？全局锁和读隔离是怎样的？回滚什么时候会失败？
 

@@ -124,7 +124,7 @@ description: Maven 与 Gradle 的构建、跳过与单测、多模块、依赖�
 | 看 Maven 完整调试日志 | `./mvnw -X verify > build.log` | 含依赖解析、插件参数、仓库访问细节；只要异常堆栈用 `-e` |
 | 确认 Maven 与 JDK 版本 | `./mvnw -v` | CI 上「本地能过、流水线失败」先比对这里 |
 | 确认 Gradle 与 JDK 版本 | `./gradlew -v` | 同时显示 Gradle、Kotlin、运行 Gradle 的 JVM 版本 |
-| 类找不到或版本冲突 | `./mvnw dependency:tree -Dverbose -Dincludes=com.fasterxml.jackson.core` | Gradle 对应 `dependencyInsight`，找出实际生效的版本 |
+| 类找不到或版本冲突 | `./mvnw dependency:tree -Dverbose -Dincludes=tools.jackson.core` | Boot 4 默认 Jackson 3，groupId 为 `tools.jackson.core`；Jackson 2 与注解包（Jackson 3 仍用 `com.fasterxml.jackson.annotation`）在 `com.fasterxml.jackson.core` 下。Gradle 对应 `dependencyInsight`，找出实际生效的版本 |
 | 配置缓存报错 | `./gradlew build --no-configuration-cache` | 临时关闭确认是否为配置缓存兼容问题，再按报告修复脚本 |
 | 构建缓存疑似脏数据 | `./gradlew build --no-build-cache --rerun-tasks` | 不读缓存、全部重跑，验证是否为缓存问题 |
 

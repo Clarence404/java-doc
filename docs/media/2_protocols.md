@@ -273,9 +273,9 @@ SRT（Secure Reliable Transport）由 Haivision 开发，2017 年以 MPL-2.0 许
 - **负载通常是 MPEG-TS**：SRT 只管传输，内容多为 TS 封装的 H.264 / H.265 + AAC
 
 ```bash
-# 以 SRT 推流（MPEG-TS 封装）；FFmpeg 的 latency 选项单位是微秒
+# 以 SRT 推流（MPEG-TS 封装）；FFmpeg 的 latency 选项单位是微秒，300000 即 300 ms
 ffmpeg -re -i demo.mp4 -c copy -f mpegts \
-  "srt://push.example.com:10080?streamid=#!::r=live/room1001,m=publish"
+  "srt://push.example.com:10080?latency=300000&streamid=#!::r=live/room1001,m=publish"
 ```
 
 SRT 适合户外直播、赛事转播、跨国推流等上行链路质量差的场景，OBS、vMix 和主流硬件编码器都支持；它不面向浏览器播放，到达服务器后照样转成 HTTP-FLV / HLS / WebRTC 分发。

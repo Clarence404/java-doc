@@ -92,7 +92,7 @@ ansible web -i inventory.ini --become -m ansible.builtin.copy -a "src=app.conf d
 
 ## 四、Playbook：部署一个 Java 应用
 
-Playbook 是 YAML 编排的任务序列。下例完成「装 JDK、建运行用户、传 jar、配 systemd、启动」，同时兼容 RHEL / Rocky / Alma 9+ 和 Ubuntu 24.04：
+Playbook 是 YAML 编排的任务序列。下例完成「装 JDK、建运行用户、传 jar、配 systemd、启动」，同时兼容 RHEL / Rocky / Alma 9+ 和 Ubuntu 26.04：
 
 ```yaml
 # deploy-app.yml

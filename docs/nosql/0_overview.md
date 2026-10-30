@@ -2,7 +2,7 @@
 
 NoSQL 模块按数据模型讲关系库之外的存储：键值、文档、宽列与列式、时序、搜索和图，每类讲清原理、主流产品与选型边界。
 
-**版本基线（2026 年 10 月）**：MongoDB 8、Elasticsearch 9、OpenSearch 3、InfluxDB 3、Doris / StarRocks 4.1、Neo4j 5
+**版本基线（2026 年 10 月）**：MongoDB 8、Elasticsearch 9、OpenSearch 3、InfluxDB 3、Doris / StarRocks 4.1、Neo4j 2026.x（日历版本，5.26 为最后一个 5.x LTS）
 
 ---
 

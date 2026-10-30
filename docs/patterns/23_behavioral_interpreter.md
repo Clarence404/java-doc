@@ -175,7 +175,12 @@ public final class ExprParser {
             return inner;
         }
         if (pos >= tokens.size()) throw new IllegalArgumentException("表达式不完整");
-        return new Var(tokens.get(pos++));
+        String name = tokens.get(pos);
+        if (name.equals("AND") || name.equals("OR") || name.equals(")")) {   // 关键字和右括号不能当变量名
+            throw new IllegalArgumentException("此处应为变量或左括号，实际是：" + name);
+        }
+        pos++;
+        return new Var(name);
     }
 
     private boolean accept(String token) {

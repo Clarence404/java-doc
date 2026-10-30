@@ -197,7 +197,7 @@ description: 三大信号、RED 与 USE、日志、指标基数、PromQL、链�
 
 **常见坑**：抑制规则的 `equal` 标签两边都缺失也算相等，规则漏标签会误压别的服务的告警。
 
-→ 详见 [告警体系](/observability/4_alerting#_1、四条标准)
+→ 详见 [告警体系](/observability/4_alerting#_1、四条标准)、[告警体系 · Alertmanager 路由与通知](/observability/4_alerting#三、alertmanager-路由与通知)、[告警体系 · 抑制、静默与高可用](/observability/4_alerting#四、抑制、静默与高可用)
 
 ### Q15：为什么推荐 SLO 燃烧速率告警？怎么配？
 

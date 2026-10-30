@@ -358,7 +358,7 @@ Service 做的是 **L4 连接级负载均衡**：HTTP/1.1 长连接、gRPC（HTT
 同一 Namespace 内直接用 `order-service`，跨 Namespace 用 `order-service.demo`，都能解析，靠的是 `resolv.conf` 里的 search 域。
 
 ::: warning ndots:5 带来的额外查询
-Pod 默认的 `resolv.conf` 带有 `options ndots:5`：域名中的点少于 5 个时，会先依次拼接各个 search 域去查询，全部失败后才查原始域名。访问 `api.example.com` 这类外部域名，一次解析可能变成 4～5 次 DNS 查询，DNS 压力大时会表现为调用外部接口偶发超时。外部域名可以写成以点结尾的完整形式（`api.example.com.`），或在 Pod 的 `dnsConfig` 里把 `ndots` 调小。
+Pod 默认的 `resolv.conf` 带有 `options ndots:5`：域名中的点少于 5 个时，会先依次拼接各个 search 域去查询，全部失败后才查原始域名。访问 `api.example.com` 这类外部域名，先后要查 3 个 search 域拼出的名字和原名共 4 个名字，每个分别查 A 和 AAAA，一次解析约变成 8 次 DNS 查询，DNS 压力大时会表现为调用外部接口偶发超时。外部域名可以写成以点结尾的完整形式（`api.example.com.`），或在 Pod 的 `dnsConfig` 里把 `ndots` 调小。
 :::
 
 DNS 协议本身、Java 的 DNS 缓存（`networkaddress.cache.ttl`）见 [DNS](/protocols/4_dns)。

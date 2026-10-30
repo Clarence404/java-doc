@@ -150,7 +150,7 @@ try (OutputStream out = Files.newOutputStream(file)) {
 
 ### 2、EasyExcel：按批写入
 
-EasyExcel 底层同样使用 SXSSF，封装了注解映射和按批写入，代码更短。EasyExcel 目前已停止维护，原作者维护的 FastExcel 分支 API 基本兼容，新项目可以直接用后者。
+EasyExcel 底层同样使用 SXSSF，封装了注解映射和按批写入，代码更短。EasyExcel 目前已停止维护，原作者维护的分支 FastExcel 已捐给 Apache 孵化器并改名为 Apache Fesod（坐标 `org.apache.fesod:fesod-sheet`，入口类 `FesodSheet`），API 与 EasyExcel 基本兼容，新项目可以直接用它。
 
 ```java
 static final int BATCH = 5_000;
@@ -395,6 +395,6 @@ public void saveBatch(String batchNo, int lastRowNo, List<Order> valid, List<Imp
 - MySQL Connector/J ResultSet（流式读取）：[https://dev.mysql.com/doc/connector-j/en/connector-j-reference-implementation-notes.html](https://dev.mysql.com/doc/connector-j/en/connector-j-reference-implementation-notes.html)
 - MyBatis Java API（Cursor）：[https://mybatis.org/mybatis-3/java-api.html](https://mybatis.org/mybatis-3/java-api.html)
 - Excel specifications and limits：[https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3](https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3)
-- FastExcel：[https://github.com/fast-excel/fastexcel](https://github.com/fast-excel/fastexcel)
+- Apache Fesod（原 FastExcel）：[https://fesod.incubator.apache.org/](https://fesod.incubator.apache.org/)
 
 > 下一篇：[秒杀](./4_seckill) —— 分层限流、Redis 原子预扣、MQ 异步下单与超时关单的完整链路。

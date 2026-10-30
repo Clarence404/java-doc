@@ -44,7 +44,7 @@ description: 好告警标准、Prometheus 告警规则、Alertmanager 路由抑�
 | 日志 | Loki Ruler、Elasticsearch Watcher | 特定错误关键字、异常堆栈突增 | 适合指标覆盖不到的场景，查询成本高，规则要少而精 |
 | 链路 | Trace 后端的 RED 指标（由 Span 派生） | 某条调用链、某个下游的延迟与错误 | 通常先转成指标再告警，而不是直接对 Span 告警 |
 
-实践中以指标告警为主、黑盒探测兜底，日志告警只用于少数「只在日志里出现」的信号（如对账失败、支付回调验签失败）。Loki Ruler 的规则格式与 Prometheus 相同，只是 `expr` 写 LogQL：
+实践中以指标告警为主、黑盒探测兜底，日志告警只用于少数「只在日志里出现」的信号（如对账失败、支付回调验签失败）。Loki Ruler 的规则格式与 Prometheus 相同，只是 `expr` 写 LogQL。下例的流标签沿用 [日志体系](./1_logging) 的 OTel 采集路线：Loki 把资源属性 `k8s.namespace.name`、`service.name` 转成标签 `k8s_namespace_name`、`service_name`，用 Fluent Bit 等其他 Agent 时按实际标签名替换：
 
 ```yaml
 # Loki ruler 规则文件：订单服务错误日志占比超过 5%
@@ -53,9 +53,9 @@ groups:
     rules:
       - alert: OrderServiceErrorLogRatioHigh
         expr: |
-          sum by (app) (rate({namespace="order", app="order-service"} |= "ERROR" [5m]))
+          sum by (service_name) (rate({k8s_namespace_name="order", service_name="order-service"} |= "ERROR" [5m]))
           /
-          sum by (app) (rate({namespace="order", app="order-service"} [5m]))
+          sum by (service_name) (rate({k8s_namespace_name="order", service_name="order-service"} [5m]))
           > 0.05
         for: 10m
         labels:

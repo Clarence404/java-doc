@@ -6,7 +6,7 @@ description: IO 模型、Reactor、ByteBuf、粘包拆包、心跳、WebSocket /
 
 > 题目清单见 [Netty 面试题](/netty/99_interview)；细节详见 [Netty 总览](/netty/0_overview)。
 >
-> 版本基线：Netty 4.x。
+> 版本基线：Netty 4.2。
 
 ## 一、IO 模型
 

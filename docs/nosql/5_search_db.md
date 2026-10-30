@@ -55,7 +55,7 @@ description: 搜索库定位、ES / OpenSearch / Solr / Meilisearch / 库内全�
 
 ### 3、Apache Solr
 
-同样基于 Lucene，历史比 ES 更早，当前主线为 9.x。集群模式（SolrCloud）依赖 ZooKeeper 做协调，配置以 schema 文件为中心，上手门槛比 ES 高。9.0 起支持 `DenseVectorField` 与 KNN 查询。新项目较少选择，主要存在于已有技术栈中。
+同样基于 Lucene，历史比 ES 更早，当前主线为 10.x（2026 年 3 月发布，要求 JDK 21+）。集群模式（SolrCloud）依赖 ZooKeeper 做协调，配置以 schema 文件为中心，上手门槛比 ES 高。9.0 起支持 `DenseVectorField` 与 KNN 查询。新项目较少选择，主要存在于已有技术栈中。
 
 ### 4、Meilisearch / Typesense
 
@@ -106,7 +106,7 @@ OpenSearch 通过 k-NN 插件和 Neural Search 提供类似能力，Solr 9 起�
 
 | 维度 | Elasticsearch | OpenSearch | Apache Solr | Meilisearch / Typesense |
 |------|---------------|------------|-------------|-------------------------|
-| 当前主线 | 9.x | 3.x | 9.x | Meilisearch 1.x / Typesense |
+| 当前主线 | 9.x | 3.x | 10.x | Meilisearch 1.x / Typesense |
 | 开源协议 | AGPLv3 / SSPL / Elastic License 2.0 三选一（AGPL 自 8.16 起提供） | Apache 2.0 | Apache 2.0 | MIT（Meilisearch 社区版）/ GPLv3（Typesense） |
 | 治理 | Elastic 公司 | OpenSearch 软件基金会（Linux 基金会） | Apache 软件基金会 | 各自公司 |
 | 上手难度 | 中 | 中 | 较高 | 低 |

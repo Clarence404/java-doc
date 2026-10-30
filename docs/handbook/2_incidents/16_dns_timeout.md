@@ -105,7 +105,7 @@ kubectl -n order debug -it order-service-6c9d7f5b8d-q7m2x \
 
 两个信息：
 
-- **一次解析要查 8 次**：`ndots:5` 下外部域名（2 个点）先依次拼接 3 个 search 域，每个都查 A 和 AAAA，全部 NXDOMAIN 后才查原始域名，见 [DNS · Kubernetes 中的 ndots](/protocols/4_dns#_2、kubernetes-中的-ndots)
+- **一次解析要查 8 次**：`ndots:5` 下外部域名（3 个点，少于 5）先依次拼接 3 个 search 域，每个都查 A 和 AAAA，全部 NXDOMAIN 后才查原始域名，见 [DNS · Kubernetes 中的 ndots](/protocols/4_dns#_2、kubernetes-中的-ndots)
 - **AAAA 查询的回应丢了**：glibc 用**同一个 socket（同一源端口）**几乎同时发出 A 和 AAAA，其中一个包没有回应，解析器等满 5 秒才重发
 
 ### 4、节点上的 conntrack 统计

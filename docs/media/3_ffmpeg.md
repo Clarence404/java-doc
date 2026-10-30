@@ -487,6 +487,8 @@ public class TranscodeWorker {
     private final FfmpegRunner ffmpeg;
     private final MediaProbe probe;          // 封装 ffprobe 调用
     private final MediaStorage storage;      // 封装对象存储下载与上传
+    private final TransactionTemplate tx;
+    private final OutboxWriter outbox;       // 写本地消息表
     private final String workerId;
 
     // 构造器注入省略
@@ -522,14 +524,17 @@ public class TranscodeWorker {
 
             String prefix = "videos/%d/%s/".formatted(cmd.videoId(), cmd.profile());
             storage.uploadDirectory(outDir, prefix, "master.m3u8");   // 最后上传 master.m3u8
-            jdbc.sql("""
-                    UPDATE transcode_job
-                       SET status = 'SUCCEEDED', progress = 100, output_prefix = :prefix, updated_at = NOW(3)
-                     WHERE id = :id AND worker_id = :worker
-                    """)
-                    .param("prefix", prefix).param("id", cmd.jobId()).param("worker", workerId)
-                    .update();
-            // 同一事务内写 Outbox：通知业务方 video_id 转码完成
+            // 回写状态与写 Outbox 放进同一个短事务；下载、转码、上传耗时长，不能包在事务里
+            tx.executeWithoutResult(status -> {
+                jdbc.sql("""
+                        UPDATE transcode_job
+                           SET status = 'SUCCEEDED', progress = 100, output_prefix = :prefix, updated_at = NOW(3)
+                         WHERE id = :id AND worker_id = :worker
+                        """)
+                        .param("prefix", prefix).param("id", cmd.jobId()).param("worker", workerId)
+                        .update();
+                outbox.append(TranscodeEvents.succeeded(cmd.videoId(), cmd.profile(), prefix));  // 通知业务方转码完成
+            });
         } catch (Exception e) {
             markFailedOrPending(cmd.jobId(), e);   // 未到上限置回 PENDING，到上限置 FAILED 并告警
             throw e;

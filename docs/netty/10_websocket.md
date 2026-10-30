@@ -411,7 +411,10 @@ public class WsPushConfig {
             try {
                 PushMessage msg = objectMapper.readValue(message.getBody(), PushMessage.class);
                 // 只有本机持有该用户连接时才下发，其余节点直接忽略
-                if (sessionManager.push(msg.userId(), new TextWebSocketFrame(msg.content()))) {
+                Channel ch = sessionManager.channelOf(msg.userId());
+                if (ch != null && ch.isActive()) {
+                    // 先查到连接再创建帧：帧是引用计数对象，没写出去就不会被释放，会报 LEAK
+                    ch.writeAndFlush(new TextWebSocketFrame(msg.content()));
                     log.debug("已推送给用户 {}", msg.userId());
                 }
             } catch (IOException e) {

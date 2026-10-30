@@ -131,7 +131,7 @@ public class Order {                                          // 聚合根
     private UserId userId;
     private OrderStatus status;
     private List<OrderLine> lines = new ArrayList<>();        // 聚合内部对象
-    private long version;                                     // 乐观锁，防止并发覆盖整个聚合
+    private Long version;                                     // 乐观锁；null 表示还没入库，入库后从 0 开始
     private final List<DomainEvent> events = new ArrayList<>();
 
     private Order() {
@@ -174,7 +174,7 @@ public class Order {                                          // 聚合根
     }
 
     public OrderId getId() { return id; }
-    public long getVersion() { return version; }
+    public Long getVersion() { return version; }
     public List<OrderLine> getLines() { return Collections.unmodifiableList(lines); }
 }
 ```
@@ -233,7 +233,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     @Override
     public void save(Order order) {
         OrderPO po = OrderPO.from(order);
-        if (order.getVersion() == 0) {
+        if (order.getVersion() == null) {                     // 新建：不能用 version == 0 判断，入库后的初始版本也是 0
             orderMapper.insert(po);
         } else if (orderMapper.updateWithVersion(po) == 0) {   // WHERE id = ? AND version = ?
             throw new OptimisticLockingFailureException("订单已被并发修改: " + order.getId());

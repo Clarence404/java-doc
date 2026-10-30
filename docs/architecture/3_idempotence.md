@@ -316,7 +316,7 @@ public RefundResult refund(String refundNo) {
 
 ### 2、支付回调
 
-支付渠道会多次推送同一笔结果，也可能先推「成功」再推「成功」、或在订单已取消后才推「成功」：
+支付渠道会多次推送同一笔结果，也可能先推「失败」再推「成功」、或在订单已取消后才推「成功」：
 
 ```java
 @Transactional(rollbackFor = Exception.class)
@@ -325,8 +325,8 @@ public void onPaid(PayNotify notify) {
     int rows = orderMapper.markPaid(notify.orderNo(), notify.tradeNo());  // WHERE order_no = ? AND status = 'PENDING'
     if (rows == 0) {
         Order order = orderMapper.selectByOrderNo(notify.orderNo());
-        if (order != null && order.getStatus() == OrderStatus.PAID
-                && notify.tradeNo().equals(order.getTradeNo())) {
+        // 只认流水号：订单可能已推进到发货、完成，只要 tradeNo 一致就是同一笔支付的重复通知
+        if (order != null && notify.tradeNo().equals(order.getTradeNo())) {
             return;                                    // 重复通知：直接按成功应答
         }
         throw new PayStateException("订单状态异常，进入人工或自动退款流程: " + notify.orderNo());

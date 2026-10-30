@@ -159,7 +159,7 @@ description: Linux 信号与排查、容器原理与 Java 镜像、Kubernetes �
 
 **一句话**：startup 管「启动完了没」，liveness 管「还活着没」（失败就重启），readiness 管「能不能接流量」（失败就摘流量但不重启）；liveness 绝不能查数据库这类外部依赖。
 
-→ 完整答案见 [高可用面试题解答](/interview/14_high_avail) Q10；正文详见 [Kubernetes](/cloud-native/6_kubernetes#_1、三种探针)
+→ 完整答案见 [高可用面试题解答](/interview/14_high_avail) Q10；正文详见 [冗余与故障转移](/high-avail/2_redundancy_failover#_2、kubernetes-探针)
 
 ### Q13：滚动更新怎么做到不中断？Pod 下线时怎么优雅终止？
 

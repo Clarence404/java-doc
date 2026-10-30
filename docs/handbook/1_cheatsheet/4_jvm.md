@@ -102,7 +102,7 @@ description: 堆与内存参数、容器参数、GC 选择、GC 日志配置与�
 | 看 JVM 综合信息 | `jcmd <pid> VM.info` | 版本、参数、内存、GC、容器信息一次输出 |
 | 看堆概况 | `jcmd <pid> GC.heap_info` | 各代或各 Region 的容量与使用量 |
 | 看对象直方图 | `jcmd <pid> GC.class_histogram` | 按类统计实例数与字节数；会触发 Full GC，高峰期慎用 |
-| 导出堆转储 | `jcmd <pid> GC.heap_dump -gz=1 /data/dump/heap-%p.hprof` | 只转储存活对象并压缩；转储期间进程暂停，先摘流量 |
+| 导出堆转储 | `jcmd <pid> GC.heap_dump -gz=1 /data/dump/heap-%p.hprof` | 只转储存活对象并压缩；`%p` 替换为 PID 需 JDK 24+（JDK-8334492）；转储期间进程暂停，先摘流量 |
 | 看堆外内存 | `jcmd <pid> VM.native_memory summary scale=MB` | 需启动时开启 NMT；先 `baseline` 再 `summary.diff` 可看增长 |
 | 归还 glibc 空闲内存 | `jcmd <pid> System.trim_native_heap` | 仅 Linux；RSS 远大于堆 + 堆外时可尝试 |
 | 运行中改可管理参数 | `jcmd <pid> VM.set_flag HeapDumpOnOutOfMemoryError true` | 只有 `manageable` 参数能改，用 `VM.flags -all` 查看 |

@@ -296,6 +296,24 @@ Nacos 3.x 默认开启鉴权，数据源同样需要配置 `username` / `passwor
 - 改造 Dashboard，实现 `DynamicRuleProvider` / `DynamicRulePublisher` 读写 Nacos（官方源码 test 目录下有 Nacos 示例），实现「控制台 → Nacos → 应用」
 :::
 
+### 6、Slot 链：规则是怎么生效的
+
+每个资源对应一条 `ProcessorSlotChain`，`SphU.entry()`（`@SentinelResource` 底层也是它）按顺序穿过一串 Slot：前面的 Slot 负责建调用树和统计，后面的 Slot 拿统计结果做规则检查，任何一个检查不通过就抛 `BlockException` 子类（`FlowException`、`DegradeException` 等），交给 `blockHandler`。
+
+| 顺序 | Slot | 职责 |
+|------|------|------|
+| 1 | `NodeSelectorSlot` | 按调用上下文（Context）建调用路径树，为每个入口生成 `DefaultNode`，供「链路」模式流控使用 |
+| 2 | `ClusterBuilderSlot` | 为资源建全局唯一的 `ClusterNode`（不分入口汇总 RT、QPS、线程数），并按调用方 `origin` 建来源节点 |
+| 3 | `StatisticSlot` | 先放行给后面的 Slot 检查，再按结果记数：通过数、线程数、RT、异常数、被拦截数；底层是滑动窗口（`LeapArray`，秒级默认 2 个 500ms 的格子） |
+| 4 | `AuthoritySlot` | 按调用方 `origin` 做黑白名单 |
+| 5 | `SystemSlot` | 系统自适应保护，只对入口流量（`EntryType.IN`）按 Load、CPU、平均 RT、并发线程数、入口 QPS 判断 |
+| 6 | `FlowSlot` | 按流控规则判断 QPS / 线程数，支持直接、关联、链路三种模式和三种流控效果 |
+| 7 | `DegradeSlot` | 熔断器状态机：按慢调用比例、异常比例、异常数打开熔断，到期后半开探测 |
+
+`StatisticSlot` 排在规则 Slot 前面，却在它们之后才记数：规则 Slot 读到的是此前窗口里的数据，本次请求是否通过要等检查完才知道。2、3 之间还有一个只记录拦截日志的 `LogSlot`；热点参数限流的 `ParamFlowSlot` 来自 `sentinel-parameter-flow-control` 扩展包，排在 `SystemSlot` 与 `FlowSlot` 之间。
+
+Slot 链本身可以扩展：1.7.2 起 `ProcessorSlot` 就是 SPI 接口（之前是 `SlotChainBuilder`），自定义 Slot 继承 `AbstractLinkedProcessorSlot`，用 `@Spi(order = ...)` 指定位置（数值越小越靠前，内置 Slot 从 `NodeSelectorSlot` 的 -10000 到 `DegradeSlot` 的 -1000），再在 `META-INF/services/com.alibaba.csp.sentinel.slotchain.ProcessorSlot` 里登记全类名。
+
 ---
 
 ## 四、Seata：分布式事务
@@ -367,7 +385,7 @@ Spring Cloud 链路里默认用 AT（关系库常规 CRUD，零侵入）；资�
 
 - Boot 4.0 对应 Spring Cloud 2025.1 与 SCA 2025.1.0.0（Nacos 3.1.1、Sentinel 1.8.9、Seata 2.5.0），Boot 3.5 对应 2025.0 系列；同时导入 Spring Cloud 与 SCA 两个 BOM
 - SCA 2025.1 取消 bootstrap，Nacos 配置统一 `spring.config.import`；Nacos 机制细节在注册发现与配置中心两篇
-- Sentinel 用 `@SentinelResource` 定义资源，`blockHandler` 处理规则拦截、`fallback` 处理业务异常；Feign 集成需 `feign.sentinel.enabled`
+- Sentinel 用 `@SentinelResource` 定义资源，`blockHandler` 处理规则拦截、`fallback` 处理业务异常；Feign 集成需 `feign.sentinel.enabled`；规则靠 Slot 链生效：先建调用树与统计节点，再依次过黑白名单、系统保护、流控、熔断，可用 SPI 插入自定义 Slot
 - 生产规则必须持久化到 Nacos，数据流向是 Nacos → 应用，控制台改的规则不会写回
 - Seata 2.x 归属 Apache，包名 `org.apache.seata`；接入要点：发起方加 `@GlobalTransactional`、各参与库建 `undo_log`、XID 随调用透传、下游返回错误码时发起方要主动抛异常
 - 分布式事务能不用就不用，模式选择与理论在分布式模块
@@ -377,6 +395,7 @@ Spring Cloud 链路里默认用 AT（关系库常规 CRUD，零侵入）；资�
 - Spring Cloud Alibaba：[https://sca.aliyun.com/](https://sca.aliyun.com/)
 - 版本说明：[https://sca.aliyun.com/docs/2025.x/overview/version-explain/](https://sca.aliyun.com/docs/2025.x/overview/version-explain/)
 - Sentinel：[https://sentinelguard.io/zh-cn/docs/introduction.html](https://sentinelguard.io/zh-cn/docs/introduction.html)
+- Sentinel 工作主流程（Slot 链）：[https://sentinelguard.io/zh-cn/docs/basic-implementation.html](https://sentinelguard.io/zh-cn/docs/basic-implementation.html)
 - Apache Seata：[https://seata.apache.org/](https://seata.apache.org/)
 - Nacos：[https://nacos.io/docs/latest/what-is-nacos/](https://nacos.io/docs/latest/what-is-nacos/)
 

@@ -446,7 +446,7 @@ public List<CartLineView> view(List<CartLine> lines) {
 - Redis Hashes：[https://redis.io/docs/latest/develop/data-types/hashes/](https://redis.io/docs/latest/develop/data-types/hashes/)
 - Redis 内存优化（小对象紧凑编码）：[https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/memory-optimization/](https://redis.io/docs/latest/operate/oss_and_stack/management/optimization/memory-optimization/)
 - Redis 持久化：[https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/](https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/)
-- MySQL INSERT ... ON DUPLICATE KEY UPDATE：[https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html](https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html)
+- MySQL INSERT ... ON DUPLICATE KEY UPDATE：[https://dev.mysql.com/doc/refman/8.4/en/insert-on-duplicate.html](https://dev.mysql.com/doc/refman/8.4/en/insert-on-duplicate.html)
 - Spring Data Redis Scripting：[https://docs.spring.io/spring-data/redis/reference/redis/scripting.html](https://docs.spring.io/spring-data/redis/reference/redis/scripting.html)
 
 > 下一篇：[消息通知中心](./20_notification) —— 多渠道统一发送、优先级隔离、频控与免打扰、供应商切换、回执状态机与站内信存储。
