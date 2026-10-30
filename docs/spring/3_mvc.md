@@ -1,5 +1,5 @@
 ---
-description: Servlet 生命周期、DispatcherServlet 流程、参数校验、ProblemDetail、拦截器、API 版本
+description: Servlet 生命周期、DispatcherServlet 流程、参数校验、ProblemDetail、拦截器
 ---
 
 # MVC

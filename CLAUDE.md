@@ -25,7 +25,7 @@ docs/
 ├── high-con/       高并发：水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划
 ├── high-perf/      高性能：指标 / 方法论 / 基准测试 / 池化与异步 / IO 与数据库优化 / Profiler
 ├── interview/      面试题解（各方向答案页「X 面试题解答」）
-├── iot/            物联网：基础 / 协议 / 开源平台
+├── iot/            物联网：基础 / 协议 / 平台 / 边缘计算 / 数据处理 / 设备安全 / 接入实战
 ├── java/           Java 语言：语言机制 / IO / 集合 / 并发 / 版本特性
 ├── jvm/            JVM 原理与调优
 ├── media/          音视频：编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入
@@ -41,7 +41,7 @@ docs/
 ├── quarkus/        Quarkus：构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / 其他 Java 框架
 ├── scenario/       业务场景：秒杀 / 订单 / 短链 / Feed / 搜索等系统设计案例
 ├── security/       应用安全：认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任
-├── spring/         Spring Framework / WebFlux / Security
+├── spring/         Spring Framework / 事务 / MVC / WebFlux / Security / Batch / Integration
 ├── spring-boot/    Spring Boot：自动配置 / Web / 数据访问 / 日志 / 测试 / 版本演进 / 启动优化
 ├── testing/        测试工程：单元测试 / Mock / 集成测试 / TDD
 └── vertx/          Vert.x：Event Loop / Verticle / Event Bus / Web / 响应式数据访问
@@ -58,7 +58,7 @@ docs/
 | JVM | `docs/jvm/` | 内存结构 / 类加载 / GC / 调优 |
 | 数据结构与算法 | `docs/algorithms/` | 数据结构 / 搜索 / 排序 / DP / LeetCode |
 | 设计模式 | `docs/patterns/` | 23 种 GoF 模式 |
-| Spring | `docs/spring/` | IoC / AOP / WebFlux / Security |
+| Spring | `docs/spring/` | IoC / AOP / 事务 / MVC / WebFlux / Security / Batch / Integration |
 | Spring Boot | `docs/spring-boot/` | 自动配置 / Web / 数据访问 / Flyway / 日志 / 测试 / 版本演进 / 启动优化 |
 | 测试工程 | `docs/testing/` | 单元测试 / Mock / 集成测试 / TDD / 接口与 E2E |
 | Netty | `docs/netty/` | IO 模型 / Reactor / 核心组件 / ByteBuf / 私有协议 / 心跳 / WebSocket / SSE / 生产调优 |
@@ -85,7 +85,7 @@ docs/
 | 操作系统 | `docs/os/` | 进程线程与协程 / 用户态与系统调用 / 内存与 Page Cache / CPU 缓存与伪共享 / Load / 进程间通信 / 文件与磁盘 IO |
 | 网络协议 | `docs/protocols/` | TCP/UDP / HTTP / TLS / DNS / gRPC / 数据库、邮件、文件协议 |
 | 应用安全 | `docs/security/` | 认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任 |
-| IoT | `docs/iot/` | 物联网架构 / 协议 / 开源平台 |
+| IoT | `docs/iot/` | 物联网架构 / 协议 / 平台选型 / 边缘计算 / 数据处理 / 设备安全 / 接入实战 |
 | AI | `docs/ai/` | Function Calling / Spring AI / LangChain4j / RAG / Agent / MCP / API 接入 / 评估上线 / AI 工具 |
 | 大数据 | `docs/big-data/` | 数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP 与数据服务 / 数据治理 / 实时数仓 |
 | 音视频 | `docs/media/` | 编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入 |
@@ -112,11 +112,11 @@ docs/
 
 - 文件命名：`数字_主题.md`，数字前缀决定侧边栏顺序，全部使用下划线分隔
 - 模块入口：每个模块的 `0_overview.md` 为总览页，标题统一为「X 总览」（X 为 `site.js` 中的模块名，西文名后加空格，如「JVM 总览」「数据库总览」）（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；导航表统一写 `<ModuleNav />`，由各文章的 frontmatter `description` 自动生成，不再手写
-- 文章 frontmatter：每篇文章开头写一行 `description`（覆盖内容，「、」或「 / 」分隔的要点，15–60 字，不加句号），供总览页导航表与网页 meta 使用；侧边栏、导航表中的显示名取 `# 标题`；若标题以所在分组名开头，侧边栏自动去掉该前缀（如 MySQL 组内「MySQL 索引」显示为「索引」），H1 本身保持完整（用于页面标题与搜索）；标题不加「专项 - 」之类的修饰前缀，概述类页面统一叫「概览」
+- 文章 frontmatter：每篇文章开头写一行 `description`（覆盖内容，「、」或「 / 」分隔的要点，15–60 字，不加逗号与句号；总览页不写，题单页 `99_interview` 统一写「X 方向题目清单」，不受 15 字下限约束），供总览页导航表与网页 meta 使用，`docs:check` 会检查字数与标点；侧边栏、导航表中的显示名取 `# 标题`；若标题以所在分组名开头，侧边栏自动去掉该前缀（如 MySQL 组内「MySQL 索引」显示为「索引」），H1 本身保持完整（用于页面标题与搜索）；标题不加「专项 - 」之类的修饰前缀，概述类页面统一叫「概览」
 - 面试题：题目和答案只写在 `docs/interview/` 的答案页（H1「X 面试题解答」，分组 `##` + 题目 `### Q<n>：`）；模块内 `99_interview.md`（H1「高频面试题」）不手写题目，只放 `<InterviewList page="9_mq" />`，构建时从答案页自动生成可点击的题单（一页对应多个模块时加 `groups="1-10"` 取部分分组）
 - 答案页写法（简洁口语化，每题 8–12 行）：`**一句话**：` 大白话结论 → 3–5 条一行要点（术语后跟一句通俗解释）→ 至多一张小对比表 → 可选 `**常见坑**：` 1–2 条 → `→ 详见` 链接正文；对比类题目（「A 和 B 的区别」）表格是答案主体时，可写成「一句话 → 对比表 → 要点」，要点接着表格补充；JEP 编号、版本沿革、边界细节留在正文，不写进答案页；例外：项目难点与亮点页（`16_scenario_highlights`）用「一句话 / 背景问题 / 方案要点 / 可量化的效果 / 追问」五段式，每题约 20 行
 - 站点目录：除文章本身外，所有配置只在 `docs/.vuepress/site.js` 维护（模块、分组、名称、侧边栏分组、子目录、答案页对应关系、首页推荐博客 / 页脚）；导航栏、侧边栏、面包屑、总览页导航表和首页都由它与文章自动生成，不在其他文件重复维护
-- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / spring-boot / scenario / patterns / microservices / cloud-native / iot）在 `site.js` 对应模块的 `sidebar` 字段里写每组的起始编号 `from`，编号 ≥ `from` 的文章自动归入该组（`0_overview`、90 号以后的附录与 `99_interview` 不分组；interview 另用 `stripSuffix` 去掉标题末尾的「面试题解答」）；ai / algorithms / database 按子目录自动分组，子目录在 `subdirs` 登记
+- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / spring-boot / scenario / patterns / microservices / cloud-native / iot）在 `site.js` 对应模块的 `sidebar` 字段里写每组的起始编号 `from`，编号 ≥ `from` 的文章自动归入该组（`0_overview`、90 号以后的附录与 `99_interview` 不分组；interview 另用 `stripSuffix` 去掉标题末尾的「面试题解答」）；ai / algorithms / database / handbook 按子目录自动分组，子目录在 `subdirs` 登记
 - 面包屑名称：目录没有 README 时主题会自动生成目录页，模块目录用 `site.js` 的 `name`，子目录的中文名登记在模块的 `subdirs` 字段；新增子目录时同步添加，否则面包屑会显示首字母大写的目录名
 - 首页：`docs/README.md` 使用 `layout: HomeLayout`（杂志式 Bento 首页），实现在 `.vuepress/components/home/HomeEditorial.vue`；内容全部来自 `site.js`（模块、分组、推荐博客、页脚）与文章（开发总结速查取答案页的标题与 description）；文章数 / 题数 / 答案页数 / SVG 数由 `.vuepress/plugins/homeStats.js` 在构建时自动统计；分组配色按分组数量从品牌渐变自动取色
 - 模块边界：同一主题只保留一个主文档，其他模块用一句话概括 + 链接，不重复展开；三高模块写系统级策略，具体技术细节链接到 cache / database / messaging / jvm 等模块

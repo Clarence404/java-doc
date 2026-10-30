@@ -6,7 +6,7 @@ description: 首次大促的故障复盘、超时熔断与舱壁、重试风暴�
 
 > 前置阅读：[跨服务一致性](./7_consistency)、[超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)、[限流与过载保护](/high-avail/7_rate_limiting)
 
-大促把下单峰值从日常约 300 QPS 推到 5000 QPS，库存服务一慢就拖垮整条下单链路。本篇讲超时熔断与隔离、限流与频控、热点库存分桶、降级、压测与大促预案，基线为 Spring Boot 4、Spring Cloud 2025.1、Resilience4j 2。
+大促峰值 5000 QPS 下，库存服务一慢就拖垮整条下单链路。本篇讲超时熔断与隔离、限流频控、库存分桶、降级、压测与预案，基线为 Resilience4j 2。
 
 ---
 
@@ -62,6 +62,8 @@ description: 首次大促的故障复盘、超时熔断与舱壁、重试风暴�
 | 大促当天的执行 | 提前 3 天扩容、缓存预热、大促前 48 小时发布冻结、值班表与预案演练、RocketMQ 容量评估 |
 
 **不选 Sentinel**：要的熔断和舱壁 Resilience4j 都有，限流已经在网关做了，没有必要再为一个控制台多运维一套 Dashboard 和规则持久化。
+
+组件版本：Spring Boot 4、Spring Cloud 2025.1、Resilience4j 2。
 
 ### 明确不做
 

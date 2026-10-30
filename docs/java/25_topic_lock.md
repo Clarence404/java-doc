@@ -6,7 +6,7 @@ description: AQS 结构与流程、公平 / 非公平锁、Condition、读写锁
 
 > 前置阅读：[synchronized](./24_topic_synchronized)、[JMM 内存模型](./22_topic_jmm)
 
-显式锁是 `java.util.concurrent.locks` 里几乎全部建立在 AQS 上的纯 Java 锁，弄懂 AQS 就能推出各类锁的行为。本篇讲 AQS 实现、显式锁用法与坑、`synchronized` 与 `Lock` 的选择，基线为 JDK 21 / 25。
+显式锁几乎全部建立在 AQS 上，弄懂 AQS 就能推出各类锁的行为。本篇讲 AQS 实现、显式锁用法与坑、`synchronized` 与 `Lock` 的选择，基线为 JDK 21 / 25。
 
 ---
 

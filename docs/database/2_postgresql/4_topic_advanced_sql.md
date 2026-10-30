@@ -4,7 +4,7 @@ description: UPSERT 与 RETURNING、JSONB、递归 CTE、窗口函数与 FILTER�
 
 # PostgreSQL 高级 SQL
 
-> 前置阅读：[PostgreSQL 基础](./0_overview)、[PostgreSQL 索引类型](./3_topic_index)
+> 前置阅读：[PostgreSQL 基础](./0_basics)、[PostgreSQL 索引类型](./3_topic_index)
 
 本篇讲 Java 开发中最常用的 PostgreSQL SQL 能力：`ON CONFLICT` UPSERT 与 `RETURNING`、JSONB 与数组、递归 CTE、窗口函数、内置全文检索，以及“每组取一行”和任务队列的标准写法。
 

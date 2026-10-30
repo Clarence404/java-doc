@@ -1,12 +1,12 @@
 ---
-description: 先拆库存与支付、模块 api 变远程接口、按服务拆库与数据迁移、Nacos 与网关、HTTP 接口客户端、Kubernetes 部署
+description: 先拆库存与支付、模块 api 变远程接口、按服务拆库、Nacos 与网关、HTTP 接口客户端、K8s 部署
 ---
 
 # 拆分服务
 
 > 前置阅读：[工程搭建](./1_project_setup)、[服务拆分](/microservices/2_service_split)、[注册发现](/microservices/10_service_registry)
 
-日订单涨到 100 万、团队扩到 20 人后，一个 jar 让 4 个小组的发布互相阻塞，库存和支付也没法单独扩容。本篇讲先拆什么、数据库怎么拆、Spring Cloud 选型与 Kubernetes 部署，基线为 Spring Boot 4、Spring Cloud 2025.1、Kubernetes 1.37。
+发布互相阻塞、热点模块无法单独扩容时就该拆服务。本篇讲先拆什么、怎么拆库、Spring Cloud 选型与部署，基线为 Spring Boot 4、Kubernetes 1.37。
 
 ---
 

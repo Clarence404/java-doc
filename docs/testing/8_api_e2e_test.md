@@ -6,7 +6,7 @@ description: 测试边界、REST Assured、测试数据与临时环境、Playwri
 
 > 前置阅读：[测试工程总览](./0_overview)、[集成测试](./3_integration_test)、[契约测试](./6_contract_test)
 
-接口自动化与端到端测试通过 HTTP 或浏览器访问一套已经部署、正在运行的服务，验证用户真正走的那条路能不能走通。本篇讲工具选型、测试数据与环境、Playwright、不稳定测试治理、CI 分层与线上拨测，基线为 JUnit 6、Spring Boot 4、JDK 21。
+接口自动化与端到端测试访问一套已部署的服务，验证用户真正走的路能否走通。本篇讲工具选型、测试数据与环境、Playwright、不稳定测试治理与线上拨测，基线为 JUnit 6、Spring Boot 4。
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: 烘焙镜像与启动初始化、cloud-init 模块与阶段、Terraform 传 user-data、Packer 构建与镜像版本
+description: 烘焙镜像与启动初始化、cloud-init 模块与阶段、Terraform 传 user-data、Packer 构建
 ---
 
 # cloud-init 与 Packer

@@ -6,7 +6,7 @@ description: 发布订阅对比、lambda 实现、PropertyChangeSupport、Flow�
 
 > 前置阅读：[中介者模式](./16_behavioral_mediator)
 
-观察者模式定义一对多的通知结构，被观察者状态变化时通知所有观察者。本篇讲它与发布订阅的差别，用 lambda、`PropertyChangeSupport`、JDK `Flow` 的实现，Spring 事件的定位，以及同步阻塞、异常中断、监听器泄漏等坑。
+观察者模式定义一对多的通知结构，被观察者状态变化时通知所有观察者。本篇讲它与发布订阅的差别、几种 JDK 实现、Spring 事件的定位，以及同步阻塞、监听器泄漏等坑。
 
 ---
 

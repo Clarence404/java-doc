@@ -2,7 +2,7 @@
 
 网络协议模块从 Java 后端视角讲协议：重点是 TCP、HTTP、TLS、DNS 与 RPC，数据库、邮件、文件等外围协议只讲对接所需的报文流程与安全要点。
 
-**版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Linux 内核 5.x / 6.x
+**版本基线（2026 年 10 月）**：JDK 21 / 25、Spring Boot 4、Linux 6 内核
 
 ---
 

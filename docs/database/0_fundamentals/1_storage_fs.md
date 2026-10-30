@@ -1,5 +1,5 @@
 ---
-description: 元数据与数据分离、分块与副本、HDFS、Ceph、JuiceFS、GlusterFS / FastDFS / NAS、选型与 Java 接入
+description: 元数据与数据分离、分块与副本、HDFS、Ceph、JuiceFS、FastDFS / NAS、选型与 Java 接入
 ---
 
 # 分布式文件系统

@@ -334,28 +334,19 @@ CRaC 不在 OpenJDK 主线，绑定特定发行版和 Linux，恢复要求操作
 
 ### 1、分层解压的 Dockerfile
 
-镜像分层的目标是：依赖不变时只重新推送应用代码那一层。`tools` jarmode 的 `--layers` 选项按变化频率解压成 `dependencies`、`spring-boot-loader`、`snapshot-dependencies`、`application` 四个目录，同时得到的布局正好适合 AOT 缓存，可以在镜像构建中顺手完成训练：
+按依赖分层解压的多阶段 Dockerfile（`-Djarmode=tools extract --layers`、四层 `COPY`）见 [Docker · 多阶段 Dockerfile](/cloud-native/5_docker#_1、多阶段-dockerfile)。启动优化要补的是：解压出的布局正好适合 AOT 缓存，可以在运行阶段的分层 `COPY` 之后顺手完成训练：
 
 ```dockerfile
-FROM bellsoft/liberica-openjre-debian:25-cds AS builder
-WORKDIR /builder
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} application.jar
-RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted
-
+# 运行阶段换成 JDK 25 的镜像；训练在本阶段内完成，保证训练与运行是同一个 JVM
 FROM bellsoft/liberica-openjre-debian:25-cds
 WORKDIR /application
-# 变化越少的层越靠前，提高层缓存命中率
-COPY --from=builder /builder/extracted/dependencies/ ./
-COPY --from=builder /builder/extracted/spring-boot-loader/ ./
-COPY --from=builder /builder/extracted/snapshot-dependencies/ ./
-COPY --from=builder /builder/extracted/application/ ./
+# ……从构建阶段 COPY dependencies、spring-boot-loader、snapshot-dependencies、application 四层……
 # 训练运行，生成 AOT 缓存（Java 25+）
 RUN java -XX:AOTCacheOutput=app.aot -Dspring.context.exit=onRefresh -jar application.jar
 ENTRYPOINT ["java", "-XX:AOTCache=app.aot", "-XX:MaxRAMPercentage=75", "-jar", "application.jar"]
 ```
 
-`-jar application.jar` 启动的是解压后的瘦 JAR，不是构建产出的 fat jar。训练运行和最终运行必须使用同一个 JDK 镜像。Docker 本身的使用见 [Docker](/cloud-native/5_docker)。
+训练放在镜像构建里，缓存与镜像内的 JDK、应用 JAR 一一绑定，换版本自动重建；`-jar application.jar` 启动的是解压后的瘦 JAR，不是构建产出的 fat jar。
 
 ### 2、Buildpacks：不写 Dockerfile
 

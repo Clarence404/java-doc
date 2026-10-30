@@ -1,12 +1,12 @@
 ---
-description: CPU 不高但 P99 飙升、线程卡在 Appender 锁、大对象日志与调用位置采集、磁盘 IO 打满、异步 Appender 与丢弃策略
+description: CPU 不高但 P99 飙升、Appender 锁竞争、大对象日志与调用位置采集、异步 Appender
 ---
 
 # 日志打印拖慢接口
 
 > 前置阅读：[日志](/spring-boot/9_logging)、[日志体系](/observability/1_logging)
 
-支付回调服务上线一个"加日志方便排查"的小版本后，晚高峰接口 P99 从 80ms 涨到 1.5s，CPU 却只有 30%。本篇复盘日志同步写盘、日志量暴涨与 Appender 锁竞争如何拖慢接口，基线为 JDK 21、Spring Boot 4（Logback 1.5）。
+加日志的小版本上线后，支付回调 P99 从 80ms 涨到 1.5s，CPU 却只有 30%。本篇复盘 Appender 锁竞争如何拖慢接口，基线为 JDK 21、Spring Boot 4（Logback 1.5）。
 
 ---
 

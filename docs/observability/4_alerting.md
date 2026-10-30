@@ -246,7 +246,7 @@ groups:
 - **规则标签补齐 `application`**：`up` 和 `kafka_consumergroup_lag` 本身没有 `application` 标签，在规则里补上，Alertmanager 才能按它统一分组和抑制
 - **阈值来自 SLO 和压测，而不是拍脑袋**：P99 的 1 秒、错误率的 5% 应与 [可用性度量](/high-avail/1_sla_slo) 中的 SLO 对齐
 
-告警表达式中重复出现的计算（如各服务的错误率）应提取为 recording rule 预先计算，1_sla_slo 中的燃烧速率规则就是这种写法；PromQL 本身见 [指标监控](./2_metrics)。
+告警表达式中重复出现的计算（如各服务的错误率）应提取为 recording rule 预先计算，[可用性度量 · 燃烧速率告警](/high-avail/1_sla_slo#_2、燃烧速率告警) 中的规则就是这种写法；PromQL 本身见 [指标监控](./2_metrics)。
 
 ### 3、用 promtool 测试规则
 

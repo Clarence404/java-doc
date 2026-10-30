@@ -2,7 +2,7 @@
 
 缓存模块覆盖分布式缓存 Redis、本地缓存 Caffeine、两级缓存与 JetCache，以及缓存一致性和使用规范，负责 Redis 本身与缓存一致性的技术细节。
 
-**版本基线（2026 年 10 月）**：Redis 8、Valkey 9、Spring Data Redis 4、Redisson 4、Caffeine 3、JetCache 2.7.9
+**版本基线（2026 年 10 月）**：Redis 8、Valkey 9、Spring Data Redis 4、Redisson 4、Caffeine 3、JetCache 2.7
 
 ---
 

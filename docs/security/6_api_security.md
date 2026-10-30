@@ -1,5 +1,5 @@
 ---
-description: OWASP API Top 10、调用方认证、HMAC 签名与防重放、API Key、BOLA 与批量赋值、校验、CORS 与安全头
+description: OWASP API Top 10、调用方认证、HMAC 签名与防重放、API Key、BOLA、CORS 与安全头
 ---
 
 # API 安全
@@ -20,7 +20,7 @@ OWASP 在 2023 年发布了第二版 API Security Top 10。前几名几乎都是
 | API2 | 认证失效 | 令牌不校验签名、不过期，密码接口可被撞库 | 第二～四节 |
 | API3 | 对象属性级授权失效（BOPLA） | 响应多返回了敏感字段，或请求能改不该改的字段 | 第五节 |
 | API4 | 资源消耗不受限 | 不限分页大小、请求体大小、调用频率 | 第六节 |
-| API5 | 功能级授权失效 | 普通用户能调管理接口 | 第五节、[RBAC 与 ABAC](./5_rbac_abac) |
+| API5 | 功能级授权失效 | 普通用户能调管理接口 | 第五节、[权限模型：RBAC 与 ABAC](./5_rbac_abac) |
 | API6 | 敏感业务流不受限 | 脚本批量抢券、刷注册 | 第六节 |
 | API7 | 服务端请求伪造（SSRF） | 服务端替用户去请求任意 URL | [常见漏洞与防护](./8_vulnerabilities) |
 | API8 | 安全配置错误 | CORS 放开 `*`、错误信息带堆栈、Actuator 全暴露 | 第七、八节 |
@@ -427,7 +427,7 @@ public ProfileView update(@RequestBody @Valid UpdateProfileRequest req, @Authent
 
 Spring Boot 默认让 Jackson 忽略未知字段，所以多传的 `role` 不会报错，防线在于 DTO 里根本没有这个字段。希望显式拒绝时可以开启 `spring.jackson.deserialization.fail-on-unknown-properties=true`。
 
-功能级授权（普通用户调管理接口）用 URL 规则或 `@PreAuthorize` 控制，模型设计见 [RBAC 与 ABAC](./5_rbac_abac)。
+功能级授权（普通用户调管理接口）用 URL 规则或 `@PreAuthorize` 控制，模型设计见 [权限模型：RBAC 与 ABAC](./5_rbac_abac)。
 
 ---
 
@@ -563,8 +563,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
 一个典型的 API 过滤器链（Spring Security 7，lambda DSL）：
 
-过滤器链与认证流程的原理见 [Spring Security](/spring/9_security)。
-
 ```java
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -619,7 +617,7 @@ public class ApiSecurityConfig {
 }
 ```
 
-Spring Security 7 中 `requestMatchers(String)` 默认就是基于 `PathPatternRequestMatcher` 的路径模式匹配；需要手动构造匹配器时用 `PathPatternRequestMatcher.withDefaults().matcher(...)`（见第三节过滤器），旧的 `AntPathRequestMatcher` 已经移除。
+Spring Security 7 中 `requestMatchers(String)` 默认就是基于 `PathPatternRequestMatcher` 的路径模式匹配；需要手动构造匹配器时用 `PathPatternRequestMatcher.withDefaults().matcher(...)`（见第三节过滤器），旧的 `AntPathRequestMatcher` 已经移除。过滤器链与认证流程的原理见 [Spring Security](/spring/9_security)。
 
 ### CORS 的几个要点
 
@@ -646,12 +644,10 @@ Spring Security 默认会写出以下响应头，一般不需要改：
 
 ## 八、运维端点与传输层
 
-- **Actuator**：生产只通过 Web 暴露 `health`（必要时加 `info`、`prometheus`），其他端点走独立管理端口并限制来源；`env`、`configprops` 的值从 Spring Boot 3.0 起默认就以 `******` 显示（`show-values: never`），不要为了排查问题改成 `always`。完整配置见 [Actuator](/spring-boot/11_actuator)
+- **Actuator**：生产只通过 Web 暴露 `health`（必要时加 `info`、`prometheus`），其他端点走独立管理端口并限制来源；`env`、`configprops` 的值从 Spring Boot 3.0 起默认就以 `******` 显示（`show-values: never`），不要为了排查问题改成 `always`。完整配置见 [Actuator 监控](/spring-boot/11_actuator)
 - **日志脱敏**：请求日志里不打印密码、Token、Secret、完整手机号和证件号，规则与实现统一见 [数据安全](./7_data_security)
 - **API 资产**：所有对外接口登记在网关和接口文档里，老版本有明确的下线时间，测试环境不对公网开放
 - **TLS**：全程 HTTPS，通常在网关 / Ingress 终止 TLS，服务间按需启用 mTLS。协议版本、证书链与 Spring Boot 的 SSL Bundle 配置统一见 [HTTPS 与 TLS](/protocols/3_https_tls)
-
-TLS 见 [HTTPS 与 TLS](/protocols/3_https_tls)。
 
 ---
 

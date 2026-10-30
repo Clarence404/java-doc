@@ -6,7 +6,7 @@ description: 工作原理与 Ryuk、2.x 依赖与包名、JUnit 集成、等待�
 
 > 前置阅读：[集成测试](./3_integration_test)、[Docker](/cloud-native/5_docker)
 
-Testcontainers 通过 Docker API 为测试拉起真实的 PostgreSQL、Redis、Kafka、LocalStack。本篇讲依赖与包名、容器生命周期、等待策略、单例与复用提速、CI 中的 Docker 配置，基线为 Testcontainers 2。
+Testcontainers 通过 Docker 为测试拉起真实的 PostgreSQL、Redis、Kafka。本篇讲包名变化、生命周期、等待策略、复用提速与 CI 配置，基线为 Testcontainers 2。
 
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: DAG 依赖、数据时间与运行时间、DolphinScheduler、补数与重跑、幂等分区覆盖、Airflow 3 对比、SLA 监控
+description: DAG 依赖、数据时间与运行时间、DolphinScheduler、补数与重跑、幂等分区覆盖、Airflow 3、SLA
 ---
 
 # 任务调度

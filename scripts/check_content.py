@@ -11,6 +11,8 @@ DOCS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
 # 作者自管的文章，不参与检查
 SKIP = {'cloud-native/17_vps_intro.md'}
 H1 = re.compile(r'^# (.+)$', re.M)
+# frontmatter description 的字数范围（按字符计，含空格）
+DESC_MIN, DESC_MAX = 15, 60
 
 
 def rel(path):
@@ -154,10 +156,18 @@ def main():
             report('提示框标题写在 > [!type] 同一行，不会渲染，改用 ::: type 标题')
         if '本篇目标' in text.split('\n## ', 1)[0]:
             report('开头不写「本篇目标」')
-        if is_article or (is_interview and name != '0_overview.md'):
-            front = text.split('---', 2)[1] if text.startswith('---') else ''
-            if 'description:' not in front:
-                report('frontmatter 缺少 description')
+        front = text.split('---', 2)[1] if text.startswith('---') else ''
+        if (is_article or (is_interview and name != '0_overview.md')) and 'description:' not in front:
+            report('frontmatter 缺少 description')
+        # description：15–60 字（按字符计，含空格），要点用「、」或「 / 」分隔，不写逗号与句号；题单页（99_interview）不设下限
+        dm = re.search(r'^description:[ \t]*(.*?)[ \t]*$', front, re.M)
+        if dm:
+            desc = re.sub(r'^([\'"])(.*)\1$', r'\2', dm.group(1))
+            low = 0 if name == '99_interview.md' else DESC_MIN
+            if not low <= len(desc) <= DESC_MAX:
+                report(f'description 长度 {len(desc)} 字，应在 {low}–{DESC_MAX} 字之间')
+            if re.search(r'[，,。]|\.(?=\s|$)', desc):
+                report('description 不写逗号与句号，要点用「、」或「 / 」分隔')
         if is_article:
             if '## 参考资料' not in text:
                 report('缺少文末「## 参考资料」')

@@ -32,7 +32,7 @@ OpenSearch 是 ES 7.10 的分叉，底层同样是 Lucene，本篇的倒排索�
 
 全文检索的核心数据结构：**词项 → 文档 ID 列表（Posting List）**。
 
-![倒排索引（Inverted Index）结构](../assets/database/es-inverted-index.svg)
+![倒排索引（Inverted Index）结构](../assets/nosql/es-inverted-index.svg)
 
 与 `LIKE '%keyword%'` 的全表扫描相比，倒排索引先在词典（FST 结构，前缀共享、常驻内存）中定位词项，再读取对应的 Posting List，多个词项时用跳表做交集。查询代价与词项长度、命中文档数和 Posting List 长度相关，而不是与全表数据量成正比。
 
@@ -42,7 +42,7 @@ OpenSearch 是 ES 7.10 的分叉，底层同样是 Lucene，本篇的倒排索�
 
 文档写入和查询时，`text` 字段都要经过分析器处理成词项：
 
-![Elasticsearch 分析器处理链](../assets/database/es-analyzer-pipeline.svg)
+![Elasticsearch 分析器处理链](../assets/nosql/es-analyzer-pipeline.svg)
 
 | 步骤 | 作用 | 常用实现 |
 |------|------|---------|
@@ -116,7 +116,7 @@ Mapping 的设计方法（multi-field、关闭动态映射、nested 与扁平化
 
 ## 四、分片与副本
 
-![Elasticsearch 集群架构](../assets/database/es-cluster.svg)
+![Elasticsearch 集群架构](../assets/nosql/es-cluster.svg)
 
 文档落到哪个分片由路由决定：
 
@@ -136,7 +136,7 @@ shard = hash(_routing) % number_of_primary_shards
 
 ### 1、写入链路
 
-![Elasticsearch 写入流程](../assets/database/es-write-flow.svg)
+![Elasticsearch 写入流程](../assets/nosql/es-write-flow.svg)
 
 1. 客户端请求到达任意节点，该节点作为**协调节点**，按路由公式算出主分片
 2. 主分片写入内存 Buffer 并追加 Translog，然后把操作并行转发给所有 in-sync 副本
@@ -182,7 +182,7 @@ POST /logs-2026.09/_forcemerge?max_num_segments=1
 
 搜索请求分两个阶段执行，先找到「哪些文档」，再取「文档内容」：
 
-![Elasticsearch 查询两阶段](../assets/database/es-query-then-fetch.svg)
+![Elasticsearch 查询两阶段](../assets/nosql/es-query-then-fetch.svg)
 
 - **Query 阶段**：协调节点把查询发给每个分片的一份副本（主或副本，按自适应副本选择挑响应最快的），各分片本地检索、打分，只返回排序靠前的 `from + size` 个 docID 和排序值
 - **Fetch 阶段**：协调节点全局排序后，只向持有最终结果的分片取 `_source`、生成高亮

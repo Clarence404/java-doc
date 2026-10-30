@@ -6,7 +6,7 @@ description: sealed + record 状态、枚举转换表、持久化与并发、状
 
 > 前置阅读：[版本演进](/java/2_version)
 
-状态模式让对象在内部状态改变时改变行为。本篇用 sealed 接口 + record 写完整的状态模式，讲可持久化的枚举转换表订单状态机、数据库条件更新、Spring Statemachine 已停止开源维护的现状，以及状态模式与策略模式的区别。
+状态模式让对象在内部状态改变时改变行为。本篇用 sealed 接口 + record 实现状态模式，讲枚举转换表订单状态机、数据库条件更新、Spring Statemachine 现状及与策略模式的区别。
 
 ---
 

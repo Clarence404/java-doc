@@ -1,5 +1,5 @@
 ---
-description: Apache Pulsar 存算分离与订阅模式、与 Kafka 的差异、Kafka Share Group、其他常见消息系统速览
+description: Pulsar 存算分离与订阅模式、与 Kafka 的差异、Kafka Share Group、其他消息系统速览
 ---
 
 # 其他 MQ

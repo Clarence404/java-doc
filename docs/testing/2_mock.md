@@ -1,5 +1,5 @@
 ---
-description: 测试替身分类、Mockito 5 打桩与验证、ArgumentCaptor、严格桩、Spy、静态与构造 Mock、Fake、WireMock
+description: 测试替身分类、Mockito 5 打桩与验证、参数捕获、Spy、静态与构造 Mock、WireMock
 ---
 
 # Mock 测试

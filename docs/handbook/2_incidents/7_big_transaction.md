@@ -6,7 +6,7 @@ description: 无索引批量 UPDATE 锁全表、锁等待定位、KILL 与回滚
 
 > 前置阅读：[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)、[EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain)
 
-运营在后台点了一次"批量关闭活动订单"，一个持续 14 分钟的大事务把订单表几乎整张锁住，下单和支付回调全部锁等待超时。本篇按现象、排查、根因、修复、预防完整复盘，基线为 JDK 21、Spring Boot 4、MySQL 8.4（隔离级别 REPEATABLE READ）。
+后台一次「批量关闭活动订单」开启了 14 分钟的大事务，下单和支付回调全部锁等待超时。本篇完整复盘，基线为 JDK 21、Spring Boot 4、MySQL 8.4（隔离级别 RR）。
 
 ---
 

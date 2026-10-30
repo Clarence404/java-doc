@@ -25,7 +25,7 @@ GraalVM 的通用原理、虚拟线程和 Reactor 在各自模块展开，这里
 
 ---
 
-## 三、阅读建议
+## 三、推荐阅读路径
 
 - **第一次接触 Quarkus**：按顺序读完前两篇。[Quarkus 概览](./1_basics) 讲的构建期增强，是理解后面所有特性和限制的前提。
 - **从 Spring Boot 转过来**：读完 [Quarkus 概览](./1_basics) 后直接读 [从 Spring Boot 迁移](./5_from_spring) 的概念对照，再回头读第 2～4 篇。

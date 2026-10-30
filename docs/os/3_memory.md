@@ -1,5 +1,5 @@
 ---
-description: 虚拟内存与缺页、Swap 与 OOM Killer、Page Cache、write 与 fsync、脏页回写、mmap、容器内存
+description: 虚拟内存与缺页、Swap 与 OOM Killer、Page Cache、fsync 与脏页回写、mmap、容器内存
 ---
 
 # 内存管理与 Page Cache

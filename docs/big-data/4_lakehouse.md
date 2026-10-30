@@ -1,5 +1,5 @@
 ---
-description: 数据湖与湖仓、表格式原理、Iceberg / Paimon / Hudi / Delta 对比、Catalog、小文件治理、流式湖仓
+description: 湖仓概念、表格式原理、Iceberg / Paimon / Hudi / Delta 对比、Catalog、小文件治理
 ---
 
 # 数据湖与湖仓

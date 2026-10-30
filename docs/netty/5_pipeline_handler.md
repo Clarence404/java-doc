@@ -1,5 +1,5 @@
 ---
-description: Pipeline 结构与事件传播、三个传播陷阱、动态增删 Handler、入站与出站 Handler、@Sharable 共享规则
+description: Pipeline 结构与事件传播、传播陷阱、动态增删 Handler、入站与出站、@Sharable 规则
 ---
 
 # Pipeline 与 Handler

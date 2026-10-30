@@ -1,5 +1,5 @@
 ---
-description: 分片直传、事件驱动转码编排、HLS AES-128 加密与密钥服务、DRM、播放鉴权与 CDN 签名、封面、审核、存储分层
+description: 分片直传、转码编排、HLS 加密与密钥服务、DRM、播放鉴权与 CDN 签名、封面、审核、存储分层
 ---
 
 # 点播与短视频
@@ -96,7 +96,7 @@ S3 分片的硬性限制：单片 5 MiB～5 GiB（最后一片不限下限），
 
 单个转码任务怎么执行（`transcode_job` 任务表、Worker 条件更新抢占、心跳超时接管、进度节流、重试分类）统一见 [FFmpeg 与转码](./3_ffmpeg#五、转码作为异步任务)；点播编排服务要解决的是另一层问题：一个视频的转码、截帧、审核三个子任务怎么扇出投递、怎么汇合成视频状态。任务投递走消息队列，用队列长度做削峰，消息队列选型见 [消息队列总览](/messaging/0_overview)。
 
-扇出时和 3_ffmpeg 一样用本地消息表（Outbox）：子任务和待发消息在同一个事务里落库，由投递任务异步发到 Kafka，保证「建了子任务就一定发出消息」；如果改成事务提交后在 `afterCommit` 里直接发送，进程在提交后、发送前崩溃，消息就丢了，视频会一直卡在 `PROCESSING`。
+扇出时和 [FFmpeg 与转码](./3_ffmpeg#五、转码作为异步任务) 一样用本地消息表（Outbox）：子任务和待发消息在同一个事务里落库，由投递任务异步发到 Kafka，保证「建了子任务就一定发出消息」；如果改成事务提交后在 `afterCommit` 里直接发送，进程在提交后、发送前崩溃，消息就丢了，视频会一直卡在 `PROCESSING`。
 
 ```java
 @Component
@@ -125,7 +125,7 @@ public class UploadedEventListener {
 }
 ```
 
-投递任务至少发送一次，消费端要按 `video_id + task_type` 幂等；Outbox 的表结构与投递任务见 [分布式事务](/distributed/4_transaction#五、本地消息表-transactional-outbox)。`TRANSCODE` 子任务的消费者就是 3_ffmpeg 里的转码 Worker，转码完成后回调下面的汇合逻辑。
+投递任务至少发送一次，消费端要按 `video_id + task_type` 幂等；Outbox 的表结构与投递任务见 [分布式事务](/distributed/4_transaction#五、本地消息表-transactional-outbox)。`TRANSCODE` 子任务的消费者就是 [FFmpeg 与转码](./3_ffmpeg#_2、worker-抢占、执行、回写) 里的转码 Worker，转码完成后回调下面的汇合逻辑。
 
 子任务完成后汇合：
 

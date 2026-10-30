@@ -55,6 +55,8 @@ RocketMQ 诞生于阿里交易场景，强项是事务、延迟、顺序等业�
 | **ConsumeQueue** | 每个 Topic 的每个 Queue 一份，定长条目（CommitLog 偏移 + 消息长度 + Tag 哈希） | 消费索引：按 Queue 偏移定位消息，按 Tag 哈希做初步过滤 |
 | **IndexFile** | 以 Keys / 消息 ID 为键的哈希索引 | 按 Key 或时间区间查询消息，用于排查与补偿 |
 
+![mmap + write 数据路径](../assets/messaging/zero-copy-mmap.svg)
+
 读写路径上的关键优化：
 
 - **mmap + PageCache**：CommitLog 与 ConsumeQueue 用 `MappedByteBuffer` 映射到内存，写入先落 PageCache，热数据的读取直接命中内存；零拷贝原理见 [Netty · ByteBuf 与内存管理](/netty/6_bytebuf)

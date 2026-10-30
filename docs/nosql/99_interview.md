@@ -1,5 +1,5 @@
 ---
-description: 键值与嵌入式、文档、列式与 OLAP、时序、搜索与 Elasticsearch、图数据库题目清单
+description: NoSQL 方向题目清单
 ---
 
 # 高频面试题

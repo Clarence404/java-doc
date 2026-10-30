@@ -1,5 +1,5 @@
 ---
-description: Linux 信号与排查、容器原理与 Java 镜像、Kubernetes 资源探针与发布、Helm 与 GitOps、IaC、云平台
+description: Linux 排查、容器与 Java 镜像、Kubernetes 探针与发布、Helm 与 GitOps、IaC、云平台
 ---
 
 # 云原生面试题解答

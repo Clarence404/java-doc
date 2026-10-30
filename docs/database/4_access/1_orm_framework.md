@@ -6,7 +6,7 @@ description: MyBatis 缓存、分页、Mapper 代理、TypeHandler、插件、�
 
 > 前置阅读：[事务管理](/spring/4_transaction)、[数据访问](/spring-boot/3_data_access)
 
-ORM 框架负责把 Java 对象和数据库表互相映射，Java 项目里最常用的是 MyBatis 和 Hibernate。本篇讲 MyBatis 缓存与插件原理、MyBatis-Plus 多租户、Hibernate 持久化上下文与 N+1，基线为 MyBatis 3.5。
+ORM 把 Java 对象和表互相映射。本篇讲 MyBatis 缓存与插件、MyBatis-Plus 多租户、Hibernate 持久化上下文与 N+1，基线为 MyBatis 3.5。
 
 ---
 

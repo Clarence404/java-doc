@@ -6,7 +6,7 @@ description: Pod 反复重启退出码 137、堆监控正常但 RSS 超 limit、
 
 > 前置阅读：[故障排查](/jvm/9_troubleshooting)、[GC 调优](/jvm/6_gc_tuning)
 
-订单服务在大促期间 Pod 反复重启，堆内存曲线却一直健康，没有任何 `OutOfMemoryError` 和 heap dump。本篇复盘一次典型的容器 OOMKilled，基线为 JDK 21、Spring Boot 4、Kubernetes 1.37（cgroup v2）。
+订单服务大促时 Pod 反复重启，堆内存却一直健康。本篇复盘一次容器 OOMKilled，基线为 JDK 21、Spring Boot 4、Kubernetes 1.37（cgroup v2）。
 
 ---
 

@@ -6,7 +6,7 @@ description: Flyway 原理与命名、Boot 4 依赖、迁移锁、Liquibase 与�
 
 > 前置阅读：[数据访问](./3_data_access)
 
-Flyway 与 Liquibase 把表结构变更纳入版本管理。本篇讲 Flyway 的执行过程与命名规则、Boot 4 上的引入方式、多实例并发迁移、Liquibase 的 changelog / 上下文 / 回滚，以及如何把表结构变更安全纳入滚动发布。
+Flyway 与 Liquibase 把表结构变更纳入版本管理。本篇讲 Flyway 执行过程与命名规则、多实例并发迁移、Liquibase 的 changelog 与回滚，以及如何安全配合滚动发布。
 
 ---
 

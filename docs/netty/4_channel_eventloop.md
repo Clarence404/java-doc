@@ -1,12 +1,12 @@
 ---
-description: Channel 生命周期与 AttributeKey、ChannelFuture 异步结果、EventLoop 运行机制与线程数、业务线程池
+description: Channel 生命周期、AttributeKey、ChannelFuture、EventLoop 线程模型、业务线程池
 ---
 
 # Channel 与 EventLoop
 
 > 前置阅读：[Netty 入门](./3_netty_desc)
 
-Netty 里 Channel 是连接，EventLoop 是干活的线程，Pipeline 是流水线，Handler 是工位。本篇讲 Channel、ChannelFuture 异步结果、EventLoop 单线程串行处理，以及慢业务为何要交给业务线程池。
+Netty 里 Channel 是连接，EventLoop 是干活的线程，Pipeline 是流水线，Handler 是工位。本篇讲 ChannelFuture、EventLoop 串行处理，以及慢业务交给业务线程池。
 
 ---
 

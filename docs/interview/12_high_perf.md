@@ -1,5 +1,5 @@
 ---
-description: 指标与方法论、Profiler、JVM 层、池化、异步批量、数据访问
+description: 指标与方法论、Profiler 与基准测试、JVM 层、池化、异步批量、数据访问、综合案例
 ---
 
 # 高性能面试题解答

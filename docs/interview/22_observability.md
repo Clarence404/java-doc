@@ -1,5 +1,5 @@
 ---
-description: 三大信号、RED 与 USE、日志、指标基数、PromQL、链路采样、OpenTelemetry、告警
+description: 三大信号、RED 与 USE、日志、指标基数、PromQL、链路采样、OTel、告警、持续剖析 / eBPF
 ---
 
 # 可观测性面试题解答

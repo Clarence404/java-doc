@@ -6,7 +6,7 @@ description: 启动与附着、全局概览、watch / trace / tt 方法观察、
 
 > 前置阅读：[线上诊断](/engineering/7_diagnosis)、[诊断工具](/jvm/8_monitoring_tools)
 
-Arthas 常用命令按排查步骤分组，示例类名统一用 `com.example.order.OrderService`，替换成实际类名即可。本篇只列命令，附着原理、容器内附着与安全守则见前置阅读，基线为 Arthas 4 与 Spring Boot 4。
+Arthas 常用命令按排查步骤分组，示例类名统一为 `com.example.order.OrderService`。附着原理与安全守则见前置阅读，基线为 Arthas 4 与 Spring Boot 4。
 
 ---
 

@@ -6,7 +6,7 @@ description: 版本对齐、Nacos 部署要点、Sentinel 资源与规则、规�
 
 > 前置阅读：[服务治理](./14_service_governance)
 
-Nacos + Sentinel + Seata 是国内最常用的 Spring Cloud 落地组合。本篇讲版本对齐、Sentinel 的资源定义、规则配置、OpenFeign 集成与 Nacos 持久化，以及 Seata AT 模式的两阶段机制与生产配置。
+Nacos + Sentinel + Seata 是国内最常用的 Spring Cloud 组合。本篇讲版本对齐、Sentinel 规则与 Nacos 持久化，以及 Seata AT 模式的两阶段机制与生产配置。
 
 ---
 

@@ -306,7 +306,7 @@ public class TurnCredentialService {
 
 ### 2、鉴权：一次性 ticket
 
-浏览器的 `WebSocket` 构造函数不能自定义请求头，JWT 放不进 `Authorization`。常见做法是先用正常的 HTTP 接口（带 JWT）换一个**短期、一次性**的 ticket，再把 ticket 放在 WebSocket URL 的查询参数里。即使 URL 被记录进访问日志，ticket 也早已失效。JWT 本身的校验见 [JWT](/security/1_jwt)。
+浏览器的 `WebSocket` 构造函数不能自定义请求头，JWT 放不进 `Authorization`。常见做法是先用正常的 HTTP 接口（带 JWT）换一个**短期、一次性**的 ticket，再把 ticket 放在 WebSocket URL 的查询参数里。即使 URL 被记录进访问日志，ticket 也早已失效。JWT 本身的校验见 [JWT 令牌机制](/security/1_jwt)。
 
 ```java
 public record RtcPrincipal(long userId, String roomId) {}

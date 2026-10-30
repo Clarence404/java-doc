@@ -6,7 +6,7 @@ description: Micronaut、Helidon、Solon、Javalin 定位与现状、六种 Java
 
 > 前置阅读：[Quarkus 概览](./1_basics)、[从 Spring Boot 迁移](./5_from_spring)
 
-除 Spring Boot 与 Quarkus 外，Micronaut、Helidon、Solon、Javalin 也常被拿来比较。本篇介绍它们各自解决的问题、代价与版本状态（截至 2026 年 10 月，落地前以官方发布页为准），最后用一张表横向对比六种框架。
+Micronaut、Helidon、Solon、Javalin 常被拿来与 Spring Boot、Quarkus 比较。本篇介绍它们的取舍与版本状态（截至 2026-10），并横向对比六种框架。
 
 ---
 

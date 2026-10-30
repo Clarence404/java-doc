@@ -1,12 +1,12 @@
 ---
-description: 核心注解、CacheManager 配置、Jackson 3 序列化、SpEL Key、常见陷阱
+description: 核心注解、Redis 与 Caffeine 配置、SpEL Key、自定义 KeyGenerator、常见陷阱
 ---
 
 # Cache 抽象
 
 > 前置阅读：[AOP](./2_aop)
 
-Spring Cache 是基于 AOP 的缓存抽象，方法加注解后由代理读写 `Cache`，存储由 `CacheManager` 决定。本篇讲注解语义与 SpEL Key、Redis / Caffeine 配置、自调用失效与击穿等坑，基线为 Spring Boot 4。
+Spring Cache 是基于 AOP 的缓存抽象。本篇讲注解语义与 SpEL Key、Redis / Caffeine 配置、自调用失效与击穿等坑，基线为 Spring Boot 4。
 
 ---
 

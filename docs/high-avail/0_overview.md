@@ -82,6 +82,8 @@
 - **发布总出问题**：[优雅上下线与变更](./8_graceful_release)，配合 [发布策略](/devops/7_release_strategy)
 - **线上正在出故障**：直接看 [故障应急与复盘](./11_incident_response) 的止血手段清单
 
+复习时用 [高频面试题](./99_interview) 自测，答案在 [高可用面试题解答](/interview/14_high_avail)。
+
 ---
 
 ## 七、关联模块
@@ -94,7 +96,6 @@ Sentinel、Resilience4j、Nacos 等组件的框架配置在 [微服务 · 服务
 - MySQL 复制与 Redis 集群 → [MySQL 主从与高可用](/database/1_mysql/9_topic_replication)、[Redis 集群](/cache/3_redis_cluster)
 - 监控告警 → [可观测性](/observability/0_overview)
 - 重试的前提 → [幂等设计](/architecture/3_idempotence)
-- 答案汇总 → [高可用面试题解答](/interview/14_high_avail)
 
 ## 参考资料
 

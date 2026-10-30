@@ -192,7 +192,7 @@ GET /_search
 
 改字段类型、换分词器都要新建索引重灌数据。业务始终通过别名访问，切换一次就完成：
 
-![别名切换实现零停机 Reindex](../assets/database/es-alias-reindex.svg)
+![别名切换实现零停机 Reindex](../assets/nosql/es-alias-reindex.svg)
 
 ```http
 POST /_reindex?wait_for_completion=false&slices=auto

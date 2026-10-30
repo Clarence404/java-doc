@@ -1,5 +1,5 @@
 ---
-description: Spotless、Checkstyle、SpotBugs / PMD、ArchUnit、JaCoCo、Sonar 门禁、技术债
+description: Spotless、Checkstyle、SpotBugs / PMD、ArchUnit、JaCoCo、Sonar 门禁
 ---
 
 # 代码质量

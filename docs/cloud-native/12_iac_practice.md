@@ -103,6 +103,7 @@ data "aws_iam_policy_document" "tf_apply_trust" {
 - **plan 角色**：只读权限 + State 桶读和锁文件读写，信任 `repo:acme/infra-repo:pull_request` 与 `repo:acme/infra-repo:ref:refs/heads/main`
 - **apply 角色**：写权限，只信任 `environment:production`，再配合环境保护规则，等于「必须有人点批准才拿得到写凭证」
 - 阿里云同理：RAM 中创建 OIDC 身份提供商与角色，Workflow 里用官方的 `aliyun/configure-aliyun-credentials-action` 传 `role-to-assume` 和 `oidc-provider-arn`
+- 应用部署同理：部署 Job 也不在 Secrets 里存 kubeconfig，用换来的临时凭证执行 `aws eks update-kubeconfig` 现取，信任策略限定到 `repo:acme/order-service:environment:production` 这类具体环境，Workflow 写法见 [CI/CD · 部署：可复用工作流 + OIDC](/devops/4_ci_cd#四、部署-可复用工作流-oidc)
 
 ::: tip 2026 年 7 月起的 sub 格式变化
 GitHub 对 2026 年 7 月 15 日之后新建（或改名、转移）的仓库，默认在 `sub` 中加入不可变的所有者 ID 和仓库 ID，形如 `repo:acme@123456/infra-repo@987654:environment:production`；存量仓库可在组织或仓库的 OIDC 设置里选择启用。配置信任策略前先看一眼仓库实际签发的 `sub`，否则会出现「角色存在却 AssumeRole 失败」。

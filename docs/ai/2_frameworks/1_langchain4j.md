@@ -6,7 +6,7 @@ description: AiServices、ChatMemory、Tools、结构化输出与护栏、RAG、
 
 > 前置阅读：[Spring AI](./0_spring_ai)、[Function Calling（工具调用）](../1_concepts/2_function_calling)
 
-LangChain4j 是独立于 Spring 的 Java LLM 框架，用接口声明 AI 能力、由框架生成实现。本篇讲 AiServices、记忆与工具、护栏、RAG 与 MCP、Agent 编排，基线为 LangChain4j 1.22。
+LangChain4j 是独立于 Spring 的 Java LLM 框架。本篇讲 AiServices、记忆与工具、护栏、RAG 与 MCP、Agent 编排，基线为 LangChain4j 1.22。
 
 ---
 

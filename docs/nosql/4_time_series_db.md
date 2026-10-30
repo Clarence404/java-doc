@@ -4,7 +4,7 @@ description: 时序模型、InfluxDB、TimescaleDB、Prometheus 存储、TDengin
 
 # 时序数据库
 
-> 前置阅读：[列式与 OLAP 数据库](./3_column_db)、[PostgreSQL 基础](/database/2_postgresql/0_overview)
+> 前置阅读：[列式与 OLAP 数据库](./3_column_db)、[PostgreSQL 基础](/database/2_postgresql/0_basics)
 
 时序数据在写入路径、过期、压缩与聚合上需要专用存储。本篇讲 InfluxDB 三代差异、TimescaleDB 的 hypertable 与连续聚合、Prometheus 本地存储的定位与 TSDB 选型。
 
@@ -32,7 +32,7 @@ description: 时序模型、InfluxDB、TimescaleDB、Prometheus 存储、TDengin
 
 各家术语不同，但模型高度一致（以 InfluxDB 行协议为例）：
 
-![时序数据模型](../assets/database/tsdb-data-model.svg)
+![时序数据模型](../assets/nosql/tsdb-data-model.svg)
 
 | 概念 | InfluxDB | Prometheus | TDengine | 关系型类比 |
 |------|----------|-----------|----------|-----------|

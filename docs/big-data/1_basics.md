@@ -1,5 +1,5 @@
 ---
-description: 批处理与流处理、MapReduce 思想、HDFS 与 YARN 现状、存算分离、对象存储数据湖、Lambda 与 Kappa
+description: 批处理与流处理、MapReduce 思想、HDFS 与 YARN、存算分离、对象存储数据湖、Lambda 与 Kappa
 ---
 
 # 大数据基础

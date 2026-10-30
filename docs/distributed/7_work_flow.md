@@ -6,7 +6,7 @@ description: BPMN 引擎与持久化执行、Flowable、Camunda 现状、Apache 
 
 > 前置阅读：[分布式事务](./4_transaction)
 
-工作流分为面向人工审批的 BPMN 流程引擎与面向服务编排的持久化执行引擎两类。本篇介绍 Flowable、Camunda、Activiti、Apache KIE（jBPM）、Temporal 在 2026 年的现状与许可证，并给出按场景选型的建议。
+工作流分为面向人工审批的 BPMN 流程引擎与面向服务编排的持久化执行引擎两类。本篇介绍 Flowable、Camunda、jBPM、Temporal 的现状与许可证，并按场景给出选型建议。
 
 ---
 

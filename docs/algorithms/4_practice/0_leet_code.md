@@ -120,7 +120,7 @@ description: 按题型分类的 LeetCode 高频题、难度与考点、解题切
 
 | 题目 | 难度 | 考点 | 讲解 |
 |------|------|------|------|
-| LeetCode 200 岛屿数量 | 中等 | 网格 DFS / BFS | [回溯算法](../2_algorithms/3_backtrack) |
+| LeetCode 200 岛屿数量 | 中等 | 网格 DFS / BFS | [图](../1_data_structures/5_graph) |
 | LeetCode 994 腐烂的橘子 | 中等 | 多源 BFS | [搜索算法](../2_algorithms/0_search) |
 | LeetCode 127 单词接龙 | 困难 | BFS / 双向 BFS | [搜索算法](../2_algorithms/0_search) |
 | LeetCode 752 打开转盘锁 | 中等 | BFS / 双向 BFS | [搜索算法](../2_algorithms/0_search) |

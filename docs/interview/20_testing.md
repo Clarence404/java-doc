@@ -1,5 +1,5 @@
 ---
-description: 测试分层、单元测试、覆盖率、测试替身、Testcontainers、Flaky、契约测试、TDD、性能测试
+description: 测试分层、单元测试、测试替身、Testcontainers、Flaky、契约测试、TDD、性能测试、接口与 E2E
 ---
 
 # 测试工程面试题解答

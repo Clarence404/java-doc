@@ -6,7 +6,7 @@ description: WAL 与崩溃恢复、B+ 树、LSM-Tree、Compaction、读写放大
 
 > 前置阅读：[树](/algorithms/1_data_structures/3_tree)、[文件系统与磁盘 IO](/os/7_file_io)、[内存管理与 Page Cache](/os/3_memory)
 
-存储引擎决定一条数据怎么写进磁盘、怎么被找回来，主流只有原地更新的 B+ 树和追加写的 LSM-Tree 两大流派。本篇讲两种结构的原理、Compaction 与读写放大，以及各数据库的取舍，基线为 MySQL 8.4 与 RocksDB 10。
+存储引擎决定数据怎么落盘、怎么找回，主流是原地更新的 B+ 树和追加写的 LSM-Tree。本篇讲两者原理、Compaction 与读写放大及各库取舍，基线为 MySQL 8.4 与 RocksDB 10。
 
 ---
 

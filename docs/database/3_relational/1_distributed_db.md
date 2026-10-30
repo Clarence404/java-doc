@@ -4,9 +4,9 @@ description: TiDB 架构与事务、OceanBase 多副本与多租户、选型对�
 
 # 分布式数据库
 
-> 前置阅读：[MySQL 基础](../1_mysql/0_overview)、[商业与国产库](./0_other_rdbms)
+> 前置阅读：[MySQL 基础](../1_mysql/0_basics)、[商业与国产库](./0_other_rdbms)
 
-TiDB、OceanBase 这类分布式数据库对外提供 SQL 与事务，内部切片并多副本复制，加节点就能扩容。本篇讲两者的实现、MySQL 兼容差异及与 Aurora、PolarDB 的选型，基线为 TiDB 8.5 LTS、OceanBase 4.x。
+TiDB、OceanBase 对外提供 SQL 与事务，加节点即可扩容。本篇讲实现、MySQL 兼容差异及与 Aurora、PolarDB 的选型，基线为 TiDB 8.5 LTS、OceanBase 4.x。
 
 ---
 

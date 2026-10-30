@@ -21,6 +21,8 @@
 5. [其他 MQ](./5_other_mq)：Apache Pulsar 与其他常见消息系统的定位
 6. [MQ 选型](./6_selection)：三大 MQ 对比、场景决策与常见误区
 
+复习时用 [高频面试题](./99_interview) 自测，答案在 [消息队列面试题解答](/interview/9_mq)。
+
 ---
 
 ## 三、关联模块
@@ -30,4 +32,3 @@
 - [系统架构 · 幂等设计](/architecture/3_idempotence)：消费幂等所依赖的通用幂等方案
 - [Spring Boot · 中间件集成](/spring-boot/6_middleware)：Spring Boot 集成 Kafka / RabbitMQ
 - [CDC 工具](/database/5_practice/0_cdc_tools)：基于 binlog 的数据同步与 Outbox 投递
-- [消息队列面试题解答](/interview/9_mq)：本模块高频问题的答案汇总

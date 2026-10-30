@@ -6,7 +6,7 @@ description: 包装叠加功能、Java I/O 流、Spring 中装配装饰器、装
 
 > 前置阅读：[组合模式](./8_structural_composite)、[IO 与 NIO](/java/18_topic_io)
 
-装饰器模式（Decorator）用一个**实现同一接口、内部持有原对象**的包装类给对象叠加功能，可以层层嵌套、运行时组合，比为每种组合写子类灵活得多。本篇讲四个角色、手写与 Spring 装配、JDK / Servlet / Spring 中的装饰器，以及与代理、AOP 的界限。
+装饰器模式用一个**实现同一接口、内部持有原对象**的包装类给对象叠加功能，可以运行时组合。本篇讲四个角色、手写与 Spring 装配、JDK / Spring 中的装饰器，以及与代理、AOP 的界限。
 
 ---
 

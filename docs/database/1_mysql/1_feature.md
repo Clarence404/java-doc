@@ -4,7 +4,7 @@ description: 版本生命周期、5.7 与 8.0 关键特性、8.4 LTS 移除项�
 
 # MySQL 版本特性
 
-> 前置阅读：[MySQL 基础](./0_overview)
+> 前置阅读：[MySQL 基础](./0_basics)
 
 MySQL 采用 LTS / Innovation 双轨发布，本篇梳理各版本维护期限、8.0 引入的常用特性、升级到 8.4 LTS 时的移除项与默认值变化，以及 9.7 LTS 带来的新内容。
 
@@ -237,7 +237,7 @@ FOR UPDATE SKIP LOCKED;
 | 变化 | 版本 | 影响 |
 |------|------|------|
 | 默认字符集 `utf8mb4`，排序规则 `utf8mb4_0900_ai_ci` | 8.0.1 | `utf8` 是 `utf8mb3` 的别名，已弃用；新旧表排序规则混用会导致比较报错或索引失效 |
-| 默认认证插件 `caching_sha2_password` | 8.0.4 | 老驱动需要升级，见 [MySQL 基础](./0_overview) |
+| 默认认证插件 `caching_sha2_password` | 8.0.4 | 老驱动需要升级，见 [MySQL 基础](./0_basics) |
 | 角色（Role） | 8.0 | 权限按角色管理，`SET DEFAULT ROLE` 后才生效 |
 | 自增值持久化 | 8.0 | AUTO_INCREMENT 计数器写入 redo log，重启后不再回退到 `MAX(id) + 1` |
 | CHECK 约束真正生效 | 8.0.16 | 之前语法被接受但不检查 |

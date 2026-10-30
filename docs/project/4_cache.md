@@ -1,5 +1,5 @@
 ---
-description: 缓存什么与不缓存什么、Redis 主从加 Sentinel、商品详情两级缓存、Cache Aside 与延迟双删、穿透击穿雪崩、热点 key、容量与命中率
+description: 缓存选择、Redis Sentinel、商品详情两级缓存、Cache Aside 与延迟双删、穿透击穿雪崩、热点 key
 ---
 
 # 引入缓存

@@ -293,7 +293,7 @@ public class GrabTxListener implements RocketMQLocalTransactionListener {
 
 - 回查只在确定时返回 `COMMIT` / `ROLLBACK`，查不到且仍在窗口内必须返回 `UNKNOWN`，原理见 [RocketMQ](/messaging/3_rocketmq#七、事务消息) 的事务消息一节
 - 抢失败的请求也会产生一条半消息再回滚。高峰时可以先做一次廉价的预检（`LLEN` 份额为 0、`HEXISTS` 已领过直接返回），只是过滤，真正的判断仍在 Lua 里
-- 不使用 RocketMQ 时，可以在 Lua 成功后同步写本地消息表（Outbox），两步之间的崩溃由第五节的对账补齐
+- 不使用 RocketMQ 时，可以在 Lua 成功后同步写本地消息表（Outbox），两步之间的崩溃由第六节退款前的对账补齐
 
 ### 3、入账消费者
 
@@ -374,8 +374,6 @@ public void refund(long packetId) {
 
 6. **清理**：退款成功后 `UNLINK` 三个 Redis key
 7. **核对**：每个红包都校验 `total = 已领取份额之和 + 已退款份额之和`，日终再按账户流水做总账核对
-
----
 
 ---
 

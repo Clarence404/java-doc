@@ -1,5 +1,5 @@
 ---
-description: NoSuchMethodError、Arthas 定位类来源、dependency:tree、最近者优先、enforcer 拦截
+description: NoSuchMethodError、Arthas 查类来源、dependency:tree、最近者优先、Enforcer
 ---
 
 # 依赖冲突导致 NoSuchMethodError

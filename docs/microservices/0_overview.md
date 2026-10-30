@@ -2,7 +2,7 @@
 
 微服务是把单一应用拆成一组围绕业务能力构建、可独立部署、通过轻量级协议通信的小服务的架构风格。本模块先讲与框架无关的架构问题（收益与代价、怎么拆、常用模式），再讲 Spring Cloud 的落地，最后是 Dubbo 与服务网格两条其他路线。
 
-**版本基线（2026 年 10 月）**：Spring Boot 4、Spring Cloud 2025.1、Spring Cloud Alibaba 2025.1.0.0、Istio 1.30 / 1.31、Dubbo 3.3
+**版本基线（2026 年 10 月）**：Spring Boot 4、Spring Cloud 2025.1、Spring Cloud Alibaba 2025.1、Istio 1.30 / 1.31、Dubbo 3.3
 
 ---
 

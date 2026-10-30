@@ -4,9 +4,9 @@ description: 与 MySQL 的差异、版本支持、Docker 与 JDBC 接入、Schem
 
 # PostgreSQL 基础
 
-> 前置阅读：[MySQL 基础](../1_mysql/0_overview)
+> 前置阅读：[MySQL 基础](../1_mysql/0_basics)
 
-PostgreSQL 起源于 1986 年加州大学伯克利分校的 POSTGRES 项目，是功能最完整的开源关系型数据库之一。本篇从 MySQL 开发者视角讲两者的关键差异、用 Docker 起 PG 18 并用 JDBC 接入，以及日常排查用的 psql 命令与系统视图。
+PostgreSQL 是功能最完整的开源关系型数据库之一。本篇从 MySQL 开发者视角讲两者的关键差异、用 Docker 起 PG 18 并用 JDBC 接入，以及日常排查用的 psql 命令与系统视图。
 
 ---
 

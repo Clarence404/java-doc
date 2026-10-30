@@ -6,7 +6,7 @@ description: EXPLAIN 字段与 ANALYZE、type 与 Extra、慢 SQL 定位、files
 
 > 前置阅读：[SQL 执行流程](./6_topic_execution)、[MySQL 索引](./4_topic_index)
 
-EXPLAIN 用来查看 MySQL 打算怎么执行一条 SQL，是定位慢查询的第一步。本篇讲 EXPLAIN 与 EXPLAIN ANALYZE 的读法、慢 SQL 定位、filesort、COUNT 与 Hash Join，基线为 MySQL 8.4。
+EXPLAIN 是定位慢查询的第一步。本篇讲 EXPLAIN 与 EXPLAIN ANALYZE 的读法、filesort、COUNT 与 Hash Join，基线为 MySQL 8.4。
 
 ---
 

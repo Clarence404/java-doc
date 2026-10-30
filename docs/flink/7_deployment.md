@@ -6,7 +6,7 @@ description: Operator 部署、内存模型、slot、反压、checkpoint 失败�
 
 > 前置阅读：[状态与容错](./4_state_checkpoint)、[Flink SQL 与 Table API](./5_sql)
 
-Flink 上生产除了通用运维，还有部署模式、内存与反压这些自己特有的问题。本篇讲 Kubernetes Operator 部署、TaskManager 内存与 slot、反压与倾斜排查、Prometheus 监控和 savepoint 升级。
+Flink 上生产有部署模式、内存与反压这些特有问题。本篇讲 Kubernetes Operator 部署、TaskManager 内存与 slot、反压与倾斜、监控和 savepoint 升级。
 
 ---
 

@@ -65,6 +65,8 @@
 阅读顺序上容量规划放在最后，但做新系统设计时应**先估算流量**（日活 → 平均 QPS → 峰值 QPS → 存储量），再据此决定需要哪些手段。估算方法见 [容量评估与规划](./8_capacity_planning)。
 :::
 
+复习时用 [高频面试题](./99_interview) 自测，答案在 [高并发面试题解答](/interview/13_high_con)。
+
 ---
 
 ## 五、服务监控
@@ -97,7 +99,6 @@
 - 分库分表中间件配置 → [数据库](/database/0_overview)
 - 长连接网关实现 → [Netty](/netty/0_overview)
 - 秒杀、订单、Feed 等完整案例 → [业务场景](/scenario/0_overview)
-- 答案汇总 → [高并发面试题解答](/interview/13_high_con)
 
 ## 参考资料
 

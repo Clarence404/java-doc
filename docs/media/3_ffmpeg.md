@@ -1,5 +1,5 @@
 ---
-description: ffprobe 探测、H.264/AAC 转码、多码率 HLS、截图、转封装、推流、硬件加速、Java 调用与异步转码任务
+description: ffprobe 探测、转码、多码率 HLS、截图、转封装、推流、硬件加速、Java 调用与异步转码
 ---
 
 # FFmpeg 与转码

@@ -1,5 +1,5 @@
 ---
-description: IoC 与生命周期、AOP、事务、MVC、常用组件、WebFlux、Security、批处理与集成、版本演进
+description: Spring 方向题目清单
 ---
 
 # 高频面试题

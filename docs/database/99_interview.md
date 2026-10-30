@@ -1,5 +1,5 @@
 ---
-description: 存储原理、事务、索引、锁、SQL 优化、主从、PostgreSQL、分库分表、连接池与 CDC 题目清单
+description: 数据库方向题目清单
 ---
 
 # 高频面试题

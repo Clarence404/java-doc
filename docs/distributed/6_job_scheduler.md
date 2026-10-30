@@ -6,7 +6,7 @@ description: 重复执行、ShedLock、分片与错过触发、幂等、XXL-JOB�
 
 > 前置阅读：[分布式锁](./3_lock)
 
-多实例部署后，定时任务会遇到重复执行、单点和任务量过大的问题。本篇讲只执行一次、分片、错过触发、阻塞与超时、幂等等核心概念，以及 ShedLock、Quartz 集群、XXL-JOB、ElasticJob、PowerJob 与数据工作流调度器的选型。
+多实例部署后，定时任务会遇到重复执行、单点和任务量过大的问题。本篇讲只执行一次、分片、错过触发与幂等等概念，以及 ShedLock、Quartz、XXL-JOB、PowerJob 等方案的选型。
 
 ---
 

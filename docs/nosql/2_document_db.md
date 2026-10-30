@@ -4,7 +4,7 @@ description: MongoDB 8、文档建模、索引、聚合、副本集、分片、�
 
 # 文档数据库
 
-> 前置阅读：[MySQL 索引](/database/1_mysql/4_topic_index)、[列式与 OLAP 数据库](./3_column_db)
+> 前置阅读：[MySQL 索引](/database/1_mysql/4_topic_index)
 
 本篇以 MongoDB 8.x 为基线，讲文档建模（内嵌还是引用）、索引与聚合、副本集与分片集群、多文档事务的版本边界与代价，以及何时该用 MongoDB 而不是 MySQL。
 
@@ -170,7 +170,7 @@ db.orders.aggregate([
 
 ## 六、副本集（Replica Set）
 
-![MongoDB 副本集（Replica Set）](../assets/database/mongodb-replica-set.svg)
+![MongoDB 副本集（Replica Set）](../assets/nosql/mongodb-replica-set.svg)
 
 - **Primary** 处理所有写操作，写入记录到 oplog
 - **Secondary** 异步拉取 oplog 回放，可承担读请求（`readPreference=secondaryPreferred`）
@@ -193,7 +193,7 @@ mongodb://host1:27017,host2:27017,host3:27017/mydb?replicaSet=rs0&readPreference
 
 ## 七、分片集群（Sharding）
 
-![MongoDB 分片集群（Sharding）](../assets/database/mongodb-sharding.svg)
+![MongoDB 分片集群（Sharding）](../assets/nosql/mongodb-sharding.svg)
 
 - **mongos**：无状态查询路由，可部署多个
 - **Config Server**：保存元数据与 chunk 分布，副本集部署；8.0 起可让它同时作为数据分片（Config Shard）

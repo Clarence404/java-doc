@@ -6,7 +6,7 @@ description: 读写指针、堆内与直接内存、池化、引用计数、泄�
 
 > 前置阅读：[Pipeline 与 Handler](./5_pipeline_handler)
 
-Pipeline 中流动的原始数据都是 `ByteBuf`，它是 Netty 高性能的关键，也最容易踩坑：用错一次 `release()`，轻则报错，重则堆外内存泄漏直到进程崩溃。本篇讲 ByteBuf 的结构与 API、池化与引用计数、不泄漏内存的 Handler 写法与泄漏定位。
+`ByteBuf` 是 Netty 高性能的关键，也最容易踩坑：用错一次 `release()`，重则堆外内存泄漏直到进程崩溃。本篇讲结构与 API、池化与引用计数、不泄漏的 Handler 写法与泄漏定位。
 
 ---
 

@@ -4,7 +4,7 @@ description: B+ 树、聚簇与二级索引、Change Buffer、覆盖索引、最
 
 # MySQL 索引
 
-> 前置阅读：[MySQL 基础](./0_overview)
+> 前置阅读：[MySQL 基础](./0_basics)
 
 索引决定了 SQL 能否高效执行，本篇讲 InnoDB 的 B+ 树、聚簇与二级索引、最左前缀与 ICP 等优化器行为、索引失效与深度分页。以 MySQL 8.4 LTS 为基线，8.0 与 8.4 默认值不同的地方单独标出。
 

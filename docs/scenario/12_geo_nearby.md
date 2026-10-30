@@ -318,8 +318,6 @@ public static Point snap(double lng, double lat) {
 
 ---
 
----
-
 ## 八、容量估算
 
 假设附近的人峰值同时在线 **200 万**，在线时每 2 分钟上报一次，人均每天查询 5 次（DAU 1,000 万）；在线司机 50 万，每 5 秒上报一次；门店 50 万家；查询峰值按均值的 5 倍。ZSet / GEO 每个成员按约 80 B（member、score 与跳表开销）估算。

@@ -1,5 +1,5 @@
 ---
-description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL、分库分表与迁移扩容、NoSQL、连接池与 CDC、MyBatis
+description: 事务、索引、锁、InnoDB、SQL 优化、主从、PostgreSQL、分库分表、NoSQL、CDC、MyBatis
 ---
 
 # 数据库面试题解答
@@ -619,7 +619,7 @@ UPDATE orders SET status = 2 WHERE remark = 'urgent';  -- remark 无索引：等
 
 **常见坑**：从 MySQL 迁到 PG，表名、列名不加双引号会一律变成小写。
 
-→ 详见 [PostgreSQL 基础](/database/2_postgresql/0_overview#二、与-mysql-的差异-java-开发视角)
+→ 详见 [PostgreSQL 基础](/database/2_postgresql/0_basics#二、与-mysql-的差异-java-开发视角)
 
 ### Q44：PG 的 MVCC 与 InnoDB 有何不同？RR 下什么时候会报 40001？
 

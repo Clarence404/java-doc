@@ -6,7 +6,7 @@ description: HTTP Service Clients、负载均衡 RestClient、OpenFeign、gRPC �
 
 > 前置阅读：[注册发现](./10_service_registry)
 
-服务间同步调用在 Spring Cloud 2025.1 下推荐 HTTP Service Clients + LoadBalancer。本篇讲它的写法、OpenFeign 的维护状态与存量配置，以及 HTTP、gRPC、Dubbo 3 与异步消息的选型。
+服务间同步调用在 Spring Cloud 2025.1 下推荐 HTTP Service Clients。本篇讲写法、OpenFeign 现状，以及 HTTP、gRPC、Dubbo 3 与消息的选型。
 
 ---
 

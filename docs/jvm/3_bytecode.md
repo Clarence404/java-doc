@@ -137,7 +137,7 @@ HotSpot 为每个类维护**虚方法表（vtable）**和**接口方法表（ita
 
 **`invokedynamic`（JDK 7 引入）把"调用哪个方法"推迟到运行期由用户指定的引导方法决定；Lambda、JDK 9+ 的字符串拼接（`StringConcatFactory`）都建立在它之上。**
 
-![Lambda 的编译与链接](../assets/java/java-lambda-indy.svg)
+![Lambda 的编译与链接](../assets/jvm/java-lambda-indy.svg)
 
 javac 编译时做两件事：
 

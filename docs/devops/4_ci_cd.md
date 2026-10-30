@@ -225,13 +225,7 @@ jobs:
 
 ### 1、OIDC 取代长期密钥
 
-部署 Job 需要集群凭证。不要把 kubeconfig 或云厂商 AccessKey 存进 Secrets，而是让 GitHub 签发的 OIDC 令牌（本身只有几分钟有效）去云上换一份**短期临时凭证**（默认 1 小时，可在角色上配置）：
-
-- 云端：在 IAM（阿里云为 RAM）中登记 GitHub 的 OIDC 身份提供商，创建部署角色，信任策略限定 `sub` 为 `repo:acme/order-service:environment:production` 这类具体环境
-- Workflow：Job 申请 `id-token: write`，用 `aws-actions/configure-aws-credentials` 换取临时凭证
-- 效果：仓库里没有可泄露的长期密钥；不满足环境保护规则的运行连令牌都拿不到
-
-信任策略写法、`sub` 格式（含 2026 年 7 月起新仓库默认带不可变 ID 的变化）详见 [IaC 工程实践](/cloud-native/12_iac_practice)，这里直接使用。
+部署 Job 需要集群凭证，但不把 kubeconfig 或 AccessKey 存进 Secrets：Job 申请 `id-token: write`，用 `aws-actions/configure-aws-credentials` 拿 GitHub 签发的 OIDC 令牌换一份短期临时凭证，再现取 kubeconfig（见下面 deploy.yml 的前三步）。云端身份提供商、按 `sub` 拆角色的信任策略与 `sub` 格式变化见 [IaC 工程实践 · OIDC：不在仓库里存长期密钥](/cloud-native/12_iac_practice#_1、oidc-不在仓库里存长期密钥)。
 
 ### 2、deploy.yml：被 staging 和生产共用
 

@@ -6,7 +6,7 @@ description: Spring Kafka 接入、死信与幂等消费、事务与 Exactly-Onc
 
 > 前置阅读：[Kafka 架构与存储](./2_kafka)、[消息队列基础](./1_basics)
 
-Kafka 的可靠收发最终落在客户端：生产者怎么发、消费者怎么提交 offset 与处理失败。本篇讲 Spring Boot 接入、死信与幂等消费、事务与 Exactly-Once、顺序消息、积压与 Rebalance，基线为 Kafka 4。
+Kafka 的可靠收发最终落在客户端：生产者怎么发、消费者怎么提交与处理失败。本篇讲 Spring Boot 接入、死信与幂等消费、事务、顺序消息、积压与 Rebalance，基线为 Kafka 4。
 
 ---
 

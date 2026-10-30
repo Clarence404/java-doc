@@ -6,7 +6,7 @@ description: Security / Sa-Token / Shiro 对比、Sa-Token 鉴权与封禁、Shi
 
 > 前置阅读：[Spring Security](./9_security)
 
-Spring Security、Sa-Token、Apache Shiro 是 Java 后端常见的三种认证授权框架。本篇对比三者的定位与版本状态，讲 Sa-Token 在 Spring Boot 4 中的接入、Shiro 3 的接入方式，以及选型与迁移。
+Spring Security、Sa-Token、Apache Shiro 是常见的三种认证授权框架。本篇对比三者定位与版本状态，讲 Sa-Token 与 Shiro 3 的接入，以及选型与迁移。
 
 ---
 

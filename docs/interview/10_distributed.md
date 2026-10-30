@@ -1,5 +1,5 @@
 ---
-description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分布式事务与 Seata、分布式 ID、一致性哈希、调度与会话
+description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分布式事务、分布式 ID、一致性哈希
 ---
 
 # 分布式面试题解答

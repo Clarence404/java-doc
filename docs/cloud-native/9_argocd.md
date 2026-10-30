@@ -6,7 +6,7 @@ description: GitOps 拉取模型、安装、Application 与 ApplicationSet、同
 
 > 前置阅读：[Kubernetes](./6_kubernetes)、[Helm](./8_helm)、[CI/CD](/devops/4_ci_cd)
 
-Argo CD 是 CNCF 毕业项目，在集群内持续对比 Git 与集群状态并自动同步，做 Kubernetes 的 GitOps 持续交付。本篇讲安装、Application / ApplicationSet、同步与回滚、多环境与周边工具，基线为 Argo CD 3。
+Argo CD 持续对比 Git 与集群状态并自动同步，实现 GitOps 交付。本篇讲安装、Application 与 ApplicationSet、同步与回滚、多环境，基线为 Argo CD 3。
 
 ---
 

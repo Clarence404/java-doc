@@ -236,7 +236,7 @@ int minSteps(int[][] maze, int sr, int sc, int er, int ec) {
 }
 ```
 
-BFS 模板和双向 BFS 见 [搜索算法](../2_algorithms/0_search)，连通块计数见 [回溯算法](../2_algorithms/3_backtrack) 的网格 DFS 一节。
+BFS 模板和双向 BFS 见 [搜索算法](../2_algorithms/0_search)，连通块计数见 [图 · DFS（深度优先搜索）](../1_data_structures/5_graph#四、dfs-深度优先搜索)。
 
 ---
 

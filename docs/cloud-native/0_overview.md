@@ -18,9 +18,11 @@
 
 复习时用 [高频面试题](./99_interview) 自测，答案在 [云原生面试题解答](/interview/21_cloud_native)。
 
-## 三、关联模块
+## 三、版本说明
 
-版本说明：容器运行时为 containerd / CRI-O（dockershim 自 1.24 起移除），Docker 默认构建器为 BuildKit；Helm 3 仅提供安全修复至 2026-11；南北向入口推荐 Gateway API（社区版 ingress-nginx 已于 2026 年 3 月停止维护）；IaC 以 Terraform / OpenTofu 为准，RHEL 10 系含 Rocky / AlmaLinux 10。
+容器运行时为 containerd / CRI-O（dockershim 自 1.24 起移除），Docker 默认构建器为 BuildKit；Helm 3 仅提供安全修复至 2026-11；南北向入口推荐 Gateway API（社区版 ingress-nginx 已于 2026 年 3 月停止维护）；IaC 以 Terraform / OpenTofu 为准，RHEL 10 系含 Rocky / AlmaLinux 10。
+
+## 四、关联模块
 
 - CI/CD 与发布策略 → [DevOps 总览](/devops/0_overview)
 - 日志 / 指标 / 链路追踪 → [可观测性总览](/observability/0_overview)

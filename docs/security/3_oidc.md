@@ -6,7 +6,7 @@ description: ID Token、登录流程与校验、nonce、Discovery 与 JWKS、Use
 
 > 前置阅读：[OAuth2](./2_oauth2)、[JWT 令牌机制](./1_jwt)
 
-OIDC 是 OAuth 2 之上的身份认证层，回答「当前登录的用户是谁」。本篇讲 ID Token、Discovery 与各类登出，基线为 OpenID Connect Core 1.0（含勘误集 2）与 Spring Security 7。
+OIDC 是 OAuth 2 之上的身份认证层，回答「登录的用户是谁」。本篇讲 ID Token、Discovery 与登出，基线为 OIDC Core 1.0（含勘误集 2）与 Spring Security 7。
 
 ---
 
@@ -259,4 +259,4 @@ OIDC 的登出分三类：**RP 发起登出**（RP-Initiated Logout，RP 把浏�
 - Microsoft Entra ID：[Microsoft identity platform and OpenID Connect protocol](https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc)
 - MaxKey：[MaxKey 官方文档](https://www.maxkey.top/)
 
-> 下一篇：[单点登录](./4_sso) —— 三方票据模型、CAS / SAML / OIDC 方案对比与单点登出。
+> 下一篇：[单点登录](./4_sso)

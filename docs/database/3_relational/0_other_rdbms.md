@@ -4,7 +4,7 @@ description: Oracle 与 SQL Server 方言差异、达梦、人大金仓、openGa
 
 # 商业与国产库
 
-> 前置阅读：[MySQL 基础](../1_mysql/0_overview)、[PostgreSQL 基础](../2_postgresql/0_overview)
+> 前置阅读：[MySQL 基础](../1_mysql/0_basics)、[PostgreSQL 基础](../2_postgresql/0_basics)
 
 本篇以 MySQL 8.4 为对照基线，讲 Oracle、SQL Server 在分页、自增、空字符串、布尔、隔离级别上的差异，以及达梦、人大金仓、openGauss 的驱动选择与常见接入坑。
 

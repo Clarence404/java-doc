@@ -22,6 +22,8 @@ JVM 模块覆盖运行时内存结构、类加载、字节码执行、GC 原理�
 
 正文以 JDK 21 / 25 两个 LTS 版本为准，兼顾 8 / 17，并标注 26 / 27 的默认值变化，如 JDK 27 起所有环境默认 G1、默认开启紧凑对象头。
 
+复习时用 [高频面试题](./99_interview) 自测，答案在 [JVM 面试题解答](/interview/3_jvm)。
+
 ---
 
 ## 三、关联模块
@@ -31,7 +33,6 @@ JVM 模块覆盖运行时内存结构、类加载、字节码执行、GC 原理�
 - 从性能目标出发的收集器取舍、降低分配速率、JIT 预热与冷启动 → [JVM 层性能策略](/high-perf/5_jvm_tuning)
 - 性能分析方法论与 Profiler → [高性能](/high-perf/0_overview)
 - Arthas 在线诊断 → [线上诊断](/engineering/7_diagnosis)
-- JVM 面试题完整解答 → [JVM 面试题解答](/interview/3_jvm)
 
 ## 参考资料
 

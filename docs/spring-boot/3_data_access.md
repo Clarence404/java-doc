@@ -4,7 +4,7 @@ description: 持久化选型、JdbcClient、JPA 实体与 Repository、MyBatis-P
 
 # 数据访问
 
-> 前置阅读：[事务管理](/spring/4_transaction)、[MySQL 基础](/database/1_mysql/0_overview)
+> 前置阅读：[事务管理](/spring/4_transaction)、[MySQL 基础](/database/1_mysql/0_basics)
 
 Spring Boot 的数据访问可选 JdbcClient、JPA 或 MyBatis-Plus。本篇讲场景选型、JPA 实体与 Repository、多数据源、事务与分页，基线为 Spring Boot 4。
 

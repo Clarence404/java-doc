@@ -6,7 +6,7 @@ description: Mutiny 与 Reactor、Kafka 响应式消息、ack 与失败策略、
 
 > 前置阅读：[REST 与数据访问](./2_rest_data)、[WebFlux](/spring/8_webflux)、[Kafka 架构与存储](/messaging/2_kafka)
 
-Quarkus 的响应式编程基于 Mutiny，消息集成基于 SmallRye Reactive Messaging。本篇讲 Mutiny 用法与线程语义及与 Reactor 的差异、可靠的 Kafka 消费与生产、事件总线的适用范围，以及何时用虚拟线程代替响应式写法。
+Quarkus 响应式基于 Mutiny 与 SmallRye Reactive Messaging。本篇讲 Mutiny 线程语义与 Reactor 的差异、可靠 Kafka 收发、事件总线，以及何时改用虚拟线程。
 
 ---
 

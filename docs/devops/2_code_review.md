@@ -6,7 +6,7 @@ description: PR 规模与流程、CODEOWNERS 与规则集、PR 模板、检查�
 
 > 前置阅读：[Git 工作流](./1_git_workflow)、[CI/CD](./4_ci_cd)
 
-在主干开发下 PR 是合入 `main` 的唯一入口，Code Review 就是主干质量的最后一道人工关口。本篇讲 PR 大小与响应时限、CODEOWNERS 与规则集、PR 模板与检查清单、评论写法和 AI 辅助 Review，是 **PR 模板与 Review 检查清单的唯一出处**。
+在主干开发下 PR 是合入 `main` 的唯一入口，Code Review 是主干质量的最后一道人工关口。本篇讲 PR 大小与时限、CODEOWNERS、PR 模板与检查清单、评论写法和 AI 辅助 Review。
 
 ---
 

@@ -6,7 +6,7 @@ description: 实验原则、ChaosBlade / Chaos Mesh、故障注入实战与检�
 
 > 前置阅读：[多活与容灾](./9_multi_active)
 
-**混沌工程（Chaos Engineering）通过在可控范围内主动注入故障，提前发现系统的脆弱点，并验证冗余、熔断、降级、切流等平时不执行的预案确实有效。** 本篇讲实验流程与原则，以及如何用 ChaosBlade 与 Chaos Mesh 注入常见故障。
+**混沌工程在可控范围内主动注入故障，提前发现脆弱点，并验证冗余、熔断、降级等预案确实有效。** 本篇讲实验流程与原则，以及用 ChaosBlade 与 Chaos Mesh 注入常见故障。
 
 ---
 

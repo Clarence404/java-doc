@@ -17,7 +17,7 @@ Netty 是 Java 生态中使用最广的网络通信框架，Dubbo、gRPC、Rocke
 
 <ModuleNav />
 
-## 三、阅读建议
+## 三、推荐阅读路径
 
 - **第一次接触 Netty**：按顺序读完前五篇，并把 [Netty 入门](./3_netty_desc) 里的 Echo 示例在本地跑一遍，再接着往下读。
 - **要做 RPC 或设备接入**：重点阅读第 6～8 篇，再结合 [Netty 接入网关](/iot/9_netty_gateway) 中带 CRC 校验的完整实现。
@@ -25,9 +25,10 @@ Netty 是 Java 生态中使用最广的网络通信框架，Dubbo、gRPC、Rocke
 - **准备上线或排查线上问题**：直接看 [生产实践与调优](./12_production) 的参数表和常见坑。
 - **版本说明**：Netty 4.2 运行要求 JDK 8+，io_uring 传输需 JDK 9+，本模块示例代码按 JDK 17+ 编写；Netty 4.1 将于 2027 年 7 月 1 日停止维护，与 4.2 的差异在相关章节单独标注。
 
+复习时用 [高频面试题](./99_interview) 自测，答案在 [Netty 面试题解答](/interview/6_netty)。
+
 ## 四、关联模块
 
 - Java 侧的 NIO API（Channel、Buffer、Selector）与零拷贝 → [Java IO 与 NIO](/java/18_topic_io)
 - TCP、HTTP、WebSocket 等协议基础 → [网络协议](/protocols/0_overview)
 - IO 与网络层性能优化 → [高性能 - IO 与网络优化](/high-perf/9_io_network)
-- 答案汇总 → [Netty 面试题解答](/interview/6_netty)

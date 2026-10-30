@@ -237,42 +237,13 @@ List<String> buildBoard(int[] queens, int n) {
 
 ## 五、网格 DFS
 
-网格题把每个格子看成图的节点，上下左右四个格子是邻居。根据目的不同，分成两种写法。
+网格题把每个格子看成图的节点，上下左右四个格子是邻居。岛屿数量（LeetCode 200）这类连通块计数也用网格 DFS，但它只是图的遍历：每个格子访问一次、标记后**不撤销选择**，复杂度 O(m·n)，不属于回溯，代码见 [图 · DFS（深度优先搜索）](../1_data_structures/5_graph#四、dfs-深度优先搜索)。需要「占用后再恢复」的，是下面这种枚举路径的题。
 
-### 1、遍历型：岛屿数量
-
-LeetCode 200：统计连通的 `'1'` 区域个数。每个格子**只访问一次**，访问后直接改成 `'0'` 当作标记，**不恢复**，复杂度 O(m·n)：
+**单词搜索**（LeetCode 79）：判断单词能否由相邻格子的字母连成，同一格子在一条路径里不能重复用。格子在**当前路径**上被占用，换一条路径时又要能用，所以返回时必须**恢复**：
 
 ```java
 private static final int[][] DIRS = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
-int numIslands(char[][] grid) {
-    int count = 0;
-    for (int r = 0; r < grid.length; r++) {
-        for (int c = 0; c < grid[0].length; c++) {
-            if (grid[r][c] == '1') {
-                count++;
-                sink(grid, r, c);              // 把整座岛淹掉
-            }
-        }
-    }
-    return count;
-}
-
-void sink(char[][] grid, int r, int c) {
-    if (r < 0 || r >= grid.length || c < 0 || c >= grid[0].length || grid[r][c] != '1') return;
-    grid[r][c] = '0';                          // 标记已访问，不恢复
-    for (int[] d : DIRS) sink(grid, r + d[0], c + d[1]);
-}
-```
-
-网格很大（比如 1000×1000 的全陆地）时递归深度可达 10^6，会栈溢出，改用 BFS 或显式栈。
-
-### 2、回溯型：单词搜索
-
-LeetCode 79：判断单词能否由相邻格子的字母连成，同一格子在一条路径里不能重复用。格子在**当前路径**上被占用，换一条路径时又要能用，所以返回时必须**恢复**：
-
-```java
 boolean exist(char[][] board, String word) {
     for (int r = 0; r < board.length; r++)
         for (int c = 0; c < board[0].length; c++)

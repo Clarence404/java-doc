@@ -6,7 +6,7 @@ description: Lombok、MapStruct、Hutool、Guava 的用法与坑点、JDK 版本
 
 > 前置阅读：[注解与注解处理器](./15_topic_annotation)
 
-本篇讲 Lombok、MapStruct、Hutool、Guava 的正确用法、新 JDK 兼容与构建配置坑、过时 API，以及哪些需求 JDK 本身已能满足。版本号以撰写时（2026-10）Maven Central 的版本为例，使用时以最新发布为准。
+本篇讲 Lombok、MapStruct、Hutool、Guava 的正确用法、新 JDK 兼容与构建配置坑、过时 API，以及哪些需求 JDK 已能满足。版本号取 2026-10 的最新发布。
 
 ---
 

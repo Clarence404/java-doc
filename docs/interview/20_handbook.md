@@ -1,5 +1,5 @@
 ---
-description: CPU 飙高、OOM 与 Full GC、线程卡死、慢 SQL 与锁表、主从延迟、缓存雪崩与热 Key、MQ 积压与重复消费、发布与容器故障
+description: CPU 飙高、OOM 与 Full GC、线程卡死、慢 SQL 与锁表、缓存雪崩与热 Key、MQ 积压、发布故障
 ---
 
 # 实战手册面试题解答
@@ -178,14 +178,14 @@ description: CPU 飙高、OOM 与 Full GC、线程卡死、慢 SQL 与锁表、�
 
 ### Q13：每次滚动发布网关都会冒一波 502，原因是什么？
 
-**一句话**：发布 502 有两个窗口：新 Pod 还没启动完就被加进 Service（缺 readinessProbe），旧 Pod 停止监听早于网关把它摘掉（缺 preStop）。
+**一句话**：旧 Pod 停机早于网关摘流，把网关正在复用的上游长连接关掉了；请求已经发出去，nginx 不会对 `POST` 换实例重试，所以 502 几乎全是 `POST`。
 
-- 网关错误日志按 upstream IP 归类，对照新旧 Pod 列表，就能分清是哪个窗口
-- 没有 readinessProbe 时容器一运行就算就绪；liveness 的 `initialDelaySeconds` 只延后检查，不挡流量
-- SIGTERM 与摘除 EndpointSlice 是并行的，`preStop` 里 sleep 几秒让摘流先完成
-- 修复组合：startup / readiness / liveness 三探针 + `preStop` + 足够的 `terminationGracePeriodSeconds` + `maxUnavailable: 0`
+- SIGTERM 与摘除 EndpointSlice 是并行的：应用优雅停机很快结束并关闭长连接，网关几秒后才摘除，期间发到这些连接上的请求得到 `prematurely closed` / `reset by peer`
+- nginx 重试规则：连接失败（`Connection refused`，请求没发出）任何方法都换实例；请求发出后只重试幂等方法，`POST` 要显式加 `non_idempotent`
+- 错误日志按出错阶段和 upstream IP 归类，再对照访问日志的 `$upstream_status`，才能分清被重试吸收的和真正 502 的
+- 修复组合：`preStop sleep` 先摘流 + 优雅停机 + 网关上游空闲超时小于应用空闲超时；顺带补齐 readinessProbe 与 `maxUnavailable: 0`
 
-**常见坑**：把发布 502 当成「正常抖动」，长期没人追问。
+**常见坑**：被满屏 `Connection refused` 带偏，以为是新 Pod 没就绪；那部分其实被重试吸收了。
 
 → 详见 [发布时 502 · 排查过程](/handbook/2_incidents/14_release_502#三、排查过程)
 

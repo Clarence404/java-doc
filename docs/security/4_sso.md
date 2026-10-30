@@ -6,13 +6,13 @@ description: 三方票据模型、两层会话、CAS / SAML / OIDC 对比、跨�
 
 > 前置阅读：[OAuth2](/security/2_oauth2)、[OIDC](/security/3_oidc)
 
-单点登录（Single Sign-On，SSO）指用户在一个认证中心登录一次，就能访问多个相互信任的系统。本篇讲与具体框架无关的原理与选型：三方票据模型、两层会话、CAS / SAML 2.0 / OIDC 对比、跨域与前后端分离、单点登出与网关令牌中继。
+单点登录（SSO）指在认证中心登录一次就能访问多个互信系统。本篇讲与框架无关的票据模型、两层会话、CAS / SAML 2.0 / OIDC 对比、跨域、单点登出与令牌中继。
 
 ---
 
 ## 一、三方票据模型
 
-所有 SSO 方案的骨架都一样：
+所有 SSO（Single Sign-On）方案的骨架都一样，与具体框架无关：
 
 参与方有三个：**认证中心**（Identity Provider，IdP，负责验证身份、签发票据）、**业务系统**（CAS 和 SAML 里叫 Service Provider，SP；OIDC 里叫 Relying Party，RP）、以及在两者之间来回跳转的**浏览器**。
 

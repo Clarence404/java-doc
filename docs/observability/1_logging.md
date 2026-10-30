@@ -1,5 +1,5 @@
 ---
-description: 日志分类与级别策略、JSON 字段规范、traceId 关联、采集链路、Loki 与 ELK 选型、LogQL、保留与脱敏
+description: 日志级别策略、JSON 字段规范、traceId 关联、采集链路、Loki 与 ELK 选型、LogQL、脱敏
 ---
 
 # 日志体系

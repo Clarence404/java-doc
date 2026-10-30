@@ -1,5 +1,5 @@
 ---
-description: 键值存储定位、RocksDB 嵌入式引擎、TiKV 事务 KV、etcd 强一致存储、SQLite / H2 / DuckDB、选型与常见坑
+description: 键值存储定位、RocksDB、TiKV 事务 KV、etcd 强一致存储、SQLite / H2 / DuckDB、选型
 ---
 
 # 键值与嵌入式数据库

@@ -6,7 +6,7 @@ description: 官方 Java SDK、OpenAI 兼容协议、流式、重试限流、Pro
 
 > 前置阅读：[大模型选型](../1_concepts/0_model)、[Spring AI](../2_frameworks/0_spring_ai)
 
-直接用厂商官方 Java SDK 调用云端大模型，能用上各家特有能力。本篇讲同步与流式调用、OpenAI 兼容协议接入国内厂商、错误重试与限流、Prompt Caching 与成本估算，SDK 基线为 2026-10，型号与价格以官方页面为准、代码中一律从配置读取。
+直接用厂商官方 Java SDK 调用云端大模型，能用上各家特有能力。本篇讲同步与流式调用、OpenAI 兼容协议、重试与限流、Prompt Caching 与成本估算，SDK 基线为 2026-10。
 
 ---
 

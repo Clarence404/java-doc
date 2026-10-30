@@ -143,7 +143,7 @@ void dfs(List<List<Integer>> graph, int node, boolean[] visited) {
 }
 ```
 
-网格上的 DFS（LeetCode 200 岛屿数量）只是把「邻居」换成上下左右四个格子，代码见 [回溯算法](./3_backtrack) 的网格 DFS 一节。
+网格上的 DFS（LeetCode 200 岛屿数量）只是把「邻居」换成上下左右四个格子，代码见 [图 · DFS（深度优先搜索）](../1_data_structures/5_graph#四、dfs-深度优先搜索)。
 
 ### 2、遍历 DFS 与回溯 DFS 的区别
 

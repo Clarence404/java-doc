@@ -1,5 +1,5 @@
 ---
-description: JUnit 6 编程模型、参数化与嵌套测试、AssertJ、FIRST 与命名、Clock 注入、测试数据构建器、覆盖率与 PIT
+description: JUnit 6、参数化与嵌套测试、AssertJ、FIRST 与命名、Clock 注入、测试数据构建器、PIT
 ---
 
 # 单元测试

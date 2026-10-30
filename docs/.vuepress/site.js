@@ -41,7 +41,7 @@ export const GROUPS = [
         name: '基础体系', tagline: '语言、运行时、算法、操作系统与网络，后端的地基', modules: [
             {
                 name: 'Java', dir: 'java', interview: ['1_java', '2_concurrent'],
-                desc: '语言机制 / 集合 / IO / 并发（JMM、锁、线程池、CompletableFuture）/ 版本特性',
+                desc: '语言机制 / 集合 / IO / 并发（JMM、锁、线程池、CompletableFuture、虚拟线程）/ 版本特性',
                 sidebar: [
                     {text: '综合', from: 1},
                     {text: '语言机制', from: 10},
@@ -71,7 +71,7 @@ export const GROUPS = [
         name: '框架生态', tagline: 'Spring 全家桶、网络与响应式框架', modules: [
             {
                 name: 'Spring', dir: 'spring', interview: ['5_spring'],
-                desc: 'IoC / AOP / 事务 / MVC / WebFlux / Cache 与事件 / Security / Batch 与 Integration',
+                desc: 'IoC / AOP / 事务 / MVC / WebFlux / Cache / Retry / 事件 / Security / Batch 与 Integration',
                 sidebar: [
                     {text: '核心特性', from: 1},
                     {text: '常用组件', from: 5},
@@ -82,7 +82,7 @@ export const GROUPS = [
             },
             {
                 name: 'Spring Boot', dir: 'spring-boot', interview: ['5_spring_boot'],
-                desc: '自动配置 / 配置管理 / Web / 数据访问与 Flyway / 中间件集成 / 自定义 Starter / 日志 / 测试 / Actuator / 版本演进 / 启动优化',
+                desc: '自动配置 / 配置管理 / Web / 数据访问与 Flyway / 中间件集成 / 异步与定时 / 接口文档 / 自定义 Starter / 日志 / 测试 / Actuator / 版本演进 / 启动优化',
                 sidebar: [
                     {text: '开发基础', from: 1},
                     {text: '功能集成', from: 6},
@@ -99,7 +99,7 @@ export const GROUPS = [
         name: '数据存储', tagline: '关系型、NoSQL、缓存与消息中间件', modules: [
             {
                 name: '数据库', dir: 'database', interview: ['7_db'],
-                desc: '存储引擎与选型 / MySQL / PostgreSQL / 国产与分布式数据库 / ORM 与连接池 / CDC / 备份恢复 / 分库分表',
+                desc: '存储引擎与选型 / 分布式文件系统 / MySQL / PostgreSQL / 国产与分布式数据库 / ORM 与连接池 / CDC / 备份恢复 / 分库分表',
                 subdirs: {
                     '0_fundamentals': '基础与选型',
                     '1_mysql': {title: 'MySQL', sidebar: [{text: '核心专项', from: 4}]},
@@ -110,7 +110,7 @@ export const GROUPS = [
                 },
             },
             {name: 'NoSQL', dir: 'nosql', interview: ['7_db'], desc: '键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图'},
-            {name: '缓存', dir: 'cache', interview: ['8_cache'], desc: 'Redis / Redisson / Caffeine / 两级缓存 / 缓存一致性'},
+            {name: '缓存', dir: 'cache', interview: ['8_cache'], desc: 'Redis / Redisson / Caffeine / 两级缓存 / JetCache / 缓存一致性 / 缓存最佳实践'},
             {name: '消息队列', dir: 'messaging', interview: ['9_mq'], desc: '可靠性与幂等 / 顺序与积压 / Kafka / RocketMQ / RabbitMQ / Pulsar / 选型'},
         ],
     },
@@ -145,7 +145,7 @@ export const GROUPS = [
             {name: '系统架构', dir: 'architecture', interview: ['15_architecture'], desc: '架构模式 / DDD / 工程结构与分包 / 幂等 / 对象存储 / 权限系统 / 冷热分离 / 主数据'},
             {
                 name: '业务场景', dir: 'scenario', interview: ['16_scenario', '16_scenario_highlights'],
-                desc: '设计方法 / 海量数据 / 秒杀 / 订单 / 短链 / 排行榜 / Feed 流 / 搜索 / 红包 / LBS / 商品详情 / 支付 / 优惠券 / IM / 计数 / 扫码登录 / 购物车 / 通知中心 / 评论 / 库存票务 / 延迟任务',
+                desc: '设计方法 / 海量数据 / 对账 / 导入导出 / 秒杀 / 订单 / 短链 / 排行榜 / Feed 流 / 搜索 / 大文件上传 / 红包 / LBS / 商品详情 / 支付 / 优惠券 / IM / 计数 / 扫码登录 / 购物车 / 通知中心 / 评论 / 库存票务 / 延迟任务',
                 sidebar: [
                     {text: '方法论', from: 1},
                     {text: '海量数据', from: 2},
@@ -174,7 +174,7 @@ export const GROUPS = [
         name: '运维保障', tagline: '云原生、可观测性与安全', modules: [
             {
                 name: '云原生', dir: 'cloud-native', interview: ['21_cloud_native'],
-                desc: 'Linux / 虚拟化 / Docker / Kubernetes / Gateway API / Helm / Argo CD / Terraform / Ansible / 云平台 / VPS',
+                desc: 'Linux / 虚拟化 / Docker / Kubernetes / Gateway API / Helm / Argo CD / 服务网格 / Terraform / Ansible / IaC 实践 / 云平台 / Cloudflare / VPS',
                 sidebar: [
                     {text: '操作系统', from: 1},
                     {text: '虚拟化', from: 3},
@@ -199,7 +199,7 @@ export const GROUPS = [
             },
             {
                 name: 'AI', dir: 'ai', interview: ['25_ai'],
-                desc: 'Prompt 与 Function Calling / Spring AI / LangChain4j / Embedding 与向量库 / RAG / Agent / MCP / 本地模型与微调 / 评估上线 / AI 编程工具',
+                desc: '大模型基础与选型 / Prompt 与 Function Calling / Spring AI / LangChain4j / Embedding 与向量库 / RAG / Agent / MCP / 本地模型与微调 / 评估上线 / AI 编程工具',
                 subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 编程工具'},
             },
             {name: '大数据', dir: 'big-data', interview: ['26_bigdata'], desc: '数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 数据治理 / 实时数仓'},
@@ -275,6 +275,9 @@ export const REDIRECTS = {
     '/database/6_reference/0_binlog_connector_source': '/database/5_practice/1_binlog_connector_source',
     '/database/5_practice/1_backup_recovery': '/database/5_practice/2_backup_recovery',
     '/database/5_practice/2_sharding': '/database/5_practice/3_sharding',
+    // 2026-10：子目录里的「MySQL 基础」「PostgreSQL 基础」不再占用 0_overview 文件名（总览页专用）
+    '/database/1_mysql/0_overview': '/database/1_mysql/0_basics',
+    '/database/2_postgresql/0_overview': '/database/2_postgresql/0_basics',
     // 2026-10：Spring Cloud 模块并入微服务模块
     '/spring-cloud/0_overview': '/microservices/0_overview',
     '/spring-cloud/1_service_registry': '/microservices/10_service_registry',

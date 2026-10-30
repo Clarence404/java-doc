@@ -296,35 +296,20 @@ Kubernetes 1.24 移除 dockershim 后，节点通过 containerd / CRI-O 拉镜�
 
 追溯信息用 OCI 规范定义的标准 Label 写进镜像。注意 **`FROM` 之前声明的 `ARG` 只能用于 `FROM` 行本身**，进入构建阶段后失效，必须在阶段内重新声明，否则 Label 全是空值：
 
-```dockerfile
-# 构建阶段：用 Spring Boot 的 jarmode=tools 按依赖分层解压
-FROM eclipse-temurin:21-jre AS builder
-WORKDIR /builder
-COPY target/app.jar application.jar
-RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted
+镜像本身沿用 [Docker · 多阶段 Dockerfile](/cloud-native/5_docker#_1、多阶段-dockerfile) 的写法（`tools` jarmode 分层解压、四层 `COPY`、非 root），这里只在运行阶段末尾追加追溯信息：
 
-# 运行阶段
+```dockerfile
 FROM eclipse-temurin:21-jre
-WORKDIR /application
-COPY --from=builder /builder/extracted/dependencies/ ./
-COPY --from=builder /builder/extracted/spring-boot-loader/ ./
-COPY --from=builder /builder/extracted/snapshot-dependencies/ ./
-COPY --from=builder /builder/extracted/application/ ./
+# ……分层 COPY、USER 同 Docker 篇……
 
 # ARG 在本阶段内声明才可见；放在 COPY 之后，避免每次提交都让前面的层缓存失效
 ARG GIT_COMMIT=unknown
 ARG BUILD_TIME=unknown
 ARG VERSION=unknown
-LABEL org.opencontainers.image.revision="${GIT_COMMIT}" \
-      org.opencontainers.image.created="${BUILD_TIME}" \
-      org.opencontainers.image.version="${VERSION}" \
-      org.opencontainers.image.source="https://github.com/example/my-app"
-
-ENTRYPOINT ["java", "-jar", "application.jar"]
+LABEL org.opencontainers.image.revision="${GIT_COMMIT}"       org.opencontainers.image.created="${BUILD_TIME}"       org.opencontainers.image.version="${VERSION}"       org.opencontainers.image.source="https://github.com/example/my-app"
 ```
 
-- `COPY target/app.jar` 依赖 pom 里的 `<finalName>app</finalName>`；写 `target/*.jar` 时，一旦目录里有多个 Jar（如 sources Jar），`COPY` 会因目标不是目录而失败
-- `jarmode=tools` 需要 Spring Boot 3.3+；镜像分层、非 root 用户等 Dockerfile 细节见 [Docker](/cloud-native/5_docker)
+构建阶段复制 JAR 时写确切文件名（pom 里配 `<finalName>app</finalName>`，再 `COPY target/app.jar`）；写 `target/*.jar` 时，一旦目录里有多个 Jar（如 sources Jar），`COPY` 会因目标不是目录而失败。
 
 ```bash
 GIT_SHA=$(git rev-parse --short=7 HEAD)

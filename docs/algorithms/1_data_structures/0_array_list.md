@@ -1,12 +1,12 @@
 ---
-description: 数组与 ArrayList 扩容、单双循环链表、反转 / 快慢指针 / 哨兵节点模板、环入口与相交链表
+description: 数组与 ArrayList 扩容、单双循环链表、链表反转与哨兵节点模板
 ---
 
 # 数组与链表
 
 > 前置阅读：[复杂度分析](../0_complexity)
 
-数组和链表是所有数据结构的基石：数组胜在随机访问和缓存友好，链表胜在已知位置时的 O(1) 插删。本篇讲两者的存储差异、数组与 `ArrayList` 的真实复杂度，以及链表反转、快慢指针、哨兵节点等模板。
+数组和链表是所有数据结构的基石：数组胜在随机访问和缓存友好，链表胜在已知位置时的 O(1) 插删。本篇讲两者的存储差异、数组与 `ArrayList` 的真实复杂度，以及链表反转、哨兵节点等模板。
 
 ---
 
@@ -109,30 +109,6 @@ ListNode reverse(ListNode head) {
 }
 ```
 
-**快慢指针找中点**：快指针一次走两步、慢指针一次走一步，快指针到尾时慢指针在中间。
-
-```java
-// 偶数个节点时返回第二个中点（LeetCode 876 的要求）
-ListNode middleNode(ListNode head) {
-    ListNode slow = head, fast = head;
-    while (fast != null && fast.next != null) {
-        slow = slow.next;
-        fast = fast.next.next;
-    }
-    return slow;
-}
-
-// 偶数个节点时返回第一个中点：回文链表（LeetCode 234）、链表归并排序（LeetCode 148）要从这里断开
-ListNode firstMiddle(ListNode head) {
-    ListNode slow = head, fast = head;
-    while (fast.next != null && fast.next.next != null) {
-        slow = slow.next;
-        fast = fast.next.next;
-    }
-    return slow;
-}
-```
-
 **哨兵节点**：在头节点前放一个哑节点 `dummy`，删除头节点和删除普通节点就能用同一套代码：
 
 ```java
@@ -160,61 +136,9 @@ ListNode mergeTwoLists(ListNode l1, ListNode l2) {
 }
 ```
 
-### 4、双指针进阶：环、倒数第 N 个、相交
+### 4、快慢指针与双指针
 
-**判环与环入口（Floyd 判圈）**：快慢指针相遇说明有环。设头到入口距离 a、入口到相遇点距离 b、相遇点再走 c 回到入口，相遇时快指针走的路程是慢指针的两倍，可推出 a = c + (k − 1) × 环长（k 为快指针多绕的圈数）。所以相遇后让一个指针回到头部，两个指针每次各走一步，再次相遇处就是入口：
-
-```java
-// LeetCode 142：返回环入口，无环返回 null
-ListNode detectCycle(ListNode head) {
-    ListNode slow = head, fast = head;
-    while (fast != null && fast.next != null) {
-        slow = slow.next;
-        fast = fast.next.next;
-        if (slow == fast) {
-            ListNode p = head;
-            while (p != slow) {
-                p = p.next;
-                slow = slow.next;
-            }
-            return p;
-        }
-    }
-    return null;
-}
-```
-
-**删除倒数第 N 个节点**：快指针先走 n 步，再和慢指针同步走，快指针到尾时慢指针恰好停在待删节点的前驱：
-
-```java
-// LeetCode 19
-ListNode removeNthFromEnd(ListNode head, int n) {
-    ListNode dummy = new ListNode(-1);
-    dummy.next = head;
-    ListNode fast = dummy, slow = dummy;
-    for (int i = 0; i < n; i++) fast = fast.next;
-    while (fast.next != null) {
-        fast = fast.next;
-        slow = slow.next;
-    }
-    slow.next = slow.next.next;
-    return dummy.next;
-}
-```
-
-**相交链表**：两个指针分别从 A、B 出发，走到尾就换到另一条链表的头。两人走过的总长都是 lenA + lenB，所以一定同时到达交点；不相交时同时走到 `null`：
-
-```java
-// LeetCode 160
-ListNode getIntersectionNode(ListNode headA, ListNode headB) {
-    ListNode p = headA, q = headB;
-    while (p != q) {
-        p = (p == null) ? headB : p.next;
-        q = (q == null) ? headA : q.next;
-    }
-    return p;
-}
-```
+链表上另一大类模板靠两个指针配合：快慢指针找中点、Floyd 判环并找入口、前后指针保持间距删除倒数第 N 个结点、两指针交替走找相交结点。它们都只是在上面的结点结构上移动引用，代码与 Floyd 入口证明统一见 [双指针 · 快慢指针](../3_patterns/1_two_pointers#二、快慢指针)。
 
 ### 5、Java LinkedList
 
@@ -260,7 +184,7 @@ ListNode getIntersectionNode(ListNode headA, ListNode headB) {
 - 数组靠连续内存实现 O(1) 随机访问，代价是中间插删要搬元素
 - `ArrayList` 懒分配、1.5 倍扩容，尾部追加均摊 O(1)；已知大小时预设容量
 - 链表的 O(1) 插删有前提：已经拿到前驱节点；按位置操作仍是 O(n)
-- 链表题四件套：反转（prev / cur / next）、快慢指针、哨兵节点、前后指针保持间距
+- 链表题四件套：反转（prev / cur / next）、哨兵节点，以及快慢指针、前后指针保持间距（见 [双指针](../3_patterns/1_two_pointers)）
 - 栈和队列用 `ArrayDeque`，列表用 `ArrayList`，`LinkedList` 很少是最优解
 
 ## 参考资料

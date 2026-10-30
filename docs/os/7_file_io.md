@@ -1,5 +1,5 @@
 ---
-description: VFS 与文件描述符、ext4 / xfs、块层与 IO 调度、磁盘性能、Direct IO 与 io_uring、fsync 语义、iostat、云盘限速
+description: VFS、ext4 / xfs、IO 调度、Direct IO、io_uring、fsync 语义、iostat、云盘限速
 ---
 
 # 文件系统与磁盘 IO

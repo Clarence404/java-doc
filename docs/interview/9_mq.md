@@ -212,13 +212,9 @@ kafkaTemplate.send("order-events", orderId.toString(), payload);   // key = orde
 - mmap（RocketMQ 用）：把文件映射到内存直接读写，拷贝从 4 次减到 3 次
 - sendfile（Kafka 用）：数据从页缓存直接送到网卡，完全不经过程序，拷贝只剩 2 次
 
-![mmap + write 数据路径](../assets/messaging/zero-copy-mmap.svg)
-
-![sendfile 数据路径](../assets/messaging/zero-copy-sendfile.svg)
-
 **常见坑**：开了 TLS 还以为能零拷贝。加密必须在程序里做，sendfile 用不了，CPU 开销明显上升。
 
-→ 详见 [Kafka 架构与存储](/messaging/2_kafka#三、高性能原理)、[RocketMQ](/messaging/3_rocketmq#三、存储结构)
+→ 详见 [Kafka 架构与存储](/messaging/2_kafka#三、高性能原理)、[RocketMQ](/messaging/3_rocketmq#三、存储结构)、[IO 与 NIO · 零拷贝](/java/18_topic_io#四、零拷贝)
 
 ### Q15：Kafka 为什么吞吐量这么高？
 

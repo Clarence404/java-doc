@@ -4,7 +4,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 
 # 数据库选型参考
 
-> 前置阅读：[MySQL 基础](../1_mysql/0_overview)、[分布式数据库](../3_relational/1_distributed_db)
+> 前置阅读：[MySQL 基础](../1_mysql/0_basics)、[分布式数据库](../3_relational/1_distributed_db)
 
 本篇是数据库选型速查表，按数据模型、查询模式、一致性、规模与团队能力为场景给出首选与备选，并列出常见选型误区。
 
@@ -221,4 +221,4 @@ MySQL 9.x 社区版只有 `VECTOR` 类型与 `STRING_TO_VECTOR`、`VECTOR_DIM` �
 - InfluxDB 3 Core 查询数据：[https://docs.influxdata.com/influxdb3/core/query-data/](https://docs.influxdata.com/influxdb3/core/query-data/)
 - MongoDB 事务：[https://www.mongodb.com/docs/manual/core/transactions/](https://www.mongodb.com/docs/manual/core/transactions/)
 
-> 下一篇：[MySQL 基础](../1_mysql/0_overview) —— 数据库范式、视图、存储过程、账号与传输安全、基础配置、核心专项导读
+> 下一篇：[MySQL 基础](../1_mysql/0_basics) —— 数据库范式、视图、存储过程、账号与传输安全、基础配置、核心专项导读

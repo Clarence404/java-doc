@@ -304,4 +304,4 @@ SELECT WAIT_FOR_EXECUTED_GTID_SET('3e11fa47-71ca-11e1-9e33-c80aa9429562:1-1000',
 - MySQL 8.4 Release Notes：[Changes in MySQL 8.4.0](https://dev.mysql.com/doc/relnotes/mysql/8.4/en/news-8-4-0.html)
 - Percona Toolkit：[pt-heartbeat](https://docs.percona.com/percona-toolkit/pt-heartbeat.html)
 
-> 下一篇：[PostgreSQL 基础](../2_postgresql/0_overview) —— 进入 PostgreSQL：与 MySQL 的差异、安装与核心概念。
+> 下一篇：[PostgreSQL 基础](../2_postgresql/0_basics) —— 进入 PostgreSQL：与 MySQL 的差异、安装与核心概念。

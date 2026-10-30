@@ -623,4 +623,4 @@ try {
 - Java 序列化过滤：[Serialization Filtering（Oracle Java SE 21）](https://docs.oracle.com/en/java/javase/21/core/serialization-filtering1.html)
 - Jackson 多态安全：[Jackson Polymorphic Deserialization CVE Criteria](https://github.com/FasterXML/jackson/wiki/Jackson-Polymorphic-Deserialization-CVE-Criteria)、[Jackson Polymorphic Deserialization](https://github.com/FasterXML/jackson-docs/wiki/JacksonPolymorphicDeserialization)
 
-> 下一篇：[零信任架构](./9_zero_trust) —— 不再信任网络位置，用户、设备与服务的每一次访问都显式验证。
+> 下一篇：[零信任架构](./9_zero_trust)

@@ -6,7 +6,7 @@ description: 何时微调、SFT / DPO / LoRA / QLoRA、数据准备、评估、J
 
 > 前置阅读：[RAG 检索增强生成](../4_core_tech/2_rag)
 
-微调是用自有数据继续训练模型以改变其行为与输出格式的手段，训练环节基本在 Python 生态完成。本篇讲 Prompt / RAG / 微调的选择、SFT / DPO / LoRA / QLoRA 的区别、数据准备与评估，以及微调模型的部署与 Java 侧调用。
+微调是用自有数据继续训练模型、改变其行为与输出格式的手段。本篇讲 Prompt / RAG / 微调的选择、SFT / DPO / LoRA 的区别、数据准备与评估，以及部署与 Java 调用。
 
 ---
 

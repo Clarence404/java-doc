@@ -6,7 +6,7 @@ description: CountDownLatch、CyclicBarrier、Semaphore、Phaser、Exchanger、�
 
 > 前置阅读：[显式锁（Lock）](./25_topic_lock)
 
-锁管「同一时刻只让一个线程进」，同步工具类管线程间的协调：等别人做完、到齐再走、最多放进 N 个。本篇讲 `CountDownLatch`、`CyclicBarrier`、`Semaphore`、`Phaser`、`Exchanger`，基线为 JDK 21 / 25。
+锁管「同一时刻只让一个线程进」，同步工具类管线程间的协调。本篇讲 `CountDownLatch`、`CyclicBarrier`、`Semaphore`、`Phaser`、`Exchanger`，基线为 JDK 21 / 25。
 
 ---
 

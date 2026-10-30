@@ -197,9 +197,35 @@ ListNode middleNode(ListNode head) {
 }
 ```
 
-如果要返回第一个中间结点（比如归并排序链表时从中间断开），把循环条件改成 `fast.next != null && fast.next.next != null`。
+回文链表（LeetCode 234）、链表归并排序（LeetCode 148）要从中间断开，需要的是**第一个**中间结点，把循环条件改成 `fast.next != null && fast.next.next != null`（调用前保证 `head != null`）：
 
-### 4、数组原地去重与移除
+```java
+ListNode firstMiddle(ListNode head) {
+    ListNode slow = head, fast = head;
+    while (fast.next != null && fast.next.next != null) {
+        slow = slow.next;
+        fast = fast.next.next;
+    }
+    return slow;
+}
+```
+
+### 4、相交链表
+
+LeetCode 160 相交链表：两个指针分别从 A、B 出发，走到尾就换到另一条链表的头。两人走过的总长都是 lenA + lenB，所以一定同时到达交点；不相交时同时走到 `null`：
+
+```java
+ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+    ListNode p = headA, q = headB;
+    while (p != q) {
+        p = (p == null) ? headB : p.next;
+        q = (q == null) ? headA : q.next;
+    }
+    return p;
+}
+```
+
+### 5、数组原地去重与移除
 
 快指针扫描，慢指针指向「下一个保留元素要写入的位置」。
 
@@ -258,6 +284,8 @@ ListNode removeNthFromEnd(ListNode head, int n) {
 - 对撞指针依赖有序性：每次移动都排除一批不可能的组合
 - 三数之和 = 排序 + 固定一个数 + 对撞指针，三处去重
 - Floyd 判圈：快二慢一；找入口时一个回表头、两个同速走，依据是 `a = (k - 1)·L + (L - b)`
+- 找中点：`fast != null && fast.next != null` 得第二个中点，`fast.next != null && fast.next.next != null` 得第一个中点
+- 相交链表：两个指针走完自己的链表就换到对方的头，总路程相同，必在交点或 `null` 相遇
 - 快慢指针做数组原地去重，慢指针指向下一个写入位置
 - 删除倒数第 N 个结点：哨兵结点 + 快指针先走 n + 1 步
 

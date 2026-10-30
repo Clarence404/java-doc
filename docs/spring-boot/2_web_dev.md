@@ -1,12 +1,12 @@
 ---
-description: Jackson 3、参数校验、ProblemDetail、Filter、CORS、HTTP 客户端、Tomcat 线程模型
+description: Jackson 3、参数校验、ProblemDetail、Filter、CORS、HTTP 客户端、Tomcat 线程
 ---
 
 # Web 开发
 
 > 前置阅读：[MVC](/spring/3_mvc)
 
-Spring Boot 在 Spring MVC 之上提供 Web 自动装配和一套工程默认值。本篇讲 Jackson 3、参数校验、错误响应、Filter 与 CORS、HTTP 客户端和内嵌 Tomcat 线程模型，基线为 Spring Boot 4。
+Spring Boot 为 Web 开发提供自动装配和工程默认值。本篇讲 Jackson 3、参数校验、错误响应、Filter 与 CORS、HTTP 客户端和 Tomcat 线程，基线为 Spring Boot 4。
 
 ---
 

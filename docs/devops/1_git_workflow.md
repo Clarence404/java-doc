@@ -1,5 +1,5 @@
 ---
-description: 主干开发与 GitHub Flow、分支保护规则集、Conventional Commits、提交钩子、PR 流程、常用命令
+description: 主干开发与 GitHub Flow、分支保护规则集、Conventional Commits、提交钩子、PR 流程
 ---
 
 # Git 工作流

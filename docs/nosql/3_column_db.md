@@ -31,7 +31,7 @@ HBase 的「列族」只决定哪些列放进同一组文件，每个列族内�
 
 ### 2、数据模型
 
-![HBase 数据模型](../assets/database/hbase-data-model.svg)
+![HBase 数据模型](../assets/nosql/hbase-data-model.svg)
 
 - **Table** 按 RowKey 范围水平切分成多个 Region
 - **RowKey** 是唯一主键，数据按 RowKey 字典序存放
@@ -49,7 +49,7 @@ HBase 的「列族」只决定哪些列放进同一组文件，每个列族内�
 
 ### 3、架构组件
 
-![HBase 架构](../assets/database/hbase-architecture.svg)
+![HBase 架构](../assets/nosql/hbase-architecture.svg)
 
 | 组件 | 职责 |
 |------|------|
@@ -60,7 +60,7 @@ HBase 的「列族」只决定哪些列放进同一组文件，每个列族内�
 
 ### 4、读写流程（LSM 树）
 
-![HBase LSM 写入与读取流程](../assets/database/hbase-lsm-flow.svg)
+![HBase LSM 写入与读取流程](../assets/nosql/hbase-lsm-flow.svg)
 
 写入先追加 WAL 再写 MemStore，MemStore 满后 Flush 成 HFile，后台 Compaction 合并文件；读取依次查 BlockCache、MemStore 和多个 HFile 并合并版本，BloomFilter 用来跳过不含该行的文件。
 
@@ -138,7 +138,7 @@ public final class RowKeys {
 
 ### 2、为什么列存适合分析
 
-![行存与列存的读取对比](../assets/database/row-vs-column-store.svg)
+![行存与列存的读取对比](../assets/nosql/row-vs-column-store.svg)
 
 以 `SELECT sum(amount) FROM orders WHERE status = 'paid'` 为例：行存要把整行读进内存，列存只读 `status` 和 `amount` 两个列文件。
 
@@ -226,7 +226,7 @@ ALTER TABLE events MATERIALIZE INDEX idx_user_bf;
 
 ### 6、分布式表与副本
 
-![ClickHouse 分布式表与副本拓扑](../assets/database/clickhouse-distributed.svg)
+![ClickHouse 分布式表与副本拓扑](../assets/nosql/clickhouse-distributed.svg)
 
 ```sql
 -- 1. 每个节点建本地表（带副本）

@@ -1,5 +1,5 @@
 ---
-description: 采样与分辨率、码率与码控、H.264 / H.265 / AV1、AAC / Opus、GOP、封装格式、PTS / DTS、转码与转封装
+description: 采样与分辨率、码率与码控、H.264 / H.265 / AV1、AAC / Opus、GOP、封装、PTS / DTS
 ---
 
 # 音视频基础

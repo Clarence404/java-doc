@@ -4,7 +4,7 @@ description: 元组可见性、HOT 更新、RR 快照隔离与 SSI、表膨胀�
 
 # MVCC 与 VACUUM
 
-> 前置阅读：[MySQL 事务与锁](../1_mysql/5_topic_transaction)、[PostgreSQL 基础](./0_overview)
+> 前置阅读：[MySQL 事务与锁](../1_mysql/5_topic_transaction)、[PostgreSQL 基础](./0_basics)
 
 PostgreSQL 把旧版本元组留在堆表里实现 MVCC，本篇讲快照可见性判断、RR / SERIALIZABLE 与 InnoDB 的语义差别，以及 autovacuum 配置、表膨胀与 XID 回卷监控、阻止清理的长事务定位。
 

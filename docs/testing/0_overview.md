@@ -1,7 +1,3 @@
----
-description: 测试金字塔与蜂巢、各层工具与版本基线、健康测试套件的标准、CI 中的测试分工
----
-
 # 测试工程总览
 
 测试工程关心的是一套测试能否在每次提交时快速、稳定地回答：**这次改动能不能放心合并、放心上线**。本模块按层次讲单元测试、Mock、集成测试、契约测试、接口与端到端测试、性能测试与 TDD，写的是与框架无关的方法和工具。
@@ -151,5 +147,3 @@ Spring Boot 项目里，JUnit、AssertJ、Mockito、Testcontainers 的版本都�
 - Playwright for Java：[Playwright Java](https://playwright.dev/java/)
 - k6：[Grafana k6 Documentation](https://grafana.com/docs/k6/latest/)
 - PIT 变异测试：[PIT Mutation Testing](https://pitest.org/)
-
-> 下一篇：[单元测试](./1_unit_test)

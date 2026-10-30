@@ -6,7 +6,7 @@ description: 核心概念、通知类型与执行顺序、切点表达式、代�
 
 > 前置阅读：[IoC 容器](./1_ioc)、[动态代理](/java/16_topic_proxy)
 
-Spring AOP 基于运行时代理，把日志、事务、权限、缓存等横切关注点集中写在切面里，`@Transactional`、`@Async`、`@Cacheable` 都建立在它之上。本篇讲 `@Aspect` 写法、通知执行顺序、代理类型选择，以及自调用导致注解失效的定位与修复。
+Spring AOP 基于运行时代理，`@Transactional`、`@Async`、`@Cacheable` 都建立在它之上。本篇讲 `@Aspect` 写法、通知顺序、代理类型，以及自调用导致注解失效的定位与修复。
 
 ---
 

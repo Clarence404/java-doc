@@ -338,7 +338,7 @@ Seata 由阿里巴巴开源，2023 年进入 Apache 孵化器（截至 2026 年 
 
 ### 3、AT 模式
 
-![Seata AT 模式两阶段流程](../assets/microservices/seata-at.svg)
+![Seata AT 模式两阶段流程](../assets/distributed/seata-at.svg)
 
 一阶段（每个 RM）：
 

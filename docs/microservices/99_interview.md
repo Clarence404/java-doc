@@ -1,5 +1,5 @@
 ---
-description: 拆分与演进、通信与 RPC、服务网格与 Dubbo、微服务模式、Spring Cloud 注册配置、网关、治理与事务题目清单
+description: 微服务方向题目清单
 ---
 
 # 高频面试题

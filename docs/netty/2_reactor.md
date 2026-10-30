@@ -1,5 +1,5 @@
 ---
-description: 单线程、单 Reactor 多线程、主从 Reactor，以及 Reactor 与 Proactor 的区别
+description: 单线程、单 Reactor 多线程、主从 Reactor、Reactor 与 Proactor 的区别
 ---
 
 # Reactor 模型

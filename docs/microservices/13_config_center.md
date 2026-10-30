@@ -6,7 +6,7 @@ description: spring.config.import 接入、gRPC 推送刷新、@RefreshScope 与
 
 > 前置阅读：[注册发现](./10_service_registry)
 
-配置中心让配置脱离安装包，支持动态刷新、环境隔离、集中管理与敏感信息保护。本篇讲 Nacos Config 接入、刷新链路、`@RefreshScope` 与属性重绑定、环境隔离与配置分层，基线为 Spring Boot 4 / Spring Cloud 2025.1。
+配置中心让配置脱离安装包，支持动态刷新与环境隔离。本篇讲 Nacos Config 接入、`@RefreshScope` 与刷新链路、配置分层，基线为 Spring Boot 4 / Spring Cloud 2025.1。
 
 ---
 

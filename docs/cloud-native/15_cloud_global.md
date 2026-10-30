@@ -1,12 +1,12 @@
 ---
-description: AWS / Azure / GCP 定位差异、AWS 核心服务、Azure 与 GCP 特色服务、Java 微服务参考架构
+description: AWS / Azure / GCP 定位差异、AWS 核心服务、Azure 与 GCP 特色服务、Java 参考架构
 ---
 
 # 国际云平台
 
 > 前置阅读：[云计算概览](./13_cloud_overview)
 
-AWS、Azure、GCP 是三大国际云厂商，定位与中国区情况各不相同。本篇以 AWS 为主讲 Java 后端常用服务与基于 EKS 的微服务部署架构，Azure 和 GCP 只讲有特色、和 AWS 差异较大的部分，产品状态以 2026 年 10 月官方文档为准。
+AWS、Azure、GCP 是三大国际云厂商，定位与中国区情况各不相同。本篇以 AWS 为主讲 Java 后端常用服务与 EKS 部署架构，Azure 和 GCP 只讲与 AWS 差异较大的部分。
 
 ---
 

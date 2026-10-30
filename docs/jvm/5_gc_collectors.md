@@ -1,5 +1,5 @@
 ---
-description: Serial / Parallel / CMS / G1 / ZGC（含分代 ZGC）/ Shenandoah 对比与选型
+description: Serial / Parallel / CMS / G1 / ZGC / Shenandoah 对比、分代 ZGC、选型
 ---
 
 # GC 收集器

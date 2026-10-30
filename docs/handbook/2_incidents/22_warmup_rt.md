@@ -1,5 +1,5 @@
 ---
-description: 新 Pod 前几分钟 P99 飙高、JIT 编译抢 CPU、类加载与连接池懒初始化、缓存冷启动、预热后就绪与 AOT 缓存
+description: 新 Pod 前几分钟 P99 飙高、JIT 抢 CPU、懒初始化、缓存冷启动、预热后就绪与 AOT 缓存
 ---
 
 # 启动后 RT 飙高

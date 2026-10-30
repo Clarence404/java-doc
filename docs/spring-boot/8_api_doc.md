@@ -6,7 +6,7 @@ description: springdoc 3.x 集成与分组、注解、Knife4j（Boot 3）、Secu
 
 > 前置阅读：[Web 开发](./2_web_dev)
 
-springdoc-openapi 可以从代码直接生成 OpenAPI 3 文档。本篇讲 Spring Boot 4 + springdoc-openapi 3.x 的全局配置、分组与注解写法，Knife4j 在 Boot 3 项目中的用法，以及在生产环境用配置关掉文档端点。
+springdoc-openapi 从代码直接生成 OpenAPI 3 文档。本篇讲 springdoc-openapi 3.x 的配置、分组与注解、Knife4j 在 Boot 3 项目的用法，以及生产关闭文档端点。
 
 ---
 

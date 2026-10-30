@@ -4,15 +4,15 @@ description: 9.6 ~ 13 要点、14 ~ 18 逐版新特性、升级时的行为变�
 
 # PostgreSQL 版本特性
 
-> 前置阅读：[PostgreSQL 基础](./0_overview)
+> 前置阅读：[PostgreSQL 基础](./0_basics)
 
-本篇按版本梳理 PostgreSQL 9.6 到 18 的关键特性与升级到 15、17、18 时的行为变化，以 PG 18 为基线，17 的差异单独标注。13 及更早版本已停止支持只保留相关要点，文中性能数字均来自官方发布公告，实际收益取决于负载。
+本篇按版本梳理 PostgreSQL 9.6 到 18 的关键特性，以及升级到 15、17、18 时的行为变化。以 PG 18 为基线，17 的差异单独标注，13 及更早版本只保留相关要点。
 
 ---
 
 ## 一、9.6 ～ 13 要点（均已停止支持）
 
-支持周期见 [PostgreSQL 基础](./0_overview)。
+支持周期见 [PostgreSQL 基础](./0_basics)。
 
 | 版本 | 发布 | 关键特性 |
 |------|------|----------|
@@ -162,7 +162,7 @@ CREATE PUBLICATION pub_active_users FOR TABLE users (id, name, email)
 
 ### 4、升级注意：public Schema 不再允许所有人建表
 
-15 起新建数据库的 `public` Schema 收回了 `PUBLIC` 的 `CREATE` 权限，属主改为 `pg_database_owner`。用非属主账号执行 Flyway / Liquibase 迁移会在建表时报 `permission denied for schema public`。处理方式见 [PostgreSQL 基础](./0_overview)。
+15 起新建数据库的 `public` Schema 收回了 `PUBLIC` 的 `CREATE` 权限，属主改为 `pg_database_owner`。用非属主账号执行 Flyway / Liquibase 迁移会在建表时报 `permission denied for schema public`。处理方式见 [PostgreSQL 基础](./0_basics)。
 
 ---
 
@@ -318,7 +318,7 @@ CREATE TABLE room_booking (
 | 生成列参与逻辑复制 | `publish_generated_columns` 控制是否发布生成列的值 |
 | OAuth 认证 | `pg_hba.conf` 新增 `oauth` 方法，需配合令牌校验模块 |
 | 线协议 3.2 | 首次升级协议版本（取消请求密钥加长到 256 位），libpq 默认仍使用 3.0 |
-| 官方 Docker 镜像 | 数据目录改为 `/var/lib/postgresql/18/docker`，挂载点见 [PostgreSQL 基础](./0_overview) |
+| 官方 Docker 镜像 | 数据目录改为 `/var/lib/postgresql/18/docker`，挂载点见 [PostgreSQL 基础](./0_basics) |
 
 OAuth 不是只写一行 `issuer` 就能工作：服务端要在 `oauth_validator_libraries` 里加载令牌校验模块，`pg_hba.conf` 中还要声明 `scope`：
 

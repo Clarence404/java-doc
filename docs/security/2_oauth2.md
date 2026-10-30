@@ -310,4 +310,4 @@ Spring Authorization Server 自 **Spring Security 7.0 起并入 Spring Security 
 - Spring Authorization Server：[OAuth 2.0 Authorization Server - Getting Started](https://docs.spring.io/spring-security/reference/servlet/oauth2/authorization-server/getting-started.html)
 - Spring Security 7.0 新特性：[What's New in Spring Security 7.0](https://docs.spring.io/spring-security/reference/7.0/whats-new.html)
 
-> 下一篇：[OIDC](./3_oidc) —— 在 OAuth 2 之上加一层身份认证：ID Token、Discovery 与第三方登录。
+> 下一篇：[OIDC](./3_oidc)

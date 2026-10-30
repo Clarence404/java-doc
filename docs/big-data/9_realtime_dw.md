@@ -1,5 +1,5 @@
 ---
-description: 埋点规范与采集网关、Flink SQL 写 Paimon 分层、StarRocks 物化视图、查询服务、延迟监控、回放补数与故障恢复
+description: 埋点采集、Flink SQL 写 Paimon 分层、StarRocks 物化视图、查询服务、延迟监控、回放补数
 ---
 
 # 实时数仓实战

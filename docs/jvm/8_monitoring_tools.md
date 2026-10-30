@@ -1,5 +1,5 @@
 ---
-description: jcmd、jstack / jmap / jstat、NMT、JFR / JMC、MAT、VisualVM、容器中 attach
+description: jcmd、jstack / jmap / jstat、NMT、JFR / JMC、MAT、容器中 attach
 ---
 
 # 诊断工具

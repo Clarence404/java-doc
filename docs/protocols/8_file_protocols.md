@@ -6,7 +6,7 @@ description: 文件协议对比、FTP 主动与被动模式、JSch 安全接入 
 
 > 前置阅读：[TCP 与 UDP](./1_tcp_udp)、[HTTPS 与 TLS](./3_https_tls)
 
-后端碰到文件协议，多数是和银行、物流、政务等外部系统做批量文件交换，或者挂载共享存储。本篇讲常见协议的安全性与适用场景、FTP 主被动模式、用 JSch 写安全的 SFTP 客户端，以及用 Spring Integration 定时拉取文件。
+后端碰到文件协议，多是和银行、物流等外部系统做批量文件交换，或者挂载共享存储。本篇讲常见协议的选型、FTP 主被动模式、用 JSch 写 SFTP 客户端与 Spring Integration 定时拉取。
 
 ---
 

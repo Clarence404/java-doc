@@ -6,7 +6,7 @@ description: URL 与方法、状态码、统一响应与 Problem Details、分�
 
 > 前置阅读：[HTTP](/protocols/2_http)
 
-本篇是站内 REST 约定和统一响应结构的主文档，覆盖 URL 与方法、状态码、数据格式、成功响应、RFC 9457 错误响应、分页、版本控制与废弃流程。代码基于 Spring Boot 4 / Spring Framework 7，JSON 由 Jackson 3 处理。
+本篇是站内 REST 约定和统一响应结构的主文档，覆盖 URL 与方法、状态码、RFC 9457 错误响应、分页与版本控制。基线为 Spring Boot 4，JSON 由 Jackson 3 处理。
 
 ---
 

@@ -6,7 +6,7 @@ description: 起源与治理、LTS 版本线、与 MySQL 差异、SEQUENCE 与 R
 
 > 前置阅读：[MySQL 版本特性](./1_feature)
 
-MariaDB 是 MySQL 的分叉，如今已不能与 MySQL 无缝互换，本篇讲它的现状与 LTS 版本线、与 MySQL 在认证、JSON、GTID、隔离行为上的差异，以及 SEQUENCE、RETURNING、系统版本表、向量索引、Galera 等特有能力。
+MariaDB 是 MySQL 的分叉，已不能与 MySQL 无缝互换。本篇讲 LTS 版本线、与 MySQL 在认证、JSON、GTID、隔离行为上的差异，以及 RETURNING、Galera 等特有能力。
 
 ---
 

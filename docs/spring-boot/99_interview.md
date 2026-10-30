@@ -1,5 +1,5 @@
 ---
-description: 自动配置与 Starter、启动流程、配置管理、Web 与数据、异步与定时、运维可观测、测试、版本与启动优化
+description: Spring Boot 方向题目清单
 ---
 
 # 高频面试题
