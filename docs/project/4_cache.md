@@ -151,19 +151,35 @@ public class ProductDetailService {
 
     private Optional<ProductDetailView> loadFromRemote(long skuId) {
         String key = KEY_PREFIX + skuId;
-        String json = redis.opsForValue().get(key);
+        String json;
+        try {
+            json = redis.opsForValue().get(key);
+        } catch (DataAccessException | SerializationException e) {
+            // 连不上、超时、命令报错都是 DataAccessException：直接查库，跳过回写
+            return Optional.ofNullable(productMapper.selectDetail(skuId));
+        }
         if (json != null) {
-            return NULL_JSON.equals(json) ? Optional.empty()
-                    : Optional.of(jsonMapper.readValue(json, ProductDetailView.class));
+            if (NULL_JSON.equals(json)) {
+                return Optional.empty();
+            }
+            try {
+                return Optional.of(jsonMapper.readValue(json, ProductDetailView.class));
+            } catch (JacksonException e) {
+                // 读不出来（多半是 ProductDetailView 改过结构）：按未命中回源，下面用新结构覆盖
+            }
         }
         ProductDetailView view = productMapper.selectDetail(skuId);   // 回源只查 t_product
-        if (view == null) {
-            redis.opsForValue().set(key, NULL_JSON, Duration.ofSeconds(60));
-            return Optional.empty();
+        try {
+            if (view == null) {
+                redis.opsForValue().set(key, NULL_JSON, Duration.ofSeconds(60));
+                return Optional.empty();
+            }
+            Duration ttl = Duration.ofMinutes(30).plusSeconds(ThreadLocalRandom.current().nextInt(300));
+            redis.opsForValue().set(key, jsonMapper.writeValueAsString(view), ttl);
+        } catch (DataAccessException | SerializationException | JacksonException e) {
+            // 回写失败不影响本次返回
         }
-        Duration ttl = Duration.ofMinutes(30).plusSeconds(ThreadLocalRandom.current().nextInt(300));
-        redis.opsForValue().set(key, jsonMapper.writeValueAsString(view), ttl);
-        return Optional.of(view);
+        return Optional.ofNullable(view);
     }
 
     void evictLocal(long skuId) {
@@ -172,7 +188,7 @@ public class ProductDetailService {
 }
 ```
 
-Controller 拿到 `Optional.empty()` 时抛 `BizException(ProductErrorCode.PRODUCT_NOT_FOUND)`，返回 404 的 `ProblemDetail`，与 [接口设计](./3_api_design) 的约定一致。Redis 超时或连不上时，`loadFromRemote` 在读 Redis 和回写 Redis 两处捕获 `RedisConnectionFailureException | QueryTimeoutException`，直接查库并跳过回写，这里省略。两个都要捕获：Lettuce 命令超时（上面配置的 `timeout: 200ms`）抛的是 `org.springframework.dao.QueryTimeoutException`，只捕获连接异常的话，超时请求会直接 500，「缓存慢了宁可回源」就不成立。
+Controller 拿到 `Optional.empty()` 时抛 `BizException(ProductErrorCode.PRODUCT_NOT_FOUND)`，返回 404 的 `ProblemDetail`，与 [接口设计](./3_api_design) 的约定一致。`loadFromRemote` 在读 Redis 和回写 Redis 两处都捕获 `DataAccessException | SerializationException`（日志与回源计数这里省略）：Lettuce 命令超时（上面配置的 `timeout: 200ms`）抛的是 `QueryTimeoutException`，连不上是 `RedisConnectionFailureException`，命令报错是 `RedisSystemException`，它们都是 `DataAccessException` 的子类，捕获父类才不会漏掉某一种，否则漏掉的那种会直接 500，「缓存慢了宁可回源」就不成立。缓存里的 JSON 读不出来（发版改了 `ProductDetailView` 的结构）也不报错，按未命中回源，并用新结构覆盖旧值。
 
 下单计价走的仍是 `ProductApi.listByIds`，直接查 `t_product`，**不经过这个缓存**：详情页看到的价格最多旧几十秒，用户实际支付的金额永远是下单那一刻数据库里的价格。
 
@@ -242,6 +258,8 @@ public class ProductCacheInvalidator {
 
 每个实例都订阅 `cache:invalidate:product`，收到后调用 `ProductDetailService.evictLocal`，自己发的广播自己也会收到，所以 `evict` 里不单独删本地。订阅容器的注册写法见 [两级缓存 · 订阅失效频道](/cache/8_two_level_cache#_2、订阅失效频道)。Pub/Sub 不保证送达，应用和 Redis 断连期间的广播会丢，L1 的 30 秒 TTL 就是为这种情况兜底的上限。
 
+写入口是运营后台的 `PUT /api/admin/products/{skuId}`，另有 `POST /api/admin/products/{skuId}/cache-evict` 供价格未生效时手动刷新。这两个接口能改线上价格，必须限定给运营：`t_user` 加一列 `role`（`USER` / `ADMIN`），登录签发的访问令牌带 `roles` 声明，`SecurityConfig` 对 `/api/admin/**` 要求 `hasRole("ADMIN")`；未登录返回 401，普通用户返回 403 的 `ProblemDetail`（错误码 `FORBIDDEN`）。刷新令牌时按库里当前的角色重签，并校验用户未被禁用，撤掉运营权限或封号后，最迟一个访问令牌有效期（30 分钟）内生效。本地和集成测试的种子数据里有一个运营演示账号 `13800000009`。
+
 ---
 
 ## 六、穿透、击穿、雪崩与热点
@@ -300,6 +318,23 @@ public class ProductCacheInvalidator {
 
 ---
 
+## 十、验证
+
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch04-cache` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch04-cache/)。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 读详情填充 L2，改商品后两级缓存都被清掉 | [`ProductDetailCacheIT#readFillsL2AndUpdateInvalidatesBothLevels`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-app/src/test/java/com/qingyou/product/ProductDetailCacheIT.java) | 集成（真实 MySQL·Redis） |
+| 两级都未命中时回源，L2 写入带随机抖动的 TTL | [`ProductDetailServiceTest#missInBothLevelsLoadsFromDbAndWritesL2WithJitteredTtl`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-product/src/test/java/com/qingyou/product/detail/ProductDetailServiceTest.java) | 单元 |
+| 不存在的 SKU 缓存空值 60 秒 | [`ProductDetailServiceTest#missingSkuIsCachedAsNullPlaceholderFor60Seconds`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-product/src/test/java/com/qingyou/product/detail/ProductDetailServiceTest.java) | 单元 |
+| Redis 命令超时时回源，接口仍返回 200 | [`ProductDetailRedisTimeoutH2Test#redisQueryTimeoutFallsBackToDbAndReturns200`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-app/src/test/java/com/qingyou/product/ProductDetailRedisTimeoutH2Test.java) | H2 全流程 |
+| Redis 命令报错时回源 | [`ProductDetailServiceTest#redisCommandErrorFallsBackToDb`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-product/src/test/java/com/qingyou/product/detail/ProductDetailServiceTest.java) | 单元 |
+| 缓存 JSON 读不出时按未命中回源并覆盖 | [`ProductDetailServiceTest#unreadableCachedJsonIsTreatedAsMissAndOverwritten`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-product/src/test/java/com/qingyou/product/detail/ProductDetailServiceTest.java) | 单元 |
+| 提交后删 L2 并广播，1 秒后再删一次 | [`ProductCacheInvalidatorTest#deletesL2AndBroadcastsTwiceWithOneSecondDelay`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-product/src/test/java/com/qingyou/product/detail/ProductCacheInvalidatorTest.java) | 单元 |
+| 普通用户调后台改价返回 403 | [`ProductAdminAuthorizationH2Test#normalUserGets403OnAdminPriceChange`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-app/src/test/java/com/qingyou/product/ProductAdminAuthorizationH2Test.java) | H2 全流程 |
+
+---
+
 ## 小结
 
 - 先划范围：商品详情两级缓存，库存展示短 TTL，库存扣减、下单计价、订单详情都不读缓存
@@ -307,6 +342,7 @@ public class ProductCacheInvalidator {
 - 商品详情 L1 Caffeine 30 秒 + L2 Redis 30 分钟加随机，key `product:detail:{skuId}`，整体回源不到 1%
 - 一致性用 Cache Aside：事务提交后删 L2 并广播删 L1，1 秒后再删一次，所有 key 带 TTL 兜底；不上 binlog 订阅
 - 穿透用参数校验 + 空值缓存，击穿靠 Caffeine 单实例合并回源，雪崩靠 TTL 抖动 + Sentinel + L1；热点 key 由 L1 吸收
+- Redis 抛任何 `DataAccessException` 或缓存值读不出都按未命中回源，不把缓存故障变成 500；后台改价接口要求 `ADMIN` 角色
 - 上线后盯 L1 / L2 命中率、回源 QPS 和 `evicted_keys`
 
 > 本篇代码：[ch04-cache](https://github.com/Clarence404/qingyou-mall/tree/ch04-cache) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch03-api-design...ch04-cache)

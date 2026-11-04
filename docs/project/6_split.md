@@ -124,7 +124,15 @@ try {
 }
 ```
 
-这段代码有三个已知的洞：`deduct` 超时不知道扣没扣上；`restore` 本身可能失败；进程在两步之间崩溃。过渡期不自动重试写接口，靠每日的库存与订单核对脚本人工处理，彻底的解法是下一篇 [跨服务一致性](./7_consistency) 的库存预占。
+这段代码有三个已知的洞：`deduct` 超时不知道扣没扣上；`restore` 本身可能失败；进程在两步之间崩溃。过渡期下单这条路径不自动重试写接口，靠每日的库存与订单核对脚本人工处理，彻底的解法是下一篇 [跨服务一致性](./7_consistency) 的库存预占。
+
+关单（用户取消、超时未支付）后的归还不能这样放着：关单量远大于写单失败，归还一失败库存就永久少掉。做法是**同事务写重试表 + 定时重试 + 库存侧去重**：
+
+- **同事务写任务**：`OrderCloseService` 在把订单改成已取消的同一个本地事务里，往 `t_stock_restore_task` 插一条归还任务，订单关了就一定有任务
+- **提交后先试一次**：`StockRestorer` 在事务提交后立即调 `restore`，成功就删任务；超时、5xx、库存服务不可用都留在表里，定时任务每 30 秒扫一次到期任务，按 2、4、8 秒……的指数退避重试，表里积压的行数就是告警指标
+- **库存侧按订单号去重**：`inventory-service` 用 `t_stock_restore_log` 的主键 `order_no` 挡掉重复归还，超时后重试、两台实例同时重试都不会多加库存
+
+下一篇库存改成预占后，关单改为发 `order-cancelled` 消息、由库存服务消费后释放，这张重试表随之下线。
 
 支付成功的过渡做法类似：`payment-service` 处理渠道回调时先更新 `t_payment`，再同步调用 `OrderPayApi.markPaid`，由 `mall-app` 在本地事务里改订单状态并写 `t_outbox`；调用失败就给渠道返回失败，靠渠道的回调重试兜底，所以两边都必须按订单号幂等。
 
@@ -259,7 +267,7 @@ RestClientHttpServiceGroupConfigurer remoteErrorConfigurer(JsonMapper jsonMapper
 
 ## 七、Kubernetes 部署
 
-迁移顺序是**新服务先上 Kubernetes**：`inventory-service`、`payment-service`、`mall-gateway` 直接部署在集群里，`mall-app` 继续跑在云主机上，两边都注册到 Nacos，互相按服务名调用；新服务稳定一个月后，`mall-app` 再迁入集群。每个服务一个 Deployment 加一个 Service：
+迁移顺序是**新服务先上 Kubernetes**：`inventory-service`、`payment-service`、`mall-gateway` 直接部署在集群里，`mall-app` 继续跑在云主机上，两边都注册到 Nacos，互相按服务名调用；新服务稳定一个月后，`mall-app` 再迁入集群。所以 `deploy/k8s/kustomization.yaml` 本篇只列三个新服务，`mall-app.yaml` 暂不纳入（文件里用注释写明原因），到「稳定性」一篇再加回去。清单不在集群里跑也要先过一遍：CI 用 kubeconform 按 Kubernetes 的 schema 校验 `deploy/k8s` 下的全部清单，字段写错、缩进错位在合并前就会失败。每个服务一个 Deployment 加一个 Service：
 
 ```yaml
 apiVersion: apps/v1
@@ -311,6 +319,8 @@ spec:
 
 探针、资源与滚动参数的含义见 [Kubernetes · 探针、滚动更新与优雅终止](/cloud-native/6_kubernetes#四、探针、滚动更新与优雅终止)，JVM 在容器里的内存设置见 [Kubernetes · JVM 在容器里](/cloud-native/6_kubernetes#_3、jvm-在容器里)。
 
+上了 Kubernetes 后，雪花 ID 的机器号不能再按机器手工写：副本数随时变，Pod 名也不固定。每个 Pod 启动时从主机名的哈希开始，依次对 0–1023 执行 `SET qingyou:snowflake:worker:{服务}:{号} 实例ID NX PX 30000`，抢到为止；每 10 秒用 Lua 脚本续约（键的值还是自己才延长），发现键被别的实例占了立即停止发号，Redis 暂时出错时只在本地记录的租约到期前继续发号，停机时只删自己持有的键。显式配置的机器号仍然优先，本地、测试、集成测试和还在云主机上的 mall-app 照旧用 `WORKER_ID`，所以 Kubernetes 的 Secret 里不再有 `WORKER_ID`。机器号只在同一个服务内唯一，各服务的 ID 落在各自的库里，互不影响。
+
 ::: tip 用 Nacos 发现时，readiness 不挡流量
 服务间调用走的是 Nacos 里的 Pod IP，不经过 Kubernetes Service，所以 readiness 失败、Pod 从 Service 后端摘除，Nacos 里的实例照样接流量。停机时要在 `preStop` 里先主动从 Nacos 注销再等待，启动时预热完成再注册；顺序与参数见 [优雅上下线与变更 · Kubernetes 配合](/high-avail/8_graceful_release#_3、kubernetes-配合)。Service 留给网关前的 Ingress、监控抓取和排障使用。
 :::
@@ -331,11 +341,32 @@ spec:
 
 ---
 
+## 九、验证
+
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch06-split` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch06-split/)。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 库存服务返回的 `STOCK_INSUFFICIENT` 经客户端组原样回到前端 | [`OrderFlowH2Test#stockInsufficientFromInventoryServiceIsPassedThrough`](https://github.com/Clarence404/qingyou-mall/blob/ch06-split/mall-app/src/test/java/com/qingyou/order/OrderFlowH2Test.java) | H2 全流程 |
+| 关单后归还失败不影响关单，任务留表待重试 | [`OrderCloseServiceTest#restoreFailureKeepsTaskForRetryInsteadOfFailingTheClose`](https://github.com/Clarence404/qingyou-mall/blob/ch06-split/mall-order/src/test/java/com/qingyou/order/cancel/OrderCloseServiceTest.java) | 单元 |
+| 库存服务恢复后，定时重试把库存还回去 | [`OrderFlowH2Test#restoreFailureAfterCancelIsRetriedUntilInventoryRecovers`](https://github.com/Clarence404/qingyou-mall/blob/ch06-split/mall-app/src/test/java/com/qingyou/order/OrderFlowH2Test.java) | H2 全流程 |
+| 同一订单号重复归还只加一次库存 | [`InventoryApiH2Test#restoreIsIdempotentPerOrderNo`](https://github.com/Clarence404/qingyou-mall/blob/ch06-split/inventory-service/src/test/java/com/qingyou/inventory/InventoryApiH2Test.java) | H2 全流程 |
+| 两个实例从 Redis 租到不同的机器号 | [`WorkerIdLeaseIT#twoInstancesGetDifferentWorkerIds`](https://github.com/Clarence404/qingyou-mall/blob/ch06-split/inventory-service/src/test/java/com/qingyou/common/id/WorkerIdLeaseIT.java) | 集成（真实 MySQL·Redis） |
+| 租约丢失或到期未续，生成器拒绝发号 | [`WorkerIdLeaseIT#lostLeaseMakesGeneratorRefuse`](https://github.com/Clarence404/qingyou-mall/blob/ch06-split/inventory-service/src/test/java/com/qingyou/common/id/WorkerIdLeaseIT.java) | 集成（真实 MySQL·Redis） |
+| 显式配置的机器号优先，不访问 Redis | [`IdConfigTest#explicitWorkerIdBypassesRedis`](https://github.com/Clarence404/qingyou-mall/blob/ch06-split/mall-common/src/test/java/com/qingyou/common/id/IdConfigTest.java) | 单元 |
+| 订单号嵌入用户 ID 低 10 位 | [`OrderNoGeneratorTest#embedsLow10BitsOfUserId`](https://github.com/Clarence404/qingyou-mall/blob/ch06-split/mall-order/src/test/java/com/qingyou/order/place/OrderNoGeneratorTest.java) | 单元 |
+| 网关不路由 `/internal/**` | [`GatewaySecurityTest#internalPathsAreNeverExposed`](https://github.com/Clarence404/qingyou-mall/blob/ch06-split/mall-gateway/src/test/java/com/qingyou/gateway/GatewaySecurityTest.java) | 单元 |
+| 订单服务不可用时支付回调返回失败，由渠道重试 | [`PayCallbackServiceTest#orderServiceDownFailsTheCallbackSoChannelRetries`](https://github.com/Clarence404/qingyou-mall/blob/ch06-split/payment-service/src/test/java/com/qingyou/payment/pay/PayCallbackServiceTest.java) | 单元 |
+| `deploy/k8s` 清单符合 Kubernetes schema | [`pr.yml`](https://github.com/Clarence404/qingyou-mall/blob/ch06-split/.github/workflows/pr.yml) 的 kubeconform 任务 | 静态校验（CI） |
+
+---
+
 ## 小结
 
 - 拆分的触发条件是发布互相阻塞、迭代节奏差异、扩展需求不同同时出现，而不是日订单或人数到了某个数
 - 先拆边界清楚、收益明显的库存和支付；订单、商品、用户留在 `mall-app`，不拆订单、不上服务网格
 - 模块化单体的 `api` 包直接变成远程契约：`InventoryApi` 加 `@HttpExchange`，服务端实现、客户端注入，订单代码不改
+- 关单后的远程归还同事务写重试表、定时退避重试，库存侧按订单号去重，不再靠人工核对
 - 每服务独享库，数据按「先拆部署 → binlog 同步 → 对账 → 停写切换」迁移，不在业务代码里双写
 - Nacos 管注册与配置，`mall-gateway` 只路由 `/api/**`，服务间用 HTTP 接口客户端并显式配超时，写接口不自动重试
 - 新服务先上 Kubernetes 1.37，`mall-app` 后迁；用 Nacos 发现时停机要先注销再等待

@@ -12,7 +12,7 @@
 
 | 设定 | 取值 |
 |------|------|
-| 仓库 | [`qingyou-mall`](https://github.com/Clarence404/qingyou-mall)，Maven 多模块，Java 包名 `com.qingyou`；每篇文章对应一个章节 tag（如 `ch04-cache`），四个阶段各有 tag 与 [Release](https://github.com/Clarence404/qingyou-mall/releases)（`stage-1-monolith`、`stage-2-cache-async`、`stage-3-split`、`stage-4-stability`） |
+| 仓库 | [`qingyou-mall`](https://github.com/Clarence404/qingyou-mall)，Maven 多模块，Java 包名 `com.qingyou`；每篇文章对应一个章节 tag（如 `ch04-cache`），四个阶段各有 tag 与 [Release](https://github.com/Clarence404/qingyou-mall/releases)（`stage-1-monolith`、`stage-2-cache-async`、`stage-3-split`、`stage-4-stability`）；每个章节 tag 上都跑了完整构建并发布 [测试报告](https://clarence404.github.io/qingyou-mall/)，前九篇的「验证」一节列出关键结论与证明它的测试 |
 | 核心实体 | 用户、商品、库存、订单、支付单 |
 | 团队 | 起步 3 人全栈，阶段三扩到 20 人、4 个小组，阶段四新增 1 名专职 SRE |
 | 部署 | 起步两台云主机；阶段三起迁到 Kubernetes |
@@ -49,6 +49,7 @@
 3. **决策**：选了哪个、为什么，以及明确不做什么
 4. **关键实现**：只放最能说明决策的少量代码与配置
 5. **代价与后续**：这个决策带来的新问题，由后面哪一篇解决
+6. **验证**：关键结论分别由哪个测试证明，没有自动化测试的也如实标出
 
 复习时用 [高频面试题](./99_interview) 自测，答案在 [项目难点与亮点面试题解答](/interview/25_scenario_highlights)。
 

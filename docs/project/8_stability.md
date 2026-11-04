@@ -120,16 +120,20 @@ resilience4j:
         wait-duration-in-open-state: 5s
         permitted-number-of-calls-in-half-open-state: 20
         record-failure-predicate: com.qingyou.common.remote.RemoteFailurePredicate   # 只记超时与 5xx
-      payment-query: {sliding-window-type: TIME_BASED, sliding-window-size: 10, minimum-number-of-calls: 50, failure-rate-threshold: 50, wait-duration-in-open-state: 10s}
+      payment-query: {sliding-window-type: TIME_BASED, sliding-window-size: 10, minimum-number-of-calls: 50, failure-rate-threshold: 50, wait-duration-in-open-state: 10s, record-failure-predicate: com.qingyou.common.remote.RemoteFailurePredicate}
   bulkhead:
     instances:
       inventory-reserve:
         max-concurrent-calls: 60                  # 每个 Pod 同时调用库存服务的上限
         max-wait-duration: 0                      # 拿不到许可立即拒绝，不排队
+      payment-query:                              # 只读查询也显式给舱壁，不吃默认值（25）
+        max-concurrent-calls: 20
+        max-wait-duration: 0
 ```
 
 - **`STOCK_INSUFFICIENT` 不计入失败**：`RemoteFailurePredicate` 只把超时、连接失败和 5xx 记为失败，4xx 是正常的业务结果，否则爆款卖完时熔断器会误以为库存服务坏了
 - **舱壁用信号量而不是线程池**：调用仍在 Tomcat 线程里执行，没有线程切换。Spring Cloud CircuitBreaker 在类路径上有 `resilience4j-bulkhead` 时默认用线程池舱壁，`max-concurrent-calls` 不生效，异常还会被包成 `ExecutionException`（`STOCK_INSUFFICIENT` 变成 500），所以要打开上面两个开关；配额按 [性能指标 · 指标之间的关系：Little 定律](/high-perf/1_metrics#四、指标之间的关系-little-定律) 估：大促时每个 Pod 约 310 QPS，P99 30ms 时稳态并发约 10，取 60 能容忍 P99 涨到约 200ms；再慢就拒绝，最多占住 60 个线程，其余 140 个线程留给商品详情和订单查询
+- **支付查询也显式配舱壁**：`payment-query` 不写的话会用 Resilience4j 的默认值 25，等于没想过；支付状态查询比预占少得多，给 20，满了直接降级为「支付状态确认中」，不和下单抢线程
 - 参数含义与 Resilience4j 的接入方式见 [服务治理 · Resilience4j 与 Sentinel](/microservices/14_service_governance#_1、resilience4j-与-sentinel)，信号量与线程池舱壁的取舍见 [超时、重试与隔离 · 信号量隔离](/high-avail/4_timeout_retry_bulkhead#_2、信号量隔离)
 
 ### 3、下单侧：被拒绝就是确定失败
@@ -357,9 +361,13 @@ public class PromoSimulation extends Simulation {
 | T-14 天 | 三轮压测完成；确定限流阈值、降级清单和扩容清单 | SRE + 各组 |
 | T-3 天 | 扩容：`mall-app` 4→16 Pod、`inventory-service` 3→8 Pod，库存库与 Redis 按压测结论升规格；RocketMQ 托管实例升规格 | SRE |
 | T-2 天 | 发布冻结开始（大促前 48 小时），只允许修复故障的变更，且需值班负责人审批 | 值班负责人 |
-| T-1 天 | 活动 SKU 分桶；缓存预热：活动商品的 `product:detail:{skuId}` 写入 Redis，Pod 启动时加载进 Caffeine 后才就绪；预案演练：按开关清单逐个切换一次 | 库存组、交易组、SRE |
+| T-1 天 | 活动 SKU 分桶；缓存预热：活动商品的 `product:detail:{skuId}` 写入 Redis，Pod 启动时由本章新增的 `ProductWarmupRunner` 加载进 Caffeine 后才就绪；预案演练：按开关清单逐个切换一次 | 库存组、交易组、SRE |
 | 大促前 1 小时 | 执行预案降级；值班人员到位 | 值班负责人 |
 | 大促后 | 恢复降级开关；合并分桶；T+2 天缩容；复盘 | 各组 |
+
+`mall-app` 也在本章迁入集群：[拆分服务](./6_split) 时它还跑在云主机上，新服务稳定一个月后，`deploy/k8s/kustomization.yaml` 加回 `mall-app.yaml`，并新增 `hpa.yaml`（`mall-app` 4–16 个、`inventory-service` 3–8 个副本，CPU 60% 扩容），上表 T-3 天的扩容就是对这两个 Deployment 操作。迁入后 `mall-app` 的雪花机器号也和另外两个服务一样，每个 Pod 向 Redis 租用，Secret 里不再有 `WORKER_ID`。HPA 只管日常波动，大促不靠它：0 点的尖峰一分钟内就到，Pod 启动加预热要 2 分钟，所以按预案提前扩到上限。
+
+`ProductWarmupRunner` 是一个 `ApplicationRunner`：启动时按 `qingyou.warmup.top-products`（默认 500，配 0 关闭）查出头部商品，逐个调用 `ProductDetailService.get` 装进 L1。Spring Boot 在所有 `ApplicationRunner` 执行完之后才把就绪状态切到 `ACCEPTING_TRAFFIC`，所以 readiness 探针天然排在预热之后。
 
 值班表每个时段都有交易、库存、支付三组各一人加 SRE，值班负责人由技术负责人轮值。扩容与预热的通用清单见 [容量评估与规划 · 大促预案](/high-con/8_capacity_planning#六、大促预案) 与 [缓存架构设计 · 缓存预热](/high-con/3_cache_architecture#三、缓存预热)；商品详情 6 万 QPS 的读流量绝大部分由 [引入缓存](./4_cache) 的 Caffeine 吸收，预热的意义是让新扩出来的 Pod 不在 0 点集中回源。
 
@@ -385,14 +393,31 @@ public class PromoSimulation extends Simulation {
 
 ---
 
+## 十一、验证
+
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch08-stability` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch08-stability/)。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 熔断打开时下单快速返回 503 与 `Retry-After`，不调用 `release` | [`StabilityH2Test#openCircuitFailsFastWith503AndRetryAfterWithoutReleasing`](https://github.com/Clarence404/qingyou-mall/blob/ch08-stability/mall-app/src/test/java/com/qingyou/order/StabilityH2Test.java) | H2 全流程 |
+| `payment-query` 舱壁显式配置为 20，不用默认值 | [`StabilityH2Test#paymentQueryBulkheadIsConfiguredExplicitly`](https://github.com/Clarence404/qingyou-mall/blob/ch08-stability/mall-app/src/test/java/com/qingyou/order/StabilityH2Test.java) | H2 全流程 |
+| 同一 SKU 第 3 笔待支付订单被拒绝 | [`StabilityH2Test#thirdPendingOrderOfSameSkuIsRejected`](https://github.com/Clarence404/qingyou-mall/blob/ch08-stability/mall-app/src/test/java/com/qingyou/order/StabilityH2Test.java) | H2 全流程 |
+| 分桶后预占、确认、释放回到同一个桶，大促后可合并 | [`InventoryBucketH2Test#splitReserveAcrossBucketsConfirmReleaseAndMerge`](https://github.com/Clarence404/qingyou-mall/blob/ch08-stability/inventory-service/src/test/java/com/qingyou/inventory/InventoryBucketH2Test.java) | H2 全流程 |
+| 头部商品在就绪前加载进 L1 | [`ProductWarmupRunnerTest#loadsTopProductsIntoLocalCacheBeforeReady`](https://github.com/Clarence404/qingyou-mall/blob/ch08-stability/mall-product/src/test/java/com/qingyou/product/detail/ProductWarmupRunnerTest.java) | 单元 |
+| 网关按用户 + 路由限流，每个用户下单每秒 1 次 | 无自动化测试 | 需真实环境 |
+| 7500 QPS 下单 P99 < 800ms、失败率 < 0.1%（第 3 轮实测 P99 520ms） | [`PromoSimulation`](https://github.com/Clarence404/qingyou-mall/blob/ch08-stability/perf/src/test/java/com/qingyou/perf/PromoSimulation.java) | 压测脚本 |
+| 对库存服务注入 800ms 延迟后熔断 5 秒内打开，商品详情不受影响 | 无自动化测试 | 需真实环境 |
+
+---
+
 ## 小结
 
 - 年中大促的事故链是：热点行排队 → `reserve` 变慢 → 下单线程占满 → 同进程接口全部超时 → 重试放大流量；任何一环被挡住都不会扩散
-- 超时一层比一层短：网关 3s，`reserve` 连接 200ms / 读 500ms；Resilience4j 的 `inventory-reserve` 熔断加每 Pod 60 并发的信号量舱壁，把库存服务的故障关在 60 个线程里
+- 超时一层比一层短：网关 3s，`reserve` 连接 200ms / 读 500ms；Resilience4j 的 `inventory-reserve` 熔断加每 Pod 60 并发的信号量舱壁，把库存服务的故障关在 60 个线程里；`payment-query` 也显式给 20 的舱壁
 - 写接口不重试，只读查询最多重试 1 次并随机退避；熔断或舱壁拒绝是确定失败，直接返回 `SYSTEM_BUSY`，不再 `release`
 - 网关按「用户 + 接口」令牌桶限流，`mall-app` 限制同一 SKU 待支付最多 2 单，活动 SKU 支付超时缩短为 5 分钟
 - 只对活动白名单 SKU 分 10 桶，按 `order_no` 哈希选桶、桶空换桶；不做 Redis 预扣
-- 容量靠 Gatling 在同构环境按 7500 QPS 压出来，大促按预案提前扩容、预热、冻结发布，RocketMQ 规格按消息量单独评估
+- 容量靠 Gatling 在同构环境按 7500 QPS 压出来，`mall-app` 本章迁入集群，大促按预案提前扩容、预热（`ProductWarmupRunner`）、冻结发布，RocketMQ 规格按消息量单独评估
 
 > 本篇代码：[ch08-stability](https://github.com/Clarence404/qingyou-mall/tree/ch08-stability) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch07-consistency...ch08-stability)
 

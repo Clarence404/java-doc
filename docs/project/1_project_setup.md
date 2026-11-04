@@ -183,19 +183,23 @@ Maven 与 Gradle 的取舍见 [构建工具](/engineering/1_build_tools)，BOM�
 | 架构边界 | ArchUnit | 跨模块引用 `api` 以外的包、模块间循环依赖 |
 | 测试 | JUnit 6 + Testcontainers | 单元测试与带真实 MySQL 的集成测试 |
 
-其中最关键的是 ArchUnit：模块化单体的边界如果只靠约定，赶工期时一定会被打穿。规则写成测试放在 `mall-app` 里（它能看到所有模块的类）：
+其中最关键的是 ArchUnit：模块化单体的边界如果只靠约定，赶工期时一定会被打穿。规则写成测试放在 `mall-app` 里（它能看到所有模块的类），五个业务模块共用一条规则，不给哪个模块开口子：
 
 ```java
 @AnalyzeClasses(packages = "com.qingyou", importOptions = ImportOption.DoNotIncludeTests.class)
 class ModuleBoundaryTest {
 
-    // 订单模块只能使用其他业务模块的 api 包
+    static final List<String> BUSINESS_MODULES = List.of("user", "product", "inventory", "order", "payment");
+
+    // 每个业务模块只能使用其他业务模块的 api 包（订单、商品、库存、用户、支付一视同仁）
     @ArchTest
-    static final ArchRule order_only_uses_api_of_other_modules =
-            noClasses().that().resideInAPackage("com.qingyou.order..")
-                    .should().dependOnClassesThat(
-                            resideInAnyPackage("com.qingyou.product..", "com.qingyou.inventory..", "com.qingyou.user..")
-                                    .and(not(resideInAPackage("com.qingyou.*.api.."))));
+    static final ArchRule business_modules_only_use_api_of_other_modules = classes()
+            .that()
+            .resideInAnyPackage(BUSINESS_MODULES.stream()
+                    .map(m -> "com.qingyou." + m + "..")
+                    .toArray(String[]::new))
+            .should(onlyUseApiOfOtherModules())
+            .allowEmptyShould(true);
 
     // 业务模块之间不允许循环依赖
     @ArchTest
@@ -203,6 +207,8 @@ class ModuleBoundaryTest {
             slices().matching("com.qingyou.(*)..").should().beFreeOfCycles();
 }
 ```
+
+`onlyUseApiOfOtherModules()` 是一个自定义 `ArchCondition`：逐个检查类的直接依赖，目标类属于别的业务模块、又不在它的 `com.qingyou.<模块>.api` 包下，就记一次违规；`mall-common` 和启动类所在的根包不算业务模块，不受这条规则约束。支付这时还在 `mall-order` 里，名单里先写上 `payment`，等它独立成包时规则自动生效。
 
 Spring Modulith 能按「顶层包即模块」自动推导同样的规则，模块多了以后可以换成它，见 [工程结构与分包](/architecture/2_package_structure)。各类质量工具的配置见 [代码质量](/engineering/3_code_quality)，命名、注释、异常处理等团队约定见 [开发规范](/devops/3_dev_standards)。
 
@@ -236,6 +242,8 @@ jobs:
           cache: maven
       - run: ./mvnw -B verify
 ```
+
+另有一条 `verify.yml` 专门出测试报告：`main` 和章节 / 阶段 tag 每次推送都完整跑一遍 `./mvnw -B verify`（Testcontainers 集成测试不跳过），测试失败也照样汇总 Surefire / Failsafe 报告与 JaCoCo 覆盖率，发布到 GitHub Pages 的 `reports/<ref>/` 下，地址形如 `https://clarence404.github.io/qingyou-mall/reports/ch01-project-setup/`，每章「验证」一节列出的测试都能在对应报告里查到结果。
 
 流水线分阶段、制品管理与部署策略见 [CI/CD](/devops/4_ci_cd)。
 
@@ -277,6 +285,21 @@ spring:
 - **跨模块调用是本地方法 + 本地事务**：下单扣库存现在一个 `@Transactional` 就能保证一致，拆服务后不再成立，这是阶段三 [跨服务一致性](./7_consistency) 要解决的
 - **一起构建、一起发布**：现在 3 个人没问题，扩到 20 人、4 个小组后会互相阻塞发布，这正是阶段三 [拆分服务](./6_split) 的触发点
 - **只有两台机器、手工式部署**：够用但没有自动扩容和回滚编排，阶段三迁到 Kubernetes，发布流程在「可观测与发布」中重新设计
+
+---
+
+## 十一、验证
+
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch01-project-setup` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch01-project-setup/)。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 五个业务模块只能引用其他模块的 `api` 包 | [`ModuleBoundaryTest#business_modules_only_use_api_of_other_modules`](https://github.com/Clarence404/qingyou-mall/blob/ch01-project-setup/mall-app/src/test/java/com/qingyou/ModuleBoundaryTest.java) | 单元 |
+| 业务模块之间没有循环依赖 | [`ModuleBoundaryTest#modules_free_of_cycles`](https://github.com/Clarence404/qingyou-mall/blob/ch01-project-setup/mall-app/src/test/java/com/qingyou/ModuleBoundaryTest.java) | 单元 |
+| 格式与 Checkstyle 规则挂在 `verify` 阶段，不通过构建失败 | [`pom.xml`](https://github.com/Clarence404/qingyou-mall/blob/ch01-project-setup/pom.xml) 中 Spotless / Checkstyle 的 `check` 目标 | 静态校验（CI） |
+| 构建限定 JDK 21，同一依赖不允许多个版本 | [`pom.xml`](https://github.com/Clarence404/qingyou-mall/blob/ch01-project-setup/pom.xml) 中 Enforcer 的 `requireJavaVersion` / `dependencyConvergence` | 静态校验（CI） |
+| PR 必须通过 `./mvnw -B verify` 与密钥扫描 | [`pr.yml`](https://github.com/Clarence404/qingyou-mall/blob/ch01-project-setup/.github/workflows/pr.yml) | 静态校验（CI） |
+| 生产逐台下线、替换 jar、健康检查后挂回 | 无自动化测试 | 需真实环境 |
 
 ---
 

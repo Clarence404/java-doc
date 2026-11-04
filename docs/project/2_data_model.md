@@ -73,7 +73,8 @@ WHERE o.user_id = ?;
 
 ### 2、决策
 
-- **主键 `id` 用雪花 ID**（`BIGINT`），由应用生成，不用数据库自增。阶段一只有两台应用机，机器号直接写在配置里（1 和 2），时钟回拨策略照搬 [分布式 ID 生成](/distributed/8_id_generator) 中的做法
+- **主键 `id` 用雪花 ID**（`BIGINT`），由应用生成，不用数据库自增。阶段一只有两台应用机，机器号由环境变量 `WORKER_ID` 注入（1 和 2），时钟回拨策略照搬 [分布式 ID 生成](/distributed/8_id_generator) 中的做法
+- **机器号不给默认值，没配就启动失败**：`qingyou.id.worker-id: ${WORKER_ID:}`，为空或超出 0–1023 时 `IdConfig` 直接抛异常；如果给个默认值 1，两台机器漏配后都用 1，同一毫秒会生成相同的 ID，主键冲突要到上线后才暴露。本地、测试环境和集成测试在各自的配置文件里显式写机器号；拆分上 Kubernetes 后机器号改为每个 Pod 向 Redis 租用，见 [拆分服务 · Kubernetes 部署](./6_split#七、kubernetes-部署)
 - **对外订单号 `order_no` 单独一列**，阶段一取值就是雪花 ID 的十进制字符串（19 位）；之所以不直接用 `id`，是为阶段三留口子：分库分表时要把用户 ID 的低位「基因」嵌进订单号，让按订单号查询也能定位到分片，届时只改 `order_no` 的生成规则，主键不动
 - **对前端一律按字符串返回**：19 位整数超过 JavaScript 的安全整数范围，按数字返回会丢精度
 - **不用 UUID v7**：它解决的是「不想分配机器号」，而阶段一两台机器手工分配就够了；8 字节对 16 字节，在明细表、支付表的二级索引上每行都能省下 8 字节
@@ -117,6 +118,18 @@ WHERE id = ? AND status = 10;
 ```
 
 支付回调和超时取消同时到达时，只有一个能成功，这本身就是并发控制，状态流转不需要再加锁。
+
+流转表不只是文档：`OrderStatus` 里存着上面这张表，所有状态修改都走 `OrderMapper.updateStatus`，它先按流转表校验，非法流转（如已发货 → 已取消）直接抛 `IllegalStateException`、不碰数据库，合法的才执行条件更新：
+
+```java
+// OrderMapper
+default int updateStatus(long id, OrderStatus from, OrderStatus to) {
+    from.checkTransitTo(to);         // 不在流转表里：调用方写错了状态机，直接抛异常
+    return casStatus(id, from, to);  // 带旧状态的条件更新，影响 0 行说明被别人抢先改了
+}
+```
+
+两种失败要分开看：抛异常说明代码写错了，要修代码；影响 0 行是正常的并发冲突，按业务处理。
 
 ### 3、快照字段与乐观锁
 
@@ -330,11 +343,28 @@ public PlaceOrderResult place(long userId, String bizNo, PlaceOrderRequest req) 
 
 ---
 
+## 十一、验证
+
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch02-data-model` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch02-data-model/)。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 同一幂等键的并发请求只生成一单、只扣一次库存 | [`PlaceOrderTxIT#concurrentRequestsWithSameKeyCreateOneOrderAndDeductOnce`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-app/src/test/java/com/qingyou/order/PlaceOrderTxIT.java) | 集成（真实 MySQL·Redis） |
+| 并发抢同一 SKU 不超卖 | [`PlaceOrderTxIT#noOversellUnderConcurrency`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-app/src/test/java/com/qingyou/order/PlaceOrderTxIT.java) | 集成（真实 MySQL·Redis） |
+| 库存不足时扣减与写单整体回滚 | [`PlaceOrderTxIT#insufficientStockRollsBackWholeTransaction`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-app/src/test/java/com/qingyou/order/PlaceOrderTxIT.java) | 集成（真实 MySQL·Redis） |
+| 一单多件按 `sku_id` 升序扣减 | [`PlaceOrderTxServiceTest#deductsInSkuAscendingOrderThenWritesOrder`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-order/src/test/java/com/qingyou/order/place/PlaceOrderTxServiceTest.java) | 单元 |
+| 撞 `uk_user_biz` 后在事务外查出先到的订单返回 | [`PlaceOrderServiceTest#concurrentDuplicateKeyFallsBackToReplayingWinner`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-order/src/test/java/com/qingyou/order/place/PlaceOrderServiceTest.java) | 单元 |
+| 非法状态流转在执行 SQL 前就被拒绝 | [`OrderMapperTransitionTest#illegalTransitionIsRejectedBeforeTouchingDatabase`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-order/src/test/java/com/qingyou/order/domain/OrderMapperTransitionTest.java) | 单元 |
+| 机器号没配时应用启动失败 | [`IdConfigTest#startupFailsWhenWorkerIdMissing`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-common/src/test/java/com/qingyou/common/id/IdConfigTest.java) | 单元 |
+| 雪花 ID 唯一、递增、19 位 | [`SnowflakeIdGeneratorTest#idsAreUniqueIncreasingAnd19Digits`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-common/src/test/java/com/qingyou/common/id/SnowflakeIdGeneratorTest.java) | 单元 |
+
+---
+
 ## 小结
 
 - 五张表各归一个模块，单体里也不跨模块 `JOIN`、不建外键，为阶段三拆服务留好接缝
-- 主键用 8 字节雪花 ID，对外订单号单独一列并按字符串返回；不用自增对外，也不用 16 字节的 UUID v7
-- 金额用 `DECIMAL(12,2)` + `BigDecimal`；状态用 `TINYINT` 枚举，只靠「带旧状态的条件更新」流转
+- 主键用 8 字节雪花 ID，机器号不给默认值、没配就启动失败；对外订单号单独一列并按字符串返回；不用自增对外，也不用 16 字节的 UUID v7
+- 金额用 `DECIMAL(12,2)` + `BigDecimal`；状态用 `TINYINT` 枚举，先按流转表校验、再用「带旧状态的条件更新」流转
 - 明细表保存商品名称、图片、单价快照；`version` 只管状态以外的字段修改
 - 索引从查询清单反推：`(user_id, id)` 给用户列表的游标翻页，`(status, created_at)` 给后台查询和超时扫描
 - 库存用 `stock >= n` 条件更新扣减，按 `sku_id` 升序避免死锁；阶段一不上 Redis、不做预占

@@ -164,7 +164,7 @@ try (Scope ignored = parent.makeCurrent()) {
 | 下单成功率 99.9% | `POST /api/orders` 中非 5xx 的占比；`STOCK_INSUFFICIENT` 这类 4xx 业务失败不算错 | 0.1%，按日订单 100 万约 3 万次失败请求 |
 | 下单 P99 < 800ms | 800ms 内完成的请求占比 ≥ 99% | 1% 的请求可以慢于 800ms |
 
-告警不按「错误率 > x%」，而按错误预算的燃烧速率，快慢两档。下面是成功率 SLO 的规则（延迟 SLO 写法相同，把分子换成 `le="0.8"` 桶之外的请求）：
+告警不按「错误率 > x%」，而按错误预算的燃烧速率，快慢两档；两条 SLO 都有快慢两档，共四条告警。下面是成功率 SLO 的规则（延迟 SLO 写法相同，把分子换成 `le="0.8"` 桶之外的请求，预算换成 1%，告警名为 `PlaceOrderLatencyBudgetFastBurn` / `PlaceOrderLatencyBudgetSlowBurn`）：
 
 ```yaml
 groups:
@@ -179,17 +179,17 @@ groups:
         expr: |
           slo:place_order:error_ratio:rate1h > (14.4 * 0.001)
           and slo:place_order:error_ratio:rate5m > (14.4 * 0.001)
-        labels: {severity: page, team: trade}
+        labels: {severity: page, team: trade, application: mall-app}
         annotations:
           summary: "下单错误预算快速燃烧，当前错误率 {{ $value | humanizePercentage }}"
       - alert: PlaceOrderBudgetSlowBurn          # 6 小时烧掉 5%
         expr: |
           slo:place_order:error_ratio:rate6h > (6 * 0.001)
           and slo:place_order:error_ratio:rate30m > (6 * 0.001)
-        labels: {severity: page, team: trade}
+        labels: {severity: page, team: trade, application: mall-app}
 ```
 
-`page` 级推到值班 IM 并电话呼叫，`ticket` 级只进值班群、第二天处理。燃烧速率的公式和阈值表见 [可用性度量 · 燃烧速率告警](/high-avail/1_sla_slo#_2、燃烧速率告警)，Alertmanager 的分组、抑制与路由见 [告警体系 · Alertmanager 路由与通知](/observability/4_alerting#三、alertmanager-路由与通知)。
+四条 SLO 告警都静态带上 `application: mall-app`：记录规则用 `sum()` 聚合，结果里没有 `application` 标签，下一节的抑制规则要按这个标签匹配，只能在告警规则里补上。`page` 级推到值班 IM 并电话呼叫，`ticket` 级只进值班群、第二天处理。燃烧速率的公式和阈值表见 [可用性度量 · 燃烧速率告警](/high-avail/1_sla_slo#_2、燃烧速率告警)，Alertmanager 的分组、抑制与路由见 [告警体系 · Alertmanager 路由与通知](/observability/4_alerting#三、alertmanager-路由与通知)。
 
 ### 4、统一告警：把前几篇的阈值收拢
 
@@ -207,7 +207,14 @@ groups:
 | [稳定性](./8_stability) | `inventory-reserve`、`payment-query` 熔断器状态 | 进入 OPEN | page |
 | 同上 | 舱壁拒绝数、网关 429 比例、`ORDER_PENDING_LIMIT` 次数 | 持续 5 分钟高于压测时的基线 | ticket |
 
-熔断与舱壁的指标由 Resilience4j 的 Micrometer 绑定暴露，网关的 429 来自 `mall-gateway` 自己的 HTTP 指标。`order-payment-consumer` 单独收紧到 1 分钟，因为它就是「支付成功，订单确认中」那个窗口；其余消费组晚几分钟只是积分、通知晚到。RocketMQ 实例整体不可用时，用 Alertmanager 的抑制规则压掉各消费组的堆积告警，只留根因那一条。
+熔断与舱壁的指标由 Resilience4j 的 Micrometer 绑定暴露，网关的 429 来自 `mall-gateway` 自己的 HTTP 指标。`order-payment-consumer` 单独收紧到 1 分钟，因为它就是「支付成功，订单确认中」那个窗口；其余消费组晚几分钟只是积分、通知晚到。Alertmanager 配了两条抑制规则，只留根因那一条：RocketMQ 实例整体不可用时，压掉各消费组的堆积、`order-payment-consumer` 延迟和 Outbox 待发送告警；熔断器已打开时，压掉同一服务的下单错误预算告警，避免同一件事呼两次。后者要按服务对上号：
+
+```yaml
+inhibit_rules:
+  - source_matchers: [alertname="CircuitBreakerOpen"]
+    target_matchers: [alertname=~"PlaceOrderBudget.*"]
+    equal: [application]          # SLO 告警的 application 是规则里静态补的，否则这里永远匹配不上
+```
 
 ### 5、业务大盘
 
@@ -294,13 +301,15 @@ spec:
 - **5 分钟回滚怎么来**：分析每分钟一次、两次不达标即中止，Rollouts 把金丝雀缩容、流量回到稳定版本，从坏指标出现到恢复约 3 分钟；中止后 GitOps 仓库里还是新版本，由发布人 revert 那次提交，Argo CD 不会再把它推上去
 - **大促前 48 小时冻结**：冻结期内 Argo CD 关闭自动同步，只允许经值班负责人批准的修复，与 [稳定性](./8_stability) 的大促预案一致；批准的修复同样走金丝雀和自动分析，不再全靠审批把关
 
+- **`inventory-service` 也走金丝雀**：年中大促的事故就是库存服务的一次发布打挂了下单，所以它同样改成 `Rollout`，复用 `canary-health` 分析模板，只有 3 个 Pod，步骤取 10% → 50% → 100%（第一步实际是 1 个 Pod）；[稳定性](./8_stability) 里的 HPA 也改为指向 `Rollout`。`payment-service` 和 `mall-gateway` 保持 Deployment 滚动更新：支付的改动以渠道接入为主，有渠道沙箱和对账兜底，发布频率低；网关的路由与限流规则走 Nacos 配置（Beta 推送），镜像本身很少变化，两个清单开头都写明了原因，需要时按 `inventory-service` 的写法换成 `Rollout`
+
 Rollout 与 AnalysisTemplate 的完整字段见 [发布策略 · 渐进式交付：Argo Rollouts](/devops/7_release_strategy#五、渐进式交付-argo-rollouts)。
 
 ### 1、上线与下线不丢请求
 
 金丝雀放量和回滚都在频繁地起停 Pod，阶段三的探针和 `preStop` 在这里变成了每天都要经过的路径。在 [拆分服务](./6_split) 的基础上补两条：
 
-- **预热完成再注册**：Nacos 的自动注册发生在 Web 服务器启动时，早于预热；改为关掉自动注册（`spring.cloud.nacos.discovery.register-enabled: false`），在就绪状态变为 `ACCEPTING_TRAFFIC` 时再注册。实例端口原本由自动注册在 Web 服务器启动时填入，关掉后要显式配置 `spring.cloud.nacos.discovery.port: ${server.port}`，否则注册成 `-1`、被 Nacos 拒绝。预热放在 `ApplicationRunner` 里：建好连接池、加载头部商品进 L1，所以 readiness 和 Nacos 注册都在预热之后
+- **预热完成再注册**：Nacos 的自动注册发生在 Web 服务器启动时，早于预热；改为关掉自动注册（`spring.cloud.nacos.discovery.register-enabled: false`），在就绪状态变为 `ACCEPTING_TRAFFIC` 时再注册。实例端口原本由自动注册在 Web 服务器启动时填入，关掉后要显式配置 `spring.cloud.nacos.discovery.port: ${server.port}`（`mall-app`、`inventory-service`、`payment-service` 三个服务都配），否则注册成 `-1`、被 Nacos 拒绝；这个写法依赖固定端口，`server.port=0` 随机端口时会注册成 0。预热本身是 [稳定性](./8_stability) 一篇的 `ProductWarmupRunner`，Spring Boot 在 `ApplicationRunner` 都跑完后才切到 `ACCEPTING_TRAFFIC`，所以 readiness 和 Nacos 注册都在预热之后
 - **停机先注销、再停消费、最后停 Web**：`preStop` 先从 Nacos 注销并等待 15 秒，`server.shutdown: graceful` 让在途请求处理完；RocketMQ 消费者在 Spring 容器关闭时先停止拉取，已拉到的消息处理完再退出，处理不完的由 Broker 重投，靠消费幂等兜住
 
 ```java
@@ -331,7 +340,7 @@ class RegisterWhenReady {
 
 ## 七、数据库变更：先扩后缩
 
-金丝雀期间新旧两个版本同时在跑，回滚时旧版本要能面对新表结构，所以每次表变更都得让新旧代码都能跑。全部 DDL 进 Flyway，迁移由 PreSync Job 用有 DDL 权限的账号执行，应用 Pod 上 `spring.flyway.enabled=false`，运行账号只有 DML 权限。
+金丝雀期间新旧两个版本同时在跑，回滚时旧版本要能面对新表结构，所以每次表变更都得让新旧代码都能跑。全部 DDL 进 Flyway，迁移由 PreSync Job 用有 DDL 权限的账号执行，应用 Pod 上 `spring.flyway.enabled=false`，运行账号只有 DML 权限。三个有库的服务各一个 Job（`mall-app-flyway`、`inventory-service-flyway`、`payment-service-flyway`），各连自己的库、各用自己的 DDL Secret，迁移脚本取自同一个应用镜像；发布流水线按 Job 名把对应服务的新镜像写进 GitOps 仓库，保证脚本版本与代码一致。
 
 第五节的 `trace_parent` 是一次纯扩展，旧版本不认识这一列，照常插入，值为空：
 
@@ -366,13 +375,30 @@ ALTER TABLE t_outbox ADD COLUMN trace_parent VARCHAR(55) NULL COMMENT 'W3C trace
 
 ---
 
+## 九、验证
+
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch09-observability-release` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch09-observability-release/)。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 中继按写入时保存的 `traceparent` 发送，Trace 不在本地消息表处断开 | [`OutboxTracePropagationTest#relaySendsUnderTheOriginalTrace`](https://github.com/Clarence404/qingyou-mall/blob/ch09-observability-release/mall-common/src/test/java/com/qingyou/common/outbox/OutboxTracePropagationTest.java) | 单元 |
+| 定时消息不带 Trace | [`OutboxTracePropagationTest#scheduledMessagesDoNotCarryTheTrace`](https://github.com/Clarence404/qingyou-mall/blob/ch09-observability-release/mall-common/src/test/java/com/qingyou/common/outbox/OutboxTracePropagationTest.java) | 单元 |
+| 错误响应的 `traceId` 取自当前 Span | [`ProblemTraceIdTest#traceIdComesFromCurrentSpan`](https://github.com/Clarence404/qingyou-mall/blob/ch09-observability-release/mall-common/src/test/java/com/qingyou/common/error/ProblemTraceIdTest.java) | 单元 |
+| 就绪后才注册到 Nacos，注册端口是实际监听端口 | [`NacosRegistrationIT#registersAfterReadyWithActualServerPort`](https://github.com/Clarence404/qingyou-mall/blob/ch09-observability-release/inventory-service/src/test/java/com/qingyou/inventory/NacosRegistrationIT.java) | 集成（真实 Nacos） |
+| 四条 SLO 告警规则与抑制规则语法、表达式正确 | [`verify.yml`](https://github.com/Clarence404/qingyou-mall/blob/ch09-observability-release/.github/workflows/verify.yml) 的 promtool check rules / amtool check-config | 静态校验（CI） |
+| Rollout、HPA、三个 PreSync Job 等清单符合 schema | [`verify.yml`](https://github.com/Clarence404/qingyou-mall/blob/ch09-observability-release/.github/workflows/verify.yml) 的 kubeconform 任务 | 静态校验（CI） |
+| 金丝雀指标不达标时自动中止，约 3 分钟恢复 | 无自动化测试 | 需真实环境 |
+| 尾部采样保留全部错误与慢于 800ms 的 Trace，其余保留 10% | 无自动化测试 | 需真实环境 |
+
+---
+
 ## 小结
 
 - 阶段四的三笔账：排障要翻 3 处日志、告警分散在 5 个地方、每天 3–5 次发布却靠滚动更新加人盯
 - 采集统一用 OpenTelemetry Java Agent 2.x → OTel Collector：链路进 Tempo 并尾部采样，日志 JSON 带 `trace_id` 进 Loki，指标仍由 Micrometer 暴露给 Prometheus，一起在 Grafana 里看
 - 本地消息表要手动存取 `traceparent`，否则 Trace 在中继处断开；定时消息不带，免得 Trace 拖 15 分钟
-- 下单成功率 99.9%、P99 < 800ms 两条 SLO，按燃烧率快慢两档告警；缓存、Outbox、消费堆积、死信、对账差异的阈值原样收进 Prometheus，再加上熔断与限流指标，经 Alertmanager 统一推送
-- 发布走 GitHub Actions → Argo CD → Argo Rollouts，5% → 25% → 100% 每步自动分析错误率与 P99，不达标自动回滚，约 3 分钟恢复
+- 下单成功率 99.9%、P99 < 800ms 两条 SLO，各按燃烧率快慢两档告警，告警静态带 `application` 标签供抑制规则匹配；缓存、Outbox、消费堆积、死信、对账差异的阈值原样收进 Prometheus，再加上熔断与限流指标，经 Alertmanager 统一推送
+- 发布走 GitHub Actions → Argo CD → Argo Rollouts，`mall-app` 5% → 25% → 100%、`inventory-service` 10% → 50% → 100%，每步自动分析错误率与 P99，不达标自动回滚，约 3 分钟恢复
 - 表结构只做向前兼容的变更，删除拆成多次发布；预热完成再注册，停机先注销再停消费；不上服务网格、不做蓝绿
 
 > 本篇代码：[ch09-observability-release](https://github.com/Clarence404/qingyou-mall/tree/ch09-observability-release) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch08-stability...ch09-observability-release) · 阶段 Release：[stage-4-stability](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-4-stability)

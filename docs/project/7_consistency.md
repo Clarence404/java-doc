@@ -82,7 +82,7 @@ CAP 与 BASE 的取舍见 [分布式理论](/distributed/2_theorem#二、base-�
 3. **订单确认**：`mall-app` 的消费组 `order-payment-consumer` 收到消息，在一个本地事务里把订单从 10 改为 20，并写入 `order-paid` 消息；积分、通知的消费者照旧订阅 `order-paid`，不感知拆分
 4. **库存确认**：`inventory-service` 的消费组 `inventory-confirm-consumer` 订阅 `order-paid`，把预占记录从 RESERVED 改为 CONFIRMED
 
-取消订单（用户取消，或 `order-timeout-consumer` 收到超时消息）走对称的路径：先调用新增的 `mall-payment-api` 里的 `PaymentApi.close(orderNo)` 关闭支付单，返回 `CLOSED` 后在本地事务里把订单从 10 改为 50 并写入 `order-cancelled` 消息，`inventory-service` 的 `inventory-release-consumer` 收到后执行 `release`。返回 `PAID` 说明用户已经付款，这时不取消，等 `payment-succeeded` 到达，做法见 [支付 · 主动查单与超时关单](/scenario/14_payment#五、主动查单与超时关单)。
+取消订单（用户取消，或 `order-timeout-consumer` 收到超时消息）走对称的路径：先调用新增的 `mall-payment-api` 里的 `PaymentApi.close(orderNo)` 关闭支付单，返回 `CLOSED` 后在本地事务里把订单从 10 改为 50 并写入 `order-cancelled` 消息，`inventory-service` 的 `inventory-release-consumer` 收到后执行 `release`。返回 `PAID` 说明用户已经付款，这时不取消，等 `payment-succeeded` 到达，做法见 [支付 · 主动查单与超时关单](/scenario/14_payment#五、主动查单与超时关单)。归还改走消息后，[拆分服务](./6_split) 里关单后远程归还用的重试表 `t_stock_restore_task` 和库存侧的去重表 `t_stock_restore_log` 在本章删除。
 
 ---
 
@@ -178,13 +178,17 @@ public PlaceOrderResult place(long userId, String idemKey, PlaceOrderRequest req
     String orderNo = orderNoGenerator.next(userId);   // 先有订单号，作为预占的幂等键
     List<ReserveLine> lines = ReserveLine.of(items);    // PricedItem implements SkuQuantity
 
+    ReserveResult result;
     try {
-        inventoryApi.reserve(new ReserveStockRequest(orderNo, lines));   // 读超时 800ms，不重试
+        result = inventoryApi.reserve(new ReserveStockRequest(orderNo, lines));   // 读超时 800ms，不重试
     } catch (RemoteBizException e) {
-        throw e;                                      // STOCK_INSUFFICIENT：明确失败，什么都没扣
-    } catch (RuntimeException e) {                    // 超时或 5xx：结果未知，按失败处理
+        throw e;                                      // 4xx，如 STOCK_INSUFFICIENT：明确失败，什么都没扣
+    } catch (RuntimeException e) {                    // 超时、连接失败或 5xx：结果未知，按失败处理
         releaseQuietly(orderNo, lines);
         throw e;
+    }
+    if (result == ReserveResult.REJECTED) {           // 被空回滚占位挡住：明确没预占上，不写单、也不用释放
+        throw new BizException(CommonErrorCode.SYSTEM_ERROR, "订单 " + orderNo + " 的库存预占被拒绝，请重试");
     }
     try {
         return PlaceOrderResult.created(placeOrderTxService.create(userId, orderNo, idemKey, req, items));
@@ -198,7 +202,9 @@ public PlaceOrderResult place(long userId, String idemKey, PlaceOrderRequest req
 }
 ```
 
-`ReserveLine` 在库存的远程契约模块 `mall-inventory-api` 里，不能反过来引用订单的 `PricedItem`，所以契约里加一个小接口 `SkuQuantity { long skuId(); int quantity(); }`，`ReserveLine.of(List<? extends SkuQuantity>)`，由 `PricedItem` 实现它。`releaseQuietly` 是本类的私有方法，调用 `inventoryApi.release`，吞掉异常、只记日志。结果未知时不重试 `reserve`，先释放再由全局异常处理器返回 `SYSTEM_ERROR`；客户端带同一个 `Idempotency-Key` 重试时，由于订单没写成功，会生成新的订单号重新预占。旧订单号的预占要么已被释放，要么被空回滚占位挡住。`releaseQuietly` 自己也可能失败，这时预占记录保持 RESERVED，交给下面的过期回查。
+`ReserveLine` 在库存的远程契约模块 `mall-inventory-api` 里，不能反过来引用订单的 `PricedItem`，所以契约里加一个小接口 `SkuQuantity { long skuId(); int quantity(); }`，`ReserveLine.of(List<? extends SkuQuantity>)`，由 `PricedItem` 实现它。`releaseQuietly` 是本类的私有方法，调用 `inventoryApi.release`，吞掉异常、只记日志。
+
+「明确失败」和「结果未知」的分界在客户端组的错误处理上：[拆分服务](./6_split) 里 `RemoteErrorConfig` 对所有错误状态码都转成 `RemoteBizException`，本篇改为**只有 4xx 才转**（`defaultStatusHandler(HttpStatusCode::is4xxClientError, ...)`）。4xx 是库存服务看完请求后明确拒绝，什么都没扣；5xx 可能是事务提交后才出的错，也可能是网关或代理返回的，库存扣没扣不知道，这时由 `RestClient` 默认抛 `HttpServerErrorException`，落进上面「结果未知」的分支立即释放。`reserve` 正常返回 `REJECTED` 也是明确失败：迟到的 `reserve` 撞上了空回滚占位，库存没动，直接让这次下单失败，不写订单。结果未知时不重试 `reserve`，先释放再由全局异常处理器返回 `SYSTEM_ERROR`；客户端带同一个 `Idempotency-Key` 重试时，由于订单没写成功，会生成新的订单号重新预占。旧订单号的预占要么已被释放，要么被空回滚占位挡住。`releaseQuietly` 自己也可能失败，这时预占记录保持 RESERVED，交给下面的过期回查。
 
 ### 2、支付成功：去重表加条件更新
 
@@ -206,21 +212,34 @@ public PlaceOrderResult place(long userId, String idemKey, PlaceOrderRequest req
 // mall-app：com.qingyou.order.paid.OrderPaidTxService（原 pay 包已随支付迁出）
 @Transactional(rollbackFor = Exception.class)
 public void markPaid(PaymentSucceeded msg) {
-    if (consumeRecordMapper.insertIgnore("order-payment-consumer", msg.orderNo()) == 0) {
-        return;                                                   // t_consume_record 已有：重复消息
+    if (consumeRecordMapper.insertIgnore("order-payment-consumer", msg.paymentNo()) == 0) {
+        return;                                                   // 按支付单号去重：同一张支付单的重复消息
     }
     if (orderMapper.transit(msg.orderNo(), PENDING_PAYMENT, PENDING_SHIPMENT, msg.paidAt()) == 1) {
+        orderMapper.updatePaymentNo(msg.orderNo(), msg.paymentNo());   // 记下是哪张支付单付成功的
         outboxWriter.append("order-paid", msg.orderNo(), OrderPaidEvent.from(msg), null);
         return;
     }
-    if (orderMapper.selectStatus(msg.orderNo()) == CANCELLED) {   // 关单后才到的支付：原路退款
-        outboxWriter.append("order-refund-required", msg.orderNo(), msg, null);
+    OrderStatus status = orderMapper.selectStatus(msg.orderNo());
+    if (status == CANCELLED) {                                    // 关单后才到的支付：原路退款
+        requireRefund(msg);
+        return;
     }
-    // 其余情况（已是待发货及以后）：渠道重复回调产生的第二条消息，直接确认
+    if (status != null && status != PENDING_PAYMENT) {
+        String paidBy = orderMapper.selectPaymentNo(msg.orderNo());
+        if (paidBy != null && !paidBy.equals(msg.paymentNo())) {  // 订单已被另一张支付单付过：退掉后到的这笔
+            requireRefund(msg);
+        }
+        // 同一张支付单的重复消息（去重记录已被清理）：直接确认
+    }
+}
+
+private void requireRefund(PaymentSucceeded msg) {               // 消息键是支付单号，同一订单的两笔退款互不冲突
+    outboxWriter.append("order-refund-required", msg.paymentNo(), msg, null);
 }
 ```
 
-去重记录与状态变更在同一个事务里，沿用 [异步化](./5_async) 的 `t_consume_record` 和 `OutboxWriter`；订单状态 `WHERE status = 10` 的条件更新再兜一层，即使去重记录被清理，重复消息也只影响 0 行，不会重复写 `order-paid`。库存侧的 `confirm` / `release` 同样是条件更新。消费幂等的几种做法见 [幂等设计 · 消费幂等](/architecture/3_idempotence#五、消费幂等-同事务去重记录)，RocketMQ 的重试与死信见 [RocketMQ](/messaging/3_rocketmq#八、消费模式、重试与死信)。
+去重记录与状态变更在同一个事务里，沿用 [异步化](./5_async) 的 `t_consume_record` 和 `OutboxWriter`；订单状态 `WHERE status = 10` 的条件更新再兜一层，即使去重记录被清理，重复消息也只影响 0 行，不会重复写 `order-paid`。去重键用**支付单号**而不是订单号：一笔订单可能有两张支付单都成功（用户在 App 和小程序各发起一次、两边都付了钱），按订单号去重，第二张支付单的消息会被当成重复吞掉，多收的钱没人退。所以 `payment-succeeded` 和 `order-refund-required` 的消息键都是支付单号，`t_order` 新增 `payment_no` 列记下付成功的那一张；后到的另一张支付单发现订单已被别人付过，就发 `order-refund-required` 退掉它，先到的那笔照常发货；支付服务的退款也按支付单号去重，只退指定的那一张。库存侧的 `confirm` / `release` 同样是条件更新。消费幂等的几种做法见 [幂等设计 · 消费幂等](/architecture/3_idempotence#五、消费幂等-同事务去重记录)，RocketMQ 的重试与死信见 [RocketMQ](/messaging/3_rocketmq#八、消费模式、重试与死信)。
 
 「关单后才到的支付」来自关闭支付单与用户付款的竞态：渠道关单请求发出时，用户恰好完成付款。钱已经到账就要如实记账，所以支付服务的 `markSuccess` 条件是 `status IN (0, 2)`，待支付和已关闭都置为成功并发出 `payment-succeeded`；只认 `status = 0` 的话，已关闭支付单的回调影响 0 行，被当成重复回调吞掉，`order-refund-required` 永远不会产生。这类订单每天个位数，`payment-service` 收到 `order-refund-required` 后原路退款，并通知用户。
 
@@ -232,17 +251,21 @@ public void markPaid(PaymentSucceeded msg) {
 
 ## 七、每日对账
 
-消息、回查都依赖代码按预期运行；对账是唯一**只看数据、不看过程**的检查。每天凌晨 2 点，对账任务从三个库的只读从库按 `order_no` 拉取前一天变动的数据，这是全系统唯一允许跨库读的地方：
+消息、回查都依赖代码按预期运行；对账是唯一**只看数据、不看过程**的检查。每天凌晨 2 点，对账任务读三个库的只读从库，这是全系统唯一允许跨库读的地方。取数分两步：
+
+- **先取订单号，再取全量**：找出对账日内订单、支付单、预占三张表任一张有变动的 `order_no`，再按这些订单号去三个库取全部记录比对。只按各表自己的 `updated_at` 取会漏掉跨零点的单：23:59 下单、00:01 支付成功，订单表落在前一天、支付表落在后一天，两天对账都只看到一半
+- **预占总量取同一快照**：某 SKU 的 `reserved` 与仍为 RESERVED 的预占数量之和，用库存库里的一条语句同时读出，同一条语句就是同一个一致性快照，不会因为两次查询之间又有新预占而每晚误报；几天前下单、至今仍有效的预占也算在内
 
 | 检查项 | 不一致的表现 | 处理 |
 |-------|-------------|------|
 | 支付单 vs 订单 | 支付成功，订单仍待支付 | 补发 `payment-succeeded`，走正常消费 |
 | 支付单 vs 订单 | 支付成功，订单已取消且未退款 | 补发 `order-refund-required` |
+| 支付单 vs 订单 | 订单已被另一张支付单付过，这张也成功且未退款（`PAID_TWICE`） | 补发 `order-refund-required` |
 | 订单 vs 预占 | 订单已取消，预占仍 RESERVED 或 CONFIRMED | RESERVED 自动 `release`；CONFIRMED 转人工 |
 | 订单 vs 预占 | 订单已支付，预占仍 RESERVED | 自动 `confirm` |
-| 预占 vs 库存 | 某 SKU 的 `reserved` ≠ RESERVED 记录数量之和 | 只告警，人工核对流水后修正 |
+| 预占 vs 库存 | 某 SKU 的 `reserved` ≠ 同一快照里 RESERVED 记录数量之和 | 只告警，人工核对流水后修正 |
 
-自动修复全部复用前面那些幂等接口和消息，不写专用的修数据 SQL；修不了的写入差错表，第二天由值班同学处理。100 万订单、300 万预占记录按 `order_no` 排序后归并比对，几分钟就能跑完。比对方法、断点续跑与差错状态机见 [海量数据对账](/scenario/3_reconcile)，支付与渠道之间的对账见 [支付 · 对账](/scenario/14_payment#七、对账)。
+自动修复全部复用前面那些幂等接口和消息，不写专用的修数据 SQL；修不了的写入差错表 `t_reconcile_diff`，第二天由值班同学处理。补发消息撞上 `t_outbox` 唯一键时看原记录：已发送说明补过了，跳过；原记录是失败状态（`status = 2`），说明这条消息本来就没发出去、再写也写不进去，记入差错表转人工。100 万订单、300 万预占记录按 `order_no` 排序后归并比对，几分钟就能跑完。比对方法、断点续跑与差错状态机见 [海量数据对账](/scenario/3_reconcile)，支付与渠道之间的对账见 [支付 · 对账](/scenario/14_payment#七、对账)。
 
 ---
 
@@ -273,13 +296,32 @@ public void markPaid(PaymentSucceeded msg) {
 
 ---
 
+## 十、验证
+
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch07-consistency` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch07-consistency/)。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| `release` 先到时留下占位，迟到的 `reserve` 被拒绝 | [`InventoryApiH2Test#releaseBeforeReserveLeavesPlaceholderThatRejectsLateReserve`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/inventory-service/src/test/java/com/qingyou/inventory/InventoryApiH2Test.java) | H2 全流程 |
+| `reserve` 与 `release` 并发竞争不会泄漏库存 | [`InventoryDeductIT#racingReserveAndReleaseNeverLeakStock`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/inventory-service/src/test/java/com/qingyou/inventory/InventoryDeductIT.java) | 集成（真实 MySQL·Redis） |
+| 库存服务返回 5xx 按结果未知处理，立即释放预占 | [`OrderFlowH2Test#serverErrorFromInventoryIsUnknownSoReservationIsReleased`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/mall-app/src/test/java/com/qingyou/order/OrderFlowH2Test.java) | H2 全流程 |
+| `reserve` 返回 `REJECTED` 是明确失败，不写订单 | [`PlaceOrderServiceTest#rejectedReservationIsDefiniteFailureWithoutWritingOrder`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/mall-order/src/test/java/com/qingyou/order/place/PlaceOrderServiceTest.java) | 单元 |
+| 同一订单付两次款，退掉后到的一笔，先到的保留 | [`OrderFlowH2Test#secondPaymentOfSameOrderIsRefundedAndFirstOneStays`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/mall-app/src/test/java/com/qingyou/order/OrderFlowH2Test.java) | H2 全流程 |
+| 已关闭支付单的迟到回调仍置为成功 | [`PaymentFlowH2Test#lateCallbackOnClosedPaymentStillMarksSuccess`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/payment-service/src/test/java/com/qingyou/payment/PaymentFlowH2Test.java) | H2 全流程 |
+| 跨零点的订单（前一天下单、当天支付）仍被完整比对 | [`ReconcileReaderTest#orderPlacedBeforeMidnightAndPaidAfterIsStillCompared`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/mall-app/src/test/java/com/qingyou/reconcile/ReconcileReaderTest.java) | 单元 |
+| 补发撞上发送失败的原记录时写入差错表 | [`ReconcileJobTest#republishHittingFailedOutboxRecordIsRecordedAsDiff`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/mall-app/src/test/java/com/qingyou/reconcile/ReconcileJobTest.java) | 单元 |
+
+---
+
 ## 小结
 
 - 拆服务后，下单、支付、取消三处都会出现「一边成功一边失败」，按 0.1% 失败率每天约 1000 单，必须由系统自己收敛
 - 按环节选方案：下单用 TCC 风格的库存预占，支付与取消用本地消息表 + 消费幂等，最后由预占过期回查和每日对账兜底
 - 不引入 Seata：参与方只有三个，TC 集群是新的单点，全局锁会把爆款下单串行化；也不用 XA 和事务消息
 - `t_inventory_reservation` 以 `(order_no, sku_id)` 唯一，`reserve` 查重、`confirm` / `release` 走条件更新；`release` 写占位处理空回滚，`reserve` 遇到占位拒绝以防悬挂
-- 调用结果未知按失败处理，立即释放预占；订单状态的条件更新本身就是消息消费的幂等
+- 只有 4xx 算明确失败，超时与 5xx 都按结果未知处理并立即释放预占；`REJECTED` 明确失败、不写单
+- 支付消息按支付单号去重，订单记录 `payment_no`，同一订单付两次款时退掉后到的一笔
+- 对账先取变动的订单号、再按订单号取三库全量，预占总量取同一快照；补发撞键且原消息失败时写差错表
 - 每个不一致窗口都要有对用户说得通的展示，尤其是「支付成功、订单确认中」
 
 > 本篇代码：[ch07-consistency](https://github.com/Clarence404/qingyou-mall/tree/ch07-consistency) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch06-split...ch07-consistency) · 阶段 Release：[stage-3-split](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-3-split)

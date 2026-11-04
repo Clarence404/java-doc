@@ -155,28 +155,63 @@ public void onPaid(PayNotify n) {
 
 ### 2、中继投递
 
-`OutboxRelay` 有两个入口：`relayOne(id)` 供上面的 `afterCommit` 立即发送，`relayBatch(100)` 由 `OutboxRelayJob` 每秒调用、扫表兜底。两台应用机同时跑，扫表用 `FOR UPDATE SKIP LOCKED` 让同一行只被一个线程处理，加锁查询、事务边界与调度 Bean 的拆分和主文档一致，见 [分布式事务 · 中继投递代码](/distributed/4_transaction#_3、中继投递代码)。青柚特有的只在发送这一步：
+`OutboxRelay` 有两个入口：`relayOne(id)` 供上面的 `afterCommit` 立即发送，`relayBatch(100)` 由 `OutboxRelayJob` 每秒调用、扫表兜底。两台应用机同时跑，最直接的写法是在一个事务里 `FOR UPDATE SKIP LOCKED` 选出记录、逐条发送、再改状态，但这样发送期间一直占着行锁和数据库连接，Broker 一卡，每条都要等到超时，连接池跟着被拖住。青柚把一轮中继拆成三步，**发送不在事务里**：
+
+1. **短事务认领**：`SKIP LOCKED` 选出到期记录，把它们的 `next_retry_at` 推后 120 秒作为租约，立即提交。提交后行锁和连接都已释放，另一台机器扫表时这批记录还没到期，不会重复认领
+2. **事务外发送**：同步发送，Broker 故障时每条最多卡 `requestTimeout`（配置为 1 秒），卡住的只是中继线程
+3. **单条回写**：成功 `markSent`；失败 `markRetry` 按退避推迟，本批剩下的记录立即放回（释放租约）等下一轮，不再逐条撞超时
+
+认领事务显式用**读已提交**：可重复读下按 `idx_status_retry` 扫描会加间隙锁，租约更新又要改这条索引，两台机器并发认领时会互相死锁，集成测试里能稳定复现；读已提交只锁命中的行。偶发的锁冲突（`TransientDataAccessException`）当成「本轮没认领到」，下一轮再来。加锁查询与调度 Bean 的拆分见 [分布式事务 · 中继投递代码](/distributed/4_transaction#_3、中继投递代码)。
 
 ```java
 // com.qingyou.order.outbox.OutboxRelay（节选）
-private void send(OutboxRecord r) {
+public int relayBatch(int limit) {
+    List<OutboxRecord> due;
+    try {
+        due = transactionTemplate.execute(status -> {             // 读已提交、5 秒超时的短事务
+            List<OutboxRecord> claimed = outboxMapper.selectDueForUpdate(limit);   // FOR UPDATE SKIP LOCKED
+            if (!claimed.isEmpty()) {
+                outboxMapper.lease(claimed.stream().map(OutboxRecord::id).toList(), LEASE_SECONDS);
+            }
+            return claimed;
+        });
+    } catch (TransientDataAccessException e) {
+        return 0;                                                 // 死锁或锁等待超时：本轮跳过
+    }
+    for (int i = 0; i < due.size(); i++) {
+        if (!send(due.get(i))) {                                  // Broker 出问题：剩下的放回去
+            List<Long> rest = due.subList(i + 1, due.size()).stream().map(OutboxRecord::id).toList();
+            if (!rest.isEmpty()) {
+                outboxMapper.releaseLease(rest);
+            }
+            return i;
+        }
+    }
+    return due.size();
+}
+
+boolean send(OutboxRecord r) {                                    // 事务外执行
     MessageBuilder b = provider.newMessageBuilder()
             .setTopic(r.topic())
-            .setKeys(r.msgKey())                           // 控制台按订单号查消息，消费端按它去重
+            .setKeys(r.msgKey())                                  // 控制台按订单号查消息，消费端按它去重
             .setBody(r.payload().getBytes(StandardCharsets.UTF_8));
-    if (r.deliverAt() != null) {                           // 超时关单：交给 RocketMQ 定时消息
+    if (r.deliverAt() != null) {                                  // 超时关单：交给 RocketMQ 定时消息
         b.setDeliveryTimestamp(r.deliverAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
     }
     try {
-        producer.send(b.build());                          // 同步发送，Broker 确认后才置 SENT
-        outboxMapper.markSent(r.id());
+        producer.send(b.build());                                 // 同步发送，Broker 确认后才置 SENT
     } catch (ClientException e) {
-        outboxMapper.markRetry(r.id());                    // retry_count + 1，按退避推迟 next_retry_at，超过 10 次置为失败
+        outboxMapper.markRetry(r.id());                           // retry_count + 1，按退避推迟，第 10 次失败置为失败
+        return false;
     }
+    outboxMapper.markSent(r.id());
+    return true;
 }
 ```
 
-`Producer` 在启动时用 `ClientServiceProvider` 构建，接入点和 AccessKey 从 [工程搭建](./1_project_setup) 约定的 `EnvironmentFile` 环境变量读取。发送成功但 `markSent` 前宕机时消息会再发一次，这是本地消息表「至少一次」的固有代价，由消费端幂等兜住。已发送的记录保留 7 天，每天凌晨分批删除。
+`relayOne` 同样先认领再发送，认领时发现记录已被扫表那一路领走（租约未到期）就直接返回。
+
+`Producer` 在启动时用 `ClientServiceProvider` 构建，接入点和 AccessKey 从 [工程搭建](./1_project_setup) 约定的 `EnvironmentFile` 环境变量读取。发送成功但 `markSent` 前宕机、或租约到期还没发完时，消息会再发一次，这是本地消息表「至少一次」的固有代价，由消费端幂等兜住。已发送的记录保留 7 天，每天凌晨分批删除。
 
 ### 3、消费与幂等
 
@@ -283,11 +318,28 @@ provider.newPushConsumerBuilder()
 
 ---
 
+## 八、验证
+
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch05-async` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch05-async/)。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 两个中继并发扫表，每条消息只发一次 | [`OutboxRelayIT#twoRelaysScanningConcurrentlySendEachRecordOnce`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-app/src/test/java/com/qingyou/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
+| 认领后的记录带租约，另一个中继会跳过 | [`OutboxRelayIT#claimedRecordsAreLeasedSoAnotherRelaySkipsThem`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-app/src/test/java/com/qingyou/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
+| 短事务认领加租约，发送在事务外 | [`OutboxRelayTest#batchIsClaimedWithLeaseInShortTransactionAndSentOutsideIt`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-order/src/test/java/com/qingyou/order/outbox/OutboxRelayTest.java) | 单元 |
+| 认领事务使用读已提交 | [`OutboxRelayTest#claimTransactionUsesReadCommitted`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-order/src/test/java/com/qingyou/order/outbox/OutboxRelayTest.java) | 单元 |
+| Broker 故障时停止本批，剩余记录释放租约 | [`OutboxRelayTest#brokerFailureStopsBatchAndReleasesRemainingLeases`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-order/src/test/java/com/qingyou/order/outbox/OutboxRelayTest.java) | 单元 |
+| 发送失败按退避重试，第 10 次失败置为失败 | [`OutboxRelayIT#brokerFailureBacksOffAndEventuallyFails`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-app/src/test/java/com/qingyou/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
+| 同一订单的积分只发一次 | [`AsyncFlowH2Test#pointsAreGrantedOncePerOrder`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-app/src/test/java/com/qingyou/order/AsyncFlowH2Test.java) | H2 全流程 |
+| 超时消息到期关闭未支付订单并归还库存 | [`AsyncFlowH2Test#timeoutClosesUnpaidOrderAndReturnsStock`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-app/src/test/java/com/qingyou/order/AsyncFlowH2Test.java) | H2 全流程 |
+
+---
+
 ## 小结
 
 - 用户当场要结果、失败要让请求失败的保持同步，积分、通知、发货单、超时关单改为异步；支付回调只剩一个本地事务
 - MQ 选 RocketMQ 5 托管实例，看中定时消息、内置重试与死信、按订单号查消息；不用顺序消息，不把下单异步化
-- 写库与发消息用本地消息表 `t_outbox`：同一事务写入，提交后立即发送，每秒扫表兜底，`SKIP LOCKED` 避免两台机重复投递
+- 写库与发消息用本地消息表 `t_outbox`：同一事务写入，提交后立即发送，每秒扫表兜底；短事务 `SKIP LOCKED` 认领加租约、事务外发送，两台机不重复投递，Broker 故障也不占数据库连接
 - `order-paid` 由 `points-consumer`、`notify-consumer`、`shipment-consumer` 各自消费，幂等统一用 `t_consume_record`；外部调用按「先发后记」或下游幂等处理
 - 超时关单改为 15 分钟定时消息加每 10 分钟的兜底扫描，关单一律用状态条件更新
 - 监控看两段：`t_outbox` 待发送时长定位中继问题，消费组堆积定位下游问题，死信大于 0 就告警

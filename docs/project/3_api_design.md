@@ -306,7 +306,7 @@ spring:
 
 服务端 Session 随时可吊销，但两台主机要共享会话，阶段一还没有 Redis，App 和小程序处理 Cookie 也麻烦；JWT 无状态，两台主机都能独立校验，缺点是签发后无法撤销。
 
-选 JWT，用两个令牌弥补不能撤销的问题：访问令牌有效期 30 分钟，放在 `Authorization: Bearer` 里；刷新令牌有效期 14 天，服务端只存它的哈希，改密码、踢下线时删掉即可。认证过滤器校验访问令牌后把 `LoginUser` 放进安全上下文，Controller 用 `@AuthenticationPrincipal` 取。登录方案的对比见 [认证与登录](/security/1_authentication)，令牌的签名与续期见 [JWT 令牌机制](/security/1_jwt)，限流、签名和防重放这类接口防护阶段一暂不做，见 [API 安全](/security/6_api_security)。
+选 JWT，用两个令牌弥补不能撤销的问题：访问令牌有效期 30 分钟，放在 `Authorization: Bearer` 里；刷新令牌有效期 14 天，服务端只存它的 SHA-256 哈希，改密码、踢下线时删掉即可。刷新时**轮换**：旧刷新令牌删掉、签发新的一对，旧令牌再拿来刷新直接失败，泄露的刷新令牌最多被用一次。下一篇后台改价要区分运营和普通用户，届时访问令牌加上 `roles` 声明，刷新时也按库里当前的角色重签、并校验用户没被禁用，见 [引入缓存](./4_cache)。认证过滤器校验访问令牌后把 `LoginUser` 放进安全上下文，Controller 用 `@AuthenticationPrincipal` 取。登录方案的对比见 [认证与登录](/security/1_authentication)，令牌的签名与续期见 [JWT 令牌机制](/security/1_jwt)，限流、签名和防重放这类接口防护阶段一暂不做，见 [API 安全](/security/6_api_security)。
 
 ---
 
@@ -316,7 +316,7 @@ spring:
 
 - `/v3/api-docs` 与 Swagger UI 只在开发和测试环境开启，生产关闭
 - 每个接口显式写 `operationId`（如 `placeOrder`、`cancelOrder`），错误响应在文档里声明为 `ProblemDetail`
-- CI 里导出 `openapi.json` 提交到仓库，和上一个版本做 diff，删字段、改类型这类破坏性变更直接让流水线失败
+- 导出的 `openapi.json` 提交到仓库的 `api/` 目录；PR 检查里先 `git fetch origin <目标分支>`，取目标分支（通常是 `main`）上已合入的 `api/openapi.json` 做基准，用 oasdiff 和本次构建导出的版本比对，删字段、改类型这类破坏性变更直接让流水线失败。基准不取 PR 自己的文件，PR 顺手改了基线也绕不过去；目标分支上还没有这个文件时跳过检查
 
 **暂不生成客户端 SDK**：调用方只有自己的三端，前端看文档写请求更快，生成的代码还要维护一条发布流程。到阶段三服务之间互相调用时，再考虑从 OpenAPI 生成客户端或用 HTTP 接口客户端。集成方式见 [接口文档](/spring-boot/8_api_doc)，导出与 CI 检查见 [API 文档](/engineering/5_api_doc)。
 
@@ -377,6 +377,23 @@ class PlaceOrderApiTests extends IntegrationTestBase {
 | 没有限流与签名 | 大促时被刷接口没有防线 | 「稳定性」 |
 
 按模块分前缀的错误码、请求头版本和 OpenAPI 契约，到阶段三拆服务时会直接变成服务边界上的约定，不用再迁移。
+
+---
+
+## 十三、验证
+
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch03-api-design` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch03-api-design/)。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 同一 `Idempotency-Key` 重放返回首单，带 `Idempotent-Replayed: true` | [`PlaceOrderApiTests#sameKeyReplaysFirstOrder`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/order/PlaceOrderApiTests.java) | 集成（真实 MySQL·Redis） |
+| 取消已发货订单返回 409 与 `ORDER_STATUS_CONFLICT` | [`PlaceOrderApiTests#cancelShippedOrderReturns409`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/order/PlaceOrderApiTests.java) | 集成（真实 MySQL·Redis） |
+| 缺少 `Idempotency-Key` 返回 400 ProblemDetail | [`PlaceOrderControllerTest#missingIdempotencyKeyReturns400Problem`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/order/place/PlaceOrderControllerTest.java) | 单元 |
+| 查别人的订单返回 404，不暴露订单是否存在 | [`PlaceOrderApiTests#otherUsersOrderReturns404`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/order/PlaceOrderApiTests.java) | 集成（真实 MySQL·Redis） |
+| 不带 `API-Version` 请求头按 1.0 处理 | [`ApiVersionH2Test#missingApiVersionHeaderDefaultsToVersionOnePointZero`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/web/ApiVersionH2Test.java) | H2 全流程 |
+| 刷新令牌轮换，旧刷新令牌再用被拒 | [`AuthTokenH2Test#refreshRotatesTokenAndOldRefreshTokenIsRejected`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/user/AuthTokenH2Test.java) | H2 全流程 |
+| 踢下线吊销该用户全部刷新令牌 | [`AuthTokenH2Test#kickOutRevokesAllRefreshTokensOfUser`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/user/AuthTokenH2Test.java) | H2 全流程 |
+| 破坏性接口变更让 PR 检查失败（以目标分支的 `api/openapi.json` 为基准） | [`pr.yml`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/.github/workflows/pr.yml) 的 OpenAPI breaking-change check | 静态校验（CI） |
 
 ---
 
