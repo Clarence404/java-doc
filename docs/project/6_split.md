@@ -99,7 +99,7 @@ class InventoryController implements InventoryApi { /* 调用原来的 Inventory
 
 服务端和客户端共用一个接口，契约不会两边写漂；代价是改接口就同时影响两边，所以沿用 [接口设计](./3_api_design) 的兼容规则：只加字段、不改含义。`/internal/**` 只在集群内可达，网关不路由它。包与模块的划分方法见 [工程结构与分包](/architecture/2_package_structure#六、用工具守住边界)。
 
-支付同理：`mall-order` 里的 `pay` 包整体迁进 `payment-service`，`PayErrorCode` 跟着走，前缀 `PAY_` 不变。支付服务反过来要查订单金额、在支付成功后改订单状态，所以 `mall-order` 也抽出 `mall-order-api`，放 `OrderQueryApi` 和新增的 `OrderPayApi`。
+支付同理：`mall-order` 里的 `pay` 包整体迁进 `payment-service`，包名随服务归属改为 `com.qingyou.payment.pay`，`PayErrorCode` 跟着走，前缀 `PAY_` 不变。支付服务反过来要查订单金额、在支付成功后改订单状态，所以 `mall-order` 也抽出 `mall-order-api`，放 `OrderQueryApi`（`getByOrderNo`，订单不存在返回 404 `ORDER_NOT_FOUND`）和新增的 `OrderPayApi`（`markPaid` 返回 `PAID / ALREADY_PAID / ORDER_CANCELLED`）。
 
 ### 2、本地事务变成远程调用
 
@@ -179,11 +179,16 @@ spring:
       config:
         namespace: ${NACOS_NAMESPACE}
         file-extension: yaml
+---
+# application-prod.yml：导入写在 profile 里
+spring:
   config:
     import:
       - optional:nacos:mall-common.yaml?group=COMMON_GROUP   # 各服务公共配置
       - nacos:inventory-service.yaml                         # 本服务配置，缺了启动失败
 ```
+
+导入不写进公共的 `application.yml`：不带 `optional:` 的 `nacos:` 导入在没有 Nacos 的场景（单元 / 集成测试、本地还没建配置）都会启动失败，`spring.cloud.nacos.config.enabled=false` 也挡不住；`application-dev.yml` 里两项都带 `optional:`。
 
 接入与刷新机制见 [注册发现 · Spring Cloud 接入](/microservices/10_service_registry#四、spring-cloud-接入) 和 [配置中心 · Nacos Config 接入](/microservices/13_config_center#二、nacos-config-接入)。
 
@@ -236,13 +241,17 @@ spring:
 ```java
 @Bean
 RestClientHttpServiceGroupConfigurer remoteErrorConfigurer(JsonMapper jsonMapper) {
+    JsonMapper problemMapper = jsonMapper.rebuild()      // 挂上 Spring 自带的 ProblemDetailJacksonMixin
+            .addMixIn(ProblemDetail.class, ProblemDetailJacksonMixin.class).build();
     return groups -> groups.forEachClient((group, builder) ->
         builder.defaultStatusHandler(HttpStatusCode::isError, (request, response) -> {
-            ProblemDetail pd = jsonMapper.readValue(response.getBody(), ProblemDetail.class);
+            ProblemDetail pd = problemMapper.readValue(response.getBody(), ProblemDetail.class);
             throw new RemoteBizException(response.getStatusCode(), pd);   // 全局异常处理器按 code 透传
         }));
 }
 ```
+
+`ProblemDetail` 的扩展字段靠 `@JsonAnySetter` 才能落进 `properties`，Boot 的 `JsonMapper` 默认没挂这个 mixin，直接反序列化会丢掉 `code`、`traceId`，`RemoteBizException` 也就拿不到 `STOCK_INSUFFICIENT`。
 
 为什么不选 OpenFeign、客户端组的注册与透传请求头，见 [服务通信 · 选型](/microservices/12_communication#六、选型)；熔断、重试与限流放到「稳定性」一篇。
 
@@ -330,6 +339,8 @@ spec:
 - 每服务独享库，数据按「先拆部署 → binlog 同步 → 对账 → 停写切换」迁移，不在业务代码里双写
 - Nacos 管注册与配置，`mall-gateway` 只路由 `/api/**`，服务间用 HTTP 接口客户端并显式配超时，写接口不自动重试
 - 新服务先上 Kubernetes 1.37，`mall-app` 后迁；用 Nacos 发现时停机要先注销再等待
+
+> 本篇代码：[ch06-split](https://github.com/Clarence404/qingyou-mall/tree/ch06-split) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch05-async...ch06-split)
 
 ---
 

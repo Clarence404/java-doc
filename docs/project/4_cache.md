@@ -172,7 +172,7 @@ public class ProductDetailService {
 }
 ```
 
-Controller 拿到 `Optional.empty()` 时抛 `BizException(ProductErrorCode.PRODUCT_NOT_FOUND)`，返回 404 的 `ProblemDetail`，与 [接口设计](./3_api_design) 的约定一致。Redis 超时或连不上时，`loadFromRemote` 捕获 `RedisConnectionFailureException` 直接查库并跳过回写，这里省略。
+Controller 拿到 `Optional.empty()` 时抛 `BizException(ProductErrorCode.PRODUCT_NOT_FOUND)`，返回 404 的 `ProblemDetail`，与 [接口设计](./3_api_design) 的约定一致。Redis 超时或连不上时，`loadFromRemote` 在读 Redis 和回写 Redis 两处捕获 `RedisConnectionFailureException | QueryTimeoutException`，直接查库并跳过回写，这里省略。两个都要捕获：Lettuce 命令超时（上面配置的 `timeout: 200ms`）抛的是 `org.springframework.dao.QueryTimeoutException`，只捕获连接异常的话，超时请求会直接 500，「缓存慢了宁可回源」就不成立。
 
 下单计价走的仍是 `ProductApi.listByIds`，直接查 `t_product`，**不经过这个缓存**：详情页看到的价格最多旧几十秒，用户实际支付的金额永远是下单那一刻数据库里的价格。
 
@@ -308,6 +308,8 @@ public class ProductCacheInvalidator {
 - 一致性用 Cache Aside：事务提交后删 L2 并广播删 L1，1 秒后再删一次，所有 key 带 TTL 兜底；不上 binlog 订阅
 - 穿透用参数校验 + 空值缓存，击穿靠 Caffeine 单实例合并回源，雪崩靠 TTL 抖动 + Sentinel + L1；热点 key 由 L1 吸收
 - 上线后盯 L1 / L2 命中率、回源 QPS 和 `evicted_keys`
+
+> 本篇代码：[ch04-cache](https://github.com/Clarence404/qingyou-mall/tree/ch04-cache) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch03-api-design...ch04-cache)
 
 ---
 

@@ -341,6 +341,8 @@ public PlaceOrderResult place(long userId, String bizNo, PlaceOrderRequest req) 
 - 下单 = 扣库存 + 写订单 + 写明细，一个本地事务；`uk_user_biz` 唯一约束兜底幂等，冲突在事务外处理
 - 一年 365 万订单、1100 万明细，单表足够，阶段三再评估分库分表
 
+> 本篇代码：[ch02-data-model](https://github.com/Clarence404/qingyou-mall/tree/ch02-data-model) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch01-project-setup...ch02-data-model)
+
 ## 参考资料
 
 - MySQL 8.4 Reference Manual - Fixed-Point Types (DECIMAL)：[https://dev.mysql.com/doc/refman/8.4/en/fixed-point-types.html](https://dev.mysql.com/doc/refman/8.4/en/fixed-point-types.html)

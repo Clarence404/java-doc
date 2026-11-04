@@ -575,7 +575,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 **背景问题**：第一次年中大促下单冲到约 4000 QPS，`reserve` 的 P99 涨到 1.5s，4000 QPS × 0.8s ≈ 3200 个并发，8 个 Pod 一共只有 1600 个线程，商品详情、订单列表跟着超时；用户连点加 App 自动重试 2 次，网关入口涨到约 9000 QPS，前 25 分钟下单成功率只有 58%。
 
 **方案要点**：
-- 超时预算：网关 5s → 3s，`reserve` 读超时 800ms → 500ms，库存库获取连接 200ms
+- 超时预算：网关 5s → 3s，`reserve` 读超时 800ms → 500ms，库存库获取连接 250ms（HikariCP 下限）
 - Resilience4j 熔断 `inventory-reserve`，只把超时和 5xx 记为失败（`STOCK_INSUFFICIENT` 不算）；每 Pod 60 并发的信号量舱壁，其余 140 个线程留给商品详情和订单查询
 - 熔断或舱壁拒绝说明请求没发出去，直接返回 `SYSTEM_BUSY`（503 + `Retry-After: 2`），不再调 `release`
 - 写接口不重试，只读查询最多重试 1 次并随机退避；App 提交后按钮置灰，收到 429、503 按 `Retry-After` 等待
@@ -584,7 +584,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 **可量化的效果**：压测时对库存服务注入 800ms 延迟，熔断 5 秒内打开，商品详情不受影响；恶意下单不付款时，一个账号最多锁住同一爆款 2 件、5 分钟。
 
 **面试官可能的追问**：
-- 舱壁为什么用信号量不用线程池？（调用仍在 Tomcat 线程里执行，没有线程切换；配额按 Little 定律估）
+- 舱壁为什么用信号量不用线程池？（调用仍在 Tomcat 线程里执行，没有线程切换；配额按 Little 定律估；Spring Cloud CircuitBreaker 默认是线程池舱壁，要打开 `enable-semaphore-default-bulkhead` 与 `disable-thread-pool`）
 - 为什么不选 Sentinel？（熔断和舱壁 Resilience4j 都有，限流已在网关做，不为控制台多运维一套）
 - Redis 挂了网关限流怎么办？（`RedisRateLimiter` 默认放行，限流挂了不能让下单跟着挂）
 

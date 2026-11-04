@@ -131,8 +131,11 @@ management:
 Loki 只用 `namespace`、`app`、`level` 三个标签，traceId 不做标签，原因见 [日志体系 · Loki 的标签与基数](/observability/1_logging#_2、loki-的标签与基数)。错误响应里的 `traceId` 改从当前 Span 取，阶段一的 `TraceIdFilter` 下线：
 
 ```java
-pd.setProperty("traceId", Span.current().getSpanContext().getTraceId());   // 字段名不变，客户端无感
+SpanContext ctx = Span.current().getSpanContext();
+pd.setProperty("traceId", ctx.isValid() ? ctx.getTraceId() : null);   // 字段名不变，客户端无感
 ```
+
+没挂 agent（本地开发、单元与集成测试）时当前 Span 无效，`getTraceId()` 返回 32 个 0，所有错误响应都会带同一个假 traceId，所以先判断 `isValid()`。
 
 ### 2、让 Trace 穿过本地消息表
 
@@ -148,10 +151,11 @@ record.setTraceParent(carrier.get("traceparent"));        // 定时消息 order-
 Context parent = W3CTraceContextPropagator.getInstance().extract(Context.root(), r, OUTBOX_GETTER);
 try (Scope ignored = parent.makeCurrent()) {
     producer.send(b.build());
+    outboxMapper.markSent(r.id());
 }
 ```
 
-`OUTBOX_GETTER` 是一个只返回 `r.traceParent()` 的 `TextMapGetter`。`mall-app`、`payment-service`、`inventory-service` 三份 `t_outbox` 都加 `trace_parent` 列，迁移脚本见第七节。改完后，从网关的下单请求一路能看到 `payment-succeeded`、`order-paid` 的生产与各消费组的处理，一致性窗口里每一段花了多久一目了然。
+`OUTBOX_GETTER` 是一个 `TextMapGetter<OutboxRecord>`：`keys()` 返回 `List.of("traceparent")`，`get()` 返回 `r.traceParent()`。`mall-app`、`payment-service`、`inventory-service` 三份 `t_outbox` 都加 `trace_parent` 列，`INSERT` / `SELECT` 都要带上它，迁移脚本见第七节。改完后，从网关的下单请求一路能看到 `payment-succeeded`、`order-paid` 的生产与各消费组的处理，一致性窗口里每一段花了多久一目了然。
 
 ### 3、SLO 与燃烧率告警
 
@@ -341,7 +345,7 @@ ALTER TABLE t_outbox ADD COLUMN trace_parent VARCHAR(55) NULL COMMENT 'W3C trace
 | 发布 | 迁移脚本 | 代码 | 能否回滚到上一版 |
 |------|---------|------|----------------|
 | 第 1 次 | 无 | 删掉对旧表的最后一处只读引用（运营报表） | 能，旧表还在 |
-| 第 2 次（一个发布周期后） | `RENAME TABLE t_inventory TO t_inventory_deprecated`（`t_payment` 同理） | 无 | 能；万一有漏网的读，报错暴露出来，改名回去即可 |
+| 第 2 次（一个发布周期后） | `ALTER TABLE t_inventory RENAME TO t_inventory_deprecated`（`t_payment` 同理；与 `RENAME TABLE` 等价，H2 也认） | 无 | 能；万一有漏网的读，报错暴露出来，改名回去即可 |
 | 第 3 次（再观察两周） | `DROP TABLE t_inventory_deprecated` | 无 | 不涉及，已无代码依赖 |
 
 加列带默认值、加索引前先在压测环境用同量级数据测耗时；`t_order` 这类大表的 DDL 走 Online DDL，超过 5 分钟的交给 gh-ost 在低峰单独执行，不放进 PreSync。Flyway 的命名、并发迁移和上线规范见 [数据库版本迁移 · 并发迁移与发布](/spring-boot/4_flyway#_5、并发迁移与发布)，先扩后缩的通用步骤见 [发布策略 · 数据库变更：先扩展后收缩](/devops/7_release_strategy#_2、数据库变更-先扩展后收缩)。
@@ -370,6 +374,8 @@ ALTER TABLE t_outbox ADD COLUMN trace_parent VARCHAR(55) NULL COMMENT 'W3C trace
 - 下单成功率 99.9%、P99 < 800ms 两条 SLO，按燃烧率快慢两档告警；缓存、Outbox、消费堆积、死信、对账差异的阈值原样收进 Prometheus，再加上熔断与限流指标，经 Alertmanager 统一推送
 - 发布走 GitHub Actions → Argo CD → Argo Rollouts，5% → 25% → 100% 每步自动分析错误率与 P99，不达标自动回滚，约 3 分钟恢复
 - 表结构只做向前兼容的变更，删除拆成多次发布；预热完成再注册，停机先注销再停消费；不上服务网格、不做蓝绿
+
+> 本篇代码：[ch09-observability-release](https://github.com/Clarence404/qingyou-mall/tree/ch09-observability-release) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch08-stability...ch09-observability-release) · 阶段 Release：[stage-4-stability](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-4-stability)
 
 ---
 

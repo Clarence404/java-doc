@@ -169,6 +169,8 @@ description: 四个阶段的决策时间线、做对的与走过的弯路、准�
 - 多活、分库分表、服务网格、Redis 预扣、生产全链路压测、Seata 都有明确的触发条件，没到就不做
 - 讲项目按「定位 → 阶段矛盾 → 难点深讲 → 没做的事 → 弯路」展开
 
+> 本篇代码：[ch10-retrospective](https://github.com/Clarence404/qingyou-mall/tree/ch10-retrospective) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch09-observability-release...ch10-retrospective)
+
 ---
 
 ## 参考资料

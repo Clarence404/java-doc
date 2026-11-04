@@ -127,7 +127,7 @@ mall-order/src/main/java/com/qingyou/order/
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.6</version> <!-- 取 4.0.x 最新补丁版，与 Spring Cloud 2025.1 / SCA 2025.1.0.0 对表 -->
+    <version>4.0.9</version> <!-- 取 4.0.x 最新补丁版，与 Spring Cloud 2025.1 / SCA 2025.1.0.0 对表 -->
 </parent>
 
 <groupId>com.qingyou</groupId>
@@ -287,6 +287,8 @@ spring:
 - 模块内按功能分包，父 POM 统一版本，Maven Wrapper + Enforcer 保证构建一致
 - 主干开发 + PR 检查，格式、规范、架构、测试全部挂在 `./mvnw verify` 上
 - 密钥走环境变量，不进仓库；Kubernetes、注册中心、消息队列、缓存都明确推迟到出现瓶颈的阶段
+
+> 本篇代码：[ch01-project-setup](https://github.com/Clarence404/qingyou-mall/tree/ch01-project-setup)
 
 ---
 

@@ -123,7 +123,7 @@ public enum OrderErrorCode implements ErrorCode {
 
 ### 3、全局异常处理器
 
-处理器放在 `mall-common`，继承 `ResponseEntityExceptionHandler`，让 Spring MVC 自身的异常（缺请求头、请求体解析失败、校验失败）由父类转成 4xx，只额外处理业务异常和兜底异常：
+处理器放在 `mall-common`，继承 `ResponseEntityExceptionHandler`，让 Spring MVC 自身的异常（缺请求头、请求体解析失败、校验失败）由父类转成 4xx，只额外处理业务异常和兜底异常，并给父类生成的响应补上扩展字段：
 
 ```java
 @Slf4j
@@ -145,6 +145,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     // 兜底的 @ExceptionHandler(Exception.class) 返回 SYSTEM_ERROR，写法同上，略
 
+    @Override   // 父类生成的 ProblemDetail（缺请求头、JSON 解析失败等）也补上 code 与 traceId
+    protected ResponseEntity<Object> createResponseEntity(@Nullable Object body, HttpHeaders headers,
+            HttpStatusCode statusCode, WebRequest request) {
+        if (body instanceof ProblemDetail pd) {
+            if (statusCode.value() == 400
+                    && (pd.getProperties() == null || !pd.getProperties().containsKey("code"))) {
+                pd.setProperty("code", CommonErrorCode.VALIDATION_FAILED.code());
+            }
+            pd.setProperty("traceId", MDC.get("traceId"));
+        }
+        return super.createResponseEntity(body, headers, statusCode, request);
+    }
+
     private ProblemDetail problem(ErrorCode ec, String detail) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(ec.status(), detail);
         pd.setType(URI.create(PROBLEM_BASE + ec.code().toLowerCase().replace('_', '-')));
@@ -156,7 +169,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 }
 ```
 
-校验失败时把字段错误放进 `errors` 扩展字段的写法（覆盖 `handleMethodArgumentNotValid`）与主文档一致，见 [API 设计规范](/engineering/4_api_design_rule)；`traceId` 由过滤器链最前面的 `TraceIdFilter` 写入 MDC，阶段四接入链路追踪后改取 OpenTelemetry 上下文里的 trace ID，字段名不变（见 [可观测与发布](./9_observability_release)）。
+父类默认生成的 `ProblemDetail` 不带扩展字段，前端没法按 `code` 分支，所以覆盖 `createResponseEntity` 统一补上；不能在 `handleExceptionInternal` 里补，父类对 `ErrorResponse` 类异常传进去的 `body` 是 `null`，到 `createResponseEntity` 才拿得到最终的 `ProblemDetail`。校验失败时把字段错误放进 `errors` 扩展字段的写法（覆盖 `handleMethodArgumentNotValid`）与主文档一致，见 [API 设计规范](/engineering/4_api_design_rule)；`@Size` 校验请求头这类方法参数校验抛的是 `HandlerMethodValidationException`，同样覆盖 `handleHandlerMethodValidationException` 返回 `VALIDATION_FAILED`。`traceId` 由过滤器链最前面的 `TraceIdFilter` 写入 MDC，阶段四接入链路追踪后改取 OpenTelemetry 上下文里的 trace ID，字段名不变（见 [可观测与发布](./9_observability_release)）。
 
 ---
 
@@ -201,14 +214,16 @@ public ResponseEntity<OrderView> place(@AuthenticationPrincipal LoginUser user,
         @RequestHeader("Idempotency-Key") @Size(min = 16, max = 64) String idemKey,
         @RequestBody @Validated(OnCreate.class) PlaceOrderRequest req) {
     PlaceOrderResult r = placeOrderService.place(user.id(), idemKey, req);
-    OrderView view = OrderView.of(r.order());          // 对外只给 orderNo，不给主键 id
+    // 重放分支只查了 t_order，补查一次明细，保证与首次响应一致
+    Order order = r.replayed() ? orderQueryService.getOwn(user.id(), r.order().getOrderNo()) : r.order();
+    OrderView view = OrderView.of(order);               // 对外只给 orderNo，不给主键 id
     return ResponseEntity.created(URI.create("/api/orders/" + view.orderNo()))
             .header("Idempotent-Replayed", String.valueOf(r.replayed()))
             .body(view);
 }
 ```
 
-重放放在事务外的 `catch` 里做，是因为冲突后原事务已经回滚，在新的读里才能看到对方已提交的订单。
+重放放在事务外的 `catch` 里做，是因为冲突后原事务已经回滚，在新的读里才能看到对方已提交的订单；`selectByUserAndBizNo` 只查 `t_order`，Controller 在重放时再补查一次明细，响应里的 `items` 才与首次一致。
 
 ---
 
@@ -373,6 +388,8 @@ class PlaceOrderApiTests extends IntegrationTestBase {
 - 用户端订单列表用游标分页，不返回总数；后台查询另走 offset
 - 校验分组只用于共享的嵌套对象，分组继承 `Default`；版本从 `API-Version` 请求头读，缺省 1.0，尽量只做兼容变更
 - 鉴权用短期 JWT + 可吊销的刷新令牌；文档由 springdoc 生成，CI 做兼容性检查，暂不生成 SDK
+
+> 本篇代码：[ch03-api-design](https://github.com/Clarence404/qingyou-mall/tree/ch03-api-design) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch02-data-model...ch03-api-design) · 阶段 Release：[stage-1-monolith](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-1-monolith)
 
 ---
 

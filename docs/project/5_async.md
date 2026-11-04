@@ -129,7 +129,8 @@ public void append(String topic, String orderNo, Object payload, LocalDateTime d
     TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
         @Override
         public void afterCommit() {                        // 提交后立即发，不等扫表
-            outboxExecutor.execute(() -> outboxRelay.relayOne(r.id()));
+            // outboxRelay 是 ObjectProvider<OutboxRelay>：未开启 RocketMQ 时不创建，只写表、靠扫表补发
+            outboxRelay.ifAvailable(relay -> outboxExecutor.execute(() -> relay.relayOne(r.id())));
         }
     });
 }
@@ -189,7 +190,7 @@ CREATE TABLE t_consume_record (
 ) COMMENT '消费去重记录，保留 30 天';
 ```
 
-积分是强要求「不丢不重」的，去重记录和加积分放在**同一个本地事务**里，插入影响 0 行说明处理过，直接返回：
+积分是强要求「不丢不重」的，去重记录和加积分放在**同一个本地事务**里，插入影响 0 行说明处理过，直接返回。`PointsGrantService` 在 mall-user，而 mall-user 不能依赖 mall-order，所以 `ConsumeRecordMapper` 放在 `mall-common` 的 `com.qingyou.common.mq` 包（去重表与业务无关，属于基础设施）；`OrderPaidEvent` 也由 mall-user 在 `com.qingyou.user.points` 里自己定义一份，按 JSON 字段反序列化，不引用生产方的 `com.qingyou.order.api.OrderPaidEvent`：
 
 ```java
 // com.qingyou.user.points.PointsGrantService
@@ -276,7 +277,7 @@ provider.newPushConsumerBuilder()
 |-----------|-----------|---------|
 | 积分、通知、发货单异步 | 最终一致：积分晚几秒到账，客服话术和前端文案要跟着改 | 已在本阶段处理，前端显示「积分发放中」 |
 | 引入 RocketMQ | 多一个依赖；Broker 不可用时消息积在 `t_outbox`，恢复后补发，业务不受影响 | 托管实例的高可用，大促前做容量评估见「稳定性」 |
-| `t_outbox`、`t_consume_record` 只在 mall-order 里 | 拆出去的服务也要可靠发消息、幂等消费 | [跨服务一致性](./7_consistency)：`payment-service`、`inventory-service` 各建一份 |
+| `t_outbox` 只在 mall-order 里，`t_consume_record` 只在单体库里 | 拆出去的服务也要可靠发消息、幂等消费 | [跨服务一致性](./7_consistency)：`payment-service`、`inventory-service` 各建一份 |
 | 支付仍在 mall-order 本地事务里改订单 | 支付独立成服务后，「支付成功 → 订单待发货」跨了两个库 | [拆分服务](./6_split) 先同步调用过渡，[跨服务一致性](./7_consistency) 改用 `payment-succeeded` 消息 + 本地消息表 |
 | 告警分散在控制台和应用里 | 堆积、失败、死信没有统一大盘 | 「可观测与发布」 |
 
@@ -290,6 +291,8 @@ provider.newPushConsumerBuilder()
 - `order-paid` 由 `points-consumer`、`notify-consumer`、`shipment-consumer` 各自消费，幂等统一用 `t_consume_record`；外部调用按「先发后记」或下游幂等处理
 - 超时关单改为 15 分钟定时消息加每 10 分钟的兜底扫描，关单一律用状态条件更新
 - 监控看两段：`t_outbox` 待发送时长定位中继问题，消费组堆积定位下游问题，死信大于 0 就告警
+
+> 本篇代码：[ch05-async](https://github.com/Clarence404/qingyou-mall/tree/ch05-async) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch04-cache...ch05-async) · 阶段 Release：[stage-2-cache-async](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-2-cache-async)
 
 ---
 

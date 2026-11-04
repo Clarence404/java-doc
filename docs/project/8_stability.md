@@ -88,7 +88,7 @@ description: 首次大促的故障复盘、超时熔断与舱壁、重试风暴�
 | `mall-gateway` → 下游 | 整体 3s | 由 [拆分服务](./6_split) 的 5s 收紧，超过 3s 用户早已离开或重试 |
 | `mall-app` → `inventory-service` 的 `reserve` | 连接 200ms / 读 500ms | 由阶段三的 800ms 收紧：分桶后的压测里 `reserve` 在 7500 QPS 下 P99 约 120ms，500ms 仍有 4 倍余量；而按 Little 定律，每慢 300ms，每个 Pod 就要多占约 90 个线程 |
 | `mall-app` → `payment-service` 的查询 | 连接 200ms / 读 500ms | 只读，允许重试 1 次 |
-| 库存库 HikariCP 获取连接 | 200ms | 池子耗尽时快速失败，不在应用里排队 |
+| 库存库 HikariCP 获取连接 | 250ms | `spring.datasource.hikari.connection-timeout: 250`，池子耗尽时快速失败，不在应用里排队；HikariCP 规定不能小于 250ms，配更小启动直接失败 |
 
 超时值怎么定、为什么外层要覆盖内层，见 [超时、重试与隔离 · 超时值怎么定](/high-avail/4_timeout_retry_bulkhead#_3、超时值怎么定)。
 
@@ -105,6 +105,8 @@ spring:
     circuitbreaker:
       resilience4j:
         disable-time-limiter: true                # 超时只由 HTTP 客户端控制，避免 TimeLimiter 默认 1s 抢先触发
+        enable-semaphore-default-bulkhead: true   # 这两项一起开：用信号量舱壁，调用留在 Tomcat 线程
+        disable-thread-pool: true
 resilience4j:
   circuitbreaker:
     instances:
@@ -127,7 +129,7 @@ resilience4j:
 ```
 
 - **`STOCK_INSUFFICIENT` 不计入失败**：`RemoteFailurePredicate` 只把超时、连接失败和 5xx 记为失败，4xx 是正常的业务结果，否则爆款卖完时熔断器会误以为库存服务坏了
-- **舱壁用信号量而不是线程池**：调用仍在 Tomcat 线程里执行，没有线程切换；配额按 [性能指标 · 指标之间的关系：Little 定律](/high-perf/1_metrics#四、指标之间的关系-little-定律) 估：大促时每个 Pod 约 310 QPS，P99 30ms 时稳态并发约 10，取 60 能容忍 P99 涨到约 200ms；再慢就拒绝，最多占住 60 个线程，其余 140 个线程留给商品详情和订单查询
+- **舱壁用信号量而不是线程池**：调用仍在 Tomcat 线程里执行，没有线程切换。Spring Cloud CircuitBreaker 在类路径上有 `resilience4j-bulkhead` 时默认用线程池舱壁，`max-concurrent-calls` 不生效，异常还会被包成 `ExecutionException`（`STOCK_INSUFFICIENT` 变成 500），所以要打开上面两个开关；配额按 [性能指标 · 指标之间的关系：Little 定律](/high-perf/1_metrics#四、指标之间的关系-little-定律) 估：大促时每个 Pod 约 310 QPS，P99 30ms 时稳态并发约 10，取 60 能容忍 P99 涨到约 200ms；再慢就拒绝，最多占住 60 个线程，其余 140 个线程留给商品详情和订单查询
 - 参数含义与 Resilience4j 的接入方式见 [服务治理 · Resilience4j 与 Sentinel](/microservices/14_service_governance#_1、resilience4j-与-sentinel)，信号量与线程池舱壁的取舍见 [超时、重试与隔离 · 信号量隔离](/high-avail/4_timeout_retry_bulkhead#_2、信号量隔离)
 
 ### 3、下单侧：被拒绝就是确定失败
@@ -148,9 +150,9 @@ try {
 }
 ```
 
-`InventoryReserveClient` 是对 `InventoryApi` 的一层包装，用 `CircuitBreakerFactory.create("inventory-reserve")` 执行调用并原样抛出异常。`SYSTEM_BUSY` 是 `mall-common` 新增的通用错误码，返回 503 并带 `Retry-After: 2`，App 显示「当前人数较多，请稍后再试」。熔断打开的 5 秒里，下单请求在 `mall-app` 内就失败返回，Tomcat 线程不再被占住，商品详情和订单查询照常可用。
+`InventoryReserveClient` 是对 `InventoryApi` 的一层包装，用 `CircuitBreakerFactory.create("inventory-reserve")` 执行调用，写成 `circuitBreaker.run(supplier, t -> { throw (RuntimeException) t; })` 原样抛出异常（非 `RuntimeException` 包一层）；不带 fallback 的 `run(supplier)` 会把失败包成 `NoFallbackAvailableException`，上面的 `catch` 一个都接不住。`SYSTEM_BUSY` 是 `mall-common` 新增的通用错误码，返回 503 并带 `Retry-After: 2`（`GlobalExceptionHandler.handleBiz` 多接一个 `HttpServletResponse`，遇到 `SYSTEM_BUSY` 时设置响应头，返回类型仍是 `ProblemDetail`），App 显示「当前人数较多，请稍后再试」。熔断打开的 5 秒里，下单请求在 `mall-app` 内就失败返回，Tomcat 线程不再被占住，商品详情和订单查询照常可用。
 
-`release` 被熔断器拒绝时，预占记录保持 RESERVED，由 [跨服务一致性](./7_consistency) 的 `ReservationExpireJob` 回收。活动 SKU 的支付超时缩短为 5 分钟后，它们的 `expire_at` 随之变为下单后 20 分钟，大促期间这个任务从每 5 分钟改为每分钟运行一次，尽快把库存还回来。
+`release` 被熔断器拒绝时，预占记录保持 RESERVED，由 [跨服务一致性](./7_consistency) 的 `ReservationExpireJob` 回收。活动 SKU 的支付超时缩短为 5 分钟后，它们的 `expire_at` 随之变为下单后 20 分钟：活动白名单在 `mall-app` 的 Nacos 配置里，库存服务拿不到，所以 `ReserveStockRequest` 加一个可选字段 `payTimeoutMinutes`（兼容变更），库存服务按「支付超时 + 15 分钟」算 `expire_at`，为空时仍是 30 分钟；大促期间这个任务从每 5 分钟改为每分钟运行一次，尽快把库存还回来。
 
 ### 4、降级
 
@@ -391,6 +393,8 @@ public class PromoSimulation extends Simulation {
 - 网关按「用户 + 接口」令牌桶限流，`mall-app` 限制同一 SKU 待支付最多 2 单，活动 SKU 支付超时缩短为 5 分钟
 - 只对活动白名单 SKU 分 10 桶，按 `order_no` 哈希选桶、桶空换桶；不做 Redis 预扣
 - 容量靠 Gatling 在同构环境按 7500 QPS 压出来，大促按预案提前扩容、预热、冻结发布，RocketMQ 规格按消息量单独评估
+
+> 本篇代码：[ch08-stability](https://github.com/Clarence404/qingyou-mall/tree/ch08-stability) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch07-consistency...ch08-stability)
 
 ## 参考资料
 

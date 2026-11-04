@@ -62,7 +62,7 @@ CAP 与 BASE 的取舍见 [分布式理论](/distributed/2_theorem#二、base-�
 - **参与方少、流程固定**：跨服务的写只有订单、库存、支付三方，状态流转在 [数据建模](./2_data_model) 里已经定死，手写协调的代码量可控
 - **多一套要高可用的基础设施**：TC 集群挂了，所有下单都失败；20 人的团队里没有人专职维护它
 - **热点 SKU 会被全局锁串行化**：AT 模式在全局事务提交前持有全局锁，大促时同一个爆款的下单全部排队，见 [分布式事务 · Seata](/distributed/4_transaction#八、seata)
-- **团队已经有 Outbox**：[异步化](./5_async) 一篇的 `t_outbox`、`OutboxRelayJob` 和 `t_consume_record` 直接复用，`payment-service`、`inventory-service` 各建一份；新增的只是库存的三个接口
+- **团队已经有 Outbox**：[异步化](./5_async) 一篇的 `t_outbox`、`OutboxRelayJob` 和 `t_consume_record` 直接复用：`OutboxWriter`、`OutboxRelay`、`OutboxRelayJob` 从 `com.qingyou.order.outbox` 抽到 `mall-common` 的 `com.qingyou.common.outbox`，三个服务共用一份代码，表在 `payment-service`、`inventory-service` 的库里各建一份；新增的只是库存的三个接口
 
 ### 2、明确不做
 
@@ -78,11 +78,11 @@ CAP 与 BASE 的取舍见 [分布式理论](/distributed/2_theorem#二、base-�
 ![下单、支付到库存确认的时序](../assets/project/consistency-order-pay-sequence.svg)
 
 1. **下单**：`mall-app` 先生成订单号，用它调用 `inventory-service.reserve`；预占成功后，在一个本地事务里写 `t_order`（状态 10）、`t_order_item` 和 `t_outbox`（15 分钟后投递的 `order-timeout` 定时消息，沿用 [异步化](./5_async) 的做法）；`InventoryApi` 上的 `deduct` / `restore` 换成 `reserve` / `release` / `confirm`，仍是同一个 `@HttpExchange` 接口
-2. **支付**：渠道回调到 `payment-service`，验签后在一个本地事务里把 `t_payment` 改为成功并写入它自己库里的 `t_outbox`，由投递任务发出 `payment-succeeded` 消息；同步的 `OrderPayApi.markPaid` 就此下线
+2. **支付**：渠道回调到 `payment-service`，验签后在一个本地事务里把 `t_payment` 改为成功并写入它自己库里的 `t_outbox`，由投递任务发出 `payment-succeeded` 消息（字段 `orderNo, paymentNo, userId, amount, paidAt`，带上 `userId`，订单侧给积分用不必回查）；同步的 `OrderPayApi.markPaid` 就此下线
 3. **订单确认**：`mall-app` 的消费组 `order-payment-consumer` 收到消息，在一个本地事务里把订单从 10 改为 20，并写入 `order-paid` 消息；积分、通知的消费者照旧订阅 `order-paid`，不感知拆分
 4. **库存确认**：`inventory-service` 的消费组 `inventory-confirm-consumer` 订阅 `order-paid`，把预占记录从 RESERVED 改为 CONFIRMED
 
-取消订单（用户取消，或 `order-timeout-consumer` 收到超时消息）走对称的路径：先请 `payment-service` 关闭支付单，关闭成功后在本地事务里把订单从 10 改为 50 并写入 `order-cancelled` 消息，`inventory-service` 的 `inventory-release-consumer` 收到后执行 `release`。关闭支付单失败说明用户已经付款，这时不取消，等 `payment-succeeded` 到达，做法见 [支付 · 主动查单与超时关单](/scenario/14_payment#五、主动查单与超时关单)。
+取消订单（用户取消，或 `order-timeout-consumer` 收到超时消息）走对称的路径：先调用新增的 `mall-payment-api` 里的 `PaymentApi.close(orderNo)` 关闭支付单，返回 `CLOSED` 后在本地事务里把订单从 10 改为 50 并写入 `order-cancelled` 消息，`inventory-service` 的 `inventory-release-consumer` 收到后执行 `release`。返回 `PAID` 说明用户已经付款，这时不取消，等 `payment-succeeded` 到达，做法见 [支付 · 主动查单与超时关单](/scenario/14_payment#五、主动查单与超时关单)。
 
 ---
 
@@ -176,7 +176,7 @@ public PlaceOrderResult place(long userId, String idemKey, PlaceOrderRequest req
     }
     List<PricedItem> items = pricingService.price(req);
     String orderNo = orderNoGenerator.next(userId);   // 先有订单号，作为预占的幂等键
-    List<ReserveLine> lines = ReserveLine.of(items);
+    List<ReserveLine> lines = ReserveLine.of(items);    // PricedItem implements SkuQuantity
 
     try {
         inventoryApi.reserve(new ReserveStockRequest(orderNo, lines));   // 读超时 800ms，不重试
@@ -198,7 +198,7 @@ public PlaceOrderResult place(long userId, String idemKey, PlaceOrderRequest req
 }
 ```
 
-`releaseQuietly` 是本类的私有方法，调用 `inventoryApi.release`，吞掉异常、只记日志。结果未知时不重试 `reserve`，先释放再由全局异常处理器返回 `SYSTEM_ERROR`；客户端带同一个 `Idempotency-Key` 重试时，由于订单没写成功，会生成新的订单号重新预占。旧订单号的预占要么已被释放，要么被空回滚占位挡住。`releaseQuietly` 自己也可能失败，这时预占记录保持 RESERVED，交给下面的过期回查。
+`ReserveLine` 在库存的远程契约模块 `mall-inventory-api` 里，不能反过来引用订单的 `PricedItem`，所以契约里加一个小接口 `SkuQuantity { long skuId(); int quantity(); }`，`ReserveLine.of(List<? extends SkuQuantity>)`，由 `PricedItem` 实现它。`releaseQuietly` 是本类的私有方法，调用 `inventoryApi.release`，吞掉异常、只记日志。结果未知时不重试 `reserve`，先释放再由全局异常处理器返回 `SYSTEM_ERROR`；客户端带同一个 `Idempotency-Key` 重试时，由于订单没写成功，会生成新的订单号重新预占。旧订单号的预占要么已被释放，要么被空回滚占位挡住。`releaseQuietly` 自己也可能失败，这时预占记录保持 RESERVED，交给下面的过期回查。
 
 ### 2、支付成功：去重表加条件更新
 
@@ -222,7 +222,7 @@ public void markPaid(PaymentSucceeded msg) {
 
 去重记录与状态变更在同一个事务里，沿用 [异步化](./5_async) 的 `t_consume_record` 和 `OutboxWriter`；订单状态 `WHERE status = 10` 的条件更新再兜一层，即使去重记录被清理，重复消息也只影响 0 行，不会重复写 `order-paid`。库存侧的 `confirm` / `release` 同样是条件更新。消费幂等的几种做法见 [幂等设计 · 消费幂等](/architecture/3_idempotence#五、消费幂等-同事务去重记录)，RocketMQ 的重试与死信见 [RocketMQ](/messaging/3_rocketmq#八、消费模式、重试与死信)。
 
-「关单后才到的支付」来自关闭支付单与用户付款的竞态：渠道关单请求发出时，用户恰好完成付款。这类订单每天个位数，`payment-service` 收到 `order-refund-required` 后原路退款，并通知用户。
+「关单后才到的支付」来自关闭支付单与用户付款的竞态：渠道关单请求发出时，用户恰好完成付款。钱已经到账就要如实记账，所以支付服务的 `markSuccess` 条件是 `status IN (0, 2)`，待支付和已关闭都置为成功并发出 `payment-succeeded`；只认 `status = 0` 的话，已关闭支付单的回调影响 0 行，被当成重复回调吞掉，`order-refund-required` 永远不会产生。这类订单每天个位数，`payment-service` 收到 `order-refund-required` 后原路退款，并通知用户。
 
 ### 3、预占过期回查
 
@@ -281,6 +281,8 @@ public void markPaid(PaymentSucceeded msg) {
 - `t_inventory_reservation` 以 `(order_no, sku_id)` 唯一，`reserve` 查重、`confirm` / `release` 走条件更新；`release` 写占位处理空回滚，`reserve` 遇到占位拒绝以防悬挂
 - 调用结果未知按失败处理，立即释放预占；订单状态的条件更新本身就是消息消费的幂等
 - 每个不一致窗口都要有对用户说得通的展示，尤其是「支付成功、订单确认中」
+
+> 本篇代码：[ch07-consistency](https://github.com/Clarence404/qingyou-mall/tree/ch07-consistency) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch06-split...ch07-consistency) · 阶段 Release：[stage-3-split](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-3-split)
 
 ## 参考资料
 
