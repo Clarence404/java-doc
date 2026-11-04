@@ -300,7 +300,7 @@ Rollout 与 AnalysisTemplate 的完整字段见 [发布策略 · 渐进式交付
 
 金丝雀放量和回滚都在频繁地起停 Pod，阶段三的探针和 `preStop` 在这里变成了每天都要经过的路径。在 [拆分服务](./6_split) 的基础上补两条：
 
-- **预热完成再注册**：Nacos 的自动注册发生在 Web 服务器启动时，早于预热；改为关掉自动注册（`spring.cloud.nacos.discovery.register-enabled: false`），在就绪状态变为 `ACCEPTING_TRAFFIC` 时再注册。预热放在 `ApplicationRunner` 里：建好连接池、加载头部商品进 L1，所以 readiness 和 Nacos 注册都在预热之后
+- **预热完成再注册**：Nacos 的自动注册发生在 Web 服务器启动时，早于预热；改为关掉自动注册（`spring.cloud.nacos.discovery.register-enabled: false`），在就绪状态变为 `ACCEPTING_TRAFFIC` 时再注册。实例端口原本由自动注册在 Web 服务器启动时填入，关掉后要显式配置 `spring.cloud.nacos.discovery.port: ${server.port}`，否则注册成 `-1`、被 Nacos 拒绝。预热放在 `ApplicationRunner` 里：建好连接池、加载头部商品进 L1，所以 readiness 和 Nacos 注册都在预热之后
 - **停机先注销、再停消费、最后停 Web**：`preStop` 先从 Nacos 注销并等待 15 秒，`server.shutdown: graceful` 让在途请求处理完；RocketMQ 消费者在 Spring 容器关闭时先停止拉取，已拉到的消息处理完再退出，处理不完的由 Broker 重投，靠消费幂等兜住
 
 ```java
