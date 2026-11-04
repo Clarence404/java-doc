@@ -4,7 +4,7 @@ description: TCP 握手挥手与 TIME_WAIT、拥塞控制、HTTP 演进与缓存
 
 # 网络协议面试题解答
 
-> 题目清单见 [网络协议面试题](/protocols/99_interview)；细节见 [网络协议总览](/protocols/0_overview)。WebSocket、SSE、粘包拆包、IO 模型见 [Netty 面试题解答](/interview/6_netty)，REST、gRPC、Dubbo 选型见 [微服务面试题解答](/interview/11_microservices)。
+> 题目清单见 [网络协议面试题](/protocols/99_interview)；细节见 [网络协议总览](/protocols/0_overview)。WebSocket、SSE、粘包拆包、IO 模型见 [Netty 面试题解答](/interview/9_netty)，REST、gRPC、Dubbo 选型见 [微服务面试题解答](/interview/17_microservices)。
 >
 > 版本基线：TCP 以 RFC 9293、HTTP 以 RFC 9110 / 9113 / 9114、TLS 以 RFC 8446（TLS 1.3）为准；Linux 行为以 5.x / 6.x 内核为准，Java 示例默认 JDK 21。
 
@@ -348,7 +348,7 @@ description: TCP 握手挥手与 TIME_WAIT、拥塞控制、HTTP 演进与缓存
 
 **一句话**：CDN 靠 DNS 把用户导到就近的边缘节点，节点缓存可公开、可缓存的内容，未命中才回源；正向代理替客户端出去，反向代理替服务端接进来。
 
-- CDN 的调度、缓存与回源保护，完整答案见 [高并发面试题解答](/interview/13_high_con) Q7
+- CDN 的调度、缓存与回源保护，完整答案见 [高并发面试题解答](/interview/20_high_con) Q7
 - 正向代理：客户端配置它去访问外部，服务端看到的是代理，如企业上网代理
 - 反向代理：部署在服务端前面，客户端以为它就是服务器，如 Nginx、API 网关，负责负载均衡、TLS 卸载、限流
 

@@ -38,7 +38,7 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 7. 写 Java 代码前读应用接入：[ORM 框架](./4_access/1_orm_framework)、[数据库连接池](./4_access/2_connection_pool)、[MySQL JDBC 驱动](./4_access/3_jdbc_driver)
 8. 工程落地读 [CDC 工具](./5_practice/0_cdc_tools)、[数据备份与恢复](./5_practice/2_backup_recovery)、[分库分表与中间件](./5_practice/3_sharding)；想了解 binlog 订阅原理时按需阅读 [mysql-binlog-connector-java 原理](./5_practice/1_binlog_connector_source)
 
-[高频面试题](./99_interview) 只列题目，答案在 [数据库面试题解答](/interview/7_db)。
+[高频面试题](./99_interview) 只列题目，答案在 [数据库面试题解答](/interview/12_db)。
 
 ---
 
@@ -60,7 +60,7 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 - [事务管理](/spring/4_transaction)：Spring 声明式事务、传播行为与失效场景
 - [Flink CDC](/flink/6_cdc)：基于 binlog 的实时同步与入湖
 - [数据访问性能](/high-perf/10_db_performance)：连接池、批量与 SQL 层面的性能优化方法
-- [数据库面试题解答](/interview/7_db)：本模块高频问题的答案汇总
+- [数据库面试题解答](/interview/12_db)：本模块高频问题的答案汇总
 
 ## 参考资料
 

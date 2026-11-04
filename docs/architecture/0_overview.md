@@ -32,7 +32,7 @@
 3. [数据冷热分离](./4_cold_hot_data) 与 [对象存储](./5_object_storage)：数据量增长后的分层存储与文件存储方案
 4. [权限系统架构设计](./6_access_control) 与 [主数据系统设计](./7_master_data)：把前面的模式组合成具体的平台系统
 
-[高频面试题](./99_interview) 只列题目，答案在 [系统架构面试题解答](/interview/15_architecture)。
+[高频面试题](./99_interview) 只列题目，答案在 [系统架构面试题解答](/interview/23_architecture)。
 
 ---
 

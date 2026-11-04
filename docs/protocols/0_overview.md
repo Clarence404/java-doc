@@ -22,7 +22,7 @@
 4. 服务间调用读 [RPC 协议](./5_rpc_protocols)，gRPC 的帧格式、截止时间、状态码与长连接负载均衡
 5. 外围协议按需阅读：[数据库协议](./6_database_protocols)（连接认证类报错时查）、[邮件协议](./7_email_protocols)（发系统通知时查）、[文件协议](./8_file_protocols)（与外部系统做文件交换时查）
 
-[高频面试题](./99_interview) 只列题目，答案在 [网络协议面试题解答](/interview/4_network)。
+[高频面试题](./99_interview) 只列题目，答案在 [网络协议面试题解答](/interview/6_network)。
 
 ---
 

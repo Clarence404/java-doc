@@ -4,7 +4,7 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 
 # 高可用面试题解答
 
-> 题目清单见 [高可用面试题](/high-avail/99_interview)，细节见 [高可用模块](/high-avail/0_overview)；三高另外两页：[高性能](./12_high_perf) · [高并发](./13_high_con)。
+> 题目清单见 [高可用面试题](/high-avail/99_interview)，细节见 [高可用模块](/high-avail/0_overview)；三高另外两页：[高性能](./19_high_perf) · [高并发](./20_high_con)。
 >
 > 版本基线：JDK 21 / 25 LTS、Spring Boot 4.x，与旧版本不同处单独说明。
 
@@ -212,7 +212,7 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 - 超时最危险：请求可能已在后端执行完，只是响应慢了，这时转移就是重复执行
 - 次数用 `proxy_next_upstream_tries` 设为 1～2：下游整体变慢时，不限次数会让一个请求把所有实例试一遍，流量成倍放大
 - 写接口确实要转移，先做幂等（幂等键 + 唯一约束）
-- 四层与七层负载均衡的区别见 [高并发面试题解答 Q6](/interview/13_high_con#q6-四层负载均衡-lvs-和七层负载均衡-nginx-有什么区别-为什么常组合使用)
+- 四层与七层负载均衡的区别见 [高并发面试题解答 Q6](/interview/20_high_con#q6-四层负载均衡-lvs-和七层负载均衡-nginx-有什么区别-为什么常组合使用)
 
 → 详见 [负载均衡](/high-avail/3_load_balancing#二、健康检查与故障摘除)、[超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead#_3、重试放大控制)
 

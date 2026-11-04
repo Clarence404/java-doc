@@ -4,7 +4,7 @@ description: 进程线程协程、系统调用、虚拟内存、OOM Killer、Pag
 
 # 操作系统面试题解答
 
-> 题目清单见 [操作系统面试题](/os/99_interview)；细节见 [操作系统总览](/os/0_overview)。线程池、锁、JMM 的 Java 层面问题见 [Java 并发面试题解答](/interview/2_concurrent)，epoll 与 IO 模型见 [Netty 面试题解答](/interview/6_netty)。
+> 题目清单见 [操作系统面试题](/os/99_interview)；细节见 [操作系统总览](/os/0_overview)。线程池、锁、JMM 的 Java 层面问题见 [Java 并发面试题解答](/interview/2_concurrent)，epoll 与 IO 模型见 [Netty 面试题解答](/interview/9_netty)。
 >
 > 版本基线：Linux 6.x 内核、cgroup v2、x86-64 / AArch64，Java 示例默认 JDK 21。
 

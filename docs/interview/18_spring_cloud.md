@@ -4,7 +4,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 # Spring Cloud 面试题解答
 
-> 题目清单见 [微服务面试题](/microservices/99_interview)，模块入口见 [微服务总览](/microservices/0_overview)；拆分、通信、服务网格等架构题见 [微服务面试题解答](/interview/11_microservices)，分布式事务理论见 [分布式面试题解答](/interview/10_distributed)。
+> 题目清单见 [微服务面试题](/microservices/99_interview)，模块入口见 [微服务总览](/microservices/0_overview)；拆分、通信、服务网格等架构题见 [微服务面试题解答](/interview/17_microservices)，分布式事务理论见 [分布式面试题解答](/interview/16_distributed)。
 >
 > 版本基线：Spring Boot 4.x、Spring Cloud 2025.1.x、Spring Cloud Alibaba 2025.1.0.0（Nacos 3.x）。
 
@@ -161,7 +161,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 
 **常见坑**：灰度标记没有一跳一跳往下传，第二跳之后就回到了稳定版本。
 
-→ 详见 [服务治理](/microservices/14_service_governance#二、负载均衡-spring-cloud-loadbalancer)、[高可用面试题解答](/interview/14_high_avail#q17-服务端负载均衡与客户端负载均衡-spring-cloud-loadbalancer-有什么区别)
+→ 详见 [服务治理](/microservices/14_service_governance#二、负载均衡-spring-cloud-loadbalancer)、[高可用面试题解答](/interview/21_high_avail#q17-服务端负载均衡与客户端负载均衡-spring-cloud-loadbalancer-有什么区别)
 
 ### Q13：API 网关的作用是什么？Route、Predicate、Filter 分别是什么，请求如何流转？
 
@@ -243,7 +243,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 隔离：给不同下游分开的线程或并发额度（Resilience4j Bulkhead、Sentinel 并发数）
 - 重试：只对幂等接口、只在一层做
 
-→ 详见 [服务治理](/microservices/14_service_governance#一、服务治理全景)、[高可用面试题解答](/interview/14_high_avail#五、熔断)
+→ 详见 [服务治理](/microservices/14_service_governance#一、服务治理全景)、[高可用面试题解答](/interview/21_high_avail#五、熔断)
 
 ### Q19：Sentinel 的核心原理（Slot 链、滑动窗口）是什么？
 
@@ -261,7 +261,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 **一句话**：流控有三种效果：快速失败（默认）、预热（冷启动时慢慢放量）、匀速排队（削峰）；熔断按慢调用比例、异常比例、异常数三种策略触发。
 
 - 熔断状态：关闭（正常）→ 打开（直接拒绝）→ 半开（放少量请求试探，好了就恢复）
-- 规则默认只在内存里，重启就丢，生产要持久化到 Nacos；持久化后控制台改的规则为什么还会丢，完整答案见 [高可用面试题解答](/interview/14_high_avail) Q32
+- 规则默认只在内存里，重启就丢，生产要持久化到 Nacos；持久化后控制台改的规则为什么还会丢，完整答案见 [高可用面试题解答](/interview/21_high_avail) Q32
 
 → 详见 [Spring Cloud Alibaba](/microservices/15_alibaba#_5、规则持久化-nacos-数据源)
 
@@ -304,7 +304,7 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 配置：`tx-service-group` 经 `vgroup-mapping` 映射到 TC 集群名，`registry.type: nacos` 从 Nacos 发现 seata-server
 - XID 透传：OpenFeign 等常用客户端由 starter 自动处理；自定义客户端要把 `RootContext.getXID()` 放进请求头 `TX_XID`，下游再绑定
 - seata-server 生产用 db 或 raft 存储，多节点部署
-- AT 原理、读写隔离和四种模式怎么选见 [分布式面试题解答 Q17](/interview/10_distributed#q17-seata-at-的原理是什么-全局锁和读隔离是怎样的-回滚什么时候会失败)、[Q18](/interview/10_distributed#q18-seata-的-at、tcc、saga、xa-怎么选)
+- AT 原理、读写隔离和四种模式怎么选见 [分布式面试题解答 Q17](/interview/16_distributed#q17-seata-at-的原理是什么-全局锁和读隔离是怎样的-回滚什么时候会失败)、[Q18](/interview/16_distributed#q18-seata-的-at、tcc、saga、xa-怎么选)
 
 **常见坑**：下游返回错误码而不抛异常时，发起方要自己判断并抛异常，否则全局事务会被提交。
 

@@ -25,7 +25,7 @@ Netty 是 Java 生态中使用最广的网络通信框架，Dubbo、gRPC、Rocke
 - **准备上线或排查线上问题**：直接看 [生产实践与调优](./12_production) 的参数表和常见坑。
 - **版本说明**：Netty 4.2 运行要求 JDK 8+，io_uring 传输需 JDK 9+，本模块示例代码按 JDK 17+ 编写；Netty 4.1 将于 2027 年 7 月 1 日停止维护，与 4.2 的差异在相关章节单独标注。
 
-复习时用 [高频面试题](./99_interview) 自测，答案在 [Netty 面试题解答](/interview/6_netty)。
+复习时用 [高频面试题](./99_interview) 自测，答案在 [Netty 面试题解答](/interview/9_netty)。
 
 ## 四、关联模块
 

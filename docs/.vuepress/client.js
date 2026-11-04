@@ -27,7 +27,7 @@ export default defineClientConfig({
     enhance({app}) {
         // 总览页导航表：<ModuleNav />
         app.component('ModuleNav', ModuleNav);
-        // 题单：<InterviewList page="9_mq" />，由答案页自动生成
+        // 题单：<InterviewList page="15_mq" />，由答案页自动生成
         app.component('InterviewList', InterviewList);
         // 学习路线：<LearningRoutes />，由 site.js 的 ROUTES 生成
         app.component('LearningRoutes', LearningRoutes);

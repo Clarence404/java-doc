@@ -20,7 +20,7 @@
 4. 接着读 [Caffeine](./7_caffeine)、[两级缓存（L1 + L2）](./8_two_level_cache)、[JetCache](./9_jetcache)（可选：Boot 4 需 2.7.9 及以上，也可用 Caffeine + 自建两级缓存替代），建立本地 + 分布式的多级缓存视角。
 5. 最后读 [缓存一致性](./10_cache_consistency) 与 [缓存最佳实践](./11_cache_rule)，形成团队规范。
 
-[高频面试题](./99_interview) 只列题目，答案在 [缓存面试题解答](/interview/8_cache)。
+[高频面试题](./99_interview) 只列题目，答案在 [缓存面试题解答](/interview/14_cache)。
 
 ---
 
@@ -37,4 +37,4 @@
 - Redis Stream / List 做队列时的可靠性对比 → [消息队列总览](/messaging/0_overview)
 - 幂等方案 → [幂等设计](/architecture/3_idempotence)
 - Spring Cache 抽象 → [Cache 抽象](/spring/5_cache)
-- 本模块高频问题的答案汇总 → [缓存面试题解答](/interview/8_cache)
+- 本模块高频问题的答案汇总 → [缓存面试题解答](/interview/14_cache)

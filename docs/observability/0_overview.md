@@ -69,7 +69,7 @@ Grafana 官方提供 `grafana/otel-lgtm` 镜像，一个容器内集成了 OTel 
 4. **统一标准**：读 [OpenTelemetry](./5_opentelemetry)，理解 OTLP、Collector 和语义约定，把各信号的采集收敛到一套标准上。
 5. **补上代码层视角**：读 [持续剖析与 eBPF](./6_profiling)，让火焰图常驻在线并与链路关联，再用 eBPF 覆盖内核与非 Java 进程。
 
-复习时用 [高频面试题](./99_interview) 自测，答案在 [可观测性面试题解答](/interview/22_observability)。
+复习时用 [高频面试题](./99_interview) 自测，答案在 [可观测性面试题解答](/interview/31_observability)。
 
 ---
 

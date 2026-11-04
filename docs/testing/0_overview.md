@@ -27,7 +27,7 @@
 
 Spring 项目读完前三篇后接着读 [Spring Boot 测试](/spring-boot/10_testing)。
 
-复习时用 [高频面试题](./99_interview) 自测，答案在 [测试工程面试题解答](/interview/20_testing)。
+复习时用 [高频面试题](./99_interview) 自测，答案在 [测试工程面试题解答](/interview/26_testing)。
 
 ---
 

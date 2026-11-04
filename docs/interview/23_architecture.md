@@ -4,7 +4,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 
 # 系统架构面试题解答
 
-> 题目清单见 [系统架构面试题](/architecture/99_interview)；细节见 [系统架构总览](/architecture/0_overview)。微服务拆分、网关、链路追踪的题目见 [微服务面试题解答](/interview/11_microservices) 与 [Spring Cloud 面试题解答](/interview/11_spring_cloud)，系统设计题见 [业务场景面试题解答](/interview/16_scenario)。
+> 题目清单见 [系统架构面试题](/architecture/99_interview)；细节见 [系统架构总览](/architecture/0_overview)。微服务拆分、网关、链路追踪的题目见 [微服务面试题解答](/interview/17_microservices) 与 [Spring Cloud 面试题解答](/interview/18_spring_cloud)，系统设计题见 [业务场景面试题解答](/interview/24_scenario)。
 >
 > 版本基线：JDK 21 / 25、Spring Boot 4（Spring Framework 7、Spring Security 7）、MySQL 8.4 LTS、Redis 8.x、RocketMQ 5.x、AWS SDK for Java 2.x、MyBatis-Plus 3.5.x。
 
@@ -221,7 +221,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 
 - 重复请求的来源：用户重复点击、超时重试（超时不等于失败）、MQ 重投、支付渠道重推、定时任务重复触发
 - 能用「设为某值」就不用「增加某值」；客户端能确定资源 ID 时用 `PUT /orders/{requestNo}` 代替 `POST`
-- 各 HTTP 方法的安全性与幂等性，完整答案见 [网络协议面试题解答](/interview/4_network) Q12
+- 各 HTTP 方法的安全性与幂等性，完整答案见 [网络协议面试题解答](/interview/6_network) Q12
 
 → 详见 [幂等设计](/architecture/3_idempotence#一、幂等的语义与幂等键)
 
@@ -253,7 +253,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 更严格时占位值带 UUID，完成和释放用 Lua 比较后再改写
 - Redis 与数据库不是原子的，业务层仍要唯一约束或条件更新兜底
 
-→ 详见 [幂等设计](/architecture/3_idempotence#六、redis-状态机-加速层)、[消息队列面试题解答](/interview/9_mq#二、消息可靠性)
+→ 详见 [幂等设计](/architecture/3_idempotence#六、redis-状态机-加速层)、[消息队列面试题解答](/interview/15_mq#二、消息可靠性)
 
 ### Q20：Token 防重复提交有什么局限？`Idempotency-Key` 请求头怎么用？
 
@@ -271,13 +271,13 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 **一句话**：支付回调靠支付单的状态条件更新（`WAITING → SUCCESS` 只会成功一次）加支付流水号唯一约束；分布式锁只把并发请求串行化，不记录「做没做过」，单独用不能保证幂等。
 
 - 锁会因租约过期失效，锁内仍要有条件更新作为真正的判断
-- 验签、金额校验、补单查询等完整流程，完整答案见 [业务场景面试题解答](/interview/16_scenario) Q5
+- 验签、金额校验、补单查询等完整流程，完整答案见 [业务场景面试题解答](/interview/24_scenario) Q5
 
 → 详见 [幂等设计](/architecture/3_idempotence#九、业务案例-下单与支付回调)、[订单](/scenario/5_order_system#五、支付回调)
 
 ## 四、访问控制
 
-权限模型对比（RBAC / ABAC / ReBAC / ACL）与数据权限拦截见 [安全面试题解答 Q14](/interview/23_security#q14-rbac、abac、rebac、acl-有什么区别-怎么选)、[Q16](/interview/23_security#q16-数据权限-行级权限-怎么做)；正文见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac#五、模型对比与选型)、[权限系统架构设计](/architecture/6_access_control#四、数据权限拦截架构)。
+权限模型对比（RBAC / ABAC / ReBAC / ACL）与数据权限拦截见 [安全面试题解答 Q14](/interview/32_security#q14-rbac、abac、rebac、acl-有什么区别-怎么选)、[Q16](/interview/32_security#q16-数据权限-行级权限-怎么做)；正文见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac#五、模型对比与选型)、[权限系统架构设计](/architecture/6_access_control#四、数据权限拦截架构)。
 
 ### Q22：鉴权放在网关还是服务？权限变更后如何及时生效？
 

@@ -6,4 +6,4 @@ description: 大数据方向题目清单
 
 > 题目由答案页自动生成，点击题目直接跳到答案；答案末尾的「详见」链接回到本模块正文。
 
-<InterviewList page="26_bigdata" />
+<InterviewList page="35_bigdata" />

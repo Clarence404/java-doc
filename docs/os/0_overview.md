@@ -24,7 +24,7 @@ Java 程序的线程、IO、内存最终都落到操作系统上：`Thread` 对�
 6. [进程间通信与进程状态](./6_ipc_process)：管道、信号、共享内存与 Socket，进程状态、僵尸进程与容器中的 PID 1
 7. [文件系统与磁盘 IO](./7_file_io)：VFS 与文件描述符、ext4 / xfs、块层与 IO 调度、Direct IO 与 io_uring、`fsync` 语义、`iostat` 与云盘限速
 
-复习时用 [高频面试题](./99_interview) 自测，答案在 [操作系统面试题解答](/interview/4_computer_os)。
+复习时用 [高频面试题](./99_interview) 自测，答案在 [操作系统面试题解答](/interview/5_computer_os)。
 
 ---
 
@@ -36,4 +36,4 @@ Java 程序的线程、IO、内存最终都落到操作系统上：`Thread` 对�
 - [Linux 概览](/cloud-native/1_linux)：进程与信号、文件描述符、systemd 等运维层面的 Linux 知识
 - [Linux 排查命令速查](/handbook/1_cheatsheet/0_linux)：CPU、内存、磁盘、网络的排查命令清单
 - [高性能总览](/high-perf/0_overview)：把本模块的原理用到性能指标、Profiler 与 IO 优化上
-- [操作系统面试题解答](/interview/4_computer_os)：本模块高频问题的答案汇总
+- [操作系统面试题解答](/interview/5_computer_os)：本模块高频问题的答案汇总

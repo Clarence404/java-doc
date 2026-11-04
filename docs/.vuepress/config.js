@@ -187,7 +187,7 @@ function writeRoutesData(app) {
     return app.writeTemp('routes-data.js', `export default ${JSON.stringify(routes)};\n`);
 }
 
-// 答案页（interview/*.md）的分组与题目：<InterviewList page="9_mq" /> 据此生成题单，题目链接到答案锚点
+// 答案页（interview/*.md）的分组与题目：<InterviewList page="15_mq" /> 据此生成题单，题目链接到答案锚点
 // 另生成 interview-answers.js（每题的「一句话」），供题单的自测模式按需加载，不进主包
 function writeInterviewData(app) {
     const data = {};

@@ -36,7 +36,7 @@
 12. [Dubbo](./20_dubbo)：RPC 服务框架的调用流程、Triple 协议、负载均衡与集群容错、SPI 扩展机制，以及与 Spring Cloud 的选型
 13. [服务网格](./21_service_mesh)：Istio 的控制面与数据面、流量管理、mTLS、Sidecar 与 Ambient 两种数据面，以及与 Spring Cloud 的取舍
 
-[高频面试题](./99_interview) 只列题目，答案在 [微服务面试题解答](/interview/11_microservices) 与 [Spring Cloud 面试题解答](/interview/11_spring_cloud)。
+[高频面试题](./99_interview) 只列题目，答案在 [微服务面试题解答](/interview/17_microservices) 与 [Spring Cloud 面试题解答](/interview/18_spring_cloud)。
 
 ---
 

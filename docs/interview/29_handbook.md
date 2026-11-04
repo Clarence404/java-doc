@@ -193,7 +193,7 @@ description: CPU 飙高、OOM 与 Full GC、线程卡死、慢 SQL 与锁表、�
 
 **一句话**：Java OOM 是 JVM 自己在某块内存里申请不到空间抛的异常，进程还活着；OOMKilled 是容器总内存超过 limit 被内核直接杀掉，退出码 137，没有 Java 异常也没有 dump。
 
-→ 完整答案见 [操作系统面试题解答](/interview/4_computer_os) Q10；正文详见 [容器被 OOMKilled · 排查过程](/handbook/2_incidents/15_oom_killed#三、排查过程)
+→ 完整答案见 [操作系统面试题解答](/interview/5_computer_os) Q10；正文详见 [容器被 OOMKilled · 排查过程](/handbook/2_incidents/15_oom_killed#三、排查过程)
 
 ### Q15：Kubernetes 里调用外部接口偶发「恰好慢 5 秒」，怎么查？
 
@@ -227,7 +227,7 @@ description: CPU 飙高、OOM 与 Full GC、线程卡死、慢 SQL 与锁表、�
 
 **一句话**：Linux 的 Load 不只数在跑的任务，还数卡在不可中断等待（D 状态）里的任务；CPU 闲而 Load 高，多半是一批线程卡在 IO 上，比如 NFS 不响应。
 
-→ 完整答案见 [操作系统面试题解答](/interview/4_computer_os) Q14；正文详见 [Load 高但 CPU 不高 · 排查过程](/handbook/2_incidents/18_load_high_cpu_low#三、排查过程)
+→ 完整答案见 [操作系统面试题解答](/interview/5_computer_os) Q14；正文详见 [Load 高但 CPU 不高 · 排查过程](/handbook/2_incidents/18_load_high_cpu_low#三、排查过程)
 
 ### Q18：发版后 MySQL CPU 打满，怎么找到是哪条 SQL？
 
@@ -275,7 +275,7 @@ description: CPU 飙高、OOM 与 Full GC、线程卡死、慢 SQL 与锁表、�
 
 **一句话**：这是冷启动：热点代码还没被 JIT 编译成机器码、类和连接池按需初始化、本地缓存是空的，实例一就绪就接满流量，前几分钟自然慢。
 
-→ 完整答案见 [高可用面试题解答](/interview/14_high_avail) Q45；正文详见 [启动后 RT 飙高 · 排查过程](/handbook/2_incidents/22_warmup_rt#三、排查过程)
+→ 完整答案见 [高可用面试题解答](/interview/21_high_avail) Q45；正文详见 [启动后 RT 飙高 · 排查过程](/handbook/2_incidents/22_warmup_rt#三、排查过程)
 
 ### Q22：CPU 不高、下游都正常，接口却变慢，会不会是日志的问题？
 

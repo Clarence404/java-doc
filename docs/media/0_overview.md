@@ -67,7 +67,7 @@ Java 后端常做的事：
 2. **掌握工具与服务端**：读 [FFmpeg 与转码](./3_ffmpeg)（命令行、多码率 HLS、硬件编码），再读 [流媒体服务器](./4_media_server)（选型、Hook 回调、集群）和 [WebRTC 实时通信](./5_webrtc)（信令、ICE、SFU）。
 3. **落到业务系统**：读 [直播系统设计](./6_live_streaming)、[点播与短视频](./7_vod)，需要接入摄像头时读 [监控视频接入](./8_video_surveillance)。
 
-网络基础薄弱时先补 [TCP 与 UDP](/protocols/1_tcp_udp) 和 [HTTP](/protocols/2_http)。复习时用 [高频面试题](./99_interview) 自测，答案在 [音视频面试题解答](/interview/27_media)。
+网络基础薄弱时先补 [TCP 与 UDP](/protocols/1_tcp_udp) 和 [HTTP](/protocols/2_http)。复习时用 [高频面试题](./99_interview) 自测，答案在 [音视频面试题解答](/interview/37_media)。
 
 ---
 

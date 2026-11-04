@@ -416,7 +416,7 @@ svg, img{ display:block; }
 @media (min-width:560px){ .iv__groups{ grid-template-columns:repeat(3, minmax(0,1fr)); } }
 /* 卡片够宽时 8 个分组排成 4 列 × 2 行，避免 3 列时最后一列缺格 */
 .cell--iv{ container-type:inline-size; }
-@container (min-width:640px){ .iv__groups{ grid-template-columns:repeat(4, minmax(0,1fr)); } }
+@container (min-width:560px){ .iv__groups{ grid-template-columns:repeat(4, minmax(0,1fr)); } }
 .ivg{ min-width:0; }
 .ivg__name{ margin-bottom:10px; font:500 11px/1 var(--mono); letter-spacing:.16em; color:var(--on-ink-3); }
 .chips{ display:flex; flex-wrap:wrap; gap:6px; }

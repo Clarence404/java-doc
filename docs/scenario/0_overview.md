@@ -22,7 +22,7 @@
 6. 最后按需阅读 [海量数据架构选型](./2_big_data)、[海量数据算法题](./3_massive_data)、[海量数据对账](./3_reconcile)、[海量数据导入导出](./3_sheet_export)、[大文件上传](./10_file_upload)、[抢红包](./11_red_packet)、[附近的人](./12_geo_nearby)、[商品详情页](./13_product_detail)
 7. 幂等与延迟任务是贯穿多个场景的基础能力：幂等统一看 [幂等设计](/architecture/3_idempotence)，关单、提醒、退避重试等「到点执行一次」的需求统一看 [延迟任务](./23_delay_task)
 
-[高频面试题](./99_interview) 只列题目，答案在 [业务场景面试题解答](/interview/16_scenario)。
+[高频面试题](./99_interview) 只列题目，答案在 [业务场景面试题解答](/interview/24_scenario)。
 
 ---
 

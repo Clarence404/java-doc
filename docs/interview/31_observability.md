@@ -43,7 +43,7 @@ description: 三大信号、RED 与 USE、日志、指标基数、PromQL、链�
 
 - 四个黄金信号出自 Google SRE：延迟、流量、错误、饱和度，可以看成 RED 加一项饱和度
 
-→ RED / USE 的完整答案见 [高性能面试题解答](/interview/12_high_perf) Q3；正文详见 [指标监控](/observability/2_metrics#三、该看哪些指标-red、use-与四个黄金信号)
+→ RED / USE 的完整答案见 [高性能面试题解答](/interview/19_high_perf) Q3；正文详见 [指标监控](/observability/2_metrics#三、该看哪些指标-red、use-与四个黄金信号)
 
 ## 二、日志与指标
 
@@ -203,7 +203,7 @@ description: 三大信号、RED 与 USE、日志、指标基数、PromQL、链�
 
 **一句话**：固定阈值「错误率 > 5%」要么太敏感要么太迟钝，燃烧速率直接衡量「错误预算花得多快」，更贴近对 SLO 的真实威胁。
 
-→ 完整答案见 [高可用面试题解答](/interview/14_high_avail) Q5；正文详见 [可用性度量](/high-avail/1_sla_slo#_2、燃烧速率告警)
+→ 完整答案见 [高可用面试题解答](/interview/21_high_avail) Q5；正文详见 [可用性度量](/high-avail/1_sla_slo#_2、燃烧速率告警)
 
 ## 五、持续剖析
 

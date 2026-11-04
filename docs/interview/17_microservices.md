@@ -4,7 +4,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 # 微服务面试题解答
 
-> 题目清单见 [微服务面试题](/microservices/99_interview)，模块入口见 [微服务总览](/microservices/0_overview)；Nacos、网关、Feign、Sentinel、Seata 等组件题见 [Spring Cloud 面试题解答](/interview/11_spring_cloud)，熔断限流策略见 [高可用面试题解答](/interview/14_high_avail)。
+> 题目清单见 [微服务面试题](/microservices/99_interview)，模块入口见 [微服务总览](/microservices/0_overview)；Nacos、网关、Feign、Sentinel、Seata 等组件题见 [Spring Cloud 面试题解答](/interview/18_spring_cloud)，熔断限流策略见 [高可用面试题解答](/interview/21_high_avail)。
 >
 > 版本基线：Istio 1.30 / 1.31、Dubbo 3.3、Spring Cloud 2025.1.x。
 
@@ -330,19 +330,19 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **一句话**：在同一个本地事务里同时写业务表和一张「待发消息表」（outbox），事务提交两者就一起生效；再由单独的进程把待发消息发到 MQ，发成功就标记完成，失败就重试。
 
-→ 完整答案见 [消息队列面试题解答](/interview/9_mq) Q20；正文详见 [微服务设计模式](/microservices/3_patterns#_5、outbox-事务发件箱)、[分布式事务](/distributed/4_transaction)
+→ 完整答案见 [消息队列面试题解答](/interview/15_mq) Q20；正文详见 [微服务设计模式](/microservices/3_patterns#_5、outbox-事务发件箱)、[分布式事务](/distributed/4_transaction)
 
 ### Q27：Saga 的编排式与协同式有什么区别？
 
 **一句话**：编排式有一个「总指挥」统一调度，流程清楚好监控，适合步骤多、补偿复杂；协同式没有总指挥，各服务听事件自己往下走，适合步骤少。
 
-→ 完整答案见 [分布式面试题解答](/interview/10_distributed) Q16；正文详见 [分布式事务](/distributed/4_transaction#四、saga)
+→ 完整答案见 [分布式面试题解答](/interview/16_distributed) Q16；正文详见 [分布式事务](/distributed/4_transaction#四、saga)
 
 ### Q28：消费者驱动契约测试解决什么问题？
 
 **一句话**：服务各自发布，提供方改了接口很容易把调用方搞坏；契约测试让调用方写下「我需要你返回什么」，提供方在 CI 里用它验证，一旦改坏就构建失败。
 
-→ 完整答案见 [测试工程面试题解答](/interview/20_testing) Q11；正文详见 [微服务设计模式](/microservices/3_patterns#_4、消费者驱动契约测试-consumer-driven-contract)、[契约测试](/testing/6_contract_test)
+→ 完整答案见 [测试工程面试题解答](/interview/26_testing) Q11；正文详见 [微服务设计模式](/microservices/3_patterns#_4、消费者驱动契约测试-consumer-driven-contract)、[契约测试](/testing/6_contract_test)
 
 ## 五、分布式场景
 
@@ -350,13 +350,13 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **一句话**：能不用分布式事务就不用；优先用最终一致方案（Outbox、事务消息、Saga、对账补偿），只有必须同步拿到一致结果的链路才用 TCC、Seata 这类方案。
 
-→ 完整答案见 [分布式面试题解答](/interview/10_distributed) Q13；正文详见 [分布式事务](/distributed/4_transaction#九、方案选型)
+→ 完整答案见 [分布式面试题解答](/interview/16_distributed) Q13；正文详见 [分布式事务](/distributed/4_transaction#九、方案选型)
 
 ### Q30：微服务接口如何实现幂等？
 
 **一句话**：超时重试、MQ 重复投递、Dubbo 自动重试都会让同一个请求来好几次，所以写接口必须幂等；核心是给每次操作一个唯一标识，服务端按它去重。
 
-→ 完整答案见 [系统架构面试题解答](/interview/15_architecture) Q18；正文详见 [幂等设计](/architecture/3_idempotence)
+→ 完整答案见 [系统架构面试题解答](/interview/23_architecture) Q18；正文详见 [幂等设计](/architecture/3_idempotence)
 
 ### Q31：分布式接口请求的顺序性如何保证？
 

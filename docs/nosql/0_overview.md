@@ -35,7 +35,7 @@ Redis 也是键值存储，但定位是缓存与内存数据结构，主文档�
 4. 嵌入式与强一致 KV 读 [键值与嵌入式数据库](./1_kv_db)，关系分析读 [图数据库](./6_graph_db)
 5. 做技术决策时看 [数据库选型参考](/database/0_fundamentals/2_selection_guide)，它同时覆盖关系库与 NoSQL
 
-[高频面试题](./99_interview) 只列题目，答案在 [数据库面试题解答](/interview/7_db) 的「NoSQL 与选型」分组。
+[高频面试题](./99_interview) 只列题目，答案在 [NoSQL 面试题解答](/interview/13_nosql)。
 
 ---
 

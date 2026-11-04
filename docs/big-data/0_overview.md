@@ -74,7 +74,7 @@ Java 后端和数据平台打交道，主要在四个接口上：
 4. **把链路串起来**：读 [数据集成](./5_data_integration) 和 [任务调度](./6_scheduling)，理解数据如何进出平台、几百个任务如何按依赖可靠运行；实时同步细节对照 [Flink CDC](/flink/6_cdc)。
 5. **面向使用与长期运营**：读 [OLAP 查询与数据服务](./7_olap_service) 与 [数据治理](./8_governance)，最后在 [实时数仓实战](./9_realtime_dw) 中把 Flink、Paimon、StarRocks 组合成一条完整的实时链路。
 
-复习时用 [高频面试题](./99_interview) 自测，答案在 [大数据面试题解答](/interview/26_bigdata)。
+复习时用 [高频面试题](./99_interview) 自测，答案在 [大数据面试题解答](/interview/35_bigdata)。
 
 ---
 

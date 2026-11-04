@@ -108,7 +108,7 @@ description: Linux 排查、容器与 Java 镜像、Kubernetes 探针与发布�
 - 不设 CPU limit 时 JVM 看到整台节点的核数，GC 线程和线程池偏大，用 `-XX:ActiveProcessorCount` 指定
 - 加 `-XX:+ExitOnOutOfMemoryError`，堆溢出时直接退出让 K8s 重启
 
-→ 详见 [Kubernetes](/cloud-native/6_kubernetes#_3、jvm-在容器里)；OOMKilled 与 Java OOM 的区别见 [操作系统面试题解答](/interview/4_computer_os) Q10
+→ 详见 [Kubernetes](/cloud-native/6_kubernetes#_3、jvm-在容器里)；OOMKilled 与 Java OOM 的区别见 [操作系统面试题解答](/interview/5_computer_os) Q10
 
 ## 三、Kubernetes
 
@@ -159,7 +159,7 @@ description: Linux 排查、容器与 Java 镜像、Kubernetes 探针与发布�
 
 **一句话**：startup 管「启动完了没」，liveness 管「还活着没」（失败就重启），readiness 管「能不能接流量」（失败就摘流量但不重启）；liveness 绝不能查数据库这类外部依赖。
 
-→ 完整答案见 [高可用面试题解答](/interview/14_high_avail) Q10；正文详见 [冗余与故障转移](/high-avail/2_redundancy_failover#_2、kubernetes-探针)
+→ 完整答案见 [高可用面试题解答](/interview/21_high_avail) Q10；正文详见 [冗余与故障转移](/high-avail/2_redundancy_failover#_2、kubernetes-探针)
 
 ### Q13：滚动更新怎么做到不中断？Pod 下线时怎么优雅终止？
 
@@ -167,7 +167,7 @@ description: Linux 排查、容器与 Java 镜像、Kubernetes 探针与发布�
 
 - `maxSurge`：最多多出几个 Pod；`maxUnavailable`：最多几个不可用
 - 新版本一直不就绪，滚动会卡住，旧 Pod 继续服务；超时只标记失败，**不会自动回滚**，要 `kubectl rollout undo`
-- Pod 下线的终止顺序、`preStop` 与宽限期怎么配，完整答案见 [高可用面试题解答](/interview/14_high_avail) Q43
+- Pod 下线的终止顺序、`preStop` 与宽限期怎么配，完整答案见 [高可用面试题解答](/interview/21_high_avail) Q43
 
 → 详见 [Kubernetes](/cloud-native/6_kubernetes#_3、优雅终止)
 

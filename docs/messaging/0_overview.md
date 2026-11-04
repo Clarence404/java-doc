@@ -21,7 +21,7 @@
 5. [其他 MQ](./5_other_mq)：Apache Pulsar 与其他常见消息系统的定位
 6. [MQ 选型](./6_selection)：三大 MQ 对比、场景决策与常见误区
 
-复习时用 [高频面试题](./99_interview) 自测，答案在 [消息队列面试题解答](/interview/9_mq)。
+复习时用 [高频面试题](./99_interview) 自测，答案在 [消息队列面试题解答](/interview/15_mq)。
 
 ---
 

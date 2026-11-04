@@ -16,7 +16,7 @@
 //   stub     首页「编写中」徽标文字，可选
 //   sidebar  按起始编号分组的侧边栏，可选：[{text, from}]，编号 ≥ from 的文章归入该组（0_overview 与 90 号以后的附录、99_interview 不分组）
 //   interview 本模块 99_interview 题单的答案页（docs/interview/ 下的文件名），用于面试题解导航表的「对应题目清单」列；
-//            题单页本身写 <InterviewList page="9_mq" />，由答案页自动生成（一页对应多个模块时加 groups="1-10"）
+//            题单页本身写 <InterviewList page="15_mq" />，由答案页自动生成（一页对应多个模块时加 groups="1-10"）
 //   subdirs  子目录分组，可选：{'1_mysql': 'MySQL'} 或 {'1_mysql': {title, sidebar?}}；title 同时用于面包屑
 
 // 面试题解（导航栏第一项，不参与首页的分组卡片）
@@ -26,13 +26,13 @@ export const SUMMARY = {
     stripSuffix: '面试题解答',
     sidebar: [
         {text: '基础体系', from: 1},
-        {text: '框架生态', from: 5},
-        {text: '数据存储', from: 7},
-        {text: '分布式系统', from: 10},
-        {text: '架构设计', from: 15},
-        {text: '研发效能', from: 20},
-        {text: '运维保障', from: 21},
-        {text: '垂直领域', from: 24},
+        {text: '框架生态', from: 7},
+        {text: '数据存储', from: 12},
+        {text: '分布式系统', from: 16},
+        {text: '架构设计', from: 22},
+        {text: '研发效能', from: 26},
+        {text: '运维保障', from: 30},
+        {text: '垂直领域', from: 33},
     ],
 };
 
@@ -63,14 +63,14 @@ export const GROUPS = [
                 desc: '复杂度 / 数据结构 / 基础算法 / 算法技巧 / 刷题实战',
                 subdirs: {'1_data_structures': '数据结构', '2_algorithms': '基础算法', '3_patterns': '算法技巧', '4_practice': '刷题实战'},
             },
-            {name: '操作系统', dir: 'os', interview: ['4_computer_os'], desc: '进程线程与协程 / 用户态与系统调用 / 内存与 Page Cache / CPU 缓存与伪共享 / Load / 进程间通信 / 文件与磁盘 IO'},
-            {name: '网络协议', dir: 'protocols', interview: ['4_network'], desc: 'TCP/UDP / HTTP / HTTPS 与 TLS / DNS / RPC / 数据库、邮件、文件协议'},
+            {name: '操作系统', dir: 'os', interview: ['5_computer_os'], desc: '进程线程与协程 / 用户态与系统调用 / 内存与 Page Cache / CPU 缓存与伪共享 / Load / 进程间通信 / 文件与磁盘 IO'},
+            {name: '网络协议', dir: 'protocols', interview: ['6_network'], desc: 'TCP/UDP / HTTP / HTTPS 与 TLS / DNS / RPC / 数据库、邮件、文件协议'},
         ],
     },
     {
         name: '框架生态', tagline: 'Spring 全家桶、网络与响应式框架', modules: [
             {
-                name: 'Spring', dir: 'spring', interview: ['5_spring'],
+                name: 'Spring', dir: 'spring', interview: ['7_spring'],
                 desc: 'IoC / AOP / 事务 / MVC / WebFlux / Cache / Retry / 事件 / Security / Batch 与 Integration',
                 sidebar: [
                     {text: '核心特性', from: 1},
@@ -81,7 +81,7 @@ export const GROUPS = [
                 ],
             },
             {
-                name: 'Spring Boot', dir: 'spring-boot', interview: ['5_spring_boot'],
+                name: 'Spring Boot', dir: 'spring-boot', interview: ['8_spring_boot'],
                 desc: '自动配置 / 配置管理 / Web / 数据访问与 Flyway / 中间件集成 / 异步与定时 / 接口文档 / 自定义 Starter / 日志 / 测试 / Actuator / 版本演进 / 启动优化',
                 sidebar: [
                     {text: '开发基础', from: 1},
@@ -90,15 +90,15 @@ export const GROUPS = [
                     {text: '扩展与演进', from: 12},
                 ],
             },
-            {name: 'Netty', dir: 'netty', interview: ['6_netty'], desc: 'IO 模型 / Reactor / Channel 与 Pipeline / ByteBuf / 粘包拆包与私有协议 / 心跳 / WebSocket / SSE / 生产调优'},
-            {name: 'Vert.x', dir: 'vertx', interview: ['6_vertx'], desc: 'Event Loop / Verticle / Event Bus / Web / 响应式数据访问 / 集群'},
-            {name: 'Quarkus', dir: 'quarkus', interview: ['6_quarkus'], desc: '构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / Spring 迁移 / 其他框架'},
+            {name: 'Netty', dir: 'netty', interview: ['9_netty'], desc: 'IO 模型 / Reactor / Channel 与 Pipeline / ByteBuf / 粘包拆包与私有协议 / 心跳 / WebSocket / SSE / 生产调优'},
+            {name: 'Vert.x', dir: 'vertx', interview: ['10_vertx'], desc: 'Event Loop / Verticle / Event Bus / Web / 响应式数据访问 / 集群'},
+            {name: 'Quarkus', dir: 'quarkus', interview: ['11_quarkus'], desc: '构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / Spring 迁移 / 其他框架'},
         ],
     },
     {
         name: '数据存储', tagline: '关系型、NoSQL、缓存与消息中间件', modules: [
             {
-                name: '数据库', dir: 'database', interview: ['7_db'],
+                name: '数据库', dir: 'database', interview: ['12_db'],
                 desc: '存储引擎与选型 / 分布式文件系统 / MySQL / PostgreSQL / 国产与分布式数据库 / ORM 与连接池 / CDC / 备份恢复 / 分库分表',
                 subdirs: {
                     '0_fundamentals': '基础与选型',
@@ -109,16 +109,16 @@ export const GROUPS = [
                     '5_practice': '数据同步与运维',
                 },
             },
-            {name: 'NoSQL', dir: 'nosql', interview: ['7_db'], desc: '键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图'},
-            {name: '缓存', dir: 'cache', interview: ['8_cache'], desc: 'Redis / Redisson / Caffeine / 两级缓存 / JetCache / 缓存一致性 / 缓存最佳实践'},
-            {name: '消息队列', dir: 'messaging', interview: ['9_mq'], desc: '可靠性与幂等 / 顺序与积压 / Kafka / RocketMQ / RabbitMQ / Pulsar / 选型'},
+            {name: 'NoSQL', dir: 'nosql', interview: ['13_nosql'], desc: '键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图'},
+            {name: '缓存', dir: 'cache', interview: ['14_cache'], desc: 'Redis / Redisson / Caffeine / 两级缓存 / JetCache / 缓存一致性 / 缓存最佳实践'},
+            {name: '消息队列', dir: 'messaging', interview: ['15_mq'], desc: '可靠性与幂等 / 顺序与积压 / Kafka / RocketMQ / RabbitMQ / Pulsar / 选型'},
         ],
     },
     {
         name: '分布式系统', tagline: '分布式理论、微服务与高性能 · 高并发 · 高可用', modules: [
-            {name: '分布式', dir: 'distributed', interview: ['10_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID / 会话 / 调度与工作流 / 一致性哈希'},
+            {name: '分布式', dir: 'distributed', interview: ['16_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID / 会话 / 调度与工作流 / 一致性哈希'},
             {
-                name: '微服务', dir: 'microservices', interview: ['11_microservices', '11_spring_cloud'],
+                name: '微服务', dir: 'microservices', interview: ['17_microservices', '18_spring_cloud'],
                 desc: '服务拆分 / 设计模式 / 调用顺序性 / Spring Cloud（Nacos、Gateway、服务治理、Alibaba、Stream）/ Dubbo / 服务网格',
                 sidebar: [
                     {text: '概念与拆分', from: 1},
@@ -126,15 +126,15 @@ export const GROUPS = [
                     {text: '其他路线', from: 20},
                 ],
             },
-            {name: '高性能', dir: 'high-perf', interview: ['12_high_perf'], desc: '指标 / 方法论 / Profiler / JMH / 池化与异步 / IO 与数据库优化 / JVM 与代码级优化 / 案例'},
-            {name: '高并发', dir: 'high-con', interview: ['13_high_con'], desc: '接入层 / 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划'},
-            {name: '高可用', dir: 'high-avail', interview: ['14_high_avail'], desc: 'SLA / 冗余切换 / 负载均衡 / 超时重试 / 熔断降级限流 / 优雅上下线 / 多活容灾 / 混沌工程 / 应急复盘'},
+            {name: '高性能', dir: 'high-perf', interview: ['19_high_perf'], desc: '指标 / 方法论 / Profiler / JMH / 池化与异步 / IO 与数据库优化 / JVM 与代码级优化 / 案例'},
+            {name: '高并发', dir: 'high-con', interview: ['20_high_con'], desc: '接入层 / 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划'},
+            {name: '高可用', dir: 'high-avail', interview: ['21_high_avail'], desc: 'SLA / 冗余切换 / 负载均衡 / 超时重试 / 熔断降级限流 / 优雅上下线 / 多活容灾 / 混沌工程 / 应急复盘'},
         ],
     },
     {
         name: '架构设计', tagline: '从代码设计到架构落地', modules: [
             {
-                name: '设计模式', dir: 'patterns', interview: ['17_patterns'],
+                name: '设计模式', dir: 'patterns', interview: ['22_patterns'],
                 desc: 'GoF 23 种模式，结合 JDK / Spring 源码',
                 sidebar: [
                     {text: '创建型', from: 1},
@@ -142,9 +142,9 @@ export const GROUPS = [
                     {text: '行为型', from: 13},
                 ],
             },
-            {name: '系统架构', dir: 'architecture', interview: ['15_architecture'], desc: '架构模式 / DDD / 工程结构与分包 / 幂等 / 对象存储 / 权限系统 / 冷热分离 / 主数据'},
+            {name: '系统架构', dir: 'architecture', interview: ['23_architecture'], desc: '架构模式 / DDD / 工程结构与分包 / 幂等 / 对象存储 / 权限系统 / 冷热分离 / 主数据'},
             {
-                name: '业务场景', dir: 'scenario', interview: ['16_scenario', '16_scenario_highlights'],
+                name: '业务场景', dir: 'scenario', interview: ['24_scenario', '25_scenario_highlights'],
                 desc: '设计方法 / 海量数据 / 对账 / 导入导出 / 秒杀 / 订单 / 短链 / 排行榜 / Feed 流 / 搜索 / 大文件上传 / 红包 / LBS / 商品详情 / 支付 / 优惠券 / IM / 计数 / 扫码登录 / 购物车 / 通知中心 / 评论 / 库存票务 / 延迟任务',
                 sidebar: [
                     {text: '方法论', from: 1},
@@ -153,18 +153,18 @@ export const GROUPS = [
                 ],
             },
             {
-                name: '项目演进', dir: 'project', interview: ['16_scenario_highlights'],
+                name: '项目演进', dir: 'project', interview: ['25_scenario_highlights'],
                 desc: '以订单服务为例，从单体到分布式：工程搭建 / 数据建模 / 缓存 / 异步 / 拆分 / 一致性 / 稳定性 / 发布',
             },
         ],
     },
     {
         name: '研发效能', tagline: '测试工程、DevOps、工程效率与实战手册', modules: [
-            {name: '测试工程', dir: 'testing', interview: ['20_testing'], desc: '测试分层 / JUnit 6 / Mockito / 集成测试 / TDD / Testcontainers / 契约测试 / 性能测试 / 接口与 E2E'},
-            {name: 'DevOps', dir: 'devops', interview: ['20_devops'], desc: 'Git 工作流 / CI/CD / Code Review / 开发规范 / 发布策略 / 制品与环境'},
-            {name: '工程效率', dir: 'engineering', interview: ['20_devops'], desc: '构建工具 / 开发工具 / 代码质量 / Arthas 诊断 / 依赖治理 / API 文档与规范'},
+            {name: '测试工程', dir: 'testing', interview: ['26_testing'], desc: '测试分层 / JUnit 6 / Mockito / 集成测试 / TDD / Testcontainers / 契约测试 / 性能测试 / 接口与 E2E'},
+            {name: 'DevOps', dir: 'devops', interview: ['27_devops'], desc: 'Git 工作流 / CI/CD / Code Review / 开发规范 / 发布策略 / 制品与环境'},
+            {name: '工程效率', dir: 'engineering', interview: ['28_engineering'], desc: '构建工具 / 开发工具 / 代码质量 / Arthas 诊断 / 依赖治理 / API 文档与规范'},
             {
-                name: '实战手册', dir: 'handbook', interview: ['20_handbook'],
+                name: '实战手册', dir: 'handbook', interview: ['29_handbook'],
                 desc: '常用命令速查 / 线上故障案例：现象、排查、根因、修复与预防',
                 subdirs: {'1_cheatsheet': '速查表', '2_incidents': '故障案例'},
             },
@@ -173,7 +173,7 @@ export const GROUPS = [
     {
         name: '运维保障', tagline: '云原生、可观测性与安全', modules: [
             {
-                name: '云原生', dir: 'cloud-native', interview: ['21_cloud_native'],
+                name: '云原生', dir: 'cloud-native', interview: ['30_cloud_native'],
                 desc: 'Linux / 虚拟化 / Docker / Kubernetes / Gateway API / Helm / Argo CD / 服务网格 / Terraform / Ansible / IaC 实践 / 云平台 / Cloudflare / VPS',
                 sidebar: [
                     {text: '操作系统', from: 1},
@@ -183,14 +183,14 @@ export const GROUPS = [
                     {text: '云平台', from: 13},
                 ],
             },
-            {name: '可观测性', dir: 'observability', interview: ['22_observability'], desc: '日志 / 指标与 PromQL / 链路追踪 / 告警 / OpenTelemetry / 持续剖析'},
-            {name: '应用安全', dir: 'security', interview: ['23_security'], desc: '认证登录与 MFA / JWT / OAuth2 / OIDC / SSO / RBAC / API 安全 / 数据安全 / 漏洞防护 / 零信任'},
+            {name: '可观测性', dir: 'observability', interview: ['31_observability'], desc: '日志 / 指标与 PromQL / 链路追踪 / 告警 / OpenTelemetry / 持续剖析'},
+            {name: '应用安全', dir: 'security', interview: ['32_security'], desc: '认证登录与 MFA / JWT / OAuth2 / OIDC / SSO / RBAC / API 安全 / 数据安全 / 漏洞防护 / 零信任'},
         ],
     },
     {
         name: '垂直领域', tagline: 'IoT、AI、大数据与实时计算、音视频，拓展技术边界', modules: [
             {
-                name: 'IoT', dir: 'iot', interview: ['24_iot'],
+                name: 'IoT', dir: 'iot', interview: ['33_iot'],
                 desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / 设备影子 / OTA / 规则引擎 / 数据处理 / 设备安全',
                 sidebar: [
                     {text: '原理与选型', from: 1},
@@ -198,13 +198,13 @@ export const GROUPS = [
                 ],
             },
             {
-                name: 'AI', dir: 'ai', interview: ['25_ai'],
+                name: 'AI', dir: 'ai', interview: ['34_ai'],
                 desc: '大模型基础与选型 / Prompt 与 Function Calling / Spring AI / LangChain4j / Embedding 与向量库 / RAG / Agent / MCP / 本地模型与微调 / 评估上线 / AI 编程工具',
                 subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 编程工具'},
             },
-            {name: '大数据', dir: 'big-data', interview: ['26_bigdata'], desc: '数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 数据治理 / 实时数仓'},
-            {name: 'Flink', dir: 'flink', interview: ['26_flink'], desc: 'DataStream / 时间与窗口 / 状态与容错 / Flink SQL / CDC / 部署调优'},
-            {name: '音视频', dir: 'media', interview: ['27_media'], desc: '编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入'},
+            {name: '大数据', dir: 'big-data', interview: ['35_bigdata'], desc: '数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 数据治理 / 实时数仓'},
+            {name: 'Flink', dir: 'flink', interview: ['36_flink'], desc: 'DataStream / 时间与窗口 / 状态与容错 / Flink SQL / CDC / 部署调优'},
+            {name: '音视频', dir: 'media', interview: ['37_media'], desc: '编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入'},
         ],
     },
 ];
@@ -293,6 +293,38 @@ export const REDIRECTS = {
     '/microservices/3_service_mesh': '/microservices/21_service_mesh',
     '/microservices/4_dubbo': '/microservices/20_dubbo',
     '/microservices/5_call_ordering': '/microservices/4_call_ordering',
+    // 2026-11：面试题解答案页与模块一一对应，按导航分组顺序重新编号（NoSQL、工程效率拆出独立答案页）
+    '/interview/4_computer_os': '/interview/5_computer_os',
+    '/interview/4_network': '/interview/6_network',
+    '/interview/5_spring': '/interview/7_spring',
+    '/interview/5_spring_boot': '/interview/8_spring_boot',
+    '/interview/6_netty': '/interview/9_netty',
+    '/interview/6_vertx': '/interview/10_vertx',
+    '/interview/6_quarkus': '/interview/11_quarkus',
+    '/interview/7_db': '/interview/12_db',
+    '/interview/8_cache': '/interview/14_cache',
+    '/interview/9_mq': '/interview/15_mq',
+    '/interview/10_distributed': '/interview/16_distributed',
+    '/interview/11_microservices': '/interview/17_microservices',
+    '/interview/11_spring_cloud': '/interview/18_spring_cloud',
+    '/interview/12_high_perf': '/interview/19_high_perf',
+    '/interview/13_high_con': '/interview/20_high_con',
+    '/interview/14_high_avail': '/interview/21_high_avail',
+    '/interview/17_patterns': '/interview/22_patterns',
+    '/interview/15_architecture': '/interview/23_architecture',
+    '/interview/16_scenario': '/interview/24_scenario',
+    '/interview/16_scenario_highlights': '/interview/25_scenario_highlights',
+    '/interview/20_testing': '/interview/26_testing',
+    '/interview/20_devops': '/interview/27_devops',
+    '/interview/20_handbook': '/interview/29_handbook',
+    '/interview/21_cloud_native': '/interview/30_cloud_native',
+    '/interview/22_observability': '/interview/31_observability',
+    '/interview/23_security': '/interview/32_security',
+    '/interview/24_iot': '/interview/33_iot',
+    '/interview/25_ai': '/interview/34_ai',
+    '/interview/26_bigdata': '/interview/35_bigdata',
+    '/interview/26_flink': '/interview/36_flink',
+    '/interview/27_media': '/interview/37_media',
 };
 
 // 学习路线（interview/91_routes 页的 <LearningRoutes />）：按目标跨模块挑文章，标题与简介自动取文章的 H1 与 description
@@ -311,11 +343,11 @@ export const ROUTES = [
         name: '面试冲刺', for: '一周后有面试，以答案页为主，配合题单的自测模式', time: '7 天',
         stages: [
             {title: 'Java 与并发', time: 'Day 1', items: ['interview/1_java', 'interview/2_concurrent', 'java/28_topic_thread_pool']},
-            {title: 'JVM、操作系统与网络', time: 'Day 2', items: ['interview/3_jvm', 'interview/4_computer_os', 'interview/4_network']},
-            {title: 'Spring 全家桶', time: 'Day 3', items: ['interview/5_spring', 'interview/5_spring_boot', 'interview/11_spring_cloud']},
-            {title: '数据库、缓存与 MQ', time: 'Day 4', items: ['interview/7_db', 'interview/8_cache', 'interview/9_mq']},
-            {title: '分布式系统', time: 'Day 5', items: ['interview/10_distributed', 'interview/11_microservices', 'interview/13_high_con', 'interview/14_high_avail']},
-            {title: '系统设计与项目', time: 'Day 6', items: ['scenario/1_design_method', 'interview/16_scenario', 'interview/16_scenario_highlights', 'interview/15_architecture']},
+            {title: 'JVM、操作系统与网络', time: 'Day 2', items: ['interview/3_jvm', 'interview/5_computer_os', 'interview/6_network']},
+            {title: 'Spring 全家桶', time: 'Day 3', items: ['interview/7_spring', 'interview/8_spring_boot', 'interview/18_spring_cloud']},
+            {title: '数据库、缓存与 MQ', time: 'Day 4', items: ['interview/12_db', 'interview/14_cache', 'interview/15_mq']},
+            {title: '分布式系统', time: 'Day 5', items: ['interview/16_distributed', 'interview/17_microservices', 'interview/20_high_con', 'interview/21_high_avail']},
+            {title: '系统设计与项目', time: 'Day 6', items: ['scenario/1_design_method', 'interview/24_scenario', 'interview/25_scenario_highlights', 'interview/23_architecture']},
             {title: '查漏补缺', time: 'Day 7', note: '打开各模块的「高频面试题」，切到自测模式、范围选「只看不会」，把标过的题再过一遍', items: ['interview/4_algorithms', 'algorithms/4_practice/2_concurrency_coding', 'interview/90_glossary']},
         ],
     },

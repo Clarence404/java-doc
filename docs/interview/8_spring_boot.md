@@ -4,7 +4,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 # Spring Boot 面试题解答
 
-> 题目清单见 [Spring Boot 面试题](/spring-boot/99_interview)，模块入口见 [Spring Boot 总览](/spring-boot/0_overview)；IoC、AOP、事务、MVC 等 Spring 本身的题目见 [Spring 面试题解答](/interview/5_spring)。
+> 题目清单见 [Spring Boot 面试题](/spring-boot/99_interview)，模块入口见 [Spring Boot 总览](/spring-boot/0_overview)；IoC、AOP、事务、MVC 等 Spring 本身的题目见 [Spring 面试题解答](/interview/7_spring)。
 >
 > 版本基线：Spring Boot 4 / Spring Framework 7（JDK 17+），与 Boot 3.x 不同处单独说明。
 
@@ -240,7 +240,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **一句话**：Lettuce 的连接是线程安全的，默认所有线程共用一个连接，普通命令不需要连接池。Kafka 的反序列化发生在拉取消息时，一条格式错误的消息会让每次拉取都失败，位置一直前进不了，分区就卡住了。
 
-- Lettuce 什么时候才会用到池、为什么配了不生效，完整答案见 [高并发面试题解答](/interview/13_high_con) Q37
+- Lettuce 什么时候才会用到池、为什么配了不生效，完整答案见 [高并发面试题解答](/interview/20_high_con) Q37
 - Kafka 解法：用 `ErrorHandlingDeserializer` 包一层，配合 `DeadLetterPublishingRecoverer` 把坏消息送进死信 Topic
 - `trusted.packages` 只写事件类所在的包
 
@@ -276,7 +276,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **一句话**：`@Scheduled` 只管本进程，部署 N 个实例就执行 N 次；只要「只执行一次」用 ShedLock 加分布式锁，需要管理界面、失败重试、分片时用 XXL-JOB 这类调度平台。
 
-→ 完整答案见 [分布式面试题解答](/interview/10_distributed) Q25；正文详见 [异步任务与定时任务](/spring-boot/7_async_schedule#三、多实例下的定时任务)、[分布式调度](/distributed/6_job_scheduler)
+→ 完整答案见 [分布式面试题解答](/interview/16_distributed) Q25；正文详见 [异步任务与定时任务](/spring-boot/7_async_schedule#三、多实例下的定时任务)、[分布式调度](/distributed/6_job_scheduler)
 
 ## 六、运维与可观测
 
@@ -296,7 +296,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **一句话**：存活探针问「进程还活着吗」，失败了 K8s 会重启容器；就绪探针问「能接流量吗」，失败了只是不给它分流量，不重启。
 
-→ 完整答案见 [高可用面试题解答](/interview/14_high_avail) Q10；正文详见 [Actuator 监控](/spring-boot/11_actuator#四、存活-就绪探针与健康分组)
+→ 完整答案见 [高可用面试题解答](/interview/21_high_avail) Q10；正文详见 [Actuator 监控](/spring-boot/11_actuator#四、存活-就绪探针与健康分组)
 
 ### Q25：如何用 Micrometer 写自定义业务指标？如何避免高基数？Observation API 做什么？
 

@@ -4,7 +4,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 
 # 高并发面试题解答
 
-> 题目清单见 [高并发面试题](/high-con/99_interview)，细节见 [高并发模块](/high-con/0_overview)；三高另外两页：[高性能](./12_high_perf) · [高可用](./14_high_avail)。
+> 题目清单见 [高并发面试题](/high-con/99_interview)，细节见 [高并发模块](/high-con/0_overview)；三高另外两页：[高性能](./19_high_perf) · [高可用](./21_high_avail)。
 >
 > 版本基线：JDK 21 / 25 LTS、Spring Boot 4.x，与旧版本不同处单独说明。
 
@@ -18,7 +18,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 能扩：每一层都能靠加机器扩容（服务无状态、负载均衡、分库分表）
 - 少打：请求尽量在前面就被挡住，不落到最慢的数据库（CDN、静态化、多级缓存）
 - 慢做：不需要马上完成的工作扔进 MQ 异步处理；分散：避免流量集中到一台机器、一个 key、一行数据
-- 扛不住时的限流、熔断、降级属于高可用，见 [高可用面试题解答](./14_high_avail)
+- 扛不住时的限流、熔断、降级属于高可用，见 [高可用面试题解答](./21_high_avail)
 
 → 详见 [高并发总览](/high-con/0_overview#二、设计维度)
 
@@ -169,7 +169,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 定时任务：用分布式调度（XXL-JOB）或分布式锁，避免多台机器重复执行
 - 自查：有没有用 `static` 集合存业务数据、有没有假设「下次请求还能读到本地文件」
 
-→ 详见 [水平扩展与无状态化](/high-con/2_scale_out#_1、常见的-状态-及外置方案)；Session 共享方案与 Spring Session / JWT 取舍见 [分布式面试题解答](/interview/10_distributed) Q26
+→ 详见 [水平扩展与无状态化](/high-con/2_scale_out#_1、常见的-状态-及外置方案)；Session 共享方案与 Spring Session / JWT 取舍见 [分布式面试题解答](/interview/16_distributed) Q26
 
 ### Q13：K8s HPA 自动扩容有哪些局限？应用扩容后下游会出现什么问题？
 
@@ -207,7 +207,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 
 **一句话**：穿透是查不存在的数据，击穿是一个热点 key 过期，雪崩是一大批 key 同时过期或 Redis 挂了，三者都会让请求直接打到数据库。
 
-→ 完整答案见 [缓存面试题解答](/interview/8_cache) Q17–Q19；正文详见 [缓存架构设计](/high-con/3_cache_architecture#四、缓存三大问题)
+→ 完整答案见 [缓存面试题解答](/interview/14_cache) Q17–Q19；正文详见 [缓存架构设计](/high-con/3_cache_architecture#四、缓存三大问题)
 
 ### Q16：如何做缓存预热？预热时如何避免压垮数据库？
 
@@ -241,7 +241,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 
 **一句话**：先分清是消费变慢了（下游出问题）还是生产突然变多（正常高峰）；前者先修下游，盲目加消费者只会把下游压得更惨，后者再加消费能力。
 
-→ 完整答案见 [消息队列面试题解答](/interview/9_mq) Q16；正文详见 [异步与削峰](/high-con/4_async_peak_shaving#_3、积压的监控与处理)、[消息队列基础](/messaging/1_basics#六、消息积压)
+→ 完整答案见 [消息队列面试题解答](/interview/15_mq) Q16；正文详见 [异步与削峰](/high-con/4_async_peak_shaving#_3、积压的监控与处理)、[消息队列基础](/messaging/1_basics#六、消息积压)
 
 ### Q19：流量整形和限流有什么区别？
 
@@ -266,7 +266,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 可重复：消费端按唯一键、状态机或去重表做幂等，失败有限次重试后进死信队列
 - 对账：定时比对上下游状态，补偿或人工处理长时间不一致的数据
 
-→ 完整答案见 [消息队列面试题解答](/interview/9_mq) Q20；正文详见 [异步与削峰](/high-con/4_async_peak_shaving#五、最终一致性与补偿)、[分布式事务](/distributed/4_transaction#五、本地消息表-transactional-outbox)
+→ 完整答案见 [消息队列面试题解答](/interview/15_mq) Q20；正文详见 [异步与削峰](/high-con/4_async_peak_shaving#五、最终一致性与补偿)、[分布式事务](/distributed/4_transaction#五、本地消息表-transactional-outbox)
 
 ---
 
@@ -343,7 +343,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 
 - 系统层面的取舍：数据量还没到瓶颈时，先走读写分离、冷热分离，分库分表留到最后；也可以直接换 TiDB 这类分布式数据库，把扩容交给存储层
 
-→ 完整答案见 [数据库面试题解答](/interview/7_db) Q50；正文详见 [分库分表与中间件](/database/5_practice/3_sharding#八、平滑迁移与扩容)、[数据层扩展](/high-con/5_data_scaling#_6、扩容迁移)
+→ 完整答案见 [数据库面试题解答](/interview/12_db) Q50；正文详见 [分库分表与中间件](/database/5_practice/3_sharding#八、平滑迁移与扩容)、[数据层扩展](/high-con/5_data_scaling#_6、扩容迁移)
 
 ---
 
@@ -368,7 +368,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 系统级前移：千人一面的数据（活动页、商品详情静态部分）直接放到 Nginx 本地缓存或 CDN，请求根本到不了应用
 - 最后一道防线：按参数值限流（Sentinel 热点参数限流），只限那个热点商品 ID，其他请求不受影响
 
-→ 完整答案见 [缓存面试题解答](/interview/8_cache) Q21；正文详见 [热点问题](/high-con/6_hotspot#二、读热点治理)
+→ 完整答案见 [缓存面试题解答](/interview/14_cache) Q21；正文详见 [热点问题](/high-con/6_hotspot#二、读热点治理)
 
 ### Q29：秒杀场景下同一行库存的高并发扣减如何优化？
 
@@ -474,7 +474,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 实例从 40 扩到 80，池子不调小就会超，新实例启动直接报 `Too many connections`
 - 开了 HPA 按 `maxReplicas` 算，不按当前副本数算
 - 多个服务共用一个库时，这个上限要在服务之间分
-- 单个池该多大、为什么不是越大越好见 [高性能面试题解答 Q15](/interview/12_high_perf#q15-数据库连接池的大小如何确定-连接池是不是越大越好)
+- 单个池该多大、为什么不是越大越好见 [高性能面试题解答 Q15](/interview/19_high_perf#q15-数据库连接池的大小如何确定-连接池是不是越大越好)
 
 → 详见 [并发参数调优](/high-con/7_concurrency_tuning#三、数据库连接池)、[数据库连接池 · 池大小估算](/database/4_access/2_connection_pool#_4、池大小估算)
 
@@ -495,7 +495,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 
 **一句话**：TIME_WAIT 出现在主动关闭连接的一方，大量出现基本是短连接造成的（调下游没用连接池、没开 Keep-Alive），先改成复用连接，再考虑调内核参数。
 
-→ 完整答案见 [网络协议面试题解答](/interview/4_network) Q5；正文详见 [并发参数调优](/high-con/7_concurrency_tuning#五、os-层参数)
+→ 完整答案见 [网络协议面试题解答](/interview/6_network) Q5；正文详见 [并发参数调优](/high-con/7_concurrency_tuning#五、os-层参数)
 
 ---
 

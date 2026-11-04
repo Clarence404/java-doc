@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {slugify} from '@mdit-vue/shared';
 
-// 解析题单页中的 <InterviewList page="9_mq" groups="1-10" />
+// 解析题单页中的 <InterviewList page="15_mq" groups="1-10" />
 export function interviewListRefs(content) {
     return [...content.matchAll(/<InterviewList\b([^>]*)\/?>/g)].map(m => ({
         page: m[1].match(/page="([^"]+)"/)?.[1],

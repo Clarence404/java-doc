@@ -21,7 +21,7 @@ Spring Boot 模块从启动流程与自动配置原理出发，覆盖 Web、数�
 5. 最后读 [Actuator 监控](./11_actuator)、[自定义 Starter](./12_custom_starter) 与 [启动与部署优化](./13_startup)，面向生产运维与组件封装。
 6. 从 2.x / 3.x 升级时再读 [Spring Boot 版本演进](./14_versions)，它不依赖前面各篇，也可以单独查阅。
 
-[高频面试题](./99_interview) 只列题目，答案在 [Spring Boot 面试题解答](/interview/5_spring_boot)。
+[高频面试题](./99_interview) 只列题目，答案在 [Spring Boot 面试题解答](/interview/8_spring_boot)。
 
 ---
 

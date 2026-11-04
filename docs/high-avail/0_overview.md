@@ -82,7 +82,7 @@
 - **发布总出问题**：[优雅上下线与变更](./8_graceful_release)，配合 [发布策略](/devops/7_release_strategy)
 - **线上正在出故障**：直接看 [故障应急与复盘](./11_incident_response) 的止血手段清单
 
-复习时用 [高频面试题](./99_interview) 自测，答案在 [高可用面试题解答](/interview/14_high_avail)。
+复习时用 [高频面试题](./99_interview) 自测，答案在 [高可用面试题解答](/interview/21_high_avail)。
 
 ---
 

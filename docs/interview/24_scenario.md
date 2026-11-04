@@ -51,7 +51,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 **常见坑**：一个流程同时套 Seata 全局事务和事务消息，边界不清，出了问题不知道该谁回滚。
 
-→ 详见 [订单](/scenario/5_order_system#八、分布式事务-按流程选一种)、[分布式面试题解答](/interview/10_distributed#三、分布式事务)
+→ 详见 [订单](/scenario/5_order_system#八、分布式事务-按流程选一种)、[分布式面试题解答](/interview/16_distributed#三、分布式事务)
 
 ### Q4：订单超时关单有哪些方案？关单与释放库存如何原子化？
 
@@ -448,7 +448,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 **一句话**：HTTPS 传输 + AppKey/Secret 签名防篡改 + timestamp 与 nonce 防重放 + 密钥加密存储、可轮换，再加对象级授权和响应脱敏。
 
 - 传输：全程 HTTPS，一般在网关 / Ingress 终止 TLS；高安全的合作方可以用 mTLS，身份直接绑定到证书
-- 签名与防重放：规范串覆盖 HTTP 方法、路径、排序后的查询串、时间戳、nonce、请求体摘要，只签参数会被挪到别的接口；原理见 [安全面试题解答 Q17](/interview/23_security#q17-开放接口为什么要「签名-时间戳-nonce」)
+- 签名与防重放：规范串覆盖 HTTP 方法、路径、排序后的查询串、时间戳、nonce、请求体摘要，只签参数会被挪到别的接口；原理见 [安全面试题解答 Q17](/interview/32_security#q17-开放接口为什么要「签名-时间戳-nonce」)
 - 密钥管理：Secret 只在创建时展示一次，服务端用 KMS / Vault 加密存储；轮换时新旧并存一段宽限期，泄露后能立即吊销
 - 授权与脱敏：网关验签后按接口授权，每次查询都带上「当前用户 + 对象 ID」条件防越权；响应用专用 DTO，日志不打印 Secret、Token、完整手机号和证件号
 
@@ -581,11 +581,11 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 通用设计题放在各方向的答案页，这里不重复：
 
-- 高并发系统：[高并发面试题解答 Q1](/interview/13_high_con#q1-如何设计一个高并发系统-从哪些维度入手)、[高并发总览](/high-con/0_overview)
-- 高可用系统：[高可用面试题解答 Q1](/interview/14_high_avail#q1-如何设计一个高可用系统)、[高可用总览](/high-avail/0_overview)
-- RPC 框架：[微服务面试题解答 Q13](/interview/11_microservices#q13-如何设计一个-rpc-框架)、[Dubbo](/microservices/20_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[RPC 协议](/protocols/5_rpc_protocols)
-- 分布式主键：[分布式面试题解答 Q20](/interview/10_distributed#q20-分布式-id-有哪些方案-uuidv7-为什么适合做主键)、[分布式 ID 生成](/distributed/8_id_generator#八、方案对比与选型)
-- `synchronized` 与分布式锁：[分布式面试题解答 Q7](/interview/10_distributed#q7-分布式锁有哪些实现-怎么选)、[分布式锁](/distributed/3_lock#一、为什么需要分布式锁)
+- 高并发系统：[高并发面试题解答 Q1](/interview/20_high_con#q1-如何设计一个高并发系统-从哪些维度入手)、[高并发总览](/high-con/0_overview)
+- 高可用系统：[高可用面试题解答 Q1](/interview/21_high_avail#q1-如何设计一个高可用系统)、[高可用总览](/high-avail/0_overview)
+- RPC 框架：[微服务面试题解答 Q13](/interview/17_microservices#q13-如何设计一个-rpc-框架)、[Dubbo](/microservices/20_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[RPC 协议](/protocols/5_rpc_protocols)
+- 分布式主键：[分布式面试题解答 Q20](/interview/16_distributed#q20-分布式-id-有哪些方案-uuidv7-为什么适合做主键)、[分布式 ID 生成](/distributed/8_id_generator#八、方案对比与选型)
+- `synchronized` 与分布式锁：[分布式面试题解答 Q7](/interview/16_distributed#q7-分布式锁有哪些实现-怎么选)、[分布式锁](/distributed/3_lock#一、为什么需要分布式锁)
 
 ### Q43：数据更新后通知下游，服务端推送还是客户端拉取？
 
@@ -615,7 +615,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 **常见坑**：只罗列技术名词不讲取舍；数字前后矛盾或明显夸大（如单机 Redis 扛百万 QPS）；把通用八股当项目难点。
 
-→ 详见 [项目难点与亮点面试题解答](/interview/16_scenario_highlights)（21 个亮点的逐题讲法）、[分库分表与中间件](/database/5_practice/3_sharding#八、平滑迁移与扩容)
+→ 详见 [项目难点与亮点面试题解答](/interview/25_scenario_highlights)（21 个亮点的逐题讲法）、[分库分表与中间件](/database/5_practice/3_sharding#八、平滑迁移与扩容)
 
 ### Q45：拿到一道系统设计题，你会怎么推进？
 
@@ -722,7 +722,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 - Little 定律：并发数 = QPS × RT = 3000 × 0.2s = 600，任一时刻约有 600 个请求在处理中
 - 线程维度：单机 200 个工作线程且以等待 IO 为主，600 / 200 = 3 台只是理论下限
 - CPU 维度：每个请求真正耗 CPU 20ms，4 核满载约 4 / 0.02 = 200 QPS，按 70% 水位取 140 QPS，需要 3000 / 140 ≈ 22 台
-- 取两个维度里更大的结果，并核算数据库连接、Redis 等下游是否扛得住；冗余系数算法见 [高并发 Q40](/interview/13_high_con#q40-如何评估单机能力-需要多少台机器-多可用区部署时冗余系数怎么算)
+- 取两个维度里更大的结果，并核算数据库连接、Redis 等下游是否扛得住；冗余系数算法见 [高并发 Q40](/interview/20_high_con#q40-如何评估单机能力-需要多少台机器-多可用区部署时冗余系数怎么算)
 
 **常见坑**：只用线程数算台数，忽略 CPU 和下游连接池；把 RT 平均值当成 P99 用。
 

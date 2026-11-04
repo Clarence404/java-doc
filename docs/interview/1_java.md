@@ -378,7 +378,7 @@ return switch (shape) { case Circle(double r) -> Math.PI * r * r; case Rect(doub
 
 - `ObjectInputFilter`（JDK 9 起，8u121 也有）：用 `-Djdk.serialFilter=com.example.*;!*` 配白名单，只允许自己的类
 - 选型：对外 HTTP 接口用 JSON（Jackson）；跨语言 RPC 用 Protobuf（gRPC）；Java 内部高性能传输用 Kryo、Hessian2
-- 漏洞原理和 Fastjson、Jackson 的防法，完整答案见 [应用安全面试题解答](/interview/23_security) Q25
+- 漏洞原理和 Fastjson、Jackson 的防法，完整答案见 [应用安全面试题解答](/interview/32_security) Q25
 
 → 详见 [序列化](/java/19_topic_serialization#五、反序列化安全)
 

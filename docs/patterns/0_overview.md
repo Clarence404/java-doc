@@ -19,7 +19,7 @@
 3. 再读容易混淆的几组：[抽象工厂模式](./3_creational_abstract_factory) 与工厂方法、[桥接模式](./7_structural_bridge) 与策略模式、[外观模式](./10_structural_facade) 与 [中介者模式](./16_behavioral_mediator)、[状态模式](./19_behavioral_state) 与策略模式
 4. 其余模式按需查阅：[原型模式](./5_creational_prototype)、[组合模式](./8_structural_composite)、[享元模式](./11_structural_flyweight)、[命令模式](./14_behavioral_command)、[迭代器模式](./15_behavioral_iterator)、[备忘录模式](./17_behavioral_memento)、[访问者模式](./22_behavioral_visitor)、[解释器模式](./23_behavioral_interpreter)
 
-[高频面试题](./99_interview) 只列题目，答案在 [设计模式面试题解答](/interview/17_patterns)。
+[高频面试题](./99_interview) 只列题目，答案在 [设计模式面试题解答](/interview/22_patterns)。
 
 ---
 
@@ -97,4 +97,4 @@
 - IoC 容器中的工厂、单例、模板方法 → [Spring 总览](/spring/0_overview)
 - 架构层面的模式（分层、CQRS、DDD） → [系统架构总览](/architecture/0_overview)
 - 分布式系统层面的模式（熔断、Saga、Sidecar） → [微服务设计模式](/microservices/3_patterns)
-- 本模块高频问题的答案汇总 → [设计模式面试题解答](/interview/17_patterns)
+- 本模块高频问题的答案汇总 → [设计模式面试题解答](/interview/22_patterns)

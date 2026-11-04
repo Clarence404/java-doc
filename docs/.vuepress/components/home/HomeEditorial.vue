@@ -328,7 +328,7 @@ onBeforeUnmount(() => { if (io) io.disconnect(); });
               <ol class="steps">
                 <li><span class="steps__k grad-text">00</span><span class="steps__t">总览页</span><span class="steps__d">模块简介、导航表与推荐阅读路径</span></li>
                 <li><span class="steps__k grad-text">01+</span><span class="steps__t">正文</span><span class="steps__d">按编号顺序阅读，配 SVG 图解</span></li>
-                <li><span class="steps__k grad-text">99</span><span class="steps__t">题目清单</span><span class="steps__d">部分模块提供，答案汇总在{{ SUMMARY.name }}</span></li>
+                <li><span class="steps__k grad-text">99</span><span class="steps__t">题目清单</span><span class="steps__d">每个模块都有，答案汇总在{{ SUMMARY.name }}</span></li>
               </ol>
               <p class="gd__note">尚未完成的篇章，以「待补充」明确标注。</p>
             </article>

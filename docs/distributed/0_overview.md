@@ -19,7 +19,7 @@
 3. 然后读 [分布式 ID 生成](./8_id_generator) 与 [一致性哈希](./9_consistent_hashing)，它们是分库分表与缓存分片的基础工具
 4. 最后按需读 [分布式会话](./5_session)、[分布式调度](./6_job_scheduler)、[工作流引擎](./7_work_flow)
 
-[高频面试题](./99_interview) 只列题目，答案在 [分布式面试题解答](/interview/10_distributed)。
+[高频面试题](./99_interview) 只列题目，答案在 [分布式面试题解答](/interview/16_distributed)。
 
 ---
 

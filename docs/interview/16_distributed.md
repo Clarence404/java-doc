@@ -237,7 +237,7 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 
 **常见坑**：其他系统绕过 Seata 数据源代理直接改同一张表，是回滚失败的主要来源。
 
-→ 详见 [分布式事务](/distributed/4_transaction#_3、at-模式)；Spring Cloud 中的依赖与配置见 [Spring Cloud 面试题解答](/interview/11_spring_cloud#q23-seata-在-spring-cloud-中怎么接入-有哪些常见坑)
+→ 详见 [分布式事务](/distributed/4_transaction#_3、at-模式)；Spring Cloud 中的依赖与配置见 [Spring Cloud 面试题解答](/interview/18_spring_cloud#q23-seata-在-spring-cloud-中怎么接入-有哪些常见坑)
 
 ### Q18：Seata 的 AT、TCC、Saga、XA 怎么选？
 
@@ -259,7 +259,7 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 
 **一句话**：不在数据库事务里直接发 MQ；用本地消息表（业务表和消息表同一本地事务，投递任务发 MQ）或 RocketMQ 事务消息（半消息 + 本地事务 + 回查），消费端幂等。
 
-- 本地消息表的具体做法，完整答案见 [消息队列面试题解答](/interview/9_mq) Q20
+- 本地消息表的具体做法，完整答案见 [消息队列面试题解答](/interview/15_mq) Q20
 - 回查可能在本地事务还没执行完时到达，查不到记录不代表失败，要返回 `UNKNOW` 让 Broker 稍后再查
 - Kafka 事务只保证多分区写入的原子性，绑不了外部数据库，「写库 + 发消息」仍要本地消息表或 CDC
 - 跨企业回调用最大努力通知 + 对账查询兜底

@@ -1,6 +1,6 @@
 <script setup>
 // 题单：由答案页的分组（##）与题目（### Q<n>：）自动生成，题目链接到答案锚点。
-// 用法：<InterviewList page="9_mq" />；一页对应多个模块时用 groups 取部分分组，如 groups="11-18"（按分组序号，从 1 开始）
+// 用法：<InterviewList page="15_mq" />；一页对应多个模块时用 groups 取部分分组，如 groups="11-18"（按分组序号，从 1 开始）
 // 自测模式：先只显示题目，点开看「一句话」，标记会 / 不会（存浏览器本地），可随机抽题，优先抽不会和没做过的
 import {computed, onMounted, reactive, ref, watch} from 'vue';
 import {RouteLink} from 'vuepress/client';

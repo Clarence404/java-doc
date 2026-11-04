@@ -8,8 +8,8 @@ description: 业务场景方向题目清单
 
 ## 场景题
 
-<InterviewList page="16_scenario" />
+<InterviewList page="24_scenario" />
 
 ## 项目难点与亮点
 
-<InterviewList page="16_scenario_highlights" />
+<InterviewList page="25_scenario_highlights" />
