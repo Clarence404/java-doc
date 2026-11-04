@@ -1,6 +1,6 @@
 <script setup>
 // 首页「杂志式 Bento 目录」：所有数字、列表、链接都来自 site.js 与构建时统计，新增文章 / 模块后自动更新
-import {onBeforeUnmount, onMounted, ref} from 'vue';
+import {computed, onBeforeUnmount, onMounted, ref} from 'vue';
 import {RouteLink, withBase} from 'vuepress/client';
 import stats from '@temp/home-stats.js';
 import navData from '@temp/module-nav.js';
@@ -83,6 +83,26 @@ let pageNo = 0;
 const digest = (navData.interview || [])
     .filter((n) => n.children && groups.some((g) => g.name === n.text))
     .map((n) => ({name: n.text, pages: n.children.filter((c) => c.link).map((c) => ({text: c.text, link: c.link, no: pad(++pageNo)}))}));
+
+/* ---------- 读法：以一个模块为例走一遍（总览 → 正文 → 题单 → 答案页），按导航顺序切换，默认从缓存开始 ---------- */
+const flat = (items) => (items || []).flatMap((n) => (n.children ? flat(n.children) : [n]));
+const answerPages = flat((navData.interview || []).filter((n) => n.children));
+const ivTitle = (t) => `${t}${/[\w.]$/.test(t) ? ' ' : ''}${SUMMARY.stripSuffix}`;
+const walks = allMods.map((m) => {
+    const items = flat(navData[m.dir]).filter((n) => n.link);
+    const isEdge = (n) => n.link === m.link || n.link === `/${m.dir}/99_interview`;
+    const iv = m.interview && answerPages.find((p) => p.link === `/${SUMMARY.dir}/${m.interview[0]}`);
+    return {
+        dir: m.dir, name: m.name, a: m.a, q: m.q,
+        home: items.find((n) => n.link === m.link) || {text: `${m.name} 总览`, link: m.link},
+        arts: items.filter((n) => !isEdge(n)).slice(0, 3),
+        list: items.find((n) => n.link === `/${m.dir}/99_interview`),
+        iv: iv && {link: iv.link, title: ivTitle(iv.text), no: pad(parseInt(m.interview[0], 10))},
+    };
+}).filter((w) => w.arts.length);
+const walkIdx = ref(Math.max(0, walks.findIndex((w) => w.dir === 'cache')));
+const walk = computed(() => walks[walkIdx.value]);
+const nextWalk = () => { walkIdx.value = (walkIdx.value + 1) % walks.length; };
 
 /* ---------- Bento 排版：首行 = 面试题解 + 第一组；其余每行 3 格（12 栏按文章数分 5/4/3），末行不足时自动改为 2 格 ---------- */
 const lead = groups[0];
@@ -325,6 +345,26 @@ onBeforeUnmount(() => { if (io) io.disconnect(); });
               <p class="cell__head"><span class="cell__no">读法</span><span>How to read</span></p>
               <h3 id="ed-t-gd" class="cell__title">总览 → 正文 → 题目清单</h3>
               <p class="cell__tag">每个模块都从 0 号总览页进入，正文从 1 号起按编号排列。</p>
+              <div v-if="walk" class="walk">
+                <p class="walk__hd">
+                  <span>以「{{ walk.name }}」为例走一遍</span>
+                  <span class="walk__meta">{{ walk.a }} 篇<template v-if="walk.q"> · {{ walk.q }} 题</template></span>
+                  <button type="button" class="walk__sw" @click="nextWalk">换一个模块</button>
+                </p>
+                <ol class="walk__rail" aria-live="polite">
+                  <li><RouteLink class="walk__st" :to="walk.home.link"><span class="walk__k grad-text">00</span><span class="walk__t">{{ walk.home.text }}</span><span class="walk__d">模块地图与推荐阅读路径</span></RouteLink></li>
+                  <li>
+                    <RouteLink class="walk__st" :to="walk.arts[0].link">
+                      <span class="walk__k grad-text">01+</span><span class="walk__t">正文 {{ walk.a }} 篇</span>
+                      <span v-for="n in walk.arts" :key="n.link" class="walk__art">{{ n.text }}</span>
+                      <span v-if="walk.a > walk.arts.length" class="walk__d">…… 按编号往下读</span>
+                    </RouteLink>
+                  </li>
+                  <li v-if="walk.list"><RouteLink class="walk__st" :to="walk.list.link"><span class="walk__k grad-text">99</span><span class="walk__t">{{ walk.list.text }}</span><span class="walk__d">{{ walk.q }} 题，可切自测模式</span></RouteLink></li>
+                  <li v-if="walk.iv"><RouteLink class="walk__st" :to="walk.iv.link"><span class="walk__k grad-text">{{ walk.iv.no }}</span><span class="walk__t">{{ walk.iv.title }}</span><span class="walk__d">一句话结论 + 要点</span></RouteLink></li>
+                </ol>
+                <p class="walk__loop">答案末尾的「→ 详见」链接回到对应正文，读完一个模块形成闭环</p>
+              </div>
               <ol class="steps">
                 <li><span class="steps__k grad-text">00</span><span class="steps__t">总览页</span><span class="steps__d">模块简介、导航表与推荐阅读路径</span></li>
                 <li><span class="steps__k grad-text">01+</span><span class="steps__t">正文</span><span class="steps__d">按编号顺序阅读，配 SVG 图解</span></li>
