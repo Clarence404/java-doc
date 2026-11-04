@@ -37,6 +37,7 @@ const groups = GROUPS.map((g, i) => {
         modules,
         arts: modules.reduce((s, m) => s + m.a, 0),
         qs: modules.reduce((s, m) => s + m.q, 0),
+        start: modules[0] && {text: ((navData[modules[0].dir] || [])[0] || {}).text || `${modules[0].name} 总览`, link: modules[0].link},
         c: colors[i],
         c2: colors[i + 1] || brandAt(.5),
     };
@@ -316,6 +317,7 @@ onBeforeUnmount(() => { if (io) io.disconnect(); });
                 </RouteLink>
               </li>
             </ul>
+            <p v-if="lead.start" class="gstart"><span>从这里开始</span><RouteLink class="gstart__link" :to="lead.start.link">{{ lead.start.text }}</RouteLink></p>
           </article>
 
           <template v-for="(it, k) in tail" :key="it.kind === 'g' ? it.g.no : 'gd'">
@@ -338,6 +340,7 @@ onBeforeUnmount(() => { if (io) io.disconnect(); });
                   </RouteLink>
                 </li>
               </ul>
+              <p v-if="it.g.start" class="gstart"><span>从这里开始</span><RouteLink class="gstart__link" :to="it.g.start.link">{{ it.g.start.text }}</RouteLink></p>
             </article>
 
             <!-- 读法 -->
@@ -385,7 +388,7 @@ onBeforeUnmount(() => { if (io) io.disconnect(); });
             <p class="kicker"><span>03</span>Route</p>
             <h2 id="ed-route-title" class="sec-title">{{ cn(groups.length) }}站，<br><span class="grad-text">从地基到边界。</span></h2>
           </div>
-          <p class="sec-dek">顺序读是一条完整路线，每一站也能单独进入；读完回到{{ SUMMARY.name }}复盘。也可以<RouteLink class="link-u" to="/interview/91_routes">按目标选路线</RouteLink>。</p>
+          <p class="sec-dek">顺序读是一条完整路线，每一站也能单独进入；读完回到{{ SUMMARY.name }}复盘。也可以<RouteLink class="link-u" to="/interview/91_routes">按目标选路线 →</RouteLink></p>
         </header>
 
         <ol class="route" data-reveal :style="{'--stops': groups.length + 1}">
