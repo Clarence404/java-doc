@@ -153,4 +153,4 @@ Java 团队的主力 IDE 多是 IntelliJ IDEA，首先确认工具对 JetBrains 
 - gitleaks：[https://github.com/gitleaks/gitleaks](https://github.com/gitleaks/gitleaks)
 - OWASP Top 10 for LLM Applications：[https://genai.owasp.org/llm-top-10/](https://genai.owasp.org/llm-top-10/)
 
-> 返回：[AI 总览](../0_overview)
+> 下一篇：[AI 应用实战概览](../7_practice/0_intro)

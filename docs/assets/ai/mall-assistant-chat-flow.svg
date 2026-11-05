@@ -1,0 +1,75 @@
+<svg viewBox="0 0 760 246" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--r)"/>
+    </marker>
+  </defs>
+
+  <rect width="760" height="246" fill="var(--bg)"/>
+  <text x="380" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">一次对话请求的流转（下方为失败路径）</text>
+
+  <!-- 正常路径 -->
+  <rect x="20" y="40" width="116" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="78" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">浏览器</text>
+  <text x="78" y="88" text-anchor="middle" font-size="11" fill="var(--fg)">fetch + 读 SSE</text>
+
+  <rect x="171" y="40" width="116" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="229" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">ChatController</text>
+  <text x="229" y="88" text-anchor="middle" font-size="11" fill="var(--fg)">JSON 或 SSE</text>
+
+  <rect x="322" y="40" width="116" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="380" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">ChatService</text>
+  <text x="380" y="88" text-anchor="middle" font-size="11" fill="var(--fg)">超时与错误归类</text>
+
+  <rect x="473" y="40" width="116" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="531" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">ChatClient</text>
+  <text x="531" y="88" text-anchor="middle" font-size="11" fill="var(--fg)">带上系统提示词</text>
+
+  <rect x="624" y="40" width="116" height="70" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="682" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">Ollama</text>
+  <text x="682" y="88" text-anchor="middle" font-size="11" fill="var(--fg)">qwen2.5:0.5b</text>
+
+  <line x1="136" y1="75" x2="169" y2="75" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="287" y1="75" x2="320" y2="75" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="438" y1="75" x2="471" y2="75" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="589" y1="75" x2="622" y2="75" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 失败路径 -->
+  <line x1="380" y1="110" x2="380" y2="154" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <text x="388" y="137" font-size="11" fill="var(--r)">连接失败 / 超时 / 5xx</text>
+
+  <rect x="20" y="156" width="216" height="70" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="128" y="184" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">阻塞：ApiExceptionHandler</text>
+  <text x="128" y="204" text-anchor="middle" font-size="11" fill="var(--fg)">503 + ProblemDetail + Retry-After</text>
+
+  <rect x="272" y="156" width="216" height="70" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="380" y="184" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">ModelCallException</text>
+  <text x="380" y="204" text-anchor="middle" font-size="11" fill="var(--fg)">MODEL_TIMEOUT / UNAVAILABLE</text>
+
+  <rect x="524" y="156" width="216" height="70" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="632" y="184" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">流式：onErrorResume</text>
+  <text x="632" y="204" text-anchor="middle" font-size="11" fill="var(--fg)">推一个 error 事件后结束</text>
+
+  <line x1="272" y1="191" x2="238" y2="191" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <line x1="488" y1="191" x2="522" y2="191" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <line x1="78" y1="156" x2="78" y2="112" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

@@ -9,7 +9,7 @@
 
 ```
 docs/
-├── ai/             AI：框架 / RAG / Agent / MCP / API 接入 / 工具
+├── ai/             AI：框架 / RAG / Agent / MCP / API 接入 / 工具 / AI 应用实战
 ├── algorithms/     数据结构与算法
 ├── architecture/   系统架构 / DDD / 幂等 / 访问控制
 ├── big-data/       大数据：数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 治理 / 实时数仓
@@ -86,7 +86,7 @@ docs/
 | 网络协议 | `docs/protocols/` | TCP/UDP / HTTP / TLS / DNS / gRPC / 数据库、邮件、文件协议 |
 | 应用安全 | `docs/security/` | 认证授权 / API 安全 / 数据安全 / 漏洞防护 / 零信任 |
 | IoT | `docs/iot/` | 物联网架构 / 协议 / 平台选型 / 边缘计算 / 数据处理 / 设备安全 / 接入实战 |
-| AI | `docs/ai/` | Function Calling / Spring AI / LangChain4j / RAG / Agent / MCP / API 接入 / 评估上线 / AI 工具 |
+| AI | `docs/ai/` | Function Calling / Spring AI / LangChain4j / RAG / Agent / MCP / API 接入 / 评估上线 / AI 工具 / AI 应用实战（智能客服） |
 | 大数据 | `docs/big-data/` | 数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP 与数据服务 / 数据治理 / 实时数仓 |
 | 音视频 | `docs/media/` | 编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入 |
 

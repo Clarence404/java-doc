@@ -22,6 +22,7 @@ AI 模块从 Java 后端视角讲大模型应用开发：选模型、写 Prompt�
 | 核心技术 | Embedding 把文本变成向量，向量库做近似检索，RAG 先检索再生成 | [RAG 检索增强生成](./4_core_tech/2_rag) |
 | 高阶应用 | Agent 在工具调用之上加规划与循环；MCP 把工具做成跨应用共享的标准服务；微调用领域数据改造模型；评估、护栏与灰度把功能稳定送上线 | [AI Agent 智能体](./5_advanced/0_agent) / [MCP 协议](./5_advanced/1_mcp) / [LLM 应用评估与上线](./5_advanced/3_llm_eval) |
 | AI 编程工具 | AI 编程工具的选型维度、项目规则文件与团队使用规范 | [AI 编程工具](./6_tools/0_ai_tools) |
+| AI 应用实战 | 用配套仓库 mall-assistant 一章一章做出示例商城智能客服，每章有起点与参考答案标签、先失败的验收测试 | [AI 应用实战概览](./7_practice/0_intro) |
 
 MCP（Model Context Protocol）由 Anthropic 于 2024 年发起，2025 年 12 月捐赠给 Linux 基金会旗下的 Agentic AI Foundation（AAIF），现由该基金会中立治理；它是协议而不是安全保障，远程 MCP Server 的授权（HTTP 传输按规范走 OAuth）、工具权限与工具输出带来的间接提示注入都要应用自己把关，详见 [MCP 协议](./5_advanced/1_mcp)。
 
@@ -35,7 +36,8 @@ MCP（Model Context Protocol）由 Anthropic 于 2024 年发起，2025 年 12 �
 4. 私有知识问答：[Embedding 向量化](./4_core_tech/0_embedding) → [向量数据库](./4_core_tech/1_vector_db) → [RAG 检索增强生成](./4_core_tech/2_rag)
 5. 复杂任务编排：[AI Agent 智能体](./5_advanced/0_agent) → [MCP 协议](./5_advanced/1_mcp)；Prompt 和 RAG 都解决不了时再考虑 [模型微调](./5_advanced/2_fine_tuning)
 6. 准备上线：[LLM 应用评估与上线](./5_advanced/3_llm_eval)，建评估集、接 CI 门禁、加护栏、做灰度与成本优化
-7. 最后浏览 [AI 编程工具](./6_tools/0_ai_tools)，了解日常开发可用的 AI 工具
+7. 浏览 [AI 编程工具](./6_tools/0_ai_tools)，了解日常开发可用的 AI 工具
+8. 动手练习：从 [AI 应用实战概览](./7_practice/0_intro) 开始，在 mall-assistant 仓库里按章节把前面的原理写成一个能跑的智能客服；也可以读完第 2、3 步就开始第 1 章，边做边回看对应原理文章
 
 复习时用 [高频面试题](./99_interview) 自测，答案在 [AI 面试题解答](/interview/34_ai)。
 

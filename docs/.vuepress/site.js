@@ -207,8 +207,8 @@ export const GROUPS = [
             },
             {
                 name: 'AI', dir: 'ai', interview: ['34_ai'],
-                desc: '大模型基础与选型 / Prompt 与 Function Calling / Spring AI / LangChain4j / Embedding 与向量库 / RAG / Agent / MCP / 本地模型与微调 / 评估上线 / AI 编程工具',
-                subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 编程工具'},
+                desc: '大模型基础与选型 / Prompt 与 Function Calling / Spring AI / LangChain4j / Embedding 与向量库 / RAG / Agent / MCP / 本地模型与微调 / 评估上线 / AI 编程工具 / AI 应用实战',
+                subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 编程工具', '7_practice': 'AI 应用实战'},
             },
             {name: '大数据', dir: 'big-data', interview: ['35_bigdata'], desc: '数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 数据治理 / 实时数仓'},
             {name: 'Flink', dir: 'flink', interview: ['36_flink'], desc: 'DataStream / 时间与窗口 / 状态与容错 / Flink SQL / CDC / 部署调优'},
