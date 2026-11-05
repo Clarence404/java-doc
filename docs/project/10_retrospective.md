@@ -6,13 +6,13 @@ description: 四个阶段的决策时间线、做对的与走过的弯路、准�
 
 > 前置阅读：[项目演进总览](./0_overview)、[跨服务一致性](./7_consistency)、[项目难点与亮点面试题解答](/interview/25_scenario_highlights)
 
-青柚商城订单服务从 3 人的模块化单体走到大促下单峰值 5000 QPS，前九篇各讲了一个阶段的取舍。本篇把这些决策串成一条线，讲做对的事、走过的弯路、准实时对账什么时候值得做、还没做的事，以及怎么把它讲成自己的项目经历。
+示例商城订单服务从 3 人的模块化单体走到大促下单峰值 5000 QPS，前九篇各讲了一个阶段的取舍。本篇把这些决策串成一条线，讲做对的事、走过的弯路、准实时对账什么时候值得做、还没做的事，以及怎么把它讲成自己的项目经历。
 
 ---
 
 ## 一、四个阶段
 
-![青柚商城订单服务的四个阶段](../assets/project/qingyou-evolution-timeline.svg)
+![示例商城订单服务的四个阶段](../assets/project/project-evolution-timeline.svg)
 
 | 阶段 | 规模 | 主要矛盾 | 文章 |
 |------|------|---------|------|
@@ -140,7 +140,7 @@ description: 四个阶段的决策时间线、做对的与走过的弯路、准�
 
 把这个系列当成自己的项目经历讲时，按下面的顺序，控制在 3～5 分钟：
 
-| 步骤 | 讲什么 | 青柚的例子 |
+| 步骤 | 讲什么 | 示例商城的例子 |
 |------|-------|-----------|
 | 1、一句话定位 | 业务、规模、你负责什么 | 生鲜电商的订单服务，从日订单 1 万做到大促下单峰值 5000 QPS，我负责下单与库存一致性 |
 | 2、按阶段讲矛盾 | 每个阶段一个数字、一个矛盾、一个决策，不按技术清单罗列 | 详情读 2000 QPS 把数据库压到 75% → 只给商品详情上两级缓存 |
@@ -168,9 +168,9 @@ description: 四个阶段的决策时间线、做对的与走过的弯路、准�
 - 准实时对账在差错上升、用户先于系统发现问题或大促时才值得做，先只做资金类检查项，每日对账保留
 - 多活、分库分表、服务网格、Redis 预扣、生产全链路压测、Seata 都有明确的触发条件，没到就不做
 - 讲项目按「定位 → 阶段矛盾 → 难点深讲 → 没做的事 → 弯路」展开
-- 前九篇每篇末尾的「验证」列出了结论对应的测试，各章节 tag 跑完整构建的结果汇总在 [测试报告首页](https://clarence404.github.io/qingyou-mall/)
+- 前九篇每篇末尾的「验证」列出了结论对应的测试，各章节 tag 跑完整构建的结果汇总在 [测试报告首页](https://clarence404.github.io/mall-evolution/)
 
-> 本篇代码：[ch10-retrospective](https://github.com/Clarence404/qingyou-mall/tree/ch10-retrospective) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch09-observability-release...ch10-retrospective)
+> 本篇代码：[ch10-retrospective](https://github.com/Clarence404/mall-evolution/tree/ch10-retrospective) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch09-observability-release...ch10-retrospective)
 
 ---
 

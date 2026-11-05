@@ -23,7 +23,7 @@
       <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
     </marker>
   </defs>
-  <text class="title" x="385" y="26" text-anchor="middle">库存数据从 qingyou_mall 迁到 qingyou_inventory 的四步</text>
+  <text class="title" x="385" y="26" text-anchor="middle">库存数据从 mall 迁到 mall_inventory 的四步</text>
 
   <rect x="20" y="44" width="160" height="86" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
   <text class="box-title" x="100" y="68" text-anchor="middle">① 先拆部署</text>
@@ -34,7 +34,7 @@
 
   <rect x="210" y="44" width="160" height="86" rx="8" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
   <text class="box-title" x="290" y="68" text-anchor="middle">② 建新库并同步</text>
-  <text class="desc" x="290" y="92" text-anchor="middle">建 qingyou_inventory</text>
+  <text class="desc" x="290" y="92" text-anchor="middle">建 mall_inventory</text>
   <text class="desc" x="290" y="112" text-anchor="middle">binlog 同步存量与增量</text>
 
   <line x1="370" y1="87" x2="398" y2="87" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-qy-dbsplit)"/>

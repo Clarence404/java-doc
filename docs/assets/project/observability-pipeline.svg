@@ -26,7 +26,7 @@
     </marker>
   </defs>
   <rect width="920" height="390" fill="var(--bg)" rx="8"/>
-  <text x="460" y="30" text-anchor="middle" font-weight="700" font-size="14">青柚商城的可观测数据流</text>
+  <text x="460" y="30" text-anchor="middle" font-weight="700" font-size="14">示例商城的可观测数据流</text>
   <rect x="20" y="50" width="180" height="250" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
   <text x="110" y="76" text-anchor="middle" class="t">应用 Pod（4 个服务）</text>
   <text x="110" y="104" text-anchor="middle" class="d">mall-gateway</text>

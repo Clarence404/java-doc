@@ -36,7 +36,7 @@ description: 首次大促的故障复盘、超时熔断与舱壁、重试风暴�
 
 ## 二、选项
 
-| 问题 | 候选方案 | 放到青柚的代价 |
+| 问题 | 候选方案 | 放到示例商城的代价 |
 |------|---------|---------------|
 | 熔断与隔离 | 只靠超时 / Spring Framework 7 `@Retryable` + `@ConcurrencyLimit` / Resilience4j / Sentinel | 只靠超时，下游持续变慢时线程照样被占满；框架内置注解没有熔断状态机；Sentinel 要部署 Dashboard，规则持久化到 Nacos 要自己改造；Resilience4j 是进程内库，配置随 Nacos 刷新，但没有控制台 |
 | 限流放在哪层 | Ingress `limit_req` / `mall-gateway` 的 `RequestRateLimiter` / `mall-app` 内 | Ingress 拿不到用户身份，会误伤同一出口 IP；网关已校验 JWT，能按「用户 + 接口」限，但依赖 Redis；`mall-app` 能看懂业务规则，却挡不住流量 |
@@ -57,7 +57,7 @@ description: 首次大促的故障复盘、超时熔断与舱壁、重试风暴�
 | 重试风暴 | 写接口一律不自动重试；只读查询最多重试 1 次并加随机退避；熔断或舱壁拒绝时快速失败，也不再调 `release` |
 | 恶意下单不付款 | 网关 `RequestRateLimiter` 按「用户 + 接口」限流；下单频控：每个用户同一 SKU 的待支付订单最多 2 单；活动 SKU 支付超时从 15 分钟缩短为 5 分钟 |
 | 单 SKU 写热点 | 只对活动白名单 SKU 分桶，表 `t_inventory_bucket`，默认 10 桶，按 `order_no` 哈希选桶、桶空换桶 |
-| 非核心功能拖累核心 | 降级开关放 Nacos 配置 `qingyou.degrade.*`，由 SRE 与值班负责人决定开关 |
+| 非核心功能拖累核心 | 降级开关放 Nacos 配置 `mall.degrade.*`，由 SRE 与值班负责人决定开关 |
 | 容量心里没底 | Gatling 在同构压测环境按 1.5 倍峰值即 7500 QPS 压测；生产只在低峰做只读压测 |
 | 大促当天的执行 | 提前 3 天扩容、缓存预热、大促前 48 小时发布冻结、值班表与预案演练、RocketMQ 容量评估 |
 
@@ -119,8 +119,8 @@ resilience4j:
         slow-call-rate-threshold: 60
         wait-duration-in-open-state: 5s
         permitted-number-of-calls-in-half-open-state: 20
-        record-failure-predicate: com.qingyou.common.remote.RemoteFailurePredicate   # 只记超时与 5xx
-      payment-query: {sliding-window-type: TIME_BASED, sliding-window-size: 10, minimum-number-of-calls: 50, failure-rate-threshold: 50, wait-duration-in-open-state: 10s, record-failure-predicate: com.qingyou.common.remote.RemoteFailurePredicate}
+        record-failure-predicate: io.github.clarence404.mall.common.remote.RemoteFailurePredicate   # 只记超时与 5xx
+      payment-query: {sliding-window-type: TIME_BASED, sliding-window-size: 10, minimum-number-of-calls: 50, failure-rate-threshold: 50, wait-duration-in-open-state: 10s, record-failure-predicate: io.github.clarence404.mall.common.remote.RemoteFailurePredicate}
   bulkhead:
     instances:
       inventory-reserve:
@@ -141,7 +141,7 @@ resilience4j:
 [跨服务一致性](./7_consistency) 里 `PlaceOrderService` 对 `reserve` 的处理只有两类：明确失败直接抛，结果未知先释放。熔断和舱壁带来了第三类：请求根本没发出去。
 
 ```java
-// mall-app：com.qingyou.order.place.PlaceOrderService（阶段四，节选）
+// mall-app：io.github.clarence404.mall.order.place.PlaceOrderService（阶段四，节选）
 try {
     inventoryReserveClient.reserve(new ReserveStockRequest(orderNo, lines));  // 经 inventory-reserve 熔断器与舱壁
 } catch (RemoteBizException e) {
@@ -164,14 +164,14 @@ try {
 
 ```yaml
 # Nacos：mall-app.yaml（大促时的取值）
-qingyou:
+mall:
   degrade:
     recommend-enabled: false        # 商品详情、购物车的「猜你喜欢」，关闭后返回运营配置的固定列表
     points-display-enabled: false   # 订单详情、我的页面不再实时查积分
     order-list-months: 3            # 订单列表只查近 3 个月；0 表示不限制
 ```
 
-应用里用 `@ConfigurationProperties(prefix = "qingyou.degrade")` 绑定到 `DegradeProperties`，Nacos 推送后实时生效。订单列表只查近 3 个月时，由 3 个月前的时间算出雪花 ID 的下界，追加 `AND id >= ?`，仍走 `idx_user_id (user_id, id)`，不需要新索引。
+应用里用 `@ConfigurationProperties(prefix = "mall.degrade")` 绑定到 `DegradeProperties`，Nacos 推送后实时生效。订单列表只查近 3 个月时，由 3 个月前的时间算出雪花 ID 的下界，追加 `AND id >= ?`，仍走 `idx_user_id (user_id, id)`，不需要新索引。
 
 | 级别 | 什么时候 | 谁决定 |
 |------|---------|--------|
@@ -199,7 +199,7 @@ qingyou:
 只读查询的重试用 Spring Framework 7 自带的注解：
 
 ```java
-// mall-app：com.qingyou.product.stock.StockQueryService
+// mall-app：io.github.clarence404.mall.product.stock.StockQueryService
 @Retryable(includes = ResourceAccessException.class, maxRetries = 1, delay = 20, jitter = 60)
 public List<StockView> listStocks(List<Long> skuIds) {
     return inventoryApi.listStocks(skuIds);           // 失败时商品详情改用 Redis 里 10 秒 TTL 的「有货」提示
@@ -242,7 +242,7 @@ spring:
 ```
 
 ```java
-// mall-gateway：com.qingyou.gateway.RateLimitConfig
+// mall-gateway：io.github.clarence404.mall.gateway.RateLimitConfig
 @Bean
 KeyResolver userRouteKeyResolver() {
     return exchange -> exchange.getPrincipal()           // 网关已校验 JWT，principal 名即用户 ID
@@ -268,7 +268,7 @@ GROUP BY i.sku_id;
 
 任一 SKU 的 `cnt` 已经达到 2 就返回 409 和 `ORDER_PENDING_LIMIT`，提示「您有未支付的订单，请先完成支付」。这里没有加锁，同一用户的并发请求可能都通过检查，多出一单；网关已经把每个用户限制在每秒 1 次，这点误差可以接受。
 
-另一半是缩短锁定时间：活动白名单 SKU 放在 Nacos 配置 `qingyou.promo.activity-sku-ids`，订单里只要有一个活动 SKU，`order-timeout` 定时消息就按 5 分钟投递。两条一起作用后，一个账号最多锁住同一爆款 2 件、5 分钟。限流之外的防刷手段（接口签名、设备指纹、风控）不在本系列范围内，思路见 [秒杀](/scenario/4_seckill#_2、防刷)。
+另一半是缩短锁定时间：活动白名单 SKU 放在 Nacos 配置 `mall.promo.activity-sku-ids`，订单里只要有一个活动 SKU，`order-timeout` 定时消息就按 5 分钟投递。两条一起作用后，一个账号最多锁住同一爆款 2 件、5 分钟。限流之外的防刷手段（接口签名、设备指纹、风控）不在本系列范围内，思路见 [秒杀](/scenario/4_seckill#_2、防刷)。
 
 ---
 
@@ -279,7 +279,7 @@ GROUP BY i.sku_id;
 ### 1、表结构
 
 ```sql
--- qingyou_inventory 库
+-- mall_inventory 库
 ALTER TABLE t_inventory ADD COLUMN bucket_count TINYINT NOT NULL DEFAULT 0 COMMENT '0 不分桶';
 ALTER TABLE t_inventory_reservation ADD COLUMN bucket_no TINYINT NULL COMMENT 'confirm / release 回到同一个桶';
 
@@ -313,10 +313,10 @@ WHERE sku_id = ? AND bucket_no = ? AND stock >= ?;
 
 ## 八、压测
 
-压测脚本放在 `qingyou-mall` 的 `perf` 模块，用 Gatling 的 Java DSL 编写，和业务代码同仓、同一套 Maven 构建：
+压测脚本放在 `mall-evolution` 的 `perf` 模块，用 Gatling 的 Java DSL 编写，和业务代码同仓、同一套 Maven 构建：
 
 ```java
-// perf：com.qingyou.perf.PromoSimulation
+// perf：io.github.clarence404.mall.perf.PromoSimulation
 public class PromoSimulation extends Simulation {
     // protocol 与 feeder 定义略：压测环境预置 20 万个账号（每人每秒限流 1 次，账号要足够分散），SKU 按预估分布集中在 20 个爆款
     ScenarioBuilder placeOrder = scenario("place-order")
@@ -367,7 +367,7 @@ public class PromoSimulation extends Simulation {
 
 `mall-app` 也在本章迁入集群：[拆分服务](./6_split) 时它还跑在云主机上，新服务稳定一个月后，`deploy/k8s/kustomization.yaml` 加回 `mall-app.yaml`，并新增 `hpa.yaml`（`mall-app` 4–16 个、`inventory-service` 3–8 个副本，CPU 60% 扩容），上表 T-3 天的扩容就是对这两个 Deployment 操作。迁入后 `mall-app` 的雪花机器号也和另外两个服务一样，每个 Pod 向 Redis 租用，Secret 里不再有 `WORKER_ID`。HPA 只管日常波动，大促不靠它：0 点的尖峰一分钟内就到，Pod 启动加预热要 2 分钟，所以按预案提前扩到上限。
 
-`ProductWarmupRunner` 是一个 `ApplicationRunner`：启动时按 `qingyou.warmup.top-products`（默认 500，配 0 关闭）查出头部商品，逐个调用 `ProductDetailService.get` 装进 L1。Spring Boot 在所有 `ApplicationRunner` 执行完之后才把就绪状态切到 `ACCEPTING_TRAFFIC`，所以 readiness 探针天然排在预热之后。
+`ProductWarmupRunner` 是一个 `ApplicationRunner`：启动时按 `mall.warmup.top-products`（默认 500，配 0 关闭）查出头部商品，逐个调用 `ProductDetailService.get` 装进 L1。Spring Boot 在所有 `ApplicationRunner` 执行完之后才把就绪状态切到 `ACCEPTING_TRAFFIC`，所以 readiness 探针天然排在预热之后。
 
 值班表每个时段都有交易、库存、支付三组各一人加 SRE，值班负责人由技术负责人轮值。扩容与预热的通用清单见 [容量评估与规划 · 大促预案](/high-con/8_capacity_planning#六、大促预案) 与 [缓存架构设计 · 缓存预热](/high-con/3_cache_architecture#三、缓存预热)；商品详情 6 万 QPS 的读流量绝大部分由 [引入缓存](./4_cache) 的 Caffeine 吸收，预热的意义是让新扩出来的 Pod 不在 0 点集中回源。
 
@@ -395,17 +395,17 @@ public class PromoSimulation extends Simulation {
 
 ## 十一、验证
 
-下表列出本篇关键结论与证明它的测试；本章代码在 `ch08-stability` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch08-stability/)。
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch08-stability` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/mall-evolution/reports/ch08-stability/)。
 
 | 结论 | 测试 | 类型 |
 |------|------|------|
-| 熔断打开时下单快速返回 503 与 `Retry-After`，不调用 `release` | [`StabilityH2Test#openCircuitFailsFastWith503AndRetryAfterWithoutReleasing`](https://github.com/Clarence404/qingyou-mall/blob/ch08-stability/mall-app/src/test/java/com/qingyou/order/StabilityH2Test.java) | H2 全流程 |
-| `payment-query` 舱壁显式配置为 20，不用默认值 | [`StabilityH2Test#paymentQueryBulkheadIsConfiguredExplicitly`](https://github.com/Clarence404/qingyou-mall/blob/ch08-stability/mall-app/src/test/java/com/qingyou/order/StabilityH2Test.java) | H2 全流程 |
-| 同一 SKU 第 3 笔待支付订单被拒绝 | [`StabilityH2Test#thirdPendingOrderOfSameSkuIsRejected`](https://github.com/Clarence404/qingyou-mall/blob/ch08-stability/mall-app/src/test/java/com/qingyou/order/StabilityH2Test.java) | H2 全流程 |
-| 分桶后预占、确认、释放回到同一个桶，大促后可合并 | [`InventoryBucketH2Test#splitReserveAcrossBucketsConfirmReleaseAndMerge`](https://github.com/Clarence404/qingyou-mall/blob/ch08-stability/inventory-service/src/test/java/com/qingyou/inventory/InventoryBucketH2Test.java) | H2 全流程 |
-| 头部商品在就绪前加载进 L1 | [`ProductWarmupRunnerTest#loadsTopProductsIntoLocalCacheBeforeReady`](https://github.com/Clarence404/qingyou-mall/blob/ch08-stability/mall-product/src/test/java/com/qingyou/product/detail/ProductWarmupRunnerTest.java) | 单元 |
+| 熔断打开时下单快速返回 503 与 `Retry-After`，不调用 `release` | [`StabilityH2Test#openCircuitFailsFastWith503AndRetryAfterWithoutReleasing`](https://github.com/Clarence404/mall-evolution/blob/ch08-stability/mall-app/src/test/java/io/github/clarence404/mall/order/StabilityH2Test.java) | H2 全流程 |
+| `payment-query` 舱壁显式配置为 20，不用默认值 | [`StabilityH2Test#paymentQueryBulkheadIsConfiguredExplicitly`](https://github.com/Clarence404/mall-evolution/blob/ch08-stability/mall-app/src/test/java/io/github/clarence404/mall/order/StabilityH2Test.java) | H2 全流程 |
+| 同一 SKU 第 3 笔待支付订单被拒绝 | [`StabilityH2Test#thirdPendingOrderOfSameSkuIsRejected`](https://github.com/Clarence404/mall-evolution/blob/ch08-stability/mall-app/src/test/java/io/github/clarence404/mall/order/StabilityH2Test.java) | H2 全流程 |
+| 分桶后预占、确认、释放回到同一个桶，大促后可合并 | [`InventoryBucketH2Test#splitReserveAcrossBucketsConfirmReleaseAndMerge`](https://github.com/Clarence404/mall-evolution/blob/ch08-stability/inventory-service/src/test/java/io/github/clarence404/mall/inventory/InventoryBucketH2Test.java) | H2 全流程 |
+| 头部商品在就绪前加载进 L1 | [`ProductWarmupRunnerTest#loadsTopProductsIntoLocalCacheBeforeReady`](https://github.com/Clarence404/mall-evolution/blob/ch08-stability/mall-product/src/test/java/io/github/clarence404/mall/product/detail/ProductWarmupRunnerTest.java) | 单元 |
 | 网关按用户 + 路由限流，每个用户下单每秒 1 次 | 无自动化测试 | 需真实环境 |
-| 7500 QPS 下单 P99 < 800ms、失败率 < 0.1%（第 3 轮实测 P99 520ms） | [`PromoSimulation`](https://github.com/Clarence404/qingyou-mall/blob/ch08-stability/perf/src/test/java/com/qingyou/perf/PromoSimulation.java) | 压测脚本 |
+| 7500 QPS 下单 P99 < 800ms、失败率 < 0.1%（第 3 轮实测 P99 520ms） | [`PromoSimulation`](https://github.com/Clarence404/mall-evolution/blob/ch08-stability/perf/src/test/java/io/github/clarence404/mall/perf/PromoSimulation.java) | 压测脚本 |
 | 对库存服务注入 800ms 延迟后熔断 5 秒内打开，商品详情不受影响 | 无自动化测试 | 需真实环境 |
 
 ---
@@ -419,7 +419,7 @@ public class PromoSimulation extends Simulation {
 - 只对活动白名单 SKU 分 10 桶，按 `order_no` 哈希选桶、桶空换桶；不做 Redis 预扣
 - 容量靠 Gatling 在同构环境按 7500 QPS 压出来，`mall-app` 本章迁入集群，大促按预案提前扩容、预热（`ProductWarmupRunner`）、冻结发布，RocketMQ 规格按消息量单独评估
 
-> 本篇代码：[ch08-stability](https://github.com/Clarence404/qingyou-mall/tree/ch08-stability) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch07-consistency...ch08-stability)
+> 本篇代码：[ch08-stability](https://github.com/Clarence404/mall-evolution/tree/ch08-stability) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch07-consistency...ch08-stability)
 
 ## 参考资料
 

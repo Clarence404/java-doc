@@ -12,7 +12,7 @@ description: 方案对比与不用 Seata 的理由、库存预占三个接口、
 
 ## 一、背景
 
-阶段三日订单到了 100 万，上一篇 [拆分服务](./6_split) 把库存和支付拆了出去：订单留在 `mall-app`（库 `qingyou_mall`），库存在 `inventory-service`（库 `qingyou_inventory`），支付在 `payment-service`（库 `qingyou_payment`）。[数据建模](./2_data_model#七、事务边界) 里那个 `@Transactional` 原本同时包住扣库存和写订单，现在 `InventoryApi.deduct` 变成了一次远程调用，事务只管得住订单库。上一篇用了过渡写法：先远程 `deduct`，写单失败再 `restore`；支付回调里 `payment-service` 同步调用 `OrderPayApi.markPaid`，失败就让渠道重试回调。
+阶段三日订单到了 100 万，上一篇 [拆分服务](./6_split) 把库存和支付拆了出去：订单留在 `mall-app`（库 `mall`），库存在 `inventory-service`（库 `mall_inventory`），支付在 `payment-service`（库 `mall_payment`）。[数据建模](./2_data_model#七、事务边界) 里那个 `@Transactional` 原本同时包住扣库存和写订单，现在 `InventoryApi.deduct` 变成了一次远程调用，事务只管得住订单库。上一篇用了过渡写法：先远程 `deduct`，写单失败再 `restore`；支付回调里 `payment-service` 同步调用 `OrderPayApi.markPaid`，失败就让渠道重试回调。
 
 一笔订单的生命周期里，有四个地方会出现「一边成功、一边失败」：
 
@@ -29,9 +29,9 @@ description: 方案对比与不用 Seata 的理由、库存预占三个接口、
 
 ## 二、选项
 
-几种主流方案的原理见 [分布式事务](/distributed/4_transaction)，这里只看它们放到青柚的代价：
+几种主流方案的原理见 [分布式事务](/distributed/4_transaction)，这里只看它们放到示例商城的代价：
 
-| 方案 | 一致性 | 对业务的侵入 | 青柚的代价 |
+| 方案 | 一致性 | 对业务的侵入 | 示例商城的代价 |
 |------|-------|------------|-----------|
 | 2PC / XA | 强一致 | 低，靠数据库 XA 接口 | 两阶段期间一直持有行锁，热门 SKU 的库存行被锁到支付服务返回；协调者宕机时参与者阻塞 |
 | Seata AT | 最终一致（全局锁隔离写） | 低，自动生成回滚 SQL | 要单独部署并运维 TC 集群和它的存储；全局锁让同一 SKU 的下单串行；依赖 SQL 解析与 `undo_log` |
@@ -62,7 +62,7 @@ CAP 与 BASE 的取舍见 [分布式理论](/distributed/2_theorem#二、base-�
 - **参与方少、流程固定**：跨服务的写只有订单、库存、支付三方，状态流转在 [数据建模](./2_data_model) 里已经定死，手写协调的代码量可控
 - **多一套要高可用的基础设施**：TC 集群挂了，所有下单都失败；20 人的团队里没有人专职维护它
 - **热点 SKU 会被全局锁串行化**：AT 模式在全局事务提交前持有全局锁，大促时同一个爆款的下单全部排队，见 [分布式事务 · Seata](/distributed/4_transaction#八、seata)
-- **团队已经有 Outbox**：[异步化](./5_async) 一篇的 `t_outbox`、`OutboxRelayJob` 和 `t_consume_record` 直接复用：`OutboxWriter`、`OutboxRelay`、`OutboxRelayJob` 从 `com.qingyou.order.outbox` 抽到 `mall-common` 的 `com.qingyou.common.outbox`，三个服务共用一份代码，表在 `payment-service`、`inventory-service` 的库里各建一份；新增的只是库存的三个接口
+- **团队已经有 Outbox**：[异步化](./5_async) 一篇的 `t_outbox`、`OutboxRelayJob` 和 `t_consume_record` 直接复用：`OutboxWriter`、`OutboxRelay`、`OutboxRelayJob` 从 `io.github.clarence404.mall.order.outbox` 抽到 `mall-common` 的 `io.github.clarence404.mall.common.outbox`，三个服务共用一份代码，表在 `payment-service`、`inventory-service` 的库里各建一份；新增的只是库存的三个接口
 
 ### 2、明确不做
 
@@ -91,7 +91,7 @@ CAP 与 BASE 的取舍见 [分布式理论](/distributed/2_theorem#二、base-�
 ### 1、预占记录表
 
 ```sql
--- qingyou_inventory 库；t_inventory 增加一列 reserved：已预占、尚未确认的数量
+-- mall_inventory 库；t_inventory 增加一列 reserved：已预占、尚未确认的数量
 ALTER TABLE t_inventory ADD COLUMN reserved INT NOT NULL DEFAULT 0 COMMENT '已预占未确认' AFTER stock;
 
 CREATE TABLE t_inventory_reservation (
@@ -117,7 +117,7 @@ CREATE TABLE t_inventory_reservation (
 ### 2、三个接口
 
 ```java
-// inventory-service：com.qingyou.inventory.reserve.ReservationService
+// inventory-service：io.github.clarence404.mall.inventory.reserve.ReservationService
 @Transactional(rollbackFor = Exception.class)
 public ReserveResult reserve(String orderNo, List<ReserveLine> lines) {
     List<Reservation> existing = reservationMapper.selectByOrderNo(orderNo);
@@ -168,7 +168,7 @@ public void release(String orderNo, List<ReserveLine> lines) {
 ### 1、下单：结果未知按失败处理
 
 ```java
-// mall-app：com.qingyou.order.place.PlaceOrderService（阶段三）
+// mall-app：io.github.clarence404.mall.order.place.PlaceOrderService（阶段三）
 public PlaceOrderResult place(long userId, String idemKey, PlaceOrderRequest req) {
     Order existing = orderMapper.selectByUserAndBizNo(userId, idemKey);
     if (existing != null) {
@@ -209,7 +209,7 @@ public PlaceOrderResult place(long userId, String idemKey, PlaceOrderRequest req
 ### 2、支付成功：去重表加条件更新
 
 ```java
-// mall-app：com.qingyou.order.paid.OrderPaidTxService（原 pay 包已随支付迁出）
+// mall-app：io.github.clarence404.mall.order.paid.OrderPaidTxService（原 pay 包已随支付迁出）
 @Transactional(rollbackFor = Exception.class)
 public void markPaid(PaymentSucceeded msg) {
     if (consumeRecordMapper.insertIgnore("order-payment-consumer", msg.paymentNo()) == 0) {
@@ -298,18 +298,18 @@ private void requireRefund(PaymentSucceeded msg) {               // 消息键是
 
 ## 十、验证
 
-下表列出本篇关键结论与证明它的测试；本章代码在 `ch07-consistency` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch07-consistency/)。
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch07-consistency` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/mall-evolution/reports/ch07-consistency/)。
 
 | 结论 | 测试 | 类型 |
 |------|------|------|
-| `release` 先到时留下占位，迟到的 `reserve` 被拒绝 | [`InventoryApiH2Test#releaseBeforeReserveLeavesPlaceholderThatRejectsLateReserve`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/inventory-service/src/test/java/com/qingyou/inventory/InventoryApiH2Test.java) | H2 全流程 |
-| `reserve` 与 `release` 并发竞争不会泄漏库存 | [`InventoryDeductIT#racingReserveAndReleaseNeverLeakStock`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/inventory-service/src/test/java/com/qingyou/inventory/InventoryDeductIT.java) | 集成（真实 MySQL·Redis） |
-| 库存服务返回 5xx 按结果未知处理，立即释放预占 | [`OrderFlowH2Test#serverErrorFromInventoryIsUnknownSoReservationIsReleased`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/mall-app/src/test/java/com/qingyou/order/OrderFlowH2Test.java) | H2 全流程 |
-| `reserve` 返回 `REJECTED` 是明确失败，不写订单 | [`PlaceOrderServiceTest#rejectedReservationIsDefiniteFailureWithoutWritingOrder`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/mall-order/src/test/java/com/qingyou/order/place/PlaceOrderServiceTest.java) | 单元 |
-| 同一订单付两次款，退掉后到的一笔，先到的保留 | [`OrderFlowH2Test#secondPaymentOfSameOrderIsRefundedAndFirstOneStays`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/mall-app/src/test/java/com/qingyou/order/OrderFlowH2Test.java) | H2 全流程 |
-| 已关闭支付单的迟到回调仍置为成功 | [`PaymentFlowH2Test#lateCallbackOnClosedPaymentStillMarksSuccess`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/payment-service/src/test/java/com/qingyou/payment/PaymentFlowH2Test.java) | H2 全流程 |
-| 跨零点的订单（前一天下单、当天支付）仍被完整比对 | [`ReconcileReaderTest#orderPlacedBeforeMidnightAndPaidAfterIsStillCompared`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/mall-app/src/test/java/com/qingyou/reconcile/ReconcileReaderTest.java) | 单元 |
-| 补发撞上发送失败的原记录时写入差错表 | [`ReconcileJobTest#republishHittingFailedOutboxRecordIsRecordedAsDiff`](https://github.com/Clarence404/qingyou-mall/blob/ch07-consistency/mall-app/src/test/java/com/qingyou/reconcile/ReconcileJobTest.java) | 单元 |
+| `release` 先到时留下占位，迟到的 `reserve` 被拒绝 | [`InventoryApiH2Test#releaseBeforeReserveLeavesPlaceholderThatRejectsLateReserve`](https://github.com/Clarence404/mall-evolution/blob/ch07-consistency/inventory-service/src/test/java/io/github/clarence404/mall/inventory/InventoryApiH2Test.java) | H2 全流程 |
+| `reserve` 与 `release` 并发竞争不会泄漏库存 | [`InventoryDeductIT#racingReserveAndReleaseNeverLeakStock`](https://github.com/Clarence404/mall-evolution/blob/ch07-consistency/inventory-service/src/test/java/io/github/clarence404/mall/inventory/InventoryDeductIT.java) | 集成（真实 MySQL·Redis） |
+| 库存服务返回 5xx 按结果未知处理，立即释放预占 | [`OrderFlowH2Test#serverErrorFromInventoryIsUnknownSoReservationIsReleased`](https://github.com/Clarence404/mall-evolution/blob/ch07-consistency/mall-app/src/test/java/io/github/clarence404/mall/order/OrderFlowH2Test.java) | H2 全流程 |
+| `reserve` 返回 `REJECTED` 是明确失败，不写订单 | [`PlaceOrderServiceTest#rejectedReservationIsDefiniteFailureWithoutWritingOrder`](https://github.com/Clarence404/mall-evolution/blob/ch07-consistency/mall-order/src/test/java/io/github/clarence404/mall/order/place/PlaceOrderServiceTest.java) | 单元 |
+| 同一订单付两次款，退掉后到的一笔，先到的保留 | [`OrderFlowH2Test#secondPaymentOfSameOrderIsRefundedAndFirstOneStays`](https://github.com/Clarence404/mall-evolution/blob/ch07-consistency/mall-app/src/test/java/io/github/clarence404/mall/order/OrderFlowH2Test.java) | H2 全流程 |
+| 已关闭支付单的迟到回调仍置为成功 | [`PaymentFlowH2Test#lateCallbackOnClosedPaymentStillMarksSuccess`](https://github.com/Clarence404/mall-evolution/blob/ch07-consistency/payment-service/src/test/java/io/github/clarence404/mall/payment/PaymentFlowH2Test.java) | H2 全流程 |
+| 跨零点的订单（前一天下单、当天支付）仍被完整比对 | [`ReconcileReaderTest#orderPlacedBeforeMidnightAndPaidAfterIsStillCompared`](https://github.com/Clarence404/mall-evolution/blob/ch07-consistency/mall-app/src/test/java/io/github/clarence404/mall/reconcile/ReconcileReaderTest.java) | 单元 |
+| 补发撞上发送失败的原记录时写入差错表 | [`ReconcileJobTest#republishHittingFailedOutboxRecordIsRecordedAsDiff`](https://github.com/Clarence404/mall-evolution/blob/ch07-consistency/mall-app/src/test/java/io/github/clarence404/mall/reconcile/ReconcileJobTest.java) | 单元 |
 
 ---
 
@@ -324,7 +324,7 @@ private void requireRefund(PaymentSucceeded msg) {               // 消息键是
 - 对账先取变动的订单号、再按订单号取三库全量，预占总量取同一快照；补发撞键且原消息失败时写差错表
 - 每个不一致窗口都要有对用户说得通的展示，尤其是「支付成功、订单确认中」
 
-> 本篇代码：[ch07-consistency](https://github.com/Clarence404/qingyou-mall/tree/ch07-consistency) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch06-split...ch07-consistency) · 阶段 Release：[stage-3-split](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-3-split)
+> 本篇代码：[ch07-consistency](https://github.com/Clarence404/mall-evolution/tree/ch07-consistency) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch06-split...ch07-consistency) · 阶段 Release：[stage-3-split](https://github.com/Clarence404/mall-evolution/releases/tag/stage-3-split)
 
 ## 参考资料
 

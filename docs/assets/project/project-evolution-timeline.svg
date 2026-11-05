@@ -22,7 +22,7 @@
     </marker>
   </defs>
   <rect width="1000" height="300" fill="var(--bg)" rx="8"/>
-  <text x="500" y="28" text-anchor="middle" font-weight="700" font-size="14">青柚商城订单服务的四个阶段</text>
+  <text x="500" y="28" text-anchor="middle" font-weight="700" font-size="14">示例商城订单服务的四个阶段</text>
 
   <!-- 阶段一 -->
   <rect x="21" y="48" width="214" height="232" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>

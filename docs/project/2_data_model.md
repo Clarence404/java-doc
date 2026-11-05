@@ -74,7 +74,7 @@ WHERE o.user_id = ?;
 ### 2、决策
 
 - **主键 `id` 用雪花 ID**（`BIGINT`），由应用生成，不用数据库自增。阶段一只有两台应用机，机器号由环境变量 `WORKER_ID` 注入（1 和 2），时钟回拨策略照搬 [分布式 ID 生成](/distributed/8_id_generator) 中的做法
-- **机器号不给默认值，没配就启动失败**：`qingyou.id.worker-id: ${WORKER_ID:}`，为空或超出 0–1023 时 `IdConfig` 直接抛异常；如果给个默认值 1，两台机器漏配后都用 1，同一毫秒会生成相同的 ID，主键冲突要到上线后才暴露。本地、测试环境和集成测试在各自的配置文件里显式写机器号；拆分上 Kubernetes 后机器号改为每个 Pod 向 Redis 租用，见 [拆分服务 · Kubernetes 部署](./6_split#七、kubernetes-部署)
+- **机器号不给默认值，没配就启动失败**：`mall.id.worker-id: ${WORKER_ID:}`，为空或超出 0–1023 时 `IdConfig` 直接抛异常；如果给个默认值 1，两台机器漏配后都用 1，同一毫秒会生成相同的 ID，主键冲突要到上线后才暴露。本地、测试环境和集成测试在各自的配置文件里显式写机器号；拆分上 Kubernetes 后机器号改为每个 Pod 向 Redis 租用，见 [拆分服务 · Kubernetes 部署](./6_split#七、kubernetes-部署)
 - **对外订单号 `order_no` 单独一列**，阶段一取值就是雪花 ID 的十进制字符串（19 位）；之所以不直接用 `id`，是为阶段三留口子：分库分表时要把用户 ID 的低位「基因」嵌进订单号，让按订单号查询也能定位到分片，届时只改 `order_no` 的生成规则，主键不动
 - **对前端一律按字符串返回**：19 位整数超过 JavaScript 的安全整数范围，按数字返回会丢精度
 - **不用 UUID v7**：它解决的是「不想分配机器号」，而阶段一两台机器手工分配就够了；8 字节对 16 字节，在明细表、支付表的二级索引上每行都能省下 8 字节
@@ -85,7 +85,7 @@ WHERE o.user_id = ?;
 
 ### 1、金额：DECIMAL 还是分
 
-金额只在 `DECIMAL` 和「以分为单位的 `BIGINT`」之间选，`FLOAT` / `DOUBLE` 直接排除。青柚商城只卖人民币，选 **`DECIMAL(12,2)` + Java `BigDecimal`**：SQL 里直接可读，运营导出报表、财务对账不需要再除以 100。代价是 Java 侧必须统一用 `BigDecimal` 并约定舍入规则（`HALF_UP` 保留 2 位），这一条写进编码规范。以后要做多币种时，再加 `currency` 列并评估改成最小货币单位。
+金额只在 `DECIMAL` 和「以分为单位的 `BIGINT`」之间选，`FLOAT` / `DOUBLE` 直接排除。示例商城只卖人民币，选 **`DECIMAL(12,2)` + Java `BigDecimal`**：SQL 里直接可读，运营导出报表、财务对账不需要再除以 100。代价是 Java 侧必须统一用 `BigDecimal` 并约定舍入规则（`HALF_UP` 保留 2 位），这一条写进编码规范。以后要做多币种时，再加 `currency` 列并评估改成最小货币单位。
 
 ### 2、状态与状态机
 
@@ -345,18 +345,18 @@ public PlaceOrderResult place(long userId, String bizNo, PlaceOrderRequest req) 
 
 ## 十一、验证
 
-下表列出本篇关键结论与证明它的测试；本章代码在 `ch02-data-model` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch02-data-model/)。
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch02-data-model` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/mall-evolution/reports/ch02-data-model/)。
 
 | 结论 | 测试 | 类型 |
 |------|------|------|
-| 同一幂等键的并发请求只生成一单、只扣一次库存 | [`PlaceOrderTxIT#concurrentRequestsWithSameKeyCreateOneOrderAndDeductOnce`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-app/src/test/java/com/qingyou/order/PlaceOrderTxIT.java) | 集成（真实 MySQL·Redis） |
-| 并发抢同一 SKU 不超卖 | [`PlaceOrderTxIT#noOversellUnderConcurrency`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-app/src/test/java/com/qingyou/order/PlaceOrderTxIT.java) | 集成（真实 MySQL·Redis） |
-| 库存不足时扣减与写单整体回滚 | [`PlaceOrderTxIT#insufficientStockRollsBackWholeTransaction`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-app/src/test/java/com/qingyou/order/PlaceOrderTxIT.java) | 集成（真实 MySQL·Redis） |
-| 一单多件按 `sku_id` 升序扣减 | [`PlaceOrderTxServiceTest#deductsInSkuAscendingOrderThenWritesOrder`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-order/src/test/java/com/qingyou/order/place/PlaceOrderTxServiceTest.java) | 单元 |
-| 撞 `uk_user_biz` 后在事务外查出先到的订单返回 | [`PlaceOrderServiceTest#concurrentDuplicateKeyFallsBackToReplayingWinner`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-order/src/test/java/com/qingyou/order/place/PlaceOrderServiceTest.java) | 单元 |
-| 非法状态流转在执行 SQL 前就被拒绝 | [`OrderMapperTransitionTest#illegalTransitionIsRejectedBeforeTouchingDatabase`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-order/src/test/java/com/qingyou/order/domain/OrderMapperTransitionTest.java) | 单元 |
-| 机器号没配时应用启动失败 | [`IdConfigTest#startupFailsWhenWorkerIdMissing`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-common/src/test/java/com/qingyou/common/id/IdConfigTest.java) | 单元 |
-| 雪花 ID 唯一、递增、19 位 | [`SnowflakeIdGeneratorTest#idsAreUniqueIncreasingAnd19Digits`](https://github.com/Clarence404/qingyou-mall/blob/ch02-data-model/mall-common/src/test/java/com/qingyou/common/id/SnowflakeIdGeneratorTest.java) | 单元 |
+| 同一幂等键的并发请求只生成一单、只扣一次库存 | [`PlaceOrderTxIT#concurrentRequestsWithSameKeyCreateOneOrderAndDeductOnce`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderTxIT.java) | 集成（真实 MySQL·Redis） |
+| 并发抢同一 SKU 不超卖 | [`PlaceOrderTxIT#noOversellUnderConcurrency`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderTxIT.java) | 集成（真实 MySQL·Redis） |
+| 库存不足时扣减与写单整体回滚 | [`PlaceOrderTxIT#insufficientStockRollsBackWholeTransaction`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderTxIT.java) | 集成（真实 MySQL·Redis） |
+| 一单多件按 `sku_id` 升序扣减 | [`PlaceOrderTxServiceTest#deductsInSkuAscendingOrderThenWritesOrder`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-order/src/test/java/io/github/clarence404/mall/order/place/PlaceOrderTxServiceTest.java) | 单元 |
+| 撞 `uk_user_biz` 后在事务外查出先到的订单返回 | [`PlaceOrderServiceTest#concurrentDuplicateKeyFallsBackToReplayingWinner`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-order/src/test/java/io/github/clarence404/mall/order/place/PlaceOrderServiceTest.java) | 单元 |
+| 非法状态流转在执行 SQL 前就被拒绝 | [`OrderMapperTransitionTest#illegalTransitionIsRejectedBeforeTouchingDatabase`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-order/src/test/java/io/github/clarence404/mall/order/domain/OrderMapperTransitionTest.java) | 单元 |
+| 机器号没配时应用启动失败 | [`IdConfigTest#startupFailsWhenWorkerIdMissing`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-common/src/test/java/io/github/clarence404/mall/common/id/IdConfigTest.java) | 单元 |
+| 雪花 ID 唯一、递增、19 位 | [`SnowflakeIdGeneratorTest#idsAreUniqueIncreasingAnd19Digits`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-common/src/test/java/io/github/clarence404/mall/common/id/SnowflakeIdGeneratorTest.java) | 单元 |
 
 ---
 
@@ -371,7 +371,7 @@ public PlaceOrderResult place(long userId, String bizNo, PlaceOrderRequest req) 
 - 下单 = 扣库存 + 写订单 + 写明细，一个本地事务；`uk_user_biz` 唯一约束兜底幂等，冲突在事务外处理
 - 一年 365 万订单、1100 万明细，单表足够，阶段三再评估分库分表
 
-> 本篇代码：[ch02-data-model](https://github.com/Clarence404/qingyou-mall/tree/ch02-data-model) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch01-project-setup...ch02-data-model)
+> 本篇代码：[ch02-data-model](https://github.com/Clarence404/mall-evolution/tree/ch02-data-model) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch01-project-setup...ch02-data-model)
 
 ## 参考资料
 

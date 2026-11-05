@@ -23,7 +23,7 @@
       <path d="M0,0 L7,3.5 L0,7 Z" fill="var(--b)"/>
     </marker>
   </defs>
-  <text class="title" x="360" y="26" text-anchor="middle">qingyou-mall 模块依赖（阶段一：模块化单体）</text>
+  <text class="title" x="360" y="26" text-anchor="middle">mall-evolution 模块依赖（阶段一：模块化单体）</text>
 
   <rect x="250" y="44" width="220" height="60" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
   <text class="box-title" x="360" y="68" text-anchor="middle">mall-app</text>

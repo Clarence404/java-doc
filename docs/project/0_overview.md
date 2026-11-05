@@ -1,6 +1,6 @@
 # 项目演进总览
 
-项目演进模块用一个虚构的「青柚商城」订单服务，按真实项目的成长顺序，从单体起步一路演进到分布式、上线运维。每篇只讲这个阶段遇到的问题、可选方案、最终决策和代价，原理与细节都链接到各模块的主文档。
+项目演进模块用一个虚构的「示例商城」订单服务，按真实项目的成长顺序，从单体起步一路演进到分布式、上线运维。每篇只讲这个阶段遇到的问题、可选方案、最终决策和代价，原理与细节都链接到各模块的主文档。
 
 **版本基线（2026 年 10 月）**：JDK 21、Spring Boot 4、Spring Cloud 2025.1、MySQL 8.4、Redis 8、RocketMQ 5、Kubernetes 1.37
 
@@ -8,16 +8,16 @@
 
 ## 一、项目背景
 
-青柚商城是一家做生鲜与日用品的中型电商，本模块只跟踪其中的**订单服务**：用户下单、扣减库存、支付、发货通知到售后的主链路。全系列共用下面这套设定，各篇的数字、命名都以此为准。
+示例商城是一家做生鲜与日用品的中型电商，本模块只跟踪其中的**订单服务**：用户下单、扣减库存、支付、发货通知到售后的主链路。全系列共用下面这套设定，各篇的数字、命名都以此为准。
 
 | 设定 | 取值 |
 |------|------|
-| 仓库 | [`qingyou-mall`](https://github.com/Clarence404/qingyou-mall)，Maven 多模块，Java 包名 `com.qingyou`；每篇文章对应一个章节 tag（如 `ch04-cache`），四个阶段各有 tag 与 [Release](https://github.com/Clarence404/qingyou-mall/releases)（`stage-1-monolith`、`stage-2-cache-async`、`stage-3-split`、`stage-4-stability`）；每个章节 tag 上都跑了完整构建并发布 [测试报告](https://clarence404.github.io/qingyou-mall/)，前九篇的「验证」一节列出关键结论与证明它的测试 |
+| 仓库 | [`mall-evolution`](https://github.com/Clarence404/mall-evolution)，Maven 多模块，Java 包名 `io.github.clarence404.mall`；每篇文章对应一个章节 tag（如 `ch04-cache`），四个阶段各有 tag 与 [Release](https://github.com/Clarence404/mall-evolution/releases)（`stage-1-monolith`、`stage-2-cache-async`、`stage-3-split`、`stage-4-stability`）；每个章节 tag 上都跑了完整构建并发布 [测试报告](https://clarence404.github.io/mall-evolution/)，前九篇的「验证」一节列出关键结论与证明它的测试 |
 | 核心实体 | 用户、商品、库存、订单、支付单 |
 | 团队 | 起步 3 人全栈，阶段三扩到 20 人、4 个小组，阶段四新增 1 名专职 SRE |
 | 部署 | 起步两台云主机；阶段三起迁到 Kubernetes |
 
-本系列与 [订单](/scenario/5_order_system) 的分工：那篇是订单系统的通用设计题答案，表名、事件名、关单方式等细节与青柚不完全相同；这里讲青柚的订单服务**怎么一步步演进**、每一步为什么这么选，青柚的实际做法以本系列为准。
+本系列与 [订单](/scenario/5_order_system) 的分工：那篇是订单系统的通用设计题答案，表名、事件名、关单方式等细节与示例商城不完全相同；这里讲示例商城的订单服务**怎么一步步演进**、每一步为什么这么选，示例商城的实际做法以本系列为准。
 
 ---
 
@@ -25,10 +25,10 @@
 
 | 阶段 | 规模 | 主要矛盾 | 对应文章 |
 |------|------|---------|---------|
-| [一、单体起步](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-1-monolith) | 日订单 1 万，下单峰值约 20 QPS | 尽快上线，同时别给后面埋坑 | [工程搭建](./1_project_setup)、[数据建模](./2_data_model)、[接口设计](./3_api_design) |
-| [二、读多扛流量](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-2-cache-async) | 日订单 10 万，下单峰值约 30 QPS，商品详情读约 2000 QPS | 数据库读压力大、同步调用拖慢下单 | [引入缓存](./4_cache)、[异步化](./5_async) |
-| [三、拆分服务](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-3-split) | 日订单 100 万，20 人 4 个小组 | 单体发布互相阻塞、库存与支付需要独立扩容 | [拆分服务](./6_split)、[跨服务一致性](./7_consistency) |
-| [四、大促稳定性](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-4-stability) | 大促下单峰值 5000 QPS，日常约 300 QPS | 流量尖峰、依赖故障扩散、问题难定位 | [稳定性](./8_stability)、[可观测与发布](./9_observability_release) |
+| [一、单体起步](https://github.com/Clarence404/mall-evolution/releases/tag/stage-1-monolith) | 日订单 1 万，下单峰值约 20 QPS | 尽快上线，同时别给后面埋坑 | [工程搭建](./1_project_setup)、[数据建模](./2_data_model)、[接口设计](./3_api_design) |
+| [二、读多扛流量](https://github.com/Clarence404/mall-evolution/releases/tag/stage-2-cache-async) | 日订单 10 万，下单峰值约 30 QPS，商品详情读约 2000 QPS | 数据库读压力大、同步调用拖慢下单 | [引入缓存](./4_cache)、[异步化](./5_async) |
+| [三、拆分服务](https://github.com/Clarence404/mall-evolution/releases/tag/stage-3-split) | 日订单 100 万，20 人 4 个小组 | 单体发布互相阻塞、库存与支付需要独立扩容 | [拆分服务](./6_split)、[跨服务一致性](./7_consistency) |
+| [四、大促稳定性](https://github.com/Clarence404/mall-evolution/releases/tag/stage-4-stability) | 大促下单峰值 5000 QPS，日常约 300 QPS | 流量尖峰、依赖故障扩散、问题难定位 | [稳定性](./8_stability)、[可观测与发布](./9_observability_release) |
 
 每个阶段的数字只用来说明「为什么到了这一步要变」：在上一阶段就引入下一阶段的方案，往往是过度设计；到了瓶颈还不变，则会在线上付出代价。最后一篇 [复盘](./10_retrospective) 把全部决策串起来，整理成讲项目时的思路。
 

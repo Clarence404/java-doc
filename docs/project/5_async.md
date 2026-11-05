@@ -121,7 +121,7 @@ CREATE TABLE t_outbox (
 `uk_topic_key` 保证一笔订单的同一种消息只写一条，支付回调重复到达时，第二次的状态条件更新影响 0 行，也就不会再写。写入由 `OutboxWriter` 完成，要求调用方已经在事务里，提交后立刻交给中继发送：
 
 ```java
-// com.qingyou.order.outbox.OutboxWriter
+// io.github.clarence404.mall.order.outbox.OutboxWriter
 @Transactional(propagation = Propagation.MANDATORY)       // 必须在业务事务内调用
 public void append(String topic, String orderNo, Object payload, LocalDateTime deliverAt) {
     OutboxRecord r = OutboxRecord.of(topic, orderNo, Json.write(payload), deliverAt);
@@ -137,7 +137,7 @@ public void append(String topic, String orderNo, Object payload, LocalDateTime d
 ```
 
 ```java
-// com.qingyou.order.pay.PayCallbackService（节选）
+// io.github.clarence404.mall.order.pay.PayCallbackService（节选）
 @Transactional
 public void onPaid(PayNotify n) {
     if (paymentMapper.markSuccess(n.paymentNo(), n.channelTradeNo()) == 0) {
@@ -155,7 +155,7 @@ public void onPaid(PayNotify n) {
 
 ### 2、中继投递
 
-`OutboxRelay` 有两个入口：`relayOne(id)` 供上面的 `afterCommit` 立即发送，`relayBatch(100)` 由 `OutboxRelayJob` 每秒调用、扫表兜底。两台应用机同时跑，最直接的写法是在一个事务里 `FOR UPDATE SKIP LOCKED` 选出记录、逐条发送、再改状态，但这样发送期间一直占着行锁和数据库连接，Broker 一卡，每条都要等到超时，连接池跟着被拖住。青柚把一轮中继拆成三步，**发送不在事务里**：
+`OutboxRelay` 有两个入口：`relayOne(id)` 供上面的 `afterCommit` 立即发送，`relayBatch(100)` 由 `OutboxRelayJob` 每秒调用、扫表兜底。两台应用机同时跑，最直接的写法是在一个事务里 `FOR UPDATE SKIP LOCKED` 选出记录、逐条发送、再改状态，但这样发送期间一直占着行锁和数据库连接，Broker 一卡，每条都要等到超时，连接池跟着被拖住。示例商城把一轮中继拆成三步，**发送不在事务里**：
 
 1. **短事务认领**：`SKIP LOCKED` 选出到期记录，把它们的 `next_retry_at` 推后 120 秒作为租约，立即提交。提交后行锁和连接都已释放，另一台机器扫表时这批记录还没到期，不会重复认领
 2. **事务外发送**：同步发送，Broker 故障时每条最多卡 `requestTimeout`（配置为 1 秒），卡住的只是中继线程
@@ -164,7 +164,7 @@ public void onPaid(PayNotify n) {
 认领事务显式用**读已提交**：可重复读下按 `idx_status_retry` 扫描会加间隙锁，租约更新又要改这条索引，两台机器并发认领时会互相死锁，集成测试里能稳定复现；读已提交只锁命中的行。偶发的锁冲突（`TransientDataAccessException`）当成「本轮没认领到」，下一轮再来。加锁查询与调度 Bean 的拆分见 [分布式事务 · 中继投递代码](/distributed/4_transaction#_3、中继投递代码)。
 
 ```java
-// com.qingyou.order.outbox.OutboxRelay（节选）
+// io.github.clarence404.mall.order.outbox.OutboxRelay（节选）
 public int relayBatch(int limit) {
     List<OutboxRecord> due;
     try {
@@ -225,10 +225,10 @@ CREATE TABLE t_consume_record (
 ) COMMENT '消费去重记录，保留 30 天';
 ```
 
-积分是强要求「不丢不重」的，去重记录和加积分放在**同一个本地事务**里，插入影响 0 行说明处理过，直接返回。`PointsGrantService` 在 mall-user，而 mall-user 不能依赖 mall-order，所以 `ConsumeRecordMapper` 放在 `mall-common` 的 `com.qingyou.common.mq` 包（去重表与业务无关，属于基础设施）；`OrderPaidEvent` 也由 mall-user 在 `com.qingyou.user.points` 里自己定义一份，按 JSON 字段反序列化，不引用生产方的 `com.qingyou.order.api.OrderPaidEvent`：
+积分是强要求「不丢不重」的，去重记录和加积分放在**同一个本地事务**里，插入影响 0 行说明处理过，直接返回。`PointsGrantService` 在 mall-user，而 mall-user 不能依赖 mall-order，所以 `ConsumeRecordMapper` 放在 `mall-common` 的 `io.github.clarence404.mall.common.mq` 包（去重表与业务无关，属于基础设施）；`OrderPaidEvent` 也由 mall-user 在 `io.github.clarence404.mall.user.points` 里自己定义一份，按 JSON 字段反序列化，不引用生产方的 `io.github.clarence404.mall.order.api.OrderPaidEvent`：
 
 ```java
-// com.qingyou.user.points.PointsGrantService
+// io.github.clarence404.mall.user.points.PointsGrantService
 @Transactional
 public void grant(OrderPaidEvent e) {
     if (consumeRecordMapper.insertIgnore("points-consumer", e.orderNo()) == 0) {
@@ -320,18 +320,18 @@ provider.newPushConsumerBuilder()
 
 ## 八、验证
 
-下表列出本篇关键结论与证明它的测试；本章代码在 `ch05-async` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch05-async/)。
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch05-async` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/mall-evolution/reports/ch05-async/)。
 
 | 结论 | 测试 | 类型 |
 |------|------|------|
-| 两个中继并发扫表，每条消息只发一次 | [`OutboxRelayIT#twoRelaysScanningConcurrentlySendEachRecordOnce`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-app/src/test/java/com/qingyou/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
-| 认领后的记录带租约，另一个中继会跳过 | [`OutboxRelayIT#claimedRecordsAreLeasedSoAnotherRelaySkipsThem`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-app/src/test/java/com/qingyou/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
-| 短事务认领加租约，发送在事务外 | [`OutboxRelayTest#batchIsClaimedWithLeaseInShortTransactionAndSentOutsideIt`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-order/src/test/java/com/qingyou/order/outbox/OutboxRelayTest.java) | 单元 |
-| 认领事务使用读已提交 | [`OutboxRelayTest#claimTransactionUsesReadCommitted`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-order/src/test/java/com/qingyou/order/outbox/OutboxRelayTest.java) | 单元 |
-| Broker 故障时停止本批，剩余记录释放租约 | [`OutboxRelayTest#brokerFailureStopsBatchAndReleasesRemainingLeases`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-order/src/test/java/com/qingyou/order/outbox/OutboxRelayTest.java) | 单元 |
-| 发送失败按退避重试，第 10 次失败置为失败 | [`OutboxRelayIT#brokerFailureBacksOffAndEventuallyFails`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-app/src/test/java/com/qingyou/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
-| 同一订单的积分只发一次 | [`AsyncFlowH2Test#pointsAreGrantedOncePerOrder`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-app/src/test/java/com/qingyou/order/AsyncFlowH2Test.java) | H2 全流程 |
-| 超时消息到期关闭未支付订单并归还库存 | [`AsyncFlowH2Test#timeoutClosesUnpaidOrderAndReturnsStock`](https://github.com/Clarence404/qingyou-mall/blob/ch05-async/mall-app/src/test/java/com/qingyou/order/AsyncFlowH2Test.java) | H2 全流程 |
+| 两个中继并发扫表，每条消息只发一次 | [`OutboxRelayIT#twoRelaysScanningConcurrentlySendEachRecordOnce`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
+| 认领后的记录带租约，另一个中继会跳过 | [`OutboxRelayIT#claimedRecordsAreLeasedSoAnotherRelaySkipsThem`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
+| 短事务认领加租约，发送在事务外 | [`OutboxRelayTest#batchIsClaimedWithLeaseInShortTransactionAndSentOutsideIt`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-order/src/test/java/io/github/clarence404/mall/order/outbox/OutboxRelayTest.java) | 单元 |
+| 认领事务使用读已提交 | [`OutboxRelayTest#claimTransactionUsesReadCommitted`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-order/src/test/java/io/github/clarence404/mall/order/outbox/OutboxRelayTest.java) | 单元 |
+| Broker 故障时停止本批，剩余记录释放租约 | [`OutboxRelayTest#brokerFailureStopsBatchAndReleasesRemainingLeases`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-order/src/test/java/io/github/clarence404/mall/order/outbox/OutboxRelayTest.java) | 单元 |
+| 发送失败按退避重试，第 10 次失败置为失败 | [`OutboxRelayIT#brokerFailureBacksOffAndEventuallyFails`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
+| 同一订单的积分只发一次 | [`AsyncFlowH2Test#pointsAreGrantedOncePerOrder`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-app/src/test/java/io/github/clarence404/mall/order/AsyncFlowH2Test.java) | H2 全流程 |
+| 超时消息到期关闭未支付订单并归还库存 | [`AsyncFlowH2Test#timeoutClosesUnpaidOrderAndReturnsStock`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-app/src/test/java/io/github/clarence404/mall/order/AsyncFlowH2Test.java) | H2 全流程 |
 
 ---
 
@@ -344,7 +344,7 @@ provider.newPushConsumerBuilder()
 - 超时关单改为 15 分钟定时消息加每 10 分钟的兜底扫描，关单一律用状态条件更新
 - 监控看两段：`t_outbox` 待发送时长定位中继问题，消费组堆积定位下游问题，死信大于 0 就告警
 
-> 本篇代码：[ch05-async](https://github.com/Clarence404/qingyou-mall/tree/ch05-async) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch04-cache...ch05-async) · 阶段 Release：[stage-2-cache-async](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-2-cache-async)
+> 本篇代码：[ch05-async](https://github.com/Clarence404/mall-evolution/tree/ch05-async) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch04-cache...ch05-async) · 阶段 Release：[stage-2-cache-async](https://github.com/Clarence404/mall-evolution/releases/tag/stage-2-cache-async)
 
 ---
 

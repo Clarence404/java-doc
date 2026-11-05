@@ -43,7 +43,7 @@
   <text x="380" y="316" text-anchor="middle" class="t">mall-app：下单入口</text>
   <text x="200" y="342" text-anchor="middle" class="d">频控：同一 SKU 待支付最多 2 单</text>
   <text x="560" y="342" text-anchor="middle" class="d">活动 SKU 支付超时 5 分钟</text>
-  <text x="380" y="364" text-anchor="middle" class="d">降级开关 qingyou.degrade.*：推荐、积分展示、订单列表</text>
+  <text x="380" y="364" text-anchor="middle" class="d">降级开关 mall.degrade.*：推荐、积分展示、订单列表</text>
   <line x1="380" y1="382" x2="380" y2="414" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
   <rect x="20" y="416" width="720" height="90" rx="6" fill="var(--card)" stroke="var(--y)" stroke-width="1.5"/>
   <text x="380" y="440" text-anchor="middle" class="t">mall-app → inventory-service</text>

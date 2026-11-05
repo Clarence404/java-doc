@@ -69,7 +69,7 @@ description: 资源路径、ProblemDetail 与模块错误码、下单幂等、�
 
 ```json
 {
-  "type": "https://api.qingyou.com/problems/order-status-conflict",
+  "type": "https://api.mall.com/problems/order-status-conflict",
   "title": "订单状态不允许此操作",
   "status": 409,
   "detail": "订单 1849203385720832512 已发货，不能取消",
@@ -83,7 +83,7 @@ description: 资源路径、ProblemDetail 与模块错误码、下单幂等、�
 
 ### 2、错误码按模块分前缀
 
-[API 设计规范](/engineering/4_api_design_rule) 用一个全局 `ErrorCode` 枚举。青柚是模块化单体（`mall-order`、`mall-inventory`、`mall-user` 等，支付阶段一放在 `mall-order` 的 `pay` 包里），所有模块往一个枚举文件里加码，既容易冲突，阶段三拆服务时还得把枚举拆开。所以改成**公共接口 + 每个模块一个枚举**，业务码 = 模块前缀 + 原因：
+[API 设计规范](/engineering/4_api_design_rule) 用一个全局 `ErrorCode` 枚举。示例商城是模块化单体（`mall-order`、`mall-inventory`、`mall-user` 等，支付阶段一放在 `mall-order` 的 `pay` 包里），所有模块往一个枚举文件里加码，既容易冲突，阶段三拆服务时还得把枚举拆开。所以改成**公共接口 + 每个模块一个枚举**，业务码 = 模块前缀 + 原因：
 
 | 所在模块 | 前缀 | 示例 |
 |---------|------|------|
@@ -94,10 +94,10 @@ description: 资源路径、ProblemDetail 与模块错误码、下单幂等、�
 | `mall-order` 的 `pay` 包 | `PAY_` | `PAY_AMOUNT_MISMATCH` |
 | `mall-user` | `USER_` | `USER_ADDRESS_NOT_FOUND` |
 
-`mall-common` 里的 `ErrorCode` 是接口，只声明 `status()`、`title()`、`code()` 三个方法，各模块的枚举实现它，并放在本模块的 `api` 包，例如库存的 `InventoryErrorCode.STOCK_INSUFFICIENT`，订单模块扣减失败时直接抛它。支付码单独建 `PayErrorCode` 枚举放在 `com.qingyou.order.pay`，不并进 `OrderErrorCode`，阶段三支付独立成服务时连包带枚举一起搬走，前缀不变：
+`mall-common` 里的 `ErrorCode` 是接口，只声明 `status()`、`title()`、`code()` 三个方法，各模块的枚举实现它，并放在本模块的 `api` 包，例如库存的 `InventoryErrorCode.STOCK_INSUFFICIENT`，订单模块扣减失败时直接抛它。支付码单独建 `PayErrorCode` 枚举放在 `io.github.clarence404.mall.order.pay`，不并进 `OrderErrorCode`，阶段三支付独立成服务时连包带枚举一起搬走，前缀不变：
 
 ```java
-package com.qingyou.order.api;
+package io.github.clarence404.mall.order.api;
 
 public enum OrderErrorCode implements ErrorCode {
 
@@ -130,7 +130,7 @@ public enum OrderErrorCode implements ErrorCode {
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final String PROBLEM_BASE = "https://api.qingyou.com/problems/";
+    private static final String PROBLEM_BASE = "https://api.mall.com/problems/";
 
     @ExceptionHandler(BizException.class)
     public ProblemDetail handleBiz(BizException ex) {
@@ -198,7 +198,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 幂等键就是订单行的一列，随订单在同一条 `INSERT` 里写入，要么一起成功，要么一起回滚，不会出现「占了键却没下单」的中间状态，因此不需要 `PROCESSING` 状态。`PlaceOrderService` 负责幂等，`PlaceOrderTxService` 负责事务，完整写法见 [数据建模 · 下单幂等](./2_data_model#八、下单幂等)，这里只看冲突分支：
 
 ```java
-// com.qingyou.order.place.PlaceOrderService（节选）
+// io.github.clarence404.mall.order.place.PlaceOrderService（节选）
 try {
     // 一个事务：按 sku_id 升序扣库存，再写 t_order（biz_no = 幂等键）/ t_order_item
     return PlaceOrderResult.created(placeOrderTxService.create(userId, idemKey, req, items));
@@ -208,7 +208,7 @@ try {
 ```
 
 ```java
-// com.qingyou.order.place.PlaceOrderController
+// io.github.clarence404.mall.order.place.PlaceOrderController
 @PostMapping("/api/orders")
 public ResponseEntity<OrderView> place(@AuthenticationPrincipal LoginUser user,
         @RequestHeader("Idempotency-Key") @Size(min = 16, max = 64) String idemKey,
@@ -296,7 +296,7 @@ spring:
         header: API-Version
 ```
 
-[API 设计规范 · 版本号放在哪](/engineering/4_api_design_rule#_1、版本号放在哪) 建议对外 API 的主版本放 URL。青柚偏离这一条，是因为调用方只有自家的 App、H5 和运营后台，不是开放给第三方的 API：URL 版本带来的网关路由、缓存便利在这里用处不大，而 App 老版本会在用户手机上长期存在，路径一改就得新旧两套地址并存；放请求头则路径不变，老客户端不带头也按 1.0 处理。将来真要对商家或第三方开放接口，对外的那部分按主文档把主版本放进 URL。
+[API 设计规范 · 版本号放在哪](/engineering/4_api_design_rule#_1、版本号放在哪) 建议对外 API 的主版本放 URL。示例商城偏离这一条，是因为调用方只有自家的 App、H5 和运营后台，不是开放给第三方的 API：URL 版本带来的网关路由、缓存便利在这里用处不大，而 App 老版本会在用户手机上长期存在，路径一改就得新旧两套地址并存；放请求头则路径不变，老客户端不带头也按 1.0 处理。将来真要对商家或第三方开放接口，对外的那部分按主文档把主版本放进 URL。
 
 比「放在哪」更重要的是**尽量不升版本**：新增响应字段、新增可选参数、放宽校验都是兼容变更，直接发布；删字段、改类型、改错误码含义才是破坏性变更。订单状态枚举后面肯定会加值（如 `PARTIAL_REFUNDED`），因此现在就和前端约定：**遇到不认识的状态显示「处理中」，不报错**。兼容规则的完整清单见 [API 设计规范](/engineering/4_api_design_rule)，配置细节见 [Web 开发](/spring-boot/2_web_dev)。
 
@@ -382,18 +382,18 @@ class PlaceOrderApiTests extends IntegrationTestBase {
 
 ## 十三、验证
 
-下表列出本篇关键结论与证明它的测试；本章代码在 `ch03-api-design` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch03-api-design/)。
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch03-api-design` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/mall-evolution/reports/ch03-api-design/)。
 
 | 结论 | 测试 | 类型 |
 |------|------|------|
-| 同一 `Idempotency-Key` 重放返回首单，带 `Idempotent-Replayed: true` | [`PlaceOrderApiTests#sameKeyReplaysFirstOrder`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/order/PlaceOrderApiTests.java) | 集成（真实 MySQL·Redis） |
-| 取消已发货订单返回 409 与 `ORDER_STATUS_CONFLICT` | [`PlaceOrderApiTests#cancelShippedOrderReturns409`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/order/PlaceOrderApiTests.java) | 集成（真实 MySQL·Redis） |
-| 缺少 `Idempotency-Key` 返回 400 ProblemDetail | [`PlaceOrderControllerTest#missingIdempotencyKeyReturns400Problem`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/order/place/PlaceOrderControllerTest.java) | 单元 |
-| 查别人的订单返回 404，不暴露订单是否存在 | [`PlaceOrderApiTests#otherUsersOrderReturns404`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/order/PlaceOrderApiTests.java) | 集成（真实 MySQL·Redis） |
-| 不带 `API-Version` 请求头按 1.0 处理 | [`ApiVersionH2Test#missingApiVersionHeaderDefaultsToVersionOnePointZero`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/web/ApiVersionH2Test.java) | H2 全流程 |
-| 刷新令牌轮换，旧刷新令牌再用被拒 | [`AuthTokenH2Test#refreshRotatesTokenAndOldRefreshTokenIsRejected`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/user/AuthTokenH2Test.java) | H2 全流程 |
-| 踢下线吊销该用户全部刷新令牌 | [`AuthTokenH2Test#kickOutRevokesAllRefreshTokensOfUser`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/mall-app/src/test/java/com/qingyou/user/AuthTokenH2Test.java) | H2 全流程 |
-| 破坏性接口变更让 PR 检查失败（以目标分支的 `api/openapi.json` 为基准） | [`pr.yml`](https://github.com/Clarence404/qingyou-mall/blob/ch03-api-design/.github/workflows/pr.yml) 的 OpenAPI breaking-change check | 静态校验（CI） |
+| 同一 `Idempotency-Key` 重放返回首单，带 `Idempotent-Replayed: true` | [`PlaceOrderApiTests#sameKeyReplaysFirstOrder`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderApiTests.java) | 集成（真实 MySQL·Redis） |
+| 取消已发货订单返回 409 与 `ORDER_STATUS_CONFLICT` | [`PlaceOrderApiTests#cancelShippedOrderReturns409`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderApiTests.java) | 集成（真实 MySQL·Redis） |
+| 缺少 `Idempotency-Key` 返回 400 ProblemDetail | [`PlaceOrderControllerTest#missingIdempotencyKeyReturns400Problem`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/order/place/PlaceOrderControllerTest.java) | 单元 |
+| 查别人的订单返回 404，不暴露订单是否存在 | [`PlaceOrderApiTests#otherUsersOrderReturns404`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderApiTests.java) | 集成（真实 MySQL·Redis） |
+| 不带 `API-Version` 请求头按 1.0 处理 | [`ApiVersionH2Test#missingApiVersionHeaderDefaultsToVersionOnePointZero`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/web/ApiVersionH2Test.java) | H2 全流程 |
+| 刷新令牌轮换，旧刷新令牌再用被拒 | [`AuthTokenH2Test#refreshRotatesTokenAndOldRefreshTokenIsRejected`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/user/AuthTokenH2Test.java) | H2 全流程 |
+| 踢下线吊销该用户全部刷新令牌 | [`AuthTokenH2Test#kickOutRevokesAllRefreshTokensOfUser`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/user/AuthTokenH2Test.java) | H2 全流程 |
+| 破坏性接口变更让 PR 检查失败（以目标分支的 `api/openapi.json` 为基准） | [`pr.yml`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/.github/workflows/pr.yml) 的 OpenAPI breaking-change check | 静态校验（CI） |
 
 ---
 
@@ -406,7 +406,7 @@ class PlaceOrderApiTests extends IntegrationTestBase {
 - 校验分组只用于共享的嵌套对象，分组继承 `Default`；版本从 `API-Version` 请求头读，缺省 1.0，尽量只做兼容变更
 - 鉴权用短期 JWT + 可吊销的刷新令牌；文档由 springdoc 生成，CI 做兼容性检查，暂不生成 SDK
 
-> 本篇代码：[ch03-api-design](https://github.com/Clarence404/qingyou-mall/tree/ch03-api-design) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch02-data-model...ch03-api-design) · 阶段 Release：[stage-1-monolith](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-1-monolith)
+> 本篇代码：[ch03-api-design](https://github.com/Clarence404/mall-evolution/tree/ch03-api-design) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch02-data-model...ch03-api-design) · 阶段 Release：[stage-1-monolith](https://github.com/Clarence404/mall-evolution/releases/tag/stage-1-monolith)
 
 ---
 

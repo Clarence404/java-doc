@@ -26,7 +26,7 @@ description: 链路追踪与日志关联、统一指标与告警、SLO 与燃烧
 
 ### 1、链路与日志
 
-| 方案 | 做法 | 青柚的代价 |
+| 方案 | 做法 | 示例商城的代价 |
 |------|------|-----------|
 | 继续只看日志 | 网关生成请求 ID，各服务透传后写进日志 | 只能串日志，看不出哪一跳慢；RocketMQ、JDBC、Redis 调用都要自己埋点 |
 | Micrometer Tracing | 每个服务加依赖，经 OTel bridge 导出 | 和 Spring 的 Observation 对齐；但 RocketMQ 5 客户端没有现成埋点，要自己写 |
@@ -38,7 +38,7 @@ description: 链路追踪与日志关联、统一指标与告警、SLO 与燃烧
 
 ### 2、发布
 
-| 方案 | 回滚速度 | 青柚的代价 |
+| 方案 | 回滚速度 | 示例商城的代价 |
 |------|---------|-----------|
 | 滚动更新（现状） | 再滚一次，约 10 分钟 | 坏版本会逐步替换全部 Pod，靠人盯 |
 | 蓝绿 | 秒级切回 | 双倍资源；一次切全部流量，出问题时影响面是 100% |
@@ -77,11 +77,11 @@ agent 只负责链路，指标仍走 Micrometer：agent 2.x 默认不桥接 Micr
 
 ## 四、三类信号怎么串起来
 
-![青柚商城的可观测数据流：应用 → OTel Collector → Tempo / Loki / Prometheus → Grafana 与 Alertmanager](../assets/project/observability-pipeline.svg)
+![示例商城的可观测数据流：应用 → OTel Collector → Tempo / Loki / Prometheus → Grafana 与 Alertmanager](../assets/project/observability-pipeline.svg)
 
 - **一次请求一个 traceId**：agent 在 `mall-gateway` 入口生成 Trace，经 HTTP 头 `traceparent` 传到 `mall-app` 和 `inventory-service`，经消息属性传到消费者；每一跳的耗时、SQL、Redis 命令都在同一个 Trace 里
 - **日志带 traceId**：agent 往 MDC 写 `trace_id`、`span_id`，结构化日志原样输出成 JSON 字段；Grafana 里从 Tempo 的 Span 点「查看日志」，就是按这个字段过滤 Loki
-- **指标暂不带 exemplar**：Micrometer 要给直方图附带 traceId，得有 `SpanContext` 来源（Micrometer Tracing，或 agent 的 Micrometer 桥接），青柚两者都没开；即使开了，尾部采样丢掉的普通 Trace 对应的 exemplar 也点不开。从 P99 尖刺到链路，按服务、接口和时间窗在 Tempo 里用 TraceQL 查慢 Trace
+- **指标暂不带 exemplar**：Micrometer 要给直方图附带 traceId，得有 `SpanContext` 来源（Micrometer Tracing，或 agent 的 Micrometer 桥接），示例商城两者都没开；即使开了，尾部采样丢掉的普通 Trace 对应的 exemplar 也点不开。从 P99 尖刺到链路，按服务、接口和时间窗在 Tempo 里用 TraceQL 查慢 Trace
 
 Collector 分两层：每个节点一个 DaemonSet 接收本节点 Pod 的 OTLP 并读取容器日志；Span 按 traceId 转发给网关层的 3 个副本做尾部采样，错误、慢于 800ms 的 Trace 全部保留，其余保留 10%。部署方式见 [OpenTelemetry · 在 Kubernetes 上部署](/observability/5_opentelemetry#六、在-kubernetes-上部署)，采样策略的取舍见 [链路追踪 · 采样策略](/observability/3_tracing#五、采样策略)。
 
@@ -100,7 +100,7 @@ env:
   - name: OTEL_SERVICE_NAME
     value: mall-app
   - name: OTEL_RESOURCE_ATTRIBUTES
-    value: service.namespace=qingyou,deployment.environment.name=prod
+    value: service.namespace=mall,deployment.environment.name=prod
   - name: NODE_IP
     valueFrom: {fieldRef: {fieldPath: status.hostIP}}
   - name: OTEL_EXPORTER_OTLP_ENDPOINT
@@ -227,7 +227,7 @@ inhibit_rules:
 | `t_outbox` 最老待发送时长 | 三个服务各一条线 | 持续上涨说明中继或 Broker 出了问题 |
 | 各消费组堆积 | `order-payment-consumer` 置顶 | 只有一个组涨，是这个组的下游慢了 |
 | 对账差异数 | 每天凌晨的结果 | 某类差异连续两天出现，说明有系统性 bug |
-| 稳定性保护 | 熔断器状态、限流命中、`qingyou.degrade.*` 当前取值 | 大促时一眼看出哪些保护正在起作用、哪些功能已被降级 |
+| 稳定性保护 | 熔断器状态、限流命中、`mall.degrade.*` 当前取值 | 大促时一眼看出哪些保护正在起作用、哪些功能已被降级 |
 
 `outbox` 待发送时长与消费堆积分开看，就能把「一致性窗口变长」定位到中继、Broker 还是消费者那一段，这个思路在 [异步化](./5_async) 里已经用过。看板的布局原则见 [指标监控 · Grafana 看板设计](/observability/2_metrics#_2、grafana-看板设计)。
 
@@ -244,7 +244,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
   name: mall-app
-  namespace: qingyou
+  namespace: mall
 spec:
   replicas: 4
   # selector、template 与阶段三的 Deployment 相同（含探针、preStop），略
@@ -269,7 +269,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: AnalysisTemplate
 metadata:
   name: canary-health
-  namespace: qingyou
+  namespace: mall
 spec:
   args: [{name: app}, {name: canary-hash}]
   metrics:
@@ -332,7 +332,7 @@ class RegisterWhenReady {
 
 ### 2、功能开关
 
-新代码先发布、默认关闭，再由开关逐步打开，这样「部署」和「放出功能」是两件事。开关和 [稳定性](./8_stability) 的降级开关放在同一处 Nacos 配置里，按 `qingyou.feature.*` 命名，每个开关登记负责人和到期时间，上线一个月后清理。
+新代码先发布、默认关闭，再由开关逐步打开，这样「部署」和「放出功能」是两件事。开关和 [稳定性](./8_stability) 的降级开关放在同一处 Nacos 配置里，按 `mall.feature.*` 命名，每个开关登记负责人和到期时间，上线一个月后清理。
 
 改 Nacos 配置等同于一次发布：降级开关、限流阈值和功能开关的配置文件放在 GitOps 仓库里评审，合并后由流水线推送；先用 Nacos 的 Beta 发布推给一个 Pod 观察 5 分钟再全量，回滚就是 revert 后重新推送，每次变更都有提交记录。应急降级来不及走流程时，值班负责人可以直接在 Nacos 控制台改，事后补提交。功能开关的做法见 [环境管理 · 功能开关](/devops/6_env_management#五、功能开关-feature-flag)。
 
@@ -349,7 +349,7 @@ class RegisterWhenReady {
 ALTER TABLE t_outbox ADD COLUMN trace_parent VARCHAR(55) NULL COMMENT 'W3C traceparent，可为空' AFTER payload;
 ```
 
-删东西才需要「缩」，而且要拆成几次发布。拆库遗留在 `qingyou_mall` 里的 `t_inventory` 和 `t_payment` 就是这样收掉的：
+删东西才需要「缩」，而且要拆成几次发布。拆库遗留在 `mall` 里的 `t_inventory` 和 `t_payment` 就是这样收掉的：
 
 | 发布 | 迁移脚本 | 代码 | 能否回滚到上一版 |
 |------|---------|------|----------------|
@@ -377,16 +377,16 @@ ALTER TABLE t_outbox ADD COLUMN trace_parent VARCHAR(55) NULL COMMENT 'W3C trace
 
 ## 九、验证
 
-下表列出本篇关键结论与证明它的测试；本章代码在 `ch09-observability-release` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch09-observability-release/)。
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch09-observability-release` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/mall-evolution/reports/ch09-observability-release/)。
 
 | 结论 | 测试 | 类型 |
 |------|------|------|
-| 中继按写入时保存的 `traceparent` 发送，Trace 不在本地消息表处断开 | [`OutboxTracePropagationTest#relaySendsUnderTheOriginalTrace`](https://github.com/Clarence404/qingyou-mall/blob/ch09-observability-release/mall-common/src/test/java/com/qingyou/common/outbox/OutboxTracePropagationTest.java) | 单元 |
-| 定时消息不带 Trace | [`OutboxTracePropagationTest#scheduledMessagesDoNotCarryTheTrace`](https://github.com/Clarence404/qingyou-mall/blob/ch09-observability-release/mall-common/src/test/java/com/qingyou/common/outbox/OutboxTracePropagationTest.java) | 单元 |
-| 错误响应的 `traceId` 取自当前 Span | [`ProblemTraceIdTest#traceIdComesFromCurrentSpan`](https://github.com/Clarence404/qingyou-mall/blob/ch09-observability-release/mall-common/src/test/java/com/qingyou/common/error/ProblemTraceIdTest.java) | 单元 |
-| 就绪后才注册到 Nacos，注册端口是实际监听端口 | [`NacosRegistrationIT#registersAfterReadyWithActualServerPort`](https://github.com/Clarence404/qingyou-mall/blob/ch09-observability-release/inventory-service/src/test/java/com/qingyou/inventory/NacosRegistrationIT.java) | 集成（真实 Nacos） |
-| 四条 SLO 告警规则与抑制规则语法、表达式正确 | [`verify.yml`](https://github.com/Clarence404/qingyou-mall/blob/ch09-observability-release/.github/workflows/verify.yml) 的 promtool check rules / amtool check-config | 静态校验（CI） |
-| Rollout、HPA、三个 PreSync Job 等清单符合 schema | [`verify.yml`](https://github.com/Clarence404/qingyou-mall/blob/ch09-observability-release/.github/workflows/verify.yml) 的 kubeconform 任务 | 静态校验（CI） |
+| 中继按写入时保存的 `traceparent` 发送，Trace 不在本地消息表处断开 | [`OutboxTracePropagationTest#relaySendsUnderTheOriginalTrace`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/mall-common/src/test/java/io/github/clarence404/mall/common/outbox/OutboxTracePropagationTest.java) | 单元 |
+| 定时消息不带 Trace | [`OutboxTracePropagationTest#scheduledMessagesDoNotCarryTheTrace`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/mall-common/src/test/java/io/github/clarence404/mall/common/outbox/OutboxTracePropagationTest.java) | 单元 |
+| 错误响应的 `traceId` 取自当前 Span | [`ProblemTraceIdTest#traceIdComesFromCurrentSpan`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/mall-common/src/test/java/io/github/clarence404/mall/common/error/ProblemTraceIdTest.java) | 单元 |
+| 就绪后才注册到 Nacos，注册端口是实际监听端口 | [`NacosRegistrationIT#registersAfterReadyWithActualServerPort`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/inventory-service/src/test/java/io/github/clarence404/mall/inventory/NacosRegistrationIT.java) | 集成（真实 Nacos） |
+| 四条 SLO 告警规则与抑制规则语法、表达式正确 | [`verify.yml`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/.github/workflows/verify.yml) 的 promtool check rules / amtool check-config | 静态校验（CI） |
+| Rollout、HPA、三个 PreSync Job 等清单符合 schema | [`verify.yml`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/.github/workflows/verify.yml) 的 kubeconform 任务 | 静态校验（CI） |
 | 金丝雀指标不达标时自动中止，约 3 分钟恢复 | 无自动化测试 | 需真实环境 |
 | 尾部采样保留全部错误与慢于 800ms 的 Trace，其余保留 10% | 无自动化测试 | 需真实环境 |
 
@@ -401,7 +401,7 @@ ALTER TABLE t_outbox ADD COLUMN trace_parent VARCHAR(55) NULL COMMENT 'W3C trace
 - 发布走 GitHub Actions → Argo CD → Argo Rollouts，`mall-app` 5% → 25% → 100%、`inventory-service` 10% → 50% → 100%，每步自动分析错误率与 P99，不达标自动回滚，约 3 分钟恢复
 - 表结构只做向前兼容的变更，删除拆成多次发布；预热完成再注册，停机先注销再停消费；不上服务网格、不做蓝绿
 
-> 本篇代码：[ch09-observability-release](https://github.com/Clarence404/qingyou-mall/tree/ch09-observability-release) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch08-stability...ch09-observability-release) · 阶段 Release：[stage-4-stability](https://github.com/Clarence404/qingyou-mall/releases/tag/stage-4-stability)
+> 本篇代码：[ch09-observability-release](https://github.com/Clarence404/mall-evolution/tree/ch09-observability-release) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch08-stability...ch09-observability-release) · 阶段 Release：[stage-4-stability](https://github.com/Clarence404/mall-evolution/releases/tag/stage-4-stability)
 
 ---
 

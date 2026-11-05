@@ -76,7 +76,7 @@ spring:
   data:
     redis:
       sentinel:
-        master: qingyou-cache
+        master: mall-cache
         nodes: 10.0.1.21:26379,10.0.1.22:26379,10.0.1.11:26379
         password: ${REDIS_SENTINEL_PASSWORD}
       password: ${REDIS_PASSWORD}
@@ -86,7 +86,7 @@ spring:
           max-active: 32
 ```
 
-密码和阶段一的数据库密码一样放在 `EnvironmentFile=/etc/qingyou-mall/env`。Redis 侧把内存上限和淘汰策略定死，避免内存打满后写入报错：
+密码和阶段一的数据库密码一样放在 `EnvironmentFile=/etc/mall-evolution/env`。Redis 侧把内存上限和淘汰策略定死，避免内存打满后写入报错：
 
 ```properties
 # redis.conf（主从一致）
@@ -119,11 +119,11 @@ appendonly no
 | L2 | Redis，key `product:detail:{skuId}` | 30 分钟 + 0–5 分钟随机 | 全量 SKU | 约 19% |
 | 回源 | MySQL `t_product` | — | — | 不到 1%，约 20 QPS |
 
-整体命中率是两层叠乘的结果，L2 命中率从 95% 提到 99%，回源量就降为原来的五分之一，计算方式见 [缓存架构设计 · 整体命中率的放大效应](/high-con/3_cache_architecture#_1、整体命中率的放大效应)。两级缓存的通用设计见 [两级缓存（L1 + L2）](/cache/8_two_level_cache)，这里只放青柚的落地写法。
+整体命中率是两层叠乘的结果，L2 命中率从 95% 提到 99%，回源量就降为原来的五分之一，计算方式见 [缓存架构设计 · 整体命中率的放大效应](/high-con/3_cache_architecture#_1、整体命中率的放大效应)。两级缓存的通用设计见 [两级缓存（L1 + L2）](/cache/8_two_level_cache)，这里只放示例商城的落地写法。
 
 ### 2、读路径
 
-商品模块新增包 `com.qingyou.product.detail`，对外接口是 `GET /api/products/{skuId}`；返回的 `ProductDetailView` 是 record，放进 L1 后不会被调用方改掉：
+商品模块新增包 `io.github.clarence404.mall.product.detail`，对外接口是 `GET /api/products/{skuId}`；返回的 `ProductDetailView` 是 record，放进 L1 后不会被调用方改掉：
 
 ```java
 @Service
@@ -266,7 +266,7 @@ public class ProductCacheInvalidator {
 
 缓存一上线就要同时防住这几类问题，阶段二的规模下都用最轻的手段：
 
-| 问题 | 青柚的做法 | 暂不做 |
+| 问题 | 示例商城的做法 | 暂不做 |
 |------|-----------|-------|
 | 穿透：查不存在的 SKU | `skuId` 先做格式校验，查不到时缓存空值 60 秒 | 布隆过滤器：SKU 只有几万个，空值缓存足够 |
 | 击穿：热门 key 过期瞬间 | Caffeine `get(key, loader)` 在单实例内合并回源，几个实例最多几个请求到库 | 分布式互斥锁、逻辑过期 |
@@ -320,18 +320,18 @@ public class ProductCacheInvalidator {
 
 ## 十、验证
 
-下表列出本篇关键结论与证明它的测试；本章代码在 `ch04-cache` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch04-cache/)。
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch04-cache` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/mall-evolution/reports/ch04-cache/)。
 
 | 结论 | 测试 | 类型 |
 |------|------|------|
-| 读详情填充 L2，改商品后两级缓存都被清掉 | [`ProductDetailCacheIT#readFillsL2AndUpdateInvalidatesBothLevels`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-app/src/test/java/com/qingyou/product/ProductDetailCacheIT.java) | 集成（真实 MySQL·Redis） |
-| 两级都未命中时回源，L2 写入带随机抖动的 TTL | [`ProductDetailServiceTest#missInBothLevelsLoadsFromDbAndWritesL2WithJitteredTtl`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-product/src/test/java/com/qingyou/product/detail/ProductDetailServiceTest.java) | 单元 |
-| 不存在的 SKU 缓存空值 60 秒 | [`ProductDetailServiceTest#missingSkuIsCachedAsNullPlaceholderFor60Seconds`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-product/src/test/java/com/qingyou/product/detail/ProductDetailServiceTest.java) | 单元 |
-| Redis 命令超时时回源，接口仍返回 200 | [`ProductDetailRedisTimeoutH2Test#redisQueryTimeoutFallsBackToDbAndReturns200`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-app/src/test/java/com/qingyou/product/ProductDetailRedisTimeoutH2Test.java) | H2 全流程 |
-| Redis 命令报错时回源 | [`ProductDetailServiceTest#redisCommandErrorFallsBackToDb`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-product/src/test/java/com/qingyou/product/detail/ProductDetailServiceTest.java) | 单元 |
-| 缓存 JSON 读不出时按未命中回源并覆盖 | [`ProductDetailServiceTest#unreadableCachedJsonIsTreatedAsMissAndOverwritten`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-product/src/test/java/com/qingyou/product/detail/ProductDetailServiceTest.java) | 单元 |
-| 提交后删 L2 并广播，1 秒后再删一次 | [`ProductCacheInvalidatorTest#deletesL2AndBroadcastsTwiceWithOneSecondDelay`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-product/src/test/java/com/qingyou/product/detail/ProductCacheInvalidatorTest.java) | 单元 |
-| 普通用户调后台改价返回 403 | [`ProductAdminAuthorizationH2Test#normalUserGets403OnAdminPriceChange`](https://github.com/Clarence404/qingyou-mall/blob/ch04-cache/mall-app/src/test/java/com/qingyou/product/ProductAdminAuthorizationH2Test.java) | H2 全流程 |
+| 读详情填充 L2，改商品后两级缓存都被清掉 | [`ProductDetailCacheIT#readFillsL2AndUpdateInvalidatesBothLevels`](https://github.com/Clarence404/mall-evolution/blob/ch04-cache/mall-app/src/test/java/io/github/clarence404/mall/product/ProductDetailCacheIT.java) | 集成（真实 MySQL·Redis） |
+| 两级都未命中时回源，L2 写入带随机抖动的 TTL | [`ProductDetailServiceTest#missInBothLevelsLoadsFromDbAndWritesL2WithJitteredTtl`](https://github.com/Clarence404/mall-evolution/blob/ch04-cache/mall-product/src/test/java/io/github/clarence404/mall/product/detail/ProductDetailServiceTest.java) | 单元 |
+| 不存在的 SKU 缓存空值 60 秒 | [`ProductDetailServiceTest#missingSkuIsCachedAsNullPlaceholderFor60Seconds`](https://github.com/Clarence404/mall-evolution/blob/ch04-cache/mall-product/src/test/java/io/github/clarence404/mall/product/detail/ProductDetailServiceTest.java) | 单元 |
+| Redis 命令超时时回源，接口仍返回 200 | [`ProductDetailRedisTimeoutH2Test#redisQueryTimeoutFallsBackToDbAndReturns200`](https://github.com/Clarence404/mall-evolution/blob/ch04-cache/mall-app/src/test/java/io/github/clarence404/mall/product/ProductDetailRedisTimeoutH2Test.java) | H2 全流程 |
+| Redis 命令报错时回源 | [`ProductDetailServiceTest#redisCommandErrorFallsBackToDb`](https://github.com/Clarence404/mall-evolution/blob/ch04-cache/mall-product/src/test/java/io/github/clarence404/mall/product/detail/ProductDetailServiceTest.java) | 单元 |
+| 缓存 JSON 读不出时按未命中回源并覆盖 | [`ProductDetailServiceTest#unreadableCachedJsonIsTreatedAsMissAndOverwritten`](https://github.com/Clarence404/mall-evolution/blob/ch04-cache/mall-product/src/test/java/io/github/clarence404/mall/product/detail/ProductDetailServiceTest.java) | 单元 |
+| 提交后删 L2 并广播，1 秒后再删一次 | [`ProductCacheInvalidatorTest#deletesL2AndBroadcastsTwiceWithOneSecondDelay`](https://github.com/Clarence404/mall-evolution/blob/ch04-cache/mall-product/src/test/java/io/github/clarence404/mall/product/detail/ProductCacheInvalidatorTest.java) | 单元 |
+| 普通用户调后台改价返回 403 | [`ProductAdminAuthorizationH2Test#normalUserGets403OnAdminPriceChange`](https://github.com/Clarence404/mall-evolution/blob/ch04-cache/mall-app/src/test/java/io/github/clarence404/mall/product/ProductAdminAuthorizationH2Test.java) | H2 全流程 |
 
 ---
 
@@ -345,7 +345,7 @@ public class ProductCacheInvalidator {
 - Redis 抛任何 `DataAccessException` 或缓存值读不出都按未命中回源，不把缓存故障变成 500；后台改价接口要求 `ADMIN` 角色
 - 上线后盯 L1 / L2 命中率、回源 QPS 和 `evicted_keys`
 
-> 本篇代码：[ch04-cache](https://github.com/Clarence404/qingyou-mall/tree/ch04-cache) · [对比上一章](https://github.com/Clarence404/qingyou-mall/compare/ch03-api-design...ch04-cache)
+> 本篇代码：[ch04-cache](https://github.com/Clarence404/mall-evolution/tree/ch04-cache) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch03-api-design...ch04-cache)
 
 ---
 

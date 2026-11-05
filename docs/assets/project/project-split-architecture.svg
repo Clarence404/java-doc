@@ -62,15 +62,15 @@
   <line x1="590" y1="284" x2="590" y2="312" stroke="var(--b)" stroke-width="1.5" marker-end="url(#arrow-qy-split)"/>
 
   <rect x="30" y="314" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
-  <text class="box-title" x="130" y="338" text-anchor="middle">qingyou_mall</text>
+  <text class="box-title" x="130" y="338" text-anchor="middle">mall</text>
   <text class="desc" x="130" y="358" text-anchor="middle">订单、商品、用户表</text>
 
   <rect x="260" y="314" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
-  <text class="box-title" x="360" y="338" text-anchor="middle">qingyou_inventory</text>
+  <text class="box-title" x="360" y="338" text-anchor="middle">mall_inventory</text>
   <text class="desc" x="360" y="358" text-anchor="middle">t_inventory（独立实例）</text>
 
   <rect x="490" y="314" width="200" height="60" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="1.5"/>
-  <text class="box-title" x="590" y="338" text-anchor="middle">qingyou_payment</text>
+  <text class="box-title" x="590" y="338" text-anchor="middle">mall_payment</text>
   <text class="desc" x="590" y="358" text-anchor="middle">t_payment</text>
 
   <text class="desc" x="360" y="400" text-anchor="middle">横向箭头为 mall-app 调用库存服务；payment-service 回调 mall-app 的连线省略；三个服务都向 Nacos 注册</text>

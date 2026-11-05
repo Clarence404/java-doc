@@ -55,10 +55,10 @@ description: 模块化单体的仓库与模块划分、按功能分包、父 POM
 
 ### 1、仓库布局
 
-一个 Git 仓库 `qingyou-mall`，根目录就是父工程，模块平铺在根目录下：
+一个 Git 仓库 `mall-evolution`，根目录就是父工程，模块平铺在根目录下：
 
 ```text
-qingyou-mall/
+mall-evolution/
 ├── pom.xml                 父 POM：版本、依赖管理、插件
 ├── mvnw / mvnw.cmd         Maven Wrapper，所有人和 CI 用同一个 Maven 版本
 ├── .mvn/wrapper/
@@ -75,7 +75,7 @@ qingyou-mall/
 
 ### 2、模块与依赖方向
 
-![qingyou-mall 模块依赖](../assets/project/qingyou-module-deps.svg)
+![mall-evolution 模块依赖](../assets/project/project-module-deps.svg)
 
 依赖规则只有三条：
 
@@ -92,7 +92,7 @@ qingyou-mall/
 模块内**按功能分包**（feature-first），而不是全模块共用一套 controller / service / mapper。以 `mall-order` 为例：
 
 ```text
-mall-order/src/main/java/com/qingyou/order/
+mall-order/src/main/java/io/github/clarence404/mall/order/
 ├── api/                        对外暴露，其他模块只能用这里
 │   ├── OrderQueryApi.java
 │   └── OrderSummaryDTO.java
@@ -112,7 +112,7 @@ mall-order/src/main/java/com/qingyou/order/
 └── cancel/                     取消与超时关单
 ```
 
-其他模块同理：`com.qingyou.inventory.api.InventoryApi`、`com.qingyou.product.api.ProductApi`、`com.qingyou.user.api.UserApi`；`mall-common` 的根包是 `com.qingyou.common`；启动类 `com.qingyou.MallApplication` 放在最顶层包，组件扫描能覆盖所有模块。
+其他模块同理：`io.github.clarence404.mall.inventory.api.InventoryApi`、`io.github.clarence404.mall.product.api.ProductApi`、`io.github.clarence404.mall.user.api.UserApi`；`mall-common` 的根包是 `io.github.clarence404.mall.common`；启动类 `io.github.clarence404.mall.MallApplication` 放在最顶层包，组件扫描能覆盖所有模块。
 
 按功能分包的好处是改一个功能只动一个目录，功能内部的类可以用包私有可见性藏起来；按层分包与按功能分包的对比见 [工程结构与分包](/architecture/2_package_structure)。
 
@@ -123,15 +123,15 @@ mall-order/src/main/java/com/qingyou/order/
 父 POM 继承 `spring-boot-starter-parent`，统一管理 Spring 生态的版本；内部模块和少量第三方库的版本集中写在 `dependencyManagement`，子模块引用时不写版本号：
 
 ```xml
-<!-- qingyou-mall/pom.xml（节选） -->
+<!-- mall-evolution/pom.xml（节选） -->
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>4.0.9</version> <!-- 取 4.0.x 最新补丁版，与 Spring Cloud 2025.1 / SCA 2025.1.0.0 对表 -->
 </parent>
 
-<groupId>com.qingyou</groupId>
-<artifactId>qingyou-mall</artifactId>
+<groupId>io.github.clarence404.mall</groupId>
+<artifactId>mall-evolution</artifactId>
 <version>${revision}</version>
 <packaging>pom</packaging>
 
@@ -152,7 +152,7 @@ mall-order/src/main/java/com/qingyou/order/
 <dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>com.qingyou</groupId>
+            <groupId>io.github.clarence404.mall</groupId>
             <artifactId>mall-common</artifactId>
             <version>${revision}</version>
         </dependency>
@@ -186,7 +186,7 @@ Maven 与 Gradle 的取舍见 [构建工具](/engineering/1_build_tools)，BOM�
 其中最关键的是 ArchUnit：模块化单体的边界如果只靠约定，赶工期时一定会被打穿。规则写成测试放在 `mall-app` 里（它能看到所有模块的类），五个业务模块共用一条规则，不给哪个模块开口子：
 
 ```java
-@AnalyzeClasses(packages = "com.qingyou", importOptions = ImportOption.DoNotIncludeTests.class)
+@AnalyzeClasses(packages = "io.github.clarence404.mall", importOptions = ImportOption.DoNotIncludeTests.class)
 class ModuleBoundaryTest {
 
     static final List<String> BUSINESS_MODULES = List.of("user", "product", "inventory", "order", "payment");
@@ -196,7 +196,7 @@ class ModuleBoundaryTest {
     static final ArchRule business_modules_only_use_api_of_other_modules = classes()
             .that()
             .resideInAnyPackage(BUSINESS_MODULES.stream()
-                    .map(m -> "com.qingyou." + m + "..")
+                    .map(m -> "io.github.clarence404.mall." + m + "..")
                     .toArray(String[]::new))
             .should(onlyUseApiOfOtherModules())
             .allowEmptyShould(true);
@@ -204,11 +204,11 @@ class ModuleBoundaryTest {
     // 业务模块之间不允许循环依赖
     @ArchTest
     static final ArchRule modules_free_of_cycles =
-            slices().matching("com.qingyou.(*)..").should().beFreeOfCycles();
+            slices().matching("io.github.clarence404.mall.(*)..").should().beFreeOfCycles();
 }
 ```
 
-`onlyUseApiOfOtherModules()` 是一个自定义 `ArchCondition`：逐个检查类的直接依赖，目标类属于别的业务模块、又不在它的 `com.qingyou.<模块>.api` 包下，就记一次违规；`mall-common` 和启动类所在的根包不算业务模块，不受这条规则约束。支付这时还在 `mall-order` 里，名单里先写上 `payment`，等它独立成包时规则自动生效。
+`onlyUseApiOfOtherModules()` 是一个自定义 `ArchCondition`：逐个检查类的直接依赖，目标类属于别的业务模块、又不在它的 `io.github.clarence404.mall.<模块>.api` 包下，就记一次违规；`mall-common` 和启动类所在的根包不算业务模块，不受这条规则约束。支付这时还在 `mall-order` 里，名单里先写上 `payment`，等它独立成包时规则自动生效。
 
 Spring Modulith 能按「顶层包即模块」自动推导同样的规则，模块多了以后可以换成它，见 [工程结构与分包](/architecture/2_package_structure)。各类质量工具的配置见 [代码质量](/engineering/3_code_quality)，命名、注释、异常处理等团队约定见 [开发规范](/devops/3_dev_standards)。
 
@@ -243,7 +243,7 @@ jobs:
       - run: ./mvnw -B verify
 ```
 
-另有一条 `verify.yml` 专门出测试报告：`main` 和章节 / 阶段 tag 每次推送都完整跑一遍 `./mvnw -B verify`（Testcontainers 集成测试不跳过），测试失败也照样汇总 Surefire / Failsafe 报告与 JaCoCo 覆盖率，发布到 GitHub Pages 的 `reports/<ref>/` 下，地址形如 `https://clarence404.github.io/qingyou-mall/reports/ch01-project-setup/`，每章「验证」一节列出的测试都能在对应报告里查到结果。
+另有一条 `verify.yml` 专门出测试报告：`main` 和章节 / 阶段 tag 每次推送都完整跑一遍 `./mvnw -B verify`（Testcontainers 集成测试不跳过），测试失败也照样汇总 Surefire / Failsafe 报告与 JaCoCo 覆盖率，发布到 GitHub Pages 的 `reports/<ref>/` 下，地址形如 `https://clarence404.github.io/mall-evolution/reports/ch01-project-setup/`，每章「验证」一节列出的测试都能在对应报告里查到结果。
 
 流水线分阶段、制品管理与部署策略见 [CI/CD](/devops/4_ci_cd)。
 
@@ -266,12 +266,12 @@ application-prod.yml     生产环境：只放非敏感项，如连接池大小�
 # application-prod.yml
 spring:
   datasource:
-    url: jdbc:mysql://${DB_HOST}:3306/qingyou_mall
+    url: jdbc:mysql://${DB_HOST}:3306/mall
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 ```
 
-生产机上用 systemd 的 `EnvironmentFile=/etc/qingyou-mall/env` 提供这些变量，文件权限 600、只有部署账号可读；本地开发用不提交的 `application-local.yml`（已加入 `.gitignore`）。CI 里另外加一步密钥扫描，防止有人误提交。
+生产机上用 systemd 的 `EnvironmentFile=/etc/mall-evolution/env` 提供这些变量，文件权限 600、只有部署账号可读；本地开发用不提交的 `application-local.yml`（已加入 `.gitignore`）。CI 里另外加一步密钥扫描，防止有人误提交。
 
 现在只有一个应用、三套环境，不需要配置中心；阶段三拆出多个服务、需要动态改配置时再引入。Profile、配置优先级与绑定见 [配置管理](/spring-boot/5_config)，环境划分与晋级见 [环境管理](/devops/6_env_management)。
 
@@ -290,15 +290,15 @@ spring:
 
 ## 十一、验证
 
-下表列出本篇关键结论与证明它的测试；本章代码在 `ch01-project-setup` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/qingyou-mall/reports/ch01-project-setup/)。
+下表列出本篇关键结论与证明它的测试；本章代码在 `ch01-project-setup` 上跑完整构建的结果见 [测试报告](https://clarence404.github.io/mall-evolution/reports/ch01-project-setup/)。
 
 | 结论 | 测试 | 类型 |
 |------|------|------|
-| 五个业务模块只能引用其他模块的 `api` 包 | [`ModuleBoundaryTest#business_modules_only_use_api_of_other_modules`](https://github.com/Clarence404/qingyou-mall/blob/ch01-project-setup/mall-app/src/test/java/com/qingyou/ModuleBoundaryTest.java) | 单元 |
-| 业务模块之间没有循环依赖 | [`ModuleBoundaryTest#modules_free_of_cycles`](https://github.com/Clarence404/qingyou-mall/blob/ch01-project-setup/mall-app/src/test/java/com/qingyou/ModuleBoundaryTest.java) | 单元 |
-| 格式与 Checkstyle 规则挂在 `verify` 阶段，不通过构建失败 | [`pom.xml`](https://github.com/Clarence404/qingyou-mall/blob/ch01-project-setup/pom.xml) 中 Spotless / Checkstyle 的 `check` 目标 | 静态校验（CI） |
-| 构建限定 JDK 21，同一依赖不允许多个版本 | [`pom.xml`](https://github.com/Clarence404/qingyou-mall/blob/ch01-project-setup/pom.xml) 中 Enforcer 的 `requireJavaVersion` / `dependencyConvergence` | 静态校验（CI） |
-| PR 必须通过 `./mvnw -B verify` 与密钥扫描 | [`pr.yml`](https://github.com/Clarence404/qingyou-mall/blob/ch01-project-setup/.github/workflows/pr.yml) | 静态校验（CI） |
+| 五个业务模块只能引用其他模块的 `api` 包 | [`ModuleBoundaryTest#business_modules_only_use_api_of_other_modules`](https://github.com/Clarence404/mall-evolution/blob/ch01-project-setup/mall-app/src/test/java/io/github/clarence404/mall/ModuleBoundaryTest.java) | 单元 |
+| 业务模块之间没有循环依赖 | [`ModuleBoundaryTest#modules_free_of_cycles`](https://github.com/Clarence404/mall-evolution/blob/ch01-project-setup/mall-app/src/test/java/io/github/clarence404/mall/ModuleBoundaryTest.java) | 单元 |
+| 格式与 Checkstyle 规则挂在 `verify` 阶段，不通过构建失败 | [`pom.xml`](https://github.com/Clarence404/mall-evolution/blob/ch01-project-setup/pom.xml) 中 Spotless / Checkstyle 的 `check` 目标 | 静态校验（CI） |
+| 构建限定 JDK 21，同一依赖不允许多个版本 | [`pom.xml`](https://github.com/Clarence404/mall-evolution/blob/ch01-project-setup/pom.xml) 中 Enforcer 的 `requireJavaVersion` / `dependencyConvergence` | 静态校验（CI） |
+| PR 必须通过 `./mvnw -B verify` 与密钥扫描 | [`pr.yml`](https://github.com/Clarence404/mall-evolution/blob/ch01-project-setup/.github/workflows/pr.yml) | 静态校验（CI） |
 | 生产逐台下线、替换 jar、健康检查后挂回 | 无自动化测试 | 需真实环境 |
 
 ---
@@ -311,7 +311,7 @@ spring:
 - 主干开发 + PR 检查，格式、规范、架构、测试全部挂在 `./mvnw verify` 上
 - 密钥走环境变量，不进仓库；Kubernetes、注册中心、消息队列、缓存都明确推迟到出现瓶颈的阶段
 
-> 本篇代码：[ch01-project-setup](https://github.com/Clarence404/qingyou-mall/tree/ch01-project-setup)
+> 本篇代码：[ch01-project-setup](https://github.com/Clarence404/mall-evolution/tree/ch01-project-setup)
 
 ---
 
