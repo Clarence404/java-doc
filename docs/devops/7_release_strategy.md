@@ -222,11 +222,11 @@ spec:
           weight: 10
 ```
 
-`order-v1` 和 `order-v2` 是分别选中新旧版本 Pod 的两个 Service（Gateway API 不用子集，每个版本一个 Service）。Gateway API 按匹配的精确程度选规则，带请求头条件的规则优先于只有路径条件的规则，与书写顺序无关。上例挂在入口 Gateway 上，管的是南北向流量；同样的 `rules` 把 `parentRefs` 改成 `kind: Service` 挂到服务上，就由 Istio Ambient 的 waypoint 执行东西向灰度，见 [服务网格 · Kubernetes Gateway API](/microservices/21_service_mesh#_3、kubernetes-gateway-api)。
+`order-v1` 和 `order-v2` 是分别选中新旧版本 Pod 的两个 Service（Gateway API 不用子集，每个版本一个 Service）。Gateway API 按匹配的精确程度选规则，带请求头条件的规则优先于只有路径条件的规则，与书写顺序无关。上例挂在入口 Gateway 上，管的是南北向流量；同样的 `rules` 把 `parentRefs` 改成 `kind: Service` 挂到服务上，就由 Istio Ambient 的 waypoint 执行东西向灰度，见 [服务网格 · Kubernetes Gateway API](/microservices/6_service_mesh#_3、kubernetes-gateway-api)。
 
 ### 2、Istio：VirtualService + DestinationRule
 
-服务网格内的东西向调用（服务 A 调服务 B）不经过入口网关，灰度要在网格里做：DestinationRule 按 Pod 的 `version` 标签划出 v1 / v2 子集，VirtualService 先写「带 `x-canary` 请求头固定走 v2」的精确规则，再写按 90 / 10 分流的兜底规则。注意 VirtualService 的 `http` 规则按书写顺序匹配、第一条命中即生效，这点和 Gateway API 不同。完整 YAML 与 DestinationRule 的连接池、异常剔除见 [服务网格 · VirtualService（虚拟服务）](/microservices/21_service_mesh#_1、virtualservice-虚拟服务)。
+服务网格内的东西向调用（服务 A 调服务 B）不经过入口网关，灰度要在网格里做：DestinationRule 按 Pod 的 `version` 标签划出 v1 / v2 子集，VirtualService 先写「带 `x-canary` 请求头固定走 v2」的精确规则，再写按 90 / 10 分流的兜底规则。注意 VirtualService 的 `http` 规则按书写顺序匹配、第一条命中即生效，这点和 Gateway API 不同。完整 YAML 与 DestinationRule 的连接池、异常剔除见 [服务网格 · VirtualService（虚拟服务）](/microservices/6_service_mesh#_1、virtualservice-虚拟服务)。
 
 ### 3、Ingress 注解方式（存量）
 
@@ -273,7 +273,7 @@ spec:
 | 地域 / 机房 | 按机房分批发布，或网关按 IP 归属路由 | 分区域放量，缩小故障半径 |
 | 租户 | 网关或功能开关按 tenantId 判断 | SaaS 产品分租户灰度 |
 
-按比例分流时，同一个用户的多次请求可能落在不同版本上。需要「同一用户始终看到同一版本」的场景，用按用户 ID 路由或功能开关，而不是纯权重。Spring Cloud 体系下按请求头路由的负载均衡实现见 [微服务 · 服务治理](/microservices/14_service_governance)。
+按比例分流时，同一个用户的多次请求可能落在不同版本上。需要「同一用户始终看到同一版本」的场景，用按用户 ID 路由或功能开关，而不是纯权重。Spring Cloud 体系下按请求头路由的负载均衡实现见 [微服务治理 · 流量治理](/service-governance/5_traffic_governance)。
 
 ---
 

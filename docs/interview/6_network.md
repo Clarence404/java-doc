@@ -4,7 +4,7 @@ description: TCP 握手挥手与 TIME_WAIT、拥塞控制、HTTP 演进与缓存
 
 # 网络协议面试题解答
 
-> 题目清单见 [网络协议面试题](/protocols/99_interview)；细节见 [网络协议总览](/protocols/0_overview)。WebSocket、SSE、粘包拆包、IO 模型见 [Netty 面试题解答](/interview/9_netty)，REST、gRPC、Dubbo 选型见 [微服务面试题解答](/interview/17_microservices)。
+> 题目清单见 [网络协议面试题](/protocols/99_interview)；细节见 [网络协议总览](/protocols/0_overview)。WebSocket、SSE、粘包拆包、IO 模型见 [Netty 面试题解答](/interview/9_netty)，REST、gRPC、Dubbo 选型见 [微服务架构面试题解答](/interview/17_microservices)。
 >
 > 版本基线：TCP 以 RFC 9293、HTTP 以 RFC 9110 / 9113 / 9114、TLS 以 RFC 8446（TLS 1.3）为准；Linux 行为以 5.x / 6.x 内核为准，Java 示例默认 JDK 21。
 

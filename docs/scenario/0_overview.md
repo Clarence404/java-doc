@@ -32,7 +32,7 @@
 
 - 三高方法论 → [高并发总览](/high-con/0_overview) / [高可用总览](/high-avail/0_overview) / [高性能总览](/high-perf/0_overview)
 - 缓存一致性、热点与 Redis 用法 → [缓存总览](/cache/0_overview)
-- 分布式锁、分布式事务、分布式 ID、分布式调度 → [分布式总览](/distributed/0_overview)
+- 分布式锁、分布式事务、分布式 ID、分布式调度 → [分布式基础总览](/distributed/0_overview)
 - 事务消息、延迟消息、可靠投递与幂等消费 → [消息队列总览](/messaging/0_overview)
 - 分库分表 → [数据库总览](/database/0_overview)
 - OLAP、搜索 → [NoSQL 总览](/nosql/0_overview)

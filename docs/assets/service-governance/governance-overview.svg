@@ -22,7 +22,7 @@
   </defs>
   <rect x="0" y="0" width="680" height="456" rx="8" fill="var(--bg)"/>
 
-  <text x="340" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">服务治理：一次调用经过的保护环节</text>
+  <text x="340" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">流量治理：一次调用经过的保护环节</text>
 
   <rect x="110" y="46" width="460" height="40" rx="8" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
   <text x="340" y="72" text-anchor="middle" fill="var(--fg)">流量入口（网关）：鉴权、路由、入口限流</text>

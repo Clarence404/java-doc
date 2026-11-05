@@ -427,7 +427,7 @@ description: Redis 数据类型与编码、持久化、过期与淘汰、哨兵�
 - 解锁前用 `isHeldByCurrentThread()` 判断，避免在超时、未拿到锁的分支里误解锁抛异常
 - GC 停顿、网络分区时锁仍可能过期，严格正确性要靠 fencing token（`RFencedLock`）或数据库条件更新
 
-**常见坑**：以为看门狗能解决一切锁过期问题；停顿期间续期线程也停着，见 [分布式面试题解答](/interview/16_distributed#二、分布式锁)。
+**常见坑**：以为看门狗能解决一切锁过期问题；停顿期间续期线程也停着，见 [分布式基础面试题解答](/interview/16_distributed#二、分布式锁)。
 
 → 详见 [Redisson](/cache/6_redisson#_1、rlock-看门狗与-leasetime)、[分布式锁](/distributed/3_lock#_2、redisson-与看门狗)
 

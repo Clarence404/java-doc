@@ -50,7 +50,7 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 
 ### 1、API 网关（API Gateway）
 
-客户端不直接访问各个服务，而是经由统一网关完成路由、鉴权、限流、协议转换和响应聚合。网关负责南北向流量，服务间的东西向流量交给服务调用框架或服务网格。Spring Cloud Gateway 的用法见 [API 网关](/microservices/11_api_gateway)。
+客户端不直接访问各个服务，而是经由统一网关完成路由、鉴权、限流、协议转换和响应聚合。网关负责南北向流量，服务间的东西向流量交给服务调用框架或服务网格。Spring Cloud Gateway 的用法见 [API 网关](/service-governance/2_api_gateway)。
 
 ### 2、BFF（Backend for Frontend）
 
@@ -75,7 +75,7 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 | 客户端发现 | 调用方从注册中心拉取实例列表，本地做负载均衡后直连 | Nacos / Eureka + Spring Cloud LoadBalancer、Dubbo |
 | 服务端发现 | 调用方只访问一个固定地址，由平台转发到健康实例 | Kubernetes Service、服务网格 |
 
-注册中心的选型与原理见 [注册发现](/microservices/10_service_registry)。
+注册中心的选型与原理见 [注册发现](/service-governance/1_service_registry)。
 
 ### 4、同步与异步通信
 
@@ -85,7 +85,7 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 | 可以异步处理、需要削峰或解耦 | 消息队列（Kafka / RocketMQ / RabbitMQ） |
 | 读多写少、查询模型差异大 | CQRS + 领域事件异步同步读模型 |
 
-同步客户端的选型与写法见 [服务通信](/microservices/12_communication)，消息队列的可靠性与幂等见 [消息队列基础](/messaging/1_basics)。
+同步客户端的选型与写法见 [服务通信](/service-governance/3_communication)，消息队列的可靠性与幂等见 [消息队列基础](/messaging/1_basics)。
 
 ### 5、接口调用的顺序性
 
@@ -137,7 +137,7 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 
 ### 1、熔断器（Circuit Breaker）
 
-下游失败率或慢调用比例超过阈值时快速失败，避免故障沿调用链扩散成雪崩；一段时间后半开试探，恢复后自动关闭。状态机与参数调优见 [熔断](/high-avail/5_circuit_breaking)，Spring Cloud 中的接入见 [服务治理](/microservices/14_service_governance)。
+下游失败率或慢调用比例超过阈值时快速失败，避免故障沿调用链扩散成雪崩；一段时间后半开试探，恢复后自动关闭。状态机与参数调优见 [熔断](/high-avail/5_circuit_breaking)，Spring Cloud 中的接入见 [流量治理](/service-governance/5_traffic_governance)。
 
 ### 2、超时、重试与隔离
 
@@ -169,7 +169,7 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 
 ### 3、外部化配置（Externalized Configuration）
 
-同一个制品在不同环境运行，配置（数据库地址、开关、阈值）从环境变量、Kubernetes ConfigMap / Secret 或配置中心注入，支持不重新打包就修改甚至动态刷新。配置中心的选型与用法见 [配置中心](/microservices/13_config_center)。
+同一个制品在不同环境运行，配置（数据库地址、开关、阈值）从环境变量、Kubernetes ConfigMap / Secret 或配置中心注入，支持不重新打包就修改甚至动态刷新。配置中心的选型与用法见 [配置中心](/service-governance/4_config_center)。
 
 ### 4、消费者驱动契约测试（Consumer-Driven Contract）
 
@@ -181,7 +181,7 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 
 ### 1、Sidecar
 
-把通用能力（流量代理、mTLS、遥测、配置同步）放进与业务容器同 Pod 部署的独立进程，业务代码无需引入 SDK、也不限语言。它是服务网格数据面的经典形态，Istio 的 Sidecar 模式与无 Sidecar 的 Ambient 模式对比见 [服务网格](./21_service_mesh)。
+把通用能力（流量代理、mTLS、遥测、配置同步）放进与业务容器同 Pod 部署的独立进程，业务代码无需引入 SDK、也不限语言。它是服务网格数据面的经典形态，Istio 的 Sidecar 模式与无 Sidecar 的 Ambient 模式对比见 [服务网格](./6_service_mesh)。
 
 ### 2、绞杀者（Strangler Fig）
 

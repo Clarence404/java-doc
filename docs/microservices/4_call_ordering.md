@@ -142,4 +142,4 @@ public class OrderStatusRepository {
 - Nginx upstream hash：[https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash)
 - Istio DestinationRule（consistentHash）：[https://istio.io/latest/docs/reference/config/networking/destination-rule/](https://istio.io/latest/docs/reference/config/networking/destination-rule/)
 
-> 下一篇：[注册发现](./10_service_registry) —— 进入 Spring Cloud 落地：注册中心选型与 Nacos 的连接、实例与接入
+> 下一篇：[Dubbo](./5_dubbo) —— 不用 Spring Cloud 时的另一条 SDK 路线：面向接口的 RPC 服务框架与 Triple 协议

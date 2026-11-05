@@ -55,7 +55,7 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 - [向量数据库](/ai/4_core_tech/1_vector_db)：Embedding 检索与 RAG 的专用存储
 - [缓存总览](/cache/0_overview)：Redis / Caffeine 与数据库组合使用，缓存一致性在 [缓存一致性](/cache/10_cache_consistency) 展开
 - [高并发总览](/high-con/0_overview)：读写分离、分库分表等系统级扩展策略
-- [分布式总览](/distributed/0_overview)：跨库事务、分布式锁与分布式 ID
+- [分布式基础总览](/distributed/0_overview)：跨库事务、分布式锁与分布式 ID
 - [数据访问](/spring-boot/3_data_access)：Spring Boot 中的数据源、JPA、MyBatis-Plus 与多数据源配置
 - [事务管理](/spring/4_transaction)：Spring 声明式事务、传播行为与失效场景
 - [Flink CDC](/flink/6_cdc)：基于 binlog 的实时同步与入湖

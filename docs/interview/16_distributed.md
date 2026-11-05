@@ -2,9 +2,9 @@
 description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分布式事务、分布式 ID、一致性哈希
 ---
 
-# 分布式面试题解答
+# 分布式基础面试题解答
 
-> 题目清单见 [分布式面试题](/distributed/99_interview)；细节见 [分布式总览](/distributed/0_overview)。
+> 题目清单见 [分布式基础面试题](/distributed/99_interview)；细节见 [分布式基础总览](/distributed/0_overview)。
 >
 > 版本基线：Redis 8.x、Redisson 4.x、Apache Seata 2.x（`org.apache.seata`）、RocketMQ 5.x、Kafka 4.x（仅 KRaft）、XXL-JOB 3.x、Spring Boot 4 / Spring Session 4。
 
@@ -237,7 +237,7 @@ description: CAP 与 PACELC、共识算法、分布式锁与 Fencing Token、分
 
 **常见坑**：其他系统绕过 Seata 数据源代理直接改同一张表，是回滚失败的主要来源。
 
-→ 详见 [分布式事务](/distributed/4_transaction#_3、at-模式)；Spring Cloud 中的依赖与配置见 [Spring Cloud 面试题解答](/interview/18_spring_cloud#q23-seata-在-spring-cloud-中怎么接入-有哪些常见坑)
+→ 详见 [分布式事务](/distributed/4_transaction#_3、at-模式)；Spring Cloud 中的依赖与配置见 [微服务治理面试题解答](/interview/18_service_governance#q23-seata-在-spring-cloud-中怎么接入-有哪些常见坑)
 
 ### Q18：Seata 的 AT、TCC、Saga、XA 怎么选？
 

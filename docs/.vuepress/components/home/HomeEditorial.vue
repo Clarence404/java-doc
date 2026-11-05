@@ -1,6 +1,6 @@
 <script setup>
 // 首页「杂志式 Bento 目录」：所有数字、列表、链接都来自 site.js 与构建时统计，新增文章 / 模块后自动更新
-import {computed, onBeforeUnmount, onMounted, ref} from 'vue';
+import {computed, nextTick, onBeforeUnmount, onMounted, ref} from 'vue';
 import {RouteLink, withBase} from 'vuepress/client';
 import stats from '@temp/home-stats.js';
 import navData from '@temp/module-nav.js';
@@ -101,6 +101,36 @@ const walks = allMods.map((m) => {
         iv: iv && {link: iv.link, title: ivTitle(iv.text), no: pad(parseInt(m.interview[0], 10))},
     };
 }).filter((w) => w.arts.length);
+/* 延伸阅读：同排卡片等高，模块少的卡片下方会空出一块；挂载后按实际空白算能放几行，从本组各模块轮流取正文补足，不撑高整行 */
+const moreOf = (g) => {
+    const lists = g.modules.map((m) => flat(navData[m.dir])
+        .filter((n) => n.link && n.link !== m.link && n.link !== `/${m.dir}/99_interview`)
+        .map((n) => ({...n, mod: m.name})));
+    const out = [];
+    for (let k = 0; out.length < 12 && lists.some((l) => k < l.length); k++) {
+        lists.forEach((l) => { if (k < l.length && out.length < 12) out.push(l[k]); });
+    }
+    return out;
+};
+const more = Object.fromEntries(groups.map((g) => [g.no, moreOf(g)]));
+const fill = ref({});
+const FILL = {head: 36, row: 24, min: 2, safe: 10};
+const measureFill = async () => {
+    const el = root.value;
+    if (!el) return;
+    fill.value = {};
+    await nextTick();
+    const next = {};
+    el.querySelectorAll('[data-fill]').forEach((cell) => {
+        const mods = cell.querySelector('.mods');
+        const start = cell.querySelector('.gstart');
+        if (!mods || !start) return;
+        const gap = start.getBoundingClientRect().top - mods.getBoundingClientRect().bottom;
+        const n = Math.min(more[cell.dataset.fill].length, Math.floor((gap - FILL.head - FILL.safe + 4) / FILL.row));
+        if (n >= FILL.min) next[cell.dataset.fill] = n;
+    });
+    fill.value = next;
+};
 const walkIdx = ref(Math.max(0, walks.findIndex((w) => w.dir === 'cache')));
 const walk = computed(() => walks[walkIdx.value]);
 const nextWalk = () => { walkIdx.value = (walkIdx.value + 1) % walks.length; };
@@ -136,9 +166,14 @@ const ringText = ['JAVA DOC', ...groups.map((g) => g.name)].join(' · ') + ' ·'
 /* ---------- 入场：仅一次性渐显；系统要求减少动态时不做 ---------- */
 const root = ref(null);
 let io = null;
+let fillTimer = 0;
+const onResize = () => { clearTimeout(fillTimer); fillTimer = setTimeout(measureFill, 150); };
 onMounted(() => {
     const el = root.value;
     if (!el) return;
+    measureFill();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureFill);
+    window.addEventListener('resize', onResize);
     let reduce = false;
     try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { /* ignore */ }
     if (reduce || !('IntersectionObserver' in window)) return;
@@ -155,7 +190,7 @@ onMounted(() => {
     }, {rootMargin: '0px 0px -8% 0px', threshold: .12});
     targets.filter((t) => !t.classList.contains('in')).forEach((t) => io.observe(t));
 });
-onBeforeUnmount(() => { if (io) io.disconnect(); });
+onBeforeUnmount(() => { if (io) io.disconnect(); window.removeEventListener('resize', onResize); clearTimeout(fillTimer); });
 </script>
 
 <template>
@@ -298,7 +333,7 @@ onBeforeUnmount(() => { if (io) io.disconnect(); });
           </article>
 
           <!-- 第一组：与面试题解同排的大格 -->
-          <article v-if="lead" :id="`ed-g-${lead.no}`" class="cell cell--xl cell--lead" :class="{'cell--tint': lead === hotGroup}"
+          <article v-if="lead" :id="`ed-g-${lead.no}`" :data-fill="lead.no" class="cell cell--xl cell--lead" :class="{'cell--tint': lead === hotGroup}"
                    :style="cellStyle(lead, {'--i': 1})" data-reveal :aria-labelledby="`ed-t-${lead.no}`">
             <span class="cell__wm" aria-hidden="true">{{ lead.arts }}</span>
             <p class="cell__head"><span class="cell__no">{{ lead.no }}</span></p>
@@ -317,11 +352,17 @@ onBeforeUnmount(() => { if (io) io.disconnect(); });
                 </RouteLink>
               </li>
             </ul>
+            <div v-if="fill[lead.no]" class="gmore">
+              <p class="gmore__label">延伸阅读</p>
+              <ul>
+                <li v-for="a in more[lead.no].slice(0, fill[lead.no])" :key="a.link"><RouteLink :to="a.link"><span class="gmore__t">{{ a.text }}</span><span class="gmore__m">{{ a.mod }}</span></RouteLink></li>
+              </ul>
+            </div>
             <p v-if="lead.start" class="gstart"><span>从这里开始</span><RouteLink class="gstart__link" :to="lead.start.link">{{ lead.start.text }}</RouteLink></p>
           </article>
 
           <template v-for="(it, k) in tail" :key="it.kind === 'g' ? it.g.no : 'gd'">
-            <article v-if="it.kind === 'g'" :id="`ed-g-${it.g.no}`" class="cell" :class="[`cell--${it.size}`, {'cell--tint': it.g === hotGroup, 'cell--wide-md': it.wideMd}]"
+            <article v-if="it.kind === 'g'" :id="`ed-g-${it.g.no}`" :data-fill="it.g.no" class="cell" :class="[`cell--${it.size}`, {'cell--tint': it.g === hotGroup, 'cell--wide-md': it.wideMd}]"
                      :style="cellStyle(it.g, {'--span': it.span, '--i': k + 2})" data-reveal :aria-labelledby="`ed-t-${it.g.no}`">
               <span class="cell__wm" aria-hidden="true">{{ it.g.arts }}</span>
               <p class="cell__head"><span class="cell__no">{{ it.g.no }}</span></p>
@@ -340,6 +381,12 @@ onBeforeUnmount(() => { if (io) io.disconnect(); });
                   </RouteLink>
                 </li>
               </ul>
+              <div v-if="fill[it.g.no]" class="gmore">
+                <p class="gmore__label">延伸阅读</p>
+                <ul>
+                  <li v-for="a in more[it.g.no].slice(0, fill[it.g.no])" :key="a.link"><RouteLink :to="a.link"><span class="gmore__t">{{ a.text }}</span><span class="gmore__m">{{ a.mod }}</span></RouteLink></li>
+                </ul>
+              </div>
               <p v-if="it.g.start" class="gstart"><span>从这里开始</span><RouteLink class="gstart__link" :to="it.g.start.link">{{ it.g.start.text }}</RouteLink></p>
             </article>
 

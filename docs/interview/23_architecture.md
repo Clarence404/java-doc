@@ -4,7 +4,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 
 # 系统架构面试题解答
 
-> 题目清单见 [系统架构面试题](/architecture/99_interview)；细节见 [系统架构总览](/architecture/0_overview)。微服务拆分、网关、链路追踪的题目见 [微服务面试题解答](/interview/17_microservices) 与 [Spring Cloud 面试题解答](/interview/18_spring_cloud)，系统设计题见 [业务场景面试题解答](/interview/24_scenario)。
+> 题目清单见 [系统架构面试题](/architecture/99_interview)；细节见 [系统架构总览](/architecture/0_overview)。微服务拆分、网关、链路追踪的题目见 [微服务架构面试题解答](/interview/17_microservices) 与 [微服务治理面试题解答](/interview/18_service_governance)，系统设计题见 [业务场景面试题解答](/interview/24_scenario)。
 >
 > 版本基线：JDK 21 / 25、Spring Boot 4（Spring Framework 7、Spring Security 7）、MySQL 8.4 LTS、Redis 8.x、RocketMQ 5.x、AWS SDK for Java 2.x、MyBatis-Plus 3.5.x。
 

@@ -217,4 +217,4 @@ Redis Cluster 把 key 空间固定分为 16384 个槽：`slot = CRC16(key) % 163
 - Nginx upstream hash 指令：[https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash)
 - Cassandra 数据分布（vnodes）：[https://cassandra.apache.org/doc/latest/cassandra/architecture/dynamo.html](https://cassandra.apache.org/doc/latest/cassandra/architecture/dynamo.html)
 
-> 返回：[分布式总览](./0_overview)
+> 返回：[分布式基础总览](./0_overview)

@@ -143,7 +143,7 @@ public class OrderMessageProducer {
 }
 ```
 
-> 发送消息不要放在数据库事务里「顺带一起成功」：DB 回滚了消息却已发出，或 DB 提交了消息却没发出，都会不一致。需要「写库 + 发消息」原子性时，用下文的**事务消息**或本地消息表；只需在提交后通知时，用 `@TransactionalEventListener(phase = AFTER_COMMIT)` 发送，但提交后到发送前宕机仍会丢，可靠性要求高时仍要配合本地消息表。详见 [分布式 · 分布式事务](/distributed/4_transaction)。
+> 发送消息不要放在数据库事务里「顺带一起成功」：DB 回滚了消息却已发出，或 DB 提交了消息却没发出，都会不一致。需要「写库 + 发消息」原子性时，用下文的**事务消息**或本地消息表；只需在提交后通知时，用 `@TransactionalEventListener(phase = AFTER_COMMIT)` 发送，但提交后到发送前宕机仍会丢，可靠性要求高时仍要配合本地消息表。详见 [分布式基础 · 分布式事务](/distributed/4_transaction)。
 
 ### 2、消费者与幂等
 
@@ -315,7 +315,7 @@ public class OrderTxListener implements RocketMQLocalTransactionListener {
 - **回查节奏**：Broker 按 `transactionCheckInterval` 周期回查，超过 `transactionCheckMax` 次后丢弃半消息；不确定窗口要大于本地事务的最长执行时间
 - **其他客户端写法**：原生 Remoting 客户端用 `TransactionMQProducer` + `TransactionListener`（状态枚举 `LocalTransactionState.UNKNOW`）；5.x gRPC 客户端（`rocketmq-client-java`）用 `TransactionChecker` 与 `producer.beginTransaction()`，语义相同
 - 事务消息只保证「生产端本地事务 ⇔ 消息投递」一致，**下游消费失败不会回滚上游**，下游仍需重试 + 幂等，必要时人工补偿
-- 不用 RocketMQ 时，等价方案是本地消息表（Transactional Outbox），见 [分布式 · 分布式事务](/distributed/4_transaction)
+- 不用 RocketMQ 时，等价方案是本地消息表（Transactional Outbox），见 [分布式基础 · 分布式事务](/distributed/4_transaction)
 
 ---
 

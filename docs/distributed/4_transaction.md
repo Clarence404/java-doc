@@ -381,7 +381,7 @@ public class OrderAppService {
 }
 ```
 
-每个参与的数据库都要建 `undo_log` 表；依赖、yaml 配置、XID 透传等接入要点见 [Spring Cloud Alibaba · Seata](/microservices/15_alibaba#四、seata-分布式事务)。
+每个参与的数据库都要建 `undo_log` 表；依赖、yaml 配置、XID 透传等接入要点见 [Spring Cloud Alibaba · Seata](/service-governance/6_alibaba#四、seata-分布式事务)。
 
 ### 4、TCC 模式
 

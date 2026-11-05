@@ -28,7 +28,8 @@ export const SUMMARY = {
         {text: '基础体系', from: 1},
         {text: '框架生态', from: 7},
         {text: '数据存储', from: 12},
-        {text: '分布式系统', from: 16},
+        {text: '分布式', from: 16},
+        {text: '三高架构', from: 19},
         {text: '架构设计', from: 22},
         {text: '研发效能', from: 26},
         {text: '运维保障', from: 30},
@@ -115,17 +116,21 @@ export const GROUPS = [
         ],
     },
     {
-        name: '分布式系统', tagline: '分布式理论、微服务与高性能 · 高并发 · 高可用', modules: [
-            {name: '分布式', dir: 'distributed', interview: ['16_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID / 会话 / 调度与工作流 / 一致性哈希'},
+        name: '分布式', tagline: '分布式理论与机制、微服务拆分与 Spring Cloud 落地', modules: [
+            {name: '分布式基础', dir: 'distributed', interview: ['16_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID / 会话 / 调度与工作流 / 一致性哈希'},
             {
-                name: '微服务', dir: 'microservices', interview: ['17_microservices', '18_spring_cloud'],
-                desc: '服务拆分 / 设计模式 / 调用顺序性 / Spring Cloud（Nacos、Gateway、服务治理、Alibaba、Stream）/ Dubbo / 服务网格',
+                name: '微服务架构', dir: 'microservices', interview: ['17_microservices'],
+                desc: '优势与挑战 / 服务拆分 / 设计模式 / 调用顺序性 / Dubbo / 服务网格',
                 sidebar: [
                     {text: '概念与拆分', from: 1},
-                    {text: 'Spring Cloud', from: 10},
-                    {text: '其他路线', from: 20},
+                    {text: '其他路线', from: 5},
                 ],
             },
+            {name: '微服务治理', dir: 'service-governance', interview: ['18_service_governance'], desc: '注册发现 / API 网关 / 服务通信 / 配置中心 / 流量治理 / Spring Cloud Alibaba / Spring Cloud Stream'},
+        ],
+    },
+    {
+        name: '三高架构', tagline: '性能、容量与可用性的系统级策略', modules: [
             {name: '高性能', dir: 'high-perf', interview: ['19_high_perf'], desc: '指标 / 方法论 / Profiler / JMH / 池化与异步 / IO 与数据库优化 / JVM 与代码级优化 / 案例'},
             {name: '高并发', dir: 'high-con', interview: ['20_high_con'], desc: '接入层 / 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划'},
             {name: '高可用', dir: 'high-avail', interview: ['21_high_avail'], desc: 'SLA / 冗余切换 / 负载均衡 / 超时重试 / 熔断降级限流 / 优雅上下线 / 多活容灾 / 混沌工程 / 应急复盘'},
@@ -278,20 +283,20 @@ export const REDIRECTS = {
     // 2026-10：子目录里的「MySQL 基础」「PostgreSQL 基础」不再占用 0_overview 文件名（总览页专用）
     '/database/1_mysql/0_overview': '/database/1_mysql/0_basics',
     '/database/2_postgresql/0_overview': '/database/2_postgresql/0_basics',
-    // 2026-10：Spring Cloud 模块并入微服务模块
-    '/spring-cloud/0_overview': '/microservices/0_overview',
-    '/spring-cloud/1_service_registry': '/microservices/10_service_registry',
-    '/spring-cloud/2_api_gateway': '/microservices/11_api_gateway',
-    '/spring-cloud/3_communication': '/microservices/12_communication',
-    '/spring-cloud/4_config_center': '/microservices/13_config_center',
-    '/spring-cloud/5_service_governance': '/microservices/14_service_governance',
-    '/spring-cloud/6_alibaba': '/microservices/15_alibaba',
-    '/spring-cloud/7_stream': '/microservices/16_stream',
-    '/spring-cloud/99_interview': '/microservices/99_interview',
+    // 2026-10：Spring Cloud 模块并入微服务模块（2026-11 这些文章拆为微服务治理模块，spring-cloud/ 旧地址直接跳到 service-governance/）
+    '/spring-cloud/0_overview': '/service-governance/0_overview',
+    '/spring-cloud/1_service_registry': '/service-governance/1_service_registry',
+    '/spring-cloud/2_api_gateway': '/service-governance/2_api_gateway',
+    '/spring-cloud/3_communication': '/service-governance/3_communication',
+    '/spring-cloud/4_config_center': '/service-governance/4_config_center',
+    '/spring-cloud/5_service_governance': '/service-governance/5_traffic_governance',
+    '/spring-cloud/6_alibaba': '/service-governance/6_alibaba',
+    '/spring-cloud/7_stream': '/service-governance/7_stream',
+    '/spring-cloud/99_interview': '/service-governance/99_interview',
     '/microservices/1_service_split': '/microservices/2_service_split',
     '/microservices/2_patterns': '/microservices/3_patterns',
-    '/microservices/3_service_mesh': '/microservices/21_service_mesh',
-    '/microservices/4_dubbo': '/microservices/20_dubbo',
+    '/microservices/3_service_mesh': '/microservices/6_service_mesh',
+    '/microservices/4_dubbo': '/microservices/5_dubbo',
     '/microservices/5_call_ordering': '/microservices/4_call_ordering',
     // 2026-11：面试题解答案页与模块一一对应，按导航分组顺序重新编号（NoSQL、工程效率拆出独立答案页）
     '/interview/4_computer_os': '/interview/5_computer_os',
@@ -306,7 +311,7 @@ export const REDIRECTS = {
     '/interview/9_mq': '/interview/15_mq',
     '/interview/10_distributed': '/interview/16_distributed',
     '/interview/11_microservices': '/interview/17_microservices',
-    '/interview/11_spring_cloud': '/interview/18_spring_cloud',
+    '/interview/11_spring_cloud': '/interview/18_service_governance',
     '/interview/12_high_perf': '/interview/19_high_perf',
     '/interview/13_high_con': '/interview/20_high_con',
     '/interview/14_high_avail': '/interview/21_high_avail',
@@ -325,6 +330,17 @@ export const REDIRECTS = {
     '/interview/26_bigdata': '/interview/35_bigdata',
     '/interview/26_flink': '/interview/36_flink',
     '/interview/27_media': '/interview/37_media',
+    // 2026-11：Spring Cloud 相关文章从微服务模块拆为微服务治理模块（service-governance/），微服务剩余文章重新编号；Spring Cloud 答案页改名
+    '/microservices/10_service_registry': '/service-governance/1_service_registry',
+    '/microservices/11_api_gateway': '/service-governance/2_api_gateway',
+    '/microservices/12_communication': '/service-governance/3_communication',
+    '/microservices/13_config_center': '/service-governance/4_config_center',
+    '/microservices/14_service_governance': '/service-governance/5_traffic_governance',
+    '/microservices/15_alibaba': '/service-governance/6_alibaba',
+    '/microservices/16_stream': '/service-governance/7_stream',
+    '/microservices/20_dubbo': '/microservices/5_dubbo',
+    '/microservices/21_service_mesh': '/microservices/6_service_mesh',
+    '/interview/18_spring_cloud': '/interview/18_service_governance',
 };
 
 // 学习路线（interview/91_routes 页的 <LearningRoutes />）：按目标跨模块挑文章，标题与简介自动取文章的 H1 与 description
@@ -344,9 +360,9 @@ export const ROUTES = [
         stages: [
             {title: 'Java 与并发', time: 'Day 1', items: ['interview/1_java', 'interview/2_concurrent', 'java/28_topic_thread_pool']},
             {title: 'JVM、操作系统与网络', time: 'Day 2', items: ['interview/3_jvm', 'interview/5_computer_os', 'interview/6_network']},
-            {title: 'Spring 全家桶', time: 'Day 3', items: ['interview/7_spring', 'interview/8_spring_boot', 'interview/18_spring_cloud']},
+            {title: 'Spring 全家桶', time: 'Day 3', items: ['interview/7_spring', 'interview/8_spring_boot', 'interview/18_service_governance']},
             {title: '数据库、缓存与 MQ', time: 'Day 4', items: ['interview/12_db', 'interview/14_cache', 'interview/15_mq']},
-            {title: '分布式系统', time: 'Day 5', items: ['interview/16_distributed', 'interview/17_microservices', 'interview/20_high_con', 'interview/21_high_avail']},
+            {title: '分布式与三高', time: 'Day 5', items: ['interview/16_distributed', 'interview/17_microservices', 'interview/20_high_con', 'interview/21_high_avail']},
             {title: '系统设计与项目', time: 'Day 6', items: ['scenario/1_design_method', 'interview/24_scenario', 'interview/25_scenario_highlights', 'interview/23_architecture']},
             {title: '查漏补缺', time: 'Day 7', note: '打开各模块的「高频面试题」，切到自测模式、范围选「只看不会」，把标过的题再过一遍', items: ['interview/4_algorithms', 'algorithms/4_practice/2_concurrency_coding', 'interview/90_glossary']},
         ],

@@ -209,7 +209,7 @@ public class OrderMessageProducer {
 }
 ```
 
-> **不要在数据库事务里直接发 MQ 来追求一致性**：事务回滚了消息却已发出，或事务提交了发送却失败。正确做法是**本地消息表（transactional outbox）**：业务数据和待发消息在同一个本地事务里写库，再由异步任务投递、confirm 后标记完成。也可以在事务提交后发送（`@TransactionalEventListener(phase = AFTER_COMMIT)`），但进程在提交后、发送前崩溃仍会丢，关键链路仍需 outbox 兜底。详见 [分布式 · 分布式事务](/distributed/4_transaction)。
+> **不要在数据库事务里直接发 MQ 来追求一致性**：事务回滚了消息却已发出，或事务提交了发送却失败。正确做法是**本地消息表（transactional outbox）**：业务数据和待发消息在同一个本地事务里写库，再由异步任务投递、confirm 后标记完成。也可以在事务提交后发送（`@TransactionalEventListener(phase = AFTER_COMMIT)`），但进程在提交后、发送前崩溃仍会丢，关键链路仍需 outbox 兜底。详见 [分布式基础 · 分布式事务](/distributed/4_transaction)。
 
 ### 3、消费者：自动 ACK + 重试 + 死信（推荐）
 

@@ -138,7 +138,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - `vault://`：从 Vault 拉取密钥
 - Spring Cloud 2020.0 起默认不用 bootstrap 配置了，配置中心统一走这个入口
 
-→ 详见 [配置管理](/spring-boot/5_config#四、spring-config-import)、[配置中心](/microservices/13_config_center)
+→ 详见 [配置管理](/spring-boot/5_config#四、spring-config-import)、[配置中心](/service-governance/4_config_center)
 
 ## 四、Web 与数据访问
 
@@ -276,7 +276,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **一句话**：`@Scheduled` 只管本进程，部署 N 个实例就执行 N 次；只要「只执行一次」用 ShedLock 加分布式锁，需要管理界面、失败重试、分片时用 XXL-JOB 这类调度平台。
 
-→ 完整答案见 [分布式面试题解答](/interview/16_distributed) Q25；正文详见 [异步任务与定时任务](/spring-boot/7_async_schedule#三、多实例下的定时任务)、[分布式调度](/distributed/6_job_scheduler)
+→ 完整答案见 [分布式基础面试题解答](/interview/16_distributed) Q25；正文详见 [异步任务与定时任务](/spring-boot/7_async_schedule#三、多实例下的定时任务)、[分布式调度](/distributed/6_job_scheduler)
 
 ## 六、运维与可观测
 

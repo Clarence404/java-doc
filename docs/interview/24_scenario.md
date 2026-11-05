@@ -51,7 +51,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 **常见坑**：一个流程同时套 Seata 全局事务和事务消息，边界不清，出了问题不知道该谁回滚。
 
-→ 详见 [订单](/scenario/5_order_system#八、分布式事务-按流程选一种)、[分布式面试题解答](/interview/16_distributed#三、分布式事务)
+→ 详见 [订单](/scenario/5_order_system#八、分布式事务-按流程选一种)、[分布式基础面试题解答](/interview/16_distributed#三、分布式事务)
 
 ### Q4：订单超时关单有哪些方案？关单与释放库存如何原子化？
 
@@ -583,9 +583,9 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 - 高并发系统：[高并发面试题解答 Q1](/interview/20_high_con#q1-如何设计一个高并发系统-从哪些维度入手)、[高并发总览](/high-con/0_overview)
 - 高可用系统：[高可用面试题解答 Q1](/interview/21_high_avail#q1-如何设计一个高可用系统)、[高可用总览](/high-avail/0_overview)
-- RPC 框架：[微服务面试题解答 Q13](/interview/17_microservices#q13-如何设计一个-rpc-框架)、[Dubbo](/microservices/20_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[RPC 协议](/protocols/5_rpc_protocols)
-- 分布式主键：[分布式面试题解答 Q20](/interview/16_distributed#q20-分布式-id-有哪些方案-uuidv7-为什么适合做主键)、[分布式 ID 生成](/distributed/8_id_generator#八、方案对比与选型)
-- `synchronized` 与分布式锁：[分布式面试题解答 Q7](/interview/16_distributed#q7-分布式锁有哪些实现-怎么选)、[分布式锁](/distributed/3_lock#一、为什么需要分布式锁)
+- RPC 框架：[微服务架构面试题解答 Q13](/interview/17_microservices#q13-如何设计一个-rpc-框架)、[Dubbo](/microservices/5_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[RPC 协议](/protocols/5_rpc_protocols)
+- 分布式主键：[分布式基础面试题解答 Q20](/interview/16_distributed#q20-分布式-id-有哪些方案-uuidv7-为什么适合做主键)、[分布式 ID 生成](/distributed/8_id_generator#八、方案对比与选型)
+- `synchronized` 与分布式锁：[分布式基础面试题解答 Q7](/interview/16_distributed#q7-分布式锁有哪些实现-怎么选)、[分布式锁](/distributed/3_lock#一、为什么需要分布式锁)
 
 ### Q43：数据更新后通知下游，服务端推送还是客户端拉取？
 

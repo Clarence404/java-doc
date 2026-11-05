@@ -110,14 +110,16 @@ function getSubdirSidebar(dir, subdirs) {
 const dirOf = name => path.resolve(docsRoot, name);
 
 // 组内条目若以所在分组名（含上层分组）开头，侧边栏自动去掉该前缀，避免「MySQL 组 → MySQL 索引」式重复；
-// 页面 H1、浏览器标题与搜索结果仍保留完整标题
+// 页面 H1、浏览器标题与搜索结果仍保留完整标题；恰好等于某个模块名的条目（如面试题解「分布式」组里的「分布式基础」）不去前缀
 const SEP = /^[\s·\-—:：]+/;
+const MODULE_NAMES = new Set(GROUPS.flatMap(g => g.modules.map(m => m.name)));
 function stripGroupPrefix(items, ancestors = []) {
     return items.map(item => {
         if (item.children) {
             return {...item, children: stripGroupPrefix(item.children, [...ancestors, item.text])};
         }
         let text = item.text;
+        if (MODULE_NAMES.has(text)) return item;
         for (const g of ancestors) {
             if (text.startsWith(g)) {
                 const rest = text.slice(g.length).replace(SEP, '');

@@ -47,7 +47,7 @@ MQ 选型起作用的往往不是谁性能最高，而是消息语义（事务�
 | 大数据 Pipeline / 事件溯源 / CDC | **Kafka** | 多个消费者组独立消费同一份数据，可按 Offset 回放；CDC 工具见 [CDC 工具](/database/5_practice/0_cdc_tools) |
 | 流式计算（读—处理—写） | **Kafka** | 事务 + EOS，Kafka Streams / Connect 生态完善 |
 | 电商核心链路（订单 / 支付 / 库存） | **RocketMQ** | 事务消息、定时消息（超时关单）、重试与死信开箱即用 |
-| 本地事务 + 发消息的最终一致 | **RocketMQ** 事务消息，或任意 MQ + 本地消息表 | 半消息回查保证"本地事务成功则消息必达"；方案对比见 [分布式 · 分布式事务](/distributed/4_transaction) |
+| 本地事务 + 发消息的最终一致 | **RocketMQ** 事务消息，或任意 MQ + 本地消息表 | 半消息回查保证"本地事务成功则消息必达"；方案对比见 [分布式基础 · 分布式事务](/distributed/4_transaction) |
 | 中低并发业务解耦 / 微服务通知 | **RabbitMQ** | Spring AMQP 集成简单，Exchange 路由灵活，运维成本低 |
 | 复杂路由（按规则分发、广播、优先级） | **RabbitMQ** | Direct / Topic / Fanout / Headers 交换机，支持优先级队列 |
 | 对接外部系统 / 标准协议 | **RabbitMQ** | AMQP 标准协议，插件支持 MQTT / STOMP |

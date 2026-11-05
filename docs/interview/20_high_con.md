@@ -169,7 +169,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 定时任务：用分布式调度（XXL-JOB）或分布式锁，避免多台机器重复执行
 - 自查：有没有用 `static` 集合存业务数据、有没有假设「下次请求还能读到本地文件」
 
-→ 详见 [水平扩展与无状态化](/high-con/2_scale_out#_1、常见的-状态-及外置方案)；Session 共享方案与 Spring Session / JWT 取舍见 [分布式面试题解答](/interview/16_distributed) Q26
+→ 详见 [水平扩展与无状态化](/high-con/2_scale_out#_1、常见的-状态-及外置方案)；Session 共享方案与 Spring Session / JWT 取舍见 [分布式基础面试题解答](/interview/16_distributed) Q26
 
 ### Q13：K8s HPA 自动扩容有哪些局限？应用扩容后下游会出现什么问题？
 

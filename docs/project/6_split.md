@@ -4,7 +4,7 @@ description: 先拆库存与支付、模块 api 变远程接口、按服务拆�
 
 # 拆分服务
 
-> 前置阅读：[工程搭建](./1_project_setup)、[服务拆分](/microservices/2_service_split)、[注册发现](/microservices/10_service_registry)
+> 前置阅读：[工程搭建](./1_project_setup)、[服务拆分](/microservices/2_service_split)、[注册发现](/service-governance/1_service_registry)
 
 发布互相阻塞、热点模块无法单独扩容时就该拆服务。本篇讲先拆什么、怎么拆库、Spring Cloud 选型与部署，基线为 Spring Boot 4、Kubernetes 1.37。
 
@@ -58,7 +58,7 @@ description: 先拆库存与支付、模块 api 变远程接口、按服务拆�
 
 | 不做 | 原因 | 什么时候做 |
 |------|------|-----------|
-| 服务网格 | 只有 4 个 Java 服务，负载均衡、超时都由 Spring Cloud 在进程内完成；Sidecar 的运维成本远大于收益，取舍见 [服务网格](/microservices/21_service_mesh#_3、落地取舍) | 出现多语言服务、需要服务间 mTLS 时再评估 |
+| 服务网格 | 只有 4 个 Java 服务，负载均衡、超时都由 Spring Cloud 在进程内完成；Sidecar 的运维成本远大于收益，取舍见 [服务网格](/microservices/6_service_mesh#_3、落地取舍) | 出现多语言服务、需要服务间 mTLS 时再评估 |
 | 继续拆订单 | 下单、查询、取消都归交易组，共享 `t_order` 和状态机，拆开只会多出分布式事务 | 交易组再分组、或订单查询压力独立变大时 |
 | 拆商品、用户 | 见上表，扩 `mall-app` 实例即可 | 商品组与交易组的发布冲突明显时 |
 | 每服务一个仓库 | 仍在 `qingyou-mall` 一个仓库，按模块各自打镜像、各自流水线即可独立发布 | 跨组代码评审成为瓶颈时 |
@@ -167,7 +167,7 @@ try {
 | 服务调用 | OpenFeign / HTTP 接口客户端 | HTTP 接口客户端 | 框架内置，接口可以服务端客户端共用；OpenFeign 只剩维护 |
 | 负载均衡 | Spring Cloud LoadBalancer | 默认轮询 | 实例同构，暂不需要权重或区域路由 |
 
-Spring Boot 取 4.0.x、Spring Cloud 取 2025.1；Spring Cloud Alibaba 有自己的 BOM（`spring-cloud-alibaba-dependencies`），按官方版本对表导入 2025.1.0.0，对表见 [Spring Cloud Alibaba](/microservices/15_alibaba)。
+Spring Boot 取 4.0.x、Spring Cloud 取 2025.1；Spring Cloud Alibaba 有自己的 BOM（`spring-cloud-alibaba-dependencies`），按官方版本对表导入 2025.1.0.0，对表见 [Spring Cloud Alibaba](/service-governance/6_alibaba)。
 
 ### 1、Nacos：注册与配置
 
@@ -198,7 +198,7 @@ spring:
 
 导入不写进公共的 `application.yml`：不带 `optional:` 的 `nacos:` 导入在没有 Nacos 的场景（单元 / 集成测试、本地还没建配置）都会启动失败，`spring.cloud.nacos.config.enabled=false` 也挡不住；`application-dev.yml` 里两项都带 `optional:`。
 
-接入与刷新机制见 [注册发现 · Spring Cloud 接入](/microservices/10_service_registry#四、spring-cloud-接入) 和 [配置中心 · Nacos Config 接入](/microservices/13_config_center#二、nacos-config-接入)。
+接入与刷新机制见 [注册发现 · Spring Cloud 接入](/service-governance/1_service_registry#四、spring-cloud-接入) 和 [配置中心 · Nacos Config 接入](/service-governance/4_config_center#二、nacos-config-接入)。
 
 ### 2、mall-gateway：只路由 /api
 
@@ -223,7 +223,7 @@ spring:
             response-timeout: 5s
 ```
 
-对外路径保持 [接口设计](./3_api_design) 里的样子，客户端无感；库存不对外暴露，商品详情里的库存由 `mall-app` 查。网关作为资源服务器统一校验 JWT，下游服务仍用同一把公钥再校验一次，不只凭请求头里的用户 ID 放行，写法见 [API 网关 · 统一鉴权](/microservices/11_api_gateway#四、统一鉴权-网关作为-oauth2-资源服务器)。
+对外路径保持 [接口设计](./3_api_design) 里的样子，客户端无感；库存不对外暴露，商品详情里的库存由 `mall-app` 查。网关作为资源服务器统一校验 JWT，下游服务仍用同一把公钥再校验一次，不只凭请求头里的用户 ID 放行，写法见 [API 网关 · 统一鉴权](/service-governance/2_api_gateway#四、统一鉴权-网关作为-oauth2-资源服务器)。
 
 ### 3、HTTP 接口客户端与超时
 
@@ -261,7 +261,7 @@ RestClientHttpServiceGroupConfigurer remoteErrorConfigurer(JsonMapper jsonMapper
 
 `ProblemDetail` 的扩展字段靠 `@JsonAnySetter` 才能落进 `properties`，Boot 的 `JsonMapper` 默认没挂这个 mixin，直接反序列化会丢掉 `code`、`traceId`，`RemoteBizException` 也就拿不到 `STOCK_INSUFFICIENT`。
 
-为什么不选 OpenFeign、客户端组的注册与透传请求头，见 [服务通信 · 选型](/microservices/12_communication#六、选型)；熔断、重试与限流放到「稳定性」一篇。
+为什么不选 OpenFeign、客户端组的注册与透传请求头，见 [服务通信 · 选型](/service-governance/3_communication#六、选型)；熔断、重试与限流放到「稳定性」一篇。
 
 ---
 

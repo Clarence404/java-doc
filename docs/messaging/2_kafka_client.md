@@ -76,7 +76,7 @@ public class OrderEventProducer {
 }
 ```
 
-**发送失败不能靠回调里补救来保证一致性**——进程可能在回调前就挂了。业务库与消息需要一致时，用**本地消息表（Transactional Outbox）**：业务数据和待发消息在同一个本地事务里落库，由中继任务扫表发送、成功后标记，失败持续重试；或用 CDC（[Kafka 架构与存储 · Kafka Connect](./2_kafka#六、kafka-connect) 中的 Debezium）读取 outbox 表投递。不要在数据库事务内直接 `send()`，事务回滚了消息却已发出。详见 [分布式 · 分布式事务](/distributed/4_transaction)。
+**发送失败不能靠回调里补救来保证一致性**——进程可能在回调前就挂了。业务库与消息需要一致时，用**本地消息表（Transactional Outbox）**：业务数据和待发消息在同一个本地事务里落库，由中继任务扫表发送、成功后标记，失败持续重试；或用 CDC（[Kafka 架构与存储 · Kafka Connect](./2_kafka#六、kafka-connect) 中的 Debezium）读取 outbox 表投递。不要在数据库事务内直接 `send()`，事务回滚了消息却已发出。详见 [分布式基础 · 分布式事务](/distributed/4_transaction)。
 
 ### 2、消费者
 

@@ -16,6 +16,49 @@ $mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono"
   }
 }
 
+// 一级菜单有 10 项：中等宽度下收紧字号与字距，再窄时只留站点图标，避免挤压右侧搜索框（手机端由主题折叠菜单）
+@media (min-width: 720px) and (max-width: 1279px) {
+  .vp-navbar {
+    .vp-nav-item > .auto-link,
+    .vp-dropdown-title {
+      font-size: 0.8125rem;
+      letter-spacing: 0;
+    }
+  }
+}
+
+@media (min-width: 720px) and (max-width: 1199px) {
+  .vp-navbar .vp-site-name {
+    display: none;
+  }
+}
+
+@media (min-width: 720px) and (max-width: 1099px) {
+  .vp-navbar {
+    .vp-nav-item > .auto-link,
+    .vp-dropdown-title {
+      font-size: 0.75rem;
+    }
+
+    .vp-dropdown-title .arrow {
+      display: none;
+    }
+
+    .vp-navbar-center .vp-nav-item {
+      margin-right: 0;
+    }
+  }
+}
+
+@media (min-width: 720px) and (max-width: 779px) {
+  .vp-navbar {
+    .vp-nav-item > .auto-link,
+    .vp-dropdown-title {
+      font-size: 0.6875rem;
+    }
+  }
+}
+
 // ---------- 左侧边栏 ----------
 #sidebar {
   > .vp-sidebar-links {
