@@ -152,7 +152,7 @@ Protocol protocol = ApplicationModel.defaultModel()
         .getExtension("tri");
 ```
 
-自定义负载均衡等扩展的写法见 [Dubbo · SPI 扩展机制](/microservices/5_dubbo#六、spi-扩展机制)。
+自定义负载均衡等扩展的写法见 [Dubbo · SPI 扩展机制](/service-governance/8_dubbo#六、spi-扩展机制)。
 
 ---
 

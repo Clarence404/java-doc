@@ -52,7 +52,7 @@
 - 权限系统架构（PEP / PDP、权限缓存、数据权限拦截）→ [权限系统架构设计](/architecture/6_access_control)
 - 服务端会话与 Spring Session → [分布式会话](/distributed/5_session)
 - 网关统一鉴权（网关作为 OAuth2 资源服务器）→ [API 网关](/service-governance/2_api_gateway)
-- 服务间 mTLS 与网格安全策略 → [服务网格](/microservices/6_service_mesh)
+- 服务间 mTLS 与网格安全策略 → [服务网格](/service-governance/9_service_mesh)
 - 证书与 TLS / mTLS 协议 → [HTTPS 与 TLS](/protocols/3_https_tls)
 - Actuator 端点暴露与保护 → [Actuator 监控](/spring-boot/11_actuator)
 - 日志脱敏与日志体系 → [日志](/spring-boot/9_logging)、[日志体系](/observability/1_logging)

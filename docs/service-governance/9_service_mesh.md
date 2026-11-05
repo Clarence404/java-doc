@@ -4,7 +4,7 @@ description: Istio 架构、Sidecar 与 Ambient、流量管理、mTLS、可观�
 
 # 服务网格
 
-> 前置阅读：[微服务设计模式](./3_patterns)、[Kubernetes](/cloud-native/6_kubernetes)
+> 前置阅读：[微服务设计模式](/microservices/3_patterns)、[Kubernetes](/cloud-native/6_kubernetes)
 
 服务网格把服务治理从应用代码下沉到基础设施层。本篇讲 Istio 的控制面 / 数据面结构、Sidecar 与 Ambient 两种数据面、流量路由与 mTLS 配置，以及 Spring Cloud、Dubbo 与服务网格之间的取舍。
 
@@ -14,7 +14,7 @@ description: Istio 架构、Sidecar 与 Ambient、流量管理、mTLS、可观�
 
 服务网格（Service Mesh）是微服务间通信的**基础设施层**：把负载均衡、重试、熔断、mTLS、遥测这些横切能力从业务进程里的 SDK 中拿出来，交给与业务一起部署的代理，业务代码不再感知。
 
-![SDK 模式与 Sidecar 模式对比](../assets/microservices/mesh-vs-sdk.svg)
+![SDK 模式与 Sidecar 模式对比](../assets/service-governance/mesh-vs-sdk.svg)
 
 | 方式 | 治理能力放在哪里 | 典型组合 |
 |------|-----------------|---------|
@@ -27,7 +27,7 @@ SDK 模式的问题在于：治理能力与语言绑定，多语言团队要维�
 
 ## 二、Istio 架构
 
-![Istio 控制面与数据面](../assets/microservices/istio-architecture.svg)
+![Istio 控制面与数据面](../assets/service-governance/istio-architecture.svg)
 
 | 层次 | 组件 | 职责 |
 |------|------|------|
@@ -42,7 +42,7 @@ Istio 1.5 起把早期的 Pilot、Citadel、Galley 等多个控制面组件合�
 
 Istio 有两种数据面模式。Ambient 模式在 Istio 1.24（2024 年 11 月）达到 GA，ztunnel、waypoint 及相关 API 被标记为 Stable。
 
-![Istio Sidecar 模式与 Ambient 模式对比](../assets/microservices/sidecar-vs-ambient.svg)
+![Istio Sidecar 模式与 Ambient 模式对比](../assets/service-governance/sidecar-vs-ambient.svg)
 
 ### 1、Sidecar 模式
 
@@ -290,4 +290,4 @@ istiod 作为 CA 为每个工作负载签发短期证书并自动轮转，证书
 - Envoy 文档：[https://www.envoyproxy.io/docs/](https://www.envoyproxy.io/docs/)
 - Linkerd 发布模型：[https://linkerd.io/releases/](https://linkerd.io/releases/)
 
-> 返回：[微服务架构总览](./0_overview)
+> 返回：[微服务治理总览](./0_overview)

@@ -1,12 +1,12 @@
 ---
-description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentinel、Seata、Stream、链路追踪
+description: Nacos、网关、OpenFeign、Sentinel、Seata、Stream、链路追踪、Dubbo、服务网格
 ---
 
 # 微服务治理面试题解答
 
-> 题目清单见 [微服务治理面试题](/service-governance/99_interview)，模块入口见 [微服务治理总览](/service-governance/0_overview)；拆分、通信、服务网格等架构题见 [微服务架构面试题解答](/interview/17_microservices)，分布式事务理论见 [分布式基础面试题解答](/interview/16_distributed)。
+> 题目清单见 [微服务治理面试题](/service-governance/99_interview)，模块入口见 [微服务治理总览](/service-governance/0_overview)；拆分、通信、契约等架构题见 [微服务架构面试题解答](/interview/17_microservices)，分布式事务理论见 [分布式基础面试题解答](/interview/16_distributed)。
 >
-> 版本基线：Spring Boot 4.x、Spring Cloud 2025.1.x、Spring Cloud Alibaba 2025.1.0.0（Nacos 3.x）。
+> 版本基线：Spring Boot 4.x、Spring Cloud 2025.1.x、Spring Cloud Alibaba 2025.1.0.0（Nacos 3.x）、Dubbo 3.3、Istio 1.30 / 1.31。
 
 ## 一、注册与配置
 
@@ -347,3 +347,126 @@ description: Nacos 注册与配置、配置刷新、网关、OpenFeign、Sentine
 - 采样率默认 10%（`management.tracing.sampling.probability`）；不想改代码可用 SkyWalking 或 OpenTelemetry Java Agent
 
 → 详见 [日志](/spring-boot/9_logging#五、mdc-与-traceid-传递)、[链路追踪](/observability/3_tracing)、[OpenTelemetry](/observability/5_opentelemetry)
+
+## 六、Dubbo 与服务网格
+
+### Q27：Dubbo 的注册中心宕机为什么不影响已建立的调用？什么是应用级服务发现？
+
+**一句话**：注册中心只是通讯录。消费方启动时把提供方地址缓存到本地，调用时直接和提供方长连接通信，不经过注册中心。所以它挂了，已有调用照常，只是感知不到新上线或下线的实例。
+
+- 应用级服务发现（Dubbo 3）：注册中心按「应用」登记实例，而不是按「每个接口」登记，注册和推送的数据量大大减少
+- 这样也和 Spring Cloud、Kubernetes 的「按应用 / 服务」模型对齐
+- 3.x 默认接口级和应用级都注册，兼容老消费方；全部升级后设 `dubbo.registry.register-mode=instance` 只留应用级
+
+→ 详见 [Dubbo](/service-governance/8_dubbo#二、架构与调用流程)
+
+### Q28：Triple 协议与 dubbo 协议有什么区别？
+
+**一句话**：dubbo 协议是 TCP 上的私有协议，快但不好跨语言、过不了普通网关；Triple 是 Dubbo 3 推荐的协议，基于 HTTP、兼容 gRPC，curl 和浏览器都能直接调。
+
+| 对比 | dubbo 协议 | Triple |
+|------|-----------|--------|
+| 传输 | 私有 TCP | HTTP/1.1、HTTP/2、HTTP/3 |
+| 跨语言 / 网关 | 差 | 和 gRPC 互通，可放在 HTTP 网关后 |
+| 流式调用 | 不支持 | 支持 |
+
+**常见坑**：3.2 起默认严格检查序列化类，DTO 不实现 `Serializable` 会调用失败。
+
+→ 详见 [Dubbo](/service-governance/8_dubbo#四、triple-协议)
+
+### Q29：Dubbo 默认的 failover 为什么对写操作是陷阱？
+
+**一句话**：默认的 `failover` 失败就换一台重试（默认再试 2 次）。但超时不等于失败，提供方可能已经执行成功、只是回得慢，重试就会重复扣款、重复下单。
+
+- 读接口：用默认 `failover` 没问题
+- 写接口、不幂等的接口：改成 `failfast`（失败立即报错，不重试），或者把幂等做好
+- 记日志这类旁路调用：`failsafe`（出错直接忽略）
+- 发通知这类：`failback`（失败后在后台重发）
+
+→ 详见 [Dubbo](/service-governance/8_dubbo#_2、集群容错策略)、[幂等设计](/architecture/3_idempotence)
+
+### Q30：Dubbo SPI 与 Java SPI 有什么区别？`@Adaptive`、`@Activate` 做什么？
+
+**一句话**：Java 自带的 SPI（`ServiceLoader`）只能把所有实现全部加载出来遍历；Dubbo SPI 按名字取实现，用到哪个才创建哪个，还能自动注入依赖、自动套包装类。
+
+- `@Adaptive`：运行时根据调用参数里的配置，决定用哪个实现（比如按配置切换协议、负载均衡策略）
+- `@Activate`：按条件自动启用并排序，典型用法是过滤器链
+- Wrapper：自动包在实现外面的一层，统一加监听、过滤逻辑，类似 AOP
+- 协议、负载均衡、容错策略、过滤器、序列化都是通过 Dubbo SPI 装配的
+
+→ 详见 [Dubbo](/service-governance/8_dubbo#六、spi-扩展机制)、[SPI 机制](/java/20_topic_spi)
+
+### Q31：Dubbo 和 Spring Cloud 怎么选？
+
+**一句话**：内部服务高频互调、看重性能、团队熟悉 Dubbo，选 Dubbo；对外接口多、跨语言、想跟紧 Spring Boot 新版本，选 Spring Cloud。也常混用：内部 Dubbo，对外 REST。
+
+| 对比 | Dubbo 3 | Spring Cloud |
+|------|---------|--------------|
+| 通信 | RPC 长连接 | HTTP |
+| 接口约定 | Java 接口 jar | HTTP 地址 + DTO |
+| 治理 | 框架自带 | 多个组件拼起来 |
+| Spring Boot 4 | 目前基于 Boot 3.5，以官方发布为准 | 已支持 |
+
+→ 详见 [Dubbo](/service-governance/8_dubbo#八、dubbo-vs-spring-cloud-选型)
+
+### Q32：什么是服务网格？istiod 负责什么，控制面与数据面如何分工？
+
+**一句话**：服务网格把重试、熔断、加密、监控这些通信能力从业务代码里拿出来，交给和服务一起部署的代理去做。好处是和语言无关、改配置不用发版；代价是多一层代理和一套要运维的控制面。
+
+- 控制面 istiod：从 Kubernetes 读服务信息，把路由和安全规则翻译成代理配置下发；还当证书机构，给每个服务发证书
+- 数据面：真正转发流量的代理（Sidecar 模式是每个 Pod 一个 Envoy；Ambient 模式是 ztunnel + waypoint），负责路由、负载均衡、加密和监控数据
+- 早期的 Pilot、Citadel、Galley 已合并成 istiod，按功能理解即可
+
+→ 详见 [服务网格](/service-governance/9_service_mesh#二、istio-架构)
+
+### Q33：Istio 的 Sidecar 模式与 Ambient 模式有什么区别？ztunnel 与 waypoint 各做什么？
+
+**一句话**：Sidecar 模式给每个 Pod 塞一个代理，什么都在 Pod 里做；Ambient 模式（1.24 起正式可用）业务 Pod 里没有代理，把工作拆给两类组件。
+
+- ztunnel：每个节点一个，负责四层的事——加密（mTLS）、身份、按身份授权
+- waypoint：可选，按命名空间或服务部署，负责七层的事——HTTP 路由、重试、按路径授权
+
+| 对比 | Sidecar | Ambient |
+|------|---------|---------|
+| 资源开销 | 随 Pod 数量增长 | 每节点一个 ztunnel，七层按需部署 |
+| 接入、升级 | 要重启业务 Pod | 打标签就接入，升级不重启业务 |
+| 七层能力 | 默认就有 | 部署 waypoint 后才有 |
+| 适合 | 每个服务都要完整治理 | 主要为了加密 / 零信任、想省资源 |
+
+→ 详见 [服务网格](/service-governance/9_service_mesh#三、数据面-sidecar-与-ambient)
+
+### Q34：为什么 VirtualService 的路由规则顺序很重要？
+
+**一句话**：VirtualService 的路由规则从上往下匹配，第一条命中就生效。精确规则（比如按请求头去灰度版本）要写在前面，兜底规则放最后。
+
+- 写反了：不带 `match` 的兜底规则会接走所有请求，后面的灰度规则永远不生效
+- 对比：Kubernetes Gateway API（`HTTPRoute`）按规则的精确程度排优先级，带 Header 匹配的规则自动优先于不带的，不看书写顺序
+- Istio 推荐用 Gateway API 配入口网关和 Ambient waypoint 的路由，换过去就不用操心规则顺序
+
+→ 详见 [服务网格](/service-governance/9_service_mesh#_1、virtualservice-虚拟服务)
+
+### Q35：Istio 如何实现 mTLS？SPIFFE 身份是什么？网格下的链路追踪是零侵入的吗？
+
+**一句话**：istiod 给每个服务发短期证书并自动更换，代理之间自动加密互认（mTLS，双方都验对方证书），业务代码不用改。
+
+- SPIFFE 身份：证书里写的服务身份，形如 `spiffe://cluster.local/ns/production/sa/order-service`，绑定的是 Kubernetes ServiceAccount 而不是 IP
+- 有了身份就能用 `AuthorizationPolicy` 规定「谁能调谁」
+- 平滑接入：先用 `PERMISSIVE`（明文和加密都收），全部接好后切 `STRICT`
+- 链路追踪不是完全零侵入：代理只看到单次请求，应用要把收到的追踪头转发到下游请求上；Spring Boot 接入 Micrometer Tracing 后自动处理
+
+→ 详见 [服务网格](/service-governance/9_service_mesh#五、mtls-服务间加密)、[零信任架构](/security/9_zero_trust)
+
+### Q36：服务网格与 Spring Cloud 如何选？组合使用时要注意什么？
+
+**一句话**：纯 Java、要按业务参数做治理（比如按商品 ID 限流）选 Spring Cloud；多语言、全面上了 Kubernetes、有专门平台团队选 Istio。
+
+| 对比 | Spring Cloud | Istio |
+|------|-------------|-------|
+| 实现 | 依赖库，在业务进程里 | 进程外代理，业务无感 |
+| 性能 | 无额外转发 | 每次调用多过一层代理 |
+| 治理粒度 | 能到方法和业务参数 | 只认路径、请求头、身份 |
+| 运维门槛 | 低 | 高 |
+
+**常见坑**：一起用时同一能力两边都开，比如重试两边都配，重试次数会相乘。网格管加密和统一监控，SDK 管业务级治理。
+
+→ 详见 [服务网格](/service-governance/9_service_mesh#七、service-mesh-vs-spring-cloud)

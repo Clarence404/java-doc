@@ -4,7 +4,7 @@ description: 调用流程、Boot 3.5 接入、Triple 协议、负载均衡与容
 
 # Dubbo
 
-> 前置阅读：[RPC 协议](/protocols/5_rpc_protocols)、[服务通信](/service-governance/3_communication)
+> 前置阅读：[RPC 协议](/protocols/5_rpc_protocols)、[服务通信](./3_communication)
 
 Dubbo 是 Apache 的 RPC 服务框架。本篇讲调用流程、Spring Boot + Nacos 搭建、Triple 协议、负载均衡与集群容错、SPI 扩展，基线为 Dubbo 3.3（需停留在 Spring Boot 3.5）。
 
@@ -25,7 +25,7 @@ Dubbo 是 Apache 顶级项目，是一个**微服务 RPC 服务框架**。要先
 
 ## 二、架构与调用流程
 
-![Dubbo 架构与调用流程](../assets/microservices/dubbo-architecture.svg)
+![Dubbo 架构与调用流程](../assets/service-governance/dubbo-architecture.svg)
 
 | 角色 | 职责 |
 |------|------|
@@ -429,4 +429,4 @@ private OrderService orderService;
 - 序列化类检查：[https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/tasks/security/class-check/](https://cn.dubbo.apache.org/zh-cn/overview/mannual/java-sdk/tasks/security/class-check/)
 - GitHub Releases：[https://github.com/apache/dubbo/releases](https://github.com/apache/dubbo/releases)
 
-> 下一篇：[服务网格](./6_service_mesh) —— 把服务治理从 SDK 下沉到基础设施层，看 Istio 的 Sidecar 与 Ambient 两种数据面。
+> 下一篇：[服务网格](./9_service_mesh) —— 把服务治理从 SDK 下沉到基础设施层，看 Istio 的 Sidecar 与 Ambient 两种数据面。

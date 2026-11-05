@@ -51,7 +51,7 @@ IO 模型、Netty 编程、WebSocket、SSE 等「怎么写网络程序」的内�
 - MQTT、CoAP、Modbus 等物联网协议 → [通信协议](/iot/1_protocol)
 - Raft、Paxos、ZAB、Gossip 等一致性与集群协议 → [分布式理论](/distributed/2_theorem)
 - AMQP 与消息队列协议 → [RabbitMQ](/messaging/4_rabbitmq)
-- 服务间调用方式选型、Dubbo → [服务通信](/service-governance/3_communication) / [Dubbo](/microservices/5_dubbo)
+- 服务间调用方式选型、Dubbo → [服务通信](/service-governance/3_communication) / [Dubbo](/service-governance/8_dubbo)
 
 ---
 

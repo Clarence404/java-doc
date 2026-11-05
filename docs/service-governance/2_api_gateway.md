@@ -355,7 +355,7 @@ spring:
 | 扩展方式 | Java 过滤器，可直接复用 Spring 生态 | Lua / Go 插件 | Lua / 多语言插件 | Wasm、Lua 扩展 |
 | 适合 | Java 微服务体系，鉴权逻辑与业务耦合较深 | 企业 API 管理 | 高性能流量网关 | 运行在 K8s 上、已使用或计划使用服务网格 |
 
-常见分层：入口用 Nginx / APISIX / Envoy 做流量网关（TLS 终止、WAF、全局限流），其后用 Spring Cloud Gateway 做业务网关（鉴权、聚合、灰度）。服务网格中东西向流量的治理见 [服务网格](/microservices/6_service_mesh)。
+常见分层：入口用 Nginx / APISIX / Envoy 做流量网关（TLS 终止、WAF、全局限流），其后用 Spring Cloud Gateway 做业务网关（鉴权、聚合、灰度）。服务网格中东西向流量的治理见 [服务网格](/service-governance/9_service_mesh)。
 
 网关在架构中的位置与 BFF 模式见 [微服务设计模式](/microservices/3_patterns)。
 

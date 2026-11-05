@@ -121,15 +121,15 @@ export const GROUPS = [
     {
         name: '分布式', tagline: '分布式理论与机制、微服务拆分与 Spring Cloud 落地', modules: [
             {name: '分布式基础', dir: 'distributed', interview: ['16_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID / 会话 / 调度与工作流 / 一致性哈希'},
+            {name: '微服务架构', dir: 'microservices', interview: ['17_microservices'], desc: '优势与挑战 / 服务拆分 / 设计模式 / 调用顺序性 / 服务间通信与契约'},
             {
-                name: '微服务架构', dir: 'microservices', interview: ['17_microservices'],
-                desc: '优势与挑战 / 服务拆分 / 设计模式 / 调用顺序性 / Dubbo / 服务网格',
+                name: '微服务治理', dir: 'service-governance', interview: ['18_service_governance'],
+                desc: '注册发现 / API 网关 / 服务通信 / 配置中心 / 流量治理 / Spring Cloud Alibaba / Stream / Dubbo / 服务网格',
                 sidebar: [
-                    {text: '概念与拆分', from: 1},
-                    {text: '其他路线', from: 5},
+                    {text: 'Spring Cloud 主线', from: 1},
+                    {text: '其他路线', from: 8},
                 ],
             },
-            {name: '微服务治理', dir: 'service-governance', interview: ['18_service_governance'], desc: '注册发现 / API 网关 / 服务通信 / 配置中心 / 流量治理 / Spring Cloud Alibaba / Spring Cloud Stream'},
         ],
     },
     {
@@ -298,8 +298,8 @@ export const REDIRECTS = {
     '/spring-cloud/99_interview': '/service-governance/99_interview',
     '/microservices/1_service_split': '/microservices/2_service_split',
     '/microservices/2_patterns': '/microservices/3_patterns',
-    '/microservices/3_service_mesh': '/microservices/6_service_mesh',
-    '/microservices/4_dubbo': '/microservices/5_dubbo',
+    '/microservices/3_service_mesh': '/service-governance/9_service_mesh',
+    '/microservices/4_dubbo': '/service-governance/8_dubbo',
     '/microservices/5_call_ordering': '/microservices/4_call_ordering',
     // 2026-11：面试题解答案页与模块一一对应，按导航分组顺序重新编号（NoSQL、工程效率拆出独立答案页）
     '/interview/4_computer_os': '/interview/5_computer_os',
@@ -341,9 +341,12 @@ export const REDIRECTS = {
     '/microservices/14_service_governance': '/service-governance/5_traffic_governance',
     '/microservices/15_alibaba': '/service-governance/6_alibaba',
     '/microservices/16_stream': '/service-governance/7_stream',
-    '/microservices/20_dubbo': '/microservices/5_dubbo',
-    '/microservices/21_service_mesh': '/microservices/6_service_mesh',
+    '/microservices/20_dubbo': '/service-governance/8_dubbo',
+    '/microservices/21_service_mesh': '/service-governance/9_service_mesh',
     '/interview/18_spring_cloud': '/interview/18_service_governance',
+    // 2026-11：Dubbo 与服务网格从微服务架构模块搬到微服务治理模块，归入「其他路线」分组
+    '/microservices/5_dubbo': '/service-governance/8_dubbo',
+    '/microservices/6_service_mesh': '/service-governance/9_service_mesh',
     // 2026-11：Vert.x 与 Quarkus 两个模块合并为「Vert.x 与 Quarkus」（java-frameworks/，选读），文章分到 1_vertx/、2_quarkus/ 子目录
     '/vertx/0_overview': '/java-frameworks/0_overview',
     '/vertx/1_basics': '/java-frameworks/1_vertx/1_basics',

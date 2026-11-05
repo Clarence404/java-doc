@@ -277,7 +277,7 @@ gRPC 基于 HTTP/2 + Protobuf，`.proto` 文件即契约，自动生成多语言
 
 ## 五、Dubbo 3
 
-Dubbo 3 的 Triple 协议基于 HTTP/2、兼容 gRPC，同时保留高性能的 Dubbo 协议，自带注册发现（可用 Nacos）、负载均衡与服务治理，适合 Java 为主、调用量大、需要接口级治理的团队。Dubbo 的接入基于 Spring Boot 3.5，Boot 4 适配以官方发布为准。完整内容见 [Dubbo](/microservices/5_dubbo)。
+Dubbo 3 的 Triple 协议基于 HTTP/2、兼容 gRPC，同时保留高性能的 Dubbo 协议，自带注册发现（可用 Nacos）、负载均衡与服务治理，适合 Java 为主、调用量大、需要接口级治理的团队。Dubbo 的接入基于 Spring Boot 3.5，Boot 4 适配以官方发布为准。完整内容见 [Dubbo](/service-governance/8_dubbo)。
 
 ---
 

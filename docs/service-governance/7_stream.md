@@ -233,4 +233,4 @@ spring:
 - Spring Cloud Function：[https://docs.spring.io/spring-cloud-function/reference/](https://docs.spring.io/spring-cloud-function/reference/)
 - Kafka Binder：[https://docs.spring.io/spring-cloud-stream/reference/kafka/kafka-binder/usage.html](https://docs.spring.io/spring-cloud-stream/reference/kafka/kafka-binder/usage.html)
 
-> 返回：[微服务治理总览](./0_overview)
+> 下一篇：[Dubbo](./8_dubbo) —— 不用 Spring Cloud 时的另一条 SDK 路线：面向接口的 RPC 服务框架与 Triple 协议

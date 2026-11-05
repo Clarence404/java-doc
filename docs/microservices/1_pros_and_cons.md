@@ -1,12 +1,12 @@
 ---
-description: 微服务定义与原则、与 SOA 的区别、单体瓶颈、优势与代价、拆分信号、绞杀者迁移
+description: 微服务定义与原则、与 SOA 的区别、单体瓶颈、优势、挑战与应对
 ---
 
 # 微服务优势与挑战
 
 > 前置阅读：[微服务架构总览](./0_overview)
 
-微服务首先是一种**组织与交付方式**，其次才是技术架构：它用分布式系统的复杂度，换取团队独立交付、按需扩展和故障隔离的能力。本篇讲微服务与 SOA 的区别、从团队 / 业务 / 基础设施判断该不该拆，以及渐进迁移策略。
+微服务首先是一种**组织与交付方式**，其次才是技术架构：它用分布式系统的复杂度，换取团队独立交付、按需扩展和故障隔离的能力。本篇讲微服务的定义与原则、与 SOA 的区别，以及单体的瓶颈和微服务的收益与代价。
 
 ---
 
@@ -93,31 +93,9 @@ description: 微服务定义与原则、与 SOA 的区别、单体瓶颈、优�
 
 ---
 
-## 五、何时拆分
+## 五、何时拆、怎么迁
 
-拆分没有「多少人、多少行代码」的硬阈值，按 MonolithFirst 的思路先用单体跑通业务、看清边界，出现发布互相阻塞、迭代节奏差异大、扩展需求不同等信号时再拆。信号不够强时先做**模块化单体**，将来模块边界就是服务边界。判断信号、前提条件与模块化单体的落地见 [服务拆分 · 什么时候该拆、什么时候不该拆](./2_service_split#一、什么时候该拆、什么时候不该拆)。
-
----
-
-## 六、单体到微服务的迁移策略
-
-Chris Richardson 在「Refactoring a monolith into microservices」中总结了三种互补的策略：停止让单体继续变大、拆分前后端、抽取服务。核心原则是**渐进式迁移**，不做大爆炸式重写——他在文中引用 Martin Fowler 的说法：大爆炸式重写唯一能保证的，就是一场「大爆炸」。
-
-### 1、停止挖掘：新功能不再进单体
-
-单体已经是个坑，第一步是别再往下挖：新功能直接做成独立服务，单体与新服务之间通过网关路由和防腐层（Anti-Corruption Layer）协作，避免新服务被单体的领域模型污染。
-
-### 2、前后端分离
-
-把表现层与业务逻辑、数据访问层拆开，形成可独立部署的前端应用和后端 API。这一步往往能先把单体的发布耦合降下来，也为后续用网关切流打基础。
-
-### 3、抽取服务：绞杀者模式（Strangler Fig）
-
-绞杀者模式得名于绞杀榕：新服务像藤蔓一样沿着旧系统生长，逐步接管其功能，直到旧系统可以下线。
-
-![绞杀者模式：网关把流量逐步从单体切到新服务](../assets/microservices/strangler-fig.svg)
-
-网关先接管全部流量，再一次抽一个模块、把对应路由切到新服务，出问题时切回单体即可回滚，直到单体下线。先拆哪些模块、防腐层、数据迁移与灰度切流的完整步骤见 [服务拆分 · 拆分步骤](./2_service_split#五、拆分步骤)。
+收益与代价摆清楚之后，是否拆看信号而不是规模数字：没有明确信号时先做模块化单体，存量单体用绞杀者模式一次抽一个服务、每一步都能回退。判断信号、前提条件、拆分依据与迁移步骤统一见 [服务拆分](./2_service_split)。
 
 ---
 
@@ -126,14 +104,11 @@ Chris Richardson 在「Refactoring a monolith into microservices」中总结了�
 - 微服务是围绕业务能力、可独立部署、数据自治的小服务集合，本质是用分布式复杂度换取独立交付与独立扩展
 - 与 SOA 的核心区别是集成方式（ESB 智能管道 vs 智能端点、哑管道）与数据归属（共享库 vs 服务独占），粒度更细只是次要差异
 - 优势是独立部署、独立扩展、故障隔离、团队自治；代价是分布式复杂性、数据一致性、排障、运维与测试成本
-- 拆分看信号而不是人数：发布互相阻塞、节奏差异大、扩展需求不同时考虑拆；边界模糊、基础设施不足时先别拆
-- 迁移坚持渐进式：停止往单体加功能、前后端分离、用绞杀者模式逐个抽取服务，数据迁移单独规划
+- 拆不拆看信号而不是人数，存量迁移坚持渐进式，二者都在 [服务拆分](./2_service_split) 展开
 
 ## 参考资料
 
 - Microservices（James Lewis & Martin Fowler）：[https://martinfowler.com/articles/microservices.html](https://martinfowler.com/articles/microservices.html)
-- Refactoring a monolith into microservices（Chris Richardson）：[https://microservices.io/refactoring/](https://microservices.io/refactoring/)
-- StranglerFigApplication（Martin Fowler）：[https://martinfowler.com/bliki/StranglerFigApplication.html](https://martinfowler.com/bliki/StranglerFigApplication.html)
-- MonolithFirst（Martin Fowler）：[https://martinfowler.com/bliki/MonolithFirst.html](https://martinfowler.com/bliki/MonolithFirst.html)
+- Microservice Trade-Offs（Martin Fowler）：[https://martinfowler.com/articles/microservice-trade-offs.html](https://martinfowler.com/articles/microservice-trade-offs.html)
 
 > 下一篇：[服务拆分](./2_service_split) —— 按什么拆、拆多细、数据怎么分，以及用绞杀者模式一步步抽出服务。

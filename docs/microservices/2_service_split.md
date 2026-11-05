@@ -163,7 +163,7 @@ class ModularityTests {
 - **API 组合**：BFF 或查询服务并行调用各服务后在内存拼接，适合数据量小、要求实时的查询
 - **CQRS 读模型**：各服务发布领域事件，由专门的查询服务物化一张宽表（常放在 Elasticsearch），适合分页、排序、复杂过滤，代价是秒级延迟
 
-两者的适用边界见 [微服务设计模式](./3_patterns#三、数据管理模式)，读模型的投影实现见 [架构模式与风格](/architecture/1_arch_patterns#四、cqrs-命令查询职责分离)。
+两者与数据冗余的取舍见 [服务间通信与契约 · 跨服务查询](./5_communication#五、跨服务查询)，读模型的投影实现见 [架构模式与风格](/architecture/1_arch_patterns#四、cqrs-命令查询职责分离)。
 
 ### 4、跨服务一致性
 
@@ -173,7 +173,7 @@ class ModularityTests {
 
 ## 五、拆分步骤
 
-存量单体的拆分坚持渐进式：用绞杀者模式一次抽一个服务，每一步都可以回退。总体策略（停止往单体加功能、前后端分离、绞杀者）见 [微服务优势与挑战](./1_pros_and_cons#六、单体到微服务的迁移策略)，下面展开单个服务的抽取过程：
+存量单体的拆分坚持渐进式，不做大爆炸式重写。Chris Richardson 总结了三条互补的策略：**停止挖掘**（新功能直接做成独立服务，不再往单体里加）、**前后端分离**（先把表现层与后端 API 拆开，降低发布耦合）、**绞杀者模式**（网关接管流量，一次抽一个模块并切换路由，出问题切回单体）。下面展开绞杀者模式下单个服务的抽取过程：
 
 ![服务拆分迁移四阶段：网关接管、抽出新服务、迁移数据、切写并下线](../assets/microservices/split-migration-stages.svg)
 
@@ -264,15 +264,12 @@ spring:
 
 服务间接口就是服务的边界，需要像对外 API 一样管理：
 
-- **契约先行**：用 OpenAPI 或 `.proto` 描述接口，评审通过后再实现，规范见 [API 设计规范](/engineering/4_api_design_rule)
-- **消费者驱动契约测试**：调用方声明依赖的字段与行为，提供方在 CI 中验证，破坏调用方就构建失败，见 [契约测试](/testing/6_contract_test)
+- **契约先行、契约测试守边界**：用 OpenAPI 或 `.proto` 描述接口并在 CI 中验证，做法见 [服务间通信与契约 · 接口契约](./5_communication#三、接口契约)
 - **只暴露业务语义**：接口返回领域对象，不返回数据库实体；不提供「按任意条件查表」的通用接口，否则调用方会把它当成远程 SQL 用
 
 ### 2、版本演进
 
-- **默认向后兼容**：只加可选字段、不删字段、不改语义；调用方忽略不认识的字段（宽容读者）
-- **破坏性变更走新版本**：新旧版本并存一段时间，按调用量逐个迁移调用方后下线旧版本，见 [API 设计规范](/engineering/4_api_design_rule#八、版本管理)
-- **事件同样要版本化**：消息体加 schema 版本号，消费者兼容新旧两种格式后，生产者才切换
+默认向后兼容（只加可选字段、不删不改语义），破坏性变更走新版本并按「扩展 - 迁移 - 收缩」逐步下线旧版本，事件与 RPC 接口同样适用，规则与流程见 [服务间通信与契约 · 版本与兼容](./5_communication#四、版本与兼容)。
 
 ### 3、调用链深度
 
@@ -335,6 +332,7 @@ spring:
 ## 参考资料
 
 - Pattern: Decompose by subdomain（Chris Richardson）：[https://microservices.io/patterns/decomposition/decompose-by-subdomain.html](https://microservices.io/patterns/decomposition/decompose-by-subdomain.html)
+- Refactoring a monolith into microservices（Chris Richardson）：[https://microservices.io/refactoring/](https://microservices.io/refactoring/)
 - How to break a Monolith into Microservices（Zhamak Dehghani）：[https://martinfowler.com/articles/break-monolith-into-microservices.html](https://martinfowler.com/articles/break-monolith-into-microservices.html)
 - Conway's Law（Martin Fowler）：[https://martinfowler.com/bliki/ConwaysLaw.html](https://martinfowler.com/bliki/ConwaysLaw.html)
 - Spring Modulith Reference：[https://docs.spring.io/spring-modulith/reference/](https://docs.spring.io/spring-modulith/reference/)

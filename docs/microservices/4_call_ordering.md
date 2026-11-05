@@ -142,4 +142,4 @@ public class OrderStatusRepository {
 - Nginx upstream hash：[https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash)
 - Istio DestinationRule（consistentHash）：[https://istio.io/latest/docs/reference/config/networking/destination-rule/](https://istio.io/latest/docs/reference/config/networking/destination-rule/)
 
-> 下一篇：[Dubbo](./5_dubbo) —— 不用 Spring Cloud 时的另一条 SDK 路线：面向接口的 RPC 服务框架与 Triple 协议
+> 下一篇：[服务间通信与契约](./5_communication) —— 同步还是异步、事件驱动的用法、接口契约与版本兼容、跨服务查询

@@ -1,12 +1,12 @@
 ---
-description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务模式、分布式场景
+description: 拆分与演进、通信与 RPC、微服务模式、分布式场景、事件与契约
 ---
 
 # 微服务架构面试题解答
 
-> 题目清单见 [微服务架构面试题](/microservices/99_interview)，模块入口见 [微服务架构总览](/microservices/0_overview)；Nacos、网关、Feign、Sentinel、Seata 等组件题见 [微服务治理面试题解答](/interview/18_service_governance)，熔断限流策略见 [高可用面试题解答](/interview/21_high_avail)。
+> 题目清单见 [微服务架构面试题](/microservices/99_interview)，模块入口见 [微服务架构总览](/microservices/0_overview)；Nacos、网关、Feign、Sentinel、Seata、Dubbo、服务网格等落地题见 [微服务治理面试题解答](/interview/18_service_governance)，熔断限流策略见 [高可用面试题解答](/interview/21_high_avail)。
 >
-> 版本基线：Istio 1.30 / 1.31、Dubbo 3.3、Spring Cloud 2025.1.x。
+> 版本基线：Spring Boot 4.x、Spring Cloud 2025.1.x。
 
 ## 一、拆分与演进
 
@@ -61,7 +61,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 先抽：变化频繁、边界清楚、耦合少的模块
 - 数据迁移最难：先让新服务通过接口读写老数据，再双写或用 CDC（监听数据库变更日志）同步到新库，最后断开旧表
 
-→ 详见 [微服务优势与挑战](/microservices/1_pros_and_cons#六、单体到微服务的迁移策略)、[服务拆分](/microservices/2_service_split#五、拆分步骤)
+→ 详见 [服务拆分 · 拆分步骤](/microservices/2_service_split#五、拆分步骤)
 
 ### Q5：什么是模块化单体？为什么常建议先做模块化单体再拆？
 
@@ -151,7 +151,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - 同步要注意：每次调用都设超时，调用链别太深
 - 异步要注意：消息可靠投递、重复消费要幂等（同一消息处理多次结果一样）、最终一致
 
-→ 详见 [微服务设计模式](/microservices/3_patterns#_4、同步与异步通信)、[消息队列基础](/messaging/1_basics)
+→ 详见 [服务间通信与契约 · 同步还是异步](/microservices/5_communication#一、同步还是异步)、[消息队列基础](/messaging/1_basics)
 
 ### Q12：gRPC、Dubbo 与 HTTP（REST）分别适合什么场景？
 
@@ -179,134 +179,11 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 **常见坑**：失败自动重试对非幂等的写接口会造成重复下单、重复扣款，写操作要关掉重试或保证幂等。
 
-→ 详见 [Dubbo](/microservices/5_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[RPC 协议](/protocols/5_rpc_protocols)
+→ 详见 [Dubbo](/service-governance/8_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[RPC 协议](/protocols/5_rpc_protocols)
 
-## 三、服务网格与 Dubbo
+## 三、微服务模式
 
-### Q14：什么是服务网格？istiod 负责什么，控制面与数据面如何分工？
-
-**一句话**：服务网格把重试、熔断、加密、监控这些通信能力从业务代码里拿出来，交给和服务一起部署的代理去做。好处是和语言无关、改配置不用发版；代价是多一层代理和一套要运维的控制面。
-
-- 控制面 istiod：从 Kubernetes 读服务信息，把路由和安全规则翻译成代理配置下发；还当证书机构，给每个服务发证书
-- 数据面：真正转发流量的代理（Sidecar 模式是每个 Pod 一个 Envoy；Ambient 模式是 ztunnel + waypoint），负责路由、负载均衡、加密和监控数据
-- 早期的 Pilot、Citadel、Galley 已合并成 istiod，按功能理解即可
-
-→ 详见 [服务网格](/microservices/6_service_mesh#二、istio-架构)
-
-### Q15：Istio 的 Sidecar 模式与 Ambient 模式有什么区别？ztunnel 与 waypoint 各做什么？
-
-**一句话**：Sidecar 模式给每个 Pod 塞一个代理，什么都在 Pod 里做；Ambient 模式（1.24 起正式可用）业务 Pod 里没有代理，把工作拆给两类组件。
-
-- ztunnel：每个节点一个，负责四层的事——加密（mTLS）、身份、按身份授权
-- waypoint：可选，按命名空间或服务部署，负责七层的事——HTTP 路由、重试、按路径授权
-
-| 对比 | Sidecar | Ambient |
-|------|---------|---------|
-| 资源开销 | 随 Pod 数量增长 | 每节点一个 ztunnel，七层按需部署 |
-| 接入、升级 | 要重启业务 Pod | 打标签就接入，升级不重启业务 |
-| 七层能力 | 默认就有 | 部署 waypoint 后才有 |
-| 适合 | 每个服务都要完整治理 | 主要为了加密 / 零信任、想省资源 |
-
-→ 详见 [服务网格](/microservices/6_service_mesh#三、数据面-sidecar-与-ambient)
-
-### Q16：为什么 VirtualService 的路由规则顺序很重要？
-
-**一句话**：VirtualService 的路由规则从上往下匹配，第一条命中就生效。精确规则（比如按请求头去灰度版本）要写在前面，兜底规则放最后。
-
-- 写反了：不带 `match` 的兜底规则会接走所有请求，后面的灰度规则永远不生效
-- 对比：Kubernetes Gateway API（`HTTPRoute`）按规则的精确程度排优先级，带 Header 匹配的规则自动优先于不带的，不看书写顺序
-- Istio 推荐用 Gateway API 配入口网关和 Ambient waypoint 的路由，换过去就不用操心规则顺序
-
-→ 详见 [服务网格](/microservices/6_service_mesh#_1、virtualservice-虚拟服务)
-
-### Q17：Istio 如何实现 mTLS？SPIFFE 身份是什么？网格下的链路追踪是零侵入的吗？
-
-**一句话**：istiod 给每个服务发短期证书并自动更换，代理之间自动加密互认（mTLS，双方都验对方证书），业务代码不用改。
-
-- SPIFFE 身份：证书里写的服务身份，形如 `spiffe://cluster.local/ns/production/sa/order-service`，绑定的是 Kubernetes ServiceAccount 而不是 IP
-- 有了身份就能用 `AuthorizationPolicy` 规定「谁能调谁」
-- 平滑接入：先用 `PERMISSIVE`（明文和加密都收），全部接好后切 `STRICT`
-- 链路追踪不是完全零侵入：代理只看到单次请求，应用要把收到的追踪头转发到下游请求上；Spring Boot 接入 Micrometer Tracing 后自动处理
-
-→ 详见 [服务网格](/microservices/6_service_mesh#五、mtls-服务间加密)、[零信任架构](/security/9_zero_trust)
-
-### Q18：服务网格与 Spring Cloud 如何选？组合使用时要注意什么？
-
-**一句话**：纯 Java、要按业务参数做治理（比如按商品 ID 限流）选 Spring Cloud；多语言、全面上了 Kubernetes、有专门平台团队选 Istio。
-
-| 对比 | Spring Cloud | Istio |
-|------|-------------|-------|
-| 实现 | 依赖库，在业务进程里 | 进程外代理，业务无感 |
-| 性能 | 无额外转发 | 每次调用多过一层代理 |
-| 治理粒度 | 能到方法和业务参数 | 只认路径、请求头、身份 |
-| 运维门槛 | 低 | 高 |
-
-**常见坑**：一起用时同一能力两边都开，比如重试两边都配，重试次数会相乘。网格管加密和统一监控，SDK 管业务级治理。
-
-→ 详见 [服务网格](/microservices/6_service_mesh#七、service-mesh-vs-spring-cloud)
-
-### Q19：Dubbo 的注册中心宕机为什么不影响已建立的调用？什么是应用级服务发现？
-
-**一句话**：注册中心只是通讯录。消费方启动时把提供方地址缓存到本地，调用时直接和提供方长连接通信，不经过注册中心。所以它挂了，已有调用照常，只是感知不到新上线或下线的实例。
-
-- 应用级服务发现（Dubbo 3）：注册中心按「应用」登记实例，而不是按「每个接口」登记，注册和推送的数据量大大减少
-- 这样也和 Spring Cloud、Kubernetes 的「按应用 / 服务」模型对齐
-- 3.x 默认接口级和应用级都注册，兼容老消费方；全部升级后设 `dubbo.registry.register-mode=instance` 只留应用级
-
-→ 详见 [Dubbo](/microservices/5_dubbo#二、架构与调用流程)
-
-### Q20：Triple 协议与 dubbo 协议有什么区别？
-
-**一句话**：dubbo 协议是 TCP 上的私有协议，快但不好跨语言、过不了普通网关；Triple 是 Dubbo 3 推荐的协议，基于 HTTP、兼容 gRPC，curl 和浏览器都能直接调。
-
-| 对比 | dubbo 协议 | Triple |
-|------|-----------|--------|
-| 传输 | 私有 TCP | HTTP/1.1、HTTP/2、HTTP/3 |
-| 跨语言 / 网关 | 差 | 和 gRPC 互通，可放在 HTTP 网关后 |
-| 流式调用 | 不支持 | 支持 |
-
-**常见坑**：3.2 起默认严格检查序列化类，DTO 不实现 `Serializable` 会调用失败。
-
-→ 详见 [Dubbo](/microservices/5_dubbo#四、triple-协议)
-
-### Q21：Dubbo 默认的 failover 为什么对写操作是陷阱？
-
-**一句话**：默认的 `failover` 失败就换一台重试（默认再试 2 次）。但超时不等于失败，提供方可能已经执行成功、只是回得慢，重试就会重复扣款、重复下单。
-
-- 读接口：用默认 `failover` 没问题
-- 写接口、不幂等的接口：改成 `failfast`（失败立即报错，不重试），或者把幂等做好
-- 记日志这类旁路调用：`failsafe`（出错直接忽略）
-- 发通知这类：`failback`（失败后在后台重发）
-
-→ 详见 [Dubbo](/microservices/5_dubbo#_2、集群容错策略)、[幂等设计](/architecture/3_idempotence)
-
-### Q22：Dubbo SPI 与 Java SPI 有什么区别？`@Adaptive`、`@Activate` 做什么？
-
-**一句话**：Java 自带的 SPI（`ServiceLoader`）只能把所有实现全部加载出来遍历；Dubbo SPI 按名字取实现，用到哪个才创建哪个，还能自动注入依赖、自动套包装类。
-
-- `@Adaptive`：运行时根据调用参数里的配置，决定用哪个实现（比如按配置切换协议、负载均衡策略）
-- `@Activate`：按条件自动启用并排序，典型用法是过滤器链
-- Wrapper：自动包在实现外面的一层，统一加监听、过滤逻辑，类似 AOP
-- 协议、负载均衡、容错策略、过滤器、序列化都是通过 Dubbo SPI 装配的
-
-→ 详见 [Dubbo](/microservices/5_dubbo#六、spi-扩展机制)、[SPI 机制](/java/20_topic_spi)
-
-### Q23：Dubbo 和 Spring Cloud 怎么选？
-
-**一句话**：内部服务高频互调、看重性能、团队熟悉 Dubbo，选 Dubbo；对外接口多、跨语言、想跟紧 Spring Boot 新版本，选 Spring Cloud。也常混用：内部 Dubbo，对外 REST。
-
-| 对比 | Dubbo 3 | Spring Cloud |
-|------|---------|--------------|
-| 通信 | RPC 长连接 | HTTP |
-| 接口约定 | Java 接口 jar | HTTP 地址 + DTO |
-| 治理 | 框架自带 | 多个组件拼起来 |
-| Spring Boot 4 | 目前基于 Boot 3.5，以官方发布为准 | 已支持 |
-
-→ 详见 [Dubbo](/microservices/5_dubbo#八、dubbo-vs-spring-cloud-选型)
-
-## 四、微服务模式
-
-### Q24：BFF 是什么？和 API 网关有什么区别？
+### Q14：BFF 是什么？和 API 网关有什么区别？
 
 **一句话**：API 网关是所有客户端的统一大门，做鉴权、限流、路由这些通用的事；BFF（Backend for Frontend）是给某一类客户端专门做的接口层，比如 App 一个、Web 一个，负责合并请求、裁剪字段。
 
@@ -316,7 +193,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [微服务设计模式](/microservices/3_patterns#_2、bff-backend-for-frontend)
 
-### Q25：Database per Service 之后如何做跨服务查询？API Composition 还是 CQRS？
+### Q15：Database per Service 之后如何做跨服务查询？API Composition 还是 CQRS？
 
 **一句话**：简单查询、数据量小用 API Composition——同时调几个服务、在内存里拼结果；要跨服务分页、排序、复杂筛选就用 CQRS——专门维护一份给查询用的数据（比如 ES 宽表），靠事件异步更新。
 
@@ -324,41 +201,41 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 - CQRS：查询灵活，代价是读到的数据会有短暂延迟
 - 「独占数据」指的是归属权：同一个 MySQL 实例上分不同库、只授权给对应服务也可以；但禁止多个服务直接读写同一张表
 
-→ 详见 [微服务设计模式](/microservices/3_patterns#三、数据管理模式)、[架构模式与风格](/architecture/1_arch_patterns)
+→ 详见 [服务间通信与契约 · 跨服务查询](/microservices/5_communication#五、跨服务查询)、[微服务设计模式](/microservices/3_patterns#三、数据管理模式)、[架构模式与风格](/architecture/1_arch_patterns)
 
-### Q26：Outbox 模式如何保证「写库 + 发消息」的原子性？
+### Q16：Outbox 模式如何保证「写库 + 发消息」的原子性？
 
 **一句话**：在同一个本地事务里同时写业务表和一张「待发消息表」（outbox），事务提交两者就一起生效；再由单独的进程把待发消息发到 MQ，发成功就标记完成，失败就重试。
 
 → 完整答案见 [消息队列面试题解答](/interview/15_mq) Q20；正文详见 [微服务设计模式](/microservices/3_patterns#_5、outbox-事务发件箱)、[分布式事务](/distributed/4_transaction)
 
-### Q27：Saga 的编排式与协同式有什么区别？
+### Q17：Saga 的编排式与协同式有什么区别？
 
 **一句话**：编排式有一个「总指挥」统一调度，流程清楚好监控，适合步骤多、补偿复杂；协同式没有总指挥，各服务听事件自己往下走，适合步骤少。
 
 → 完整答案见 [分布式基础面试题解答](/interview/16_distributed) Q16；正文详见 [分布式事务](/distributed/4_transaction#四、saga)
 
-### Q28：消费者驱动契约测试解决什么问题？
+### Q18：消费者驱动契约测试解决什么问题？
 
 **一句话**：服务各自发布，提供方改了接口很容易把调用方搞坏；契约测试让调用方写下「我需要你返回什么」，提供方在 CI 里用它验证，一旦改坏就构建失败。
 
 → 完整答案见 [测试工程面试题解答](/interview/26_testing) Q11；正文详见 [微服务设计模式](/microservices/3_patterns#_4、消费者驱动契约测试-consumer-driven-contract)、[契约测试](/testing/6_contract_test)
 
-## 五、分布式场景
+## 四、分布式场景
 
-### Q29：微服务之间的分布式事务如何处理？
+### Q19：微服务之间的分布式事务如何处理？
 
 **一句话**：能不用分布式事务就不用；优先用最终一致方案（Outbox、事务消息、Saga、对账补偿），只有必须同步拿到一致结果的链路才用 TCC、Seata 这类方案。
 
 → 完整答案见 [分布式基础面试题解答](/interview/16_distributed) Q13；正文详见 [分布式事务](/distributed/4_transaction#九、方案选型)
 
-### Q30：微服务接口如何实现幂等？
+### Q20：微服务接口如何实现幂等？
 
 **一句话**：超时重试、MQ 重复投递、Dubbo 自动重试都会让同一个请求来好几次，所以写接口必须幂等；核心是给每次操作一个唯一标识，服务端按它去重。
 
 → 完整答案见 [系统架构面试题解答](/interview/23_architecture) Q18；正文详见 [幂等设计](/architecture/3_idempotence)
 
-### Q31：分布式接口请求的顺序性如何保证？
+### Q21：分布式接口请求的顺序性如何保证？
 
 **一句话**：先想办法让业务不依赖顺序；真要顺序，也只要求同一业务键（如订单号）内有序：同一个键路由到同一处、实例内串行执行，最后在数据层用版本号兜底。
 
@@ -371,7 +248,7 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 
 → 详见 [接口调用顺序性](/microservices/4_call_ordering)、[消息队列基础](/messaging/1_basics#五、顺序消息)
 
-### Q32：服务间如何传递认证信息与上下文（用户身份、灰度标记、traceId）？
+### Q22：服务间如何传递认证信息与上下文（用户身份、灰度标记、traceId）？
 
 **一句话**：都靠请求头一跳一跳往下传，每一跳都要转给下一跳，否则到第二跳就丢了。
 
@@ -382,3 +259,44 @@ description: 拆分与演进、通信与 RPC、服务网格、Dubbo、微服务�
 **常见坑**：请求上下文绑定在当前线程上，切到线程池或 `@Async` 后就拿不到了，要用 `TaskDecorator` 等方式手动带过去。
 
 → 详见 [API 网关](/service-governance/2_api_gateway#四、统一鉴权-网关作为-oauth2-资源服务器)、[流量治理](/service-governance/5_traffic_governance#_5、灰度标记透传)
+
+## 五、事件与契约
+
+### Q23：事件通知、事件携带状态转移、事件溯源有什么区别？
+
+**一句话**：区别在事件里放了什么。事件通知只说「出事了」（带个 ID），要详情得回头去查；携带状态转移把变化后的数据一起带上，下游自己存一份；事件溯源是把每次变化都存下来，状态靠重放算出来。
+
+| 用法 | 事件里有什么 | 代价 |
+|------|-------------|------|
+| 事件通知 | 类型 + 业务 ID | 订阅方多时回查流量大 |
+| 携带状态转移 | 变更后的数据快照 | 下游存副本，最终一致 |
+| 事件溯源 | 每一次状态变化 | 建模、版本演进复杂 |
+
+- 前两种是服务之间怎么集成，事件溯源是服务内部怎么存数据
+- 事件说的是已经发生的事（`OrderPaid`），不是命令；要对方必须做且要结果，就用同步调用或 Saga 编排
+
+→ 详见 [服务间通信与契约 · 事件驱动的用法与边界](/microservices/5_communication#二、事件驱动的用法与边界)
+
+### Q24：服务接口怎么演进才能不影响老调用方？
+
+**一句话**：默认只做兼容的改动——只加不删、新字段可选、不改语义；非改不可时走「扩展 - 迁移 - 收缩」：先让新旧并存，调用方逐个迁走，旧版本没人用了再删。
+
+- 宽容读者：调用方忽略不认识的字段和枚举值，提供方多返回一个字段不会出错
+- 默认值等于旧行为：新参数不传时，效果必须和改之前一样
+- protobuf 不复用字段编号，删字段用 `reserved` 占住编号
+- 发布顺序：接口提供方先发；事件则是消费者先升级到能读新格式，生产者再开始发
+
+**常见坑**：改了字段的含义或单位（分改成元）却没换字段名，老调用方不报错但算错数，最难发现。
+
+→ 详见 [服务间通信与契约 · 版本与兼容](/microservices/5_communication#四、版本与兼容)、[API 设计规范 · 版本管理](/engineering/4_api_design_rule#八、版本管理)
+
+### Q25：契约优先和代码优先有什么区别？怎么选？
+
+**一句话**：契约优先是先写接口描述文件（OpenAPI、`.proto`）评审，再生成代码；代码优先是先写代码，再从注解生成文档。跨团队、多语言、对外的接口用契约优先，单团队内部迭代快的接口可以代码优先。
+
+- 契约优先：接口先被讨论，双方可以并行开发；代价是规范要单独维护
+- 代码优先：上手快，文档和代码不会对不上；代价是接口容易被实现细节牵着走
+- 折中：代码优先，但把生成的规范提交入库，CI 里比对差异、拦截破坏性改动
+- 契约不只是字段，还要写清单位、错误码、是否幂等这些约定
+
+→ 详见 [服务间通信与契约 · 接口契约](/microservices/5_communication#三、接口契约)、[API 文档](/engineering/5_api_doc)
