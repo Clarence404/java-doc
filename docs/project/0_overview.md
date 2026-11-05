@@ -12,7 +12,7 @@
 
 | 设定 | 取值 |
 |------|------|
-| 仓库 | [`mall-evolution`](https://github.com/Clarence404/mall-evolution)，Maven 多模块，Java 包名 `io.github.clarence404.mall`；每篇文章对应一个章节 tag（如 `ch04-cache`），四个阶段各有 tag 与 [Release](https://github.com/Clarence404/mall-evolution/releases)（`stage-1-monolith`、`stage-2-cache-async`、`stage-3-split`、`stage-4-stability`）；每个章节 tag 上都跑了完整构建并发布 [测试报告](https://clarence404.github.io/mall-evolution/)，前九篇的「验证」一节列出关键结论与证明它的测试 |
+| 仓库 | [`mall-evolution`](https://github.com/Clarence404/mall-evolution)，Maven 多模块，Java 包名 `io.github.clarence404.mall`；每篇文章对应一个章节 tag（如 `ch04-cache`），四个阶段各有 tag 与 [Release](https://github.com/Clarence404/mall-evolution/releases)（`stage-1-monolith`、`stage-2-cache-async`、`stage-3-split`、`stage-4-stability`）；每个章节 tag 上都跑了完整构建并发布 [测试报告](https://clarence404.github.io/mall-evolution/)，前九篇的「验证」一节列出关键结论与证明它的测试；本地体验：`docker compose --profile demo up -d --build` 一条命令起全套服务，浏览器打开 `http://localhost:9000/` 进入演示控制台（详见仓库 README） |
 | 核心实体 | 用户、商品、库存、订单、支付单 |
 | 团队 | 起步 3 人全栈，阶段三扩到 20 人、4 个小组，阶段四新增 1 名专职 SRE |
 | 部署 | 起步两台云主机；阶段三起迁到 Kubernetes |

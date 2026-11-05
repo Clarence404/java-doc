@@ -261,7 +261,7 @@ RestClientHttpServiceGroupConfigurer remoteErrorConfigurer(JsonMapper jsonMapper
 
 `ProblemDetail` 的扩展字段靠 `@JsonAnySetter` 才能落进 `properties`，Boot 的 `JsonMapper` 默认没挂这个 mixin，直接反序列化会丢掉 `code`、`traceId`，`RemoteBizException` 也就拿不到 `STOCK_INSUFFICIENT`。
 
-为什么不选 OpenFeign、客户端组的注册与透传请求头，见 [服务通信 · 选型](/service-governance/3_communication#六、选型)；熔断、重试与限流放到「稳定性」一篇。
+为什么不选 OpenFeign、客户端组的注册与透传请求头，见 [服务通信 · 选型](/service-governance/3_communication#六、选型)；熔断、重试与限流放到「稳定性」一篇。本篇还没有引入熔断依赖，HTTP 接口客户端不会被 Spring Cloud 自动包一层熔断；到 [稳定性](./8_stability) 引入 Resilience4j 后要显式关掉这层包装，原因见那篇。
 
 ---
 

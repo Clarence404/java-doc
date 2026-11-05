@@ -103,6 +103,8 @@ spring:
       payment-service: {connect-timeout: 200ms, read-timeout: 500ms}
   cloud:
     circuitbreaker:
+      http-services:
+        enabled: false                            # 不让 Spring Cloud 给每个 HTTP 接口客户端再包一层熔断，见下方说明
       resilience4j:
         disable-time-limiter: true                # 超时只由 HTTP 客户端控制，避免 TimeLimiter 默认 1s 抢先触发
         enable-semaphore-default-bulkhead: true   # 这两项一起开：用信号量舱壁，调用留在 Tomcat 线程
@@ -131,6 +133,7 @@ resilience4j:
         max-wait-duration: 0
 ```
 
+- **关掉 HTTP 接口客户端的自动熔断包装**：引入 Resilience4j 后，Spring Cloud Commons 5 默认会给每个 HTTP 接口客户端再套一层熔断，没有 fallback 时把原异常包成 `NoFallbackAvailableException`，库存不足的 409 会变成 500，`inventory-reserve` 也识别不到读超时、永远不会打开。所以 `mall-app` 显式关掉这层包装，熔断只在 `InventoryReserveClient` 一处加
 - **`STOCK_INSUFFICIENT` 不计入失败**：`RemoteFailurePredicate` 只把超时、连接失败和 5xx 记为失败，4xx 是正常的业务结果，否则爆款卖完时熔断器会误以为库存服务坏了
 - **舱壁用信号量而不是线程池**：调用仍在 Tomcat 线程里执行，没有线程切换。Spring Cloud CircuitBreaker 在类路径上有 `resilience4j-bulkhead` 时默认用线程池舱壁，`max-concurrent-calls` 不生效，异常还会被包成 `ExecutionException`（`STOCK_INSUFFICIENT` 变成 500），所以要打开上面两个开关；配额按 [性能指标 · 指标之间的关系：Little 定律](/high-perf/1_metrics#四、指标之间的关系-little-定律) 估：大促时每个 Pod 约 310 QPS，P99 30ms 时稳态并发约 10，取 60 能容忍 P99 涨到约 200ms；再慢就拒绝，最多占住 60 个线程，其余 140 个线程留给商品详情和订单查询
 - **支付查询也显式配舱壁**：`payment-query` 不写的话会用 Resilience4j 的默认值 25，等于没想过；支付状态查询比预占少得多，给 20，满了直接降级为「支付状态确认中」，不和下单抢线程
@@ -399,6 +402,8 @@ public class PromoSimulation extends Simulation {
 
 | 结论 | 测试 | 类型 |
 |------|------|------|
+| 经真实 HTTP 调用，库存服务返回的 409 `STOCK_INSUFFICIENT` 原样透传，不被包成 500 | [`InventoryHttpH2Test#stockInsufficientFromInventoryIsPassedThroughAs409`](https://github.com/Clarence404/mall-evolution/blob/ch08-stability/mall-app/src/test/java/io/github/clarence404/mall/order/InventoryHttpH2Test.java) | H2 全流程 |
+| 库存服务慢于读超时，熔断打开后下单返回 503 与 `Retry-After`，请求不再发往库存服务 | [`InventoryHttpH2Test#reserveSlowerThanReadTimeoutOpensCircuitAndReturns503`](https://github.com/Clarence404/mall-evolution/blob/ch08-stability/mall-app/src/test/java/io/github/clarence404/mall/order/InventoryHttpH2Test.java) | H2 全流程 |
 | 熔断打开时下单快速返回 503 与 `Retry-After`，不调用 `release` | [`StabilityH2Test#openCircuitFailsFastWith503AndRetryAfterWithoutReleasing`](https://github.com/Clarence404/mall-evolution/blob/ch08-stability/mall-app/src/test/java/io/github/clarence404/mall/order/StabilityH2Test.java) | H2 全流程 |
 | `payment-query` 舱壁显式配置为 20，不用默认值 | [`StabilityH2Test#paymentQueryBulkheadIsConfiguredExplicitly`](https://github.com/Clarence404/mall-evolution/blob/ch08-stability/mall-app/src/test/java/io/github/clarence404/mall/order/StabilityH2Test.java) | H2 全流程 |
 | 同一 SKU 第 3 笔待支付订单被拒绝 | [`StabilityH2Test#thirdPendingOrderOfSameSkuIsRejected`](https://github.com/Clarence404/mall-evolution/blob/ch08-stability/mall-app/src/test/java/io/github/clarence404/mall/order/StabilityH2Test.java) | H2 全流程 |
