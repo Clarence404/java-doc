@@ -336,7 +336,7 @@ vhost __defaultVhost__ {
 ```
 
 - **源站集群**：多个源站时，边缘需要知道某路流在哪台源站上。SRS 6 及以前用源站之间互相查询（MESH）的方式；SRS 7 改成独立的 `srs-proxy`，由代理把推流和播放负载均衡到一组互不同步状态的源站，多个代理可以通过 Redis 共享状态，源站可以作为普通的无状态 Deployment 部署在 Kubernetes 上
-- **CDN**：HLS 是普通的 HTTP 文件，直接交给 CDN 缓存最省事（m3u8 设短缓存、切片设长缓存）；HTTP-FLV 需要 CDN 支持长连接流式回源，各家直播 CDN 都支持。也可以让源站用 `forward` 或 FFmpeg 把流转推到云厂商的直播 CDN，自建只做接入和录制。边缘缓存与 HTTP 缓存头见 [Cloudflare 边缘服务](/cloud-native/16_cloudflare)
+- **CDN**：HLS 是普通的 HTTP 文件，直接交给 CDN 缓存最省事（m3u8 设短缓存、切片设长缓存）；HTTP-FLV 需要 CDN 支持长连接流式回源，各家直播 CDN 都支持。也可以让源站用 `forward` 或 FFmpeg 把流转推到云厂商的直播 CDN，自建只做接入和录制。边缘缓存与 HTTP 缓存头见 [Cloudflare](/cloud-native/16_cloudflare)
 
 调度由业务服务做：观众进房间时，业务根据地域、运营商和各节点负载返回播放地址（例如 `https://hz-edge.play.example.com/live/room_1001.flv`）；主播开播时返回就近的推流接入点。直播系统整体的调度、连麦、弹幕设计见 [直播系统设计](./6_live_streaming)，弹幕消息通道见 [即时通讯](/scenario/16_im)。
 

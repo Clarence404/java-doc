@@ -2,7 +2,7 @@
 description: 边缘请求链路、代理模式、缓存规则、WAF 与限流、Workers、R2、Tunnel、Pages、与国内云配合
 ---
 
-# Cloudflare 边缘服务
+# Cloudflare
 
 > 前置阅读：[国内云平台](./14_cloud_domestic)、[国际云平台](./15_cloud_global)、[DNS](/protocols/4_dns)
 

@@ -70,7 +70,7 @@ Cloudflare 上的典型组合是 **Tunnel + Access**：
 
 应用侧**必须校验这个 JWT**，而不是"只要来自 Cloudflare 就信任"：用 `https://<team-name>.cloudflareaccess.com/cdn-cgi/access/certs` 上的公钥验签，校验 `iss` 为团队域名、`aud` 为该应用的 Application Audience（AUD）Tag。这样即使有人绕过 Tunnel 直连源站，也伪造不出合法断言。在 Spring Security 中可以用资源服务器的 JWT 校验能力实现，读取自定义请求头用 `HeaderBearerTokenResolver`；业务本身的会话与 CSRF 防护仍按 [常见漏洞与防护](./8_vulnerabilities) 的做法保留。
 
-Tunnel 的安装与入口规则配置见 [Cloudflare 边缘服务](/cloud-native/16_cloudflare)。
+Tunnel 的安装与入口规则配置见 [Cloudflare](/cloud-native/16_cloudflare)。
 
 ### 3、设备状态
 

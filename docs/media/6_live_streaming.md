@@ -55,7 +55,7 @@ Java 后端（直播业务服务）在控制面上的职责：
 | 任务编排 | 录制、转点播、截图审核等异步任务通过消息队列下发给 worker |
 | 互动 | 弹幕、礼物、在线人数、热门榜、连麦房间管理 |
 
-边界说明：RTMP / SRT / HLS / HTTP-FLV 的协议细节见 [流媒体协议](./2_protocols)；FFmpeg 转码命令与参数见 [FFmpeg 与转码](./3_ffmpeg)；SRS 的部署、集群与回调配置见 [流媒体服务器](./4_media_server)；录制文件转点播见 [点播与短视频](./7_vod)；CDN 的通用缓存与边缘能力见 [Cloudflare 边缘服务](/cloud-native/16_cloudflare)。
+边界说明：RTMP / SRT / HLS / HTTP-FLV 的协议细节见 [流媒体协议](./2_protocols)；FFmpeg 转码命令与参数见 [FFmpeg 与转码](./3_ffmpeg)；SRS 的部署、集群与回调配置见 [流媒体服务器](./4_media_server)；录制文件转点播见 [点播与短视频](./7_vod)；CDN 的通用缓存与边缘能力见 [Cloudflare](/cloud-native/16_cloudflare)。
 
 ---
 

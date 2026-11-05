@@ -185,4 +185,4 @@ Java 应用接入大模型的方式见 [AI](/ai/0_overview)。
 - Google Cloud Run functions：[https://cloud.google.com/functions/docs](https://cloud.google.com/functions/docs)
 - Google Cloud 与 AWS、Azure 产品对照：[https://cloud.google.com/docs/get-started/aws-azure-gcp-service-comparison](https://cloud.google.com/docs/get-started/aws-azure-gcp-service-comparison)
 
-> 下一篇：[Cloudflare 边缘服务](./16_cloudflare)
+> 下一篇：[Cloudflare](./16_cloudflare)

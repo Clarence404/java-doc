@@ -78,6 +78,6 @@ Java 后端常做的事：
 - 视频文件的分片上传、断点续传 → [大文件上传](/scenario/10_file_upload)；存储与预签名地址 → [对象存储](/architecture/5_object_storage)
 - 转码、截图、审核任务的异步投递 → [消息队列总览](/messaging/0_overview)
 - 推流 / 播放地址签名与防盗链 → [API 安全](/security/6_api_security)
-- CDN 与边缘加速 → [Cloudflare 边缘服务](/cloud-native/16_cloudflare)；接入层与流量调度 → [接入层架构](/high-con/1_access_layer)
+- CDN 与边缘加速 → [Cloudflare](/cloud-native/16_cloudflare)；接入层与流量调度 → [接入层架构](/high-con/1_access_layer)
 - 摄像头等设备的注册与管理 → [IoT 总览](/iot/0_overview)
 - 媒体服务的容器化部署 → [Kubernetes](/cloud-native/6_kubernetes)
