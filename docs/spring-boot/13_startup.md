@@ -272,11 +272,11 @@ class AppRuntimeHints implements RuntimeHintsRegistrar {
 }
 ```
 
-提示可以用 `RuntimeHintsPredicates` 写单元测试校验。第三方库的提示 Spring 不负责，由 GraalVM 的 reachability metadata 仓库或 tracing agent 补齐，见 [原生镜像与云原生部署 · 反射与资源登记](/quarkus/3_native#二、反射与资源登记)。
+提示可以用 `RuntimeHintsPredicates` 写单元测试校验。第三方库的提示 Spring 不负责，由 GraalVM 的 reachability metadata 仓库或 tracing agent 补齐，见 [原生镜像与云原生部署 · 反射与资源登记](/java-frameworks/2_quarkus/3_native#二、反射与资源登记)。
 
 ### 4、限制
 
-Native Image 和 JVM 上的 Spring AOT 共享"封闭世界"假设。classpath 构建期固定、提示漏登记只在走到该路径时才报错、构建慢、没有运行时 JIT、Java Agent 类工具不可照搬，这些通用限制见 [原生镜像与云原生部署 · 原生构建流程](/quarkus/3_native#一、原生构建流程)。Spring 特有的是：
+Native Image 和 JVM 上的 Spring AOT 共享"封闭世界"假设。classpath 构建期固定、提示漏登记只在走到该路径时才报错、构建慢、没有运行时 JIT、Java Agent 类工具不可照搬，这些通用限制见 [原生镜像与云原生部署 · 原生构建流程](/java-frameworks/2_quarkus/3_native#一、原生构建流程)。Spring 特有的是：
 
 - **Bean 定义不能在运行时改变**：`@Profile` 和按 profile 区分的配置受限；会决定 Bean 是否创建的属性（如 `@ConditionalOnProperty`、各种 `.enabled` 开关）在运行时改了不生效。需要"同一个包按环境开关组件"的应用要重新设计配置方式
 - **这一条在 JVM 上启用 AOT 代码（`spring.aot.enabled=true`）时同样成立**，不只是 Native 的问题

@@ -4,7 +4,7 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 
 # Quarkus 面试题解答
 
-> 题目清单见 [Quarkus 面试题](/quarkus/99_interview)；细节见 [Quarkus 总览](/quarkus/0_overview)。
+> 题目清单见 [Vert.x 与 Quarkus 面试题](/java-frameworks/99_interview)；Vert.x 的题目见 [Vert.x 面试题解答](/interview/10_vertx)，细节见 [Vert.x 与 Quarkus 总览](/java-frameworks/0_overview)。
 >
 > 版本基线：Quarkus 3.40 LTS（Quarkus 4 的变化单独说明）、JDK 21 / 25、Mandrel / GraalVM 25。
 
@@ -20,7 +20,7 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 - 代价一：Bean 图构建期就定了，未被注入的 Bean 默认移除，运行期动态注册基本行不通
 - 代价二：部分配置（如 `quarkus.datasource.db-kind`）构建期固化，运行时改了不生效，配置参考里带锁图标的就是
 
-→ 详见 [Quarkus 概览](/quarkus/1_basics#一、为什么启动快-构建期增强)
+→ 详见 [Quarkus 概览](/java-frameworks/2_quarkus/1_basics#一、为什么启动快-构建期增强)
 
 ### Q2：Quarkus 扩展和 Spring Boot Starter 有什么区别？没有扩展的库能用吗？
 
@@ -31,7 +31,7 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 - 版本统一由平台 BOM `quarkus-bom` 管，作用同 `spring-boot-dependencies`
 - 选型先查 code.quarkus.io 和 Quarkiverse（社区扩展仓库）有没有对应扩展；社区扩展版本号独立，升级 Quarkus 时要一起检查
 
-→ 详见 [Quarkus 概览](/quarkus/1_basics#二、扩展-extension)
+→ 详见 [Quarkus 概览](/java-frameworks/2_quarkus/1_basics#二、扩展-extension)
 
 ### Q3：ArC 和 Spring IoC 有什么区别？有哪些常见坑？
 
@@ -49,7 +49,7 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 
 **常见坑**：`@ApplicationScoped` 第一次调用才创建，要启动即初始化得监听 `StartupEvent` 或加 `@Startup`；只靠 `CDI.current().select(...)` 动态查找的 Bean 会被当作未使用移除，要加 `@Unremovable`。
 
-→ 详见 [Quarkus 概览](/quarkus/1_basics#_2、和-spring-ioc-的关键差异)
+→ 详见 [Quarkus 概览](/java-frameworks/2_quarkus/1_basics#_2、和-spring-ioc-的关键差异)
 
 ### Q4：Dev Mode、持续测试和 Dev Services 分别是什么？
 
@@ -62,7 +62,7 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 
 **常见坑**：CI Runner 没有 Docker 时 Dev Services 起不来，测试直接失败；要么给 Runner 配 Docker，要么在 CI Profile 里显式配外部服务地址。
 
-→ 详见 [Quarkus 概览](/quarkus/1_basics#五、dev-services)
+→ 详见 [Quarkus 概览](/java-frameworks/2_quarkus/1_basics#五、dev-services)
 
 ## 二、REST、Panache 与响应式
 
@@ -82,7 +82,7 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 - 普通 CRUD 用同步签名最省心；下游阻塞调用多、Worker 池常打满时用虚拟线程（最好 JDK 24+，解决 `synchronized` 钉住）
 - 虚拟线程不限并发，打到数据库的并发靠连接池上限或信号量兜住
 
-→ 详见 [REST 与数据访问](/quarkus/2_rest_data#_2、端点跑在哪个线程上)
+→ 详见 [REST 与数据访问](/java-frameworks/2_quarkus/2_rest_data#_2、端点跑在哪个线程上)
 
 ### Q6：Panache 的 Active Record 和 Repository 怎么选？`@Transactional` 和 Spring 有什么异同？
 
@@ -96,7 +96,7 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 
 **常见坑**：Quarkus Data（原 Panache Next）目前还是实验性扩展，生产暂不建议用。
 
-→ 详见 [REST 与数据访问](/quarkus/2_rest_data#四、hibernate-orm-with-panache)、[事务](/quarkus/2_rest_data#五、事务)
+→ 详见 [REST 与数据访问](/java-frameworks/2_quarkus/2_rest_data#四、hibernate-orm-with-panache)、[事务](/java-frameworks/2_quarkus/2_rest_data#五、事务)
 
 ### Q7：Mutiny 和 Reactor 有什么区别？有了虚拟线程还需要响应式吗？
 
@@ -107,7 +107,7 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 - 响应式的代价：异常栈不连续、调试难，而且要全链路非阻塞驱动
 - 虚拟线程的短板：没有原生背压、不擅长 SSE 这类无限流，并发要自己限
 
-→ 详见 [响应式与消息](/quarkus/4_reactive#一、mutiny-quarkus-的响应式-api)、[虚拟线程](/quarkus/4_reactive#四、虚拟线程-响应式之外的选择)
+→ 详见 [响应式与消息](/java-frameworks/2_quarkus/4_reactive#一、mutiny-quarkus-的响应式-api)、[虚拟线程](/java-frameworks/2_quarkus/4_reactive#四、虚拟线程-响应式之外的选择)
 
 ### Q8：Quarkus 消费 Kafka 怎么保证不丢不停？ack、commit、失败策略分别管什么？
 
@@ -119,7 +119,7 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 - 线程：`@Incoming` 默认在 I/O 线程，阻塞逻辑要加 `@Blocking` / `@Transactional` / `@RunOnVirtualThread`；吞吐不够加 `concurrency`，不要关顺序保证
 - 生产：`Emitter.send` 返回的 `CompletionStage` 要处理失败；「写库 + 发消息」一致性仍要 Outbox
 
-→ 详见 [响应式与消息](/quarkus/4_reactive#_3、确认-ack-与提交-commit)
+→ 详见 [响应式与消息](/java-frameworks/2_quarkus/4_reactive#_3、确认-ack-与提交-commit)
 
 ## 三、原生镜像、迁移与选型
 
@@ -134,7 +134,7 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 
 **常见坑**：这些问题 JVM 模式下完全不出现，必须跑原生集成测试（`./mvnw verify -Dnative`）才能发现；JSON 输出 `{}` 往往就是漏了反射登记。
 
-→ 详见 [原生镜像与云原生部署](/quarkus/3_native#二、反射与资源登记)、[构建期初始化](/quarkus/3_native#三、构建期初始化与运行期初始化)
+→ 详见 [原生镜像与云原生部署](/java-frameworks/2_quarkus/3_native#二、反射与资源登记)、[构建期初始化](/java-frameworks/2_quarkus/3_native#三、构建期初始化与运行期初始化)
 
 ### Q10：JVM 模式和原生模式怎么选？
 
@@ -151,7 +151,7 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 - 只想改善启动又不想背原生约束：JVM 模式 + AOT 缓存（JDK 25）
 - 务实路径：先 JVM 模式上线拿到构建期增强的大部分收益，再挑冷启动敏感的服务原生化；具体数字以自己的压测为准
 
-→ 详见 [原生镜像与云原生部署](/quarkus/3_native#六、jvm-模式还是原生模式)
+→ 详见 [原生镜像与云原生部署](/java-frameworks/2_quarkus/3_native#六、jvm-模式还是原生模式)
 
 ### Q11：从 Spring Boot 迁到 Quarkus 怎么做？Spring 兼容扩展能帮多少？
 
@@ -164,7 +164,7 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 
 **常见坑**：兼容扩展对不支持的注解属性静默不生效、也不报错，不要依赖它的边缘特性。
 
-→ 详见 [从 Spring Boot 迁移](/quarkus/5_from_spring#二、spring-兼容扩展)、[什么时候迁](/quarkus/5_from_spring#五、什么时候迁-什么时候不迁)
+→ 详见 [从 Spring Boot 迁移](/java-frameworks/2_quarkus/5_from_spring#二、spring-兼容扩展)、[什么时候迁](/java-frameworks/2_quarkus/5_from_spring#五、什么时候迁-什么时候不迁)
 
 ### Q12：Quarkus、Spring Boot、Micronaut、Helidon 怎么选？
 
@@ -181,4 +181,4 @@ description: 构建期增强、ArC、Dev Services、REST 线程模型、Panache�
 - Helidon 4 去掉了 Netty 响应式服务器，改成每请求一个虚拟线程、API 改为阻塞式
 - 只看启动时间选型是误区：对长期运行的服务影响有限，峰值吞吐、可观测性、生态更重要
 
-→ 详见 [其他 Java 框架](/quarkus/6_other_frameworks#五、选型对比)
+→ 详见 [其他 Java 框架](/java-frameworks/2_quarkus/6_other_frameworks#五、选型对比)

@@ -4,7 +4,7 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 
 # Vert.x 面试题解答
 
-> 题目清单见 [Vert.x 面试题](/vertx/99_interview)；细节见 [Vert.x 总览](/vertx/0_overview)。
+> 题目清单见 [Vert.x 与 Quarkus 面试题](/java-frameworks/99_interview)；Quarkus 的题目见 [Quarkus 面试题解答](/interview/11_quarkus)，细节见 [Vert.x 与 Quarkus 总览](/java-frameworks/0_overview)。
 >
 > 版本基线：Vert.x 5.2、JDK 21 / 25。
 
@@ -22,7 +22,7 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 
 **常见坑**：CRUD 为主的业务系统用 Spring Boot + 虚拟线程更合适；Vert.x 更适合网关、IoT 接入、实时推送这类连接密集的组件。
 
-→ 详见 [Vert.x 概览](/vertx/1_basics#四、与-webflux、netty、quarkus-对比)
+→ 详见 [Vert.x 概览](/java-frameworks/1_vertx/1_basics#四、与-webflux、netty、quarkus-对比)
 
 ### Q2：Vert.x 的线程模型是怎样的？什么是黄金法则？
 
@@ -33,7 +33,7 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 - 阻塞线程检查器：Event Loop 单次执行超过 2 秒（默认）告警 `has been blocked for`，只告警不打断
 - 生产建议把 Event Loop 阈值调到 100–200 ms，压测阶段就能暴露大部分隐性阻塞
 
-→ 详见 [Event Loop 与 Verticle](/vertx/2_core#_2、黄金法则-永远不要阻塞-event-loop)
+→ 详见 [Event Loop 与 Verticle](/java-frameworks/1_vertx/2_core#_2、黄金法则-永远不要阻塞-event-loop)
 
 ### Q3：三种 Verticle 有什么区别？阻塞代码应该放在哪里？
 
@@ -50,7 +50,7 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 
 **常见坑**：`executeBlocking` 默认 `ordered=true`，同一 Context 上串行执行，独立任务要传 `false`；`await()` 在 Event Loop 上调用会抛 `IllegalStateException`。
 
-→ 详见 [Event Loop 与 Verticle](/vertx/2_core#二、三种-verticle)
+→ 详见 [Event Loop 与 Verticle](/java-frameworks/1_vertx/2_core#二、三种-verticle)
 
 ### Q4：Vert.x 的 Future 怎么组合？错误处理有哪些坑？
 
@@ -63,7 +63,7 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 
 **常见坑**：在 `map` 里做 IO 会得到 `Future<Future<T>>`；HTTP 场景统一在链尾 `.onFailure(ctx::fail)`。
 
-→ 详见 [Event Loop 与 Verticle](/vertx/2_core#四、future-与-promise)
+→ 详见 [Event Loop 与 Verticle](/java-frameworks/1_vertx/2_core#四、future-与-promise)
 
 ## 二、Event Bus 与 Web
 
@@ -79,7 +79,7 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 
 **常见坑**：拦截器忘记调用 `next()`，消息会静默消失。
 
-→ 详见 [Event Bus](/vertx/3_eventbus#二、三种通信模式)
+→ 详见 [Event Bus](/java-frameworks/1_vertx/3_eventbus#二、三种通信模式)
 
 ### Q6：Event Bus 的投递语义是什么？什么时候必须换成消息队列？
 
@@ -95,7 +95,7 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 | 进程内解耦、节点间低延迟调用 | 合适 | 过重 |
 | 消息不能丢、回放、削峰 | 不合适 | 合适 |
 
-→ 详见 [Event Bus](/vertx/3_eventbus#五、投递语义)
+→ 详见 [Event Bus](/java-frameworks/1_vertx/3_eventbus#五、投递语义)
 
 ### Q7：Vert.x Web 的 Handler 链是怎么工作的？为什么请求会一直挂着？
 
@@ -108,7 +108,7 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 
 **常见坑**：异步回调里抛的异常不会进 `failureHandler`，既没响应也没日志，Future 链必须显式 `.onFailure(ctx::fail)`，再配一个 `TimeoutHandler` 兜底。
 
-→ 详见 [Vert.x Web 与 HTTP 客户端](/vertx/4_web#一、router-与-handler-链)
+→ 详见 [Vert.x Web 与 HTTP 客户端](/java-frameworks/1_vertx/4_web#一、router-与-handler-链)
 
 ### Q8：WebClient 调用下游有哪些坑？
 
@@ -120,7 +120,7 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 - `timeout` 同时设置连接超时和空闲超时；熔断用 `CircuitBreaker`，重试只用于幂等接口
 - 客户端负载均衡支持轮询、最少请求、一致性哈希等，默认只用 DNS 解析出的第一个 IP
 
-→ 详见 [Vert.x Web 与 HTTP 客户端](/vertx/4_web#六、webclient)
+→ 详见 [Vert.x Web 与 HTTP 客户端](/java-frameworks/1_vertx/4_web#六、webclient)
 
 ## 三、数据访问、集群与生产
 
@@ -136,7 +136,7 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 
 **常见坑**：16 个实例各建一个 `maxSize=20` 的池，单机 320 个连接，扩到 10 台直接打满数据库。
 
-→ 详见 [响应式数据访问](/vertx/5_data#二、pool-api)
+→ 详见 [响应式数据访问](/java-frameworks/1_vertx/5_data#二、pool-api)
 
 ### Q10：响应式客户端的事务怎么写？Kafka 消费怎么保证不丢？
 
@@ -149,7 +149,7 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 
 **常见坑**：响应式客户端没有 Spring 那样的声明式事务和传播行为，手动 `begin` 后漏掉 `close()` 会泄漏连接。
 
-→ 详见 [响应式数据访问](/vertx/5_data#四、事务)、[Kafka 客户端](/vertx/5_data#六、kafka-客户端)
+→ 详见 [响应式数据访问](/java-frameworks/1_vertx/5_data#四、事务)、[Kafka 客户端](/java-frameworks/1_vertx/5_data#六、kafka-客户端)
 
 ### Q11：Vert.x 集群是怎么组成的？在 Kubernetes 上要注意什么？
 
@@ -161,7 +161,7 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 - consumer 集群注册要等 `completion()` 完成再接流量，否则发布后偶发 `NO_HANDLERS`
 - 要不要上集群：服务间调用优先 HTTP / gRPC，集群 Event Bus 适合节点间广播（如 WebSocket 按用户推送）
 
-→ 详见 [集群与生产实践](/vertx/6_production#一、集群)
+→ 详见 [集群与生产实践](/java-frameworks/1_vertx/6_production#一、集群)
 
 ### Q12：Vert.x 服务上生产要做哪些事？线上最常见的问题有哪些？
 
@@ -178,4 +178,4 @@ description: 黄金法则、三种 Verticle、Future、Event Bus 语义、Vert.x
 | 请求挂起没日志 | Future 链没处理失败 |
 | 下游变慢后 OOM | 连接池 / WebClient 等待队列无界 |
 
-→ 详见 [集群与生产实践](/vertx/6_production#七、常见坑)
+→ 详见 [集群与生产实践](/java-frameworks/1_vertx/6_production#七、常见坑)

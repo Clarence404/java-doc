@@ -82,7 +82,7 @@ public Uni<String> legacySign(byte[] payload) {
 
 ### 1、模型：通道（Channel）
 
-![SmallRye Reactive Messaging 的 Kafka 消费链路](../assets/quarkus/quarkus-kafka-flow.svg)
+![SmallRye Reactive Messaging 的 Kafka 消费链路](../../assets/java-frameworks/quarkus-kafka-flow.svg)
 
 SmallRye Reactive Messaging 实现了 MicroProfile Reactive Messaging 规范，核心是**通道**：
 
@@ -265,7 +265,7 @@ public class InvoiceFacade {
 - 默认是**进程内**总线，不持久化：进程重启、消费者异常，消息就丢了
 - 适合：把阻塞工作从 I/O 线程卸载出去、应用内模块解耦、本地事件通知
 - 不适合：跨服务通信、需要可靠投递或重放的业务事件——这些应该走 Kafka 等 MQ
-- Vert.x 支持集群模式的事件总线（见 [Vert.x 概览](/vertx/1_basics)），但在 Quarkus 业务系统中很少使用
+- Vert.x 支持集群模式的事件总线（见 [Vert.x 概览](/java-frameworks/1_vertx/1_basics)），但在 Quarkus 业务系统中很少使用
 
 ---
 

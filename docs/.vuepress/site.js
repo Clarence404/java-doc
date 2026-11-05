@@ -13,7 +13,7 @@
 //   nav      导航栏短名，可选，不写则用 name
 //   dir      docs/ 下的目录名
 //   desc     首页星表中的一行简介
-//   stub     首页「编写中」徽标文字，可选
+//   stub     首页模块名旁的徽标文字（如「编写中」「选读」），可选
 //   sidebar  按起始编号分组的侧边栏，可选：[{text, from}]，编号 ≥ from 的文章归入该组（0_overview 与 90 号以后的附录、99_interview 不分组）
 //   interview 本模块 99_interview 题单的答案页（docs/interview/ 下的文件名），用于面试题解导航表的「对应题目清单」列；
 //            题单页本身写 <InterviewList page="15_mq" />，由答案页自动生成（一页对应多个模块时加 groups="1-10"）
@@ -69,7 +69,7 @@ export const GROUPS = [
         ],
     },
     {
-        name: '框架生态', tagline: 'Spring 全家桶、网络与响应式框架', modules: [
+        name: '框架生态', tagline: 'Spring 全家桶、网络框架，以及选读的 Vert.x 与 Quarkus', modules: [
             {
                 name: 'Spring', dir: 'spring', interview: ['7_spring'],
                 desc: 'IoC / AOP / 事务 / MVC / WebFlux / Cache / Retry / 事件 / Security / Batch 与 Integration',
@@ -92,8 +92,11 @@ export const GROUPS = [
                 ],
             },
             {name: 'Netty', dir: 'netty', interview: ['9_netty'], desc: 'IO 模型 / Reactor / Channel 与 Pipeline / ByteBuf / 粘包拆包与私有协议 / 心跳 / WebSocket / SSE / 生产调优'},
-            {name: 'Vert.x', dir: 'vertx', interview: ['10_vertx'], desc: 'Event Loop / Verticle / Event Bus / Web / 响应式数据访问 / 集群'},
-            {name: 'Quarkus', dir: 'quarkus', interview: ['11_quarkus'], desc: '构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / Spring 迁移 / 其他框架'},
+            {
+                name: 'Vert.x 与 Quarkus', dir: 'java-frameworks', interview: ['10_vertx', '11_quarkus'],
+                desc: 'Spring 体系之外的选型参考：Event Loop / Event Bus / 响应式数据访问 / 构建期增强 / 原生镜像 / Spring 迁移 / 其他框架', stub: '选读',
+                subdirs: {'1_vertx': 'Vert.x', '2_quarkus': 'Quarkus'},
+            },
         ],
     },
     {
@@ -341,6 +344,23 @@ export const REDIRECTS = {
     '/microservices/20_dubbo': '/microservices/5_dubbo',
     '/microservices/21_service_mesh': '/microservices/6_service_mesh',
     '/interview/18_spring_cloud': '/interview/18_service_governance',
+    // 2026-11：Vert.x 与 Quarkus 两个模块合并为「Vert.x 与 Quarkus」（java-frameworks/，选读），文章分到 1_vertx/、2_quarkus/ 子目录
+    '/vertx/0_overview': '/java-frameworks/0_overview',
+    '/vertx/1_basics': '/java-frameworks/1_vertx/1_basics',
+    '/vertx/2_core': '/java-frameworks/1_vertx/2_core',
+    '/vertx/3_eventbus': '/java-frameworks/1_vertx/3_eventbus',
+    '/vertx/4_web': '/java-frameworks/1_vertx/4_web',
+    '/vertx/5_data': '/java-frameworks/1_vertx/5_data',
+    '/vertx/6_production': '/java-frameworks/1_vertx/6_production',
+    '/vertx/99_interview': '/java-frameworks/99_interview',
+    '/quarkus/0_overview': '/java-frameworks/0_overview',
+    '/quarkus/1_basics': '/java-frameworks/2_quarkus/1_basics',
+    '/quarkus/2_rest_data': '/java-frameworks/2_quarkus/2_rest_data',
+    '/quarkus/3_native': '/java-frameworks/2_quarkus/3_native',
+    '/quarkus/4_reactive': '/java-frameworks/2_quarkus/4_reactive',
+    '/quarkus/5_from_spring': '/java-frameworks/2_quarkus/5_from_spring',
+    '/quarkus/6_other_frameworks': '/java-frameworks/2_quarkus/6_other_frameworks',
+    '/quarkus/99_interview': '/java-frameworks/99_interview',
 };
 
 // 学习路线（interview/91_routes 页的 <LearningRoutes />）：按目标跨模块挑文章，标题与简介自动取文章的 H1 与 description

@@ -45,7 +45,7 @@ Eclipse Vert.x 是 JVM 上的事件驱动、非阻塞工具包，在 Netty 之�
 
 ### 3、技术栈分层
 
-![Vert.x 技术栈分层](../assets/vertx/vertx-stack.svg)
+![Vert.x 技术栈分层](../../assets/java-frameworks/vertx-stack.svg)
 
 - **Netty 层**：Vert.x Core 的网络 IO 全部由 Netty 承担，包括 NIO / epoll / kqueue / io_uring 传输。Netty 的 Reactor、Pipeline、ByteBuf 原理见 [Netty 总览](/netty/0_overview)，这里不再展开。
 - **Vert.x Core**：在 Netty 之上加了一层「执行上下文（Context）」的抽象，把网络事件、定时器、Event Bus 消息、异步结果的回调统一调度到正确的线程上，并提供 HTTP/1.x、HTTP/2、HTTP/3、TCP、UDP、DNS、文件系统等 API。
@@ -174,7 +174,7 @@ public class HttpVerticle extends VerticleBase {
 | 现状 | 建议 |
 |------|------|
 | 已是 Spring 体系，需要高并发 | Spring Boot + 虚拟线程优先，确有需要再上 WebFlux |
-| 新建云原生微服务，看重启动与镜像体积 | Quarkus（它已经替你用好了 Vert.x），见 [Quarkus 总览](/quarkus/0_overview) |
+| 新建云原生微服务，看重启动与镜像体积 | Quarkus（它已经替你用好了 Vert.x），见 [Quarkus 概览](../2_quarkus/1_basics) |
 | 网关、推送、IoT 接入等基础设施组件 | Vert.x |
 | 私有二进制协议、中间件开发 | Netty |
 

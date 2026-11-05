@@ -22,7 +22,7 @@ description: 集群管理器、配置、Micrometer 与链路、健康检查、�
 | 共享数据 | 集群范围的 `AsyncMap`、分布式锁 `getLock`、计数器 `getCounter` |
 | 成员管理 | 节点加入、离开、故障检测，订阅表随之更新 |
 
-![Vert.x 集群架构](../assets/vertx/cluster-arch.svg)
+![Vert.x 集群架构](../../assets/java-frameworks/cluster-arch.svg)
 
 Cluster Manager 只负责**成员发现、订阅表和共享数据**，Event Bus 消息本身走节点之间的 TCP 直连。官方提供的实现：
 
@@ -333,4 +333,4 @@ public static void main(String[] args) {
 - Vert.x JUnit 5：[https://vertx.io/docs/vertx-junit5/java/](https://vertx.io/docs/vertx-junit5/java/)
 - Vert.x Application Launcher（Preview）：[https://vertx.io/docs/vertx-launcher-application/java/](https://vertx.io/docs/vertx-launcher-application/java/)
 
-> 返回：[Vert.x 总览](./0_overview)
+> 下一篇：[Quarkus 概览](../2_quarkus/1_basics) —— 把扫描与装配挪到构建期的云原生框架：扩展、ArC 依赖注入、Dev Services 与配置，它的 HTTP 层就跑在 Vert.x 之上。

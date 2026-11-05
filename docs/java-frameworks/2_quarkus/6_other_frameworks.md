@@ -198,7 +198,7 @@ Javalin 是一个**极简的 Web 框架**，而不是全栈框架：只提供路
 | 最低 JDK | 4.x：17 | 3.x：17；4.x：21 | 5.x：25 | 4.x：21；27：27 | 8 | 5.x：11（虚拟线程需 21） |
 | 典型场景 | 绝大多数业务系统 | 云原生微服务、Serverless、K8s 高密度部署 | Serverless、函数、CLI、类 Spring 轻量服务 | Oracle 技术栈、MicroProfile、纯虚拟线程模型 | 国产化项目、轻量服务、Java 8 存量系统 | 网关、长连接、高并发 I/O 组件、底层平台 |
 
-Vert.x 的定位与模型见 [Vert.x 概览](/vertx/1_basics)。
+Vert.x 的定位与模型见 [Vert.x 概览](/java-frameworks/1_vertx/1_basics)。
 
 ### 2、怎么选
 
@@ -236,4 +236,4 @@ Vert.x 的定位与模型见 [Vert.x 概览](/vertx/1_basics)。
 - Solon GitHub：[https://github.com/opensolon/solon](https://github.com/opensolon/solon)
 - Javalin 发布记录：[https://github.com/javalin/javalin/releases](https://github.com/javalin/javalin/releases)
 
-> 返回：[Quarkus 总览](./0_overview)
+> 返回：[Vert.x 与 Quarkus 总览](../0_overview)

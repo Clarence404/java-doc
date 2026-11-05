@@ -52,7 +52,7 @@ consumer 的 Handler 运行在**注册它的 Verticle 的 Context** 上，所以
 
 ## 二、三种通信模式
 
-![Event Bus 三种通信模式](../assets/vertx/eventbus-patterns.svg)
+![Event Bus 三种通信模式](../../assets/java-frameworks/eventbus-patterns.svg)
 
 ### 1、send：点对点
 

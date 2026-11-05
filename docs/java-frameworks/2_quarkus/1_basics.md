@@ -4,7 +4,7 @@ description: 构建期增强、扩展、ArC 依赖注入、Dev Mode、Dev Servic
 
 # Quarkus 概览
 
-> 前置阅读：[启动流程与自动配置](/spring-boot/1_spring_boot)、[Vert.x 概览](/vertx/1_basics)
+> 前置阅读：[启动流程与自动配置](/spring-boot/1_spring_boot)、[Vert.x 概览](/java-frameworks/1_vertx/1_basics)
 
 Quarkus 是 Red Hat 主导的 Java 框架，把运行期的扫描与装配挪到构建期，因此启动快、内存省。本篇讲扩展、ArC 依赖注入、开发模式与 Dev Services、配置体系和版本线。
 
@@ -25,7 +25,7 @@ Quarkus 是 Red Hat 主导的 Java 框架，把运行期的扫描与装配挪到
 
 ### 2、Quarkus 的做法
 
-![Quarkus 构建期增强流程](../assets/quarkus/quarkus-build-time.svg)
+![Quarkus 构建期增强流程](../../assets/java-frameworks/quarkus-build-time.svg)
 
 Quarkus 把构建拆成两个阶段：普通的 `javac` 编译之后，还有一个**增强（Augmentation）**阶段。每个扩展分为两个模块：
 
@@ -279,7 +279,7 @@ Quarkus 的 HTTP 层、事件总线、响应式客户端都跑在 Vert.x 之上�
 - 响应式 API 用 Mutiny 包装 Vert.x（`io.vertx.mutiny.*`），见 [响应式与消息](./4_reactive)
 - 可以直接注入 `io.vertx.mutiny.core.Vertx` 使用 Vert.x 原生能力
 
-所以「Quarkus 是 Vert.x 之上的全栈框架」这个理解大体成立：Vert.x 提供事件循环与非阻塞 I/O，Quarkus 提供 DI、配置、ORM、构建期优化和开发体验。Vert.x 本身的模型见 [Vert.x 概览](/vertx/1_basics)。
+所以「Quarkus 是 Vert.x 之上的全栈框架」这个理解大体成立：Vert.x 提供事件循环与非阻塞 I/O，Quarkus 提供 DI、配置、ORM、构建期优化和开发体验。Vert.x 本身的模型见 [Vert.x 概览](/java-frameworks/1_vertx/1_basics)。
 
 ### 3、标准化取向
 

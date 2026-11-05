@@ -18,7 +18,7 @@ Quarkus REST（原名 RESTEasy Reactive）是 Quarkus 默认的 Jakarta REST 实
 
 ### 2、端点跑在哪个线程上
 
-![Quarkus REST 端点的执行线程选择](../assets/quarkus/quarkus-rest-threads.svg)
+![Quarkus REST 端点的执行线程选择](../../assets/java-frameworks/quarkus-rest-threads.svg)
 
 请求先由 Vert.x 事件循环（I/O 线程）接收，Quarkus REST **在构建期根据方法签名决定**后续在哪个线程执行：
 

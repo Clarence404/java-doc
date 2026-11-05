@@ -16,7 +16,7 @@ Vert.x 的核心法则是不阻塞 Event Loop。本篇讲三种 Verticle 的取�
 
 Event Loop 是一个循环处理事件的线程：网络数据到达、定时器到期、Event Bus 消息投递、异步操作完成，都会变成一个任务排进某个 Event Loop 的队列，由它依次执行对应的 Handler。Node.js 只有一个 Event Loop，Vert.x 则在每个 `Vertx` 实例里放了**多个 Event Loop**，官方称之为 **Multi-Reactor** 模式：
 
-![Vert.x 多 Reactor 线程模型](../assets/vertx/multi-reactor.svg)
+![Vert.x 多 Reactor 线程模型](../../assets/java-frameworks/multi-reactor.svg)
 
 | 线程池 | 默认大小 | 用途 | 配置 |
 |--------|----------|------|------|

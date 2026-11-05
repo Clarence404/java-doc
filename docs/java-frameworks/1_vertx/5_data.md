@@ -16,7 +16,7 @@ Vert.x 5 提供响应式 SQL、Redis、Kafka 客户端，避免在 Event Loop �
 
 JDBC 是同步 API：`executeQuery` 返回之前，调用线程一直阻塞在 socket 读上。放在 Event Loop 上执行，一次 50 ms 的查询就会让该线程上的其他所有请求等 50 ms。把 JDBC 包进 `executeBlocking` 能解决阻塞，但吞吐上限就变成了 Worker 池大小——又回到了「一个请求一个线程」的模型。
 
-![JDBC 阻塞模型 vs Vert.x 响应式 SQL 客户端](../assets/vertx/sql-pool.svg)
+![JDBC 阻塞模型 vs Vert.x 响应式 SQL 客户端](../../assets/java-frameworks/sql-pool.svg)
 
 Vert.x 的 SQL 客户端**自己实现了数据库的网络协议**（PostgreSQL、MySQL、SQL Server、Oracle、DB2），直接跑在 Netty 上：发出查询后立即返回，结果到达时在原 Context 上回调。少量 Event Loop 线程就能驱动大量并发查询，同一个连接上还能流水线发送多条语句。
 

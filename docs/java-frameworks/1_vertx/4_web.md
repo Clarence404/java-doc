@@ -16,7 +16,7 @@ Vert.x Web 用路由与 Handler 链搭建 REST 服务。本篇讲路由组织、
 
 Vert.x Core 的 `HttpServer` 只给一个 `requestHandler`，所有请求都进同一个回调。Vert.x Web 的 `Router` 把它变成**按顺序匹配的 Route 列表**，每个 Route 挂一个或多个 Handler，Handler 之间通过 `RoutingContext` 传递数据，调用 `ctx.next()` 进入下一个匹配的 Handler：
 
-![Vert.x Web 请求处理链](../assets/vertx/web-handler-chain.svg)
+![Vert.x Web 请求处理链](../../assets/java-frameworks/web-handler-chain.svg)
 
 ```java
 import io.vertx.core.Future;

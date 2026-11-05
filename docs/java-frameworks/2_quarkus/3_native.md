@@ -14,7 +14,7 @@ Quarkus 可以借助 GraalVM / Mandrel 构建原生镜像，并一键生成容�
 
 ### 1、为什么 Quarkus 做原生更顺
 
-![Quarkus 原生镜像构建流水线](../assets/quarkus/quarkus-native-build.svg)
+![Quarkus 原生镜像构建流水线](../../assets/java-frameworks/quarkus-native-build.svg)
 
 GraalVM Native Image 在构建期从 `main` 入口做静态（可达性）分析，只把可达的代码 AOT 编译成机器码，连同构建期初始化好的镜像堆一起写进一个原生可执行文件：启动从秒级降到毫秒级、常驻内存大幅降低，代价是运行时没有 JIT（峰值吞吐见第六节）、classpath 在构建期固定（不能运行时加 JAR、动态加载类或生成字节码）、依赖 Java Agent 做字节码增强的工具（部分 APM 探针、Arthas 等）无法照搬。
 

@@ -99,7 +99,7 @@ Quarkus 提供了一组 Spring API 兼容扩展，让部分 Spring 注解可以�
 
 ## 三、迁移步骤
 
-![从 Spring Boot 迁移到 Quarkus 的推荐步骤](../assets/quarkus/quarkus-migration-steps.svg)
+![从 Spring Boot 迁移到 Quarkus 的推荐步骤](../../assets/java-frameworks/quarkus-migration-steps.svg)
 
 ### 1、评估
 

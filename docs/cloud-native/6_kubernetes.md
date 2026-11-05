@@ -552,7 +552,7 @@ kubectl -n demo run curl --rm -it --restart=Never --image=curlimages/curl:8.16.0
   curl -s http://order-service/readyz
 ```
 
-多环境的参数化（镜像版本、副本数、资源规格随环境变化）不建议复制多份 YAML，用 Helm 模板化打包见 [Helm](./8_helm)，用 Git 仓库驱动自动同步见 [Argo CD](./9_argocd)。Quarkus 等框架也可以在构建时生成清单，见 [原生镜像与云原生部署](/quarkus/3_native)。
+多环境的参数化（镜像版本、副本数、资源规格随环境变化）不建议复制多份 YAML，用 Helm 模板化打包见 [Helm](./8_helm)，用 Git 仓库驱动自动同步见 [Argo CD](./9_argocd)。Quarkus 等框架也可以在构建时生成清单，见 [原生镜像与云原生部署](/java-frameworks/2_quarkus/3_native)。
 
 ---
 
