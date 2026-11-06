@@ -273,4 +273,4 @@ spring:
 - RFC 9457 · Problem Details for HTTP APIs：[https://www.rfc-editor.org/rfc/rfc9457](https://www.rfc-editor.org/rfc/rfc9457)
 - Reactor Flux#timeout：[https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html#timeout-java.time.Duration-](https://projectreactor.io/docs/core/release/api/reactor/core/publisher/Flux.html#timeout-java.time.Duration-)
 
-> 返回：[AI 总览](../0_overview)
+> 下一篇：[Prompt 与结构化输出](./2_prompt_structured)

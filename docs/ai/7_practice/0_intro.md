@@ -59,7 +59,7 @@ git diff ch01-done -- src/main       # 卡住了再对照参考答案
 | 章节 | 做什么 | 对应原理文章 |
 |------|--------|-------------|
 | 1 [接入模型与流式对话](./1_model_streaming) | ChatClient + 系统提示词，阻塞与 SSE 流式接口，超时与友好报错，按 profile 切换模型厂商 | [Spring AI](../2_frameworks/0_spring_ai)、[Ollama](../3_integration/0_ollama) |
-| 2 Prompt 与结构化输出 | 提示词模板、意图识别、模型输出直接转成 Java 对象 | [Prompt 工程](../1_concepts/1_prompt) |
+| 2 [Prompt 与结构化输出](./2_prompt_structured) | 提示词模板、意图识别、模型输出直接转成 Java 对象 | [Prompt 工程](../1_concepts/1_prompt) |
 | 3 工具调用 | 调 mall-evolution 的接口查订单、查库存 | [Function Calling（工具调用）](../1_concepts/2_function_calling) |
 | 4 知识入库 | 商城规则文档切块、向量化、存入 pgvector | [Embedding 向量化](../4_core_tech/0_embedding)、[向量数据库](../4_core_tech/1_vector_db) |
 | 5 RAG | 检索增强回答、引用来源 | [RAG 检索增强生成](../4_core_tech/2_rag) |
@@ -68,7 +68,7 @@ git diff ch01-done -- src/main       # 卡住了再对照参考答案
 | 8 MCP | 把商城能力暴露成 MCP Server | [MCP 协议](../5_advanced/1_mcp) |
 | 9 评估与上线 | 回归评测集、Token 用量、限流与监控 | [LLM 应用评估与上线](../5_advanced/3_llm_eval) |
 
-目前已完成第 1 章，其余章节按顺序陆续发布；原理文章讲「是什么、为什么」，本系列只讲在这个项目里怎么落地、踩了哪些坑。
+目前已完成第 1、2 章，其余章节按顺序陆续发布；原理文章讲「是什么、为什么」，本系列只讲在这个项目里怎么落地、踩了哪些坑。
 
 ---
 
