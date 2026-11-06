@@ -217,7 +217,7 @@ return Mono.fromCallable(() -> intentService.classify(message))
 | `IntentReplayTest` | 两个模型共 24 条录制逐条回放，断言解析结果和调用次数（含重试）与录制时一致，顺带打印准确率 |
 | `IntentRecordingIT` | 录制工具，只有设置了环境变量 `RECORD_OLLAMA_URL` 才运行，CI 里永远跳过 |
 
-- **指纹是「系统消息 + 用户消息」的 SHA-256**：改了意图提示词、用户消息模板或 `IntentResult` 的字段（Schema 随之变化），指纹就对不上，回放直接报「没有录制」并提示重新录制，而不是拿旧输出假装通过
+- **指纹是「系统消息 + 用户消息」的 SHA-256**：改了意图提示词或用户消息模板，指纹就对不上，回放直接报「没有录制」并提示重新录制，而不是拿旧输出假装通过；但只改 `IntentResult` 的字段**不会**让指纹变化（原生结构化输出的 Schema 作为模型参数传出，不在消息文本里），这种情况要自己记得重新录制
 - **断言「和录制时一致」，不断言「分类正确」**：分类对不对是模型的事，交给第 9 章的评估集；回放只保证代码对真实输出的处理（重试、兜底、校验）没有回退
 - **回放要声明同样的能力**：录制时 Ollama 支持原生结构化输出，Schema 不在用户消息里；`ReplayChatModel` 的 `getOptions()` 也返回 `StructuredOutputChatOptions`，发出的 Prompt 和指纹才与录制时一致
 - **重新录制**：设置 `RECORD_OLLAMA_URL`、`RECORD_OLLAMA_MODEL` 后单独跑 `IntentRecordingIT`（命令见仓库 `docs/ch02.md`），录完用 `git diff src/test/resources/recordings` 看模型输出变了什么；模型服务地址只从环境变量读，不写进录制文件
@@ -228,7 +228,7 @@ return Mono.fromCallable(() -> intentService.classify(message))
 
 - **0.5b 的 `confidence` 几乎总是 0.9**：它照抄了意图提示词示例里的值，判错时也是 0.9，所以 0.6 的阈值对它基本不起作用：录制里「订单 18492033857208325120001 怎么还没发货」被判成 `OUT_OF_SCOPE`、`confidence` 0.9，会被直接拒答。模型自评的把握只能作参考，更可靠的来源是多次采样投票、logprobs 或规则兜底；想体验正常效果换 `qwen2.5:1.5b`，或把阈值调到 `1.1` 关掉短路
 - **模板里不能随手写花括号**：用户消息模板和重试提醒都要经过模板引擎渲染，`STRICT_REMINDER` 里写个 `{}` 示例就会被当成占位符报错；要在提示词里放 JSON 示例，只能放在不经渲染的文件里（如 `intent-v1.st` 作为 `system(Resource)` 直接传入，不配 `params`）
-- **改一个字就要重新录制**：意图提示词、`USER_TEMPLATE`、`IntentResult` 的字段说明任何一处改动都会让指纹失效，这是有意的；不想每次都录，就先在提示词定稿后再录
+- **改一个字就要重新录制**：意图提示词、`USER_TEMPLATE` 任何一处改动都会让指纹失效，这是有意的；改 `IntentResult` 的字段指纹不会变，但模型的输出结构变了，同样要重录；不想每次都录，就先在提示词和字段定稿后再录
 - **Windows 上指纹对不上**：Spring AI 拼格式说明时用的是系统换行符，Windows 上是 `\r\n`；`promptHash` 先把换行统一成 `\n` 再算哈希，否则在 Windows 录的文件到 Linux CI 上全部回放失败
 - **v1 会编库存**：`--assistant.prompt.version=v1` 启动后问「这件外套有 XL 码吗」，v1 常常直接答「有的」，v2 会说查不到实时库存，请以商品页为准；对比时两版都用同一个模型
 
