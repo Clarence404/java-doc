@@ -273,4 +273,4 @@ return Mono.fromCallable(() -> intentService.classify(message))
 - Spring AI Reference · Prompts：[https://docs.spring.io/spring-ai/reference/api/prompt.html](https://docs.spring.io/spring-ai/reference/api/prompt.html)
 - Ollama · Structured Outputs：[https://docs.ollama.com/capabilities/structured-outputs](https://docs.ollama.com/capabilities/structured-outputs)
 
-> 返回：[AI 总览](../0_overview)
+> 下一篇：[工具调用](./3_tool_calling)

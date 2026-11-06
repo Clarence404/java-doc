@@ -285,7 +285,7 @@ public class WeatherService {
 }
 ```
 
-有副作用或高风险的工具按请求注册，只在确实需要的场景带上：
+有副作用或高风险的工具按请求注册，只在确实需要的场景带上。`tools(...)` 既收带 `@Tool` 的对象也收 `ToolCallback`，2.0 起 `toolCallbacks(...)` 已标记为将删除，统一用 `tools(...)`：
 
 ```java
 String reply = chatClient.prompt()
@@ -300,6 +300,7 @@ String reply = chatClient.prompt()
 
 - `ToolContext`：把租户 ID、用户 ID 这类不该让模型看到也不该让模型决定的数据传给工具，方法签名里加一个 `ToolContext` 参数即可读取；这部分数据不会发给模型
 - `@Tool(returnDirect = true)`：工具结果直接作为最终响应返回调用方，不再回传模型二次加工，适合查询结果本身就是答案的场景
+- 2.0.x 下方法声明了 `ToolContext` 参数，调用时就必须给非空的 ToolContext：没调 `toolContext(...)` 或传了空 Map，都会抛 `ToolContext is required by the method as an argument`；没有可传的值时放一个占位标记，用不到上下文的工具就不声明这个参数
 
 ```java
 @Tool(description = "按订单号查询当前用户的订单状态")
