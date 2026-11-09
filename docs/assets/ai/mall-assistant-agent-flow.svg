@@ -1,0 +1,110 @@
+<svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="360" fill="var(--bg)"/>
+  <text x="450" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">第 7 章：售后 Agent 的循环，写操作要用户点按钮确认</text>
+
+  <!-- 第一行：路由、刹车、想下一步、解析 -->
+  <rect x="20" y="44" width="148" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="94" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">请求</text>
+  <text x="94" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">登录用户说要办事</text>
+
+  <rect x="198" y="44" width="148" height="70" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="272" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">意图路由</text>
+  <text x="272" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">售后意图或明说办事</text>
+
+  <rect x="376" y="44" width="148" height="70" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="450" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">三道刹车</text>
+  <text x="450" y="86" text-anchor="middle" font-size="11" fill="var(--fg)">最多 6 步、总时长 120 秒</text>
+  <text x="450" y="102" text-anchor="middle" font-size="11" fill="var(--fg)">页面关闭即停</text>
+
+  <rect x="554" y="44" width="148" height="70" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="628" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">模型想下一步</text>
+  <text x="628" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">结构化输出四个字段</text>
+
+  <rect x="732" y="44" width="148" height="70" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="806" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">解析下一步动作</text>
+  <text x="806" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">AgentAction.parse</text>
+
+  <line x1="168" y1="79" x2="196" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="346" y1="79" x2="374" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="524" y1="79" x2="552" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="702" y1="79" x2="730" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第二行：停下、只读工具、写操作提议关 -->
+  <rect x="20" y="154" width="326" height="70" rx="6" fill="var(--r)" fill-opacity="0.08" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="183" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">停下：回固定话术</text>
+  <text x="183" y="202" text-anchor="middle" font-size="11" fill="var(--fg)">刹车触发或 finish，循环里从不执行写操作</text>
+
+  <rect x="554" y="154" width="148" height="70" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="628" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">只读工具</text>
+  <text x="628" y="196" text-anchor="middle" font-size="11" fill="var(--fg)">查订单、查规则直接执行</text>
+  <text x="628" y="212" text-anchor="middle" font-size="11" fill="var(--fg)">结果追加进办事记录</text>
+
+  <rect x="732" y="154" width="148" height="70" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="806" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">写操作提议关</text>
+  <text x="806" y="196" text-anchor="middle" font-size="11" fill="var(--fg)">查过、状态、原话、不重复</text>
+  <text x="806" y="212" text-anchor="middle" font-size="11" fill="var(--fg)">不通过：原因交还模型</text>
+
+  <path d="M400,114 L400,134 L272,134 L272,152" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="336" y="130" text-anchor="middle" font-size="11" fill="var(--muted)">停下</text>
+  <path d="M760,114 L760,134 L628,134 L628,152" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="694" y="130" text-anchor="middle" font-size="11" fill="var(--muted)">只读</text>
+  <line x1="806" y1="114" x2="806" y2="152" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="814" y="138" font-size="11" fill="var(--muted)">写操作</text>
+  <path d="M554,189 L450,189 L450,116" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <text x="502" y="184" text-anchor="middle" font-size="11" fill="var(--muted)">下一步</text>
+
+  <!-- 第三行：确认卡片 → 按钮 → 校验 → 执行 → 写回记忆 -->
+  <rect x="732" y="264" width="148" height="76" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="806" y="290" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">确认卡片</text>
+  <text x="806" y="310" text-anchor="middle" font-size="11" fill="var(--fg)">确认 ID 随机、5 分钟</text>
+  <text x="806" y="326" text-anchor="middle" font-size="11" fill="var(--fg)">聊天打「确认」不算</text>
+
+  <rect x="554" y="264" width="148" height="76" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="628" y="290" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">页面按钮</text>
+  <text x="628" y="310" text-anchor="middle" font-size="11" fill="var(--fg)">POST /api/agent/</text>
+  <text x="628" y="326" text-anchor="middle" font-size="11" fill="var(--fg)">confirmations/{id}</text>
+
+  <rect x="376" y="264" width="148" height="76" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="450" y="290" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">服务端校验</text>
+  <text x="450" y="310" text-anchor="middle" font-size="11" fill="var(--fg)">别人 / 别的会话 404</text>
+  <text x="450" y="326" text-anchor="middle" font-size="11" fill="var(--fg)">过期 410、加锁幂等</text>
+
+  <rect x="198" y="264" width="148" height="76" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="272" y="290" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">执行</text>
+  <text x="272" y="310" text-anchor="middle" font-size="11" fill="var(--fg)">取消、改地址走网关</text>
+  <text x="272" y="326" text-anchor="middle" font-size="11" fill="var(--fg)">退款只记待审核申请单</text>
+
+  <rect x="20" y="264" width="148" height="76" rx="6" fill="var(--muted)" fill-opacity="0.10" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="94" y="290" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">写回记忆</text>
+  <text x="94" y="310" text-anchor="middle" font-size="11" fill="var(--muted)">固定话术作为一轮</text>
+  <text x="94" y="326" text-anchor="middle" font-size="11" fill="var(--muted)">下一轮看得到结果</text>
+
+  <line x1="806" y1="224" x2="806" y2="262" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="814" y="248" font-size="11" fill="var(--muted)">通过</text>
+  <line x1="732" y1="302" x2="704" y2="302" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="554" y1="302" x2="526" y2="302" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="376" y1="302" x2="348" y2="302" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="198" y1="302" x2="170" y2="302" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

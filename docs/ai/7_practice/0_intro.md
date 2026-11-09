@@ -64,11 +64,11 @@ git diff ch01-done -- src/main       # 卡住了再对照参考答案
 | 4 [知识入库](./4_knowledge_ingest) | 商城规则文档切块、增量向量化，存入内存向量库或 pgvector，检索调试 | [Embedding 向量化](../4_core_tech/0_embedding)、[向量数据库](../4_core_tech/1_vector_db) |
 | 5 [RAG 检索增强回答](./5_rag) | 意图路由、混合检索与门槛、检索增强回答、引用来源与校验 | [RAG 检索增强生成](../4_core_tech/2_rag) |
 | 6 [多轮对话与记忆](./6_memory) | 会话 ID、ChatMemory、上下文裁剪、追问改写与订单号沿用、会话隔离 | [Spring AI · 对话记忆](../2_frameworks/0_spring_ai#_2、对话记忆) |
-| 7 Agent | 售后退款流程，关键操作人工确认 | [AI Agent 智能体](../5_advanced/0_agent) |
+| 7 [售后 Agent 与人工确认](./7_agent) | 多步售后循环与刹车、只读工具直接执行、写操作页面确认、结果写回记忆 | [AI Agent 智能体](../5_advanced/0_agent) |
 | 8 MCP | 把商城能力暴露成 MCP Server | [MCP 协议](../5_advanced/1_mcp) |
 | 9 评估与上线 | 回归评测集、Token 用量、限流与监控 | [LLM 应用评估与上线](../5_advanced/3_llm_eval) |
 
-目前已完成第 1～6 章，其余章节按顺序陆续发布；原理文章讲「是什么、为什么」，本系列只讲在这个项目里怎么落地、踩了哪些坑。
+目前已完成第 1～7 章，其余章节按顺序陆续发布；原理文章讲「是什么、为什么」，本系列只讲在这个项目里怎么落地、踩了哪些坑。
 
 ---
 
