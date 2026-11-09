@@ -274,4 +274,4 @@ public String invoke(ToolCallback callback, String arguments, ToolContext toolCo
 - Ollama · Tool Calling：[https://docs.ollama.com/capabilities/tool-calling](https://docs.ollama.com/capabilities/tool-calling)
 - OWASP Top 10 for LLM Applications（Prompt Injection、Excessive Agency）：[https://genai.owasp.org/llm-top-10/](https://genai.owasp.org/llm-top-10/)
 
-> 返回：[AI 总览](../0_overview)
+> 下一篇：[知识入库](./4_knowledge_ingest)

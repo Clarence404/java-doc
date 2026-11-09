@@ -1,0 +1,83 @@
+<svg viewBox="0 0 760 354" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="760" height="354" fill="var(--bg)"/>
+  <text x="380" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">第 4 章：规则文档入库，按意思检索</text>
+
+  <!-- 第一行：入库流水线 -->
+  <rect x="20" y="44" width="156" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="98" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">知识文档</text>
+  <text x="98" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">6 篇 Markdown 规则</text>
+
+  <rect x="208" y="44" width="156" height="70" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="286" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">切块</text>
+  <text x="286" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">标题分节，再按长度切</text>
+
+  <rect x="396" y="44" width="156" height="70" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="474" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">元数据与哈希</text>
+  <text x="474" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">确定性 ID + docHash</text>
+
+  <rect x="584" y="44" width="156" height="70" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="662" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">增量计划</text>
+  <text x="662" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">按内容哈希分四类</text>
+
+  <line x1="176" y1="79" x2="206" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="364" y1="79" x2="394" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="552" y1="79" x2="582" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第二行：向量库与向量模型 -->
+  <rect x="20" y="154" width="526" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="283" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">向量库：每个模型一张表 / 一个文件</text>
+  <text x="152" y="202" text-anchor="middle" font-size="11" fill="var(--fg)">memory：SimpleVectorStore + JSON</text>
+  <text x="415" y="202" text-anchor="middle" font-size="11" fill="var(--fg)">pgvector：HNSW + 余弦距离</text>
+
+  <rect x="584" y="154" width="156" height="70" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="662" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">Embedding 模型</text>
+  <text x="662" y="202" text-anchor="middle" font-size="11" fill="var(--fg)">bge-m3，加文档前缀</text>
+
+  <line x1="662" y1="114" x2="662" y2="152" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="668" y="138" font-size="11" fill="var(--muted)">跳过的不调模型</text>
+  <line x1="584" y1="189" x2="548" y2="189" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第三行：检索调试支线 -->
+  <rect x="20" y="264" width="156" height="70" rx="6" fill="var(--muted)" fill-opacity="0.10" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="98" y="292" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">检索调试</text>
+  <text x="98" y="312" text-anchor="middle" font-size="11" fill="var(--muted)">只检索、不回答</text>
+
+  <rect x="208" y="264" width="156" height="70" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="286" y="292" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">问题向量化</text>
+  <text x="286" y="312" text-anchor="middle" font-size="11" fill="var(--fg)">同一个模型，加查询前缀</text>
+
+  <rect x="396" y="264" width="156" height="70" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="474" y="292" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">命中 topK 块</text>
+  <text x="474" y="312" text-anchor="middle" font-size="11" fill="var(--fg)">分数 = 余弦相似度</text>
+
+  <rect x="584" y="264" width="156" height="70" rx="6" fill="var(--muted)" fill-opacity="0.10" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="662" y="292" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">第 5 章 RAG</text>
+  <text x="662" y="312" text-anchor="middle" font-size="11" fill="var(--muted)">拼进提示词回答</text>
+
+  <line x1="176" y1="299" x2="206" y2="299" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="286" y1="264" x2="286" y2="226" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="474" y1="224" x2="474" y2="262" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="552" y1="299" x2="582" y2="299" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>
