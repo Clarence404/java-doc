@@ -127,7 +127,7 @@ List<RagCandidate> select(List<RagCandidate> ranked, int topK) {
 
 - **两道门槛满足其一**：向量相似度 `min-score: 0.6`，或关键词覆盖率 `keyword-min-coverage: 0.6`。只被关键词找到的块没有相似度，只被向量找到的块没有覆盖率，判断前都要判空
 - **0.6 是按 bge-m3 实测定的**：评测集里正确答案的相似度在 0.665～0.814；6 个知识库里没有的问题（花呗分期、线下门店、送安装、以旧换新、降价补差价、礼品卡转赠）最高分在 0.488～0.636。关键词那一路以旧换新的覆盖率 0.53，门槛同样取 0.6
-- **门槛只在同一个模型内有效**：nomic-embed-text 的正确答案在 0.59～0.77，不相关问题也有 0.64～0.71，两者重叠，定不出一个能把它们分开的门槛；换向量模型就要重新测
+- **门槛只在同一个模型内有效**：nomic-embed-text 的正确答案在 0.59～0.77，不相关问题也有 0.64～0.71，两者重叠，定不出一个能把它们分开的门槛；换向量模型就要重新测。第 6 章把门槛改成按向量模型分别配置，见 [多轮对话与记忆 · RAG 门槛按向量模型配置](./6_memory#十二、rag-门槛按向量模型配置)
 - **融合后再筛**：`SearchRequest` 的 `similarityThreshold` 也能过滤，但那样只被关键词找到的块就没机会了，所以检索时不设阈值、融合后自己筛
 
 选中的块交给 `ContextPacker` 整理：
@@ -386,4 +386,4 @@ Spring AI 2.0 的模块化 RAG 用 `RetrievalAugmentationAdvisor` 把「改写 �
 - Cormack et al., Reciprocal Rank Fusion outperforms Condorcet and individual Rank Learning Methods：[https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf](https://plg.uwaterloo.ca/~gvcormac/cormacksigir09-rrf.pdf)
 - OWASP Top 10 for LLM Applications（Prompt Injection）：[https://genai.owasp.org/llm-top-10/](https://genai.owasp.org/llm-top-10/)
 
-> 返回：[AI 总览](../0_overview)
+> 下一篇：[多轮对话与记忆](./6_memory)

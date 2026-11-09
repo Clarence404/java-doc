@@ -1,0 +1,91 @@
+<svg viewBox="0 0 900 354" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="354" fill="var(--bg)"/>
+  <text x="450" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">第 6 章：一轮多轮对话，回答完成后才写记忆</text>
+
+  <!-- 第一行：打开会话、读历史、改写与沿用 -->
+  <rect x="20" y="44" width="148" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="94" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">请求</text>
+  <text x="94" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">带 conversationId</text>
+
+  <rect x="198" y="44" width="148" height="70" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="272" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">会话归属</text>
+  <text x="272" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">问商城 /api/users/me</text>
+
+  <rect x="376" y="44" width="148" height="70" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="450" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">读历史并裁剪</text>
+  <text x="450" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">最近 6 轮、2000 字内</text>
+
+  <rect x="554" y="44" width="148" height="70" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="628" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">追问改写</text>
+  <text x="628" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">有历史时，查六成字</text>
+
+  <rect x="732" y="44" width="148" height="70" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="806" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">订单号沿用</text>
+  <text x="806" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">核对 + 最近 3 轮</text>
+
+  <line x1="168" y1="79" x2="196" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="346" y1="79" x2="374" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="524" y1="79" x2="552" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="702" y1="79" x2="730" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第二行：路由、回答、写回 -->
+  <rect x="20" y="154" width="148" height="70" rx="6" fill="var(--muted)" fill-opacity="0.10" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="94" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">页面</text>
+  <text x="94" y="202" text-anchor="middle" font-size="11" fill="var(--muted)">localStorage 存会话 ID</text>
+
+  <rect x="198" y="154" width="148" height="70" rx="6" fill="var(--muted)" fill-opacity="0.10" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="272" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">ChatMemory</text>
+  <text x="272" y="202" text-anchor="middle" font-size="11" fill="var(--muted)">memory 或 jdbc</text>
+
+  <rect x="376" y="154" width="148" height="70" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="450" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">回答完成后写记忆</text>
+  <text x="450" y="202" text-anchor="middle" font-size="11" fill="var(--fg)">原话 + 回答（去掉 [n]）</text>
+
+  <rect x="554" y="154" width="148" height="70" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="628" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">带历史调模型</text>
+  <text x="628" y="202" text-anchor="middle" font-size="11" fill="var(--fg)">system → 历史 → 问题</text>
+
+  <rect x="732" y="154" width="148" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="806" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">意图路由</text>
+  <text x="806" y="202" text-anchor="middle" font-size="11" fill="var(--fg)">工具 / RAG / 闲聊</text>
+
+  <line x1="94" y1="154" x2="94" y2="116" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="806" y1="114" x2="806" y2="152" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="732" y1="189" x2="704" y2="189" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="554" y1="189" x2="526" y2="189" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="376" y1="189" x2="348" y2="189" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第三行：不存什么、失败不写 -->
+  <rect x="198" y="264" width="326" height="70" rx="6" fill="var(--r)" fill-opacity="0.08" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="361" y="292" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">不存进记忆</text>
+  <text x="361" y="312" text-anchor="middle" font-size="11" fill="var(--fg)">商城令牌、工具查询结果、RAG 参考资料</text>
+
+  <rect x="554" y="264" width="148" height="70" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="628" y="292" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">中途失败 / 取消</text>
+  <text x="628" y="312" text-anchor="middle" font-size="11" fill="var(--fg)">不写记忆，重问即可</text>
+
+  <line x1="450" y1="224" x2="450" y2="262" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+  <line x1="628" y1="224" x2="628" y2="262" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>
