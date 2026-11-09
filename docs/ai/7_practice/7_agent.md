@@ -379,7 +379,7 @@ chatClient.prompt()
 | 场景 | 结果 | 耗时 |
 |------|------|------|
 | 「我刚下的单买错了，帮我取消」 | listMyOrders（看到待支付、`allowedActions` 有 cancelOrder）→ cancelOrder，出确认卡片；点确认后商城里变成「已取消」 | 2 步，整轮约 23 秒 |
-| 「订单 … 收货地址填错了，改成 …」 | changeAddress 被拦下 → queryOrder → changeAddress；点确认后地址变了，收货人和电话没动 | 3 步，整轮约 33 秒 |
+| 「订单 … 收货地址填错了，改成 …」 | changeAddress 被拦下 → queryOrder → changeAddress；点确认后地址变了，收货人和电话没动 | 3 步，约 28 秒 |
 | 已付款未发货要退款（四种说法） | 都没办成：反复 queryOrder 被重复上限停下；提 cancelOrder 被拦下后复述原话；连着 4 次 queryProduct 用完步数；加了报错提示后提出了 applyAfterSales，**但原因填成了商品名**，卡片上看得见，点了「取消」 | 40～58 秒 |
 | 卡片出来后在聊天里打「确认」 | 固定话术提醒去点按钮，订单仍是待支付 | 约 4 秒 |
 | 另一个账号的令牌 / 换一个会话 ID 点这个确认 | 都是 404，订单没变 | 毫秒级 |
