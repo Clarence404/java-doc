@@ -204,7 +204,7 @@ public String docHash(KnowledgeDocument document) {
 | 检索 | 问题向量和**每一块**算余弦相似度再排序 | `ORDER BY embedding <=> ?`，有 HNSW 索引时不用逐行算 |
 | 写入 | 逐块调模型，一块一次请求 | 按 token 数分批调模型，`INSERT … ON CONFLICT (id) DO UPDATE` |
 
-切到 pgvector 用 `ASSISTANT_KNOWLEDGE_STORE=pgvector`，连接信息写进不入库的 `application-local.yml` 或环境变量。`PgVectorConfig` 自己建连接池和 `PgVectorStore`：
+切到 pgvector 用 `ASSISTANT_KNOWLEDGE_STORE=pgvector`，连接信息写进不入库的 `config/application-local.yml` 或环境变量。`PgVectorConfig` 自己建连接池和 `PgVectorStore`：
 
 ```java
 static PgVectorStore createStore(
@@ -337,4 +337,4 @@ SELECT metadata->>'source', count(*) FROM knowledge_chunk_bge_m3 GROUP BY 1;
 - Ollama · bge-m3：[https://ollama.com/library/bge-m3](https://ollama.com/library/bge-m3)
 - Ollama · nomic-embed-text：[https://ollama.com/library/nomic-embed-text](https://ollama.com/library/nomic-embed-text)
 
-> 返回：[AI 总览](../0_overview)
+> 下一篇：[RAG 检索增强回答](./5_rag)

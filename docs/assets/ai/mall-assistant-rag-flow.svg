@@ -1,0 +1,94 @@
+<svg viewBox="0 0 900 354" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="354" fill="var(--bg)"/>
+  <text x="450" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">第 5 章：先检索、再依据资料回答，标出引用</text>
+
+  <!-- 第一行：路由与检索 -->
+  <rect x="20" y="44" width="148" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="94" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">用户问题</text>
+  <text x="94" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">阻塞或流式</text>
+
+  <rect x="198" y="44" width="148" height="70" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="272" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">意图路由</text>
+  <text x="272" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">POLICY、AFTER_SALES</text>
+
+  <rect x="376" y="44" width="148" height="70" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="450" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">混合检索</text>
+  <text x="450" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">向量 + BM25 → RRF</text>
+
+  <rect x="554" y="44" width="148" height="70" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="628" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">两道门槛</text>
+  <text x="628" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">相似度或覆盖率 ≥ 0.6</text>
+
+  <rect x="732" y="44" width="148" height="70" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="806" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">整理编号</text>
+  <text x="806" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">去重、合并、预算</text>
+
+  <line x1="168" y1="79" x2="196" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="346" y1="79" x2="374" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="524" y1="79" x2="552" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="702" y1="79" x2="730" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第二行：分支与拼提示词 -->
+  <rect x="198" y="154" width="148" height="70" rx="6" fill="var(--muted)" fill-opacity="0.10" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="272" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">工具（第 3 章）</text>
+  <text x="272" y="202" text-anchor="middle" font-size="11" fill="var(--muted)">查订单、查商品照旧</text>
+
+  <rect x="376" y="154" width="148" height="70" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="450" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">短路</text>
+  <text x="450" y="202" text-anchor="middle" font-size="11" fill="var(--fg)">固定话术，不调模型</text>
+
+  <rect x="732" y="154" width="148" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="806" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">拼提示词</text>
+  <text x="806" y="202" text-anchor="middle" font-size="11" fill="var(--fg)">rag-v1，温度 0</text>
+
+  <line x1="272" y1="114" x2="272" y2="152" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="278" y="138" font-size="11" fill="var(--muted)">订单 / 商品</text>
+  <path d="M600,114 L600,134 L450,134 L450,152" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="525" y="130" text-anchor="middle" font-size="11" fill="var(--muted)">一块不剩</text>
+  <line x1="806" y1="114" x2="806" y2="152" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第三行：生成与校验 -->
+  <rect x="20" y="264" width="326" height="70" rx="6" fill="var(--muted)" fill-opacity="0.10" stroke="var(--muted)" stroke-width="1.5"/>
+  <text x="183" y="292" text-anchor="middle" font-size="13" font-weight="600" fill="var(--fg)">页面</text>
+  <text x="183" y="312" text-anchor="middle" font-size="11" fill="var(--muted)">source 事件先于文字，[n] 悬停看片段</text>
+
+  <rect x="376" y="264" width="148" height="70" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="450" y="292" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">回答 + sources</text>
+  <text x="450" y="312" text-anchor="middle" font-size="11" fill="var(--fg)">编号对得上资料</text>
+
+  <rect x="554" y="264" width="148" height="70" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="628" y="292" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">引用校验</text>
+  <text x="628" y="312" text-anchor="middle" font-size="11" fill="var(--fg)">删无效编号、标未引用</text>
+
+  <rect x="732" y="264" width="148" height="70" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="806" y="292" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">对话模型</text>
+  <text x="806" y="312" text-anchor="middle" font-size="11" fill="var(--fg)">只依据资料，标 [n]</text>
+
+  <line x1="806" y1="224" x2="806" y2="262" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="450" y1="224" x2="450" y2="262" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="732" y1="299" x2="704" y2="299" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="554" y1="299" x2="526" y2="299" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="376" y1="299" x2="348" y2="299" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

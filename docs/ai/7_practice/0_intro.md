@@ -62,13 +62,13 @@ git diff ch01-done -- src/main       # 卡住了再对照参考答案
 | 2 [Prompt 与结构化输出](./2_prompt_structured) | 提示词模板、意图识别、模型输出直接转成 Java 对象 | [Prompt 工程](../1_concepts/1_prompt) |
 | 3 [工具调用](./3_tool_calling) | 调 mall-evolution 的接口查订单、查库存 | [Function Calling（工具调用）](../1_concepts/2_function_calling) |
 | 4 [知识入库](./4_knowledge_ingest) | 商城规则文档切块、增量向量化，存入内存向量库或 pgvector，检索调试 | [Embedding 向量化](../4_core_tech/0_embedding)、[向量数据库](../4_core_tech/1_vector_db) |
-| 5 RAG | 检索增强回答、引用来源 | [RAG 检索增强生成](../4_core_tech/2_rag) |
+| 5 [RAG 检索增强回答](./5_rag) | 意图路由、混合检索与门槛、检索增强回答、引用来源与校验 | [RAG 检索增强生成](../4_core_tech/2_rag) |
 | 6 多轮对话与记忆 | 会话 ID、ChatMemory、上下文裁剪 | [Spring AI · 对话记忆](../2_frameworks/0_spring_ai#_2、对话记忆) |
 | 7 Agent | 售后退款流程，关键操作人工确认 | [AI Agent 智能体](../5_advanced/0_agent) |
 | 8 MCP | 把商城能力暴露成 MCP Server | [MCP 协议](../5_advanced/1_mcp) |
 | 9 评估与上线 | 回归评测集、Token 用量、限流与监控 | [LLM 应用评估与上线](../5_advanced/3_llm_eval) |
 
-目前已完成第 1～4 章，其余章节按顺序陆续发布；原理文章讲「是什么、为什么」，本系列只讲在这个项目里怎么落地、踩了哪些坑。
+目前已完成第 1～5 章，其余章节按顺序陆续发布；原理文章讲「是什么、为什么」，本系列只讲在这个项目里怎么落地、踩了哪些坑。
 
 ---
 
@@ -95,7 +95,7 @@ git diff ch01-done -- src/main       # 卡住了再对照参考答案
 3. 启动：`./mvnw spring-boot:run`（Windows PowerShell 用 `.\mvnw.cmd spring-boot:run`），默认 profile 是 `ollama`
 4. 打开 `http://localhost:8088/` 提问，右上角可切换流式 / 阻塞，底部调试面板显示耗时与错误码
 
-**不在本机跑模型**时，把仓库根目录的 `application-local.example.yml` 复制为 `application-local.yml`（已被 `.gitignore` 忽略），填上远程 Ollama 的地址，或取消注释 `openai` 一段填 base-url、api-key、模型名，再以 `ollama,local`（或 `openai,local`）profile 启动。地址和密钥只放在这个本地文件里，不写进 `src/main/resources`。
+**不在本机跑模型**时，把仓库 `config/` 目录下的 `application-local.example.yml` 复制为同目录的 `config/application-local.yml`（已被 `.gitignore` 忽略，Spring Boot 默认会读取 `./config/` 下的 `application-{profile}.yml`），填上远程 Ollama 的地址，或取消注释 `openai` 一段填 base-url、api-key、模型名，再以 `ollama,local`（或 `openai,local`）profile 启动。地址和密钥只放在这个本地文件里，不写进 `src/main/resources`。
 
 **用 IntelliJ IDEA** 时，仓库的 `.run/` 带了三个共享运行配置：「智能客服（本地 Ollama）」「智能客服（OpenAI 兼容接口）」都已带上 `local` profile，「测试：mvn verify」等同命令行的 `./mvnw verify`。这些配置文件是入库的，不要在里面填密钥。
 

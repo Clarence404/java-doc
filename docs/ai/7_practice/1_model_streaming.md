@@ -218,7 +218,7 @@ spring:
 ```
 
 - `application.yml` 里 `spring.profiles.default: ollama`，不指定 profile 就用本机 Ollama
-- `--spring.profiles.active=openai` 切到任意 OpenAI 兼容接口（OpenAI、DeepSeek、通义千问兼容模式、vLLM、Ollama 的 `/v1`），地址、密钥、模型名来自 `OPENAI_BASE_URL` / `OPENAI_API_KEY` / `OPENAI_MODEL` 或不入库的 `application-local.yml`
+- `--spring.profiles.active=openai` 切到任意 OpenAI 兼容接口（OpenAI、DeepSeek、通义千问兼容模式、vLLM、Ollama 的 `/v1`），地址、密钥、模型名来自 `OPENAI_BASE_URL` / `OPENAI_API_KEY` / `OPENAI_MODEL` 或不入库的 `config/application-local.yml`
 - 两个 Starter 同时在类路径上，`spring.ai.model.chat` 决定启用哪一个；本章只用对话模型，embedding、image 等其余能力设为 `none`，免得 openai Starter 要求配置 api-key
 - `ProviderSwitchTest` 只启动上下文、不发请求，确认默认 profile 下是 `OllamaChatModel`、`openai` profile 下是 `OpenAiChatModel`
 
