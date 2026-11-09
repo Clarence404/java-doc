@@ -95,7 +95,7 @@ git diff ch01-done -- src/main       # 卡住了再对照参考答案
 3. 启动：`./mvnw spring-boot:run`（Windows PowerShell 用 `.\mvnw.cmd spring-boot:run`），默认 profile 是 `ollama`
 4. 打开 `http://localhost:8088/` 提问，右上角可切换流式 / 阻塞，底部调试面板显示耗时与错误码
 
-**不在本机跑模型**时，把仓库 `config/` 目录下的 `application-local.example.yml` 复制为同目录的 `config/application-local.yml`（已被 `.gitignore` 忽略，Spring Boot 默认会读取 `./config/` 下的 `application-{profile}.yml`），填上远程 Ollama 的地址，或取消注释 `openai` 一段填 base-url、api-key、模型名，再以 `ollama,local`（或 `openai,local`）profile 启动。地址和密钥只放在这个本地文件里，不写进 `src/main/resources`。
+**不在本机跑模型**时，把仓库 `config/` 目录下的 `application-local.example.yml` 复制为同目录的 `config/application-local.yml`（已被 `.gitignore` 忽略，Spring Boot 默认会读取 `./config/` 下的 `application-{profile}.yml`），填上远程 Ollama 的地址，或取消注释 `openai` 一段填 base-url、api-key、模型名，再以 `ollama,local`（或 `openai,local`）profile 启动。地址和密钥只放在这个本地文件里，不写进 `src/main/resources`。切到 `ch05-done` 及更早的章节标签练习时，模板还在仓库根目录，但 `./config/` 是 Spring Boot 的默认位置，`config/application-local.yml` 在这些标签上照样生效。
 
 **用 IntelliJ IDEA** 时，仓库的 `.run/` 带了三个共享运行配置：「智能客服（本地 Ollama）」「智能客服（OpenAI 兼容接口）」都已带上 `local` profile，「测试：mvn verify」等同命令行的 `./mvnw verify`。这些配置文件是入库的，不要在里面填密钥。
 
