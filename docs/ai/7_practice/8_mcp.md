@@ -405,4 +405,4 @@ npx -y @modelcontextprotocol/inspector --cli http://localhost:8088/mcp --transpo
 - MCP Inspector：[https://github.com/modelcontextprotocol/inspector](https://github.com/modelcontextprotocol/inspector)
 - OWASP Top 10 for LLM Applications（Excessive Agency）：[https://genai.owasp.org/llm-top-10/](https://genai.owasp.org/llm-top-10/)
 
-> 返回：[AI 总览](../0_overview)
+> 下一篇：[评估与上线](./9_eval_launch)
