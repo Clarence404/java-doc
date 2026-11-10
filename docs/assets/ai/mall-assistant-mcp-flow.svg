@@ -1,0 +1,111 @@
+<svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="360" fill="var(--bg)"/>
+  <text x="450" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">第 8 章：商城能力交给别人的模型，写操作仍要用户在页面上点确认</text>
+
+  <!-- 第一行：客户端 → /mcp → 身份关 → 次数关 → 工具 -->
+  <rect x="20" y="44" width="148" height="70" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="94" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">MCP 客户端</text>
+  <text x="94" y="86" text-anchor="middle" font-size="11" fill="var(--fg)">Claude Code、Inspector</text>
+  <text x="94" y="102" text-anchor="middle" font-size="11" fill="var(--fg)">请求头带 Bearer 令牌</text>
+
+  <rect x="198" y="44" width="148" height="70" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="272" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">/mcp 端点</text>
+  <text x="272" y="86" text-anchor="middle" font-size="11" fill="var(--fg)">同进程 Streamable HTTP</text>
+  <text x="272" y="102" text-anchor="middle" font-size="11" fill="var(--fg)">浏览器只放行本机 Origin</text>
+
+  <rect x="376" y="44" width="148" height="70" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="450" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">身份关</text>
+  <text x="450" y="86" text-anchor="middle" font-size="11" fill="var(--fg)">令牌问商城是谁</text>
+  <text x="450" y="102" text-anchor="middle" font-size="11" fill="var(--fg)">匿名只能查知识和商品</text>
+
+  <rect x="554" y="44" width="148" height="70" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="628" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">次数关</text>
+  <text x="628" y="92" text-anchor="middle" font-size="11" fill="var(--fg)">每调用方每分钟 30 次</text>
+
+  <rect x="732" y="44" width="148" height="70" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="806" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">8 个 @McpTool</text>
+  <text x="806" y="86" text-anchor="middle" font-size="11" fill="var(--fg)">结果最多 2000 字</text>
+  <text x="806" y="102" text-anchor="middle" font-size="11" fill="var(--fg)">异常翻成固定话术</text>
+
+  <line x1="168" y1="79" x2="196" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="346" y1="79" x2="374" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="524" y1="79" x2="552" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="702" y1="79" x2="730" y2="79" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第二行：拦下、只读直接返回、写操作只提议 -->
+  <rect x="20" y="154" width="326" height="70" rx="6" fill="var(--r)" fill-opacity="0.08" stroke="var(--r)" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="183" y="182" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">拦下：isError 固定话术</text>
+  <text x="183" y="202" text-anchor="middle" font-size="11" fill="var(--fg)">要登录、令牌无效、太频繁都进不了工具</text>
+
+  <rect x="554" y="154" width="148" height="70" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="628" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">只读工具</text>
+  <text x="628" y="196" text-anchor="middle" font-size="11" fill="var(--fg)">查订单、知识检索</text>
+  <text x="628" y="212" text-anchor="middle" font-size="11" fill="var(--fg)">直接返回给客户端</text>
+
+  <rect x="732" y="154" width="148" height="70" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="806" y="178" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">写操作只提议</text>
+  <text x="806" y="196" text-anchor="middle" font-size="11" fill="var(--fg)">服务端自己查订单</text>
+  <text x="806" y="212" text-anchor="middle" font-size="11" fill="var(--fg)">过第 7 章的提议关</text>
+
+  <path d="M400,114 L400,134 L272,134 L272,152" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="336" y="130" text-anchor="middle" font-size="11" fill="var(--muted)">拦下</text>
+  <path d="M760,114 L760,134 L628,134 L628,152" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="694" y="130" text-anchor="middle" font-size="11" fill="var(--muted)">只读</text>
+  <line x1="806" y1="114" x2="806" y2="152" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="814" y="138" font-size="11" fill="var(--muted)">propose*</text>
+
+  <!-- 第三行：登记 → 返回确认 ID → 页面点确认 → 服务端校验 → 执行 -->
+  <rect x="732" y="264" width="148" height="76" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="806" y="290" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">提议登记</text>
+  <text x="806" y="310" text-anchor="middle" font-size="11" fill="var(--fg)">来源 MCP、没有会话</text>
+  <text x="806" y="326" text-anchor="middle" font-size="11" fill="var(--fg)">5 分钟过期</text>
+
+  <rect x="554" y="264" width="148" height="76" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="628" y="290" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">返回确认 ID</text>
+  <text x="628" y="310" text-anchor="middle" font-size="11" fill="var(--fg)">附确认链接与说明</text>
+  <text x="628" y="326" text-anchor="middle" font-size="11" fill="var(--fg)">executed 永远 false</text>
+
+  <rect x="376" y="264" width="148" height="76" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="450" y="290" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">用户在页面点确认</text>
+  <text x="450" y="310" text-anchor="middle" font-size="11" fill="var(--fg)">打开链接、登录同一账号</text>
+  <text x="450" y="326" text-anchor="middle" font-size="11" fill="var(--fg)">第 7 章同一个按钮接口</text>
+
+  <rect x="198" y="264" width="148" height="76" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="272" y="290" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">服务端校验</text>
+  <text x="272" y="310" text-anchor="middle" font-size="11" fill="var(--fg)">不是你的一律 404</text>
+  <text x="272" y="326" text-anchor="middle" font-size="11" fill="var(--fg)">过期 410、加锁幂等</text>
+
+  <rect x="20" y="264" width="148" height="76" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="94" y="290" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">执行</text>
+  <text x="94" y="310" text-anchor="middle" font-size="11" fill="var(--fg)">取消、改地址走网关</text>
+  <text x="94" y="326" text-anchor="middle" font-size="11" fill="var(--fg)">getConfirmation 查结果</text>
+
+  <line x1="806" y1="224" x2="806" y2="262" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="814" y="248" font-size="11" fill="var(--muted)">通过</text>
+  <line x1="732" y1="302" x2="704" y2="302" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="554" y1="302" x2="526" y2="302" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="376" y1="302" x2="348" y2="302" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="198" y1="302" x2="170" y2="302" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>

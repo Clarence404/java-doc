@@ -486,4 +486,4 @@ chatClient.prompt()
 - Anthropic, Building effective agents：[https://www.anthropic.com/engineering/building-effective-agents](https://www.anthropic.com/engineering/building-effective-agents)
 - OWASP Top 10 for LLM Applications（Excessive Agency）：[https://genai.owasp.org/llm-top-10/](https://genai.owasp.org/llm-top-10/)
 
-> 返回：[AI 总览](../0_overview)
+> 下一篇：[把商城能力做成 MCP Server](./8_mcp)
