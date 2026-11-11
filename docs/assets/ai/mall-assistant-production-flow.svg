@@ -1,0 +1,101 @@
+<svg viewBox="0 0 900 426" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="426" fill="var(--bg)"/>
+  <text x="450" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">第 10 章：两个实例共用一个 Redis，管理端口交给 Prometheus</text>
+
+  <!-- 第一行：负载均衡；右侧是 Redis 出错时的策略 -->
+  <rect x="180" y="44" width="300" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="330" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--b)">负载均衡</text>
+  <text x="330" y="88" text-anchor="middle" font-size="11" fill="var(--fg)">同一个用户的请求可能落在任一实例</text>
+
+  <rect x="700" y="44" width="170" height="60" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="785" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="var(--r)">Redis 出错时</text>
+  <text x="785" y="88" text-anchor="middle" font-size="11" fill="var(--fg)">限流预算按策略，确认 503</text>
+
+  <line x1="240" y1="104" x2="191" y2="138" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="420" y1="104" x2="469" y2="138" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第二行：两个实例；右侧 Prometheus -->
+  <rect x="60" y="140" width="240" height="80" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="180" y="164" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">实例 A（业务端口 8091）</text>
+  <text x="180" y="184" text-anchor="middle" font-size="11" fill="var(--fg)">业务代码只认接口，熔断器各管各的</text>
+  <text x="180" y="204" text-anchor="middle" font-size="11" fill="var(--fg)">管理端口 9191：/actuator/prometheus</text>
+
+  <rect x="360" y="140" width="240" height="80" rx="6" fill="var(--p)" fill-opacity="0.12" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="480" y="164" text-anchor="middle" font-size="13" font-weight="600" fill="var(--p)">实例 B（业务端口 8092）</text>
+  <text x="480" y="184" text-anchor="middle" font-size="11" fill="var(--fg)">业务代码只认接口，熔断器各管各的</text>
+  <text x="480" y="204" text-anchor="middle" font-size="11" fill="var(--fg)">管理端口 9192：/actuator/prometheus</text>
+
+  <rect x="700" y="140" width="170" height="80" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="785" y="164" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">Prometheus 3.5</text>
+  <text x="785" y="184" text-anchor="middle" font-size="11" fill="var(--fg)">file_sd 抓各实例管理端口</text>
+  <text x="785" y="204" text-anchor="middle" font-size="11" fill="var(--fg)">&lt;主机&gt;:9090</text>
+
+  <line x1="600" y1="180" x2="698" y2="180" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="650" y="172" text-anchor="middle" font-size="11" fill="var(--muted)">抓取 A、B</text>
+
+  <line x1="180" y1="220" x2="180" y2="254" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="480" y1="220" x2="480" y2="254" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="785" y1="220" x2="785" y2="254" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- 第三行：共享 Redis；右侧 Grafana 与告警规则 -->
+  <rect x="30" y="256" width="600" height="150" rx="6" fill="var(--g)" fill-opacity="0.08" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="330" y="280" text-anchor="middle" font-size="13" font-weight="600" fill="var(--g)">共享 Redis（键前缀 mall-assistant:，每个键都会过期）</text>
+
+  <rect x="40" y="296" width="108" height="90" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.2"/>
+  <text x="94" y="318" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">限流</text>
+  <text x="94" y="340" text-anchor="middle" font-size="11" fill="var(--fg)">有序集合</text>
+  <text x="94" y="358" text-anchor="middle" font-size="11" fill="var(--fg)">Lua 滑动窗口</text>
+
+  <rect x="158" y="296" width="108" height="90" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.2"/>
+  <text x="212" y="318" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">并发名额</text>
+  <text x="212" y="340" text-anchor="middle" font-size="11" fill="var(--fg)">有序集合 + 租期</text>
+  <text x="212" y="358" text-anchor="middle" font-size="11" fill="var(--fg)">满了就轮询</text>
+
+  <rect x="276" y="296" width="108" height="90" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.2"/>
+  <text x="330" y="318" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">Token 账本</text>
+  <text x="330" y="340" text-anchor="middle" font-size="11" fill="var(--fg)">HINCRBY</text>
+  <text x="330" y="358" text-anchor="middle" font-size="11" fill="var(--fg)">一轮一段 Lua</text>
+
+  <rect x="394" y="296" width="108" height="90" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.2"/>
+  <text x="448" y="318" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">确认单</text>
+  <text x="448" y="340" text-anchor="middle" font-size="11" fill="var(--fg)">SET NX PX 抢占</text>
+  <text x="448" y="358" text-anchor="middle" font-size="11" fill="var(--fg)">最多执行一次</text>
+
+  <rect x="512" y="296" width="108" height="90" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.2"/>
+  <text x="566" y="318" text-anchor="middle" font-size="12" font-weight="600" fill="var(--g)">会话锁</text>
+  <text x="566" y="340" text-anchor="middle" font-size="11" fill="var(--fg)">SET NX PX 占</text>
+  <text x="566" y="358" text-anchor="middle" font-size="11" fill="var(--fg)">比较令牌再删</text>
+
+  <rect x="700" y="256" width="170" height="70" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="785" y="278" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">Grafana 11.6</text>
+  <text x="785" y="296" text-anchor="middle" font-size="11" fill="var(--fg)">provisioning 加载面板</text>
+  <text x="785" y="312" text-anchor="middle" font-size="11" fill="var(--fg)">&lt;主机&gt;:3000</text>
+
+  <rect x="700" y="346" width="170" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="785" y="368" text-anchor="middle" font-size="13" font-weight="600" fill="var(--y)">告警规则</text>
+  <text x="785" y="388" text-anchor="middle" font-size="11" fill="var(--fg)">promtool 跑过单元测试</text>
+
+  <path d="M870,180 L886,180 L886,376 L872,376" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+</svg>
