@@ -169,6 +169,10 @@ try {
 
 Spring Boot 取 4.0.x、Spring Cloud 取 2025.1；Spring Cloud Alibaba 有自己的 BOM（`spring-cloud-alibaba-dependencies`），按官方版本对表导入 2025.1.0.0，对表见 [Spring Cloud Alibaba](/service-governance/6_alibaba)。
 
+::: tip 与 main 的差异
+`main` 已升到 Spring Boot 4.1.2，Spring Cloud Alibaba 仍是 2025.1.0.0，见 [项目演进总览 · 主线后来的变化](./0_overview#三、主线后来的变化)。
+:::
+
 ### 1、Nacos：注册与配置
 
 每个服务的 `application.yml` 只留连接信息，业务配置放 Nacos；命名空间按 dev / test / prod 隔离，数据库密码这类密钥不进 Nacos，改由 Kubernetes Secret 注入环境变量，取代阶段一的 `EnvironmentFile`：
@@ -318,6 +322,10 @@ spec:
 ```
 
 探针、资源与滚动参数的含义见 [Kubernetes · 探针、滚动更新与优雅终止](/cloud-native/6_kubernetes#四、探针、滚动更新与优雅终止)，JVM 在容器里的内存设置见 [Kubernetes · JVM 在容器里](/cloud-native/6_kubernetes#_3、jvm-在容器里)。
+
+::: tip 与 main 的差异
+`main` 的清单里探针指向独立管理端口 `management`（18080），Service 只暴露 `http`（8080），照上面的 8080 配会探测失败，见 [项目演进总览 · 主线后来的变化](./0_overview#三、主线后来的变化)。
+:::
 
 上了 Kubernetes 后，雪花 ID 的机器号不能再按机器手工写：副本数随时变，Pod 名也不固定。每个 Pod 启动时从主机名的哈希开始，依次对 0–1023 执行 `SET mall:snowflake:worker:{服务}:{号} 实例ID NX PX 30000`，抢到为止；每 10 秒用 Lua 脚本续约（键的值还是自己才延长），发现键被别的实例占了立即停止发号，Redis 暂时出错时只在本地记录的租约到期前继续发号，停机时只删自己持有的键。显式配置的机器号仍然优先，本地、测试、集成测试和还在云主机上的 mall-app 照旧用 `WORKER_ID`，所以 Kubernetes 的 Secret 里不再有 `WORKER_ID`。机器号只在同一个服务内唯一，各服务的 ID 落在各自的库里，互不影响。
 

@@ -161,6 +161,10 @@ mall-order/src/main/java/io/github/clarence404/mall/order/
 </dependencyManagement>
 ```
 
+::: tip 与 main 的差异
+`main` 已升到 Spring Boot 4.1.2，见 [项目演进总览 · 主线后来的变化](./0_overview#三、主线后来的变化)。
+:::
+
 几个约定：
 
 - **用 Maven Wrapper**：本地和 CI 都执行 `./mvnw`，避免「我这能编过」
@@ -243,6 +247,10 @@ jobs:
       - run: ./mvnw -B verify
 ```
 
+::: tip 与 main 的差异
+`main` 上健康检查改走独立管理端口（云主机部署为 18080），不再是业务端口，见 [项目演进总览 · 主线后来的变化](./0_overview#三、主线后来的变化)。
+:::
+
 另有一条 `verify.yml` 专门出测试报告：`main` 和章节 / 阶段 tag 每次推送都完整跑一遍 `./mvnw -B verify`（Testcontainers 集成测试不跳过），测试失败也照样汇总 Surefire / Failsafe 报告与 JaCoCo 覆盖率，发布到 GitHub Pages 的 `reports/<ref>/` 下，地址形如 `https://clarence404.github.io/mall-evolution/reports/ch01-project-setup/`，每章「验证」一节列出的测试都能在对应报告里查到结果。
 
 流水线分阶段、制品管理与部署策略见 [CI/CD](/devops/4_ci_cd)。
@@ -272,6 +280,10 @@ spring:
 ```
 
 生产机上用 systemd 的 `EnvironmentFile=/etc/mall-evolution/env` 提供这些变量，文件权限 600、只有部署账号可读；本地开发用不提交的 `application-local.yml`（已加入 `.gitignore`）。CI 里另外加一步密钥扫描，防止有人误提交。
+
+::: tip 与 main 的差异
+`main` 上本地覆盖配置固定放在 `config/application-local.yml`，见 [项目演进总览 · 主线后来的变化](./0_overview#三、主线后来的变化)。
+:::
 
 现在只有一个应用、三套环境，不需要配置中心；阶段三拆出多个服务、需要动态改配置时再引入。Profile、配置优先级与绑定见 [配置管理](/spring-boot/5_config)，环境划分与晋级见 [环境管理](/devops/6_env_management)。
 

@@ -17,11 +17,11 @@ description: 智能客服章节路线、start 与 done 标签、三层测试、�
 | 设定 | 取值 |
 |------|------|
 | 仓库 | [`mall-assistant`](https://github.com/Clarence404/mall-assistant)，单模块 Maven 工程，包名 `io.github.clarence404.assistant` |
-| 版本 | JDK 21、Spring Boot 4.0、Spring AI 2.0（2.0.2）、Testcontainers 2 |
+| 版本 | JDK 21、Spring Boot 4.1（4.1.2）、Spring AI 2.0（2.0.2）、Testcontainers 2 |
 | 默认模型 | 本机 Ollama + `qwen2.5:0.5b`（约 400 MB，CPU 也跑得动）；换成任意 OpenAI 兼容接口只改 profile |
 | 页面 | `static/index.html`，原生 HTML / JS，已写好，各章只写后端 |
 | 端口 | 8088 |
-| 要调用的业务系统 | [项目演进](/project/0_overview) 系列的 `mall-evolution`，第 3 章起通过它的网关查订单、查库存 |
+| 要调用的业务系统 | [项目演进](/project/0_overview) 系列的 `mall-evolution`，第 3 章起通过它的网关查订单、查商品 |
 
 选 0.5b 的小模型是为了让每个人在笔记本上就能跑通、CI 上几分钟内跑完集成测试；它的回答质量不高，正好用来体会 Prompt、结构化输出和评估为什么必要。
 
@@ -60,7 +60,7 @@ git diff ch01-done -- src/main       # 卡住了再对照参考答案
 |------|--------|-------------|
 | 1 [接入模型与流式对话](./1_model_streaming) | ChatClient + 系统提示词，阻塞与 SSE 流式接口，超时与友好报错，按 profile 切换模型厂商 | [Spring AI](../2_frameworks/0_spring_ai)、[Ollama](../3_integration/0_ollama) |
 | 2 [Prompt 与结构化输出](./2_prompt_structured) | 提示词模板、意图识别、模型输出直接转成 Java 对象 | [Prompt 工程](../1_concepts/1_prompt) |
-| 3 [工具调用](./3_tool_calling) | 调 mall-evolution 的接口查订单、查库存 | [Function Calling（工具调用）](../1_concepts/2_function_calling) |
+| 3 [工具调用](./3_tool_calling) | 调 mall-evolution 的接口查订单、查商品（工具 `queryOrderStatus`、`queryProduct`、`listMyOrders`） | [Function Calling（工具调用）](../1_concepts/2_function_calling) |
 | 4 [知识入库](./4_knowledge_ingest) | 商城规则文档切块、增量向量化，存入内存向量库或 pgvector，检索调试 | [Embedding 向量化](../4_core_tech/0_embedding)、[向量数据库](../4_core_tech/1_vector_db) |
 | 5 [RAG 检索增强回答](./5_rag) | 意图路由、混合检索与门槛、检索增强回答、引用来源与校验 | [RAG 检索增强生成](../4_core_tech/2_rag) |
 | 6 [多轮对话与记忆](./6_memory) | 会话 ID、ChatMemory、上下文裁剪、追问改写与订单号沿用、会话隔离 | [Spring AI · 对话记忆](../2_frameworks/0_spring_ai#_2、对话记忆) |
@@ -89,18 +89,44 @@ git diff ch01-done -- src/main       # 卡住了再对照参考答案
 
 ## 五、本地运行
 
-需要 JDK 21 和一个模型服务，默认用本机 Ollama，不需要 Docker（只有集成测试要 Docker）：
+需要 JDK 21 和一个模型服务，默认用本机 Ollama，不需要 Docker（集成测试与可选组件除外：监控、Redis、pgvector 用 Docker 起）：
 
 1. 安装 Ollama：Windows 下载 `OllamaSetup.exe` 直接安装，装好后在后台监听 `http://localhost:11434`
 2. 拉取模型：`ollama pull qwen2.5:0.5b`，可以先用 `ollama run qwen2.5:0.5b "你好"` 试一句
 3. 启动：`./mvnw spring-boot:run`（Windows PowerShell 用 `.\mvnw.cmd spring-boot:run`），默认 profile 是 `ollama`
 4. 打开 `http://localhost:8088/` 提问，右上角可切换流式 / 阻塞，底部调试面板显示耗时与错误码
 
+后面几章要多准备几样，步骤以仓库 README「本地运行」为准：
+
+- **第 3 章起**：先启动 mall-evolution（四个服务，网关 9000），再在页面右上角用演示账号登录，账号见 [mall-assistant 仓库 README](https://github.com/Clarence404/mall-assistant#本地运行)；没启动它时对话照常可用，只是工具返回「商城服务暂时不可用」
+- **第 4 章起**：再拉一个向量模型 `ollama pull bge-m3`（约 1.2 GB，1024 维），启动时自动把知识文档入库；没拉也能启动，只是知识库不可用，第 5 章起的规则类问题会查不到资料
+- **第 10 章**：Redis（共享状态）与 Prometheus + Grafana（监控）都是可选的，默认仍是单实例、内存状态
+
+和 mall-evolution 同时在本机运行时端口互不冲突：
+
+| 服务 | 端口 |
+|------|------|
+| 智能客服 mall-assistant | 8088，环境变量 `SERVER_PORT` 可改 |
+| mall-evolution 网关（对外入口，第 3 章起调用它） | 9000 |
+| mall-evolution 订单与商品 / 库存服务 / 支付服务 | 8080 / 8082 / 8083 |
+| Ollama | 11434 |
+| PostgreSQL + pgvector（第 4 章，可选） | 5432 |
+| Redis（第 10 章，可选） | 6379 |
+| Prometheus / Grafana（第 10 章，可选） | 9090 / 3000 |
+
 **不在本机跑模型**时，把仓库 `config/` 目录下的 `application-local.example.yml` 复制为同目录的 `config/application-local.yml`（已被 `.gitignore` 忽略，Spring Boot 默认会读取 `./config/` 下的 `application-{profile}.yml`），填上远程 Ollama 的地址，或取消注释 `openai` 一段填 base-url、api-key、模型名，再以 `ollama,local`（或 `openai,local`）profile 启动。地址和密钥只放在这个本地文件里，不写进 `src/main/resources`。切到 `ch05-done` 及更早的章节标签练习时，模板还在仓库根目录，但 `./config/` 是 Spring Boot 的默认位置，`config/application-local.yml` 在这些标签上照样生效。
 
-**用 IntelliJ IDEA** 时，仓库的 `.run/` 带了三个共享运行配置：「智能客服（本地 Ollama）」「智能客服（OpenAI 兼容接口）」都已带上 `local` profile，「测试：mvn verify」等同命令行的 `./mvnw verify`。这些配置文件是入库的，不要在里面填密钥。
+**用 IntelliJ IDEA** 时，仓库的 `.run/` 带了 6 个共享运行配置，这些配置文件是入库的，不要在里面填密钥：
 
-换模型只需设置环境变量 `OLLAMA_CHAT_MODEL`（如 `qwen3:0.6b`），先 `ollama pull` 好。
+| 运行配置 | 作用 |
+|---------|------|
+| 智能客服（本地 Ollama） | profile `ollama,local` |
+| 智能客服（OpenAI 兼容接口） | profile `openai,local`，地址、密钥、模型名填上才能启动 |
+| 智能客服（Claude CLI） / 智能客服（Codex CLI） | profile `claude-cli,local` / `codex-cli,local`，拿本机已登录的命令行工具当对话模型，只用于本机学习 |
+| 智能客服流量模拟（演示账号） | 工具，不属于任何一章，见 [生产化：共享状态与监控落地 · 流量模拟器：让面板一直有数据](./10_production#_6-流量模拟器-让面板一直有数据) |
+| 测试：mvn verify | 等同命令行的 `./mvnw verify` |
+
+换模型只需设置环境变量 `OLLAMA_CHAT_MODEL`（如 `qwen2.5:1.5b`，约 1 GB，意图识别比 0.5b 明显更准），先 `ollama pull` 好。
 
 ---
 
@@ -109,7 +135,7 @@ git diff ch01-done -- src/main       # 卡住了再对照参考答案
 [项目演进](/project/0_overview) 系列的 `mall-evolution` 是智能客服要服务的业务系统：订单、商品、库存都在那边。两个仓库各自独立，互不依赖代码：
 
 - 第 1、2 章只和模型打交道，不需要启动 mall-evolution
-- 第 3 章起，智能客服把「查订单」「查库存」做成工具，通过 HTTP 调用 mall-evolution 的网关（端口 9000），和普通前端一样走对外接口，不直连它的数据库
+- 第 3 章起，智能客服把「查订单」「查商品」做成工具，通过 HTTP 调用 mall-evolution 的网关（端口 9000），和普通前端一样走对外接口，不直连它的数据库
 - 智能客服用 8088 端口，避开 mall-evolution 的 `mall-app`（8080）等服务，两个项目可以在同一台机器上同时运行
 
 ---
@@ -120,7 +146,7 @@ git diff ch01-done -- src/main       # 卡住了再对照参考答案
 - 每章有 `chNN-start`（骨架 + 先失败的测试）与 `chNN-done`（参考答案）两个标签，测试变绿即完成，`docs/chNN.md` 提供分级提示
 - 10 章依次覆盖接入与流式、Prompt 与结构化输出、工具调用、知识入库、RAG、记忆、Agent、MCP、评估上线、生产化，每章对应一篇原理文章
 - 测试分三层：假模型单元测试保证代码逻辑，录制回放覆盖依赖输出格式的逻辑，Testcontainers 真模型集成测试确认链路能通；回答质量交给评估集
-- 第 3 章起通过 mall-evolution 的网关（9000）调用业务接口，智能客服自身用 8088 端口
+- 第 3 章起通过 mall-evolution 的网关（9000）调用业务接口并用演示账号登录，第 4 章起要拉向量模型 `bge-m3`；智能客服自身用 8088 端口
 
 ## 参考资料
 

@@ -268,6 +268,7 @@ docker compose up -d
 - **管理员口令只从 `.env` 读**：compose 里写成 `${GRAFANA_ADMIN_PASSWORD:?}`，没设就拒绝启动；面板开了匿名 Viewer，改面板要登录
 - **内网机器上不联网**：关掉使用统计、更新检查和启动时预装插件，否则会卡住
 - **数据只留 7 天 / 1 GB**，Prometheus 限 512 MB 内存、Grafana 384 MB，学习用
+- **compose 项目名是 `mall-monitoring`**，不带 mall-assistant：同一套 Prometheus + Grafana 也可以顺带监控 [项目演进](/project/0_overview) 的 mall-evolution。仓库里只带了 mall-assistant 的抓取任务与面板，要监控商城就在部署目录的 `prometheus.yml` 里加一个抓取任务，抓它四个服务管理端口上的 `/actuator/prometheus`，再把它 `deploy/observability/grafana/` 下的面板 JSON 挂进 Grafana
 
 ### 2. Actuator 只在管理端口暴露
 
@@ -317,6 +318,26 @@ docker compose up -d
 - **`MonitoringFilesTest`（4 个）**：从应用这一头查——面板和告警里写的每个 `assistant_*`，应用真的会输出；面板能被 provisioning 加载；provisioning 的数据源 uid 正是面板变量选的那个
 
 告警的 `for`、分级与降噪见 [告警体系](/observability/4_alerting)，`rate` / `increase` 与服务发现见 [指标监控](/observability/2_metrics)。
+
+### 6. 流量模拟器：让面板一直有数据
+
+面板跑起来之后，没人提问时每条线都是平的。仓库 `main` 上另带一个流量模拟器，它是工具，不属于任何一章，也不在练习的 TODO 里：
+
+| 项 | 取值 |
+|----|------|
+| 位置 | `src/test/java/.../assistant/simulator/`，入口 `AssistantSimulator`；放在 `src/test` 下，不进应用的 jar |
+| 配置 | `src/test/resources/simulator/assistant-simulator.yml`，每项都能用环境变量（如 `SIMULATOR_ASKERS=1`）或 `-Dsimulator.askers=1` 覆盖 |
+| 启动 | 智能客服和 mall-evolution 都起来之后，在 IDEA 里选运行配置「智能客服流量模拟（演示账号）」，停止按钮即退出 |
+| 实现 | 不起 Spring 容器，只用 JDK 的 `HttpClient` 调和页面一样的接口，不往任何地方写数据 |
+
+- **默认速率**：2 个虚拟用户，每人问完等 40～80 秒，高峰时合计约 30 秒一问；其他时段按 24 个整点的流量曲线拉长间隔，夜里最低到 0.3 倍
+- **问什么**：六成先用演示账号登录、其余匿名；规则类（走 RAG）约 42%、查订单 23%、闲聊 15%、查商品 13%、Agent 办事 4%、超出范围 3%，三成在同一个会话里追问一句；流式与阻塞各一半，Agent 办事一律流式
+- **按每日 Token 预算节流**：第 9 章给每个调用方每天 10 万 Token。模拟器读回答里的 `usage`，把每个调用方的额度按时间均匀摊开并留一成给真人在页面上用，到线就换一个调用方或暂停，不会上午用光、下午全是 429；真收到 `TOKEN_BUDGET_EXCEEDED`，当天不再用这个调用方
+- **退避**：遇到限流、太忙、模型熔断或连不上时指数退避，30 秒起翻倍、最多 10 分钟
+- **Agent 只提议不确认**：「帮我取消订单」这类请求停在确认卡片，模拟器默认不点确认（`simulator.agent.confirm-cancel-probability: 0`）；调大后也只会确认「取消自己的待支付订单」
+- **少量异常**：1% 空消息、0.5% 超长消息（都是 400，不花 Token）、1% 登录输错密码（401），不触发模型错误类告警
+
+默认预算下 9 个调用方（8 个演示账号加匿名）一天合计约 80 万 Token，一问约 1500～2000 Token，所以全天平均 3～4 分钟一问，比配置的间隔慢；想按 30 秒一问跑满一天，在 `config/application-local.yml` 里调大 `assistant.usage.daily-token-budget`。mall-evolution 那边也有一个商城的流量模拟器（`simulator` 模块），两个一起跑，商城和客服的面板都有数据。
 
 ---
 
@@ -420,6 +441,35 @@ java -jar target/mall-assistant-1.0.0-SNAPSHOT.jar --spring.profiles.active=olla
 
 ---
 
+## 十三、全系列收尾
+
+十章走下来，这个智能客服从「能聊天」长到了「敢上线」，再到「起两个实例也不变样」：
+
+| 章 | 学到的 | 落在代码里 |
+|----|-------|-----------|
+| 1 | 接模型、流式、超时与错误分类 | `ChatClient`、SSE、`ModelCallException` |
+| 2 | 提示词模板与版本、结构化输出、拒答 | `IntentService`、`prompts/` |
+| 3 | 工具调用、令牌只走 ToolContext、查不到不编 | `MallTools`、`ToolCallRecorder` |
+| 4 | 切块、向量化、增量入库 | `knowledge/` |
+| 5 | 混合检索、引用、检索不到不调模型 | `rag/` |
+| 6 | 记忆、窗口裁剪、追问改写、会话归属 | `memory/` |
+| 7 | Agent 循环与刹车、写操作人工确认 | `agent/` |
+| 8 | MCP Server 与 Client、只提议不执行 | `mcp/` |
+| 9 | 评测与门禁、Token、限流熔断降级、监控、注入过滤 | `eval/`、`ops/`、`guard/` |
+| 10 | 共享状态与 Lua 原子脚本、抢占与分布式锁、Redis 出错策略、监控落地与告警单测 | `state/`、`monitoring/` |
+
+**学完能做什么**：给一个已有的 Java 业务系统加一个「懂业务、查得到真数据、按规则回答、会办事但不乱办」的 AI 助手，并且知道怎么证明它没有变差、怎么看它花了多少、出了事怎么查、哪里会被攻击。贯穿十章的几条原则比代码更值得带走：
+
+- **模型负责理解和措辞，代码负责事实、规则和执行**
+- **外来的文字都是数据，不是指令**
+- **宁可说不知道，也不要说错**
+- **改数据的事，人来拍板**
+- **能观测的才能评测，能评测的才敢上线**
+
+**还差什么**：[评估与上线 · 离生产还差什么](./9_eval_launch#十八、离生产还差什么) 列的九项里，本章做掉了头尾两条（状态共享、监控跑起来），认证、更强的模型、真实评测集、知识库审核、输出侧护栏、灰度与成本优化仍然没做；本章自己留下的见上文「与需求的差异」。每一项都可以是下一个项目的起点。
+
+---
+
 ## 小结
 
 - 起两个实例时，进程内的限流、预算、并发名额、确认单和会话标记都会失效；`assistant.state.store` 一个开关把它们一起切到 Redis，记忆与售后单仍是 PostgreSQL 里的「数据」
@@ -428,6 +478,7 @@ java -jar target/mall-assistant-1.0.0-SNAPSHOT.jar --spring.profiles.active=olla
 - Redis 出错时限流与预算按 `on-redis-error` 放行或 503，并发名额放行时退回本实例信号量，待确认操作一律 503，出错后冷却 5 秒并计入指标与告警；熔断器有意每实例一份
 - 同一套契约测试跑内存与 Redis 两种实现，两个 Redis 客户端证明共享生效，连不上的端口证明两种策略
 - 监控用独立 compose 跑起 Prometheus 3.5 + Grafana 11.6：Actuator 只在管理端口、file_sd 抓取、provisioning 加载面板，告警规则有 `alerts.test.yml` 单元测试并在 CI 里 `promtool` 校验；冒烟验证了合计限流、共享预算、跨实例确认只执行一次和停实例后告警 pending → firing
+- 流量模拟器（`main` 上的工具，不属于任何一章）按每日 Token 预算配速、出错退避、Agent 只提议不确认，让面板长期有数据；同一套 `mall-monitoring` 也可以顺带监控 mall-evolution
 
 > 本篇代码：[ch10-done](https://github.com/Clarence404/mall-assistant/tree/ch10-done) · 练习起点：[ch10-start](https://github.com/Clarence404/mall-assistant/tree/ch10-start)
 

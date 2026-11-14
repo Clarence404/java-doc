@@ -51,7 +51,7 @@
 
 **版本注意**：Dubbo 3.3 基于 Spring Boot 3.5，Boot 4 适配以官方发布为准；Istio 1.29 已于 2026-10-12 停止支持，Ambient 模式已 GA。
 
-**版本对应**：Spring Boot、Spring Cloud、Spring Cloud Alibaba 三者强绑定，本站基线为 Boot 4.0.x + Spring Cloud 2025.1 + SCA 2025.1.0.0，完整对表见 [Spring Cloud Alibaba · 定位与版本对齐](./6_alibaba#一、定位与版本对齐)。
+**版本对应**：Spring Boot、Spring Cloud、Spring Cloud Alibaba 三者强绑定，本站基线为 Boot 4.0.x + Spring Cloud 2025.1 + SCA 2025.1.0.0（官方对表未列 Boot 4.1，示例仓库 mall-evolution 实测 4.1.2 + 2025.1.0.0 可用），完整对表见 [Spring Cloud Alibaba · 定位与版本对齐](./6_alibaba#一、定位与版本对齐)。
 
 **Netflix 组件替代关系**（老项目升级时对照）：
 

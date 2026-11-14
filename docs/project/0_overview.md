@@ -12,7 +12,7 @@
 
 | 设定 | 取值 |
 |------|------|
-| 仓库 | [`mall-evolution`](https://github.com/Clarence404/mall-evolution)，Maven 多模块，Java 包名 `io.github.clarence404.mall`；每篇文章对应一个章节 tag（如 `ch04-cache`），四个阶段各有 tag 与 [Release](https://github.com/Clarence404/mall-evolution/releases)（`stage-1-monolith`、`stage-2-cache-async`、`stage-3-split`、`stage-4-stability`）；每个章节 tag 上都跑了完整构建并发布 [测试报告](https://clarence404.github.io/mall-evolution/)，前九篇的「验证」一节列出关键结论与证明它的测试；本地体验：`docker compose --profile demo up -d --build` 一条命令起全套服务，浏览器打开 `http://localhost:9000/` 进入演示控制台（详见仓库 README） |
+| 仓库 | [`mall-evolution`](https://github.com/Clarence404/mall-evolution)，Maven 多模块，Java 包名 `io.github.clarence404.mall`；每篇文章对应一个章节 tag（如 `ch04-cache`），四个阶段各有 tag 与 [Release](https://github.com/Clarence404/mall-evolution/releases)（`stage-1-monolith`、`stage-2-cache-async`、`stage-3-split`、`stage-4-stability`）；每个章节 tag 上都跑了完整构建并发布 [测试报告](https://clarence404.github.io/mall-evolution/)，前九篇的「验证」一节列出关键结论与证明它的测试；本地体验：`docker compose --profile demo up -d --build` 一条命令起全套服务，浏览器打开 `http://localhost:9000/` 进入演示控制台（详见仓库 README）；`main` 在全系列写完后仍在维护，与各章标签的差异见下文「主线后来的变化」 |
 | 核心实体 | 用户、商品、库存、订单、支付单 |
 | 团队 | 起步 3 人全栈，阶段三扩到 20 人、4 个小组，阶段四新增 1 名专职 SRE |
 | 部署 | 起步两台云主机；阶段三起迁到 Kubernetes |
@@ -34,13 +34,32 @@
 
 ---
 
-## 三、模块导航
+## 三、主线后来的变化
+
+各篇正文与对应的章节 tag、阶段 tag 一致，照着标签读代码不会对不上。`main` 在全系列写完后还在继续维护，下面几处与正文示例不同；照着 `main` 在本地跑时，以仓库 [README](https://github.com/Clarence404/mall-evolution#readme) 为准。
+
+| 变化 | 正文（各章标签） | `main` 现在 |
+|------|----------------|------------|
+| Spring Boot 版本 | 4.0.x | 4.1.2；Spring Cloud 2025.1.4、Spring Cloud Alibaba 2025.1.0.0 |
+| 本地覆盖配置 | 仓库根目录下不提交的 `application-local.yml` | 固定放在 `config/application-local.yml`（模板 `config/application-local.example.yml`），以 `dev,local` 两个 profile 启动时读取 |
+| 管理端口 | Actuator 与业务同一个端口：健康检查、探针、Prometheus 抓取都走 8080 | 独立管理端口：dev 为业务端口 + 10000（18080 / 18082 / 18083 / 19000），prod 与 Kubernetes 统一 18080；管理端口只放行 health、info、prometheus，业务端口上匿名访问 `/actuator/prometheus` 返回 401 |
+| Kubernetes 清单 | 探针指向容器端口 8080 | 容器端口分为 `http`（8080）与 `management`（18080），存活 / 就绪 / 启动探针与 PodMonitor 都指向 `management`，Service 只暴露 `http`；云主机部署的健康检查也走 18080 |
+| 演示数据 | 2 个普通演示用户与 1 个运营账号 | 普通演示用户增加到 8 个（给流量模拟器分散用户）；demo profile 多了查库存与补货接口（`/api/demo/inventory/stocks`） |
+| 流量模拟器 | 无 | `simulator` 模块：演示账号经网关长期模拟真人浏览、下单、支付，让监控面板一直有数据；与 `perf`（Gatling 压测）不同，速率低、一直跑 |
+| Grafana 面板 | 业务大盘 | 新增 JVM / HTTP 通用面板（`deploy/observability/grafana/jvm-http-dashboard.json`） |
+| 本地监控 | 无 | 可以借用 mall-assistant 仓库 `monitoring/` 的那套 Prometheus + Grafana（compose 项目名 `mall-monitoring`），加上抓四个服务管理端口的任务即可，见 [生产化：共享状态与监控落地 · 监控落地：真的跑起来、真的测过](/ai/7_practice/10_production#七、监控落地-真的跑起来、真的测过) |
+
+正文里受影响的示例旁边都有一句提示指回这里，示例本身不改。
+
+---
+
+## 四、模块导航
 
 <ModuleNav />
 
 ---
 
-## 四、推荐阅读路径
+## 五、推荐阅读路径
 
 建议按编号顺序读，每篇开头都会交代承接的上一步；只关心某个阶段时，也可以从对应的文章单独读起。每篇都按同一个结构写：
 
@@ -55,7 +74,7 @@
 
 ---
 
-## 五、关联模块
+## 六、关联模块
 
 - [工程结构与分包](/architecture/2_package_structure)：仓库布局、模块划分与包结构的通用做法
 - [系统设计方法论](/scenario/1_design_method)：需求澄清、容量估算到架构取舍的答题流程

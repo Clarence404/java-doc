@@ -63,6 +63,10 @@ description: 链路追踪与日志关联、统一指标与告警、SLO 与燃烧
 
 组件版本：Spring Boot 4、Kubernetes 1.37、Prometheus 3、Argo CD 3。
 
+::: tip 与 main 的差异
+`main` 上 Prometheus 抓的是各服务管理端口上的 `/actuator/prometheus`，业务端口匿名访问返回 401，见 [项目演进总览 · 主线后来的变化](./0_overview#三、主线后来的变化)。
+:::
+
 agent 只负责链路，指标仍走 Micrometer：agent 2.x 默认不桥接 Micrometer 指标，两边都开会出现两套口径不同的 HTTP 指标，所以关掉 agent 的指标导出。两条接入路线的取舍见 [OpenTelemetry · Java 接入方式对比](/observability/5_opentelemetry#二、java-接入方式对比)。没选 Micrometer Tracing，是因为 4 个服务都要加依赖、改配置，RocketMQ 5 客户端的生产与消费还得自己埋点；agent 只改镜像和环境变量，代价是启动慢几秒、agent 版本要跟着升级。[接口设计](./3_api_design) 约定的 `ProblemDetail.traceId` 字段名不变，取值改成从 OpenTelemetry 的当前 Span 读，见第五节。
 
 ### 1、明确不做
@@ -231,6 +235,10 @@ inhibit_rules:
 
 `outbox` 待发送时长与消费堆积分开看，就能把「一致性窗口变长」定位到中继、Broker 还是消费者那一段，这个思路在 [异步化](./5_async) 里已经用过。看板的布局原则见 [指标监控 · Grafana 看板设计](/observability/2_metrics#_2、grafana-看板设计)。
 
+::: tip 与 main 的差异
+`main` 在业务大盘之外新增了 JVM / HTTP 通用面板，还带一个让面板一直有数据的流量模拟器，见 [项目演进总览 · 主线后来的变化](./0_overview#三、主线后来的变化)。
+:::
+
 ---
 
 ## 六、金丝雀发布与自动回滚
@@ -293,6 +301,10 @@ spec:
           query: |
             histogram_quantile(0.99, sum by (le) (rate(http_server_requests_seconds_bucket{application="{{args.app}}",rollouts_pod_template_hash="{{args.canary-hash}}"}[2m])))
 ```
+
+::: tip 与 main 的差异
+`main` 的 Rollout 与阶段三的 Deployment 一样，探针已改指管理端口 `management`，见 [项目演进总览 · 主线后来的变化](./0_overview#三、主线后来的变化)。
+:::
 
 几个落地细节：
 
