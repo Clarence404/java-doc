@@ -345,7 +345,7 @@ provider.newPushConsumerBuilder()
 
 ### 1、本地消息表重试按时间封顶
 
-**问题**：`markRetry` 按次数封顶。退避是 1、2、4…256 秒，第 10 次失败就把记录置为失败（`status = 2`），从第一次失败算起只有约 9 分钟，而置为失败的记录中继不会再认领，也没有重投的入口。Broker 升级或网络抖动持续十来分钟，这段时间里写入的消息会成批变成死记录：订单已支付，积分、发货单却永远收不到 `order-paid`，只能等对账或人工发现。
+**问题**：`markRetry` 按次数封顶。退避是 1、2、4…256 秒，第 10 次失败就把记录置为失败（`status = 2`），从第一次失败算起只有约 9 分钟，而置为失败的记录中继不会再认领，当时也没有重投的入口。Broker 升级或网络抖动持续十来分钟，这段时间里写入的消息会成批变成死记录：订单已支付，积分、发货单却永远收不到 `order-paid`，只能等对账或人工发现。
 
 **怎么发现的**：审查时把退避序列加起来，发现「放弃」比一次普通的 Broker 故障还短。旧的回写 SQL 用 `DATE_ADD … INTERVAL POW(…) SECOND`，H2 的 MySQL 模式不认，只有需要 Docker 的集成测试能跑到；修复时把退避挪到 Java 里算，SQL 换成 `TIMESTAMPADD` / `TIMESTAMPDIFF`，H2 测试里也能直接验证「失败 10 次、20 次仍是待发送」。
 
@@ -356,7 +356,7 @@ provider.newPushConsumerBuilder()
 | Broker 或网络的问题（超时、5xx、限流、Topic 还没建好） | 其余 `ClientException` | 一直重试：退避 1、2、4…128 秒翻倍，之后封顶 240 秒（4 分钟）一次；记录创建满 `mall.outbox.give-up-after`（默认 24 小时）仍没发出去才置为失败 |
 | 消息本身非法（请求不合法、消息体为空或过大、消息头过大，或客户端校验不过） | `OutboxRelay.isIllegalMessage` | 立即 `markFailed`，换个时间再发结果一样；`send` 返回 `true`，同一批后面的记录照常发送 |
 
-置为失败的记录仍然不会自动重发：`outbox.failed.count` 大于 0 触发 `OutboxFailedRecords` 告警，排查后人工把 `status` 改回 0、`created_at` 改成当前时间，记录重新获得 24 小时的重试窗口。
+置为失败的记录仍然不会自动重发：`outbox.failed.count` 大于 0 触发 `OutboxFailedRecords` 告警，排查后由运营账号调重投接口放回待发送，见本小节末尾的「失败记录重投接口」。
 
 | 结论 | 测试 | 类型 |
 |------|------|------|
@@ -366,6 +366,34 @@ provider.newPushConsumerBuilder()
 | 真实 MySQL 上失败 30 次仍待发送，超过时限后置失败 | [`OutboxRelayIT#brokerFailureKeepsRetryingAndOnlyGivesUpAfterTheTimeLimit`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
 
 提交：[`ee17206`](https://github.com/Clarence404/mall-evolution/commit/ee17206)，代码见 [`OutboxRelay`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/outbox/OutboxRelay.java) 与 [`OutboxMapper#markRetry`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/outbox/OutboxMapper.java)。
+
+**失败记录重投接口**：按时间封顶刚改完时，失败记录只能手工改库（`status` 改回 0、`created_at` 改成当前时间）才会重投，既容易改错行，也把「消息写入时间」改没了。随后补了一组后台接口，路径在 `/api/admin/**` 下，沿用已有的 ADMIN 角色校验（普通用户 403、未登录 401）：
+
+| 接口 | 作用 | 细节 |
+|------|------|------|
+| `GET /api/admin/outbox/failed` | 列出失败记录 | 新的在前，游标分页（`size` 默认 20、最多 50），可按 `topic` 过滤；只返回 `id`、`topic`、`msgKey`、`retryCount`、`deliverAt`、`createdAt`、`failedAt`，**不返回消息体**（里面可能有手机号、地址、金额） |
+| `POST /api/admin/outbox/failed/redrive` | 批量重投 | 请求体可不传，或 `{"topic":"order-paid","limit":100}`；`limit` 默认 100、最大 500，超过返回 400 而不是悄悄截断；最老的失败记录优先，返回 `{"redriven":2,"remaining":1}`，`remaining` 大于 0 就再调一次 |
+| `POST /api/admin/outbox/failed/{id}/redrive` | 重投单条 | 记录不存在返回 404 `OUTBOX_RECORD_NOT_FOUND`；存在但已不是失败状态返回 `redriven: 0`，不报错 |
+
+- **重投做了什么**：一条 `UPDATE … WHERE status = 2 AND id IN (…)`，把 `status` 置回 0、`retry_count` 清零、`next_retry_at` 置为当前时间，中继下一轮扫表（每秒一次）就会发出去；接口本身不碰 Broker。操作人与条数记日志，不记消息体
+- **只动失败记录且幂等**：条件里带 `status = 2`，待发送、已发送的记录即使 id 被传进来也不会被改；同一条重复调用、或两个人同时点，只有第一次生效
+- **新增 `retry_since` 列**：三个服务各一个 `V20261115_01` 迁移，可为空、无默认值，属于纯扩展，滚动发布时新旧版本可以并存。重投时把它写成当前时间，`markRetry` 的放弃计时改用 `COALESCE(retry_since, created_at)`：「满 24 小时放弃」从重投时刻重新算，`created_at` 不动；没重投过的记录该列为空，行为不变
+- **`outbox.pending.age` 同样从重投时刻算**：取 `MIN(COALESCE(retry_since, created_at))`，否则一条几天前创建的记录刚被重投，「最老待发送时长」立刻变成几天，`OutboxPendingTooLong` 会误报
+- **消息本身非法的记录重投后会再次立即失败**：中继每次发送都重新校验，这是预期，要先修数据或代码；重投只解决「当时环境不行、现在好了」的那一类。列表里 `retryCount` 很小的多半是这一类
+- **放在 `mall-common`，三个服务各管各的表**：[`OutboxAdminController`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/outbox/OutboxAdminController.java) 跟着 `mall-common` 被 `mall-app`、`inventory-service`、`payment-service` 扫描到，调哪个服务处理的就是哪个服务的 `t_outbox`，告警的 `application` 标签说明该调哪个。没有新增网关路由：`mall-app` 经兜底路由 `/api/**` 可达并沿用每用户限流；库存与支付服务网关不路由，在集群内直接调服务地址，带同一个 ADMIN 访问令牌
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 重投后的记录被中继重新发出 | [`OutboxRedriveH2Test#redrivenRecordIsPickedUpAndSentByTheRelay`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRedriveH2Test.java) | H2 |
+| 同一条重投两次只有第一次生效；待发送、已发送的记录不受影响 | [`OutboxRedriveH2Test#redrivingTheSameRecordTwiceOnlyTakesEffectOnce`、`#pendingAndSentRecordsAreNeverTouched`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRedriveH2Test.java) | H2 |
+| 放弃计时与待发送时长都从重投时刻起算 | [`OutboxRedriveH2Test#giveUpClockRestartsFromTheRedriveNotFromCreation`、`#pendingAgeIsMeasuredFromTheRedrive`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRedriveH2Test.java) | H2 |
+| 批量按上限重投并返回剩余条数，超过 500 返回 400，可只重投一个 Topic | [`OutboxRedriveH2Test#batchRedriveHonoursTheLimitAndReportsWhatIsLeft`、`#batchLimitAboveTheMaximumIsRejected`、`#batchRedriveCanBeLimitedToOneTopic`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRedriveH2Test.java) | H2 |
+| 列表只含失败记录、不含消息体；id 不存在返回 404 | [`OutboxRedriveH2Test#listReturnsOnlyFailedRecordsWithoutPayloadAndPaginates`、`#unknownIdReturns404`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRedriveH2Test.java) | H2 |
+| 普通用户 403、未登录 401 | [`OutboxRedriveH2Test#normalUserGets403`、`#anonymousGets401`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRedriveH2Test.java) | H2 |
+| 库存、支付服务上接口同样生效，各管自己的表 | [`OutboxAdminH2Test#adminCanListAndRedriveThisServicesOwnFailedRecords`](https://github.com/Clarence404/mall-evolution/blob/main/inventory-service/src/test/java/io/github/clarence404/mall/inventory/OutboxAdminH2Test.java)（[支付服务同名](https://github.com/Clarence404/mall-evolution/blob/main/payment-service/src/test/java/io/github/clarence404/mall/payment/OutboxAdminH2Test.java)） | H2 |
+| 真实 MySQL 上重投后重新发出，放弃时限重新起算 | [`OutboxRelayIT#redrivenFailedRecordsAreSentAgainAndGetAFreshGiveUpWindow`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
+
+「非法消息重投后再次失败」没有单独的测试，由上表的「消息非法立即置失败」覆盖：重投后的记录走的是同一段发送代码。提交：[`867dc85`](https://github.com/Clarence404/mall-evolution/commit/867dc85)，代码见 [`OutboxAdminService`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/outbox/OutboxAdminService.java) 与 [`OutboxMapper#redrive`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/outbox/OutboxMapper.java)。
 
 ### 2、定时任务不再共用一个线程
 
@@ -403,7 +431,7 @@ provider.newPushConsumerBuilder()
 - `order-paid` 由 `points-consumer`、`notify-consumer`、`shipment-consumer` 各自消费，幂等统一用 `t_consume_record`；外部调用按「先发后记」或下游幂等处理
 - 超时关单改为 15 分钟定时消息加每 10 分钟的兜底扫描，关单一律用状态条件更新
 - 监控看两段：`t_outbox` 待发送时长定位中继问题，消费组堆积定位下游问题，死信大于 0 就告警
-- `main` 上后来的修复：outbox 重试改为按时间封顶（24 小时）、调度线程池 4 个线程、消费线程数按「消费组数 × 线程数不超过连接池一半」显式设置
+- `main` 上后来的修复：outbox 重试改为按时间封顶（24 小时），失败记录由 ADMIN 调重投接口放回待发送；调度线程池 4 个线程、消费线程数按「消费组数 × 线程数不超过连接池一半」显式设置
 
 > 本篇代码：[ch05-async](https://github.com/Clarence404/mall-evolution/tree/ch05-async) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch04-cache...ch05-async) · 阶段 Release：[stage-2-cache-async](https://github.com/Clarence404/mall-evolution/releases/tag/stage-2-cache-async)
 
