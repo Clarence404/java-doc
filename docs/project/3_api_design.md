@@ -306,7 +306,7 @@ spring:
 
 服务端 Session 随时可吊销，但两台主机要共享会话，阶段一还没有 Redis，App 和小程序处理 Cookie 也麻烦；JWT 无状态，两台主机都能独立校验，缺点是签发后无法撤销。
 
-选 JWT，用两个令牌弥补不能撤销的问题：访问令牌有效期 30 分钟，放在 `Authorization: Bearer` 里；刷新令牌有效期 14 天，服务端只存它的 SHA-256 哈希，改密码、踢下线时删掉即可。刷新时**轮换**：旧刷新令牌删掉、签发新的一对，旧令牌再拿来刷新直接失败，泄露的刷新令牌最多被用一次。下一篇后台改价要区分运营和普通用户，届时访问令牌加上 `roles` 声明，刷新时也按库里当前的角色重签、并校验用户没被禁用，见 [引入缓存](./4_cache)。认证过滤器校验访问令牌后把 `LoginUser` 放进安全上下文，Controller 用 `@AuthenticationPrincipal` 取。登录方案的对比见 [认证与登录](/security/1_authentication)，令牌的签名与续期见 [JWT 令牌机制](/security/1_jwt)，限流、签名和防重放这类接口防护阶段一暂不做，见 [API 安全](/security/6_api_security)。
+选 JWT，用两个令牌弥补不能撤销的问题：访问令牌有效期 30 分钟，放在 `Authorization: Bearer` 里；刷新令牌有效期 14 天，服务端只存它的 SHA-256 哈希，改密码、踢下线时删掉即可（过期的刷新令牌在 `main` 上另有每日清理，见 [后来的修复](#十四、后来的修复)）。刷新时**轮换**：旧刷新令牌删掉、签发新的一对，旧令牌再拿来刷新直接失败，泄露的刷新令牌最多被用一次。下一篇后台改价要区分运营和普通用户，届时访问令牌加上 `roles` 声明，刷新时也按库里当前的角色重签、并校验用户没被禁用，见 [引入缓存](./4_cache)。认证过滤器校验访问令牌后把 `LoginUser` 放进安全上下文，Controller 用 `@AuthenticationPrincipal` 取。登录方案的对比见 [认证与登录](/security/1_authentication)，令牌的签名与续期见 [JWT 令牌机制](/security/1_jwt)，限流、签名和防重放这类接口防护阶段一暂不做，见 [API 安全](/security/6_api_security)。
 
 ---
 
@@ -394,6 +394,20 @@ class PlaceOrderApiTests extends IntegrationTestBase {
 | 刷新令牌轮换，旧刷新令牌再用被拒 | [`AuthTokenH2Test#refreshRotatesTokenAndOldRefreshTokenIsRejected`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/user/AuthTokenH2Test.java) | H2 全流程 |
 | 踢下线吊销该用户全部刷新令牌 | [`AuthTokenH2Test#kickOutRevokesAllRefreshTokensOfUser`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/user/AuthTokenH2Test.java) | H2 全流程 |
 | 破坏性接口变更让 PR 检查失败（以目标分支的 `api/openapi.json` 为基准） | [`pr.yml`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/.github/workflows/pr.yml) 的 OpenAPI breaking-change check | 静态校验（CI） |
+
+---
+
+## 十四、后来的修复
+
+全系列写完后对 `main` 做了一轮只读的代码审查，其中一处与本篇的鉴权有关，不在章节标签里。
+
+**问题**：刷新令牌只在三种时候删除：刷新时轮换、登出、踢下线。用户登录后不再回来，或者像流量模拟器那样每次都重新登录的客户端，留下的令牌到期后没人清，`t_refresh_token` 只增不减。过期令牌本来就通不过校验，不影响安全，问题只是表会一直涨。
+
+**怎么发现的**：审查时把 `RefreshTokenMapper` 的删除语句列出来，没有一条按 `expire_at` 删除；`main` 上的流量模拟器长期运行，正好会持续制造这种令牌。
+
+**怎么修**：`RefreshTokenCleanupJob` 每天 03:45（`mall.auth.refresh-token-cleanup-cron`，与 outbox、消费去重记录的清理错开）按 `expire_at` 分批删除，每批 1000 条、各是一个短事务；配套加索引 `idx_refresh_expire_at`，迁移脚本是纯扩展。多实例同时执行无害：只是一条按时间条件的 `DELETE`，重复执行结果相同，不需要抢占或分布式锁。
+
+**测试**：[`AuthTokenH2Test#cleanupJobDeletesOnlyExpiredRefreshTokens`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/user/AuthTokenH2Test.java)：只删已过期的，没过期的照常可以刷新，再跑一遍什么都不多删。提交：[`0e0a685`](https://github.com/Clarence404/mall-evolution/commit/0e0a685)，代码见 [`RefreshTokenCleanupJob`](https://github.com/Clarence404/mall-evolution/blob/main/mall-user/src/main/java/io/github/clarence404/mall/user/auth/RefreshTokenCleanupJob.java)。
 
 ---
 

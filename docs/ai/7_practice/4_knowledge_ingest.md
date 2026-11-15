@@ -264,6 +264,10 @@ SELECT metadata->>'source', count(*) FROM knowledge_chunk_bge_m3 GROUP BY 1;
 - **概况接口不依赖模型**：`/api/knowledge/stats` 的文档汇总直接查存储，维度探测失败就为空并在 `warning` 里说明
 - **命令行模型也有知识库**：`claude-cli` / `codex-cli` 两个 profile 没有向量模型，同样用 Ollama 的；`openai` profile 用兼容接口的 `/v1/embeddings`，没有这个接口的厂商（如 DeepSeek）知识库返回 503，对话不受影响
 
+::: tip 与 main 的差异
+`main` 上 `POST /api/knowledge/ingest` 默认只接受本机回环地址的调用，从别的机器调是 403；检索调试接口计入每分钟次数限流，见 [后来的修复](#十四、后来的修复)。
+:::
+
 错误分类与 ProblemDetail 的写法见 [接入模型与流式对话](./1_model_streaming)。
 
 ---
@@ -316,6 +320,42 @@ SELECT metadata->>'source', count(*) FROM knowledge_chunk_bge_m3 GROUP BY 1;
 
 ---
 
+## 十四、后来的修复
+
+`ch10-done` 之后对 `main` 做了一轮只读的代码审查，下面两处与知识库有关，不属于任何一章，`ch04-done` 标签里没有。两处都是先从代码推出问题、写出能复现的测试，再改。提交：[`ec63b5f`](https://github.com/Clarence404/mall-assistant/commit/ec63b5f)。
+
+### 1、检索热路径上的两次全表扫描
+
+**问题**：`KnowledgeStore#documents()` 返回按 `source` 汇总的文档列表，本来是给入库时比对哈希用的。第 5 章起每次 RAG 检索也要用它两次：一次核对库里的向量是不是当前模型生成的，一次当关键词索引的签名、判断索引要不要重建。pgvector 版的实现是把整张表每一块的元数据拉回应用里再分组，等于每个问题多两次全表扫描；6 篇文档看不出来，文档一多，每次提问都跟着表的大小变慢。内存版同样每次现算：核对维度要把一整块（含上千个数的向量）用 Jackson 转成 Map，汇总要把全部块过一遍。
+
+**怎么发现的**：审查时顺着「一次提问会发出哪些查询」把检索路径读了一遍。测试用 Mockito 的假 `JdbcTemplate` 数发了几条 SQL：连取两次汇总，修复前是 2 次全表查询，修复后只查 1 次。
+
+**怎么修**：
+
+| 存储 | 修复 |
+|------|------|
+| pgvector | 分组放进数据库：`GROUP BY metadata->>'source'`，一篇文档一行；结果缓存在 `PgVectorKnowledgeStore` 里，入库前后（`KnowledgeStore#invalidate`，写到一半失败也会调）与删表重建时失效 |
+| pgvector 多实例 | 别的实例入了库，本实例收不到通知，缓存另设 30 秒有效期兜底；这 30 秒里关键词索引是旧的，向量检索每次都查库、不受影响 |
+| memory | 维度与文档汇总缓存在包了一层的 `SimpleVectorStore` 里，写入、删除、从文件读回、清空任何一种改动都让缓存作废；用版本号防止「算的时候库变了」把旧结果存进缓存 |
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 连着检索两次只查一次数据库，且在库里分组 | [`PgVectorKnowledgeStoreTest#documentsAreCachedBetweenSearches`、`#documentsAreGroupedInTheDatabase`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/knowledge/PgVectorKnowledgeStoreTest.java) | 单元 |
+| 入库、删表重建后重新查，超过有效期也重新查 | [`PgVectorKnowledgeStoreTest#invalidateForcesReload`、`#resetForcesReload`、`#cacheExpiresSoOtherInstancesIngestIsEventuallySeen`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/knowledge/PgVectorKnowledgeStoreTest.java) | 单元（假时钟） |
+| 内存版连着检索维度只算一次，内容变了缓存作废 | [`MemoryKnowledgeStoreTest#dimensionsAreProbedOnceAcrossSearches`、`#cachesAreDroppedWhenContentChanges`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/knowledge/MemoryKnowledgeStoreTest.java) | 单元 |
+
+### 2、入库接口只认本机
+
+**问题**：三个知识库接口没有任何保护。`POST /api/knowledge/ingest?rebuild=true` 会清空重建并调用向量模型，等于任何能访问到 8088 端口的人都能把知识库删掉重建。
+
+**怎么修**：入库接口默认只接受本机回环地址（127.0.0.1、::1）的调用，别的来源返回 403 `KNOWLEDGE_INGEST_FORBIDDEN`，开关是 `assistant.knowledge.ingest-local-only`（默认 `true`）。本机浏览器点「入库」、本机 curl、启动时自动入库都不受影响。检索调试接口 `GET /api/knowledge/search` 每次要调一次向量模型，改为过对话接口的每分钟次数限流，见 [评估与上线 · 后来的修复](./9_eval_launch#十九、后来的修复)；`/api/knowledge/stats` 只读本机状态，不限。
+
+**这层保护的边界**：它认的是 TCP 连接的来源地址，不需要保管任何口令，对「一台机器上学习」正合适。应用前面有同机的反向代理时，所有请求看起来都来自本机，这层保护就等于没有，要在代理上拦掉这个路径，或换成真正的管理员鉴权。
+
+**测试**：[`EndpointProtectionApiTest#ingestFromAnotherMachineIsForbidden`、`#ingestFromLoopbackStillWorks`、`#loopbackDetection`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/chat/EndpointProtectionApiTest.java)（接口）：别的机器来的请求 403，而且库里什么都没变。
+
+---
+
 ## 小结
 
 - 6 篇带 front matter 的规则文档先按标题分节，超长的节再按 300 字切块、重叠 50 字；块文字带上标题路径，向量里才有「这一节讲什么」
@@ -324,6 +364,7 @@ SELECT metadata->>'source', count(*) FROM knowledge_chunk_bge_m3 GROUP BY 1;
 - 中文规则用 bge-m3（1024 维），nomic-embed-text 中文四个问题错三条，且要加查询 / 文档前缀；口语化问题两个都找不准，留给第 5 章
 - 不同模型的向量不能混用：每个模型一张表 / 一个文件，混用时返回 409 `INDEX_MODEL_MISMATCH` 要求重建
 - 默认 memory 零依赖，可选 pgvector（自建连接池、HNSW、余弦距离、显式传维度、延迟建表），两种库的分数口径一致
+- `main` 上后来的修复：文档汇总改为库里 `GROUP BY` 并缓存，检索不再每次全表扫描两次；入库接口默认只认本机回环地址
 - Spring AI 2.0.2：PgVectorStore 探测失败静默按 1536 建表、metadata 是 json、阈值 0 过滤负相似度、Hikari 启动即连库；模型或库不可用时只返回 503，不影响启动和对话
 
 > 本篇代码：[ch04-done](https://github.com/Clarence404/mall-assistant/tree/ch04-done) · 练习起点：[ch04-start](https://github.com/Clarence404/mall-assistant/tree/ch04-start)

@@ -209,6 +209,10 @@ boolean send(OutboxRecord r) {                                    // 事务外�
 }
 ```
 
+::: tip 与 main 的差异
+`main` 上不再「第 10 次失败置为失败」：Broker 或网络类失败一直重试，记录创建满 24 小时仍没发出去才置为失败，见 [后来的修复 · 本地消息表重试按时间封顶](#_1、本地消息表重试按时间封顶)。
+:::
+
 `relayOne` 同样先认领再发送，认领时发现记录已被扫表那一路领走（租约未到期）就直接返回。
 
 `Producer` 在启动时用 `ClientServiceProvider` 构建，接入点和 AccessKey 从 [工程搭建](./1_project_setup) 约定的 `EnvironmentFile` 环境变量读取。发送成功但 `markSent` 前宕机、或租约到期还没发完时，消息会再发一次，这是本地消息表「至少一次」的固有代价，由消费端幂等兜住。已发送的记录保留 7 天，每天凌晨分批删除。
@@ -329,9 +333,65 @@ provider.newPushConsumerBuilder()
 | 短事务认领加租约，发送在事务外 | [`OutboxRelayTest#batchIsClaimedWithLeaseInShortTransactionAndSentOutsideIt`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-order/src/test/java/io/github/clarence404/mall/order/outbox/OutboxRelayTest.java) | 单元 |
 | 认领事务使用读已提交 | [`OutboxRelayTest#claimTransactionUsesReadCommitted`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-order/src/test/java/io/github/clarence404/mall/order/outbox/OutboxRelayTest.java) | 单元 |
 | Broker 故障时停止本批，剩余记录释放租约 | [`OutboxRelayTest#brokerFailureStopsBatchAndReleasesRemainingLeases`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-order/src/test/java/io/github/clarence404/mall/order/outbox/OutboxRelayTest.java) | 单元 |
-| 发送失败按退避重试，第 10 次失败置为失败 | [`OutboxRelayIT#brokerFailureBacksOffAndEventuallyFails`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
+| 发送失败按退避重试，第 10 次失败置为失败（`ch05-async` 标签上的行为，`main` 已改为按时间封顶，见下文「后来的修复」） | [`OutboxRelayIT#brokerFailureBacksOffAndEventuallyFails`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
 | 同一订单的积分只发一次 | [`AsyncFlowH2Test#pointsAreGrantedOncePerOrder`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-app/src/test/java/io/github/clarence404/mall/order/AsyncFlowH2Test.java) | H2 全流程 |
 | 超时消息到期关闭未支付订单并归还库存 | [`AsyncFlowH2Test#timeoutClosesUnpaidOrderAndReturnsStock`](https://github.com/Clarence404/mall-evolution/blob/ch05-async/mall-app/src/test/java/io/github/clarence404/mall/order/AsyncFlowH2Test.java) | H2 全流程 |
+
+---
+
+## 九、后来的修复
+
+全系列写完后对 `main` 做了一轮只读的代码审查，下面三处与本篇有关。它们都不在 `ch05-async` 标签里，前文与标签保持一致；三处都是先从代码推出问题，再写出能复现的测试，最后才改。
+
+### 1、本地消息表重试按时间封顶
+
+**问题**：`markRetry` 按次数封顶。退避是 1、2、4…256 秒，第 10 次失败就把记录置为失败（`status = 2`），从第一次失败算起只有约 9 分钟，而置为失败的记录中继不会再认领，也没有重投的入口。Broker 升级或网络抖动持续十来分钟，这段时间里写入的消息会成批变成死记录：订单已支付，积分、发货单却永远收不到 `order-paid`，只能等对账或人工发现。
+
+**怎么发现的**：审查时把退避序列加起来，发现「放弃」比一次普通的 Broker 故障还短。旧的回写 SQL 用 `DATE_ADD … INTERVAL POW(…) SECOND`，H2 的 MySQL 模式不认，只有需要 Docker 的集成测试能跑到；修复时把退避挪到 Java 里算，SQL 换成 `TIMESTAMPADD` / `TIMESTAMPDIFF`，H2 测试里也能直接验证「失败 10 次、20 次仍是待发送」。
+
+**怎么修**：失败分成两类，按时间而不是次数决定何时放弃。
+
+| 失败类型 | 判断依据 | 处理 |
+|---------|---------|------|
+| Broker 或网络的问题（超时、5xx、限流、Topic 还没建好） | 其余 `ClientException` | 一直重试：退避 1、2、4…128 秒翻倍，之后封顶 240 秒（4 分钟）一次；记录创建满 `mall.outbox.give-up-after`（默认 24 小时）仍没发出去才置为失败 |
+| 消息本身非法（请求不合法、消息体为空或过大、消息头过大，或客户端校验不过） | `OutboxRelay.isIllegalMessage` | 立即 `markFailed`，换个时间再发结果一样；`send` 返回 `true`，同一批后面的记录照常发送 |
+
+置为失败的记录仍然不会自动重发：`outbox.failed.count` 大于 0 触发 `OutboxFailedRecords` 告警，排查后人工把 `status` 改回 0、`created_at` 改成当前时间，记录重新获得 24 小时的重试窗口。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 退避翻倍后封顶 240 秒 | [`OutboxRelayTest#backoffDoublesAndIsCappedAtFourMinutes`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/test/java/io/github/clarence404/mall/common/outbox/OutboxRelayTest.java) | 单元 |
+| 消息非法立即置失败，本批其余记录照常发送 | [`OutboxRelayTest#illegalMessageIsMarkedFailedImmediatelyAndTheBatchContinues`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/test/java/io/github/clarence404/mall/common/outbox/OutboxRelayTest.java) | 单元 |
+| 失败 10 次、20 次仍是待发送，创建满 24 小时才置失败 | [`OutboxRetryH2Test#keepsRetryingPastTenFailuresWhileWithinTheTimeLimit`、`#givesUpOnceTheRecordIsOlderThanTheTimeLimit`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRetryH2Test.java) | H2 |
+| 真实 MySQL 上失败 30 次仍待发送，超过时限后置失败 | [`OutboxRelayIT#brokerFailureKeepsRetryingAndOnlyGivesUpAfterTheTimeLimit`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/order/OutboxRelayIT.java) | 集成（真实 MySQL·Redis） |
+
+提交：[`ee17206`](https://github.com/Clarence404/mall-evolution/commit/ee17206)，代码见 [`OutboxRelay`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/outbox/OutboxRelay.java) 与 [`OutboxMapper#markRetry`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/outbox/OutboxMapper.java)。
+
+### 2、定时任务不再共用一个线程
+
+**问题**：`mall-app`、`inventory-service`、`payment-service` 都只写了 `@EnableScheduling`，没有配调度线程池，Spring Boot 默认只有 1 个调度线程，所有 `@Scheduled` 排队执行。每秒一次的 outbox 中继、15 秒一次的指标刷新，和带远程调用的兜底任务（超时扫描、预占回查、对账、清理）挤在同一个线程上：兜底任务卡住几十秒，中继就停几十秒，`outbox.pending.age` 跟着上涨，看起来像 Broker 出了问题。
+
+**怎么发现的**：审查时数了一遍各服务的 `@Scheduled`，没有找到任何调度线程池的配置，按 Spring Boot 的默认值就是 1 个线程；修复时用测试把线程数固定下来。
+
+**怎么修**：三个服务都配 `spring.task.scheduling.pool.size=4`，线程名前缀 `sched-`，周期任务互不阻塞。默认单线程的原理见 [异步任务与定时任务 · 默认只有一个调度线程](/spring-boot/7_async_schedule#_2、默认只有一个调度线程)。
+
+**测试**：[`ApplicationContextSmokeTest#scheduledTasksDoNotShareASingleThread`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/ApplicationContextSmokeTest.java)，库存与支付服务的 `InventoryApiH2Test`、`PaymentFlowH2Test` 里各有一个同名测试。
+
+### 3、消费线程数显式设置
+
+**问题**：注册消费者时没有设消费线程数，`rocketmq-client-java` 5.2.2 的默认值是每个 `PushConsumer` 20 个线程。`mall-app` 有 5 个消费组（notify、shipment、order-payment、order-timeout、points），合计 100 个消费线程，而每条消息的处理都要占一个数据库连接，连接池只有 20 个。消息堆积后集中消费时，消费线程会把连接池占满，接口请求拿不到连接。
+
+**怎么发现的**：审查时发现注册消费者的代码里没有任何线程数设置，查到客户端的默认值后和连接池大小一比就对不上；`ConsumerFactoryTest` 用 mock 的 Builder 断言每个消费组都调用了 `setConsumptionThreadCount`。
+
+**怎么修**：所有消费组（包括原先自己建 Builder 的积分消费者）统一经 `ConsumerFactory.subscribe` 注册，线程数取 `mall.rocketmq.consumption-threads`（不配时为 4，取值 1–64，个别组用 `consumption-threads-by-group.<消费组名>` 单独给），规则是**一个进程里「消费组数 × 线程数」不超过连接池的一半**，另一半留给接口请求：
+
+| 服务 | 消费组数 | 每组线程数 | 连接池 |
+|------|---------|-----------|--------|
+| `mall-app` | 5 | 2 | 20 |
+| `inventory-service` | 2 | 8 | 40 |
+| `payment-service` | 1 | 4 | 20 |
+
+**测试**：[`ConsumerFactoryTest#consumptionThreadCountIsAlwaysSetExplicitly`、`#perGroupOverrideWinsOverTheDefault`、`#nonsensicalThreadCountsAreRejectedAtStartup`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/test/java/io/github/clarence404/mall/common/mq/ConsumerFactoryTest.java)；三个服务各有一个 `consumerThreadsStayWithinHalfOfTheConnectionPool`，新增消费组后预算超了测试会失败。两处修复同在提交 [`0e0a685`](https://github.com/Clarence404/mall-evolution/commit/0e0a685)。
 
 ---
 
@@ -343,6 +403,7 @@ provider.newPushConsumerBuilder()
 - `order-paid` 由 `points-consumer`、`notify-consumer`、`shipment-consumer` 各自消费，幂等统一用 `t_consume_record`；外部调用按「先发后记」或下游幂等处理
 - 超时关单改为 15 分钟定时消息加每 10 分钟的兜底扫描，关单一律用状态条件更新
 - 监控看两段：`t_outbox` 待发送时长定位中继问题，消费组堆积定位下游问题，死信大于 0 就告警
+- `main` 上后来的修复：outbox 重试改为按时间封顶（24 小时）、调度线程池 4 个线程、消费线程数按「消费组数 × 线程数不超过连接池一半」显式设置
 
 > 本篇代码：[ch05-async](https://github.com/Clarence404/mall-evolution/tree/ch05-async) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch04-cache...ch05-async) · 阶段 Release：[stage-2-cache-async](https://github.com/Clarence404/mall-evolution/releases/tag/stage-2-cache-async)
 

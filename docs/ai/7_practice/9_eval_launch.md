@@ -241,6 +241,10 @@ public Permit admit(String caller) {
 
 滑动窗口与令牌桶的取舍见 [限流与过载保护](/high-avail/7_rate_limiting)。
 
+::: tip 与 main 的差异
+`main` 上 `/api/intent`、`/api/knowledge/search`、`/api/mall/login` 也计入限流，见 [后来的修复 · 调试与辅助接口也要进门](#_4、调试与辅助接口也要进门)。
+:::
+
 ---
 
 ## 八、熔断与降级：快速失败，功能变少但不是什么都没有
@@ -277,6 +281,10 @@ public synchronized boolean tryAcquire() {
 **降级要提前到意图识别**：模型整个挂掉时，第一个失败的是意图识别，降级如果只放在「回答」那一步就永远轮不到它。所以意图识别失败时（开了降级）先拿原话去知识库检索一次，检索到了就当规则类问题（把握记为 0，调试面板一看就知道），回答时同样调不了模型，降级给原文；检索不到就照旧 503。流式回答一个字没说就失败时同样降级；说了一半再失败只能报错。
 
 降级给原文时没有调模型，也就没有「只依据资料回答」的约束：资料本身被人改过但没命中注入规则，降级会把它原样给用户，所以知识库的入库审核仍然要有。断路器的通用模型见 [熔断](/high-avail/5_circuit_breaking)，降级做什么不做什么见 [降级](/high-avail/6_degradation)。
+
+::: tip 与 main 的差异
+标签上流式的空闲超时不计入熔断，阻塞调用读超时后还会重试一次（实际要等 120 秒）；`main` 上超时计入熔断，改写与意图识别另有 15 秒短时限，见 [后来的修复](#十九、后来的修复)。
+:::
 
 ---
 
@@ -512,7 +520,7 @@ for (RagSource source : sources) {
 
 ## 十八、离生产还差什么
 
-到这一章，智能客服从「能聊天」长到了「敢上线」，但教学项目有意省略了下面这些；头尾两条由第 10 章补上，十章学到了什么、哪几条原则值得带走见 [生产化：共享状态与监控落地 · 全系列收尾](./10_production#十三、全系列收尾)。
+到这一章，智能客服从「能聊天」长到了「敢上线」，但教学项目有意省略了下面这些；头尾两条由第 10 章补上，十章学到了什么、哪几条原则值得带走见 [生产化：共享状态与监控落地 · 全系列收尾](./10_production#十四、全系列收尾)。
 
 - **状态都在一个进程里**：记忆、确认、限流、预算、熔断、Token 账本；多实例要放进 Redis / 数据库，确认和售后申请单要持久化（第 10 章 [生产化：共享状态与监控落地](./10_production) 已把限流、名额、预算、确认、会话标记放进 Redis）
 - **身份借的是商城登录令牌**：真实系统要有自己的认证（OAuth 2.1，MCP 规范推荐的那套），按权限范围授权，令牌短期、可吊销
@@ -528,6 +536,67 @@ for (RagSource source : sources) {
 
 ---
 
+## 十九、后来的修复
+
+`ch10-done` 之后对 `main` 做了一轮只读的代码审查，下面四处与本章的上线保护有关，不属于任何一章，`ch09-done` 标签里没有。每一处都是先从代码推出问题、写出能复现的测试，再改。提交：[`ec63b5f`](https://github.com/Clarence404/mall-assistant/commit/ec63b5f)。
+
+### 1、模型挂起时短调用不再等满读超时
+
+**问题**：阻塞调用的超时只有 HTTP 客户端的读超时 60 秒，是给「生成一整段回答」留的。模型服务挂起（连得上、收了请求却不回话）时，一轮对话开头的追问改写、意图识别也各按这个时间等，期间一直占着并发名额和会话的「正在回答」标记。
+
+**怎么发现的**：审查时按配置推算是「60 秒 × 2」。写测试实测时用真正的 Ollama 客户端连一个只收不回的假服务，量时间、数请求，发现比推算的还糟：读超时之后 `spring.ai.retry.max-attempts=1` 会**再发一次**，一次阻塞调用要等两个读超时。改写、意图各等一轮，合起来约 4 分钟。流式调用不经过这层重试。
+
+**怎么修**：读超时是 HTTP 客户端级别的，Spring AI 没有「这一次调用单独设超时」的选项，三种模型（Ollama、OpenAI SDK、命令行进程）的超时还各管各的。`ModelDeadline` 在外面套一层和厂商无关的时限：
+
+- **做法**：把这次调用放到一个虚拟线程上跑，调用方 `future.get(时限)`；到点就 `cancel(true)` 打断那个线程，报 `MODEL_TIMEOUT`。实测打断后阻塞的 HTTP 调用立刻结束，也不会再重试，时限把两次尝试一起罩住了
+- **跟着线程走的东西要带过去**：这一轮的账本 `TurnRecord`（Token 记账靠它找到这一轮）和日志的 MDC（traceId）
+- **只包短调用**：追问改写与意图识别，输出只有一句话或一个小 JSON；生成回答仍按 60 秒读超时
+- **配置**：`assistant.guard.short-call-timeout`，默认 15 秒；命令行模型每次要起一个进程，两个 CLI profile 放宽到 60 秒；设为 0 表示不设时限
+
+改写这一步超时后不再去调意图识别，见 [多轮对话与记忆 · 后来的修复](./6_memory#十七、后来的修复)；两处合起来，模型挂起时一轮开头从约 4 分钟降到 15 秒。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 阻塞调用实际要等两个读超时，流式不重试 | [`ModelHangTest#blockingCallWaitsTwoReadTimeouts`、`#streamingCallIsNotRetried`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/chat/ModelHangTest.java) | 集成（挂起的假模型服务） |
+| 意图识别到短时限就放弃，只发出过一次请求 | [`ModelHangTest#intentGivesUpAtTheShortDeadline`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/chat/ModelHangTest.java) | 集成（挂起的假模型服务） |
+| 到点放弃并打断里面的调用，账本跟着换线程，异常原样抛出 | [`ModelDeadlineTest#hangingCallIsAbandonedAndInterrupted`、`#turnRecordFollowsTheCallToItsThread`、`#exceptionsPassThroughUnchanged`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/guard/ModelDeadlineTest.java) | 单元 |
+
+### 2、流式空闲超时计入熔断
+
+**问题**：`CircuitBreakerAdvisor` 在流式那一路只看得到「正常结束」和「出错」两种信号。Reactor 的 `timeout` 到点时是**取消**上游、自己往下游发一个 `TimeoutException`，在 advisor 那一层看到的只是一次取消，和用户关掉页面没有区别。结果模型挂起时流式请求一直超时，却完全不计入熔断，每个用户都要各等满 30 秒。
+
+**怎么修**：取消的原因只有发起取消的那一层知道，就由它来报。`ChatService#idleTimeout` 在 `timeout` 后面紧跟一个只认 `TimeoutException` 的 `doOnError`，超时给熔断器报一次失败；用户主动取消不经过这里，不算；模型自己报的错已由 advisor 记过，不重复记。
+
+**测试**：[`GuardApiTest#streamIdleTimeoutsCountTowardsTheCircuit`、`#cancelledStreamsDoNotCountTowardsTheCircuit`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/chat/GuardApiTest.java)（接口）：连续两次超时（测试里门槛是 2）后第三次直接 `MODEL_CIRCUIT_OPEN`；取消多少次熔断器都不动。
+
+### 3、流式收尾换到可以阻塞的线程
+
+**审查结论**：流式接口的收尾（归还并发名额、放开会话标记、记账）在 `doFinally` 里；第 10 章把共享状态放进 Redis 之后，它们都是同步的 Redis 调用。审查担心这些调用跑在 reactor-netty 的事件循环线程上，卡住同一条线程上的其他请求。
+
+**实测后的修正**：在 `doFinally` 里打印线程，结论只对了一半。模型自己发出的信号（文字片段、报错）在 `loomBoundedElastic-N` 上，本来就可以阻塞，「事件循环线程」那一条不属实；但空闲超时的错误信号确实在 `parallel-N` 上，同样是不许阻塞的线程，修复前超时后的收尾就跑在那里。问题存在，位置不是审查说的那个。
+
+**怎么修**：`ChatService#answerStream` 在把信号交给下游之前统一 `publishOn(Schedulers.boundedElastic())`，后面所有收尾都在可以阻塞的线程上，不用每处各自操心。
+
+**测试**：[`StreamCleanupThreadTest#cleanupAfterIdleTimeoutRunsOnABlockingCapableThread`、`#cleanupAfterAnErrorFromANonBlockingThreadRunsOnABlockingCapableThread`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/chat/StreamCleanupThreadTest.java)（流程，假模型）：把名额与会话锁换成会记下归还线程的实现，用 `Schedulers.isInNonBlockingThread()` 断言。
+
+### 4、调试与辅助接口也要进门
+
+**问题**：进门三关只挂在两个对话接口上，另外三个会花钱或能被滥用的接口绕了过去。
+
+| 接口 | 修复前 | `main` 现在 |
+|------|-------|------------|
+| `POST /api/intent` | 每次调一次模型，不限 | 和对话一样过 `ChatGuard#admit`：预算、每分钟次数、并发名额，按来源 IP、与匿名对话共用计数 |
+| `GET /api/knowledge/search` | 每次调一次向量模型，不限 | 过 `ChatGuard#throttle`：只查每分钟次数，和对话共用同一个计数，不占并发名额 |
+| `POST /api/mall/login` | 登录代理不限次数，可以拿它撞密码；商城看到的来源永远是智能客服这台机器，它自己的登录限流管不到 | 同上，超了 429 且不转给商城 |
+
+入库接口的保护见 [知识入库 · 后来的修复](./4_knowledge_ingest#十四、后来的修复)。
+
+**测试**：[`EndpointProtectionApiTest#intentEndpointIsRateLimited`、`#knowledgeSearchIsRateLimited`、`#mallLoginIsRateLimited`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/chat/EndpointProtectionApiTest.java)（接口）。
+
+这一轮里有两条审查结论在写测试时被修正：本节第 3 条的「事件循环线程」，和 [售后 Agent 与人工确认 · 后来的修复](./7_agent#十八、后来的修复) 里的「取消后继续在后台跑」。读代码推出来的结论要先用测试复现，再动手改；复现不出来的那一半，就不该照着改。
+
+---
+
 ## 小结
 
 - 58 条回归评测集覆盖七个类别，评测运行器判整条链路里「可判的」：意图、工具、检索与引用、改写、提议、挡下了谁；版本号取内容哈希
@@ -535,6 +604,7 @@ for (RagSource source : sources) {
 - 实测 1.5b 74.1%、0.5b 56.9%，同一模型重跑会有一条左右的波动；LLM 裁判只进报告，抓到了代码判定看不出的「意思说反了」「漏了关键条件」
 - Token 以模型报告为准，取不到按字数估算并标出来（输入约为报告的 0.87）；按调用方、会话、意图记账，明细不进指标标签；每人每天预算，超了 429 `TOKEN_BUDGET_EXCEEDED`
 - 进门三关依次是每日预算、每分钟次数、并发名额；模型连续失败 5 次熔断 30 秒，503 `MODEL_CIRCUIT_OPEN`；规则类问题降级给原文，降级提前到意图识别
+- `main` 上后来的修复：改写与意图识别套 15 秒短时限、流式空闲超时计入熔断、流式收尾统一换到 `boundedElastic`、调试与辅助接口计入限流
 - 指标进 Prometheus，traceId 进日志、响应头与调试面板；`monitoring/` 附 14 个面板和 9 条告警，Actuator 不对外
 - 提示注入过滤挡在检索之后和外部 MCP 工具的说明与结果上，四类规则、整块挡下、重新编号；漏网和误杀都写成了测试，它是多一道而不是最后一道
 

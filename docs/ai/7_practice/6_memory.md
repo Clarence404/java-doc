@@ -157,6 +157,10 @@ public ChatTurn begin(String message, String conversationId, String mallToken) {
 - **示例换成和商城规则无关的话题**：会员等级、快递公司、道谢三组「历史 → 最新一句 → 改写」，照抄了也不至于答非所问
 - **结果做跑题检查**：用第 5 章的切词，原话里的字至少六成要还在改写结果里，不然退回原话；只看单字不看双字词，「运费谁出」改成「运费由谁承担」是正常换说法。为空、超过 120 字、和原话一样、模型调用失败，也都退回原话
 
+::: tip 与 main 的差异
+`main` 上「模型调用失败」不再退回原话：这一轮跳过意图识别，直接降级或报错，见 [后来的修复](#十七、后来的修复)。
+:::
+
 ```java
 static boolean plausible(String original, String condensed) {
     Set<String> terms = new LinkedHashSet<>();
@@ -367,7 +371,7 @@ assistant:
 | 只带最近几轮，超出字数从最早一轮丢 | [`HistoryWindowTest#budgetDropsOldestTurnsFirst`](https://github.com/Clarence404/mall-assistant/blob/ch06-done/src/test/java/io/github/clarence404/assistant/memory/HistoryWindowTest.java) | 单元 |
 | 最近一轮本身超预算时整轮丢掉 | [`HistoryWindowTest#singleTurnOverBudgetIsDroppedEntirely`](https://github.com/Clarence404/mall-assistant/blob/ch06-done/src/test/java/io/github/clarence404/assistant/memory/HistoryWindowTest.java) | 单元 |
 | 改写跑题时退回原话 | [`QuestionCondenserTest#offTopicRewriteIsRejected`](https://github.com/Clarence404/mall-assistant/blob/ch06-done/src/test/java/io/github/clarence404/assistant/memory/QuestionCondenserTest.java) | 单元 |
-| 改写失败不抛异常，用原话 | [`QuestionCondenserTest#failureFallsBackToOriginal`](https://github.com/Clarence404/mall-assistant/blob/ch06-done/src/test/java/io/github/clarence404/assistant/memory/QuestionCondenserTest.java) | 单元 |
+| 改写失败不抛异常，用原话（`ch06-done` 标签上的行为，`main` 改为抛出，见下文「后来的修复」） | [`QuestionCondenserTest#failureFallsBackToOriginal`](https://github.com/Clarence404/mall-assistant/blob/ch06-done/src/test/java/io/github/clarence404/assistant/memory/QuestionCondenserTest.java) | 单元 |
 | 原话和历史里没出现过的订单号被扔掉 | [`ConversationEntitiesTest#numbersNotSeenAnywhereAreDropped`](https://github.com/Clarence404/mall-assistant/blob/ch06-done/src/test/java/io/github/clarence404/assistant/memory/ConversationEntitiesTest.java) | 单元 |
 | 要看列表时不沿用上一笔订单号 | [`ConversationEntitiesTest#listRequestIsNotCarried`](https://github.com/Clarence404/mall-assistant/blob/ch06-done/src/test/java/io/github/clarence404/assistant/memory/ConversationEntitiesTest.java) | 单元 |
 | 记忆键随归属变化，且是 36 位 UUID | [`ConversationOwnersTest#memoryKeyDependsOnOwnerAndConversation`](https://github.com/Clarence404/mall-assistant/blob/ch06-done/src/test/java/io/github/clarence404/assistant/memory/ConversationOwnersTest.java) | 单元 |
@@ -385,6 +389,30 @@ assistant:
 
 ---
 
+## 十七、后来的修复
+
+`ch10-done` 之后对 `main` 做了一轮只读的代码审查，其中一处改了追问改写的失败处理，`ch06-done` 标签里没有。提交：[`ec63b5f`](https://github.com/Clarence404/mall-assistant/commit/ec63b5f)。
+
+**问题**：改写失败一律退回原话，把两种情况混在了一起。改写得不好（太长、跑题、没改）退回原话没问题；模型**调不通**（连不上、超时、熔断中）也退回原话，`ChatService` 就会紧接着拿原话去识别意图，同一个挂掉的模型再等一轮超时。模型服务挂起时，改写与意图识别各等一轮，这一轮开头就要等约 4 分钟（怎么量出来的见 [评估与上线 · 后来的修复](./9_eval_launch#十九、后来的修复)），期间一直占着并发名额和会话的「正在回答」标记。
+
+**怎么发现的**：审查时把「一轮对话开头会串行调几次模型」列出来，发现两次调用的失败处理互不知情；测试让假模型在改写这一步报连接失败，走完整的多轮流程，断言意图识别没有再被调用。
+
+**怎么修**：
+
+- **两种失败分开**：`QuestionCondenser#condense` 在模型调不通时抛 `ModelCallException`，不再返回 null；输出不可信时照旧退回原话
+- **跳过意图识别**：`ChatService#begin` 接住改写的失败，不再调意图识别，直接走第 9 章的降级判断：开了降级、知识库里检索得到相关规定，就按规则类问题处理（把握记为 0），回答时降级给原文；否则报 503
+- **短时限**：改写与意图识别各自最多等 `assistant.guard.short-call-timeout`（默认 15 秒），不再按「生成一整段回答」的 60 秒读超时去等
+
+行为上的变化：追问时模型正好调不通，这一轮直接失败或降级，不再悄悄用原话接着答。失败的一轮不进记忆，会话照常放开，下一句还能问。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 模型调不通时改写抛异常，不再吞掉 | [`QuestionCondenserTest#modelFailureIsThrownNotSwallowed`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/memory/QuestionCondenserTest.java) | 单元 |
+| 改写时模型调不通就跳过意图识别，会话放开、半截的一轮不进记忆 | [`MultiTurnChatFlowTest#modelDownDuringCondenseSkipsIntentAndFailsFast`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/chat/MultiTurnChatFlowTest.java) | 流程（假模型） |
+| 改写得不可信时仍用原话检索、照样回答 | [`MultiTurnChatFlowTest#condenseOnlyWithHistoryAndFallsBackWhenImplausible`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/chat/MultiTurnChatFlowTest.java) | 流程（假模型） |
+
+---
+
 ## 小结
 
 - 模型没有状态，多轮对话就是每次把挑过的历史一起发过去；会话 ID 由页面生成（小写 UUID，存 localStorage），放在请求体 `conversationId`，不带时和第 5 章一样
@@ -392,6 +420,7 @@ assistant:
 - 提示词窗口按 6 轮 + 2000 字两道裁剪，一问一答一起丢；摘要记忆默认关，代价是多一次调用、可能丢细节
 - 只存用户原话和最终回答，不存令牌、工具结果、RAG 资料；回答完成后才写，流式中途失败或取消不写
 - 有历史时每轮先改写追问，意图识别和检索都用改写结果，六成字检查挡掉跑题的改写；订单号必须在原话或历史里原样出现，否则从最近 3 轮沿用
+- `main` 上后来的修复：改写时模型调不通不再退回原话，跳过意图识别直接降级或报错；改写与意图识别各有 15 秒短时限
 - 归属问商城 `/api/users/me`、按令牌指纹缓存 5 分钟，记忆键由归属 + 会话 ID 算成 UUID，别人的会话 404
 - 没用 `MessageChatMemoryAdvisor`（调模型前就写、写的是拼了数据的那条）；Spring AI 2.0.2 要自己顶掉默认 ChatMemory、不用 JDBC Starter、延迟建库、借时间戳键判断过期
 - RAG 门槛按向量模型分别配：bge-m3 0.6、nomic 0.72（正常题只剩 5/20，中文请用 bge-m3）；1.5b 的改写一半对一半错，换 haiku 两段追问都答对

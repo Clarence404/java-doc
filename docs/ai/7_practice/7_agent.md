@@ -127,6 +127,10 @@ while (true) {
 - **同一调用最多 2 次**：同样的工具同样的参数，结果不会变；超了不执行、提醒换一步，被拦下后还在重复就直接停
 - **停下时一定没有执行任何写操作**：写操作本来就不在循环里执行，循环最多只能「登记一个待确认操作」
 
+::: tip 与 main 的差异
+`main` 上「页面关闭」每一步查两次：下一步开始前、模型返回之后；返回后已经关了就不再执行工具、不再生成确认单，见 [后来的修复 · 流式办事被取消之后](#_3、流式办事被取消之后)。
+:::
+
 ---
 
 ## 四、只读工具：直接执行，结果带好下一步
@@ -262,6 +266,10 @@ return template.query("SELECT ... WHERE confirmation_id = ?", JdbcAfterSalesStor
 
 插完按 `confirmation_id` 再查一次，拿到的可能是之前那张：同一个确认无论点多少次、几个实例同时点，表里都只有一张申请单。
 
+::: tip 与 main 的差异
+`main` 上执行时抛出意料之外的异常会落成 FAILED「结果未知」，同一笔订单只有一张待审核的申请改由存储保证，见 [后来的修复](#十八、后来的修复)。
+:::
+
 ---
 
 ## 八、路由：哪些话交给 Agent
@@ -282,6 +290,10 @@ public boolean handles(IntentResult intent, String message, String mallToken) {
 - **POLICY 仍走第 5 章 RAG，查订单、问商品仍走第 3 章**
 - **没登录**：售后类问题照旧走 RAG 回答规则，明说要办事的末尾加一句「请先登录」
 - **总开关** `assistant.agent.enabled=false`：办事请求和第 6 章一样走 RAG，只回答规则
+
+::: tip 与 main 的差异
+标签上阻塞与流式的判断顺序不一样（阻塞先判拒答），`main` 上共用一份路由 `ChatRoute`，见 [后来的修复 · 阻塞与流式共用一份路由](#_4、阻塞与流式共用一份路由)。
+:::
 
 ---
 
@@ -465,6 +477,73 @@ chatClient.prompt()
 
 ---
 
+## 十八、后来的修复
+
+`ch10-done` 之后对 `main` 做了一轮只读的代码审查，下面四处与本章有关，不属于任何一章，`ch07-done` 标签里没有。每一处都是先从代码推出问题、写出能复现的测试，再改。提交：[`ec63b5f`](https://github.com/Clarence404/mall-assistant/commit/ec63b5f)。
+
+### 1、确认单执行出错落成终态
+
+**问题**：第 10 章把「每个确认一把锁」换成了抢占，抢占不释放：先抢占，再执行，最后存结果。执行这一步如果抛出没人接的异常（售后申请单库连不上、解析商城响应时出错），结果永远存不进去，这张确认单就卡在「正在处理」：用户再点只会等 10 秒然后收到 409 `CONFIRMATION_IN_PROGRESS`，直到 5 分钟过期。
+
+**怎么修**：`ConfirmationService#executeSafely` 把执行包一层，任何意料之外的异常都落成一个 FAILED 的最终结果，话术如实说「结果未知：可能已经办了，也可能没有，请到我的订单里核对」，再点返回的也是它。不放开抢占让用户重试，是因为异常抛出时写操作可能已经发给商城了，放开就可能执行两次；**最多执行一次比一定成功重要**，和「失败不重试」是同一个道理。结果写回会话记忆失败也不再让这次确认变成 500。
+
+**测试**：[`SharedStateContract#crashedExecutionEndsAsFailedInsteadOfStuckInProgress`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/state/SharedStateContract.java)（契约）：用一个「存的时候抛异常」的申请单库，内存与 Redis 两种确认存储各跑一遍。
+
+### 2、一笔订单只有一张待审核的申请
+
+**问题**：「同一笔订单没有待审核的售后申请」靠调用方先 `findOpen` 查、没有再存。同一笔订单的两张确认单被同时确认时，两边都查到「没有」，就存出两张待审核的申请。查和存之间有空隙的检查挡不住并发。
+
+**怎么修**：交给存储自己的原子操作。
+
+| 存储 | 做法 |
+|------|------|
+| PostgreSQL | 部分唯一索引 `uq_after_sales_open`：`(owner_key, order_no) WHERE status = 'PENDING_REVIEW'`，只有待审核的行参与唯一性，审核完的申请不占位置；插入改成不指定约束的 `ON CONFLICT DO NOTHING`，撞上哪个唯一约束都跳过，再把已有的那张查回来 |
+| 内存 | `create` 整个方法加锁，「这个确认存过没有」「这笔订单有没有待审核的」「存」三步一气呵成 |
+
+`create` 返回的申请单如果不是自己这张确认单建的，`ConfirmationService` 就把结果记为 FAILED：「订单 … 已经有待审核的售后申请 AS…，没有重复提交」。表里已有重复的旧数据时索引建不成，只打一行警告、不影响使用，清理后重启即可。
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 16 个线程同时为同一笔订单存，库里只有一张 | [`InMemoryAfterSalesStoreTest#concurrentApplicationsForTheSameOrderStoreExactlyOne`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/aftersales/InMemoryAfterSalesStoreTest.java) | 单元 |
+| 部分唯一索引保证表里只有一张 | [`JdbcAfterSalesStoreIT#sameOrderGetsOnlyOneOpenApplicationEvenConcurrently`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/aftersales/JdbcAfterSalesStoreIT.java) | 集成（真实 PostgreSQL） |
+| 两张确认单一张已提交、另一张回「没有重复提交」 | [`ConfirmationServiceTest#twoConfirmationsForTheSameOrderCreateOnlyOneApplication`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/agent/ConfirmationServiceTest.java) | 单元 |
+
+### 3、流式办事被取消之后
+
+**审查结论**：页面关掉（取消订阅）后，Agent 只在「下一步开始前」检查取消。正在等的那次模型调用返回后，它照样执行模型选的工具，甚至替一个已经走掉的用户生成确认单：没人看得到那张卡片，却留下一个 5 分钟内有效的待确认操作。同时下游的收尾在取消的一瞬间就执行了，会话的「正在回答」标记、并发名额、这一轮的记账都已放开，Agent 线程却还在跑：同一个会话可以再发一句、实际并发超过上限、后来的 Token 落在已提交的账之外。
+
+**实测后的修正**：这条结论只在一种情况下成立。取消订阅时 Reactor 会打断跑 Agent 的线程；实测 Ollama 的阻塞 HTTP 调用被打断后立刻中止，这一步当场结束，不会「在后台继续跑」。但不是每种客户端都响应打断，只有调用不理会打断时，上面的窗口才存在。修复按不响应打断的最坏情况做，测试也是用一个不响应打断的假模型复现的。
+
+**怎么修**：
+
+- **模型返回后再查一次**：`AgentLoop` 每一步问两次「页面关了没有」，开始前一次、模型返回后一次；返回后已经关了就以 `CANCELLED` 停下，不执行工具，不生成确认单
+- **收尾等线程退出**：Agent 线程开头调 `TurnRecord#hold`，退出时关掉；放开会话、归还名额、记账都改为交给 `TurnRecord#whenSettled`，有后台工作时先记下，等最后一个 hold 关掉再按登记顺序执行。没有后台工作（普通问答、RAG）时立刻执行，和原来完全一样
+- **先清掉中断标记**：收尾在 Agent 线程上执行，而这个线程刚被打断过；带着中断标记做同步的 Redis 调用会立刻失败，名额和会话锁就还不回去、只能等租期到。所以执行前先取下标记，执行完再放回
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 模型想第二步时页面关了，回来不再提出写操作 | [`AgentLoopTest#cancelledWhileThinkingDoesNotPropose`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/agent/AgentLoopTest.java) | 单元（假模型） |
+| 取消后会话标记等 Agent 线程退出才放，也不留确认单 | [`AgentChatFlowTest#cancelledAgentStreamHoldsTheConversationUntilTheAgentThreadExits`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/chat/AgentChatFlowTest.java) | 流程（假模型） |
+| 收尾按登记顺序延后执行，执行时中断标记已清掉 | [`TurnRecordTest#defersUntilTheHoldIsReleasedAndKeepsOrder`、`#cleanupRunsWithTheInterruptFlagCleared`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/ops/TurnRecordTest.java) | 单元 |
+
+原生工具调用的 Agent（`assistant.agent.mode=native`）仍然没有「页面关了就停」的检查，只有自己写的循环有。
+
+### 4、阻塞与流式共用一份路由
+
+**问题**：「先判什么后判什么」在阻塞和流式里各写了一遍，顺序还不一样：阻塞先判拒答，流式先判「聊天里回确认」和 Agent。有待确认操作时在聊天里回一句「确认」，如果意图识别把它分成了超出范围，阻塞接口回的是拒答话术，流式接口回的是「请点确认按钮」。
+
+**怎么修**：判断顺序是业务规则，只留一份。`ChatService#route` 返回 sealed 接口 `ChatRoute` 的五种结果之一，阻塞与流式各自 `switch` 它，只在「怎么把回答交出去」上不同；以后加一条路，漏改哪一处编译就不过。顺序统一为：
+
+1. 聊天里回了「确认」：固定话术提醒去点按钮
+2. 登录了、要办售后的事：交给 Agent
+3. 超出范围且把握够大：拒答
+4. 售后、规则政策：RAG
+5. 其余：直接查询或交给模型调工具
+
+**测试**：[`AgentChatFlowTest#confirmInChatBeatsRefusalOnBothEndpoints`、`#routeOrderIsSharedByBothEndpoints`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/chat/AgentChatFlowTest.java)（流程，假模型），代码见 [`ChatRoute`](https://github.com/Clarence404/mall-assistant/blob/main/src/main/java/io/github/clarence404/assistant/chat/ChatRoute.java)。
+
+---
+
 ## 小结
 
 - Agent 就是一个循环：模型每一步看着办事记录决定下一步，代码执行、把结果交还；方案 B 每一步一次结构化输出，「下一步动作」只有 `action`、`orderNo`、`input`、`thought` 四个字段
@@ -474,6 +553,7 @@ chatClient.prompt()
 - 执行只认页面按钮 `POST /api/agent/confirmations/{id}`：确认 ID 随机、绑定用户与会话（404）、5 分钟过期（410）、加锁幂等、确认后再取消 409、参数生成时固定；聊天里打「确认」不执行
 - 取消与改详细地址走商城网关，退款只记一张「待人工审核」的本地申请单、不动钱；失败不重试，结果用固定话术作为一轮写回记忆
 - 方案 A（`assistant.agent.mode=native`）代码少但看不见想法、刹车只有全局配置；1.5b 录制 B 三件成两件、A 零件
+- `main` 上后来的修复：执行出错落成 FAILED 终态、售后申请由部分唯一索引防重复、取消后模型返回再查一次且收尾等 Agent 线程退出、阻塞与流式共用 `ChatRoute`
 - 机制经得起越权、过期、重复点击和注入；办事能力卡在小模型上，haiku 三件都办得对
 
 > 本篇代码：[ch07-done](https://github.com/Clarence404/mall-assistant/tree/ch07-done) · 练习起点：[ch07-start](https://github.com/Clarence404/mall-assistant/tree/ch07-start)

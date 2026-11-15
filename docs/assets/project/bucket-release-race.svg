@@ -1,0 +1,69 @@
+<svg viewBox="0 0 760 510" xmlns="http://www.w3.org/2000/svg" font-family="'PingFang SC','Microsoft YaHei',sans-serif" font-size="13">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    text { fill: var(--fg); }
+    .t { font-weight: 700; }
+    .d { font-size: 11px; fill: var(--muted); }
+    .h { font-size: 12px; fill: var(--muted); font-weight: 700; }
+    .tr { font-weight: 700; fill: var(--r); }
+    .tg { font-weight: 700; fill: var(--g); }
+    .lg { font-size: 11px; fill: var(--g); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--muted)"/>
+    </marker>
+    <marker id="arr-r" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--r)"/>
+    </marker>
+    <marker id="arr-g" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" fill="var(--g)"/>
+    </marker>
+  </defs>
+  <rect width="760" height="510" fill="var(--bg)" rx="8"/>
+  <text x="380" y="28" text-anchor="middle" font-weight="700" font-size="14">分桶 SKU 上 release 与迟到的 reserve 并发</text>
+  <text x="200" y="58" text-anchor="middle" class="h">release 事务（先开始）</text>
+  <text x="560" y="58" text-anchor="middle" class="h">迟到的 reserve 事务</text>
+
+  <rect x="40" y="70" width="320" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="200" y="96" text-anchor="middle" class="t">① 方法开头读预占记录</text>
+  <text x="200" y="116" text-anchor="middle" class="d">此时还没有这条记录，桶号为空</text>
+
+  <rect x="400" y="160" width="320" height="60" rx="6" fill="var(--card)" stroke="var(--p)" stroke-width="1.5"/>
+  <text x="560" y="186" text-anchor="middle" class="t">② 写入预占记录并提交</text>
+  <text x="560" y="206" text-anchor="middle" class="d">bucket_no = 3；桶 3：stock −1，reserved +1</text>
+
+  <rect x="40" y="250" width="320" height="60" rx="6" fill="var(--card)" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="200" y="276" text-anchor="middle" class="t">③ INSERT IGNORE 写占位</text>
+  <text x="200" y="296" text-anchor="middle" class="d">返回 0：记录已经存在，不是空回滚</text>
+
+  <rect x="40" y="340" width="320" height="60" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="200" y="366" text-anchor="middle" class="t">④ RESERVED → RELEASED 成功</text>
+  <text x="200" y="386" text-anchor="middle" class="d">修复前沿用 ① 的空桶号：库存还到主行</text>
+
+  <rect x="40" y="430" width="320" height="60" rx="6" fill="var(--card)" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="200" y="456" text-anchor="middle" class="tr">修复前</text>
+  <text x="200" y="476" text-anchor="middle" class="d">桶 3 reserved 永久多 1，主行 reserved 变成 −1</text>
+
+  <rect x="400" y="430" width="320" height="60" rx="6" fill="var(--card)" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="560" y="456" text-anchor="middle" class="tg">修复后</text>
+  <text x="560" y="476" text-anchor="middle" class="d">按记录里的桶号与数量归还：回到桶 3</text>
+
+  <path d="M200,130 L200,145 L560,145 L560,158" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <path d="M560,220 L560,235 L200,235 L200,248" fill="none" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="200" y1="310" x2="200" y2="338" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="200" y1="400" x2="200" y2="428" stroke="var(--r)" stroke-width="1.5" marker-end="url(#arr-r)"/>
+  <path d="M360,280 L560,280 L560,428" fill="none" stroke="var(--g)" stroke-width="1.5" marker-end="url(#arr-g)"/>
+  <text x="572" y="344" class="lg">③ 之后按 (order_no, sku_id)</text>
+  <text x="572" y="362" class="lg">加锁重读，拿到桶号 3</text>
+</svg>

@@ -315,12 +315,52 @@ spring:
 
 ---
 
+## 十二、后来的修复
+
+全系列写完后对 `main` 做了一轮只读的代码审查，下面两处与本篇的「配置与环境」有关，都不在章节标签里。
+
+### 1、prod 与 demo 两个 profile 互斥
+
+**问题**：后来为演示加的 `demo` profile 会打开演示控制台与故障注入接口、把支付超时缩到 1 分钟、把熔断改成几次调用就打开。它只靠「生产不启用」这句约定隔离：部署时把 `SPRING_PROFILES_ACTIVE` 写成 `prod,demo`，这些配置就会叠到生产上，订单 1 分钟被关单，任何登录用户都能给库存服务注入延迟。
+
+**怎么发现的**：审查时逐个检查 `@Profile("demo")` 的 Bean 和 `application-demo.yml`，没有找到任何阻止它与 `prod` 同时激活的地方。
+
+**怎么修**：加一个只在两个 profile 同时激活时才生效的配置类，一生效就在构造器里抛异常，容器创建失败、进程退出，错误信息直接说明原因：
+
+```java
+// io.github.clarence404.mall.common.profile.ProdDemoProfileGuard（main）
+@Configuration(proxyBeanMethods = false)
+@Profile("prod & demo")
+public class ProdDemoProfileGuard {
+    public ProdDemoProfileGuard() {
+        throw new IllegalStateException(MESSAGE);   // prod 与 demo 两个 profile 不能同时激活……
+    }
+}
+```
+
+`mall-common` 里一份，`mall-app`、`inventory-service`、`payment-service` 都会扫描到；网关不依赖 `mall-common`，在自己的包里另放一份。
+
+**测试**：[`ProdDemoProfileGuardTest#startupFailsWithClearMessageWhenProdAndDemoAreBothActive`、`#orderOfProfilesDoesNotMatter`、`#eitherProfileAloneStartsNormally`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/test/java/io/github/clarence404/mall/common/profile/ProdDemoProfileGuardTest.java)，网关有一份同名测试。提交：[`cada870`](https://github.com/Clarence404/mall-evolution/commit/cada870)。
+
+### 2、死配置与本地配置的加载方式
+
+| 问题 | 修复 |
+|------|------|
+| `mall.order.pay-timeout` 没有任何代码读取，实际生效的是 `mall.promo.normal-pay-timeout` / `activity-pay-timeout`；改了前者以为调了支付超时，其实什么都没变 | 删掉这个键；`mall-app` 与库存服务测试配置里残留的 `mall.pay.mock.secret`（只有支付服务用）一并删除 |
+| `mall-app` 在 `application-dev.yml` 里显式 `import` 了 `config/application-local.yml`，另外三个服务靠 `local` profile 读取，两种方式并存，同一个文件在 `mall-app` 上不带 `local` 也会生效 | 去掉显式 `import`，四个服务统一只靠 `local` profile：工作目录在仓库根目录、激活 `local` 时，由 Spring Boot 按默认规则读 `./config/application-local.yml` |
+| docker compose 里 Nacos 控制台映射到宿主机 18080，和 `mall-app` 在 dev 下的管理端口（业务端口 + 10000）冲突 | 控制台改映射到宿主机 18848 |
+
+这几处没有新增测试，靠现有的启动与配置测试覆盖。提交：[`0aec590`](https://github.com/Clarence404/mall-evolution/commit/0aec590)。
+
+---
+
 ## 小结
 
 - 3 人团队、20 QPS 的阶段选**模块化单体**：一个仓库、六个 Maven 模块、一个 jar，部署像单体，边界像服务
 - 模块之间只走 `api` 包、单向依赖、无环，由 **ArchUnit 测试**在 CI 中强制，而不是靠约定
 - 模块内按功能分包，父 POM 统一版本，Maven Wrapper + Enforcer 保证构建一致
 - 主干开发 + PR 检查，格式、规范、架构、测试全部挂在 `./mvnw verify` 上
+- `main` 上后来加了启动检查：`prod` 与 `demo` 两个 profile 同时激活直接启动失败
 - 密钥走环境变量，不进仓库；Kubernetes、注册中心、消息队列、缓存都明确推迟到出现瓶颈的阶段
 
 > 本篇代码：[ch01-project-setup](https://github.com/Clarence404/mall-evolution/tree/ch01-project-setup)

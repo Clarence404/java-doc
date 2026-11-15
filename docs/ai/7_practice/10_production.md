@@ -162,6 +162,10 @@ return Optional.of(other == null ? decision : ConfirmationOutcome.Decision.value
 
 **严格说这是「最多执行一次」**：抢到的实例挂在半路，这个确认就停在「处理中」，用户看到 409 `CONFIRMATION_IN_PROGRESS`，过期后重新提。对写操作，办不成比办两次好收拾（和第 7 章「写操作不重试」同一个道理）。真正「恰好一次」要靠下游配合：把确认 ID 当幂等键传给商城，商城那边去重（mall-evolution 下单接口的 `Idempotency-Key` 就是这个），幂等的通用做法见 [幂等设计](/architecture/3_idempotence)。
 
+::: tip 与 main 的差异
+「实例没挂、只是执行时抛了异常」的情况 `main` 上已补上：异常落成 FAILED 的最终结果，不再停在「处理中」，见 [后来的修复](#十三、后来的修复)。
+:::
+
 ### 5. 会话锁：比较令牌再删
 
 「同一会话同时只答一个」用的是经典分布式锁，三个要点对应三行代码：
@@ -441,7 +445,21 @@ java -jar target/mall-assistant-1.0.0-SNAPSHOT.jar --spring.profiles.active=olla
 
 ---
 
-## 十三、全系列收尾
+## 十三、后来的修复
+
+`ch10-done` 之后对 `main` 做了一轮只读的代码审查，查出的九个问题里有三处和共享状态直接相关。它们不属于任何一章，`ch10-done` 标签里没有；每一处的来龙去脉写在对应的章节里，这里只说和本章的关系。提交：[`ec63b5f`](https://github.com/Clarence404/mall-assistant/commit/ec63b5f)。
+
+| 问题 | 和本章的关系 | `main` 现在 | 详见 |
+|------|------------|------------|------|
+| 执行确认时抛异常，确认单卡在「处理中」 | 抢占不释放，结果又存不进去；上文只考虑了「实例挂在半路」，没考虑「实例没挂、执行抛了异常」 | 异常落成 FAILED 的最终结果存进 `ConfirmationStore`，话术是「结果未知，请到我的订单核对」；内存与 Redis 两种实现的契约测试都覆盖 | [售后 Agent 与人工确认 · 后来的修复](./7_agent#十八、后来的修复) |
+| 流式超时后的收尾跑在 `parallel` 线程上 | 切到 Redis 后，归还名额、放开会话锁、记账都是同步的 Redis 调用，不能跑在不许阻塞的线程上 | 交给下游之前统一换到 `boundedElastic` | [评估与上线 · 后来的修复](./9_eval_launch#十九、后来的修复) |
+| 流式办事被取消，名额与会话锁提前释放 | 分布式名额与会话锁在取消的一瞬间就还了，Agent 线程却可能还在跑 | 等 Agent 线程退出才放；收尾前先清掉线程的中断标记，否则同步的 Redis 调用立刻失败，名额与锁只能等租期到 | [售后 Agent 与人工确认 · 后来的修复](./7_agent#十八、后来的修复) |
+
+对应的测试：[`SharedStateContract#crashedExecutionEndsAsFailedInsteadOfStuckInProgress`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/state/SharedStateContract.java)、[`StreamCleanupThreadTest`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/chat/StreamCleanupThreadTest.java)、[`TurnRecordTest#cleanupRunsWithTheInterruptFlagCleared`](https://github.com/Clarence404/mall-assistant/blob/main/src/test/java/io/github/clarence404/assistant/ops/TurnRecordTest.java)。其余六处（检索热路径的全表扫描、短调用时限、流式超时计入熔断、辅助接口限流、售后申请防重复、统一路由）见第 4、6、7、9 章各自的「后来的修复」。
+
+---
+
+## 十四、全系列收尾
 
 十章走下来，这个智能客服从「能聊天」长到了「敢上线」，再到「起两个实例也不变样」：
 
@@ -466,7 +484,19 @@ java -jar target/mall-assistant-1.0.0-SNAPSHOT.jar --spring.profiles.active=olla
 - **改数据的事，人来拍板**
 - **能观测的才能评测，能评测的才敢上线**
 
-**还差什么**：[评估与上线 · 离生产还差什么](./9_eval_launch#十八、离生产还差什么) 列的九项里，本章做掉了头尾两条（状态共享、监控跑起来），认证、更强的模型、真实评测集、知识库审核、输出侧护栏、灰度与成本优化仍然没做；本章自己留下的见上文「与需求的差异」。每一项都可以是下一个项目的起点。
+**还差什么**：[评估与上线 · 离生产还差什么](./9_eval_launch#十八、离生产还差什么) 列的九项里，本章做掉了头尾两条（状态共享、监控跑起来），认证、更强的模型、真实评测集、知识库审核、输出侧护栏、灰度与成本优化仍然没做；本章自己留下的见上文「与需求的差异」。
+
+**已知局限**：`ch10-done` 之后那轮代码审查里看到、但没有动的地方，和仓库 README 的「已知局限」一致：
+
+- `ChatService` 一个类一千多行，路由、RAG、工具、Agent、降级都在里面；这次只把「走哪条路」抽成了 `ChatRoute`，整体拆分没做
+- `chat`、`agent`、`memory`、`guard`、`ops` 几个包互相引用，有循环依赖
+- 内存与 Redis 两种状态实现还有没对齐的地方：按会话汇总的 `max-conversations` 上限、确认单 `save` 的原子性（Redis 版是三条命令）、按用户列确认单时逐个去取
+- 一轮对话里「你是谁」要问商城好几次（限流、打开会话、Agent 各问一次），靠归属缓存兜着
+- 追问改写和意图识别是两次模型调用，可以合并成一次
+- 过期会话的后台清理、列订单时补查商品都是逐个去查
+- 原生工具调用的 Agent（`assistant.agent.mode=native`）没有「页面关了就停」的检查
+
+每一项都可以是下一个项目的起点。
 
 ---
 
@@ -478,6 +508,7 @@ java -jar target/mall-assistant-1.0.0-SNAPSHOT.jar --spring.profiles.active=olla
 - Redis 出错时限流与预算按 `on-redis-error` 放行或 503，并发名额放行时退回本实例信号量，待确认操作一律 503，出错后冷却 5 秒并计入指标与告警；熔断器有意每实例一份
 - 同一套契约测试跑内存与 Redis 两种实现，两个 Redis 客户端证明共享生效，连不上的端口证明两种策略
 - 监控用独立 compose 跑起 Prometheus 3.5 + Grafana 11.6：Actuator 只在管理端口、file_sd 抓取、provisioning 加载面板，告警规则有 `alerts.test.yml` 单元测试并在 CI 里 `promtool` 校验；冒烟验证了合计限流、共享预算、跨实例确认只执行一次和停实例后告警 pending → firing
+- `main` 上后来的修复：确认执行抛异常落成 FAILED 终态、流式收尾换到可阻塞线程、名额与会话锁等 Agent 线程退出才放
 - 流量模拟器（`main` 上的工具，不属于任何一章）按每日 Token 预算配速、出错退避、Agent 只提议不确认，让面板长期有数据；同一套 `mall-monitoring` 也可以顺带监控 mall-evolution
 
 > 本篇代码：[ch10-done](https://github.com/Clarence404/mall-assistant/tree/ch10-done) · 练习起点：[ch10-start](https://github.com/Clarence404/mall-assistant/tree/ch10-start)

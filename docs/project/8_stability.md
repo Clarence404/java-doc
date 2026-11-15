@@ -209,6 +209,10 @@ public List<StockView> listStocks(List<Long> skuIds) {
 }
 ```
 
+::: tip 与 main 的差异
+`main` 上 `listStocks` 在重试里面多了一层独立的熔断与舱壁（`inventory-stock-query`），「有货」提示前面还加了本机缓存，见 [后来的修复 · 详情页的有货提示补上保护](#_2、详情页的有货提示补上保护)。
+:::
+
 为什么多层重试会成倍放大、重试预算怎么算，见 [超时、重试与隔离 · 重试放大控制](/high-avail/4_timeout_retry_bulkhead#_3、重试放大控制)。
 
 ---
@@ -309,6 +313,10 @@ WHERE sku_id = ? AND bucket_no = ? AND stock >= ?;
 - **隔离级别**：库存库用 READ COMMITTED，条件不满足的 UPDATE 在语句结束就释放行锁，换桶时不会被空桶的锁拖住
 - **再平衡**：`BucketRebalanceJob` 每 5 秒检查一次，把余量最多的桶匀一半给已空的桶，避免「总数还有、每个桶都不够」；活动 SKU 每单限购 1–2 件，最后几件时的误判影响很小
 - **大促结束**：低峰时执行 `InventoryBucketService.merge`，等各桶的预占都确认或释放后，把余量并回 `t_inventory`，`bucket_count` 置回 0
+
+::: tip 与 main 的差异
+`ch08-stability` 标签上的 `release` 与 `merge` 各有一个并发窗口（库存被还到主行、合并时多并回一件），`main` 已修复，见 [后来的修复 · 分桶库存的两个并发窗口](#_1、分桶库存的两个并发窗口)。
+:::
 
 分桶后商品页展示的库存是各桶 `stock` 之和，仍经 10 秒 TTL 的缓存；[跨服务一致性](./7_consistency) 的每日对账中「预占 vs 库存」一项，对分桶 SKU 改为按桶汇总比对。通用做法见 [库存与票务 · 热点 SKU：拆分库存](/scenario/22_inventory#七、热点-sku-拆分库存) 与 [热点问题 · 分桶库存](/high-con/6_hotspot#_3、分桶库存)。
 
@@ -415,6 +423,71 @@ public class PromoSimulation extends Simulation {
 
 ---
 
+## 十二、后来的修复
+
+全系列写完后对 `main` 做了一轮只读的代码审查，下面两处与本篇有关。它们都不在 `ch08-stability` 标签里，前文与标签保持一致；两处都是先从代码推出问题，再写出能复现的测试，最后才改。
+
+### 1、分桶库存的两个并发窗口
+
+**窗口一：`release` 把库存还到了主行。** [跨服务一致性 · 空回滚与悬挂](./7_consistency#_3、空回滚与悬挂) 里 `release` 先 `INSERT IGNORE` 一行占位来判断是不是空回滚。标签上的写法在方法开头就把这笔订单的预占记录读出来，后面归还时用的是这份快照里的桶号。`release` 与迟到的 `reserve` 并发时会出现下面的顺序：
+
+![分桶 SKU 上 release 与迟到的 reserve 并发](../assets/project/bucket-release-race.svg)
+
+开头读的时候还没有记录，`INSERT IGNORE` 等到 `reserve` 提交后返回 0，接着状态条件更新成功，却按「桶号为空」把库存还给了 `t_inventory` 主行。结果是那个桶的 `reserved` 永久多 n、主行的 `reserved` 变成负数；两者相加正好抵消，[跨服务一致性 · 每日对账](./7_consistency#七、每日对账) 也发现不了。
+
+**窗口二：合并分桶时多并回一件。** `merge` 只对主行 `SELECT … FOR UPDATE`，各桶是普通读；而预占只更新桶行、不碰主行，主行上的锁挡不住它。合并读完各桶余量之后、删桶之前，一笔预占从桶里扣走 1 件并提交，合并仍按旧余量并回主行：这 1 件既被预占了，又回到了可售库存，等于超卖。
+
+**顺带的第三处**：桶上的 `confirm`、`unreserve` 影响 0 行（预占记录写着桶号，桶行却不在了）时，标签上是静默跳过，数据不一致不会暴露出来。
+
+**怎么发现的**：都是读代码时按「两个事务交错执行」推出来的，靠 `sleep` 碰运气复现不稳定。测试里给 Mapper 包一层动态代理，在某条 SQL 执行之前插入另一个事务，把交错顺序固定下来，H2 上每次都能复现；另外在真实 MySQL 上用多线程各跑一遍。
+
+**怎么修**：
+
+| 问题 | 修复 |
+|------|------|
+| `release` 用了过期的快照 | 不再在方法开头读记录；`INSERT IGNORE` 返回 0 之后，按唯一键 `(order_no, sku_id)` 执行 `SELECT … FOR UPDATE` 重读（`ReservationMapper.selectForUpdate`），桶号与归还数量都以这条已提交的记录为准，不信请求里的数量 |
+| `merge` 只锁主行 | 先锁主行，再用 `InventoryBucketMapper.selectBySkuForUpdate` 把各桶行锁住后读余量：并发的预占要么已提交（`reserved != 0`，拒绝合并），要么等合并提交后发现桶没了、按库存不足失败 |
+| 再平衡与合并可能互相等锁 | `rebalance` 开头也先锁主行，与 `merge` 串行；预占不碰主行，不受影响 |
+| 桶行不存在时静默跳过 | 抛非业务异常回滚事务，预占保持 RESERVED，消息重投后进死信告警，由人工处理 |
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| `release` 与迟到的 `reserve` 并发，库存回到同一个桶，主行不变 | [`InventoryBucketRaceH2Test#releaseRacingWithLateReserveReturnsStockToTheSameBucket`](https://github.com/Clarence404/mall-evolution/blob/main/inventory-service/src/test/java/io/github/clarence404/mall/inventory/InventoryBucketRaceH2Test.java) | H2（固定并发顺序） |
+| 合并与预占并发，不会多出库存 | [`InventoryBucketRaceH2Test#mergeRacingWithReserveNeverCreatesStock`](https://github.com/Clarence404/mall-evolution/blob/main/inventory-service/src/test/java/io/github/clarence404/mall/inventory/InventoryBucketRaceH2Test.java) | H2（固定并发顺序） |
+| 桶行不存在时确认与释放都报错回滚 | [`InventoryBucketRaceH2Test#confirmAndReleaseFailLoudlyWhenTheBucketRowIsGone`](https://github.com/Clarence404/mall-evolution/blob/main/inventory-service/src/test/java/io/github/clarence404/mall/inventory/InventoryBucketRaceH2Test.java) | H2 |
+| 真实 MySQL 上两种竞态都不动主行、不多出库存 | [`InventoryDeductIT#racingReserveAndReleaseOnBucketedSkuReturnsStockToBuckets`、`#mergeRacingWithReservationsNeverCreatesStock`](https://github.com/Clarence404/mall-evolution/blob/main/inventory-service/src/test/java/io/github/clarence404/mall/inventory/InventoryDeductIT.java) | 集成（真实 MySQL） |
+
+提交：[`9a385ae`](https://github.com/Clarence404/mall-evolution/commit/9a385ae)，代码见 [`ReservationService#release`](https://github.com/Clarence404/mall-evolution/blob/main/inventory-service/src/main/java/io/github/clarence404/mall/inventory/reserve/ReservationService.java) 与 [`InventoryBucketService#merge`](https://github.com/Clarence404/mall-evolution/blob/main/inventory-service/src/main/java/io/github/clarence404/mall/inventory/bucket/InventoryBucketService.java)。
+
+### 2、详情页的有货提示补上保护
+
+**问题**：本篇给下单的 `reserve` 配了熔断与舱壁，但更热的读路径没有。商品详情约 2000 QPS，每个请求都同步读一次 Redis 里的「有货」提示；未命中时调库存服务的 `listStocks`，只有重试、没有熔断与舱壁；失败后按「有货」展示，这个兜底值却不缓存。库存服务不可用时，Redis 里的提示 10 秒后过期，之后每个详情请求都要等一次读超时再加一次重试，Tomcat 线程被占住，正是本篇开头那条事故链，只是换到了读接口上。
+
+**怎么发现的**：审查时拿「超时、熔断、舱壁、降级」逐个对照调用库存服务的入口，发现只有下单那一个入口有保护。修复时用假时钟的单元测试数清楚「2 秒内读几次 Redis」「故障期间调几次库存服务」，再用 H2 全流程测试验证熔断打开后详情页仍返回 200。
+
+**怎么修**：`StockDisplayService` 由一层变三层，外加两个保护。
+
+| 层 | 做法 |
+|----|------|
+| 本机 Caffeine | 正常结果保留 2 秒，最多 1 万个 SKU；同一 SKU 并发未命中时只有一个线程去加载（单飞），其余等它的结果 |
+| Redis | 仍是 10 秒 TTL，各实例共用 |
+| 库存服务 | `StockQueryService.listStocks`：重试 1 次，里面套独立的 `inventory-stock-query` 熔断器与信号量舱壁 |
+
+- **兜底值也缓存**：库存服务超时、熔断打开或舱壁已满时按「有货」展示，这个兜底值在本机缓存 5 秒、不写 Redis（免得别的实例也当真）；故障期间每个 SKU 每台机器 5 秒才试一次
+- **熔断器不和下单共用**：`inventory-stock-query` 统计最近 10 秒、至少 20 次调用，失败率 50% 或慢调用（超过 300ms）占 60% 时打开 10 秒，半开放 5 个请求；舱壁 20 并发、不排队。展示查询出问题不该让下单跟着熔断，反过来也一样
+- **不单独告警**：`CircuitBreakerOpen` 告警只看 `inventory-reserve` 与 `payment-query`，`inventory-stock-query` 打开时详情页按有货兜底，用户下单时仍以预占结果为准
+
+| 结论 | 测试 | 类型 |
+|------|------|------|
+| 2 秒内同一台机器只读一次 Redis | [`StockDisplayServiceTest#localCacheAbsorbsRepeatedReadsForTwoSeconds`](https://github.com/Clarence404/mall-evolution/blob/main/mall-product/src/test/java/io/github/clarence404/mall/product/stock/StockDisplayServiceTest.java) | 单元（假时钟） |
+| 库存服务失败按有货展示，兜底值本机缓存 5 秒且不写 Redis | [`StockDisplayServiceTest#inventoryFailureFallsBackToInStockAndIsCachedLocallyForFiveSeconds`](https://github.com/Clarence404/mall-evolution/blob/main/mall-product/src/test/java/io/github/clarence404/mall/product/stock/StockDisplayServiceTest.java) | 单元（假时钟） |
+| 同一 SKU 并发未命中只加载一次 | [`StockDisplayServiceTest#concurrentMissesOnTheSameSkuLoadOnce`](https://github.com/Clarence404/mall-evolution/blob/main/mall-product/src/test/java/io/github/clarence404/mall/product/stock/StockDisplayServiceTest.java) | 单元 |
+| 熔断打开后详情页仍返回 200，不再调用库存服务 | [`StabilityH2Test#openStockQueryCircuitStopsCallingInventoryAndDetailStillWorks`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/test/java/io/github/clarence404/mall/order/StabilityH2Test.java) | H2 全流程 |
+
+提交：[`1447a81`](https://github.com/Clarence404/mall-evolution/commit/1447a81)，代码见 [`StockDisplayService`](https://github.com/Clarence404/mall-evolution/blob/main/mall-product/src/main/java/io/github/clarence404/mall/product/stock/StockDisplayService.java) 与 [`StockQueryService`](https://github.com/Clarence404/mall-evolution/blob/main/mall-product/src/main/java/io/github/clarence404/mall/product/stock/StockQueryService.java)。商品信息本身的两级缓存见 [引入缓存 · 商品详情两级缓存](./4_cache#四、商品详情两级缓存)。
+
+---
+
 ## 小结
 
 - 年中大促的事故链是：热点行排队 → `reserve` 变慢 → 下单线程占满 → 同进程接口全部超时 → 重试放大流量；任何一环被挡住都不会扩散
@@ -422,6 +495,7 @@ public class PromoSimulation extends Simulation {
 - 写接口不重试，只读查询最多重试 1 次并随机退避；熔断或舱壁拒绝是确定失败，直接返回 `SYSTEM_BUSY`，不再 `release`
 - 网关按「用户 + 接口」令牌桶限流，`mall-app` 限制同一 SKU 待支付最多 2 单，活动 SKU 支付超时缩短为 5 分钟
 - 只对活动白名单 SKU 分 10 桶，按 `order_no` 哈希选桶、桶空换桶；不做 Redis 预扣
+- `main` 上后来的修复：分桶的 `release` 改为加锁重读预占记录、`merge` 锁住桶行再读余量；详情页「有货」提示加本机 2 秒缓存与单飞、兜底值缓存 5 秒、`listStocks` 用独立的熔断与舱壁
 - 容量靠 Gatling 在同构环境按 7500 QPS 压出来，`mall-app` 本章迁入集群，大促按预案提前扩容、预热（`ProductWarmupRunner`）、冻结发布，RocketMQ 规格按消息量单独评估
 
 > 本篇代码：[ch08-stability](https://github.com/Clarence404/mall-evolution/tree/ch08-stability) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch07-consistency...ch08-stability)
