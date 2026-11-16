@@ -1,0 +1,92 @@
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:1.5; }
+    .grp { rx:10; ry:10; fill:var(--bg); stroke:var(--border); stroke-width:1.5; stroke-dasharray:6 4; }
+    .lbl { font-weight:600; font-size:12px; fill:var(--fg); }
+    .sub { font-size:10px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="400" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">Conduit IoT 架构：同步鉴权与异步数据流水线</text>
+
+  <!-- conduit-server：一个进程，三个入口 -->
+  <rect class="grp" x="610" y="40" width="170" height="435"/>
+  <text class="lbl" x="695" y="58" text-anchor="middle" fill="var(--p)">conduit-server · 单进程</text>
+
+  <!-- 第一行：设备 → EMQX → 鉴权回调 -->
+  <rect class="box" x="20" y="70" width="130" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="85" y="96" text-anchor="middle" fill="var(--g)">设备 / 模拟器</text>
+  <text class="sub" x="85" y="114" text-anchor="middle">MQTT 3.1.1 / 5</text>
+  <rect class="box" x="200" y="70" width="150" height="60" stroke="var(--b)"/>
+  <text class="lbl" x="275" y="96" text-anchor="middle" fill="var(--b)">EMQX 5</text>
+  <text class="sub" x="275" y="114" text-anchor="middle">连接 · ACL · 会话队列</text>
+  <rect class="box" x="625" y="70" width="140" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="695" y="96" text-anchor="middle" fill="var(--p)">① 鉴权回调</text>
+  <text class="sub" x="695" y="114" text-anchor="middle">控制面 · 每次连接一次</text>
+  <line class="arr" x1="150" y1="100" x2="198" y2="100"/>
+  <text class="sub" x="174" y="92" text-anchor="middle">MQTT</text>
+  <line class="arr" x1="350" y1="100" x2="623" y2="100"/>
+  <text class="sub" x="486" y="92" text-anchor="middle">HTTP 回调（同步）：allow / deny</text>
+
+  <!-- 第二行：transport → Redis Streams → 流水线 -->
+  <rect class="box" x="200" y="180" width="150" height="60" stroke="var(--y)"/>
+  <text class="lbl" x="275" y="206" text-anchor="middle" fill="var(--y)">conduit-transport</text>
+  <text class="sub" x="275" y="224" text-anchor="middle">解析 topic · 攒批 · 回执</text>
+  <rect class="box" x="400" y="180" width="150" height="60" stroke="var(--r)"/>
+  <text class="lbl" x="475" y="206" text-anchor="middle" fill="var(--r)">Redis Streams</text>
+  <text class="sub" x="475" y="224" text-anchor="middle">conduit:stream:up</text>
+  <rect class="box" x="625" y="180" width="140" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="695" y="206" text-anchor="middle" fill="var(--p)">② 数据流水线</text>
+  <text class="sub" x="695" y="224" text-anchor="middle">数据面 · 每条上报</text>
+  <line class="arr" x1="275" y1="130" x2="275" y2="178"/>
+  <text class="sub" x="283" y="158">共享订阅 · QoS 1</text>
+  <line class="arr" x1="350" y1="210" x2="398" y2="210"/>
+  <text class="sub" x="374" y="202" text-anchor="middle">XADD</text>
+  <line class="arr" x1="550" y1="210" x2="623" y2="210"/>
+  <text class="sub" x="586" y="202" text-anchor="middle">消费组拉取</text>
+
+  <!-- 第三行：存储 -->
+  <rect class="grp" x="10" y="270" width="550" height="100"/>
+  <text class="lbl" x="285" y="288" text-anchor="middle">存储</text>
+  <rect class="box" x="20" y="298" width="130" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="85" y="324" text-anchor="middle" fill="var(--g)">InfluxDB 3 Core</text>
+  <text class="sub" x="85" y="342" text-anchor="middle">时序历史 · 保留 30 天</text>
+  <rect class="box" x="200" y="298" width="150" height="60" stroke="var(--r)"/>
+  <text class="lbl" x="275" y="324" text-anchor="middle" fill="var(--r)">Redis</text>
+  <text class="sub" x="275" y="342" text-anchor="middle">最新值 · 在线 · 身份缓存</text>
+  <rect class="box" x="400" y="298" width="150" height="60" stroke="var(--b)"/>
+  <text class="lbl" x="475" y="324" text-anchor="middle" fill="var(--b)">PostgreSQL</text>
+  <text class="sub" x="475" y="342" text-anchor="middle">租户 · 产品 · 设备 · 物模型</text>
+  <line class="arr" x1="610" y1="320" x2="562" y2="320"/>
+  <text class="sub" x="586" y="312" text-anchor="middle">读写</text>
+  <text class="sub" x="695" y="314" text-anchor="middle">三个入口同一进程</text>
+  <text class="sub" x="695" y="332" text-anchor="middle">设备数据不直连 server</text>
+
+  <!-- 第四行：前端 → REST -->
+  <text class="sub" x="20" y="424">① 控制面：同步，挂了只影响新连接</text>
+  <text class="sub" x="20" y="444">② 数据面：异步，挂了消息在总线排队</text>
+  <rect class="box" x="400" y="400" width="150" height="60" stroke="var(--b)"/>
+  <text class="lbl" x="475" y="426" text-anchor="middle" fill="var(--b)">Web 前端</text>
+  <text class="sub" x="475" y="444" text-anchor="middle">Vue 3 · Element Plus</text>
+  <rect class="box" x="625" y="400" width="140" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="695" y="426" text-anchor="middle" fill="var(--p)">③ REST API</text>
+  <text class="sub" x="695" y="444" text-anchor="middle">JWT · 租户隔离</text>
+  <line class="arr" x1="550" y1="430" x2="623" y2="430"/>
+  <text class="sub" x="586" y="422" text-anchor="middle">/api/v1</text>
+</svg>

@@ -1,6 +1,6 @@
 # IoT 总览
 
-本模块从 Java 后端视角讲物联网：设备协议、平台选型、边缘计算、数据存储与设备安全，再落到 Java 接入实战。单片机固件和射频硬件不在范围内。
+本模块从 Java 后端视角讲物联网：设备协议、平台选型、边缘计算、数据存储与设备安全，再落到 Java 接入实战，最后用配套仓库 Conduit IoT 串讲一个多租户物联网平台是怎么做出来的。单片机固件和射频硬件不在范围内。
 
 **版本基线（2026 年 10 月）**：MQTT 5.0、EMQX 5.9+ / 6.x、TDengine 3.x、KubeEdge 1.23、EdgeX Foundry 4.0、ThingsBoard 4.x、JDK 21、Spring Boot 4
 
@@ -30,6 +30,21 @@
 10. [OTA 升级](./10_ota)：固件签名校验、防回滚、A/B 分区与灰度发布
 11. [规则引擎](./11_rule_engine)：规则模型、条件匹配与动作执行
 
+「平台实战」一组以配套仓库 [Conduit IoT](https://github.com/Clarence404/conduit-iot) 为例，把前面的协议、选型和接入写法串成一个能跑的多租户物联网平台，每篇按「问题、设计决定、关键代码、怎么验证、已知限制」的顺序讲。这一组跟随配套仓库使用 Spring Boot 3.5，与上面的站点基线不同，文中的代码与数字都固定在仓库的一个提交上。
+
+12. [平台实战概览](./12_conduit_intro)：Conduit 的定位与版本进度、一条上报的全过程、接入与业务为什么分两个进程
+13. [设备接入与鉴权](./13_conduit_access)：topic 设计、一机一密、EMQX HTTP 鉴权回调、ACL 与在线状态
+14. [物模型与解码](./14_conduit_thing_model)：属性定义与逐测点校验、可插拔解码器、缺测与零值约定
+15. [可靠上报与接入层主备](./15_conduit_reliable_uplink)：业务回执与设备重发、写入总线后才确认、Redis 锁选主、共享订阅
+16. [数据流水线](./16_conduit_pipeline)：Redis Streams 消费与认领、退避重试与死信、批处理
+17. [时序存储与历史查询](./17_conduit_telemetry)：InfluxDB 3 宽表建模、最新值、自动聚合、遥测重放
+18. [多租户与授权](./18_conduit_tenant)：租户强制过滤、组合外键、组织模型、范围授权、会话吊销
+
+19～21 号预留给设备影子、OTA 升级、规则引擎在 Conduit 里的实现篇：这三项 Conduit 还没有实现，目前只有上面第 8、10、11 篇的通用设计。
+
+22. [压测与瓶颈排查](./22_conduit_capacity)：计数守恒判据、阶梯压测、逐跳定位瓶颈与几次被推翻的结论
+23. [部署与可观测](./23_conduit_deploy)：Compose 部署包、Flyway 迁移与演示数据、健康检查、指标看板
+
 复习时用 [高频面试题](./99_interview) 自测，答案在 [IoT 面试题解答](/interview/33_iot)。
 
 ---
@@ -48,4 +63,8 @@
 - [零信任架构](/security/9_zero_trust)：设备身份与最小权限访问的通用原则
 - [Kubernetes](/cloud-native/6_kubernetes)：KubeEdge 所依赖的云端集群
 - [AI 总览](/ai/0_overview)：边缘推理所用模型的来源与接入方式
+- [分布式锁](/distributed/3_lock)：平台实战里接入层用 Redis 锁做单活多备的原理
+- [Redis 典型应用场景](/cache/4_redis_scenario)：平台实战用作消息总线的 Redis Streams 消费组、确认与认领
+- [权限系统架构设计](/architecture/6_access_control)：多租户平台里角色、权限与数据范围的通用设计
+- [性能分析方法论](/high-perf/2_methodology)：平台实战压测篇所用的定位思路
 - [IoT 面试题解答](/interview/33_iot)：本模块高频问题的答案汇总

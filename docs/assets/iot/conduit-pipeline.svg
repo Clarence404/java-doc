@@ -1,0 +1,90 @@
+<svg viewBox="0 0 860 400" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:1.5; }
+    .wrap { rx:10; ry:10; fill:var(--bg); stroke:var(--border); stroke-width:1.5; }
+    .lbl { font-weight:600; font-size:12px; fill:var(--fg); }
+    .sub { font-size:10px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+    .back { stroke:var(--muted); stroke-width:1.6; fill:none; stroke-dasharray:5 4; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="430" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">数据流水线：从总线到时序库</text>
+
+  <rect class="box" x="20" y="50" width="200" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="120" y="76" text-anchor="middle" fill="var(--p)">transport 主实例</text>
+  <text class="sub" x="120" y="94" text-anchor="middle">微批 XADD，成功后才 ACK</text>
+  <rect class="box" x="310" y="50" width="240" height="60" stroke="var(--b)"/>
+  <text class="lbl" x="430" y="76" text-anchor="middle" fill="var(--b)">Redis Stream conduit:stream:up</text>
+  <text class="sub" x="430" y="94" text-anchor="middle">MAXLEN ~100 万 · 消费组 conduit-server</text>
+  <rect class="box" x="640" y="50" width="200" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="740" y="76" text-anchor="middle" fill="var(--g)">PipelineWorker × 4</text>
+  <text class="sub" x="740" y="94" text-anchor="middle">虚拟线程，各是一个消费者</text>
+  <line class="arr" x1="220" y1="80" x2="308" y2="80"/>
+  <text class="sub" x="264" y="72" text-anchor="middle">RawMessage</text>
+  <line class="arr" x1="550" y1="80" x2="638" y2="80"/>
+  <text class="sub" x="594" y="72" text-anchor="middle">XREADGROUP</text>
+
+  <line class="arr" x1="740" y1="110" x2="740" y2="148"/>
+  <text class="sub" x="730" y="133" text-anchor="end">一批最多 20000 条</text>
+
+  <rect class="wrap" x="20" y="150" width="820" height="130"/>
+  <text class="lbl" x="430" y="172" text-anchor="middle">PipelineProcessor：一批消息的处理顺序（下游写成功后才 XACK）</text>
+  <rect class="box" x="35" y="190" width="130" height="70" stroke="var(--b)"/>
+  <text class="lbl" x="100" y="216" text-anchor="middle" fill="var(--b)">① 查身份</text>
+  <text class="sub" x="100" y="234" text-anchor="middle">一次 MGET</text>
+  <text class="sub" x="100" y="248" text-anchor="middle">未命中才查数据库</text>
+  <rect class="box" x="200" y="190" width="130" height="70" stroke="var(--p)"/>
+  <text class="lbl" x="265" y="216" text-anchor="middle" fill="var(--p)">② 解码与校验</text>
+  <text class="sub" x="265" y="234" text-anchor="middle">按产品选解码器</text>
+  <text class="sub" x="265" y="248" text-anchor="middle">逐测点对物模型</text>
+  <rect class="box" x="365" y="190" width="130" height="70" stroke="var(--y)"/>
+  <text class="lbl" x="430" y="216" text-anchor="middle" fill="var(--y)">③ 写 InfluxDB</text>
+  <text class="sub" x="430" y="234" text-anchor="middle">整批一次请求</text>
+  <text class="sub" x="430" y="248" text-anchor="middle">等 WAL 刷盘约 1 秒</text>
+  <rect class="box" x="530" y="190" width="130" height="70" stroke="var(--b)"/>
+  <text class="lbl" x="595" y="216" text-anchor="middle" fill="var(--b)">④ 更新最新值</text>
+  <text class="sub" x="595" y="234" text-anchor="middle">合并后一次 pipeline</text>
+  <text class="sub" x="595" y="248" text-anchor="middle">Lua 按 ts 比较</text>
+  <rect class="box" x="695" y="190" width="130" height="70" stroke="var(--g)"/>
+  <text class="lbl" x="760" y="216" text-anchor="middle" fill="var(--g)">⑤ XACK</text>
+  <text class="sub" x="760" y="234" text-anchor="middle">整批一次确认</text>
+  <text class="sub" x="760" y="248" text-anchor="middle">再标记设备在线</text>
+  <line class="arr" x1="165" y1="225" x2="198" y2="225"/>
+  <line class="arr" x1="330" y1="225" x2="363" y2="225"/>
+  <line class="arr" x1="495" y1="225" x2="528" y2="225"/>
+  <line class="arr" x1="660" y1="225" x2="693" y2="225"/>
+
+  <rect class="box" x="165" y="320" width="200" height="60" stroke="var(--r)"/>
+  <text class="lbl" x="265" y="346" text-anchor="middle" fill="var(--r)">死信流 conduit:stream:dead</text>
+  <text class="sub" x="265" y="364" text-anchor="middle">先写记录再 XACK，不重试</text>
+  <line class="arr" x1="265" y1="260" x2="265" y2="318"/>
+  <text class="sub" x="275" y="304">消息本身有问题</text>
+
+  <rect class="box" x="385" y="320" width="200" height="60" stroke="var(--y)"/>
+  <text class="lbl" x="485" y="346" text-anchor="middle" fill="var(--y)">下游暂时不可用</text>
+  <text class="sub" x="485" y="364" text-anchor="middle">原地退避 1 秒起、30 秒封顶，不确认</text>
+  <line class="arr" x1="430" y1="260" x2="430" y2="318"/>
+  <text class="sub" x="440" y="304">写入失败</text>
+
+  <rect class="box" x="615" y="320" width="225" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="727" y="346" text-anchor="middle" fill="var(--g)">认领遗留消息</text>
+  <text class="sub" x="727" y="364" text-anchor="middle">空闲 ≥ 60 秒 XCLAIM，超 5 次进死信</text>
+  <line class="back" x1="760" y1="320" x2="760" y2="282"/>
+  <text class="sub" x="770" y="304">每 10 秒扫描</text>
+</svg>

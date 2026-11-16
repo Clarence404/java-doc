@@ -1,0 +1,62 @@
+<svg viewBox="0 0 790 355" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:1.5; }
+    .lbl { font-weight:600; font-size:12px; fill:var(--fg); }
+    .sub { font-size:10px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="395" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">一条属性上报的解码与逐测点校验</text>
+
+  <rect class="box" x="200" y="50" width="350" height="60" stroke="var(--y)"/>
+  <text class="lbl" x="375" y="76" text-anchor="middle" fill="var(--y)">ThingModelCache</text>
+  <text class="sub" x="375" y="94" text-anchor="middle">按 productKey 缓存 ProductProfile · 60 秒过期 · 修改后主动清除</text>
+  <line class="arr" x1="275" y1="110" x2="275" y2="158"/>
+  <text class="sub" x="283" y="138">codec</text>
+  <line class="arr" x1="475" y1="110" x2="475" y2="158"/>
+  <text class="sub" x="483" y="138">属性定义</text>
+
+  <rect class="box" x="20" y="160" width="130" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="85" y="186" text-anchor="middle" fill="var(--g)">上报报文</text>
+  <text class="sub" x="85" y="204" text-anchor="middle">RawMessage.payload</text>
+  <rect class="box" x="200" y="160" width="150" height="60" stroke="var(--b)"/>
+  <text class="lbl" x="275" y="186" text-anchor="middle" fill="var(--b)">PayloadDecoder</text>
+  <text class="sub" x="275" y="204" text-anchor="middle">standard-json / flat-json</text>
+  <rect class="box" x="400" y="160" width="150" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="475" y="186" text-anchor="middle" fill="var(--p)">FieldValidator</text>
+  <text class="sub" x="475" y="204" text-anchor="middle">逐测点校验与类型转换</text>
+  <rect class="box" x="600" y="160" width="170" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="685" y="186" text-anchor="middle" fill="var(--g)">合格测点</text>
+  <text class="sub" x="685" y="204" text-anchor="middle">写 InfluxDB · 更新最新值</text>
+  <line class="arr" x1="150" y1="190" x2="198" y2="190"/>
+  <text class="sub" x="174" y="182" text-anchor="middle">字节</text>
+  <line class="arr" x1="350" y1="190" x2="398" y2="190"/>
+  <text class="sub" x="374" y="182" text-anchor="middle">原始值</text>
+  <line class="arr" x1="550" y1="190" x2="598" y2="190"/>
+  <text class="sub" x="574" y="182" text-anchor="middle">通过</text>
+
+  <rect class="box" x="375" y="270" width="200" height="60" stroke="var(--r)"/>
+  <text class="lbl" x="475" y="296" text-anchor="middle" fill="var(--r)">被剔除测点</text>
+  <text class="sub" x="475" y="314" text-anchor="middle">FIELD_REJECTED 死信记录</text>
+  <line class="arr" x1="475" y1="220" x2="475" y2="268"/>
+  <text class="sub" x="483" y="248">不合格</text>
+
+  <text class="sub" x="20" y="292">部分剔除：合格测点照常入库并确认消息</text>
+  <text class="sub" x="20" y="310">全部剔除：整条消息进死信，不写入数据</text>
+</svg>

@@ -1,0 +1,81 @@
+<svg viewBox="0 0 840 570" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:1.5; }
+    .lbl { font-weight:600; font-size:12px; fill:var(--fg); }
+    .sub { font-size:10px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+    .ack { stroke:var(--g); marker-end:url(#k); }
+    .life { stroke:var(--border); stroke-width:1.5; stroke-dasharray:5 4; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+    <marker id="k" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--g)"/>
+    </marker>
+  </defs>
+  <text x="420" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">可靠上报的确认链路与主备接管</text>
+
+  <rect class="box" x="20" y="50" width="140" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="90" y="76" text-anchor="middle" fill="var(--g)">设备</text>
+  <text class="sub" x="90" y="94" text-anchor="middle">本地待确认队列</text>
+  <rect class="box" x="240" y="50" width="140" height="60" stroke="var(--y)"/>
+  <text class="lbl" x="310" y="76" text-anchor="middle" fill="var(--y)">EMQX</text>
+  <text class="sub" x="310" y="94" text-anchor="middle">内存持久会话 · mqueue</text>
+  <rect class="box" x="460" y="50" width="140" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="530" y="76" text-anchor="middle" fill="var(--p)">transport 主实例</text>
+  <text class="sub" x="530" y="94" text-anchor="middle">持有 Redis 选主锁</text>
+  <rect class="box" x="680" y="50" width="140" height="60" stroke="var(--b)"/>
+  <text class="lbl" x="750" y="76" text-anchor="middle" fill="var(--b)">Redis Streams</text>
+  <text class="sub" x="750" y="94" text-anchor="middle">appendfsync always</text>
+
+  <line class="life" x1="90" y1="110" x2="90" y2="440"/>
+  <line class="life" x1="310" y1="110" x2="310" y2="440"/>
+  <line class="life" x1="530" y1="110" x2="530" y2="440"/>
+  <line class="life" x1="750" y1="110" x2="750" y2="440"/>
+
+  <line class="arr" x1="90" y1="150" x2="308" y2="150"/>
+  <text class="sub" x="199" y="142" text-anchor="middle">① PUBLISH QoS 1（带 id 与 ts）</text>
+  <line class="arr" x1="310" y1="195" x2="92" y2="195"/>
+  <text class="sub" x="201" y="187" text-anchor="middle">② PUBACK：只代表 Broker 收到</text>
+  <line class="arr" x1="310" y1="240" x2="528" y2="240"/>
+  <text class="sub" x="419" y="232" text-anchor="middle">③ 投递（在途数 ≤ max_inflight）</text>
+  <line class="arr" x1="530" y1="285" x2="748" y2="285"/>
+  <text class="sub" x="639" y="277" text-anchor="middle">④ 微批 XADD（一批一次往返）</text>
+  <line class="arr ack" x1="750" y1="330" x2="532" y2="330"/>
+  <text class="sub" x="641" y="322" text-anchor="middle">⑤ 返回条目 id，已刷盘</text>
+  <line class="arr ack" x1="530" y1="375" x2="312" y2="375"/>
+  <text class="sub" x="421" y="367" text-anchor="middle">⑥ 先发回执 down/ack，再确认 ③</text>
+  <line class="arr ack" x1="310" y1="420" x2="92" y2="420"/>
+  <text class="sub" x="201" y="412" text-anchor="middle">⑦ 回执 QoS 0，设备按 id 删副本</text>
+
+  <text x="420" y="476" text-anchor="middle" font-weight="600" font-size="12" fill="var(--fg)">主实例崩溃后：备实例接管同一组会话</text>
+  <rect class="box" x="15" y="490" width="180" height="60" stroke="var(--r)"/>
+  <text class="lbl" x="105" y="516" text-anchor="middle" fill="var(--r)">主实例崩溃</text>
+  <text class="sub" x="105" y="534" text-anchor="middle">不再续期，连接断开</text>
+  <rect class="box" x="225" y="490" width="180" height="60" stroke="var(--y)"/>
+  <text class="lbl" x="315" y="516" text-anchor="middle" fill="var(--y)">锁过期</text>
+  <text class="sub" x="315" y="534" text-anchor="middle">ttl 15 秒，键自动删除</text>
+  <rect class="box" x="435" y="490" width="180" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="525" y="516" text-anchor="middle" fill="var(--p)">备实例抢到锁</text>
+  <text class="sub" x="525" y="534" text-anchor="middle">每 2 秒尝试一次 Lua 抢锁</text>
+  <rect class="box" x="645" y="490" width="180" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="735" y="516" text-anchor="middle" fill="var(--g)">接管同一组会话</text>
+  <text class="sub" x="735" y="534" text-anchor="middle">同 clientId 重连，mqueue 补发</text>
+  <line class="arr" x1="195" y1="520" x2="223" y2="520"/>
+  <line class="arr" x1="405" y1="520" x2="433" y2="520"/>
+  <line class="arr" x1="615" y1="520" x2="643" y2="520"/>
+</svg>

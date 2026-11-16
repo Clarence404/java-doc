@@ -1,0 +1,61 @@
+<svg viewBox="0 0 900 574" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 z" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="574" fill="var(--bg)"/>
+  <text x="450" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">瓶颈迁移：每修掉一处，下一处才露出来</text>
+  <rect x="30" y="44" width="840" height="60" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="50" y="68" font-size="13" font-weight="600" fill="var(--r)">① 流水线：每批只写一次 InfluxDB</text>
+  <text x="50" y="88" font-size="11" fill="var(--fg)">批固定 100 条 ÷ WAL 刷盘 1 秒 = 约 100 条/秒</text>
+  <text x="860" y="68" text-anchor="end" font-size="12" font-weight="600" fill="var(--fg)">批大小可配，写入按字节切块</text>
+  <text x="860" y="88" text-anchor="end" font-size="11" fill="var(--muted)">排空积压约 2,780 条/秒</text>
+  <line x1="450" y1="104" x2="450" y2="132" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="30" y="134" width="840" height="60" rx="6" fill="var(--r)" fill-opacity="0.12" stroke="var(--r)" stroke-width="1.5"/>
+  <text x="50" y="158" font-size="13" font-weight="600" fill="var(--r)">② EMQX 磁盘持久会话</text>
+  <text x="50" y="178" font-size="11" fill="var(--fg)">积压约 3.3 万条即楔死，所有健康信号为绿</text>
+  <text x="860" y="158" text-anchor="end" font-size="12" font-weight="600" fill="var(--fg)">改内存持久会话，加会话监控</text>
+  <text x="860" y="178" text-anchor="end" font-size="11" fill="var(--muted)">过载时丢弃可见、可自愈</text>
+  <line x1="450" y1="194" x2="450" y2="222" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="30" y="224" width="840" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="50" y="248" font-size="13" font-weight="600" fill="var(--y)">③ transport 逐条 XADD，在途窗口过小</text>
+  <text x="50" y="268" font-size="11" fill="var(--fg)">持续投递约 1,230 条/秒</text>
+  <text x="860" y="248" text-anchor="end" font-size="12" font-weight="600" fill="var(--fg)">微批写总线，窗口取批的若干倍</text>
+  <text x="860" y="268" text-anchor="end" font-size="11" fill="var(--muted)">微批后约 1,980，调窗口后约 4,000 条/秒</text>
+  <line x1="450" y1="284" x2="450" y2="312" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="30" y="314" width="840" height="60" rx="6" fill="var(--y)" fill-opacity="0.12" stroke="var(--y)" stroke-width="1.5"/>
+  <text x="50" y="338" font-size="13" font-weight="600" fill="var(--y)">④ 流水线每条消息 2 次 Redis 往返</text>
+  <text x="50" y="358" font-size="11" fill="var(--fg)">入库峰值 2,943 条/秒</text>
+  <text x="860" y="338" text-anchor="end" font-size="12" font-weight="600" fill="var(--fg)">身份 MGET 预取，最新值 pipeline 提交</text>
+  <text x="860" y="358" text-anchor="end" font-size="11" fill="var(--muted)">往返由每条 2 次降为每批固定几次</text>
+  <line x1="450" y1="374" x2="450" y2="402" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="30" y="404" width="840" height="60" rx="6" fill="var(--b)" fill-opacity="0.12" stroke="var(--b)" stroke-width="1.5"/>
+  <text x="50" y="428" font-size="13" font-weight="600" fill="var(--b)">⑤ EMQX 单连接进程单核封顶</text>
+  <text x="50" y="448" font-size="11" fill="var(--fg)">9,000 条/秒时信箱持续增长，连接被强杀</text>
+  <text x="860" y="428" text-anchor="end" font-size="12" font-weight="600" fill="var(--fg)">主实例 4 条连接共享订阅，合并最新值</text>
+  <text x="860" y="448" text-anchor="end" font-size="11" fill="var(--muted)">单机可靠无损 11,500 条/秒</text>
+  <line x1="450" y1="464" x2="450" y2="492" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="30" y="494" width="840" height="60" rx="6" fill="var(--g)" fill-opacity="0.12" stroke="var(--g)" stroke-width="1.5"/>
+  <text x="50" y="518" font-size="13" font-weight="600" fill="var(--g)">⑥ 硬件与虚拟化网络</text>
+  <text x="50" y="538" font-size="11" fill="var(--fg)">单机 8 vCPU 全满；分机后卡在内核收包</text>
+  <text x="860" y="518" text-anchor="end" font-size="12" font-weight="600" fill="var(--fg)">墙已不在平台代码里</text>
+  <text x="860" y="538" text-anchor="end" font-size="11" fill="var(--muted)">加核、换网卡或分机发压后再测</text>
+</svg>

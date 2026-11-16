@@ -291,6 +291,7 @@ public class ShadowService {
 - `version` 每次更新加 1：应用侧做乐观锁，设备侧丢弃旧消息
 - 设备上线先订阅再拉取全量影子，MQTT 持久会话只是补充，影子才是权威来源
 - Redis Hash + Lua 保证比较并写入的原子性，MySQL 异步持久化，消息推送放在写入成功之后
+- 本篇讲的是通用设计；配套仓库 Conduit IoT 的实现篇计划在平台实战一组补充，目前见 [平台实战概览](./12_conduit_intro)
 
 ## 参考资料
 

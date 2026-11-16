@@ -206,6 +206,7 @@ export const GROUPS = [
                 sidebar: [
                     {text: '原理与选型', from: 1},
                     {text: '接入实战', from: 6},
+                    {text: '平台实战', from: 12},   // 以 conduit-iot 为配套仓库的串讲，12 号起
                 ],
             },
         ],
@@ -273,6 +274,16 @@ export const BASELINE = {
     ],
     exceptions: [
         {path: 'flink/', name: 'JDK', ver: '17'},
+        // IoT 平台实战（12–18、22、23 号）跟随配套仓库 conduit-iot 的版本；19–21 号预留给设备影子、OTA、规则引擎的实现篇，写出来时再登记
+        {path: 'iot/12_', name: 'Spring Boot', ver: '3.5'},
+        {path: 'iot/13_', name: 'Spring Boot', ver: '3.5'},
+        {path: 'iot/14_', name: 'Spring Boot', ver: '3.5'},
+        {path: 'iot/15_', name: 'Spring Boot', ver: '3.5'},
+        {path: 'iot/16_', name: 'Spring Boot', ver: '3.5'},
+        {path: 'iot/17_', name: 'Spring Boot', ver: '3.5'},
+        {path: 'iot/18_', name: 'Spring Boot', ver: '3.5'},
+        {path: 'iot/22_', name: 'Spring Boot', ver: '3.5'},
+        {path: 'iot/23_', name: 'Spring Boot', ver: '3.5'},
     ],
 };
 

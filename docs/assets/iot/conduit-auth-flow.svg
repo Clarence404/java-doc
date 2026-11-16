@@ -1,0 +1,57 @@
+<svg viewBox="0 0 770 470" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:1.5; }
+    .lbl { font-weight:600; font-size:12px; fill:var(--fg); }
+    .sub { font-size:10px; fill:var(--muted); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+    .life { stroke:var(--border); stroke-width:1.5; stroke-dasharray:5 4; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="385" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">设备连接与鉴权时序</text>
+  <rect class="box" x="10" y="50" width="140" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="80" y="76" text-anchor="middle" fill="var(--g)">设备</text>
+  <text class="sub" x="80" y="94" text-anchor="middle">deviceKey + 密钥</text>
+  <rect class="box" x="200" y="50" width="140" height="60" stroke="var(--b)"/>
+  <text class="lbl" x="270" y="76" text-anchor="middle" fill="var(--b)">EMQX</text>
+  <text class="sub" x="270" y="94" text-anchor="middle">HTTP 认证 · 文件 ACL</text>
+  <rect class="box" x="410" y="50" width="140" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="480" y="76" text-anchor="middle" fill="var(--p)">conduit-server</text>
+  <text class="sub" x="480" y="94" text-anchor="middle">MqttAuthService</text>
+  <rect class="box" x="620" y="50" width="140" height="60" stroke="var(--r)"/>
+  <text class="lbl" x="690" y="76" text-anchor="middle" fill="var(--r)">Redis / PostgreSQL</text>
+  <text class="sub" x="690" y="94" text-anchor="middle">身份缓存 5 分钟</text>
+  <line class="life" x1="80" y1="110" x2="80" y2="450"/>
+  <line class="life" x1="270" y1="110" x2="270" y2="450"/>
+  <line class="life" x1="480" y1="110" x2="480" y2="450"/>
+  <line class="life" x1="690" y1="110" x2="690" y2="450"/>
+  <line class="arr" x1="80" y1="150" x2="268" y2="150"/>
+  <text class="sub" x="174" y="142" text-anchor="middle">① CONNECT（clientId = 用户名）</text>
+  <line class="arr" x1="270" y1="196" x2="478" y2="196"/>
+  <text class="sub" x="374" y="188" text-anchor="middle">② POST /internal/mqtt/auth + 内部 token</text>
+  <line class="arr" x1="480" y1="242" x2="688" y2="242"/>
+  <text class="sub" x="584" y="234" text-anchor="middle">③ 查身份：缓存未命中则回源</text>
+  <line class="arr" x1="690" y1="288" x2="482" y2="288"/>
+  <text class="sub" x="586" y="280" text-anchor="middle">④ 盐、哈希、设备与租户状态</text>
+  <line class="arr" x1="480" y1="334" x2="272" y2="334"/>
+  <text class="sub" x="376" y="326" text-anchor="middle">⑤ 200 · result = allow / deny</text>
+  <line class="arr" x1="270" y1="380" x2="82" y2="380"/>
+  <text class="sub" x="176" y="372" text-anchor="middle">⑥ CONNACK：成功或未授权</text>
+  <line class="arr" x1="80" y1="426" x2="268" y2="426"/>
+  <text class="sub" x="174" y="418" text-anchor="middle">⑦ PUBLISH up/property（查 ACL）</text>
+</svg>

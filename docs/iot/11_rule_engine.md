@@ -364,6 +364,7 @@ public RedisMessageListenerContainer ruleChangeListener(RedisConnectionFactory f
 - 匹配采用边沿触发，状态依赖 Kafka 按设备分区保持在同一实例
 - 动作执行前按幂等键占位，告警配静默期；Webhook 配超时、限并发、失败重试，地址做 SSRF 校验
 - 数据库事务里不发消息，提交后再通知；规则整体缓存在内存，变更通过 Redis Pub/Sub 通知并定时兜底对齐
+- 本篇讲的是通用设计；配套仓库 Conduit IoT 的实现篇计划在平台实战一组补充，目前见 [平台实战概览](./12_conduit_intro)
 
 ## 参考资料
 
@@ -372,4 +373,4 @@ public RedisMessageListenerContainer ruleChangeListener(RedisConnectionFactory f
 - Spring Framework REST Clients（RestClient）：[https://docs.spring.io/spring-framework/reference/integration/rest-clients.html](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
 - Spring Expression Language（SimpleEvaluationContext）：[https://docs.spring.io/spring-framework/reference/core/expressions/evaluation.html](https://docs.spring.io/spring-framework/reference/core/expressions/evaluation.html)
 
-> 返回：[IoT 总览](./0_overview)
+> 下一篇：[平台实战概览](./12_conduit_intro)
