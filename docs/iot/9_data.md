@@ -6,7 +6,7 @@ description: EMQX 转发 Kafka、Flink 2.x 告警与离线检测、TDengine 超�
 
 > 前置阅读：[时序数据库](/nosql/4_time_series_db)、[Flink 总览](/flink/0_overview)、[通信协议](./1_protocol)
 
-IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可视化。本篇讲 EMQX 转发 Kafka、Flink 清洗与告警、TDengine 超表、降采样与 Grafana，基线为 Flink 2.2。
+IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可视化。本篇讲 EMQX 转发 Kafka、Flink 清洗与告警、TDengine 超表、降采样与 Grafana 看板，基线为 Flink 2.2。
 
 ---
 
@@ -124,11 +124,11 @@ WHERE is_not_null(payload.temperature)
 |--------|--------|------|
 | Topic | `iot.telemetry` | 遥测、事件、指令回执分开 Topic，便于独立扩容 |
 | Message Key | `${deviceId}` | 同一设备进同一分区，保证单设备有序 |
-| Message Value | `${.}` | 整条规则输出（JSON），即上一小节的统一消息 |
+| Message Value | `${.}` | 整条规则输出（JSON），即二.1 的统一消息 |
 | 分区数 | 按峰值吞吐与 Flink 并行度规划 | Flink Source 并行度不应超过分区数 |
 | 缓冲 | 开启内存 + 磁盘缓冲 | Kafka 短暂不可用时，EMQX 侧先缓冲，恢复后续传 |
 
-5.9 之前，Kafka 等数据集成属于 EMQX 企业版功能，开源版没有；5.9 起合并为一个版本，许可见 [平台选型 · EMQX 许可与部署](./2_platform#五、emqx-许可与部署)。Kafka 本身的分区与可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，消费组见 [Kafka 生产与消费](/messaging/2_kafka_client)。
+Kafka 等数据集成在 5.9 之前属于 EMQX 企业版功能，5.9 起单节点也能用，许可见 [EMQX 许可与部署 · 许可变化](./2_platform_emqx#二、许可变化)。Kafka 本身的分区与可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，消费组见 [Kafka 生产与消费](/messaging/2_kafka_client)。
 
 ### 4、小规模：规则引擎直写 TDengine
 
@@ -430,8 +430,6 @@ CREATE STREAM IF NOT EXISTS iot_db_5m.s_sensors_5m
 
 ## 六、可视化与告警
 
-告警使用 Grafana 统一告警（Grafana Alerting），它与 Prometheus 规则加 Alertmanager 的分工见 [告警体系 · Grafana Alerting 与 Alertmanager](/observability/4_alerting#八、grafana-alerting-与-alertmanager)。
-
 ### 1、Grafana 看板
 
 Grafana 通过 TDengine 官方数据源插件直接用 SQL 查询；看板上常用的几类面板：
@@ -445,89 +443,15 @@ Grafana 通过 TDengine 官方数据源插件直接用 SQL 查询；看板上常
 
 长时间范围的趋势图一定要查降采样库，否则一次刷新就会扫描海量原始数据。
 
-### 2、统一告警规则
+### 2、Grafana 告警
 
-Grafana 9 起统一使用 Grafana Alerting，旧版面板告警（`IS ABOVE 80` 那套写法）已不再使用。一条告警规则由三部分组成：
+对已经入库的数据配阈值告警，用 Grafana 统一告警（Grafana Alerting）：规则怎么由查询、Reduce、Threshold 组成，Pending period、联系点、通知策略怎么配，以及用 Webhook 把告警回调进业务告警服务的接收端代码，见 [告警体系 · Grafana Alerting 与 Alertmanager](/observability/4_alerting#八、grafana-alerting-与-alertmanager)。设备数据有三处要单独注意：
 
-| 步骤 | 作用 | 示例 |
-|------|------|------|
-| Query | 查出每台设备的时间序列 | `SELECT _wstart, AVG(temperature) FROM iot_db.sensors WHERE ts >= NOW - 5m PARTITION BY device_id INTERVAL(1m)` |
-| Reduce 表达式 | 把每条序列压成一个值 | `Last` 或 `Mean` |
-| Threshold 表达式 | 与阈值比较 | `> 80` |
+- **查询按设备分组**：`SELECT _wstart, AVG(temperature) FROM iot_db.sensors WHERE ts >= NOW - 5m PARTITION BY device_id INTERVAL(1m)` 让每台设备各出一条序列、各自成为一个告警实例，`device_id` 作为标签带进通知和回调
+- **停报类规则的 No data 设为 Alerting**：整条查询没有结果时（规则只盯一台关键设备，或采集链路断了、所有设备都没数据），规则默认进入 No Data 状态，发出的是另一条 `DatasourceNoData` 告警，不带 `device_id`，原来配的通知策略不一定对它生效；「设备停报」这类规则把 No data 的处理改成 Alerting
+- **多设备规则里单台停报不算 No data**：按设备分组的查询里某台设备不再上报，只是少了一条序列，它的告警实例会被当作已恢复清掉。要盯单台停报，另写一条规则查每台设备最后一次上报距今多久（`LAST_ROW(ts)` 加 `PARTITION BY tbname`），或用四.3 的 Flink 离线检测；Grafana 按分钟评估，设备很多或要更快发现时用后者
 
-其他关键配置：
-
-| 配置项 | 说明 |
-|--------|------|
-| Pending period | 条件需持续多久才从 Pending 进入 Alerting，如 `2m`，过滤瞬时抖动 |
-| No data 处理 | 默认进入 No Data 状态；可选 Alerting、Normal、Keep last state。「设备停报」类规则设为 Alerting |
-| Error 处理 | 查询出错时的状态，可选 Error、Alerting、Normal、Keep last state |
-| Labels | 如 `severity=critical`、`team=iot`，由通知策略按标签路由 |
-
-告警实例的状态流转：Normal → Pending → Alerting，条件解除后回到 Normal 并发送恢复通知。
-
-### 3、通知与回调
-
-联系人（Contact point）直接选 **DingDing** 类型，填钉钉机器人地址即可，不需要用 Webhook 自己拼钉钉的消息 JSON；通知策略（Notification policy）按 `severity` 等标签把告警路由到不同联系人，并设置分组等待、分组间隔与重复间隔。
-
-需要把告警写入自家工单 / 告警系统时，再加一个 **Webhook** 联系人回调后端，并在联系人上配置 Authorization 头凭据。接收端要校验凭据，并按 `fingerprint` 幂等处理（同一告警会重复通知）：
-
-```java
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-// 以下三个类型分属不同文件
-public record GrafanaAlert(String status, String fingerprint, Map<String, String> labels,
-                           Map<String, String> annotations, Instant startsAt, Instant endsAt) {}
-
-public record GrafanaWebhook(String status, List<GrafanaAlert> alerts) {}
-
-@RestController
-@RequestMapping("/api/grafana")
-public class GrafanaAlertController {
-
-    private static final Logger log = LoggerFactory.getLogger(GrafanaAlertController.class);
-    private final AlarmService alarmService;       // 业务告警服务：按 fingerprint 幂等开 / 关告警
-    private final byte[] expectedAuth;
-
-    public GrafanaAlertController(AlarmService alarmService,
-                                  @Value("${alert.grafana-webhook-token}") String token) {
-        this.alarmService = alarmService;
-        this.expectedAuth = ("Bearer " + token).getBytes(StandardCharsets.UTF_8);
-    }
-
-    @PostMapping("/alert")
-    public ResponseEntity<Void> receive(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String auth,
-                                        @RequestBody GrafanaWebhook body) {
-        if (auth == null || !MessageDigest.isEqual(expectedAuth, auth.getBytes(StandardCharsets.UTF_8))) {
-            return ResponseEntity.status(401).build();
-        }
-        for (GrafanaAlert alert : body.alerts()) {
-            String deviceId = alert.labels().get("device_id");
-            if ("firing".equals(alert.status())) {
-                log.warn("告警触发：设备 {}，{}", deviceId, alert.annotations().get("summary"));
-                alarmService.open(alert.fingerprint(), deviceId, alert.annotations());
-            } else {
-                alarmService.close(alert.fingerprint());
-            }
-        }
-        return ResponseEntity.noContent().build();
-    }
-}
-```
-
-`MessageDigest.isEqual` 做常量时间比较，避免按响应耗时逐字节猜出凭据。
-
-### 4、告警放在哪一层
+### 3、告警放在哪一层
 
 同一个告警只在一层产生：离线、连续超温这类要状态和定时器的归 Flink，单指标阈值与趋势归 Grafana，连接断开归 EMQX 规则引擎，设备联动和要关联业务数据的归自研规则引擎。各层擅长什么、不擅长什么的分层表见 [规则引擎 · 规则与告警放在哪一层](./11_rule_engine#_1、规则与告警放在哪一层)。
 
@@ -540,7 +464,7 @@ public class GrafanaAlertController {
 - TDengine 一台设备一张子表，TAG 放静态属性；写入用 WebSocket 连接 + 参数绑定，设备 ID 进入表名前做白名单校验；同 `ts` 覆盖写使重放幂等
 - Flink 2.x 用 `KafkaSource`、`Duration`、Sink V2；离线检测用处理时间定时器而不是 CEP，连续超温用 `times(3).consecutive()`
 - 原始数据短期保留，降采样结果长期保留并带上 `count`；降采样在 TDengine 流计算或 Flink 中二选一
-- Grafana 统一告警按 Query → Reduce → Threshold 配置，钉钉用原生 DingDing 联系人；Webhook 回调要鉴权并按 fingerprint 幂等
+- 看板的长时间范围查降采样库；Grafana 告警的查询按设备分组，停报类规则把 No data 设为 Alerting，单台停报另写规则或交给 Flink；规则与通知的通用配置在告警体系一篇
 
 ## 参考资料
 
@@ -551,7 +475,7 @@ public class GrafanaAlertController {
 - taos-jdbcdriver（Maven Central）：[https://central.sonatype.com/artifact/com.taosdata.jdbc/taos-jdbcdriver](https://central.sonatype.com/artifact/com.taosdata.jdbc/taos-jdbcdriver)
 - Flink CEP：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/libs/cep/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/libs/cep/)
 - Flink ProcessFunction：[https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/process_function/](https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/datastream/operators/process_function/)
-- Grafana 告警状态与健康：[https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/state-and-health/](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/state-and-health/)
-- Grafana 联系人：[https://grafana.com/docs/grafana/latest/alerting/fundamentals/notifications/contact-points/](https://grafana.com/docs/grafana/latest/alerting/fundamentals/notifications/contact-points/)
+- Grafana 的 No Data 与 Error 状态：[https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/state-and-health/](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/state-and-health/)
+- Grafana 序列消失后的告警实例：[https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/stale-alert-instances/](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/stale-alert-instances/)
 
 > 下一篇：[设备影子](./9_device_shadow)

@@ -127,7 +127,7 @@ environment:
 另有三处和排查习惯有关：
 
 - **第二个 transport 用 YAML 锚点**（`<<: *transport`）复用同一份定义，只改容器名和日志目录，避免两个进程滚动同一个日志文件
-- **EMQX 节点名固定**（`emqx@127.0.0.1`，单节点发现）。副作用是运行时数据按节点名存放，在控制台里改过的密码会在重建后恢复成 `.env` 里的值
+- **EMQX 节点名固定**（`emqx@127.0.0.1`，单节点发现）。副作用是运行时数据按节点名存放，在控制台里改过的密码会在重建后恢复成 `.env` 里的值。Conduit 的 EMQX 一直是单节点，单节点与集群怎么取舍、集群的编排怎么写见 [EMQX 许可与部署](./2_platform_emqx)
 - **容器名固定**：单实例服务不带 `-1` 后缀（`conduit-server`、`conduit-emqx`、`conduit-redis`），transport 是 `conduit-transport-1` / `-2`，排查命令在各部署包里通用；容器名和 MQTT 的 clientId 是两套命名，别混
 
 停机时先摘流量再退出的通用做法见 [优雅上下线与变更](/high-avail/8_graceful_release)。

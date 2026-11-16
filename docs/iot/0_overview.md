@@ -19,7 +19,8 @@
 ![IoT 四层架构](../assets/iot/iot-four-layers.svg)
 
 1. [通信协议](./1_protocol)：MQTT 的 QoS、保留消息、遗嘱、共享订阅与 5.0 新特性，以及 CoAP、LwM2M、LoRaWAN、NB-IoT、Modbus、OPC UA 的定位
-2. [平台选型](./2_platform)：商业云平台与开源平台对比、EMQX 许可与部署、ThingsBoard 规则链、JetLinks 协议扩展
+2. [平台选型](./2_platform)：商业云平台与开源平台对比、选型建议、ThingsBoard 规则链、JetLinks 协议包
+   - [EMQX 许可与部署](./2_platform_emqx)：Broker 对比、5.9 起的 BSL 许可、单节点部署、三节点集群与四层负载均衡
 3. [边缘计算](./3_edge)：云边端分工、EdgeX Foundry、KubeEdge 云边协同、边缘 AI 推理
 4. [设备安全](./5_security)：设备身份、传输加密、Topic 级访问控制
 5. [MQTT 客户端](./6_mqtt_client)：Java MQTT 客户端选型、重连与会话、Spring Integration 收发
@@ -51,7 +52,7 @@
 
 ## 三、关联模块
 
-版本说明：MQTT 3.1.1 仍是大量存量设备的默认版本，差异在正文标出；EMQX 从 5.9 起改用 BSL 1.1 许可，对部署方式的限制与替代的 Broker 见 [平台选型 · EMQX 许可与部署](./2_platform#五、emqx-许可与部署)；EMQX 配置从 5.x 起使用 HOCON 语法。
+版本说明：MQTT 3.1.1 仍是大量存量设备的默认版本，差异在正文标出；EMQX 从 5.9 起改用 BSL 1.1 许可，对部署方式的限制与替代的 Broker 见 [EMQX 许可与部署](./2_platform_emqx)；EMQX 配置从 5.x 起使用 HOCON 语法。
 
 - [网络协议 · TCP 与 UDP](/protocols/1_tcp_udp)：MQTT 跑在 TCP 上、CoAP 跑在 UDP 上，连接与重传行为的基础
 - [网络协议 · HTTPS 与 TLS](/protocols/3_https_tls)：MQTT over TLS、设备双向证书认证（mTLS）的原理

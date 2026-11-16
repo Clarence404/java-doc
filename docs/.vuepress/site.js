@@ -204,7 +204,7 @@ export const GROUPS = [
                 name: 'IoT', dir: 'iot', interview: ['33_iot'],
                 desc: '协议 / 平台选型 / 边缘计算 / 设备安全与接入 / 遥测数据链路 / 设备影子 / OTA / 规则引擎 / Conduit 平台实战',
                 sidebar: [
-                    {text: '协议与选型', from: 1},    // 通信协议、平台选型、边缘计算
+                    {text: '协议与选型', from: 1},    // 通信协议、平台选型、EMQX 许可与部署、边缘计算；2 号有两篇：2_platform 按文件名排在 2_platform_emqx 之前
                     {text: '接入与安全', from: 5},    // 设备安全在前，再是三种接入写法
                     {text: '平台能力', from: 9},      // 9 号有两篇：9_data 按文件名排在 9_device_shadow 之前
                     {text: '平台实战', from: 12},   // 以 conduit-iot 为配套仓库的串讲，12 号起

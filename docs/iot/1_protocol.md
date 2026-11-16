@@ -26,7 +26,7 @@ IoT 协议按所处层次分为三类，一个系统往往三类都会用到：�
 
 **MQTT（Message Queuing Telemetry Transport）**：基于发布 / 订阅模型的轻量级消息协议，运行在 TCP 之上（也可以跑在 WebSocket 上），由 OASIS 标准化，现行版本是 3.1.1 和 5.0。发布方和订阅方互不感知，全部经由 Broker 按 Topic 转发，这是它适合海量设备接入的根本原因。
 
-Java 客户端的选型（Eclipse Paho 已多年未更新，新项目用 HiveMQ MQTT Client 或 Spring Integration）与固定 Client ID、重连、共享订阅消费等写法见 [MQTT 客户端](./6_mqtt_client)，Broker 部署见 [平台选型](./2_platform)，TLS 与双向证书见 [HTTPS 与 TLS](/protocols/3_https_tls)。
+Java 客户端的选型（Eclipse Paho 已多年未更新，新项目用 HiveMQ MQTT Client 或 Spring Integration）与固定 Client ID、重连、共享订阅消费等写法见 [MQTT 客户端](./6_mqtt_client)，Broker 的对比与部署见 [EMQX 许可与部署](./2_platform_emqx)，TLS 与双向证书见 [HTTPS 与 TLS](/protocols/3_https_tls)。
 
 ![MQTT 发布 / 订阅模型](../assets/iot/mqtt-pubsub.svg)
 
@@ -107,15 +107,7 @@ MQTT 5.0 于 2019 年成为 OASIS 标准，协议主体与 3.1.1 一致，增加
 
 ### 6、Broker 选型
 
-| Broker | 语言 | 许可 | 特点 |
-|--------|------|------|------|
-| **EMQX** | Erlang | 5.9 起 BSL 1.1，5.8 及以前的开源版 Apache 2.0 | 功能全（规则引擎、数据集成、多协议网关），性能高 |
-| Mosquitto | C | EPL 2.0 / EDL 1.0 | 轻量、单机，适合开发测试和小规模部署 |
-| NanoMQ | C | MIT | 面向边缘网关的轻量 Broker，可桥接到云端 Broker |
-| VerneMQ | Erlang | 源码 Apache 2.0，官方二进制包与镜像商用需订阅 | 原生分布式集群 |
-| HiveMQ | Java | 社区版 Apache 2.0，企业版商业许可 | 企业版集群与运维能力强 |
-
-EMQX 的 BSL 许可对集群、托管服务有限制，细则与部署方式见 [平台选型 · EMQX 许可与部署](./2_platform#五、emqx-许可与部署)。
+常见的 Broker 有 EMQX、Mosquitto、NanoMQ、VerneMQ、HiveMQ，各自的语言、许可与特点见 [EMQX 许可与部署 · Broker 对比](./2_platform_emqx#一、broker-对比)；其中 EMQX 的许可对集群和托管服务有限制，选它之前先看那一篇。
 
 ### 7、Topic 约定
 
@@ -306,4 +298,4 @@ Java 侧的开源实现是 [Eclipse Milo](https://github.com/eclipse-milo/milo)�
 - Eclipse Milo：[https://github.com/eclipse-milo/milo](https://github.com/eclipse-milo/milo)
 - HiveMQ MQTT Client：[https://github.com/hivemq/hivemq-mqtt-client](https://github.com/hivemq/hivemq-mqtt-client)
 
-> 下一篇：[平台选型](./2_platform) —— 商业云平台与开源平台对比、EMQX 许可与部署、ThingsBoard 规则链、JetLinks 协议扩展。
+> 下一篇：[平台选型](./2_platform) —— 商业云平台与开源平台对比、选型建议、ThingsBoard 规则链、JetLinks 协议包。

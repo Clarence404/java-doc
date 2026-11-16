@@ -381,7 +381,7 @@ public class TelemetryHandler {
 
 ### 3、连接规模
 
-单个平台服务通常只维护少量 MQTT 连接，海量设备连接由 Broker 承担，EMQX 的许可与部署见 [平台选型 · EMQX 许可与部署](./2_platform#五、emqx-许可与部署)。如果需要用 Java 直接承载设备长连接（私有 TCP 协议），见 [Netty 接入网关](./8_netty_gateway)。
+单个平台服务通常只维护少量 MQTT 连接，海量设备连接由 Broker 承担，Broker 的选择、单节点与集群的部署见 [EMQX 许可与部署](./2_platform_emqx)。如果需要用 Java 直接承载设备长连接（私有 TCP 协议），见 [Netty 接入网关](./8_netty_gateway)。
 
 ---
 

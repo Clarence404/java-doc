@@ -1,12 +1,12 @@
 ---
-description: 好告警标准、Prometheus 告警规则、Alertmanager 路由抑制静默、IM 通知接入、降噪与漏报
+description: 好告警标准、Prometheus 规则、Alertmanager 路由抑制、通知接入、降噪与漏报、Grafana 告警
 ---
 
 # 告警体系
 
 > 前置阅读：[指标监控](./2_metrics)、[Actuator 监控](/spring-boot/11_actuator)、[可用性度量](/high-avail/1_sla_slo)
 
-告警是指标出异常时把问题及时、准确通知到人的机制。本篇讲好告警标准、Prometheus 告警规则、Alertmanager 路由与降噪、Grafana Alerting 选型，基线为 Prometheus 3。
+告警是指标出异常时把问题及时、准确通知到人的机制。本篇讲好告警标准、Prometheus 告警规则、Alertmanager 路由与降噪、Grafana Alerting 的选型与配置，基线为 Prometheus 3。
 
 ---
 
@@ -756,7 +756,9 @@ topk(10, sum by (alertname) (count_over_time(ALERTS{alertstate="firing"}[7d])))
 
 ## 八、Grafana Alerting 与 Alertmanager
 
-Grafana 自带告警功能（Grafana 11 起移除了旧版告警，只保留统一告警），其通知层本身基于 Alertmanager 实现，也可以把告警转发给外部 Alertmanager。
+Grafana 自带告警功能（Grafana 9 起默认使用统一告警，11 起移除了旧版面板告警），其通知层本身基于 Alertmanager 实现，也可以把告警转发给外部 Alertmanager。
+
+### 1、与 Prometheus 规则的分工
 
 | 维度 | Prometheus 规则 + Alertmanager | Grafana Alerting |
 |------|-------------------------------|-----------------|
@@ -766,7 +768,89 @@ Grafana 自带告警功能（Grafana 11 起移除了旧版告警，只保留统�
 | 规则评估位置 | Prometheus 本地评估，不依赖 Grafana 可用 | Grafana 服务端评估，Grafana 故障时告警也停止 |
 | 适合场景 | 核心服务告警、规则即代码、平台团队统一治理 | 数据源分散、业务方自助配置、看板与告警一体 |
 
-建议：核心服务的告警规则以 Prometheus 规则文件为准，进仓库、走评审和测试；Grafana Alerting 用于非 Prometheus 数据源（如业务库中的订单量）和业务方自助的告警。无论用哪种，路由、分级、抑制和 Runbook 的原则都相同，最好让两者共用同一个 Alertmanager 做通知，避免出现两套路由规则。用 Grafana Alerting 对时序库里的设备数据配阈值告警、再用 Webhook 回调业务系统的例子见 [遥测数据链路 · 可视化与告警](/iot/9_data#六、可视化与告警)。
+建议：核心服务的告警规则以 Prometheus 规则文件为准，进仓库、走评审和测试；Grafana Alerting 用于非 Prometheus 数据源（如业务库中的订单量、时序库里的设备数据）和业务方自助的告警。无论用哪种，路由、分级、抑制和 Runbook 的原则都相同，最好让两者共用同一个 Alertmanager 做通知，避免出现两套路由规则。
+
+### 2、Grafana 告警规则的组成
+
+一条 Grafana 告警规则由查询和两步表达式串成，下面以「业务库里每分钟支付失败的订单超过 50 笔」为例，数据源是 MySQL：
+
+| 步骤 | 作用 | 示例 |
+|------|------|------|
+| Query | 查出时间序列；查询按维度分组时，每条序列各自成为一个告警实例 | `SELECT $__timeGroupAlias(created_at, '1m'), COUNT(*) AS failed FROM payment_order WHERE $__timeFilter(created_at) AND status = 'FAILED' GROUP BY 1 ORDER BY 1` |
+| Reduce 表达式 | 把每条序列压成一个值 | `Last` 或 `Mean` |
+| Threshold 表达式 | 与阈值比较 | `> 50` |
+
+其余配置大多能在 Prometheus 规则里找到对应：
+
+| 配置项 | 说明 | 相当于 Prometheus 规则的 |
+|--------|------|------------------------|
+| Pending period | 条件持续多久才从 Pending 进入 Alerting，如 `2m`，过滤瞬时抖动 | `for` |
+| Labels | 如 `severity=critical`、`team=order`，通知策略按标签路由 | `labels` |
+| No data 处理 | 查询一条序列都没返回时怎么办：默认进入 No Data 状态，可选 Alerting、Normal、Keep last state | 用 `absent()` 兜底 |
+| Error 处理 | 查询出错或超时时怎么办：默认进入 Error 状态，可选项同上 | 无，靠 Prometheus 自身的规则评估失败指标 |
+
+告警实例的状态流转是 Normal → Pending → Alerting，条件解除后回到 Normal 并发送恢复通知。No data 有两处容易想错：
+
+- **默认的 No Data 状态发出的是另一条告警**：Grafana 会另生成一条名为 `DatasourceNoData` 的告警（标签是规则名与数据源，没有查询里的维度），它和原规则的告警不是同一个实例，原来按告警名或维度配的通知策略、静默不一定对它生效。「数据不来本身就是故障」的规则（拨测结果、心跳、设备上报）把 No data 处理改成 Alerting，让它按规则本身的告警发出
+- **只少了一条序列不算 No data**：按维度分组的查询里某个维度不再出数据、其他维度还有，这个告警实例会在连续两次评估缺失后被当作已恢复清掉，不会进入 No Data。要盯住「某一个对象不再上报」，得单独写一条算「距离最后一次上报多久」的规则，设备数据的例子见 [遥测数据链路 · Grafana 告警](/iot/9_data#_2、grafana-告警)
+
+### 3、联系点与 Webhook 回调
+
+联系点（Contact point）相当于 Alertmanager 的 receiver。钉钉、企业微信直接选内置的 DingDing、WeCom 类型，填机器人地址即可，不需要第五节那样的适配器；飞书没有内置类型，仍然走 Webhook 加适配器。通知策略（Notification policy）相当于路由树：按 `severity` 等标签把告警路由到不同联系点，分组等待、分组间隔与重复间隔的含义与第三节的 `group_wait`、`group_interval`、`repeat_interval` 相同。
+
+需要把告警写进自家的工单或告警系统时，加一个 **Webhook** 联系点回调后端，并在联系点上配置 Authorization 头凭据。请求体与 Alertmanager 的 webhook 格式基本一致，每条告警带一个 `fingerprint`。接收端要校验凭据，并按 `fingerprint` 幂等处理，因为同一条告警在恢复之前会按重复间隔反复通知：
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.List;
+import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+// 以下三个类型分属不同文件；请求体里用不到的字段不声明，Spring Boot 默认忽略未知字段
+public record GrafanaAlert(String status, String fingerprint,
+                           Map<String, String> labels, Map<String, String> annotations) {}
+
+public record GrafanaWebhook(String status, List<GrafanaAlert> alerts) {}
+
+@RestController
+@RequestMapping("/api/grafana")
+public class GrafanaAlertController {
+
+    private final AlarmService alarmService;       // 业务告警服务：按 fingerprint 幂等开 / 关告警
+    private final byte[] expectedAuth;
+
+    public GrafanaAlertController(AlarmService alarmService,
+                                  @Value("${alert.grafana-webhook-token}") String token) {
+        this.alarmService = alarmService;
+        this.expectedAuth = ("Bearer " + token).getBytes(StandardCharsets.UTF_8);
+    }
+
+    @PostMapping("/alert")
+    public ResponseEntity<Void> receive(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String auth,
+                                        @RequestBody GrafanaWebhook body) {
+        if (auth == null || !MessageDigest.isEqual(expectedAuth, auth.getBytes(StandardCharsets.UTF_8))) {
+            return ResponseEntity.status(401).build();
+        }
+        for (GrafanaAlert alert : body.alerts()) {
+            if ("firing".equals(alert.status())) {
+                // labels 里带着查询的分组维度（如订单渠道、设备 ID），业务侧据此关联到具体对象
+                alarmService.open(alert.fingerprint(), alert.labels(), alert.annotations());
+            } else {
+                alarmService.close(alert.fingerprint());
+            }
+        }
+        return ResponseEntity.noContent().build();
+    }
+}
+```
+
+- **常量时间比较**：`MessageDigest.isEqual` 的耗时不随第几个字节不同而变化，避免按响应耗时逐字节猜出凭据
+- **一次请求多条告警**：同一分组的告警合并在 `alerts` 数组里，触发与恢复可能同时出现，所以逐条看 `alert.status()`，不看最外层的 `status`
+- **处理失败返回 5xx**：不要吞掉异常后仍返回 2xx，否则 Grafana 认为已送达，这条告警要等到下一个重复间隔才会再来
 
 ---
 
@@ -777,7 +861,7 @@ Grafana 自带告警功能（Grafana 11 起移除了旧版告警，只保留统�
 - Alertmanager 依次做分组、抑制、静默、路由，`group_wait` / `group_interval` / `repeat_interval` 控制通知节奏；`matchers` 取代废弃的 `match`
 - 钉钉、飞书、企业微信群机器人通过 webhook 适配器接入，适配器失败要返回 5xx 让 Alertmanager 重试
 - critical 告警以 SLO 燃烧速率为准，用告警质量数据持续清理噪声；Watchdog 心跳保证告警链路本身可被监控
-- 核心告警用 Prometheus + Alertmanager 管成代码，Grafana Alerting 补充其他数据源
+- 核心告警用 Prometheus + Alertmanager 管成代码，Grafana Alerting 补充其他数据源：规则按查询 → Reduce → Threshold 配置，「数据不来就是故障」的规则把 No data 设为 Alerting，Webhook 回调要鉴权并按 fingerprint 幂等
 
 相关内容：SLO、错误预算和燃烧速率的计算见 [可用性度量](/high-avail/1_sla_slo)；故障分级（P0–P3）、On-call 排班、升级路径和复盘见 [故障应急与复盘](/high-avail/11_incident_response)；应用侧如何暴露 `/actuator/prometheus` 指标见 [Actuator 监控](/spring-boot/11_actuator) 第六节；Prometheus 长期存储与高可用见 [时序数据库](/nosql/4_time_series_db)。
 
@@ -796,6 +880,9 @@ Grafana 自带告警功能（Grafana 11 起移除了旧版告警，只保留统�
 - 钉钉适配器：[prometheus-webhook-dingtalk](https://github.com/timonwong/prometheus-webhook-dingtalk)
 - 飞书自定义机器人（签名校验、频率限制）：[自定义机器人使用指南](https://open.feishu.cn/document/client-docs/bot-v3/add-custom-bot)
 - Grafana 告警：[Grafana Alerting](https://grafana.com/docs/grafana/latest/alerting/)
+- Grafana 的 No Data 与 Error 状态：[No Data and Error states](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/state-and-health/)
+- Grafana 序列消失后的告警实例：[Stale alert instances](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/stale-alert-instances/)
+- Grafana 联系点与 Webhook：[Contact points](https://grafana.com/docs/grafana/latest/alerting/fundamentals/notifications/contact-points/)、[Configure the webhook notifier for Alerting](https://grafana.com/docs/grafana/latest/alerting/configure-notifications/manage-contact-points/integrations/webhook-notifier/)
 - SRE 告警理念：[Google SRE Book - Monitoring Distributed Systems](https://sre.google/sre-book/monitoring-distributed-systems/)
 
 > 下一篇：[OpenTelemetry](./5_opentelemetry)

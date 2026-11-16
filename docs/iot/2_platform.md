@@ -1,12 +1,12 @@
 ---
-description: 云平台与开源平台对比、平台选型、EMQX 许可与集群部署、ThingsBoard 规则链、JetLinks 协议包
+description: 云平台与开源平台对比、许可对比、选型建议、ThingsBoard 规则链、JetLinks 协议包
 ---
 
 # 平台选型
 
 > 前置阅读：[通信协议](./1_protocol)
 
-IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可视化等能力，分为云托管、完整开源平台和纯接入 Broker 三类。本篇讲选型、EMQX 许可与部署、ThingsBoard 规则链、JetLinks 协议包。
+IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可视化等能力，分为云托管、完整开源平台和纯接入 Broker 三类。本篇讲各类平台的对比与选型建议、ThingsBoard 规则链、JetLinks 协议包。
 
 ---
 
@@ -77,7 +77,7 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 - **技术栈**：Erlang/OTP
 - **核心功能**：MQTT 3.1.1 / 5.0、集群、认证与 ACL、规则引擎与数据集成（转发到 Kafka、数据库等）、多协议网关（CoAP、LwM2M 等）、Dashboard
 - **适合**：自建 IoT 平台的消息接入层，或替代云厂商的托管 Broker
-- **许可**：5.9 起变化较大，见本文第五节
+- **许可与部署**：5.9 起的许可对集群和托管服务有限制，细则和部署写法见 [EMQX 许可与部署](./2_platform_emqx)
 
 ### 3、JetLinks
 
@@ -97,7 +97,7 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 | 产品 | 开源 / 免费部分 | 商业部分 |
 |------|----------------|---------|
 | ThingsBoard | CE：Apache 2.0 | PE：商业许可 |
-| EMQX | 5.9 起 BSL 1.1，单节点生产免费（细则见第五节） | 多节点集群等需商业 License |
+| EMQX | 5.9 起 BSL 1.1，单节点生产免费（细则见 [EMQX 许可与部署 · 许可变化](./2_platform_emqx#二、许可变化)） | 多节点集群等需商业 License |
 | JetLinks | 社区版：Apache 2.0 | 企业版：商业许可 |
 | openHAB | EPL 2.0 | 无 |
 | Home Assistant | Apache 2.0 | 无 |
@@ -119,193 +119,13 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 
 选型时除了功能，还要确认三件事：许可是否允许你的部署方式（集群、SaaS、随硬件销售），时序数据存在哪里、能否换成团队熟悉的存储（见 [时序数据库](/nosql/4_time_series_db)），设备规模增长后接入层能否水平扩展。
 
+接入层选了 EMQX 或还在几个 Broker 之间比较时，接着读 [EMQX 许可与部署](./2_platform_emqx)：Broker 对比表、5.9 起的许可细则、单节点与三节点集群的部署写法都在那一篇。
+
 决定自研时具体要搭哪些东西，[平台实战概览](./12_conduit_intro) 用配套仓库 Conduit IoT 给了一个完整的例子：EMQX 只做接入层，鉴权、物模型、数据流水线、时序存储与多租户都由平台自己实现。
 
 ---
 
-## 五、EMQX 许可与部署
-
-### 1、许可变化
-
-EMQX 从 **5.9.0** 起把开源版和企业版合并为一个版本，统一采用 **BSL 1.1**（Business Source License，源码可见但不是 OSI 意义上的开源）：
-
-- **单节点生产使用免费**，不限连接规模，但不能把 EMQX 作为托管服务对外提供，也不能嵌入到销售给第三方的产品中
-- **多节点集群需要商业 License**（或使用 EMQX Cloud）；没有 License 时只能以单节点运行
-- 开发、测试等非生产用途免费；经认证的教育机构和非营利组织在非商业用途下不限节点数
-- 每个版本在发布 4 年后自动转为 Apache 2.0
-- 5.8.x 及以前的开源版仍然是 Apache 2.0，企业版从 5.0 起就是 BSL 1.1
-
-镜像使用 `emqx/emqx`（Docker Hub 上也有同版本的 `emqx/emqx-enterprise`），Docker 官方库中不带命名空间的 `emqx` 镜像不再跟进新版本。License 可在 Dashboard「System → License」中更新，也可以执行 `emqx ctl license update <License Key>`。
-
-### 2、单节点部署
-
-```yaml
-# docker-compose.yml
-services:
-  emqx:
-    image: emqx/emqx:6.3.1
-    container_name: emqx
-    hostname: node1.emqx.local
-    environment:
-      # 节点名的 host 部分需要是 IP 或 FQDN，重建容器后保持不变，数据目录才能复用
-      - EMQX_NODE_NAME=emqx@node1.emqx.local
-    ports:
-      - "1883:1883"     # MQTT TCP
-      - "8083:8083"     # MQTT over WebSocket
-      - "8084:8084"     # MQTT over WSS
-      - "8883:8883"     # MQTT over TLS
-      - "18083:18083"   # Dashboard
-    ulimits:
-      nofile:           # Docker 默认软限制 1024，每条 MQTT 连接占一个文件描述符
-        soft: 1048576
-        hard: 1048576
-    volumes:
-      - emqx-data:/opt/emqx/data
-      - emqx-log:/opt/emqx/log
-
-volumes:
-  emqx-data:
-  emqx-log:
-```
-
-```bash
-docker compose up -d
-docker exec -it emqx emqx ctl status
-```
-
-Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认密码。生产环境只对外开放 8883（TLS），1883 和 18083 限制在内网，证书配置见 [HTTPS 与 TLS](/protocols/3_https_tls)，设备认证与 ACL 见 [设备安全](./5_security)。
-
-许可不限连接规模，不等于默认配置就接得住：去掉上面的 `ulimits.nofile`，配套仓库 Conduit 实测约 1,000 台设备就让 EMQX 因打开文件数超限反复崩溃，见 [部署与可观测 · 几处有来历的编排细节](./23_conduit_deploy#五、几处有来历的编排细节)；离线消息队列、在途窗口这些会话参数怎么取，见 [可靠上报与接入层主备 · EMQX 会话怎么选](./15_conduit_reliable_uplink#五、emqx-会话怎么选)。
-
-### 3、何时需要集群
-
-| 模式 | 适用场景 |
-|------|---------|
-| **单节点** | 开发测试；连接数在单机容量内、能接受分钟级故障恢复（容器自动拉起 + 设备自动重连） |
-| **集群** | 需要节点故障时业务不中断、连接数超出单机容量、需要滚动升级 |
-
-集群节点之间通过 Erlang 分布式协议同步路由表；客户端断线后重连到任意节点，只有使用持久会话（Clean Start 为 false 且 Session Expiry Interval 大于 0）时，订阅和离线消息才会随会话接管一起恢复，否则需要客户端重新订阅；能恢复多少离线消息还受会话队列上限约束，节点自身崩溃时内存会话里未投递的消息不保留，见 [可靠上报与接入层主备 · EMQX 会话怎么选](./15_conduit_reliable_uplink#五、emqx-会话怎么选)。
-
-### 4、三节点集群（需 License）
-
-下面的配置演示集群拓扑，需要在启动后导入 License 才能组成集群；用 5.8.x 开源版镜像（Apache 2.0）也能跑通同样的配置。
-
-![EMQX 三节点集群与四层负载均衡](../assets/iot/emqx-cluster.svg)
-
-```yaml
-# docker-compose.yml
-x-emqx: &emqx
-  image: emqx/emqx:6.3.1
-  networks: [emqx-net]
-  ulimits:
-    nofile: {soft: 1048576, hard: 1048576}   # 与单节点相同，见上一小节
-
-services:
-  emqx1:
-    <<: *emqx
-    container_name: emqx1
-    hostname: node1.emqx.local
-    # Docker 内置 DNS 不解析 hostname，节点名要配成网络别名才能互相解析
-    networks:
-      emqx-net:
-        aliases: [node1.emqx.local]
-    environment: &emqx-env
-      EMQX_NODE_NAME: emqx@node1.emqx.local
-      EMQX_CLUSTER__DISCOVERY_STRATEGY: static
-      EMQX_CLUSTER__STATIC__SEEDS: "[emqx@node1.emqx.local,emqx@node2.emqx.local,emqx@node3.emqx.local]"
-      # 负载均衡器开启了 PROXY protocol，EMQX 监听器也要开启，才能拿到设备真实 IP
-      EMQX_LISTENERS__TCP__DEFAULT__PROXY_PROTOCOL: "true"
-    ports:
-      - "18083:18083"   # 只暴露一个节点的 Dashboard
-    volumes:
-      - emqx1-data:/opt/emqx/data
-
-  emqx2:
-    <<: *emqx
-    container_name: emqx2
-    hostname: node2.emqx.local
-    networks:
-      emqx-net:
-        aliases: [node2.emqx.local]
-    environment:
-      <<: *emqx-env
-      EMQX_NODE_NAME: emqx@node2.emqx.local
-    volumes:
-      - emqx2-data:/opt/emqx/data
-
-  emqx3:
-    <<: *emqx
-    container_name: emqx3
-    hostname: node3.emqx.local
-    networks:
-      emqx-net:
-        aliases: [node3.emqx.local]
-    environment:
-      <<: *emqx-env
-      EMQX_NODE_NAME: emqx@node3.emqx.local
-    volumes:
-      - emqx3-data:/opt/emqx/data
-
-  lb:
-    image: nginx:stable-alpine
-    container_name: mqtt-lb
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    ports:
-      - "1883:1883"     # 设备只连负载均衡器，EMQX 节点不直接暴露 1883
-    networks: [emqx-net]
-    depends_on: [emqx1, emqx2, emqx3]
-
-networks:
-  emqx-net:
-    driver: bridge
-
-volumes:
-  emqx1-data:
-  emqx2-data:
-  emqx3-data:
-```
-
-Nginx 用 `stream` 模块做四层转发（官方镜像已包含该模块）：
-
-```nginx
-# nginx.conf
-events {}
-
-stream {
-    upstream emqx_cluster {
-        least_conn;               # 按当前连接数最少分配，长连接场景比轮询更均衡
-        server emqx1:1883;
-        server emqx2:1883;
-        server emqx3:1883;
-    }
-
-    server {
-        listen 1883;
-        proxy_pass emqx_cluster;
-        proxy_protocol on;        # 把设备真实 IP 传给 EMQX
-        proxy_connect_timeout 5s;
-        proxy_timeout 300s;       # 必须大于 1.5 倍 Keep Alive，否则空闲设备会被 Nginx 断开
-    }
-}
-```
-
-`proxy_timeout` 是两次读写之间的最长空闲时间。设备 Keep Alive 设为 60 秒时，Broker 允许 90 秒无报文，这里设成 300 秒留足余量；如果设成 30 秒，所有空闲设备都会被周期性断开重连。TLS 可以在 Nginx 终结，也可以透传给 EMQX，需要做双向证书认证时一般透传，由 EMQX 校验客户端证书。
-
-启动并导入 License 后查看集群状态：
-
-```bash
-docker compose up -d
-docker exec -it emqx1 emqx ctl license update <License Key>
-docker exec -it emqx1 emqx ctl cluster status
-# 正常时 running_nodes 包含三个节点，stopped_nodes 为空
-```
-
-生产环境的 EMQX 集群通常部署在 Kubernetes 上（EMQX Operator），节点发现改用 `k8s` 或 `dns` 策略。
-
----
-
-## 六、ThingsBoard 规则链
+## 五、ThingsBoard 规则链
 
 ### 1、规则链与消息
 
@@ -388,7 +208,7 @@ Access Token 出现在 URL 路径中，生产环境必须使用 HTTPS，并避�
 
 ---
 
-## 七、JetLinks 协议包
+## 六、JetLinks 协议包
 
 JetLinks 用**协议包**接入私有协议设备：协议包是一个独立的 jar，平台在「协议管理」中加载后，产品选择该协议即可接入对应设备。协议包的结构如下：
 
@@ -408,23 +228,17 @@ TCP 私有协议的帧格式设计、粘包拆包和心跳是通用问题，见 
 ## 小结
 
 - 云平台省运维但绑定厂商；ThingsBoard、JetLinks 是完整平台；EMQX 只做接入层，平台能力要自己组合
-- EMQX 从 5.9 起统一为 BSL 1.1：单节点生产免费，集群需要 License；需要免费集群可以停留在 5.8 开源版或换用其他 Broker
-- 四层负载均衡的空闲超时必须大于 1.5 倍 Keep Alive，并用 PROXY protocol 保留设备真实 IP
-- 断线重连到其他节点后能否恢复订阅，取决于是否使用持久会话
+- 选型除了功能还要确认三件事：许可是否允许你的部署方式、时序数据存在哪里、接入层能否水平扩展；EMQX 的许可与部署单独成篇
 - ThingsBoard 规则链里，消息由 msg、metadata、msgType 组成，脚本默认用 TBEL；告警传播是沿实体关系和所有权向上传播
 - JetLinks 私有协议通过协议包接入：ProtocolSupportProvider 构造 CompositeProtocolSupport，按传输方式注册编解码器和认证器
 
 ## 参考资料
 
-- EMQX License FAQ：[https://www.emqx.com/en/content/license-faq](https://www.emqx.com/en/content/license-faq)
-- EMQX 文档：Docker 部署：[https://docs.emqx.com/en/emqx/latest/deploy/install-docker.html](https://docs.emqx.com/en/emqx/latest/deploy/install-docker.html)
-- EMQX 文档：License 管理：[https://docs.emqx.com/en/emqx/latest/deploy/license.html](https://docs.emqx.com/en/emqx/latest/deploy/license.html)
 - ThingsBoard 文档：[https://thingsboard.io/docs/](https://thingsboard.io/docs/)
 - ThingsBoard TBEL：[https://thingsboard.io/docs/user-guide/tbel/](https://thingsboard.io/docs/user-guide/tbel/)
 - ThingsBoard Create Alarm 节点：[https://thingsboard.io/docs/reference/rule-engine/nodes/action/create-alarm/](https://thingsboard.io/docs/reference/rule-engine/nodes/action/create-alarm/)
 - JetLinks 社区版：[https://github.com/jetlinks/jetlinks-community](https://github.com/jetlinks/jetlinks-community)
 - JetLinks 官方协议包：[https://github.com/jetlinks/jetlinks-official-protocol](https://github.com/jetlinks/jetlinks-official-protocol)
 - AWS IoT Analytics 停止支持说明：[https://docs.aws.amazon.com/zh_cn/iotanalytics/latest/userguide/iotanalytics-end-of-support.html](https://docs.aws.amazon.com/zh_cn/iotanalytics/latest/userguide/iotanalytics-end-of-support.html)
-- NGINX stream proxy 模块：[https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html)
 
-> 下一篇：[边缘计算](./3_edge) —— 云边端分工、EdgeX Foundry、KubeEdge 云边协同、边缘 AI 推理。
+> 下一篇：[EMQX 许可与部署](./2_platform_emqx) —— Broker 对比、5.9 起的 BSL 许可、单节点部署、三节点集群与四层负载均衡。

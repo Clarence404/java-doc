@@ -138,7 +138,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 替代品：Mosquitto（轻量单机）、NanoMQ（边缘网关）、VerneMQ（从源码构建可免费集群）、HiveMQ CE（社区版无集群）
 - 选型前确认三件事：许可是否允许你的部署方式、时序数据存哪、接入层能否水平扩展
 
-→ 详见 [平台选型](/iot/2_platform#_1、许可变化)
+→ 详见 [EMQX 许可与部署](/iot/2_platform_emqx#二、许可变化)
 
 ### Q11：MQTT 集群放在四层负载均衡后面要注意什么？
 
@@ -150,7 +150,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - TLS：要做双向证书认证时一般透传到 Broker，由 Broker 校验客户端证书
 - 连接风暴：客户端重连用指数退避加随机抖动
 
-→ 详见 [平台选型](/iot/2_platform#_3、何时需要集群)
+→ 详见 [EMQX 许可与部署](/iot/2_platform_emqx#五、三节点集群-需-license)
 
 ### Q12：只会发私有 TCP 二进制帧的设备怎么接入？坏帧怎么处理？
 

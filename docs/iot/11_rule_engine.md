@@ -22,7 +22,7 @@ description: 自研与 EMQX / ThingsBoard / Flink 取舍、规则 DSL、边沿�
 | Grafana Alerting | 查询 + Reduce + Threshold，在页面上配置 | 基于已入库数据的阈值与趋势，运维自助配置、不用发版 | 按分钟评估，不适合秒级响应，也不能直接驱动设备动作 | 单指标阈值、趋势类 |
 | 自研（本篇） | 结构化条件 + 动作 | 与自有设备模型、权限、工单等业务紧密结合，规则由业务人员配置 | 复杂窗口计算 | 设备联动、需要关联业务数据（工单、设备模型、权限）的单点判断 |
 
-EMQX 规则 SQL 的写法见 [遥测数据链路 · 规则 SQL](./9_data#_2、规则-sql)，Flink 的离线检测与 CEP 见 [遥测数据链路 · Flink 2.x 实时处理](./9_data#四、flink-2-x-实时处理)，ThingsBoard 规则链的用法见 [平台选型 · ThingsBoard 规则链](./2_platform#六、thingsboard-规则链)。
+EMQX 规则 SQL 的写法见 [遥测数据链路 · 规则 SQL](./9_data#_2、规则-sql)，Flink 的离线检测与 CEP 见 [遥测数据链路 · Flink 2.x 实时处理](./9_data#四、flink-2-x-实时处理)，ThingsBoard 规则链的用法见 [平台选型 · ThingsBoard 规则链](./2_platform#五、thingsboard-规则链)，Grafana 告警规则与 Webhook 回调的配置见 [告警体系 · Grafana Alerting 与 Alertmanager](/observability/4_alerting#八、grafana-alerting-与-alertmanager)。
 
 **组合使用最常见**：EMQX 规则负责把原始消息转发进 Kafka；"连续 5 分钟超温"这类窗口规则交给 Flink；与业务相关的单点判断和动作由自研规则引擎完成。**同一个告警只在一层产生**，各层的告警再统一汇入同一个告警服务做去重、抑制和升级，避免同一故障从多个渠道各报一次。
 
