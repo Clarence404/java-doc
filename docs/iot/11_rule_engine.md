@@ -6,7 +6,7 @@ description: 自研与 EMQX / ThingsBoard / Flink 取舍、规则 DSL、边沿�
 
 > 前置阅读：[遥测数据链路](./9_data)
 
-规则引擎回答「数据满足什么条件时自动做什么」，本篇假设设备数据已写入 Kafka。内容包括自研选型、规则模型与 DSL、边沿触发、动作幂等和热更新，基线为 JDK 21、Spring Boot 4。
+规则引擎回答「数据满足什么条件时自动做什么」，本篇假设设备数据已按统一消息 `TelemetryMessage` 写入 Kafka。内容包括自研选型、规则模型与 DSL、边沿触发、动作幂等和热更新，基线为 JDK 21、Spring Boot 4。
 
 ---
 
@@ -30,7 +30,7 @@ EMQX 规则 SQL 的写法见 [遥测数据链路 · 规则 SQL](./9_data#_2、�
 
 ![规则引擎执行链路](../assets/iot/rule-engine-pipeline.svg)
 
-设备消息从 Kafka 进入，按设备找到候选规则并匹配条件；命中后交给动作执行层，先做幂等去重，再分别执行告警、指令下发和 Webhook 调用，每类动作有独立的超时与重试策略。
+设备消息从 Kafka 主题 `iot.telemetry` 进入，形状是 [遥测数据链路 · Topic 与消息约定](./9_data#_1、topic-与消息约定) 里的统一消息（`deviceId`、`protocol`、`timestamp`、`metrics`），下文代码里的 `TelemetryMessage` 就是它。引擎按设备找到候选规则并匹配条件；命中后交给动作执行层，先做幂等去重，再分别执行告警、指令下发和 Webhook 调用，每类动作有独立的超时与重试策略。
 
 ---
 
@@ -225,7 +225,7 @@ public class ActionDispatcher {
             key = "rule:alarm:" + rule.id() + ":" + msg.deviceId();
             ttl = a.silence();
         } else {
-            key = "rule:act:" + rule.id() + ":" + msg.deviceId() + ":" + index + ":" + msg.timestamp().toEpochMilli();
+            key = "rule:act:" + rule.id() + ":" + msg.deviceId() + ":" + index + ":" + msg.timestamp();
             ttl = Duration.ofHours(1);
         }
         return Boolean.TRUE.equals(redis.opsForValue().setIfAbsent(key, "1", ttl));

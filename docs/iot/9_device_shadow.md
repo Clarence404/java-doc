@@ -82,7 +82,7 @@ description: desired / reported / delta、版本号与乐观锁、Topic 设计�
 | `shadow/{deviceId}/get` | 设备 → 云 | 请求全量影子 |
 | `shadow/{deviceId}/get/accepted` | 云 → 设备 | 返回全量影子 |
 
-设备只能读写自己的影子 Topic，在 EMQX 中用 `${clientid}` 占位符写 ACL，见 [设备安全](./5_security)。请求里带一个 `clientToken`，响应原样返回，设备据此把响应与请求对应起来。
+设备只能读写自己的影子 Topic，在 EMQX 中用 `${clientid}` 占位符写 ACL，见 [设备安全](./5_security)；影子之外的 Topic 与整套命名约定见 [通信协议 · Topic 约定](./1_protocol#_7、topic-约定)。请求里带一个 `clientToken`，响应原样返回，设备据此把响应与请求对应起来。
 
 ### 2、同步时序
 

@@ -330,21 +330,27 @@ v5 出站 Handler 对 `byte[]` 原样发布，对 `String` 先转成字节，其
 @Component
 public class TelemetryHandler {
 
-    private final KafkaTemplate<String, String> kafka;
+    private final KafkaTemplate<String, TelemetryMessage> kafka;
+    private final JsonMapper json;
 
-    public TelemetryHandler(KafkaTemplate<String, String> kafka) {
+    public TelemetryHandler(KafkaTemplate<String, TelemetryMessage> kafka, JsonMapper json) {
         this.kafka = kafka;
+        this.json = json;
     }
 
     @ServiceActivator(inputChannel = "telemetryChannel")
     public void handle(@Header(MqttHeaders.RECEIVED_TOPIC) String topic, byte[] payload) {
-        String deviceId = topic.split("/")[1];   // devices/{deviceId}/telemetry
-        // 只做轻量转发，按 deviceId 分区保证同一设备有序
-        kafka.send("iot.telemetry", deviceId, new String(payload, StandardCharsets.UTF_8));
+        String deviceId = topic.split("/")[1];   // devices/{deviceId}/telemetry，已由 ACL 绑定到 clientid
+        // 设备载荷是一层 JSON：ts 加各个测点
+        Map<String, Object> metrics = json.readValue(payload, new TypeReference<Map<String, Object>>() {});
+        long ts = metrics.remove("ts") instanceof Number n ? n.longValue() : System.currentTimeMillis();
+        // 转成统一消息再转发，按 deviceId 分区保证同一设备有序
+        kafka.send("iot.telemetry", deviceId, new TelemetryMessage(deviceId, "mqtt", ts, metrics));
     }
 }
 ```
 
+- 设备载荷与 `TelemetryMessage`（设备 ID、接入方式、毫秒时间戳、测点）的约定见 [遥测数据链路 · Topic 与消息约定](./9_data#_1、topic-与消息约定)，这里转出来的消息与 EMQX 规则引擎转发的形状相同，下游不用区分来源；载荷不是合法 JSON 时 `readValue` 抛异常，消息进入错误通道，记录后丢弃或转死信
 - 入站适配器的消息在 Paho 回调线程上处理，回调返回后客户端才确认 QoS 1 消息；处理慢会让 Broker 侧积压，所以这里只转发到 Kafka，入库、规则计算放到下游消费者
 - 对丢消息零容忍时，可以开启 `adapter.setManualAcks(true)`，在处理成功后通过消息头里的确认回调手动 ack；「写入下游成功才确认」的完整顺序与失败时的处理见 [可靠上报与接入层主备 · 写入总线成功后才确认](./15_conduit_reliable_uplink#四、transport-写入总线成功后才确认)
 - OTA 状态通道的处理器见 [OTA 升级](./10_ota)；Kafka 之后的流处理与入库见 [遥测数据链路](./9_data)

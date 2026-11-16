@@ -27,6 +27,8 @@ description: topic 设计与解析、设备密钥生成与哈希、EMQX HTTP 鉴
 
 ## 二、Topic 设计与解析
 
+通用篇用的是 `devices/{deviceId}/...` 这一套，设备 ID 放在第二段，清单见 [通信协议 · Topic 约定](./1_protocol#_7、topic-约定)。Conduit 另排了一套三段式，多出产品一段，方向也单独占一段。
+
 ### 1、三段式 topic
 
 | 方向 | Topic | 状态 |

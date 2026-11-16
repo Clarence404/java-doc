@@ -263,8 +263,9 @@ public class ModbusCollector implements SmartLifecycle {
 
     private void pollSafely(DeviceProfile device) {
         try {
-            Map<String, Double> metrics = device.poll();   // 批量读取 + RegisterDecoder 解码
-            mqtt.publish("devices/" + device.id() + "/telemetry", 0, Json.write(metrics));
+            Map<String, Object> payload = new LinkedHashMap<>(device.poll());   // 批量读取 + RegisterDecoder 解码，测点名 → 工程量
+            payload.put("ts", System.currentTimeMillis());                      // 采集时间，毫秒
+            mqtt.publish("devices/" + device.id() + "/telemetry", 0, Json.write(payload));
         } catch (Exception e) {
             // 异常不能抛出，否则该任务会被调度器静默取消
             log.warn("采集失败 device={}", device.id(), e);
@@ -285,7 +286,7 @@ public class ModbusCollector implements SmartLifecycle {
 }
 ```
 
-`SmartLifecycle` 让采集在 Spring 容器完全就绪后才启动，并在关闭时先停止调度、再释放连接；不要在 `@PostConstruct` 里建连和启动线程。`MqttGateway` 的定义见 [MQTT 客户端](./6_mqtt_client)。
+`SmartLifecycle` 让采集在 Spring 容器完全就绪后才启动，并在关闭时先停止调度、再释放连接；不要在 `@PostConstruct` 里建连和启动线程。`MqttGateway` 的定义见 [MQTT 客户端](./6_mqtt_client)；上报的载荷是「`ts` 加各测点」的一层 JSON，约定见 [遥测数据链路 · Topic 与消息约定](./9_data#_1、topic-与消息约定)。
 
 ---
 

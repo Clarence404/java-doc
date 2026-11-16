@@ -61,37 +61,60 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 
 ## 二、MQTT 到 Kafka：EMQX 规则引擎
 
+把 MQTT 消息搬进 Kafka 有两种做法，本节用第一种：
+
+| 做法 | 怎么做 | 适合 | 代价 |
+|------|--------|------|------|
+| Broker 数据集成（本节） | EMQX 规则 SQL 加 Kafka Sink，在 Dashboard 上配置 | 不想多写、多运维一个服务 | 转换逻辑受限于规则 SQL；何时向设备确认由 Broker 决定，写 Kafka 失败只能靠 Sink 的缓冲与重试 |
+| 自写订阅者 | 自己的服务用共享订阅收消息，转成统一消息再写 Kafka 或别的总线，见 [MQTT 客户端 · 处理器](./6_mqtt_client#_5、处理器) | 要自己掌握确认时机，或转发前要做复杂的解码与校验 | 多一个要做高可用的服务，主备与共享订阅的边界要自己处理 |
+
+自写订阅者做到「写入总线成功才向 Broker 确认」的完整例子是配套仓库 Conduit，见 [平台实战概览](./12_conduit_intro) 与 [可靠上报与接入层主备](./15_conduit_reliable_uplink)。两种做法写进 Kafka 的消息形状相同，下游不用区分。
+
 ### 1、Topic 与消息约定
 
-| 方向 | Topic | 说明 |
-|------|-------|------|
-| 设备上报遥测 | `devices/{deviceId}/telemetry` | QoS 1，JSON |
-| 平台下发指令 | `devices/{deviceId}/cmd` | QoS 1 |
-| 设备上下线 | `$events/client/connected`、`$events/client/disconnected` | EMQX 内置事件，只能在规则 SQL 中引用 |
+Topic 沿用 [通信协议 · Topic 约定](./1_protocol#_7、topic-约定)：设备以 QoS 1 往 `devices/{deviceId}/telemetry` 上报遥测。Topic 中的 `deviceId` 由 ACL 限定只能是连接自身的 `clientid`（见 [设备安全](./5_security)），所以下游可以信任规则 SQL 里取到的 `clientid`，不用信任消息体里自报的设备 ID。
 
-遥测消息体约定带设备侧时间戳 `ts`（毫秒），后续按事件时间处理，补传的旧数据也能落到正确的时间窗口：
+**设备载荷**是一层 JSON：`ts` 是设备侧时间戳（毫秒），其余顶层键都是测点。带上设备时间，后续才能按事件时间处理，补传的旧数据也能落到正确的时间窗口：
 
 ```json
-{"ts": 1767225600000, "temp": 26.4, "hum": 61.2}
+{"ts": 1767225600000, "temperature": 26.4, "humidity": 61.2}
 ```
 
-Topic 中的 `deviceId` 由 ACL 限定只能是连接自身的 `clientid`（见 [设备安全](./5_security)），所以下游可以信任规则 SQL 里取到的 `clientid`，不用信任消息体里自报的设备 ID。
+这种测点直接放在顶层的写法，在 Conduit 里对应 `flat-json` 解码器；它默认用的是把测点放进 `params` 的另一种格式，见 [物模型与解码 · 两个内置解码器](./14_conduit_thing_model#_2、两个内置解码器)。
+
+**统一消息**：不管设备从哪种协议接入，写进 Kafka 主题 `iot.telemetry` 的都是下面这一种形状，本模块里读这个主题的代码（下文的 Flink 作业、[规则引擎](./11_rule_engine)）都按它解析：
+
+```json
+{"deviceId": "dev001", "protocol": "mqtt", "timestamp": 1767225600000, "metrics": {"temperature": 26.4, "humidity": 61.2}}
+```
+
+| 字段 | 类型 | 含义 |
+|------|------|------|
+| `deviceId` | 字符串 | 可信的设备标识：MQTT 接入取 `clientid`，私有协议取鉴权通过后的设备 ID；同时用作 Kafka 消息 Key |
+| `protocol` | 字符串 | 接入方式：`mqtt`、`tcp`、`modbus` |
+| `timestamp` | 整数，毫秒 | 设备时间优先（载荷里的 `ts`），设备没带时用接入层的接收时间 |
+| `metrics` | 对象 | 测点名到值的映射，值是数字、字符串或布尔；设备没报的测点不出现，不补 0 |
+
+Java 侧对应的 record 是 `TelemetryMessage`，见 [Netty 接入网关 · 多协议适配与统一消息](./8_netty_gateway#五、多协议适配与统一消息)。
 
 ### 2、规则 SQL
 
-规则 SQL 负责字段裁剪和改名，载荷是 JSON 时可以直接用 `payload.字段` 取值：
+规则 SQL 负责把设备载荷转成上面的统一消息。载荷是 JSON 时可以直接用 `payload.字段` 取值，`AS` 后面写带点号的路径会生成嵌套对象：
 
 ```sql
 SELECT
-  clientid      AS deviceId,
-  payload.ts    AS ts,
-  payload.temp  AS temperature,
-  payload.hum   AS humidity
+  clientid            AS deviceId,
+  'mqtt'              AS protocol,
+  payload.ts          AS timestamp,
+  payload.temperature AS metrics.temperature,
+  payload.humidity    AS metrics.humidity
 FROM "devices/+/telemetry"
-WHERE is_not_null(payload.temp)
+WHERE is_not_null(payload.temperature)
 ```
 
-规则引擎只做无状态的过滤与转换；需要「最近 N 条」「5 分钟窗口」之类状态的逻辑交给 Flink。
+- **`timestamp` 取设备时间**：输出里的 `timestamp` 被赋成了 `payload.ts`，不是 EMQX 事件自带的同名字段（Broker 收到消息的时间）
+- **测点逐个列出**：一类设备一条规则，新增测点要改规则；测点很多或经常变化时，改用上表的自写订阅者更省事
+- 规则引擎只做无状态的过滤与转换；需要「最近 N 条」「5 分钟窗口」之类状态的逻辑交给 Flink
 
 ### 3、Kafka Sink 配置要点
 
@@ -101,7 +124,7 @@ WHERE is_not_null(payload.temp)
 |--------|--------|------|
 | Topic | `iot.telemetry` | 遥测、事件、指令回执分开 Topic，便于独立扩容 |
 | Message Key | `${deviceId}` | 同一设备进同一分区，保证单设备有序 |
-| Message Value | `${.}` | 整条规则输出（JSON） |
+| Message Value | `${.}` | 整条规则输出（JSON），即上一小节的统一消息 |
 | 分区数 | 按峰值吞吐与 Flink 并行度规划 | Flink Source 并行度不应超过分区数 |
 | 缓冲 | 开启内存 + 磁盘缓冲 | Kafka 短暂不可用时，EMQX 侧先缓冲，恢复后续传 |
 
@@ -216,6 +239,7 @@ spring:
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -223,7 +247,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-public record Telemetry(String deviceId, long ts, double temperature, double humidity) {}
+/** 超表 sensors 的一行，由统一消息 TelemetryMessage（见二.1）转换而来 */
+public record Telemetry(String deviceId, long ts, double temperature, double humidity) {
+
+    /** 两个测点缺任何一个都返回 empty：缺测不能落成 0，这里选择整行不写 */
+    public static Optional<Telemetry> from(TelemetryMessage m) {
+        if (m.metrics().get("temperature") instanceof Number t && m.metrics().get("humidity") instanceof Number h) {
+            return Optional.of(new Telemetry(m.deviceId(), m.timestamp(), t.doubleValue(), h.doubleValue()));
+        }
+        return Optional.empty();
+    }
+}
 
 @Repository
 public class TelemetryWriter {
@@ -258,6 +292,7 @@ public class TelemetryWriter {
 }
 ```
 
+- **统一消息到表的一行**：`iot.telemetry` 里的统一消息对所有产品通用，`Telemetry` 是温湿度传感器这一类设备的一行，一张超表对应一个这样的转换；测点经常缺失的设备，把字段改成可空类型、对应列写 NULL，而不是像这里整行不写
 - **批量写**：单条写入的网络往返是瓶颈，攒几百到几千行一批再提交
 - **重复写入天然幂等**：同一子表同一 `ts` 再写一次会覆盖原值，所以上游至少一次投递、重放 Kafka 都不会产生重复行
 - **校验不通过的数据**：记日志或写入死信 Topic，不要静默丢弃
@@ -270,7 +305,7 @@ Flink 在这条链路里只做三件事：按设备做窗口聚合、离线检�
 
 ### 1、读取 Kafka 与事件时间
 
-用 `KafkaSource` + `fromSource` 读 `iot.telemetry`，时间戳取设备上报的 `ts`（`Telemetry` 即上文的 record，字段名与规则 SQL 的输出一致），写法见 [DataStream API · KafkaSource](/flink/2_datastream#_2、kafkasource)。设备数据的水位线有三点要按 IoT 特点设置：
+用 `KafkaSource` + `fromSource` 读 `iot.telemetry`，把 JSON 反序列化成二.1 的统一消息 `TelemetryMessage`，时间戳取其中的 `timestamp`（设备时间），写法见 [DataStream API · KafkaSource](/flink/2_datastream#_2、kafkasource)。离线检测对所有设备通用，直接基于这条流；窗口聚合、CEP 和写库针对温湿度传感器，先用三.4 的 `Telemetry.from` 转成 `Telemetry`，转换结果为空的消息丢弃。设备数据的水位线有三点要按 IoT 特点设置：
 
 - **乱序容忍取 10 秒左右**：`forBoundedOutOfOrderness(Duration.ofSeconds(10))` 覆盖设备时钟偏差与网络抖动；设得太大会拖慢所有窗口的输出
 - **一定要配 `withIdleness`**：部分设备集中在少数 Kafka 分区，夜间或分批停机时某些分区长时间没数据，不配空闲检测水位线会被卡住，见 [时间、水位线与窗口 · 空闲检测](/flink/3_time_window#_4、空闲检测-idleness)
@@ -278,7 +313,7 @@ Flink 在这条链路里只做三件事：按设备做窗口聚合、离线检�
 
 ### 2、窗口聚合：5 分钟均温超限
 
-按 `deviceId` 分组，开 5 分钟事件时间滚动窗口，用 `AggregateFunction` 增量累加 `[sum, count]`（不缓存窗口内原始数据），再用 `ProcessWindowFunction` 补上设备 ID 与窗口结束时间，最后 `filter(avg > 80)` 输出告警候选。增量聚合与全量聚合的组合写法见 [时间、水位线与窗口 · 窗口函数](/flink/3_time_window#五、窗口函数)。
+在 `Telemetry` 流上按 `deviceId` 分组，开 5 分钟事件时间滚动窗口，用 `AggregateFunction` 增量累加 `[sum, count]`（不缓存窗口内原始数据），再用 `ProcessWindowFunction` 补上设备 ID 与窗口结束时间，最后 `filter(avg > 80)` 输出告警候选。增量聚合与全量聚合的组合写法见 [时间、水位线与窗口 · 窗口函数](/flink/3_time_window#五、窗口函数)。
 
 同一个窗口顺便算出 `max / min / count`，就能直接作为降采样结果写库，见五.3。
 
@@ -289,7 +324,7 @@ Flink 在这条链路里只做三件事：按设备做窗口聚合、离线检�
 ```java
 public record DeviceStatus(String deviceId, String status, long ts) {}
 
-public class OfflineDetector extends KeyedProcessFunction<String, Telemetry, DeviceStatus> {
+public class OfflineDetector extends KeyedProcessFunction<String, TelemetryMessage, DeviceStatus> {
 
     private static final long TIMEOUT_MS = Duration.ofSeconds(90).toMillis();  // 约 3 倍上报周期
     private transient ValueState<Long> timerState;
@@ -302,7 +337,7 @@ public class OfflineDetector extends KeyedProcessFunction<String, Telemetry, Dev
     }
 
     @Override
-    public void processElement(Telemetry t, Context ctx, Collector<DeviceStatus> out) throws Exception {
+    public void processElement(TelemetryMessage m, Context ctx, Collector<DeviceStatus> out) throws Exception {
         Long oldTimer = timerState.value();
         if (oldTimer != null) {
             ctx.timerService().deleteProcessingTimeTimer(oldTimer);
@@ -313,7 +348,7 @@ public class OfflineDetector extends KeyedProcessFunction<String, Telemetry, Dev
 
         if (Boolean.TRUE.equals(offlineState.value())) {      // 离线后重新上报
             offlineState.clear();
-            out.collect(new DeviceStatus(ctx.getCurrentKey(), "ONLINE", t.ts()));
+            out.collect(new DeviceStatus(ctx.getCurrentKey(), "ONLINE", m.timestamp()));
         }
     }
 
@@ -325,7 +360,7 @@ public class OfflineDetector extends KeyedProcessFunction<String, Telemetry, Dev
     }
 }
 
-// 作业中：telemetry.keyBy(Telemetry::deviceId).process(new OfflineDetector()).uid("offline-detector");
+// 作业中：messages.keyBy(TelemetryMessage::deviceId).process(new OfflineDetector()).uid("offline-detector");
 ```
 
 - **为什么用处理时间定时器**：设备不发数据时不会推动事件时间，所有设备同时断网（如机房断电）时水位线整体停住，事件时间定时器永远不触发
@@ -345,7 +380,7 @@ Pattern<Telemetry, ?> overheat = Pattern
         .within(Duration.ofMinutes(5));       // 部分匹配最多保留 5 分钟，控制状态大小
 ```
 
-按 `deviceId` 分区后交给 `CEP.pattern`，在 `PatternProcessFunction` 里取 `hot` 的最后一条输出告警。最常见的错误是漏写 `consecutive()`：`times(3)` 默认宽松连续，「5 条里有 3 条超温」也会告警；其余写法与连续性对比见 [实战场景 · 连续性与量词](/flink/8_scenarios#_3、连续性与量词)。
+把 `Telemetry` 流按 `deviceId` 分区后交给 `CEP.pattern`，在 `PatternProcessFunction` 里取 `hot` 的最后一条输出告警。最常见的错误是漏写 `consecutive()`：`times(3)` 默认宽松连续，「5 条里有 3 条超温」也会告警；其余写法与连续性对比见 [实战场景 · 连续性与量词](/flink/8_scenarios#_3、连续性与量词)。
 
 ### 5、写入 TDengine：Sink V2
 
@@ -501,7 +536,7 @@ public class GrafanaAlertController {
 ## 小结
 
 - 链路：设备 → EMQX 规则引擎 → Kafka → Flink 2.x → TDengine → Grafana；规模小时用 EMQX 直写 TDengine，按需加组件
-- Topic 中的设备 ID 由 ACL 绑定到 `clientid`，下游以 `clientid` 作为可信设备标识，Kafka 消息 Key 用设备 ID 保证单设备有序
+- Topic 中的设备 ID 由 ACL 绑定到 `clientid`，下游以 `clientid` 作为可信设备标识；写进 `iot.telemetry` 的是统一消息（`deviceId`、`protocol`、`timestamp`、`metrics`），Kafka 消息 Key 用设备 ID 保证单设备有序
 - TDengine 一台设备一张子表，TAG 放静态属性；写入用 WebSocket 连接 + 参数绑定，设备 ID 进入表名前做白名单校验；同 `ts` 覆盖写使重放幂等
 - Flink 2.x 用 `KafkaSource`、`Duration`、Sink V2；离线检测用处理时间定时器而不是 CEP，连续超温用 `times(3).consecutive()`
 - 原始数据短期保留，降采样结果长期保留并带上 `count`；降采样在 TDengine 流计算或 Flink 中二选一

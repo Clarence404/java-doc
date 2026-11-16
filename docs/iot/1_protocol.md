@@ -117,6 +117,32 @@ MQTT 5.0 于 2019 年成为 OASIS 标准，协议主体与 3.1.1 一致，增加
 
 EMQX 的 BSL 许可对集群、托管服务有限制，细则与部署方式见 [平台选型 · EMQX 许可与部署](./2_platform#五、emqx-许可与部署)。
 
+### 7、Topic 约定
+
+Topic 的层级怎么排，决定了后台能不能用一个通配符收全量、ACL 能不能用一条规则管住所有设备。本模块的通用篇共用下面这一套，`{deviceId}` 就是设备连接时用的 Client ID：
+
+| Topic | 方向 | 用途 | 展开 |
+|-------|------|------|------|
+| `devices/{deviceId}/telemetry` | 设备 → 平台 | 遥测上报，QoS 1，JSON | [遥测数据链路](./9_data) |
+| `devices/{deviceId}/event` | 设备 → 平台 | 事件上报（告警、状态变化） | — |
+| `devices/{deviceId}/status` | 设备 → 平台 | 在线状态，保留消息，同时是遗嘱 Topic | 本节第 3 小节 |
+| `devices/{deviceId}/cmd` | 平台 → 设备 | 指令下发，带消息过期时间 | [MQTT 客户端](./6_mqtt_client) |
+| `devices/{deviceId}/response` | 设备 → 平台 | 指令执行结果 | — |
+| `devices/{deviceId}/ota/cmd` | 平台 → 设备 | OTA 任务下发 | [OTA 升级](./10_ota) |
+| `devices/{deviceId}/ota/status` | 设备 → 平台 | OTA 进度上报 | [OTA 升级](./10_ota) |
+| `shadow/{deviceId}/update`、`shadow/{deviceId}/get` | 设备 → 平台 | 上报 `reported`、请求全量影子 | [设备影子](./9_device_shadow) |
+| `shadow/{deviceId}/update/accepted`、`update/rejected`、`delta`、`get/accepted` | 平台 → 设备 | 更新结果、差异推送、返回全量影子 | [设备影子](./9_device_shadow) |
+| `gateways/{gatewayId}/status` | 网关 → 平台 | 网关进程自身的在线状态（遗嘱） | [MQTT 客户端](./6_mqtt_client) |
+| `gateways/{nodeId}/downlink` | 平台 → 网关节点 | 自研接入网关的下行通道，平台内部使用，按网关账号单独授权 | [Netty 接入网关](./8_netty_gateway) |
+
+这样排有三个考虑：
+
+- **层级固定，设备 ID 放第二段**：后台订阅 `devices/+/telemetry` 就收到全部设备的遥测，从 Topic 的第二段取设备 ID，不用解析载荷
+- **方向分开**：上行与下行用不同的末段，ACL 才能把「只许发布」和「只许订阅」分别授给设备
+- **通配符与 ACL 配套**：ACL 用 `${clientid}` 占位符写成 `devices/${clientid}/...`，一条规则管住所有设备，并禁止设备订阅 `#`、`+/#`；因为 Topic 里的设备 ID 被 ACL 绑定到连接身份，下游可以信任它，不用信任载荷里自报的 ID。完整的规则清单见 [设备安全 · 文件规则](./5_security#_3、文件规则-acl-conf)
+
+这不是唯一的排法。配套仓库 Conduit 用的是三段式 `conduit/{productKey}/{deviceKey}/up|down/...`，把产品也放进 Topic、方向单独占一段，接入层不查库就能路由，理由见 [设备接入与鉴权 · Topic 设计与解析](./13_conduit_access#二、topic-设计与解析)。
+
 ---
 
 ## 三、CoAP 与 LwM2M
