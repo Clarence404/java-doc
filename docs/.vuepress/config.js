@@ -137,7 +137,7 @@ const sidebarOf = ({dir, sidebar, subdirs, stripSuffix}) => {
 
 const ALL_MODULES = [SUMMARY, ...GROUPS.flatMap(g => g.modules)];
 
-// 分组下拉：一般是「分组 → 各模块总览」；只有一个模块的分组（IoT、AI）下拉里只有一项没有意义，
+// 分组下拉：一般是「分组 → 各模块总览」；只有一个模块的分组（物联网、AI 应用）下拉里只有一项没有意义，
 // 改为列出「总览 + 模块内的各个分组」（subdirs 的子目录或 sidebar 的编号分组），每项指向该组第一篇文章
 function sectionNav(m) {
     const overview = {text: '总览', link: overviewLink(m.dir)};

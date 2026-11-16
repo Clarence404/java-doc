@@ -183,7 +183,7 @@ description: 要点一、要点二、要点三
 | 调整首页推荐博客 / 页脚 | 改 `site.js` 的 `REFS` / `FOOTER` |
 | 升级版本基线 | 先改 `site.js` 的 `BASELINE`，再按 `docs:check` 列出的不一致处逐一修改；有意写其他版本的登记到 `exceptions` |
 | 调整学习路线 | 改 `site.js` 的 `ROUTES`（阶段里只写文章路径，`docs:check` 会报出不存在的路径） |
-| 新增一个分组（方向） | `site.js` 的 `GROUPS` 加一项，配色自动生成；分组里只有一个模块时（如 IoT、AI），导航下拉自动列出「总览 + 模块内各分组」（`sidebar` 的编号分组或 `subdirs` 的子目录），面试题解的 `SUMMARY.sidebar` 同步加同名分组 |
+| 新增一个分组（方向） | `site.js` 的 `GROUPS` 加一项，配色自动生成；分组里只有一个模块时（如「物联网」「AI 应用」），导航下拉自动列出「总览 + 模块内各分组」（`sidebar` 的编号分组或 `subdirs` 的子目录），面试题解的 `SUMMARY.sidebar` 同步加同名分组 |
 
 构建时若有文章缺少 `description`，控制台会输出 `[module-nav]` 警告并列出文件。
 
