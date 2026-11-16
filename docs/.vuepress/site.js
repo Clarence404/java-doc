@@ -33,7 +33,9 @@ export const SUMMARY = {
         {text: '架构设计', from: 22},
         {text: '研发效能', from: 26},
         {text: '运维保障', from: 30},
-        {text: '垂直领域', from: 33},
+        {text: 'IoT', from: 33},
+        {text: 'AI', from: 34},
+        {text: '数据与音视频', from: 35},
     ],
 };
 
@@ -196,7 +198,8 @@ export const GROUPS = [
         ],
     },
     {
-        name: '垂直领域', tagline: 'IoT、AI、大数据与实时计算、音视频，拓展技术边界', modules: [
+        // 只有一个模块的分组：导航下拉里列出「总览 + 模块内的各个分组」（见 config.js 的 groupNav），不再只有孤零零一项
+        name: 'IoT', tagline: '设备接入、协议与平台，从原理到接入实战', modules: [
             {
                 name: 'IoT', dir: 'iot', interview: ['33_iot'],
                 desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / 设备影子 / OTA / 规则引擎 / 数据处理 / 设备安全',
@@ -205,11 +208,19 @@ export const GROUPS = [
                     {text: '接入实战', from: 6},
                 ],
             },
+        ],
+    },
+    {
+        name: 'AI', tagline: '大模型应用开发：框架、RAG、Agent、MCP，到智能客服实战', modules: [
             {
                 name: 'AI', dir: 'ai', interview: ['34_ai'],
                 desc: '大模型基础与选型 / Prompt 与 Function Calling / Spring AI / LangChain4j / Embedding 与向量库 / RAG / Agent / MCP / 本地模型与微调 / 评估上线 / AI 编程工具 / AI 应用实战',
                 subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 编程工具', '7_practice': 'AI 应用实战'},
             },
+        ],
+    },
+    {
+        name: '数据与音视频', tagline: '大数据与实时计算、音视频，拓展技术边界', modules: [
             {name: '大数据', dir: 'big-data', interview: ['35_bigdata'], desc: '数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 数据治理 / 实时数仓'},
             {name: 'Flink', dir: 'flink', interview: ['36_flink'], desc: 'DataStream / 时间与窗口 / 状态与容错 / Flink SQL / CDC / 部署调优'},
             {name: '音视频', dir: 'media', interview: ['37_media'], desc: '编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入'},

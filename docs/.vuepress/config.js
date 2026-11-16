@@ -17,7 +17,6 @@ const NAVBAR_STYLE = process.env.NAVBAR_STYLE ?? 'dropdown';
 const navItem = m => ({text: m.nav ?? m.name, link: overviewLink(m.dir)});
 const summaryNav = {text: SUMMARY.name, link: overviewLink(SUMMARY.dir)};
 const navbarFlat = [summaryNav, ...GROUPS.flatMap(g => g.modules.map(navItem))];
-const navbarDropdown = [summaryNav, ...GROUPS.map(g => ({text: g.name, children: g.modules.map(navItem)}))];
 
 // ============================================================
 // 侧边栏：全部由目录与文章 frontmatter 自动生成，新增文章只需新建 .md
@@ -137,6 +136,17 @@ const sidebarOf = ({dir, sidebar, subdirs, stripSuffix}) => {
 };
 
 const ALL_MODULES = [SUMMARY, ...GROUPS.flatMap(g => g.modules)];
+
+// 分组下拉：一般是「分组 → 各模块总览」；只有一个模块的分组（IoT、AI）下拉里只有一项没有意义，
+// 改为列出「总览 + 模块内的各个分组」（subdirs 的子目录或 sidebar 的编号分组），每项指向该组第一篇文章
+function sectionNav(m) {
+    const overview = {text: '总览', link: overviewLink(m.dir)};
+    const sections = sidebarOf(m).filter(i => i.children?.length);
+    const firstLink = i => (i.children ? firstLink(i.children[0]) : i.link);
+    return [overview, ...sections.map(s => ({text: s.text, link: s.link ?? firstLink(s)}))];
+}
+const groupNav = g => ({text: g.name, children: g.modules.length === 1 ? sectionNav(g.modules[0]) : g.modules.map(navItem)});
+const navbarDropdown = [summaryNav, ...GROUPS.map(groupNav)];
 const buildSidebar = () => Object.fromEntries(ALL_MODULES.map(m => [`/${m.dir}/`, sidebarOf(m)]));
 let SIDEBAR = buildSidebar();
 
