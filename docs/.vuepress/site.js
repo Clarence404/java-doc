@@ -199,13 +199,14 @@ export const GROUPS = [
     },
     {
         // 只有一个模块的分组：导航下拉里列出「总览 + 模块内的各个分组」（见 config.js 的 groupNav），不再只有孤零零一项
-        name: '物联网', tagline: '设备接入、协议与平台，从原理到接入实战', modules: [
+        name: '物联网', tagline: '协议、设备接入与平台能力，再到 Conduit 平台实战', modules: [
             {
                 name: 'IoT', dir: 'iot', interview: ['33_iot'],
                 desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / 设备影子 / OTA / 规则引擎 / 数据处理 / 设备安全',
                 sidebar: [
                     {text: '原理与选型', from: 1},
-                    {text: '接入实战', from: 6},
+                    {text: '设备接入', from: 6},
+                    {text: '平台能力', from: 9},
                     {text: '平台实战', from: 12},   // 以 conduit-iot 为配套仓库的串讲，12 号起
                 ],
             },
@@ -216,7 +217,7 @@ export const GROUPS = [
             {
                 name: 'AI', dir: 'ai', interview: ['34_ai'],
                 desc: '大模型基础与选型 / Prompt 与 Function Calling / Spring AI / LangChain4j / Embedding 与向量库 / RAG / Agent / MCP / 本地模型与微调 / 评估上线 / AI 编程工具 / AI 应用实战',
-                subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': '核心技术', '5_advanced': '高阶应用', '6_tools': 'AI 编程工具', '7_practice': 'AI 应用实战'},
+                subdirs: {'1_concepts': '基础概念', '2_frameworks': 'Java 框架', '3_integration': '模型接入', '4_core_tech': 'RAG 与向量检索', '5_advanced': 'Agent 与工程化', '6_tools': 'AI 编程工具', '7_practice': 'AI 应用实战'},
             },
         ],
     },
@@ -289,6 +290,9 @@ export const BASELINE = {
 
 // 重定向：文章搬家后旧地址自动跳到新地址（@vuepress/plugin-redirect），键为旧路径、值为新路径，均不带 .html
 export const REDIRECTS = {
+    // 2026-11：IoT 重新分组（设备接入 6–8、平台能力 9–11），设备影子与 Netty 接入网关对调编号
+    '/iot/8_device_shadow': '/iot/9_device_shadow',
+    '/iot/9_netty_gateway': '/iot/8_netty_gateway',
     // 2026-10：database/4_nosql 拆为独立的 NoSQL 模块
     '/database/4_nosql/0_column_db': '/nosql/3_column_db',
     '/database/4_nosql/1_time_series_db': '/nosql/4_time_series_db',

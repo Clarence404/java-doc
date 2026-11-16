@@ -223,7 +223,7 @@ mvn -B verify -Pe2e -pl conduit-e2e          # 端到端故障场景，约 6～1
 | [数据流水线](./16_conduit_pipeline) | 消费组、批处理、退避重试、认领、死信、积压 | [数据处理](./4_data)、[Redis 典型应用场景](/cache/4_redis_scenario) |
 | [时序存储与历史查询](./17_conduit_telemetry) | InfluxDB 3 建模与写入、最新值、自动聚合、缺桶、遥测重放 | [时序数据库](/nosql/4_time_series_db) |
 | [多租户与授权](./18_conduit_tenant) | 租户过滤、跨租户通道、组织模型、范围授权、会话 | [权限系统架构设计](/architecture/6_access_control) |
-| 规划中：设备影子 | Conduit 尚未实现，计划中（见 roadmap） | [设备影子](./8_device_shadow) |
+| 规划中：设备影子 | Conduit 尚未实现，计划中（见 roadmap） | [设备影子](./9_device_shadow) |
 | 规划中：OTA 升级 | Conduit 尚未实现，计划中（见 roadmap） | [OTA 升级](./10_ota) |
 | 规划中：规则引擎 | Conduit 尚未实现，计划中（见 roadmap） | [规则引擎](./11_rule_engine) |
 | [压测与瓶颈排查](./22_conduit_capacity) | 压测方法、逐跳定位瓶颈、几次优化的前后对比 | [性能分析方法论](/high-perf/2_methodology) |
@@ -251,13 +251,13 @@ mvn -B verify -Pe2e -pl conduit-e2e          # 端到端故障场景，约 6～1
 
 | 能力 | 路线图阶段 | 现状 | 站内文章 |
 |------|-----------|------|---------|
-| 设备影子与属性同步 | V0.4 | Conduit 尚未实现，计划中 | [设备影子](./8_device_shadow)（通用设计） |
+| 设备影子与属性同步 | V0.4 | Conduit 尚未实现，计划中 | [设备影子](./9_device_shadow)（通用设计） |
 | OTA 升级 | V0.4 | Conduit 尚未实现，计划中 | [OTA 升级](./10_ota)（通用设计） |
 | 规则引擎与告警 | V0.5 | Conduit 尚未实现，计划中 | [规则引擎](./11_rule_engine)（通用设计） |
 | 下行命令（RPC） | V0.4 | 未实现；设备能订阅的下行 topic 目前只用于业务回执 `down/ack` | — |
 | 网关与子设备 | V0.4 | 未实现，只支持设备直连 | — |
 | 事件上报 | 随告警一起设计 | topic `up/event` 能解析，但流水线直接按 `UNSUPPORTED_TYPE` 进死信 | — |
-| HTTP、Modbus TCP 等其他协议 | 后续 | `ProtocolAdapter` 接口已有，实现只有 MQTT | [Modbus 采集](./7_modbus)、[Netty 接入网关](./9_netty_gateway) |
+| HTTP、Modbus TCP 等其他协议 | 后续 | `ProtocolAdapter` 接口已有，实现只有 MQTT | [Modbus 采集](./7_modbus)、[Netty 接入网关](./8_netty_gateway) |
 | TLS | V0.8 | 未启用，凭据在网络上明文传输 | [设备安全](./5_security) |
 
 设备影子、OTA 升级、规则引擎三项会在 Conduit 后续版本里实现，本系列已在第八节的路线表里给它们留了位置；做完之后补上的实现篇会和现有三篇通用设计文章互相链接，一篇讲「一般怎么设计」，一篇讲「在 Conduit 里怎么落地」。

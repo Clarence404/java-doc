@@ -19,8 +19,8 @@ AI 模块从 Java 后端视角讲大模型应用开发：选模型、写 Prompt�
 | 基础概念 | Token、上下文窗口与采样参数，模型选型与成本估算、Prompt 写法与结构化输出、Function Calling 协议 | [大模型基础概念](./1_concepts/0_llm_basics) |
 | Java 框架 | Spring AI 与 Spring Boot 深度集成；LangChain4j 以 AiServices 声明式接口见长 | [Spring AI](./2_frameworks/0_spring_ai) / [LangChain4j](./2_frameworks/1_langchain4j) |
 | 模型接入 | 本地用 Ollama 跑开源模型，线上直连各家 API | [Ollama](./3_integration/0_ollama) / [API 直接接入](./3_integration/1_api_access) |
-| 核心技术 | Embedding 把文本变成向量，向量库做近似检索，RAG 先检索再生成 | [RAG 检索增强生成](./4_core_tech/2_rag) |
-| 高阶应用 | Agent 在工具调用之上加规划与循环；MCP 把工具做成跨应用共享的标准服务；微调用领域数据改造模型；评估、护栏与灰度把功能稳定送上线 | [AI Agent 智能体](./5_advanced/0_agent) / [MCP 协议](./5_advanced/1_mcp) / [LLM 应用评估与上线](./5_advanced/3_llm_eval) |
+| RAG 与向量检索 | Embedding 把文本变成向量，向量库做近似检索，RAG 先检索再生成 | [RAG 检索增强生成](./4_core_tech/2_rag) |
+| Agent 与工程化 | Agent 在工具调用之上加规划与循环；MCP 把工具做成跨应用共享的标准服务；微调用领域数据改造模型；评估、护栏与灰度把功能稳定送上线 | [AI Agent 智能体](./5_advanced/0_agent) / [MCP 协议](./5_advanced/1_mcp) / [LLM 应用评估与上线](./5_advanced/3_llm_eval) |
 | AI 编程工具 | AI 编程工具的选型维度、项目规则文件与团队使用规范 | [AI 编程工具](./6_tools/0_ai_tools) |
 | AI 应用实战 | 用配套仓库 mall-assistant 一章一章做出示例商城智能客服，每章有起点与参考答案标签、先失败的验收测试 | [AI 应用实战概览](./7_practice/0_intro) |
 

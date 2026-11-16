@@ -316,7 +316,7 @@ kubectl apply -f device-instance.yaml
 kubectl get device temperature-sensor-01 -o yaml
 ```
 
-可写属性（`accessMode: ReadWrite`）可以在 Device 的 `properties` 中设置 `desired.value`，由 Mapper 下发到设备，这与 [设备影子](./8_device_shadow) 的期望值 / 上报值模型是同一个思路。
+可写属性（`accessMode: ReadWrite`）可以在 Device 的 `properties` 中设置 `desired.value`，由 Mapper 下发到设备，这与 [设备影子](./9_device_shadow) 的期望值 / 上报值模型是同一个思路。
 
 ### 6、断网自治验证
 

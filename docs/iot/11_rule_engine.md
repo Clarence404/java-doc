@@ -4,7 +4,7 @@ description: 自研与 EMQX / ThingsBoard / Flink 取舍、规则 DSL、边沿�
 
 # 规则引擎
 
-> 前置阅读：[Netty 接入网关](./9_netty_gateway)
+> 前置阅读：[Netty 接入网关](./8_netty_gateway)
 
 规则引擎回答「数据满足什么条件时自动做什么」，本篇假设设备数据已写入 Kafka。内容包括自研选型、规则模型与 DSL、边沿触发、动作幂等和热更新，基线为 JDK 21、Spring Boot 4。
 

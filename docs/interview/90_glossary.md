@@ -257,7 +257,7 @@ description: 全站高频术语的一句话解释与主文档入口、按方向�
 - **幻觉（Hallucination）**：模型一本正经地编出不存在的事实，根源是按概率续写 → [大模型基础概念](/ai/1_concepts/0_llm_basics#五、幻觉)
 - **码率控制（CBR / VBR / CRF）**：决定码率怎么分配：恒定码率、可变码率或按画质恒定 → [音视频基础](/media/1_basics#_2、码控方式-cbr、vbr、crf)
 - **上下文窗口（Context Window）**：模型一次能处理的 Token 上限，输入和输出共用这个额度 → [大模型基础概念](/ai/1_concepts/0_llm_basics#三、上下文窗口)
-- **设备影子（Device Shadow）**：云端给每台设备存一份期望状态和上报状态，设备离线也能先改后同步 → [设备影子](/iot/8_device_shadow#二、影子文档模型)
+- **设备影子（Device Shadow）**：云端给每台设备存一份期望状态和上报状态，设备离线也能先改后同步 → [设备影子](/iot/9_device_shadow#二、影子文档模型)
 - **事务传播行为**：方法嵌套调用时，内层是加入外层事务、另开新事务还是不用事务 → [事务管理](/spring/4_transaction#_1、七种传播行为)
 - **数仓分层（ODS / DWD / DWS / ADS）**：数据按原始、明细、汇总、应用逐层加工，复用口径、隔离变化 → [数仓分层与建模](/big-data/2_data_warehouse#二、ods-dwd-dws-ads-与-dim)
 - **水位线（Watermark）**：事件时间的进度标记，表示更早的数据基本到齐，可以触发窗口计算 → [时间、水位线与窗口](/flink/3_time_window#二、水位线-watermark)

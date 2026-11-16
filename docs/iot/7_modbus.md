@@ -316,4 +316,4 @@ public class ModbusCollector implements SmartLifecycle {
 - j2mod：[https://github.com/steveohara/j2mod](https://github.com/steveohara/j2mod)
 - Modbus Organization（协议规范下载）：[https://www.modbus.org/](https://www.modbus.org/)
 
-> 下一篇：[设备影子](./8_device_shadow)
+> 下一篇：[Netty 接入网关](./8_netty_gateway)

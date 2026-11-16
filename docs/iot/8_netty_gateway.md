@@ -23,7 +23,7 @@ description: 带 CRC 的私有协议帧、跳字节重新同步、心跳与鉴�
 | 上行转发 | 统一消息写入 Kafka，由下游做入库、规则计算，网关本身不做重业务 |
 | 下行路由 | 平台下发指令时，找到设备所在的网关节点和连接并写出 |
 
-网关是无状态的连接层：设备状态放在 [设备影子](./8_device_shadow)，业务规则放在 [规则引擎](./11_rule_engine)。这样网关节点可以随时扩缩容，节点故障时设备重连到其他节点即可。
+网关是无状态的连接层：设备状态放在 [设备影子](./9_device_shadow)，业务规则放在 [规则引擎](./11_rule_engine)。这样网关节点可以随时扩缩容，节点故障时设备重连到其他节点即可。
 
 ---
 
@@ -398,4 +398,4 @@ public class DeviceTcpServer implements SmartLifecycle {
 - Netty API 文档：[https://netty.io/4.2/api/index.html](https://netty.io/4.2/api/index.html)
 - CRC 参数目录（CRC-16/MODBUS）：[https://reveng.sourceforge.io/crc-catalogue/16.htm](https://reveng.sourceforge.io/crc-catalogue/16.htm)
 
-> 下一篇：[OTA 升级](./10_ota)
+> 下一篇：[设备影子](./9_device_shadow)
