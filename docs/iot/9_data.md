@@ -2,7 +2,7 @@
 description: EMQX 转发 Kafka、Flink 2.x 告警与离线检测、TDengine 超表、降采样与保留、Grafana
 ---
 
-# 数据处理
+# 遥测数据链路
 
 > 前置阅读：[时序数据库](/nosql/4_time_series_db)、[Flink 总览](/flink/0_overview)、[通信协议](./1_protocol)
 
@@ -518,4 +518,4 @@ public class GrafanaAlertController {
 - Grafana 告警状态与健康：[https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/state-and-health/](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/state-and-health/)
 - Grafana 联系人：[https://grafana.com/docs/grafana/latest/alerting/fundamentals/notifications/contact-points/](https://grafana.com/docs/grafana/latest/alerting/fundamentals/notifications/contact-points/)
 
-> 下一篇：[设备安全](./5_security) —— 一机一密、X.509 与 mTLS、EMQX 认证授权、审计与零信任落地。
+> 下一篇：[设备影子](./9_device_shadow)

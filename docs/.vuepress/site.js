@@ -202,11 +202,11 @@ export const GROUPS = [
         name: '物联网', tagline: '协议、设备接入与平台能力，再到 Conduit 平台实战', modules: [
             {
                 name: 'IoT', dir: 'iot', interview: ['33_iot'],
-                desc: '物联网架构 / MQTT / 平台选型 / 边缘计算 / 设备接入 / 设备影子 / OTA / 规则引擎 / 数据处理 / 设备安全',
+                desc: '协议 / 平台选型 / 边缘计算 / 设备安全与接入 / 遥测数据链路 / 设备影子 / OTA / 规则引擎 / Conduit 平台实战',
                 sidebar: [
-                    {text: '原理与选型', from: 1},
-                    {text: '设备接入', from: 6},
-                    {text: '平台能力', from: 9},
+                    {text: '协议与选型', from: 1},    // 通信协议、平台选型、边缘计算
+                    {text: '接入与安全', from: 5},    // 设备安全在前，再是三种接入写法
+                    {text: '平台能力', from: 9},      // 9 号有两篇：9_data 按文件名排在 9_device_shadow 之前
                     {text: '平台实战', from: 12},   // 以 conduit-iot 为配套仓库的串讲，12 号起
                 ],
             },
@@ -291,6 +291,7 @@ export const BASELINE = {
 // 重定向：文章搬家后旧地址自动跳到新地址（@vuepress/plugin-redirect），键为旧路径、值为新路径，均不带 .html
 export const REDIRECTS = {
     // 2026-11：IoT 重新分组（设备接入 6–8、平台能力 9–11），设备影子与 Netty 接入网关对调编号
+    '/iot/4_data': '/iot/9_data',   // 2026-11：数据处理改名「遥测数据链路」并挪到平台能力组首篇
     '/iot/8_device_shadow': '/iot/9_device_shadow',
     '/iot/9_netty_gateway': '/iot/8_netty_gateway',
     // 2026-10：database/4_nosql 拆为独立的 NoSQL 模块

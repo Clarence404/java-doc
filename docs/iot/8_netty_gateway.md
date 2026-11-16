@@ -398,4 +398,4 @@ public class DeviceTcpServer implements SmartLifecycle {
 - Netty API 文档：[https://netty.io/4.2/api/index.html](https://netty.io/4.2/api/index.html)
 - CRC 参数目录（CRC-16/MODBUS）：[https://reveng.sourceforge.io/crc-catalogue/16.htm](https://reveng.sourceforge.io/crc-catalogue/16.htm)
 
-> 下一篇：[设备影子](./9_device_shadow)
+> 下一篇：[遥测数据链路](./9_data)

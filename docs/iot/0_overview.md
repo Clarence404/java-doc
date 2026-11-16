@@ -1,6 +1,6 @@
 # IoT 总览
 
-本模块从 Java 后端视角讲物联网：设备协议、平台选型、边缘计算、数据存储与设备安全，再落到 Java 设备接入与平台能力的设计，最后用配套仓库 Conduit IoT 串讲一个多租户物联网平台是怎么做出来的。单片机固件和射频硬件不在范围内。
+本模块从 Java 后端视角讲物联网：先选协议和平台，再把设备安全地接进来，然后是数据链路、设备影子、OTA、规则引擎这些平台能力，最后用配套仓库 Conduit IoT 串讲一个多租户物联网平台是怎么做出来的。单片机固件和射频硬件不在范围内。
 
 **版本基线（2026 年 10 月）**：MQTT 5.0、EMQX 5.9+ / 6.x、TDengine 3.x、KubeEdge 1.23、EdgeX Foundry 4.0、ThingsBoard 4.x、JDK 21、Spring Boot 4
 
@@ -21,11 +21,11 @@
 1. [通信协议](./1_protocol)：MQTT 的 QoS、保留消息、遗嘱、共享订阅与 5.0 新特性，以及 CoAP、LwM2M、LoRaWAN、NB-IoT、Modbus、OPC UA 的定位
 2. [平台选型](./2_platform)：商业云平台与开源平台对比、EMQX 许可与部署、ThingsBoard 规则链、JetLinks 协议扩展
 3. [边缘计算](./3_edge)：云边端分工、EdgeX Foundry、KubeEdge 云边协同、边缘 AI 推理
-4. [数据处理](./4_data)：时序数据落库、流式计算与告警
-5. [设备安全](./5_security)：设备身份、传输加密、Topic 级访问控制
-6. [MQTT 客户端](./6_mqtt_client)：Java MQTT 客户端选型、重连与会话、Spring Integration 收发
-7. [Modbus 采集](./7_modbus)：寄存器读写、轮询调度与数据解析
-8. [Netty 接入网关](./8_netty_gateway)：私有二进制协议接入、会话管理与上下行路由
+4. [设备安全](./5_security)：设备身份、传输加密、Topic 级访问控制
+5. [MQTT 客户端](./6_mqtt_client)：Java MQTT 客户端选型、重连与会话、Spring Integration 收发
+6. [Modbus 采集](./7_modbus)：寄存器读写、轮询调度与数据解析
+7. [Netty 接入网关](./8_netty_gateway)：私有二进制协议接入、会话管理与上下行路由
+8. [遥测数据链路](./9_data)：时序数据落库、流式计算与告警
 9. [设备影子](./9_device_shadow)：期望值与上报值、版本号与离线指令
 10. [OTA 升级](./10_ota)：固件签名校验、防回滚、A/B 分区与灰度发布
 11. [规则引擎](./11_rule_engine)：规则模型、条件匹配与动作执行
@@ -40,7 +40,7 @@
 17. [时序存储与历史查询](./17_conduit_telemetry)：InfluxDB 3 宽表建模、最新值、自动聚合、遥测重放
 18. [多租户与授权](./18_conduit_tenant)：租户强制过滤、组合外键、组织模型、范围授权、会话吊销
 
-19～21 号预留给设备影子、OTA 升级、规则引擎在 Conduit 里的实现篇：这三项 Conduit 还没有实现，目前只有上面第 9、10、11 篇的通用设计。
+19～21 号预留给设备影子、OTA 升级、规则引擎在 Conduit 里的实现篇：这三项 Conduit 还没有实现，目前只有上面设备影子、OTA 升级、规则引擎这三篇的通用设计。
 
 22. [压测与瓶颈排查](./22_conduit_capacity)：计数守恒判据、阶梯压测、逐跳定位瓶颈与几次被推翻的结论
 23. [部署与可观测](./23_conduit_deploy)：Compose 部署包、Flyway 迁移与演示数据、健康检查、指标看板

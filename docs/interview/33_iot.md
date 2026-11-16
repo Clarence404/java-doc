@@ -60,7 +60,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 采集模块死机但 TCP 连接还在：用 Flink 按设备注册「最后一条数据 + N 秒」的处理时间定时器判断
 - 负载均衡的空闲超时必须大于 1.5 倍 Keep Alive，否则空闲设备会被周期性断开
 
-→ 详见 [通信协议](/iot/1_protocol#_1、核心概念)、[数据处理](/iot/4_data#_3、离线检测-keyedprocessfunction-定时器)
+→ 详见 [通信协议](/iot/1_protocol#_1、核心概念)、[遥测数据链路](/iot/9_data#_3、离线检测-keyedprocessfunction-定时器)
 
 ### Q5：MQTT 5.0 相比 3.1.1 新增了哪些常用能力？
 
@@ -186,7 +186,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 下游以 ACL 绑定过的 `clientid` 作为可信设备标识，不信消息体里自报的设备 ID
 - 几千台设备、没有复杂计算时，可以省掉 Kafka 和 Flink，用 EMQX 直写 TDengine
 
-→ 详见 [数据处理](/iot/4_data#一、iot-数据链路)
+→ 详见 [遥测数据链路](/iot/9_data#一、iot-数据链路)
 
 ### Q15：TDengine 的超表、子表、TAG 怎么设计？时序数据怎么控制存储成本？
 
@@ -198,7 +198,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 分层保留：原始 7–30 天、5 分钟聚合 1 年、1 小时聚合 3–5 年；聚合层一定要存 `count`
 - 降采样在 TDengine 流计算或 Flink 里二选一，两边同时算会口径不一致
 
-→ 详见 [数据处理](/iot/4_data#三、tdengine-超表建模)、[时序数据库](/nosql/4_time_series_db)
+→ 详见 [遥测数据链路](/iot/9_data#三、tdengine-超表建模)、[时序数据库](/nosql/4_time_series_db)
 
 ### Q16：设备离线检测为什么用 KeyedProcessFunction 而不用 CEP？告警放在哪一层？
 
@@ -214,7 +214,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 | 单指标阈值、趋势 | Grafana |
 | 连接断开 | EMQX 规则引擎 |
 
-→ 详见 [数据处理](/iot/4_data#四、flink-2-x-实时处理)
+→ 详见 [遥测数据链路](/iot/9_data#四、flink-2-x-实时处理)
 
 ## 五、设备管理与边缘
 

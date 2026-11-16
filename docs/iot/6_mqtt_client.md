@@ -347,7 +347,7 @@ public class TelemetryHandler {
 
 - 入站适配器的消息在 Paho 回调线程上处理，回调返回后客户端才确认 QoS 1 消息；处理慢会让 Broker 侧积压，所以这里只转发到 Kafka，入库、规则计算放到下游消费者
 - 对丢消息零容忍时，可以开启 `adapter.setManualAcks(true)`，在处理成功后通过消息头里的确认回调手动 ack
-- OTA 状态通道的处理器见 [OTA 升级](./10_ota)；Kafka 之后的流处理与入库见 [数据处理](./4_data)
+- OTA 状态通道的处理器见 [OTA 升级](./10_ota)；Kafka 之后的流处理与入库见 [遥测数据链路](./9_data)
 
 ---
 

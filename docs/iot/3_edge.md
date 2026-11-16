@@ -458,4 +458,4 @@ KubeEdge 会把 ConfigMap 等资源的变更可靠地同步到边缘节点，所
 - ONNX Runtime Java API：[https://onnxruntime.ai/docs/get-started/with-java.html](https://onnxruntime.ai/docs/get-started/with-java.html)
 - ONNX Runtime Releases：[https://github.com/microsoft/onnxruntime/releases](https://github.com/microsoft/onnxruntime/releases)
 
-> 下一篇：[数据处理](./4_data) —— 时序数据落库、流式计算与告警。
+> 下一篇：[设备安全](./5_security)

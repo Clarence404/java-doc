@@ -412,7 +412,7 @@ transport 手里「还没提交的条目」，在 EMQX 那边就是「已投递�
 - **总线和状态存储共用一个 Redis**：最新值脚本把 Redis 打满时，transport 的 `XADD` 跟着变慢，第七节的合并就是为这个做的
 - **扩不出去**：单节点、单线程，Redis Cluster 也只能把不同的 key 分到不同节点，一个流分不开
 
-所以接口先抽象好。V0.1 的路线里就写了「评估 Redis Streams 是否够用」和「评估 Kafka」两个节点；当数据要同时喂给规则引擎、数据转发和流计算，或者需要长时间回放时，换 Kafka 是自然的一步。那条路线站内有完整的一篇：[数据处理](./4_data) 讲的就是 MQTT → Kafka → Flink → 时序库。几种消息队列的通用对比见 [消息队列总览](/messaging/0_overview) 与 [MQ 选型](/messaging/6_selection)。
+所以接口先抽象好。V0.1 的路线里就写了「评估 Redis Streams 是否够用」和「评估 Kafka」两个节点；当数据要同时喂给规则引擎、数据转发和流计算，或者需要长时间回放时，换 Kafka 是自然的一步。那条路线站内有完整的一篇：[遥测数据链路](./9_data) 讲的就是 MQTT → Kafka → Flink → 时序库。几种消息队列的通用对比见 [消息队列总览](/messaging/0_overview) 与 [MQ 选型](/messaging/6_selection)。
 
 ---
 
