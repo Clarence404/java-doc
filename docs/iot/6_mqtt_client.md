@@ -113,8 +113,8 @@ public final class GatewayMqttClient implements AutoCloseable {
 
 几个参数的取舍：
 
-- **`cleanStart(false)` + `sessionExpiryInterval`**：MQTT 5 把 3.1.1 的 `cleanSession` 拆成两个参数，前者决定是否接续旧会话，后者决定断线后 Broker 保留会话多久；两者配合才能做到"短暂断线不丢 QoS 1 消息"
-- **遗嘱 + retain**：网关异常掉线时 Broker 代发 `online=false`，新订阅者也能立刻读到最新在线状态；连接成功后要主动发一条保留的 `online=true` 覆盖旧状态，正常断开时 Broker 不发遗嘱，需要自己先发 `online=false`
+- **`cleanStart(false)` + `sessionExpiryInterval`**：MQTT 5 把 3.1.1 的 `cleanSession` 拆成两个参数，前者决定是否接续旧会话，后者决定断线后 Broker 保留会话多久；两者配合才能做到"短暂断线不丢 QoS 1 消息"，前提是离线期间的消息没有超出 Broker 的会话队列上限、Broker 自身没有重启，见 [可靠上报与接入层主备 · EMQX 会话怎么选](./15_conduit_reliable_uplink#五、emqx-会话怎么选)
+- **遗嘱 + retain**：网关异常掉线时 Broker 代发 `online=false`，新订阅者也能立刻读到最新在线状态；连接成功后要主动发一条保留的 `online=true` 覆盖旧状态，正常断开时 Broker 不发遗嘱，需要自己先发 `online=false`；在线状态的其他做法见 [设备接入与鉴权 · 上下线事件与在线状态](./13_conduit_access#九、上下线事件与在线状态)
 - **回调线程**：HiveMQ 客户端的回调默认跑在内部 Netty 线程上，回调里做数据库写入会拖慢整个连接，所以用第三个参数传入独立的 Executor
 
 ### 3、订阅与发布
@@ -346,14 +346,12 @@ public class TelemetryHandler {
 ```
 
 - 入站适配器的消息在 Paho 回调线程上处理，回调返回后客户端才确认 QoS 1 消息；处理慢会让 Broker 侧积压，所以这里只转发到 Kafka，入库、规则计算放到下游消费者
-- 对丢消息零容忍时，可以开启 `adapter.setManualAcks(true)`，在处理成功后通过消息头里的确认回调手动 ack
+- 对丢消息零容忍时，可以开启 `adapter.setManualAcks(true)`，在处理成功后通过消息头里的确认回调手动 ack；「写入下游成功才确认」的完整顺序与失败时的处理见 [可靠上报与接入层主备 · 写入总线成功后才确认](./15_conduit_reliable_uplink#四、transport-写入总线成功后才确认)
 - OTA 状态通道的处理器见 [OTA 升级](./10_ota)；Kafka 之后的流处理与入库见 [遥测数据链路](./9_data)
 
 ---
 
 ## 四、工程要点
-
-EMQX 的部署与授权模式见 [平台选型](./2_platform)。
 
 ### 1、clientId 与会话
 
@@ -364,6 +362,11 @@ EMQX 的部署与授权模式见 [平台选型](./2_platform)。
 | 横向扩容后消息被重复处理 | 每个实例都订阅了全量 Topic | 改用 `$share/{组名}/...` 共享订阅 |
 | 断线期间消息丢失 | `cleanStart=true` 或会话过期时间太短 | `cleanStart=false`，会话过期时间覆盖最长的预期断线时长 |
 
+「每个实例唯一的 clientId + 共享订阅 + 持久会话 + 自动重连」这套模型有两条边界，[可靠上报与接入层主备](./15_conduit_reliable_uplink) 在 EMQX 上实测过：
+
+- **成员离线时消息不改派**：共享订阅组里某个实例离线但会话还在时，分给它的消息排进它的会话等它回来，不会转给其他实例；实例长时间不回来（如缩容后没清会话），这部分流量就一直滞留，见 [主实例的多条连接与共享订阅](./15_conduit_reliable_uplink#七、主实例的多条连接与共享订阅)
+- **主备不能开自动重连**：想让同一时刻只有一个实例消费、其余待命时，各实例共用同一组 clientId，下台的旧主自动连回来会把新主踢掉，两边互踢；断线后要先确认自己仍是主再重连，见 [单活多备：Redis 锁选主](./15_conduit_reliable_uplink#六、单活多备-redis-锁选主)
+
 ### 2、QoS 与幂等
 
 - 遥测数据量大、可容忍偶发丢失，用 QoS 0 或 1；指令、OTA 状态这类必须送达的消息用 QoS 1
@@ -372,7 +375,7 @@ EMQX 的部署与授权模式见 [平台选型](./2_platform)。
 
 ### 3、连接规模
 
-单个平台服务通常只维护少量 MQTT 连接，海量设备连接由 Broker 承担。如果需要用 Java 直接承载设备长连接（私有 TCP 协议），见 [Netty 接入网关](./8_netty_gateway)。
+单个平台服务通常只维护少量 MQTT 连接，海量设备连接由 Broker 承担，EMQX 的许可与部署见 [平台选型 · EMQX 许可与部署](./2_platform#五、emqx-许可与部署)。如果需要用 Java 直接承载设备长连接（私有 TCP 协议），见 [Netty 接入网关](./8_netty_gateway)。
 
 ---
 

@@ -235,7 +235,7 @@ mvn -B verify -Pe2e -pl conduit-e2e          # 端到端故障场景，约 6～1
 
 ## 九、与现成平台的关系
 
-[平台选型](./2_platform) 对比过阿里云 IoT、ThingsBoard、JetLinks、EMQX 这些现成方案，结论是多数团队应该直接用。Conduit 自己从头写，和它们的关系是这样的：
+[平台选型](./2_platform) 对比过阿里云 IoT、ThingsBoard、JetLinks、EMQX 这些现成方案，并按场景给了选型建议。Conduit 自己从头写，和它们的关系是这样的：
 
 - **EMQX 是 Conduit 的一个组件**，不是对手。连接、会话、QoS、ACL 这些 Broker 的活全部交给 EMQX；Conduit 只用它的 HTTP 认证回调、文件 ACL 和 `$SYS` 上下线事件。数据不走 EMQX 的规则引擎和数据桥接，而是由 transport 以普通 MQTT 客户端的身份订阅后写进总线，这样「写成功才确认」这一步握在自己的代码里
 - **ThingsBoard 是对照物**。路线图写的是核心能力对标 ThingsBoard，但不以逐项复制为目标，想做出差别的地方是更清晰的产品模型、更可靠的上报语义、更低的部署复杂度

@@ -766,7 +766,7 @@ Grafana 自带告警功能（Grafana 11 起移除了旧版告警，只保留统�
 | 规则评估位置 | Prometheus 本地评估，不依赖 Grafana 可用 | Grafana 服务端评估，Grafana 故障时告警也停止 |
 | 适合场景 | 核心服务告警、规则即代码、平台团队统一治理 | 数据源分散、业务方自助配置、看板与告警一体 |
 
-建议：核心服务的告警规则以 Prometheus 规则文件为准，进仓库、走评审和测试；Grafana Alerting 用于非 Prometheus 数据源（如业务库中的订单量）和业务方自助的告警。无论用哪种，路由、分级、抑制和 Runbook 的原则都相同，最好让两者共用同一个 Alertmanager 做通知，避免出现两套路由规则。
+建议：核心服务的告警规则以 Prometheus 规则文件为准，进仓库、走评审和测试；Grafana Alerting 用于非 Prometheus 数据源（如业务库中的订单量）和业务方自助的告警。无论用哪种，路由、分级、抑制和 Runbook 的原则都相同，最好让两者共用同一个 Alertmanager 做通知，避免出现两套路由规则。用 Grafana Alerting 对时序库里的设备数据配阈值告警、再用 Webhook 回调业务系统的例子见 [遥测数据链路 · 可视化与告警](/iot/9_data#六、可视化与告警)。
 
 ---
 

@@ -188,7 +188,7 @@ ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "/app/app.jar"]
 - **两边四个口令必须相同**：内部令牌、EMQX API key 与 secret、控制台密码
 - **两台主机上都要有完整的 `deploy/` 目录**，因为两边都在 `extends`
 - **从独立部署切过来数据沿用**：项目名与数据卷相同，`up -d --remove-orphans` 会把本机原来的 EMQX 当作孤儿移除
-- **一台 EMQX 只对应一套 Conduit**。EMQX 开源版没有命名空间：几套环境共用一台 EMQX 时，transport 的 clientId 相同会互相挤掉会话，共享订阅组同名会把消息分到别人的 transport 上，鉴权回调也只能配一个地址
+- **一台 EMQX 只对应一套 Conduit**。Conduit 用的 EMQX 5.10 默认没有 RabbitMQ vhost 那样的命名空间：几套环境共用一台 EMQX 时，transport 的 clientId 相同会互相挤掉会话，共享订阅组同名会把消息分到别人的 transport 上，鉴权回调也只能配一个地址
 
 拆分部署包里 EMQX 的容量参数取的是它接受的最大值（在途窗口 65535、会话队列不限、关闭按信箱与堆强杀单个连接）。**代价要清楚**：过载不再表现为「单条连接被杀、丢一部分」，而是积压一直涨到 EMQX 整个节点内存耗尽、所有设备一起断开；队列不限时会话监控的「队列水位」告警也不会触发。这是为压测取的值，不是给生产的建议。
 

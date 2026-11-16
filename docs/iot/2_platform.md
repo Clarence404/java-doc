@@ -97,7 +97,7 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 | 产品 | 开源 / 免费部分 | 商业部分 |
 |------|----------------|---------|
 | ThingsBoard | CE：Apache 2.0 | PE：商业许可 |
-| EMQX | 5.8 及以前开源版：Apache 2.0；5.9 起：BSL 1.1，单节点生产免费 | 多节点集群、托管服务、嵌入销售需商业 License |
+| EMQX | 5.9 起 BSL 1.1，单节点生产免费（细则见第五节） | 多节点集群等需商业 License |
 | JetLinks | 社区版：Apache 2.0 | 企业版：商业许可 |
 | openHAB | EPL 2.0 | 无 |
 | Home Assistant | Apache 2.0 | 无 |
@@ -155,6 +155,10 @@ services:
       - "8084:8084"     # MQTT over WSS
       - "8883:8883"     # MQTT over TLS
       - "18083:18083"   # Dashboard
+    ulimits:
+      nofile:           # Docker 默认软限制 1024，每条 MQTT 连接占一个文件描述符
+        soft: 1048576
+        hard: 1048576
     volumes:
       - emqx-data:/opt/emqx/data
       - emqx-log:/opt/emqx/log
@@ -171,6 +175,8 @@ docker exec -it emqx emqx ctl status
 
 Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认密码。生产环境只对外开放 8883（TLS），1883 和 18083 限制在内网，证书配置见 [HTTPS 与 TLS](/protocols/3_https_tls)，设备认证与 ACL 见 [设备安全](./5_security)。
 
+许可不限连接规模，不等于默认配置就接得住：去掉上面的 `ulimits.nofile`，配套仓库 Conduit 实测约 1,000 台设备就让 EMQX 因打开文件数超限反复崩溃，见 [部署与可观测 · 几处有来历的编排细节](./23_conduit_deploy#五、几处有来历的编排细节)；离线消息队列、在途窗口这些会话参数怎么取，见 [可靠上报与接入层主备 · EMQX 会话怎么选](./15_conduit_reliable_uplink#五、emqx-会话怎么选)。
+
 ### 3、何时需要集群
 
 | 模式 | 适用场景 |
@@ -178,7 +184,7 @@ Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认�
 | **单节点** | 开发测试；连接数在单机容量内、能接受分钟级故障恢复（容器自动拉起 + 设备自动重连） |
 | **集群** | 需要节点故障时业务不中断、连接数超出单机容量、需要滚动升级 |
 
-集群节点之间通过 Erlang 分布式协议同步路由表；客户端断线后重连到任意节点，只有使用持久会话（Clean Start 为 false 且 Session Expiry Interval 大于 0）时，订阅和离线消息才会随会话接管一起恢复，否则需要客户端重新订阅。
+集群节点之间通过 Erlang 分布式协议同步路由表；客户端断线后重连到任意节点，只有使用持久会话（Clean Start 为 false 且 Session Expiry Interval 大于 0）时，订阅和离线消息才会随会话接管一起恢复，否则需要客户端重新订阅；能恢复多少离线消息还受会话队列上限约束，节点自身崩溃时内存会话里未投递的消息不保留，见 [可靠上报与接入层主备 · EMQX 会话怎么选](./15_conduit_reliable_uplink#五、emqx-会话怎么选)。
 
 ### 4、三节点集群（需 License）
 
@@ -191,6 +197,8 @@ Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认�
 x-emqx: &emqx
   image: emqx/emqx:6.3.1
   networks: [emqx-net]
+  ulimits:
+    nofile: {soft: 1048576, hard: 1048576}   # 与单节点相同，见上一小节
 
 services:
   emqx1:

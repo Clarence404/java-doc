@@ -36,7 +36,15 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 | TDengine | 原始数据与降采样结果存储 | 一台设备一张子表，写入与时间范围查询都快 |
 | Grafana | 看板与基于存储数据的阈值告警 | 运维与业务人员自助配置 |
 
-设备规模在几千台以内、没有复杂计算时，可以省掉 Kafka 和 Flink，直接用 EMQX 规则引擎写入 TDengine（见二.4）；链路越长，运维成本越高，按需引入。
+这是组件最全的一条路线，链路越长运维成本越高，按需引入。常见的还有两条更短的：
+
+| 路线 | 链路 | 适合 |
+|------|------|------|
+| 完整链路（本篇） | EMQX 规则引擎 → Kafka → Flink → TDengine | 设备多，要窗口计算、离线检测，或多个下游消费同一份数据 |
+| 规则引擎直写 | EMQX 规则引擎 → TDengine（见二.4） | 几千台以内、没有复杂计算，只要落库和简单阈值告警 |
+| 自写订阅者 | 自己的订阅服务 → Redis Streams → 自己的流水线 → 时序库 | 要把「写入成功才向 Broker 确认」握在自己代码里、组件尽量少；窗口计算与降采样要自己做 |
+
+第三条是配套仓库 Conduit 的做法，见 [数据流水线](./16_conduit_pipeline)，它与本篇路线的逐项对照在 [时序存储与历史查询](./17_conduit_telemetry#九、和-kafka-flink-tdengine-路线的关系)。
 
 ### 3、存储选型结论
 
@@ -45,14 +53,13 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 - 设备量大、schema 一致的工业 / 能源采集：TDengine 或 Apache IoTDB（树模型天然对应「工厂 → 设备 → 测点」）
 - 团队已经重度使用 PostgreSQL、需要和业务表 JOIN：TimescaleDB
 - 以运维监控指标为主：Prometheus 或 InfluxDB 3
+- 多租户平台、产品由租户自己建、测点不固定：InfluxDB 3 一张宽表（测点是列），见 [时序存储与历史查询](./17_conduit_telemetry)
 
 本篇以 TDengine 为例。
 
 ---
 
 ## 二、MQTT 到 Kafka：EMQX 规则引擎
-
-EMQX 5.9 起为统一的 BSL 1.1 版本，许可说明见 [平台选型](./2_platform)。
 
 ### 1、Topic 与消息约定
 
@@ -98,7 +105,7 @@ WHERE is_not_null(payload.temp)
 | 分区数 | 按峰值吞吐与 Flink 并行度规划 | Flink Source 并行度不应超过分区数 |
 | 缓冲 | 开启内存 + 磁盘缓冲 | Kafka 短暂不可用时，EMQX 侧先缓冲，恢复后续传 |
 
-5.9 之前，Kafka 等数据集成属于 EMQX 企业版功能，开源版没有；5.9 起统一为一个版本。Kafka 本身的分区与可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，消费组见 [Kafka 生产与消费](/messaging/2_kafka_client)。
+5.9 之前，Kafka 等数据集成属于 EMQX 企业版功能，开源版没有；5.9 起合并为一个版本，许可见 [平台选型 · EMQX 许可与部署](./2_platform#五、emqx-许可与部署)。Kafka 本身的分区与可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，消费组见 [Kafka 生产与消费](/messaging/2_kafka_client)。
 
 ### 4、小规模：规则引擎直写 TDengine
 
@@ -177,6 +184,8 @@ INTERVAL(5m) FILL(NULL);
 ```
 
 `LAST_ROW` 返回最后一行（列值可能为 NULL），`LAST` 返回每列最后一个非 NULL 值；看板展示最新读数时，设备会分字段上报就用 `LAST`。
+
+`FILL(NULL)` 让没有数据的窗口留空而不是补 0：没上报是「不知道」，0 是有效读数，两者不能混。这条约定从上报、存储到曲线怎么贯彻，见 [物模型与解码 · 缺测与零值](./14_conduit_thing_model#九、缺测与零值)。
 
 ### 4、Java 写入：WebSocket 连接 + 参数绑定
 
@@ -321,7 +330,7 @@ public class OfflineDetector extends KeyedProcessFunction<String, Telemetry, Dev
 
 - **为什么用处理时间定时器**：设备不发数据时不会推动事件时间，所有设备同时断网（如机房断电）时水位线整体停住，事件时间定时器永远不触发
 - **为什么不用 CEP**：「没有发生某事」CEP 表达不了，见 [实战场景 · 连续性与量词](/flink/8_scenarios#_3、连续性与量词)
-- **与 EMQX 上下线事件互补**：`$events/client/disconnected` 只说明 TCP 连接断了；连接还在但不再上报（采集模块死机）只能靠这里的数据超时检测
+- **与 EMQX 上下线事件互补**：`$events/client/disconnected` 只说明 TCP 连接断了；连接还在但不再上报（采集模块死机）只能靠这里的数据超时检测。判断在线的四种做法对照见 [设备接入与鉴权 · 上下线事件与在线状态](./13_conduit_access#九、上下线事件与在线状态)
 - **定时器成本**：上报频率很高时，把 `fireAt` 向上取整到秒，只有取整值变化时才重新注册
 
 ### 4、连续超温：CEP
@@ -358,7 +367,7 @@ Flink 2.x 没有官方 TDengine Sink，按 Sink V2 写一个 `SinkWriter` 即可
 
 存储估算：日写入量 = 设备数 × 每设备每日上报条数 × 每行字节数 ÷ 压缩比，乘以保留天数即为该层容量。原始层通常占总容量的绝大部分，所以缩短原始层的 `KEEP` 是最有效的降本手段。
 
-聚合层一定要同时存 `count`：「这 5 分钟只有 2 条数据」本身就是设备异常的信号，只存均值会把它掩盖掉。
+聚合层一定要同时存 `count`：「这 5 分钟只有 2 条数据」本身就是设备异常的信号，只存均值会把它掩盖掉。一条数据都没有的窗口则应当留空，不写成 0，查询侧的处理见 [时序存储与历史查询 · 缺测与零值](./17_conduit_telemetry#六、缺测与零值)。
 
 ### 2、TDengine 流计算降采样
 
@@ -386,7 +395,7 @@ CREATE STREAM IF NOT EXISTS iot_db_5m.s_sensors_5m
 
 ## 六、可视化与告警
 
-告警使用 Grafana 统一告警（Grafana Alerting）。
+告警使用 Grafana 统一告警（Grafana Alerting），它与 Prometheus 规则加 Alertmanager 的分工见 [告警体系 · Grafana Alerting 与 Alertmanager](/observability/4_alerting#八、grafana-alerting-与-alertmanager)。
 
 ### 1、Grafana 看板
 
@@ -485,14 +494,7 @@ public class GrafanaAlertController {
 
 ### 4、告警放在哪一层
 
-| 告警类型 | 放在 | 原因 |
-|----------|------|------|
-| 离线、连续超温、多条件组合 | Flink | 需要按设备的状态和定时器，秒级延迟 |
-| 单指标阈值、趋势类 | Grafana | 运维自助配置，不用发版 |
-| 设备连接断开 | EMQX 规则引擎（`$events/client/disconnected`） | 事件源头就在 Broker |
-| 设备联动、需要关联业务数据（工单、设备模型、权限）的单点判断 | 自研规则引擎，见 [规则引擎](./11_rule_engine) | 规则由业务人员配置，动作要调用业务系统 |
-
-同一个告警只在一层产生，四层的告警再统一汇入同一个告警服务做去重、抑制和升级，避免同一故障从多个渠道各报一次。
+同一个告警只在一层产生：离线、连续超温这类要状态和定时器的归 Flink，单指标阈值与趋势归 Grafana，连接断开归 EMQX 规则引擎，设备联动和要关联业务数据的归自研规则引擎。各层擅长什么、不擅长什么的分层表见 [规则引擎 · 规则与告警放在哪一层](./11_rule_engine#_1、规则与告警放在哪一层)。
 
 ---
 
@@ -509,7 +511,6 @@ public class GrafanaAlertController {
 
 - EMQX 规则引擎：[https://docs.emqx.com/en/emqx/latest/data-integration/rules.html](https://docs.emqx.com/en/emqx/latest/data-integration/rules.html)
 - EMQX 规则 SQL 事件与字段：[https://docs.emqx.com/en/emqx/latest/data-integration/rule-sql-events-and-fields.html](https://docs.emqx.com/en/emqx/latest/data-integration/rule-sql-events-and-fields.html)
-- EMQX 许可 FAQ：[https://www.emqx.com/en/content/license-faq](https://www.emqx.com/en/content/license-faq)
 - TDengine Java 连接器：[https://docs.tdengine.com/developer-guide/connectors-reference/java/](https://docs.tdengine.com/developer-guide/connectors-reference/java/)
 - TDengine 流计算语法：[https://docs.tdengine.com/stream-processing/syntax/](https://docs.tdengine.com/stream-processing/syntax/)
 - taos-jdbcdriver（Maven Central）：[https://central.sonatype.com/artifact/com.taosdata.jdbc/taos-jdbcdriver](https://central.sonatype.com/artifact/com.taosdata.jdbc/taos-jdbcdriver)

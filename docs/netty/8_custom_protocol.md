@@ -231,7 +231,7 @@ public class ProtocolDecoder extends MessageToMessageDecoder<ByteBuf> {
 - **为什么要再校验长度**：帧解码器只保证"凑够了 Length 声明的字节数"，业务层对最大长度、字段一致性的校验仍是安全防线
 
 ::: tip
-如果协议需要按字节"搜索"下一个魔数来重新同步（例如串口透传的 IoT 设备），可以用 `ByteToMessageDecoder` 自行实现跳字节同步，IoT 实战中的 `DeviceMessageDecoder` 就是这种写法，见第八节。
+如果协议需要按字节"搜索"下一个魔数来重新同步（例如串口透传的 IoT 设备），可以用 `ByteToMessageDecoder` 自行实现跳字节同步，IoT 实战中的 `DeviceFrameDecoder` 就是这种写法，见第八节。
 :::
 
 ---
@@ -389,7 +389,7 @@ public class RpcResponseHandler extends SimpleChannelInboundHandler<RpcResponse>
 
 ## 八、IoT 完整实战
 
-上面是通用模板（无 CRC 校验）。面向 IoT 设备接入、带 **CRC16 校验**与跳字节重新同步的完整实现，包含 `DeviceMessage`、`DeviceMessageDecoder`、`CrcUtil` 和业务 Handler，见：
+上面是通用模板（无 CRC 校验）。面向 IoT 设备接入、带 **CRC16 校验**与跳字节重新同步的完整实现，包含 `DeviceFrame`、`DeviceFrameDecoder`、`DeviceFrameEncoder`、`Crc16` 以及鉴权与连接注册，见：
 
 [Netty 接入网关](/iot/8_netty_gateway#二、带-crc-的私有协议帧)
 

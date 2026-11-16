@@ -26,7 +26,7 @@ IoT 协议按所处层次分为三类，一个系统往往三类都会用到：�
 
 **MQTT（Message Queuing Telemetry Transport）**：基于发布 / 订阅模型的轻量级消息协议，运行在 TCP 之上（也可以跑在 WebSocket 上），由 OASIS 标准化，现行版本是 3.1.1 和 5.0。发布方和订阅方互不感知，全部经由 Broker 按 Topic 转发，这是它适合海量设备接入的根本原因。
 
-Java 客户端代码见 [MQTT 客户端](./6_mqtt_client)，Broker 部署见 [平台选型](./2_platform)，TLS 与双向证书见 [HTTPS 与 TLS](/protocols/3_https_tls)。
+Java 客户端的选型（Eclipse Paho 已多年未更新，新项目用 HiveMQ MQTT Client 或 Spring Integration）与固定 Client ID、重连、共享订阅消费等写法见 [MQTT 客户端](./6_mqtt_client)，Broker 部署见 [平台选型](./2_platform)，TLS 与双向证书见 [HTTPS 与 TLS](/protocols/3_https_tls)。
 
 ![MQTT 发布 / 订阅模型](../assets/iot/mqtt-pubsub.svg)
 
@@ -52,15 +52,15 @@ QoS 约定的是**一跳之内**的投递语义：发布方到 Broker 是一跳�
 | 1 | 至少一次，可能重复 | PUBLISH → PUBACK，未确认则重发 | 告警、事件，配合业务幂等 |
 | 2 | 恰好一次 | PUBLISH → PUBREC → PUBREL → PUBCOMP | 重复执行代价大的指令 |
 
-QoS 2 的「恰好一次」只在客户端与 Broker 之间成立，并不是端到端保证：Broker 宕机、订阅方处理失败、消息桥接到 Kafka 后再消费，都可能重复或丢失。重要指令仍然要在业务层带请求 ID 做幂等，并用响应消息确认执行结果。QoS 2 每条消息四次交互，吞吐明显低于 QoS 1，实践中大多数场景用 **QoS 1 + 业务幂等**。
+QoS 2 的「恰好一次」只在客户端与 Broker 之间成立，并不是端到端保证：Broker 宕机、订阅方处理失败、消息桥接到 Kafka 后再消费，都可能重复或丢失。重要指令仍然要在业务层带请求 ID 做幂等，并用响应消息确认执行结果。QoS 2 每条消息四次交互，吞吐明显低于 QoS 1，实践中大多数场景用 **QoS 1 + 业务幂等**。设备收到 PUBACK 之后 Broker 崩溃会丢多少、怎么用业务回执把这一跳补上，[可靠上报与接入层主备](./15_conduit_reliable_uplink#二、为什么-puback-不够) 有实测。
 
 ### 3、会话、保留消息与遗嘱
 
-**持久会话**：客户端以不清理会话的方式连接（3.1.1 的 `cleanSession=false`，5.0 的 `Clean Start=false` 且 Session Expiry Interval 大于 0）后，Broker 会按 Client ID 保存它的订阅关系，以及离线期间收到的 QoS 1 / 2 消息，客户端重连后继续投递。前提是 **Client ID 必须固定**，每次启动随机生成 Client ID 等于每次都开新会话。
+**持久会话**：客户端以不清理会话的方式连接（3.1.1 的 `cleanSession=false`，5.0 的 `Clean Start=false` 且 Session Expiry Interval 大于 0）后，Broker 会按 Client ID 保存它的订阅关系，以及离线期间收到的 QoS 1 / 2 消息，客户端重连后继续投递。前提是 **Client ID 必须固定**，每次启动随机生成 Client ID 等于每次都开新会话。「继续投递」本身也有前提：离线消息排在 Broker 的会话队列里，队列有长度上限，超出就丢；EMQX 默认把队列放在内存里，Broker 自身重启后未投递的消息不保留，实测见 [可靠上报与接入层主备 · EMQX 会话怎么选](./15_conduit_reliable_uplink#五、emqx-会话怎么选)。
 
 **保留消息（Retained Message）**：发布时带 retain 标志，Broker 会为该 Topic 只保存最新一条，新订阅者订阅时立即收到。适合设备在线状态、最新配置这类「订阅即需要当前值」的数据；发布一条空 payload 的保留消息即可清除。
 
-**遗嘱消息（Will Message）**：客户端在 CONNECT 时登记一条遗嘱，非正常断开（网络中断、心跳超时）时由 Broker 代为发布，正常发送 DISCONNECT 则不发布。常见用法是遗嘱 Topic 设为 `devices/{clientId}/status`、payload 为 `offline`、带 retain，上线后再发一条 `online` 的保留消息覆盖。遗嘱 Topic 要按设备区分，所有设备共用一个 Topic 会互相覆盖。
+**遗嘱消息（Will Message）**：客户端在 CONNECT 时登记一条遗嘱，非正常断开（网络中断、心跳超时）时由 Broker 代为发布，正常发送 DISCONNECT 则不发布。常见用法是遗嘱 Topic 设为 `devices/{clientId}/status`、payload 为 `offline`、带 retain，上线后再发一条 `online` 的保留消息覆盖。遗嘱 Topic 要按设备区分，所有设备共用一个 Topic 会互相覆盖。遗嘱只是判断设备在线的做法之一，它与 Broker 上下线事件、数据超时、连接注册表的对照见 [设备接入与鉴权 · 上下线事件与在线状态](./13_conduit_access#九、上下线事件与在线状态)。
 
 ### 4、MQTT 5.0 新特性
 
@@ -109,17 +109,13 @@ MQTT 5.0 于 2019 年成为 OASIS 标准，协议主体与 3.1.1 一致，增加
 
 | Broker | 语言 | 许可 | 特点 |
 |--------|------|------|------|
-| **EMQX** | Erlang | 5.9 起为 BSL 1.1（单节点免费，集群需 License），5.8 及以前的开源版为 Apache 2.0 | 功能全（规则引擎、数据集成、多协议网关），性能高 |
+| **EMQX** | Erlang | 5.9 起 BSL 1.1，5.8 及以前的开源版 Apache 2.0 | 功能全（规则引擎、数据集成、多协议网关），性能高 |
 | Mosquitto | C | EPL 2.0 / EDL 1.0 | 轻量、单机，适合开发测试和小规模部署 |
 | NanoMQ | C | MIT | 面向边缘网关的轻量 Broker，可桥接到云端 Broker |
 | VerneMQ | Erlang | 源码 Apache 2.0，官方二进制包与镜像商用需订阅 | 原生分布式集群 |
 | HiveMQ | Java | 社区版 Apache 2.0，企业版商业许可 | 企业版集群与运维能力强 |
 
-部署方式和 EMQX 许可细节统一放在 [平台选型](./2_platform)，本篇不重复。
-
-### 7、Java 客户端
-
-Eclipse Paho Java 客户端（`mqttv3` 最后一个版本 1.2.5 发布于 2020 年）已多年未更新，新项目建议使用仍在维护的 HiveMQ MQTT Client，或通过 Spring Integration 封装收发。客户端选型、固定 Client ID、重连后重新订阅、共享订阅消费等写法见 [MQTT 客户端](./6_mqtt_client)。
+EMQX 的 BSL 许可对集群、托管服务有限制，细则与部署方式见 [平台选型 · EMQX 许可与部署](./2_platform#五、emqx-许可与部署)。
 
 ---
 
@@ -218,25 +214,9 @@ NB-IoT 终端常用 CoAP / LwM2M 或 MQTT 上报，进入 PSM 后设备不可达
 
 ## 七、Modbus
 
-**Modbus**：1979 年由 Modicon 提出的工业通信协议，至今仍是 PLC、仪表、变频器最常见的接口。
+**Modbus**：1979 年由 Modicon 提出的工业通信协议，主站轮询、从站应答，至今仍是 PLC、仪表、变频器最常见的接口。常用的变体有三种：RTU（RS-485 / RS-232 串口，二进制帧带 CRC，最常用）、ASCII（串口上的文本编码，已少用）、TCP（以太网，默认端口 502，去掉 CRC、加 MBAP 报文头）。
 
-Java 采集代码见 [Modbus 采集](./7_modbus)。
-
-| 变体 | 传输介质 | 说明 |
-|------|---------|------|
-| **Modbus RTU** | RS-485 / RS-232 串口 | 二进制帧，带 CRC 校验，最常用 |
-| **Modbus ASCII** | RS-485 / RS-232 串口 | ASCII 编码，可读但效率低，已少用 |
-| **Modbus TCP** | 以太网，默认端口 502 | 去掉 CRC，增加 MBAP 报文头 |
-
-核心概念：
-
-| 概念 | 说明 |
-|------|------|
-| 主站 / 从站 | 主站（上位机、网关）发起请求，从站（仪表、PLC）只应答，从站用 Unit ID 区分 |
-| 数据区 | 线圈（可读写的位）、离散输入（只读位）、输入寄存器（只读 16 位）、保持寄存器（可读写 16 位） |
-| 功能码 | 01 读线圈、03 读保持寄存器、04 读输入寄存器、05 写单个线圈、06 写单个寄存器、16 写多个寄存器 |
-
-Modbus 只定义寄存器读写，不定义数据含义：一个 32 位浮点数占两个寄存器，高低字的顺序因厂商而异，必须对照设备的点表解析。寄存器解析与轮询采集的写法见 [Modbus 采集](./7_modbus)。
+Modbus 只定义寄存器读写，不定义数据含义：一个 32 位浮点数占两个寄存器，高低字的顺序因厂商而异，必须对照设备的点表解析。四类数据区与功能码、TCP 与 RTU 的差别、寄存器解析与轮询采集的写法见 [Modbus 采集](./7_modbus)。
 
 ---
 

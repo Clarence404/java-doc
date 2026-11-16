@@ -12,28 +12,19 @@ description: 自研与 EMQX / ThingsBoard / Flink 取舍、规则 DSL、边沿�
 
 ## 一、先选方案
 
-### 1、四种实现位置
+### 1、规则与告警放在哪一层
 
-| 方案 | 规则写法 | 擅长 | 不擅长 |
-|------|---------|------|-------|
-| EMQX 规则引擎 | 类 SQL，作用于 MQTT 消息 | 靠近 Broker 的过滤、字段提取、转发到 Kafka 等外部系统（Sink）、重新发布 | 跨消息的状态、复杂业务动作 |
-| ThingsBoard 规则链 | 可视化节点 + 脚本 | 平台内的告警、遥测处理、设备联动 | 与自有业务系统深度耦合 |
-| Flink（SQL / CEP） | SQL 或模式 API | 时间窗口、连续 N 次、多流关联等有状态计算 | 单条消息的简单判断显得太重 |
-| 自研（本篇） | 结构化条件 + 动作 | 与自有设备模型、权限、工单等业务紧密结合 | 复杂窗口计算 |
+| 方案 | 规则写法 | 擅长 | 不擅长 | 典型告警 |
+|------|---------|------|-------|---------|
+| EMQX 规则引擎 | 类 SQL，作用于 MQTT 消息与 Broker 事件 | 靠近 Broker 的过滤、字段提取、转发到 Kafka 等外部系统（Sink）、重新发布 | 跨消息的状态、复杂业务动作 | 设备连接断开（`$events/client/disconnected`），事件源头就在 Broker |
+| ThingsBoard 规则链 | 可视化节点 + 脚本 | 平台内的告警、遥测处理、设备联动 | 与自有业务系统深度耦合 | 整个平台就用 ThingsBoard 时的阈值告警 |
+| Flink（SQL / CEP） | SQL 或模式 API | 时间窗口、连续 N 次、多流关联等有状态计算，秒级延迟 | 单条消息的简单判断显得太重 | 离线、连续超温、多条件组合，需要按设备保存状态和定时器 |
+| Grafana Alerting | 查询 + Reduce + Threshold，在页面上配置 | 基于已入库数据的阈值与趋势，运维自助配置、不用发版 | 按分钟评估，不适合秒级响应，也不能直接驱动设备动作 | 单指标阈值、趋势类 |
+| 自研（本篇） | 结构化条件 + 动作 | 与自有设备模型、权限、工单等业务紧密结合，规则由业务人员配置 | 复杂窗口计算 | 设备联动、需要关联业务数据（工单、设备模型、权限）的单点判断 |
 
-EMQX 的规则是这样一条 SQL，命中后执行配置的动作：
+EMQX 规则 SQL 的写法见 [遥测数据链路 · 规则 SQL](./9_data#_2、规则-sql)，Flink 的离线检测与 CEP 见 [遥测数据链路 · Flink 2.x 实时处理](./9_data#四、flink-2-x-实时处理)，ThingsBoard 规则链的用法见 [平台选型 · ThingsBoard 规则链](./2_platform#六、thingsboard-规则链)。
 
-```sql
-SELECT
-  clientid,
-  payload.temperature AS temperature
-FROM
-  "devices/+/telemetry"
-WHERE
-  payload.temperature > 80
-```
-
-**组合使用最常见**：EMQX 规则负责把原始消息转发进 Kafka；"连续 5 分钟超温"这类窗口规则交给 Flink，见 [Flink 总览](/flink/0_overview)；与业务相关的单点判断和动作由自研规则引擎完成。告警按「同一个告警只在一层产生，再统一汇入告警服务」分工：离线与窗口类归 Flink，阈值与趋势归 Grafana，连接断开归 EMQX，设备联动和需要关联业务数据的归本篇的规则引擎，完整分层表见 [遥测数据链路](./9_data#_4、告警放在哪一层)。ThingsBoard 规则链的用法见 [平台选型](./2_platform)。
+**组合使用最常见**：EMQX 规则负责把原始消息转发进 Kafka；"连续 5 分钟超温"这类窗口规则交给 Flink；与业务相关的单点判断和动作由自研规则引擎完成。**同一个告警只在一层产生**，各层的告警再统一汇入同一个告警服务做去重、抑制和升级，避免同一故障从多个渠道各报一次。
 
 ### 2、执行链路
 
@@ -51,7 +42,7 @@ WHERE
 |------|------|------|------|
 | 结构化条件 | `{"metric":"temperature","op":"GT","threshold":80}` | 运维在页面上配置，覆盖大部分场景 | 表达力有限 |
 | 表达式 | `temperature > 80 && humidity < 30` | 需要组合与计算 | 用户输入的表达式会被执行，必须限制能力 |
-| 类 SQL | 见上文 EMQX 示例 | 熟悉 SQL 的使用者 | 需要自己实现或依赖平台 |
+| 类 SQL | EMQX 规则 SQL，见 [遥测数据链路 · 规则 SQL](./9_data#_2、规则-sql) | 熟悉 SQL 的使用者 | 需要自己实现或依赖平台 |
 
 用 SpEL 这类表达式语言实现时，只能使用 `SimpleEvaluationContext` 并只暴露数据字段；`StandardEvaluationContext` 允许调用任意类和方法，用户填写的表达式等同于远程代码执行，见 [常见漏洞与防护](/security/8_vulnerabilities)。本篇采用结构化条件。
 
@@ -359,7 +350,7 @@ public RedisMessageListenerContainer ruleChangeListener(RedisConnectionFactory f
 
 ## 小结
 
-- 简单过滤与转发交给 EMQX 规则，窗口类规则交给 Flink，与业务紧密相关的判断和动作再自研
+- 简单过滤与转发交给 EMQX 规则，窗口类规则交给 Flink，已入库数据的阈值与趋势交给 Grafana，与业务紧密相关的判断和动作再自研；同一个告警只在一层产生
 - 规则用结构化条件 + 密封接口动作建模，运算符用枚举；条件与动作存 JSON 列，避免关联表的抓取问题
 - 匹配采用边沿触发，状态依赖 Kafka 按设备分区保持在同一实例
 - 动作执行前按幂等键占位，告警配静默期；Webhook 配超时、限并发、失败重试，地址做 SSRF 校验

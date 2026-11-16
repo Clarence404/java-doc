@@ -161,6 +161,7 @@ public class EmqxAuthnController {
 - **DeviceSecret 的存储**：HMAC 需要原始密钥，不能像用户密码那样只存哈希；台账中用 KMS 托管的密钥加密存储
 - **clientid 绑定身份**：ACL 依赖 `${clientid}`，如果认证不校验 clientid，设备可以用 `+` 之类的字符当 clientid，让 `devices/${clientid}/cmd` 变成通配订阅
 - **容量**：每次连接都会调用该服务，设备批量重连时它就是瓶颈，需要按连接风暴的峰值压测和扩容
+- **另一种取舍：传密钥、只存哈希**：设备把密钥本身放在 password 里（必须走 TLS），服务端就不需要原始密钥，台账可以只存加盐哈希，库泄露后拿不到可用的凭据；代价是密钥每次连接都出现在链路上。HMAC 方案正好反过来：密钥不上网，但台账必须可逆存储。配套仓库 Conduit 选的是前一种（它当前还没有启用 TLS，这一点写在它的已知限制里），哈希算法怎么选、身份怎么缓存见 [设备接入与鉴权 · 设备凭据](./13_conduit_access#三、设备凭据-生成与哈希) 与 [身份缓存](./13_conduit_access#五、身份缓存)
 
 ### 4、X.509 证书签发
 
@@ -255,8 +256,6 @@ mqtt {
 
 ## 四、Topic 授权（EMQX ACL）
 
-EMQX 5.9 起的许可变化见 [平台选型](./2_platform)。
-
 ### 1、认证与授权的分工
 
 | 层 | 回答的问题 | EMQX 配置 |
@@ -279,6 +278,8 @@ authorization {
   ]
 }
 ```
+
+`deny_action` 是一个取舍：`disconnect` 让越权的设备立刻掉线，问题暴露得早，但固件把 Topic 写错时会变成反复重连；默认的 `ignore` 只丢弃越权的那一次操作、连接保留，越权要靠第六节的授权事件才看得见。
 
 `sources` 按顺序检查，第一个给出结果的数据源生效。授权结果有缓存，修改规则后最长要等一个 `ttl` 才对已连接的客户端生效。除文件和内置数据库外，EMQX 内置 MySQL、PostgreSQL、MongoDB、Redis、LDAP、HTTP 数据源，规则量大或要和业务系统打通时直接配置，不需要插件。
 
@@ -306,14 +307,15 @@ authorization {
  ["devices/${clientid}/cmd", "devices/${clientid}/ota/cmd",
   "shadow/${clientid}/update/+", "shadow/${clientid}/delta", "shadow/${clientid}/get/accepted"]}.
 
-%% 4. 末尾不写 {deny, all}：它会让文件对所有请求都给出结果，排在后面的内置数据库永远查不到；
-%%    其余请求交给 no_match = deny 拒绝
+%% 4. 文件后面还有其他数据源（这里是内置数据库）时，末尾不写 {deny, all}：它会让文件对所有请求
+%%    都给出结果，排在后面的数据源永远查不到；其余请求交给 no_match = deny 拒绝
 ```
 
 - **占位符**：5.x 用 `${clientid}`、`${username}`，4.x 的 `%c`、`%u` 不再生效
 - **匹配条件**：`{username, "..."}`、`{clientid, "..."}`、`{ipaddr, "10.0.0.0/8"}`，用户名和 clientid 支持正则 `{username, {re, "^svc-"}}`
 - **按 username 授权的前提**：username 必须经过认证；只用证书认证时，用上文的 `peer_cert_as_username = cn` 让 username 也来自证书，否则任何设备都能自称 `iot-backend`
 - **通过 Dashboard 或 REST API 改过文件规则后**，EMQX 会把规则保存到 `data/authz/acl.conf`，不再读取 `path` 指向的原文件
+- **只有文件一个数据源时**，末尾写 `{deny, all}` 与靠 `no_match = deny` 兜底效果相同，写不写都行。配套仓库 Conduit 就是这种情况：规则只有三行并以 `{deny, all}` 结尾，`deny_action` 用默认的 `ignore`，见 [设备接入与鉴权 · ACL](./13_conduit_access#八、acl-把设备锁在自己的-topic-里)
 
 ### 4、内置数据库与 REST API
 
@@ -372,6 +374,8 @@ FROM "$events/auth/check_authz_complete"
 WHERE result = 'deny'
 ```
 
+上下线事件除了用于审计，也是维护设备在线状态的一种来源，几种做法的对照见 [设备接入与鉴权 · 上下线事件与在线状态](./13_conduit_access#九、上下线事件与在线状态)。
+
 典型告警规则：同一来源 IP 短时间大量认证失败（暴力破解）、单台设备反复越权（固件被篡改或配置错误）、设备从未出现过的地区上线（凭证外泄）。
 
 ### 2、零信任措施
@@ -401,7 +405,7 @@ WHERE result = 'deny'
 | 阶段 | 措施 |
 |------|------|
 | 一、基础 | 只开放 8883，关闭 1883；配置认证器，拒绝未认证连接；每台设备独立凭证 |
-| 二、权限 | 部署 ACL，设备只能访问自己的 Topic；`no_match = deny` 兜底，文件规则末尾不写 `{deny, all}`；API Key 最小权限 |
+| 二、权限 | 部署 ACL，设备只能访问自己的 Topic；`no_match = deny` 兜底，文件之后还有其他数据源时文件规则末尾不写 `{deny, all}`；API Key 最小权限 |
 | 三、设备 | 私钥放安全芯片；量产禁用 UART / JTAG；删除测试账号与默认口令 |
 | 四、固件 | OTA 签名验签、防回滚、A/B 分区、安全启动 |
 | 五、隔离 | 设备网段微分段，管理端口只对内网开放 |
@@ -414,7 +418,7 @@ WHERE result = 'deny'
 - IoT 安全的难点在规模、物理可接触和长期无人值守，凭证必须一机一密、可自动轮换和吊销
 - 密码类方案用 HMAC 签名 + 时间戳，DeviceSecret 不上网；认证服务要校验 clientid 与设备身份一致
 - 证书方案选 ECDSA P-256，私钥在设备内生成、永不离开设备；EMQX 用 `verify_peer` + `fail_if_no_peer_cert = true` 强制 mTLS，用 `peer_cert_as_clientid = cn` 绑定身份
-- EMQX 5.x 授权用 `${clientid}` 占位符、`{eq, ...}` 字面匹配，`no_match = deny` 兜底（文件规则末尾不写 `{deny, all}`，否则后面的数据源查不到）；REST API 用 API Key，请求体是数组
+- EMQX 5.x 授权用 `${clientid}` 占位符、`{eq, ...}` 字面匹配，`no_match = deny` 兜底（文件之后还有其他数据源时，文件规则末尾不写 `{deny, all}`，否则后面的数据源查不到）；REST API 用 API Key，请求体是数组
 - OTA 要签名、防回滚、A/B 分区与安全启动，细节在 OTA 篇
 - 设备安全事件来自规则引擎的 `$events/...`，不是审计日志；零信任落地为独立身份、最小权限、持续验证、微隔离和全程可观测
 

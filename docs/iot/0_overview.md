@@ -51,7 +51,7 @@
 
 ## 三、关联模块
 
-版本说明：MQTT 3.1.1 仍是大量存量设备的默认版本，差异在正文标出；EMQX 从 5.9.0 起开源版与企业版合并，改用 BSL 1.1 许可，单节点生产免费、多节点集群需 License，细节见 [平台选型](./2_platform)，不想受此约束可选 Mosquitto、NanoMQ；EMQX 配置从 5.x 起使用 HOCON 语法。
+版本说明：MQTT 3.1.1 仍是大量存量设备的默认版本，差异在正文标出；EMQX 从 5.9 起改用 BSL 1.1 许可，对部署方式的限制与替代的 Broker 见 [平台选型 · EMQX 许可与部署](./2_platform#五、emqx-许可与部署)；EMQX 配置从 5.x 起使用 HOCON 语法。
 
 - [网络协议 · TCP 与 UDP](/protocols/1_tcp_udp)：MQTT 跑在 TCP 上、CoAP 跑在 UDP 上，连接与重传行为的基础
 - [网络协议 · HTTPS 与 TLS](/protocols/3_https_tls)：MQTT over TLS、设备双向证书认证（mTLS）的原理

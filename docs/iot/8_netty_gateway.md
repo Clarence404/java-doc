@@ -298,7 +298,7 @@ public class ChannelRegistry {
 2. 把指令投递到该节点专属的通道（Kafka 分区、MQTT Topic `gateways/{nodeId}/downlink` 或 RPC）
 3. 节点从注册表找到 Channel，检查 `isWritable()` 后写出；不可写说明对端消费慢、出站缓冲已超过高水位，指令应拒绝或延后，而不是继续堆积
 
-路由记录必须带过期时间：节点宕机时来不及清理，过期后设备会被视为离线。写水位的配置与背压处理见 [生产实践与调优](/netty/12_production)。
+路由记录必须带过期时间：节点宕机时来不及清理，过期后设备会被视为离线。走 MQTT 接入的设备判断在线用的是另外几种做法，对照见 [设备接入与鉴权 · 上下线事件与在线状态](./13_conduit_access#九、上下线事件与在线状态)。写水位的配置与背压处理见 [生产实践与调优](/netty/12_production)。
 
 ---
 
@@ -324,7 +324,7 @@ public class TelemetrySink {
 
 各适配器只依赖 `TelemetrySink`：私有协议适配器在 `DeviceBusinessHandler` 里把 `CMD_DATA` 帧的载荷解析成 `TelemetryMessage`；MQTT 适配器见 [MQTT 客户端](./6_mqtt_client)；Modbus 适配器见 [Modbus 采集](./7_modbus)。新增协议就是新增一个适配器，下游不需要改动。
 
-**为什么不用内存队列做总线**：用 `LinkedBlockingQueue` 在网关内部做消息总线有三个问题：进程重启时队列里的数据全部丢失；"队列满了先 `poll` 再 `offer`"不是原子操作，并发下仍会失败；单节点内存无法承受下游长时间故障。直接写 Kafka 获得持久化和削峰能力；需要断网续传的边缘网关，用本地磁盘队列缓冲，见 [边缘计算](./3_edge)。Kafka 的配置与选型见 [消息队列总览](/messaging/0_overview)。
+**为什么不用内存队列做总线**：用 `LinkedBlockingQueue` 在网关内部做消息总线有三个问题：进程重启时队列里的数据全部丢失；"队列满了先 `poll` 再 `offer`"不是原子操作，并发下仍会失败；单节点内存无法承受下游长时间故障。直接写 Kafka 获得持久化和削峰能力；需要断网续传的边缘网关，用本地磁盘队列缓冲，见 [边缘计算](./3_edge)。Kafka 的配置与选型见 [消息队列总览](/messaging/0_overview)；规模不大、不想多运维一套 Kafka 时，用 Redis Streams 做总线的取舍见 [数据流水线 · 为什么是 Redis Streams 而不是 Kafka](./16_conduit_pipeline#十、为什么是-redis-streams-而不是-kafka)。
 
 ---
 
