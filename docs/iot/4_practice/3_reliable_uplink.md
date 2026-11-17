@@ -4,7 +4,7 @@ description: 不丢的两档定义、设备留副本等回执、写入总线后�
 
 # 可靠上报与接入层主备
 
-> 前置阅读：[设备接入与鉴权](./13_conduit_access)、[通信协议](./1_protocol)、[分布式锁](/distributed/3_lock)
+> 前置阅读：[设备接入与鉴权](./1_access)、[通信协议](../1_basics/1_protocol)、[分布式锁](/distributed/3_lock)
 
 设备收到 PUBACK 不等于数据已经进了平台：Broker 可能在把消息交给下一跳之前崩溃。本篇讲 Conduit 怎么定义「不丢」、设备侧的回执与重发、transport 的确认顺序、EMQX 会话选择、Redis 锁单活多备与共享订阅，基线为 JDK 21、Spring Boot 3.5。
 
@@ -26,13 +26,13 @@ description: 不丢的两档定义、设备留副本等回执、写入总线后�
 | 设备 → EMQX | 设备等 PUBACK | EMQX 收到（**不代表落盘**） |
 | EMQX → transport | EMQX 等订阅端的 PUBACK | transport 把消息写进 Redis Streams 成功 |
 | transport → Redis | transport 等 `XADD` 返回 | Redis 已刷盘（`appendfsync always`） |
-| Redis → server | 消费组等 `XACK` | 写入 InfluxDB 与最新值都成功，见 [数据流水线](./16_conduit_pipeline) |
+| Redis → server | 消费组等 `XACK` | 写入 InfluxDB 与最新值都成功，见 [数据流水线](./4_pipeline) |
 
 后三跳都在平台自己手里，e2e 验证过杀 server、杀 transport 都不丢。**唯一守不住的是第一跳**：PUBACK 由 EMQX 发出，而 EMQX 把消息交给 transport 之前如果被强杀，这条已确认的消息就没了。所以端到端的兜底只能交给设备，这是 V0.2-R2 做的事。
 
-![可靠上报的确认链路与主备接管](../assets/iot/conduit-reliable-uplink.svg)
+![可靠上报的确认链路与主备接管](../../assets/iot/conduit-reliable-uplink.svg)
 
-MQTT QoS 与会话的通用原理见 [通信协议](./1_protocol)，客户端侧的写法见 [MQTT 客户端](./6_mqtt_client)，这里只讲 Conduit 的取舍。
+MQTT QoS 与会话的通用原理见 [通信协议](../1_basics/1_protocol)，客户端侧的写法见 [MQTT 客户端](../2_access/3_mqtt_client)，这里只讲 Conduit 的取舍。
 
 ---
 
@@ -121,7 +121,7 @@ synchronized List<PendingReport> claimExpired(long now, Duration timeout) {
 
 ## 四、transport：写入总线成功后才确认
 
-transport 用 HiveMQ MQTT Client 的手动确认。收到的消息先攒成微批（微批的参数留给 [数据流水线](./16_conduit_pipeline)），提交时的顺序是这一篇的重点，见 [`MqttProtocolAdapter#flush`](https://github.com/Clarence404/conduit-iot/blob/811e441/conduit-transport/src/main/java/dev/conduit/transport/mqtt/MqttProtocolAdapter.java)：
+transport 用 HiveMQ MQTT Client 的手动确认。收到的消息先攒成微批（微批的参数留给 [数据流水线](./4_pipeline)），提交时的顺序是这一篇的重点，见 [`MqttProtocolAdapter#flush`](https://github.com/Clarence404/conduit-iot/blob/811e441/conduit-transport/src/main/java/dev/conduit/transport/mqtt/MqttProtocolAdapter.java)：
 
 ```java
 private void flush(Session s) {
@@ -173,7 +173,7 @@ EMQX 5 的持久会话有两种，区别在离线消息放哪：
 | EMQX 重启 | **未投递的消息丢失** | 设计上保留 |
 | 积压过大时 | 溢出丢弃，计入 `mqueue_dropped`，停压后自愈 | 实测静默楔死 |
 
-V0.2-R 最初选的是磁盘持久会话，2026-10-28 关掉了，结论先放这里：3,000 条/秒压测约 70 秒后投递永久停止，而连接、健康检查、两侧日志全是正常的；重启 transport 触发会话重放，连接进程超堆被杀，再重连再被杀，唯一的出路是丢弃会话连同里面约 29 万条积压。同样负载换成内存会话，丢弃有计数、停压后自己排空。**失败模式从「静默、整批、必须人工」变成「可见、有界、自愈」**，排查过程与数据见 [压测与瓶颈排查](./22_conduit_capacity)。
+V0.2-R 最初选的是磁盘持久会话，2026-10-28 关掉了，结论先放这里：3,000 条/秒压测约 70 秒后投递永久停止，而连接、健康检查、两侧日志全是正常的；重启 transport 触发会话重放，连接进程超堆被杀，再重连再被杀，唯一的出路是丢弃会话连同里面约 29 万条积压。同样负载换成内存会话，丢弃有计数、停压后自己排空。**失败模式从「静默、整批、必须人工」变成「可见、有界、自愈」**，排查过程与数据见 [压测与瓶颈排查](./10_capacity)。
 
 选内存会话要接受两件事：
 
@@ -269,7 +269,7 @@ private boolean renewOrStepDown() {
 
 ## 七、主实例的多条连接与共享订阅
 
-2026-10-29 起，主实例不再只开一条连接，而是开 `conduit.transport.mqtt.connections` 条（默认 4）。为什么要多条，是压测定位出来的（EMQX 里每条连接是一个 Erlang 进程，单连接时全平台上行挤过同一个进程），数据留给 [压测与瓶颈排查](./22_conduit_capacity)，这里只讲它怎么和主备、会话配合。
+2026-10-29 起，主实例不再只开一条连接，而是开 `conduit.transport.mqtt.connections` 条（默认 4）。为什么要多条，是压测定位出来的（EMQX 里每条连接是一个 Erlang 进程，单连接时全平台上行挤过同一个进程），数据留给 [压测与瓶颈排查](./10_capacity)，这里只讲它怎么和主备、会话配合。
 
 **选主模型一点没动**：仍然只有主实例连 EMQX。`LeaderElection` 本来就接收一个适配器列表，启动全部、要求全部已连接才算 `connected`、哪条断了单独重启哪条，所以只是从注册 1 个适配器变成注册 K 个。
 
@@ -391,7 +391,7 @@ V0.2-R 做完时留过一个已知问题：主 transport **正常停止**（发�
 
 - **Broker 被强杀、断电或重启**：不带 `id` 的设备会丢已 PUBACK 但还没投递给 transport 的消息，这是设备接入契约里明确写出来的缺口；带 `id` 的设备由本地副本覆盖。`id` 目前仍是可选，改成必填是对外契约的收紧，没有做
 - **设备自己断电**：平台管不到。模拟器的队列只在内存，真实设备要自己落盘
-- **回执不代表入库**：InfluxDB 的 2xx 表示数据进了操作系统页缓存而不是磁盘，断电可能丢掉内核回写窗口内的数据；补救手段是从 Redis 上行流按时间范围重放，见 [时序存储与历史查询](./17_conduit_telemetry)
+- **回执不代表入库**：InfluxDB 的 2xx 表示数据进了操作系统页缓存而不是磁盘，断电可能丢掉内核回写窗口内的数据；补救手段是从 Redis 上行流按时间范围重放，见 [时序存储与历史查询](./5_telemetry)
 - **幂等靠同设备同 `ts` 覆盖**，没有按「设备 + id」去重：设备不带 `ts` 且回执又丢了时，重发会多出一个时间不同、值相同的点
 - **mqueue 默认值偏大**：容量压测里把队列填满 100000 条时，会话进程的堆涨到 513 MB，超过上限被杀（配置 256MB，实际按 1.5 倍即 384 MB 触发），整个队列随之丢失，折合每条约 5.4 KB。这只在入库彻底停摆、队列一直堆的时候才会触发，但那正是最不希望连接进程被杀的时刻；调小队列又盖不住切换窗口，这个取舍在仓库里记为待定
 - **切换窗口约 17～25 秒**：期间数据不丢但会晚到，实时性要求更高时得缩短 ttl，代价是 Redis 抖动更容易触发下台
@@ -423,4 +423,4 @@ V0.2-R 做完时留过一个已知问题：主 transport **正常停止**（发�
 - Redis 文档 · Persistence：[https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/](https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/)
 - MQTT Version 5.0（OASIS）：[https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html](https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html)
 
-> 下一篇：[数据流水线](./16_conduit_pipeline)
+> 下一篇：[数据流水线](./4_pipeline)

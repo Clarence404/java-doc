@@ -203,12 +203,7 @@ export const GROUPS = [
             {
                 name: 'IoT', dir: 'iot', interview: ['33_iot'],
                 desc: '协议 / 平台选型 / 边缘计算 / 设备安全与接入 / 遥测数据链路 / 设备影子 / OTA / 规则引擎 / Conduit 平台实战',
-                sidebar: [
-                    {text: '协议与选型', from: 1},    // 通信协议、平台选型、EMQX 许可与部署、边缘计算；2 号有两篇：2_platform 按文件名排在 2_platform_emqx 之前
-                    {text: '接入与安全', from: 5},    // 设备安全在前，再是三种接入写法
-                    {text: '平台能力', from: 9},      // 9 号有两篇：9_data 按文件名排在 9_device_shadow 之前
-                    {text: '平台实战', from: 12},   // 以 conduit-iot 为配套仓库的串讲，12 号起
-                ],
+                subdirs: {'1_basics': '协议与选型', '2_access': '接入与安全', '3_platform': '平台能力', '4_practice': '平台实战'},
             },
         ],
     },
@@ -275,25 +270,38 @@ export const BASELINE = {
     ],
     exceptions: [
         {path: 'flink/', name: 'JDK', ver: '17'},
-        // IoT 平台实战（12–18、22、23 号）跟随配套仓库 conduit-iot 的版本；19–21 号预留给设备影子、OTA、规则引擎的实现篇，写出来时再登记
-        {path: 'iot/12_', name: 'Spring Boot', ver: '3.5'},
-        {path: 'iot/13_', name: 'Spring Boot', ver: '3.5'},
-        {path: 'iot/14_', name: 'Spring Boot', ver: '3.5'},
-        {path: 'iot/15_', name: 'Spring Boot', ver: '3.5'},
-        {path: 'iot/16_', name: 'Spring Boot', ver: '3.5'},
-        {path: 'iot/17_', name: 'Spring Boot', ver: '3.5'},
-        {path: 'iot/18_', name: 'Spring Boot', ver: '3.5'},
-        {path: 'iot/22_', name: 'Spring Boot', ver: '3.5'},
-        {path: 'iot/23_', name: 'Spring Boot', ver: '3.5'},
+        // IoT 平台实战跟随配套仓库 conduit-iot 的版本
+        {path: 'iot/4_practice/', name: 'Spring Boot', ver: '3.5'},
     ],
 };
 
 // 重定向：文章搬家后旧地址自动跳到新地址（@vuepress/plugin-redirect），键为旧路径、值为新路径，均不带 .html
 export const REDIRECTS = {
-    // 2026-11：IoT 重新分组（设备接入 6–8、平台能力 9–11），设备影子与 Netty 接入网关对调编号
-    '/iot/4_data': '/iot/9_data',   // 2026-11：数据处理改名「遥测数据链路」并挪到平台能力组首篇
-    '/iot/8_device_shadow': '/iot/9_device_shadow',
-    '/iot/9_netty_gateway': '/iot/8_netty_gateway',
+    // 2026-11：IoT 改为按子目录分组（协议与选型 / 接入与安全 / 平台能力 / 平台实战），以下是全部旧地址
+    '/iot/1_protocol': '/iot/1_basics/1_protocol',
+    '/iot/2_platform': '/iot/1_basics/2_platform',
+    '/iot/2_platform_emqx': '/iot/1_basics/3_emqx_deploy',
+    '/iot/3_edge': '/iot/1_basics/4_edge',
+    '/iot/5_security': '/iot/2_access/1_security',
+    '/iot/6_mqtt_client': '/iot/2_access/3_mqtt_client',
+    '/iot/7_modbus': '/iot/2_access/4_modbus',
+    '/iot/8_netty_gateway': '/iot/2_access/6_netty_gateway',
+    '/iot/9_data': '/iot/3_platform/2_data',
+    '/iot/9_device_shadow': '/iot/3_platform/3_device_shadow',
+    '/iot/10_ota': '/iot/3_platform/5_ota',
+    '/iot/11_rule_engine': '/iot/3_platform/6_rule_engine',
+    '/iot/12_conduit_intro': '/iot/4_practice/0_intro',
+    '/iot/13_conduit_access': '/iot/4_practice/1_access',
+    '/iot/14_conduit_thing_model': '/iot/4_practice/2_thing_model',
+    '/iot/15_conduit_reliable_uplink': '/iot/4_practice/3_reliable_uplink',
+    '/iot/16_conduit_pipeline': '/iot/4_practice/4_pipeline',
+    '/iot/17_conduit_telemetry': '/iot/4_practice/5_telemetry',
+    '/iot/18_conduit_tenant': '/iot/4_practice/6_tenant',
+    '/iot/22_conduit_capacity': '/iot/4_practice/10_capacity',
+    '/iot/23_conduit_deploy': '/iot/4_practice/11_deploy',
+    '/iot/4_data': '/iot/3_platform/2_data',
+    '/iot/8_device_shadow': '/iot/3_platform/3_device_shadow',
+    '/iot/9_netty_gateway': '/iot/2_access/6_netty_gateway',
     // 2026-10：database/4_nosql 拆为独立的 NoSQL 模块
     '/database/4_nosql/0_column_db': '/nosql/3_column_db',
     '/database/4_nosql/1_time_series_db': '/nosql/4_time_series_db',

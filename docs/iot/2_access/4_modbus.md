@@ -4,7 +4,7 @@ description: 寄存器与功能码、TCP 与 RTU、digitalpetri modbus 与 j2mod
 
 # Modbus 采集
 
-> 前置阅读：[通信协议](./1_protocol)
+> 前置阅读：[通信协议](../1_basics/1_protocol)
 
 PLC、电表、变频器这类工业设备大多只会说 Modbus，平台侧由采集服务充当主站周期轮询。本篇讲 TCP 与 RTU 采集、点表与批量读取、数值解码、常见坑，基线为 JDK 21。
 
@@ -165,7 +165,7 @@ var response = client.readInputRegisters(3, new ReadInputRegistersRequest(0, 2))
 
 ## 五、点表驱动的采集服务
 
-![Modbus 采集链路](../assets/iot/modbus-collector.svg)
+![Modbus 采集链路](../../assets/iot/modbus-collector.svg)
 
 ### 1、点表
 
@@ -232,7 +232,7 @@ public final class RegisterDecoder {
 - **合并相邻点**：把地址连续或间隔很小的点合并成一次请求，单次读取上限是 125 个寄存器；一次读 20 个寄存器远比发 20 次请求快
 - **一个从站一个调度任务**：用 `ScheduledExecutorService.scheduleWithFixedDelay` 而不是 `scheduleAtFixedRate`，上一轮超时时不会出现请求堆叠
 - **变化上报**：只有数值变化超过死区（如温度 0.2℃）或距上次上报超过最大间隔时才发 MQTT，能大幅减少上行流量
-- **数据质量**：读取失败时上报带 `quality=BAD` 的状态而不是沿用旧值，下游才能区分"数值没变"和"设备掉线"；平台不支持质量位时就省略这个测点，不要报 null 或 0，见 [物模型与解码 · 缺测与零值](./14_conduit_thing_model#九、缺测与零值)
+- **数据质量**：读取失败时上报带 `quality=BAD` 的状态而不是沿用旧值，下游才能区分"数值没变"和"设备掉线"；平台不支持质量位时就省略这个测点，不要报 null 或 0，见 [物模型与解码 · 缺测与零值](../4_practice/2_thing_model#九、缺测与零值)
 
 ### 4、生命周期
 
@@ -286,7 +286,7 @@ public class ModbusCollector implements SmartLifecycle {
 }
 ```
 
-`SmartLifecycle` 让采集在 Spring 容器完全就绪后才启动，并在关闭时先停止调度、再释放连接；不要在 `@PostConstruct` 里建连和启动线程。`MqttGateway` 的定义见 [MQTT 客户端](./6_mqtt_client)；上报的载荷是「`ts` 加各测点」的一层 JSON，约定见 [遥测数据链路 · Topic 与消息约定](./9_data#_1、topic-与消息约定)。
+`SmartLifecycle` 让采集在 Spring 容器完全就绪后才启动，并在关闭时先停止调度、再释放连接；不要在 `@PostConstruct` 里建连和启动线程。`MqttGateway` 的定义见 [MQTT 客户端](./3_mqtt_client)；上报的载荷是「`ts` 加各测点」的一层 JSON，约定见 [遥测数据链路 · Topic 与消息约定](../3_platform/2_data#_1、topic-与消息约定)。
 
 ---
 
@@ -317,4 +317,4 @@ public class ModbusCollector implements SmartLifecycle {
 - j2mod：[https://github.com/steveohara/j2mod](https://github.com/steveohara/j2mod)
 - Modbus Organization（协议规范下载）：[https://www.modbus.org/](https://www.modbus.org/)
 
-> 下一篇：[Netty 接入网关](./8_netty_gateway)
+> 下一篇：[Netty 接入网关](./6_netty_gateway)

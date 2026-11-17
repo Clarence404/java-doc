@@ -4,7 +4,7 @@ description: SHA-256 与 Ed25519 / ECDSA 签名、防回滚、A/B 分区与自�
 
 # OTA 升级
 
-> 前置阅读：[设备安全](./5_security)、[MQTT 客户端](./6_mqtt_client)
+> 前置阅读：[设备安全](../2_access/1_security)、[MQTT 客户端](../2_access/3_mqtt_client)
 
 OTA（Over-The-Air）是设备部署后修复漏洞、增加功能的唯一途径，也是风险最高的操作。本篇讲固件签名、版本防回滚、A/B 分区、分批灰度，基线为 JDK 21、Spring Boot 4。
 
@@ -25,7 +25,7 @@ OTA（Over-The-Air）是设备部署后修复漏洞、增加功能的唯一途�
 
 ### 2、流程
 
-![OTA 升级全流程](../assets/iot/ota-flow.svg)
+![OTA 升级全流程](../../assets/iot/ota-flow.svg)
 
 平台侧：构建产物计算 SHA-256 并签名，上传对象存储，按灰度批次通过 MQTT 下发任务。设备侧：用 HTTP Range 断点续传下载，校验摘要、签名和版本，写入备用分区后切换启动槽，重启试运行，自检通过后确认，否则回滚，最后上报结果。
 
@@ -114,7 +114,7 @@ public final class FirmwareSigner {
 4. 下载完成后计算固件 SHA-256，与清单中的 `sha256` 比对，且文件大小一致
 5. 全部通过才写入备用分区
 
-公钥本身的可信度依赖安全启动链：Bootloader 也要校验应用固件签名，否则攻击者绕过 OTA 流程直接刷写 Flash 就能跳过校验。证书与密钥的出厂烧录见 [设备安全](./5_security)。
+公钥本身的可信度依赖安全启动链：Bootloader 也要校验应用固件签名，否则攻击者绕过 OTA 流程直接刷写 Flash 就能跳过校验。证书与密钥的出厂烧录见 [设备安全](../2_access/1_security)。
 
 ---
 
@@ -302,7 +302,7 @@ public class OtaDispatcher {
 - A/B 分区 + 试运行确认让升级失败时自动回退，设备回到旧分区后上报原因
 - 下载用短时效预签名 URL 和 HTTP Range 断点续传，整包校验通过才安装
 - 升级活动按批次灰度，失败率超阈值自动暂停；任务状态用条件更新推进，MQTT 发送不放进数据库事务
-- 本篇讲的是通用设计；配套仓库 Conduit IoT 的实现篇计划在平台实战一组补充，目前见 [平台实战概览](./12_conduit_intro)
+- 本篇讲的是通用设计；配套仓库 Conduit IoT 的实现篇计划在平台实战一组补充，目前见 [平台实战概览](../4_practice/0_intro)
 
 ## 参考资料
 
@@ -311,4 +311,4 @@ public class OtaDispatcher {
 - RFC 8032 Edwards-Curve Digital Signature Algorithm (EdDSA)：[https://www.rfc-editor.org/rfc/rfc8032](https://www.rfc-editor.org/rfc/rfc8032)
 - RFC 9110 HTTP Semantics（Range 请求）：[https://www.rfc-editor.org/rfc/rfc9110#name-range-requests](https://www.rfc-editor.org/rfc/rfc9110#name-range-requests)
 
-> 下一篇：[规则引擎](./11_rule_engine)
+> 下一篇：[规则引擎](./6_rule_engine)

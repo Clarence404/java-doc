@@ -4,7 +4,7 @@ description: HiveMQ 客户端、持久会话与重连、共享订阅、Spring In
 
 # MQTT 客户端
 
-> 前置阅读：[通信协议](./1_protocol)
+> 前置阅读：[通信协议](../1_basics/1_protocol)
 
 Java 服务接入 MQTT 5 有独立客户端和 Spring 集成两种方式。本篇讲 HiveMQ 客户端、Spring Integration MQTT、持久会话与重连、共享订阅，基线为 JDK 21、Spring Boot 4。
 
@@ -28,7 +28,7 @@ Java 服务接入 MQTT 5 有独立客户端和 Spring 集成两种方式。本�
 
 - `org.eclipse.paho.client.mqttv3` 只支持 MQTT 3.1.1，拿不到会话过期、消息过期、共享订阅标准语法、原因码等 MQTT 5 能力
 - 用 `System.currentTimeMillis()` 拼随机 clientId 并设 `cleanSession=true`：每次重连都是新会话，断线期间的 QoS 1 消息全部丢失，多实例时还会重复消费
-- 把用户名、密码写在配置类里：凭据应来自环境变量或密钥管理系统，设备侧推荐一机一密或 X.509 证书，见 [设备安全](./5_security)
+- 把用户名、密码写在配置类里：凭据应来自环境变量或密钥管理系统，设备侧推荐一机一密或 X.509 证书，见 [设备安全](./1_security)
 
 ---
 
@@ -113,8 +113,8 @@ public final class GatewayMqttClient implements AutoCloseable {
 
 几个参数的取舍：
 
-- **`cleanStart(false)` + `sessionExpiryInterval`**：MQTT 5 把 3.1.1 的 `cleanSession` 拆成两个参数，前者决定是否接续旧会话，后者决定断线后 Broker 保留会话多久；两者配合才能做到"短暂断线不丢 QoS 1 消息"，前提是离线期间的消息没有超出 Broker 的会话队列上限、Broker 自身没有重启，见 [可靠上报与接入层主备 · EMQX 会话怎么选](./15_conduit_reliable_uplink#五、emqx-会话怎么选)
-- **遗嘱 + retain**：网关异常掉线时 Broker 代发 `online=false`，新订阅者也能立刻读到最新在线状态；连接成功后要主动发一条保留的 `online=true` 覆盖旧状态，正常断开时 Broker 不发遗嘱，需要自己先发 `online=false`；在线状态的其他做法见 [设备接入与鉴权 · 上下线事件与在线状态](./13_conduit_access#九、上下线事件与在线状态)
+- **`cleanStart(false)` + `sessionExpiryInterval`**：MQTT 5 把 3.1.1 的 `cleanSession` 拆成两个参数，前者决定是否接续旧会话，后者决定断线后 Broker 保留会话多久；两者配合才能做到"短暂断线不丢 QoS 1 消息"，前提是离线期间的消息没有超出 Broker 的会话队列上限、Broker 自身没有重启，见 [可靠上报与接入层主备 · EMQX 会话怎么选](../4_practice/3_reliable_uplink#五、emqx-会话怎么选)
+- **遗嘱 + retain**：网关异常掉线时 Broker 代发 `online=false`，新订阅者也能立刻读到最新在线状态；连接成功后要主动发一条保留的 `online=true` 覆盖旧状态，正常断开时 Broker 不发遗嘱，需要自己先发 `online=false`；在线状态的其他做法见 [设备接入与鉴权 · 上下线事件与在线状态](../4_practice/1_access#九、上下线事件与在线状态)
 - **回调线程**：HiveMQ 客户端的回调默认跑在内部 Netty 线程上，回调里做数据库写入会拖慢整个连接，所以用第三个参数传入独立的 Executor
 
 ### 3、订阅与发布
@@ -190,7 +190,7 @@ static Mqtt5AsyncClient mtlsClient(MqttSettings s, Path p12, char[] p12Pass, Pat
 }
 ```
 
-PEM 格式的证书和私钥先用 `openssl pkcs12 -export` 合成 PKCS12，比在代码里解析 PEM 简单可靠。证书链校验、mTLS 握手细节见 [HTTPS 与 TLS](/protocols/3_https_tls)，设备证书的签发与烧录见 [设备安全](./5_security)。
+PEM 格式的证书和私钥先用 `openssl pkcs12 -export` 合成 PKCS12，比在代码里解析 PEM 简单可靠。证书链校验、mTLS 握手细节见 [HTTPS 与 TLS](/protocols/3_https_tls)，设备证书的签发与烧录见 [设备安全](./1_security)。
 
 ---
 
@@ -198,7 +198,7 @@ PEM 格式的证书和私钥先用 `openssl pkcs12 -export` 合成 PKCS12，比�
 
 ### 1、消息流
 
-![Spring Integration MQTT 消息流](../assets/iot/mqtt-spring-integration.svg)
+![Spring Integration MQTT 消息流](../../assets/iot/mqtt-spring-integration.svg)
 
 入站：适配器订阅 `devices/+/telemetry` 与 `devices/+/ota/status` 两个过滤器，消息进入路由器，按 `MqttHeaders.RECEIVED_TOPIC` 分发到遥测通道或 OTA 状态通道，每个通道只有一个处理器。出站：业务代码调用 `MqttGateway`，消息经出站通道交给 v5 出站 Handler 发布。两个方向共用一个 `ClientManager`，即一个 MQTT 连接。
 
@@ -350,10 +350,10 @@ public class TelemetryHandler {
 }
 ```
 
-- 设备载荷与 `TelemetryMessage`（设备 ID、接入方式、毫秒时间戳、测点）的约定见 [遥测数据链路 · Topic 与消息约定](./9_data#_1、topic-与消息约定)，这里转出来的消息与 EMQX 规则引擎转发的形状相同，下游不用区分来源；载荷不是合法 JSON 时 `readValue` 抛异常，消息进入错误通道，记录后丢弃或转死信
+- 设备载荷与 `TelemetryMessage`（设备 ID、接入方式、毫秒时间戳、测点）的约定见 [遥测数据链路 · Topic 与消息约定](../3_platform/2_data#_1、topic-与消息约定)，这里转出来的消息与 EMQX 规则引擎转发的形状相同，下游不用区分来源；载荷不是合法 JSON 时 `readValue` 抛异常，消息进入错误通道，记录后丢弃或转死信
 - 入站适配器的消息在 Paho 回调线程上处理，回调返回后客户端才确认 QoS 1 消息；处理慢会让 Broker 侧积压，所以这里只转发到 Kafka，入库、规则计算放到下游消费者
-- 对丢消息零容忍时，可以开启 `adapter.setManualAcks(true)`，在处理成功后通过消息头里的确认回调手动 ack；「写入下游成功才确认」的完整顺序与失败时的处理见 [可靠上报与接入层主备 · 写入总线成功后才确认](./15_conduit_reliable_uplink#四、transport-写入总线成功后才确认)
-- OTA 状态通道的处理器见 [OTA 升级](./10_ota)；Kafka 之后的流处理与入库见 [遥测数据链路](./9_data)
+- 对丢消息零容忍时，可以开启 `adapter.setManualAcks(true)`，在处理成功后通过消息头里的确认回调手动 ack；「写入下游成功才确认」的完整顺序与失败时的处理见 [可靠上报与接入层主备 · 写入总线成功后才确认](../4_practice/3_reliable_uplink#四、transport-写入总线成功后才确认)
+- OTA 状态通道的处理器见 [OTA 升级](../3_platform/5_ota)；Kafka 之后的流处理与入库见 [遥测数据链路](../3_platform/2_data)
 
 ---
 
@@ -368,10 +368,10 @@ public class TelemetryHandler {
 | 横向扩容后消息被重复处理 | 每个实例都订阅了全量 Topic | 改用 `$share/{组名}/...` 共享订阅 |
 | 断线期间消息丢失 | `cleanStart=true` 或会话过期时间太短 | `cleanStart=false`，会话过期时间覆盖最长的预期断线时长 |
 
-「每个实例唯一的 clientId + 共享订阅 + 持久会话 + 自动重连」这套模型有两条边界，[可靠上报与接入层主备](./15_conduit_reliable_uplink) 在 EMQX 上实测过：
+「每个实例唯一的 clientId + 共享订阅 + 持久会话 + 自动重连」这套模型有两条边界，[可靠上报与接入层主备](../4_practice/3_reliable_uplink) 在 EMQX 上实测过：
 
-- **成员离线时消息不改派**：共享订阅组里某个实例离线但会话还在时，分给它的消息排进它的会话等它回来，不会转给其他实例；实例长时间不回来（如缩容后没清会话），这部分流量就一直滞留，见 [主实例的多条连接与共享订阅](./15_conduit_reliable_uplink#七、主实例的多条连接与共享订阅)
-- **主备不能开自动重连**：想让同一时刻只有一个实例消费、其余待命时，各实例共用同一组 clientId，下台的旧主自动连回来会把新主踢掉，两边互踢；断线后要先确认自己仍是主再重连，见 [单活多备：Redis 锁选主](./15_conduit_reliable_uplink#六、单活多备-redis-锁选主)
+- **成员离线时消息不改派**：共享订阅组里某个实例离线但会话还在时，分给它的消息排进它的会话等它回来，不会转给其他实例；实例长时间不回来（如缩容后没清会话），这部分流量就一直滞留，见 [主实例的多条连接与共享订阅](../4_practice/3_reliable_uplink#七、主实例的多条连接与共享订阅)
+- **主备不能开自动重连**：想让同一时刻只有一个实例消费、其余待命时，各实例共用同一组 clientId，下台的旧主自动连回来会把新主踢掉，两边互踢；断线后要先确认自己仍是主再重连，见 [单活多备：Redis 锁选主](../4_practice/3_reliable_uplink#六、单活多备-redis-锁选主)
 
 ### 2、QoS 与幂等
 
@@ -381,7 +381,7 @@ public class TelemetryHandler {
 
 ### 3、连接规模
 
-单个平台服务通常只维护少量 MQTT 连接，海量设备连接由 Broker 承担，Broker 的选择、单节点与集群的部署见 [EMQX 许可与部署](./2_platform_emqx)。如果需要用 Java 直接承载设备长连接（私有 TCP 协议），见 [Netty 接入网关](./8_netty_gateway)。
+单个平台服务通常只维护少量 MQTT 连接，海量设备连接由 Broker 承担，Broker 的选择、单节点与集群的部署见 [EMQX 许可与部署](../1_basics/3_emqx_deploy)。如果需要用 Java 直接承载设备长连接（私有 TCP 协议），见 [Netty 接入网关](./6_netty_gateway)。
 
 ---
 
@@ -401,4 +401,4 @@ public class TelemetryHandler {
 - Spring Integration MQTT Support：[https://docs.spring.io/spring-integration/reference/mqtt.html](https://docs.spring.io/spring-integration/reference/mqtt.html)
 - MQTT Version 5.0（OASIS）：[https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html](https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html)
 
-> 下一篇：[Modbus 采集](./7_modbus)
+> 下一篇：[Modbus 采集](./4_modbus)

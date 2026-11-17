@@ -77,7 +77,7 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 - **技术栈**：Erlang/OTP
 - **核心功能**：MQTT 3.1.1 / 5.0、集群、认证与 ACL、规则引擎与数据集成（转发到 Kafka、数据库等）、多协议网关（CoAP、LwM2M 等）、Dashboard
 - **适合**：自建 IoT 平台的消息接入层，或替代云厂商的托管 Broker
-- **许可与部署**：5.9 起的许可对集群和托管服务有限制，细则和部署写法见 [EMQX 许可与部署](./2_platform_emqx)
+- **许可与部署**：5.9 起的许可对集群和托管服务有限制，细则和部署写法见 [EMQX 许可与部署](./3_emqx_deploy)
 
 ### 3、JetLinks
 
@@ -97,7 +97,7 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 | 产品 | 开源 / 免费部分 | 商业部分 |
 |------|----------------|---------|
 | ThingsBoard | CE：Apache 2.0 | PE：商业许可 |
-| EMQX | 5.9 起 BSL 1.1，单节点生产免费（细则见 [EMQX 许可与部署 · 许可变化](./2_platform_emqx#二、许可变化)） | 多节点集群等需商业 License |
+| EMQX | 5.9 起 BSL 1.1，单节点生产免费（细则见 [EMQX 许可与部署 · 许可变化](./3_emqx_deploy#二、许可变化)） | 多节点集群等需商业 License |
 | JetLinks | 社区版：Apache 2.0 | 企业版：商业许可 |
 | openHAB | EPL 2.0 | 无 |
 | Home Assistant | Apache 2.0 | 无 |
@@ -119,9 +119,9 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 
 选型时除了功能，还要确认三件事：许可是否允许你的部署方式（集群、SaaS、随硬件销售），时序数据存在哪里、能否换成团队熟悉的存储（见 [时序数据库](/nosql/4_time_series_db)），设备规模增长后接入层能否水平扩展。
 
-接入层选了 EMQX 或还在几个 Broker 之间比较时，接着读 [EMQX 许可与部署](./2_platform_emqx)：Broker 对比表、5.9 起的许可细则、单节点与三节点集群的部署写法都在那一篇。
+接入层选了 EMQX 或还在几个 Broker 之间比较时，接着读 [EMQX 许可与部署](./3_emqx_deploy)：Broker 对比表、5.9 起的许可细则、单节点与三节点集群的部署写法都在那一篇。
 
-决定自研时具体要搭哪些东西，[平台实战概览](./12_conduit_intro) 用配套仓库 Conduit IoT 给了一个完整的例子：EMQX 只做接入层，鉴权、物模型、数据流水线、时序存储与多租户都由平台自己实现。
+决定自研时具体要搭哪些东西，[平台实战概览](../4_practice/0_intro) 用配套仓库 Conduit IoT 给了一个完整的例子：EMQX 只做接入层，鉴权、物模型、数据流水线、时序存储与多租户都由平台自己实现。
 
 ---
 
@@ -149,7 +149,7 @@ ThingsBoard 的规则引擎由**规则链（Rule Chain）**组成，设备上报
 
 需求：设备上报温度，`temperature > 80` 时创建 CRITICAL 级别告警。
 
-![ThingsBoard 规则链：温度超限告警](../assets/iot/thingsboard-rule-chain.svg)
+![ThingsBoard 规则链：温度超限告警](../../assets/iot/thingsboard-rule-chain.svg)
 
 Script 过滤节点的 TBEL 脚本：
 
@@ -221,7 +221,7 @@ JetLinks 用**协议包**接入私有协议设备：协议包是一个独立的 
 
 自己开发协议包时，建议以官方的 [jetlinks-official-protocol](https://github.com/jetlinks/jetlinks-official-protocol) 为模板：它用 `CompositeProtocolSupport` 同时实现了 MQTT、HTTP、TCP（4 字节长度前缀的二进制帧）和 UDP 四种接入方式，复制后修改报文格式和认证逻辑即可。协议包依赖的 JetLinks 核心库版本要与平台版本一致，否则加载时可能出现类不兼容。
 
-TCP 私有协议的帧格式设计、粘包拆包和心跳是通用问题，见 [自定义私有协议](/netty/8_custom_protocol)、[心跳与连接管理](/netty/9_heartbeat)，不依赖平台自建网关的写法见 [Netty 接入网关](./8_netty_gateway)。
+TCP 私有协议的帧格式设计、粘包拆包和心跳是通用问题，见 [自定义私有协议](/netty/8_custom_protocol)、[心跳与连接管理](/netty/9_heartbeat)，不依赖平台自建网关的写法见 [Netty 接入网关](../2_access/6_netty_gateway)。
 
 ---
 
@@ -241,4 +241,4 @@ TCP 私有协议的帧格式设计、粘包拆包和心跳是通用问题，见 
 - JetLinks 官方协议包：[https://github.com/jetlinks/jetlinks-official-protocol](https://github.com/jetlinks/jetlinks-official-protocol)
 - AWS IoT Analytics 停止支持说明：[https://docs.aws.amazon.com/zh_cn/iotanalytics/latest/userguide/iotanalytics-end-of-support.html](https://docs.aws.amazon.com/zh_cn/iotanalytics/latest/userguide/iotanalytics-end-of-support.html)
 
-> 下一篇：[EMQX 许可与部署](./2_platform_emqx) —— Broker 对比、5.9 起的 BSL 许可、单节点部署、三节点集群与四层负载均衡。
+> 下一篇：[EMQX 许可与部署](./3_emqx_deploy) —— Broker 对比、5.9 起的 BSL 许可、单节点部署、三节点集群与四层负载均衡。

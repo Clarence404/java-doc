@@ -4,7 +4,7 @@ description: 物模型属性与五种类型、可插拔解码器、逐测点校�
 
 # 物模型与解码
 
-> 前置阅读：[平台实战概览](./12_conduit_intro)、[设备接入与鉴权](./13_conduit_access)、[平台选型](./2_platform)
+> 前置阅读：[平台实战概览](./0_intro)、[设备接入与鉴权](./1_access)、[平台选型](../1_basics/2_platform)
 
 物模型是平台对「这类设备会报哪些测点、各是什么类型」的定义，有了它，平台才分得清一个值是合法数据还是设备报错了。本篇讲 Conduit 的物模型结构、解码器、逐测点校验、缓存、导入导出和缺测与零值的约定，基线为 JDK 21、Spring Boot 3.5。
 
@@ -23,7 +23,7 @@ V0.1 的流水线对上报内容几乎不设防：`params` 里有什么就存什
 
 V0.2-A 用两样东西回答：**物模型**管「值对不对」，**解码器**管「格式怎么读」。[设计文档](https://github.com/Clarence404/conduit-iot/blob/811e441/docs/superpowers/specs/2026-10-15-conduit-v0.2a-thing-model-design.md) 开头划的范围很克制：只做属性，事件留给告警那一版，服务留给下行命令那一版；不做属性读写权限、结构体与数组、测点分组、物模型版本与发布流程、脚本解码器。
 
-![一条属性上报的解码与逐测点校验：按产品取解码器与属性定义，合格测点入库，被剔除测点写死信记录](../assets/iot/conduit-field-validation.svg)
+![一条属性上报的解码与逐测点校验：按产品取解码器与属性定义，合格测点入库，被剔除测点写死信记录](../../assets/iot/conduit-field-validation.svg)
 
 ---
 
@@ -148,7 +148,7 @@ public DecodedPayload decode(DecodeContext ctx, byte[] payload) {
 }
 ```
 
-代码见 [`FlatJsonDecoder`](https://github.com/Clarence404/conduit-iot/blob/811e441/conduit-server/src/main/java/dev/conduit/server/pipeline/codec/FlatJsonDecoder.java)、[`StandardJsonDecoder`](https://github.com/Clarence404/conduit-iot/blob/811e441/conduit-server/src/main/java/dev/conduit/server/pipeline/codec/StandardJsonDecoder.java)。解码器不读 `id`：可靠上报的回执在 transport 那一跳就发了，见 [可靠上报与接入层主备](./15_conduit_reliable_uplink)。
+代码见 [`FlatJsonDecoder`](https://github.com/Clarence404/conduit-iot/blob/811e441/conduit-server/src/main/java/dev/conduit/server/pipeline/codec/FlatJsonDecoder.java)、[`StandardJsonDecoder`](https://github.com/Clarence404/conduit-iot/blob/811e441/conduit-server/src/main/java/dev/conduit/server/pipeline/codec/StandardJsonDecoder.java)。解码器不读 `id`：可靠上报的回执在 transport 那一跳就发了，见 [可靠上报与接入层主备](./3_reliable_uplink)。
 
 ### 3、两个解码器共用的规则
 
@@ -340,7 +340,7 @@ public void evict(String productKey) {
 - **缓存的是整个产品，不是单个属性**。一个产品最多 200 个属性，一次读出来按标识建好索引，校验时每个测点一次 Map 查找
 - **解码器名和属性放在一起**。它们总是一起用，一起失效；改产品的 `codec` 也要清这份缓存
 - **清除在事务提交之后**。[`ThingModelService`](https://github.com/Clarence404/conduit-iot/blob/811e441/conduit-server/src/main/java/dev/conduit/server/thingmodel/ThingModelService.java) 的写操作都是先让事务提交，再调 `evict`。顺序反了的话，清完缓存、事务还没提交的那一瞬间，流水线读到旧数据又把它缓存 60 秒
-- **加载是跨租户的**。流水线没有登录用户，没有租户上下文，所以先用受控的系统通道按 `productKey` 找到产品，再切到产品所属的租户读属性。这条通道的约束见 [多租户与授权](./18_conduit_tenant)
+- **加载是跨租户的**。流水线没有登录用户，没有租户上下文，所以先用受控的系统通道按 `productKey` 找到产品，再切到产品所属的租户读属性。这条通道的约束见 [多租户与授权](./6_tenant)
 
 会触发清除的操作：新增、修改、删除属性，导入物模型，修改产品（含 `codec`），删除产品。
 
@@ -434,11 +434,11 @@ Conduit 把它写成了一份全链路的 [约定](https://github.com/Clarence40
 
 逐测点剔除和这份约定是配套的：正因为「没有值」有明确的含义，剔除一个坏测点才是安全的，它留下的是一个诚实的空缺。
 
-这份约定里没有质量位，采集端读不到值时只能省略该键。另一种做法是随测点带一个质量标记（如 `quality=BAD`），下游能进一步分清「读了但失败」和「根本没上报」，见 [Modbus 采集 · 批量读取与调度](./7_modbus#_3、批量读取与调度)；Conduit 目前没有做。
+这份约定里没有质量位，采集端读不到值时只能省略该键。另一种做法是随测点带一个质量标记（如 `quality=BAD`），下游能进一步分清「读了但失败」和「根本没上报」，见 [Modbus 采集 · 批量读取与调度](../2_access/4_modbus#_3、批量读取与调度)；Conduit 目前没有做。
 
 ### 3、往后几跳
 
-这份约定覆盖到存储和展示，细节在 [时序存储与历史查询](./17_conduit_telemetry)，这里只列结论：
+这份约定覆盖到存储和展示，细节在 [时序存储与历史查询](./5_telemetry)，这里只列结论：
 
 - **最新值**保留最后一次有效上报的值和它自己的时间戳；后续报文缺少该测点时，不刷新它的时间戳，也不把它归零
 - **聚合查询**只算有效样本，没有样本的时间桶返回 null（包括求和），不返回 0
@@ -510,4 +510,4 @@ Conduit 把它写成了一份全链路的 [约定](https://github.com/Clarence40
 - InfluxDB 3 Core 文档：[https://docs.influxdata.com/influxdb3/core/](https://docs.influxdata.com/influxdb3/core/)
 - Caffeine Wiki：[https://github.com/ben-manes/caffeine/wiki](https://github.com/ben-manes/caffeine/wiki)
 
-> 下一篇：[可靠上报与接入层主备](./15_conduit_reliable_uplink)
+> 下一篇：[可靠上报与接入层主备](./3_reliable_uplink)

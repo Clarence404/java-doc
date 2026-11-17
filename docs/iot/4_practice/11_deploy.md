@@ -4,7 +4,7 @@ description: Compose 部署包与必填配置、合并与拆分部署、Flyway �
 
 # 部署与可观测
 
-> 前置阅读：[压测与瓶颈排查](./22_conduit_capacity)、[Docker](/cloud-native/5_docker)、[指标监控](/observability/2_metrics)
+> 前置阅读：[压测与瓶颈排查](./10_capacity)、[Docker](/cloud-native/5_docker)、[指标监控](/observability/2_metrics)
 
 Conduit 目前的交付形态是一组 Docker Compose 部署包，加一套可选的 Prometheus 与 Grafana 观测栈，编排里的许多取值是压测时一条条换来的。本篇讲部署包的组成与配置、合并与拆分部署、迁移与演示数据、健康检查与指标看板、发布回滚现状，并给全系列做一次小结，基线为 JDK 21、Spring Boot 3.5。
 
@@ -22,7 +22,7 @@ Conduit 目前的交付形态是一组 Docker Compose 部署包，加一套可�
 | 慢了、丢了去哪看 | 一块按数据流逐跳排布的看板，带守恒差 |
 | 怎么发版、怎么退回去 | 按提交打包、按提交建发布目录；备份恢复目前是手工步骤 |
 
-![Compose 部署包：服务组成与两种部署方式](../assets/iot/conduit-deploy-topology.svg)
+![Compose 部署包：服务组成与两种部署方式](../../assets/iot/conduit-deploy-topology.svg)
 
 Compose 文件的语法、`extends`、健康检查与 profile 的通用用法见 [Docker](/cloud-native/5_docker)。
 
@@ -79,7 +79,7 @@ services:
 - **镜像版本全部写死到补丁号**，不用 `latest`
 - **端口默认只绑本机**。所有 `ports` 都写成 `${BIND_ADDR:-127.0.0.1}:...`，要从别的机器访问得显式改成 `0.0.0.0`；Redis 没有设口令，只应在受信网络内暴露
 - **启动顺序靠 `depends_on` + `condition: service_healthy`**。server 等三个存储健康后才启动，transport 等 Redis、EMQX 和 server 都健康后才启动——EMQX 的连接鉴权要回调 server，server 没起来 transport 连不上
-- **Redis 用 AOF 且每次写入刷盘**：`--appendonly yes --appendfsync always`。transport 是写入 Redis 成功后才向设备回确认的，[压测与瓶颈排查](./22_conduit_capacity) 解释过为什么不为了 32% 的吞吐把它放宽
+- **Redis 用 AOF 且每次写入刷盘**：`--appendonly yes --appendfsync always`。transport 是写入 Redis 成功后才向设备回确认的，[压测与瓶颈排查](./10_capacity) 解释过为什么不为了 32% 的吞吐把它放宽
 
 ---
 
@@ -102,7 +102,7 @@ environment:
 | 平台内部凭据 | `CONDUIT_INTERNAL_TOKEN`、`CONDUIT_JWT_SECRET`、`TRANSPORT_MQTT_PASSWORD` | 不是给人用的，务必随机。内部令牌用于 EMQX 回调 server 与 Prometheus 抓 server 指标；JWT 密钥至少 32 字节，改它会让所有已登录会话失效 |
 | EMQX 只读 API key | `CONDUIT_EMQX_API_KEY`、`CONDUIT_EMQX_API_SECRET` | 给 transport 的会话监控和 Prometheus 用；EMQX 5 的 REST API 只认 API key，不认控制台账号 |
 | 对外地址 | `CONDUIT_PUBLIC_URL`、`SMTP_*` | 邀请邮件里的链接与发信服务器；演示环境默认指向 Mailpit |
-| 容量参数 | `EMQX_MAX_INFLIGHT`、`EMQX_MAX_MQUEUE_LEN`、`TRANSPORT_BUS_BATCH_SIZE`、`TRANSPORT_MQTT_CONNECTIONS` | 有默认值；彼此有约束，见 [压测与瓶颈排查](./22_conduit_capacity) |
+| 容量参数 | `EMQX_MAX_INFLIGHT`、`EMQX_MAX_MQUEUE_LEN`、`TRANSPORT_BUS_BATCH_SIZE`、`TRANSPORT_MQTT_CONNECTIONS` | 有默认值；彼此有约束，见 [压测与瓶颈排查](./10_capacity) |
 | 内存上限 | `SERVER_MEM_LIMIT`、`TRANSPORT_MEM_LIMIT`、`SIMULATOR_MEM_LIMIT`、`INFLUX_MEM_LIMIT` | 有默认值，不要设得过小 |
 | 开关 | `BUILD_FROM`、`CONDUIT_AUTHORIZATION_MODE`、`BIND_ADDR` | 构建方式、授权模式、端口绑定地址 |
 | 观测栈 | `GRAFANA_ADMIN_PASSWORD` | 只在启用观测栈时需要；留空时 Grafana 容器拒绝启动 |
@@ -113,7 +113,7 @@ environment:
 
 ## 五、几处有来历的编排细节
 
-编排里有些行看上去只是普通配置，其实每一行背后都有一次事故或一次实测。来历在 [可靠上报与接入层主备](./15_conduit_reliable_uplink) 与 [压测与瓶颈排查](./22_conduit_capacity)，这里只列结论。
+编排里有些行看上去只是普通配置，其实每一行背后都有一次事故或一次实测。来历在 [可靠上报与接入层主备](./3_reliable_uplink) 与 [压测与瓶颈排查](./10_capacity)，这里只列结论。
 
 | 配置 | 取值 | 不这样会怎样 |
 |------|------|-------------|
@@ -127,7 +127,7 @@ environment:
 另有三处和排查习惯有关：
 
 - **第二个 transport 用 YAML 锚点**（`<<: *transport`）复用同一份定义，只改容器名和日志目录，避免两个进程滚动同一个日志文件
-- **EMQX 节点名固定**（`emqx@127.0.0.1`，单节点发现）。副作用是运行时数据按节点名存放，在控制台里改过的密码会在重建后恢复成 `.env` 里的值。Conduit 的 EMQX 一直是单节点，单节点与集群怎么取舍、集群的编排怎么写见 [EMQX 许可与部署](./2_platform_emqx)
+- **EMQX 节点名固定**（`emqx@127.0.0.1`，单节点发现）。副作用是运行时数据按节点名存放，在控制台里改过的密码会在重建后恢复成 `.env` 里的值。Conduit 的 EMQX 一直是单节点，单节点与集群怎么取舍、集群的编排怎么写见 [EMQX 许可与部署](../1_basics/3_emqx_deploy)
 - **容器名固定**：单实例服务不带 `-1` 后缀（`conduit-server`、`conduit-emqx`、`conduit-redis`），transport 是 `conduit-transport-1` / `-2`，排查命令在各部署包里通用；容器名和 MQTT 的 clientId 是两套命名，别混
 
 停机时先摘流量再退出的通用做法见 [优雅上下线与变更](/high-avail/8_graceful_release)。
@@ -168,7 +168,7 @@ ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "/app/app.jar"]
 
 ## 七、合并部署与拆分部署
 
-独立部署是全部服务在一台主机上。[压测与瓶颈排查](./22_conduit_capacity) 的 CPU 拆解显示，高负载时 EMQX 与内核网络处理占忙碌 CPU 的约 70%，于是有了拆分部署：把设备接入层的 CPU 与网络开销从应用主机上拆走。
+独立部署是全部服务在一台主机上。[压测与瓶颈排查](./10_capacity) 的 CPU 拆解显示，高负载时 EMQX 与内核网络处理占忙碌 CPU 的约 70%，于是有了拆分部署：把设备接入层的 CPU 与网络开销从应用主机上拆走。
 
 | 主机 | 目录 | 服务 |
 |------|------|------|
@@ -405,7 +405,7 @@ server 为什么不直接抓 `/actuator/prometheus`：这个路径只有平台�
 **回滚**的边界：
 
 - **应用可以退**：切回旧的发布目录重新 `up -d --build`。迁移只扩展不破坏，旧代码读不到新列也能跑
-- **有的开关退不回去**：授权切到 `enforce` 并且已经依赖范围授权之后，禁止回退旧版本，否则项目成员会恢复全租户权限。出问题时应切 `read-only`，见 [多租户与授权](./18_conduit_tenant)
+- **有的开关退不回去**：授权切到 `enforce` 并且已经依赖范围授权之后，禁止回退旧版本，否则项目成员会恢复全租户权限。出问题时应切 `read-only`，见 [多租户与授权](./6_tenant)
 - **数据库没有回退迁移**，退表结构只能靠恢复备份
 - **InfluxDB 的令牌在首次启动时写入库里**，之后要换只能删数据卷，时序数据随之丢失
 
@@ -414,7 +414,7 @@ server 为什么不直接抓 `/actuator/prometheus`：这个路径只有平台�
 | 存储 | 现状 |
 |------|------|
 | PostgreSQL | 手工 `pg_dump`；没有定时备份，没有恢复演练，没有时间点恢复 |
-| InfluxDB | 没有备份。非正常断电会丢内核回写窗口内的数据，可以用遥测重放从 Redis 上行流里找回，但只能回溯到流里还保留的那一段（上限约 100 万条，单次任务最多 6 小时），见 [时序存储与历史查询](./17_conduit_telemetry) |
+| InfluxDB | 没有备份。非正常断电会丢内核回写窗口内的数据，可以用遥测重放从 Redis 上行流里找回，但只能回溯到流里还保留的那一段（上限约 100 万条，单次任务最多 6 小时），见 [时序存储与历史查询](./5_telemetry) |
 | Redis | AOF 每次写入刷盘；单实例，没有副本 |
 | EMQX | 内存会话，重启即丢未投递的消息；带 `id` 的设备靠重发覆盖 |
 
@@ -465,14 +465,14 @@ server 为什么不直接抓 `/actuator/prometheus`：这个路径只有平台�
 
 | 篇 | 学到的 |
 |----|-------|
-| [平台实战概览](./12_conduit_intro) | 项目定位与版本进度、一条上报的全过程、接入与业务为什么分两个进程 |
-| [设备接入与鉴权](./13_conduit_access) | topic 与一机一密、Broker 同步回调平台鉴权、ACL、在线状态 |
-| [物模型与解码](./14_conduit_thing_model) | 用物模型逐测点校验上报，解码器按产品选择，缺测与零值分开 |
-| [可靠上报与接入层主备](./15_conduit_reliable_uplink) | PUBACK 不等于平台收下了；业务回执、Redis 锁单活多备与共享订阅 |
-| [数据流水线](./16_conduit_pipeline) | 消息总线、至少一次、退避重试与死信、批处理 |
-| [时序存储与历史查询](./17_conduit_telemetry) | 宽表建模、最新值、查询时自动聚合、缺测不补零、遥测重放 |
-| [多租户与授权](./18_conduit_tenant) | 强制过滤、组合外键、范围授权写进 SQL、会话可吊销 |
-| [压测与瓶颈排查](./22_conduit_capacity) | 计数守恒、瓶颈迁移、先怀疑环境与发压器 |
+| [平台实战概览](./0_intro) | 项目定位与版本进度、一条上报的全过程、接入与业务为什么分两个进程 |
+| [设备接入与鉴权](./1_access) | topic 与一机一密、Broker 同步回调平台鉴权、ACL、在线状态 |
+| [物模型与解码](./2_thing_model) | 用物模型逐测点校验上报，解码器按产品选择，缺测与零值分开 |
+| [可靠上报与接入层主备](./3_reliable_uplink) | PUBACK 不等于平台收下了；业务回执、Redis 锁单活多备与共享订阅 |
+| [数据流水线](./4_pipeline) | 消息总线、至少一次、退避重试与死信、批处理 |
+| [时序存储与历史查询](./5_telemetry) | 宽表建模、最新值、查询时自动聚合、缺测不补零、遥测重放 |
+| [多租户与授权](./6_tenant) | 强制过滤、组合外键、范围授权写进 SQL、会话可吊销 |
+| [压测与瓶颈排查](./10_capacity) | 计数守恒、瓶颈迁移、先怀疑环境与发压器 |
 | 部署与可观测（本篇） | 部署包、迁移与演示数据、看板与会话监控 |
 
 **学完能做什么**：从零搭一个「设备能接、数据不丢、查得出来、租户分得开、压得出数、部署得出去」的 IoT 平台骨架，并且知道每一处取舍的代价。贯穿这九篇的几条做法比代码更值得带走：
@@ -484,11 +484,11 @@ server 为什么不直接抓 `/actuator/prometheus`：这个路径只有平台�
 - **命令成功不等于生效**，以回读为准
 - **没执行的测试不写成通过**，失败和无效的尝试照实留在报告里；被推翻的结论标注作废而不是删掉
 
-**计划中的三项功能**。设备影子、OTA 升级、规则引擎都还没有在 Conduit 里实现，落地后会在本系列补上对应的实现篇（文件编号 19～21 留给它们）。在那之前先读站内的通用设计文章：[设备影子](./9_device_shadow)、[OTA 升级](./10_ota)、[规则引擎](./11_rule_engine)。
+**计划中的三项功能**。设备影子、OTA 升级、规则引擎都还没有在 Conduit 里实现，落地后会在本系列补上对应的实现篇（文件编号 19～21 留给它们）。在那之前先读站内的通用设计文章：[设备影子](../3_platform/3_device_shadow)、[OTA 升级](../3_platform/5_ota)、[规则引擎](../3_platform/6_rule_engine)。
 
-**离生产级 SaaS 还差什么**。对照 [roadmap](https://github.com/Clarence404/conduit-iot/blob/811e441/docs/roadmap-saas.md)，当前处在 V0.3 的中段：租户隔离、组织与授权、会话与邀请已做；持久化审计、租户生命周期、计量与配额、资源治理、生产基线、备份恢复实测与告警未做。往后的 V0.4 设备生命周期与控制、V0.5 规则引擎与告警、V0.6 资产与仪表盘、V0.7 开放平台、V0.8 云原生与高可用、V0.9 商业化都还没开始，逐项现状见 [平台实战概览](./12_conduit_intro) 的「还没做的」与 [多租户与授权](./18_conduit_tenant) 的「已知限制」。
+**离生产级 SaaS 还差什么**。对照 [roadmap](https://github.com/Clarence404/conduit-iot/blob/811e441/docs/roadmap-saas.md)，当前处在 V0.3 的中段：租户隔离、组织与授权、会话与邀请已做；持久化审计、租户生命周期、计量与配额、资源治理、生产基线、备份恢复实测与告警未做。往后的 V0.4 设备生命周期与控制、V0.5 规则引擎与告警、V0.6 资产与仪表盘、V0.7 开放平台、V0.8 云原生与高可用、V0.9 商业化都还没开始，逐项现状见 [平台实战概览](./0_intro) 的「还没做的」与 [多租户与授权](./6_tenant) 的「已知限制」。
 
-路线图给 V1.0 写的参考容量是「单集群 100 个活跃租户、10 万注册设备、2 万并发连接、持续 5,000 条消息/秒」，并且明确标注这是待验证的目标，不是当前能力；现在的数字离它有多远、是在什么环境下测的，见 [压测与瓶颈排查](./22_conduit_capacity)。
+路线图给 V1.0 写的参考容量是「单集群 100 个活跃租户、10 万注册设备、2 万并发连接、持续 5,000 条消息/秒」，并且明确标注这是待验证的目标，不是当前能力；现在的数字离它有多远、是在什么环境下测的，见 [压测与瓶颈排查](./10_capacity)。
 
 ---
 
@@ -516,4 +516,4 @@ server 为什么不直接抓 `/actuator/prometheus`：这个路径只有平台�
 - EMQX 文档 · REST API：[https://docs.emqx.com/zh/emqx/latest/guides/api.html](https://docs.emqx.com/zh/emqx/latest/guides/api.html)
 - Grafana · Provisioning：[https://grafana.com/docs/grafana/latest/administration/provisioning/](https://grafana.com/docs/grafana/latest/administration/provisioning/)
 
-> 返回：[IoT 总览](./0_overview)
+> 返回：[IoT 总览](../0_overview)

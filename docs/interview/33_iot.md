@@ -20,7 +20,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 可靠性分级：QoS 0 / 1 / 2 按消息重要程度选
 - 通配符：`+` 匹配一层、`#` 匹配剩余所有层，只能用于订阅
 
-→ 详见 [通信协议](/iot/1_protocol#二、mqtt)
+→ 详见 [通信协议](/iot/1_basics/1_protocol#二、mqtt)
 
 ### Q2：MQTT 的三个 QoS 等级是什么？QoS 2 能保证端到端恰好一次吗？
 
@@ -36,7 +36,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - Broker 宕机、订阅方处理失败、桥接到 Kafka 再消费，都可能重复或丢
 - 实践里大多用 **QoS 1 + 业务幂等**（带请求 ID 去重），比 QoS 2 吞吐高
 
-→ 详见 [通信协议](/iot/1_protocol#_2、qos-三个等级)
+→ 详见 [通信协议](/iot/1_basics/1_protocol#_2、qos-三个等级)
 
 ### Q3：持久会话、保留消息、遗嘱消息分别解决什么问题？
 
@@ -49,7 +49,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 
 **常见坑**：所有设备共用一个遗嘱 Topic，状态互相覆盖；每次启动随机生成 Client ID，等于每次都开新会话。
 
-→ 详见 [通信协议](/iot/1_protocol#_3、会话、保留消息与遗嘱)
+→ 详见 [通信协议](/iot/1_basics/1_protocol#_3、会话、保留消息与遗嘱)
 
 ### Q4：Broker 怎么判断设备离线了？
 
@@ -60,7 +60,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 采集模块死机但 TCP 连接还在：用 Flink 按设备注册「最后一条数据 + N 秒」的处理时间定时器判断
 - 负载均衡的空闲超时必须大于 1.5 倍 Keep Alive，否则空闲设备会被周期性断开
 
-→ 详见 [通信协议](/iot/1_protocol#_1、核心概念)、[遥测数据链路](/iot/9_data#_3、离线检测-keyedprocessfunction-定时器)
+→ 详见 [通信协议](/iot/1_basics/1_protocol#_1、核心概念)、[遥测数据链路](/iot/3_platform/2_data#_3、离线检测-keyedprocessfunction-定时器)
 
 ### Q5：MQTT 5.0 相比 3.1.1 新增了哪些常用能力？
 
@@ -72,7 +72,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 请求 / 响应：Response Topic + Correlation Data，下发指令等回执有了标准写法
 - 会话控制：Clean Start 管「连接时要不要新会话」，Session Expiry Interval 管「断开后会话留多久」
 
-→ 详见 [通信协议](/iot/1_protocol#_4、mqtt-5-0-新特性)
+→ 详见 [通信协议](/iot/1_basics/1_protocol#_4、mqtt-5-0-新特性)
 
 ### Q6：共享订阅是什么？平台服务横向扩容时怎么消费设备消息？
 
@@ -83,7 +83,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 共享订阅打散后，跨实例的顺序要靠 Kafka 分区（按设备 ID 做 Key）或业务版本号保证
 - 每个实例的 Client ID 要唯一（拼主机名或 Pod 名），否则互相踢下线
 
-→ 详见 [MQTT 客户端](/iot/6_mqtt_client#_3、订阅与发布)
+→ 详见 [MQTT 客户端](/iot/2_access/3_mqtt_client#_3、订阅与发布)
 
 ### Q7：Java 的 MQTT 客户端怎么选？Client ID 和会话有哪些坑？
 
@@ -94,7 +94,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 回调线程：回调里只做轻量转发（如写 Kafka），重活放到下游
 - Spring Integration：`DirectChannel` 挂多个处理器会轮询分发，每个只收到一半，要按 Topic 路由，一条通道一个处理器
 
-→ 详见 [MQTT 客户端](/iot/6_mqtt_client#一、客户端选型)
+→ 详见 [MQTT 客户端](/iot/2_access/3_mqtt_client#一、客户端选型)
 
 ## 二、其他协议
 
@@ -113,7 +113,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 
 - NB-IoT 设备进入省电模式后不可达，下发指令要缓存到下次唤醒，这正是设备影子的用途
 
-→ 详见 [通信协议](/iot/1_protocol#九、协议选型速查)
+→ 详见 [通信协议](/iot/1_basics/1_protocol#九、协议选型速查)
 
 ### Q9：Modbus TCP 和 RTU 有什么区别？采集时有哪些常见坑？
 
@@ -125,7 +125,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 浮点数是天文数字：32 位值占两个寄存器，ABCD / CDAB 字序因厂商而异，写进点表
 - 连接：每个从站一个长连接，不要每次轮询都新建，很多 PLC 只允许几个并发连接
 
-→ 详见 [Modbus 采集](/iot/7_modbus#六、常见坑)
+→ 详见 [Modbus 采集](/iot/2_access/4_modbus#六、常见坑)
 
 ## 三、平台与接入网关
 
@@ -138,7 +138,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 替代品：Mosquitto（轻量单机）、NanoMQ（边缘网关）、VerneMQ（从源码构建可免费集群）、HiveMQ CE（社区版无集群）
 - 选型前确认三件事：许可是否允许你的部署方式、时序数据存哪、接入层能否水平扩展
 
-→ 详见 [EMQX 许可与部署](/iot/2_platform_emqx#二、许可变化)
+→ 详见 [EMQX 许可与部署](/iot/1_basics/3_emqx_deploy#二、许可变化)
 
 ### Q11：MQTT 集群放在四层负载均衡后面要注意什么？
 
@@ -150,7 +150,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - TLS：要做双向证书认证时一般透传到 Broker，由 Broker 校验客户端证书
 - 连接风暴：客户端重连用指数退避加随机抖动
 
-→ 详见 [EMQX 许可与部署](/iot/2_platform_emqx#五、三节点集群-需-license)
+→ 详见 [EMQX 许可与部署](/iot/1_basics/3_emqx_deploy#五、三节点集群-需-license)
 
 ### Q12：只会发私有 TCP 二进制帧的设备怎么接入？坏帧怎么处理？
 
@@ -162,7 +162,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 长度按无符号读并设上限；CRC 失败计数进监控，而不是抛异常把设备踢下线
 - 有出站消息就必须有编码器，否则 `writeAndFlush` 写不出去
 
-→ 详见 [Netty 接入网关](/iot/8_netty_gateway#二、带-crc-的私有协议帧)
+→ 详见 [Netty 接入网关](/iot/2_access/6_netty_gateway#二、带-crc-的私有协议帧)
 
 ### Q13：海量设备连在多个网关节点上，平台下发指令怎么找到设备？
 
@@ -173,7 +173,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 写出前检查 `isWritable()`，超过高水位说明对端慢，指令拒绝或延后
 - 状态放设备影子、规则放规则引擎，节点故障时设备重连到别的节点即可
 
-→ 详见 [Netty 接入网关](/iot/8_netty_gateway#四、连接管理与下行路由)
+→ 详见 [Netty 接入网关](/iot/2_access/6_netty_gateway#四、连接管理与下行路由)
 
 ## 四、数据链路与存储
 
@@ -186,7 +186,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 下游以 ACL 绑定过的 `clientid` 作为可信设备标识，不信消息体里自报的设备 ID
 - 几千台设备、没有复杂计算时，可以省掉 Kafka 和 Flink，用 EMQX 直写 TDengine
 
-→ 详见 [遥测数据链路](/iot/9_data#一、iot-数据链路)
+→ 详见 [遥测数据链路](/iot/3_platform/2_data#一、iot-数据链路)
 
 ### Q15：TDengine 的超表、子表、TAG 怎么设计？时序数据怎么控制存储成本？
 
@@ -198,7 +198,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 分层保留：原始 7–30 天、5 分钟聚合 1 年、1 小时聚合 3–5 年；聚合层一定要存 `count`
 - 降采样在 TDengine 流计算或 Flink 里二选一，两边同时算会口径不一致
 
-→ 详见 [遥测数据链路](/iot/9_data#三、tdengine-超表建模)、[时序数据库](/nosql/4_time_series_db)
+→ 详见 [遥测数据链路](/iot/3_platform/2_data#三、tdengine-超表建模)、[时序数据库](/nosql/4_time_series_db)
 
 ### Q16：设备离线检测为什么用 KeyedProcessFunction 而不用 CEP？告警放在哪一层？
 
@@ -214,7 +214,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 | 单指标阈值、趋势 | Grafana |
 | 连接断开 | EMQX 规则引擎 |
 
-→ 详见 [遥测数据链路](/iot/9_data#四、flink-2-x-实时处理)
+→ 详见 [遥测数据链路](/iot/3_platform/2_data#四、flink-2-x-实时处理)
 
 ## 五、设备管理与边缘
 
@@ -227,7 +227,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 设备上线：先订阅 `delta`，再主动拉一次全量影子，影子才是权威来源，持久会话只是补充
 - 影子只放「当前状态」，温度曲线写时序库，重启这类一次性命令走带过期时间的指令
 
-→ 详见 [设备影子](/iot/9_device_shadow#四、版本号与冲突处理)
+→ 详见 [设备影子](/iot/3_platform/3_device_shadow#四、版本号与冲突处理)
 
 ### Q18：OTA 怎么防篡改、防降级、防变砖？
 
@@ -238,7 +238,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 安全版本计数器写在 eFuse 或安全芯片里，新固件确认正常后才提升
 - 新固件写备用分区并标记「待测试」，自检通过才确认，崩溃或超时未确认就回到旧分区
 
-→ 详见 [OTA 升级](/iot/10_ota#二、固件签名)
+→ 详见 [OTA 升级](/iot/3_platform/5_ota#二、固件签名)
 
 ### Q19：OTA 的灰度发布和任务状态怎么设计？
 
@@ -250,7 +250,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 先发消息再更新状态，崩溃时下一轮重发，设备按 `taskId` 去重
 - 定时扫描卡在中间状态的任务，标记超时并计入失败率
 
-→ 详见 [OTA 升级](/iot/10_ota#五、任务编排与灰度)
+→ 详见 [OTA 升级](/iot/3_platform/5_ota#五、任务编排与灰度)
 
 ### Q20：规则引擎怎么避免告警风暴和动作重复执行？为什么不能在数据库事务里发消息？
 
@@ -261,7 +261,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 提交后再发：`@TransactionalEventListener(AFTER_COMMIT)`；要求严格不丢时用本地消息表
 - 外部调用还会长时间占住数据库连接和行锁，Webhook 要配超时并做 SSRF 校验
 
-→ 详见 [规则引擎](/iot/11_rule_engine#四、动作执行)
+→ 详见 [规则引擎](/iot/3_platform/6_rule_engine#四、动作执行)
 
 ### Q21：边缘和云端怎么分工？KubeEdge 的断网自治是怎么做到的？
 
@@ -272,7 +272,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 设备管理：DeviceModel / Device CRD 加 Mapper，可写属性的期望值思路与设备影子相同
 - 边缘 AI 模型更新要原子发布、先建后换、可回退，签名与灰度复用 OTA 那一套
 
-→ 详见 [边缘计算](/iot/3_edge#二、云边端三层架构)
+→ 详见 [边缘计算](/iot/1_basics/4_edge#二、云边端三层架构)
 
 ## 六、设备安全
 
@@ -285,7 +285,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 密码类方案用 HMAC 签名：设备用密钥对 `clientId + 时间戳` 签名当密码，密钥本身不上网
 - HMAC 需要原始密钥，台账里用 KMS 加密存储，不能像用户密码那样只存哈希
 
-→ 详见 [设备安全](/iot/5_security#_2、一机一密与一型一密)
+→ 详见 [设备安全](/iot/2_access/1_security#_2、一机一密与一型一密)
 
 ### Q23：设备证书认证怎么做？EMQX 的 verify_peer 和 fail_if_no_peer_cert 有什么区别？
 
@@ -296,7 +296,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 证书选 ECDSA P-256，比 RSA 短、MCU 上握手快；用途写 `clientAuth`
 - 轮换：设备本地生成新密钥、提交新 CSR（可用 EST）；吊销走 CRL，在 TLS 握手阶段就拒绝
 
-→ 详见 [设备安全](/iot/5_security#三、传输加密)、[HTTPS 与 TLS](/protocols/3_https_tls)
+→ 详见 [设备安全](/iot/2_access/1_security#三、传输加密)、[HTTPS 与 TLS](/protocols/3_https_tls)
 
 ### Q24：EMQX 的认证和授权怎么分工？怎么限制设备只能访问自己的 Topic？
 
@@ -307,7 +307,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 按 username 授权的前提是 username 也经过认证（证书场景用 `peer_cert_as_username = cn`）
 - 5.x 用 `${clientid}` / `${username}`，4.x 的 `%c` / `%u` 不再生效；REST API 用 API Key 认证
 
-→ 详见 [设备安全](/iot/5_security#四、topic-授权-emqx-acl)
+→ 详见 [设备安全](/iot/2_access/1_security#四、topic-授权-emqx-acl)
 
 ### Q25：怎么发现设备暴力破解和越权尝试？
 
@@ -318,7 +318,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 - 典型规则：同一 IP 短时间大量认证失败、单台设备反复越权、设备从没出现过的地区上线
 - 处置：按来源 IP 限速、吊销证书或凭证，并结合网段微隔离限制横向扩散
 
-→ 详见 [设备安全](/iot/5_security#六、审计与零信任落地)
+→ 详见 [设备安全](/iot/2_access/1_security#六、审计与零信任落地)
 
 ## 七、平台实战
 
@@ -333,7 +333,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 
 **常见坑**：回执表示「平台已持久接收」，不等于已入库；设备的待确认队列要先落盘再发送，否则设备自己断电照样丢。
 
-→ 详见 [可靠上报与接入层主备](/iot/15_conduit_reliable_uplink)
+→ 详见 [可靠上报与接入层主备](/iot/4_practice/3_reliable_uplink)
 
 ### Q27：订阅 Broker 的接入服务怎么做主备？为什么不让两个实例同时连？
 
@@ -346,7 +346,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 
 **常见坑**：不要开 MQTT 客户端的自动重连，下台的旧主会自己连回来把新主踢掉；断线后先确认仍持有锁再重连。
 
-→ 详见 [可靠上报与接入层主备](/iot/15_conduit_reliable_uplink)
+→ 详见 [可靠上报与接入层主备](/iot/4_practice/3_reliable_uplink)
 
 ### Q28：为什么把设备接入和业务处理拆成两个进程？
 
@@ -359,7 +359,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 
 **常见坑**：多了一跳也多了一个关键依赖，总线不可用时消息只能排在 Broker 的会话队列里，队列满了会丢；总线有长度上限，业务长时间不消费时旧消息会被裁掉。
 
-→ 详见 [平台实战概览](/iot/12_conduit_intro)、[数据流水线](/iot/16_conduit_pipeline)
+→ 详见 [平台实战概览](/iot/4_practice/0_intro)、[数据流水线](/iot/4_practice/4_pipeline)
 
 ### Q29：缺测和零值怎么区分？为什么不能把没上报的测点补成 0？
 
@@ -377,7 +377,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 
 **常见坑**：`value || 0`、`value ?? 0`、SQL 里的 `COALESCE(value, 0)` 都会把缺测变成零；用真值判断查缺测会把 0 和 false 一起丢掉。
 
-→ 详见 [物模型与解码](/iot/14_conduit_thing_model)、[时序存储与历史查询](/iot/17_conduit_telemetry)
+→ 详见 [物模型与解码](/iot/4_practice/2_thing_model)、[时序存储与历史查询](/iot/4_practice/5_telemetry)
 
 ### Q30：平台只用一条连接订阅全部设备上行，瓶颈会出在哪？怎么发现和解决？
 
@@ -391,7 +391,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 
 **常见坑**：分发策略的配置键写错层级会被静默忽略，命令照样成功；改完配置要回读运行中的值。
 
-→ 详见 [压测与瓶颈排查](/iot/22_conduit_capacity)
+→ 详见 [压测与瓶颈排查](/iot/4_practice/10_capacity)
 
 ### Q31：多租户平台的数据怎么隔离？只靠每条 SQL 带 tenant_id 够吗？
 
@@ -405,7 +405,7 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 
 **常见坑**：这套隔离只在应用层，持有数据库凭据直连的访问拦不住；访问隔离不等于资源隔离，没有配额时一个租户的流量仍会挤占其他租户。
 
-→ 详见 [多租户与授权](/iot/18_conduit_tenant)
+→ 详见 [多租户与授权](/iot/4_practice/6_tenant)
 
 ### Q32：压测怎么判定「合格」？为什么不能只看客户端的成功率？
 
@@ -419,4 +419,4 @@ description: MQTT QoS、会话、MQTT 5、协议选型、接入网关、数据�
 
 **常见坑**：发压机和被测机在同一台物理机上时，测到的可能是宿主机或虚拟网卡的上限，不是平台的上限。
 
-→ 详见 [压测与瓶颈排查](/iot/22_conduit_capacity)
+→ 详见 [压测与瓶颈排查](/iot/4_practice/10_capacity)

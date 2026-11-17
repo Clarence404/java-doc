@@ -36,7 +36,7 @@ EMQX 从 **5.9.0** 起把开源版和企业版合并为一个版本，统一采�
 - 每个版本在发布 4 年后自动转为 Apache 2.0
 - 5.8.x 及以前的开源版仍然是 Apache 2.0，企业版从 5.0 起就是 BSL 1.1
 
-合并也带来一个好处：5.9 之前，Kafka 等数据集成只有企业版才有，现在单节点就能用，用法见 [遥测数据链路](./9_data)。
+合并也带来一个好处：5.9 之前，Kafka 等数据集成只有企业版才有，现在单节点就能用，用法见 [遥测数据链路](../3_platform/2_data)。
 
 镜像使用 `emqx/emqx`（Docker Hub 上也有同版本的 `emqx/emqx-enterprise`），Docker 官方库中不带命名空间的 `emqx` 镜像不再跟进新版本。License 可在 Dashboard「System → License」中更新，也可以执行 `emqx ctl license update <License Key>`。
 
@@ -78,9 +78,9 @@ docker compose up -d
 docker exec -it emqx emqx ctl status
 ```
 
-Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认密码。生产环境只对外开放 8883（TLS），1883 和 18083 限制在内网，证书配置见 [HTTPS 与 TLS](/protocols/3_https_tls)，设备认证与 ACL 见 [设备安全](./5_security)。
+Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认密码。生产环境只对外开放 8883（TLS），1883 和 18083 限制在内网，证书配置见 [HTTPS 与 TLS](/protocols/3_https_tls)，设备认证与 ACL 见 [设备安全](../2_access/1_security)。
 
-许可不限连接规模，不等于默认配置就接得住：去掉上面的 `ulimits.nofile`，配套仓库 Conduit 实测约 1,000 台设备就让 EMQX 因打开文件数超限反复崩溃，见 [部署与可观测 · 几处有来历的编排细节](./23_conduit_deploy#五、几处有来历的编排细节)，排查过程在 [压测与瓶颈排查](./22_conduit_capacity)；离线消息队列、在途窗口这些会话参数怎么取，见 [可靠上报与接入层主备 · EMQX 会话怎么选](./15_conduit_reliable_uplink#五、emqx-会话怎么选)。
+许可不限连接规模，不等于默认配置就接得住：去掉上面的 `ulimits.nofile`，配套仓库 Conduit 实测约 1,000 台设备就让 EMQX 因打开文件数超限反复崩溃，见 [部署与可观测 · 几处有来历的编排细节](../4_practice/11_deploy#五、几处有来历的编排细节)，排查过程在 [压测与瓶颈排查](../4_practice/10_capacity)；离线消息队列、在途窗口这些会话参数怎么取，见 [可靠上报与接入层主备 · EMQX 会话怎么选](../4_practice/3_reliable_uplink#五、emqx-会话怎么选)。
 
 ---
 
@@ -91,7 +91,7 @@ Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认�
 | **单节点** | 开发测试；连接数在单机容量内、能接受分钟级故障恢复（容器自动拉起 + 设备自动重连） |
 | **集群** | 需要节点故障时业务不中断、连接数超出单机容量、需要滚动升级 |
 
-集群节点之间通过 Erlang 分布式协议同步路由表；客户端断线后重连到任意节点，只有使用持久会话（Clean Start 为 false 且 Session Expiry Interval 大于 0）时，订阅和离线消息才会随会话接管一起恢复，否则需要客户端重新订阅；能恢复多少离线消息还受会话队列上限约束，节点自身崩溃时内存会话里未投递的消息不保留，见 [可靠上报与接入层主备 · EMQX 会话怎么选](./15_conduit_reliable_uplink#五、emqx-会话怎么选)。
+集群节点之间通过 Erlang 分布式协议同步路由表；客户端断线后重连到任意节点，只有使用持久会话（Clean Start 为 false 且 Session Expiry Interval 大于 0）时，订阅和离线消息才会随会话接管一起恢复，否则需要客户端重新订阅；能恢复多少离线消息还受会话队列上限约束，节点自身崩溃时内存会话里未投递的消息不保留，见 [可靠上报与接入层主备 · EMQX 会话怎么选](../4_practice/3_reliable_uplink#五、emqx-会话怎么选)。
 
 ---
 
@@ -99,7 +99,7 @@ Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认�
 
 下面的配置演示集群拓扑，需要在启动后导入 License 才能组成集群；用 5.8.x 开源版镜像（Apache 2.0）也能跑通同样的配置。
 
-![EMQX 三节点集群与四层负载均衡](../assets/iot/emqx-cluster.svg)
+![EMQX 三节点集群与四层负载均衡](../../assets/iot/emqx-cluster.svg)
 
 ```yaml
 # docker-compose.yml
@@ -229,4 +229,4 @@ docker exec -it emqx1 emqx ctl cluster status
 - EMQX 文档：License 管理：[https://docs.emqx.com/en/emqx/latest/deploy/license.html](https://docs.emqx.com/en/emqx/latest/deploy/license.html)
 - NGINX stream proxy 模块：[https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html)
 
-> 下一篇：[边缘计算](./3_edge) —— 云边端分工、EdgeX Foundry、KubeEdge 云边协同、边缘 AI 推理。
+> 下一篇：[边缘计算](./4_edge) —— 云边端分工、EdgeX Foundry、KubeEdge 云边协同、边缘 AI 推理。

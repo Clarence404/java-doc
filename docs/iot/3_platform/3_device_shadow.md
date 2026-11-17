@@ -4,7 +4,7 @@ description: desired / reported / delta、版本号与乐观锁、Topic 设计�
 
 # 设备影子
 
-> 前置阅读：[MQTT 客户端](./6_mqtt_client)
+> 前置阅读：[MQTT 客户端](../2_access/3_mqtt_client)
 
 设备影子是云端为每台设备保存的一份 JSON 状态文档，应用读写影子，设备上线后再与影子对齐。本篇讲文档模型、Topic 与版本冲突、Redis + Lua 实现，基线为 JDK 21、Spring Boot 4。
 
@@ -82,11 +82,11 @@ description: desired / reported / delta、版本号与乐观锁、Topic 设计�
 | `shadow/{deviceId}/get` | 设备 → 云 | 请求全量影子 |
 | `shadow/{deviceId}/get/accepted` | 云 → 设备 | 返回全量影子 |
 
-设备只能读写自己的影子 Topic，在 EMQX 中用 `${clientid}` 占位符写 ACL，见 [设备安全](./5_security)；影子之外的 Topic 与整套命名约定见 [通信协议 · Topic 约定](./1_protocol#_7、topic-约定)。请求里带一个 `clientToken`，响应原样返回，设备据此把响应与请求对应起来。
+设备只能读写自己的影子 Topic，在 EMQX 中用 `${clientid}` 占位符写 ACL，见 [设备安全](../2_access/1_security)；影子之外的 Topic 与整套命名约定见 [通信协议 · Topic 约定](../1_basics/1_protocol#_7、topic-约定)。请求里带一个 `clientToken`，响应原样返回，设备据此把响应与请求对应起来。
 
 ### 2、同步时序
 
-![设备影子同步时序](../assets/iot/device-shadow-sync.svg)
+![设备影子同步时序](../../assets/iot/device-shadow-sync.svg)
 
 - **在线时**：应用修改 `desired`（①），影子服务算出 `delta` 推给设备（②）；设备执行后上报 `reported`（③），`delta` 随之清空，应用收到"已生效"的通知（④）
 - **离线后重新上线**：设备先订阅 `delta` 与 `get/accepted`，再发 `get` 拉取全量影子（⑤⑥），按其中的 `desired` 调整自身后上报 `reported`
@@ -291,7 +291,7 @@ public class ShadowService {
 - `version` 每次更新加 1：应用侧做乐观锁，设备侧丢弃旧消息
 - 设备上线先订阅再拉取全量影子，MQTT 持久会话只是补充，影子才是权威来源
 - Redis Hash + Lua 保证比较并写入的原子性，MySQL 异步持久化，消息推送放在写入成功之后
-- 本篇讲的是通用设计；配套仓库 Conduit IoT 的实现篇计划在平台实战一组补充，目前见 [平台实战概览](./12_conduit_intro)
+- 本篇讲的是通用设计；配套仓库 Conduit IoT 的实现篇计划在平台实战一组补充，目前见 [平台实战概览](../4_practice/0_intro)
 
 ## 参考资料
 
@@ -299,4 +299,4 @@ public class ShadowService {
 - AWS IoT Device Shadow 数据流：[https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-data-flow.html](https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-data-flow.html)
 - Redis EVAL 与 Lua 脚本：[https://redis.io/docs/latest/develop/programmability/eval-intro/](https://redis.io/docs/latest/develop/programmability/eval-intro/)
 
-> 下一篇：[OTA 升级](./10_ota)
+> 下一篇：[OTA 升级](./5_ota)

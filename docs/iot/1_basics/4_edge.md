@@ -34,7 +34,7 @@ description: 云边分工、EdgeX Foundry 部署、KubeEdge 云边协同与设�
 
 ## 二、云边端三层架构
 
-![云边端三层架构](../assets/iot/edge-three-layers.svg)
+![云边端三层架构](../../assets/iot/edge-three-layers.svg)
 
 分工的基本原则：需要毫秒级响应、断网也必须工作的逻辑（本地告警、联动控制）放在边缘；需要全局数据、算力或长期存储的工作（模型训练、跨站点分析、设备管理）放在云端。边缘只做必要的事，规则和模型由云端统一下发。
 
@@ -170,7 +170,7 @@ environment:
 
 ### 1、架构
 
-![KubeEdge 云边协同架构](../assets/iot/kubeedge-arch.svg)
+![KubeEdge 云边协同架构](../../assets/iot/kubeedge-arch.svg)
 
 - **CloudCore**：部署在云端，CloudHub 维持与边缘节点的连接，EdgeController 同步 Pod、ConfigMap 等资源，DeviceController 同步设备 CRD
 - **EdgeCore**：部署在边缘节点，EdgeHub 与云端通信，MetaManager 把元数据持久化到本地，Edged 管理容器，DeviceTwin 维护设备孪生
@@ -316,7 +316,7 @@ kubectl apply -f device-instance.yaml
 kubectl get device temperature-sensor-01 -o yaml
 ```
 
-可写属性（`accessMode: ReadWrite`）可以在 Device 的 `properties` 中设置 `desired.value`，由 Mapper 下发到设备，这与 [设备影子](./9_device_shadow) 的期望值 / 上报值模型是同一个思路。
+可写属性（`accessMode: ReadWrite`）可以在 Device 的 `properties` 中设置 `desired.value`，由 Mapper 下发到设备，这与 [设备影子](../3_platform/3_device_shadow) 的期望值 / 上报值模型是同一个思路。
 
 ### 6、断网自治验证
 
@@ -340,7 +340,7 @@ kubectl get pods -o wide
 
 边缘推理只关心「把训练好的模型在边缘稳定地跑起来」：模型导出为 ONNX 格式后，用 ONNX Runtime 在 Java 进程内推理，不依赖 Python 环境。模型训练、选型和大模型接入见 [AI 总览](/ai/0_overview)；需要在边缘服务器上运行小型大模型时，可以参考 [Ollama](/ai/3_integration/0_ollama)。
 
-![边缘 AI 推理流水线](../assets/iot/edge-ai-pipeline.svg)
+![边缘 AI 推理流水线](../../assets/iot/edge-ai-pipeline.svg)
 
 ### 1、依赖
 
@@ -435,7 +435,7 @@ KubeEdge 会把 ConfigMap 等资源的变更可靠地同步到边缘节点，所
 - **先建后换**：新 `AnomalyDetector` 创建成功后，再用 `AtomicReference` 替换旧实例，旧实例等进行中的推理结束后再关闭；新模型加载失败时继续使用旧模型
 - **可回退**：保留上一个版本的模型文件，新模型上线后监控告警率，异常时切回
 
-模型文件的签名校验、防回滚和灰度发布与固件升级是同一套机制，见 [OTA 升级](./10_ota)。
+模型文件的签名校验、防回滚和灰度发布与固件升级是同一套机制，见 [OTA 升级](../3_platform/5_ota)。
 
 ---
 
@@ -458,4 +458,4 @@ KubeEdge 会把 ConfigMap 等资源的变更可靠地同步到边缘节点，所
 - ONNX Runtime Java API：[https://onnxruntime.ai/docs/get-started/with-java.html](https://onnxruntime.ai/docs/get-started/with-java.html)
 - ONNX Runtime Releases：[https://github.com/microsoft/onnxruntime/releases](https://github.com/microsoft/onnxruntime/releases)
 
-> 下一篇：[设备安全](./5_security)
+> 下一篇：[设备安全](../2_access/1_security)

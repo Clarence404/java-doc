@@ -4,7 +4,7 @@ description: topic 设计与解析、设备密钥生成与哈希、EMQX HTTP 鉴
 
 # 设备接入与鉴权
 
-> 前置阅读：[平台实战概览](./12_conduit_intro)、[设备安全](./5_security)、[通信协议](./1_protocol)
+> 前置阅读：[平台实战概览](./0_intro)、[设备安全](../2_access/1_security)、[通信协议](../1_basics/1_protocol)
 
 设备要先被平台认出来、被限制在自己的 topic 里，后面的数据才谈得上可信。本篇讲 Conduit 的 topic 设计、设备凭据、EMQX HTTP 鉴权回调、ACL 和在线状态，以及两份排查报告带来的改动，基线为 JDK 21、Spring Boot 3.5。
 
@@ -21,13 +21,13 @@ description: topic 设计与解析、设备密钥生成与哈希、EMQX HTTP 鉴
 | 连上后能碰哪些 topic | EMQX 文件 ACL，按 clientId 把设备锁在自己的 topic 里 | 第八节 |
 | 你现在在不在线 | EMQX 的上下线事件为主，上报数据补偿 | 第九节 |
 
-认证方式的对比（密钥、HMAC 签名、X.509 证书）和 EMQX 认证授权的通用配置见 [设备安全](./5_security)，本篇只讲 Conduit 选的这一种是怎么落地的。先说结论：它选的是最简单的「用户名加密钥、HTTP 回调校验」，没有 TLS，没有证书，这是当前版本的已知限制，不是推荐做法。
+认证方式的对比（密钥、HMAC 签名、X.509 证书）和 EMQX 认证授权的通用配置见 [设备安全](../2_access/1_security)，本篇只讲 Conduit 选的这一种是怎么落地的。先说结论：它选的是最简单的「用户名加密钥、HTTP 回调校验」，没有 TLS，没有证书，这是当前版本的已知限制，不是推荐做法。
 
 ---
 
 ## 二、Topic 设计与解析
 
-通用篇用的是 `devices/{deviceId}/...` 这一套，设备 ID 放在第二段，清单见 [通信协议 · Topic 约定](./1_protocol#_7、topic-约定)。Conduit 另排了一套三段式，多出产品一段，方向也单独占一段。
+通用篇用的是 `devices/{deviceId}/...` 这一套，设备 ID 放在第二段，清单见 [通信协议 · Topic 约定](../1_basics/1_protocol#_7、topic-约定)。Conduit 另排了一套三段式，多出产品一段，方向也单独占一段。
 
 ### 1、三段式 topic
 
@@ -35,7 +35,7 @@ description: topic 设计与解析、设备密钥生成与哈希、EMQX HTTP 鉴
 |------|-------|------|
 | 上行属性 | `conduit/{productKey}/{deviceKey}/up/property` | 已实现 |
 | 上行事件 | `conduit/{productKey}/{deviceKey}/up/event` | 能解析，流水线按 `UNSUPPORTED_TYPE` 进死信 |
-| 下行回执 | `conduit/{productKey}/{deviceKey}/down/ack` | 已实现，见 [可靠上报与接入层主备](./15_conduit_reliable_uplink) |
+| 下行回执 | `conduit/{productKey}/{deviceKey}/down/ack` | 已实现，见 [可靠上报与接入层主备](./3_reliable_uplink) |
 | 下行命令 | `conduit/{productKey}/{deviceKey}/down/command` | V0.1 设计文档里预留，未实现 |
 
 topic 里放产品和设备两段，方向和类型放在后面，有三个考虑：
@@ -134,7 +134,7 @@ public boolean matches(String secret, String salt, String expectedHash) {
 
 ## 四、EMQX HTTP 鉴权回调
 
-![设备连接与鉴权时序：设备 CONNECT，EMQX 回调 server，server 查身份后返回 allow 或 deny](../assets/iot/conduit-auth-flow.svg)
+![设备连接与鉴权时序：设备 CONNECT，EMQX 回调 server，server 查身份后返回 allow 或 deny](../../assets/iot/conduit-auth-flow.svg)
 
 ### 1、EMQX 侧的配置
 
@@ -224,7 +224,7 @@ transport 自己也是 EMQX 的一个客户端，走同一个回调。它返回 
 - **缓存内容损坏按未命中处理**：反序列化失败就删掉这一条再回源，不会一直卡在坏数据上
 - **重置密钥后先改库再清缓存**：旧密钥在下一次鉴权时就失效，不用等 5 分钟
 
-这份缓存是全平台唯一一个不带租户前缀、按请求里的 `deviceKey` 直接读的 Redis 键，所以缓存的身份里必须带可信的 `tenantId`，后续处理只采用它，见 [多租户与授权](./18_conduit_tenant)。
+这份缓存是全平台唯一一个不带租户前缀、按请求里的 `deviceKey` 直接读的 Redis 键，所以缓存的身份里必须带可信的 `tenantId`，后续处理只采用它，见 [多租户与授权](./6_tenant)。
 
 ---
 
@@ -279,7 +279,7 @@ for (Outcome o : Outcome.values()) {
 
 ### 2、一次被误判为「长连接半开」的超时
 
-EMQX 与 server 分机部署后，两次出现成批设备鉴权被拒：EMQX 日志是回调超时（当时是 5 秒），server 这边却根本没收到请求。最初立项的名字是「鉴权长连接偶发半开」，[排查报告](https://github.com/Clarence404/conduit-iot/blob/811e441/docs/test-reports/2026-10-30-auth-timeout-investigation.md) 对比两端的连接表，一步就把这个猜测否掉了。真正的原因在三层之下：宿主机 CPU 紧张，EMQX 所在的虚拟机短暂得不到调度，入站包在虚拟化层被丢；恰好丢的是鉴权请求或响应时，TCP 按指数退避重传，总等待超过 5 秒，设备就被判未授权。取证步骤与对照实验在 [压测与瓶颈排查](./22_conduit_capacity)，这里只记它给鉴权留下的东西：
+EMQX 与 server 分机部署后，两次出现成批设备鉴权被拒：EMQX 日志是回调超时（当时是 5 秒），server 这边却根本没收到请求。最初立项的名字是「鉴权长连接偶发半开」，[排查报告](https://github.com/Clarence404/conduit-iot/blob/811e441/docs/test-reports/2026-10-30-auth-timeout-investigation.md) 对比两端的连接表，一步就把这个猜测否掉了。真正的原因在三层之下：宿主机 CPU 紧张，EMQX 所在的虚拟机短暂得不到调度，入站包在虚拟化层被丢；恰好丢的是鉴权请求或响应时，TCP 按指数退避重传，总等待超过 5 秒，设备就被判未授权。取证步骤与对照实验在 [压测与瓶颈排查](./10_capacity)，这里只记它给鉴权留下的东西：
 
 - **鉴权超时从 5 秒放宽到 10 秒**（[复测报告](https://github.com/Clarence404/conduit-iot/blob/811e441/docs/test-reports/2026-10-30-ring-timeout-retest.md)）。5 秒容不下一次丢包后的两三轮 TCP 重传，10 秒留出了余量；代价是 server 真的挂掉时，设备要多等几秒才收到拒绝
 - **设备侧必须有重连**。这次的丢包来自桌面虚拟化，独立服务器一般遇不到，但「丢包使鉴权超时、设备被拒」在任何网络都可能发生
@@ -308,7 +308,7 @@ EMQX 与 server 分机部署后，两次出现成批设备鉴权被拒：EMQX �
 
 这套规则依赖第四节的「clientId 必须等于用户名」。
 
-和 [设备安全](./5_security) 里的示例相比有两处写法不同，并不冲突。那边的文件规则末尾不写 `{deny, all}`，是因为文件后面还接了内置数据库，写了它后面的数据源就永远轮不到；Conduit 只有文件一个数据源，`{deny, all}` 与 `no_match = deny` 效果相同，写出来只是让规则文件自己说清兜底行为。`deny_action` 则是取舍不同：那边用 `disconnect` 让越权的设备立刻掉线，Conduit 保持默认的 `ignore`。文件、内置数据库、HTTP 等几种授权数据源的配置也在那一篇。
+和 [设备安全](../2_access/1_security) 里的示例相比有两处写法不同，并不冲突。那边的文件规则末尾不写 `{deny, all}`，是因为文件后面还接了内置数据库，写了它后面的数据源就永远轮不到；Conduit 只有文件一个数据源，`{deny, all}` 与 `no_match = deny` 效果相同，写出来只是让规则文件自己说清兜底行为。`deny_action` 则是取舍不同：那边用 `disconnect` 让越权的设备立刻掉线，Conduit 保持默认的 `ignore`。文件、内置数据库、HTTP 等几种授权数据源的配置也在那一篇。
 
 ---
 
@@ -318,10 +318,10 @@ EMQX 与 server 分机部署后，两次出现成批设备鉴权被拒：EMQX �
 
 | 做法 | 信号从哪来 | 发现得了 | 发现不了 | 写法在哪 |
 |------|-----------|---------|---------|---------|
-| 遗嘱 + 保留消息 | 设备 CONNECT 时登记遗嘱，异常断开由 Broker 代发 | 异常掉线；新订阅者一订阅就拿到当前状态 | 正常断开不发遗嘱，要设备自己先发离线；连着但不上报 | [通信协议](./1_protocol#_3、会话、保留消息与遗嘱)、[MQTT 客户端](./6_mqtt_client#_2、建连-tls、自动重连、持久会话、遗嘱) |
-| Broker 上下线事件 | EMQX 规则引擎的 `$events/client/...`，或系统主题 `$SYS/.../connected` | 每一次连接与断开，不需要设备配合 | 连着但不上报；Broker 自身异常退出时事件发不出来 | [遥测数据链路](./9_data#_1、topic-与消息约定)、[设备安全](./5_security#_1、安全事件采集)，以及本节 |
-| 数据超时 | 最后一条数据之后 N 秒没有新数据 | 连接还在但采集模块死机 | 上报周期长的设备发现得慢 | [遥测数据链路](./9_data#_3、离线检测-keyedprocessfunction-定时器) |
-| 连接注册表 + 路由过期 | 自研网关的本地连接表与带过期时间的路由记录 | 私有协议设备的上下线；节点宕机后记录自己过期 | 只适用于自己承载长连接的网关 | [Netty 接入网关](./8_netty_gateway#四、连接管理与下行路由) |
+| 遗嘱 + 保留消息 | 设备 CONNECT 时登记遗嘱，异常断开由 Broker 代发 | 异常掉线；新订阅者一订阅就拿到当前状态 | 正常断开不发遗嘱，要设备自己先发离线；连着但不上报 | [通信协议](../1_basics/1_protocol#_3、会话、保留消息与遗嘱)、[MQTT 客户端](../2_access/3_mqtt_client#_2、建连-tls、自动重连、持久会话、遗嘱) |
+| Broker 上下线事件 | EMQX 规则引擎的 `$events/client/...`，或系统主题 `$SYS/.../connected` | 每一次连接与断开，不需要设备配合 | 连着但不上报；Broker 自身异常退出时事件发不出来 | [遥测数据链路](../3_platform/2_data#_1、topic-与消息约定)、[设备安全](../2_access/1_security#_1、安全事件采集)，以及本节 |
+| 数据超时 | 最后一条数据之后 N 秒没有新数据 | 连接还在但采集模块死机 | 上报周期长的设备发现得慢 | [遥测数据链路](../3_platform/2_data#_3、离线检测-keyedprocessfunction-定时器) |
+| 连接注册表 + 路由过期 | 自研网关的本地连接表与带过期时间的路由记录 | 私有协议设备的上下线；节点宕机后记录自己过期 | 只适用于自己承载长连接的网关 | [Netty 接入网关](../2_access/6_netty_gateway#四、连接管理与下行路由) |
 
 Conduit 用的是第二种，订阅的是 `$SYS` 系统主题；再用上报数据补「连接事件没收到」这一个洞（第 3 小节），但没有做数据超时。
 
@@ -409,7 +409,7 @@ return 1
 | `ts` | 采样时间，毫秒时间戳，必须在「当前时间 − 30 天」到「当前时间 + 5 分钟」之间；普通上报可省略，缺省取平台接收时间 |
 | `params` | 非空对象，值只能是数字、字符串、布尔 |
 
-格式的解析、另一种扁平 JSON 格式和按物模型的校验在 [物模型与解码](./14_conduit_thing_model)，`id` 与业务回执在 [可靠上报与接入层主备](./15_conduit_reliable_uplink)。QoS 等级的含义见 [通信协议](./1_protocol)。
+格式的解析、另一种扁平 JSON 格式和按物模型的校验在 [物模型与解码](./2_thing_model)，`id` 与业务回执在 [可靠上报与接入层主备](./3_reliable_uplink)。QoS 等级的含义见 [通信协议](../1_basics/1_protocol)。
 
 接入指南里「连接被拒绝」的四个常见原因，正好对应第四节的判定表：clientId 与用户名不一致、密钥错误或已重置、设备被禁用、EMQX 与 server 的内部 token 不一致。前三个现在能在 `conduit_mqtt_auth_total` 上直接分辨；第四个 server 返回 401，不计入这个指标，要看 EMQX 的日志。
 
@@ -438,7 +438,7 @@ public interface ProtocolAdapter {
 - **`stillValid` 回调**：连接 Broker 可能要几秒，这期间实例可能已经丢了主身份。适配器在发出连接请求前和订阅前各问一次「我还是主吗」，不是就放弃，避免下台的实例晚到一步连上去，把新主实例的会话顶掉
 - **`needsRestart` 而不是自动重连**：断线后要不要重连，取决于这个实例还是不是主，这个判断在协调器手里，适配器只负责报告
 
-选主和会话接管的细节在 [可靠上报与接入层主备](./15_conduit_reliable_uplink)。要说明的是，「新增协议只需新增一个实现」目前还是设计意图：仓库里没有第二个实现来检验这个接口够不够用。HTTP 接入没有长连接，Modbus TCP 是平台主动轮询，它们的鉴权和在线状态都和 MQTT 不一样，本篇讲的回调、ACL、`$SYS` 事件都是 MQTT 这一种协议的做法。
+选主和会话接管的细节在 [可靠上报与接入层主备](./3_reliable_uplink)。要说明的是，「新增协议只需新增一个实现」目前还是设计意图：仓库里没有第二个实现来检验这个接口够不够用。HTTP 接入没有长连接，Modbus TCP 是平台主动轮询，它们的鉴权和在线状态都和 MQTT 不一样，本篇讲的回调、ACL、`$SYS` 事件都是 MQTT 这一种协议的做法。
 
 ---
 
@@ -472,7 +472,7 @@ public interface ProtocolAdapter {
 - **鉴权没有限流**。同一台设备拿错密钥反复重连，每次都会打到 server；设备重连限速与退避在路线图 V0.3-E
 - **租户停用时清缓存是尽力而为**。清 Redis 失败只记一条 WARN，此时要等最长 5 分钟缓存过期才生效
 - **拒绝原因不返回给设备**。设备侧只能看到「未授权」，要定位得有平台侧的指标或日志权限
-- **在线状态没有过期时间**。`conduit:presence` 不设 TTL，状态只在收到事件或数据时才变；断开事件如果没能送达（例如 EMQX 自身异常退出），设备会停留在「在线」，直到它下一次上下线；补这个洞要靠数据超时检测，通用做法见 [遥测数据链路 · 离线检测](./9_data#_3、离线检测-keyedprocessfunction-定时器)
+- **在线状态没有过期时间**。`conduit:presence` 不设 TTL，状态只在收到事件或数据时才变；断开事件如果没能送达（例如 EMQX 自身异常退出），设备会停留在「在线」，直到它下一次上下线；补这个洞要靠数据超时检测，通用做法见 [遥测数据链路 · 离线检测](../3_platform/2_data#_3、离线检测-keyedprocessfunction-定时器)
 - **只支持设备直连**。网关代子设备认证和上下线在路线图 V0.4
 
 ---
@@ -496,4 +496,4 @@ public interface ProtocolAdapter {
 - EMQX 文档 · ACL 文件：[https://docs.emqx.com/zh/emqx/latest/guides/access-control/authz/file.html](https://docs.emqx.com/zh/emqx/latest/guides/access-control/authz/file.html)
 - OWASP Password Storage Cheat Sheet：[https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
 
-> 下一篇：[物模型与解码](./14_conduit_thing_model)
+> 下一篇：[物模型与解码](./2_thing_model)

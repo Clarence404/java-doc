@@ -4,7 +4,7 @@ description: 总线接口与 Redis Streams 实现、消费与认领、重试与�
 
 # 数据流水线
 
-> 前置阅读：[可靠上报与接入层主备](./15_conduit_reliable_uplink)、[物模型与解码](./14_conduit_thing_model)、[Redis 基础](/cache/1_redis_base)
+> 前置阅读：[可靠上报与接入层主备](./3_reliable_uplink)、[物模型与解码](./2_thing_model)、[Redis 基础](/cache/1_redis_base)
 
 数据流水线是 transport 把消息写进总线之后、数据落进时序库之前的那一段：server 以消费组拉取，解码、校验、写库，全部成功才确认。本篇讲 RawMessage 与 MessageBus、Redis Streams 实现、消费顺序与幂等、重试与死信、两处批处理和选型取舍，基线为 JDK 21、Spring Boot 3.5。
 
@@ -12,9 +12,9 @@ description: 总线接口与 Redis Streams 实现、消费与认领、重试与�
 
 ## 一、流水线在哪一段
 
-Conduit 的接入和处理是两个进程：`conduit-transport` 只管把设备协议的报文搬进总线，`conduit-server` 负责所有业务解析，两者只通过 `conduit-common` 里的消息格式和总线接口通信。为什么这样分见 [平台实战概览](./12_conduit_intro)。
+Conduit 的接入和处理是两个进程：`conduit-transport` 只管把设备协议的报文搬进总线，`conduit-server` 负责所有业务解析，两者只通过 `conduit-common` 里的消息格式和总线接口通信。为什么这样分见 [平台实战概览](./0_intro)。
 
-![数据流水线：从总线到时序库](../assets/iot/conduit-pipeline.svg)
+![数据流水线：从总线到时序库](../../assets/iot/conduit-pipeline.svg)
 
 | 模块 | 类 | 职责 |
 |------|----|------|
@@ -167,7 +167,7 @@ while (running) {
 - **确认排在两个存储都写成功之后**：任何一步之前崩溃，消息都还在待确认列表里，60 秒后被认领重做
 - **上下线事件不进这条路**：处理完直接确认；`EVENT` 类型暂不支持，进死信 `UNSUPPORTED_TYPE`
 - **标记在线必须在确认之后**，而且不重试：它只是补偿「设备在 transport 订阅之前就已经连上、没收到连接事件」的情况，权威来源仍是 EMQX 的上下线事件
-- **解码与校验的规则**见 [物模型与解码](./14_conduit_thing_model)；时序库与最新值的存法见 [时序存储与历史查询](./17_conduit_telemetry)
+- **解码与校验的规则**见 [物模型与解码](./2_thing_model)；时序库与最新值的存法见 [时序存储与历史查询](./5_telemetry)
 
 ### 1、重复投递为什么是安全的
 
@@ -249,7 +249,7 @@ public static boolean isRecoverable(Throwable e) {
 
 2026-10-27 第一次认真压测，按 1,000 条/秒发 180 秒。客户端全绿：18 万条全部确认、零错误。服务端消费组的积压却一路涨到 16 万，停压后观察到的排空速度是精确的每秒 100 条，而 server 的 CPU 只有 3%～17%。
 
-逐项排除之后定位到 InfluxDB：把批从 100 调到 1,000，吞吐线性变成 998 条/秒；把阻塞读缩到 50 毫秒，仍是 100 条/秒；直接写 InfluxDB 10 行就要约 1 秒。实验数据见 [压测与瓶颈排查](./22_conduit_capacity)。
+逐项排除之后定位到 InfluxDB：把批从 100 调到 1,000，吞吐线性变成 998 条/秒；把阻塞读缩到 50 毫秒，仍是 100 条/秒；直接写 InfluxDB 10 行就要约 1 秒。实验数据见 [压测与瓶颈排查](./10_capacity)。
 
 InfluxDB 3 的写入默认要等下一次 WAL 刷盘才返回，刷盘间隔默认 1 秒。流水线每批只写一次，于是**吞吐 = 批大小 ÷ 1 秒**，批大小当时写死 100。演示负载每秒十几条，永远暴露不出来。
 
@@ -342,19 +342,19 @@ for (PendingProperty item : candidates) {                // 批量失败：退�
 | `conduit.transport.mqtt.batch-size` | 64 | 一次提交到总线的最大条数；设为 1 即退回逐条 |
 | `conduit.transport.mqtt.batch-delay` | 5 毫秒 | 攒不满时最多等这么久，也是 PUBACK 的最坏额外延迟 |
 
-满 64 条立即提交，否则最迟 5 毫秒提交。提交仍在同一条线程上，批内按到达顺序、批间按提交顺序，顺序不变；确认的规则也不变，见 [可靠上报与接入层主备](./15_conduit_reliable_uplink)。
+满 64 条立即提交，否则最迟 5 毫秒提交。提交仍在同一条线程上，批内按到达顺序、批间按提交顺序，顺序不变；确认的规则也不变，见 [可靠上报与接入层主备](./3_reliable_uplink)。
 
 ### 1、批大小和 EMQX 的在途窗口
 
-transport 手里「还没提交的条目」，在 EMQX 那边就是「已投递未确认」的在途消息，数量被 `mqtt.max_inflight` 硬限。两者的关系起初想错了，以为必须相等。固定 6,000 条/秒过载的对照实验否定了它：窗口 32、批 32 时稳态投递 2,605 条/秒，窗口 256、批 256 时 3,309 条/秒，窗口 1024、批 64 时约 4,000 条/秒，五组数据见 [压测与瓶颈排查](./22_conduit_capacity)。原因在窗口与批的比例：
+transport 手里「还没提交的条目」，在 EMQX 那边就是「已投递未确认」的在途消息，数量被 `mqtt.max_inflight` 硬限。两者的关系起初想错了，以为必须相等。固定 6,000 条/秒过载的对照实验否定了它：窗口 32、批 32 时稳态投递 2,605 条/秒，窗口 256、批 256 时 3,309 条/秒，窗口 1024、批 64 时约 4,000 条/秒，五组数据见 [压测与瓶颈排查](./10_capacity)。原因在窗口与批的比例：
 
 - **批大于窗口**：永远攒不满，每批白等满 5 毫秒
 - **批等于窗口**：EMQX 发 N 条、等全部确认、再发 N 条，每批之间空一次完整往返，是停等协议
 - **窗口是批的若干倍**：提交当前批的同时下一批已经在途
 
-规则因此是 **`batch-size ≤ max_inflight`，且窗口应为批的若干倍**。窗口也不能无限大：在途消息堆在 EMQX 连接进程的信箱里，越过 `force_shutdown.max_mailbox_size` 连接会被强杀，所以完整的约束是 `batch-size ≤ max_inflight ≪ max_mailbox_size`，仓库默认 64 / 512 / 1000（EMQX 默认值）。信箱那一侧的故事留给 [压测与瓶颈排查](./22_conduit_capacity)。
+规则因此是 **`batch-size ≤ max_inflight`，且窗口应为批的若干倍**。窗口也不能无限大：在途消息堆在 EMQX 连接进程的信箱里，越过 `force_shutdown.max_mailbox_size` 连接会被强杀，所以完整的约束是 `batch-size ≤ max_inflight ≪ max_mailbox_size`，仓库默认 64 / 512 / 1000（EMQX 默认值）。信箱那一侧的故事留给 [压测与瓶颈排查](./10_capacity)。
 
-每组只测了一次，绝对值要按区间理解；能站住的结论是「窗口大于批能显著提升吞吐」。同一份对照里把 Redis 的 `appendfsync` 从 `always` 放宽到 `everysec` 能多 32%，但没有采用：transport 拿 `XADD` 成功当作向设备确认的依据，刷盘策略怎么定的见 [可靠上报与接入层主备](./15_conduit_reliable_uplink)。
+每组只测了一次，绝对值要按区间理解；能站住的结论是「窗口大于批能显著提升吞吐」。同一份对照里把 Redis 的 `appendfsync` 从 `always` 放宽到 `everysec` 能多 32%，但没有采用：transport 拿 `XADD` 成功当作向设备确认的依据，刷盘策略怎么定的见 [可靠上报与接入层主备](./3_reliable_uplink)。
 
 ---
 
@@ -412,7 +412,7 @@ transport 手里「还没提交的条目」，在 EMQX 那边就是「已投递�
 - **总线和状态存储共用一个 Redis**：最新值脚本把 Redis 打满时，transport 的 `XADD` 跟着变慢，第七节的合并就是为这个做的
 - **扩不出去**：单节点、单线程，Redis Cluster 也只能把不同的 key 分到不同节点，一个流分不开
 
-所以接口先抽象好。V0.1 的路线里就写了「评估 Redis Streams 是否够用」和「评估 Kafka」两个节点；当数据要同时喂给规则引擎、数据转发和流计算，或者需要长时间回放时，换 Kafka 是自然的一步。那条路线站内有完整的一篇：[遥测数据链路](./9_data) 讲的就是 MQTT → Kafka → Flink → 时序库。几种消息队列的通用对比见 [消息队列总览](/messaging/0_overview) 与 [MQ 选型](/messaging/6_selection)。
+所以接口先抽象好。V0.1 的路线里就写了「评估 Redis Streams 是否够用」和「评估 Kafka」两个节点；当数据要同时喂给规则引擎、数据转发和流计算，或者需要长时间回放时，换 Kafka 是自然的一步。那条路线站内有完整的一篇：[遥测数据链路](../3_platform/2_data) 讲的就是 MQTT → Kafka → Flink → 时序库。几种消息队列的通用对比见 [消息队列总览](/messaging/0_overview) 与 [MQ 选型](/messaging/6_selection)。
 
 ---
 
@@ -446,7 +446,7 @@ transport 手里「还没提交的条目」，在 EMQX 那边就是「已投递�
 - **遥测重放只覆盖仍在流里的数据**：确认只是把消息移出待确认列表，条目本身留在流里直到被裁剪，所以 InfluxDB 丢数后可以按时间范围重放；超出保留范围的找不回
 - **物模型缓存是进程内的**：多实例消费同一个消费组时，改了物模型最长 60 秒后其他实例才看到，这期间新测点可能被判为未定义
 - **消费者数只在进程内扩**：`workers` 是同一个 server 进程里的虚拟线程；拆成多个 server 实例用的是同一套消费组机制，但没有专门验证过
-- **吞吐数字的适用范围**：本文的数字来自单台 8 核虚拟机上的单机部署，只能说明当时那套环境；整条链路的容量结论与口径见 [压测与瓶颈排查](./22_conduit_capacity)
+- **吞吐数字的适用范围**：本文的数字来自单台 8 核虚拟机上的单机部署，只能说明当时那套环境；整条链路的容量结论与口径见 [压测与瓶颈排查](./10_capacity)
 
 ---
 
@@ -473,4 +473,4 @@ transport 手里「还没提交的条目」，在 EMQX 那边就是「已投递�
 - Redis 文档 · XPENDING：[https://redis.io/docs/latest/commands/xpending/](https://redis.io/docs/latest/commands/xpending/)
 - Spring Data Redis Reference · Redis Streams：[https://docs.spring.io/spring-data/redis/reference/redis/redis-streams.html](https://docs.spring.io/spring-data/redis/reference/redis/redis-streams.html)
 
-> 下一篇：[时序存储与历史查询](./17_conduit_telemetry)
+> 下一篇：[时序存储与历史查询](./5_telemetry)

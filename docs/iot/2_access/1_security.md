@@ -4,7 +4,7 @@ description: IoT 威胁模型、一机一密、X.509 与 mTLS、EMQX 认证授�
 
 # 设备安全
 
-> 前置阅读：[HTTPS 与 TLS](/protocols/3_https_tls)、[零信任架构](/security/9_zero_trust)、[通信协议](./1_protocol)
+> 前置阅读：[HTTPS 与 TLS](/protocols/3_https_tls)、[零信任架构](/security/9_zero_trust)、[通信协议](../1_basics/1_protocol)
 
 IoT 设备安全是从设备身份到数据的整套防护。本篇讲一机一密与 X.509、EMQX 认证与 Topic 授权、越权与暴力破解发现、零信任落地，基线为 EMQX 5.9+ / 6.x（配置为 5.x 起的 HOCON 语法）。
 
@@ -161,13 +161,13 @@ public class EmqxAuthnController {
 - **DeviceSecret 的存储**：HMAC 需要原始密钥，不能像用户密码那样只存哈希；台账中用 KMS 托管的密钥加密存储
 - **clientid 绑定身份**：ACL 依赖 `${clientid}`，如果认证不校验 clientid，设备可以用 `+` 之类的字符当 clientid，让 `devices/${clientid}/cmd` 变成通配订阅
 - **容量**：每次连接都会调用该服务，设备批量重连时它就是瓶颈，需要按连接风暴的峰值压测和扩容
-- **另一种取舍：传密钥、只存哈希**：设备把密钥本身放在 password 里（必须走 TLS），服务端就不需要原始密钥，台账可以只存加盐哈希，库泄露后拿不到可用的凭据；代价是密钥每次连接都出现在链路上。HMAC 方案正好反过来：密钥不上网，但台账必须可逆存储。配套仓库 Conduit 选的是前一种（它当前还没有启用 TLS，这一点写在它的已知限制里），哈希算法怎么选、身份怎么缓存见 [设备接入与鉴权 · 设备凭据](./13_conduit_access#三、设备凭据-生成与哈希) 与 [身份缓存](./13_conduit_access#五、身份缓存)
+- **另一种取舍：传密钥、只存哈希**：设备把密钥本身放在 password 里（必须走 TLS），服务端就不需要原始密钥，台账可以只存加盐哈希，库泄露后拿不到可用的凭据；代价是密钥每次连接都出现在链路上。HMAC 方案正好反过来：密钥不上网，但台账必须可逆存储。配套仓库 Conduit 选的是前一种（它当前还没有启用 TLS，这一点写在它的已知限制里），哈希算法怎么选、身份怎么缓存见 [设备接入与鉴权 · 设备凭据](../4_practice/1_access#三、设备凭据-生成与哈希) 与 [身份缓存](../4_practice/1_access#五、身份缓存)
 
 ### 4、X.509 证书签发
 
 证书认证的核心原则是**私钥在哪里生成，就只待在哪里**：设备在安全芯片内生成密钥对，只把 CSR 交给 CA 签名；平台不生成、也不下发设备私钥。
 
-![设备证书签发与接入](../assets/iot/iot-cert-provisioning.svg)
+![设备证书签发与接入](../../assets/iot/iot-cert-provisioning.svg)
 
 下面的 openssl 命令演示整个过程。生产中根 CA 离线保管，用中间 CA 签发设备证书，CA 私钥放在 HSM / KMS 中，绝不能放在跑批量脚本的机器上：
 
@@ -315,7 +315,7 @@ authorization {
 - **匹配条件**：`{username, "..."}`、`{clientid, "..."}`、`{ipaddr, "10.0.0.0/8"}`，用户名和 clientid 支持正则 `{username, {re, "^svc-"}}`
 - **按 username 授权的前提**：username 必须经过认证；只用证书认证时，用上文的 `peer_cert_as_username = cn` 让 username 也来自证书，否则任何设备都能自称 `iot-backend`
 - **通过 Dashboard 或 REST API 改过文件规则后**，EMQX 会把规则保存到 `data/authz/acl.conf`，不再读取 `path` 指向的原文件
-- **只有文件一个数据源时**，末尾写 `{deny, all}` 与靠 `no_match = deny` 兜底效果相同，写不写都行。配套仓库 Conduit 就是这种情况：规则只有三行并以 `{deny, all}` 结尾，`deny_action` 用默认的 `ignore`，见 [设备接入与鉴权 · ACL](./13_conduit_access#八、acl-把设备锁在自己的-topic-里)
+- **只有文件一个数据源时**，末尾写 `{deny, all}` 与靠 `no_match = deny` 兜底效果相同，写不写都行。配套仓库 Conduit 就是这种情况：规则只有三行并以 `{deny, all}` 结尾，`deny_action` 用默认的 `ignore`，见 [设备接入与鉴权 · ACL](../4_practice/1_access#八、acl-把设备锁在自己的-topic-里)
 
 ### 4、内置数据库与 REST API
 
@@ -349,7 +349,7 @@ API Key 按最小权限分配角色，密钥放在密钥管理系统中；18083 
 
 ## 五、OTA 与固件安全
 
-OTA 既是修复漏洞的唯一通道，也是最危险的攻击入口：攻击者一旦能推送固件，就等于拿到了全部设备。安全的 OTA 至少包括四件事：发布方用私钥对固件的 SHA-256 摘要做 ECDSA 或 Ed25519 签名，设备用内置公钥验签（MD5 既不是签名，也不抗碰撞，不能用来防篡改）；设备记录单调递增的安全版本号，拒绝安装更低版本，防止回滚到有漏洞的旧固件；A/B 双分区写入新固件，启动失败自动回退；配合安全启动（Secure Boot），保证每次上电运行的都是验签通过的固件。任务编排、灰度与断点续传等实现细节见 [OTA 升级](./10_ota)。
+OTA 既是修复漏洞的唯一通道，也是最危险的攻击入口：攻击者一旦能推送固件，就等于拿到了全部设备。安全的 OTA 至少包括四件事：发布方用私钥对固件的 SHA-256 摘要做 ECDSA 或 Ed25519 签名，设备用内置公钥验签（MD5 既不是签名，也不抗碰撞，不能用来防篡改）；设备记录单调递增的安全版本号，拒绝安装更低版本，防止回滚到有漏洞的旧固件；A/B 双分区写入新固件，启动失败自动回退；配合安全启动（Secure Boot），保证每次上电运行的都是验签通过的固件。任务编排、灰度与断点续传等实现细节见 [OTA 升级](../3_platform/5_ota)。
 
 ---
 
@@ -374,7 +374,7 @@ FROM "$events/auth/check_authz_complete"
 WHERE result = 'deny'
 ```
 
-上下线事件除了用于审计，也是维护设备在线状态的一种来源，几种做法的对照见 [设备接入与鉴权 · 上下线事件与在线状态](./13_conduit_access#九、上下线事件与在线状态)。
+上下线事件除了用于审计，也是维护设备在线状态的一种来源，几种做法的对照见 [设备接入与鉴权 · 上下线事件与在线状态](../4_practice/1_access#九、上下线事件与在线状态)。
 
 典型告警规则：同一来源 IP 短时间大量认证失败（暴力破解）、单台设备反复越权（固件被篡改或配置错误）、设备从未出现过的地区上线（凭证外泄）。
 
@@ -392,7 +392,7 @@ WHERE result = 'deny'
 
 网络微分段的典型做法：
 
-![IoT 网络微分段](../assets/iot/iot-network-segmentation.svg)
+![IoT 网络微分段](../../assets/iot/iot-network-segmentation.svg)
 
 - 不同车间的设备网段之间默认拒绝互访，一台设备被攻破不会横向扩散
 - 边缘网关是区域唯一出口，统一管理本区域设备的认证和流量
@@ -437,4 +437,4 @@ WHERE result = 'deny'
 - EMQX 规则 SQL 事件与字段：[https://docs.emqx.com/en/emqx/latest/data-integration/rule-sql-events-and-fields.html](https://docs.emqx.com/en/emqx/latest/data-integration/rule-sql-events-and-fields.html)
 - RFC 7030 Enrollment over Secure Transport（EST）：[https://www.rfc-editor.org/rfc/rfc7030](https://www.rfc-editor.org/rfc/rfc7030)
 
-> 下一篇：[MQTT 客户端](./6_mqtt_client)
+> 下一篇：[MQTT 客户端](./3_mqtt_client)

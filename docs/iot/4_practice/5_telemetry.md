@@ -4,7 +4,7 @@ description: InfluxDB 3 宽表建模与写入、Redis 最新值、历史查询�
 
 # 时序存储与历史查询
 
-> 前置阅读：[数据流水线](./16_conduit_pipeline)、[时序数据库](/nosql/4_time_series_db)、[物模型与解码](./14_conduit_thing_model)
+> 前置阅读：[数据流水线](./4_pipeline)、[时序数据库](/nosql/4_time_series_db)、[物模型与解码](./2_thing_model)
 
 流水线把校验过的测点写进两个地方：InfluxDB 3 存全部历史，Redis 存每个测点的最新值。本篇讲宽表建模与写入、最新值的存法、历史查询的原始与自动聚合、缺测与零值约定、扫描文件上限和数据新鲜度，基线为 JDK 21、Spring Boot 3.5。
 
@@ -22,7 +22,7 @@ description: InfluxDB 3 宽表建模与写入、Redis 最新值、历史查询�
 | 读的方式 | SQL，按时间范围过滤、聚合 | 一次 `HGETALL` |
 | 写入顺序 | 先写 | InfluxDB 写成功后才写 |
 
-流水线对两者的写入都成功后才确认消息，顺序与重试见 [数据流水线](./16_conduit_pipeline)。相关的类都在 `conduit-server` 的 `telemetry` 包：
+流水线对两者的写入都成功后才确认消息，顺序与重试见 [数据流水线](./4_pipeline)。相关的类都在 `conduit-server` 的 `telemetry` 包：
 
 | 类 | 职责 |
 |----|------|
@@ -113,7 +113,7 @@ public WriteResult write(List<TelemetryPoint> points) {
 | 整个请求被拒：400（非逐行拒绝）或 413 | `IllegalStateException`，不原地重试 |
 
 - **按字节切块**：单次请求不超过 `conduit.influx.max-request-bytes`（默认 8 MiB，InfluxDB 的上限是 10 MiB）。单行本身就超限时仍然单独成块，让 InfluxDB 明确拒绝它，好过无声丢弃
-- **413 不能当成「下游不可用」**：重发同样的载荷永远不会成功，当成可恢复就是无限重试、流水线停摆。这是一次压测事故之后改的，经过见 [数据流水线](./16_conduit_pipeline)
+- **413 不能当成「下游不可用」**：重发同样的载荷永远不会成功，当成可恢复就是无限重试、流水线停摆。这是一次压测事故之后改的，经过见 [数据流水线](./4_pipeline)
 - **幂等靠时序库自己**：同一组 tag、同一个时间戳的点再写一次，覆盖为相同的值。设备重发、总线重投、遥测重放都靠这一条
 
 ### 1、2xx 不等于落盘
@@ -174,7 +174,7 @@ redis.call('HSET', KEYS[1], '__last', ARGV[1])
 它保留的是最后一次有效上报的值和那次的时间戳。后续报文缺了这个测点，不会刷新它的时间，也不会把它归零。所以最新值表格里每个测点都带自己的时间，是否陈旧要看时间而不是看值。
 :::
 
-访问这两个存储之前有一条硬规则：先经受租户过滤的 PostgreSQL 查询拿到设备，再用查出来的 `deviceKey` 去读 Redis 或 InfluxDB，不直接用请求参数里的 `deviceKey`。Redis 的 key 里没有租户维度，隔离靠的就是这一步，见 [多租户与授权](./18_conduit_tenant)。
+访问这两个存储之前有一条硬规则：先经受租户过滤的 PostgreSQL 查询拿到设备，再用查出来的 `deviceKey` 去读 Redis 或 InfluxDB，不直接用请求参数里的 `deviceKey`。Redis 的 key 里没有租户维度，隔离靠的就是这一步，见 [多租户与授权](./6_tenant)。
 
 ---
 
@@ -192,7 +192,7 @@ GET /api/v1/devices/{deviceKey}/history?properties=Ua,Ia,st&from=<毫秒>&to=<�
 
 前端只选时间范围，返回原始点还是聚合值由服务端决定。
 
-![历史查询：返回原始点还是聚合](../assets/iot/conduit-history-query.svg)
+![历史查询：返回原始点还是聚合](../../assets/iot/conduit-history-query.svg)
 
 ### 1、先数点数
 
@@ -290,7 +290,7 @@ SQL 里唯一来自请求的可变部分是列名，值都走 `$参数`。列名
 
 ## 六、缺测与零值
 
-这是全项目的一条强制约定，适用于上报、解码、存储、聚合、接口、曲线：缺测是「这个时刻没有上报」，展示为无数据；数值 `0`、布尔 `false`、枚举值 `0` 是有效值，正常显示并参与计算；无效数据拒绝并留记录，不改写成 0；查询失败明确报错，不伪装成无数据或全零。五种情况的对照表与禁止的写法（`value ?? 0`、`COALESCE(value, 0)` 之类）见 [物模型与解码](./14_conduit_thing_model)，原文是仓库的 [遥测值语义](https://github.com/Clarence404/conduit-iot/blob/811e441/docs/telemetry-value-semantics.md)。本节讲它在存储与查询这一段怎么落地。
+这是全项目的一条强制约定，适用于上报、解码、存储、聚合、接口、曲线：缺测是「这个时刻没有上报」，展示为无数据；数值 `0`、布尔 `false`、枚举值 `0` 是有效值，正常显示并参与计算；无效数据拒绝并留记录，不改写成 0；查询失败明确报错，不伪装成无数据或全零。五种情况的对照表与禁止的写法（`value ?? 0`、`COALESCE(value, 0)` 之类）见 [物模型与解码](./2_thing_model)，原文是仓库的 [遥测值语义](https://github.com/Clarence404/conduit-iot/blob/811e441/docs/telemetry-value-semantics.md)。本节讲它在存储与查询这一段怎么落地。
 
 ### 1、聚合：空桶返回 null
 
@@ -396,15 +396,15 @@ for (long ts = first; ts < scope.to(); ts += width) {
 | 所有设备都停在同一时刻 | 链路断了：看 transport 的健康检查与会话指标、Redis 上行流的积压 |
 | 最新值是新的，曲线末端旧 | 界面还没刷新，或者 InfluxDB 写入在重试 |
 
-第二种在 2026-10-26 真实发生过：所有设备的最后上报停在同一分钟，根因在 EMQX 的会话，而不在存储。它是后来关闭磁盘持久会话的起因之一，见 [可靠上报与接入层主备](./15_conduit_reliable_uplink) 与 [压测与瓶颈排查](./22_conduit_capacity)。
+第二种在 2026-10-26 真实发生过：所有设备的最后上报停在同一分钟，根因在 EMQX 的会话，而不在存储。它是后来关闭磁盘持久会话的起因之一，见 [可靠上报与接入层主备](./3_reliable_uplink) 与 [压测与瓶颈排查](./10_capacity)。
 
 ---
 
 ## 九、和 Kafka + Flink + TDengine 路线的关系
 
-站内 [遥测数据链路](./9_data) 讲的是另一条更重的路线：MQTT → Kafka → Flink → TDengine。两条路线不矛盾，适用的阶段不同。
+站内 [遥测数据链路](../3_platform/2_data) 讲的是另一条更重的路线：MQTT → Kafka → Flink → TDengine。两条路线不矛盾，适用的阶段不同。
 
-| 维度 | Conduit 当前 | [遥测数据链路](./9_data) 的路线 |
+| 维度 | Conduit 当前 | [遥测数据链路](../3_platform/2_data) 的路线 |
 |------|-------------|---------------------------|
 | 总线 | Redis Streams | Kafka |
 | 计算 | server 进程里的流水线，只做解码、校验、写库 | Flink：窗口聚合、离线检测、CEP |
@@ -415,7 +415,7 @@ for (long ts = first; ts < scope.to(); ts += width) {
 | 组件数 | Redis + InfluxDB，加上本来就要的 PostgreSQL | 再加 Kafka、Flink 两套集群 |
 
 - **宽表对多租户平台省事**：产品是租户自己建的，随时增加；一张表意味着新增产品、新增测点都不用改表结构，查询条件永远是那三个 tag。代价是第二节说的同名测点必须同类型
-- **查询时现算的边界**：单设备、30 天、桶数不超过 1000，现算是够的。要跨设备汇总、要秒级数据留一年，就得有降采样和分层保留，那正是 [遥测数据链路](./9_data) 第五节的内容
+- **查询时现算的边界**：单设备、30 天、桶数不超过 1000，现算是够的。要跨设备汇总、要秒级数据留一年，就得有降采样和分层保留，那正是 [遥测数据链路](../3_platform/2_data) 第五节的内容
 - **Core 版的两个硬约束**：不做文件合并（第七节的扫描上限由此而来）、单节点。长跨度查询在路线里的解法是分段查询，还没有做
 - **什么时候该换**：规则引擎、数据转发、仪表盘都要读同一份数据流时，总线先换；跨设备聚合和长期保留成为刚需时，再考虑时序库。总线在 `MessageBus` 接口后面，时序库的读写集中在 `telemetry` 包的几个类里，换的时候动的范围是清楚的
 
@@ -482,4 +482,4 @@ for (long ts = first; ts < scope.to(); ts += width) {
 - InfluxDB 行协议参考：[https://docs.influxdata.com/influxdb3/core/reference/line-protocol/](https://docs.influxdata.com/influxdb3/core/reference/line-protocol/)
 - Apache DataFusion · Scalar Functions（含 date_bin）：[https://datafusion.apache.org/user-guide/sql/scalar_functions.html](https://datafusion.apache.org/user-guide/sql/scalar_functions.html)
 
-> 下一篇：[多租户与授权](./18_conduit_tenant)
+> 下一篇：[多租户与授权](./6_tenant)

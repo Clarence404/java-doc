@@ -4,7 +4,7 @@ description: 租户上下文与强制过滤、组合外键、受控系统通道�
 
 # 多租户与授权
 
-> 前置阅读：[平台实战概览](./12_conduit_intro)、[设备接入与鉴权](./13_conduit_access)、[权限模型：RBAC 与 ABAC](/security/5_rbac_abac)
+> 前置阅读：[平台实战概览](./0_intro)、[设备接入与鉴权](./1_access)、[权限模型：RBAC 与 ABAC](/security/5_rbac_abac)
 
 多租户平台里最贵的缺陷是「A 看到了 B 的数据」，Conduit 把租户当作安全与资源边界，再在租户内用项目、站点划出授权范围。本篇讲租户上下文与强制过滤、组织模型、角色绑定与 SQL 数据范围、会话吊销与邮件邀请，以及越权测试，基线为 JDK 21、Spring Boot 3.5。
 
@@ -21,7 +21,7 @@ description: 租户上下文与强制过滤、组合外键、受控系统通道�
 | V0.3-B1 / B2 | 一个租户里也要分「谁能动哪些设备」 | 客户、项目、站点、资产组织模型；权限目录、五个预置角色、自定义角色、三级绑定、SQL 数据范围 |
 | V0.3-B3 | 撤权、禁用要立刻生效；新成员怎么加入 | 服务端会话与授权版本；一次性邮件邀请 |
 
-![租户内组织模型与角色绑定的三级范围](../assets/iot/conduit-tenant-scope.svg)
+![租户内组织模型与角色绑定的三级范围](../../assets/iot/conduit-tenant-scope.svg)
 
 RBAC 的模型本身（用户、角色、权限、数据范围）见 [权限模型：RBAC 与 ABAC](/security/5_rbac_abac)，一套权限系统该有哪些表和模块见 [权限系统架构设计](/architecture/6_access_control)。本篇只讲这些模型落到一个多租户 IoT 平台上时做了哪些取舍。
 
@@ -505,4 +505,4 @@ B3 的做法是 JWT 不变，旁边加服务端状态（Flyway V9）：一张 `u
 - PostgreSQL · Row Security Policies：[https://www.postgresql.org/docs/current/ddl-rowsecurity.html](https://www.postgresql.org/docs/current/ddl-rowsecurity.html)
 - ThingsBoard · Tenant Profiles（租户限额与队列策略的参照）：[https://thingsboard.io/docs/user-guide/tenant-profiles/](https://thingsboard.io/docs/user-guide/tenant-profiles/)
 
-> 下一篇：[压测与瓶颈排查](./22_conduit_capacity)
+> 下一篇：[压测与瓶颈排查](./10_capacity)

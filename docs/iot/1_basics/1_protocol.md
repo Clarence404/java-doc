@@ -26,9 +26,9 @@ IoT 协议按所处层次分为三类，一个系统往往三类都会用到：�
 
 **MQTT（Message Queuing Telemetry Transport）**：基于发布 / 订阅模型的轻量级消息协议，运行在 TCP 之上（也可以跑在 WebSocket 上），由 OASIS 标准化，现行版本是 3.1.1 和 5.0。发布方和订阅方互不感知，全部经由 Broker 按 Topic 转发，这是它适合海量设备接入的根本原因。
 
-Java 客户端的选型（Eclipse Paho 已多年未更新，新项目用 HiveMQ MQTT Client 或 Spring Integration）与固定 Client ID、重连、共享订阅消费等写法见 [MQTT 客户端](./6_mqtt_client)，Broker 的对比与部署见 [EMQX 许可与部署](./2_platform_emqx)，TLS 与双向证书见 [HTTPS 与 TLS](/protocols/3_https_tls)。
+Java 客户端的选型（Eclipse Paho 已多年未更新，新项目用 HiveMQ MQTT Client 或 Spring Integration）与固定 Client ID、重连、共享订阅消费等写法见 [MQTT 客户端](../2_access/3_mqtt_client)，Broker 的对比与部署见 [EMQX 许可与部署](./3_emqx_deploy)，TLS 与双向证书见 [HTTPS 与 TLS](/protocols/3_https_tls)。
 
-![MQTT 发布 / 订阅模型](../assets/iot/mqtt-pubsub.svg)
+![MQTT 发布 / 订阅模型](../../assets/iot/mqtt-pubsub.svg)
 
 ### 1、核心概念
 
@@ -44,7 +44,7 @@ Java 客户端的选型（Eclipse Paho 已多年未更新，新项目用 HiveMQ 
 
 QoS 约定的是**一跳之内**的投递语义：发布方到 Broker 是一跳，Broker 到订阅方是另一跳，两跳各自按自己的 QoS 执行，订阅方实际收到的 QoS 取发布 QoS 与订阅 QoS 中的较小值。
 
-![MQTT QoS 握手流程](../assets/iot/mqtt-qos-flow.svg)
+![MQTT QoS 握手流程](../../assets/iot/mqtt-qos-flow.svg)
 
 | QoS | 语义 | 报文交互 | 适用 |
 |-----|------|---------|------|
@@ -52,15 +52,15 @@ QoS 约定的是**一跳之内**的投递语义：发布方到 Broker 是一跳�
 | 1 | 至少一次，可能重复 | PUBLISH → PUBACK，未确认则重发 | 告警、事件，配合业务幂等 |
 | 2 | 恰好一次 | PUBLISH → PUBREC → PUBREL → PUBCOMP | 重复执行代价大的指令 |
 
-QoS 2 的「恰好一次」只在客户端与 Broker 之间成立，并不是端到端保证：Broker 宕机、订阅方处理失败、消息桥接到 Kafka 后再消费，都可能重复或丢失。重要指令仍然要在业务层带请求 ID 做幂等，并用响应消息确认执行结果。QoS 2 每条消息四次交互，吞吐明显低于 QoS 1，实践中大多数场景用 **QoS 1 + 业务幂等**。设备收到 PUBACK 之后 Broker 崩溃会丢多少、怎么用业务回执把这一跳补上，[可靠上报与接入层主备](./15_conduit_reliable_uplink#二、为什么-puback-不够) 有实测。
+QoS 2 的「恰好一次」只在客户端与 Broker 之间成立，并不是端到端保证：Broker 宕机、订阅方处理失败、消息桥接到 Kafka 后再消费，都可能重复或丢失。重要指令仍然要在业务层带请求 ID 做幂等，并用响应消息确认执行结果。QoS 2 每条消息四次交互，吞吐明显低于 QoS 1，实践中大多数场景用 **QoS 1 + 业务幂等**。设备收到 PUBACK 之后 Broker 崩溃会丢多少、怎么用业务回执把这一跳补上，[可靠上报与接入层主备](../4_practice/3_reliable_uplink#二、为什么-puback-不够) 有实测。
 
 ### 3、会话、保留消息与遗嘱
 
-**持久会话**：客户端以不清理会话的方式连接（3.1.1 的 `cleanSession=false`，5.0 的 `Clean Start=false` 且 Session Expiry Interval 大于 0）后，Broker 会按 Client ID 保存它的订阅关系，以及离线期间收到的 QoS 1 / 2 消息，客户端重连后继续投递。前提是 **Client ID 必须固定**，每次启动随机生成 Client ID 等于每次都开新会话。「继续投递」本身也有前提：离线消息排在 Broker 的会话队列里，队列有长度上限，超出就丢；EMQX 默认把队列放在内存里，Broker 自身重启后未投递的消息不保留，实测见 [可靠上报与接入层主备 · EMQX 会话怎么选](./15_conduit_reliable_uplink#五、emqx-会话怎么选)。
+**持久会话**：客户端以不清理会话的方式连接（3.1.1 的 `cleanSession=false`，5.0 的 `Clean Start=false` 且 Session Expiry Interval 大于 0）后，Broker 会按 Client ID 保存它的订阅关系，以及离线期间收到的 QoS 1 / 2 消息，客户端重连后继续投递。前提是 **Client ID 必须固定**，每次启动随机生成 Client ID 等于每次都开新会话。「继续投递」本身也有前提：离线消息排在 Broker 的会话队列里，队列有长度上限，超出就丢；EMQX 默认把队列放在内存里，Broker 自身重启后未投递的消息不保留，实测见 [可靠上报与接入层主备 · EMQX 会话怎么选](../4_practice/3_reliable_uplink#五、emqx-会话怎么选)。
 
 **保留消息（Retained Message）**：发布时带 retain 标志，Broker 会为该 Topic 只保存最新一条，新订阅者订阅时立即收到。适合设备在线状态、最新配置这类「订阅即需要当前值」的数据；发布一条空 payload 的保留消息即可清除。
 
-**遗嘱消息（Will Message）**：客户端在 CONNECT 时登记一条遗嘱，非正常断开（网络中断、心跳超时）时由 Broker 代为发布，正常发送 DISCONNECT 则不发布。常见用法是遗嘱 Topic 设为 `devices/{clientId}/status`、payload 为 `offline`、带 retain，上线后再发一条 `online` 的保留消息覆盖。遗嘱 Topic 要按设备区分，所有设备共用一个 Topic 会互相覆盖。遗嘱只是判断设备在线的做法之一，它与 Broker 上下线事件、数据超时、连接注册表的对照见 [设备接入与鉴权 · 上下线事件与在线状态](./13_conduit_access#九、上下线事件与在线状态)。
+**遗嘱消息（Will Message）**：客户端在 CONNECT 时登记一条遗嘱，非正常断开（网络中断、心跳超时）时由 Broker 代为发布，正常发送 DISCONNECT 则不发布。常见用法是遗嘱 Topic 设为 `devices/{clientId}/status`、payload 为 `offline`、带 retain，上线后再发一条 `online` 的保留消息覆盖。遗嘱 Topic 要按设备区分，所有设备共用一个 Topic 会互相覆盖。遗嘱只是判断设备在线的做法之一，它与 Broker 上下线事件、数据超时、连接注册表的对照见 [设备接入与鉴权 · 上下线事件与在线状态](../4_practice/1_access#九、上下线事件与在线状态)。
 
 ### 4、MQTT 5.0 新特性
 
@@ -86,7 +86,7 @@ MQTT 5.0 于 2019 年成为 OASIS 标准，协议主体与 3.1.1 一致，增加
 
 **请求 / 响应（Request / Response）**：请求方在 PUBLISH 中带上 Response Topic 和 Correlation Data，响应方处理完后发布到 Response Topic，并把 Correlation Data 原样带回，请求方据此找到对应请求。平台给设备下发指令并等待执行结果就是这种模式。
 
-![MQTT 5.0 请求 / 响应](../assets/iot/mqtt5-request-response.svg)
+![MQTT 5.0 请求 / 响应](../../assets/iot/mqtt5-request-response.svg)
 
 **Clean Start 与 Session Expiry Interval**：3.1.1 的 `cleanSession` 一个布尔值同时决定「连接时是否丢弃旧会话」和「断开后是否保留会话」，5.0 把它拆成两个字段。Clean Start 只管连接时是否新建会话；Session Expiry Interval 管断开后会话保留多久，0 表示断开即清除，`0xFFFFFFFF` 表示永不过期，其他值表示保留的秒数。
 
@@ -107,7 +107,7 @@ MQTT 5.0 于 2019 年成为 OASIS 标准，协议主体与 3.1.1 一致，增加
 
 ### 6、Broker 选型
 
-常见的 Broker 有 EMQX、Mosquitto、NanoMQ、VerneMQ、HiveMQ，各自的语言、许可与特点见 [EMQX 许可与部署 · Broker 对比](./2_platform_emqx#一、broker-对比)；其中 EMQX 的许可对集群和托管服务有限制，选它之前先看那一篇。
+常见的 Broker 有 EMQX、Mosquitto、NanoMQ、VerneMQ、HiveMQ，各自的语言、许可与特点见 [EMQX 许可与部署 · Broker 对比](./3_emqx_deploy#一、broker-对比)；其中 EMQX 的许可对集群和托管服务有限制，选它之前先看那一篇。
 
 ### 7、Topic 约定
 
@@ -115,25 +115,25 @@ Topic 的层级怎么排，决定了后台能不能用一个通配符收全量�
 
 | Topic | 方向 | 用途 | 展开 |
 |-------|------|------|------|
-| `devices/{deviceId}/telemetry` | 设备 → 平台 | 遥测上报，QoS 1，JSON | [遥测数据链路](./9_data) |
+| `devices/{deviceId}/telemetry` | 设备 → 平台 | 遥测上报，QoS 1，JSON | [遥测数据链路](../3_platform/2_data) |
 | `devices/{deviceId}/event` | 设备 → 平台 | 事件上报（告警、状态变化） | — |
 | `devices/{deviceId}/status` | 设备 → 平台 | 在线状态，保留消息，同时是遗嘱 Topic | 本节第 3 小节 |
-| `devices/{deviceId}/cmd` | 平台 → 设备 | 指令下发，带消息过期时间 | [MQTT 客户端](./6_mqtt_client) |
+| `devices/{deviceId}/cmd` | 平台 → 设备 | 指令下发，带消息过期时间 | [MQTT 客户端](../2_access/3_mqtt_client) |
 | `devices/{deviceId}/response` | 设备 → 平台 | 指令执行结果 | — |
-| `devices/{deviceId}/ota/cmd` | 平台 → 设备 | OTA 任务下发 | [OTA 升级](./10_ota) |
-| `devices/{deviceId}/ota/status` | 设备 → 平台 | OTA 进度上报 | [OTA 升级](./10_ota) |
-| `shadow/{deviceId}/update`、`shadow/{deviceId}/get` | 设备 → 平台 | 上报 `reported`、请求全量影子 | [设备影子](./9_device_shadow) |
-| `shadow/{deviceId}/update/accepted`、`update/rejected`、`delta`、`get/accepted` | 平台 → 设备 | 更新结果、差异推送、返回全量影子 | [设备影子](./9_device_shadow) |
-| `gateways/{gatewayId}/status` | 网关 → 平台 | 网关进程自身的在线状态（遗嘱） | [MQTT 客户端](./6_mqtt_client) |
-| `gateways/{nodeId}/downlink` | 平台 → 网关节点 | 自研接入网关的下行通道，平台内部使用，按网关账号单独授权 | [Netty 接入网关](./8_netty_gateway) |
+| `devices/{deviceId}/ota/cmd` | 平台 → 设备 | OTA 任务下发 | [OTA 升级](../3_platform/5_ota) |
+| `devices/{deviceId}/ota/status` | 设备 → 平台 | OTA 进度上报 | [OTA 升级](../3_platform/5_ota) |
+| `shadow/{deviceId}/update`、`shadow/{deviceId}/get` | 设备 → 平台 | 上报 `reported`、请求全量影子 | [设备影子](../3_platform/3_device_shadow) |
+| `shadow/{deviceId}/update/accepted`、`update/rejected`、`delta`、`get/accepted` | 平台 → 设备 | 更新结果、差异推送、返回全量影子 | [设备影子](../3_platform/3_device_shadow) |
+| `gateways/{gatewayId}/status` | 网关 → 平台 | 网关进程自身的在线状态（遗嘱） | [MQTT 客户端](../2_access/3_mqtt_client) |
+| `gateways/{nodeId}/downlink` | 平台 → 网关节点 | 自研接入网关的下行通道，平台内部使用，按网关账号单独授权 | [Netty 接入网关](../2_access/6_netty_gateway) |
 
 这样排有三个考虑：
 
 - **层级固定，设备 ID 放第二段**：后台订阅 `devices/+/telemetry` 就收到全部设备的遥测，从 Topic 的第二段取设备 ID，不用解析载荷
 - **方向分开**：上行与下行用不同的末段，ACL 才能把「只许发布」和「只许订阅」分别授给设备
-- **通配符与 ACL 配套**：ACL 用 `${clientid}` 占位符写成 `devices/${clientid}/...`，一条规则管住所有设备，并禁止设备订阅 `#`、`+/#`；因为 Topic 里的设备 ID 被 ACL 绑定到连接身份，下游可以信任它，不用信任载荷里自报的 ID。完整的规则清单见 [设备安全 · 文件规则](./5_security#_3、文件规则-acl-conf)
+- **通配符与 ACL 配套**：ACL 用 `${clientid}` 占位符写成 `devices/${clientid}/...`，一条规则管住所有设备，并禁止设备订阅 `#`、`+/#`；因为 Topic 里的设备 ID 被 ACL 绑定到连接身份，下游可以信任它，不用信任载荷里自报的 ID。完整的规则清单见 [设备安全 · 文件规则](../2_access/1_security#_3、文件规则-acl-conf)
 
-这不是唯一的排法。配套仓库 Conduit 用的是三段式 `conduit/{productKey}/{deviceKey}/up|down/...`，把产品也放进 Topic、方向单独占一段，接入层不查库就能路由，理由见 [设备接入与鉴权 · Topic 设计与解析](./13_conduit_access#二、topic-设计与解析)。
+这不是唯一的排法。配套仓库 Conduit 用的是三段式 `conduit/{productKey}/{deviceKey}/up|down/...`，把产品也放进 Topic、方向单独占一段，接入层不查库就能路由，理由见 [设备接入与鉴权 · Topic 设计与解析](../4_practice/1_access#二、topic-设计与解析)。
 
 ---
 
@@ -183,7 +183,7 @@ Topic 的层级怎么排，决定了后台能不能用一个通配符收全量�
 | 频段 | 非授权频段（中国常用 470～510 MHz） |
 | 适用场景 | 智慧农业、园区资产追踪、远程抄表 |
 
-![LoRaWAN 网络架构](../assets/iot/lorawan-arch.svg)
+![LoRaWAN 网络架构](../../assets/iot/lorawan-arch.svg)
 
 ---
 
@@ -209,7 +209,7 @@ NB-IoT 与 LoRa 的对比：
 | 成本 | 持续的流量资费 | 一次性网关成本 |
 | 适合场景 | 大范围公共部署 | 园区、农场等私有网络 |
 
-NB-IoT 终端常用 CoAP / LwM2M 或 MQTT 上报，进入 PSM 后设备不可达，平台下发的指令需要缓存到设备下次唤醒，这正是 [设备影子](./9_device_shadow) 要解决的问题。
+NB-IoT 终端常用 CoAP / LwM2M 或 MQTT 上报，进入 PSM 后设备不可达，平台下发的指令需要缓存到设备下次唤醒，这正是 [设备影子](../3_platform/3_device_shadow) 要解决的问题。
 
 ---
 
@@ -234,7 +234,7 @@ NB-IoT 终端常用 CoAP / LwM2M 或 MQTT 上报，进入 PSM 后设备不可达
 
 **Modbus**：1979 年由 Modicon 提出的工业通信协议，主站轮询、从站应答，至今仍是 PLC、仪表、变频器最常见的接口。常用的变体有三种：RTU（RS-485 / RS-232 串口，二进制帧带 CRC，最常用）、ASCII（串口上的文本编码，已少用）、TCP（以太网，默认端口 502，去掉 CRC、加 MBAP 报文头）。
 
-Modbus 只定义寄存器读写，不定义数据含义：一个 32 位浮点数占两个寄存器，高低字的顺序因厂商而异，必须对照设备的点表解析。四类数据区与功能码、TCP 与 RTU 的差别、寄存器解析与轮询采集的写法见 [Modbus 采集](./7_modbus)。
+Modbus 只定义寄存器读写，不定义数据含义：一个 32 位浮点数占两个寄存器，高低字的顺序因厂商而异，必须对照设备的点表解析。四类数据区与功能码、TCP 与 RTU 的差别、寄存器解析与轮询采集的写法见 [Modbus 采集](../2_access/4_modbus)。
 
 ---
 

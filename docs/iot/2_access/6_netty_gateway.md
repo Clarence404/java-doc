@@ -14,7 +14,7 @@ description: 带 CRC 的私有协议帧、跳字节重新同步、首帧鉴权�
 
 典型存量设备如 DTU、充电桩、工控终端。本篇只讲 IoT 场景特有的部分，心跳、本机连接表、服务端启停这些通用写法在 [Netty 总览](/netty/0_overview) 模块，用到时给出链接；版本基线为 JDK 21、Netty 4.2、Spring Boot 4。
 
-![多协议设备接入网关](../assets/iot/iot-gateway-arch.svg)
+![多协议设备接入网关](../../assets/iot/iot-gateway-arch.svg)
 
 | 职责 | 说明 |
 |------|------|
@@ -23,7 +23,7 @@ description: 带 CRC 的私有协议帧、跳字节重新同步、首帧鉴权�
 | 上行转发 | 统一消息写入 Kafka，由下游做入库、规则计算，网关本身不做重业务 |
 | 下行路由 | 平台下发指令时，找到设备所在的网关节点和连接并写出 |
 
-网关是无状态的连接层：设备状态放在 [设备影子](./9_device_shadow)，业务规则放在 [规则引擎](./11_rule_engine)。这样网关节点可以随时扩缩容，节点故障时设备重连到其他节点即可。
+网关是无状态的连接层：设备状态放在 [设备影子](../3_platform/3_device_shadow)，业务规则放在 [规则引擎](../3_platform/6_rule_engine)。这样网关节点可以随时扩缩容，节点故障时设备重连到其他节点即可。
 
 ---
 
@@ -221,7 +221,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<DeviceFrame> {
 }
 ```
 
-`DeviceAuthenticator` 只查本地缓存的设备密钥，不在 IO 线程上访问数据库；一机一密与证书认证的选择见 [设备安全](./5_security)。
+`DeviceAuthenticator` 只查本地缓存的设备密钥，不在 IO 线程上访问数据库；一机一密与证书认证的选择见 [设备安全](./1_security)。
 
 ### 3、心跳
 
@@ -267,7 +267,7 @@ public class ChannelRegistry {
 2. 把指令投递到该节点专属的通道（Kafka 分区、MQTT Topic `gateways/{nodeId}/downlink` 或 RPC）
 3. 节点从注册表找到 Channel，检查 `isWritable()` 后写出；不可写说明对端消费慢、出站缓冲已超过高水位，指令应拒绝或延后，而不是继续堆积
 
-走 MQTT 接入的设备判断在线用的是另外几种做法，对照见 [设备接入与鉴权 · 上下线事件与在线状态](./13_conduit_access#九、上下线事件与在线状态)。写水位的配置与背压处理见 [生产实践与调优](/netty/12_production)。
+走 MQTT 接入的设备判断在线用的是另外几种做法，对照见 [设备接入与鉴权 · 上下线事件与在线状态](../4_practice/1_access#九、上下线事件与在线状态)。写水位的配置与背压处理见 [生产实践与调优](/netty/12_production)。
 
 ---
 
@@ -292,11 +292,11 @@ public class TelemetrySink {
 }
 ```
 
-`TelemetryMessage` 是全模块唯一的遥测消息约定：字段含义、JSON 形状和设备侧的载荷格式写在 [遥测数据链路 · Topic 与消息约定](./9_data#_1、topic-与消息约定)，读 `iot.telemetry` 的 Flink 作业与 [规则引擎](./11_rule_engine) 都按它解析。时间戳用毫秒整数而不是 `Instant`，是为了让 EMQX 规则 SQL、Flink 和 Java 三方不依赖各自的时间序列化配置就能对上。
+`TelemetryMessage` 是全模块唯一的遥测消息约定：字段含义、JSON 形状和设备侧的载荷格式写在 [遥测数据链路 · Topic 与消息约定](../3_platform/2_data#_1、topic-与消息约定)，读 `iot.telemetry` 的 Flink 作业与 [规则引擎](../3_platform/6_rule_engine) 都按它解析。时间戳用毫秒整数而不是 `Instant`，是为了让 EMQX 规则 SQL、Flink 和 Java 三方不依赖各自的时间序列化配置就能对上。
 
-各适配器只依赖 `TelemetrySink`：私有协议适配器在 `DeviceBusinessHandler` 里把 `CMD_DATA` 帧的载荷解析成 `TelemetryMessage`；MQTT 这一路由订阅者转换，见 [MQTT 客户端 · 处理器](./6_mqtt_client#_5、处理器)，或直接用 EMQX 规则引擎转发；Modbus 采集服务把读数发到 MQTT，走的也是 MQTT 这一路，见 [Modbus 采集](./7_modbus)。新增协议就是新增一个适配器，下游不需要改动。
+各适配器只依赖 `TelemetrySink`：私有协议适配器在 `DeviceBusinessHandler` 里把 `CMD_DATA` 帧的载荷解析成 `TelemetryMessage`；MQTT 这一路由订阅者转换，见 [MQTT 客户端 · 处理器](./3_mqtt_client#_5、处理器)，或直接用 EMQX 规则引擎转发；Modbus 采集服务把读数发到 MQTT，走的也是 MQTT 这一路，见 [Modbus 采集](./4_modbus)。新增协议就是新增一个适配器，下游不需要改动。
 
-**为什么不用内存队列做总线**：用 `LinkedBlockingQueue` 在网关内部做消息总线有三个问题：进程重启时队列里的数据全部丢失；"队列满了先 `poll` 再 `offer`"不是原子操作，并发下仍会失败；单节点内存无法承受下游长时间故障。直接写 Kafka 获得持久化和削峰能力；需要断网续传的边缘网关，用本地磁盘队列缓冲，见 [边缘计算](./3_edge)。Kafka 的配置与选型见 [消息队列总览](/messaging/0_overview)；规模不大、不想多运维一套 Kafka 时，用 Redis Streams 做总线的取舍见 [数据流水线 · 为什么是 Redis Streams 而不是 Kafka](./16_conduit_pipeline#十、为什么是-redis-streams-而不是-kafka)。
+**为什么不用内存队列做总线**：用 `LinkedBlockingQueue` 在网关内部做消息总线有三个问题：进程重启时队列里的数据全部丢失；"队列满了先 `poll` 再 `offer`"不是原子操作，并发下仍会失败；单节点内存无法承受下游长时间故障。直接写 Kafka 获得持久化和削峰能力；需要断网续传的边缘网关，用本地磁盘队列缓冲，见 [边缘计算](../1_basics/4_edge)。Kafka 的配置与选型见 [消息队列总览](/messaging/0_overview)；规模不大、不想多运维一套 Kafka 时，用 Redis Streams 做总线的取舍见 [数据流水线 · 为什么是 Redis Streams 而不是 Kafka](../4_practice/4_pipeline#十、为什么是-redis-streams-而不是-kafka)。
 
 ---
 
@@ -320,4 +320,4 @@ public class TelemetrySink {
 - Netty API 文档：[https://netty.io/4.2/api/index.html](https://netty.io/4.2/api/index.html)
 - CRC 参数目录（CRC-16/MODBUS）：[https://reveng.sourceforge.io/crc-catalogue/16.htm](https://reveng.sourceforge.io/crc-catalogue/16.htm)
 
-> 下一篇：[遥测数据链路](./9_data)
+> 下一篇：[遥测数据链路](../3_platform/2_data)

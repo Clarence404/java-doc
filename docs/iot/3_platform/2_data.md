@@ -4,7 +4,7 @@ description: EMQX 转发 Kafka、Flink 2.x 告警与离线检测、TDengine 超�
 
 # 遥测数据链路
 
-> 前置阅读：[时序数据库](/nosql/4_time_series_db)、[Flink 总览](/flink/0_overview)、[通信协议](./1_protocol)
+> 前置阅读：[时序数据库](/nosql/4_time_series_db)、[Flink 总览](/flink/0_overview)、[通信协议](../1_basics/1_protocol)
 
 IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可视化。本篇讲 EMQX 转发 Kafka、Flink 清洗与告警、TDengine 超表、降采样与 Grafana 看板，基线为 Flink 2.2。
 
@@ -26,7 +26,7 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 
 ### 2、整体链路
 
-![IoT 数据链路](../assets/iot/iot-data-pipeline.svg)
+![IoT 数据链路](../../assets/iot/iot-data-pipeline.svg)
 
 | 环节 | 职责 | 为什么需要 |
 |------|------|-----------|
@@ -44,7 +44,7 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 | 规则引擎直写 | EMQX 规则引擎 → TDengine（见二.4） | 几千台以内、没有复杂计算，只要落库和简单阈值告警 |
 | 自写订阅者 | 自己的订阅服务 → Redis Streams → 自己的流水线 → 时序库 | 要把「写入成功才向 Broker 确认」握在自己代码里、组件尽量少；窗口计算与降采样要自己做 |
 
-第三条是配套仓库 Conduit 的做法，见 [数据流水线](./16_conduit_pipeline)，它与本篇路线的逐项对照在 [时序存储与历史查询](./17_conduit_telemetry#九、和-kafka-flink-tdengine-路线的关系)。
+第三条是配套仓库 Conduit 的做法，见 [数据流水线](../4_practice/4_pipeline)，它与本篇路线的逐项对照在 [时序存储与历史查询](../4_practice/5_telemetry#九、和-kafka-flink-tdengine-路线的关系)。
 
 ### 3、存储选型结论
 
@@ -53,7 +53,7 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 - 设备量大、schema 一致的工业 / 能源采集：TDengine 或 Apache IoTDB（树模型天然对应「工厂 → 设备 → 测点」）
 - 团队已经重度使用 PostgreSQL、需要和业务表 JOIN：TimescaleDB
 - 以运维监控指标为主：Prometheus 或 InfluxDB 3
-- 多租户平台、产品由租户自己建、测点不固定：InfluxDB 3 一张宽表（测点是列），见 [时序存储与历史查询](./17_conduit_telemetry)
+- 多租户平台、产品由租户自己建、测点不固定：InfluxDB 3 一张宽表（测点是列），见 [时序存储与历史查询](../4_practice/5_telemetry)
 
 本篇以 TDengine 为例。
 
@@ -66,13 +66,13 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 | 做法 | 怎么做 | 适合 | 代价 |
 |------|--------|------|------|
 | Broker 数据集成（本节） | EMQX 规则 SQL 加 Kafka Sink，在 Dashboard 上配置 | 不想多写、多运维一个服务 | 转换逻辑受限于规则 SQL；何时向设备确认由 Broker 决定，写 Kafka 失败只能靠 Sink 的缓冲与重试 |
-| 自写订阅者 | 自己的服务用共享订阅收消息，转成统一消息再写 Kafka 或别的总线，见 [MQTT 客户端 · 处理器](./6_mqtt_client#_5、处理器) | 要自己掌握确认时机，或转发前要做复杂的解码与校验 | 多一个要做高可用的服务，主备与共享订阅的边界要自己处理 |
+| 自写订阅者 | 自己的服务用共享订阅收消息，转成统一消息再写 Kafka 或别的总线，见 [MQTT 客户端 · 处理器](../2_access/3_mqtt_client#_5、处理器) | 要自己掌握确认时机，或转发前要做复杂的解码与校验 | 多一个要做高可用的服务，主备与共享订阅的边界要自己处理 |
 
-自写订阅者做到「写入总线成功才向 Broker 确认」的完整例子是配套仓库 Conduit，见 [平台实战概览](./12_conduit_intro) 与 [可靠上报与接入层主备](./15_conduit_reliable_uplink)。两种做法写进 Kafka 的消息形状相同，下游不用区分。
+自写订阅者做到「写入总线成功才向 Broker 确认」的完整例子是配套仓库 Conduit，见 [平台实战概览](../4_practice/0_intro) 与 [可靠上报与接入层主备](../4_practice/3_reliable_uplink)。两种做法写进 Kafka 的消息形状相同，下游不用区分。
 
 ### 1、Topic 与消息约定
 
-Topic 沿用 [通信协议 · Topic 约定](./1_protocol#_7、topic-约定)：设备以 QoS 1 往 `devices/{deviceId}/telemetry` 上报遥测。Topic 中的 `deviceId` 由 ACL 限定只能是连接自身的 `clientid`（见 [设备安全](./5_security)），所以下游可以信任规则 SQL 里取到的 `clientid`，不用信任消息体里自报的设备 ID。
+Topic 沿用 [通信协议 · Topic 约定](../1_basics/1_protocol#_7、topic-约定)：设备以 QoS 1 往 `devices/{deviceId}/telemetry` 上报遥测。Topic 中的 `deviceId` 由 ACL 限定只能是连接自身的 `clientid`（见 [设备安全](../2_access/1_security)），所以下游可以信任规则 SQL 里取到的 `clientid`，不用信任消息体里自报的设备 ID。
 
 **设备载荷**是一层 JSON：`ts` 是设备侧时间戳（毫秒），其余顶层键都是测点。带上设备时间，后续才能按事件时间处理，补传的旧数据也能落到正确的时间窗口：
 
@@ -80,9 +80,9 @@ Topic 沿用 [通信协议 · Topic 约定](./1_protocol#_7、topic-约定)：�
 {"ts": 1767225600000, "temperature": 26.4, "humidity": 61.2}
 ```
 
-这种测点直接放在顶层的写法，在 Conduit 里对应 `flat-json` 解码器；它默认用的是把测点放进 `params` 的另一种格式，见 [物模型与解码 · 两个内置解码器](./14_conduit_thing_model#_2、两个内置解码器)。
+这种测点直接放在顶层的写法，在 Conduit 里对应 `flat-json` 解码器；它默认用的是把测点放进 `params` 的另一种格式，见 [物模型与解码 · 两个内置解码器](../4_practice/2_thing_model#_2、两个内置解码器)。
 
-**统一消息**：不管设备从哪种协议接入，写进 Kafka 主题 `iot.telemetry` 的都是下面这一种形状，本模块里读这个主题的代码（下文的 Flink 作业、[规则引擎](./11_rule_engine)）都按它解析：
+**统一消息**：不管设备从哪种协议接入，写进 Kafka 主题 `iot.telemetry` 的都是下面这一种形状，本模块里读这个主题的代码（下文的 Flink 作业、[规则引擎](./6_rule_engine)）都按它解析：
 
 ```json
 {"deviceId": "dev001", "protocol": "mqtt", "timestamp": 1767225600000, "metrics": {"temperature": 26.4, "humidity": 61.2}}
@@ -95,7 +95,7 @@ Topic 沿用 [通信协议 · Topic 约定](./1_protocol#_7、topic-约定)：�
 | `timestamp` | 整数，毫秒 | 设备时间优先（载荷里的 `ts`），设备没带时用接入层的接收时间 |
 | `metrics` | 对象 | 测点名到值的映射，值是数字、字符串或布尔；设备没报的测点不出现，不补 0 |
 
-Java 侧对应的 record 是 `TelemetryMessage`，见 [Netty 接入网关 · 多协议适配与统一消息](./8_netty_gateway#五、多协议适配与统一消息)。
+Java 侧对应的 record 是 `TelemetryMessage`，见 [Netty 接入网关 · 多协议适配与统一消息](../2_access/6_netty_gateway#五、多协议适配与统一消息)。
 
 ### 2、规则 SQL
 
@@ -128,7 +128,7 @@ WHERE is_not_null(payload.temperature)
 | 分区数 | 按峰值吞吐与 Flink 并行度规划 | Flink Source 并行度不应超过分区数 |
 | 缓冲 | 开启内存 + 磁盘缓冲 | Kafka 短暂不可用时，EMQX 侧先缓冲，恢复后续传 |
 
-Kafka 等数据集成在 5.9 之前属于 EMQX 企业版功能，5.9 起单节点也能用，许可见 [EMQX 许可与部署 · 许可变化](./2_platform_emqx#二、许可变化)。Kafka 本身的分区与可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，消费组见 [Kafka 生产与消费](/messaging/2_kafka_client)。
+Kafka 等数据集成在 5.9 之前属于 EMQX 企业版功能，5.9 起单节点也能用，许可见 [EMQX 许可与部署 · 许可变化](../1_basics/3_emqx_deploy#二、许可变化)。Kafka 本身的分区与可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，消费组见 [Kafka 生产与消费](/messaging/2_kafka_client)。
 
 ### 4、小规模：规则引擎直写 TDengine
 
@@ -144,7 +144,7 @@ EMQX 内置 TDengine Sink，规则输出可以直接拼成 `INSERT` 语句写入
 
 TDengine 的核心约定是**一台设备一张子表，同类设备共用一张超表作模板**：
 
-![TDengine 超表与子表](../assets/iot/tdengine-stable.svg)
+![TDengine 超表与子表](../../assets/iot/tdengine-stable.svg)
 
 | 概念 | 说明 |
 |------|------|
@@ -208,7 +208,7 @@ INTERVAL(5m) FILL(NULL);
 
 `LAST_ROW` 返回最后一行（列值可能为 NULL），`LAST` 返回每列最后一个非 NULL 值；看板展示最新读数时，设备会分字段上报就用 `LAST`。
 
-`FILL(NULL)` 让没有数据的窗口留空而不是补 0：没上报是「不知道」，0 是有效读数，两者不能混。这条约定从上报、存储到曲线怎么贯彻，见 [物模型与解码 · 缺测与零值](./14_conduit_thing_model#九、缺测与零值)。
+`FILL(NULL)` 让没有数据的窗口留空而不是补 0：没上报是「不知道」，0 是有效读数，两者不能混。这条约定从上报、存储到曲线怎么贯彻，见 [物模型与解码 · 缺测与零值](../4_practice/2_thing_model#九、缺测与零值)。
 
 ### 4、Java 写入：WebSocket 连接 + 参数绑定
 
@@ -365,7 +365,7 @@ public class OfflineDetector extends KeyedProcessFunction<String, TelemetryMessa
 
 - **为什么用处理时间定时器**：设备不发数据时不会推动事件时间，所有设备同时断网（如机房断电）时水位线整体停住，事件时间定时器永远不触发
 - **为什么不用 CEP**：「没有发生某事」CEP 表达不了，见 [实战场景 · 连续性与量词](/flink/8_scenarios#_3、连续性与量词)
-- **与 EMQX 上下线事件互补**：`$events/client/disconnected` 只说明 TCP 连接断了；连接还在但不再上报（采集模块死机）只能靠这里的数据超时检测。判断在线的四种做法对照见 [设备接入与鉴权 · 上下线事件与在线状态](./13_conduit_access#九、上下线事件与在线状态)
+- **与 EMQX 上下线事件互补**：`$events/client/disconnected` 只说明 TCP 连接断了；连接还在但不再上报（采集模块死机）只能靠这里的数据超时检测。判断在线的四种做法对照见 [设备接入与鉴权 · 上下线事件与在线状态](../4_practice/1_access#九、上下线事件与在线状态)
 - **定时器成本**：上报频率很高时，把 `fireAt` 向上取整到秒，只有取整值变化时才重新注册
 
 ### 4、连续超温：CEP
@@ -402,7 +402,7 @@ Flink 2.x 没有官方 TDengine Sink，按 Sink V2 写一个 `SinkWriter` 即可
 
 存储估算：日写入量 = 设备数 × 每设备每日上报条数 × 每行字节数 ÷ 压缩比，乘以保留天数即为该层容量。原始层通常占总容量的绝大部分，所以缩短原始层的 `KEEP` 是最有效的降本手段。
 
-聚合层一定要同时存 `count`：「这 5 分钟只有 2 条数据」本身就是设备异常的信号，只存均值会把它掩盖掉。一条数据都没有的窗口则应当留空，不写成 0，查询侧的处理见 [时序存储与历史查询 · 缺测与零值](./17_conduit_telemetry#六、缺测与零值)。
+聚合层一定要同时存 `count`：「这 5 分钟只有 2 条数据」本身就是设备异常的信号，只存均值会把它掩盖掉。一条数据都没有的窗口则应当留空，不写成 0，查询侧的处理见 [时序存储与历史查询 · 缺测与零值](../4_practice/5_telemetry#六、缺测与零值)。
 
 ### 2、TDengine 流计算降采样
 
@@ -453,7 +453,7 @@ Grafana 通过 TDengine 官方数据源插件直接用 SQL 查询；看板上常
 
 ### 3、告警放在哪一层
 
-同一个告警只在一层产生：离线、连续超温这类要状态和定时器的归 Flink，单指标阈值与趋势归 Grafana，连接断开归 EMQX 规则引擎，设备联动和要关联业务数据的归自研规则引擎。各层擅长什么、不擅长什么的分层表见 [规则引擎 · 规则与告警放在哪一层](./11_rule_engine#_1、规则与告警放在哪一层)。
+同一个告警只在一层产生：离线、连续超温这类要状态和定时器的归 Flink，单指标阈值与趋势归 Grafana，连接断开归 EMQX 规则引擎，设备联动和要关联业务数据的归自研规则引擎。各层擅长什么、不擅长什么的分层表见 [规则引擎 · 规则与告警放在哪一层](./6_rule_engine#_1、规则与告警放在哪一层)。
 
 ---
 
@@ -478,4 +478,4 @@ Grafana 通过 TDengine 官方数据源插件直接用 SQL 查询；看板上常
 - Grafana 的 No Data 与 Error 状态：[https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/state-and-health/](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/state-and-health/)
 - Grafana 序列消失后的告警实例：[https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/stale-alert-instances/](https://grafana.com/docs/grafana/latest/alerting/fundamentals/alert-rule-evaluation/stale-alert-instances/)
 
-> 下一篇：[设备影子](./9_device_shadow)
+> 下一篇：[设备影子](./3_device_shadow)

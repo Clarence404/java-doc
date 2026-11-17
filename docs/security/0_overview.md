@@ -58,4 +58,4 @@
 - 日志脱敏与日志体系 → [日志](/spring-boot/9_logging)、[日志体系](/observability/1_logging)
 - 依赖漏洞扫描与制品安全 → [依赖治理](/engineering/2_dependency_governance)、[制品与版本管理](/devops/5_artifact_version)
 - 限流与防刷 → [限流与过载保护](/high-avail/7_rate_limiting)
-- 物联网设备认证与安全 → [设备安全](/iot/5_security)
+- 物联网设备认证与安全 → [设备安全](/iot/2_access/1_security)

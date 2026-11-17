@@ -4,7 +4,7 @@ description: 自研与 EMQX / ThingsBoard / Flink 取舍、规则 DSL、边沿�
 
 # 规则引擎
 
-> 前置阅读：[遥测数据链路](./9_data)
+> 前置阅读：[遥测数据链路](./2_data)
 
 规则引擎回答「数据满足什么条件时自动做什么」，本篇假设设备数据已按统一消息 `TelemetryMessage` 写入 Kafka。内容包括自研选型、规则模型与 DSL、边沿触发、动作幂等和热更新，基线为 JDK 21、Spring Boot 4。
 
@@ -22,15 +22,15 @@ description: 自研与 EMQX / ThingsBoard / Flink 取舍、规则 DSL、边沿�
 | Grafana Alerting | 查询 + Reduce + Threshold，在页面上配置 | 基于已入库数据的阈值与趋势，运维自助配置、不用发版 | 按分钟评估，不适合秒级响应，也不能直接驱动设备动作 | 单指标阈值、趋势类 |
 | 自研（本篇） | 结构化条件 + 动作 | 与自有设备模型、权限、工单等业务紧密结合，规则由业务人员配置 | 复杂窗口计算 | 设备联动、需要关联业务数据（工单、设备模型、权限）的单点判断 |
 
-EMQX 规则 SQL 的写法见 [遥测数据链路 · 规则 SQL](./9_data#_2、规则-sql)，Flink 的离线检测与 CEP 见 [遥测数据链路 · Flink 2.x 实时处理](./9_data#四、flink-2-x-实时处理)，ThingsBoard 规则链的用法见 [平台选型 · ThingsBoard 规则链](./2_platform#五、thingsboard-规则链)，Grafana 告警规则与 Webhook 回调的配置见 [告警体系 · Grafana Alerting 与 Alertmanager](/observability/4_alerting#八、grafana-alerting-与-alertmanager)。
+EMQX 规则 SQL 的写法见 [遥测数据链路 · 规则 SQL](./2_data#_2、规则-sql)，Flink 的离线检测与 CEP 见 [遥测数据链路 · Flink 2.x 实时处理](./2_data#四、flink-2-x-实时处理)，ThingsBoard 规则链的用法见 [平台选型 · ThingsBoard 规则链](../1_basics/2_platform#五、thingsboard-规则链)，Grafana 告警规则与 Webhook 回调的配置见 [告警体系 · Grafana Alerting 与 Alertmanager](/observability/4_alerting#八、grafana-alerting-与-alertmanager)。
 
 **组合使用最常见**：EMQX 规则负责把原始消息转发进 Kafka；"连续 5 分钟超温"这类窗口规则交给 Flink；与业务相关的单点判断和动作由自研规则引擎完成。**同一个告警只在一层产生**，各层的告警再统一汇入同一个告警服务做去重、抑制和升级，避免同一故障从多个渠道各报一次。
 
 ### 2、执行链路
 
-![规则引擎执行链路](../assets/iot/rule-engine-pipeline.svg)
+![规则引擎执行链路](../../assets/iot/rule-engine-pipeline.svg)
 
-设备消息从 Kafka 主题 `iot.telemetry` 进入，形状是 [遥测数据链路 · Topic 与消息约定](./9_data#_1、topic-与消息约定) 里的统一消息（`deviceId`、`protocol`、`timestamp`、`metrics`），下文代码里的 `TelemetryMessage` 就是它。引擎按设备找到候选规则并匹配条件；命中后交给动作执行层，先做幂等去重，再分别执行告警、指令下发和 Webhook 调用，每类动作有独立的超时与重试策略。
+设备消息从 Kafka 主题 `iot.telemetry` 进入，形状是 [遥测数据链路 · Topic 与消息约定](./2_data#_1、topic-与消息约定) 里的统一消息（`deviceId`、`protocol`、`timestamp`、`metrics`），下文代码里的 `TelemetryMessage` 就是它。引擎按设备找到候选规则并匹配条件；命中后交给动作执行层，先做幂等去重，再分别执行告警、指令下发和 Webhook 调用，每类动作有独立的超时与重试策略。
 
 ---
 
@@ -42,7 +42,7 @@ EMQX 规则 SQL 的写法见 [遥测数据链路 · 规则 SQL](./9_data#_2、�
 |------|------|------|------|
 | 结构化条件 | `{"metric":"temperature","op":"GT","threshold":80}` | 运维在页面上配置，覆盖大部分场景 | 表达力有限 |
 | 表达式 | `temperature > 80 && humidity < 30` | 需要组合与计算 | 用户输入的表达式会被执行，必须限制能力 |
-| 类 SQL | EMQX 规则 SQL，见 [遥测数据链路 · 规则 SQL](./9_data#_2、规则-sql) | 熟悉 SQL 的使用者 | 需要自己实现或依赖平台 |
+| 类 SQL | EMQX 规则 SQL，见 [遥测数据链路 · 规则 SQL](./2_data#_2、规则-sql) | 熟悉 SQL 的使用者 | 需要自己实现或依赖平台 |
 
 用 SpEL 这类表达式语言实现时，只能使用 `SimpleEvaluationContext` 并只暴露数据字段；`StandardEvaluationContext` 允许调用任意类和方法，用户填写的表达式等同于远程代码执行，见 [常见漏洞与防护](/security/8_vulnerabilities)。本篇采用结构化条件。
 
@@ -355,7 +355,7 @@ public RedisMessageListenerContainer ruleChangeListener(RedisConnectionFactory f
 - 匹配采用边沿触发，状态依赖 Kafka 按设备分区保持在同一实例
 - 动作执行前按幂等键占位，告警配静默期；Webhook 配超时、限并发、失败重试，地址做 SSRF 校验
 - 数据库事务里不发消息，提交后再通知；规则整体缓存在内存，变更通过 Redis Pub/Sub 通知并定时兜底对齐
-- 本篇讲的是通用设计；配套仓库 Conduit IoT 的实现篇计划在平台实战一组补充，目前见 [平台实战概览](./12_conduit_intro)
+- 本篇讲的是通用设计；配套仓库 Conduit IoT 的实现篇计划在平台实战一组补充，目前见 [平台实战概览](../4_practice/0_intro)
 
 ## 参考资料
 
@@ -364,4 +364,4 @@ public RedisMessageListenerContainer ruleChangeListener(RedisConnectionFactory f
 - Spring Framework REST Clients（RestClient）：[https://docs.spring.io/spring-framework/reference/integration/rest-clients.html](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
 - Spring Expression Language（SimpleEvaluationContext）：[https://docs.spring.io/spring-framework/reference/core/expressions/evaluation.html](https://docs.spring.io/spring-framework/reference/core/expressions/evaluation.html)
 
-> 下一篇：[平台实战概览](./12_conduit_intro)
+> 下一篇：[平台实战概览](../4_practice/0_intro)

@@ -344,7 +344,7 @@ WHERE ts > NOW - 1h
 GROUP BY location;
 ```
 
-IoT 场景下的超级表建模与数据链路见 [遥测数据链路](/iot/9_data)。
+IoT 场景下的超级表建模与数据链路见 [遥测数据链路](/iot/3_platform/2_data)。
 
 ### 2、Apache IoTDB
 

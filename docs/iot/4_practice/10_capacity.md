@@ -4,7 +4,7 @@ description: 计数守恒判据与阶梯压测、流水线批处理、持久会�
 
 # 压测与瓶颈排查
 
-> 前置阅读：[可靠上报与接入层主备](./15_conduit_reliable_uplink)、[数据流水线](./16_conduit_pipeline)、[性能分析方法论](/high-perf/2_methodology)
+> 前置阅读：[可靠上报与接入层主备](./3_reliable_uplink)、[数据流水线](./4_pipeline)、[性能分析方法论](/high-perf/2_methodology)
 
 Conduit 的吞吐从约 100 条/秒走到单机可靠无损 11,500 条/秒，中间每修掉一处瓶颈，下一处才露出来，还有几次结论是被自己的后续实验推翻的。本篇讲压测方法与合格判据、按时间线的八次定位、瓶颈迁移总表和方法教训，基线为 JDK 21、Spring Boot 3.5。
 
@@ -14,7 +14,7 @@ Conduit 的吞吐从约 100 条/秒走到单机可靠无损 11,500 条/秒，中
 
 压测发生在 2026-10-27 到 11-01 的六天里，每一次都有测试报告留在仓库的 [`docs/test-reports/`](https://github.com/Clarence404/conduit-iot/tree/811e441/docs/test-reports)。先看全貌：
 
-![瓶颈迁移：每修掉一处，下一处才露出来](../assets/iot/conduit-bottleneck-timeline.svg)
+![瓶颈迁移：每修掉一处，下一处才露出来](../../assets/iot/conduit-bottleneck-timeline.svg)
 
 | 日期 | 现象 | 瓶颈在哪 | 本篇章节 |
 |------|------|---------|---------|
@@ -77,7 +77,7 @@ python ladder.py run --plan 2000,5000,8000 --rate 1 --hold 300               # �
 - **接入 QPS**：EMQX 确认（PUBACK）的条数
 - **入库 TPS**：InfluxDB 里实际多出来的行数
 
-两者在过载时会分开：EMQX 先向设备回 PUBACK，之后才在订阅端队列满时丢弃。10-28 的一轮 9,000 条/秒压测里，EMQX 确认了 8,881 条/秒，同时累计丢弃 51,671 条。所以**对外只能用入库 TPS**，接入 QPS 里可能含着随后被丢掉的消息。PUBACK 在 MQTT 里的含义见 [通信协议](./1_protocol)，带 `id` 的端到端回执怎么补上这个缺口见 [可靠上报与接入层主备](./15_conduit_reliable_uplink)。
+两者在过载时会分开：EMQX 先向设备回 PUBACK，之后才在订阅端队列满时丢弃。10-28 的一轮 9,000 条/秒压测里，EMQX 确认了 8,881 条/秒，同时累计丢弃 51,671 条。所以**对外只能用入库 TPS**，接入 QPS 里可能含着随后被丢掉的消息。PUBACK 在 MQTT 里的含义见 [通信协议](../1_basics/1_protocol)，带 `id` 的端到端回执怎么补上这个缺口见 [可靠上报与接入层主备](./3_reliable_uplink)。
 
 ### 4、合格判据：计数守恒
 
@@ -153,7 +153,7 @@ conduit:
 
 **修复后**。积压的 211,491 条一次读出，76 秒处理完，InfluxDB 实际行数 210,891 与发送数一致，约 **2,780 条/秒**。注意这是排空积压的速度，不是稳态入口速率。
 
-修复过程中自己还引入过一次回归：默认批大小改成 `-1` 后，`XPENDING` 的 `COUNT` 不接受非正数，认领超时消息的路径直接报错，`PipelineIT` 红了 2 项；改为批大小非正时单次认领退回 1000 条。批处理的实现细节见 [数据流水线](./16_conduit_pipeline)，「攒批换吞吐」的通用道理见 [异步与批量](/high-perf/8_async_batch)。
+修复过程中自己还引入过一次回归：默认批大小改成 `-1` 后，`XPENDING` 的 `COUNT` 不接受非正数，认领超时消息的路径直接报错，`PipelineIT` 红了 2 项；改为批大小非正时单次认领退回 1000 条。批处理的实现细节见 [数据流水线](./4_pipeline)，「攒批换吞吐」的通用道理见 [异步与批量](/high-perf/8_async_batch)。
 
 ---
 
@@ -214,7 +214,7 @@ environment:
   EMQX_MQTT__MAX_INFLIGHT: ${EMQX_MAX_INFLIGHT:-512}
 ```
 
-代价是 EMQX 重启会丢掉还没投递的消息，这正是带 `id` 的设备侧重发要覆盖的场景。同时给 transport 加了会话监控：经 EMQX REST API 轮询自己的会话，「在途窗口占满且投递总数连续 6 次采样不变」就把健康检查置为 DOWN——这是唯一能发现楔死的信号，细节见 [部署与可观测](./23_conduit_deploy)。
+代价是 EMQX 重启会丢掉还没投递的消息，这正是带 `id` 的设备侧重发要覆盖的场景。同时给 transport 加了会话监控：经 EMQX REST API 轮询自己的会话，「在途窗口占满且投递总数连续 6 次采样不变」就把健康检查置为 DOWN——这是唯一能发现楔死的信号，细节见 [部署与可观测](./11_deploy)。
 
 **修复后**（[修复验证报告](https://github.com/Clarence404/conduit-iot/blob/811e441/docs/test-reports/2026-10-28-session-wedge-fix-verification.md)）。同样 3,000 条/秒 × 180 秒：投递 367,376 条、丢弃 0、队列峰值 128 条、停压后队列与在途都归零；e2e 五个故障场景全部通过，重启与强杀 EMQX 两个场景里设备侧各重发 20 条，说明不是碰巧没有在途消息。
 
@@ -346,7 +346,7 @@ conduit:
       shared-group: conduit-transport                # 订阅 $share/conduit-transport/conduit/+/+/up/#
 ```
 
-EMQX 侧分发策略用 `hash_clientid`，同一设备固定走同一条连接，单设备保序。这个配置键在 `mqtt` 下，写成 `broker` 下会被静默忽略——又一次「命令成功但没生效」，以回读为准。多连接与主备切换怎么配合见 [可靠上报与接入层主备](./15_conduit_reliable_uplink)。
+EMQX 侧分发策略用 `hash_clientid`，同一设备固定走同一条连接，单设备保序。这个配置键在 `mqtt` 下，写成 `broker` 下会被静默忽略——又一次「命令成功但没生效」，以回读为准。多连接与主备切换怎么配合见 [可靠上报与接入层主备](./3_reliable_uplink)。
 
 **共享订阅之后，下一处马上露出来**。10,000 条/秒时写最新值阶段 1,856 毫秒，占每批周期的 55%；Redis 在 12,000 条/秒时峰值 91%，其中 `evalsha` 占 58.9%。Redis 一满，transport 的 `XADD` 排队，回 PUBACK 变慢，EMQX 信箱又堆起来。修复是写最新值前先合并同一批里被后续消息完全覆盖的数据点（`LatestCoalescer`，提交 `141bdd6`）：10,000 档写最新值 1,856 → 98 毫秒，每批周期 3,367 → 942 毫秒。
 
@@ -361,7 +361,7 @@ EMQX 侧分发策略用 `hash_clientid`，同一设备固定走同一条连接�
 
 结论：这台 8 vCPU 虚拟机上**可靠无损 11,500 条/秒**，13,000 是边缘，16,000 撞到硬件墙（8 个 vCPU 全满，1 分钟负载 15）。墙从软件移到了硬件。
 
-**负载下强杀主实例**。10,000 条/秒下第 40 秒 `docker kill` 主 transport，备实例约 25 秒后接管，InfluxDB 最终行数等于实发数，零丢失；各口径的计数与重复的来源见 [可靠上报与接入层主备](./15_conduit_reliable_uplink)。
+**负载下强杀主实例**。10,000 条/秒下第 40 秒 `docker kill` 主 transport，备实例约 25 秒后接管，InfluxDB 最终行数等于实发数，零丢失；各口径的计数与重复的来源见 [可靠上报与接入层主备](./3_reliable_uplink)。
 
 ::: warning 数字的适用范围
 这组数字测自压测机上的配置（信箱 10000、在途窗口 1024、transport 批 512），与仓库默认值（信箱 1000、窗口 512、批 64）不同，按仓库默认值部署复现不出来。另外「600 条连接打 11,500 条/秒」不等于「能接 11.5 万台每 10 秒一报的设备」，原因见下一节。
@@ -398,7 +398,7 @@ EMQX 与内核网络合计约 5.3 核，占忙碌 CPU 的约 70%；平台自身�
 
 ## 十、拆分部署与设备数阶梯
 
-前面都是「少量连接、每条高频」，真实设备是「海量连接、每条低频」。拆分部署（EMQX 一台虚拟机，其余服务一台）之后改测设备数。拆分部署包的组成见 [部署与可观测](./23_conduit_deploy)。
+前面都是「少量连接、每条高频」，真实设备是「海量连接、每条低频」。拆分部署（EMQX 一台虚拟机，其余服务一台）之后改测设备数。拆分部署包的组成见 [部署与可观测](./11_deploy)。
 
 ### 1、每台每 10 秒一条
 
@@ -583,7 +583,7 @@ server:
 - **单机 11,500 条/秒的配置没有进仓库默认值**。压测机上的信箱 10000、窗口 1024、批 512 是按「这台机器上不崩溃的最大吞吐」取的；信箱 1000 与共享订阅的组合没有测过
 - **10 万条队列满载会撑爆连接进程的堆**。实测队列填满时会话进程堆到 513 MB，超过 384 MB 的实际上限被杀，约合每条 5.4 KB。「覆盖主备切换窗口」要求队列大，「不撑爆堆」要求队列小，两者冲突，默认值仍是 100000，调大前必须先确认堆余量
 - **没有长时间浸泡**。最长的一档是 300 秒稳态；压测机磁盘只有 16 GB
-- **没有混合租户负载**。一个高负载租户会不会拖慢其他租户，要等 [多租户与授权](./18_conduit_tenant) 里提到的配额与资源治理做完才有意义
+- **没有混合租户负载**。一个高负载租户会不会拖慢其他租户，要等 [多租户与授权](./6_tenant) 里提到的配额与资源治理做完才有意义
 - **延迟下限由 WAL 刷盘间隔决定**。4,000 条/秒时端到端延迟 P50 约 1.5 秒，其中约 0.9 秒在等 InfluxDB 刷盘；缩短它会让吞吐下降，是延迟换吞吐与持久性的取舍
 
 ---
@@ -608,4 +608,4 @@ server:
 - InfluxDB 3 Core 配置项（`wal-flush-interval`）：[https://docs.influxdata.com/influxdb3/core/reference/config-options/](https://docs.influxdata.com/influxdb3/core/reference/config-options/)
 - Linux 内核文档 · Scaling in the Linux Networking Stack（RSS / RPS / RFS）：[https://docs.kernel.org/networking/scaling.html](https://docs.kernel.org/networking/scaling.html)
 
-> 下一篇：[部署与可观测](./23_conduit_deploy)
+> 下一篇：[部署与可观测](./11_deploy)
