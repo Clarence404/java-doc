@@ -1,5 +1,5 @@
 ---
-description: EMQX 转发 Kafka、Flink 2.x 告警与离线检测、TDengine 超表、降采样与保留、Grafana
+description: 设备载荷、EMQX 转发 Kafka、Flink 2.x 离线检测与告警、时序库建模、降采样与 Grafana
 ---
 
 # 遥测数据链路
@@ -12,7 +12,7 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 
 ## 一、IoT 数据链路
 
-整条链路：设备经 MQTT 上报，EMQX 规则引擎转发到 Kafka，Flink 做清洗、窗口聚合与告警，结果写入 TDengine 超表，再用降采样控制存储、用 Grafana 出看板和告警。版本基线：EMQX 5.9+ / 6.x（配置为 5.x 起的 HOCON 语法）、Flink 2.2.x + `flink-connector-kafka:5.0.0-2.2`、TDengine 3.4.x + `taos-jdbcdriver` 3.9.x、JDK 21 / Spring Boot 4。
+整条链路：设备经 MQTT 上报，EMQX 规则引擎转发到 Kafka，Flink 做清洗、窗口聚合与告警，结果写入 TDengine 超表，再用降采样控制存储、用 Grafana 出看板和告警。版本基线：EMQX 5.9+ / 6.x（配置为 5.x 起的 HOCON 语法）、Flink 2.2.x + `flink-connector-kafka:5.0.0-2.2`、TDengine 3.4.x + `taos-jdbcdriver` 3.10.x、JDK 21 / Spring Boot 4。
 
 ### 1、IoT 数据的特点
 
@@ -46,6 +46,15 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 
 第三条是配套仓库 Conduit 的做法，见 [数据流水线](../4_practice/4_pipeline)，它与本篇路线的逐项对照在 [时序存储与历史查询](../4_practice/5_telemetry#九、和-kafka-flink-tdengine-路线的关系)。
 
+不自建时，云上有托管的等价路线：
+
+| 云 | 链路 | 说明 |
+|----|------|------|
+| AWS | IoT Core 规则 → Kinesis Data Streams 或 Kafka（MSK）→ Amazon Managed Service for Apache Flink → Timestream for InfluxDB | 规则动作原生支持 Kinesis 与 Kafka；托管 Flink 原名 Kinesis Data Analytics。Timestream for LiveAnalytics 自 2025-06-20 起不再接受新客户，AWS 建议新客户改用 Timestream for InfluxDB，IoT 规则也有直接写 InfluxDB 的动作 |
+| Azure | IoT Hub → Azure Data Explorer，或 IoT Hub 消息路由 → Fabric | 官方方案里 Azure Data Explorer 通过 Event Hubs、IoT Hub、Kafka 连接器直接摄取，近实时处理由 Stream Analytics 或 Functions 并行完成；较新的文档以 IoT Hub 把遥测路由到 Fabric 为主。Time Series Insights 已于 2024-07-07 退役，迁移目标是 Fabric 的 Eventhouse 或 Azure Data Explorer |
+
+这两条与本篇的完整链路一一对应：云上的规则引擎对应 EMQX 规则，Kinesis、Event Hubs 对应 Kafka，托管 Flink、Stream Analytics 对应 Flink，托管时序库对应 TDengine。
+
 ### 3、存储选型结论
 
 选型细节见 [时序数据库](/nosql/4_time_series_db) 的「选型对比」，IoT 场景的结论是：
@@ -74,18 +83,26 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 
 Topic 沿用 [通信协议 · Topic 约定](../1_basics/1_protocol#_7、topic-约定)：设备以 QoS 1 往 `devices/{deviceId}/telemetry` 上报遥测。Topic 中的 `deviceId` 由 ACL 限定只能是连接自身的 `clientid`（见 [设备安全](../2_access/1_security)），所以下游可以信任规则 SQL 里取到的 `clientid`，不用信任消息体里自报的设备 ID。
 
-**设备载荷**是一层 JSON：`ts` 是设备侧时间戳（毫秒），其余顶层键都是测点。带上设备时间，后续才能按事件时间处理，补传的旧数据也能落到正确的时间窗口：
+**设备载荷**采用 ThingsBoard 的形式：`ts` 是设备侧时间戳（毫秒），测点放在 `values` 里。带上设备时间，后续才能按事件时间处理，补传的旧数据也能落到正确的时间窗口；`ts` 可以省略，省略时用平台收到消息的时间：
 
 ```json
-{"ts": 1767225600000, "temperature": 26.4, "humidity": 61.2}
+{"ts": 1767225600000, "values": {"temperature": 25.3, "humidity": 60.1}}
 ```
 
-这种测点直接放在顶层的写法，在 Conduit 里对应 `flat-json` 解码器；它默认用的是把测点放进 `params` 的另一种格式，见 [物模型与解码 · 两个内置解码器](../4_practice/2_thing_model#_2、两个内置解码器)。
+主流平台的遥测载荷大致是三种形状：
 
-**统一消息**：不管设备从哪种协议接入，写进 Kafka 主题 `iot.telemetry` 的都是下面这一种形状，本模块里读这个主题的代码（下文的 Flink 作业、[规则引擎](./6_rule_engine)）都按它解析：
+| 平台 | 载荷 | 时间戳 |
+|------|------|-------|
+| ThingsBoard | `{"ts":…,"values":{…}}`，也接受不带时间戳的平铺键值和多条组成的数组 | 不带 `ts` 时用服务端接收时间 |
+| 阿里云 Alink | `params` 里放属性，每个属性写成 `{"value":…,"time":…}`，不带时间时可直接写值；外层还有 `id`、`version`、`method` | 每个属性一个毫秒时间戳 |
+| Sparkplug B | Protobuf，`metrics` 数组里每项有 `name`、`alias`、`timestamp`、`datatype`、`value`，外层另有 `timestamp` 与 `seq` | 消息与每个测点都可带 |
+
+各家 Topic 与载荷的完整对照见 [通信协议 · 主流平台 Topic 与载荷对照](../1_basics/1_protocol#_8、主流平台-topic-与载荷对照)。阿里云物联网平台自 2025 年 2 月起停止新购、文档已标为停止维护，Alink 在这里只作为载荷形状的参照。测点名、类型和取值范围由物模型约束，见 [物模型](./1_thing_model)；网关代多台子设备上报时载荷按子设备分组，要由能查拓扑表的订阅者拆成各子设备的统一消息，不走下面的规则 SQL，见 [网关与子设备 · 拆包成 TelemetryMessage](../2_access/5_gateway_subdevice#_3、拆包成-telemetrymessage)。Conduit 的两个内置解码器用的是另外两种写法（测点放在 `params` 里，或平铺在顶层），见 [物模型与解码 · 两个内置解码器](../4_practice/2_thing_model#_2、两个内置解码器)。
+
+**统一消息**：不管设备从哪种协议接入，写进 Kafka 主题 `iot.telemetry` 的都是下面这一种形状，本模块里读这个主题的代码（下文的 Flink 作业、[规则引擎与告警](./6_rule_engine)）都按它解析。它是平台内部的信封，不是设备协议，设备载荷里的 `values` 对应这里的 `metrics`：
 
 ```json
-{"deviceId": "dev001", "protocol": "mqtt", "timestamp": 1767225600000, "metrics": {"temperature": 26.4, "humidity": 61.2}}
+{"deviceId": "dev001", "protocol": "mqtt", "timestamp": 1767225600000, "metrics": {"temperature": 25.3, "humidity": 60.1}}
 ```
 
 | 字段 | 类型 | 含义 |
@@ -99,21 +116,20 @@ Java 侧对应的 record 是 `TelemetryMessage`，见 [Netty 接入网关 · 多
 
 ### 2、规则 SQL
 
-规则 SQL 负责把设备载荷转成上面的统一消息。载荷是 JSON 时可以直接用 `payload.字段` 取值，`AS` 后面写带点号的路径会生成嵌套对象：
+规则 SQL 负责把设备载荷转成上面的统一消息。载荷是 JSON 时可以直接用 `payload.字段` 取值，`payload.values` 取到的是整个测点对象，原样作为 `metrics` 输出：
 
 ```sql
 SELECT
-  clientid            AS deviceId,
-  'mqtt'              AS protocol,
-  payload.ts          AS timestamp,
-  payload.temperature AS metrics.temperature,
-  payload.humidity    AS metrics.humidity
+  clientid                        AS deviceId,
+  'mqtt'                          AS protocol,
+  coalesce(payload.ts, timestamp) AS timestamp,
+  payload.values                  AS metrics
 FROM "devices/+/telemetry"
-WHERE is_not_null(payload.temperature)
+WHERE is_map(payload.values)
 ```
 
-- **`timestamp` 取设备时间**：输出里的 `timestamp` 被赋成了 `payload.ts`，不是 EMQX 事件自带的同名字段（Broker 收到消息的时间）
-- **测点逐个列出**：一类设备一条规则，新增测点要改规则；测点很多或经常变化时，改用上表的自写订阅者更省事
+- **`timestamp` 优先取设备时间**：`coalesce(A, B)` 在 A 为空时返回 B；第二个参数 `timestamp` 是 EMQX 消息事件自带的字段（Broker 收到消息的时间，毫秒），设备没带 `ts` 时就用它
+- **测点整体透传**：不逐个列测点，新增测点不用改规则；测点名与类型的校验交给下游按物模型做，规则 SQL 只挡住 `values` 不是对象的畸形消息（`is_map`）
 - 规则引擎只做无状态的过滤与转换；需要「最近 N 条」「5 分钟窗口」之类状态的逻辑交给 Flink
 
 ### 3、Kafka Sink 配置要点
@@ -123,12 +139,12 @@ WHERE is_not_null(payload.temperature)
 | 配置项 | 建议值 | 原因 |
 |--------|--------|------|
 | Topic | `iot.telemetry` | 遥测、事件、指令回执分开 Topic，便于独立扩容 |
-| Message Key | `${deviceId}` | 同一设备进同一分区，保证单设备有序 |
+| Message Key | `${.deviceId}` | 同一设备进同一分区，保证单设备有序 |
 | Message Value | `${.}` | 整条规则输出（JSON），即二.1 的统一消息 |
 | 分区数 | 按峰值吞吐与 Flink 并行度规划 | Flink Source 并行度不应超过分区数 |
 | 缓冲 | 开启内存 + 磁盘缓冲 | Kafka 短暂不可用时，EMQX 侧先缓冲，恢复后续传 |
 
-Kafka 等数据集成在 5.9 之前属于 EMQX 企业版功能，5.9 起单节点也能用，许可见 [EMQX 许可与部署 · 许可变化](../1_basics/3_emqx_deploy#二、许可变化)。Kafka 本身的分区与可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，消费组见 [Kafka 生产与消费](/messaging/2_kafka_client)。
+Kafka 等数据集成在 5.9 之前属于 EMQX 企业版功能，5.9 起开源版与企业版合并、统一为 BSL 1.1，单节点也能用，许可细则见 [EMQX 许可与部署 · 许可变化](../1_basics/3_emqx_deploy#二、许可变化)。Kafka 本身的分区与可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，消费组见 [Kafka 生产与消费](/messaging/2_kafka_client)。
 
 ### 4、小规模：规则引擎直写 TDengine
 
@@ -138,7 +154,16 @@ EMQX 内置 TDengine Sink，规则输出可以直接拼成 `INSERT` 语句写入
 
 ## 三、TDengine 超表建模
 
-时序数据库本身的存储模型、InfluxDB / TimescaleDB / IoTDB 的对比见 [时序数据库](/nosql/4_time_series_db)，本篇只讲 IoT 场景特有的建模。
+同一份温湿度遥测，在四种常见时序库里的放法：
+
+| 数据库 | 建模方式 | 温湿度遥测怎么放 |
+|--------|---------|----------------|
+| TDengine | 超表做模板，一台设备（采集点）一张子表 | 超表 `sensors(ts, temperature, humidity)`，设备 ID、型号作 TAGS，每台设备一张子表 |
+| InfluxDB 3 | 库里是表（相当于 1.x、2.x 的 measurement），列分 tag、field 与 `time` | 一张宽表 `sensors`，`device_id` 是 tag，`temperature`、`humidity` 是 field |
+| TimescaleDB | hypertable：按时间自动分块（chunk）的 PostgreSQL 表 | 普通表 `sensors(time, device_id, temperature, humidity)` 转成 hypertable |
+| Apache IoTDB | 树模型，路径 `root.数据库.设备.测点` 就是一条时间序列（2.x 另有表模型） | `root.iot.dev001.temperature`、`root.iot.dev001.humidity` 两条序列 |
+
+以下以 TDengine 为例。时序数据库本身的存储模型与选型对比见 [时序数据库](/nosql/4_time_series_db)，多租户平台用 InfluxDB 3 一张宽表的做法见 [时序存储与历史查询](../4_practice/5_telemetry)，本篇只讲 IoT 场景特有的建模。
 
 ### 1、超表与子表
 
@@ -218,7 +243,7 @@ TDengine 官方已将原生连接（`jdbc:TAOS://`，依赖本机安装 taosc �
 <dependency>
     <groupId>com.taosdata.jdbc</groupId>
     <artifactId>taos-jdbcdriver</artifactId>
-    <version>3.9.2</version>
+    <version>3.10.0</version>
 </dependency>
 ```
 
@@ -441,7 +466,7 @@ Grafana 通过 TDengine 官方数据源插件直接用 SQL 查询；看板上常
 | 在线率（Bar gauge） | 读取 Flink 写出的 `DeviceStatus` 结果表 |
 | 告警列表（Table） | 读取业务告警表 |
 
-长时间范围的趋势图一定要查降采样库，否则一次刷新就会扫描海量原始数据。
+长时间范围的趋势图一定要查降采样库，否则一次刷新就会扫描海量原始数据。告警列表面板读的业务告警表，结构与状态（同一设备同一类型只有一条活动告警、确认与清除）见 [规则引擎与告警 · 设备告警模型](./6_rule_engine#五、设备告警模型)。
 
 ### 2、Grafana 告警
 
@@ -453,15 +478,16 @@ Grafana 通过 TDengine 官方数据源插件直接用 SQL 查询；看板上常
 
 ### 3、告警放在哪一层
 
-同一个告警只在一层产生：离线、连续超温这类要状态和定时器的归 Flink，单指标阈值与趋势归 Grafana，连接断开归 EMQX 规则引擎，设备联动和要关联业务数据的归自研规则引擎。各层擅长什么、不擅长什么的分层表见 [规则引擎 · 规则与告警放在哪一层](./6_rule_engine#_1、规则与告警放在哪一层)。
+同一个告警只在一层产生：离线、连续超温这类要状态和定时器的归 Flink，单指标阈值与趋势归 Grafana，连接断开归 EMQX 规则引擎，设备联动和要关联业务数据的归触发-条件-动作规则引擎。各层擅长什么、不擅长什么的分层表见 [规则引擎与告警 · 规则与告警放在哪一层](./6_rule_engine#_1、规则与告警放在哪一层)。
 
 ---
 
 ## 小结
 
 - 链路：设备 → EMQX 规则引擎 → Kafka → Flink 2.x → TDengine → Grafana；规模小时用 EMQX 直写 TDengine，按需加组件
-- Topic 中的设备 ID 由 ACL 绑定到 `clientid`，下游以 `clientid` 作为可信设备标识；写进 `iot.telemetry` 的是统一消息（`deviceId`、`protocol`、`timestamp`、`metrics`），Kafka 消息 Key 用设备 ID 保证单设备有序
-- TDengine 一台设备一张子表，TAG 放静态属性；写入用 WebSocket 连接 + 参数绑定，设备 ID 进入表名前做白名单校验；同 `ts` 覆盖写使重放幂等
+- 云上的等价路线：AWS 是 IoT Core 规则 → Kinesis 或 MSK → 托管 Flink → Timestream for InfluxDB，Azure 是 IoT Hub → Azure Data Explorer 或 Fabric
+- 设备载荷是 `{"ts":…,"values":{…}}`，`ts` 可省略；Topic 中的设备 ID 由 ACL 绑定到 `clientid`，下游以 `clientid` 作为可信设备标识；规则 SQL 把 `values` 整体透传为统一消息（`deviceId`、`protocol`、`timestamp`、`metrics`）的 `metrics`，Kafka 消息 Key 用设备 ID 保证单设备有序
+- 同一份遥测在 TDengine、InfluxDB 3、TimescaleDB、IoTDB 里分别是子表、宽表、hypertable、树路径；TDengine 一台设备一张子表，TAG 放静态属性；写入用 WebSocket 连接 + 参数绑定，设备 ID 进入表名前做白名单校验；同 `ts` 覆盖写使重放幂等
 - Flink 2.x 用 `KafkaSource`、`Duration`、Sink V2；离线检测用处理时间定时器而不是 CEP，连续超温用 `times(3).consecutive()`
 - 原始数据短期保留，降采样结果长期保留并带上 `count`；降采样在 TDengine 流计算或 Flink 中二选一
 - 看板的长时间范围查降采样库；Grafana 告警的查询按设备分组，停报类规则把 No data 设为 Alerting，单台停报另写规则或交给 Flink；规则与通知的通用配置在告警体系一篇
@@ -469,7 +495,24 @@ Grafana 通过 TDengine 官方数据源插件直接用 SQL 查询；看板上常
 ## 参考资料
 
 - EMQX 规则引擎：[https://docs.emqx.com/en/emqx/latest/data-integration/rules.html](https://docs.emqx.com/en/emqx/latest/data-integration/rules.html)
+- EMQX 规则 SQL 语法：[https://docs.emqx.com/en/emqx/latest/data-integration/rule-sql-syntax.html](https://docs.emqx.com/en/emqx/latest/data-integration/rule-sql-syntax.html)
+- EMQX 规则 SQL 内置函数（coalesce、is_map）：[https://docs.emqx.com/en/emqx/latest/data-integration/rule-sql-builtin-functions.html](https://docs.emqx.com/en/emqx/latest/data-integration/rule-sql-builtin-functions.html)
+- EMQX Kafka Sink：[https://docs.emqx.com/en/emqx/latest/data-integration/data-bridge-kafka.html](https://docs.emqx.com/en/emqx/latest/data-integration/data-bridge-kafka.html)
 - EMQX 规则 SQL 事件与字段：[https://docs.emqx.com/en/emqx/latest/data-integration/rule-sql-events-and-fields.html](https://docs.emqx.com/en/emqx/latest/data-integration/rule-sql-events-and-fields.html)
+- ThingsBoard MQTT 遥测接口：[https://thingsboard.io/docs/reference/mqtt-api/telemetry/](https://thingsboard.io/docs/reference/mqtt-api/telemetry/)
+- 阿里云物联网平台设备属性、事件、服务的 Alink 协议（文档已标注停止维护）：[https://help.aliyun.com/zh/iot/user-guide/device-properties-events-and-services](https://help.aliyun.com/zh/iot/user-guide/device-properties-events-and-services)
+- Eclipse Sparkplug 3.0 规范：[https://sparkplug.eclipse.org/specification/version/3.0/documents/sparkplug-specification-3.0.0.pdf](https://sparkplug.eclipse.org/specification/version/3.0/documents/sparkplug-specification-3.0.0.pdf)
+- TDengine 基本概念（一个采集点一张表、超表）：[https://docs.tdengine.com/quick-start/basic-concepts/](https://docs.tdengine.com/quick-start/basic-concepts/)
+- InfluxDB 3 Core 数据组织：[https://docs.influxdata.com/influxdb3/core/get-started/](https://docs.influxdata.com/influxdb3/core/get-started/)
+- TimescaleDB hypertable：[https://www.tigerdata.com/docs/use-timescale/latest/hypertables/](https://www.tigerdata.com/docs/use-timescale/latest/hypertables/)
+- Apache IoTDB 数据模型：[https://iotdb.apache.org/UserGuide/latest/Background-knowledge/Data-Model-and-Terminology_apache.html](https://iotdb.apache.org/UserGuide/latest/Background-knowledge/Data-Model-and-Terminology_apache.html)
+- AWS IoT 规则动作（Kinesis、Kafka、InfluxDB）：[https://docs.aws.amazon.com/iot/latest/developerguide/iot-rule-actions.html](https://docs.aws.amazon.com/iot/latest/developerguide/iot-rule-actions.html)
+- Amazon Timestream for LiveAnalytics 可用性变更：[https://docs.aws.amazon.com/timestream/latest/developerguide/AmazonTimestreamForLiveAnalytics-availability-change.html](https://docs.aws.amazon.com/timestream/latest/developerguide/AmazonTimestreamForLiveAnalytics-availability-change.html)
+- Amazon Managed Service for Apache Flink：[https://docs.aws.amazon.com/managed-flink/latest/java/get-started-exercise.html](https://docs.aws.amazon.com/managed-flink/latest/java/get-started-exercise.html)
+- Azure Data Explorer 用于 IoT 分析（方案参考）：[https://learn.microsoft.com/en-us/azure/architecture/solution-ideas/articles/iot-azure-data-explorer](https://learn.microsoft.com/en-us/azure/architecture/solution-ideas/articles/iot-azure-data-explorer)
+- Azure IoT 概览（遥测路由到 Fabric）：[https://learn.microsoft.com/en-us/azure/iot/iot-introduction](https://learn.microsoft.com/en-us/azure/iot/iot-introduction)
+- Time Series Insights 退役与迁移：[https://learn.microsoft.com/en-us/previous-versions/azure/time-series-insights/migration-to-fabric](https://learn.microsoft.com/en-us/previous-versions/azure/time-series-insights/migration-to-fabric)
+- TDengine 连接器（原生与 REST 连接的废弃说明）：[https://docs.tdengine.com/developer-guide/connectors-reference/](https://docs.tdengine.com/developer-guide/connectors-reference/)
 - TDengine Java 连接器：[https://docs.tdengine.com/developer-guide/connectors-reference/java/](https://docs.tdengine.com/developer-guide/connectors-reference/java/)
 - TDengine 流计算语法：[https://docs.tdengine.com/stream-processing/syntax/](https://docs.tdengine.com/stream-processing/syntax/)
 - taos-jdbcdriver（Maven Central）：[https://central.sonatype.com/artifact/com.taosdata.jdbc/taos-jdbcdriver](https://central.sonatype.com/artifact/com.taosdata.jdbc/taos-jdbcdriver)

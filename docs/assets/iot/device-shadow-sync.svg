@@ -39,13 +39,13 @@
   <line class="arr" x1="90" y1="150" x2="378" y2="150"/>
   <text class="sub" x="234" y="142" text-anchor="middle">① 修改 desired（带 version）</text>
   <line class="arr" x1="380" y1="200" x2="668" y2="200"/>
-  <text class="sub" x="524" y="192" text-anchor="middle">② 推送 delta</text>
+  <text class="sub" x="524" y="192" text-anchor="middle">② 发布 update/delta（差异）</text>
   <line class="arr" x1="670" y1="250" x2="382" y2="250"/>
-  <text class="sub" x="526" y="242" text-anchor="middle">③ 执行后上报 reported</text>
+  <text class="sub" x="526" y="242" text-anchor="middle">③ 执行后向 update 上报 reported</text>
   <line class="arr" x1="380" y1="300" x2="92" y2="300"/>
-  <text class="sub" x="236" y="292" text-anchor="middle">④ delta 清空，通知结果</text>
+  <text class="sub" x="236" y="292" text-anchor="middle">④ 差异清空，update/documents 通知</text>
   <line class="arr" x1="670" y1="350" x2="382" y2="350"/>
-  <text class="sub" x="526" y="342" text-anchor="middle">⑤ 重连后 GET 全量影子</text>
+  <text class="sub" x="526" y="342" text-anchor="middle">⑤ 重连后先订阅，再发 get</text>
   <line class="arr" x1="380" y1="400" x2="668" y2="400"/>
-  <text class="sub" x="524" y="392" text-anchor="middle">⑥ 返回 desired 与 version</text>
+  <text class="sub" x="524" y="392" text-anchor="middle">⑥ get/accepted 返回全量与 version</text>
 </svg>

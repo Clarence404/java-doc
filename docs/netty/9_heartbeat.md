@@ -161,7 +161,7 @@ public class HeartbeatServerHandler extends ChannelInboundHandlerAdapter {
 ```
 
 ::: tip
-`ProtocolMessage.of(cmd, payload)` 是一个示意用的静态工厂，负责填充魔数、版本号等固定字段。`ProtocolMessage` 不含 `ByteBuf`，拦截后无需手动 release；若消息体是引用计数对象，拦截时记得 `ReferenceCountUtil.release(msg)`。
+`ProtocolMessage.of(cmd, payload)` 是一个示意用的静态工厂，负责填充魔数、版本号等固定字段。帧头带流水号的协议（如 [Netty 接入网关](/iot/2_access/6_netty_gateway) 的设备帧）回 PONG 时要原样带回 PING 的流水号，设备据此确认是哪一次心跳的应答。`ProtocolMessage` 不含 `ByteBuf`，拦截后无需手动 release；若消息体是引用计数对象，拦截时记得 `ReferenceCountUtil.release(msg)`。
 :::
 
 ### 4、客户端：写空闲发 PING + 统计丢失的 PONG

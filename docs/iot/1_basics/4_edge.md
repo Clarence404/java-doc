@@ -1,18 +1,16 @@
 ---
-description: 云边分工、EdgeX Foundry 部署、KubeEdge 云边协同与设备管理、ONNX Runtime 边缘推理
+description: 云边分工、边缘框架对比、EdgeX Foundry 部署、KubeEdge 云边协同、ONNX Runtime 边缘推理
 ---
 
 # 边缘计算
 
 > 前置阅读：[平台选型](./2_platform)、[Kubernetes](/cloud-native/6_kubernetes)
 
-边缘计算把部分计算和决策放到靠近设备的位置完成。本篇讲云边分工、EdgeX Foundry、KubeEdge 云边协同、ONNX Runtime 边缘推理。
+边缘计算把部分计算和决策放到靠近设备的位置完成。本篇讲云边分工、主流边缘框架与云厂商方案的对比、EdgeX Foundry、KubeEdge 云边协同、ONNX Runtime 边缘推理，基线为 EdgeX Foundry 4.0（LTS，REST API v3）、KubeEdge 1.23、ONNX Runtime 1.32。
 
 ---
 
 ## 一、边缘计算是什么
-
-版本基线：EdgeX Foundry 4.0（REST API v3）、KubeEdge 1.23、ONNX Runtime 1.31。
 
 **边缘计算（Edge Computing）**：在靠近数据产生端的位置（设备、网关、厂区或门店的本地服务器）完成计算和决策，而不是把所有原始数据都送到云端处理。
 
@@ -44,8 +42,8 @@ description: 云边分工、EdgeX Foundry 部署、KubeEdge 云边协同与设�
 
 | 能力 | 说明 |
 |------|------|
-| **协议转换** | 把 Modbus、OPC UA、Zigbee 等现场协议统一转成 MQTT 向上对接，协议细节见 [通信协议](./1_protocol) |
-| **本地规则引擎** | 在本地执行告警、联动规则，不依赖云端 |
+| **协议转换** | 把 Modbus、OPC UA、Zigbee 等现场协议统一转成 MQTT 向上对接，协议细节见 [通信协议](./1_protocol)；网关代下挂设备接入平台时的身份与 Topic 见 [网关与子设备](../2_access/5_gateway_subdevice) |
+| **本地规则引擎** | 在本地执行告警、联动规则，不依赖云端；规则与告警的通用设计见 [规则引擎与告警](../3_platform/6_rule_engine) |
 | **数据过滤与聚合** | 对高频原始数据降采样、去噪，减少上云流量 |
 | **断网续传** | 云端连接中断时本地缓存数据，恢复后按时间顺序补传 |
 | **AI 推理** | 在边缘运行轻量模型，如设备异常检测、视觉质检 |
@@ -58,6 +56,7 @@ description: 云边分工、EdgeX Foundry 部署、KubeEdge 云边协同与设�
 ### 1、EdgeX Foundry
 
 - **定位**：LF Edge（Linux 基金会旗下）的开源边缘框架，面向工业 IoT 的数据采集与转发
+- **版本**：4.0（代号 Odesa，2025 年 3 月发布）是长期支持版本，按项目的 LTS 政策维护两年到 2027 年 3 月；4.0 起默认数据库换成 PostgreSQL
 - **技术栈**：Go 实现的微服务，Docker 部署，服务之间通过消息总线和 REST API v3 通信
 - **架构**：南向 Device Service 负责对接设备协议（Modbus、OPC UA、MQTT、BACnet 等），Core Services 负责数据和元数据，北向 Application Service 负责把数据导出到 MQTT、Kafka、HTTP；规则引擎是可选的 LF Edge eKuiper
 - **特点**：各服务职责单一，可按需裁剪
@@ -70,25 +69,41 @@ description: 云边分工、EdgeX Foundry 部署、KubeEdge 云边协同与设�
 
 ### 3、OpenYurt
 
-- **定位**：阿里云开源的云原生边缘计算项目，以非侵入方式把原生 Kubernetes 扩展到边缘
-- **特点**：边缘节点自治、节点池（NodePool）按地域分组管理
+- **定位**：阿里云 2020 年开源的云原生边缘计算项目，以非侵入方式把原生 Kubernetes 扩展到边缘；2020 年 9 月进入 CNCF Sandbox，2025 年升为 CNCF 孵化项目，当前版本 1.7
+- **特点**：边缘节点自治（YurtHub 在节点上缓存云端数据，断网时应用照常运行）、节点池（NodePool）按地域分组管理、Raven 打通跨地域的容器网络
 
-### 4、其他选择
+### 4、K3s
+
+- **定位**：完全兼容的轻量 Kubernetes 发行版，整个发行版打包成一个不到 100 MB 的二进制，默认用 SQLite 存集群数据（也可以换 etcd、MySQL、PostgreSQL），官方列出的适用场景就包括边缘、IoT 和 ARM 单板机；版本号跟随 Kubernetes，当前为 v1.37
+- **与 KubeEdge、OpenYurt 的区别**：K3s 是一套完整的集群，控制面也在边缘，每个站点自成一体，断网不影响本地调度；它本身不负责从云端统一管理成百上千个站点，多站点要另配 GitOps 之类的批量下发手段。KubeEdge 和 OpenYurt 则是一个云端控制面带大量边缘节点
+- **适合**：门店、厂区这类有一台或几台服务器、希望用标准 Kubernetes 方式部署应用的站点
+
+### 5、云厂商边缘方案
+
+- **AWS IoT Greengrass v2**：开源的边缘运行时加云端服务。应用打包成组件（component）从云端部署到设备，可以是原生进程、容器或 Lambda 函数，设备在本地处理数据、断网时自主运行。运行时有两种：标准的 nucleus 需要 Java 运行时；2.14.0 引入的 nucleus lite 内存占用不到 15 MB，面向资源受限的 Linux 设备，只支持 V2 API 的一个子集。Greengrass V1 已于 2026 年 10 月 7 日停止支持
+- **Azure IoT Edge**：把云端下发的模块以容器形式运行在设备上，由 IoT Hub 管理。1.5 LTS 已于 2026 年 11 月 10 日结束支持，当前是 2026 年 7 月发布的 1.6 LTS（支持到 2028 年 11 月 14 日），功能与 1.5 基本一致
+- **Azure IoT Operations**：微软称之为边缘的统一数据面，运行在 Azure Arc 纳管的 Kubernetes 集群上，内置边缘 MQTT Broker、OPC UA 等连接器和数据流，最长可离线运行 72 小时。它面向工厂里的一整套集群，IoT Edge 面向单台设备，两者不是替代关系
+
+三者都与各自的云平台深度绑定，只有已经选定那家云时才考虑，云端部分见 [平台选型](./2_platform)。
+
+### 6、其他选择
 
 - **NanoMQ + Neuron**：EMQ 的边缘组合，NanoMQ 是轻量 MQTT Broker，Neuron 负责工业协议采集，适合网关级设备
-- **AWS IoT Greengrass、Azure IoT Edge**：云厂商的边缘运行时，与各自云平台深度集成
 
-### 5、框架对比
+### 7、框架对比
 
 | 框架 | 适合场景 | 技术门槛 |
 |------|---------|---------|
 | EdgeX Foundry | 工业协议采集与转发网关 | 中 |
-| KubeEdge | 已有 K8s，云边统一编排 | 高 |
+| KubeEdge | 已有 K8s，一个云端控制面统一编排大量边缘节点 | 高 |
 | OpenYurt | 已有 K8s，偏节点池化管理 | 高 |
+| K3s | 每个站点一套独立的轻量集群 | 中 |
 | NanoMQ + Neuron | 资源受限的网关设备 | 低 |
-| Greengrass / Azure IoT Edge | 已深度使用对应云平台 | 中 |
+| AWS IoT Greengrass v2 | 已深度使用 AWS，设备上运行云端下发的组件；资源紧张时用 nucleus lite | 中 |
+| Azure IoT Edge | 已深度使用 Azure IoT Hub，单台设备上运行容器模块 | 中 |
+| Azure IoT Operations | 已使用 Azure，工厂内有 Kubernetes 集群，OT 数据整理后上云 | 高 |
 
-选型主要看两点：边缘节点的资源（能否跑容器和 Kubernetes 节点组件），以及团队是否已经用 Kubernetes 管理应用。
+选型主要看三点：边缘节点的资源（能否跑容器和 Kubernetes 节点组件），团队是否已经用 Kubernetes 管理应用，以及云端是否已经绑定某一家云。
 
 ---
 
@@ -113,7 +128,9 @@ docker compose ps
 | `core-metadata` | 管理设备、设备配置文件（Device Profile）等元数据 |
 | `core-command` | 向设备下发读写指令 |
 | `device-virtual` | 模拟设备，开发阶段不需要真实硬件 |
-| `app-service-configurable` | 北向数据导出，可推送到 MQTT、Kafka、HTTP |
+| `app-rules-engine` | 应用服务，镜像是 `app-service-configurable`、以 `rules-engine` 配置启动，把事件交给规则引擎 eKuiper（服务名 `rules-engine`） |
+
+4.0 的 Compose 文件里没有名为 `app-service-configurable` 的服务：它是应用服务的镜像名，同一个镜像换一份配置（profile）就是另一个服务，默认只启用了上面的 `app-rules-engine`，向外部导出数据的服务要另加，见第 3 小节。
 
 生产环境必须使用安全模式，并把各服务的端口限制在本机或内网。
 
@@ -154,11 +171,12 @@ curl -s "http://localhost:59880/api/v3/event/device/name/Random-Integer-Device"
 
 Device Service 是 EdgeX 的南向驱动层，每种协议对应一个独立的微服务（如 `device-modbus`、`device-mqtt`），按 Device Profile 描述的资源去读写设备，采集结果发布到消息总线，由 `core-data` 持久化。
 
-北向导出由 `app-service-configurable` 完成：选择一个导出配置（如 `mqtt-export`），通过环境变量覆盖 Pipeline 参数即可。下面是导出到 MQTT Broker 的关键配置：
+北向导出由 `app-service-configurable` 这个镜像完成：选择一个导出配置（如 `mqtt-export`），通过环境变量覆盖 Pipeline 参数即可。edgex-compose 的 compose-builder 目录里有现成的片段，导出到 MQTT 的服务名是 `app-mqtt-export`。下面是它的关键配置：
 
 ```yaml
-# app-service-configurable 的环境变量（导出到 MQTT）
+# app-mqtt-export 服务的环境变量（镜像 app-service-configurable）
 environment:
+  EDGEX_PROFILE: mqtt-export
   WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_BROKERADDRESS: "tcp://mqtt-broker:1883"
   WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_TOPIC: "edgex/events"
   WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_CLIENTID: "edgex-export"
@@ -250,7 +268,7 @@ kubectl get pods -o wide   # 确认 Pod 运行在 edge-node-01
 
 ### 5、设备管理：DeviceModel 与 Device
 
-KubeEdge 1.15 起设备 CRD 升级到 `v1beta1`，与旧的 `v1alpha2` 不兼容。DeviceModel 描述一类设备的属性，Device 描述具体设备实例及其协议参数：
+KubeEdge 1.15 起设备 CRD 升级到 `v1beta1`，与旧的 `v1alpha2` 不兼容。DeviceModel 描述一类设备的属性，作用相当于平台侧的 [物模型](../3_platform/1_thing_model)；Device 描述具体设备实例及其协议参数：
 
 ```yaml
 # DeviceModel：一类设备的属性定义
@@ -348,7 +366,7 @@ kubectl get pods -o wide
 <dependency>
     <groupId>com.microsoft.onnxruntime</groupId>
     <artifactId>onnxruntime</artifactId>
-    <version>1.31.0</version>
+    <version>1.32.0</version>
 </dependency>
 ```
 
@@ -442,7 +460,8 @@ KubeEdge 会把 ConfigMap 等资源的变更可靠地同步到边缘节点，所
 ## 小结
 
 - 边缘负责低延迟、断网也要工作的逻辑，云端负责全局数据、训练和统一管理，规则和模型由云端下发
-- EdgeX Foundry 适合工业协议采集网关，默认安全模式下 REST 调用需要 JWT，本地体验用非安全模式
+- EdgeX Foundry 适合工业协议采集网关，4.0 是 LTS 版本；默认安全模式下 REST 调用需要 JWT，本地体验用非安全模式
+- K3s 是每个站点一套的轻量集群，KubeEdge、OpenYurt 是一个云端控制面带大量边缘节点；Greengrass、Azure IoT Edge、Azure IoT Operations 只在已经绑定对应云平台时考虑
 - KubeEdge 已从 CNCF 毕业，用 CloudCore / EdgeCore 把 Kubernetes 延伸到边缘，云边版本必须一致；设备 CRD 从 1.15 起为 `v1beta1`
 - ONNX Runtime 的 Session 要创建一次、全局复用，张量和结果都要关闭；输入名从模型读取，线程数按核数设置
 - 模型更新要原子发布、先建后换、可回退，签名与灰度机制与 OTA 共用
@@ -451,11 +470,17 @@ KubeEdge 会把 ConfigMap 等资源的变更可靠地同步到边缘节点，所
 
 - EdgeX Foundry 文档：[https://docs.edgexfoundry.org/](https://docs.edgexfoundry.org/)
 - EdgeX Compose：[https://github.com/edgexfoundry/edgex-compose](https://github.com/edgexfoundry/edgex-compose)
+- EdgeX Foundry 版本列表（Odesa 为 LTS）：[https://www.edgexfoundry.org/software/releases/](https://www.edgexfoundry.org/software/releases/)
 - KubeEdge：用 keadm 安装：[https://kubeedge.io/docs/setup/install-with-keadm](https://kubeedge.io/docs/setup/install-with-keadm)
 - KubeEdge：Device CRD：[https://kubeedge.io/docs/concept/device/device_crds](https://kubeedge.io/docs/concept/device/device_crds)
 - CNCF 宣布 KubeEdge 毕业：[https://www.cncf.io/announcements/2024/10/15/cloud-native-computing-foundation-announces-kubeedge-graduation/](https://www.cncf.io/announcements/2024/10/15/cloud-native-computing-foundation-announces-kubeedge-graduation/)
 - OpenYurt：[https://github.com/openyurtio/openyurt](https://github.com/openyurtio/openyurt)
+- CNCF：OpenYurt 成为孵化项目：[https://www.cncf.io/blog/2025/07/02/openyurt-becomes-a-cncf-incubating-project/](https://www.cncf.io/blog/2025/07/02/openyurt-becomes-a-cncf-incubating-project/)
+- K3s 文档：[https://docs.k3s.io/](https://docs.k3s.io/)
+- AWS IoT Greengrass nucleus lite：[https://docs.aws.amazon.com/greengrass/v2/developerguide/greengrass-nucleus-lite-component.html](https://docs.aws.amazon.com/greengrass/v2/developerguide/greengrass-nucleus-lite-component.html)
+- Azure IoT Edge 版本历史：[https://learn.microsoft.com/en-us/azure/iot-edge/version-history](https://learn.microsoft.com/en-us/azure/iot-edge/version-history)
+- Azure IoT Operations 概述：[https://learn.microsoft.com/en-us/azure/iot-operations/overview-iot-operations](https://learn.microsoft.com/en-us/azure/iot-operations/overview-iot-operations)
 - ONNX Runtime Java API：[https://onnxruntime.ai/docs/get-started/with-java.html](https://onnxruntime.ai/docs/get-started/with-java.html)
 - ONNX Runtime Releases：[https://github.com/microsoft/onnxruntime/releases](https://github.com/microsoft/onnxruntime/releases)
 
-> 下一篇：[设备安全](../2_access/1_security)
+> 下一篇：[设备安全](../2_access/1_security) —— 一机一密与 X.509、EMQX 认证与 Topic 授权、安全审计与零信任。

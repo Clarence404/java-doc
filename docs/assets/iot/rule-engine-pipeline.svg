@@ -36,8 +36,8 @@
   <text class="sub" x="475" y="166" text-anchor="middle">幂等去重</text>
   <text class="sub" x="475" y="182" text-anchor="middle">超时与重试</text>
   <rect class="box" x="600" y="50" width="140" height="60" stroke="var(--y)"/>
-  <text class="lbl" x="670" y="76" text-anchor="middle" fill="var(--y)">告警通知</text>
-  <text class="sub" x="670" y="94" text-anchor="middle">静默与收敛</text>
+  <text class="lbl" x="670" y="76" text-anchor="middle" fill="var(--y)">告警</text>
+  <text class="sub" x="670" y="94" text-anchor="middle">去重与清除</text>
   <rect class="box" x="600" y="130" width="140" height="60" stroke="var(--y)"/>
   <text class="lbl" x="670" y="156" text-anchor="middle" fill="var(--y)">下发指令</text>
   <text class="sub" x="670" y="174" text-anchor="middle">MQTT 下行</text>

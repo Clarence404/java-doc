@@ -26,7 +26,7 @@
   <text x="400" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">OTA 升级全流程</text>
   <rect class="box" x="20" y="50" width="160" height="60" stroke="var(--p)"/>
   <text class="lbl" x="100" y="76" text-anchor="middle" fill="var(--p)">构建与签名</text>
-  <text class="sub" x="100" y="94" text-anchor="middle">SHA-256 + Ed25519</text>
+  <text class="sub" x="100" y="94" text-anchor="middle">SHA-256 + ECDSA 签名</text>
   <rect class="box" x="220" y="50" width="160" height="60" stroke="var(--p)"/>
   <text class="lbl" x="300" y="76" text-anchor="middle" fill="var(--p)">上传对象存储</text>
   <text class="sub" x="300" y="94" text-anchor="middle">短时效预签名 URL</text>

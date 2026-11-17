@@ -202,7 +202,7 @@ export const GROUPS = [
         name: '物联网', tagline: '协议、设备接入与平台能力，再到 Conduit 平台实战', modules: [
             {
                 name: 'IoT', dir: 'iot', interview: ['33_iot'],
-                desc: '协议 / 平台选型 / 边缘计算 / 设备安全与接入 / 遥测数据链路 / 设备影子 / OTA / 规则引擎 / Conduit 平台实战',
+                desc: '协议 / 平台选型 / 边缘计算 / 设备安全与注册 / 网关与子设备 / 海量连接 / 物模型 / 遥测数据链路 / 设备影子 / 指令下发 / OTA / 规则引擎与告警 / Conduit 平台实战',
                 subdirs: {'1_basics': '协议与选型', '2_access': '接入与安全', '3_platform': '平台能力', '4_practice': '平台实战'},
             },
         ],

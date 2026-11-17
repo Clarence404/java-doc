@@ -1,30 +1,31 @@
 ---
-description: MQTT 会话与 5.0、CoAP / LwM2M、LoRaWAN、NB-IoT、Modbus、OPC UA
+description: MQTT 5.0、Topic 约定与平台对照、Sparkplug B、LwM2M、LPWAN、Matter、OPC UA
 ---
 
 # 通信协议
 
 > 前置阅读：[TCP 与 UDP](/protocols/1_tcp_udp)
 
-本篇讲 MQTT 的 QoS、会话、保留消息、遗嘱和 5.0 新特性各自解决什么问题，以及 CoAP、LwM2M、LoRaWAN、NB-IoT、Zigbee、Modbus、OPC UA 分别用在哪一层、什么场景，帮助按场景做协议选型。
+MQTT 是物联网应用层的事实标准，其余协议各管一层。本篇讲 MQTT 的 QoS、会话、5.0 新特性、Topic 约定与 Sparkplug B，以及 CoAP、LwM2M、LoRaWAN、NB-IoT、Zigbee、Matter、Modbus、OPC UA 各自的定位，基线为 MQTT 5.0。
 
 ---
 
 ## 一、协议总览
 
-IoT 协议按所处层次分为三类，一个系统往往三类都会用到：现场设备用工业总线或无线接入连到网关，网关再用应用层协议把数据送上云。
+IoT 协议按所处层次分为下面几类，一个系统往往会用到其中好几类：现场设备用工业总线或无线接入连到网关，网关再用应用层协议把数据送上云。
 
 | 类别 | 协议 | 解决什么 |
 |------|------|---------|
-| **应用层（消息传输）** | MQTT、CoAP / LwM2M、HTTP、AMQP | 设备或网关与云平台之间的数据交换 |
-| **无线接入** | NB-IoT、LoRaWAN、Zigbee、BLE | 设备到网关或基站的最后一跳 |
+| **应用层（消息传输）** | MQTT（工业场景可叠加 Sparkplug B）、CoAP / LwM2M、HTTP、AMQP | 设备或网关与云平台之间的数据交换 |
+| **无线接入** | NB-IoT、LoRaWAN、Zigbee、Thread、BLE | 设备到网关或基站的最后一跳 |
 | **工业总线** | Modbus、OPC UA | PLC、仪表与上位机、SCADA 之间的通信 |
+| **智能家居应用层** | Matter | 家居设备与各家生态控制器在局域网内互通 |
 
 ---
 
 ## 二、MQTT
 
-**MQTT（Message Queuing Telemetry Transport）**：基于发布 / 订阅模型的轻量级消息协议，运行在 TCP 之上（也可以跑在 WebSocket 上），由 OASIS 标准化，现行版本是 3.1.1 和 5.0。发布方和订阅方互不感知，全部经由 Broker 按 Topic 转发，这是它适合海量设备接入的根本原因。
+**MQTT（Message Queuing Telemetry Transport）**：基于发布 / 订阅模型的轻量级消息协议，运行在 TCP 之上（也可以跑在 WebSocket 上），由 OASIS 标准化，现行版本是 3.1.1 和 5.0。发布方和订阅方互不感知，全部经由 Broker 按 Topic 转发，这是它适合海量设备接入的根本原因。EMQX 从 5.0 起还支持 MQTT over QUIC，用在弱网和频繁切换网络的场景，但它还不是 OASIS 标准（MQTT 技术委员会仍在讨论草案），通用设备仍以 TCP + TLS 为准。
 
 Java 客户端的选型（Eclipse Paho 已多年未更新，新项目用 HiveMQ MQTT Client 或 Spring Integration）与固定 Client ID、重连、共享订阅消费等写法见 [MQTT 客户端](../2_access/3_mqtt_client)，Broker 的对比与部署见 [EMQX 许可与部署](./3_emqx_deploy)，TLS 与双向证书见 [HTTPS 与 TLS](/protocols/3_https_tls)。
 
@@ -48,11 +49,13 @@ QoS 约定的是**一跳之内**的投递语义：发布方到 Broker 是一跳�
 
 | QoS | 语义 | 报文交互 | 适用 |
 |-----|------|---------|------|
-| 0 | 最多一次，可能丢 | 只发 PUBLISH | 高频遥测数据，丢一两条无所谓 |
-| 1 | 至少一次，可能重复 | PUBLISH → PUBACK，未确认则重发 | 告警、事件，配合业务幂等 |
+| 0 | 最多一次，可能丢 | 只发 PUBLISH | 高频且可丢的测点（振动波形、位置轨迹），下一条很快覆盖上一条 |
+| 1 | 至少一次，可能重复 | PUBLISH → PUBACK，未确认则重发 | 遥测的默认选择，以及告警、事件；配合业务幂等 |
 | 2 | 恰好一次 | PUBLISH → PUBREC → PUBREL → PUBCOMP | 重复执行代价大的指令 |
 
 QoS 2 的「恰好一次」只在客户端与 Broker 之间成立，并不是端到端保证：Broker 宕机、订阅方处理失败、消息桥接到 Kafka 后再消费，都可能重复或丢失。重要指令仍然要在业务层带请求 ID 做幂等，并用响应消息确认执行结果。QoS 2 每条消息四次交互，吞吐明显低于 QoS 1，实践中大多数场景用 **QoS 1 + 业务幂等**。设备收到 PUBACK 之后 Broker 崩溃会丢多少、怎么用业务回执把这一跳补上，[可靠上报与接入层主备](../4_practice/3_reliable_uplink#二、为什么-puback-不够) 有实测。
+
+**遥测用 QoS 0 还是 QoS 1**：本模块的示例统一用 QoS 1。多数设备的上报周期在秒到分钟级，每一条都可能被规则和报表用到，多一个 PUBACK 换来不丢是划算的，重复的数据由下游按「设备 ID + 时间戳」去重；Azure IoT 设备 SDK 的默认值也是 QoS 1。只有上报频率高、单条价值低、丢了不影响结论的测点才降为 QoS 0，换吞吐和省电，这时要在点表或物模型里写明哪些测点可丢。
 
 ### 3、会话、保留消息与遗嘱
 
@@ -84,7 +87,7 @@ MQTT 5.0 于 2019 年成为 OASIS 标准，协议主体与 3.1.1 一致，增加
 
 **用户属性（User Properties）**：消息上附带任意键值对，作用类似 HTTP Header，可用来传追踪 ID、协议版本、数据格式，不必改动 payload。
 
-**请求 / 响应（Request / Response）**：请求方在 PUBLISH 中带上 Response Topic 和 Correlation Data，响应方处理完后发布到 Response Topic，并把 Correlation Data 原样带回，请求方据此找到对应请求。平台给设备下发指令并等待执行结果就是这种模式。
+**请求 / 响应（Request / Response）**：请求方在 PUBLISH 中带上 Response Topic 和 Correlation Data，响应方处理完后发布到 Response Topic，并把 Correlation Data 原样带回，请求方据此找到对应请求。平台给设备下发指令并等待执行结果就是这种模式，指令的载荷约定、超时与设备离线时的处理见 [指令下发与服务调用](../3_platform/4_command)。
 
 ![MQTT 5.0 请求 / 响应](../../assets/iot/mqtt5-request-response.svg)
 
@@ -111,21 +114,52 @@ MQTT 5.0 于 2019 年成为 OASIS 标准，协议主体与 3.1.1 一致，增加
 
 ### 7、Topic 约定
 
-Topic 的层级怎么排，决定了后台能不能用一个通配符收全量、ACL 能不能用一条规则管住所有设备。本模块的通用篇共用下面这一套，`{deviceId}` 就是设备连接时用的 Client ID：
+Topic 的层级怎么排，决定了后台能不能用一个通配符收全量、ACL 能不能用一条规则管住所有设备。本模块的通用篇共用下面这一套，`{deviceId}` 就是设备连接时用的 Client ID，它在设备注册时分配，见 [设备注册与生命周期](../2_access/2_provisioning)：
 
 | Topic | 方向 | 用途 | 展开 |
 |-------|------|------|------|
-| `devices/{deviceId}/telemetry` | 设备 → 平台 | 遥测上报，QoS 1，JSON | [遥测数据链路](../3_platform/2_data) |
-| `devices/{deviceId}/event` | 设备 → 平台 | 事件上报（告警、状态变化） | — |
+| `devices/{deviceId}/telemetry` | 设备 → 平台 | 遥测上报，QoS 1，载荷 `{"ts":…,"values":{…}}` | [遥测数据链路](../3_platform/2_data) |
+| `devices/{deviceId}/event` | 设备 → 平台 | 事件上报（告警、故障、状态变化），载荷 `{"ts":…,"event":…,"params":{…}}`，`event` 是物模型里的事件标识 | [物模型](../3_platform/1_thing_model) |
 | `devices/{deviceId}/status` | 设备 → 平台 | 在线状态，保留消息，同时是遗嘱 Topic | 本节第 3 小节 |
-| `devices/{deviceId}/cmd` | 平台 → 设备 | 指令下发，带消息过期时间 | [MQTT 客户端](../2_access/3_mqtt_client) |
-| `devices/{deviceId}/response` | 设备 → 平台 | 指令执行结果 | — |
+| `devices/{deviceId}/cmd` | 平台 → 设备 | 指令下发，载荷 `{"id":…,"method":…,"params":{…}}`，带消息过期时间 | [指令下发与服务调用](../3_platform/4_command) |
+| `devices/{deviceId}/response` | 设备 → 平台 | 指令应答，载荷 `{"id":…,"code":…,"data":{…}}`，`id` 原样带回 | [指令下发与服务调用](../3_platform/4_command) |
 | `devices/{deviceId}/ota/cmd` | 平台 → 设备 | OTA 任务下发 | [OTA 升级](../3_platform/5_ota) |
 | `devices/{deviceId}/ota/status` | 设备 → 平台 | OTA 进度上报 | [OTA 升级](../3_platform/5_ota) |
-| `shadow/{deviceId}/update`、`shadow/{deviceId}/get` | 设备 → 平台 | 上报 `reported`、请求全量影子 | [设备影子](../3_platform/3_device_shadow) |
-| `shadow/{deviceId}/update/accepted`、`update/rejected`、`delta`、`get/accepted` | 平台 → 设备 | 更新结果、差异推送、返回全量影子 | [设备影子](../3_platform/3_device_shadow) |
-| `gateways/{gatewayId}/status` | 网关 → 平台 | 网关进程自身的在线状态（遗嘱） | [MQTT 客户端](../2_access/3_mqtt_client) |
+| `devices/{deviceId}/shadow/update` | 设备、应用 → 平台 | 更新影子：设备写 `reported`，应用写 `desired` | [设备影子](../3_platform/3_device_shadow) |
+| `devices/{deviceId}/shadow/update/accepted`、`…/update/rejected` | 平台 → 请求方 | 更新被接受或被拒绝（版本冲突、格式错误） | [设备影子](../3_platform/3_device_shadow) |
+| `devices/{deviceId}/shadow/update/delta` | 平台 → 设备 | 更新被接受后 `desired` 与 `reported` 仍有差异时，推送差异部分 | [设备影子](../3_platform/3_device_shadow) |
+| `devices/{deviceId}/shadow/update/documents` | 平台 → 应用 | 每次更新成功后发布，含更新前后两份完整文档（`previous`、`current`） | [设备影子](../3_platform/3_device_shadow) |
+| `devices/{deviceId}/shadow/get` | 设备、应用 → 平台 | 请求全量影子（设备上线后先拉一次） | [设备影子](../3_platform/3_device_shadow) |
+| `devices/{deviceId}/shadow/get/accepted`、`…/get/rejected` | 平台 → 请求方 | 返回全量影子，或返回错误 | [设备影子](../3_platform/3_device_shadow) |
+| `gateways/{gatewayId}/connect`、`…/disconnect` | 网关 → 平台 | 网关代子设备上线、下线，载荷 `{"device":"子设备ID"}` | [网关与子设备](../2_access/5_gateway_subdevice) |
+| `gateways/{gatewayId}/telemetry` | 网关 → 平台 | 网关代子设备上报遥测，载荷按子设备分组 | [网关与子设备](../2_access/5_gateway_subdevice) |
+| `gateways/{gatewayId}/status` | 网关 → 平台 | 网关自身的在线状态（遗嘱） | [网关与子设备](../2_access/5_gateway_subdevice) |
+| `gateways/{gatewayId}/cmd` | 平台 → 网关 | 发给子设备的指令，由平台查拓扑表改投到网关，载荷是指令的标准形状加 `device` 字段 | [网关与子设备](../2_access/5_gateway_subdevice) |
+| `gateways/{gatewayId}/response` | 网关 → 平台 | 子设备指令的应答，载荷是应答的标准形状加 `device` 字段 | [网关与子设备](../2_access/5_gateway_subdevice) |
 | `gateways/{nodeId}/downlink` | 平台 → 网关节点 | 自研接入网关的下行通道，平台内部使用，按网关账号单独授权 | [Netty 接入网关](../2_access/6_netty_gateway) |
+
+几类载荷的形状如下，测点名在全模块统一用 `temperature`、`humidity`：
+
+```jsonc
+// 遥测：devices/{deviceId}/telemetry。ts 是毫秒时间戳，可以省略，省略时用平台收到消息的时间
+{"ts": 1767225600000, "values": {"temperature": 25.3, "humidity": 60.1}}
+
+// 指令：devices/{deviceId}/cmd，应答发到 devices/{deviceId}/response，靠同一个 id 配对
+{"id": "req-20260101-0001", "method": "setTargetTemperature", "params": {"value": 26}}
+{"id": "req-20260101-0001", "code": 200, "data": {"targetTemperature": 26}}
+
+// 事件：devices/{deviceId}/event。event 是物模型里的事件标识，params 是事件出参，事件级别写在物模型里、不放进载荷
+{"ts": 1767225600000, "event": "highTemperature", "params": {"temperature": 86.2}}
+
+// 网关代子设备上报：gateways/{gatewayId}/telemetry，键是子设备 ID
+{"sensor-001": [{"ts": 1767225600000, "values": {"temperature": 25.3}}]}
+
+// 发给子设备的指令：gateways/{gatewayId}/cmd，应答发到 gateways/{gatewayId}/response，都多一个 device
+{"device": "sensor-001", "id": "req-20260101-0002", "method": "reboot", "params": {"delaySeconds": 5}}
+{"device": "sensor-001", "id": "req-20260101-0002", "code": 200, "data": {}}
+```
+
+指令应答的配对有两层：载荷里的 `id` 是业务层的请求 ID，3.1.1 的设备只靠它；MQTT 5 下同时带上 Response Topic 与 Correlation Data，客户端库可以直接完成配对。发给子设备的指令不让网关逐台订阅 `devices/{子设备}/cmd`，而是改投网关自己的 `cmd` Topic（与 ThingsBoard 的 `v1/gateway/rpc` 同构），否则 ACL 要按拓扑逐条授权，EMQX 内置数据库每个客户端默认最多 100 条规则，理由见 [网关与子设备 · 下行指令](../2_access/5_gateway_subdevice#_4、下行指令)。遥测进入 Broker 之后转给 Kafka 的内部消息（TelemetryMessage：deviceId、protocol、timestamp、metrics）是平台内部的信封，不是设备协议，字段约定见 [遥测数据链路](../3_platform/2_data)。
 
 这样排有三个考虑：
 
@@ -134,6 +168,51 @@ Topic 的层级怎么排，决定了后台能不能用一个通配符收全量�
 - **通配符与 ACL 配套**：ACL 用 `${clientid}` 占位符写成 `devices/${clientid}/...`，一条规则管住所有设备，并禁止设备订阅 `#`、`+/#`；因为 Topic 里的设备 ID 被 ACL 绑定到连接身份，下游可以信任它，不用信任载荷里自报的 ID。完整的规则清单见 [设备安全 · 文件规则](../2_access/1_security#_3、文件规则-acl-conf)
 
 这不是唯一的排法。配套仓库 Conduit 用的是三段式 `conduit/{productKey}/{deviceKey}/up|down/...`，把产品也放进 Topic、方向单独占一段，接入层不查库就能路由，理由见 [设备接入与鉴权 · Topic 设计与解析](../4_practice/1_access#二、topic-设计与解析)。
+
+### 8、主流平台 Topic 与载荷对照
+
+MQTT 只规定 Topic 的语法，不规定该怎么命名，业界没有统一的 Topic 标准：云平台各有一套固定格式，开源平台和自建系统自己约定。下表是各家「设备上报遥测（属性）」这一件事的写法：
+
+| 平台 / 规范 | 遥测上报 Topic | 载荷 | 特点 |
+|-------------|---------------|------|------|
+| 阿里云物联网平台（Alink） | `/sys/${productKey}/${deviceName}/thing/event/property/post` | JSON：`id`、`version`、`sys`、`params`、`method`，`method` 固定为 `thing.event.property.post` | 物模型 Topic 由平台固定，应答在 `…/post_reply`；厂商私有 |
+| 腾讯云 IoT Explorer | `$thing/up/property/{ProductID}/{DeviceName}` | JSON：`method`（`report`）、`clientToken`、`timestamp`、`params` | 应答在 `$thing/down/property/…`，靠 `clientToken` 配对 |
+| 华为云 IoTDA | `$oc/devices/{device_id}/sys/properties/report` | JSON：`services` 数组，每项含 `service_id`、`properties`、`event_time` | 按产品模型里的服务分组上报 |
+| AWS IoT Core | 业务 Topic 自己定，白皮书建议 `dt/<application>/<context>/<thing-name>/<dt-type>` | 不规定 | `$` 开头的是保留 Topic：影子 `$aws/things/{thingName}/shadow/…`，Basic Ingest `$aws/rules/{ruleName}/…` 跳过消息代理直达规则以省消息费 |
+| Azure IoT Hub | `devices/{device-id}/messages/events/` | 不规定，消息属性以 URL 编码附在 Topic 末尾 | Topic 固定，只支持文档列出的几个；孪生与直接方法走 `$iothub/…` |
+| ThingsBoard | `v1/devices/me/telemetry` | `{"ts":…,"values":{…}}`，或不带时间戳的 `{"temperature":…}`（用服务端接收时间） | 设备身份来自连接凭证，Topic 里没有设备 ID；网关用 `v1/gateway/telemetry` |
+| Sparkplug B | `spBv1.0/{group_id}/{message_type}/{edge_node_id}/[device_id]` | Protobuf | 面向工业，带上下线状态管理，见下一小节 |
+| **本模块** | `devices/{deviceId}/telemetry` | `{"ts":…,"values":{…}}` | 设备 ID 在第二段，末段区分用途与方向 |
+
+本模块的取舍：
+
+- **Topic 的形状**取 AWS 白皮书与 HiveMQ 最佳实践里的通用原则：不以 `/` 开头、全小写、层级从一般到具体、设备 ID 放进 Topic、数据与指令分开、设备不订阅 `#`。成品最接近 Azure IoT Hub（`devices/{device-id}/…`）与 ThingsBoard。与白皮书的差别是：白皮书用第一段的 `dt`、`cmd` 区分数据和指令，本模块把第一段留给实体类型（`devices`、`gateways`），用末段区分
+- **遥测载荷**用 ThingsBoard 的 `{"ts","values"}`：只有时间戳和测点两样，设备端最容易实现，也方便一次带多个测点。与 ThingsBoard 的差别是 Topic 里带设备 ID（它用 `me`），这样 ACL 才能把 Topic 绑定到连接身份
+- **设备影子**的 Topic 后缀与文档模型（`state.desired`、`state.reported`、`delta`、`version`）对齐 AWS IoT Device Shadow，各家的影子或孪生都是「期望值、上报值、差异」这一个思路，AWS 的文档把每个 Topic 和字段写得最细；差别是前缀从保留 Topic `$aws/things/{thingName}/shadow` 换成 `devices/{deviceId}/shadow`
+- **不用 Alink**：它是厂商私有格式，而且阿里云物联网平台已停止新购（见 [平台选型](./2_platform)）。**不整体用 Sparkplug**：它要求 Protobuf 载荷和 BIRTH / DEATH 状态管理，面向工业现场，通用设备上云用不着这么重
+
+已经选定某家云平台时，直接用它的 Topic 和载荷，不要再套一层自己的约定；上表的用处是换平台或做多平台适配时，知道差别在哪几个字段。
+
+### 9、Sparkplug B 与统一命名空间（UNS）
+
+**Sparkplug**：Eclipse 基金会维护的开放规范，在 MQTT 之上补了三样东西：Topic 命名空间、状态管理（谁在线、谁掉线）、载荷格式，让不同厂商的工业设备和上位应用连到同一个 Broker 就能互相认识。现行版本是 3.0（2022 年），2023 年成为国际标准 ISO/IEC 20237:2023，两者内容等同；「Sparkplug B」指它的 B 版载荷编码，对应命名空间 `spBv1.0`，客户端用 MQTT 3.1.1 或 5.0 都可以。
+
+Topic 固定为 `spBv1.0/{group_id}/{message_type}/{edge_node_id}/[device_id]`。边缘节点（Edge Node）一般是网关，设备（Device）是它下面挂的 PLC、仪表，消息类型有九种：
+
+| 消息类型 | 含义 |
+|---------|------|
+| NBIRTH / NDEATH | 边缘节点上线 / 离线；NDEATH 在连接时登记为 MQTT 遗嘱 |
+| DBIRTH / DDEATH | 节点下的设备上线 / 离线 |
+| NDATA / DDATA | 节点 / 设备的数据 |
+| NCMD / DCMD | 发给节点 / 设备的指令 |
+| STATE | 上位应用（Host Application）自己的在线状态，Topic 是 `spBv1.0/STATE/{sparkplug_host_id}` |
+
+- **先 BIRTH 后 DATA**：BIRTH 消息列出这个节点或设备今后会上报的全部测点（名称、数据类型、当前值），之后的 DATA 只带发生变化的测点。上位应用靠每条消息里 0–255 循环的序号 `seq` 发现丢包，发现缺口或收到没见过的测点时，用 NCMD 让节点重发一遍 BIRTH
+- **载荷是 Protobuf**：每个测点带名称（或别名）、时间戳、数据类型和值，比 JSON 省带宽，代价是抓包不能直接读，两端都要引入 Sparkplug 的编解码库
+- **与 OPC UA 的关系**：两者不是二选一。OPC UA 管设备侧的信息模型和访问方式；Sparkplug 管数据进了 MQTT 之后怎么组织。常见组合是边缘网关用 OPC UA 或 Modbus 采 PLC，再以 Sparkplug 边缘节点的身份发布到 Broker；OPC 基金会自己的路线则是 OPC UA PubSub over MQTT
+- **统一命名空间（Unified Namespace，UNS）**：一种架构做法，不是协议。全厂的数据都发布到同一个 Broker，Topic 按 ISA-95 的「企业 / 工厂 / 区域 / 产线 / 单元」层级组织，各系统都从这一处取数，不再两两对接。Sparkplug 的 Topic 只有 `group_id`、`edge_node_id`、`device_id` 三段可用，放不下完整的层级，所以落地时要么把层级编进 `group_id`，要么 UNS 用普通 Topic 加 JSON，只在设备接入侧用 Sparkplug
+
+**什么时候用**：工厂里多家厂商的 PLC、SCADA、MES、历史库要互认数据，并且需要准确知道设备在线状态时，用 Sparkplug 能省掉逐家对点表的工作。消费类设备、表计、自研设备上云不必采用：设备端和平台端都要实现 Protobuf、BIRTH / DEATH 状态机与序号检查，成本明显高于前面那套 JSON 约定。
 
 ---
 
@@ -165,7 +244,17 @@ Topic 的层级怎么排，决定了后台能不能用一个通配符收全量�
 
 ### 3、LwM2M
 
-**LwM2M（Lightweight M2M）**：OMA SpecWorks 制定的设备管理协议，传输层基于 CoAP（也可用 DTLS 加密）。它在 CoAP 之上规定了标准的对象模型（如设备信息、固件升级、连接监控对象），以及注册、上报、下发、固件升级等标准流程，在 NB-IoT 表计、运营商物联网平台中很常见。Java 侧的开源实现是 Eclipse Leshan（服务端与客户端），EMQX 也提供 LwM2M 网关把设备接入到 MQTT 体系。
+**LwM2M（Lightweight M2M）**：OMA SpecWorks 制定的设备管理协议。它在 CoAP 之上规定了标准的对象模型（如设备信息、固件升级、连接监控对象），以及注册、上报、下发、固件升级等标准流程，在 NB-IoT 表计、运营商物联网平台中很常见。Java 侧的开源实现是 Eclipse Leshan（服务端与客户端），EMQX 也提供 LwM2M 网关把设备接入到 MQTT 体系。
+
+LwM2M 能跑在哪些传输上，随版本逐步放宽：
+
+| 版本 | 传输绑定 |
+|------|---------|
+| 1.0 | CoAP over UDP（DTLS 加密）、短信 |
+| 1.1 | 增加 CoAP over TCP / TLS，以及非 IP 传输（3GPP CIoT、LoRaWAN） |
+| 1.2 | 增加 MQTT 与 HTTP 两种传输绑定 |
+
+TCP / TLS 绑定主要是为了穿过只放行 TCP 的企业防火墙；选 1.2 的 MQTT 或 HTTP 绑定之前，先确认设备模组、客户端库和平台三方都支持到这个版本。
 
 ---
 
@@ -209,7 +298,7 @@ NB-IoT 与 LoRa 的对比：
 | 成本 | 持续的流量资费 | 一次性网关成本 |
 | 适合场景 | 大范围公共部署 | 园区、农场等私有网络 |
 
-NB-IoT 终端常用 CoAP / LwM2M 或 MQTT 上报，进入 PSM 后设备不可达，平台下发的指令需要缓存到设备下次唤醒，这正是 [设备影子](../3_platform/3_device_shadow) 要解决的问题。
+NB-IoT 终端常用 CoAP / LwM2M 或 MQTT 上报，进入 PSM 后设备不可达，平台下发的指令需要缓存到设备下次唤醒，这正是 [设备影子](../3_platform/3_device_shadow) 要解决的问题；一次性指令的缓存与过期见 [指令下发与服务调用](../3_platform/4_command)。
 
 ---
 
@@ -227,6 +316,15 @@ NB-IoT 终端常用 CoAP / LwM2M 或 MQTT 上报，进入 PSM 后设备不可达
 | 适用场景 | 智能家居（灯光、插座、传感器）、楼宇自动化 |
 
 常见做法是用 [Zigbee2MQTT](https://www.zigbee2mqtt.io/) 把 Zigbee 设备桥接到 MQTT Broker，后端只需要对接 MQTT。
+
+**Matter 与 Thread**：Zigbee 设备不走 IP，必须经网关转换才能接入家庭网络和云端。连接标准联盟（CSA，原 Zigbee 联盟）制定的 **Matter** 是跑在 IP 之上的智能家居应用层标准，现行版本 1.6（2026 年 6 月发布，最新修订 1.6.1）：
+
+- **承载网络**：原生支持 Wi-Fi、以太网和 Thread，蓝牙低功耗只用于配网，1.6 起也可以用 NFC 配网
+- **Thread**：Thread Group 制定的低功耗 Mesh 网络协议（现行 1.4 系列），和 Zigbee 用同一种 IEEE 802.15.4 射频，但网络层是 IPv6，适合传感器、门锁、开关这类电池设备，经 Thread 边界路由器接入家庭网络
+- **本地控制**：设备在局域网内由控制器（音箱、中枢、手机）直接管理，一台设备可以同时加入多个生态；离家远程控制要靠能上网的控制器中转
+- **与 Zigbee 的关系**：两者不能直接互通，存量 Zigbee 设备经 Matter Bridge 接入
+
+Matter 解决的是家居设备与各家生态的互通，不规定设备怎么连厂商自己的云；需要云端数据和运营能力的产品，仍然要另走 MQTT 这条通道。新做智能家居产品优先考虑 Matter（插电设备用 Wi-Fi，电池设备用 Thread），存量和低成本传感器继续用 Zigbee。
 
 ---
 
@@ -272,9 +370,10 @@ Java 侧的开源实现是 [Eclipse Milo](https://github.com/eclipse-milo/milo)�
 | 电池供电、长时间休眠的受限设备 | CoAP / LwM2M |
 | 园区、农场等自建低功耗广域网 | LoRaWAN |
 | 大范围公共设施部署（运营商网络） | NB-IoT |
-| 智能家居短距组网 | Zigbee（经网关桥接 MQTT） |
+| 智能家居短距组网 | 新产品优先 Matter（Wi-Fi 或 Thread）；存量与低成本传感器用 Zigbee（经网关桥接 MQTT） |
 | 存量 PLC、仪表接入 | Modbus RTU / TCP |
 | 新建产线、需要语义互操作 | OPC UA |
+| 工厂内多厂商设备与 SCADA、MES 互认数据 | MQTT + Sparkplug B |
 | 海量设备数据进入大数据平台 | MQTT 接入，Broker 桥接到 [Kafka 架构与存储](/messaging/2_kafka) |
 
 ---
@@ -284,15 +383,37 @@ Java 侧的开源实现是 [Eclipse Milo](https://github.com/eclipse-milo/milo)�
 - MQTT 是 IoT 应用层的事实标准：经 Broker 的发布 / 订阅、按 Topic 路由，QoS 只保证一跳的投递语义，重要指令仍要业务幂等
 - 持久会话依赖固定的 Client ID；保留消息解决「订阅即拿到当前值」，遗嘱消息解决「异常离线通知」
 - MQTT 5.0 的原因码、共享订阅、消息过期、请求 / 响应、Clean Start 与 Session Expiry Interval 都是工程上常用的能力，新项目优先用 5.0
+- 业界没有统一的 Topic 标准：本模块用 `devices/{deviceId}/…` 加 `{"ts","values"}` 载荷，遥测默认 QoS 1，影子 Topic 对齐 AWS；选定云平台时直接用它的格式
+- Sparkplug B（ISO/IEC 20237）在 MQTT 上规定了 Topic、BIRTH / DEATH 状态与 Protobuf 载荷，适合工业现场多厂商互认，通用设备上云不必采用
 - CoAP 面向休眠的受限设备，LwM2M 在其上规定了设备管理对象和流程；LoRaWAN 和 NB-IoT 分别对应自建网络和运营商网络
+- 智能家居新产品优先 Matter（Wi-Fi 或 Thread），存量设备用 Zigbee 经网关桥接
 - Modbus 只有寄存器没有语义，解析依赖点表；OPC UA 自带信息模型和安全机制，适合新建系统
 
 ## 参考资料
 
 - MQTT Version 5.0（OASIS Standard）：[https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html)
 - MQTT 规范汇总：[https://mqtt.org/mqtt-specification/](https://mqtt.org/mqtt-specification/)
+- EMQX 文档：MQTT over QUIC：[https://docs.emqx.com/en/emqx/latest/mqtt-over-quic/introduction.html](https://docs.emqx.com/en/emqx/latest/mqtt-over-quic/introduction.html)
+- AWS 白皮书 Designing MQTT Topics for AWS IoT Core（2021 年发布，AWS 已标注为历史参考，只提供 PDF）：[https://docs.aws.amazon.com/pdfs/whitepapers/latest/designing-mqtt-topics-aws-iot-core/designing-mqtt-topics-aws-iot-core.pdf](https://docs.aws.amazon.com/pdfs/whitepapers/latest/designing-mqtt-topics-aws-iot-core/designing-mqtt-topics-aws-iot-core.pdf)
+- HiveMQ：MQTT Topics 最佳实践：[https://www.hivemq.com/blog/mqtt-essentials-part-5-mqtt-topics-best-practices/](https://www.hivemq.com/blog/mqtt-essentials-part-5-mqtt-topics-best-practices/)
+- AWS IoT Core 保留 Topic：[https://docs.aws.amazon.com/iot/latest/developerguide/reserved-topics.html](https://docs.aws.amazon.com/iot/latest/developerguide/reserved-topics.html)
+- AWS IoT Device Shadow 的 MQTT Topic：[https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html](https://docs.aws.amazon.com/iot/latest/developerguide/device-shadow-mqtt.html)
+- AWS IoT Basic Ingest：[https://docs.aws.amazon.com/iot/latest/developerguide/iot-basic-ingest.html](https://docs.aws.amazon.com/iot/latest/developerguide/iot-basic-ingest.html)
+- Azure IoT Hub 的 MQTT 支持：[https://learn.microsoft.com/en-us/azure/iot/iot-mqtt-connect-to-iot-hub](https://learn.microsoft.com/en-us/azure/iot/iot-mqtt-connect-to-iot-hub)
+- 阿里云物联网平台：设备属性、事件、服务（Alink 协议）：[https://help.aliyun.com/zh/iot/user-guide/device-properties-events-and-services](https://help.aliyun.com/zh/iot/user-guide/device-properties-events-and-services)
+- 腾讯云物联网开发平台：物模型协议：[https://cloud.tencent.com/document/product/1081/34916](https://cloud.tencent.com/document/product/1081/34916)
+- 华为云 IoTDA：设备属性上报：[https://support.huaweicloud.com/api-iothub/iot_06_v5_3010.html](https://support.huaweicloud.com/api-iothub/iot_06_v5_3010.html)
+- ThingsBoard MQTT 设备 API：遥测：[https://thingsboard.io/docs/reference/mqtt-api/telemetry/](https://thingsboard.io/docs/reference/mqtt-api/telemetry/)
+- ThingsBoard 网关 MQTT API：[https://thingsboard.io/docs/reference/gateway-mqtt-api/](https://thingsboard.io/docs/reference/gateway-mqtt-api/)
+- Eclipse Sparkplug 规范 3.0：[https://sparkplug.eclipse.org/specification/](https://sparkplug.eclipse.org/specification/)
+- Eclipse 基金会：Sparkplug 成为国际标准 ISO/IEC 20237：[https://newsroom.eclipse.org/node/39754](https://newsroom.eclipse.org/node/39754)
+- HiveMQ：用 MQTT Sparkplug 实现统一命名空间：[https://www.hivemq.com/blog/implementing-unified-namespace-uns-mqtt-sparkplug/](https://www.hivemq.com/blog/implementing-unified-namespace-uns-mqtt-sparkplug/)
 - RFC 7252 The Constrained Application Protocol (CoAP)：[https://www.rfc-editor.org/info/rfc7252](https://www.rfc-editor.org/info/rfc7252)
+- OMA LwM2M 1.2 传输绑定规范：[https://www.openmobilealliance.org/release/LightweightM2M/V1_2-20201110-A/HTML-Version/OMA-TS-LightweightM2M_Transport-V1_2-20201110-A.html](https://www.openmobilealliance.org/release/LightweightM2M/V1_2-20201110-A/HTML-Version/OMA-TS-LightweightM2M_Transport-V1_2-20201110-A.html)
 - Eclipse Leshan（LwM2M）：[https://github.com/eclipse-leshan/leshan](https://github.com/eclipse-leshan/leshan)
+- CSA：Matter 常见问题：[https://csa-iot.org/all-solutions/matter/matter-faq/](https://csa-iot.org/all-solutions/matter/matter-faq/)
+- CSA：Matter 1.6 发布说明：[https://csa-iot.org/newsroom/matter-1-6-enables-more-intuitive-setup-multi-ecosystem-experiences-and-context-driven-control/](https://csa-iot.org/newsroom/matter-1-6-enables-more-intuitive-setup-multi-ecosystem-experiences-and-context-driven-control/)
+- Thread Group：Thread 概览：[https://www.threadgroup.org/What-is-Thread/Overview](https://www.threadgroup.org/What-is-Thread/Overview)
 - LoRaWAN 规范：[https://lora-alliance.org/resource_hub/lorawan-specification-v1-0-3/](https://lora-alliance.org/resource_hub/lorawan-specification-v1-0-3/)
 - OPC UA 规范：[https://opcfoundation.org/developer-tools/specifications-unified-architecture](https://opcfoundation.org/developer-tools/specifications-unified-architecture)
 - Eclipse Milo：[https://github.com/eclipse-milo/milo](https://github.com/eclipse-milo/milo)

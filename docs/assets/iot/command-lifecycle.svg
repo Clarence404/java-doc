@@ -1,0 +1,96 @@
+<svg viewBox="0 0 760 652" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:1.5; }
+    .lbl { font-weight:600; font-size:12px; fill:var(--fg); }
+    .sub { font-size:10px; fill:var(--muted); }
+    .sec { font-weight:600; font-size:11px; }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+    .life { stroke:var(--border); stroke-width:1.5; stroke-dasharray:5 4; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+  <text x="380" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">指令下发：同步与异步时序、命令状态机</text>
+
+  <!-- 参与者 -->
+  <rect class="box" x="20" y="50" width="140" height="60" stroke="var(--b)"/>
+  <text class="lbl" x="90" y="76" text-anchor="middle" fill="var(--b)">业务应用</text>
+  <text class="sub" x="90" y="94" text-anchor="middle">控制台 · API</text>
+  <rect class="box" x="310" y="50" width="140" height="60" stroke="var(--p)"/>
+  <text class="lbl" x="380" y="76" text-anchor="middle" fill="var(--p)">指令服务</text>
+  <text class="sub" x="380" y="94" text-anchor="middle">命令表 · 状态机</text>
+  <rect class="box" x="600" y="50" width="140" height="60" stroke="var(--g)"/>
+  <text class="lbl" x="670" y="76" text-anchor="middle" fill="var(--g)">设备</text>
+  <text class="sub" x="670" y="94" text-anchor="middle">MQTT 长连接</text>
+  <line class="life" x1="90" y1="110" x2="90" y2="470"/>
+  <line class="life" x1="380" y1="110" x2="380" y2="470"/>
+  <line class="life" x1="670" y1="110" x2="670" y2="470"/>
+
+  <!-- 同步调用 -->
+  <text class="sec" x="20" y="132" fill="var(--b)">同步调用</text>
+  <line class="arr" x1="90" y1="150" x2="378" y2="150"/>
+  <text class="sub" x="234" y="142" text-anchor="middle">① invoke：落库 CREATED，等结果</text>
+  <line class="arr" x1="380" y1="190" x2="668" y2="190"/>
+  <text class="sub" x="524" y="182" text-anchor="middle">② cmd {id, method, params}，记 SENT</text>
+  <line class="arr" x1="670" y1="230" x2="382" y2="230"/>
+  <text class="sub" x="526" y="222" text-anchor="middle">③ response {id, code: 200}</text>
+  <line class="arr" x1="380" y1="270" x2="92" y2="270"/>
+  <text class="sub" x="236" y="262" text-anchor="middle">④ SUCCEEDED，返回结果；超时返回 504</text>
+
+  <!-- 异步调用 -->
+  <text class="sec" x="20" y="312" fill="var(--y)">异步 · 离线</text>
+  <line class="arr" x1="90" y1="330" x2="378" y2="330"/>
+  <text class="sub" x="234" y="322" text-anchor="middle">⑤ submit：立即返回命令 ID</text>
+  <line class="arr" x1="380" y1="370" x2="668" y2="370"/>
+  <text class="sub" x="524" y="362" text-anchor="middle">⑥ 设备上线后补发 cmd，记 SENT</text>
+  <line class="arr" x1="670" y1="410" x2="382" y2="410"/>
+  <text class="sub" x="526" y="402" text-anchor="middle">⑦ response {id, code}</text>
+  <line class="arr" x1="380" y1="450" x2="92" y2="450"/>
+  <text class="sub" x="236" y="442" text-anchor="middle">⑧ 回调，或由应用查询命令状态</text>
+
+  <!-- 状态机 -->
+  <text class="sec" x="20" y="500" fill="var(--fg)">命令状态机</text>
+  <rect class="box" x="20" y="516" width="130" height="36" stroke="var(--b)"/>
+  <text class="lbl" x="85" y="539" text-anchor="middle">CREATED</text>
+  <rect class="box" x="210" y="516" width="130" height="36" stroke="var(--b)"/>
+  <text class="lbl" x="275" y="539" text-anchor="middle">SENT</text>
+  <rect class="box" x="400" y="516" width="130" height="36" stroke="var(--b)"/>
+  <text class="lbl" x="465" y="539" text-anchor="middle">DELIVERED</text>
+  <rect class="box" x="590" y="516" width="150" height="36" stroke="var(--g)"/>
+  <text class="lbl" x="665" y="539" text-anchor="middle" fill="var(--g)">SUCCEEDED</text>
+  <line class="arr" x1="150" y1="534" x2="208" y2="534"/>
+  <text class="sub" x="179" y="526" text-anchor="middle">已发布</text>
+  <line class="arr" x1="340" y1="534" x2="398" y2="534"/>
+  <text class="sub" x="369" y="526" text-anchor="middle">code 202</text>
+  <line class="arr" x1="530" y1="534" x2="588" y2="534"/>
+  <text class="sub" x="559" y="526" text-anchor="middle">code 200</text>
+
+  <rect class="box" x="20" y="596" width="130" height="36" stroke="var(--y)"/>
+  <text class="lbl" x="85" y="619" text-anchor="middle" fill="var(--y)">EXPIRED</text>
+  <rect class="box" x="210" y="596" width="130" height="36" stroke="var(--y)"/>
+  <text class="lbl" x="275" y="619" text-anchor="middle" fill="var(--y)">TIMED_OUT</text>
+  <rect class="box" x="390" y="596" width="150" height="36" stroke="var(--r)"/>
+  <text class="lbl" x="465" y="619" text-anchor="middle" fill="var(--r)">FAILED / REJECTED</text>
+  <line class="arr" x1="85" y1="552" x2="85" y2="594"/>
+  <text class="sub" x="93" y="577">过期未发出</text>
+  <line class="arr" x1="275" y1="552" x2="275" y2="594"/>
+  <text class="sub" x="283" y="577">超时未应答</text>
+  <line class="arr" x1="465" y1="552" x2="465" y2="594"/>
+  <text class="sub" x="473" y="577">code 5xx / 4xx</text>
+  <text class="sub" x="590" y="610">DELIVERED 可省略</text>
+  <text class="sub" x="590" y="626">超时后迟到的应答仍记账</text>
+</svg>

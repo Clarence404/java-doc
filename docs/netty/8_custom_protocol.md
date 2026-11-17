@@ -41,7 +41,7 @@ description: 帧格式与字段设计、LengthFieldBasedFrameDecoder、编解码
 | 校验（CRC，可选） | 2~4 字节 | 检测传输过程中的数据损坏 | 在不可靠链路（串口转 TCP 等）上可能收到脏数据 |
 
 ::: tip 字段取舍
-字段越多越"完备"，但每条消息的固定开销也越大。IoT 设备链路带宽小，通常只保留魔数、版本、命令字、长度、CRC；RPC 场景则一定要有请求 ID 和序列化方式。
+字段越多越"完备"，但每条消息的固定开销也越大。IoT 设备链路带宽小，通常只保留魔数、版本、命令字、流水号、长度、CRC，流水号用来让通用应答与设备重发对上号；RPC 场景则一定要有请求 ID 和序列化方式。
 :::
 
 ### 3、本文示例帧格式
@@ -103,7 +103,7 @@ new LengthFieldBasedFrameDecoder(
 | Length 在最前，值**含**自身 2 字节 | 0 | 2 | -2 | 0 | 值多算了自身 2 字节，需减去 |
 | Magic(2) + Length(2)，值不含帧头 | 2 | 2 | 0 | 0 | 跳过 2 字节魔数找长度 |
 | 本文帧结构 | 4 | 2 | 0 | 0 | 长度之后即 Payload |
-| 本文帧结构 + 末尾 CRC(2) | 4 | 2 | 2 | 0 | Length 不含 CRC，需补上 2 字节（IoT 实战用法） |
+| 本文帧结构 + 流水号 Seq(2) + 末尾 CRC(2) | 6 | 2 | 2 | 0 | Length 前多了 2 字节流水号；Length 不含 CRC，需补上 2 字节（IoT 实战用法） |
 | 本文帧结构，Length 值为**整帧长度** | 4 | 2 | -6 | 0 | 值多算了 6 字节帧头，需减去 |
 
 ::: warning 常见错误
@@ -389,7 +389,7 @@ public class RpcResponseHandler extends SimpleChannelInboundHandler<RpcResponse>
 
 ## 八、IoT 完整实战
 
-上面是通用模板（无 CRC 校验）。面向 IoT 设备接入、带 **CRC16 校验**与跳字节重新同步的完整实现，包含 `DeviceFrame`、`DeviceFrameDecoder`、`DeviceFrameEncoder`、`Crc16` 以及鉴权与连接注册，见：
+上面是通用模板（无流水号与 CRC 校验）。面向 IoT 设备接入的完整实现在帧头 Length 之前多了 2 字节流水号 Seq（帧头 8 字节，`LengthFieldBasedFrameDecoder` 的 `lengthFieldOffset = 6`、`lengthAdjustment = 2`），末尾带 **CRC16 校验**，命令字增加 CHALLENGE（鉴权挑战）与 ACK（通用应答，带回被应答帧的 Seq），并演示跳字节重新同步，包含 `DeviceFrame`、`DeviceFrameDecoder`、`DeviceFrameEncoder`、`Crc16` 以及挑战鉴权与连接注册，见：
 
 [Netty 接入网关](/iot/2_access/6_netty_gateway#二、带-crc-的私有协议帧)
 

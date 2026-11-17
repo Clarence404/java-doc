@@ -1,0 +1,106 @@
+<svg viewBox="0 0 760 450" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:1.5; }
+    .lbl { font-weight:600; font-size:12px; }
+    .sub { font-size:10px; fill:var(--muted); }
+    .mono { font-size:11px; font-family:ui-monospace,Consolas,monospace; fill:var(--fg); }
+    .hd { font-weight:600; font-size:12px; fill:var(--fg); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">网关代子设备接入：拓扑、上报流程与信任模型</text>
+
+  <!-- 第一行：拓扑 -->
+  <rect class="box" x="10" y="50" width="130" height="40" stroke="var(--y)"/>
+  <text class="lbl" x="75" y="75" text-anchor="middle" fill="var(--y)">Modbus 仪表</text>
+  <rect class="box" x="10" y="98" width="130" height="40" stroke="var(--y)"/>
+  <text class="lbl" x="75" y="123" text-anchor="middle" fill="var(--y)">Zigbee 传感器</text>
+  <rect class="box" x="10" y="146" width="130" height="40" stroke="var(--y)"/>
+  <text class="lbl" x="75" y="171" text-anchor="middle" fill="var(--y)">PLC</text>
+
+  <text class="sub" x="169" y="63" text-anchor="middle">现场总线</text>
+  <line class="arr" x1="140" y1="70" x2="198" y2="70"/>
+  <line class="arr" x1="140" y1="118" x2="198" y2="118"/>
+  <line class="arr" x1="140" y1="166" x2="198" y2="166"/>
+
+  <rect class="box" x="200" y="50" width="130" height="136" stroke="var(--b)"/>
+  <text class="lbl" x="265" y="82" text-anchor="middle" fill="var(--b)">边缘网关</text>
+  <text class="sub" x="265" y="108" text-anchor="middle">协议转换</text>
+  <text class="sub" x="265" y="128" text-anchor="middle">断网时本地缓存</text>
+  <text class="sub" x="265" y="148" text-anchor="middle">代子设备收发</text>
+
+  <text class="sub" x="374" y="111" text-anchor="middle">一条 MQTT 连接</text>
+  <line class="arr" x1="330" y1="118" x2="418" y2="118"/>
+
+  <rect class="box" x="420" y="50" width="130" height="136" stroke="var(--g)"/>
+  <text class="lbl" x="485" y="82" text-anchor="middle" fill="var(--g)">EMQX</text>
+  <text class="sub" x="485" y="108" text-anchor="middle">只认网关这个客户端</text>
+  <text class="sub" x="485" y="128" text-anchor="middle">ACL 把 Topic 绑定到</text>
+  <text class="sub" x="485" y="148" text-anchor="middle">网关的 clientid</text>
+
+  <text class="sub" x="584" y="111" text-anchor="middle">共享订阅</text>
+  <line class="arr" x1="550" y1="118" x2="618" y2="118"/>
+
+  <rect class="box" x="620" y="50" width="130" height="136" stroke="var(--p)"/>
+  <text class="lbl" x="685" y="82" text-anchor="middle" fill="var(--p)">平台</text>
+  <text class="sub" x="685" y="108" text-anchor="middle">按拓扑表校验归属</text>
+  <text class="sub" x="685" y="128" text-anchor="middle">拆成各子设备的</text>
+  <text class="sub" x="685" y="148" text-anchor="middle">TelemetryMessage</text>
+
+  <!-- 第二行：上线与上报 -->
+  <text class="hd" x="380" y="212" text-anchor="middle">网关代子设备上线与上报（示例网关 gw-01）</text>
+
+  <rect class="box" x="10" y="228" width="164" height="64" stroke="var(--b)"/>
+  <text class="lbl" x="92" y="254" text-anchor="middle" fill="var(--b)">① 网关 CONNECT</text>
+  <text class="sub" x="92" y="274" text-anchor="middle">遗嘱发到 …/gw-01/status</text>
+
+  <line class="arr" x1="174" y1="260" x2="200" y2="260"/>
+
+  <rect class="box" x="202" y="228" width="164" height="64" stroke="var(--b)"/>
+  <text class="lbl" x="284" y="254" text-anchor="middle" fill="var(--b)">② …/gw-01/connect</text>
+  <text class="sub" x="284" y="274" text-anchor="middle">{"device":"meter-01"}</text>
+
+  <line class="arr" x1="366" y1="260" x2="392" y2="260"/>
+
+  <rect class="box" x="394" y="228" width="164" height="64" stroke="var(--g)"/>
+  <text class="lbl" x="476" y="254" text-anchor="middle" fill="var(--g)">③ …/gw-01/telemetry</text>
+  <text class="sub" x="476" y="274" text-anchor="middle">按子设备分组的 ts + values</text>
+
+  <line class="arr" x1="558" y1="260" x2="584" y2="260"/>
+
+  <rect class="box" x="586" y="228" width="164" height="64" stroke="var(--r)"/>
+  <text class="lbl" x="668" y="254" text-anchor="middle" fill="var(--r)">④ …/gw-01/disconnect</text>
+  <text class="sub" x="668" y="274" text-anchor="middle">或遗嘱触发，子设备级联离线</text>
+
+  <!-- 第三行：两种信任模型 -->
+  <text class="hd" x="380" y="318" text-anchor="middle">两种信任模型</text>
+
+  <rect class="box" x="10" y="334" width="364" height="96" stroke="var(--y)"/>
+  <text class="lbl" x="192" y="356" text-anchor="middle" fill="var(--y)">子设备自带凭据（阿里云式）</text>
+  <text class="sub" x="192" y="376" text-anchor="middle">代理上线时带上用子设备密钥算出的签名</text>
+  <text class="sub" x="192" y="392" text-anchor="middle">平台逐台校验，网关只是通道</text>
+  <text class="sub" x="192" y="408" text-anchor="middle">适合：子设备能烧录并保管密钥</text>
+
+  <rect class="box" x="386" y="334" width="364" height="96" stroke="var(--p)"/>
+  <text class="lbl" x="568" y="356" text-anchor="middle" fill="var(--p)">信任网关（ThingsBoard 式，本模块采用）</text>
+  <text class="sub" x="568" y="376" text-anchor="middle">平台只认证网关，子设备写在载荷里</text>
+  <text class="sub" x="568" y="392" text-anchor="middle">归属靠平台侧的拓扑表校验</text>
+  <text class="sub" x="568" y="408" text-anchor="middle">适合：Modbus 仪表这类没有身份的存量设备</text>
+</svg>

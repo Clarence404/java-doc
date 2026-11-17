@@ -217,19 +217,19 @@ mvn -B verify -Pe2e -pl conduit-e2e          # 端到端故障场景，约 6～1
 | 篇 | 讲什么 | 先读 |
 |----|--------|------|
 | 平台实战概览 | 本篇 | [平台选型](../1_basics/2_platform) |
-| [设备接入与鉴权](./1_access) | topic 设计、设备凭据、EMQX HTTP 鉴权回调、ACL、上下线与在线状态 | [设备安全](../2_access/1_security)、[通信协议](../1_basics/1_protocol) |
-| [物模型与解码](./2_thing_model) | 物模型数据结构、逐测点校验、可插拔解码器、按产品缓存、缺测与零值 | [平台选型](../1_basics/2_platform) |
+| [设备接入与鉴权](./1_access) | topic 设计、设备凭据、EMQX HTTP 鉴权回调、ACL、上下线与在线状态 | [设备安全](../2_access/1_security)、[设备注册与生命周期](../2_access/2_provisioning)、[通信协议](../1_basics/1_protocol) |
+| [物模型与解码](./2_thing_model) | 物模型数据结构、逐测点校验、可插拔解码器、按产品缓存、缺测与零值 | [物模型](../3_platform/1_thing_model) |
 | [可靠上报与接入层主备](./3_reliable_uplink) | 写入总线后才 PUBACK、消息 id 与业务回执、transport 选主、共享订阅 | [MQTT 客户端](../2_access/3_mqtt_client)、[分布式锁](/distributed/3_lock) |
 | [数据流水线](./4_pipeline) | 消费组、批处理、退避重试、认领、死信、积压 | [遥测数据链路](../3_platform/2_data)、[Redis 典型应用场景](/cache/4_redis_scenario) |
 | [时序存储与历史查询](./5_telemetry) | InfluxDB 3 建模与写入、最新值、自动聚合、缺桶、遥测重放 | [时序数据库](/nosql/4_time_series_db) |
 | [多租户与授权](./6_tenant) | 租户过滤、跨租户通道、组织模型、范围授权、会话 | [权限系统架构设计](/architecture/6_access_control) |
 | 规划中：设备影子 | Conduit 尚未实现，计划中（见 roadmap） | [设备影子](../3_platform/3_device_shadow) |
 | 规划中：OTA 升级 | Conduit 尚未实现，计划中（见 roadmap） | [OTA 升级](../3_platform/5_ota) |
-| 规划中：规则引擎 | Conduit 尚未实现，计划中（见 roadmap） | [规则引擎](../3_platform/6_rule_engine) |
-| [压测与瓶颈排查](./10_capacity) | 压测方法、逐跳定位瓶颈、几次优化的前后对比 | [性能分析方法论](/high-perf/2_methodology) |
+| 规划中：规则引擎与告警 | Conduit 尚未实现，计划中（见 roadmap） | [规则引擎与告警](../3_platform/6_rule_engine) |
+| [压测与瓶颈排查](./10_capacity) | 压测方法、逐跳定位瓶颈、几次优化的前后对比 | [海量连接与连接风暴](../2_access/7_connection_storm)、[性能分析方法论](/high-perf/2_methodology) |
 | [部署与可观测](./11_deploy) | 三套部署包、指标与看板、健康检查、发布与回滚 | [可观测性总览](/observability/0_overview) |
 
-目前已完成的是其中九篇。「先读」一列的文章讲通用原理和选型，本系列只讲在 Conduit 里怎么落地、为什么这样取舍。标「规划中」的三行目前只有右边那三篇通用设计文章，讲的是这类功能一般怎么设计，不是 Conduit 的实现；Conduit 做完对应版本后，会在本系列补上实现篇，文件编号 19～21 就是留给它们的。
+目前已完成的是其中九篇。「先读」一列的文章讲通用原理和选型，本系列只讲在 Conduit 里怎么落地、为什么这样取舍。标「规划中」的三行目前只有右边那三篇通用设计文章，讲的是这类功能一般怎么设计，不是 Conduit 的实现；Conduit 做完对应版本后，会在本系列补上实现篇，文件编号 7–9 就是留给它们的。
 
 ---
 
@@ -253,14 +253,14 @@ mvn -B verify -Pe2e -pl conduit-e2e          # 端到端故障场景，约 6～1
 |------|-----------|------|---------|
 | 设备影子与属性同步 | V0.4 | Conduit 尚未实现，计划中 | [设备影子](../3_platform/3_device_shadow)（通用设计） |
 | OTA 升级 | V0.4 | Conduit 尚未实现，计划中 | [OTA 升级](../3_platform/5_ota)（通用设计） |
-| 规则引擎与告警 | V0.5 | Conduit 尚未实现，计划中 | [规则引擎](../3_platform/6_rule_engine)（通用设计） |
-| 下行命令（RPC） | V0.4 | 未实现；设备能订阅的下行 topic 目前只用于业务回执 `down/ack` | — |
-| 网关与子设备 | V0.4 | 未实现，只支持设备直连 | — |
-| 事件上报 | 随告警一起设计 | topic `up/event` 能解析，但流水线直接按 `UNSUPPORTED_TYPE` 进死信 | — |
+| 规则引擎与告警 | V0.5 | Conduit 尚未实现，计划中 | [规则引擎与告警](../3_platform/6_rule_engine)（通用设计） |
+| 下行命令（RPC） | V0.4 | 未实现；设备能订阅的下行 topic 目前只用于业务回执 `down/ack` | [指令下发与服务调用](../3_platform/4_command)（通用设计） |
+| 网关与子设备 | V0.4 | 未实现，只支持设备直连 | [网关与子设备](../2_access/5_gateway_subdevice)（通用设计） |
+| 事件上报 | 随告警一起设计 | topic `up/event` 能解析，但流水线直接按 `UNSUPPORTED_TYPE` 进死信 | [物模型](../3_platform/1_thing_model)（事件的通用设计） |
 | HTTP、Modbus TCP 等其他协议 | 后续 | `ProtocolAdapter` 接口已有，实现只有 MQTT | [Modbus 采集](../2_access/4_modbus)、[Netty 接入网关](../2_access/6_netty_gateway) |
 | TLS | V0.8 | 未启用，凭据在网络上明文传输 | [设备安全](../2_access/1_security) |
 
-设备影子、OTA 升级、规则引擎三项会在 Conduit 后续版本里实现，本系列已在第八节的路线表里给它们留了位置；做完之后补上的实现篇会和现有三篇通用设计文章互相链接，一篇讲「一般怎么设计」，一篇讲「在 Conduit 里怎么落地」。
+设备影子、OTA 升级、规则引擎三项会在 Conduit 后续版本里实现，本系列已在第八节的路线表里给它们留了位置（文件编号 7–9）；做完之后补上的实现篇会和现有三篇通用设计文章互相链接，一篇讲「一般怎么设计」，一篇讲「在 Conduit 里怎么落地」。
 
 除了功能，路线图第 2 节还列了离生产级 SaaS 的六类差距：租户配额与资源治理、SaaS 商业闭环（注册、套餐、计量、账单）、设备控制能力、规则与告警、水平扩展与灾备、开放 API 与审计。本系列各篇末尾的「已知限制」会把与该篇相关的差距写具体。
 

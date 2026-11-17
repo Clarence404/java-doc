@@ -1,0 +1,95 @@
+<svg viewBox="0 0 760 456" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+              --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+    }
+    .box { rx:8; ry:8; fill:var(--card); stroke-width:1.5; }
+    .lbl { font-weight:600; font-size:12px; }
+    .sub { font-size:10px; fill:var(--muted); }
+    .msg { font-size:11px; fill:var(--fg); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+    .life { stroke:var(--border); stroke-width:1.5; }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="24" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">动态注册时序与设备生命周期</text>
+
+  <!-- 参与者 -->
+  <rect class="box" x="20" y="44" width="150" height="40" stroke="var(--y)"/>
+  <text class="lbl" x="95" y="69" text-anchor="middle" fill="var(--y)">产线工具</text>
+  <rect class="box" x="210" y="44" width="150" height="40" stroke="var(--p)"/>
+  <text class="lbl" x="285" y="69" text-anchor="middle" fill="var(--p)">注册服务（设备台账）</text>
+  <rect class="box" x="400" y="44" width="150" height="40" stroke="var(--b)"/>
+  <text class="lbl" x="475" y="69" text-anchor="middle" fill="var(--b)">设备</text>
+  <rect class="box" x="590" y="44" width="150" height="40" stroke="var(--g)"/>
+  <text class="lbl" x="665" y="69" text-anchor="middle" fill="var(--g)">EMQX</text>
+
+  <!-- 生命线 -->
+  <line class="life" x1="95" y1="84" x2="95" y2="270" stroke-dasharray="4 4"/>
+  <line class="life" x1="285" y1="84" x2="285" y2="270" stroke-dasharray="4 4"/>
+  <line class="life" x1="475" y1="84" x2="475" y2="232" stroke-dasharray="4 4"/>
+  <line class="life" x1="665" y1="84" x2="665" y2="270" stroke-dasharray="4 4"/>
+
+  <!-- 消息 -->
+  <text class="msg" x="190" y="111" text-anchor="middle">① 导入序列号白名单</text>
+  <line class="arr" x1="95" y1="118" x2="283" y2="118"/>
+
+  <text class="msg" x="380" y="145" text-anchor="middle">② 注册请求 + 引导凭据签名</text>
+  <line class="arr" x1="475" y1="152" x2="287" y2="152"/>
+
+  <text class="msg" x="380" y="179" text-anchor="middle">③ 返回 DeviceSecret（仅一次）</text>
+  <line class="arr" x1="285" y1="186" x2="473" y2="186"/>
+
+  <text class="msg" x="570" y="213" text-anchor="middle">④ 一机一密 CONNECT</text>
+  <line class="arr" x1="475" y1="220" x2="663" y2="220"/>
+
+  <text class="msg" x="476" y="247" text-anchor="middle">⑤ 认证回调：查设备状态</text>
+  <line class="arr" x1="665" y1="254" x2="287" y2="254"/>
+
+  <!-- 状态机 -->
+  <text x="380" y="292" text-anchor="middle" font-weight="600" font-size="12" fill="var(--fg)">生命周期状态机</text>
+
+  <rect class="box" x="10" y="330" width="122" height="64" stroke="var(--muted)"/>
+  <text class="lbl" x="71" y="356" text-anchor="middle" fill="var(--muted)">未激活</text>
+  <text class="sub" x="71" y="376" text-anchor="middle">在白名单、无凭据</text>
+
+  <rect class="box" x="216" y="330" width="122" height="64" stroke="var(--g)"/>
+  <text class="lbl" x="277" y="356" text-anchor="middle" fill="var(--g)">已激活</text>
+  <text class="sub" x="277" y="376" text-anchor="middle">在线 / 离线</text>
+
+  <rect class="box" x="422" y="330" width="122" height="64" stroke="var(--y)"/>
+  <text class="lbl" x="483" y="356" text-anchor="middle" fill="var(--y)">已禁用</text>
+  <text class="sub" x="483" y="376" text-anchor="middle">拒连 + 踢下线</text>
+
+  <rect class="box" x="628" y="330" width="122" height="64" stroke="var(--r)"/>
+  <text class="lbl" x="689" y="356" text-anchor="middle" fill="var(--r)">已注销</text>
+  <text class="sub" x="689" y="376" text-anchor="middle">凭据作废、不可恢复</text>
+
+  <text class="sub" x="174" y="355" text-anchor="middle">动态注册</text>
+  <line class="arr" x1="132" y1="362" x2="214" y2="362"/>
+  <text class="sub" x="380" y="355" text-anchor="middle">禁用</text>
+  <line class="arr" x1="338" y1="362" x2="420" y2="362"/>
+  <text class="sub" x="586" y="355" text-anchor="middle">注销</text>
+  <line class="arr" x1="544" y1="362" x2="626" y2="362"/>
+
+  <!-- 重置：已激活 → 未激活 -->
+  <path class="arr" d="M 277 330 C 277 304, 71 304, 71 328"/>
+  <text class="sub" x="174" y="304" text-anchor="middle">重置注册状态</text>
+
+  <!-- 启用：已禁用 → 已激活 -->
+  <path class="arr" d="M 483 394 C 483 420, 277 420, 277 396"/>
+  <text class="sub" x="380" y="432" text-anchor="middle">启用</text>
+</svg>

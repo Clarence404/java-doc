@@ -1,5 +1,5 @@
 ---
-description: MQTT Broker 对比、EMQX 5.9 起的 BSL 许可、单节点部署、何时需要集群、三节点集群与四层负载均衡
+description: MQTT Broker 对比、EMQX 5.9 起的 BSL 许可、版本与镜像选择、单节点部署、三节点集群与四层负载均衡
 ---
 
 # EMQX 许可与部署
@@ -16,13 +16,13 @@ description: MQTT Broker 对比、EMQX 5.9 起的 BSL 许可、单节点部署�
 
 | Broker | 语言 | 许可 | 特点 |
 |--------|------|------|------|
-| **EMQX** | Erlang | 5.9 起为 BSL 1.1（单节点生产免费，集群需 License），5.8 及以前的开源版为 Apache 2.0 | 功能全（规则引擎、数据集成、多协议网关），性能高 |
+| **EMQX** | Erlang | 5.9 起为 BSL 1.1（单节点生产免费，集群需 License），5.8 及以前的开源版为 Apache 2.0（已停止维护） | 功能全（规则引擎、数据集成、多协议网关），性能高 |
 | Mosquitto | C | EPL 2.0 / EDL 1.0 | 轻量、单机，适合开发测试和小规模部署 |
 | NanoMQ | C | MIT | 面向边缘网关的轻量 Broker，可桥接到云端 Broker |
 | VerneMQ | Erlang | 源码 Apache 2.0，官方二进制包与镜像商用需订阅 | 原生分布式集群 |
 | HiveMQ | Java | 社区版 Apache 2.0，企业版商业许可 | 企业版集群与运维能力强 |
 
-按场景怎么选见 [平台选型 · 选型建议](./2_platform#四、选型建议)：单节点够用时选 EMQX 单节点或 Mosquitto；需要集群又不打算采购 License 时，停在 EMQX 5.8 开源版，或从源码构建 VerneMQ；边缘网关上用 NanoMQ。本篇后面只讲 EMQX。
+按场景怎么选见 [平台选型 · 选型建议](./2_platform#四、选型建议)：单节点够用时选 EMQX 单节点或 Mosquitto；需要集群又不打算采购 License 时，从源码构建 VerneMQ，EMQX 5.8 开源版已停止维护、只适合内网或过渡期；边缘网关上用 NanoMQ。本篇后面只讲 EMQX。
 
 ---
 
@@ -38,7 +38,13 @@ EMQX 从 **5.9.0** 起把开源版和企业版合并为一个版本，统一采�
 
 合并也带来一个好处：5.9 之前，Kafka 等数据集成只有企业版才有，现在单节点就能用，用法见 [遥测数据链路](../3_platform/2_data)。
 
-镜像使用 `emqx/emqx`（Docker Hub 上也有同版本的 `emqx/emqx-enterprise`），Docker 官方库中不带命名空间的 `emqx` 镜像不再跟进新版本。License 可在 Dashboard「System → License」中更新，也可以执行 `emqx ctl license update <License Key>`。
+**5.8 开源版的维护状态**：许可没变，但 EMQ 在 2025 年 8 月公告，5.8 开源版于 2026 年 2 月 28 日结束生命周期，此后不再提供缺陷修复和安全补丁，Docker Hub 上 `emqx/emqx` 的最后一个 5.8 标签是 5.8.9。所以「停在 5.8 开源版免费组集群」现在意味着运行一个没有安全更新的 Broker，只适合不暴露公网的内网环境或迁移前的过渡期。仍在维护的 5.8 是企业版的 LTS（到 2027 年 8 月），它适用 BSL。
+
+**版本怎么选**：5.9、5.10 是功能版本，各维护 18 个月，5.9 已在 2026 年 11 月到期；6.3 是当前的 LTS（2026 年 9 月发布，维护 3 年）。新部署直接用 6.3，并把镜像固定到具体的补丁版本。
+
+**镜像用哪个**：5.9 合并之后，官方安装文档的示例统一写 `emqx/emqx-enterprise`。这里的 enterprise 只是沿用下来的镜像名，不代表要付费，单节点不填 License 就能运行。Docker Hub 上的 `emqx/emqx` 仍在同步发布相同版本号的标签，存量部署不必急着改名，新部署跟着官方文档用 `emqx/emqx-enterprise`。Docker 官方库中不带命名空间的 `emqx` 镜像不再跟进新版本。
+
+License 可在 Dashboard「System → License」中更新，也可以执行 `emqx ctl license update <License Key>`。
 
 ---
 
@@ -48,7 +54,7 @@ EMQX 从 **5.9.0** 起把开源版和企业版合并为一个版本，统一采�
 # docker-compose.yml
 services:
   emqx:
-    image: emqx/emqx:6.3.1
+    image: emqx/emqx-enterprise:6.3.3   # 镜像名里的 enterprise 不代表收费，见第二节
     container_name: emqx
     hostname: node1.emqx.local
     environment:
@@ -82,6 +88,8 @@ Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认�
 
 许可不限连接规模，不等于默认配置就接得住：去掉上面的 `ulimits.nofile`，配套仓库 Conduit 实测约 1,000 台设备就让 EMQX 因打开文件数超限反复崩溃，见 [部署与可观测 · 几处有来历的编排细节](../4_practice/11_deploy#五、几处有来历的编排细节)，排查过程在 [压测与瓶颈排查](../4_practice/10_capacity)；离线消息队列、在途窗口这些会话参数怎么取，见 [可靠上报与接入层主备 · EMQX 会话怎么选](../4_practice/3_reliable_uplink#五、emqx-会话怎么选)。
 
+文件描述符只是第一道限制。连接数再往上，宿主机的内核参数、Broker 的监听器与限速、设备集中重连时的退避都要一起考虑，这些由 [海量连接与连接风暴](../2_access/7_connection_storm) 统一讲，本篇的样例只保留 `ulimits` 这一项。
+
 ---
 
 ## 四、何时需要集群
@@ -97,14 +105,14 @@ Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认�
 
 ## 五、三节点集群（需 License）
 
-下面的配置演示集群拓扑，需要在启动后导入 License 才能组成集群；用 5.8.x 开源版镜像（Apache 2.0）也能跑通同样的配置。
+下面的配置演示集群拓扑，需要在启动后导入 License 才能组成集群；只想验证拓扑时，把镜像换成 5.8 开源版的 `emqx/emqx:5.8.9`（Apache 2.0，已停止维护）也能跑通同样的配置。
 
 ![EMQX 三节点集群与四层负载均衡](../../assets/iot/emqx-cluster.svg)
 
 ```yaml
 # docker-compose.yml
 x-emqx: &emqx
-  image: emqx/emqx:6.3.1
+  image: emqx/emqx-enterprise:6.3.3
   networks: [emqx-net]
   ulimits:
     nofile: {soft: 1048576, hard: 1048576}   # 与单节点相同，见第三节
@@ -217,7 +225,8 @@ docker exec -it emqx1 emqx ctl cluster status
 ## 小结
 
 - 常见 Broker 里 EMQX 功能最全，Mosquitto 与 NanoMQ 轻量，VerneMQ 原生集群，HiveMQ 的集群能力在企业版
-- EMQX 从 5.9 起统一为 BSL 1.1：单节点生产免费，集群需要 License，不能作为托管服务对外提供或嵌入产品销售；需要免费集群可以停留在 5.8 开源版或换用其他 Broker
+- EMQX 从 5.9 起统一为 BSL 1.1：单节点生产免费，集群需要 License，不能作为托管服务对外提供或嵌入产品销售；5.8 开源版仍是 Apache 2.0 但已在 2026 年 2 月停止维护，需要免费集群时换用其他 Broker 更稳妥
+- 新部署用 6.3 LTS，镜像跟官方文档写 `emqx/emqx-enterprise` 并固定补丁版本
 - 单节点部署要给容器配 `ulimits.nofile`，否则约 1,000 条连接就会耗尽文件描述符；只对外开放 8883，1883 和 18083 留在内网
 - 集群解决的是节点故障不中断、容量和滚动升级；断线重连到其他节点后能否恢复订阅，取决于是否使用持久会话
 - 四层负载均衡的空闲超时必须大于 1.5 倍 Keep Alive，并用 PROXY protocol 保留设备真实 IP
@@ -227,6 +236,9 @@ docker exec -it emqx1 emqx ctl cluster status
 - EMQX License FAQ：[https://www.emqx.com/en/content/license-faq](https://www.emqx.com/en/content/license-faq)
 - EMQX 文档：Docker 部署：[https://docs.emqx.com/en/emqx/latest/deploy/install-docker.html](https://docs.emqx.com/en/emqx/latest/deploy/install-docker.html)
 - EMQX 文档：License 管理：[https://docs.emqx.com/en/emqx/latest/deploy/license.html](https://docs.emqx.com/en/emqx/latest/deploy/license.html)
+- EMQX 文档：版本生命周期与 EOL 日期：[https://docs.emqx.com/en/emqx/latest/changes/eol-ee.html](https://docs.emqx.com/en/emqx/latest/changes/eol-ee.html)
+- EMQ 公告：EMQX 5.8 开源版生命周期结束：[https://www.emqx.com/en/news/a-notice-on-the-emqx-5-8-open-source-version](https://www.emqx.com/en/news/a-notice-on-the-emqx-5-8-open-source-version)
+- Docker Hub：emqx/emqx-enterprise：[https://hub.docker.com/r/emqx/emqx-enterprise](https://hub.docker.com/r/emqx/emqx-enterprise)
 - NGINX stream proxy 模块：[https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html](https://nginx.org/en/docs/stream/ngx_stream_proxy_module.html)
 
 > 下一篇：[边缘计算](./4_edge) —— 云边端分工、EdgeX Foundry、KubeEdge 云边协同、边缘 AI 推理。

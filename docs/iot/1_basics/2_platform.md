@@ -1,5 +1,5 @@
 ---
-description: 云平台与开源平台对比、许可对比、选型建议、ThingsBoard 规则链、JetLinks 协议包
+description: 云平台与开源平台对比、许可对比、选型建议、ThingsBoard 规则链与告警规则、JetLinks 协议包
 ---
 
 # 平台选型
@@ -14,32 +14,36 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 
 | 类型 | 说明 | 代表产品 |
 |------|------|---------|
-| **商业云平台** | 开箱即用，按量计费，免运维，能力与厂商云生态绑定 | 阿里云物联网平台、华为云 IoTDA、腾讯云 IoT Explorer、AWS IoT Core |
+| **商业云平台** | 开箱即用，按量计费，免运维，能力与厂商云生态绑定 | 华为云 IoTDA、腾讯云 IoT Explorer、AWS IoT Core、Azure IoT Hub、阿里云物联网平台（已停止新购） |
 | **开源完整平台** | 私有化部署，可二次开发，需自行运维 | ThingsBoard、JetLinks、IoT-DC3 |
 | **接入层组件** | 只负责 MQTT 等协议接入与消息路由，平台能力自建 | EMQX、Mosquitto、NanoMQ |
 | **家居生态平台** | 面向智能家居，偏个人和消费场景 | Home Assistant、openHAB、米家、涂鸦 |
+
+各家的功能清单里反复出现几个名词，本模块各有专篇，这里只把它们当功能名：物模型是平台对设备能力（属性、事件、服务）的结构化描述，各家格式不同，见 [物模型](../3_platform/1_thing_model)；其余见 [设备注册与生命周期](../2_access/2_provisioning)、[设备影子](../3_platform/3_device_shadow)、[指令下发与服务调用](../3_platform/4_command)、[OTA 升级](../3_platform/5_ota)、[规则引擎与告警](../3_platform/6_rule_engine)。
 
 ---
 
 ## 二、商业云平台
 
-### 1、阿里云物联网平台
-
-- **定位**：国内使用最广的托管 IoT 平台
-- **核心能力**：设备接入（MQTT / CoAP / HTTP）、物模型、规则引擎与数据流转、OTA 升级，以及配套的边缘计算能力
-- **适合**：国内互联网与工业企业快速上云
-
-### 2、华为云 IoTDA
+### 1、华为云 IoTDA
 
 - **定位**：华为云的设备接入服务（IoTDA，前身为 OceanConnect），偏工业和政企场景
-- **核心能力**：设备接入与管理、设备影子、规则引擎、OTA，边缘侧配合华为云 IoTEdge
-- **适合**：工业制造、智慧城市、大型政企项目
+- **核心能力**：设备接入（MQTT、CoAP、LwM2M、HTTPS，Modbus 与 OPC UA 经边缘网关接入）与管理、产品模型（即物模型）、设备影子、规则引擎、OTA，边缘侧配合华为云 IoTEdge
+- **实例**：标准版与企业版（独享实例）两种在售；开通服务即送一个标准版免费单元，限 1,000 台设备同时在线、每天 1 万条消息，只用于调试，不承诺商用 SLA
+- **适合**：国内项目快速上云，工业制造、智慧城市、大型政企项目
 
-### 3、腾讯云 IoT Explorer
+### 2、腾讯云 IoT Explorer
 
 - **定位**：腾讯云的物联网开发平台，与微信生态结合紧密
 - **核心能力**：设备接入、物模型、数据开发，配套腾讯连连小程序做设备控制
+- **注意**：2024 年 6 月 20 日起，新注册的用户要先购买公共实例激活码才能使用公共实例，此前已开通的用户不受影响
 - **适合**：消费类智能硬件、需要微信小程序控制设备的场景
+
+### 3、涂鸦开发者平台
+
+- **定位**：面向消费类智能硬件的一站式平台，把联网模组与固件（TuyaOS）、可配置的 OEM App、云端 API 一起提供
+- **核心能力**：按品类给出现成的产品开发方案，平台内采购模组与授权码，量产后有设备监控、OTA、数据看板和售后工具
+- **适合**：没有 App 和云端团队、要把智能家居产品快速做出来的硬件厂商；代价是模组、App、云都绑在涂鸦体系内
 
 ### 4、AWS IoT
 
@@ -48,16 +52,32 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 - **注意**：AWS IoT Analytics 已于 2025 年 12 月 15 日停止支持，IoT Events 已于 2026 年 5 月 20 日停止支持，数据分析改用 IoT Core 规则把数据转到 Kinesis、S3 等服务再处理
 - **适合**：全球化部署、已经在用 AWS 的企业
 
-### 5、商业平台对比
+### 5、Azure IoT
 
-| 平台 | 国内访问 | 边缘计算 | 工业支持 | 适合场景 |
-|------|---------|---------|---------|---------|
-| 阿里云物联网平台 | 好 | 有 | 中 | 国内互联网、工业 |
-| 华为云 IoTDA | 好 | 有（IoTEdge） | 强 | 大型工业、政企 |
-| 腾讯云 IoT Explorer | 好 | 一般 | 弱 | 消费 IoT、微信生态 |
-| AWS IoT | 国内访问需走中国区 | 有（Greengrass） | 中 | 全球化部署 |
+- **定位**：微软云的 IoT 服务，云端是 IoT Hub，边缘是 IoT Edge 与 IoT Operations
+- **IoT Hub**：设备接入、设备孪生（Device Twin，相当于设备影子）、直接方法（Direct Method，同步指令）、云到设备消息，配套设备预配服务（DPS）做批量注册
+- **不是通用 MQTT Broker**：官方文档明确写着 IoT Hub 不是功能完整的 MQTT Broker。它只支持 MQTT 3.1.1，Topic 是预定义的固定几个，不支持 QoS 2，不持久化保留消息，设备之间不能互发消息，每台设备只允许一条 MQTT 连接；需要自定 Topic 的云端 Broker 时，官方建议改用 Azure Event Grid 的 MQTT Broker（支持 3.1.1 与 5.0）
+- **Azure IoT Operations**：运行在 Azure Arc 纳管的边缘 Kubernetes 集群上的一组数据服务，内置边缘 MQTT Broker（3.1.1 与 5.0）、OPC UA 等连接器和数据流，把工厂现场数据整理后送上云，见 [边缘计算](./4_edge)
+- **适合**：全球化部署、已经在用 Azure 的企业，以及工厂 OT 数据上云
 
-云平台的产品名和功能调整较频繁，选型前以各厂商官网的当前产品页为准。
+### 6、阿里云物联网平台
+
+- **现状**：官方计费文档写明「物联网平台自 2025 年 2 月 1 日起不再支持新购」，产品文档也已标为停止维护。存量实例仍可按文档续费和升降配，**新项目不能再选它**
+- **核心能力**：设备接入（MQTT / CoAP / HTTP）、物模型（Alink 协议）、规则引擎与数据流转、OTA 升级
+- **存量用户**：继续使用没有问题，但要把迁移列入规划。迁移的主要工作量在设备侧的 Topic 与载荷，差别见 [通信协议 · 主流平台 Topic 与载荷对照](./1_protocol#_8、主流平台-topic-与载荷对照)；国内很多资料和设备 SDK 仍按 Alink 写，读到时知道它是这家的私有格式即可
+
+### 7、商业平台对比
+
+| 平台 | 新项目可选 | 国内访问 | 边缘方案 | 适合场景 |
+|------|-----------|---------|---------|---------|
+| 华为云 IoTDA | 是 | 好 | IoTEdge | 国内快速上云、大型工业与政企 |
+| 腾讯云 IoT Explorer | 是（新用户需购买激活码） | 好 | 一般 | 消费 IoT、微信生态 |
+| 涂鸦开发者平台 | 是 | 好 | — | 消费类智能硬件整体方案 |
+| AWS IoT | 是 | 需走中国区 | Greengrass | 全球化部署 |
+| Azure IoT | 是 | 需走中国区 | IoT Edge、IoT Operations | 全球化部署、工厂 OT 数据上云 |
+| 阿里云物联网平台 | 否（2025 年 2 月起停止新购） | 好 | — | 仅存量项目 |
+
+云平台的产品名、售卖策略和功能调整较频繁，阿里云停止新购、AWS 下线 IoT Analytics 都是近两年的事，选型前以各厂商官网的当前产品页为准。
 
 ---
 
@@ -88,7 +108,7 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 
 ### 4、其他
 
-- **IoT-DC3**：基于 Spring Cloud 的分布式 IoT 平台，按协议拆分驱动微服务（Modbus、MQTT、OPC 等）
+- **IoT-DC3**：README 自述为「面向 Physical AI 的开源工业物联网运行时」，基于 Java 21、Spring Boot 4、Spring Cloud 2025 的分布式微服务架构，按协议拆成驱动模块（Modbus TCP / RTU、OPC UA、OPC DA、西门子 S7 等），并提供驱动 SDK；许可是 **AGPL 3.0**，改动后作为商业服务对外提供而不开源需要另购商业授权
 - **openHAB**：Java 实现的智能家居自动化平台，绑定（binding）生态丰富，EPL 2.0 许可
 - **Home Assistant**：Python 实现、社区最活跃的开源智能家居平台，Apache 2.0 许可，不适合企业 IoT
 
@@ -99,6 +119,7 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 | ThingsBoard | CE：Apache 2.0 | PE：商业许可 |
 | EMQX | 5.9 起 BSL 1.1，单节点生产免费（细则见 [EMQX 许可与部署 · 许可变化](./3_emqx_deploy#二、许可变化)） | 多节点集群等需商业 License |
 | JetLinks | 社区版：Apache 2.0 | 企业版：商业许可 |
+| IoT-DC3 | AGPL 3.0（改动后对外提供网络服务须开源） | 闭源商用需商业授权 |
 | openHAB | EPL 2.0 | 无 |
 | Home Assistant | Apache 2.0 | 无 |
 
@@ -108,16 +129,18 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 
 | 场景 | 推荐 |
 |------|------|
-| 快速上云，不想运维 | 阿里云物联网平台 / 华为云 IoTDA |
-| 全球化部署 | AWS IoT |
+| 国内快速上云，不想运维 | 华为云 IoTDA |
+| 消费类智能硬件，要现成的 App 或小程序 | 腾讯云 IoT Explorer / 涂鸦开发者平台 |
+| 全球化部署 | AWS IoT / Azure IoT |
+| 已经在用阿里云物联网平台 | 存量实例继续用并规划迁移，新项目另选 |
 | 私有化部署完整平台 | ThingsBoard |
 | 自建平台的接入层，单节点够用 | EMQX 单节点，或 Mosquitto |
-| 自建平台的接入层，需要集群且不打算采购 License | EMQX 5.8 开源版（不再有新功能），或从源码构建 VerneMQ |
+| 自建平台的接入层，需要集群且不打算采购 License | 从源码构建 VerneMQ；EMQX 5.8 开源版已于 2026 年 2 月停止维护，只适合内网或过渡期 |
 | 边缘网关上的轻量 Broker | NanoMQ |
-| 国内团队自研平台、需要读改源码 | JetLinks / IoT-DC3 |
+| 国内团队自研平台、需要读改源码 | JetLinks 社区版；IoT-DC3 是 AGPL 3.0，闭源商用前先确认授权 |
 | 个人智能家居 | Home Assistant |
 
-选型时除了功能，还要确认三件事：许可是否允许你的部署方式（集群、SaaS、随硬件销售），时序数据存在哪里、能否换成团队熟悉的存储（见 [时序数据库](/nosql/4_time_series_db)），设备规模增长后接入层能否水平扩展。
+选型时除了功能，还要确认三件事：许可是否允许你的部署方式（集群、SaaS、随硬件销售），时序数据存在哪里、能否换成团队熟悉的存储（见 [时序数据库](/nosql/4_time_series_db)），设备规模增长后接入层能否水平扩展（连接数上去之后的调优见 [海量连接与连接风暴](../2_access/7_connection_storm)）。选云平台还要多想一步：平台停售或调价时设备侧要改多少，设备的 Topic 与载荷越贴近通用形状，迁移越省事。
 
 接入层选了 EMQX 或还在几个 Broker 之间比较时，接着读 [EMQX 许可与部署](./3_emqx_deploy)：Broker 对比表、5.9 起的许可细则、单节点与三节点集群的部署写法都在那一篇。
 
@@ -164,7 +187,16 @@ Create Alarm 节点的关键配置：
 - **Alarm severity**：`CRITICAL`
 - **告警传播**：勾选「Propagate alarm to related entities」后，告警会沿实体关系传播到上级实体（例如设备所属的资产），可以限定关系类型；另有选项把告警传播给直接所有者、整条所有权链或租户。这样在资产或客户层面就能看到下属设备的告警
 
-告警的清除通常再配一个反向条件（如 `temperature <= 75`）接 Clear Alarm 节点，两个阈值之间留出回差，避免在临界值附近反复告警、恢复。新版本也可以在设备配置（Device Profile）中用告警规则配置同样的逻辑，无需改动规则链。
+告警的清除通常再配一个反向条件（如 `temperature <= 75`）接 Clear Alarm 节点，两个阈值之间留出回差，避免在临界值附近反复告警、恢复。
+
+不想改规则链时，用**告警规则（Alarm Rules）**也能配出同样的逻辑。ThingsBoard 4.3 重做了这项功能，官方称为 Alarm Rules 2.0：
+
+- **配在哪**：规则在 Alarms 页统一管理，可以配在设备配置（Device Profile）、资产配置（Asset Profile）上，也可以直接配到某台设备、某个资产或某个客户；官方建议优先配在配置上，同类设备共用一份
+- **条件类型**：简单条件、持续时长（条件连续成立多久）、重复次数（条件连续成立多少次）三种，一条规则里可以组合多个测点
+- **Missing For**：某个测点超过设定时长没有收到数据就告警，用来做设备停报检测，不必再自己写定时任务
+- **兼容**：4.3 之前写在设备配置里的告警规则升级后继续有效
+
+阈值、回差、持续时长、停报检测这些告警设计在各平台是通用的，见 [规则引擎与告警](../3_platform/6_rule_engine)。
 
 ### 3、用 HTTP 上报遥测
 
@@ -227,14 +259,25 @@ TCP 私有协议的帧格式设计、粘包拆包和心跳是通用问题，见 
 
 ## 小结
 
-- 云平台省运维但绑定厂商；ThingsBoard、JetLinks 是完整平台；EMQX 只做接入层，平台能力要自己组合
+- 云平台省运维但绑定厂商，而且会停售：阿里云物联网平台 2025 年 2 月起不再支持新购，国内新项目看华为云 IoTDA，全球化看 AWS IoT 或 Azure IoT
+- Azure IoT Hub 不是通用 MQTT Broker，Topic 固定；各家云平台的 Topic 与载荷都不相同，换平台要改设备侧
+- ThingsBoard、JetLinks 是完整平台；EMQX 只做接入层，平台能力要自己组合
 - 选型除了功能还要确认三件事：许可是否允许你的部署方式、时序数据存在哪里、接入层能否水平扩展；EMQX 的许可与部署单独成篇
-- ThingsBoard 规则链里，消息由 msg、metadata、msgType 组成，脚本默认用 TBEL；告警传播是沿实体关系和所有权向上传播
+- ThingsBoard 规则链里，消息由 msg、metadata、msgType 组成，脚本默认用 TBEL；告警传播是沿实体关系和所有权向上传播；4.3 起的告警规则可以配到配置、单个实体或客户，并支持停报检测
 - JetLinks 私有协议通过协议包接入：ProtocolSupportProvider 构造 CompositeProtocolSupport，按传输方式注册编解码器和认证器
 
 ## 参考资料
 
+- 阿里云物联网平台计费概述（停止新购说明）：[https://help.aliyun.com/zh/iot/product-overview/billing-overview](https://help.aliyun.com/zh/iot/product-overview/billing-overview)
+- 华为云 IoTDA 产品规格：[https://support.huaweicloud.com/productdesc-iothub/iot_04_0014.html](https://support.huaweicloud.com/productdesc-iothub/iot_04_0014.html)
+- 腾讯云物联网开发平台公共实例使用公告：[https://cloud.tencent.com/document/product/1081/107530](https://cloud.tencent.com/document/product/1081/107530)
+- 涂鸦开发者平台简介：[https://developer.tuya.com/cn/docs/iot/introduction-of-tuya?id=K914joffendwh](https://developer.tuya.com/cn/docs/iot/introduction-of-tuya?id=K914joffendwh)
+- Azure IoT Hub 的 MQTT 支持（与 Event Grid 的对比）：[https://learn.microsoft.com/en-us/azure/iot/iot-mqtt-connect-to-iot-hub](https://learn.microsoft.com/en-us/azure/iot/iot-mqtt-connect-to-iot-hub)
+- Azure IoT Operations 概述：[https://learn.microsoft.com/en-us/azure/iot-operations/overview-iot-operations](https://learn.microsoft.com/en-us/azure/iot-operations/overview-iot-operations)
+- IoT-DC3：[https://github.com/pnoker/iot-dc3](https://github.com/pnoker/iot-dc3)
 - ThingsBoard 文档：[https://thingsboard.io/docs/](https://thingsboard.io/docs/)
+- ThingsBoard 告警规则：[https://thingsboard.io/docs/user-guide/alarm-rules/](https://thingsboard.io/docs/user-guide/alarm-rules/)
+- ThingsBoard 4.3 发布说明（Alarm Rules 2.0）：[https://thingsboard.io/blog/thingsboard-4-3-alarm-rules-2-0-enhanced-calculated-fields-api-keys-and-more/](https://thingsboard.io/blog/thingsboard-4-3-alarm-rules-2-0-enhanced-calculated-fields-api-keys-and-more/)
 - ThingsBoard TBEL：[https://thingsboard.io/docs/user-guide/tbel/](https://thingsboard.io/docs/user-guide/tbel/)
 - ThingsBoard Create Alarm 节点：[https://thingsboard.io/docs/reference/rule-engine/nodes/action/create-alarm/](https://thingsboard.io/docs/reference/rule-engine/nodes/action/create-alarm/)
 - JetLinks 社区版：[https://github.com/jetlinks/jetlinks-community](https://github.com/jetlinks/jetlinks-community)
