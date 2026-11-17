@@ -90,7 +90,7 @@ spring:
           max-active: 32
 ```
 
-密码和阶段一的数据库密码一样放在 `EnvironmentFile=/etc/mall-evolution/env`。Redis 侧把内存上限和淘汰策略定死，避免内存打满后写入报错：
+密码和阶段一的数据库密码一样放在 `EnvironmentFile=/etc/mall-evolution/env`（云主机部署方式，到第六篇上 Kubernetes 后改由 Secret 注入）。Redis 侧把内存上限和淘汰策略定死，避免内存打满后写入报错：
 
 ```properties
 # redis.conf（主从一致）

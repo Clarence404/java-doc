@@ -62,7 +62,7 @@ mall-evolution/
 ├── pom.xml                 父 POM：版本、依赖管理、插件
 ├── mvnw / mvnw.cmd         Maven Wrapper，所有人和 CI 用同一个 Maven 版本
 ├── .mvn/wrapper/
-├── mall-common/            通用组件：错误码、异常与全局异常处理、ID 生成
+├── mall-common/            通用组件：错误码与业务异常（ID 生成第二篇加入，全局异常处理第三篇加入）
 ├── mall-user/              用户、收货地址
 ├── mall-product/           商品、类目、价格
 ├── mall-inventory/         库存查询与扣减
@@ -89,7 +89,7 @@ mall-evolution/
 
 ## 五、包结构
 
-模块内**按功能分包**（feature-first），而不是全模块共用一套 controller / service / mapper。以 `mall-order` 为例：
+模块内**按功能分包**（feature-first），而不是全模块共用一套 controller / service / mapper。以 `mall-order` 为例（这是目标结构：`ch01-project-setup` 上只有 `api/` 下的两个类，`domain/`、`place/`、`query/` 在第二篇加入，`pay/`、`cancel/` 在第三篇加入，`pay/` 到第六篇随支付拆到 `payment-service`）：
 
 ```text
 mall-order/src/main/java/io/github/clarence404/mall/order/
@@ -229,7 +229,7 @@ Spring Modulith 能按「顶层包即模块」自动推导同样的规则，模�
 GitHub Actions 两条流水线：
 
 - **PR 检查**：`./mvnw -B verify`，包含格式、Checkstyle、ArchUnit、单元与集成测试，目标 10 分钟以内
-- **合并到 `main`**：重新构建出 `mall-app.jar`，自动部署到测试环境；生产部署手动触发，逐台下线 → 替换 jar → `systemctl restart` → 健康检查通过后挂回负载均衡
+- **合并到 `main`**：重新构建出 `mall-app.jar`，自动部署到测试环境（`main.yml` 只存在于阶段一的标签上，`main` 上已删除，见 [总览](./0_overview)）；生产部署手动触发，逐台下线 → 替换 jar → `systemctl restart` → 健康检查通过后挂回负载均衡
 
 ```yaml
 # .github/workflows/pr.yml（节选）

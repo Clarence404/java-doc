@@ -47,10 +47,9 @@
 | 演示数据 | 2 个普通演示用户与 1 个运营账号 | 普通演示用户增加到 8 个（给流量模拟器分散用户）；demo profile 多了查库存与补货接口（`/api/demo/inventory/stocks`） |
 | 流量模拟器 | 无 | `simulator` 模块：演示账号经网关长期模拟真人浏览、下单、支付，让监控面板一直有数据；与 `perf`（Gatling 压测）不同，速率低、一直跑 |
 | Grafana 面板 | 业务大盘 | 新增 JVM / HTTP 通用面板（`deploy/observability/grafana/jvm-http-dashboard.json`） |
-| 本地监控 | 无 | 可以借用 mall-assistant 仓库 `monitoring/` 的那套 Prometheus + Grafana（compose 项目名 `mall-monitoring`），加上抓四个服务管理端口的任务即可，见 [生产化：共享状态与监控落地 · 监控落地：真的跑起来、真的测过](/ai/7_practice/10_production#七、监控落地-真的跑起来、真的测过) |
-
+| 本地监控 | 无 | 仓库自带示例 `deploy/observability/local/`（Prometheus 用 file_sd 抓四个服务的管理端口，Grafana 通过 provisioning 自动导入两个面板，用法见仓库 README「本地监控」）；也可以借用 mall-assistant 仓库 `monitoring/` 的那套（compose 项目名 `mall-monitoring`），见 [生产化：共享状态与监控落地 · 监控落地：真的跑起来、真的测过](/ai/7_practice/10_production#七、监控落地-真的跑起来、真的测过) |
 | Nacos 控制台端口 | docker compose 把控制台映射到宿主机 18080 | 改为 18848，不再和 `mall-app` 在 dev 下的管理端口 18080 冲突 |
-| 部署文件 | 清单、Nacos 样例与流水线各写各的 | Flyway PreSync Job 的镜像与应用内一致（12.4.0），四个服务清单的镜像标签统一为占位值并由流水线写入 digest，Nacos 样例补全网关路由与消费线程数；阶段一遗留的 `deploy.sh`、systemd 单元等在文件头注明只对应 `stage-1-monolith`；新增本地监控示例 `deploy/observability/local` |
+| 部署文件 | 清单、Nacos 样例与流水线各写各的 | Flyway PreSync Job 的镜像与应用内一致（12.4.0），四个服务清单的镜像标签统一为占位值并由流水线写入 digest，Nacos 样例补全网关路由与消费线程数；阶段一遗留的 `deploy.sh`、systemd 单元等在文件头注明只对应 `stage-1-monolith`，第一篇「合并到 `main` 自动部署测试环境」用的 `main.yml` 已删除；`pr.yml` 与 `verify.yml` 共用的清单与告警规则校验抽到 `static-checks.yml`；新增本地监控示例 `deploy/observability/local` |
 
 正文里受影响的示例旁边都有一句提示指回这里，示例本身不改。
 

@@ -349,9 +349,9 @@ public PlaceOrderResult place(long userId, String bizNo, PlaceOrderRequest req) 
 
 | 结论 | 测试 | 类型 |
 |------|------|------|
-| 同一幂等键的并发请求只生成一单、只扣一次库存 | [`PlaceOrderTxIT#concurrentRequestsWithSameKeyCreateOneOrderAndDeductOnce`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderTxIT.java) | 集成（真实 MySQL·Redis） |
-| 并发抢同一 SKU 不超卖 | [`PlaceOrderTxIT#noOversellUnderConcurrency`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderTxIT.java) | 集成（真实 MySQL·Redis） |
-| 库存不足时扣减与写单整体回滚 | [`PlaceOrderTxIT#insufficientStockRollsBackWholeTransaction`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderTxIT.java) | 集成（真实 MySQL·Redis） |
+| 同一幂等键的并发请求只生成一单、只扣一次库存 | [`PlaceOrderTxIT#concurrentRequestsWithSameKeyCreateOneOrderAndDeductOnce`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderTxIT.java) | 集成（真实 MySQL） |
+| 并发抢同一 SKU 不超卖 | [`PlaceOrderTxIT#noOversellUnderConcurrency`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderTxIT.java) | 集成（真实 MySQL） |
+| 库存不足时扣减与写单整体回滚 | [`PlaceOrderTxIT#insufficientStockRollsBackWholeTransaction`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderTxIT.java) | 集成（真实 MySQL） |
 | 一单多件按 `sku_id` 升序扣减 | [`PlaceOrderTxServiceTest#deductsInSkuAscendingOrderThenWritesOrder`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-order/src/test/java/io/github/clarence404/mall/order/place/PlaceOrderTxServiceTest.java) | 单元 |
 | 撞 `uk_user_biz` 后在事务外查出先到的订单返回 | [`PlaceOrderServiceTest#concurrentDuplicateKeyFallsBackToReplayingWinner`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-order/src/test/java/io/github/clarence404/mall/order/place/PlaceOrderServiceTest.java) | 单元 |
 | 非法状态流转在执行 SQL 前就被拒绝 | [`OrderMapperTransitionTest#illegalTransitionIsRejectedBeforeTouchingDatabase`](https://github.com/Clarence404/mall-evolution/blob/ch02-data-model/mall-order/src/test/java/io/github/clarence404/mall/order/domain/OrderMapperTransitionTest.java) | 单元 |

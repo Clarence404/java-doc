@@ -210,7 +210,9 @@ boolean send(OutboxRecord r) {                                    // 事务外�
 ```
 
 ::: tip 与 main 的差异
-`main` 上不再「第 10 次失败置为失败」：Broker 或网络类失败一直重试，记录创建满 24 小时仍没发出去才置为失败，见 [后来的修复 · 本地消息表重试按时间封顶](#_1、本地消息表重试按时间封顶)。
+`main` 上本地消息表的类（`OutboxWriter`、`OutboxRelay`、`OutboxMapper` 等）已从 `mall-order` 的 `order.outbox` 包移到 `mall-common` 的 `io.github.clarence404.mall.common.outbox`，三个服务共用；`PayCallbackService` 在第六篇随支付拆到 `payment-service`。
+
+`main` 上也不再「第 10 次失败置为失败」：Broker 或网络类失败一直重试，记录创建满 24 小时仍没发出去才置为失败，见 [后来的修复 · 本地消息表重试按时间封顶](#_1、本地消息表重试按时间封顶)。
 :::
 
 `relayOne` 同样先认领再发送，认领时发现记录已被扫表那一路领走（租约未到期）就直接返回。
@@ -415,7 +417,7 @@ provider.newPushConsumerBuilder()
 
 | 服务 | 消费组数 | 每组线程数 | 连接池 |
 |------|---------|-----------|--------|
-| `mall-app` | 5 | 2 | 20 |
+| `mall-app` | 5 | 2 | 20（prod 为 30） |
 | `inventory-service` | 2 | 8 | 40 |
 | `payment-service` | 1 | 4 | 20 |
 

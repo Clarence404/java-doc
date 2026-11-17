@@ -386,10 +386,10 @@ class PlaceOrderApiTests extends IntegrationTestBase {
 
 | 结论 | 测试 | 类型 |
 |------|------|------|
-| 同一 `Idempotency-Key` 重放返回首单，带 `Idempotent-Replayed: true` | [`PlaceOrderApiTests#sameKeyReplaysFirstOrder`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderApiTests.java) | 集成（真实 MySQL·Redis） |
-| 取消已发货订单返回 409 与 `ORDER_STATUS_CONFLICT` | [`PlaceOrderApiTests#cancelShippedOrderReturns409`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderApiTests.java) | 集成（真实 MySQL·Redis） |
+| 同一 `Idempotency-Key` 重放返回首单，带 `Idempotent-Replayed: true` | [`PlaceOrderApiTests#sameKeyReplaysFirstOrder`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderApiTests.java) | 集成（真实 MySQL） |
+| 取消已发货订单返回 409 与 `ORDER_STATUS_CONFLICT` | [`PlaceOrderApiTests#cancelShippedOrderReturns409`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderApiTests.java) | 集成（真实 MySQL） |
 | 缺少 `Idempotency-Key` 返回 400 ProblemDetail | [`PlaceOrderControllerTest#missingIdempotencyKeyReturns400Problem`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/order/place/PlaceOrderControllerTest.java) | 单元 |
-| 查别人的订单返回 404，不暴露订单是否存在 | [`PlaceOrderApiTests#otherUsersOrderReturns404`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderApiTests.java) | 集成（真实 MySQL·Redis） |
+| 查别人的订单返回 404，不暴露订单是否存在 | [`PlaceOrderApiTests#otherUsersOrderReturns404`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/order/PlaceOrderApiTests.java) | 集成（真实 MySQL） |
 | 不带 `API-Version` 请求头按 1.0 处理 | [`ApiVersionH2Test#missingApiVersionHeaderDefaultsToVersionOnePointZero`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/web/ApiVersionH2Test.java) | H2 全流程 |
 | 刷新令牌轮换，旧刷新令牌再用被拒 | [`AuthTokenH2Test#refreshRotatesTokenAndOldRefreshTokenIsRejected`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/user/AuthTokenH2Test.java) | H2 全流程 |
 | 踢下线吊销该用户全部刷新令牌 | [`AuthTokenH2Test#kickOutRevokesAllRefreshTokensOfUser`](https://github.com/Clarence404/mall-evolution/blob/ch03-api-design/mall-app/src/test/java/io/github/clarence404/mall/user/AuthTokenH2Test.java) | H2 全流程 |

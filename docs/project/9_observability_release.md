@@ -231,7 +231,7 @@ inhibit_rules:
 | `t_outbox` 最老待发送时长 | 三个服务各一条线 | 持续上涨说明中继或 Broker 出了问题 |
 | 各消费组堆积 | `order-payment-consumer` 置顶 | 只有一个组涨，是这个组的下游慢了 |
 | 对账差异数 | 每天凌晨的结果 | 某类差异连续两天出现，说明有系统性 bug |
-| 稳定性保护 | 熔断器状态、限流命中、`mall.degrade.*` 当前取值 | 大促时一眼看出哪些保护正在起作用、哪些功能已被降级 |
+| 稳定性保护 | 熔断器状态、限流命中、频控拒绝（降级开关 `mall.degrade.*` 的当前取值不在面板上，去 Nacos 看） | 大促时一眼看出哪些保护正在起作用 |
 
 `outbox` 待发送时长与消费堆积分开看，就能把「一致性窗口变长」定位到中继、Broker 还是消费者那一段，这个思路在 [异步化](./5_async) 里已经用过。看板的布局原则见 [指标监控 · Grafana 看板设计](/observability/2_metrics#_2、grafana-看板设计)。
 
@@ -397,8 +397,8 @@ ALTER TABLE t_outbox ADD COLUMN trace_parent VARCHAR(55) NULL COMMENT 'W3C trace
 | 定时消息不带 Trace | [`OutboxTracePropagationTest#scheduledMessagesDoNotCarryTheTrace`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/mall-common/src/test/java/io/github/clarence404/mall/common/outbox/OutboxTracePropagationTest.java) | 单元 |
 | 错误响应的 `traceId` 取自当前 Span | [`ProblemTraceIdTest#traceIdComesFromCurrentSpan`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/mall-common/src/test/java/io/github/clarence404/mall/common/error/ProblemTraceIdTest.java) | 单元 |
 | 就绪后才注册到 Nacos，注册端口是实际监听端口 | [`NacosRegistrationIT#registersAfterReadyWithActualServerPort`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/inventory-service/src/test/java/io/github/clarence404/mall/inventory/NacosRegistrationIT.java) | 集成（真实 Nacos） |
-| 四条 SLO 告警规则与抑制规则语法、表达式正确 | [`verify.yml`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/.github/workflows/verify.yml) 的 promtool check rules / amtool check-config | 静态校验（CI） |
-| Rollout、HPA、三个 PreSync Job 等清单符合 schema | [`verify.yml`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/.github/workflows/verify.yml) 的 kubeconform 任务 | 静态校验（CI） |
+| 四条 SLO 告警规则与抑制规则语法、表达式正确 | [`verify.yml`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/.github/workflows/verify.yml) 的 promtool check rules / amtool check-config | 静态校验（CI；`main` 上这些检查在 `static-checks.yml`，由 `verify.yml` 调用） |
+| Rollout、HPA、三个 PreSync Job 等清单符合 schema | [`verify.yml`](https://github.com/Clarence404/mall-evolution/blob/ch09-observability-release/.github/workflows/verify.yml) 的 kubeconform 任务 | 静态校验（CI；`main` 上同在 `static-checks.yml`） |
 | 金丝雀指标不达标时自动中止，约 3 分钟恢复 | 无自动化测试 | 需真实环境 |
 | 尾部采样保留全部错误与慢于 800ms 的 Trace，其余保留 10% | 无自动化测试 | 需真实环境 |
 

@@ -95,7 +95,7 @@ description: 首次大促的故障复盘、超时熔断与舱壁、重试风暴�
 ### 2、熔断与舱壁配置
 
 ```yaml
-# mall-app 在 Nacos 中的配置（节选）
+# mall-app 的配置（节选，除 http-services 外都在 Nacos）
 spring:
   http:
     serviceclient:
@@ -104,7 +104,7 @@ spring:
   cloud:
     circuitbreaker:
       http-services:
-        enabled: false                            # 不让 Spring Cloud 给每个 HTTP 接口客户端再包一层熔断，见下方说明
+        enabled: false                            # 这一项写在 mall-app 的 application.yml，不在 Nacos；不让 Spring Cloud 给每个 HTTP 接口客户端再包一层熔断，见下方说明
       resilience4j:
         disable-time-limiter: true                # 超时只由 HTTP 客户端控制，避免 TimeLimiter 默认 1s 抢先触发
         enable-semaphore-default-bulkhead: true   # 这两项一起开：用信号量舱壁，调用留在 Tomcat 线程
