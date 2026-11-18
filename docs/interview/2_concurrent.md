@@ -298,4 +298,4 @@ ScopedValue.where(CURRENT_USER, user).run(() -> service.process(request));   // 
 
 ---
 
-高并发系统层面的设计见 [高并发面试题解答](/interview/20_high_con)。
+高并发系统层面的设计见 [高并发面试题解答](/interview/24_high_con)。

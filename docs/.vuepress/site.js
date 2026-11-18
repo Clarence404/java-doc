@@ -28,9 +28,9 @@ export const SUMMARY = {
         {text: '基础体系', from: 1},
         {text: '框架生态', from: 7},
         {text: '数据存储', from: 12},
-        {text: '分布式', from: 16},
-        {text: '三高架构', from: 19},
-        {text: '架构设计', from: 22},
+        {text: '分布式架构', from: 16},
+        {text: '架构设计', from: 19},
+        {text: '三高架构', from: 23},
         {text: '研发效能', from: 26},
         {text: '运维保障', from: 30},
         {text: '物联网', from: 33},
@@ -121,7 +121,7 @@ export const GROUPS = [
         ],
     },
     {
-        name: '分布式', tagline: '分布式理论与机制、微服务拆分与 Spring Cloud 落地', modules: [
+        name: '分布式架构', tagline: '分布式理论与机制、微服务拆分与 Spring Cloud 落地', modules: [
             {name: '分布式基础', dir: 'distributed', interview: ['16_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID / 会话 / 调度与工作流 / 一致性哈希'},
             {name: '微服务架构', dir: 'microservices', interview: ['17_microservices'], desc: '优势与挑战 / 服务拆分 / 设计模式 / 调用顺序性 / 服务间通信与契约'},
             {
@@ -135,16 +135,9 @@ export const GROUPS = [
         ],
     },
     {
-        name: '三高架构', tagline: '性能、容量与可用性的系统级策略', modules: [
-            {name: '高性能', dir: 'high-perf', interview: ['19_high_perf'], desc: '指标 / 方法论 / Profiler / JMH / 池化与异步 / IO 与数据库优化 / JVM 与代码级优化 / 案例'},
-            {name: '高并发', dir: 'high-con', interview: ['20_high_con'], desc: '接入层 / 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划'},
-            {name: '高可用', dir: 'high-avail', interview: ['21_high_avail'], desc: 'SLA / 冗余切换 / 负载均衡 / 超时重试 / 熔断降级限流 / 优雅上下线 / 多活容灾 / 混沌工程 / 应急复盘 / 四篇实测实验'},
-        ],
-    },
-    {
         name: '架构设计', tagline: '从代码设计到架构落地', modules: [
             {
-                name: '设计模式', dir: 'patterns', interview: ['22_patterns'],
+                name: '设计模式', dir: 'patterns', interview: ['19_patterns'],
                 desc: 'GoF 23 种模式，结合 JDK / Spring 源码',
                 sidebar: [
                     {text: '创建型', from: 1},
@@ -152,9 +145,9 @@ export const GROUPS = [
                     {text: '行为型', from: 13},
                 ],
             },
-            {name: '系统架构', dir: 'architecture', interview: ['23_architecture'], desc: '架构模式 / DDD / 工程结构与分包 / 幂等 / 对象存储 / 权限系统 / 冷热分离 / 主数据'},
+            {name: '系统架构', dir: 'architecture', interview: ['20_architecture'], desc: '架构模式 / DDD / 工程结构与分包 / 幂等 / 对象存储 / 权限系统 / 冷热分离 / 主数据'},
             {
-                name: '业务场景', dir: 'scenario', interview: ['24_scenario', '25_scenario_highlights'],
+                name: '业务场景', dir: 'scenario', interview: ['21_scenario', '22_scenario_highlights'],
                 desc: '设计方法 / 海量数据 / 对账 / 导入导出 / 秒杀 / 订单 / 短链 / 排行榜 / Feed 流 / 搜索 / 大文件上传 / 红包 / LBS / 商品详情 / 支付 / 优惠券 / IM / 计数 / 扫码登录 / 购物车 / 通知中心 / 评论 / 库存票务 / 延迟任务',
                 sidebar: [
                     {text: '方法论', from: 1},
@@ -163,9 +156,16 @@ export const GROUPS = [
                 ],
             },
             {
-                name: '项目演进', dir: 'project', interview: ['25_scenario_highlights'],
+                name: '项目演进', dir: 'project', interview: ['22_scenario_highlights'],
                 desc: '以订单服务为例，从单体到分布式：工程搭建 / 数据建模 / 缓存 / 异步 / 拆分 / 一致性 / 稳定性 / 发布',
             },
+        ],
+    },
+    {
+        name: '三高架构', tagline: '性能、容量与可用性的系统级策略', modules: [
+            {name: '高性能', dir: 'high-perf', interview: ['23_high_perf'], desc: '指标 / 方法论 / Profiler / JMH / 池化与异步 / IO 与数据库优化 / JVM 与代码级优化 / 案例'},
+            {name: '高并发', dir: 'high-con', interview: ['24_high_con'], desc: '接入层 / 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划'},
+            {name: '高可用', dir: 'high-avail', interview: ['25_high_avail'], sidebar: [{text: '实战实验', from: 12}], desc: 'SLA / 冗余切换 / 负载均衡 / 超时重试 / 熔断降级限流 / 优雅上下线 / 多活容灾 / 混沌工程 / 应急复盘 / 四篇实测实验'},
         ],
     },
     {
@@ -277,6 +277,14 @@ export const BASELINE = {
 
 // 重定向：文章搬家后旧地址自动跳到新地址（@vuepress/plugin-redirect），键为旧路径、值为新路径，均不带 .html
 export const REDIRECTS = {
+    // 2026-11：导航里「架构设计」排到「三高架构」前面，面试题解的编号跟着调整
+    '/interview/19_high_perf': '/interview/23_high_perf',
+    '/interview/20_high_con': '/interview/24_high_con',
+    '/interview/21_high_avail': '/interview/25_high_avail',
+    '/interview/22_patterns': '/interview/19_patterns',
+    '/interview/23_architecture': '/interview/20_architecture',
+    '/interview/24_scenario': '/interview/21_scenario',
+    '/interview/25_scenario_highlights': '/interview/22_scenario_highlights',
     // 2026-11：IoT 改为按子目录分组（协议与选型 / 接入与安全 / 平台能力 / 平台实战），以下是全部旧地址
     '/iot/1_protocol': '/iot/1_basics/1_protocol',
     '/iot/2_platform': '/iot/1_basics/2_platform',
@@ -350,13 +358,13 @@ export const REDIRECTS = {
     '/interview/10_distributed': '/interview/16_distributed',
     '/interview/11_microservices': '/interview/17_microservices',
     '/interview/11_spring_cloud': '/interview/18_service_governance',
-    '/interview/12_high_perf': '/interview/19_high_perf',
-    '/interview/13_high_con': '/interview/20_high_con',
-    '/interview/14_high_avail': '/interview/21_high_avail',
-    '/interview/17_patterns': '/interview/22_patterns',
-    '/interview/15_architecture': '/interview/23_architecture',
-    '/interview/16_scenario': '/interview/24_scenario',
-    '/interview/16_scenario_highlights': '/interview/25_scenario_highlights',
+    '/interview/12_high_perf': '/interview/23_high_perf',
+    '/interview/13_high_con': '/interview/24_high_con',
+    '/interview/14_high_avail': '/interview/25_high_avail',
+    '/interview/17_patterns': '/interview/19_patterns',
+    '/interview/15_architecture': '/interview/20_architecture',
+    '/interview/16_scenario': '/interview/21_scenario',
+    '/interview/16_scenario_highlights': '/interview/22_scenario_highlights',
     '/interview/20_testing': '/interview/26_testing',
     '/interview/20_devops': '/interview/27_devops',
     '/interview/20_handbook': '/interview/29_handbook',
@@ -420,8 +428,8 @@ export const ROUTES = [
             {title: 'JVM、操作系统与网络', time: 'Day 2', items: ['interview/3_jvm', 'interview/5_computer_os', 'interview/6_network']},
             {title: 'Spring 全家桶', time: 'Day 3', items: ['interview/7_spring', 'interview/8_spring_boot', 'interview/18_service_governance']},
             {title: '数据库、缓存与 MQ', time: 'Day 4', items: ['interview/12_db', 'interview/14_cache', 'interview/15_mq']},
-            {title: '分布式与三高', time: 'Day 5', items: ['interview/16_distributed', 'interview/17_microservices', 'interview/20_high_con', 'interview/21_high_avail']},
-            {title: '系统设计与项目', time: 'Day 6', items: ['scenario/1_design_method', 'interview/24_scenario', 'interview/25_scenario_highlights', 'interview/23_architecture']},
+            {title: '分布式与三高', time: 'Day 5', items: ['interview/16_distributed', 'interview/17_microservices', 'interview/24_high_con', 'interview/25_high_avail']},
+            {title: '系统设计与项目', time: 'Day 6', items: ['scenario/1_design_method', 'interview/21_scenario', 'interview/22_scenario_highlights', 'interview/20_architecture']},
             {title: '查漏补缺', time: 'Day 7', note: '打开各模块的「高频面试题」，切到自测模式、范围选「只看不会」，把标过的题再过一遍', items: ['interview/4_algorithms', 'algorithms/4_practice/2_concurrency_coding', 'interview/90_glossary']},
         ],
     },

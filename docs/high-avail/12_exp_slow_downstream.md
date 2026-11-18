@@ -4,9 +4,9 @@ description: 库存服务变慢 5 秒的对照实验、超时 / 舱壁 / 熔断 
 
 # 下游变慢实验
 
-> 前置阅读：[超时、重试与隔离](./4_timeout_retry_bulkhead)、[熔断](./5_circuit_breaking)
+> 前置阅读：[超时、重试与隔离](./4_timeout_retry_bulkhead)、[熔断](./5_circuit_breaking)、[稳定性](/project/8_stability)
 
-下游一个接口变慢，为什么连不依赖它的页面也打不开？本篇用 mall-evolution 实测无保护、超时、舱壁、熔断、连接池五种配置，讲每一层挡住了什么、没挡住什么。
+mall-evolution 在「稳定性」一章给下单配了超时、舱壁和熔断，这套配置在下游真的变慢时管不管用？本篇把库存服务拖慢 5 秒，逐层打开保护实测，并记录由此改掉的两处配置。
 
 ## 一、现象与假设
 
@@ -42,7 +42,36 @@ description: 库存服务变慢 5 秒的对照实验、超时 / 舱壁 / 熔断 
 
 熔断的参数：10 秒时间窗口、至少 100 次调用、失败率 ≥ 50% 或慢调用率 ≥ 60% 时打开，打开 5 秒后放 20 个请求试探。
 
-每组跑了 3–6 轮，共 22 轮。同一组各轮的状态码占比相差不到 2 个百分点，下面的数字取其中一轮。
+### 对应的代码
+
+「加熔断」这一组就是 [稳定性](/project/8_stability) 第四节定下来的配置，实验没有另写一套。几个关键位置：
+
+| 内容 | 在 mall-evolution 的哪里 |
+|------|-------------------------|
+| 下单调库存：熔断器包住远程调用 | [`InventoryReserveClient`](https://github.com/Clarence404/mall-evolution/blob/main/mall-order/src/main/java/io/github/clarence404/mall/order/place/InventoryReserveClient.java) |
+| 熔断、舱壁、读超时的参数 | [`mall-app/application.yml`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/main/resources/application.yml) 的 `resilience4j` 与 `spring.http.serviceclient` |
+| 哪些异常算失败 | [`RemoteFailurePredicate`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/remote/RemoteFailurePredicate.java) |
+| 详情页的库存提示（本机缓存 + 远程查询） | [`StockQueryService`](https://github.com/Clarence404/mall-evolution/blob/main/mall-product/src/main/java/io/github/clarence404/mall/product/stock/StockQueryService.java) |
+| 服务间连接池的开关 | [`HttpClientPoolConfig`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/remote/HttpClientPoolConfig.java) |
+| 故障注入（只在 demo profile 下存在） | [`DemoFaultRulesController`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/demo/fault/DemoFaultRulesController.java) |
+| 压测场景 | [`SlowDownstreamSimulation`](https://github.com/Clarence404/mall-evolution/blob/main/perf/src/test/java/io/github/clarence404/mall/perf/ha/SlowDownstreamSimulation.java) |
+
+下单调库存只有一行，熔断器和舱壁都由 Spring Cloud CircuitBreaker 按名字 `inventory-reserve` 套上去：
+
+```java
+public ReserveResult reserve(ReserveStockRequest req) {
+    return circuitBreaker.run(() -> inventoryApi.reserve(req), InventoryReserveClient::rethrow);
+}
+```
+
+故障是往库存服务发一条规则注入的，到期自动失效：
+
+```http
+PUT /internal/demo/faults/a-reserve-slow
+{"method": "POST", "path": "/internal/inventory/reserve", "delayMs": 5000, "ttlSeconds": 240}
+```
+
+每组跑了 3–6 轮，共 22 轮（不含第六节的验证）。同一组各轮的状态码占比相差不到 2 个百分点，下面的数字取其中一轮。
 
 ## 三、结果
 
@@ -78,7 +107,15 @@ description: 库存服务变慢 5 秒的对照实验、超时 / 舱壁 / 熔断 
 | 等本机缓存加载库存提示（同一个 key 只让一个线程去查，其余等它） | 91 |
 | 空闲 | 0 |
 
-关键在第一行。mall-app 到库存服务总共只有 5 条连接，每条被一个 reserve 占住 5 秒，所以库存服务每秒只收到 1 个请求（180 秒约 190 次），而压测每秒发 40 个下单。剩下的线程都在排队等连接，一等最多 3 分钟。
+这 109 个线程的栈顶都是同一处，在 HttpClient 的连接池里等：
+
+```text
+"http-nio-8080-exec-1" waiting on condition
+    at org.apache.hc.core5.pool.StrictConnPool$1.get(StrictConnPool.java:178)
+    at org.apache.hc.client5.http.impl.classic.InternalExecRuntime.acquireEndpoint(InternalExecRuntime.java:111)
+```
+
+关键就在这里。mall-app 到库存服务总共只有 5 条连接，每条被一个 reserve 占住 5 秒，所以库存服务每秒只收到 1 个请求（180 秒约 190 次），而压测每秒发 40 个下单。剩下的线程都在排队等连接，一等最多 3 分钟。
 
 详情页不调 reserve，但它要查「有货 / 无货」的提示，这个查询走的是同一个下游、同一个连接池，也排在同一条队里。200 个线程很快全部卡住，详情页自然打不开。
 
@@ -104,6 +141,21 @@ description: 库存服务变慢 5 秒的对照实验、超时 / 舱壁 / 熔断 
 ### 4、加熔断：熔断器没有打开
 
 这一组用的是项目的正式配置，结果和上一组几乎一样。查指标：整个故障期间，熔断器状态一直是关闭，拒绝次数为 0。
+
+`inventory-reserve` 这个熔断器当时的配置（节选）：
+
+```yaml
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventory-reserve:
+        sliding-window-type: TIME_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 100
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 60
+        record-failure-predicate: io.github.clarence404.mall.common.remote.RemoteFailurePredicate
+```
 
 原因在熔断器自己的统计里：
 
@@ -134,13 +186,46 @@ description: 库存服务变慢 5 秒的对照实验、超时 / 舱壁 / 熔断 
 | 服务间连接池用的是 HttpClient 5 的默认值（每个下游实例 5 条、等连接 3 分钟） | 下游一变慢，调用全部排在连接池里，读超时不起作用，舱壁被排队的线程占满 | 连接数按舱壁许可数配，取连接的等待时间设成百毫秒级 |
 | 舱壁的拒绝被熔断器算成成功 | 舱壁占满时熔断器打不开 | 在熔断器配置里把 `BulkheadFullException` 声明为忽略（不计入统计） |
 
-两个问题叠在一起才有了第四组的结果：连接池太小导致舱壁被占满，舱壁占满又让熔断器失效。mall-evolution 的默认配置是否修改另行决定，本篇只记录现象。
+两个问题叠在一起才有了第四组的结果：连接池太小导致舱壁被占满，舱壁占满又让熔断器失效。两处都已经在 mall-evolution 里改掉，见下一节。
 
 ::: tip 排查顺序
 下游变慢时先看线程栈里线程卡在哪一步：等连接、等响应还是等许可。三者对应的是三个不同的配置，只调读超时解决不了前后两种。
 :::
 
-## 六、复现
+## 六、修复后
+
+改动只有配置，提交见 [`520468e`](https://github.com/Clarence404/mall-evolution/commit/520468e)。连接池三个服务都加了；熔断器的三个实例都加了忽略项：
+
+```yaml
+mall:
+  http-client:
+    max-connections-per-route: 100       # 原来不配，用 HttpClient 5 的默认值 5
+    max-connections-total: 200           # 默认 25
+    connection-request-timeout: 100ms    # 默认 3 分钟
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventory-reserve:
+        ignore-exceptions:               # 舱壁满的异常不计入统计，不再被记成成功
+          - io.github.resilience4j.bulkhead.BulkheadFullException
+```
+
+同样的故障再压一次，为了分清两处改动各自的作用，中间加了一组「只改熔断器」：
+
+| 组 | 熔断器 | 详情页成功率 | 下单失败得快不快 | 库存服务收到的 reserve |
+|----|------|------|------|------|
+| 修复前（原正式配置） | 没有打开 | 99% | 75% 立刻 503，24% 等 3 秒后 504 | 约 1700 次 |
+| 只让熔断器忽略舱壁异常 | 故障后 8 秒打开 | 99% | 91% 立刻 503，7% 超时后 500，1% 等 3 秒后 504 | 约 580 次 |
+| 两处都改（现在的正式配置） | 故障后 10 秒打开 | 100% | 86% 立刻 503，13% 在 0.5 秒超时 | 约 940 次 |
+
+- 只改熔断器就足以让它打开：被舱壁拒绝的调用不再稀释失败率，库存服务收到的请求降到三分之一
+- 连接池不放开时，仍有约 1% 的下单卡在等连接上，被网关 3 秒超时切断；详情页也还有不到 1% 的 504
+- 两处都改之后的结果与第五组一致，mall-app 忙线程最多 22 个
+
+「修复前」这一行是在新代码上把旧值钉回去重跑的，两轮结果与第三节相同，说明差别确实来自这两项配置。这几轮验证期间环境里的数据库仍有卡顿，数字与前面各轮的偏差在 1 个百分点以内。
+
+## 七、复现
 
 实验的方案、参数和脚本在 mall-evolution 的 [`experiments/`](https://github.com/Clarence404/mall-evolution/tree/main/experiments) 目录，每组一条命令：
 
@@ -148,7 +233,11 @@ description: 库存服务变慢 5 秒的对照实验、超时 / 舱壁 / 熔断 
 .\experiments\a-slow-downstream\run.ps1 -Variant a0-no-protection
 .\experiments\a-slow-downstream\run.ps1 -Variant a3-circuit-breaker
 .\experiments\a-slow-downstream\run.ps1 -Variant a4-pool
+.\experiments\a-slow-downstream\run.ps1 -Variant a3b-ignore-bulkhead
+.\experiments\a-slow-downstream\run.ps1 -Variant a5-fixed
 ```
+
+前五组的参数文件把修复前的连接池和熔断配置钉住了，现在跑出来仍是第三节的结果；`a5-fixed` 是修复后的正式配置。
 
 脚本会起服务、压测、在第 90 秒和第 150 秒抓线程栈，结果写到 `experiments/out/`。几点局限：
 

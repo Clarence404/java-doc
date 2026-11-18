@@ -240,7 +240,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **一句话**：Lettuce 的连接是线程安全的，默认所有线程共用一个连接，普通命令不需要连接池。Kafka 的反序列化发生在拉取消息时，一条格式错误的消息会让每次拉取都失败，位置一直前进不了，分区就卡住了。
 
-- Lettuce 什么时候才会用到池、为什么配了不生效，完整答案见 [高并发面试题解答](/interview/20_high_con) Q37
+- Lettuce 什么时候才会用到池、为什么配了不生效，完整答案见 [高并发面试题解答](/interview/24_high_con) Q37
 - Kafka 解法：用 `ErrorHandlingDeserializer` 包一层，配合 `DeadLetterPublishingRecoverer` 把坏消息送进死信 Topic
 - `trusted.packages` 只写事件类所在的包
 
@@ -296,7 +296,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 
 **一句话**：存活探针问「进程还活着吗」，失败了 K8s 会重启容器；就绪探针问「能接流量吗」，失败了只是不给它分流量，不重启。
 
-→ 完整答案见 [高可用面试题解答](/interview/21_high_avail) Q10；正文详见 [Actuator 监控](/spring-boot/11_actuator#四、存活-就绪探针与健康分组)
+→ 完整答案见 [高可用面试题解答](/interview/25_high_avail) Q10；正文详见 [Actuator 监控](/spring-boot/11_actuator#四、存活-就绪探针与健康分组)
 
 ### Q25：如何用 Micrometer 写自定义业务指标？如何避免高基数？Observation API 做什么？
 

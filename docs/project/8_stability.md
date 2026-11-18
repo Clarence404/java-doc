@@ -486,6 +486,43 @@ public class PromoSimulation extends Simulation {
 
 提交：[`1447a81`](https://github.com/Clarence404/mall-evolution/commit/1447a81)，代码见 [`StockDisplayService`](https://github.com/Clarence404/mall-evolution/blob/main/mall-product/src/main/java/io/github/clarence404/mall/product/stock/StockDisplayService.java) 与 [`StockQueryService`](https://github.com/Clarence404/mall-evolution/blob/main/mall-product/src/main/java/io/github/clarence404/mall/product/stock/StockQueryService.java)。商品信息本身的两级缓存见 [引入缓存 · 商品详情两级缓存](./4_cache#四、商品详情两级缓存)。
 
+### 3、连接池与熔断统计
+
+这一处不是审查出来的，是压出来的：高可用模块的 [下游变慢实验](/high-avail/12_exp_slow_downstream) 把库存服务的 `reserve` 拖慢 5 秒，用本篇第四节的配置实测。
+
+**问题**：故障持续的 3 分钟里，熔断器一次都没有打开，下单有 24% 要等满网关的 3 秒才失败。原因有两层：
+
+- 服务间 HTTP 调用的连接池用的是 HttpClient 5 的默认值，每个下游实例 5 条连接、取连接最多等 3 分钟。库存服务一慢，调用全排在连接池里，500ms 的读超时管不到这一段，60 个舱壁许可被排队的线程占满
+- 舱壁包在熔断器里面，舱壁满时抛的 `BulkheadFullException` 不在 `RemoteFailurePredicate` 的失败名单里，被熔断器记成了成功。失败率最高只到 22%，够不着 50% 的阈值
+
+**怎么发现的**：故障期间抓线程栈，mall-app 的线程全停在 `StrictConnPool` 的取连接上；再看熔断器的指标，「成功」的调用有 7000 多次，而同期真正成功的下单只有几十个。
+
+**怎么修**：只改配置。
+
+```yaml
+mall:
+  http-client:
+    max-connections-per-route: 100
+    max-connections-total: 200
+    connection-request-timeout: 100ms
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventory-reserve:
+        ignore-exceptions:
+          - io.github.resilience4j.bulkhead.BulkheadFullException
+```
+
+`payment-query`、`inventory-stock-query` 两个熔断器同样加了忽略项，库存服务与支付服务的连接池一并放开。
+
+| 验证 | 结果 |
+|------|------|
+| 只加忽略项，同样的故障再压 | 熔断器在故障后 8 秒打开，库存服务收到的请求降到三分之一 |
+| 两处都改 | 熔断器 10 秒打开，下单失败都在 0.5 秒内返回，详情页成功率 100% |
+| 把旧值钉回去重跑 | 结果与修复前相同，差别确实来自这两项 |
+
+提交：[`520468e`](https://github.com/Clarence404/mall-evolution/commit/520468e)。本篇第五节的重试规则、第六节的限流也各有一篇实测：[重试风暴与幂等实验](/high-avail/13_exp_retry_storm)、[突发流量实验](/high-avail/15_exp_overload)。
+
 ---
 
 ## 小结
@@ -496,6 +533,7 @@ public class PromoSimulation extends Simulation {
 - 网关按「用户 + 接口」令牌桶限流，`mall-app` 限制同一 SKU 待支付最多 2 单，活动 SKU 支付超时缩短为 5 分钟
 - 只对活动白名单 SKU 分 10 桶，按 `order_no` 哈希选桶、桶空换桶；不做 Redis 预扣
 - `main` 上后来的修复：分桶的 `release` 改为加锁重读预占记录、`merge` 锁住桶行再读余量；详情页「有货」提示加本机 2 秒缓存与单飞、兜底值缓存 5 秒、`listStocks` 用独立的熔断与舱壁
+- 高可用实验压出来的两处配置问题也已修复：服务间连接池放开、熔断器忽略舱壁满的异常
 - 容量靠 Gatling 在同构环境按 7500 QPS 压出来，`mall-app` 本章迁入集群，大促按预案提前扩容、预热（`ProductWarmupRunner`）、冻结发布，RocketMQ 规格按消息量单独评估
 
 > 本篇代码：[ch08-stability](https://github.com/Clarence404/mall-evolution/tree/ch08-stability) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch07-consistency...ch08-stability)

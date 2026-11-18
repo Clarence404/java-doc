@@ -404,6 +404,34 @@ ALTER TABLE t_outbox ADD COLUMN trace_parent VARCHAR(55) NULL COMMENT 'W3C trace
 
 ---
 
+## 十、后来的修复
+
+高可用模块的 [滚动发布实验](/high-avail/14_exp_rolling_restart) 在持续压测下逐个重启 3 个 mall-app 实例，实测了第六节「上线与下线不丢请求」的做法。经过 preStop 的路径两轮都是零失败，但压出了三处问题，都不在 `ch09-observability-release` 标签里。
+
+**问题**：
+
+- 关掉 Nacos 自动注册（为了预热完再注册）之后，停机时的自动注销也一起没了。不经过 preStop 直接收到 SIGTERM 时，实例要等进程关掉 Nacos 连接才从列表里消失，那时 Tomcat 已经停了，每次重启丢几百个请求
+- preStop 的 15 秒加上 Nacos 的 10 秒等待，一共 25 秒，小于网关 35 秒的实例缓存。实测注销后最晚第 30 秒还有请求进来，零失败有运气成分
+- RocketMQ 消费者在 Bean 销毁时逐个关闭，每个约 30 秒，从 SIGTERM 到进程退出要 75–90 秒，超过清单里 60 秒的宽限期
+
+**怎么发现的**：把停机日志的时间戳和压测里失败请求的时刻对到一条时间线上。只开优雅停机的那一组，日志里没有注销记录，失败从 Tomcat 停止的那一秒开始，持续到网关缓存过期。
+
+**怎么修**：
+
+| 问题 | 改动 |
+|------|------|
+| 停机不注销 | `RegisterWhenReady` 监听 `ContextClosedEvent`，排在最前面主动注销 |
+| 等待短于缓存 | 网关与三个服务的 LoadBalancer 实例缓存改为 5 秒 |
+| 停机太慢 | 新增 `ParallelConsumerShutdown` 并行关闭消费者；宽限期改为 90 秒 |
+
+修复后不经过 preStop 直接发 SIGTERM 再压：2 轮 6 次重启，与路由有关的失败为 0，注销后 1–5 秒不再有请求进来，停机耗时降到 22–30 秒。
+
+提交：[`520468e`](https://github.com/Clarence404/mall-evolution/commit/520468e)，代码见 [`RegisterWhenReady`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/lifecycle/RegisterWhenReady.java) 与 [`ParallelConsumerShutdown`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/mq/ParallelConsumerShutdown.java)。
+
+同一次提交还改了一处启动问题：启动瞬间连不上 Redis 时应用启动失败，但进程挂着不退出，K8s 不会重启它。四个服务的 `main` 现在捕获启动异常后直接退出。
+
+---
+
 ## 小结
 
 - 阶段四的三笔账：排障要翻 3 处日志、告警分散在 5 个地方、每天 3–5 次发布却靠滚动更新加人盯

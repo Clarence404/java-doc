@@ -4,9 +4,9 @@ description: 浏览量突增到容量 2.9 倍的对照实验、阶梯压测找�
 
 # 突发流量实验
 
-> 前置阅读：[限流与过载保护](./7_rate_limiting)、[降级](./6_degradation)
+> 前置阅读：[限流与过载保护](./7_rate_limiting)、[降级](./6_degradation)、[稳定性](/project/8_stability)
 
-浏览量突然涨了几倍，为什么连下单也跟着超时？本篇在 mall-evolution 上把匿名浏览流量升到容量的 2.9 倍，实测不限流、限流 300/s、限流 240/s 和降级四种做法下单还能不能做成。
+mall-evolution 的网关按「用户 + 接口」限流，匿名浏览没有用户身份，这层限流挡不住。本篇把匿名浏览升到容量的 2.9 倍，实测加上按路由的总量限流、阈值贴边与留余量、降级各自的效果。
 
 ## 一、现象与假设
 
@@ -30,6 +30,28 @@ description: 浏览量突增到容量 2.9 倍的对照实验、阶梯压测找�
 | 限流 | 网关对匿名浏览路由按总量限流（令牌桶），超出返回 429 |
 
 容量用模型而不用本机的真实上限，是因为压测和服务挤在同一台机器上，真实拐点会随 CPU 争抢漂移。模型让拐点固定下来，换一台机器也能复现；它的代价是每个请求占用的容量都一样，这一点会影响降级那一组的结论。
+
+### 对应的代码
+
+[稳定性](/project/8_stability) 第六节的限流是按「用户 + 接口」做的，防的是单个用户刷接口；商品详情、猜你喜欢走的 `anonymous` 路由没有用户可按。这次实验为它补了一个按路由总量限流的过滤器，默认不配置、不生效：
+
+| 内容 | 在 mall-evolution 的哪里 |
+|------|-------------------------|
+| 按路由的总量限流（单机令牌桶） | [`RouteLimitFilter`](https://github.com/Clarence404/mall-evolution/blob/main/mall-gateway/src/main/java/io/github/clarence404/mall/gateway/RouteLimitFilter.java)、[`RouteLimitProperties`](https://github.com/Clarence404/mall-evolution/blob/main/mall-gateway/src/main/java/io/github/clarence404/mall/gateway/RouteLimitProperties.java) |
+| 按用户的限流（Redis） | [`RateLimitConfig`](https://github.com/Clarence404/mall-evolution/blob/main/mall-gateway/src/main/java/io/github/clarence404/mall/gateway/RateLimitConfig.java) |
+| 路由定义（`order-place`、`anonymous` 等） | [`mall-gateway/application.yml`](https://github.com/Clarence404/mall-evolution/blob/main/mall-gateway/src/main/resources/application.yml) |
+| 降级开关（猜你喜欢、积分、订单列表） | [`DegradeProperties`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/degrade/DegradeProperties.java) |
+| 容量模型（并发上限 + 固定耗时的故障规则） | [`DemoFaultRulesController`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/demo/fault/DemoFaultRulesController.java) |
+| 压测场景 | [`OverloadSimulation`](https://github.com/Clarence404/mall-evolution/blob/main/perf/src/test/java/io/github/clarence404/mall/perf/ha/OverloadSimulation.java) |
+
+限流组打开的就是这一段配置，超出的请求返回 429，带 `Retry-After: 1` 和 `X-RateLimit-Scope: route`：
+
+```yaml
+mall:
+  gateway:
+    route-limits:
+      anonymous: {permits-per-second: 240, burst: 240}
+```
 
 ## 三、先找拐点
 
@@ -114,10 +136,11 @@ description: 浏览量突增到容量 2.9 倍的对照实验、阶梯压测找�
 ```powershell
 .\experiments\d-overload\run.ps1 -Variant d0-probe
 .\experiments\d-overload\run.ps1 -Variant d1-none
-.\experiments\d-overload\run.ps1 -Variant d2-limit -Set "mall-gateway:mall.gateway.route-limits.anonymous.permits-per-second=240","mall-gateway:mall.gateway.route-limits.anonymous.burst=240"
+.\experiments\d-overload\run.ps1 -Variant d2-limit
+.\experiments\d-overload\run.ps1 -Variant d2-limit -Set "mall-gateway:mall.gateway.route-limits.anonymous.permits-per-second=300","mall-gateway:mall.gateway.route-limits.anonymous.burst=300"
 ```
 
-参数与脚本在 mall-evolution 的 [`experiments/`](https://github.com/Clarence404/mall-evolution/tree/main/experiments) 目录。几点局限：
+`d2-limit` 的阈值是 240/s，最后一条命令复现贴边的 300/s。参数与脚本在 mall-evolution 的 [`experiments/`](https://github.com/Clarence404/mall-evolution/tree/main/experiments) 目录。几点局限：
 
 - 容量是注入出来的模型，结论是「阈值与容量的相对关系」，不是 mall-app 的真实容量
 - 不限流那组压测工具自身也过载了，这一组只采用成功率，不采用耗时

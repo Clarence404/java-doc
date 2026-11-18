@@ -581,8 +581,8 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 通用设计题放在各方向的答案页，这里不重复：
 
-- 高并发系统：[高并发面试题解答 Q1](/interview/20_high_con#q1-如何设计一个高并发系统-从哪些维度入手)、[高并发总览](/high-con/0_overview)
-- 高可用系统：[高可用面试题解答 Q1](/interview/21_high_avail#q1-如何设计一个高可用系统)、[高可用总览](/high-avail/0_overview)
+- 高并发系统：[高并发面试题解答 Q1](/interview/24_high_con#q1-如何设计一个高并发系统-从哪些维度入手)、[高并发总览](/high-con/0_overview)
+- 高可用系统：[高可用面试题解答 Q1](/interview/25_high_avail#q1-如何设计一个高可用系统)、[高可用总览](/high-avail/0_overview)
 - RPC 框架：[微服务架构面试题解答 Q13](/interview/17_microservices#q13-如何设计一个-rpc-框架)、[Dubbo](/service-governance/8_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[RPC 协议](/protocols/5_rpc_protocols)
 - 分布式主键：[分布式基础面试题解答 Q20](/interview/16_distributed#q20-分布式-id-有哪些方案-uuidv7-为什么适合做主键)、[分布式 ID 生成](/distributed/8_id_generator#八、方案对比与选型)
 - `synchronized` 与分布式锁：[分布式基础面试题解答 Q7](/interview/16_distributed#q7-分布式锁有哪些实现-怎么选)、[分布式锁](/distributed/3_lock#一、为什么需要分布式锁)
@@ -615,7 +615,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 **常见坑**：只罗列技术名词不讲取舍；数字前后矛盾或明显夸大（如单机 Redis 扛百万 QPS）；把通用八股当项目难点。
 
-→ 详见 [项目难点与亮点面试题解答](/interview/25_scenario_highlights)（21 个亮点的逐题讲法）、[分库分表与中间件](/database/5_practice/3_sharding#八、平滑迁移与扩容)
+→ 详见 [项目难点与亮点面试题解答](/interview/22_scenario_highlights)（21 个亮点的逐题讲法）、[分库分表与中间件](/database/5_practice/3_sharding#八、平滑迁移与扩容)
 
 ### Q45：拿到一道系统设计题，你会怎么推进？
 
@@ -722,7 +722,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 - Little 定律：并发数 = QPS × RT = 3000 × 0.2s = 600，任一时刻约有 600 个请求在处理中
 - 线程维度：单机 200 个工作线程且以等待 IO 为主，600 / 200 = 3 台只是理论下限
 - CPU 维度：每个请求真正耗 CPU 20ms，4 核满载约 4 / 0.02 = 200 QPS，按 70% 水位取 140 QPS，需要 3000 / 140 ≈ 22 台
-- 取两个维度里更大的结果，并核算数据库连接、Redis 等下游是否扛得住；冗余系数算法见 [高并发 Q40](/interview/20_high_con#q40-如何评估单机能力-需要多少台机器-多可用区部署时冗余系数怎么算)
+- 取两个维度里更大的结果，并核算数据库连接、Redis 等下游是否扛得住；冗余系数算法见 [高并发 Q40](/interview/24_high_con#q40-如何评估单机能力-需要多少台机器-多可用区部署时冗余系数怎么算)
 
 **常见坑**：只用线程数算台数，忽略 CPU 和下游连接池；把 RT 平均值当成 P99 用。
 

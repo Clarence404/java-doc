@@ -358,6 +358,30 @@ public class PriorityLoadSheddingFilter extends OncePerRequestFilter {
 
 ---
 
+## 十、在 mall-evolution 里的落地
+
+mall-evolution 的限流有三层，前两层在 [稳定性](/project/8_stability) 一章加入，第三层是做实验时补的：
+
+| 层 | 做法 | 取值 | 位置 |
+|----|------|------|------|
+| 按「用户 + 路由」 | 网关 `RequestRateLimiter`，Redis 令牌桶 | 下单每人每秒 1 次、突发 3；其他接口每人每秒 20 次、突发 40 | [`mall-gateway/application.yml`](https://github.com/Clarence404/mall-evolution/blob/main/mall-gateway/src/main/resources/application.yml)、[`RateLimitConfig`](https://github.com/Clarence404/mall-evolution/blob/main/mall-gateway/src/main/java/io/github/clarence404/mall/gateway/RateLimitConfig.java) |
+| 下单频控 | 同一商品待支付订单最多 2 单 | — | 订单服务 |
+| 按路由总量 | 网关单机令牌桶，超出返回 429 + `Retry-After` | 默认不配；实验里给匿名浏览路由配 240/s | [`RouteLimitFilter`](https://github.com/Clarence404/mall-evolution/blob/main/mall-gateway/src/main/java/io/github/clarence404/mall/gateway/RouteLimitFilter.java) |
+
+前两层防的是单个用户刷接口。商品详情这类匿名接口没有用户身份可按，流量突增时只有第三层挡得住。[突发流量实验](./15_exp_overload) 把匿名浏览升到容量的 2.9 倍，对照了几种做法：
+
+| 做法 | 高峰期间下单成功率 |
+|------|------|
+| 不限流 | 14%–15% |
+| 匿名路由限流 300/s（阶梯压测里最后一个正常的档位） | 前 130 秒正常，之后全部超时；7 轮里只有 1 轮全程正常 |
+| 匿名路由限流 240/s | 94.5%–100%，5 轮都没有被拖垮 |
+
+对应第三节「阈值怎么定」，这次实测补了三条细节：
+
+- 安全系数要按压满之后的实际处理量来乘。300/s 在短阶梯压测里是正常的，但压满后每秒只处理约 316 个请求，等于没有余量
+- 令牌桶的桶容量会在突发的第一秒放进来两倍的量，要单独定，不要默认等于速率
+- 找拐点时每一级要压够久、带着积压压，1 分钟一级的阶梯会高估容量
+
 ## 小结
 
 - 固定窗口有边界突发，滑动窗口修正统计；令牌桶允许突发，漏桶强制匀速

@@ -161,7 +161,7 @@ description: Nacos、网关、OpenFeign、Sentinel、Seata、Stream、链路追�
 
 **常见坑**：灰度标记没有一跳一跳往下传，第二跳之后就回到了稳定版本。
 
-→ 详见 [流量治理](/service-governance/5_traffic_governance#二、负载均衡-spring-cloud-loadbalancer)、[高可用面试题解答](/interview/21_high_avail#q17-服务端负载均衡与客户端负载均衡-spring-cloud-loadbalancer-有什么区别)
+→ 详见 [流量治理](/service-governance/5_traffic_governance#二、负载均衡-spring-cloud-loadbalancer)、[高可用面试题解答](/interview/25_high_avail#q17-服务端负载均衡与客户端负载均衡-spring-cloud-loadbalancer-有什么区别)
 
 ### Q13：API 网关的作用是什么？Route、Predicate、Filter 分别是什么，请求如何流转？
 
@@ -243,7 +243,7 @@ description: Nacos、网关、OpenFeign、Sentinel、Seata、Stream、链路追�
 - 隔离：给不同下游分开的线程或并发额度（Resilience4j Bulkhead、Sentinel 并发数）
 - 重试：只对幂等接口、只在一层做
 
-→ 详见 [流量治理](/service-governance/5_traffic_governance#一、流量治理全景)、[高可用面试题解答](/interview/21_high_avail#五、熔断)
+→ 详见 [流量治理](/service-governance/5_traffic_governance#一、流量治理全景)、[高可用面试题解答](/interview/25_high_avail#五、熔断)
 
 ### Q19：Sentinel 的核心原理（Slot 链、滑动窗口）是什么？
 
@@ -261,7 +261,7 @@ description: Nacos、网关、OpenFeign、Sentinel、Seata、Stream、链路追�
 **一句话**：流控有三种效果：快速失败（默认）、预热（冷启动时慢慢放量）、匀速排队（削峰）；熔断按慢调用比例、异常比例、异常数三种策略触发。
 
 - 熔断状态：关闭（正常）→ 打开（直接拒绝）→ 半开（放少量请求试探，好了就恢复）
-- 规则默认只在内存里，重启就丢，生产要持久化到 Nacos；持久化后控制台改的规则为什么还会丢，完整答案见 [高可用面试题解答](/interview/21_high_avail) Q32
+- 规则默认只在内存里，重启就丢，生产要持久化到 Nacos；持久化后控制台改的规则为什么还会丢，完整答案见 [高可用面试题解答](/interview/25_high_avail) Q32
 
 → 详见 [Spring Cloud Alibaba](/service-governance/6_alibaba#_5、规则持久化-nacos-数据源)
 

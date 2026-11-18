@@ -275,7 +275,7 @@ description: CPU 飙高、OOM 与 Full GC、线程卡死、慢 SQL 与锁表、�
 
 **一句话**：这是冷启动：热点代码还没被 JIT 编译成机器码、类和连接池按需初始化、本地缓存是空的，实例一就绪就接满流量，前几分钟自然慢。
 
-→ 完整答案见 [高可用面试题解答](/interview/21_high_avail) Q45；正文详见 [启动后 RT 飙高 · 排查过程](/handbook/2_incidents/22_warmup_rt#三、排查过程)
+→ 完整答案见 [高可用面试题解答](/interview/25_high_avail) Q45；正文详见 [启动后 RT 飙高 · 排查过程](/handbook/2_incidents/22_warmup_rt#三、排查过程)
 
 ### Q22：CPU 不高、下游都正常，接口却变慢，会不会是日志的问题？
 

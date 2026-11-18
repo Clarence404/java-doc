@@ -4,9 +4,9 @@ description: 压测中逐个重启 3 个实例的对照实验、优雅停机与�
 
 # 滚动发布实验
 
-> 前置阅读：[优雅上下线与变更](./8_graceful_release)、[冗余与故障转移](./2_redundancy_failover)
+> 前置阅读：[优雅上下线与变更](./8_graceful_release)、[可观测与发布](/project/9_observability_release)、[冗余与故障转移](./2_redundancy_failover)
 
-开了优雅停机，发布时为什么还是有一串 5xx？本篇在持续压测下逐个重启 mall-evolution 的 3 个订单服务实例，实测五种停机方式各丢多少请求、丢在哪一步。
+mall-evolution 在「可观测与发布」一章做了预热完再注册、preStop 先注销、优雅停机三件事。本篇在持续压测下逐个重启 3 个 mall-app 实例，实测这套做法和它的几种缺省情况各丢多少请求。
 
 ## 一、现象与假设
 
@@ -40,6 +40,28 @@ Windows 上没有 SIGTERM，实验用一个只在演示环境存在的接口让 
 | 先注销再停 + 短缓存 | 同上，网关实例缓存改成 5 秒 | 同上 |
 | 进程崩溃 | `kill -9`，5 秒后拉起（故障演练，不算发布方式） | 同上 |
 
+### 对应的代码
+
+「先注销再停」这一组走的就是 [可观测与发布](/project/9_observability_release) 第六节「上线与下线不丢请求」的路径，只是把 K8s 的 preStop 换成脚本来调同一个接口。
+
+| 内容 | 在 mall-evolution 的哪里 |
+|------|-------------------------|
+| 就绪后才注册 Nacos | [`RegisterWhenReady`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/lifecycle/RegisterWhenReady.java)，配合 `spring.cloud.nacos.discovery.register-enabled: false` |
+| 主动注销的接口 `/internal/offline` | [`OfflineController`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/lifecycle/OfflineController.java) |
+| preStop 与宽限期 | [`deploy/k8s/mall-app.yaml`](https://github.com/Clarence404/mall-evolution/blob/main/deploy/k8s/mall-app.yaml) |
+| 优雅停机 | [`mall-app/application.yml`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/main/resources/application.yml) 的 `server.shutdown: graceful` |
+| RocketMQ 消费者 | [`OrderConsumersConfig`](https://github.com/Clarence404/mall-evolution/blob/main/mall-order/src/main/java/io/github/clarence404/mall/order/mq/OrderConsumersConfig.java) |
+| 压测场景与重启脚本 | [`RollingRestartSimulation`](https://github.com/Clarence404/mall-evolution/blob/main/perf/src/test/java/io/github/clarence404/mall/perf/ha/RollingRestartSimulation.java)、[`c-rolling-restart/run.ps1`](https://github.com/Clarence404/mall-evolution/blob/main/experiments/c-rolling-restart/run.ps1) |
+
+K8s 清单里的停机入口是这一段，实验里的「先注销，等 15 秒，再发 SIGTERM」和它一一对应：
+
+```yaml
+lifecycle:
+  preStop:
+    exec:   # 停机先从 Nacos 注销并等待 15 秒，再由 server.shutdown: graceful 处理完在途请求
+      command: ["sh", "-c", "curl -s -X POST localhost:8080/internal/offline; sleep 15"]
+```
+
 ## 三、结果
 
 ![逐个重启 3 个实例时每秒失败的请求数](../assets/high-avail/exp-rolling-restart-failures.svg)
@@ -68,6 +90,15 @@ Windows 上没有 SIGTERM，实验用一个只在演示环境存在的接口让 
 | T + 20 至 46 秒 | 失败停止，三次重启分别持续约 35 秒、9 秒、24 秒 |
 | T + 80 至 90 秒 | 进程退出 |
 
+对应的 mall-app 日志（第 2 轮第 1 个实例，12:29:05 收到 SIGTERM）：
+
+```text
+12:29:16.123 NacosGracefulShutdownDelegate : Nacos client graceful shutdown has been executed successfully. Graceful shutdown wait time is 10000
+12:29:16.131 GracefulShutdown              : Commencing graceful shutdown. Waiting for active requests to complete
+12:29:16.143 GracefulShutdown              : Graceful shutdown complete
+12:30:35.743 HikariDataSource              : HikariPool-1 - Shutdown completed.
+```
+
 Tomcat 停得很干净，在途请求一个没丢。丢的全是停了之后网关继续发过来的请求。
 
 原因在注册方式上。正式配置为了做到「预热完再接流量」，关掉了 Nacos 的自动注册（`register-enabled: false`），改由自己的代码在就绪后注册。自动注册关掉以后，**停机时的自动注销也一起没了**：日志里没有注销记录，那 10 秒的等待是空等。实例从 Nacos 消失，要等到进程关闭 Nacos 连接的那一刻，这时 Tomcat 已经停了。
@@ -76,7 +107,14 @@ Tomcat 停得很干净，在途请求一个没丢。丢的全是停了之后网�
 
 ### 2、立即停：注销了，但等得不够
 
-立即停那一组用的是自动注册，停机日志的第一行就是注销，随后等 10 秒才关 Tomcat。它比优雅停机丢得少，原因是它确实注销了；但 10 秒比 35 秒的缓存短，所以三次重启里丢 0 个到 676 个的都有，全看运气。
+立即停那一组用的是自动注册，停机日志的第一行就是注销，随后等 10 秒才关 Tomcat：
+
+```text
+12:17:32.788 NacosServiceRegistry          : De-registering from Nacos Server now...
+12:17:42.821 NacosGracefulShutdownDelegate : Nacos client graceful shutdown has been executed successfully. Graceful shutdown wait time is 10000
+```
+
+上一组的日志里没有 `De-registering` 这一行，这就是两组的差别。它比优雅停机丢得少，原因是它确实注销了；但 10 秒比 35 秒的缓存短，所以三次重启里丢 0 个到 676 个的都有，全看运气。
 
 实验里的接口都是毫秒级的，在途请求被掐断造成的失败在这一组里分辨不出来；如果有耗时几秒的请求，立即停会多丢这一部分。
 
@@ -105,6 +143,8 @@ Tomcat 停得很干净，在途请求一个没丢。丢的全是停了之后网�
 
 ## 五、实验暴露的三个问题
 
+下面三处都已修复，改动与验证见第六节。
+
 | 问题 | 影响 | 可以怎么改 |
 |------|------|-----------|
 | 关掉自动注册后，停机时不会自动注销 | 不经过 preStop 的停机（本地运行、直接 kill、宽限期内没走完 preStop）每次都丢请求 | 在关闭钩子最前面补一次注销 |
@@ -113,13 +153,64 @@ Tomcat 停得很干净，在途请求一个没丢。丢的全是停了之后网�
 
 第三个问题值得单独说。各组从 SIGTERM 到进程退出都要 75–90 秒，线程栈显示时间花在逐个关闭 RocketMQ 消费者上，每个约 30 秒。按清单推算，K8s 会在宽限期用完时强杀进程，那时消费者还没关完。这一条没有在 K8s 里实测，是按耗时推出来的；对请求没有影响（Tomcat 在第 11 秒就停了），影响的是消息消费的收尾。
 
-## 六、复现
+## 六、修复后
+
+三个问题都已经在 mall-evolution 里改掉，提交见 [`520468e`](https://github.com/Clarence404/mall-evolution/commit/520468e)：
+
+| 问题 | 改动 |
+|------|------|
+| 停机时不会自动注销 | `RegisterWhenReady` 监听 `ContextClosedEvent`，排在最前面主动注销，之后才是 Nacos 的 10 秒等待和 Tomcat 的优雅停机 |
+| 等待时间短于实例缓存 | 网关与三个服务的 LoadBalancer 实例缓存从 35 秒改成 5 秒 |
+| 停机耗时超过宽限期 | 新增 `ParallelConsumerShutdown`，停机时并行关闭全部消费者；K8s 清单的宽限期从 60 秒改成 90 秒 |
+
+注销的代码只有几行，关键是时机：
+
+```java
+@EventListener
+@Order(Ordered.HIGHEST_PRECEDENCE)
+void onClose(ContextClosedEvent event) {
+    // 管理端口是子上下文，它关闭时事件也会传到这里；只认自己所在的上下文，并且只注销一次
+    if (event.getApplicationContext() != applicationContext || !deregistered.compareAndSet(false, true)) {
+        return;
+    }
+    registry.deregister(self);
+}
+```
+
+验证用的是最不利的停法：不经过 preStop，直接发 SIGTERM，也就是第四节里每轮丢 1800 个请求的那种停法。
+
+| 指标 | 修复前（优雅停机，不先注销） | 修复后 |
+|------|------|------|
+| 与路由有关的失败 | 每轮约 1800 个 | 0（2 轮、6 次重启） |
+| 注销后最后一个请求 | 实例消失前一直有 | 1–5 秒 |
+| 从 SIGTERM 到进程退出 | 75–90 秒 | 22–30 秒 |
+
+修复后的停机日志，顺序和 [优雅上下线与变更](./8_graceful_release) 里的停机顺序表对上了：
+
+```text
+16:23:10.602 NacosServiceRegistry          : De-registering from Nacos Server now...
+16:23:10.610 RegisterWhenReady             : 开始停机，先从注册中心注销 127.0.0.1:8080
+16:23:20.617 NacosGracefulShutdownDelegate : Nacos client graceful shutdown has been executed successfully. Graceful shutdown wait time is 10000
+16:23:20.624 GracefulShutdown              : Commencing graceful shutdown. Waiting for active requests to complete
+16:23:20.643 GracefulShutdown              : Graceful shutdown complete
+16:23:39.644 ParallelConsumerShutdown      : 5 个消费者已并行关闭，用时 18956ms
+16:23:39.715 HikariDataSource              : HikariPool-1 - Shutdown completed.
+```
+
+这两轮各有 12 个和 45 个下单返回 500，原因和第四节的短缓存那组一样，是调库存服务读超时：其中 54 个发生在三次重启全部结束一分多钟之后，这两轮都被标记为环境里数据库有卡顿。
+
+走 preStop 的路径现在是：注销 → 等 15 秒 → SIGTERM → 再等 10 秒 → 停 Tomcat，一共 25 秒，远大于 5 秒的缓存；加上 22–30 秒的退出时间，整个停机约 37–45 秒，在 90 秒的宽限期之内。
+
+## 七、复现
 
 ```powershell
 .\experiments\c-rolling-restart\run.ps1 -Variant c1-graceful
 .\experiments\c-rolling-restart\run.ps1 -Variant c2-offline-first
 .\experiments\c-rolling-restart\run.ps1 -Variant c3-short-lb-cache
+.\experiments\c-rolling-restart\run.ps1 -Variant c5-fixed
 ```
+
+`c0-hard`、`c1-graceful` 用开关 `mall.lifecycle.deregister-on-shutdown=false` 关掉了停机注销，网关缓存也钉在 35 秒，复现出来仍是第三节的数字；`c5-fixed` 是修复后的正式配置。
 
 参数与脚本在 mall-evolution 的 [`experiments/`](https://github.com/Clarence404/mall-evolution/tree/main/experiments) 目录，每一步重启的时刻记在结果目录的 `script-events.csv` 里。几点局限：
 

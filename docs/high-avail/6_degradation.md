@@ -146,6 +146,19 @@ degrade:
 
 ---
 
+## 五、在 mall-evolution 里的落地
+
+mall-evolution 的降级分两类，都在 [稳定性](/project/8_stability) 一章加入：
+
+| 类型 | 做法 | 位置 |
+|------|------|------|
+| 开关降级 | 「猜你喜欢」改返回运营配置的固定列表、订单详情不再实时查积分、订单列表只查近 3 个月 | [`DegradeProperties`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/degrade/DegradeProperties.java)，线上改 Nacos 的 `mall.degrade.*` 即时生效 |
+| 兜底降级 | 支付状态查不到时返回「确认中」；详情页的库存提示查不到时按有货显示 | 熔断器与舱壁的 fallback |
+
+开关降级在 [突发流量实验](./15_exp_overload) 里压过一次：浏览量升到容量的 2.9 倍时打开「猜你喜欢」的降级，下单成功率 17%，和不降级的 14%–15% 没有实质差别。实验用的容量模型里每个请求占用的容量相同，降级省掉的那次查库不是瓶颈，所以看不出效果。
+
+这个结果对应第四节的设计要点：降级要降在瓶颈上。请求数本身超过容量时，降级减少的是每个请求的成本，挡不住请求数，要和限流一起用。
+
 ## 小结
 
 - 熔断决定"是否调用"，降级决定"返回什么、放弃什么"，二者通常配合使用

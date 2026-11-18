@@ -278,6 +278,22 @@ resilience4j:
 
 ---
 
+## 四、在 mall-evolution 里的落地
+
+[稳定性](/project/8_stability) 一章按本篇的做法，给订单服务调库存、调支付配了超时、重试和舱壁。下面是实际取值，以及在故障注入下压出来的结果。
+
+| 手段 | 取值 | 配在哪里 | 实测 |
+|------|------|---------|------|
+| 连接超时 / 读超时 | 200ms / 500ms | `spring.http.serviceclient.<服务名>` | 只有读超时救不回服务：线程卡在等连接，读超时管不到这一段 |
+| 取连接超时 | 100ms，每个下游实例 100 条连接 | `mall.http-client` | 下游变慢时调用在 0.5 秒内失败，忙线程最多 22 个 |
+| 网关超时 | 3 秒 | 网关的 `response-timeout` | 调用方最多等 3 秒 |
+| 重试 | 只读查询 1 次，退避 20–80ms；写接口不重试 | [`PaymentQueryClient`](https://github.com/Clarence404/mall-evolution/blob/main/mall-order/src/main/java/io/github/clarence404/mall/order/query/PaymentQueryClient.java) 的 `@Retryable` | 改成立刻重试 3 次后，20 秒的小故障 200 多秒不恢复 |
+| 舱壁 | 下单预占 60、支付查询 20、库存提示 20，满了立即拒绝 | `resilience4j.bulkhead` | 加舱壁后，被拖累的详情页成功率从 2% 回到 99% |
+
+用第二节的公式核对一遍超时预算：读超时 500ms、重试 1 次、退避最多 80ms，一次查询最坏约 1.1 秒，小于网关的 3 秒，上游不会先于下游超时。
+
+其中取连接超时是实验之后才补上的：原来用的是 HttpClient 5 的默认值（每个下游实例 5 条连接、取连接最多等 3 分钟），下游一慢，调用全排在连接池里。过程见 [下游变慢实验](./12_exp_slow_downstream)，重试部分见 [重试风暴与幂等实验](./13_exp_retry_storm)。
+
 ## 小结
 
 - 每个远程调用都显式设置连接超时和读取超时，取值按 P99～P999 加余量，按接口分别配置

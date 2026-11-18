@@ -230,6 +230,30 @@ K8s 滚动、蓝绿、Ingress 金丝雀的具体配置与上线 SOP 见 [发布�
 
 ---
 
+## 六、在 mall-evolution 里的落地
+
+[可观测与发布](/project/9_observability_release) 一章按本篇第一、二节的做法实现了上下线，下面是实际的做法和压测结果。
+
+| 步骤 | 做法 | 位置 |
+|------|------|------|
+| 预热完再接流量 | 关掉 Nacos 自动注册，就绪后才注册 | [`RegisterWhenReady`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/lifecycle/RegisterWhenReady.java) |
+| 停机先注销 | preStop 调 `/internal/offline` 再等 15 秒；不经过 preStop 时，关闭钩子最前面也会注销 | [`OfflineController`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/lifecycle/OfflineController.java)、[`deploy/k8s/mall-app.yaml`](https://github.com/Clarence404/mall-evolution/blob/main/deploy/k8s/mall-app.yaml) |
+| 等调用方刷新 | Nacos 优雅下线等待 10 秒；调用方的实例缓存 5 秒 | `spring.cloud.loadbalancer.cache.ttl` |
+| 处理完在途请求 | `server.shutdown: graceful` | [`mall-app/application.yml`](https://github.com/Clarence404/mall-evolution/blob/main/mall-app/src/main/resources/application.yml) |
+| 停消息消费 | 全部消费者并行关闭，约 20 秒 | [`ParallelConsumerShutdown`](https://github.com/Clarence404/mall-evolution/blob/main/mall-common/src/main/java/io/github/clarence404/mall/common/mq/ParallelConsumerShutdown.java) |
+| 宽限期 | 90 秒 | K8s 清单的 `terminationGracePeriodSeconds` |
+
+持续压测下逐个重启 3 个实例（[滚动发布实验](./14_exp_rolling_restart)），各种停法丢的请求：
+
+| 停法 | 每轮失败数（共 48000 个请求） |
+|------|------|
+| 只开优雅停机，停之前不注销 | 约 1800 |
+| 停时注销，等 10 秒，调用方缓存 35 秒 | 350–990 |
+| 先注销，等 25 秒，调用方缓存 35 秒 | 0，但等待短于缓存，有运气成分 |
+| 先注销，等 10 秒以上，调用方缓存 5 秒 | 路由上 0 |
+
+表里后三个步骤的取值都是实验之后改的。原来的实现有三处和第一节的停机顺序对不上：关掉自动注册后停机不再自动注销，第一步实际上没有执行；等待时间比调用方的缓存短；消费者逐个关闭，停机要 75–90 秒，超过了当时 60 秒的宽限期。停机顺序每一步是否真的发生，要看停机日志里的时间戳，不能只看配置。
+
 ## 小结
 
 - 停机顺序：先注销 / 摘流量，等调用方刷新，再停 Web 容器、停消费与定时任务、释放资源；K8s 用 `preStop` 覆盖摘除传播时间

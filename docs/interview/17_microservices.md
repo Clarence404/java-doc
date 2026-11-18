@@ -4,7 +4,7 @@ description: 拆分与演进、通信与 RPC、微服务模式、分布式场景
 
 # 微服务架构面试题解答
 
-> 题目清单见 [微服务架构面试题](/microservices/99_interview)，模块入口见 [微服务架构总览](/microservices/0_overview)；Nacos、网关、Feign、Sentinel、Seata、Dubbo、服务网格等落地题见 [微服务治理面试题解答](/interview/18_service_governance)，熔断限流策略见 [高可用面试题解答](/interview/21_high_avail)。
+> 题目清单见 [微服务架构面试题](/microservices/99_interview)，模块入口见 [微服务架构总览](/microservices/0_overview)；Nacos、网关、Feign、Sentinel、Seata、Dubbo、服务网格等落地题见 [微服务治理面试题解答](/interview/18_service_governance)，熔断限流策略见 [高可用面试题解答](/interview/25_high_avail)。
 >
 > 版本基线：Spring Boot 4.x、Spring Cloud 2025.1.x。
 
@@ -233,7 +233,7 @@ description: 拆分与演进、通信与 RPC、微服务模式、分布式场景
 
 **一句话**：超时重试、MQ 重复投递、Dubbo 自动重试都会让同一个请求来好几次，所以写接口必须幂等；核心是给每次操作一个唯一标识，服务端按它去重。
 
-→ 完整答案见 [系统架构面试题解答](/interview/23_architecture) Q18；正文详见 [幂等设计](/architecture/3_idempotence)
+→ 完整答案见 [系统架构面试题解答](/interview/20_architecture) Q18；正文详见 [幂等设计](/architecture/3_idempotence)
 
 ### Q21：分布式接口请求的顺序性如何保证？
 

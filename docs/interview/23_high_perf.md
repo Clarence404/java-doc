@@ -4,7 +4,7 @@ description: 指标与方法论、Profiler 与基准测试、JVM 层、池化、
 
 # 高性能面试题解答
 
-> 题目清单见 [高性能面试题](/high-perf/99_interview)；细节见 [高性能模块](/high-perf/0_overview)；三高另外两页：[高并发](./20_high_con) · [高可用](./21_high_avail)。
+> 题目清单见 [高性能面试题](/high-perf/99_interview)；细节见 [高性能模块](/high-perf/0_overview)；三高另外两页：[高并发](./24_high_con) · [高可用](./25_high_avail)。
 >
 > 版本基线：JDK 21 / 25 LTS、Spring Boot 4.x、MySQL 8.4 LTS，与旧版本不同处单独说明。
 
@@ -159,7 +159,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **一句话**：刚启动时代码还没被 JIT 编译成高效的机器码，加上类加载、连接池和缓存都是空的，一上来就接满流量就会变慢；解决办法是先预热、再接流量、慢慢加量。
 
-→ 完整答案见 [高可用面试题解答](/interview/21_high_avail) Q45；正文详见 [JVM 层性能策略](/high-perf/5_jvm_tuning#四、jit-预热与冷启动毛刺)、[优雅上下线与变更](/high-avail/8_graceful_release#二、服务预热)
+→ 完整答案见 [高可用面试题解答](/interview/25_high_avail) Q45；正文详见 [JVM 层性能策略](/high-perf/5_jvm_tuning#四、jit-预热与冷启动毛刺)、[优雅上下线与变更](/high-avail/8_graceful_release#二、服务预热)
 
 ### Q12：为什么降低对象分配速率往往比调 GC 参数更有效？
 
@@ -209,7 +209,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 - 经验公式：`数据库服务器核数 × 2 + 磁盘数`，这是数据库侧的总连接数，多个应用实例要分摊（如 16 核 SSD 约 33 个，4 个实例每个配 8～10 个）
 - Little 定律：所需连接数 = 单实例 QPS × 每次占用连接的时间；算出来太大，先缩短占用时间（优化慢 SQL、事务里不调 RPC）
-- 全局上限：所有实例的最大连接数加起来不超过数据库 `max_connections` 的 80%，扩容前重新算（见 [高并发面试题解答](/interview/20_high_con) Q36）
+- 全局上限：所有实例的最大连接数加起来不超过数据库 `max_connections` 的 80%，扩容前重新算（见 [高并发面试题解答](/interview/24_high_con) Q36）
 - `connectionTimeout` 默认 30 秒，线上建议 2～5 秒，拿不到连接快速失败
 - `maxLifetime` 要比数据库、防火墙的空闲超时短几十秒
 
