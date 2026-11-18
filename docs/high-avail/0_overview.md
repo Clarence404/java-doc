@@ -30,6 +30,7 @@
 | **防上游过载** | 流量超过容量时，如何保住大部分请求？ | [限流与过载保护](./7_rate_limiting) |
 | **变更与容灾** | 发布如何无损？机房、地域故障怎么办？ | [优雅上下线与变更](./8_graceful_release) → [多活与容灾](./9_multi_active) |
 | **验证与应急** | 预案真的有效吗？出了故障如何快速止血、避免再犯？ | [混沌工程](./10_chaos_engineering) → [故障应急与复盘](./11_incident_response) |
+| **实验** | 这些手段在真实压测下各挡住了什么？ | [下游变慢实验](./12_exp_slow_downstream) → [重试风暴与幂等实验](./13_exp_retry_storm) → [滚动发布实验](./14_exp_rolling_restart) → [突发流量实验](./15_exp_overload) |
 
 ---
 
@@ -81,6 +82,7 @@
 - **大促或流量突增**：先读 [容量评估与规划](/high-con/8_capacity_planning) 定容量，再读 [限流与过载保护](./7_rate_limiting) 与 [降级](./6_degradation) 准备预案
 - **发布总出问题**：[优雅上下线与变更](./8_graceful_release)，配合 [发布策略](/devops/7_release_strategy)
 - **线上正在出故障**：直接看 [故障应急与复盘](./11_incident_response) 的止血手段清单
+- **想看实测数据**：12–15 号是四篇实验，在 mall-evolution 上注入故障、逐项打开保护手段再压一次，每篇对应前面的一到两篇原理
 
 复习时用 [高频面试题](./99_interview) 自测，答案在 [高可用面试题解答](/interview/21_high_avail)。
 

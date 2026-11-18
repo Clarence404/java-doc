@@ -197,4 +197,4 @@ P0 / P1 故障要明确分工，避免所有人都在排查、没人对外同步
 - [Google SRE Book - Managing Incidents](https://sre.google/sre-book/managing-incidents/)
 - [Postmortem Culture](https://sre.google/sre-book/postmortem-culture/)
 
-> 返回：[高可用总览](./0_overview)
+> 下一篇：[下游变慢实验](./12_exp_slow_downstream) —— 原理讲完，接下来四篇用压测数据验证这些手段。

@@ -365,6 +365,7 @@ public class PriorityLoadSheddingFilter extends OncePerRequestFilter {
 - 阈值 = 压测拐点 × 安全系数，上线后按命中数据调整；被限流返回 429 / 503 + `Retry-After`，客户端退避而非立即重试
 - 分布式限流注意唯一 member、Redis 服务端时间与 Redis 故障时的降级；网关空 key 用 `deny-empty-key`，不要兜底成共享 key
 - 容量会变，固定阈值会失效：用并发数限流、系统自适应保护、按优先级卸载和客户端节流兜底
+- 实测数据：限流阈值贴着容量与留出余量的差别见 [突发流量实验](./15_exp_overload)
 
 ## 参考资料
 

@@ -148,6 +148,7 @@ Resilience4j 注解叠加时，默认执行顺序由外到内为 `Retry → Circ
 - 慢调用比例最常用；阈值设置要看最小请求数、统计窗口和熔断时长，业务异常不计入失败
 - 选型先比较 Sentinel 与 Resilience4j：Resilience4j 是受 Hystrix 启发的独立项目，同时提供信号量与线程池两种隔离
 - Feign + Sentinel 的资源名形如 `GET:http://order-service/api/orders/{id}`，框架代码集中在 Spring Cloud Alibaba 篇
+- 实测数据：熔断在舱壁占满时打不开、放开连接池后 11 秒打开的过程见 [下游变慢实验](./12_exp_slow_downstream)
 
 ## 参考资料
 

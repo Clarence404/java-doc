@@ -21,7 +21,7 @@ docs/
 ├── engineering/    工程效率：构建 / 工具链 / 代码质量 / 线上诊断 / API 规范
 ├── flink/          Flink：DataStream / 时间与窗口 / 状态与容错 / SQL / CDC / 部署调优
 ├── handbook/       实战手册：速查表 / 故障案例
-├── high-avail/     高可用：SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线
+├── high-avail/     高可用：SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线 / 实验（下游变慢、重试风暴与幂等、滚动发布、突发流量）
 ├── high-con/       高并发：水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划
 ├── high-perf/      高性能：指标 / 方法论 / 基准测试 / 池化与异步 / IO 与数据库优化 / Profiler
 ├── interview/      面试题解（各方向答案页「X 面试题解答」）
@@ -66,7 +66,7 @@ docs/
 | Flink | `docs/flink/` | DataStream / 时间与窗口 / 状态与容错 / Flink SQL / CDC / 部署调优 |
 | 分布式基础 | `docs/distributed/` | CAP / Raft / 分布式锁 / 事务 |
 | 高并发 | `docs/high-con/` | 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划 |
-| 高可用 | `docs/high-avail/` | SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线 |
+| 高可用 | `docs/high-avail/` | SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线 / 四篇实测实验 |
 | 高性能 | `docs/high-perf/` | 指标 / 方法论 / JMH / 池化与异步 / IO 与数据库优化 / Profiler |
 | 消息队列 | `docs/messaging/` | Kafka / RocketMQ / RabbitMQ |
 | 微服务架构 | `docs/microservices/` | 优势与挑战 / 拆分 / 设计模式 / 调用顺序性 / 服务间通信与契约 |

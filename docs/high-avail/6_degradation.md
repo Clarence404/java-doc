@@ -153,6 +153,7 @@ degrade:
 - 静态降级用 fallback 兜住意外故障，动态降级用配置中心开关支持预案和人工干预
 - `sentinel-datasource-nacos` 只从 Nacos 拉规则，控制台改规则要持久化需改造 Dashboard
 - 降级逻辑要有业务价值、不依赖故障源、可观测、定期演练
+- 实测数据：降级与限流在突发流量下的效果见 [突发流量实验](./15_exp_overload)
 
 ## 参考资料
 
