@@ -276,6 +276,8 @@ public class ProductCacheInvalidator {
 | 击穿：热门 key 过期瞬间 | Caffeine `get(key, loader)` 在单实例内合并回源，几个实例最多几个请求到库 | 分布式互斥锁、逻辑过期 |
 | 雪崩：大量 key 同时过期或 Redis 宕机 | L2 TTL 加 0–5 分钟随机；Sentinel 自动切换；L1 顶住切换期间的热门读 | 多机房、Redis 降级开关 |
 
+这几项在高并发模块的 [多级缓存实验](/high-con/9_exp_cache_layers) 里实测过：热点失效时单飞把回源从约 75 次降到 1 次；空值缓存把固定的 100 个不存在 ID 的查库从 3.6 万次降到 301 次，但对每次都不同的随机 ID 完全无效，表里「暂不做布隆过滤器」的前提是没有人遍历 ID。
+
 做法与原理见 [缓存最佳实践 · 缓存穿透防护](/cache/11_cache_rule#四、缓存穿透防护)、[缓存击穿防护](/cache/11_cache_rule#五、缓存击穿防护)、[缓存雪崩防护](/cache/11_cache_rule#六、缓存雪崩防护)。
 
 **热点 key** 在阶段二主要靠 L1 解决：一个爆款 SKU 即使占了一半流量，每个实例 30 秒也只向 Redis 读一次，Redis 侧看不到热点。探测上不建 JD-hotkey 这类集中式系统，`allkeys-lfu` 下定期跑 `redis-cli --hotkeys` 抽查，配合 L1 的命中统计看哪些 SKU 最热。大促前的预热与热点隔离留到稳定性阶段，思路见 [热点问题 · 本地缓存兜底](/high-con/6_hotspot#_1、本地缓存兜底) 与 [商品详情页 · 热点与大促](/scenario/13_product_detail#六、热点与大促)。

@@ -164,7 +164,7 @@ export const GROUPS = [
     {
         name: '三高架构', tagline: '性能、容量与可用性的系统级策略', modules: [
             {name: '高性能', dir: 'high-perf', interview: ['23_high_perf'], desc: '指标 / 方法论 / Profiler / JMH / 池化与异步 / IO 与数据库优化 / JVM 与代码级优化 / 案例'},
-            {name: '高并发', dir: 'high-con', interview: ['24_high_con'], desc: '接入层 / 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划'},
+            {name: '高并发', dir: 'high-con', interview: ['24_high_con'], sidebar: [{text: '实战实验', from: 9}], desc: '接入层 / 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划 / 四篇实测实验'},
             {name: '高可用', dir: 'high-avail', interview: ['25_high_avail'], sidebar: [{text: '实战实验', from: 12}], desc: 'SLA / 冗余切换 / 负载均衡 / 超时重试 / 熔断降级限流 / 优雅上下线 / 多活容灾 / 混沌工程 / 应急复盘 / 四篇实测实验'},
         ],
     },

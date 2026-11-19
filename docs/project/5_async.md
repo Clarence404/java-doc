@@ -308,6 +308,8 @@ provider.newPushConsumerBuilder()
 | `t_outbox` 失败记录数 | 同上 | 大于 0 |
 | 死信消息数 | 托管实例控制台 | 大于 0（`notify-consumer` 除外） |
 
+消费延迟后来在应用里也有了一份：`mq.consume.delay` 按消费组记录每条消息从产生到处理完的时间，不依赖控制台。高并发模块的 [异步削峰实验](/high-con/10_exp_async_peak) 用它实测了下单量升到 3 倍时，释放预占的消费组在 2、4、8 个线程下各晚多久。
+
 `outbox.pending.age` 涨说明中继或 Broker 出了问题，消费组堆积涨说明下游慢了，两者分开看就能定位到哪一段。堆积的排查思路（先看是全部还是个别队列、再看单条消息慢在哪）见 [MQ 消息积压](/handbook/2_incidents/12_mq_backlog)，原理见 [消息队列基础 · 消息积压](/messaging/1_basics#六、消息积压)。
 
 ---

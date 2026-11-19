@@ -140,6 +140,7 @@ public class HotItemWarmer implements ApplicationRunner {
 - 每层都要有 TTL 兜底并加随机抖动，失效通知丢失时能自愈
 - 可预知热点提前预热并限速，突发热点靠实时探测晋升本地缓存
 - 穿透、击穿、雪崩分别靠前置过滤、单请求回源、打散失效时间来防
+- 实测数据：逐层关掉缓存、热点失效时开关单飞、空值缓存对随机 ID 的效果见 [多级缓存实验](./9_exp_cache_layers)
 
 ## 参考资料
 

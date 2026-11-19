@@ -311,4 +311,4 @@ HPA 能把单 Pod CPU 稳在 60%，但扛不住"副本数已到 `maxReplicas`"�
 - [Google SRE - Handling Overload](https://sre.google/sre-book/handling-overload/)
 - [Kubernetes HPA](https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/)
 
-> 下一篇：[高可用总览](/high-avail/0_overview) —— 容量规划让系统在预期流量下扛得住，高可用解决的是故障与超预期流量下如何不停服。
+> 下一篇：[多级缓存实验](./9_exp_cache_layers) —— 原理讲完，用示例商城把缓存、削峰、热点库存、连接池各实测一遍。
