@@ -293,4 +293,4 @@ SLA 与几个 9 对应的停机时间见 [可用性度量](/high-avail/1_sla_slo
 - The System Design Primer：[https://github.com/donnemartin/system-design-primer](https://github.com/donnemartin/system-design-primer)
 - Google SRE Book, Service Level Objectives：[https://sre.google/sre-book/service-level-objectives/](https://sre.google/sre-book/service-level-objectives/)
 
-> 下一篇：[商品详情页](./3_product_detail) —— 静动分离、三级缓存、变更消息重建、热点预热与降级兜底。
+> 下一篇：[同类问题横向对照](./2_cross_scenario) —— 不能超发、幂等、热点、扩散模型、分页、到点执行、对账七个问题在各场景里的不同做法。
