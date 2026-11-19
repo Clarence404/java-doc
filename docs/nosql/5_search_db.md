@@ -71,7 +71,7 @@ description: 搜索库定位、ES / OpenSearch / Solr / Meilisearch / 库内全�
 | PostgreSQL | `tsvector` / `tsquery` + GIN 索引，支持权重与排序函数 | 需要 zhparser、pg_jieba 等扩展 |
 | MongoDB | 传统 `$text` 索引；Atlas Search 基于 Lucene | `$text` 不支持中文分词 |
 
-共同的短板是相关性难调、分面聚合要多次查询、与业务库争资源。MySQL 与 ES 的逐项对比见 [搜索](/scenario/9_search_system#_1、mysql-全文检索够不够)，PG 全文检索的用法见 [PostgreSQL 高级 SQL](/database/2_postgresql/4_topic_advanced_sql)，MongoDB 的检索能力见 [文档数据库](./2_document_db)。
+共同的短板是相关性难调、分面聚合要多次查询、与业务库争资源。MySQL 与 ES 的逐项对比见 [搜索](/scenario/22_search_system#_1、mysql-全文检索够不够)，PG 全文检索的用法见 [PostgreSQL 高级 SQL](/database/2_postgresql/4_topic_advanced_sql)，MongoDB 的检索能力见 [文档数据库](./2_document_db)。
 
 ---
 

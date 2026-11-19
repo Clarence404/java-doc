@@ -397,4 +397,4 @@ public void saveBatch(String batchNo, int lastRowNo, List<Order> valid, List<Imp
 - Excel specifications and limits：[https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3](https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3)
 - Apache Fesod（原 FastExcel）：[https://fesod.incubator.apache.org/](https://fesod.incubator.apache.org/)
 
-> 下一篇：[秒杀](./4_seckill) —— 分层限流、Redis 原子预扣、MQ 异步下单与超时关单的完整链路。
+> 返回：[业务场景总览](./0_overview)

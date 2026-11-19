@@ -166,7 +166,7 @@ LeetCode 847 访问所有节点的最短路径把 mask 和当前节点一起作�
 | `Long` 上的同名方法 | 64 位版本 |
 | `java.util.BitSet` | 任意长度的位集合，支持 `and` / `or` / `xor` / `cardinality` |
 
-位集合的工程应用：Redis 的 Bitmap 用一个字符串存海量布尔状态（签到、在线状态），见 [Redis 基础](/cache/1_redis_base)；用位图对 40 亿整数去重、判存在，见 [海量数据算法题](/scenario/3_massive_data)。
+位集合的工程应用：Redis 的 Bitmap 用一个字符串存海量布尔状态（签到、在线状态），见 [Redis 基础](/cache/1_redis_base)；用位图对 40 亿整数去重、判存在，见 [海量数据算法题](/scenario/27_massive_data)。
 
 ---
 

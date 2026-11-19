@@ -359,4 +359,4 @@ public static Point snap(double lng, double lat) {
 - MySQL 空间便捷函数（ST_Distance_Sphere）：[https://dev.mysql.com/doc/refman/8.4/en/spatial-convenience-functions.html](https://dev.mysql.com/doc/refman/8.4/en/spatial-convenience-functions.html)
 - geohash-java：[https://github.com/kungfoo/geohash-java](https://github.com/kungfoo/geohash-java)
 
-> 下一篇：[商品详情页](./13_product_detail) —— 静动分离、三级缓存、变更消息重建、热点预热与降级兜底。
+> 下一篇：[短链接](./21_shorturl) —— 短码生成、存储与缓存、跳转与统计、高可用。

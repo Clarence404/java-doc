@@ -181,7 +181,7 @@ CREATE TABLE content (
 
 - `idx_author_time` 支撑「某作者的最新内容」，也是收件箱超出 1000 条后的回源查询
 - 删除和审核下线不去扫粉丝收件箱，读取详情时按 `status` 过滤即可
-- 内容的全文检索见 [搜索](./9_search_system)
+- 内容的全文检索见 [搜索](./22_search_system)
 
 ---
 
@@ -198,7 +198,7 @@ CREATE TABLE content (
 
 ### 2、推送链路与可靠投递
 
-长连接路由、跨节点转发、ACK 重传和断线重连的完整设计见 [即时通讯](./16_im)：路由表见 [路由层](./16_im#_1、路由层)，推送确认见 [推送、接收 ACK 与重传](./16_im#_4、推送、接收-ack-与重传)，重连后补齐见 [离线消息与多端同步](./16_im#五、离线消息与多端同步)；WebSocket 协议与集群路由方案对比见 [WebSocket](/netty/10_websocket)。Feed 通知场景只需注意几点：
+长连接路由、跨节点转发、ACK 重传和断线重连的完整设计见 [即时通讯](./18_im)：路由表见 [路由层](./18_im#_1、路由层)，推送确认见 [推送、接收 ACK 与重传](./18_im#_4、推送、接收-ack-与重传)，重连后补齐见 [离线消息与多端同步](./18_im#五、离线消息与多端同步)；WebSocket 协议与集群路由方案对比见 [WebSocket](/netty/10_websocket)。Feed 通知场景只需注意几点：
 
 - **先持久化再推送**：通知先写消息中心（带 msgId），推送只是加速，推送失败不丢；不要「先取出并删除离线消息再推送」
 - **按 msgId 去重与增量拉取**：通知没有 IM 那样的会话 seq，客户端按 msgId 去重，重连后按 msgId（或时间游标）增量拉取未读通知
@@ -227,7 +227,7 @@ CREATE TABLE content (
 - 收件箱用 ZSet，score 必须在 2^53 以内且按时间递增；只保留最新 N 条，更早的回源内容表
 - 翻页用游标（上一页最后一条的 score，开区间），不用 offset
 - 扇出走「本地消息表 + MQ + 批量管道写」，`ZADD` 天然幂等；不要用进程内线程池「发后不管」
-- 在线推送：消息先持久化、收到 ACK 才算送达，通知按 msgId 去重；路由、ACK 重传与重连同步见 [即时通讯](./16_im)，协议与实现见 [WebSocket](/netty/10_websocket)
+- 在线推送：消息先持久化、收到 ACK 才算送达，通知按 msgId 去重；路由、ACK 重传与重连同步见 [即时通讯](./18_im)，协议与实现见 [WebSocket](/netty/10_websocket)
 
 ## 参考资料
 
@@ -237,4 +237,4 @@ CREATE TABLE content (
 - Redis Pub/Sub：[https://redis.io/docs/latest/develop/interact/pubsub/](https://redis.io/docs/latest/develop/interact/pubsub/)
 - Kafka Topic 命名规则（`kafka-topics.sh` 与 Topic 配置）：[https://kafka.apache.org/documentation/#basic_ops_add_topic](https://kafka.apache.org/documentation/#basic_ops_add_topic)
 
-> 下一篇：[搜索](./9_search_system) —— 商品搜索的 Mapping、查询、MySQL → ES 同步与零停机重建。
+> 下一篇：[评论系统](./16_comment) —— 楼中楼、热评排序、审核与计数。

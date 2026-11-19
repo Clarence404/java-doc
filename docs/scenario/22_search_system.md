@@ -401,4 +401,4 @@ POST /products/_search
 - ZUNIONSTORE：[https://redis.io/docs/latest/commands/zunionstore/](https://redis.io/docs/latest/commands/zunionstore/)
 - IK 分词插件：[https://github.com/infinilabs/analysis-ik](https://github.com/infinilabs/analysis-ik)
 
-> 下一篇：[大文件上传](./10_file_upload) —— 分片直传、断点续传、秒传校验与对象存储选型。
+> 下一篇：[大文件上传](./23_file_upload) —— 分片直传、断点续传、秒传校验与对象存储选型。

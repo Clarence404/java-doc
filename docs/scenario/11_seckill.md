@@ -94,7 +94,7 @@ UPDATE seckill_stock SET stock = stock - 1
 WHERE activity_id = ? AND stock > 0;      -- 影响行数为 0 即售罄
 ```
 
-条件更新本身能防超卖（它与乐观锁、悲观锁、分布式锁等做法的对比见 [库存与票务 · 防超卖](./22_inventory#六、防超卖)），问题是所有请求都排队竞争同一行的行锁，DB 撑不住瞬时流量。所以先在 Redis 预扣，DB 只承接预扣成功的少量请求，DB 条件更新作为最终兜底。
+条件更新本身能防超卖（它与乐观锁、悲观锁、分布式锁等做法的对比见 [库存与票务 · 防超卖](./6_inventory#六、防超卖)），问题是所有请求都排队竞争同一行的行锁，DB 撑不住瞬时流量。所以先在 Redis 预扣，DB 只承接预扣成功的少量请求，DB 条件更新作为最终兜底。
 
 ### 2、一个 Lua 脚本完成限购与扣减
 
@@ -261,7 +261,7 @@ public class SeckillOrderService {
 
 下单后 15 分钟未支付就关单，订单关闭成功后才回补库存：
 
-1. 订单建成并提交后，发送 15 分钟的定时消息（RocketMQ 5.x 支持任意时延；4.x 只有 18 个固定级别，15 分钟不在其中），具体写法见 [订单](./5_order_system#六、超时关单) 的超时关单一节
+1. 订单建成并提交后，发送 15 分钟的定时消息（RocketMQ 5.x 支持任意时延；4.x 只有 18 个固定级别，15 分钟不在其中），具体写法见 [订单](./7_order_system#六、超时关单) 的超时关单一节
 2. 消费时先调用支付平台关单接口，再用 `UPDATE ... SET status = 'CANCELLED' WHERE id = ? AND status = 'PENDING_PAYMENT'` 关单，影响行数为 1 才继续
 3. 同一事务里回补 DB 库存；提交后执行 Redis 回补脚本，并广播清除售罄标记
 4. 重复的关单消息会因条件更新影响 0 行而直接结束，不会重复回补
@@ -312,4 +312,4 @@ public class SeckillOrderService {
 - RocketMQ 消费重试：[https://rocketmq.apache.org/docs/featureBehavior/10consumerretrypolicy](https://rocketmq.apache.org/docs/featureBehavior/10consumerretrypolicy)
 - Caffeine：[https://github.com/ben-manes/caffeine](https://github.com/ben-manes/caffeine)
 
-> 下一篇：[订单](./5_order_system) —— 订单状态机、下单幂等、支付回调、超时关单、分布式事务与退款。
+> 下一篇：[抢红包](./12_red_packet) —— 金额预分配、Lua 原子抢、可靠入账与过期退款。

@@ -4,7 +4,7 @@ description: 差错类型、摘要比对与排序归并比对、游标分批拉�
 
 # 海量数据对账
 
-> 前置阅读：[海量数据算法题](./3_massive_data)、[幂等设计](/architecture/3_idempotence)、[MySQL 索引](/database/1_mysql/4_topic_index)
+> 前置阅读：[海量数据算法题](./27_massive_data)、[幂等设计](/architecture/3_idempotence)、[MySQL 索引](/database/1_mysql/4_topic_index)
 
 对账就是拿两份「本应一致」的数据逐条核对，找出不一致的记录并处理掉。本篇讲每天几千万笔时的通用做法：拉取、分片、比对、差错处理，以及断点续跑、跨日在途、差错修复幂等这几个容易出事故的环节。
 
@@ -12,7 +12,7 @@ description: 差错类型、摘要比对与排序归并比对、游标分批拉�
 
 ## 一、对账要解决什么
 
-支付渠道对账的业务流程见 [支付](./14_payment)。
+支付渠道对账的业务流程见 [支付](./8_payment)。
 
 ### 1、常见的对账场景
 
@@ -43,7 +43,7 @@ description: 差错类型、摘要比对与排序归并比对、游标分批拉�
 ![海量数据对账流程](../assets/scenario/reconcile-flow.svg)
 
 1. **拉取与标准化**：内部流水从从库或离线库按游标分批拉取；渠道账单下载后流式解析。两边统一成同一种结构：交易号、金额（分）、归一后的状态、对账日期。原始账单文件原样存进对象存储，方便事后追溯，见 [对象存储](/architecture/5_object_storage)
-2. **分片**：按「日期 + 商户 + `hash(交易号) % N`」切片。同一笔交易两边一定落在同号分片，原理与 [海量数据算法题](./3_massive_data) 的哈希分桶相同
+2. **分片**：按「日期 + 商户 + `hash(交易号) % N`」切片。同一笔交易两边一定落在同号分片，原理与 [海量数据算法题](./27_massive_data) 的哈希分桶相同
 3. **比对**：先比每个分片的摘要，只对摘要不一致的分片比明细
 4. **差错登记**：比出的差异写入差错表，唯一键保证重跑不会重复登记
 5. **处理**：能自动处理的走补单、冲正、退款，必须幂等；判断不了的进人工复核队列
@@ -125,7 +125,7 @@ static Txn next(Iterator<Txn> it) {
 - **两边排序规则完全一致**：内部侧用 `ORDER BY trade_no` 从数据库读时，MySQL 默认的 `utf8mb4_0900_ai_ci` 不区分大小写，和 Java 的 `String.compareTo` 顺序不同，交易号含大小写字母时会把相同的记录错判成两条单边账。交易号列用 `ascii_bin` / `utf8mb4_bin`，或者两边都在 Java 里用同一个比较器排序
 - **每边各自无重复**：渠道账单偶尔会有重复行，标准化时先去重，否则指针会错位
 
-渠道账单通常不保证按交易号有序，文件太大时先做外部排序，做法见 [海量数据算法题](./3_massive_data#一、通用套路)。
+渠道账单通常不保证按交易号有序，文件太大时先做外部排序，做法见 [海量数据算法题](./27_massive_data#一、通用套路)。
 
 ### 4、先比分片摘要，再比明细
 
@@ -397,4 +397,4 @@ public void supplement(long diffId, String orderNo, String tradeNo, long amountF
 - Spring Framework：JdbcClient：[https://docs.spring.io/spring-framework/reference/data-access/jdbc/core.html#jdbc-JdbcClient](https://docs.spring.io/spring-framework/reference/data-access/jdbc/core.html#jdbc-JdbcClient)
 - Transactional outbox：[https://microservices.io/patterns/data/transactional-outbox.html](https://microservices.io/patterns/data/transactional-outbox.html)
 
-> 下一篇：[海量数据导入导出](./3_sheet_export) —— 百万行 Excel / CSV 的流式读写、分批入库、异步任务与文件下载。
+> 下一篇：[海量数据导入导出](./29_sheet_export) —— 百万行 Excel / CSV 的流式读写、分批入库、异步任务与文件下载。

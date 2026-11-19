@@ -4,7 +4,7 @@ description: 支付单与交易单、状态机与条件更新、渠道下单与�
 
 # 支付
 
-> 前置阅读：[订单](./5_order_system)、[幂等设计](/architecture/3_idempotence)、[分布式事务](/distributed/4_transaction)
+> 前置阅读：[订单](./7_order_system)、[幂等设计](/architecture/3_idempotence)、[分布式事务](/distributed/4_transaction)
 
 支付中心负责一笔钱从发起、到账、退回到对平的完整生命周期，原则是**任何结论都要有渠道侧的证据**（回调、查单、账单）。本篇讲对接微信支付、支付宝时如何处理重复 / 丢失 / 乱序回调、可靠关单、安全重试退款，以及每日对账与差错处理。
 
@@ -197,7 +197,7 @@ public class PayTxService {
 - **去重记录与业务写入在同一个事务**：重复通知在第一步撞唯一键，异常抛出事务边界，整个事务回滚后由外层吞掉。不能「先 `SETNX` 再处理」，处理失败时 key 已经占住，渠道重发会被误判为已处理
 - **条件更新是第二道防线**：即使去重表被误清理，`status IN ('WAITING','PAYING')` 也保证只成功一次
 - **事件走 Outbox**：支付成功事件与状态变更同事务写入，提交后由中继投递，不在事务里直接发 MQ。投递与消费的可靠性见 [消息队列基础](/messaging/1_basics)，用 RocketMQ 事务消息替代 Outbox 的写法见 [RocketMQ](/messaging/3_rocketmq)
-- 回调接口只做校验和落库，耗时的后续动作全部由事件驱动，保证几百毫秒内应答。订单侧如何消费 `PAY_SUCCESS`、订单已关闭时如何自动退款，见 [订单](./5_order_system#五、支付回调)
+- 回调接口只做校验和落库，耗时的后续动作全部由事件驱动，保证几百毫秒内应答。订单侧如何消费 `PAY_SUCCESS`、订单已关闭时如何自动退款，见 [订单](./7_order_system#五、支付回调)
 
 ---
 
@@ -249,7 +249,7 @@ public void closeExpired(PayTrade t) {
 
 - 只改本地不关渠道，用户手里的支付页面仍然可以付款，就会出现「本地已关闭、渠道已扣款」。关闭渠道交易后，渠道保证不再收款
 - 渠道关单接口是幂等的，本地更新失败时下一轮重试即可；本地关单时间比渠道过期时间晚 1 分钟左右，避开时钟偏差
-- 交易单都关闭后，支付单 `WAITING → CLOSED`，并通知业务方。订单侧的超时关单与库存回补见 [订单](./5_order_system#六、超时关单)
+- 交易单都关闭后，支付单 `WAITING → CLOSED`，并通知业务方。订单侧的超时关单与库存回补见 [订单](./7_order_system#六、超时关单)
 
 ---
 
@@ -257,7 +257,7 @@ public void closeExpired(PayTrade t) {
 
 ### 1、流程
 
-订单侧的退款审核与积分回退见 [订单](./5_order_system#七、退款)，支付中心只负责把钱退回去：
+订单侧的退款审核与积分回退见 [订单](./7_order_system#七、退款)，支付中心只负责把钱退回去：
 
 1. 业务方调用退款接口，带上自己的退款请求号 `request_no`（同一次退款重试时不变）
 2. 支付中心在一个事务里占用可退额度，**生成退款单号并落库**
@@ -435,7 +435,7 @@ public class Ledger {
 - 退款单号申请时一次生成并复用，可退额度用条件更新占用，部分退款按累计金额推进状态
 - 日终按渠道账单逐笔对账，长款补单或退款，短款挂起复核，差错用调账流水修正，不改历史
 - 资金变动一律借贷记账，流水只增不改，余额由流水累计并每日核对
-- 订单一侧如何因支付成功而流转见 [订单](./5_order_system)；回调验签等接口防护见 [API 安全](/security/6_api_security)。
+- 订单一侧如何因支付成功而流转见 [订单](./7_order_system)；回调验签等接口防护见 [API 安全](/security/6_api_security)。
 
 ## 参考资料
 
@@ -445,4 +445,4 @@ public class Ledger {
 - Transactional Outbox 模式：[https://microservices.io/patterns/data/transactional-outbox.html](https://microservices.io/patterns/data/transactional-outbox.html)
 - Martin Fowler, Accounting Entry：[https://martinfowler.com/eaaDev/AccountingEntry.html](https://martinfowler.com/eaaDev/AccountingEntry.html)
 
-> 下一篇：[优惠券和营销](./15_coupon) —— 券模板与实例、Lua 原子领券、锁券核销回退、叠加分摊与过期处理。
+> 下一篇：[秒杀](./11_seckill) —— 分层限流、Redis 原子预扣、MQ 异步下单与超时关单的完整链路。

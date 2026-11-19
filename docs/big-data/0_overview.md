@@ -29,7 +29,7 @@ Java 后端和数据平台打交道，主要在四个接口上：
 - **任务协作**：后端定时任务和数仓任务的依赖（比如对账任务要等 T+1 订单汇总完成）通过调度系统表达，而不是靠"凌晨三点应该跑完了"的约定（见 [任务调度](./6_scheduling)）
 
 ::: tip 数据量不大时先别上大数据
-订单表千万行级别、报表需求不复杂时，MySQL 只读副本加汇总表、或者一个单机 Doris / ClickHouse 往往就够了。引入 Spark、湖仓、调度、治理一整套组件的前提，是数据量、数据源数量或分析需求已经超出业务库能承担的范围。判断依据见 [海量数据架构选型](/scenario/2_big_data)。
+订单表千万行级别、报表需求不复杂时，MySQL 只读副本加汇总表、或者一个单机 Doris / ClickHouse 往往就够了。引入 Spark、湖仓、调度、治理一整套组件的前提，是数据量、数据源数量或分析需求已经超出业务库能承担的范围。判断依据见 [海量数据架构选型](/scenario/26_big_data)。
 :::
 
 ---
@@ -86,5 +86,5 @@ Java 后端和数据平台打交道，主要在四个接口上：
 - 数据集成与实时链路的消息总线 → [Kafka 架构与存储](/messaging/2_kafka)
 - 业务侧定时任务、XXL-JOB 等分布式调度 → [分布式调度](/distributed/6_job_scheduler)；审批类流程编排 → [工作流引擎](/distributed/7_work_flow)
 - 冷热分层与归档 → [数据冷热分离](/architecture/4_cold_hot_data)；对象存储原理与选型 → [对象存储](/architecture/5_object_storage)
-- 海量数据场景的整体选型 → [海量数据架构选型](/scenario/2_big_data)；读写分离到异构存储 → [数据层扩展](/high-con/5_data_scaling)
+- 海量数据场景的整体选型 → [海量数据架构选型](/scenario/26_big_data)；读写分离到异构存储 → [数据层扩展](/high-con/5_data_scaling)
 - 数据回流到在线系统时的缓存设计 → [缓存总览](/cache/0_overview)；高并发查询场景 → [高并发总览](/high-con/0_overview)

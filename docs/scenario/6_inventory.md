@@ -4,7 +4,7 @@ description: 可售预占锁定已售模型、多仓与渠道库存、库存流�
 
 # 库存与票务
 
-> 前置阅读：[订单](./5_order_system)、[秒杀](./4_seckill)、[热点问题](/high-con/6_hotspot)
+> 前置阅读：[订单](./7_order_system)、[秒杀](./11_seckill)、[热点问题](/high-con/6_hotspot)
 
 库存中心要随时回答三个问题：还能卖多少、被谁占着、卖给了谁；票务在此基础上把「数量」细化成「具体某个座位」。本篇讲库存模型、扣减时机、预占释放与防超卖，以及座位图、选座锁座与退票回流，基线为 MySQL 8.4、Redis 8。
 
@@ -22,7 +22,7 @@ description: 可售预占锁定已售模型、多仓与渠道库存、库存流�
 | 运营操作 | 入库、盘点调整、冻结与解冻，每一笔变化都可追溯 |
 | 票务 | 场次座位图、在线选座、系统自动连座、不选座的按票档售卖、退票回流 |
 
-本篇只讲库存中心通用设计和票务座位模型。单个爆款 SKU 的瞬时抢购（Redis Lua 预扣、MQ 异步落库）见 [秒杀](./4_seckill)；下单幂等、预占与超时关单的基本流程见 [订单](./5_order_system)，下文只在需要时一句话带过。
+本篇只讲库存中心通用设计和票务座位模型。单个爆款 SKU 的瞬时抢购（Redis Lua 预扣、MQ 异步落库）见 [秒杀](./11_seckill)；下单幂等、预占与超时关单的基本流程见 [订单](./7_order_system)，下文只在需要时一句话带过。
 
 ### 2、挑战
 
@@ -102,7 +102,7 @@ CREATE TABLE stock_flow (
 ```
 
 - MySQL 8.0.16 起 `CHECK` 约束真正生效，任何一桶被减成负数时语句直接报错，作为条件更新之外的最后一道防线
-- 预占明细沿用 [订单](./5_order_system#_2、库存服务-幂等预占) 中的 `stock_reservation` 表（`biz_no + sku_id` 唯一），本篇给它加上 `warehouse_id`、`expire_at` 两列
+- 预占明细沿用 [订单](./7_order_system#_2、库存服务-幂等预占) 中的 `stock_reservation` 表（`biz_no + sku_id` 唯一），本篇给它加上 `warehouse_id`、`expire_at` 两列
 
 ### 3、多仓与渠道库存
 
@@ -144,7 +144,7 @@ CREATE TABLE stock_flow (
 
 - 绝大多数场景选**预占 + 确认**：「付了钱却没货」对用户伤害最大，而预占带 TTL，恶意占库存的代价被限制在一个支付超时窗口内
 - 恶意占库存再用限购、风控、缩短大促支付超时（如 15 分钟缩到 5 分钟）进一步压缩
-- 这正是 [订单](./5_order_system#八、分布式事务-按流程选一种) 里 TCC 思路的落地：下单 Try 预占、支付后 Confirm、关单 Cancel
+- 这正是 [订单](./7_order_system#八、分布式事务-按流程选一种) 里 TCC 思路的落地：下单 Try 预占、支付后 Confirm、关单 Cancel
 
 ---
 
@@ -186,9 +186,9 @@ WHERE sku_id = ? AND warehouse_id = ?;
 | 流水 vs 快照 | 某 SKU 流水各桶累加 = `sku_stock` 当前值 | 绕过流水直接改库、事务不完整 |
 | 预占明细 vs 快照 | `RESERVED` 记录数量之和 = `reserved`；`CONFIRMED` 之和 = `sold` | 预占记录与余额不一致 |
 | 库存 vs 订单 | `CONFIRMED` 的 `biz_no` 集合 = 已支付未发货订单集合 | 支付事件丢失、悬挂预占 |
-| Redis vs MySQL | 热门 SKU 的 Redis 余量 + 处理中 = MySQL 可售 | 预扣层少卖，做法同 [秒杀](./4_seckill#_2、对账-兜住少卖) |
+| Redis vs MySQL | 热门 SKU 的 Redis 余量 + 处理中 = MySQL 可售 | 预扣层少卖，做法同 [秒杀](./11_seckill#_2、对账-兜住少卖) |
 
-- 增量对账每 10 分钟按「最近有变化的 SKU」跑一次，日终全量跑；大表的全量核对放到数仓里做，思路见 [海量数据对账](./3_reconcile)
+- 增量对账每 10 分钟按「最近有变化的 SKU」跑一次，日终全量跑；大表的全量核对放到数仓里做，思路见 [海量数据对账](./28_reconcile)
 - **修复也走流水**：发现差异后生成 `ADJUST` 流水并更新快照，同一事务；金额大或原因不明的差异转人工，不自动修
 
 ---
@@ -212,7 +212,7 @@ WHERE sku_id = ? AND warehouse_id = ? AND available >= #{n};
 | 条件更新 `available >= n` | 一条 SQL 内判断并扣减 | 首选；库存充足的并发请求都能成功 |
 | 乐观锁 `version` | 先读、在应用里计算、`WHERE version = ?` 写回 | 只在扣减规则复杂、无法写成一条 SQL 时用；并发时库存充足也会失败重试 |
 | 悲观锁 `SELECT ... FOR UPDATE` | 先锁行再判断 | 能用，但锁持有时间更长，吞吐不如条件更新 |
-| Redis 预扣 + DB 落地 | Lua 原子扣减，MQ 异步落库，DB 条件更新兜底 | 单 SKU 瞬时高并发时用，完整方案见 [秒杀](./4_seckill#四、库存预扣-防超卖核心) |
+| Redis 预扣 + DB 落地 | Lua 原子扣减，MQ 异步落库，DB 条件更新兜底 | 单 SKU 瞬时高并发时用，完整方案见 [秒杀](./11_seckill#四、库存预扣-防超卖核心) |
 | 先查后扣 / 分布式锁 | 查询有货再扣，或加锁串行 | 先查后扣有并发漏洞；分布式锁不是防超卖的主手段，DB 条件更新仍要保留 |
 
 ### 3、多 SKU 下单的死锁
@@ -227,7 +227,7 @@ WHERE sku_id = ? AND warehouse_id = ? AND available >= #{n};
 
 - **拆行（分桶）**：把一行拆成 N 行 `(sku_id, warehouse_id, bucket_no)`，入库时平均分配，预占时随机选一个桶，桶不够再试下一个；可售总数是各桶之和，具体做法见 [热点问题](/high-con/6_hotspot#_3、分桶库存)
 - **桶之间再平衡**：后台任务把余量大的桶挪一部分给已空的桶，挪动本身是两条条件更新 + 两条流水；剩余很少时合并回一个桶，避免「总数还有、每个桶都不够」
-- **流量更集中**：大促 0 点单 SKU 每秒上万次，拆行也扛不住时，前面加 Redis 预扣层，即 [秒杀](./4_seckill) 的方案；库存中心只承接预扣成功的请求
+- **流量更集中**：大促 0 点单 SKU 每秒上万次，拆行也扛不住时，前面加 Redis 预扣层，即 [秒杀](./11_seckill) 的方案；库存中心只承接预扣成功的请求
 - **预占记录不是热点**：它按 `biz_no` 插入新行，天然分散
 
 ---
@@ -329,7 +329,7 @@ WHERE show_id = #{showId} AND seat_id IN (#{seatIds}) AND status = 'AVAILABLE';
 ## 十、不选座：票档票池
 
 - 每个票档是一行 `ticket_tier(show_id, tier, available, reserved, sold)`，扣减与第三至六节的通用库存完全相同：预占、确认、释放、条件更新
-- 热门场次开票就是一次秒杀：Redis 预扣、排队、MQ 异步落库，见 [秒杀](./4_seckill)；实名购票的「每证限购 N 张」放进同一个 Lua 脚本，按证件号哈希计数
+- 热门场次开票就是一次秒杀：Redis 预扣、排队、MQ 异步落库，见 [秒杀](./11_seckill)；实名购票的「每证限购 N 张」放进同一个 Lua 脚本，按证件号哈希计数
 - **座位延后分配**：开票结束后由分配任务按支付时间或抽签顺序，把同一订单的票连座分配到该票档的座位上，出票时用户才看到座位号。好处是抢票瞬间只扣数量，不会在几十万人的选座冲突上浪费容量
 - 无座位的票档（草坪、站票）只扣数量，入场按电子票核验
 
@@ -354,7 +354,7 @@ WHERE show_id = #{showId} AND seat_id IN (#{seatIds}) AND status = 'AVAILABLE';
 
 商品列表、搜索结果、商品详情页都要展示「有货 / 无货」，但这些读请求量是下单的成百上千倍，不能都打到库存服务：
 
-- **最终一致即可**：库存表的 binlog 经 CDC 投到 MQ，消费端更新 ES 的 `in_stock` 字段和 Redis 展示库存；乱序问题用 `updated_at` 或版本号做外部版本控制，见 [搜索](./9_search_system#_2、cdc-mq-链路)
+- **最终一致即可**：库存表的 binlog 经 CDC 投到 MQ，消费端更新 ES 的 `in_stock` 字段和 Redis 展示库存；乱序问题用 `updated_at` 或版本号做外部版本控制，见 [搜索](./22_search_system#_2、cdc-mq-链路)
 - **只同步状态翻转**：ES 只存「有货 / 无货 / 库存紧张」三档，库存从 100 变成 99 不需要写 ES，只有跨过阈值才更新，写入量下降几个数量级
 - **展示与下单分开**：详情页的剩余数量来自缓存，可能滞后几秒；结算和下单一律以库存服务的条件更新为准，缓存说有货、下单时没货就提示用户
 - 座位图同理：位图本地缓存 1 秒，锁座以 Redis 脚本和 MySQL 条件更新为准
@@ -363,7 +363,7 @@ WHERE show_id = #{showId} AND seat_id IN (#{seatIds}) AND status = 'AVAILABLE';
 
 ## 十三、容量估算
 
-**电商库存**：沿用 [订单](./5_order_system#十、容量估算) 的口径，日下单 1,000 万笔、大促峰值 6,000 笔/秒，平均每单 2 个 SKU。
+**电商库存**：沿用 [订单](./7_order_system#十、容量估算) 的口径，日下单 1,000 万笔、大促峰值 6,000 笔/秒，平均每单 2 个 SKU。
 
 | 环节 | 计算 | 结果 |
 |------|------|------|
@@ -390,7 +390,7 @@ WHERE show_id = #{showId} AND seat_id IN (#{seatIds}) AND status = 'AVAILABLE';
 - 库存拆成可售、预占、锁定、已售四桶，实物 = 四桶之和；每次变化同一事务写流水，流水唯一约束兼做幂等
 - 多仓按 `(sku, warehouse)` 存，下单先选仓再预占；渠道配额本质是带渠道标记的冻结
 - 扣减时机默认「预占 + 确认」：付了钱一定有货，未付款占用受 TTL 限制；超时释放以关单事件为主，扫描兜底时先问订单
-- 防超卖首选 `available >= n` 条件更新，多 SKU 按固定顺序加锁避免死锁；单品瞬时高并发再加 Redis 预扣层，见 [秒杀](./4_seckill)
+- 防超卖首选 `available >= n` 条件更新，多 SKU 按固定顺序加锁避免死锁；单品瞬时高并发再加 Redis 预扣层，见 [秒杀](./11_seckill)
 - 对账分流水、预占明细、订单、Redis 四层，修复同样写流水
 - 票务按场馆布局、场次、区域、座位四层建模；位图负责展示，Lua 全成或全败锁 Redis，MySQL 条件更新影响行数等于座位数才算锁座成功
 - 锁座过期不等于空闲，释放只走关单流程并带 `lock_no`；热门场次用票池开票、延后分配座位，退票集中释放、候补优先
@@ -403,4 +403,4 @@ WHERE show_id = #{showId} AND seat_id IN (#{seatIds}) AND status = 'AVAILABLE';
 - Redis Scripting with Lua：[https://redis.io/docs/latest/develop/programmability/eval-intro/](https://redis.io/docs/latest/develop/programmability/eval-intro/)
 - Pat Helland, Life beyond Distributed Transactions：[https://queue.acm.org/detail.cfm?id=3025012](https://queue.acm.org/detail.cfm?id=3025012)
 
-> 下一篇：[延迟任务](./23_delay_task) —— 时间轮、MQ 延迟消息、Redis ZSet 与调度框架的选型。
+> 下一篇：[订单](./7_order_system) —— 订单状态机、下单幂等、支付回调、超时关单、分布式事务与退款。

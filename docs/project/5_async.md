@@ -151,7 +151,7 @@ public void onPaid(PayNotify n) {
 }
 ```
 
-已关单后才到的支付按「关单后收到支付」走原路退款，处理方式见 [订单 · 支付回调](/scenario/5_order_system#五、支付回调)。
+已关单后才到的支付按「关单后收到支付」走原路退款，处理方式见 [订单 · 支付回调](/scenario/7_order_system#五、支付回调)。
 
 ### 2、中继投递
 
@@ -293,7 +293,7 @@ provider.newPushConsumerBuilder()
 
 ![订单超时关单：定时消息 + 扫描兜底](../assets/project/order-timeout-close-flow.svg)
 
-`order-timeout` 创建时声明为 DELAY 类型，5.x 定时消息与 4.x 固定级别的区别见 [RocketMQ · 延迟消息](/messaging/3_rocketmq#_1、延迟消息-4-x-固定级别-vs-5-x-任意时间)；各类延迟方案的对比见 [延迟任务](/scenario/23_delay_task#五、以订单超时关单为例)。
+`order-timeout` 创建时声明为 DELAY 类型，5.x 定时消息与 4.x 固定级别的区别见 [RocketMQ · 延迟消息](/messaging/3_rocketmq#_1、延迟消息-4-x-固定级别-vs-5-x-任意时间)；各类延迟方案的对比见 [延迟任务](/scenario/25_delay_task#五、以订单超时关单为例)。
 
 ---
 

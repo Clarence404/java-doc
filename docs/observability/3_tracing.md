@@ -398,7 +398,7 @@ datasources:
 3. **读瀑布图**：根 Span 1.1s，子 Span `HTTP POST inventory-service` 占 950ms，展开后 `inventory-service` 的 `UPDATE t_stock` 占 900ms
 4. **确认是普遍现象**：用 TraceQL 查 `{ resource.service.name = "inventory-service" && name =~ "UPDATE.*" && duration > 500ms }`，最近 30 分钟有大量命中，且集中在同一个 SKU
 5. **链路 → 日志**：从 Span 跳到 Loki，看到库存服务大量 `Lock wait timeout` 警告
-6. **结论**：热门 SKU 的库存行被并发扣减争抢行锁。处理方式是热点库存拆分或改为缓存预扣，见 [热点问题](/high-con/6_hotspot) 与 [秒杀](/scenario/4_seckill)
+6. **结论**：热门 SKU 的库存行被并发扣减争抢行锁。处理方式是热点库存拆分或改为缓存预扣，见 [热点问题](/high-con/6_hotspot) 与 [秒杀](/scenario/11_seckill)
 
 这条路径里每一步都依赖前面几节的工作：exemplar 需要 Micrometer Tracing 和 Prometheus 配合，Trace 完整需要上下文传播不断链，慢请求一定能查到需要尾部采样或足够高的采样率，从 Span 跳日志需要字段统一。
 

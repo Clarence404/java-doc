@@ -112,7 +112,7 @@ public class OrderCreateConsumer implements RocketMQListener<OrderMsg> {
 | **排队队列** | 请求写入 Redis List / ZSet，返回排队序号，前端轮询 | 用户体验可控，后端匀速处理 |
 | **异步下单** | 请求通过校验后发 MQ，前端轮询下单结果 | 最终写 DB 的只有真实成交量 |
 
-秒杀的完整链路（前端静态化、网关限流、Redis 预扣、MQ 异步下单）见 [秒杀](/scenario/4_seckill)。
+秒杀的完整链路（前端静态化、网关限流、Redis 预扣、MQ 异步下单）见 [秒杀](/scenario/11_seckill)。
 
 ---
 

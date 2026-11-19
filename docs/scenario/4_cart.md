@@ -4,7 +4,7 @@ description: 数据模型、Redis Hash 与异步持久化、临时车与登录�
 
 # 购物车
 
-> 前置阅读：[商品详情页](./13_product_detail)、[缓存一致性](/cache/10_cache_consistency)、[幂等设计](/architecture/3_idempotence)
+> 前置阅读：[商品详情页](./3_product_detail)、[缓存一致性](/cache/10_cache_consistency)、[幂等设计](/architecture/3_idempotence)
 
 购物车是「用户 + 商品 + 数量」的增删改查，难点在高频写、未登录可用和价格库存多变。本篇讲 Redis 存储与异步持久化、临时车合并、实时计算与结算校验。
 
@@ -43,7 +43,7 @@ description: 数据模型、Redis Hash 与异步持久化、临时车与登录�
 
 - **购物车服务**无状态，所有写操作以「操作」而不是「整车快照」提交（加购 1 件、把数量改成 3、勾选某个 SKU），服务端按顺序执行，多端同时操作不会整体覆盖
 - **Redis Cluster 是在线数据的主存储**，所有读写都先落在 Redis；持久化任务把有变化的用户异步写入 MySQL，MySQL 用于恢复和冷数据加载
-- 价格、库存、商品状态、促销**不存进购物车**，读的时候批量调用对应服务（与 [商品详情页](./13_product_detail) 的 dynamic 接口是同一套依赖）
+- 价格、库存、商品状态、促销**不存进购物车**，读的时候批量调用对应服务（与 [商品详情页](./3_product_detail) 的 dynamic 接口是同一套依赖）
 - 结算与下单交给订单系统，购物车只在下单成功后被动清理已购商品
 
 ---
@@ -335,7 +335,7 @@ public List<CartLineView> view(List<CartLine> lines) {
 - **价格拿不到就不显示**：与详情页一样，宁可显示「价格加载中」并禁止勾选，也不显示可能过期的价格；库存拿不到时不标缺货，允许勾选，到结算页再校验
 - **降价提示**：当前价低于加购时价时显示「比加入时降 x 元」，这是购物车提升转化的常用手段；涨价一般不主动提示
 - 促销（满减、跨店优惠）按勾选的商品实时试算，促销服务超时就不显示优惠，不影响结算
-- **为什么不存当前价**：存了就要处理变更同步，一个热门 SKU 改价要更新几百万个购物车；只存加购时价，改价对购物车零写入。库存同理只展示「有货 / 缺货」，**真正的扣减发生在下单时**，见 [订单](./5_order_system) 与 [秒杀](./4_seckill)
+- **为什么不存当前价**：存了就要处理变更同步，一个热门 SKU 改价要更新几百万个购物车；只存加购时价，改价对购物车零写入。库存同理只展示「有货 / 缺货」，**真正的扣减发生在下单时**，见 [订单](./7_order_system) 与 [秒杀](./11_seckill)
 
 ---
 
@@ -366,7 +366,7 @@ public List<CartLineView> view(List<CartLine> lines) {
 | 优惠 | 优惠券是否可用、满减门槛是否满足 | 重新试算，用不了的券不选中 |
 | 限购 | 该用户该 SKU 的历史购买量 + 本次数量是否超限 | 提示限购数量 |
 
-提交订单时客户端带上结算页确认的应付总额，服务端重新计算后比对，**不一致就拒绝下单**并返回新价格，避免用户在不知情的情况下以更高价格成交。库存扣减、建单、锁券在订单服务的本地事务里完成，见 [订单](./5_order_system)。
+提交订单时客户端带上结算页确认的应付总额，服务端重新计算后比对，**不一致就拒绝下单**并返回新价格，避免用户在不知情的情况下以更高价格成交。库存扣减、建单、锁券在订单服务的本地事务里完成，见 [订单](./7_order_system)。
 
 ### 3、下单后清理
 
@@ -438,7 +438,7 @@ public List<CartLineView> view(List<CartLine> lines) {
 - 结算页与提交订单各校验一次价格、库存、优惠、状态与限购，金额不一致就拒绝下单；下单成功的消息到达后才清理购物车，且只删下单前加购的行
 - 多端以操作提交、服务端按顺序执行，客户端用版本号判断是否需要重新拉取，长连接推送只作为变更通知
 
-结算之后的扣减与状态流转见 [订单](./5_order_system)。
+结算之后的扣减与状态流转见 [订单](./7_order_system)。
 
 ## 参考资料
 
@@ -449,4 +449,4 @@ public List<CartLineView> view(List<CartLine> lines) {
 - MySQL INSERT ... ON DUPLICATE KEY UPDATE：[https://dev.mysql.com/doc/refman/8.4/en/insert-on-duplicate.html](https://dev.mysql.com/doc/refman/8.4/en/insert-on-duplicate.html)
 - Spring Data Redis Scripting：[https://docs.spring.io/spring-data/redis/reference/redis/scripting.html](https://docs.spring.io/spring-data/redis/reference/redis/scripting.html)
 
-> 下一篇：[消息通知中心](./20_notification) —— 多渠道统一发送、优先级隔离、频控与免打扰、供应商切换、回执状态机与站内信存储。
+> 下一篇：[优惠券和营销](./5_coupon) —— 券模板与实例、Lua 原子领券、锁券核销回退、叠加分摊与过期处理。

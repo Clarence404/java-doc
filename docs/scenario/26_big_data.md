@@ -136,7 +136,7 @@ Flink 2.0 删除了 `SinkFunction`，基于它的 Bahir Redis 连接器已不能
 
 ## 五、经典海量数据问题
 
-「两个大文件找相同 URL」「海量文本找高频词」「5 亿个数找中位数」这类单机离线题，套路是哈希分桶、堆、位图、布隆过滤器与外部排序的组合，题目、思路与内存估算统一见 [海量数据算法题](./3_massive_data)。本节只保留需要依赖线上存储的 UV 统计。
+「两个大文件找相同 URL」「海量文本找高频词」「5 亿个数找中位数」这类单机离线题，套路是哈希分桶、堆、位图、布隆过滤器与外部排序的组合，题目、思路与内存估算统一见 [海量数据算法题](./27_massive_data)。本节只保留需要依赖线上存储的 UV 统计。
 
 ### 1、海量 UV 统计
 
@@ -159,7 +159,7 @@ PFMERGE uv:week uv:20261003 uv:20261004 uv:20261005
 - MySQL 没有物化视图，汇总表只算增量区间，并用唯一键让任务可重跑
 - Flink 2.x 只有 Sink V2，没有官方 Redis 连接器，结果先写 Kafka / JDBC 或自定义 Sink
 - HyperLogLog 每个 key 约 12KB、误差约 0.81%，只适合允许误差的基数统计
-- 大文件交集、Top K、中位数等单机离线题见 [海量数据算法题](./3_massive_data)
+- 大文件交集、Top K、中位数等单机离线题见 [海量数据算法题](./27_massive_data)
 - 需要数仓、湖仓、离线批处理与实时数仓等完整数据平台时，见 [大数据总览](/big-data/0_overview)
 
 ## 参考资料
@@ -169,4 +169,4 @@ PFMERGE uv:week uv:20261003 uv:20261004 uv:20261005
 - Elasticsearch Tune for indexing speed：[https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/indexing-speed](https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/indexing-speed)
 - Flink DataStream API：[https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/overview/](https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/overview/)
 
-> 下一篇：[海量数据算法题](./3_massive_data) —— 哈希分桶、堆、位图、布隆过滤器与外部排序，九类经典题的思路与内存估算。
+> 下一篇：[海量数据算法题](./27_massive_data) —— 哈希分桶、堆、位图、布隆过滤器与外部排序，九类经典题的思路与内存估算。

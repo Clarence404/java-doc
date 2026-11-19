@@ -446,4 +446,4 @@ WebSocket 的集群推送、连接管理见 [WebSocket](/netty/10_websocket)，�
 - Redis Pub/Sub：[https://redis.io/docs/latest/develop/interact/pubsub/](https://redis.io/docs/latest/develop/interact/pubsub/)
 - MDN Set-Cookie：[https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie)
 
-> 下一篇：[购物车](./19_cart) —— 数据模型、Redis Hash 与异步持久化、临时车与登录合并、实时价格库存、结算校验。
+> 下一篇：[延迟任务](./25_delay_task) —— 时间轮、MQ 延迟消息、Redis ZSet 与调度框架的选型。

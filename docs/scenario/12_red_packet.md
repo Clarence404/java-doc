@@ -4,7 +4,7 @@ description: 二倍均值分配、发红包本地事务扣款、Lua 原子抢、
 
 # 抢红包
 
-> 前置阅读：[秒杀](./4_seckill)、[消息队列基础](/messaging/1_basics)、[RocketMQ](/messaging/3_rocketmq)
+> 前置阅读：[秒杀](./11_seckill)、[消息队列基础](/messaging/1_basics)、[RocketMQ](/messaging/3_rocketmq)
 
 红包和秒杀一样是「固定份数、瞬时高并发」，但涉及**资金**，设计目标是守住 **发出总额 = 已领取总额 + 已退款总额** 且每项可对账（金额单位统一为「分」，用 `long`）。本篇讲金额拆分、发红包扣款、高并发原子抢、可靠入账和过期退款。
 
@@ -41,7 +41,7 @@ description: 二倍均值分配、发红包本地事务扣款、Lua 原子抢、
 | 超时处理 | 未支付关单、回补库存 | 过期关闭、对账后退还未领金额 |
 | 防超卖 | Redis 预扣 + 数据库条件更新 | Lua 弹出份额 + 唯一键 |
 
-秒杀的削峰、限流与库存设计见 [秒杀](./4_seckill)。
+秒杀的削峰、限流与库存设计见 [秒杀](./11_seckill)。
 
 ---
 
@@ -418,4 +418,4 @@ public void refund(long packetId) {
 - Redis Cluster 规范（哈希标签）：[https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/](https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/)
 - ShedLock：[https://github.com/lukas-krecan/ShedLock](https://github.com/lukas-krecan/ShedLock)
 
-> 下一篇：[附近的人](./12_geo_nearby) —— Redis GEO、Geohash 九宫格、过期清理、司机派单与位置隐私。
+> 下一篇：[排行榜和积分](./14_rank_system) —— 基于 Redis ZSet 的实时榜、分时段榜与大规模排行优化。

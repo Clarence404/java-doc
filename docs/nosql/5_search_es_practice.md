@@ -214,7 +214,7 @@ POST /_aliases
 
 - `_reindex` 异步执行并按分片切片并行，进度用 `_tasks` 查看；导入期间对新索引关闭 refresh、副本数设 0，导完再恢复
 - `_aliases` 里的多个动作是原子的，不存在「别名指向空」的瞬间
-- 关键是**重建期间的增量变更不能丢**：先启动写新索引的增量同步，再做全量导入，靠外部版本号让旧数据不覆盖新数据。完整的商品索引重建流程见 [搜索](/scenario/9_search_system#_3、零停机重建索引)
+- 关键是**重建期间的增量变更不能丢**：先启动写新索引的增量同步，再做全量导入，靠外部版本号让旧数据不覆盖新数据。完整的商品索引重建流程见 [搜索](/scenario/22_search_system#_3、零停机重建索引)
 
 ### 2、滚动索引与 ILM
 
@@ -274,7 +274,7 @@ POST /logs-old/_split/logs-new
 - **乱序与重复**：写 ES 时用行上的版本号作为外部版本号（`version_type: external`），旧版本写入会被拒绝（409），直接忽略
 - **可观测**：监控同步延迟、失败重试、死信，并定期与主库对账
 
-CDC 工具的部署与选型见 [CDC 工具](/database/5_practice/0_cdc_tools)，多表关联成宽文档见 [Flink CDC](/flink/6_cdc)，商品搜索里完整的同步消费者代码见 [搜索](/scenario/9_search_system#五、数据同步-mysql-→-es)。
+CDC 工具的部署与选型见 [CDC 工具](/database/5_practice/0_cdc_tools)，多表关联成宽文档见 [Flink CDC](/flink/6_cdc)，商品搜索里完整的同步消费者代码见 [搜索](/scenario/22_search_system#五、数据同步-mysql-→-es)。
 
 ---
 
@@ -354,7 +354,7 @@ try (ElasticsearchClient client = ElasticsearchClient.of(b -> b
 - `_bulk` 部分失败不会抛异常，必须检查 `errors()` 并逐条处理
 - 客户端线程安全，应用里做成单例复用，不要每次请求新建
 
-Spring 项目可以用 Spring Data Elasticsearch：`ElasticsearchOperations` 做模板式调用，`ElasticsearchRepository` 按方法名派生查询，适合简单 CRUD；复杂 DSL 仍建议直接用上面的客户端。版本对应与配置见 [中间件集成](/spring-boot/6_middleware)，完整的搜索服务代码见 [搜索](/scenario/9_search_system#四、搜索查询)。
+Spring 项目可以用 Spring Data Elasticsearch：`ElasticsearchOperations` 做模板式调用，`ElasticsearchRepository` 按方法名派生查询，适合简单 CRUD；复杂 DSL 仍建议直接用上面的客户端。版本对应与配置见 [中间件集成](/spring-boot/6_middleware)，完整的搜索服务代码见 [搜索](/scenario/22_search_system#四、搜索查询)。
 
 ---
 

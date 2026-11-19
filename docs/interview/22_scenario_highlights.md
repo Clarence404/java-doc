@@ -50,7 +50,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 - 单个库存 key 成为热点怎么办？（库存拆分到多个 key 或分段）
 - 进程在预扣后、发 MQ 前崩溃怎么办？（对账任务回补）
 
-→ 详见 [秒杀](/scenario/4_seckill#_2、一个-lua-脚本完成限购与扣减)、[秒杀](/scenario/4_seckill#_2、对账-兜住少卖)
+→ 详见 [秒杀](/scenario/11_seckill#_2、一个-lua-脚本完成限购与扣减)、[秒杀](/scenario/11_seckill#_2、对账-兜住少卖)
 
 ### Q3：怎么讲「状态机 + 条件更新做支付回调幂等」这个亮点？
 
@@ -71,7 +71,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 - 回调一直没来怎么办？（定时主动查单补偿）
 - 需要加 version 字段吗？（状态本身就是版本，`WHERE status = ?` 已足够）
 
-→ 详见 [支付](/scenario/14_payment#_3、回调幂等-渠道流水号唯一约束-条件更新)、[幂等设计](/architecture/3_idempotence#四、条件更新-状态机与版本号)
+→ 详见 [支付](/scenario/8_payment#_3、回调幂等-渠道流水号唯一约束-条件更新)、[幂等设计](/architecture/3_idempotence#四、条件更新-状态机与版本号)
 
 ### Q4：怎么讲「解决支付成功与超时关单的并发冲突」这个亮点？
 
@@ -92,7 +92,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 - 为什么不用 version 乐观锁？（状态字段本身就是乐观锁条件）
 - 超时关单用什么触发？（事务提交后发延迟消息，定时扫描兜底）
 
-→ 详见 [订单](/scenario/5_order_system#_3、关单与释放库存原子化)、[订单](/scenario/5_order_system#_2、只用条件更新改状态)
+→ 详见 [订单](/scenario/7_order_system#_3、关单与释放库存原子化)、[订单](/scenario/7_order_system#_2、只用条件更新改状态)
 
 ### Q5：怎么讲「本地消息表保证最终一致性」这个亮点？
 
@@ -113,7 +113,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 - 消息表越来越大怎么办？（已发送记录定期归档）
 - 能不能不轮询？（用 Debezium 读 binlog 投递）
 
-→ 详见 [分布式事务](/distributed/4_transaction#五、本地消息表-transactional-outbox)、[订单](/scenario/5_order_system#八、分布式事务-按流程选一种)
+→ 详见 [分布式事务](/distributed/4_transaction#五、本地消息表-transactional-outbox)、[订单](/scenario/7_order_system#八、分布式事务-按流程选一种)
 
 ## 二、性能与异步
 
@@ -243,7 +243,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 - 导入部分失败怎么处理？（逐批提交 + 错误报告，或按批次号整批撤销）
 - 多实例同时执行同一导入任务怎么办？（断点条件更新保证每批只生效一次）
 
-→ 详见 [海量数据导入导出](/scenario/3_sheet_export#_2、easyexcel-按批写入)、[海量数据导入导出](/scenario/3_sheet_export#_5、重复导入的幂等)
+→ 详见 [海量数据导入导出](/scenario/29_sheet_export#_2、easyexcel-按批写入)、[海量数据导入导出](/scenario/29_sheet_export#_5、重复导入的幂等)
 
 ### Q12：怎么讲「Redis ZSet 实时排行榜」这个亮点？
 
@@ -264,7 +264,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 - 榜单数据丢了怎么办？（从积分流水重建）
 - 千万级成员的大榜单怎么办？（分片后合并 Top N）
 
-→ 详见 [排行榜和积分](/scenario/7_rank_system#五、同分时先到先得)、[Redis 典型应用场景](/cache/4_redis_scenario#一、排行榜-zset)
+→ 详见 [排行榜和积分](/scenario/14_rank_system#五、同分时先到先得)、[Redis 典型应用场景](/cache/4_redis_scenario#一、排行榜-zset)
 
 ### Q13：怎么讲「XXL-JOB 分片广播扫描分表」这个亮点？
 
@@ -416,7 +416,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 - 分桶后怎么对账？（对分桶 SKU 逐桶核对预占与库存）
 - 释放和迟到的预占并发会怎样？（释放时按订单号 + SKU 加锁重读预占记录，回到记录里的桶；合并分桶先锁住各桶行再读余量）
 
-→ 详见 [稳定性 · 热点库存分桶](/project/8_stability#七、热点库存分桶)、[库存与票务](/scenario/22_inventory)
+→ 详见 [稳定性 · 热点库存分桶](/project/8_stability#七、热点库存分桶)、[库存与票务](/scenario/6_inventory)
 
 ### Q20：怎么讲「库存预占 + 本地消息表做跨服务一致性，不用 Seata」这个亮点？
 

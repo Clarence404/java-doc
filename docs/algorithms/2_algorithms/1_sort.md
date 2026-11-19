@@ -132,7 +132,7 @@ void merge(int[] a, int lo, int mid, int hi, int[] tmp) {
 }
 ```
 
-时间固定 O(n log n)，稳定，代价是 O(n) 额外空间。复杂度的推导（递归树、主定理）见 [分治算法](./2_divide_conquer)。归并排序还是**外部排序**的基础：数据放不进内存时，先分块排序写盘，再多路归并，见 [海量数据算法题](/scenario/3_massive_data)。
+时间固定 O(n log n)，稳定，代价是 O(n) 额外空间。复杂度的推导（递归树、主定理）见 [分治算法](./2_divide_conquer)。归并排序还是**外部排序**的基础：数据放不进内存时，先分块排序写盘，再多路归并，见 [海量数据算法题](/scenario/27_massive_data)。
 
 ### 6、快速排序
 

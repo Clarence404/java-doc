@@ -4,7 +4,7 @@ description: 哈希分桶、堆 Top K、Bitmap 与 2-Bitmap、布隆过滤器、
 
 # 海量数据算法题
 
-> 前置阅读：[海量数据架构选型](./2_big_data)、[堆](/algorithms/1_data_structures/4_heap)、[哈希表](/algorithms/1_data_structures/2_hash_table)
+> 前置阅读：[海量数据架构选型](./26_big_data)、[堆](/algorithms/1_data_structures/4_heap)、[哈希表](/algorithms/1_data_structures/2_hash_table)
 
 这类题的数据量是内存的几十到几百倍，只能顺序读磁盘，不能一次装进内存。本篇讲先算清内存账，再在哈希分桶、堆、位图、布隆过滤器、Trie、外部排序之间选对工具，并拆解九类经典题的步骤与内存估算。
 
@@ -154,7 +154,7 @@ static void mergeSorted(List<Path> runs, Path output, Comparator<String> order) 
 | 去重后的 key 放得进内存 | 直接 HashMap / HashSet，再配合堆 |
 | key 是范围有限的整数 | Bitmap / 2-Bitmap，内存 = 值域 × 每个值的位数 |
 | 只问「在不在」，允许少量误判 | 布隆过滤器 |
-| 只问「有多少个不同」，允许约 1% 误差 | HyperLogLog，见 [海量数据架构选型](./2_big_data#五、经典海量数据问题) |
+| 只问「有多少个不同」，允许约 1% 误差 | HyperLogLog，见 [海量数据架构选型](./26_big_data#五、经典海量数据问题) |
 | key 放不下，又要求精确 | 哈希分桶，分到每个桶放得下为止 |
 | 结果要求全局有序 | 外部排序 + 多路归并 |
 | 数据已分散在多台机器 | 先按 key 重新分区（shuffle），再各机处理、最后汇总 |
@@ -417,7 +417,7 @@ static long distinct() {
 }
 ```
 
-只需要大致数量、能接受约 1% 的误差时，用 HyperLogLog 只要 12KB，见 [海量数据架构选型](./2_big_data#五、经典海量数据问题)。
+只需要大致数量、能接受约 1% 的误差时，用 HyperLogLog 只要 12KB，见 [海量数据架构选型](./26_big_data#五、经典海量数据问题)。
 
 ---
 
@@ -552,7 +552,7 @@ static double median(IntSource src, long n) {
 - 求第 k 小不必排序：高 16 位、低 16 位两轮计数，1MB 内存即可定位 5 亿个数的中位数
 - 频率 Top K 在多机或随机分片时不能直接合并本地 Top K，必须先按 key 重新分区
 
-本篇只讲单机或离线批处理的算法思路；存储扩展、日志链路、UV 统计等系统级方案见 [海量数据架构选型](./2_big_data)。
+本篇只讲单机或离线批处理的算法思路；存储扩展、日志链路、UV 统计等系统级方案见 [海量数据架构选型](./26_big_data)。
 
 ## 参考资料
 
@@ -562,4 +562,4 @@ static double median(IntSource src, long n) {
 - Count–min sketch：[https://en.wikipedia.org/wiki/Count%E2%80%93min_sketch](https://en.wikipedia.org/wiki/Count%E2%80%93min_sketch)
 - JDK 21 API：[PriorityQueue](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/PriorityQueue.html)
 
-> 下一篇：[海量数据对账](./3_reconcile) —— 摘要比对与排序归并、游标分批拉取与断点续跑、跨日在途与差错处理。
+> 下一篇：[海量数据对账](./28_reconcile) —— 摘要比对与排序归并、游标分批拉取与断点续跑、跨日在途与差错处理。

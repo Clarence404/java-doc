@@ -4,7 +4,7 @@ description: 多渠道统一发送、模板与多语言、优先级隔离、频�
 
 # 消息通知中心
 
-> 前置阅读：[Feed 流和消息推送](./8_feed_stream)、[即时通讯](./16_im)、[消息队列基础](/messaging/1_basics)
+> 前置阅读：[Feed 流和消息推送](./15_feed_stream)、[即时通讯](./18_im)、[消息队列基础](/messaging/1_basics)
 
 通知中心把站内信、短信、邮件、推送、企业 IM 收拢成一个服务。本篇讲发送链路、优先级与频控、去重、供应商切换与回执，基线为 Spring Boot 4、RocketMQ 5。
 
@@ -133,7 +133,7 @@ public interface ChannelSender {
 
 | 渠道 | 接入要点 |
 |------|----------|
-| 站内信 | 写收件箱、加未读数，在线用户经长连接推一条「有新消息」，连接与路由见 [即时通讯](./16_im#_1、路由层) |
+| 站内信 | 写收件箱、加未读数，在线用户经长连接推一条「有新消息」，连接与路由见 [即时通讯](./18_im#_1、路由层) |
 | 短信 | 至少接两家服务商；发送时把 notifyId 作为外部流水号透传，回执按它定位任务 |
 | 邮件 | 自建 SMTP 或用邮件服务商 API；配置 SPF、DKIM、DMARC，营销邮件带一键退订头 |
 | APNs | HTTP/2 长连接，基于 token 的鉴权；返回 410 表示设备 token 已失效，要删除 |
@@ -342,7 +342,7 @@ public SendResult sendWithFailover(RenderedMessage msg, NotifyTask task) {
 
 ### 1、个人消息写扩散，全员公告读扩散
 
-按接收人数决定存储方式：个人消息（1 人或少量）写扩散，每个接收人收件箱一行，便于单条标记已读、删除；人群定向通知（几万到几十万）人群固定、量可控，同样写扩散，批量匀速写入；全员公告读扩散，只存一份、读取时按用户游标合并，否则一次就要写上亿行，而大部分用户根本不会看。这和 Feed 流的推拉结合是同一个取舍，通用模型见 [Feed 流和消息推送 · 推拉结合](./8_feed_stream#五、推拉结合)。
+按接收人数决定存储方式：个人消息（1 人或少量）写扩散，每个接收人收件箱一行，便于单条标记已读、删除；人群定向通知（几万到几十万）人群固定、量可控，同样写扩散，批量匀速写入；全员公告读扩散，只存一份、读取时按用户游标合并，否则一次就要写上亿行，而大部分用户根本不会看。这和 Feed 流的推拉结合是同一个取舍，通用模型见 [Feed 流和消息推送 · 推拉结合](./15_feed_stream#五、推拉结合)。
 
 ```sql
 CREATE TABLE inbox_message (                  -- 个人消息：按 user_id 分库分表
@@ -376,7 +376,7 @@ CREATE TABLE user_announce_cursor (           -- 每个用户读到哪条公告
 
 - 有效期内的公告通常只有几十条，整表放在本地缓存里；用户打开公告页时，取 `id > read_upto` 且符合 `audience` 条件的公告就是未读，打开后把 `read_upto` 更新为最新的公告 ID
 - 需要逐条已读状态时，只为「已读」建稀疏记录 `(user_id, announcement_id)`，没读的不存
-- 收件箱按 `msg_id` 游标翻页，不用 offset；超过 90 天的消息迁到归档库或直接删除，冷热分离见 [即时通讯](./16_im#_2、冷热分离)
+- 收件箱按 `msg_id` 游标翻页，不用 offset；超过 90 天的消息迁到归档库或直接删除，冷热分离见 [即时通讯](./18_im#_2、冷热分离)
 
 ### 2、未读数
 
@@ -390,7 +390,7 @@ CREATE TABLE user_announce_cursor (           -- 每个用户读到哪条公告
 
 ### 3、在线实时提醒
 
-用户在线时，站内信写入后经长连接推一条只含类别和未读数的轻量通知，客户端收到后再拉列表；推送丢了，用户下次打开页面时拉取也能补上，**推送只是加速，拉取才是兜底**。长连接路由与断线补齐见 [即时通讯](./16_im#五、离线消息与多端同步)。
+用户在线时，站内信写入后经长连接推一条只含类别和未读数的轻量通知，客户端收到后再拉列表；推送丢了，用户下次打开页面时拉取也能补上，**推送只是加速，拉取才是兜底**。长连接路由与断线补齐见 [即时通讯](./18_im#五、离线消息与多端同步)。
 
 ---
 
@@ -488,4 +488,4 @@ CREATE TABLE user_notify_pref (
 - RocketMQ 定时 / 延时消息：[https://rocketmq.apache.org/docs/featureBehavior/02delaymessage/](https://rocketmq.apache.org/docs/featureBehavior/02delaymessage/)
 - Redis EVAL 与脚本：[https://redis.io/docs/latest/develop/interact/programmability/eval-intro/](https://redis.io/docs/latest/develop/interact/programmability/eval-intro/)
 
-> 下一篇：[评论系统](./21_comment) —— 楼中楼、热评排序、审核与计数。
+> 下一篇：[附近的人](./20_geo_nearby) —— Redis GEO、Geohash 九宫格、过期清理、司机派单与位置隐私。

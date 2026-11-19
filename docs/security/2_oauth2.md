@@ -179,7 +179,7 @@ grant_type=client_credentials&scope=order.read
 
 ### 2、设备码（Device Authorization Grant，RFC 8628）
 
-设备先向设备授权端点申请 `device_code`（设备自己留着）和 `user_code`（展示给用户），用户在手机浏览器打开 `verification_uri` 输入 `user_code` 并登录授权；设备按返回的 `interval` 轮询令牌端点，期间收到 `authorization_pending`（继续等）或 `slow_down`（加大间隔），用户同意后拿到令牌。智能电视登录、`gh auth login`、`az login --use-device-code` 都是这个模式。扫码登录与它思路一致，见 [扫码登录](/scenario/18_qr_login)。
+设备先向设备授权端点申请 `device_code`（设备自己留着）和 `user_code`（展示给用户），用户在手机浏览器打开 `verification_uri` 输入 `user_code` 并登录授权；设备按返回的 `interval` 轮询令牌端点，期间收到 `authorization_pending`（继续等）或 `slow_down`（加大间隔），用户同意后拿到令牌。智能电视登录、`gh auth login`、`az login --use-device-code` 都是这个模式。扫码登录与它思路一致，见 [扫码登录](/scenario/24_qr_login)。
 
 ### 3、刷新令牌（Refresh Token）
 

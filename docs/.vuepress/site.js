@@ -148,11 +148,14 @@ export const GROUPS = [
             {name: '系统架构', dir: 'architecture', interview: ['20_architecture'], desc: '架构模式 / DDD / 工程结构与分包 / 幂等 / 对象存储 / 权限系统 / 冷热分离 / 主数据'},
             {
                 name: '业务场景', dir: 'scenario', interview: ['21_scenario', '22_scenario_highlights'],
-                desc: '设计方法 / 海量数据 / 对账 / 导入导出 / 秒杀 / 订单 / 短链 / 排行榜 / Feed 流 / 搜索 / 大文件上传 / 红包 / LBS / 商品详情 / 支付 / 优惠券 / IM / 计数 / 扫码登录 / 购物车 / 通知中心 / 评论 / 库存票务 / 延迟任务',
+                desc: '设计方法 / 商品详情 / 购物车 / 优惠券 / 库存与票务 / 订单 / 支付 / 秒杀 / 红包 / 排行榜 / Feed 流 / 评论 / 计数 / IM / 通知中心 / LBS / 短链 / 搜索 / 大文件上传 / 扫码登录 / 延迟任务 / 海量数据',
                 sidebar: [
                     {text: '方法论', from: 1},
-                    {text: '海量数据', from: 2},
-                    {text: '系统设计', from: 4},
+                    {text: '交易与资金', from: 3},
+                    {text: '营销活动', from: 11},
+                    {text: '内容与社交', from: 15},
+                    {text: '通用能力', from: 21},
+                    {text: '海量数据', from: 26},
                 ],
             },
             {
@@ -277,6 +280,30 @@ export const BASELINE = {
 
 // 重定向：文章搬家后旧地址自动跳到新地址（@vuepress/plugin-redirect），键为旧路径、值为新路径，均不带 .html
 export const REDIRECTS = {
+    // 2026-11：业务场景按业务域重新分组（方法论 / 交易与资金 / 营销活动 / 内容与社交 / 通用能力 / 海量数据），文件按新顺序重排编号
+    '/scenario/13_product_detail': '/scenario/3_product_detail',
+    '/scenario/19_cart': '/scenario/4_cart',
+    '/scenario/15_coupon': '/scenario/5_coupon',
+    '/scenario/22_inventory': '/scenario/6_inventory',
+    '/scenario/5_order_system': '/scenario/7_order_system',
+    '/scenario/14_payment': '/scenario/8_payment',
+    '/scenario/4_seckill': '/scenario/11_seckill',
+    '/scenario/11_red_packet': '/scenario/12_red_packet',
+    '/scenario/7_rank_system': '/scenario/14_rank_system',
+    '/scenario/8_feed_stream': '/scenario/15_feed_stream',
+    '/scenario/21_comment': '/scenario/16_comment',
+    '/scenario/16_im': '/scenario/18_im',
+    '/scenario/20_notification': '/scenario/19_notification',
+    '/scenario/12_geo_nearby': '/scenario/20_geo_nearby',
+    '/scenario/6_shorturl': '/scenario/21_shorturl',
+    '/scenario/9_search_system': '/scenario/22_search_system',
+    '/scenario/10_file_upload': '/scenario/23_file_upload',
+    '/scenario/18_qr_login': '/scenario/24_qr_login',
+    '/scenario/23_delay_task': '/scenario/25_delay_task',
+    '/scenario/2_big_data': '/scenario/26_big_data',
+    '/scenario/3_massive_data': '/scenario/27_massive_data',
+    '/scenario/3_reconcile': '/scenario/28_reconcile',
+    '/scenario/3_sheet_export': '/scenario/29_sheet_export',
     // 2026-11：导航里「架构设计」排到「三高架构」前面，面试题解的编号跟着调整
     '/interview/19_high_perf': '/interview/23_high_perf',
     '/interview/20_high_con': '/interview/24_high_con',
@@ -440,7 +467,7 @@ export const ROUTES = [
             {title: '引入中间件', items: ['messaging/1_basics', 'high-con/4_async_peak_shaving', 'distributed/3_lock', 'distributed/4_transaction', 'distributed/8_id_generator']},
             {title: '拆分与治理', items: ['distributed/2_theorem', 'microservices/2_service_split', 'microservices/3_patterns', 'architecture/2_ddd', 'high-avail/4_timeout_retry_bulkhead', 'high-avail/5_circuit_breaking']},
             {title: '扛住流量', items: ['high-con/3_cache_architecture', 'high-con/5_data_scaling', 'high-con/6_hotspot', 'high-con/8_capacity_planning', 'high-avail/9_multi_active']},
-            {title: '系统设计', items: ['scenario/1_design_method', 'scenario/4_seckill', 'scenario/5_order_system', 'scenario/17_counter']},
+            {title: '系统设计', items: ['scenario/1_design_method', 'scenario/11_seckill', 'scenario/7_order_system', 'scenario/17_counter']},
             {title: '串成一个项目', items: ['project/0_overview', 'project/7_consistency', 'project/8_stability', 'project/10_retrospective']},
         ],
     },

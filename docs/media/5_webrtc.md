@@ -530,7 +530,7 @@ public class SignalingConfig implements WebSocketConfigurer {
 - **解析失败即断开**：`readValue` 抛出的 Jackson 异常会被 Spring 捕获并以服务端错误关闭连接，畸形消息不会影响其他人
 
 ::: tip 集群部署
-上面的 `rooms` 在单个 JVM 内存里，多实例部署时同一房间的成员可能连在不同节点上。两种做法：一是网关按 `roomId` 一致性哈希，让同一房间落在同一节点；二是节点间用 Redis Pub/Sub 或消息队列转发跨节点消息。思路与 IM 的连接路由一致，见 [WebSocket](/netty/10_websocket) 第四节与 [即时通讯](/scenario/16_im) 第二节。信令消息量很小，单节点支撑数万连接没有压力，瓶颈通常在媒体侧。
+上面的 `rooms` 在单个 JVM 内存里，多实例部署时同一房间的成员可能连在不同节点上。两种做法：一是网关按 `roomId` 一致性哈希，让同一房间落在同一节点；二是节点间用 Redis Pub/Sub 或消息队列转发跨节点消息。思路与 IM 的连接路由一致，见 [WebSocket](/netty/10_websocket) 第四节与 [即时通讯](/scenario/18_im) 第二节。信令消息量很小，单节点支撑数万连接没有压力，瓶颈通常在媒体侧。
 :::
 
 ---

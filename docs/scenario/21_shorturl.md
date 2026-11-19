@@ -245,7 +245,7 @@ public ResponseEntity<Void> redirect(@PathVariable String code, HttpServletReque
 
 ### 1、统计链路
 
-跳转服务把 `shortCode、IP、UA、时间` 异步发到 Kafka，Flink 消费后做去重和聚合：实时计数写 Redis，明细写 ClickHouse 等 OLAP 供多维分析，见上方架构图的统计链路。Flink 的窗口与写出方式见 [海量数据架构选型](./2_big_data)。
+跳转服务把 `shortCode、IP、UA、时间` 异步发到 Kafka，Flink 消费后做去重和聚合：实时计数写 Redis，明细写 ClickHouse 等 OLAP 供多维分析，见上方架构图的统计链路。Flink 的窗口与写出方式见 [海量数据架构选型](./26_big_data)。
 
 ### 2、同一 IP 短时间只计一次
 
@@ -312,4 +312,4 @@ if (Boolean.TRUE.equals(first)) {
 - Redis SET 命令：[https://redis.io/docs/latest/commands/set/](https://redis.io/docs/latest/commands/set/)
 - Spring Boot 代理头处理：[https://docs.spring.io/spring-boot/how-to/webserver.html#howto.webserver.use-behind-a-proxy-server](https://docs.spring.io/spring-boot/how-to/webserver.html#howto.webserver.use-behind-a-proxy-server)
 
-> 下一篇：[排行榜和积分](./7_rank_system) —— 基于 Redis ZSet 的实时榜、分时段榜与大规模排行优化。
+> 下一篇：[搜索](./22_search_system) —— 商品搜索的 Mapping、查询、MySQL → ES 同步与零停机重建。

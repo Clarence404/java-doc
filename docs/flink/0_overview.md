@@ -57,7 +57,7 @@ Kafka、CDC 基础、Kubernetes、监控等通用知识在各自模块展开，�
 - [Kubernetes](/cloud-native/6_kubernetes)：Flink on Kubernetes 用到的基础概念，更多内容见 [云原生总览](/cloud-native/0_overview)
 - [指标监控](/observability/2_metrics)：Prometheus 指标与告警体系，更多内容见 [可观测性总览](/observability/0_overview)
 - [大数据总览](/big-data/0_overview)：Flink 在数据平台中的位置，数仓分层、湖仓（Paimon / Iceberg）、Spark 批处理与 [实时数仓实战](/big-data/9_realtime_dw) 在那里展开
-- [海量数据架构选型](/scenario/2_big_data)：离线与实时计算在大数据场景中的整体位置
+- [海量数据架构选型](/scenario/26_big_data)：离线与实时计算在大数据场景中的整体位置
 - [Flink 面试题解答](/interview/36_flink)：本模块高频问题的答案汇总
 
 ## 参考资料

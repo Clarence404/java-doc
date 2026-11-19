@@ -95,7 +95,7 @@ Amazon S3 从 2020 年 12 月起对所有对象的 PUT / DELETE 提供**强读�
 
 ## 四、客户端直传：预签名 URL
 
-上传业务流程（分片、断点续传、秒传）见 [大文件上传](/scenario/10_file_upload)，视频上传后的转码、HLS 切片与分发见 [点播与短视频](/media/7_vod)，这里只讲对象存储本身。
+上传业务流程（分片、断点续传、秒传）见 [大文件上传](/scenario/23_file_upload)，视频上传后的转码、HLS 切片与分发见 [点播与短视频](/media/7_vod)，这里只讲对象存储本身。
 
 文件经过应用服务中转，会占满应用的带宽和内存，上传慢、扩容贵。推荐让客户端直接把文件传到对象存储，业务服务只负责**鉴权、签发凭证和记录元数据**：
 
@@ -109,7 +109,7 @@ Amazon S3 从 2020 年 12 月起对所有对象的 PUT / DELETE 提供**强读�
 
 - **有效期**：SigV4 预签名 URL 最长 7 天，上传 URL 建议 5～15 分钟，下载分享按场景设定为分钟级到小时级
 - **限制内容**：预签名 PUT 可以把 Content-Type 签入签名；需要限制文件大小区间时用 POST Policy（`content-length-range`）或带策略的 STS 临时凭证
-- **大文件**：服务端调用 `CreateMultipartUpload`，为每个分片签发 `UploadPart` 的预签名 URL，客户端并发上传后由服务端 `CompleteMultipartUpload`；断点续传与秒传的业务设计见 [大文件上传](/scenario/10_file_upload)
+- **大文件**：服务端调用 `CreateMultipartUpload`，为每个分片签发 `UploadPart` 的预签名 URL，客户端并发上传后由服务端 `CompleteMultipartUpload`；断点续传与秒传的业务设计见 [大文件上传](/scenario/23_file_upload)
 - **孤儿对象**：签发了 URL 但从未确认的上传，先放在 `tmp/` 前缀下，确认后再登记为正式文件，`tmp/` 由生命周期规则定期删除
 
 ---

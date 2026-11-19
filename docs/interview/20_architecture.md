@@ -273,7 +273,7 @@ description: 分层与六边形架构、CQRS 与事件溯源、冷热分离、�
 - 锁会因租约过期失效，锁内仍要有条件更新作为真正的判断
 - 验签、金额校验、补单查询等完整流程，完整答案见 [业务场景面试题解答](/interview/21_scenario) Q5
 
-→ 详见 [幂等设计](/architecture/3_idempotence#九、业务案例-下单与支付回调)、[订单](/scenario/5_order_system#五、支付回调)
+→ 详见 [幂等设计](/architecture/3_idempotence#九、业务案例-下单与支付回调)、[订单](/scenario/7_order_system#五、支付回调)
 
 ## 四、访问控制
 

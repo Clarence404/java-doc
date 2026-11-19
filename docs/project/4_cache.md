@@ -280,7 +280,7 @@ public class ProductCacheInvalidator {
 
 做法与原理见 [缓存最佳实践 · 缓存穿透防护](/cache/11_cache_rule#四、缓存穿透防护)、[缓存击穿防护](/cache/11_cache_rule#五、缓存击穿防护)、[缓存雪崩防护](/cache/11_cache_rule#六、缓存雪崩防护)。
 
-**热点 key** 在阶段二主要靠 L1 解决：一个爆款 SKU 即使占了一半流量，每个实例 30 秒也只向 Redis 读一次，Redis 侧看不到热点。探测上不建 JD-hotkey 这类集中式系统，`allkeys-lfu` 下定期跑 `redis-cli --hotkeys` 抽查，配合 L1 的命中统计看哪些 SKU 最热。大促前的预热与热点隔离留到稳定性阶段，思路见 [热点问题 · 本地缓存兜底](/high-con/6_hotspot#_1、本地缓存兜底) 与 [商品详情页 · 热点与大促](/scenario/13_product_detail#六、热点与大促)。
+**热点 key** 在阶段二主要靠 L1 解决：一个爆款 SKU 即使占了一半流量，每个实例 30 秒也只向 Redis 读一次，Redis 侧看不到热点。探测上不建 JD-hotkey 这类集中式系统，`allkeys-lfu` 下定期跑 `redis-cli --hotkeys` 抽查，配合 L1 的命中统计看哪些 SKU 最热。大促前的预热与热点隔离留到稳定性阶段，思路见 [热点问题 · 本地缓存兜底](/high-con/6_hotspot#_1、本地缓存兜底) 与 [商品详情页 · 热点与大促](/scenario/3_product_detail#六、热点与大促)。
 
 ---
 
@@ -294,7 +294,7 @@ public class ProductCacheInvalidator {
 | 库存展示 key | 8 万 × 约 100 B | 约 8 MB |
 | 单实例 L1 | 1 万条 × 约 4 KB（对象比 JSON 大） | 约 40 MB 堆内存 |
 
-`maxmemory 2gb` 留了 5 倍余量，fork 做 RDB 时的写时复制也够用，所以 Redis 主机选 8G 内存。容量估算的通用方法见 [商品详情页 · 容量估算](/scenario/13_product_detail#八、容量估算)。商品数涨到百万级、单条加上评价摘要等字段后，再评估是否拆 Cluster。
+`maxmemory 2gb` 留了 5 倍余量，fork 做 RDB 时的写时复制也够用，所以 Redis 主机选 8G 内存。容量估算的通用方法见 [商品详情页 · 容量估算](/scenario/3_product_detail#八、容量估算)。商品数涨到百万级、单条加上评价摘要等字段后，再评估是否拆 Cluster。
 
 ---
 

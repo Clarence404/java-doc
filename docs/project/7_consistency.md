@@ -4,7 +4,7 @@ description: 方案对比与不用 Seata 的理由、库存预占三个接口、
 
 # 跨服务一致性
 
-> 前置阅读：[数据建模](./2_data_model)、[分布式事务](/distributed/4_transaction)、[库存与票务](/scenario/22_inventory)
+> 前置阅读：[数据建模](./2_data_model)、[分布式事务](/distributed/4_transaction)、[库存与票务](/scenario/6_inventory)
 
 库存与支付拆成独立服务后，阶段一「扣库存 + 写订单」的本地事务不再成立。本篇讲方案取舍、库存预占与支付消息、失败补偿与对账，基线为 Spring Boot 4、RocketMQ 5、MySQL 8.4。
 
@@ -55,7 +55,7 @@ CAP 与 BASE 的取舍见 [分布式理论](/distributed/2_theorem#二、base-�
 | 取消、超时 → 归还库存 | 本地消息表 + 消费幂等 | 同上，归还晚几秒没有影响 |
 | 兜底 | 预占过期回查 + 每日对账 | 消息和调用都可能丢，最后要有一道不依赖它们的检查 |
 
-预占不是完整的 TCC 框架：**没有独立的事务协调者，订单服务自己就是协调者，订单状态就是全局事务状态**。待支付对应 Try 已完成，待发货对应应当 Confirm，已取消对应应当 Cancel。库存怎么预占、什么时候释放，通用做法见 [库存与票务 · 预占与释放](/scenario/22_inventory#五、预占与释放)。
+预占不是完整的 TCC 框架：**没有独立的事务协调者，订单服务自己就是协调者，订单状态就是全局事务状态**。待支付对应 Try 已完成，待发货对应应当 Confirm，已取消对应应当 Cancel。库存怎么预占、什么时候释放，通用做法见 [库存与票务 · 预占与释放](/scenario/6_inventory#五、预占与释放)。
 
 ### 1、为什么不用 Seata
 
@@ -82,7 +82,7 @@ CAP 与 BASE 的取舍见 [分布式理论](/distributed/2_theorem#二、base-�
 3. **订单确认**：`mall-app` 的消费组 `order-payment-consumer` 收到消息，在一个本地事务里把订单从 10 改为 20，并写入 `order-paid` 消息；积分、通知的消费者照旧订阅 `order-paid`，不感知拆分
 4. **库存确认**：`inventory-service` 的消费组 `inventory-confirm-consumer` 订阅 `order-paid`，把预占记录从 RESERVED 改为 CONFIRMED
 
-取消订单（用户取消，或 `order-timeout-consumer` 收到超时消息）走对称的路径：先调用新增的 `mall-payment-api` 里的 `PaymentApi.close(orderNo)` 关闭支付单，返回 `CLOSED` 后在本地事务里把订单从 10 改为 50 并写入 `order-cancelled` 消息，`inventory-service` 的 `inventory-release-consumer` 收到后执行 `release`。返回 `PAID` 说明用户已经付款，这时不取消，等 `payment-succeeded` 到达，做法见 [支付 · 主动查单与超时关单](/scenario/14_payment#五、主动查单与超时关单)。归还改走消息后，[拆分服务](./6_split) 里关单后远程归还用的重试表 `t_stock_restore_task` 和库存侧的去重表 `t_stock_restore_log` 在本章删除。
+取消订单（用户取消，或 `order-timeout-consumer` 收到超时消息）走对称的路径：先调用新增的 `mall-payment-api` 里的 `PaymentApi.close(orderNo)` 关闭支付单，返回 `CLOSED` 后在本地事务里把订单从 10 改为 50 并写入 `order-cancelled` 消息，`inventory-service` 的 `inventory-release-consumer` 收到后执行 `release`。返回 `PAID` 说明用户已经付款，这时不取消，等 `payment-succeeded` 到达，做法见 [支付 · 主动查单与超时关单](/scenario/8_payment#五、主动查单与超时关单)。归还改走消息后，[拆分服务](./6_split) 里关单后远程归还用的重试表 `t_stock_restore_task` 和库存侧的去重表 `t_stock_restore_log` 在本章删除。
 
 ---
 
@@ -265,7 +265,7 @@ private void requireRefund(PaymentSucceeded msg) {               // 消息键是
 | 订单 vs 预占 | 订单已支付，预占仍 RESERVED | 自动 `confirm` |
 | 预占 vs 库存 | 某 SKU 的 `reserved` ≠ 同一快照里 RESERVED 记录数量之和 | 只告警，人工核对流水后修正 |
 
-自动修复全部复用前面那些幂等接口和消息，不写专用的修数据 SQL；修不了的写入差错表 `t_reconcile_diff`，第二天由值班同学处理。补发消息撞上 `t_outbox` 唯一键时看原记录：已发送说明补过了，跳过；原记录是失败状态（`status = 2`），说明这条消息本来就没发出去、再写也写不进去，记入差错表转人工。100 万订单、300 万预占记录按 `order_no` 排序后归并比对，几分钟就能跑完。比对方法、断点续跑与差错状态机见 [海量数据对账](/scenario/3_reconcile)，支付与渠道之间的对账见 [支付 · 对账](/scenario/14_payment#七、对账)。
+自动修复全部复用前面那些幂等接口和消息，不写专用的修数据 SQL；修不了的写入差错表 `t_reconcile_diff`，第二天由值班同学处理。补发消息撞上 `t_outbox` 唯一键时看原记录：已发送说明补过了，跳过；原记录是失败状态（`status = 2`），说明这条消息本来就没发出去、再写也写不进去，记入差错表转人工。100 万订单、300 万预占记录按 `order_no` 排序后归并比对，几分钟就能跑完。比对方法、断点续跑与差错状态机见 [海量数据对账](/scenario/28_reconcile)，支付与渠道之间的对账见 [支付 · 对账](/scenario/8_payment#七、对账)。
 
 ---
 
@@ -289,10 +289,10 @@ private void requireRefund(PaymentSucceeded msg) {               // 消息键是
 | 下单同步调用 `reserve` | 库存服务变慢会拖慢下单，超时堆积可能拖垮订单服务 | 下一篇「稳定性」：超时、熔断与降级 |
 | 预占在付款前就占住库存 | 恶意下单不付款，能在 15 分钟内锁住爆款库存 | 「稳定性」：按用户限流与下单频控 |
 | 一致性窗口取决于消息投递 | 消费积压时窗口从秒级变成分钟级，用户投诉才发现 | 「可观测与发布」：Outbox 积压与消费延迟告警 |
-| 同一 SKU 的预占仍是单行条件更新 | 大促 5000 QPS 下爆款单行成为热点 | 「稳定性」：热点库存拆分，思路见 [库存与票务](/scenario/22_inventory#七、热点-sku-拆分库存) |
+| 同一 SKU 的预占仍是单行条件更新 | 大促 5000 QPS 下爆款单行成为热点 | 「稳定性」：热点库存拆分，思路见 [库存与票务](/scenario/6_inventory#七、热点-sku-拆分库存) |
 | 对账每日一次 | 不一致最长要一天才被发现 | 「复盘」：讨论什么时候值得做准实时对账 |
 
-完整的订单系统最终形态见 [订单](/scenario/5_order_system)。
+完整的订单系统最终形态见 [订单](/scenario/7_order_system)。
 
 ---
 

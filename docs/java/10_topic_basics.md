@@ -521,7 +521,7 @@ new BigDecimal("2.345").setScale(2, RoundingMode.HALF_EVEN);      // 2.34，银�
 | 风险点 | 舍入模式、`equals` | 单位换算错误（元当分）、乘除时的舍入仍要手写 |
 | 适合 | 计价、利率、汇率、财务报表 | 支付、账户余额、库存金额等高频加减 |
 
-常见做法是存储与流转用 `long` 分（支付渠道多以分为单位，见 [支付](/scenario/14_payment)），乘除、折扣、汇率换算时转成 `BigDecimal` 计算，舍入后再转回 `long`（`longValueExact()` 在有小数或溢出时抛异常，比 `longValue()` 安全）。不同币种的最小单位不同，日元没有小数、部分中东货币有 3 位，用 `Currency.getDefaultFractionDigits()` 查询，不要写死 100。领域模型中把金额封装成值对象（金额 + 币种），见 [DDD 领域驱动设计](/architecture/2_ddd)；团队规约见 [开发规范 · 金额](/devops/3_dev_standards#_3、金额)。
+常见做法是存储与流转用 `long` 分（支付渠道多以分为单位，见 [支付](/scenario/8_payment)），乘除、折扣、汇率换算时转成 `BigDecimal` 计算，舍入后再转回 `long`（`longValueExact()` 在有小数或溢出时抛异常，比 `longValue()` 安全）。不同币种的最小单位不同，日元没有小数、部分中东货币有 3 位，用 `Currency.getDefaultFractionDigits()` 查询，不要写死 100。领域模型中把金额封装成值对象（金额 + 币种），见 [DDD 领域驱动设计](/architecture/2_ddd)；团队规约见 [开发规范 · 金额](/devops/3_dev_standards#_3、金额)。
 
 ---
 

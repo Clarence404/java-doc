@@ -127,8 +127,8 @@ private boolean delete(TrieNode node, String word, int depth) {
 
 | 场景 | 做法 |
 |------|------|
-| 自动补全 / 搜索提示 | 走到前缀对应的节点，再 DFS 收集其下所有 `isEnd` 节点；工程实现见 [搜索](/scenario/9_search_system) |
-| 词频与前缀统计 | 节点上记计数，见下文计数 Trie；海量词频场景见 [海量数据算法题](/scenario/3_massive_data) |
+| 自动补全 / 搜索提示 | 走到前缀对应的节点，再 DFS 收集其下所有 `isEnd` 节点；工程实现见 [搜索](/scenario/22_search_system) |
+| 词频与前缀统计 | 节点上记计数，见下文计数 Trie；海量词频场景见 [海量数据算法题](/scenario/27_massive_data) |
 | 敏感词过滤 | 用全部敏感词建 Trie，再加失配指针构成 AC 自动机，一次扫描文本就能找出所有命中的词 |
 | 单词搜索（网格 DFS + Trie） | 所有目标词建成一棵 Trie，DFS 时同步沿 Trie 走，前缀不存在立刻剪枝 |
 | 最长前缀匹配 | IP 路由表按二进制位建 Trie，查找时记录沿途最后一个有效前缀 |

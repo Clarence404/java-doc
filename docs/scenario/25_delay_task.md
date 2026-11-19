@@ -249,7 +249,7 @@ if (rows == 0) return;
 
 ## 五、以订单超时关单为例
 
-订单场景推荐「RocketMQ 5 定时消息 + 定时扫表兜底」，前提是延迟固定、无需取消、只有一个业务在用；详细流程、关单与释放库存的原子化见 [订单](./5_order_system#六、超时关单)。
+订单场景推荐「RocketMQ 5 定时消息 + 定时扫表兜底」，前提是延迟固定、无需取消、只有一个业务在用；详细流程、关单与释放库存的原子化见 [订单](./7_order_system#六、超时关单)。
 
 当公司里关单、提醒、重试、定时发布等多个业务都需要延迟任务时，可以接入通用服务，订单服务的改动很小：
 
@@ -302,4 +302,4 @@ if (rows == 0) return;
 - MySQL 分区键与主键、唯一键的约束：[https://dev.mysql.com/doc/refman/8.4/en/partitioning-limitations-partitioning-keys-unique-keys.html](https://dev.mysql.com/doc/refman/8.4/en/partitioning-limitations-partitioning-keys-unique-keys.html)
 - Redis keyspace 通知（过期事件的触发时机）：[https://redis.io/docs/latest/develop/pubsub/keyspace-notifications/](https://redis.io/docs/latest/develop/pubsub/keyspace-notifications/)
 
-> 返回：[业务场景总览](./0_overview)
+> 下一篇：[海量数据架构选型](./26_big_data) —— 存储扩展、深分页与预计算、日志链路与 ES 写入、Flink 实时聚合、HyperLogLog UV 统计。

@@ -380,7 +380,7 @@ Feed 页每条内容都要显示自己是否已赞，即一次查 20 个 `(userI
 
 - **涨粉 / 点赞洪峰**：明星官宣时每秒几万次关注，关系表写入分散在不同用户的分片上，没有行锁热点；计数通过消费者合并，粉丝数这一行每批只更新一次
 - **布隆过滤器快速判断**：对少量超大对象可以额外维护一个布隆过滤器，500 万元素、1% 误判率约需 500 万 × 9.6 bit ÷ 8 = 6,000,000 B ≈ 5.7 MB；「肯定没赞」直接返回，「可能赞了」再走上面的查询。取消点赞无法从布隆过滤器中删除，只会增加误判，不影响正确性
-- 大 V 发内容引起的写扩散问题见 [Feed 流](./8_feed_stream)
+- 大 V 发内容引起的写扩散问题见 [Feed 流](./15_feed_stream)
 
 ---
 
@@ -397,7 +397,7 @@ Feed 页每条内容都要显示自己是否已赞，即一次查 20 个 `(userI
 
 - 第 4 步的条件是 `update_time` 没变：如果第 1 步之后该对象又有事件被消费，`update_time` 会变化，这次修正自动放弃，下一轮再说；条件成立说明 T 之前的事件都已计入且之后没有新事件，两边可以比较
 - 重算大 V 内容的 `COUNT(*)` 要扫几百万行索引，放在低峰期分批执行；差异超过阈值（如 1%）时告警，说明链路有 bug，不能只靠校准掩盖
-- 对账的通用做法与告警设计见 [海量数据对账](./3_reconcile)
+- 对账的通用做法与告警设计见 [海量数据对账](./28_reconcile)
 
 ---
 
@@ -446,4 +446,4 @@ Feed 页每条内容都要显示自己是否已赞，即一次查 20 个 `(userI
 - Spring for Apache Kafka 位点定位（ConsumerSeekAware）：[https://docs.spring.io/spring-kafka/reference/kafka/seek.html](https://docs.spring.io/spring-kafka/reference/kafka/seek.html)
 - Debezium MySQL Connector：[https://debezium.io/documentation/reference/stable/connectors/mysql.html](https://debezium.io/documentation/reference/stable/connectors/mysql.html)
 
-> 下一篇：[扫码登录](./18_qr_login) —— 二维码状态机、Lua 原子迁移、长轮询通知、PC 会话换发与防钓鱼。
+> 下一篇：[即时通讯](./18_im) —— 长连接路由、会话内 seq、三段确认、多端同步与群聊读写扩散。

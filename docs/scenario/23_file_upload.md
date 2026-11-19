@@ -470,4 +470,4 @@ https://cdn.example.com/images/photo.jpg?x-oss-process=image/crop,w_200,h_200
 - 阿里云 OSS 使用 STS 临时凭证：[https://help.aliyun.com/zh/oss/developer-reference/use-temporary-access-credentials-provided-by-sts-to-access-oss](https://help.aliyun.com/zh/oss/developer-reference/use-temporary-access-credentials-provided-by-sts-to-access-oss)
 - MinIO 仓库（维护状态说明）：[https://github.com/minio/minio](https://github.com/minio/minio)
 
-> 下一篇：[抢红包](./11_red_packet) —— 金额预分配、Lua 原子抢、可靠入账与过期退款。
+> 下一篇：[扫码登录](./24_qr_login) —— 二维码状态机、Lua 原子迁移、长轮询通知、PC 会话换发与防钓鱼。

@@ -483,7 +483,7 @@ SET PROPERTY FOR 'report_ro' 'sql_block_rules' = 'block_wide_scan';
 
 ## 八、异步导出
 
-导出半年明细这类请求不适合同步接口：结果集可能有几千万行，HTTP 请求等不了那么久，把数据流经 Java 服务再写 Excel 也会耗尽内存。通用的异步任务表、流式写文件、预签名 URL 下载方案见 [海量数据导入导出](/scenario/3_sheet_export)，OLAP 场景有一个更省资源的选择：**让引擎直接把结果卸到对象存储**。
+导出半年明细这类请求不适合同步接口：结果集可能有几千万行，HTTP 请求等不了那么久，把数据流经 Java 服务再写 Excel 也会耗尽内存。通用的异步任务表、流式写文件、预签名 URL 下载方案见 [海量数据导入导出](/scenario/29_sheet_export)，OLAP 场景有一个更省资源的选择：**让引擎直接把结果卸到对象存储**。
 
 ```sql
 -- Doris：查询结果直接写到 S3 兼容存储

@@ -47,7 +47,7 @@ Java 后端常做的事：
 - **处理 Hook 回调**：流媒体服务器在推流开始、断开、录制文件生成时回调业务接口，后端据此更新直播间状态、触发回放转码；回调要做幂等，参见 [幂等设计](/architecture/3_idempotence)
 - **任务编排**：上传完成后投递转码、截图、内容审核任务到消息队列，由转码集群消费，参见 [消息队列总览](/messaging/0_overview)
 - **媒资管理**：记录原始文件、转码产物、封面、时长、分辨率等元数据，文件本身放对象存储，参见 [对象存储](/architecture/5_object_storage)
-- **实时互动**：弹幕、礼物、在线人数走长连接，不走媒体流，参见 [即时通讯](/scenario/16_im) 与 [WebSocket](/netty/10_websocket)
+- **实时互动**：弹幕、礼物、在线人数走长连接，不走媒体流，参见 [即时通讯](/scenario/18_im) 与 [WebSocket](/netty/10_websocket)
 
 ::: tip Java 能不能直接处理音视频
 可以但通常不划算。JavaCV（FFmpeg 的 JNI 封装）、Jaffree（调用 FFmpeg 命令行的封装）适合截图、探测元数据这类轻量场景；批量转码更稳妥的做法是 Java 生成 FFmpeg 命令、以独立进程或独立转码服务运行，用退出码和进度输出跟踪状态，进程崩溃不会拖垮业务 JVM。
@@ -74,8 +74,8 @@ Java 后端常做的事：
 ## 五、关联模块
 
 - TCP / UDP、HTTP 协议基础 → [TCP 与 UDP](/protocols/1_tcp_udp)、[HTTP](/protocols/2_http)
-- 弹幕、礼物、在线人数等实时消息 → [即时通讯](/scenario/16_im)；长连接实现 → [WebSocket](/netty/10_websocket)、[SSE](/netty/11_sse)
-- 视频文件的分片上传、断点续传 → [大文件上传](/scenario/10_file_upload)；存储与预签名地址 → [对象存储](/architecture/5_object_storage)
+- 弹幕、礼物、在线人数等实时消息 → [即时通讯](/scenario/18_im)；长连接实现 → [WebSocket](/netty/10_websocket)、[SSE](/netty/11_sse)
+- 视频文件的分片上传、断点续传 → [大文件上传](/scenario/23_file_upload)；存储与预签名地址 → [对象存储](/architecture/5_object_storage)
 - 转码、截图、审核任务的异步投递 → [消息队列总览](/messaging/0_overview)
 - 推流 / 播放地址签名与防盗链 → [API 安全](/security/6_api_security)
 - CDN 与边缘加速 → [Cloudflare](/cloud-native/16_cloudflare)；接入层与流量调度 → [接入层架构](/high-con/1_access_layer)

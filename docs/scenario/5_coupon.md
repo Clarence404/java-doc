@@ -4,7 +4,7 @@ description: 券模板与券实例、三种发券方式、Lua 原子领券与异
 
 # 优惠券和营销
 
-> 前置阅读：[秒杀](./4_seckill)、[订单](./5_order_system)、[幂等设计](/architecture/3_idempotence)
+> 前置阅读：[秒杀](./11_seckill)、[订单](./7_order_system)、[幂等设计](/architecture/3_idempotence)
 
 优惠券同时有两种难题：**发券**像秒杀，库存有限、瞬时并发高；**用券**是订单链路的一环，状态要随支付、关单、退款正确流转（金额单位统一为「分」，用 `long`）。本篇按「模型 → 发券 → 防刷 → 用券 → 计价 → 过期 → 大促」的顺序展开。
 
@@ -41,7 +41,7 @@ description: 券模板与券实例、三种发券方式、Lua 原子领券与异
 
 - **券服务**无状态，领券走 Redis，用券走 MySQL：领券是「抢库存」，写入集中在一个模板上，需要 Redis 的原子性和吞吐；用券是「改自己的券」，天然按用户分散，直接在数据库上做条件更新即可
 - **券实例按 `user_id` 分库分表**：券包查询、结算页选券、锁券都带着 `user_id`，单用户的请求只落在一个分片
-- **订单与券的交互**：下单时订单服务同步调用锁券（必须当场知道成败）；支付成功、关单、退款等后续变化由订单服务通过 Outbox 发事件，券服务消费后改状态，见 [订单](./5_order_system) 的分布式事务一节
+- **订单与券的交互**：下单时订单服务同步调用锁券（必须当场知道成败）；支付成功、关单、退款等后续变化由订单服务通过 Outbox 发事件，券服务消费后改状态，见 [订单](./7_order_system) 的分布式事务一节
 
 ---
 
@@ -179,7 +179,7 @@ public class CouponClaimService {
 }
 ```
 
-- 与 [秒杀](./4_seckill) 的 Lua 一样：key 不存在时 `GET` 返回 `false` 要先判断；`HGET` 不存在也返回 `false`，用 `or '0'` 兜底；Cluster 下用 `{tplId}` 做 hash tag。**脚本返回成功就算领到**，`pending` 哈希相当于放在 Redis 里的发件箱：只要记录还在，这张券就一定会被投递落库
+- 与 [秒杀](./11_seckill) 的 Lua 一样：key 不存在时 `GET` 返回 `false` 要先判断；`HGET` 不存在也返回 `false`，用 `or '0'` 兜底；Cluster 下用 `{tplId}` 做 hash tag。**脚本返回成功就算领到**，`pending` 哈希相当于放在 Redis 里的发件箱：只要记录还在，这张券就一定会被投递落库
 
 ### 3、异步落库与补发
 
@@ -253,7 +253,7 @@ public class CouponClaimedListener implements RocketMQListener<CouponClaimed> {
 
 ### 2、锁券：同步、幂等
 
-下单流程里订单服务以下单请求号 `biz_no` 调用锁券（流程见 [订单](./5_order_system) 的下单一节）：
+下单流程里订单服务以下单请求号 `biz_no` 调用锁券（流程见 [订单](./7_order_system) 的下单一节）：
 
 ```sql
 UPDATE coupon
@@ -402,7 +402,7 @@ WHERE id IN (...) AND status = 'UNUSED';          -- 带上原状态：期间被
 一个热门模板的库存 key 落在 Redis Cluster 的同一个分片上，所有领券请求都打到这一个分片。处理方式与秒杀相同：
 
 - **分桶**：把库存拆成 16 个桶 `coupon:{tplId:b}:stock`，按 `hash(userId) % 16` 选桶，`claimed`、`pending` 也按同样的桶号拆，保证同一用户的三个 key 仍在同一个槽内；桶之间余量不均时，由后台任务把其他桶的剩余库存挪到已空的桶。做法见 [热点问题](/high-con/6_hotspot#_3、分桶库存) 的分桶库存一节
-- **本地售罄标记**：某个桶返回已领完后，实例本地记录几秒，后续请求不再访问 Redis；有库存回补时广播清除，见 [秒杀](./4_seckill) 的本地售罄标记一节
+- **本地售罄标记**：某个桶返回已领完后，实例本地记录几秒，后续请求不再访问 Redis；有库存回补时广播清除，见 [秒杀](./11_seckill) 的本地售罄标记一节
 - **用券不是热点**：锁券、核销都按 `user_id` 分散在各个分片，大促时主要压力在订单链路
 
 ---
@@ -446,4 +446,4 @@ WHERE id IN (...) AND status = 'UNUSED';          -- 带上原状态：期间被
 - RocketMQ 事务消息：[https://rocketmq.apache.org/docs/featureBehavior/04transactionmessage](https://rocketmq.apache.org/docs/featureBehavior/04transactionmessage)
 - Transactional Outbox 模式：[https://microservices.io/patterns/data/transactional-outbox.html](https://microservices.io/patterns/data/transactional-outbox.html)
 
-> 下一篇：[即时通讯](./16_im) —— 长连接路由、会话内 seq、三段确认、多端同步与群聊读写扩散。
+> 下一篇：[库存与票务](./6_inventory) —— 库存预占与释放、座位锁定、防超卖。

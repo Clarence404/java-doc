@@ -4,7 +4,7 @@ description: 楼中楼数据模型、先审后发与先发后审、游标分页�
 
 # 评论系统
 
-> 前置阅读：[计数服务](./17_counter)、[排行榜和积分](./7_rank_system)、[两级缓存（L1 + L2）](/cache/8_two_level_cache)
+> 前置阅读：[计数服务](./17_counter)、[排行榜和积分](./14_rank_system)、[两级缓存（L1 + L2）](/cache/8_two_level_cache)
 
 评论挂在视频、文章、动态下面，读远多于写，难点在楼中楼结构、热门内容的读放大和内容审核。本篇讲两级楼中楼的数据模型、带审核的发评论链路、按时间与热度的分页和热评排序、首屏缓存与删除防刷，基线为 MySQL 8.4、Redis 8。
 
@@ -46,7 +46,7 @@ description: 楼中楼数据模型、先审后发与先发后审、游标分页�
 | 审核服务 | 消费待审事件，跑文本 / 图片模型，可疑的进人审队列，结果回写评论状态 |
 | 计数服务 | 评论数、回复数、点赞数，由事件或 binlog 驱动，详见 [计数服务](./17_counter) |
 | 缓存 | Redis 存时间列表、热度 ZSet、评论内容；热点内容再加进程内缓存 |
-| 通知中心 | 消费发布事件，提醒被回复、被 @ 的人，详见 [消息通知中心](./20_notification) |
+| 通知中心 | 消费发布事件，提醒被回复、被 @ 的人，详见 [消息通知中心](./19_notification) |
 
 写路径：评论服务同步完成「校验 → 机审 → 落库」，其余全部异步；读路径：先走缓存拼出一屏，缓存没有的部分回源分片库。下面按数据模型、写、读、排序、缓存、删除、防刷、通知的顺序展开。
 
@@ -213,7 +213,7 @@ ORDER BY id DESC
 LIMIT 20;
 ```
 
-- 评论区头部不断有新评论插入，`LIMIT offset, n` 会出现重复和遗漏，而且越往后越慢；游标分页每页都是一次索引范围扫描，原理同 [Feed 流的游标分页](./8_feed_stream#_3、游标分页)，接口约定见 [API 设计规范](/engineering/4_api_design_rule#_1、offset-分页与-cursor-分页)
+- 评论区头部不断有新评论插入，`LIMIT offset, n` 会出现重复和遗漏，而且越往后越慢；游标分页每页都是一次索引范围扫描，原理同 [Feed 流的游标分页](./15_feed_stream#_3、游标分页)，接口约定见 [API 设计规范](/engineering/4_api_design_rule#_1、offset-分页与-cursor-分页)
 - `status = 1` 不在索引里，但删除和待审的比例很低，回表后过滤的代价可以接受；如果某内容被大量删评，可以把 `status` 放进索引
 - 作者自己的待审、仅自己可见评论单独查一次（`uk_req` 的前缀 `(obj_id, user_id)` 正好可用），插到第一页顶部，不进公共缓存
 
@@ -288,7 +288,7 @@ lower = (p + z²/(2n) − z × sqrt(p(1−p)/n + z²/(4n²))) / (1 + z²/n)
 - 只保留前 500～1000 条：`ZADD` 后 `ZREMRANGEBYRANK cmt:hot:<objId> 0 -1001`，排在后面的评论看热度榜的人极少，翻到底后接时间顺序即可
 - 评论很少的内容不建 ZSet，直接查库后在内存里排序
 
-ZSet 的 Top N、分页命令与大 key 拆分见 [排行榜和积分](./7_rank_system#三、实时排行榜)。
+ZSet 的 Top N、分页命令与大 key 拆分见 [排行榜和积分](./14_rank_system#三、实时排行榜)。
 
 ### 3、热度榜翻页
 
@@ -404,7 +404,7 @@ ZSet 的 Top N、分页命令与大 key 拆分见 [排行榜和积分](./7_rank_
 - **尊重屏蔽关系**：被拉黑的用户的回复不通知
 - **聚合**：热门内容的作者一分钟收到几千条评论，逐条推送没有意义，由通知中心聚合成「某某等 2,000 人评论了你的视频」
 
-通知的存储、未读数、聚合与推送通道见 [消息通知中心](./20_notification)。
+通知的存储、未读数、聚合与推送通道见 [消息通知中心](./19_notification)。
 
 ---
 
@@ -444,4 +444,4 @@ ZSet 的 Top N、分页命令与大 key 拆分见 [排行榜和积分](./7_rank_
 - Evan Miller, How Not To Sort By Average Rating（Wilson 置信区间排序）：[https://www.evanmiller.org/how-not-to-sort-by-average-rating.html](https://www.evanmiller.org/how-not-to-sort-by-average-rating.html)
 - Caffeine：[https://github.com/ben-manes/caffeine/wiki](https://github.com/ben-manes/caffeine/wiki)
 
-> 下一篇：[库存与票务](./22_inventory) —— 库存预占与释放、座位锁定、防超卖。
+> 下一篇：[计数服务](./17_counter) —— 关系表去重、CDC 异步计数、热点分桶、大 V 点赞查询与对账校准。

@@ -339,7 +339,7 @@ public PlaceOrderResult place(long userId, String bizNo, PlaceOrderRequest req) 
 | 下单与扣库存共享一个本地事务 | 库存拆成独立服务后，本地事务不再成立 | [跨服务一致性](./7_consistency) |
 | 订单号就是雪花 ID 字符串 | 分库分表后按订单号查不到分片 | [拆分服务](./6_split) 阶段改为嵌入用户 ID 低位 |
 
-最终形态（库存预占、Outbox、分库分表）见 [订单](/scenario/5_order_system)。
+最终形态（库存预占、Outbox、分库分表）见 [订单](/scenario/7_order_system)。
 
 ---
 

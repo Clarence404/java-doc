@@ -377,4 +377,4 @@ Top N 是典型的读热点，在应用里用 [Caffeine](/cache/7_caffeine) 缓�
 - Redis Lua API（Lua 与 Redis 类型转换）：[https://redis.io/docs/latest/develop/programmability/lua-api/](https://redis.io/docs/latest/develop/programmability/lua-api/)
 - Spring Transaction-bound Events：[https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html](https://docs.spring.io/spring-framework/reference/data-access/transaction/event.html)
 
-> 下一篇：[Feed 流和消息推送](./8_feed_stream) —— 推模式、拉模式与推拉结合，收件箱存储与游标分页。
+> 下一篇：[Feed 流和消息推送](./15_feed_stream) —— 推模式、拉模式与推拉结合，收件箱存储与游标分页。
