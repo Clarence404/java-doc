@@ -148,7 +148,7 @@ export const GROUPS = [
             {name: '系统架构', dir: 'architecture', interview: ['20_architecture'], desc: '架构模式 / DDD / 工程结构与分包 / 幂等 / 对象存储 / 权限系统 / 冷热分离 / 主数据'},
             {
                 name: '业务场景', dir: 'scenario', interview: ['21_scenario', '22_scenario_highlights'],
-                desc: '设计方法 / 商品详情 / 购物车 / 优惠券 / 库存与票务 / 订单 / 支付 / 秒杀 / 红包 / 排行榜 / Feed 流 / 评论 / 计数 / IM / 通知中心 / LBS / 短链 / 搜索 / 大文件上传 / 扫码登录 / 延迟任务 / 海量数据',
+                desc: '设计方法 / 商品详情 / 购物车 / 优惠券 / 库存与票务 / 订单 / 支付 / 售后与退款 / 账户与记账 / 秒杀 / 红包 / 抽奖 / 排行榜 / Feed 流 / 评论 / 计数 / IM / 通知中心 / LBS / 短链 / 搜索 / 大文件上传 / 扫码登录 / 延迟任务 / 海量数据',
                 sidebar: [
                     {text: '方法论', from: 1},
                     {text: '交易与资金', from: 3},

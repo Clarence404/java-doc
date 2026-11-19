@@ -1,0 +1,64 @@
+<svg viewBox="0 0 860 310" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; }
+    .sub { fill:var(--muted); }
+    .lbl { fill:var(--fg); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="430" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">售后单状态机（退货退款）</text>
+  <rect class="box" x="30" y="60" width="170" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="115" y="86" text-anchor="middle" font-size="13" fill="var(--y)">待审核</text>
+  <text class="sub" x="115" y="105" text-anchor="middle" font-size="11">APPLIED</text>
+  <rect class="box" x="240" y="60" width="170" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="325" y="86" text-anchor="middle" font-size="13" fill="var(--b)">待寄回</text>
+  <text class="sub" x="325" y="105" text-anchor="middle" font-size="11">WAIT_RETURN</text>
+  <rect class="box" x="450" y="60" width="170" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="535" y="86" text-anchor="middle" font-size="13" fill="var(--b)">待收货</text>
+  <text class="sub" x="535" y="105" text-anchor="middle" font-size="11">WAIT_RECEIVE</text>
+  <rect class="box" x="660" y="60" width="170" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="745" y="86" text-anchor="middle" font-size="13" fill="var(--p)">退款中</text>
+  <text class="sub" x="745" y="105" text-anchor="middle" font-size="11">REFUNDING</text>
+  <rect class="box" x="30" y="200" width="170" height="60" rx="8" stroke="var(--r)"/>
+  <text class="name" x="115" y="226" text-anchor="middle" font-size="13" fill="var(--r)">已拒绝</text>
+  <text class="sub" x="115" y="245" text-anchor="middle" font-size="11">REJECTED</text>
+  <rect class="box" x="240" y="200" width="170" height="60" rx="8" stroke="var(--muted)"/>
+  <text class="name" x="325" y="226" text-anchor="middle" font-size="13" fill="var(--muted)">已关闭</text>
+  <text class="sub" x="325" y="245" text-anchor="middle" font-size="11">CLOSED</text>
+  <rect class="box" x="660" y="200" width="170" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="745" y="226" text-anchor="middle" font-size="13" fill="var(--g)">已完成</text>
+  <text class="sub" x="745" y="245" text-anchor="middle" font-size="11">COMPLETED</text>
+  <line class="arr" x1="200" y1="90" x2="238" y2="90"/>
+  <text class="lbl" x="219" y="82" text-anchor="middle" font-size="11">同意</text>
+  <line class="arr" x1="410" y1="90" x2="448" y2="90"/>
+  <text class="lbl" x="429" y="82" text-anchor="middle" font-size="11">已寄出</text>
+  <line class="arr" x1="620" y1="90" x2="658" y2="90"/>
+  <text class="lbl" x="639" y="82" text-anchor="middle" font-size="11">确认收货</text>
+  <line class="arr" x1="115" y1="120" x2="115" y2="198"/>
+  <text class="lbl" x="123" y="163" text-anchor="start" font-size="11">拒绝</text>
+  <line class="arr" x1="325" y1="120" x2="325" y2="198"/>
+  <text class="lbl" x="333" y="163" text-anchor="start" font-size="11">撤销或超时</text>
+  <line class="arr" x1="745" y1="120" x2="745" y2="198"/>
+  <text class="lbl" x="753" y="163" text-anchor="start" font-size="11">退款成功</text>
+  <text class="sub" x="430" y="292" text-anchor="middle" font-size="11">仅退款没有中间两步：审核通过后直接进入「退款中」；每一次流转都是带原状态的条件更新</text>
+</svg>

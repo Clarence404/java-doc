@@ -1,0 +1,59 @@
+<svg viewBox="0 0 860 380" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; }
+    .sub { fill:var(--muted); }
+    .lbl { fill:var(--fg); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="430" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">抽奖整体架构</text>
+  <rect class="box" x="30" y="50" width="170" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="115" y="76" text-anchor="middle" font-size="13" fill="var(--b)">用户</text>
+  <text class="sub" x="115" y="95" text-anchor="middle" font-size="11">点一次抽一次</text>
+  <rect class="box" x="240" y="50" width="170" height="60" rx="8" stroke="var(--muted)"/>
+  <text class="name" x="325" y="76" text-anchor="middle" font-size="13" fill="var(--muted)">网关</text>
+  <text class="sub" x="325" y="95" text-anchor="middle" font-size="11">限流、风控分</text>
+  <rect class="box" x="450" y="50" width="380" height="60" rx="8" stroke="var(--p)"/>
+  <text class="name" x="640" y="76" text-anchor="middle" font-size="13" fill="var(--p)">抽奖服务</text>
+  <text class="sub" x="640" y="95" text-anchor="middle" font-size="11">校验资格 → 按权重选出一个奖品 → 去 Redis 扣</text>
+  <rect class="box" x="450" y="170" width="380" height="70" rx="8" stroke="var(--g)"/>
+  <text class="name" x="640" y="192" text-anchor="middle" font-size="13" fill="var(--g)">Redis</text>
+  <text class="sub" x="640" y="211" text-anchor="middle" font-size="11">一个脚本：扣这个人的次数、扣这个奖品的库存、记待落库</text>
+  <text class="sub" x="640" y="227" text-anchor="middle" font-size="11">普通奖品按用户分桶；大奖单独一个 key</text>
+  <rect class="box" x="450" y="300" width="170" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="535" y="326" text-anchor="middle" font-size="13" fill="var(--y)">消息队列</text>
+  <text class="sub" x="535" y="345" text-anchor="middle" font-size="11">中奖消息</text>
+  <rect class="box" x="660" y="300" width="170" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="745" y="326" text-anchor="middle" font-size="13" fill="var(--g)">中奖记录</text>
+  <text class="sub" x="745" y="345" text-anchor="middle" font-size="11">落库，唯一键去重</text>
+  <rect class="box" x="30" y="300" width="380" height="60" rx="8" stroke="var(--muted)"/>
+  <text class="name" x="220" y="326" text-anchor="middle" font-size="13" fill="var(--muted)">发奖</text>
+  <text class="sub" x="220" y="345" text-anchor="middle" font-size="11">券、积分、实物各走各的服务，用抽奖流水号做幂等键</text>
+  <line class="arr" x1="200" y1="80" x2="238" y2="80"/>
+  <line class="arr" x1="410" y1="80" x2="448" y2="80"/>
+  <line class="arr" x1="640" y1="110" x2="640" y2="168"/>
+  <line class="arr" x1="535" y1="240" x2="535" y2="298"/>
+  <text class="lbl" x="543" y="273" text-anchor="start" font-size="11">中了</text>
+  <line class="arr" x1="620" y1="330" x2="658" y2="330"/>
+  <line class="arr" x1="450" y1="330" x2="412" y2="330"/>
+</svg>

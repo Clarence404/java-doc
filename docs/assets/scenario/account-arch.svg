@@ -1,0 +1,71 @@
+<svg viewBox="0 0 860 470" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif" font-size="12">
+  <style>
+    :root {
+      --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0;
+      --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626;
+    }
+    :root[data-theme="dark"] {
+      --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+      --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c;
+        --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171;
+      }
+    }
+    .box { fill:var(--card); stroke-width:1.5; }
+    .name { font-weight:600; }
+    .sub { fill:var(--muted); }
+    .lbl { fill:var(--fg); }
+    .arr { stroke:var(--muted); stroke-width:1.6; fill:none; marker-end:url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <polygon points="0 0,7 3.5,0 7" fill="var(--muted)"/>
+    </marker>
+  </defs>
+
+  <text x="430" y="28" text-anchor="middle" font-weight="700" font-size="14" fill="var(--fg)">账户与记账整体架构</text>
+  <rect class="box" x="30" y="50" width="170" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="115" y="76" text-anchor="middle" font-size="13" fill="var(--b)">支付中心</text>
+  <text class="sub" x="115" y="95" text-anchor="middle" font-size="11">收款、渠道结算</text>
+  <rect class="box" x="240" y="50" width="170" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="325" y="76" text-anchor="middle" font-size="13" fill="var(--b)">红包与营销</text>
+  <text class="sub" x="325" y="95" text-anchor="middle" font-size="11">发红包、补贴</text>
+  <rect class="box" x="450" y="50" width="170" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="535" y="76" text-anchor="middle" font-size="13" fill="var(--b)">售后</text>
+  <text class="sub" x="535" y="95" text-anchor="middle" font-size="11">退款入余额</text>
+  <rect class="box" x="660" y="50" width="170" height="60" rx="8" stroke="var(--b)"/>
+  <text class="name" x="745" y="76" text-anchor="middle" font-size="13" fill="var(--b)">提现</text>
+  <text class="sub" x="745" y="95" text-anchor="middle" font-size="11">先冻结后打款</text>
+  <rect class="box" x="30" y="160" width="800" height="70" rx="8" stroke="var(--p)"/>
+  <text class="name" x="430" y="182" text-anchor="middle" font-size="13" fill="var(--p)">记账服务</text>
+  <text class="sub" x="430" y="201" text-anchor="middle" font-size="11">一张凭证 = 一组借贷相等的分录；凭证号唯一，余额用条件更新</text>
+  <text class="sub" x="430" y="217" text-anchor="middle" font-size="11">和业务单在同一个事务里提交；跨库时走「在途」账户分两步记</text>
+  <rect class="box" x="30" y="280" width="170" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="115" y="306" text-anchor="middle" font-size="13" fill="var(--g)">账户表</text>
+  <text class="sub" x="115" y="325" text-anchor="middle" font-size="11">余额、冻结金额</text>
+  <rect class="box" x="240" y="280" width="170" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="325" y="306" text-anchor="middle" font-size="13" fill="var(--g)">分录流水</text>
+  <text class="sub" x="325" y="325" text-anchor="middle" font-size="11">只增不改，带记后余额</text>
+  <rect class="box" x="450" y="280" width="170" height="60" rx="8" stroke="var(--g)"/>
+  <text class="name" x="535" y="306" text-anchor="middle" font-size="13" fill="var(--g)">冻结记录</text>
+  <text class="sub" x="535" y="325" text-anchor="middle" font-size="11">冻结中 / 已扣减 / 已解冻</text>
+  <rect class="box" x="660" y="280" width="170" height="60" rx="8" stroke="var(--y)"/>
+  <text class="name" x="745" y="306" text-anchor="middle" font-size="13" fill="var(--y)">Outbox 事件</text>
+  <text class="sub" x="745" y="325" text-anchor="middle" font-size="11">入账、扣款结果通知业务方</text>
+  <rect class="box" x="30" y="390" width="800" height="60" rx="8" stroke="var(--muted)"/>
+  <text class="name" x="430" y="416" text-anchor="middle" font-size="13" fill="var(--muted)">日终任务</text>
+  <text class="sub" x="430" y="435" text-anchor="middle" font-size="11">试算平衡（借方合计 = 贷方合计）、余额核对（期末 = 期初 + 当日净额）、与总账和渠道核对</text>
+  <line class="arr" x1="115" y1="110" x2="115" y2="158"/>
+  <line class="arr" x1="325" y1="110" x2="325" y2="158"/>
+  <line class="arr" x1="535" y1="110" x2="535" y2="158"/>
+  <line class="arr" x1="745" y1="110" x2="745" y2="158"/>
+  <line class="arr" x1="115" y1="230" x2="115" y2="278"/>
+  <line class="arr" x1="325" y1="230" x2="325" y2="278"/>
+  <line class="arr" x1="535" y1="230" x2="535" y2="278"/>
+  <line class="arr" x1="745" y1="230" x2="745" y2="278"/>
+  <line class="arr" x1="115" y1="340" x2="115" y2="388"/>
+  <line class="arr" x1="325" y1="340" x2="325" y2="388"/>
+</svg>

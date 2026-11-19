@@ -257,7 +257,7 @@ public void closeExpired(PayTrade t) {
 
 ### 1、流程
 
-订单侧的退款审核与积分回退见 [订单](./7_order_system#七、退款)，支付中心只负责把钱退回去：
+售后单的审核、金额计算与各方回退见 [售后与退款](./9_after_sale)，支付中心只负责把钱退回去：
 
 1. 业务方调用退款接口，带上自己的退款请求号 `request_no`（同一次退款重试时不变）
 2. 支付中心在一个事务里占用可退额度，**生成退款单号并落库**
@@ -359,36 +359,9 @@ WHERE t.paid_at >= '2026-10-08 00:00:00' AND t.paid_at < '2026-10-09 00:00:00'
 
 手续费 = 70 × 0.6% = 0.42 元，到账 = 70 − 0.42 = 69.58 元，借方合计 70 = 贷方合计 70。
 
-```java
-public record Entry(String accountNo, boolean debit, long amountCent) {
-    public static Entry ofDebit(String account, long cent)  { return new Entry(account, true, cent); }
-    public static Entry ofCredit(String account, long cent) { return new Entry(account, false, cent); }
-}
+每一组分录就是一张凭证，凭证号由业务单号派生（如 `PAY-{trade_no}`、`REFUND-{refund_no}`），重复记账会撞唯一键；记账和交易单的状态变更在同一个事务里。流水只增不改，余额等于流水的累计。
 
-@Component
-public class Ledger {
-
-    private final LedgerMapper mapper;                    // 构造器注入省略
-
-    @Transactional(propagation = Propagation.MANDATORY)   // 必须在调用方的业务事务里执行
-    public void post(String voucherNo, List<Entry> entries) {
-        long debit = entries.stream().filter(Entry::debit).mapToLong(Entry::amountCent).sum();
-        long credit = entries.stream().filter(e -> !e.debit()).mapToLong(Entry::amountCent).sum();
-        if (debit <= 0 || debit != credit) {
-            throw new IllegalStateException("借贷不平: " + voucherNo);
-        }
-        for (int i = 0; i < entries.size(); i++) {
-            Entry e = entries.get(i);
-            mapper.insertJournal(voucherNo, i + 1, e);        // UNIQUE KEY uk_voucher_line (voucher_no, line_no)
-            mapper.addBalance(e.accountNo(), e.debit() ? e.amountCent() : -e.amountCent());   // 余额按借方为正
-        }
-    }
-}
-```
-
-- 凭证号由业务单号派生（如 `PAY-{trade_no}`、`REFUND-{refund_no}`），重复记账会撞唯一键
-- 流水只增不改，余额等于流水的累计；每天用流水汇总核对一次余额，不一致说明有绕过记账的写入
-- 平台自营时「商户待结算」只有一个账户，每笔支付都更新同一行，会成为热点行。常见做法是拆成多个子账户随机记入、或流水先落库余额按批次汇总更新，见 [热点问题](/high-con/6_hotspot)
+凭证怎么落库、余额怎么更新、提现这类要先冻结的钱怎么记、「商户待结算」这种每笔交易都要更新的热点账户怎么处理、每天怎么对平，见 [账户与记账](./10_account_ledger)。
 
 ### 2、支付中心与业务方的一致性
 
@@ -445,4 +418,4 @@ public class Ledger {
 - Transactional Outbox 模式：[https://microservices.io/patterns/data/transactional-outbox.html](https://microservices.io/patterns/data/transactional-outbox.html)
 - Martin Fowler, Accounting Entry：[https://martinfowler.com/eaaDev/AccountingEntry.html](https://martinfowler.com/eaaDev/AccountingEntry.html)
 
-> 下一篇：[秒杀](./11_seckill) —— 分层限流、Redis 原子预扣、MQ 异步下单与超时关单的完整链路。
+> 下一篇：[售后与退款](./9_after_sale) —— 售后单状态机、可退多少怎么算、先收回再退钱后归还的回退顺序、超时自动处理。

@@ -76,7 +76,7 @@ docs/
 | 缓存 | `docs/cache/` | Redis / Caffeine / 两级缓存 |
 | 系统架构 | `docs/architecture/` | 架构设计 / DDD / 幂等 / 对象存储 |
 | 项目演进 | `docs/project/` | 工程搭建 / 数据建模 / 接口设计 / 缓存 / 异步 / 服务拆分 / 一致性 / 稳定性 / 可观测与发布 |
-| 业务场景 | `docs/scenario/` | 方法论 / 交易与资金（商品详情、购物车、优惠券、库存与票务、订单、支付）/ 营销活动（秒杀、红包、排行榜）/ 内容与社交（Feed、评论、计数、IM、通知中心、LBS）/ 通用能力（短链、搜索、大文件上传、扫码登录、延迟任务）/ 海量数据 |
+| 业务场景 | `docs/scenario/` | 方法论 / 交易与资金（商品详情、购物车、优惠券、库存与票务、订单、支付、售后与退款、账户与记账）/ 营销活动（秒杀、红包、抽奖、排行榜）/ 内容与社交（Feed、评论、计数、IM、通知中心、LBS）/ 通用能力（短链、搜索、大文件上传、扫码登录、延迟任务）/ 海量数据 |
 | 云原生 | `docs/cloud-native/` | Linux 运维 / Docker / Kubernetes / Helm / Terraform / Ansible / VPS |
 | DevOps | `docs/devops/` | Git 工作流 / CI/CD / Code Review / 团队规范 |
 | 工程效率 | `docs/engineering/` | 构建工具 / 开发工具 / 代码质量 / 线上诊断 / API 规范 |

@@ -58,6 +58,8 @@ description: 二倍均值分配、发红包本地事务扣款、Lua 原子抢、
 | 退款任务 | 分布式调度单实例执行：关闭、等待窗口、对账补齐、退还未领份额 |
 | 资金库 | 红包与钱包余额同库，账户流水只增不改，用于逐笔核对 |
 
+红包用的是「余额加单边流水」的账户模型，只记用户这一方的账；钱还要在用户、商户、平台之间流转时改用借贷分录，见 [账户与记账](./10_account_ledger)。
+
 ---
 
 ## 三、金额分配
@@ -418,4 +420,4 @@ public void refund(long packetId) {
 - Redis Cluster 规范（哈希标签）：[https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/](https://redis.io/docs/latest/operate/oss_and_stack/reference/cluster-spec/)
 - ShedLock：[https://github.com/lukas-krecan/ShedLock](https://github.com/lukas-krecan/ShedLock)
 
-> 下一篇：[排行榜和积分](./14_rank_system) —— 基于 Redis ZSet 的实时榜、分时段榜与大规模排行优化。
+> 下一篇：[抽奖](./13_lottery) —— 奖池建模、按权重选奖、原子扣次数与奖品、大奖单独处理、发奖与防刷。
