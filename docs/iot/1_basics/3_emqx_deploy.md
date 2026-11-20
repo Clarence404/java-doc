@@ -40,7 +40,7 @@ EMQX 从 **5.9.0** 起把开源版和企业版合并为一个版本，统一采�
 
 **5.8 开源版的维护状态**：许可没变，但 EMQ 在 2025 年 8 月公告，5.8 开源版于 2026 年 2 月 28 日结束生命周期，此后不再提供缺陷修复和安全补丁，Docker Hub 上 `emqx/emqx` 的最后一个 5.8 标签是 5.8.9。所以「停在 5.8 开源版免费组集群」现在意味着运行一个没有安全更新的 Broker，只适合不暴露公网的内网环境或迁移前的过渡期。仍在维护的 5.8 是企业版的 LTS（到 2027 年 8 月），它适用 BSL。
 
-**版本怎么选**：5.9、5.10 是功能版本，各维护 18 个月，5.9 已在 2026 年 11 月到期；6.3 是当前的 LTS（2026 年 9 月发布，维护 3 年）。新部署直接用 6.3，并把镜像固定到具体的补丁版本。
+**版本怎么选**：5.9、5.10 是功能版本，各维护 18 个月，5.9 已在 2026 年 11 月到期，5.10 到 2026 年 12 月到期；6.3 是当前的 LTS（2026 年 9 月发布，维护 3 年）。新部署直接用 6.3，并把镜像固定到具体的补丁版本。
 
 **镜像用哪个**：5.9 合并之后，官方安装文档的示例统一写 `emqx/emqx-enterprise`。这里的 enterprise 只是沿用下来的镜像名，不代表要付费，单节点不填 License 就能运行。Docker Hub 上的 `emqx/emqx` 仍在同步发布相同版本号的标签，存量部署不必急着改名，新部署跟着官方文档用 `emqx/emqx-enterprise`。Docker 官方库中不带命名空间的 `emqx` 镜像不再跟进新版本。
 
@@ -105,7 +105,7 @@ Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认�
 
 ## 五、三节点集群（需 License）
 
-下面的配置演示集群拓扑，需要在启动后导入 License 才能组成集群；只想验证拓扑时，把镜像换成 5.8 开源版的 `emqx/emqx:5.8.9`（Apache 2.0，已停止维护）也能跑通同样的配置。
+下面的配置演示集群拓扑。License 要在启动之前给每个节点都配好（官方文档的要求：5.9 及以后的节点加入集群前必须已经带着 License），这里用环境变量传入；只想验证拓扑时，把镜像换成 5.8 开源版的 `emqx/emqx:5.8.9`（Apache 2.0，已停止维护）并去掉 License 那一行，也能跑通同样的配置。
 
 ![EMQX 三节点集群与四层负载均衡](../../assets/iot/emqx-cluster.svg)
 
@@ -113,7 +113,6 @@ Dashboard 地址是 `http://<主机>:18083`，首次登录后必须修改默认�
 # docker-compose.yml
 x-emqx: &emqx
   image: emqx/emqx-enterprise:6.3.3
-  networks: [emqx-net]
   ulimits:
     nofile: {soft: 1048576, hard: 1048576}   # 与单节点相同，见第三节
 
@@ -128,6 +127,8 @@ services:
         aliases: [node1.emqx.local]
     environment: &emqx-env
       EMQX_NODE_NAME: emqx@node1.emqx.local
+      # 三个节点都带 License（值放在 .env 里，不写进仓库）；节点启动时没有 License 就组不成集群
+      EMQX_LICENSE__KEY: ${EMQX_LICENSE_KEY}
       EMQX_CLUSTER__DISCOVERY_STRATEGY: static
       EMQX_CLUSTER__STATIC__SEEDS: "[emqx@node1.emqx.local,emqx@node2.emqx.local,emqx@node3.emqx.local]"
       # 负载均衡器开启了 PROXY protocol，EMQX 监听器也要开启，才能拿到设备真实 IP
@@ -164,7 +165,7 @@ services:
       - emqx3-data:/opt/emqx/data
 
   lb:
-    image: nginx:stable-alpine
+    image: nginx:stable-alpine   # 示例用浮动标签，生产环境和 EMQX 一样固定到具体版本
     container_name: mqtt-lb
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
@@ -202,18 +203,17 @@ stream {
         proxy_pass emqx_cluster;
         proxy_protocol on;        # 把设备真实 IP 传给 EMQX
         proxy_connect_timeout 5s;
-        proxy_timeout 300s;       # 必须大于 1.5 倍 Keep Alive，否则空闲设备会被 Nginx 断开
+        proxy_timeout 300s;       # 要大于 1.5 倍 Keep Alive（和 Broker 判定超时的口径对齐），否则空闲设备会被 Nginx 断开
     }
 }
 ```
 
 `proxy_timeout` 是两次读写之间的最长空闲时间。设备 Keep Alive 设为 60 秒时，Broker 允许 90 秒无报文，这里设成 300 秒留足余量；如果设成 30 秒，所有空闲设备都会被周期性断开重连。TLS 可以在 Nginx 终结，也可以透传给 EMQX，需要做双向证书认证时一般透传，由 EMQX 校验客户端证书。
 
-启动并导入 License 后查看集群状态：
+启动后查看集群状态：
 
 ```bash
 docker compose up -d
-docker exec -it emqx1 emqx ctl license update <License Key>
 docker exec -it emqx1 emqx ctl cluster status
 # 正常时 running_nodes 包含三个节点，stopped_nodes 为空
 ```
@@ -229,7 +229,7 @@ docker exec -it emqx1 emqx ctl cluster status
 - 新部署用 6.3 LTS，镜像跟官方文档写 `emqx/emqx-enterprise` 并固定补丁版本
 - 单节点部署要给容器配 `ulimits.nofile`，否则约 1,000 条连接就会耗尽文件描述符；只对外开放 8883，1883 和 18083 留在内网
 - 集群解决的是节点故障不中断、容量和滚动升级；断线重连到其他节点后能否恢复订阅，取决于是否使用持久会话
-- 四层负载均衡的空闲超时必须大于 1.5 倍 Keep Alive，并用 PROXY protocol 保留设备真实 IP
+- 集群的 License 要在启动前给每个节点配好；四层负载均衡的空闲超时要大于 1.5 倍 Keep Alive，并用 PROXY protocol 保留设备真实 IP
 
 ## 参考资料
 

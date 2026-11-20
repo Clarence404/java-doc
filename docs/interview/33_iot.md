@@ -81,9 +81,9 @@ description: MQTT 与协议选型、接入网关与连接风暴、物模型与�
 - 不用共享订阅时，每个实例都订阅全量 Topic，消息被重复处理
 - 组内分配策略（随机、轮询、按 Client ID 哈希）由 Broker 决定，协议不规定
 - 共享订阅打散后，跨实例的顺序要靠 Kafka 分区（按设备 ID 做 Key）或业务版本号保证
-- 每个实例的 Client ID 要唯一（拼主机名或 Pod 名），否则互相踢下线
+- 每个实例的 Client ID 要唯一且重启后不变（拼稳定的实例编号），否则互相踢下线，或留下没人认领的旧会话
 
-→ 详见 [MQTT 客户端](/iot/2_access/3_mqtt_client#_3、订阅与发布)
+→ 详见 [MQTT 客户端](/iot/2_access/3_mqtt_client#_3、发布与关闭)
 
 ### Q7：Java 的 MQTT 客户端怎么选？Client ID 和会话有哪些坑？
 

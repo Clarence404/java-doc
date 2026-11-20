@@ -108,7 +108,7 @@ Topic 沿用 [通信协议 · Topic 约定](../1_basics/1_protocol#_7、topic-�
 | 字段 | 类型 | 含义 |
 |------|------|------|
 | `deviceId` | 字符串 | 可信的设备标识：MQTT 接入取 `clientid`，私有协议取鉴权通过后的设备 ID；同时用作 Kafka 消息 Key |
-| `protocol` | 字符串 | 接入方式：`mqtt`、`tcp`、`modbus` |
+| `protocol` | 字符串 | 消息进入平台的方式：`mqtt`、`tcp`（私有协议网关）；Modbus 等现场设备经采集网关走 MQTT 进来，填 `mqtt` |
 | `timestamp` | 整数，毫秒 | 设备时间优先（载荷里的 `ts`），设备没带时用接入层的接收时间 |
 | `metrics` | 对象 | 测点名到值的映射，值是数字、字符串或布尔；设备没报的测点不出现，不补 0 |
 

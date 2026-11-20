@@ -6,7 +6,7 @@ description: 云平台与开源平台对比、许可对比、选型建议、Thin
 
 > 前置阅读：[通信协议](./1_protocol)
 
-IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可视化等能力，分为云托管、完整开源平台和纯接入 Broker 三类。本篇讲各类平台的对比与选型建议、ThingsBoard 规则链、JetLinks 协议包。
+IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可视化等能力，分为商业云平台、可私有化部署的完整平台、只做接入的 Broker 和家居生态平台四类。本篇讲各类平台的对比与选型建议、ThingsBoard 规则链、JetLinks 协议包。
 
 ---
 
@@ -14,10 +14,10 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 
 | 类型 | 说明 | 代表产品 |
 |------|------|---------|
-| **商业云平台** | 开箱即用，按量计费，免运维，能力与厂商云生态绑定 | 华为云 IoTDA、腾讯云 IoT Explorer、AWS IoT Core、Azure IoT Hub、阿里云物联网平台（已停止新购） |
-| **开源完整平台** | 私有化部署，可二次开发，需自行运维 | ThingsBoard、JetLinks、IoT-DC3 |
+| **商业云平台** | 开箱即用，按量计费，免运维，能力与厂商云生态绑定 | 华为云 IoTDA、腾讯云 IoT Explorer、涂鸦开发者平台、AWS IoT Core、Azure IoT Hub、阿里云物联网平台（已停止新购） |
+| **可私有化部署的完整平台** | 私有化部署，可二次开发，需自行运维；许可各不相同，见下文的许可对比 | ThingsBoard、JetLinks、IoT-DC3 |
 | **接入层组件** | 只负责 MQTT 等协议接入与消息路由，平台能力自建 | EMQX、Mosquitto、NanoMQ |
-| **家居生态平台** | 面向智能家居，偏个人和消费场景 | Home Assistant、openHAB、米家、涂鸦 |
+| **家居生态平台** | 面向智能家居，偏个人和消费场景 | Home Assistant、openHAB、米家 |
 
 各家的功能清单里反复出现几个名词，本模块各有专篇，这里只把它们当功能名：物模型是平台对设备能力（属性、事件、服务）的结构化描述，各家格式不同，见 [物模型](../3_platform/1_thing_model)；其余见 [设备注册与生命周期](../2_access/2_provisioning)、[设备影子](../3_platform/3_device_shadow)、[指令下发与服务调用](../3_platform/4_command)、[OTA 升级](../3_platform/5_ota)、[规则引擎与告警](../3_platform/6_rule_engine)。
 
@@ -56,7 +56,7 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 
 - **定位**：微软云的 IoT 服务，云端是 IoT Hub，边缘是 IoT Edge 与 IoT Operations
 - **IoT Hub**：设备接入、设备孪生（Device Twin，相当于设备影子）、直接方法（Direct Method，同步指令）、云到设备消息，配套设备预配服务（DPS）做批量注册
-- **不是通用 MQTT Broker**：官方文档明确写着 IoT Hub 不是功能完整的 MQTT Broker。它只支持 MQTT 3.1.1，Topic 是预定义的固定几个，不支持 QoS 2，不持久化保留消息，设备之间不能互发消息，每台设备只允许一条 MQTT 连接；需要自定 Topic 的云端 Broker 时，官方建议改用 Azure Event Grid 的 MQTT Broker（支持 3.1.1 与 5.0）
+- **不是通用 MQTT Broker**：官方文档明确写着 IoT Hub 不是功能完整的 MQTT Broker。正式可用的经典连接配置只支持 MQTT 3.1.1，Topic 是预定义的固定几个，不支持 QoS 2，不持久化保留消息，设备之间不能互发消息，每台设备只允许一条 MQTT 连接；需要自定 Topic 的云端 Broker 时，官方建议改用 Azure Event Grid 的 MQTT Broker（支持 3.1.1 与 5.0）
 - **Azure IoT Operations**：运行在 Azure Arc 纳管的边缘 Kubernetes 集群上的一组数据服务，内置边缘 MQTT Broker（3.1.1 与 5.0）、OPC UA 等连接器和数据流，把工厂现场数据整理后送上云，见 [边缘计算](./4_edge)
 - **适合**：全球化部署、已经在用 Azure 的企业，以及工厂 OT 数据上云
 
@@ -81,15 +81,15 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 
 ---
 
-## 三、开源平台
+## 三、开源与源码可见平台
 
 ### 1、ThingsBoard
 
-- **定位**：功能最完整的开源 IoT 平台，当前主线为 4.x
+- **定位**：功能最完整的可私有化部署的 IoT 平台，当前主线为 4.x；4.4 起不再是开源许可，见下面的「许可」
 - **技术栈**：Java（Spring Boot）；实体数据存 PostgreSQL，时序数据可选 PostgreSQL、Cassandra 或 TimescaleDB；微服务模式下用 Kafka 做内部消息队列
 - **核心功能**：设备管理、设备与资产关系、可视化规则链、Dashboard、多租户、OTA
 - **规则脚本**：TBEL（ThingsBoard Expression Language）是过滤、转换等规则节点的默认脚本语言，执行快、自带沙箱；JavaScript 仍然可用
-- **版本**：社区版（CE）Apache 2.0，专业版（PE）为商业许可，白标、集成等能力在 PE 中
+- **许可**：4.3 及以前分社区版（CE，Apache 2.0）和专业版（PE，商业许可）。4.4（2026 年 9 月发布）起两版合并成一个产品，改用 BUSL 1.1，源码可见但不是 OSI 意义上的开源：商用的免费额度是 100 台设备、一个生产实例，并保留 ThingsBoard 品牌；教育与非营利的非商业用途是 1000 台。集成、调度、报表等原先 PE 才有的功能进了公开仓库，去掉品牌（白标）、商业支持和超出额度需要商业许可。4.3 CE 仍是 Apache 2.0，安全更新到 2027 年 7 月；每个版本发布 4 年后转为 Apache 2.0
 
 ### 2、EMQX
 
@@ -116,7 +116,7 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 
 | 产品 | 开源 / 免费部分 | 商业部分 |
 |------|----------------|---------|
-| ThingsBoard | CE：Apache 2.0 | PE：商业许可 |
+| ThingsBoard | 4.3 CE：Apache 2.0（安全更新到 2027 年 7 月）；4.4 起 BUSL 1.1，商用免费额度为 100 台设备、一个生产实例 | 超出额度、白标、商业支持 |
 | EMQX | 5.9 起 BSL 1.1，单节点生产免费（细则见 [EMQX 许可与部署 · 许可变化](./3_emqx_deploy#二、许可变化)） | 多节点集群等需商业 License |
 | JetLinks | 社区版：Apache 2.0 | 企业版：商业许可 |
 | IoT-DC3 | AGPL 3.0（改动后对外提供网络服务须开源） | 闭源商用需商业授权 |
@@ -133,8 +133,8 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 | 消费类智能硬件，要现成的 App 或小程序 | 腾讯云 IoT Explorer / 涂鸦开发者平台 |
 | 全球化部署 | AWS IoT / Azure IoT |
 | 已经在用阿里云物联网平台 | 存量实例继续用并规划迁移，新项目另选 |
-| 私有化部署完整平台 | ThingsBoard |
-| 自建平台的接入层，单节点够用 | EMQX 单节点，或 Mosquitto |
+| 私有化部署完整平台 | ThingsBoard（4.4 起商用超过 100 台设备要买许可；不买就停在 4.3 CE，它的安全更新到 2027 年 7 月） |
+| 自建平台的接入层，单节点够用 | EMQX 单节点（限平台自用；要把平台交付给第三方或做成对外的服务时先确认许可），或 Mosquitto |
 | 自建平台的接入层，需要集群且不打算采购 License | 从源码构建 VerneMQ；EMQX 5.8 开源版已于 2026 年 2 月停止维护，只适合内网或过渡期 |
 | 边缘网关上的轻量 Broker | NanoMQ |
 | 国内团队自研平台、需要读改源码 | JetLinks 社区版；IoT-DC3 是 AGPL 3.0，闭源商用前先确认授权 |
@@ -152,7 +152,7 @@ IoT 平台提供设备接入、设备管理、规则引擎、数据存储与可�
 
 ### 1、规则链与消息
 
-ThingsBoard 的规则引擎由**规则链（Rule Chain）**组成，设备上报的每条消息都会进入租户的根规则链，在节点之间流转。每条消息由三部分组成：
+ThingsBoard 的规则引擎由**规则链（Rule Chain）**组成，设备上报的消息默认进入租户的根规则链（设备配置里可以另指定一条规则链），在节点之间流转。每条消息由三部分组成：
 
 - **msg**：消息体，通常是设备上报的 JSON 数据
 - **metadata**：上下文信息，如设备名称、设备类型、时间戳
@@ -260,8 +260,8 @@ TCP 私有协议的帧格式设计、粘包拆包和心跳是通用问题，见 
 ## 小结
 
 - 云平台省运维但绑定厂商，而且会停售：阿里云物联网平台 2025 年 2 月起不再支持新购，国内新项目看华为云 IoTDA，全球化看 AWS IoT 或 Azure IoT
-- Azure IoT Hub 不是通用 MQTT Broker，Topic 固定；各家云平台的 Topic 与载荷都不相同，换平台要改设备侧
-- ThingsBoard、JetLinks 是完整平台；EMQX 只做接入层，平台能力要自己组合
+- Azure IoT Hub 不是通用 MQTT Broker，正式可用的连接方式下 Topic 固定；各家云平台的 Topic 与载荷都不相同，换平台要改设备侧
+- ThingsBoard、JetLinks 是完整平台，其中 ThingsBoard 从 4.4 起改用 BUSL 1.1，商用免费额度是 100 台设备；EMQX 只做接入层，平台能力要自己组合
 - 选型除了功能还要确认三件事：许可是否允许你的部署方式、时序数据存在哪里、接入层能否水平扩展；EMQX 的许可与部署单独成篇
 - ThingsBoard 规则链里，消息由 msg、metadata、msgType 组成，脚本默认用 TBEL；告警传播是沿实体关系和所有权向上传播；4.3 起的告警规则可以配到配置、单个实体或客户，并支持停报检测
 - JetLinks 私有协议通过协议包接入：ProtocolSupportProvider 构造 CompositeProtocolSupport，按传输方式注册编解码器和认证器

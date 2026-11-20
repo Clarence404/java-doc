@@ -12,7 +12,7 @@ Java 服务接入 MQTT 5 有独立客户端和 Spring 集成两种方式。本�
 
 ## 一、客户端选型
 
-独立进程（网关、采集器、压测工具）用 HiveMQ MQTT Client，Spring Boot 业务服务用 Spring Integration MQTT。版本基线：JDK 21、Spring Boot 4.x（依赖管理带 Spring Integration 7.x）、HiveMQ MQTT Client 1.4.2、Paho mqttv5 1.2.5。
+独立进程（网关、采集器、压测工具）用 HiveMQ MQTT Client，Spring Boot 业务服务用 Spring Integration MQTT。库的版本：HiveMQ MQTT Client 1.4.2、Paho mqttv5 1.2.5、Spring Integration 7.0.2 及以上（原因见第三节）。
 
 本篇的范围是 **Java 写的服务端与网关侧客户端**：平台服务、边缘网关、采集器。设备固件侧（MCU、RTOS）不在这里，那一侧用各平台提供的 C SDK 或 Eclipse Paho 的嵌入式 C 客户端，但会话、QoS、重连这些取舍是相通的。
 
@@ -29,14 +29,14 @@ Java 服务接入 MQTT 5 有独立客户端和 Spring 集成两种方式。本�
 ### 2、不再推荐的写法
 
 - `org.eclipse.paho.client.mqttv3` 只支持 MQTT 3.1.1，拿不到会话过期、消息过期、共享订阅标准语法、原因码等 MQTT 5 能力
-- 用 `System.currentTimeMillis()` 拼随机 clientId 并设 `cleanSession=true`：每次重连都是新会话，断线期间的 QoS 1 消息全部丢失，多实例时还会重复消费
+- 用 `System.currentTimeMillis()` 拼随机 clientId 并设 `cleanSession=true`：每次重连都是新会话，断线期间的 QoS 1 消息全部丢失
 - 把用户名、密码写在配置类里：凭据应来自环境变量或密钥管理系统，设备侧推荐一机一密或 X.509 证书，见 [设备安全](./1_security)
 
 ---
 
 ## 二、HiveMQ MQTT Client
 
-下面以一个网关进程为例：它用自己的设备 ID 连接 Broker，替下挂的子设备上报遥测，并接收平台转给子设备的指令。
+下面以一个网关进程为例：它用自己的设备 ID 连接 Broker，在 `gateways/{gatewayId}/` 前缀下替下挂的子设备声明上下线、上报遥测，并接收平台转给子设备的指令。这组 Topic 与载荷的约定见 [网关与子设备](./5_gateway_subdevice)。
 
 ### 1、依赖
 
@@ -56,7 +56,7 @@ import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5Publish;
-import com.hivemq.client.mqtt.mqtt5.message.subscribe.suback.Mqtt5SubAck;
+import com.hivemq.client.mqtt.mqtt5.message.publish.Mqtt5PublishResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
@@ -71,12 +71,16 @@ public record MqttSettings(String host, int port, String gatewayId,
 public final class GatewayMqttClient implements AutoCloseable {
 
     private final MqttSettings settings;
+    private final String prefix;                          // gateways/{gatewayId}/，ACL 只放行这个前缀
+    private final Runnable onOnline;                      // 每次连上之后要重做的事：重新逐台声明子设备
     private final Mqtt5AsyncClient client;
     // 业务处理放到虚拟线程，不占用客户端的 Netty IO 线程
     private final ExecutorService worker = Executors.newVirtualThreadPerTaskExecutor();
 
-    public GatewayMqttClient(MqttSettings settings) {
+    public GatewayMqttClient(MqttSettings settings, Runnable onOnline) {
         this.settings = settings;
+        this.prefix = "gateways/" + settings.gatewayId() + "/";
+        this.onOnline = onOnline;
         this.client = Mqtt5Client.builder()
                 .identifier(settings.gatewayId())         // 网关自己的设备 ID，固定且全局唯一，重连后才能接上原会话
                 .serverHost(settings.host())
@@ -86,6 +90,8 @@ public final class GatewayMqttClient implements AutoCloseable {
                     .initialDelay(1, TimeUnit.SECONDS)
                     .maxDelay(60, TimeUnit.SECONDS)       // 指数退避的上限；错开重连靠的是客户端自带的随机抖动
                     .applyAutomaticReconnect()
+                // 首次连接和每次自动重连成功都会回调：掉线时遗嘱已经把保留的状态改成离线，要重新报在线
+                .addConnectedListener(context -> worker.execute(this::announceOnline))
                 .buildAsync();
     }
 
@@ -102,41 +108,85 @@ public final class GatewayMqttClient implements AutoCloseable {
                     .password(settings.password().getBytes(StandardCharsets.UTF_8))
                     .applySimpleAuth()
                 .willPublish()
-                    .topic("gateways/" + settings.clientId() + "/status")
+                    .topic(prefix + "status")
                     .qos(MqttQos.AT_LEAST_ONCE)
                     .payload("{\"online\":false}".getBytes(StandardCharsets.UTF_8))
                     .retain(true)
                     .applyWillPublish()
                 .send()
-                .thenCompose(connAck -> subscribe())
+                // 只订阅发给自己名下子设备的指令；网关不用共享订阅
+                .thenCompose(connAck -> client.subscribeWith()
+                        .topicFilter(prefix + "cmd")
+                        .qos(MqttQos.AT_LEAST_ONCE)
+                        .send())
                 .thenAccept(subAck -> { });
     }
 
-    // subscribe()、sendCommand()、close() 见下一小节
+    private void announceOnline() {
+        publish("status", "{\"online\":true}", true).thenRun(onOnline);
+    }
+
+    // publish()、close() 见下一小节
 ```
 
 几个参数的取舍：
 
 - **`cleanStart(false)` + `sessionExpiryInterval`**：MQTT 5 把 3.1.1 的 `cleanSession` 拆成两个参数，前者决定是否接续旧会话，后者决定断线后 Broker 保留会话多久；两者配合才能做到"短暂断线不丢 QoS 1 消息"，前提是离线期间的消息没有超出 Broker 的会话队列上限、Broker 自身没有重启，见 [可靠上报与接入层主备 · EMQX 会话怎么选](../4_practice/3_reliable_uplink#五、emqx-会话怎么选)
-- **遗嘱 + retain**：网关异常掉线时 Broker 代发 `online=false`，新订阅者也能立刻读到最新在线状态；连接成功后要主动发一条保留的 `online=true` 覆盖旧状态，正常断开时 Broker 不发遗嘱，需要自己先发 `online=false`；在线状态的其他做法见 [设备接入与鉴权 · 上下线事件与在线状态](../4_practice/1_access#九、上下线事件与在线状态)
-- **自动重连的退避**：每次重连的等待时间是 `min(initialDelay × 2^已重试次数, maxDelay)`，再在这个值之上加 0～25% 的随机量。`maxDelay` 只决定最长等多久；一批客户端同时掉线后不在同一时刻连回来，靠的是那个随机量，没有它，指数退避只是让所有客户端整齐地一起等、一起重连。设备规模上去之后退避与抖动怎么定、服务端怎么限流，见 [海量连接与连接风暴](./7_connection_storm)
-- **回调线程**：HiveMQ 客户端的回调默认跑在内部 Netty 线程上，回调里做数据库写入会拖慢整个连接，所以用第三个参数传入独立的 Executor
+- **遗嘱 + retain**：网关异常掉线时 Broker 代发 `online=false`，新订阅者也能立刻读到最新在线状态；连接成功后要主动发一条保留的 `online=true` 覆盖旧状态，而且自动重连成功后也要再发一次，所以放在连接成功的监听器里，不放在 `start()` 里。平台在网关离线时会把它名下的子设备一起置为离线，网关连回来后要重新逐台声明，`onOnline` 就是留给这件事的；正常断开时 Broker 不发遗嘱，需要自己先发 `online=false`；在线状态的其他做法见 [设备接入与鉴权 · 上下线事件与在线状态](../4_practice/1_access#九、上下线事件与在线状态)
+- **自动重连的退避**：每次重连的等待时间是 `min(initialDelay × 2^已重试次数, maxDelay)`，再上下浮动最多 25%（上限设 60 秒时实际最长约 75 秒）。`maxDelay` 只决定最长等多久；一批客户端同时掉线后不在同一时刻连回来，靠的是这个浮动，没有它，指数退避只是让所有客户端整齐地一起等、一起重连。设备规模上去之后退避与抖动怎么定、服务端怎么限流，见 [海量连接与连接风暴](./7_connection_storm)
+- **回调线程**：HiveMQ 客户端的回调默认跑在内部 Netty 线程上，回调里做数据库写入会拖慢整个连接，所以用第三个参数传入独立的 Executor。要做到「处理成功才确认」，用多一个 `manualAcknowledgement` 参数的重载 `publishes(filter, callback, executor, true)`，处理完再调 `publish.acknowledge()`，完整的顺序见 [可靠上报与接入层主备 · 写入总线成功后才确认](../4_practice/3_reliable_uplink#四、transport-写入总线成功后才确认)
 
-### 3、订阅与发布
+### 3、发布与关闭
 
 ```java
-    private CompletableFuture<Mqtt5SubAck> subscribe() {
+    /** 发到 gateways/{gatewayId}/{suffix}：suffix 取 connect、disconnect、telemetry、response */
+    public CompletableFuture<Mqtt5PublishResult> publish(String suffix, String json) {
+        return publish(suffix, json, false);
+    }
+
+    private CompletableFuture<Mqtt5PublishResult> publish(String suffix, String json, boolean retain) {
+        return client.publishWith()
+                .topic(prefix + suffix)
+                .qos(MqttQos.AT_LEAST_ONCE)
+                .retain(retain)
+                .payload(json.getBytes(StandardCharsets.UTF_8))
+                .send();
+    }
+
+    @Override
+    public void close() {
+        // 正常断开时 Broker 不发遗嘱，先把保留的状态改成离线再断开
+        publish("status", "{\"online\":false}", true)
+                .thenCompose(result -> client.disconnect())
+                .join();
+        worker.close();
+    }
+}
+```
+
+- 网关只在自己的前缀下收发：发布 `status`、`connect`、`disconnect`、`telemetry`、`response`，订阅 `cmd`。写别的 Topic 会被 ACL 拒绝，规则见 [设备安全 · 网关与采集器](./1_security#_5、网关与采集器-一条连接代多台设备)
+- 收到的 `Mqtt5Publish` 用 `getTopic().toString()` 取 Topic、`getPayloadAsBytes()` 取内容；回调里不要抛异常，失败的消息记录下来走补偿
+- `send()` 返回的 Future 完成只表示 Broker 收下了这条 PUBLISH
+
+平台服务这一侧要做的是另外两件事：订阅全部设备的上报、给设备下发指令。它用自己的 clientId 连接，不登记网关的遗嘱；Spring Boot 服务一般用下一节的 Spring Integration，独立进程可以用同一个 HiveMQ 客户端：
+
+```java
+import com.hivemq.client.mqtt.mqtt5.message.subscribe.suback.Mqtt5SubAck;
+
+    // platform：平台服务自己的连接，clientId 是稳定的实例编号
+
+    static CompletableFuture<Mqtt5SubAck> subscribeTelemetry(Mqtt5AsyncClient platform, String sharedGroup) {
         // 共享订阅：同组多个实例分摊消息，每条只投递给组内一个实例
-        String filter = "$share/" + settings.sharedGroup() + "/devices/+/telemetry";
-        return client.subscribeWith()
-                .topicFilter(filter)
+        return platform.subscribeWith()
+                .topicFilter("$share/" + sharedGroup + "/devices/+/telemetry")
                 .qos(MqttQos.AT_LEAST_ONCE)
                 .send();
     }
 
     /** json 形如 {"id":"req-42","method":"reboot","params":{}}，requestId 与其中的 id 相同 */
-    public CompletableFuture<?> sendCommand(String deviceId, String requestId, String json) {
-        return client.publishWith()
+    static CompletableFuture<Mqtt5PublishResult> sendCommand(Mqtt5AsyncClient platform,
+                                                            String deviceId, String requestId, String json) {
+        return platform.publishWith()
                 .topic("devices/" + deviceId + "/cmd")
                 .qos(MqttQos.AT_LEAST_ONCE)
                 .messageExpiryInterval(300)               // 设备 5 分钟内没上线，指令自动作废
@@ -145,19 +195,11 @@ public final class GatewayMqttClient implements AutoCloseable {
                 .payload(json.getBytes(StandardCharsets.UTF_8))
                 .send();
     }
-
-    @Override
-    public void close() {
-        client.disconnect().join();
-        worker.close();
-    }
-}
 ```
 
 - **共享订阅**：`$share/{组名}/{过滤器}` 是 MQTT 5 的标准语法，EMQX、HiveMQ、Mosquitto 2.x 都支持；平台服务横向扩容时靠它分摊消息，而不是让每个实例收全量再去重
 - **消息过期**：控制类指令一定要设 `messageExpiryInterval`，否则设备离线一天后上线，会收到一串早已过时的开关指令
-- **指令与应答**：指令发到 `devices/{deviceId}/cmd`，载荷 `{"id":"请求 ID","method":"…","params":{…}}`；设备把结果发到 `devices/{deviceId}/response`，载荷 `{"id":"同一个请求 ID","code":200,"data":{…}}`。MQTT 5 下同时带上 Response Topic 与 Correlation Data 两个属性，3.1.1 的设备只能靠载荷里的 `id` 配对。`send()` 返回的 Future 完成只表示 Broker 收下了这条 PUBLISH，不表示设备执行了；等应答、超时、设备离线时怎么办，见 [指令下发与服务调用](../3_platform/4_command)
-- 收到的 `Mqtt5Publish` 用 `getTopic().toString()` 取 Topic、`getPayloadAsBytes()` 取内容；回调里不要抛异常，失败的消息记录下来走补偿
+- **指令与应答**：指令发到 `devices/{deviceId}/cmd`，载荷 `{"id":"请求 ID","method":"…","params":{…}}`；设备把结果发到 `devices/{deviceId}/response`，载荷 `{"id":"同一个请求 ID","code":200,"data":{…}}`。MQTT 5 下同时带上 Response Topic 与 Correlation Data 两个属性，3.1.1 的设备只能靠载荷里的 `id` 配对。Broker 收下指令不表示设备执行了；等应答、超时、设备离线时怎么办，见 [指令下发与服务调用](../3_platform/4_command)
 
 ### 4、双向 TLS
 
@@ -188,9 +230,9 @@ static Mqtt5AsyncClient mtlsClient(MqttSettings s, Path p12, char[] p12Pass, Pat
     tmf.init(trust);
 
     return Mqtt5Client.builder()
-            .identifier(s.clientId())
+            .identifier(s.gatewayId())
             .serverHost(s.host())
-            .serverPort(8883)
+            .serverPort(s.port())
             .sslConfig()
                 .keyManagerFactory(kmf)
                 .trustManagerFactory(tmf)
@@ -237,7 +279,7 @@ PEM 格式的证书和私钥先用 `openssl pkcs12 -export` 合成 PKCS12，比�
 @ConfigurationProperties(prefix = "iot.mqtt")
 public record MqttProperties(
         String serverUri,      // ssl://emqx.example.com:8883
-        String clientId,       // 每个实例唯一，如 platform-${HOSTNAME}
+        String clientId,       // 每个实例唯一、重启后不变，如 platform-0（StatefulSet 的序号）
         String username,
         String password,       // 来自环境变量或密钥管理，不写进代码仓库
         String sharedGroup) {} // 共享订阅组名，如 platform
@@ -262,6 +304,8 @@ import org.springframework.messaging.MessageChannel;
 @EnableConfigurationProperties(MqttProperties.class)
 public class MqttIntegrationConfig {
 
+    private static final Logger log = LoggerFactory.getLogger(MqttIntegrationConfig.class);
+
     @Bean
     public ClientManager<IMqttAsyncClient, MqttConnectionOptions> mqttClientManager(MqttProperties props) {
         MqttConnectionOptions options = new MqttConnectionOptions();
@@ -283,6 +327,8 @@ public class MqttIntegrationConfig {
                 share + "devices/+/telemetry",
                 share + "devices/+/ota/status");   // 两个过滤器都要订阅，否则 OTA 状态永远收不到
         adapter.setQos(1, 1);
+        // 处理器抛出的异常送到错误通道；不设的话异常会一路抛回 Paho 的回调线程
+        adapter.setErrorChannelName("mqttErrorChannel");
         return IntegrationFlow.from(adapter)
                 .route(Message.class, MqttIntegrationConfig::routeByTopic)
                 .get();
@@ -290,7 +336,21 @@ public class MqttIntegrationConfig {
 
     static String routeByTopic(Message<?> message) {
         String topic = message.getHeaders().get(MqttHeaders.RECEIVED_TOPIC, String.class);
-        return topic != null && topic.endsWith("/ota/status") ? "otaStatusChannel" : "telemetryChannel";
+        if (topic != null && topic.startsWith("devices/") && topic.endsWith("/ota/status")) {
+            return "otaStatusChannel";
+        }
+        if (topic != null && topic.startsWith("devices/") && topic.endsWith("/telemetry")) {
+            return "telemetryChannel";
+        }
+        // 其他篇加订阅（指令应答、网关遥测）时在这里加分支；没有分支的 Topic 丢弃，nullChannel 是内置的丢弃通道
+        return "nullChannel";
+    }
+
+    @Bean
+    public IntegrationFlow mqttErrorFlow() {
+        return IntegrationFlow.from("mqttErrorChannel")
+                .handle(message -> log.warn("MQTT 消息处理失败: {}", message.getPayload()))
+                .get();
     }
 
     @Bean
@@ -369,10 +429,10 @@ public class TelemetryHandler {
 }
 ```
 
-- 这一步做的是「设备协议 → 内部信封」的转换：设备载荷是 `{"ts", "values"}`，`TelemetryMessage`（设备 ID、接入方式、毫秒时间戳、测点）是 Broker 之后才出现的内部消息，`values` 对应它的 `metrics`；两者的约定见 [遥测数据链路 · Topic 与消息约定](../3_platform/2_data#_1、topic-与消息约定)，这里转出来的消息与 EMQX 规则引擎转发的形状相同，下游不用区分来源。载荷不是合法 JSON 或缺少 `values` 时抛异常，消息进入错误通道，记录后丢弃或转死信
+- 这一步做的是「设备协议 → 内部信封」的转换：设备载荷是 `{"ts", "values"}`，`TelemetryMessage`（设备 ID、接入方式、毫秒时间戳、测点）是 Broker 之后才出现的内部消息，`values` 对应它的 `metrics`；两者的约定见 [遥测数据链路 · Topic 与消息约定](../3_platform/2_data#_1、topic-与消息约定)，这里转出来的消息与 EMQX 规则引擎转发的形状相同，下游不用区分来源。载荷不是合法 JSON 或缺少 `values` 时抛异常，消息进入配置类里设的 `mqttErrorChannel`，记录后丢弃或转死信。入站适配器一定要设错误通道：没有的话异常会抛回 Paho 的回调线程，这条消息不会被确认
 - 网关与采集器代子设备上报的 `gateways/+/telemetry` 是另一种载荷（按子设备分组的数组），要另订阅、另挂一个处理器，拆成每台子设备一条 `TelemetryMessage` 之前先核对子设备归属，见 [网关与子设备](./5_gateway_subdevice)
 - 入站适配器的消息在 Paho 回调线程上处理，回调返回后客户端才确认 QoS 1 消息；处理慢会让 Broker 侧积压，所以这里只转发到 Kafka，入库、规则计算放到下游消费者
-- 对丢消息零容忍时，可以开启 `adapter.setManualAcks(true)`，在处理成功后通过消息头里的确认回调手动 ack；「写入下游成功才确认」的完整顺序与失败时的处理见 [可靠上报与接入层主备 · 写入总线成功后才确认](../4_practice/3_reliable_uplink#四、transport-写入总线成功后才确认)
+- 对丢消息零容忍时改成手动确认：像本例这样经 `ClientManager` 共用连接时，开关要设在 `Mqttv5ClientManager` 上（`setManualAcks(true)`），设在适配器上不起作用；处理成功后用 `StaticMessageHeaderAccessor.getAcknowledgmentCallback(message).acknowledge()` 确认；「写入下游成功才确认」的完整顺序与失败时的处理见 [可靠上报与接入层主备 · 写入总线成功后才确认](../4_practice/3_reliable_uplink#四、transport-写入总线成功后才确认)
 - OTA 状态通道的处理器见 [OTA 升级](../3_platform/5_ota)；Kafka 之后的流处理与入库见 [遥测数据链路](../3_platform/2_data)
 
 ---
@@ -383,8 +443,8 @@ public class TelemetryHandler {
 
 | 问题 | 现象 | 做法 |
 |------|------|------|
-| 多实例共用一个 clientId | 两个实例互相踢下线，日志里不断重连 | clientId 拼上主机名或 Pod 名，保证全局唯一 |
-| 每次启动随机 clientId | 持久会话失效，Broker 上残留大量过期会话 | 同一实例重启后保持同一个 clientId |
+| 多实例共用一个 clientId | 两个实例互相踢下线，日志里不断重连 | clientId 拼上稳定的实例编号（如 StatefulSet 的序号），保证全局唯一 |
+| 每次启动随机 clientId（用每次发布都会变的 Pod 名也算） | 接不上原会话；每次启动都留下一个没人认领的旧会话，过期前它还挂着共享订阅、继续分走一部分消息 | 同一实例重启后保持同一个 clientId |
 | 横向扩容后消息被重复处理 | 每个实例都订阅了全量 Topic | 改用 `$share/{组名}/...` 共享订阅 |
 | 断线期间消息丢失 | `cleanStart=true` 或会话过期时间太短 | `cleanStart=false`，会话过期时间覆盖最长的预期断线时长 |
 
@@ -397,7 +457,7 @@ public class TelemetryHandler {
 
 - 遥测默认用 QoS 1；采样很密、丢几个点不影响结论的测点可以降到 QoS 0，换来更低的 Broker 与设备开销。指令、OTA 状态这类必须送达的消息用 QoS 1
 - QoS 1 是"至少一次"，网络抖动时会重复投递；消费端按业务 ID（设备 ID + 序号或时间戳）去重，比使用 QoS 2 代价更低。去重方案见 [幂等设计](/architecture/3_idempotence)
-- MQTT 只保证同一 Topic、同一会话内的顺序；共享订阅把消息分到多个实例后，跨实例的顺序需要在 Kafka 分区或业务版本号上保证
+- MQTT 只保证同一客户端、同一 Topic、同一 QoS 等级内的顺序（同一个 Topic 混用 QoS 0 和 QoS 1 时，两种之间不保序）；共享订阅把消息分到多个实例后，跨实例的顺序需要在 Kafka 分区或业务版本号上保证
 
 ### 3、连接规模
 
@@ -408,10 +468,10 @@ public class TelemetryHandler {
 ## 小结
 
 - 独立客户端优先 HiveMQ MQTT Client（MQTT 5、持续维护，自动重连自带随机抖动）；Paho 最后一个正式版停在 2020 年的 1.2.5，重连没有抖动，只在 Spring Integration 中作为底层依赖使用
-- MQTT 5 的 `cleanStart=false` + `sessionExpiryInterval` 实现持久会话；clientId 必须固定且唯一，控制指令要设消息过期时间，并带上 Response Topic 与 Correlation Data
+- MQTT 5 的 `cleanStart=false` + `sessionExpiryInterval` 实现持久会话；clientId 必须固定且唯一，在线状态要在每次连上之后重新发布，控制指令要设消息过期时间，并带上 Response Topic 与 Correlation Data
 - 平台服务横向扩容用 `$share` 共享订阅（经 `ClientManager` 使用时 Spring Integration 要 7.0.2 及以上），QoS 1 的重复投递靠业务 ID 去重
 - Spring Integration 用 v5 适配器，入站订阅所有需要的过滤器，再按 `RECEIVED_TOPIC` 路由，一条 `DirectChannel` 只挂一个处理器
-- 回调线程里只做轻量转发，把设备载荷 `{"ts", "values"}` 转成内部的 `TelemetryMessage`；凭据来自外部配置，生产环境走 8883 TLS 端口
+- 回调线程里只做轻量转发，把设备载荷 `{"ts", "values"}` 转成内部的 `TelemetryMessage`；入站适配器要设错误通道，手动确认的开关在 `ClientManager` 上；凭据来自外部配置，生产环境走 8883 TLS 端口
 
 ## 参考资料
 

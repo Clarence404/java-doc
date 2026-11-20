@@ -63,7 +63,7 @@ QoS 2 的「恰好一次」只在客户端与 Broker 之间成立，并不是端
 
 **保留消息（Retained Message）**：发布时带 retain 标志，Broker 会为该 Topic 只保存最新一条，新订阅者订阅时立即收到。适合设备在线状态、最新配置这类「订阅即需要当前值」的数据；发布一条空 payload 的保留消息即可清除。
 
-**遗嘱消息（Will Message）**：客户端在 CONNECT 时登记一条遗嘱，非正常断开（网络中断、心跳超时）时由 Broker 代为发布，正常发送 DISCONNECT 则不发布。常见用法是遗嘱 Topic 设为 `devices/{clientId}/status`、payload 为 `offline`、带 retain，上线后再发一条 `online` 的保留消息覆盖。遗嘱 Topic 要按设备区分，所有设备共用一个 Topic 会互相覆盖。遗嘱只是判断设备在线的做法之一，它与 Broker 上下线事件、数据超时、连接注册表的对照见 [设备接入与鉴权 · 上下线事件与在线状态](../4_practice/1_access#九、上下线事件与在线状态)。
+**遗嘱消息（Will Message）**：客户端在 CONNECT 时登记一条遗嘱，非正常断开（网络中断、心跳超时）时由 Broker 代为发布，正常发送 DISCONNECT 则不发布。常见用法是遗嘱 Topic 设为 `devices/{clientId}/status`、payload 为 `{"online": false}`、带 retain，上线后再发一条 `{"online": true}` 的保留消息覆盖。遗嘱 Topic 要按设备区分，所有设备共用一个 Topic 会互相覆盖。遗嘱只是判断设备在线的做法之一，它与 Broker 上下线事件、数据超时、连接注册表的对照见 [设备接入与鉴权 · 上下线事件与在线状态](../4_practice/1_access#九、上下线事件与在线状态)。
 
 ### 4、MQTT 5.0 新特性
 
@@ -179,7 +179,7 @@ MQTT 只规定 Topic 的语法，不规定该怎么命名，业界没有统一�
 | 腾讯云 IoT Explorer | `$thing/up/property/{ProductID}/{DeviceName}` | JSON：`method`（`report`）、`clientToken`、`timestamp`、`params` | 应答在 `$thing/down/property/…`，靠 `clientToken` 配对 |
 | 华为云 IoTDA | `$oc/devices/{device_id}/sys/properties/report` | JSON：`services` 数组，每项含 `service_id`、`properties`、`event_time` | 按产品模型里的服务分组上报 |
 | AWS IoT Core | 业务 Topic 自己定，白皮书建议 `dt/<application>/<context>/<thing-name>/<dt-type>` | 不规定 | `$` 开头的是保留 Topic：影子 `$aws/things/{thingName}/shadow/…`，Basic Ingest `$aws/rules/{ruleName}/…` 跳过消息代理直达规则以省消息费 |
-| Azure IoT Hub | `devices/{device-id}/messages/events/` | 不规定，消息属性以 URL 编码附在 Topic 末尾 | Topic 固定，只支持文档列出的几个；孪生与直接方法走 `$iothub/…` |
+| Azure IoT Hub | `devices/{device-id}/messages/events/` | 不规定，消息属性以 URL 编码附在 Topic 末尾 | 正式可用的经典连接配置下 Topic 固定，只支持文档列出的几个；孪生与直接方法走 `$iothub/…` |
 | ThingsBoard | `v1/devices/me/telemetry` | `{"ts":…,"values":{…}}`，或不带时间戳的 `{"temperature":…}`（用服务端接收时间） | 设备身份来自连接凭证，Topic 里没有设备 ID；网关用 `v1/gateway/telemetry` |
 | Sparkplug B | `spBv1.0/{group_id}/{message_type}/{edge_node_id}/[device_id]` | Protobuf | 面向工业，带上下线状态管理，见下一小节 |
 | **本模块** | `devices/{deviceId}/telemetry` | `{"ts":…,"values":{…}}` | 设备 ID 在第二段，末段区分用途与方向 |

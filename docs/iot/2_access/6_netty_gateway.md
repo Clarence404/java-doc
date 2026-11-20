@@ -18,7 +18,7 @@ description: 带流水号与 CRC 的私有帧、应答与重发、挑战鉴权�
 
 | 职责 | 说明 |
 |------|------|
-| 协议适配 | 私有 TCP、MQTT、Modbus 等各用一个适配器，把原始数据翻译成统一的 `TelemetryMessage` |
+| 协议适配 | 私有 TCP、MQTT 等每种接入方式一个适配器，把原始数据翻译成统一的 `TelemetryMessage`；Modbus 这类现场总线由采集服务轮询后以网关身份走 MQTT 进来 |
 | 连接管理 | 鉴权、心跳、重复登录处理，维护"设备 ID → 连接"的映射 |
 | 上行转发 | 统一消息写入 Kafka，由下游做入库、规则计算，网关本身不做重业务 |
 | 下行路由 | 平台下发指令时，找到设备所在的网关节点和连接并写出 |
@@ -43,21 +43,23 @@ description: 带流水号与 CRC 的私有帧、应答与重发、挑战鉴权�
 | Payload | N | 业务数据，JSON 或 TLV 二进制 |
 | CRC16 | 2 | CRC-16/MODBUS，覆盖 Version 到 Payload 的全部字节 |
 
+多字节字段都是大端（高字节在前），CRC 也是；这和 Modbus RTU 把 CRC 低字节放在前面不同，只是算法同名。Payload 最长 4096 字节。
+
 与 [自定义私有协议](/netty/8_custom_protocol) 中的通用帧相比，多了流水号和 CRC 两个字段。CRC 是因为设备经串口转 TCP 的 DTU 接入时，链路上可能出现噪声字节，TCP 自身的校验管不到串口那一段；流水号是为了应答。
 
-**应答规则**：ACK 帧的 Seq 等于被应答帧的 Seq，载荷 2 字节——被应答的 Command 和结果码（`0` 成功、`1` 处理失败、`2` 鉴权失败、`3` 不支持的命令）。
+**应答规则**：ACK 帧的 Seq 等于被应答帧的 Seq，载荷 2 字节——被应答的 Command 和结果码（`0` 成功、`1` 处理失败、`2` 鉴权失败、`3` 不支持的命令、`4` 格式错误）。
 
 | 帧 | 谁回应 | 回什么 |
 |----|--------|--------|
 | CHALLENGE（平台 → 设备） | 设备 | 一帧 AUTH |
 | AUTH | 平台 | ACK：成功，或「鉴权失败」后断开连接 |
-| DATA | 平台 | 写入总线成功后回 ACK 成功；写入失败回 ACK 失败 |
+| DATA | 平台 | 写入总线成功后回 ACK 成功；写入失败回 ACK 失败；载荷解析不了回「格式错误」 |
 | DOWN（平台 → 设备） | 设备 | 执行后回 ACK，平台据此把指令标为已执行 |
 | PING | 平台 | PONG，Seq 相同 |
 
 有了流水号与应答，设备侧的重发与平台侧的去重才有依据：
 
-- **设备重发**：DATA 发出后约 10 秒没收到同一 Seq 的 ACK（或收到「处理失败」），用**同一个 Seq** 重发，最多重试 3 次；仍不成功就缓存到本地，重连后补发。不能换新 Seq 重发，否则平台无法认出这是同一帧
+- **设备重发**：DATA 发出后约 10 秒没收到同一 Seq 的 ACK（或收到「处理失败」），用**同一个 Seq** 重发，最多重试 3 次；仍不成功就缓存到本地，重连后补发。不能换新 Seq 重发，否则平台无法认出这是同一帧。收到「格式错误」则丢弃这一帧、不再重发：内容本身有问题，重发多少次结果都一样
 - **平台去重**：网关按连接记住最近处理成功的若干个 Seq（下文示例为 64 个），重复到达的帧不再写总线、只补一个 ACK；跨重连的重复（设备在 ACK 丢失后断线重连再补发）网关认不出来，交给下游按「设备 ID + 采集时间」幂等
 - **下行同理**：平台发 DOWN 时登记 Seq 与指令 ID 的对应关系，收到设备 ACK 再标记完成，超时未应答按指令的重试策略处理，见 [指令下发与服务调用](../3_platform/4_command)。DOWN 的载荷沿用 MQTT 指令的 `{"id","method","params"}`；设备回的 ACK 只带结果码，网关按 Seq 找回指令 ID，再按 `{"id","code","data"}` 的形状上报执行结果，指令服务不必区分设备走的是 MQTT 还是私有 TCP
 
@@ -68,7 +70,7 @@ description: 带流水号与 CRC 的私有帧、应答与重发、挑战鉴权�
 | 设备直连 TCP，链路可靠 | `LengthFieldBasedFrameDecoder` 拆帧（本帧为 `new LengthFieldBasedFrameDecoder(8 + 4096 + 2, 6, 2, 2, 0)`：最大帧长为帧头 8 + 载荷上限 4096 + CRC 2，长度字段跳过 Magic 到 Seq 的 6 字节、占 2 字节，`lengthAdjustment = 2` 补上末尾 CRC，不剥离帧头）+ `MessageToMessageDecoder` 解析 | 魔数、长度或 CRC 不对就关闭连接，设备重连后重新对齐 |
 | 串口透传（DTU），可能有噪声 | 单个 `ByteToMessageDecoder` 自己找帧头、校验 CRC | 丢 1 个字节，从下一个 `0xABCD` 重新同步；连续错误过多再断开 |
 
-**不能把两者叠在一起**：`LengthFieldBasedFrameDecoder` 已经按长度切出一帧，后面的解码器再"跳 1 字节找帧头"毫无意义，帧内剩下的字节只会被当成垃圾继续解析。第一种写法见 Netty 模块，下面实现第二种。
+**不能把两者叠在一起**：`LengthFieldBasedFrameDecoder` 已经按长度切出一帧，后面的解码器再"跳 1 字节找帧头"毫无意义，帧内剩下的字节只会被当成垃圾继续解析。第一种写法的拆帧与解析同 Netty 模块的 `ProtocolDecoder`（见 [自定义私有协议](/netty/8_custom_protocol)），只是解析时多一步 CRC 校验，校验失败就关闭连接；下面实现第二种。
 
 ### 3、重新同步解码器
 
@@ -77,7 +79,8 @@ public record DeviceFrame(byte version, byte command, int seq, byte[] payload) {
     public static final byte VERSION = 1;
     public static final byte CMD_AUTH = 0x01, CMD_DATA = 0x02, CMD_CHALLENGE = 0x03,
             CMD_PING = 0x10, CMD_PONG = 0x11, CMD_DOWN = 0x20, CMD_ACK = (byte) 0x80;
-    public static final byte RESULT_OK = 0, RESULT_FAILED = 1, RESULT_AUTH_FAILED = 2, RESULT_UNSUPPORTED = 3;
+    public static final byte RESULT_OK = 0, RESULT_FAILED = 1, RESULT_AUTH_FAILED = 2, RESULT_UNSUPPORTED = 3,
+            RESULT_BAD_FORMAT = 4;
 
     /** 通用应答：Seq 取被应答帧的 Seq，载荷是被应答的命令字 + 结果码 */
     public static DeviceFrame ack(DeviceFrame request, byte result) {
@@ -128,7 +131,7 @@ public class DeviceFrameDecoder extends ByteToMessageDecoder {
         }
     }
 
-    /** 丢弃 1 字节重新寻找帧头；连续错误过多说明对端不是本协议，断开 */
+    /** 魔数对上了但长度或 CRC 不对：丢弃 1 字节重新寻找帧头，这样的错误连续太多就断开 */
     private boolean resync(ChannelHandlerContext ctx, ByteBuf in) {
         in.skipBytes(1);
         if (++consecutiveErrors > MAX_ERRORS) {
@@ -145,6 +148,8 @@ public class DeviceFrameDecoder extends ByteToMessageDecoder {
 
 - 全程用 `getXxx(index)` 按绝对位置读取，确认整帧有效后才 `skipBytes` 移动读指针，不需要 `mark` / `reset`
 - 长度用 `getUnsignedShort`，`readShort` 在长度超过 32767 时会得到负数，`new byte[负数]` 直接抛异常
+- 不含魔数的字节是直接跳过的，不计入错误次数；从头到尾不发 `0xABCD` 的对端（端口扫描、发错协议的客户端）不会触发这里的断开，由下一节的鉴权超时关掉
+- 噪声里恰好出现 `0xABCD` 且「长度」不超过 4096 时，解码器会一直等到攒够这么多字节才发现 CRC 不对，这期间后面的真帧被卡住；上报间隔很长的设备上这段等待可能很久，这是「跳字节重新同步」这种写法的固有局限
 - CRC 失败不再抛异常给后面的 Handler：抛异常通常导致 `exceptionCaught` 里关连接，一个坏帧就让设备掉线；错误次数应进监控，某台 DTU 的 CRC 错误率突然升高往往意味着现场线路有问题
 
 ### 4、CRC 与编码器
@@ -170,6 +175,9 @@ public class DeviceFrameEncoder extends MessageToByteEncoder<DeviceFrame> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, DeviceFrame frame, ByteBuf out) {
+        if (frame.payload().length > DeviceFrameDecoder.MAX_PAYLOAD) {     // 超长的帧对端会当成坏帧，发之前就拦住
+            throw new EncoderException("payload too large: " + frame.payload().length);
+        }
         int start = out.writerIndex();
         out.writeShort(DeviceFrameDecoder.MAGIC);
         out.writeByte(frame.version());
@@ -215,8 +223,9 @@ public class DeviceFrameEncoder extends MessageToByteEncoder<DeviceFrame> {
 public class DeviceChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private final DeviceFrameEncoder encoder = new DeviceFrameEncoder();
-    private final EventExecutorGroup businessGroup = new DefaultEventExecutorGroup(16);
-    private final HeartbeatHandler heartbeat;            // 以下四个依赖由构造器注入，构造器省略
+    // 业务线程组声明成 Bean：@Bean(destroyMethod = "shutdownGracefully") new DefaultEventExecutorGroup(16)，随容器关闭
+    private final EventExecutorGroup businessGroup;      // 以下五个依赖由构造器注入，构造器省略
+    private final HeartbeatHandler heartbeat;
     private final DeviceBusinessHandler business;
     private final DeviceAuthenticator authenticator;
     private final ChannelRegistry registry;
@@ -282,16 +291,22 @@ public class AuthHandler extends SimpleChannelInboundHandler<DeviceFrame> {
 }
 ```
 
-- **回应答再断开**：鉴权失败也回一帧 ACK，设备能区分「密钥错了」和「网络断了」，前者不该无限重试；鉴权失败要按来源 IP 计数限速，见下文第 4 小节
-- **选 TLS 时**：启动时建一次 `SslContext`，在 `initChannel` 里把 `sslContext.newHandler(ch.alloc())` 加在 Pipeline 最前面，后面的解码器拿到的就是解密后的字节；此时鉴权帧可以沿用简单的「设备 ID + 签名」，两种做法也可以叠加
+- **回应答再断开**：鉴权失败也回一帧 ACK，设备能区分「密钥错了」和「网络断了」，前者不该无限重试；鉴权失败要按来源 IP 计数限速，见下文第 5 小节
+- **选 TLS 时**：10 秒的鉴权超时是从连接建立算起的，包含 TLS 握手，MCU 握手慢时要放宽；启动时建一次 `SslContext`，在 `initChannel` 里把 `sslContext.newHandler(ch.alloc())` 加在 Pipeline 最前面，后面的解码器拿到的就是解密后的字节；此时鉴权帧可以沿用简单的「设备 ID + 签名」，两种做法也可以叠加
 
-`DeviceAuthenticator` 只查本地缓存的设备密钥，不在 IO 线程上访问数据库；一机一密与证书认证的选择见 [设备安全](./1_security)。
+`DeviceAuthenticator` 只查本地缓存的设备密钥，不在 IO 线程上访问数据库；`registry.register` 里写路由用的是异步的 Redis 客户端，方法立即返回，同样不阻塞 IO 线程；一机一密与证书认证的选择见 [设备安全](./1_security)。
 
 ### 3、心跳
 
-`HeartbeatHandler` 与 Netty 模块的服务端心跳是同一种写法：收到 `CMD_PING` 回一帧 Seq 相同的 `CMD_PONG`（经 `DeviceFrameEncoder` 编码），其余帧原样向后传；读空闲超时就关闭连接。代码见 [心跳与连接管理 · 服务端：读空闲关闭 + 回复 PONG](/netty/9_heartbeat#_3、服务端-读空闲关闭-回复-pong)，把其中的 `ProtocolMessage` 换成 `DeviceFrame` 即可。
+`HeartbeatHandler` 与 Netty 模块的服务端心跳是同一种写法：收到 `CMD_PING` 回一帧 Seq 相同的 `CMD_PONG`（经 `DeviceFrameEncoder` 编码），其余帧原样向后传；读空闲超时就关闭连接。代码见 [心跳与连接管理 · 服务端：读空闲关闭 + 回复 PONG](/netty/9_heartbeat#_3、服务端-读空闲关闭-回复-pong)，照搬时改三处：
 
-心跳之后是业务 Handler，它负责 DATA 的应答与去重：
+- 那边的 `HeartbeatServerHandler` 是每条连接 new 一个；这里要注入成单例，类上必须加 `@ChannelHandler.Sharable`，否则第二条连接加入 Pipeline 时就会抛异常
+- 消息类型换成 `DeviceFrame`，PONG 写成 `new DeviceFrame(DeviceFrame.VERSION, DeviceFrame.CMD_PONG, ping.seq(), new byte[0])`
+- 收到 PING 时顺带给这台设备的路由续期（异步写 Redis），见第四节；不续的话路由到期后，在线的设备会被当成离线
+
+### 4、业务 Handler：DATA 应答与去重
+
+心跳之后是业务 Handler：
 
 ```java
 @Component
@@ -308,7 +323,11 @@ public class DeviceBusinessHandler extends SimpleChannelInboundHandler<DeviceFra
         String deviceId = ctx.channel().attr(ChannelRegistry.DEVICE_ID).get();
         switch (frame.command()) {
             case DeviceFrame.CMD_DATA -> onData(ctx, deviceId, frame);
-            case DeviceFrame.CMD_ACK -> commands.complete(deviceId, frame.seq(), frame.payload()[1]);  // 设备对 DOWN 的应答
+            case DeviceFrame.CMD_ACK -> {                 // 设备对 DOWN 的应答：载荷是命令字 + 结果码
+                if (frame.payload().length >= 2) {
+                    commands.complete(deviceId, frame.seq(), frame.payload()[1]);
+                }
+            }
             default -> ctx.writeAndFlush(DeviceFrame.ack(frame, DeviceFrame.RESULT_UNSUPPORTED));
         }
     }
@@ -323,8 +342,16 @@ public class DeviceBusinessHandler extends SimpleChannelInboundHandler<DeviceFra
             ctx.writeAndFlush(DeviceFrame.ack(frame, DeviceFrame.RESULT_OK));
             return;
         }
+        TelemetryMessage message;
+        try {
+            message = parser.parse(deviceId, frame.payload());
+        } catch (RuntimeException e) {
+            // 载荷解析不了，重发也没用：回「格式错误」让设备丢弃这一帧，不让它进入重发和补发
+            ctx.writeAndFlush(DeviceFrame.ack(frame, DeviceFrame.RESULT_BAD_FORMAT));
+            return;
+        }
         RecentSeqs seen = recent;
-        sink.accept(parser.parse(deviceId, frame.payload()))
+        sink.accept(message)
             .whenComplete((ok, ex) -> ctx.executor().execute(() -> {   // 回到本连接的线程再改状态
                 if (ex == null) {
                     seen.add(frame.seq());
@@ -332,6 +359,11 @@ public class DeviceBusinessHandler extends SimpleChannelInboundHandler<DeviceFra
                 // 写入 Kafka 成功才回成功；失败回失败码，设备稍后用同一个 Seq 重发
                 ctx.writeAndFlush(DeviceFrame.ack(frame, ex == null ? DeviceFrame.RESULT_OK : DeviceFrame.RESULT_FAILED));
             }));
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        ctx.close();   // 记日志后关闭连接；不重写的话异常只在 Pipeline 末尾打一条警告，连接留在不确定的状态
     }
 }
 
@@ -356,12 +388,12 @@ final class RecentSeqs {
 
 「写入总线成功才确认」与 MQTT 那一路的手动 ack 是同一个思路，失败时的完整处理见 [可靠上报与接入层主备 · 写入总线成功后才确认](../4_practice/3_reliable_uplink#四、transport-写入总线成功后才确认)。
 
-### 4、接入层防护
+### 5、接入层防护
 
 网关直接面对公网设备，Pipeline 最前面还应有两道关：
 
-- **单 IP 连接数与建连速率**：放一个共享的限流 Handler，`channelActive` 时按来源 IP 计数，超过上限直接关闭（NAT 后面挂着大量设备的 IP 要单独放宽）；全局建连速率用令牌桶限制每秒新连接数，鉴权失败也按 IP 计数，连续失败的 IP 临时拉黑。这样批量重连或恶意建连时，压力停在接入层，不会打到鉴权和 Redis
-- **负载均衡后取真实 IP**：经四层负载均衡转发后，网关看到的来源地址是负载均衡器的，上面的限流和审计就全错了。在负载均衡器上开启 PROXY protocol，网关 Pipeline 最前面加 Netty 的 `HAProxyMessageDecoder`（`netty-codec-haproxy` 模块），从它解出的 `HAProxyMessage` 取 `sourceAddress()` 存进 Channel 属性，再交给限流与审计。负载均衡器没开 PROXY protocol 时不能加这个解码器，否则设备的第一帧会被当成 PROXY 头解析失败
+- **单 IP 连接数与建连速率**：放一个共享的限流 Handler，按来源 IP 计数，超过上限直接关闭；设备直连时在 `channelActive` 里计数，经负载均衡时那一刻还不知道真实 IP，要等读到下一条说的 PROXY 头之后再计（NAT 后面挂着大量设备的 IP 要单独放宽）；全局建连速率用令牌桶限制每秒新连接数，鉴权失败也按 IP 计数，连续失败的 IP 临时拉黑。这样批量重连或恶意建连时，压力停在接入层，不会打到鉴权和 Redis
+- **负载均衡后取真实 IP**：经四层负载均衡转发后，网关看到的来源地址是负载均衡器的，上面的限流和审计就全错了。在负载均衡器上开启 PROXY protocol，网关 Pipeline 最前面加 Netty 的 `HAProxyMessageDecoder`（`netty-codec-haproxy` 模块），从它解出的 `HAProxyMessage` 取 `sourceAddress()` 存进 Channel 属性，再交给限流与审计；`HAProxyMessage` 是引用计数对象，取完地址要 `release()`。负载均衡器没开 PROXY protocol 时不能加这个解码器，否则设备的第一帧会被当成 PROXY 头解析失败
 
 限流阈值怎么定、重连风暴时服务端与设备端各自怎么退让，见 [海量连接与连接风暴](./7_connection_storm)。
 
@@ -386,7 +418,7 @@ public class ChannelRegistry {
         routes.markOnline(deviceId);                         // 写入本节点 ID，带过期时间，心跳时续期
         ch.closeFuture().addListener(f -> {
             if (channels.remove(deviceId, ch)) {             // 删掉的确实是自己这条连接，才清路由
-                routes.markOffline(deviceId);
+                routes.removeIfMine(deviceId);           // 路由里记的还是本节点才删，见下文
             }
         });
     }
@@ -398,7 +430,9 @@ public class ChannelRegistry {
 ```
 
 - **路由跟着本机映射走**：重连时新连接先注册、旧连接的关闭回调后触发，只有 `remove(deviceId, ch)` 返回 true 才清路由，否则会把新连接刚写的路由删掉
-- **路由要续期**：`markOnline` 写入的记录带过期时间，每次心跳续一次；节点宕机来不及清理时，靠过期让设备被视为离线
+- **清路由要比较着删**：上一条只防住了重连到同一个节点。设备经负载均衡重连到另一个节点时，旧节点上那条半开的连接要等 180 秒读空闲才关闭，那时它在本机的 `remove` 照样返回 true；无条件删路由会把新节点写的记录删掉。所以 `removeIfMine` 在 Redis 里用脚本做「值等于本节点 ID 才删除」
+- **路由读写不占 IO 线程**：`register` 和关闭回调都跑在 EventLoop 上，`DeviceRouteStore` 用异步的 Redis 客户端，方法立即返回
+- **路由要续期**：`markOnline` 写入的记录带过期时间，心跳 Handler 每收到一次 PING 续一次；节点宕机来不及清理时，靠过期让设备被视为离线
 
 ### 2、集群下行
 
@@ -417,7 +451,7 @@ public class ChannelRegistry {
 /** 写进 Kafka 主题 iot.telemetry 的统一消息，JSON 序列化后字段名不变 */
 public record TelemetryMessage(
         String deviceId,              // 鉴权通过后的设备 ID，同时是 Kafka 消息 Key
-        String protocol,              // tcp / mqtt / modbus
+        String protocol,              // 消息进入平台的方式：tcp（本篇的私有协议）/ mqtt
         long timestamp,               // 毫秒；设备时间优先，没有时用网关接收时间
         Map<String, Object> metrics) {}   // 测点名 → 值，设备没报的测点不出现
 
@@ -456,7 +490,7 @@ public class TelemetrySink {
 | EMQX 多协议网关 | 内置 MQTT-SN、STOMP、CoAP、LwM2M、OCPP、GB/T 32960、JT/T 808、NATS；接进来的设备在 EMQX 里就是普通客户端，复用认证、授权和规则引擎 | 设备说的是这些标准协议 | 用 gRPC 外挂自定义协议的 ExProto 网关在 6.2.0 弃用、6.3.0 已移除，私有协议在 EMQX 6.3 及以后没法再挂到 EMQX 上，这是在 6.3+ 上自研网关的正当理由 |
 | JetLinks 协议包 | 把私有协议的编解码写成 jar 加载到平台，官方模板同时实现了 MQTT、HTTP、TCP、UDP 四种接入 | 平台本身选了 JetLinks | 协议包依赖的核心库版本要与平台一致，见 [平台选型 · JetLinks 协议包](../1_basics/2_platform#六、jetlinks-协议包) |
 | ThingsBoard IoT Gateway | Socket 连接器在网关上起 TCP / UDP 服务端，按字节区间从原始载荷里切出测点；另有 OCPP、Modbus 等连接器 | 平台是 ThingsBoard，帧结构简单固定 | 只能按固定字节区间取值，变长 TLV、分包、应答与重发要写自定义连接器 |
-| 云厂商协议网关 | 阿里云物联网平台有 JT/T 808（2019 版）与 GB/T 32960 云网关；华为云 IoTDA 的泛协议接入可以开通用 TCP 端口，配置拆帧规则（分隔符、定长或长度字段）和编解码插件 | 平台就是这家云 | 阿里云的 JT/T 808 云网关只在企业版实例和部分地域可用；编解码要按平台的插件规范写 |
+| 云厂商协议网关 | 阿里云物联网平台有 JT/T 808（2019 版）与 GB/T 32960 云网关（该平台 2025 年 2 月起已停止新购，只对存量实例有意义）；华为云 IoTDA 的泛协议接入可以开通用 TCP 端口，配置拆帧规则（分隔符、定长或长度字段）和编解码插件 | 平台就是这家云 | 阿里云的 JT/T 808 云网关只在企业版实例和部分地域可用；编解码要按平台的插件规范写 |
 | 自研 Netty 网关（本篇） | 任何协议 | 厂家私有协议；要和自有平台的鉴权、总线、设备台账深度集成 | 连接管理、限流、集群下行、协议升级都要自己维护 |
 
 判断顺序：标准协议（OCPP、JT/T 808、GB/T 32960、LwM2M 等）直接用现成网关；私有协议先看所用平台有没有协议插件机制；两者都不满足，或者对确认时机、背压、路由有自己的要求时，才自研。
@@ -470,7 +504,7 @@ public class TelemetrySink {
 - 带 CRC 的帧有两种解码策略：可靠链路用长度字段拆帧、坏帧断开；DTU 透传用单个 `ByteToMessageDecoder` 找帧头、坏帧跳 1 字节重新同步；两者不要叠加
 - 长度按无符号读取并设上限，CRC 失败计数而不是抛异常；有出站消息就必须配编码器
 - 第一帧必须鉴权并设鉴权超时；用服务端挑战或 TLS 防止鉴权帧被重放；接入层按 IP 限连接数与建连速率，负载均衡之后用 PROXY protocol 取真实 IP
-- 注册表用 `remove(key, value)` 处理重复登录，路由记录写 Redis 并带过期时间
+- 注册表用 `remove(key, value)` 处理重复登录，路由记录写 Redis 并带过期时间，心跳时续期，清理时只删记着本节点的那一条
 - 多协议统一成 `TelemetryMessage` 写入 Kafka，它是接入层之后的内部信封，不是设备协议；心跳、本机连接表和服务端启停沿用 Netty 模块的写法
 - 标准协议（OCPP、JT/T 808、GB/T 32960 等）优先用 EMQX 多协议网关或云厂商网关；EMQX 6.3 移除 ExProto 之后，私有协议才是自研网关的主要场景
 

@@ -6,7 +6,7 @@ description: 云边分工、边缘框架对比、EdgeX Foundry 部署、KubeEdge
 
 > 前置阅读：[平台选型](./2_platform)、[Kubernetes](/cloud-native/6_kubernetes)
 
-边缘计算把部分计算和决策放到靠近设备的位置完成。本篇讲云边分工、主流边缘框架与云厂商方案的对比、EdgeX Foundry、KubeEdge 云边协同、ONNX Runtime 边缘推理，基线为 EdgeX Foundry 4.0（LTS，REST API v3）、KubeEdge 1.23、ONNX Runtime 1.32。
+边缘计算把部分计算和决策放到靠近设备的位置完成。本篇讲云边分工、主流边缘框架与云厂商方案的对比、EdgeX Foundry、KubeEdge 云边协同、ONNX Runtime 边缘推理，基线为 EdgeX Foundry 4.0、KubeEdge 1.23、ONNX Runtime 1.32。
 
 ---
 
@@ -45,7 +45,7 @@ description: 云边分工、边缘框架对比、EdgeX Foundry 部署、KubeEdge
 | **协议转换** | 把 Modbus、OPC UA、Zigbee 等现场协议统一转成 MQTT 向上对接，协议细节见 [通信协议](./1_protocol)；网关代下挂设备接入平台时的身份与 Topic 见 [网关与子设备](../2_access/5_gateway_subdevice) |
 | **本地规则引擎** | 在本地执行告警、联动规则，不依赖云端；规则与告警的通用设计见 [规则引擎与告警](../3_platform/6_rule_engine) |
 | **数据过滤与聚合** | 对高频原始数据降采样、去噪，减少上云流量 |
-| **断网续传** | 云端连接中断时本地缓存数据，恢复后按时间顺序补传 |
+| **断网续传** | 云端连接中断时本地缓存数据，恢复后限速补传，和实时数据分开排队，平台按数据自带的时间戳处理乱序 |
 | **AI 推理** | 在边缘运行轻量模型，如设备异常检测、视觉质检 |
 | **远程运维** | 应用、配置、模型由云端统一下发和升级 |
 
@@ -177,8 +177,9 @@ Device Service 是 EdgeX 的南向驱动层，每种协议对应一个独立的�
 # app-mqtt-export 服务的环境变量（镜像 app-service-configurable）
 environment:
   EDGEX_PROFILE: mqtt-export
-  WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_BROKERADDRESS: "tcp://mqtt-broker:1883"
-  WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_TOPIC: "edgex/events"
+  # 指向外部的 Broker。compose 里的 mqtt-broker 是 EdgeX 自己的内部消息总线，内部事件走 edgex/events/#，导出不要发回那里
+  WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_BROKERADDRESS: "tcp://emqx.example.com:1883"
+  WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_TOPIC: "edgex-events"
   WRITABLE_PIPELINE_FUNCTIONS_MQTTEXPORT_PARAMETERS_CLIENTID: "edgex-export"
 ```
 
@@ -330,7 +331,7 @@ spec:
 kubectl apply -f device-model.yaml
 kubectl apply -f device-instance.yaml
 
-# 查看设备状态，status 中包含设备上报的属性值
+# 查看设备。1.23 起 Device 的 status 拆成了独立的 DeviceStatus 资源，后续版本要从它读设备状态
 kubectl get device temperature-sensor-01 -o yaml
 ```
 
@@ -424,6 +425,7 @@ public final class AnomalyDetector implements AutoCloseable {
 调用方按阈值判定，例如分数不低于 0.5 时触发本地告警并上报事件：
 
 ```java
+// 演示用的写法；实际把 detector 作为单例持有，进程退出时再关闭，不要每次推理都新建
 try (AnomalyDetector detector = new AnomalyDetector("/models/anomaly_detector.onnx", 2)) {
     // 特征：温度、振动 X / Y / Z 轴加速度
     float score = detector.score(new float[]{85.3f, 0.12f, 0.09f, 2.45f});

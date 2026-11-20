@@ -30,7 +30,7 @@
       <text class="title" x="340" y="26" text-anchor="middle">EMQX 三节点集群与四层负载均衡</text>
   <rect class="box" x="255" y="50" width="170" height="60" stroke="var(--b)"/>
   <text class="tag" x="340" y="76" text-anchor="middle" fill="var(--b)">设备 / 网关</text>
-  <text class="item" x="340" y="96" text-anchor="middle">MQTT 1883 / 8883</text>
+  <text class="item" x="340" y="96" text-anchor="middle">MQTT 1883</text>
   <rect class="box" x="180" y="150" width="320" height="60" stroke="var(--p)"/>
   <text class="tag" x="340" y="176" text-anchor="middle" fill="var(--p)">Nginx stream（四层负载均衡）</text>
   <text class="item" x="340" y="196" text-anchor="middle">least_conn + PROXY protocol</text>
@@ -49,5 +49,5 @@
   <line class="arr" x1="450" y1="210" x2="569" y2="248"/>
   <line class="life" x1="180" y1="280" x2="255" y2="280"/>
   <line class="life" x1="425" y1="280" x2="500" y2="280"/>
-  <text class="item" x="340" y="338" text-anchor="middle">节点之间通过 Erlang 分布式协议同步路由与会话；多节点集群在 5.9 及以后版本需要 License</text>
+  <text class="item" x="340" y="338" text-anchor="middle">节点之间通过 Erlang 分布式协议同步路由表；多节点集群在 5.9 及以后版本需要 License</text>
 </svg>

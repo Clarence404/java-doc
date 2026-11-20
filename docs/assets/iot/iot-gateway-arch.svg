@@ -40,8 +40,8 @@
   <text class="lbl" x="305" y="156" text-anchor="middle" fill="var(--b)">MQTT 适配器</text>
   <text class="sub" x="305" y="174" text-anchor="middle">共享订阅</text>
   <rect class="box" x="220" y="210" width="170" height="60" stroke="var(--b)"/>
-  <text class="lbl" x="305" y="236" text-anchor="middle" fill="var(--b)">Modbus 适配器</text>
-  <text class="sub" x="305" y="254" text-anchor="middle">点表轮询</text>
+  <text class="lbl" x="305" y="236" text-anchor="middle" fill="var(--b)">Modbus 采集服务</text>
+  <text class="sub" x="305" y="254" text-anchor="middle">点表轮询 · 经 MQTT 上报</text>
   <rect class="box" x="440" y="50" width="130" height="220" stroke="var(--p)"/>
   <text class="lbl" x="505" y="148" text-anchor="middle" fill="var(--p)">统一消息</text>
   <text class="sub" x="505" y="166" text-anchor="middle">TelemetryMessage</text>

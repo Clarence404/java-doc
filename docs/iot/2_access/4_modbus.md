@@ -51,8 +51,8 @@ Modbus 是主从协议：主站（采集服务、边缘网关、上位机）发�
 从 2.1.x 升到 2.2.0 有几处不兼容，本篇示例已按 2.2.0 写：
 
 - **断线不再等到超时**：连接断开时在途请求立刻以 `ModbusConnectionLostException` 失败，向未连接的传输层发请求以 `ModbusNotConnectedException` 失败；同步调用把它们包成 `ModbusExecutionException` 抛出。2.1.x 里断线表现为 `ModbusTimeoutException`，按超时写的告警与重试逻辑要改
-- **响应会被校验**：返回的 PDU 和请求对不上（功能码、数量不符）时以 `ModbusMalformedResponseException` 失败；越界的地址、数量在发送前就以 `IllegalArgumentException` 拒绝
-- **RTU 客户端一次只发一个请求**：后面的请求在客户端排队，排队期间就超时的请求以 `QueuedRequestTimeoutException` 失败，它从没发出去，可以放心重试
+- **响应会被校验**：返回的 PDU 解不出来或和请求对不上（例如功能码不符）时以 `ModbusMalformedResponseException` 失败；越界的地址、数量在发送前就以 `IllegalArgumentException` 拒绝
+- **RTU 客户端一次只发一个请求**：后面的请求在客户端排队，排队期间就超时的请求以 `QueuedRequestTimeoutException` 失败，它从没发出去，可以放心重试。异步接口直接拿到这个异常；同步调用抛的仍是 `ModbusTimeoutException`，它在 `getCause()` 里
 - **API 变化**：`WriteSingleRegisterRequest.value()` 改为返回 `byte[]`（两个 int 参数的构造器保留）；`ModbusClientConfig` 和串口的 `SerialPortTransportConfig` 都加了字段，旧的全参构造器不能用了，改用 `create(cfg -> …)` 或 Builder，本篇示例本来就是这种写法
 
 ```xml
@@ -76,7 +76,7 @@ Modbus 是主从协议：主站（采集服务、边缘网关、上位机）发�
 
 ### 1、建立长连接
 
-每次轮询都新建、关闭 TCP 连接是最常见的错误写法：建连本身有开销，而且不少 PLC 只允许几个并发连接，频繁建连会触发从站拒绝或进入保护状态。正确做法是每个从站一个长连接，断线由传输层自动重连。
+每次轮询都新建、关闭 TCP 连接是最常见的错误写法：建连本身有开销，而且不少 PLC 只允许几个并发连接，频繁建连会触发从站拒绝或进入保护状态。正确做法是每个 TCP 端点一条长连接（端点是一台从站，或一个后面挂着多台从站的 DTU，同一个端点下靠单元 ID 区分），断线由传输层自动重连。
 
 ```java
 import com.digitalpetri.modbus.client.ModbusTcpClient;
@@ -143,7 +143,7 @@ try {
 }
 ```
 
-`readHoldingRegistersAsync` 返回 `CompletionStage`，同时采集几百个从站时用异步接口，不必为每个从站占一个线程；异步接口不经过同步包装，`CompletionStage` 里拿到的直接是上面这些异常本身。断线、超时都不该沿用旧值，按第五节上报数据质量。读失败的写请求不要盲目重试：超时或断线时请求可能已经到了从站，只有 `QueuedRequestTimeoutException` 能确定没发出去。
+`readHoldingRegistersAsync` 返回 `CompletionStage`，同时采集几百个从站时用异步接口，不必为每个从站占一个线程；异步接口不经过同步包装，`CompletionStage` 里拿到的直接是上面这些异常本身。断线、超时都不该沿用旧值，处理办法见第五节。写请求失败后不要盲目重试：超时或请求在途时断线，请求可能已经到了从站；能确定没发出去的只有 `ModbusNotConnectedException` 和 RTU 客户端的排队超时。
 
 ---
 
@@ -153,8 +153,11 @@ try {
 
 ```java
 import com.digitalpetri.modbus.client.ModbusRtuClient;
+import com.digitalpetri.modbus.pdu.ReadInputRegistersRequest;
 import com.digitalpetri.modbus.serial.client.SerialPortClientTransport;
 import com.fazecast.jSerialComm.SerialPort;
+
+import java.time.Duration;
 
 var transport = SerialPortClientTransport.create(cfg -> {
     cfg.setSerialPort("/dev/ttyUSB0");      // Windows 上为 COM3 这类名称
@@ -288,14 +291,14 @@ public final class RegisterDecoder {
 
 - **有符号数**：温度这类可能为负的量，寄存器值 `0xFFF6` 按无符号读是 65526，乘以 0.1 变成 6552.6；按 `short` 读才是 -10，乘以 0.1 得 -1.0
 - **字节序**：32 位整数和浮点数占两个寄存器，64 位占四个，不同厂家的顺序不同。四种排法里 ABCD 与 CDAB 最常见，BADC、DCBA 多见于把内存原样搬进寄存器的设备；只能看手册或现场比对确认，所以做成点表字段
-- **64 位与精度**：`double` 只能精确表示 2^53 以内的整数，电能累计这类 UINT64 计数器很快会超过；要求逐位精确时不乘系数、按 `long` 或字符串上报
+- **64 位与精度**：`double` 只能精确表示 2^53 以内的整数，电能累计这类 UINT64 计数器可能超过；要求逐位精确时不乘系数、按 `long` 或字符串上报
 
 ### 3、批量读取与调度
 
 - **合并相邻点**：把地址连续或间隔很小的点合并成一次请求，单次读取上限是 125 个寄存器；一次读 20 个寄存器远比发 20 次请求快
 - **一个从站一个调度任务**：用 `ScheduledExecutorService.scheduleWithFixedDelay` 而不是 `scheduleAtFixedRate`，上一轮超时时不会出现请求堆叠
 - **变化上报**：只有数值变化超过死区（如温度 0.2℃）或距上次上报超过最大间隔时才发 MQTT，能大幅减少上行流量
-- **数据质量**：读取失败时上报带 `quality=BAD` 的状态而不是沿用旧值，下游才能区分"数值没变"和"设备掉线"；平台不支持质量位时就省略这个测点，不要报 null 或 0，见 [物模型与解码 · 缺测与零值](../4_practice/2_thing_model#九、缺测与零值)
+- **读不到就不报**：读取失败时不要沿用旧值，下游才能区分"数值没变"和"设备掉线"。本模块的遥测载荷没有质量位，做法是失败的测点从这一轮里省略，不要报 null 或 0，见 [物模型与解码 · 缺测与零值](../4_practice/2_thing_model#九、缺测与零值)；整台子设备连续几轮都读不到时，声明它下线，见下一小节
 
 ### 4、生命周期
 
@@ -305,59 +308,87 @@ import org.springframework.context.SmartLifecycle;
 @Component
 public class ModbusCollector implements SmartLifecycle {
 
-    private final String gatewayId;                        // 采集服务自己的设备 ID，也是它的 MQTT clientid
+    private static final Logger log = LoggerFactory.getLogger(ModbusCollector.class);
+    private static final int OFFLINE_AFTER_FAILURES = 3;    // 连续几轮整台读不到，就声明这台子设备下线
+
     private final List<DeviceProfile> devices;             // 子设备 ID + 连接地址 + 点表，来自配置或数据库
-    private final MqttGateway mqtt;
+    private final GatewayMqttClient mqtt;                   // 采集服务自己的那条 MQTT 连接，clientid 是它的网关 ID
     private final JsonMapper json;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
+    private final Map<String, Integer> failures = new ConcurrentHashMap<>();   // 子设备 ID → 连续失败的轮数
     private volatile boolean running;
 
-    public ModbusCollector(GatewayProperties props, List<DeviceProfile> devices, MqttGateway mqtt, JsonMapper json) {
-        this.gatewayId = props.gatewayId();
+    public ModbusCollector(MqttSettings settings, List<DeviceProfile> devices, JsonMapper json) {
         this.devices = devices;
-        this.mqtt = mqtt;
         this.json = json;
+        // 每次连上 Broker（含自动重连）都重新声明一遍子设备：网关离线时平台已经把它名下的子设备全部置为离线
+        this.mqtt = new GatewayMqttClient(settings, this::declareOnlineDevices);
     }
 
     @Override
     public void start() {
+        // 不等连接结果：Broker 暂时连不上由客户端的自动重连接着试，不该让采集服务起不来
+        mqtt.start(this::onCommand);
         for (DeviceProfile device : devices) {
-            // 先声明子设备经本网关上线，平台据此核对拓扑关系、标记在线
-            mqtt.publish(topic("connect"), 1, json.writeValueAsString(Map.of("device", device.id())));
             scheduler.scheduleWithFixedDelay(() -> pollSafely(device),
                     0, device.interval().toMillis(), TimeUnit.MILLISECONDS);
         }
         running = true;
     }
 
+    private void declareOnlineDevices() {
+        for (DeviceProfile device : devices) {
+            if (failures.getOrDefault(device.id(), 0) < OFFLINE_AFTER_FAILURES) {
+                mqtt.publish("connect", deviceJson(device));
+            }
+        }
+    }
+
     private void pollSafely(DeviceProfile device) {
         try {
-            // 批量读取 + RegisterDecoder 解码，测点名 → 工程量；读失败的测点不放进来
+            // 批量读取 + RegisterDecoder 解码，测点名 → 工程量；读失败的测点不放进来，整台读不到时为空
             Map<String, Object> values = device.poll();
             if (values.isEmpty()) {
+                if (failures.merge(device.id(), 1, Integer::sum) == OFFLINE_AFTER_FAILURES) {
+                    mqtt.publish("disconnect", deviceJson(device));    // 总线上轮询不到了
+                }
                 return;
+            }
+            Integer failed = failures.remove(device.id());
+            if (failed != null && failed >= OFFLINE_AFTER_FAILURES) {
+                mqtt.publish("connect", deviceJson(device));           // 之前声明过下线，恢复后重新声明上线
             }
             Map<String, Object> reading = Map.of("ts", System.currentTimeMillis(), "values", values);
             // 按子设备分组：{"子设备 ID": [{"ts": …, "values": {…}}]}，QoS 1
-            mqtt.publish(topic("telemetry"), 1, json.writeValueAsString(Map.of(device.id(), List.of(reading))));
+            mqtt.publish("telemetry", json.writeValueAsString(Map.of(device.id(), List.of(reading))));
         } catch (Exception e) {
             // 异常不能抛出，否则该任务会被调度器静默取消
             log.warn("采集失败 device={}", device.id(), e);
         }
     }
 
+    private void onCommand(Mqtt5Publish publish) {
+        // 平台经网关发给子设备的指令（gateways/{gatewayId}/cmd），处理与应答见「网关与子设备」
+    }
+
     @Override
     public void stop() {
         running = false;
         scheduler.shutdown();
+        try {
+            scheduler.awaitTermination(5, TimeUnit.SECONDS);   // 等在途的那一轮读完，再声明下线、关连接
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         for (DeviceProfile device : devices) {
-            mqtt.publish(topic("disconnect"), 1, json.writeValueAsString(Map.of("device", device.id())));
+            mqtt.publish("disconnect", deviceJson(device));
             device.closeQuietly();
         }
+        mqtt.close();                                        // 先把保留的在线状态改成离线，再断开
     }
 
-    private String topic(String action) {
-        return "gateways/" + gatewayId + "/" + action;
+    private String deviceJson(DeviceProfile device) {
+        return json.writeValueAsString(Map.of("device", device.id()));
     }
 
     @Override
@@ -367,14 +398,19 @@ public class ModbusCollector implements SmartLifecycle {
 }
 ```
 
-`SmartLifecycle` 让采集在 Spring 容器完全就绪后才启动，并在关闭时先停止调度、再释放连接；不要在 `@PostConstruct` 里建连和启动线程。`MqttGateway` 的定义见 [MQTT 客户端](./3_mqtt_client)。
+`SmartLifecycle` 让采集在 Spring 容器完全就绪后才启动，并在关闭时先停调度、等在途的一轮读完、再声明下线和释放连接；不要在 `@PostConstruct` 里建连和启动线程。MQTT 这一侧用的是 [MQTT 客户端](./3_mqtt_client) 第二节的 `GatewayMqttClient`：它只在 `gateways/{gatewayId}/` 前缀下收发，登记了遗嘱，并在每次连上之后回调 `declareOnlineDevices`。
+
+两处容易漏掉的状态：
+
+- **重连之后要重新声明**：只在启动时发一次 `connect` 的话，MQTT 断线重连之后子设备在平台上会一直是离线，遥测却照常上报
+- **读不到要声明下线**：整台子设备连续几轮读不到就发 `disconnect`，恢复后再发 `connect`；只打日志的话，平台会一直显示它在线
 
 采集服务用**一条** MQTT 连接替所有从站上报，所以它在平台眼里是一个网关，子设备是它下面的电表、PLC：
 
 - **为什么不直接发 `devices/{子设备 ID}/telemetry`**：设备 ACL 只允许连接发布 `devices/${clientid}/…`，采集服务的 clientid 是它自己的 ID，代发子设备的 Topic 会被拒绝；给它放开 `devices/+/telemetry` 又等于让它能冒充任何设备。所以网关走自己的 `gateways/{gatewayId}/…` 前缀，ACL 规则见 [设备安全 · 网关与采集器](./1_security#_5、网关与采集器-一条连接代多台设备)
 - **载荷形状**：每台子设备一个数组，元素就是单台设备的 `{"ts", "values"}`（形状参照 ThingsBoard 网关 MQTT API），同一轮多台子设备的读数可以合并成一条消息；平台拆包后得到的与设备直连上报的完全一样，再转成内部的 `TelemetryMessage`，约定见 [遥测数据链路 · Topic 与消息约定](../3_platform/2_data#_1、topic-与消息约定)
 - **QoS**：默认 QoS 1；采样很密、丢几个点无所谓的测点可以降到 QoS 0
-- **网关自身在线**：`gateways/{gatewayId}/status` 是采集服务这条连接的遗嘱 Topic，在连接参数里登记（写法见 [MQTT 客户端](./3_mqtt_client) 第二节）；它掉线时平台据此把名下子设备一并标为离线
+- **网关自身在线**：`gateways/{gatewayId}/status` 是采集服务这条连接的遗嘱 Topic，也是它每次连上之后发布的保留消息，都在 `GatewayMqttClient` 里；它掉线时平台据此把名下子设备一并标为离线
 
 平台怎么登记网关与子设备的拓扑、核对子设备归属、经网关下发指令，见 [网关与子设备](./5_gateway_subdevice)。
 
@@ -387,7 +423,7 @@ public class ModbusCollector implements SmartLifecycle {
 | 读到的值和设备面板对不上，差一个点 | 把 `40001` 直接当地址，或厂家地址从 1 开始 | 统一换算为从 0 开始的偏移，现场逐点比对 |
 | 负温度变成几千 | 按无符号读取 | 有符号量用 `getShort` |
 | 浮点数是天文数字 | 字节序不对 | 点表里配置 ABCD / BADC / CDAB / DCBA，现场逐个试 |
-| 从站频繁拒绝连接 | 每次轮询新建连接，超出从站并发连接数 | 每个从站一个长连接 |
+| 从站频繁拒绝连接 | 每次轮询新建连接，或给同一个 DTU 后面的每台从站各开一条，超出并发连接数 | 每个 TCP 端点一条长连接，同一端点下按单元 ID 区分 |
 | RTU 整条总线采集变慢 | 某个从站离线，每次都等满超时 | 缩短超时，对连续失败的从站降频 |
 | 返回异常码 0x02 | 读取范围包含从站不存在的地址 | 拆分批量读取，避开空洞地址 |
 | 升级 digitalpetri 2.2.0 后断线告警没了 | 断线从 `ModbusTimeoutException` 改为包在 `ModbusExecutionException` 里的 `ModbusConnectionLostException` | 按第三节的写法区分 cause |
@@ -405,7 +441,7 @@ public class ModbusCollector implements SmartLifecycle {
 | ThingsBoard IoT Gateway | Python 进程，连接器包括 Modbus、OPC-UA、BACnet、S7、CAN、BLE、OCPP 等 | Apache-2.0，2026-10 发布 3.8.6 | 平台就是 ThingsBoard，或平台实现了它的网关 MQTT API |
 | EdgeX Foundry device-modbus | Go 写的设备服务，EdgeX 边缘框架的一部分 | Apache-2.0；EdgeX 4.0 是长期支持版，device-modbus 2026-05 发布 v4.0.2 | 已经用 EdgeX 搭边缘侧 |
 | Apache PLC4X | 驱动库，有 Java、Go、C、Python 实现，Modbus 支持 TCP、RTU、ASCII，用统一的地址语法读写 | Apache-2.0，2026-09 发布 1.0.0 | 用 Java 自己写采集，又要同时接 S7、EtherNet/IP 等多种 PLC 协议 |
-| Node-RED + node-red-contrib-modbus | 低代码的流程编排（Node.js），拖节点完成读取、换算、上报 | Node-RED 为 Apache-2.0，2026-10 发布 5.0.9；Modbus 节点为 BSD-3-Clause，5.62.1 | 规模小、要快速验证，或现场工程师自己维护 |
+| Node-RED + node-red-contrib-modbus | 低代码的流程编排（Node.js），拖节点完成读取、换算、上报 | Node-RED 为 Apache-2.0，2026-11 发布 5.0.10；Modbus 节点为 BSD-3-Clause，5.62.1 | 规模小、要快速验证，或现场工程师自己维护 |
 
 怎么选：
 
@@ -420,9 +456,9 @@ public class ModbusCollector implements SmartLifecycle {
 - Modbus 有四类数据区，采集最常用功能码 0x03 和 0x04；手册里的 `40001` 对应协议地址 0
 - TCP 走 MBAP 头、端口 502；RTU 走串口、靠 CRC 和静默间隔分帧，总线严格串行；DTU 透传是 RTU over TCP
 - 新项目用 digitalpetri modbus 2.2.0（Netty、自动重连、TCP 与 RTU 都支持），JDK 8 存量项目可用 j2mod；2.2.0 起断线以 `ModbusConnectionLostException` 立即失败，RTU 客户端一次只发一个请求
-- 每个从站一个长连接，按点表批量读取，`scheduleWithFixedDelay` 调度，异常不能逃出任务
-- 点表至少包含单元 ID、数据区、地址、类型、字节序（ABCD / BADC / CDAB / DCBA）、缩放系数，与 ThingsBoard IoT Gateway、Neuron 的配置字段一一对应；失败要上报数据质量而不是沿用旧值
-- 采集服务是网关：用 `gateways/{gatewayId}/connect` 声明子设备上线，用 `gateways/{gatewayId}/telemetry` 按子设备分组上报
+- 每个 TCP 端点一条长连接，按点表批量读取，`scheduleWithFixedDelay` 调度，异常不能逃出任务
+- 点表至少包含单元 ID、数据区、地址、类型、字节序（ABCD / BADC / CDAB / DCBA）、缩放系数，与 ThingsBoard IoT Gateway、Neuron 的配置字段一一对应；读失败的测点省略不报，不沿用旧值
+- 采集服务是网关：用 `gateways/{gatewayId}/connect` 声明子设备上线（MQTT 每次重连之后都要重新声明），整台读不到时发 `disconnect`，用 `gateways/{gatewayId}/telemetry` 按子设备分组上报
 - 工业现场优先考虑 Neuron、ThingsBoard IoT Gateway 等现成软件，点表要和业务库打通时再自己写
 
 ## 参考资料
