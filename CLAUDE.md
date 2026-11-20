@@ -23,7 +23,7 @@ docs/
 ├── handbook/       实战手册：速查表 / 故障案例
 ├── high-avail/     高可用：SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线 / 实验（下游变慢、重试风暴与幂等、滚动发布、突发流量）
 ├── high-con/       高并发：水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划 / 实验（多级缓存、异步削峰、热点库存、连接池与实例数）
-├── high-perf/      高性能：指标 / 方法论 / 基准测试 / 池化与异步 / IO 与数据库优化 / Profiler
+├── high-perf/      高性能：指标 / 方法论 / 基准测试 / 池化与异步 / IO 与数据库优化 / Profiler / 实验（耗时定位、数据访问、收集器与预热、微基准）
 ├── interview/      面试题解（各方向答案页「X 面试题解答」）
 ├── iot/            物联网：协议与选型（协议 / 平台 / EMQX / 边缘计算）/ 接入与安全（设备安全、设备注册与生命周期、MQTT 客户端、Modbus、网关与子设备、Netty 接入网关、海量连接与连接风暴）/ 平台能力（物模型、遥测数据链路、设备影子、指令下发、OTA、规则引擎与告警）/ 平台实战（Conduit IoT）
 ├── java/           Java 语言：语言机制 / IO / 集合 / 并发 / 版本特性
@@ -67,7 +67,7 @@ docs/
 | 分布式基础 | `docs/distributed/` | CAP / Raft / 分布式锁 / 事务 |
 | 高并发 | `docs/high-con/` | 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划 / 四篇实测实验 |
 | 高可用 | `docs/high-avail/` | SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线 / 四篇实测实验 |
-| 高性能 | `docs/high-perf/` | 指标 / 方法论 / JMH / 池化与异步 / IO 与数据库优化 / Profiler |
+| 高性能 | `docs/high-perf/` | 指标 / 方法论 / JMH / 池化与异步 / IO 与数据库优化 / Profiler / 四篇实测实验 |
 | 消息队列 | `docs/messaging/` | Kafka / RocketMQ / RabbitMQ |
 | 微服务架构 | `docs/microservices/` | 优势与挑战 / 拆分 / 设计模式 / 调用顺序性 / 服务间通信与契约 |
 | 微服务治理 | `docs/service-governance/` | Spring Cloud 主线（注册发现 / API 网关 / 服务通信 / 配置中心 / 流量治理 / Spring Cloud Alibaba / Spring Cloud Stream）/ 其他路线（Dubbo / 服务网格） |
@@ -117,7 +117,7 @@ docs/
 - 面试题：题目和答案只写在 `docs/interview/` 的答案页（H1「X 面试题解答」，分组 `##` + 题目 `### Q<n>：`）；模块内 `99_interview.md`（H1「高频面试题」）不手写题目，只放 `<InterviewList page="15_mq" />`，构建时从答案页自动生成可点击的题单（一页对应多个模块时加 `groups="1-10"` 取部分分组）；答案页与模块一一对应（Java、Vert.x 与 Quarkus、业务场景各两页，项目演进共用项目难点与亮点页的「项目演进串讲」分组），文件编号按导航分组与模块顺序排列，首页面试题解卡片与侧边栏都按这个顺序显示
 - 答案页写法（简洁口语化，每题 8–12 行）：`**一句话**：` 大白话结论 → 3–5 条一行要点（术语后跟一句通俗解释）→ 至多一张小对比表 → 可选 `**常见坑**：` 1–2 条 → `→ 详见` 链接正文；对比类题目（「A 和 B 的区别」）表格是答案主体时，可写成「一句话 → 对比表 → 要点」，要点接着表格补充；JEP 编号、版本沿革、边界细节留在正文，不写进答案页；例外：项目难点与亮点页（`22_scenario_highlights`）用「一句话 / 背景问题 / 方案要点 / 可量化的效果 / 追问」五段式，每题约 20 行
 - 站点目录：除文章本身外，所有配置只在 `docs/.vuepress/site.js` 维护（模块、分组、名称、侧边栏分组、子目录、答案页对应关系、首页推荐博客 / 页脚）；导航栏、侧边栏、面包屑、总览页导航表和首页都由它与文章自动生成，不在其他文件重复维护
-- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / spring-boot / scenario / patterns / service-governance / cloud-native），以及带实验篇的 high-con（1–8 号原理篇不分组，9 号起归入「实战实验」）与 high-avail（1–11 号原理篇不分组，12 号起归入「实战实验」）在 `site.js` 对应模块的 `sidebar` 字段里写每组的起始编号 `from`，编号 ≥ `from` 的文章自动归入该组，组内编号可以不连续（`0_overview`、90 号以后的附录与 `99_interview` 不分组；interview 另用 `stripSuffix` 去掉标题末尾的「面试题解答」）；ai / algorithms / database / handbook / iot / java-frameworks 按子目录自动分组（iot 的 `4_practice` 里 7–9 号预留给设备影子、OTA、规则引擎在 Conduit 的实现篇），子目录在 `subdirs` 登记
+- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / spring-boot / scenario / patterns / service-governance / cloud-native），以及带实验篇的 high-perf（1–11 号原理篇不分组，12 号起归入「实战实验」）、high-con（1–8 号原理篇不分组，9 号起归入「实战实验」）与 high-avail（1–11 号原理篇不分组，12 号起归入「实战实验」）在 `site.js` 对应模块的 `sidebar` 字段里写每组的起始编号 `from`，编号 ≥ `from` 的文章自动归入该组，组内编号可以不连续（`0_overview`、90 号以后的附录与 `99_interview` 不分组；interview 另用 `stripSuffix` 去掉标题末尾的「面试题解答」）；ai / algorithms / database / handbook / iot / java-frameworks 按子目录自动分组（iot 的 `4_practice` 里 7–9 号预留给设备影子、OTA、规则引擎在 Conduit 的实现篇），子目录在 `subdirs` 登记
 - 面包屑名称：目录没有 README 时主题会自动生成目录页，模块目录用 `site.js` 的 `name`，子目录的中文名登记在模块的 `subdirs` 字段；新增子目录时同步添加，否则面包屑会显示首字母大写的目录名
 - 首页：`docs/README.md` 使用 `layout: HomeLayout`（杂志式 Bento 首页），实现在 `.vuepress/components/home/HomeEditorial.vue`；内容全部来自 `site.js`（模块、分组、推荐博客、页脚）与文章（开发总结速查取答案页的标题与 description）；文章数 / 题数 / 答案页数 / SVG 数由 `.vuepress/plugins/homeStats.js` 在构建时自动统计；分组配色按分组数量从品牌渐变自动取色
 - 模块边界：同一主题只保留一个主文档，其他模块用一句话概括 + 链接，不重复展开；三高模块写系统级策略，具体技术细节链接到 cache / database / messaging / jvm 等模块

@@ -207,6 +207,8 @@ CREATE TABLE t_order_item (
 - **`status` 单列不建索引**：区分度低，单独使用时优化器多半不会选它
 - **列表翻页用游标**：用上一页最后一条的 `id` 作为下一页的起点，不用大 `OFFSET`，接口形态在下一篇讲
 
+表里「用户订单列表走 `idx_user_id`」是按查询形态推出来的。后来实测发现优化器选的是 `uk_user_biz`，`main` 上给这条 SQL 加了索引提示，见 [后来的修复](#十二、后来的修复)。
+
 ---
 
 ## 六、库存表与扣减方式
@@ -360,6 +362,22 @@ public PlaceOrderResult place(long userId, String bizNo, PlaceOrderRequest req) 
 
 ---
 
+## 十二、后来的修复
+
+这一处不是审查出来的，是量出来的：高性能模块的 [耗时定位实验](/high-perf/12_exp_locate) 在固定的轻负载下把每个接口的耗时逐层拆开，发现只查一张表的订单列表比查两张表的订单详情慢 5 倍。
+
+**问题**：第五节的索引规划表写的是「用户订单列表走 `idx_user_id`」，这是从查询形态推出来的。`uk_user_biz (user_id, biz_no)` 也以 `user_id` 开头，优化器实际选的是它：把这个用户的全部订单读出来、按 `id` 排序、再取前 20 行。4000 个用户每人 200 单的数据量下，这条语句平均 22.5ms，扫描 221 行、返回 21 行，数据库所在的虚拟机有 19% 的时间在等磁盘。
+
+**怎么发现的**：MySQL 的语句统计里，这条语句的扫描行数是返回行数的 10 倍，再看执行计划是 `uk_user_biz` 加排序。之前的压测里每个用户只有一两单，读出全部订单和读 20 单没有区别，看不出来。
+
+**怎么修**：[`OrderMapper#listByUser`](https://github.com/Clarence404/mall-evolution/blob/main/mall-order/src/main/java/io/github/clarence404/mall/order/domain/OrderMapper.java) 的 SQL 加索引提示 `/*+ INDEX(t_order idx_user_id) */`。更新统计信息、换成 `ORDER_INDEX` 提示、`ORDER BY` 多加一列都试过，优化器仍然选 `uk_user_biz`。修复后这条语句 0.30ms、扫描 21 行；共用一个数据库的订单详情和下单没有改代码，耗时也各降了一半。
+
+同一组实验还数了每个请求发给 MySQL 几条语句：驱动在每条写语句之前都要先问一次服务端「这个会话是不是只读」，这类语句占全部语句的 20%。三个服务的数据源现在加了连接属性 `useLocalSessionState=true` 与 `cachePrepStmts=true`，语句数少了 22%，下单在 mall-app 里的平均耗时少了 1–2ms（夜里 13.1ms 对 10.7–11.1ms，第二天上午 12.1–12.4ms 对 11.1ms）。
+
+提交：[`7e3d92e`](https://github.com/Clarence404/mall-evolution/commit/7e3d92e)（索引提示）、[`a000c39`](https://github.com/Clarence404/mall-evolution/commit/a000c39)（连接属性）。
+
+---
+
 ## 小结
 
 - 五张表各归一个模块，单体里也不跨模块 `JOIN`、不建外键，为阶段三拆服务留好接缝
@@ -370,6 +388,7 @@ public PlaceOrderResult place(long userId, String bizNo, PlaceOrderRequest req) 
 - 库存用 `stock >= n` 条件更新扣减，按 `sku_id` 升序避免死锁；阶段一不上 Redis、不做预占
 - 下单 = 扣库存 + 写订单 + 写明细，一个本地事务；`uk_user_biz` 唯一约束兜底幂等，冲突在事务外处理
 - 一年 365 万订单、1100 万明细，单表足够，阶段三再评估分库分表
+- `main` 上后来的修复：用户订单列表的 SQL 加索引提示（优化器原先选的是 `uk_user_biz` 再排序，一条 22.5ms）；数据源加驱动连接属性，省掉每条写语句之前的一次往返
 
 > 本篇代码：[ch02-data-model](https://github.com/Clarence404/mall-evolution/tree/ch02-data-model) · [对比上一章](https://github.com/Clarence404/mall-evolution/compare/ch01-project-setup...ch02-data-model)
 

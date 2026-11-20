@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 430" width="720" height="430" role="img" aria-label="mall-app 处理请求的线程，CPU 采样落在哪一层">
+<style>
+:root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+:root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+@media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+text { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; fill: var(--fg); }
+.m { fill: var(--muted); }
+</style>
+<rect x="0" y="0" width="720" height="430" rx="8" fill="var(--bg)"/>
+<text x="360" y="26" text-anchor="middle" font-size="14" font-weight="700">mall-app 处理请求的线程，CPU 采样落在哪一层</text>
+<text x="205" y="57.0" text-anchor="end" font-size="12">指标与追踪（Micrometer）</text>
+<line x1="214.60000000000002" y1="53.0" x2="630.0" y2="53.0" stroke="var(--p)" stroke-width="14"/>
+<text class="m" x="636.0" y="57.0" font-size="11">18.3%</text>
+<text x="205" y="87.0" text-anchor="end" font-size="12">MySQL 驱动</text>
+<line x1="214.60000000000002" y1="83.0" x2="462.3" y2="83.0" stroke="var(--p)" stroke-width="14"/>
+<text class="m" x="468.3" y="87.0" font-size="11">10.9%</text>
+<text x="205" y="117.0" text-anchor="end" font-size="12">Spring 其他（AOP、容器）</text>
+<line x1="214.60000000000002" y1="113.0" x2="456.9" y2="113.0" stroke="var(--p)" stroke-width="14"/>
+<text class="m" x="462.9" y="117.0" font-size="11">10.7%</text>
+<text x="205" y="147.0" text-anchor="end" font-size="12">Tomcat</text>
+<line x1="214.60000000000002" y1="143.0" x2="456.4" y2="143.0" stroke="var(--p)" stroke-width="14"/>
+<text class="m" x="462.4" y="147.0" font-size="11">10.7%</text>
+<text x="205" y="177.0" text-anchor="end" font-size="12">Spring MVC / WebFlux</text>
+<line x1="214.60000000000002" y1="173.0" x2="403.8" y2="173.0" stroke="var(--p)" stroke-width="14"/>
+<text class="m" x="409.8" y="177.0" font-size="11">8.4%</text>
+<text x="205" y="207.0" text-anchor="end" font-size="12">JSON（Jackson）</text>
+<line x1="214.60000000000002" y1="203.0" x2="402.8" y2="203.0" stroke="var(--p)" stroke-width="14"/>
+<text class="m" x="408.8" y="207.0" font-size="11">8.3%</text>
+<text x="205" y="237.0" text-anchor="end" font-size="12">MyBatis</text>
+<line x1="214.60000000000002" y1="233.0" x2="401.3" y2="233.0" stroke="var(--p)" stroke-width="14"/>
+<text class="m" x="407.3" y="237.0" font-size="11">8.2%</text>
+<text x="205" y="267.0" text-anchor="end" font-size="12">其他库（io.prometheus.metrics）</text>
+<line x1="214.60000000000002" y1="263.0" x2="363.8" y2="263.0" stroke="var(--p)" stroke-width="14"/>
+<text class="m" x="369.8" y="267.0" font-size="11">6.6%</text>
+<text x="205" y="297.0" text-anchor="end" font-size="12">Spring Security</text>
+<line x1="214.60000000000002" y1="293.0" x2="355.0" y2="293.0" stroke="var(--p)" stroke-width="14"/>
+<text class="m" x="361.0" y="297.0" font-size="11">6.2%</text>
+<text x="205" y="327.0" text-anchor="end" font-size="12">其他库（jakarta.servlet.http）</text>
+<line x1="214.60000000000002" y1="323.0" x2="277.0" y2="323.0" stroke="var(--p)" stroke-width="14"/>
+<text class="m" x="283.0" y="327.0" font-size="11">2.8%</text>
+<text x="205" y="357.0" text-anchor="end" font-size="12">HTTP 客户端（HttpClient 5）</text>
+<line x1="214.60000000000002" y1="353.0" x2="265.8" y2="353.0" stroke="var(--p)" stroke-width="14"/>
+<text class="m" x="271.8" y="357.0" font-size="11">2.3%</text>
+<text x="205" y="387.0" text-anchor="end" font-size="12">其余</text>
+<line x1="214.60000000000002" y1="383.0" x2="364.8" y2="383.0" stroke="var(--p)" stroke-width="14"/>
+<text class="m" x="370.8" y="387.0" font-size="11">6.6%</text>
+<text class="m" x="360" y="418" text-anchor="middle" font-size="11">5 轮合计 4645 个采样；一个采样归给调用栈里离栈顶最近的那个库</text>
+</svg>

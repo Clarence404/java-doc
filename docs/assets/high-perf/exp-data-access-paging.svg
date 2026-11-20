@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="订单列表翻到不同深度时，一次查询的平均耗时">
+<style>
+:root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+:root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+@media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+text { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; fill: var(--fg); }
+.m { fill: var(--muted); }
+</style>
+<rect x="0" y="0" width="720" height="380" rx="8" fill="var(--bg)"/>
+<text x="360" y="26" text-anchor="middle" font-size="14" font-weight="700">订单列表翻到不同深度时，一次查询的平均耗时</text>
+<line x1="230" y1="48" x2="258" y2="48" stroke="var(--r)" stroke-width="2.5"/>
+<text x="266" y="52" font-size="12">偏移量</text>
+<line x1="324" y1="48" x2="352" y2="48" stroke="var(--y)" stroke-width="2.5" stroke-dasharray="6 3"/>
+<text x="360" y="52" font-size="12">延迟关联</text>
+<line x1="430" y1="48" x2="458" y2="48" stroke="var(--g)" stroke-width="2.5" stroke-dasharray="2 3"/>
+<text x="466" y="52" font-size="12">游标</text>
+<line x1="66" y1="299.9" x2="696" y2="299.9" stroke="var(--border)" stroke-width="1"/>
+<text class="m" x="58" y="303.9" text-anchor="end" font-size="11">1</text>
+<line x1="66" y1="239.9" x2="696" y2="239.9" stroke="var(--border)" stroke-width="1"/>
+<text class="m" x="58" y="243.9" text-anchor="end" font-size="11">10</text>
+<line x1="66" y1="179.9" x2="696" y2="179.9" stroke="var(--border)" stroke-width="1"/>
+<text class="m" x="58" y="183.9" text-anchor="end" font-size="11">100</text>
+<line x1="66" y1="119.9" x2="696" y2="119.9" stroke="var(--border)" stroke-width="1"/>
+<text class="m" x="58" y="123.9" text-anchor="end" font-size="11">1000</text>
+<line x1="129.0" y1="318" x2="129.0" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="129.0" y="336" text-anchor="middle" font-size="11">第 1 页</text>
+<line x1="255.0" y1="318" x2="255.0" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="255.0" y="336" text-anchor="middle" font-size="11">1000 行</text>
+<line x1="381.0" y1="318" x2="381.0" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="381.0" y="336" text-anchor="middle" font-size="11">1 万行</text>
+<line x1="507.0" y1="318" x2="507.0" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="507.0" y="336" text-anchor="middle" font-size="11">10 万行</text>
+<line x1="633.0" y1="318" x2="633.0" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="633.0" y="336" text-anchor="middle" font-size="11">19 万行</text>
+<line x1="66" y1="78" x2="66" y2="318" stroke="var(--muted)" stroke-width="1"/>
+<line x1="66" y1="318" x2="696" y2="318" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="66" y="68" text-anchor="middle" font-size="11">耗时 ms（对数）</text>
+<text class="m" x="381" y="364" text-anchor="middle" font-size="11">翻到第几行（大客户共 20 万单，每页 20 行）</text>
+<polyline points="129.0,296.6 255.0,270.4 381.0,219.6 507.0,142.8 633.0,107.1" fill="none" stroke="var(--r)" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="129.0" cy="296.6" r="3" fill="var(--r)"/>
+<circle cx="255.0" cy="270.4" r="3" fill="var(--r)"/>
+<circle cx="381.0" cy="219.6" r="3" fill="var(--r)"/>
+<circle cx="507.0" cy="142.8" r="3" fill="var(--r)"/>
+<circle cx="633.0" cy="107.1" r="3" fill="var(--r)"/>
+<polyline points="129.0,293.9 255.0,290.5 381.0,270.3 507.0,230.7 633.0,217.9" fill="none" stroke="var(--y)" stroke-width="2" stroke-linejoin="round" stroke-dasharray="6 3"/>
+<circle cx="129.0" cy="293.9" r="3" fill="var(--y)"/>
+<circle cx="255.0" cy="290.5" r="3" fill="var(--y)"/>
+<circle cx="381.0" cy="270.3" r="3" fill="var(--y)"/>
+<circle cx="507.0" cy="230.7" r="3" fill="var(--y)"/>
+<circle cx="633.0" cy="217.9" r="3" fill="var(--y)"/>
+<polyline points="129.0,300.2 255.0,299.3 381.0,300.1 507.0,298.2 633.0,300.8" fill="none" stroke="var(--g)" stroke-width="2" stroke-linejoin="round" stroke-dasharray="2 3"/>
+<circle cx="129.0" cy="300.2" r="3" fill="var(--g)"/>
+<circle cx="255.0" cy="299.3" r="3" fill="var(--g)"/>
+<circle cx="381.0" cy="300.1" r="3" fill="var(--g)"/>
+<circle cx="507.0" cy="298.2" r="3" fill="var(--g)"/>
+<circle cx="633.0" cy="300.8" r="3" fill="var(--g)"/>
+</svg>

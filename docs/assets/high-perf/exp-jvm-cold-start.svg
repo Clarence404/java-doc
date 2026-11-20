@@ -1,0 +1,332 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="刚启动的实例接流量：头 60 秒逐秒的中位耗时">
+<style>
+:root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+:root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+@media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+text { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; fill: var(--fg); }
+.m { fill: var(--muted); }
+</style>
+<rect x="0" y="0" width="720" height="380" rx="8" fill="var(--bg)"/>
+<text x="360" y="26" text-anchor="middle" font-size="14" font-weight="700">刚启动的实例接流量：头 60 秒逐秒的中位耗时</text>
+<line x1="131" y1="48" x2="159" y2="48" stroke="var(--r)" stroke-width="2.5"/>
+<text x="167" y="52" font-size="12">不预热，第 0 秒全速</text>
+<line x1="305" y1="48" x2="333" y2="48" stroke="var(--y)" stroke-width="2.5" stroke-dasharray="6 3"/>
+<text x="341" y="52" font-size="12">不预热，30 秒爬坡</text>
+<line x1="467" y1="48" x2="495" y2="48" stroke="var(--g)" stroke-width="2.5" stroke-dasharray="2 3"/>
+<text x="503" y="52" font-size="12">预热 60 秒之后</text>
+<line x1="66" y1="301.2" x2="696" y2="301.2" stroke="var(--border)" stroke-width="1"/>
+<text class="m" x="58" y="305.2" text-anchor="end" font-size="11">1</text>
+<line x1="66" y1="245.4" x2="696" y2="245.4" stroke="var(--border)" stroke-width="1"/>
+<text class="m" x="58" y="249.4" text-anchor="end" font-size="11">10</text>
+<line x1="66" y1="189.6" x2="696" y2="189.6" stroke="var(--border)" stroke-width="1"/>
+<text class="m" x="58" y="193.6" text-anchor="end" font-size="11">100</text>
+<line x1="66" y1="133.8" x2="696" y2="133.8" stroke="var(--border)" stroke-width="1"/>
+<text class="m" x="58" y="137.8" text-anchor="end" font-size="11">1000</text>
+<line x1="66" y1="78.0" x2="696" y2="78.0" stroke="var(--border)" stroke-width="1"/>
+<text class="m" x="58" y="82.0" text-anchor="end" font-size="11">10000</text>
+<line x1="71.2" y1="318" x2="71.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="71.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="81.8" y1="318" x2="81.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="81.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="92.2" y1="318" x2="92.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="92.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="102.8" y1="318" x2="102.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="102.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="113.2" y1="318" x2="113.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="113.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="123.8" y1="318" x2="123.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="123.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="134.2" y1="318" x2="134.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="134.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="144.8" y1="318" x2="144.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="144.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="155.2" y1="318" x2="155.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="155.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="165.8" y1="318" x2="165.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="165.8" y="336" text-anchor="middle" font-size="11">10</text>
+<line x1="176.2" y1="318" x2="176.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="176.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="186.8" y1="318" x2="186.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="186.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="197.2" y1="318" x2="197.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="197.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="207.8" y1="318" x2="207.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="207.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="218.2" y1="318" x2="218.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="218.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="228.8" y1="318" x2="228.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="228.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="239.2" y1="318" x2="239.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="239.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="249.8" y1="318" x2="249.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="249.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="260.2" y1="318" x2="260.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="260.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="270.8" y1="318" x2="270.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="270.8" y="336" text-anchor="middle" font-size="11">20</text>
+<line x1="281.2" y1="318" x2="281.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="281.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="291.8" y1="318" x2="291.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="291.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="302.2" y1="318" x2="302.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="302.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="312.8" y1="318" x2="312.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="312.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="323.2" y1="318" x2="323.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="323.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="333.8" y1="318" x2="333.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="333.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="344.2" y1="318" x2="344.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="344.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="354.8" y1="318" x2="354.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="354.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="365.2" y1="318" x2="365.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="365.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="375.8" y1="318" x2="375.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="375.8" y="336" text-anchor="middle" font-size="11">30</text>
+<line x1="386.2" y1="318" x2="386.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="386.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="396.8" y1="318" x2="396.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="396.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="407.2" y1="318" x2="407.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="407.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="417.8" y1="318" x2="417.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="417.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="428.2" y1="318" x2="428.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="428.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="438.8" y1="318" x2="438.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="438.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="449.2" y1="318" x2="449.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="449.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="459.8" y1="318" x2="459.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="459.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="470.2" y1="318" x2="470.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="470.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="480.8" y1="318" x2="480.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="480.8" y="336" text-anchor="middle" font-size="11">40</text>
+<line x1="491.2" y1="318" x2="491.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="491.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="501.8" y1="318" x2="501.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="501.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="512.2" y1="318" x2="512.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="512.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="522.8" y1="318" x2="522.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="522.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="533.2" y1="318" x2="533.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="533.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="543.8" y1="318" x2="543.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="543.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="554.2" y1="318" x2="554.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="554.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="564.8" y1="318" x2="564.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="564.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="575.2" y1="318" x2="575.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="575.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="585.8" y1="318" x2="585.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="585.8" y="336" text-anchor="middle" font-size="11">50</text>
+<line x1="596.2" y1="318" x2="596.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="596.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="606.8" y1="318" x2="606.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="606.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="617.2" y1="318" x2="617.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="617.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="627.8" y1="318" x2="627.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="627.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="638.2" y1="318" x2="638.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="638.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="648.8" y1="318" x2="648.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="648.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="659.2" y1="318" x2="659.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="659.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="669.8" y1="318" x2="669.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="669.8" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="680.2" y1="318" x2="680.2" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="680.2" y="336" text-anchor="middle" font-size="11"></text>
+<line x1="690.8" y1="318" x2="690.8" y2="322" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="690.8" y="336" text-anchor="middle" font-size="11">60</text>
+<line x1="66" y1="78" x2="66" y2="318" stroke="var(--muted)" stroke-width="1"/>
+<line x1="66" y1="318" x2="696" y2="318" stroke="var(--muted)" stroke-width="1"/>
+<text class="m" x="66" y="68" text-anchor="middle" font-size="11">中位耗时 ms（对数）</text>
+<text class="m" x="381" y="364" text-anchor="middle" font-size="11">开始接流量后的秒数</text>
+<polyline points="81.8,130.1 92.2,127.4 102.8,121.1 113.2,112.1 123.8,107.1 134.2,104.3 144.8,101.5 155.2,106.6 165.8,118.5 176.2,129.9 186.8,147.1 197.2,191.6 207.8,219.2 218.2,229.8 228.8,234.8 239.2,249.3 249.8,250.8 260.2,254.0 270.8,248.0 281.2,259.9 291.8,262.2 302.2,270.8 312.8,270.8 323.2,270.8 333.8,270.9 344.2,270.8 354.8,270.8 365.2,270.8 375.8,270.8 386.2,270.8 396.8,270.8 407.2,270.8 417.8,270.8 428.2,270.8 438.8,270.8 449.2,270.8 459.8,270.8 470.2,270.8 480.8,270.9 491.2,267.6 501.8,270.9 512.2,270.8 522.8,270.8 533.2,270.8 543.8,270.8 554.2,270.8 564.8,270.8 575.2,270.8 585.8,270.8 596.2,274.6 606.8,270.8 617.2,270.9 627.8,270.8 638.2,270.8 648.8,270.8 659.2,270.8 669.8,270.9 680.2,264.7 690.8,270.8" fill="none" stroke="var(--r)" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="81.8" cy="130.1" r="3" fill="var(--r)"/>
+<circle cx="92.2" cy="127.4" r="3" fill="var(--r)"/>
+<circle cx="102.8" cy="121.1" r="3" fill="var(--r)"/>
+<circle cx="113.2" cy="112.1" r="3" fill="var(--r)"/>
+<circle cx="123.8" cy="107.1" r="3" fill="var(--r)"/>
+<circle cx="134.2" cy="104.3" r="3" fill="var(--r)"/>
+<circle cx="144.8" cy="101.5" r="3" fill="var(--r)"/>
+<circle cx="155.2" cy="106.6" r="3" fill="var(--r)"/>
+<circle cx="165.8" cy="118.5" r="3" fill="var(--r)"/>
+<circle cx="176.2" cy="129.9" r="3" fill="var(--r)"/>
+<circle cx="186.8" cy="147.1" r="3" fill="var(--r)"/>
+<circle cx="197.2" cy="191.6" r="3" fill="var(--r)"/>
+<circle cx="207.8" cy="219.2" r="3" fill="var(--r)"/>
+<circle cx="218.2" cy="229.8" r="3" fill="var(--r)"/>
+<circle cx="228.8" cy="234.8" r="3" fill="var(--r)"/>
+<circle cx="239.2" cy="249.3" r="3" fill="var(--r)"/>
+<circle cx="249.8" cy="250.8" r="3" fill="var(--r)"/>
+<circle cx="260.2" cy="254.0" r="3" fill="var(--r)"/>
+<circle cx="270.8" cy="248.0" r="3" fill="var(--r)"/>
+<circle cx="281.2" cy="259.9" r="3" fill="var(--r)"/>
+<circle cx="291.8" cy="262.2" r="3" fill="var(--r)"/>
+<circle cx="302.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="312.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="323.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="333.8" cy="270.9" r="3" fill="var(--r)"/>
+<circle cx="344.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="354.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="365.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="375.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="386.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="396.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="407.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="417.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="428.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="438.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="449.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="459.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="470.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="480.8" cy="270.9" r="3" fill="var(--r)"/>
+<circle cx="491.2" cy="267.6" r="3" fill="var(--r)"/>
+<circle cx="501.8" cy="270.9" r="3" fill="var(--r)"/>
+<circle cx="512.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="522.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="533.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="543.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="554.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="564.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="575.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="585.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="596.2" cy="274.6" r="3" fill="var(--r)"/>
+<circle cx="606.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="617.2" cy="270.9" r="3" fill="var(--r)"/>
+<circle cx="627.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="638.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="648.8" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="659.2" cy="270.8" r="3" fill="var(--r)"/>
+<circle cx="669.8" cy="270.9" r="3" fill="var(--r)"/>
+<circle cx="680.2" cy="264.7" r="3" fill="var(--r)"/>
+<circle cx="690.8" cy="270.8" r="3" fill="var(--r)"/>
+<polyline points="81.8,148.7 92.2,252.4 102.8,270.8 113.2,270.8 123.8,274.6 134.2,274.6 144.8,270.8 155.2,270.8 165.8,270.8 176.2,274.6 186.8,274.6 197.2,279.0 207.8,279.0 218.2,279.0 228.8,279.0 239.2,279.0 249.8,279.0 260.2,279.0 270.8,279.0 281.2,279.0 291.8,279.0 302.2,279.0 312.8,279.0 323.2,274.6 333.8,274.6 344.2,274.6 354.8,270.9 365.2,270.8 375.8,274.6 386.2,270.8 396.8,274.6 407.2,270.8 417.8,270.8 428.2,270.8 438.8,274.6 449.2,270.8 459.8,270.8 470.2,270.8 480.8,270.8 491.2,270.8 501.8,270.8 512.2,270.8 522.8,270.9 533.2,270.8 543.8,270.8 554.2,270.8 564.8,270.8 575.2,270.8 585.8,274.6 596.2,274.6 606.8,270.8 617.2,270.8 627.8,270.8 638.2,270.8 648.8,270.8 659.2,270.9 669.8,270.8 680.2,270.9 690.8,270.8" fill="none" stroke="var(--y)" stroke-width="2" stroke-linejoin="round" stroke-dasharray="6 3"/>
+<circle cx="81.8" cy="148.7" r="3" fill="var(--y)"/>
+<circle cx="92.2" cy="252.4" r="3" fill="var(--y)"/>
+<circle cx="102.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="113.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="123.8" cy="274.6" r="3" fill="var(--y)"/>
+<circle cx="134.2" cy="274.6" r="3" fill="var(--y)"/>
+<circle cx="144.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="155.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="165.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="176.2" cy="274.6" r="3" fill="var(--y)"/>
+<circle cx="186.8" cy="274.6" r="3" fill="var(--y)"/>
+<circle cx="197.2" cy="279.0" r="3" fill="var(--y)"/>
+<circle cx="207.8" cy="279.0" r="3" fill="var(--y)"/>
+<circle cx="218.2" cy="279.0" r="3" fill="var(--y)"/>
+<circle cx="228.8" cy="279.0" r="3" fill="var(--y)"/>
+<circle cx="239.2" cy="279.0" r="3" fill="var(--y)"/>
+<circle cx="249.8" cy="279.0" r="3" fill="var(--y)"/>
+<circle cx="260.2" cy="279.0" r="3" fill="var(--y)"/>
+<circle cx="270.8" cy="279.0" r="3" fill="var(--y)"/>
+<circle cx="281.2" cy="279.0" r="3" fill="var(--y)"/>
+<circle cx="291.8" cy="279.0" r="3" fill="var(--y)"/>
+<circle cx="302.2" cy="279.0" r="3" fill="var(--y)"/>
+<circle cx="312.8" cy="279.0" r="3" fill="var(--y)"/>
+<circle cx="323.2" cy="274.6" r="3" fill="var(--y)"/>
+<circle cx="333.8" cy="274.6" r="3" fill="var(--y)"/>
+<circle cx="344.2" cy="274.6" r="3" fill="var(--y)"/>
+<circle cx="354.8" cy="270.9" r="3" fill="var(--y)"/>
+<circle cx="365.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="375.8" cy="274.6" r="3" fill="var(--y)"/>
+<circle cx="386.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="396.8" cy="274.6" r="3" fill="var(--y)"/>
+<circle cx="407.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="417.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="428.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="438.8" cy="274.6" r="3" fill="var(--y)"/>
+<circle cx="449.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="459.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="470.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="480.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="491.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="501.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="512.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="522.8" cy="270.9" r="3" fill="var(--y)"/>
+<circle cx="533.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="543.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="554.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="564.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="575.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="585.8" cy="274.6" r="3" fill="var(--y)"/>
+<circle cx="596.2" cy="274.6" r="3" fill="var(--y)"/>
+<circle cx="606.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="617.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="627.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="638.2" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="648.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="659.2" cy="270.9" r="3" fill="var(--y)"/>
+<circle cx="669.8" cy="270.8" r="3" fill="var(--y)"/>
+<circle cx="680.2" cy="270.9" r="3" fill="var(--y)"/>
+<circle cx="690.8" cy="270.8" r="3" fill="var(--y)"/>
+<polyline points="71.2,270.8 81.8,270.9 92.2,267.6 102.8,270.9 113.2,270.8 123.8,270.8 134.2,270.9 144.8,270.8 155.2,267.6 165.8,270.8 176.2,270.8 186.8,270.8 197.2,270.8 207.8,270.8 218.2,267.6 228.8,270.8 239.2,270.9 249.8,270.8 260.2,270.8 270.8,270.9 281.2,270.8 291.8,270.8 302.2,270.8 312.8,270.8 323.2,270.8 333.8,270.9 344.2,270.8 354.8,270.8 365.2,270.8 375.8,270.8 386.2,270.9 396.8,270.8 407.2,270.8 417.8,270.8 428.2,270.8 438.8,270.8 449.2,270.8 459.8,270.8 470.2,270.9 480.8,270.8 491.2,270.9 501.8,270.8 512.2,270.8 522.8,270.8 533.2,270.8 543.8,270.8 554.2,270.8 564.8,270.8 575.2,270.8 585.8,270.8 596.2,270.8 606.8,270.8 617.2,270.9 627.8,270.8 638.2,270.8 648.8,270.8 659.2,270.8 669.8,270.8 680.2,270.8 690.8,270.8" fill="none" stroke="var(--g)" stroke-width="2" stroke-linejoin="round" stroke-dasharray="2 3"/>
+<circle cx="71.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="81.8" cy="270.9" r="3" fill="var(--g)"/>
+<circle cx="92.2" cy="267.6" r="3" fill="var(--g)"/>
+<circle cx="102.8" cy="270.9" r="3" fill="var(--g)"/>
+<circle cx="113.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="123.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="134.2" cy="270.9" r="3" fill="var(--g)"/>
+<circle cx="144.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="155.2" cy="267.6" r="3" fill="var(--g)"/>
+<circle cx="165.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="176.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="186.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="197.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="207.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="218.2" cy="267.6" r="3" fill="var(--g)"/>
+<circle cx="228.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="239.2" cy="270.9" r="3" fill="var(--g)"/>
+<circle cx="249.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="260.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="270.8" cy="270.9" r="3" fill="var(--g)"/>
+<circle cx="281.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="291.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="302.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="312.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="323.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="333.8" cy="270.9" r="3" fill="var(--g)"/>
+<circle cx="344.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="354.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="365.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="375.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="386.2" cy="270.9" r="3" fill="var(--g)"/>
+<circle cx="396.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="407.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="417.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="428.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="438.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="449.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="459.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="470.2" cy="270.9" r="3" fill="var(--g)"/>
+<circle cx="480.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="491.2" cy="270.9" r="3" fill="var(--g)"/>
+<circle cx="501.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="512.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="522.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="533.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="543.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="554.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="564.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="575.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="585.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="596.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="606.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="617.2" cy="270.9" r="3" fill="var(--g)"/>
+<circle cx="627.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="638.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="648.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="659.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="669.8" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="680.2" cy="270.8" r="3" fill="var(--g)"/>
+<circle cx="690.8" cy="270.8" r="3" fill="var(--g)"/>
+</svg>

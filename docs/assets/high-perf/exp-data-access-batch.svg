@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 262" width="720" height="262" role="img" aria-label="往订单明细表写 2 万行：各种写法每秒写入的行数">
+<style>
+:root { --fg:#1a1a2e; --muted:#6b7280; --bg:#f8f9fc; --card:#ffffff; --border:#e2e8f0; --p:#6366f1; --b:#0284c7; --g:#059669; --y:#d97706; --r:#dc2626; }
+:root[data-theme="dark"] { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; }
+@media (prefers-color-scheme: dark) { :root { --fg:#e5e7eb; --muted:#9ca3af; --bg:#1a1a2e; --card:#252540; --border:#3a3a5c; --p:#818cf8; --b:#38bdf8; --g:#34d399; --y:#fbbf24; --r:#f87171; } }
+text { font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; fill: var(--fg); }
+.m { fill: var(--muted); }
+</style>
+<rect x="0" y="0" width="720" height="262" rx="8" fill="var(--bg)"/>
+<text x="360" y="26" text-anchor="middle" font-size="14" font-weight="700">往订单明细表写 2 万行：各种写法每秒写入的行数</text>
+<text x="187" y="57.0" text-anchor="end" font-size="12">逐条，每条自动提交</text>
+<line x1="196.6" y1="53.0" x2="206.3" y2="53.0" stroke="var(--b)" stroke-width="14"/>
+<text class="m" x="212.3" y="57.0" font-size="11">1,849 行/秒</text>
+<text x="187" y="87.0" text-anchor="end" font-size="12">逐条，1000 行提交一次</text>
+<line x1="196.6" y1="83.0" x2="208.0" y2="83.0" stroke="var(--b)" stroke-width="14"/>
+<text class="m" x="214.0" y="87.0" font-size="11">2,166 行/秒</text>
+<text x="187" y="117.0" text-anchor="end" font-size="12">JDBC 批量 1000 行，驱动不改写</text>
+<line x1="196.6" y1="113.0" x2="219.8" y2="113.0" stroke="var(--b)" stroke-width="14"/>
+<text class="m" x="225.8" y="117.0" font-size="11">4,404 行/秒</text>
+<text x="187" y="147.0" text-anchor="end" font-size="12">一条语句 100 行</text>
+<line x1="196.6" y1="143.0" x2="392.8" y2="143.0" stroke="var(--b)" stroke-width="14"/>
+<text class="m" x="398.8" y="147.0" font-size="11">37,268 行/秒</text>
+<text x="187" y="177.0" text-anchor="end" font-size="12">一条语句 1000 行</text>
+<line x1="196.6" y1="173.0" x2="446.5" y2="173.0" stroke="var(--b)" stroke-width="14"/>
+<text class="m" x="452.5" y="177.0" font-size="11">47,468 行/秒</text>
+<text x="187" y="207.0" text-anchor="end" font-size="12">JDBC 批量 100 行，驱动改写</text>
+<line x1="196.6" y1="203.0" x2="418.2" y2="203.0" stroke="var(--b)" stroke-width="14"/>
+<text class="m" x="424.2" y="207.0" font-size="11">42,091 行/秒</text>
+<text x="187" y="237.0" text-anchor="end" font-size="12">JDBC 批量 1000 行，驱动改写</text>
+<line x1="196.6" y1="233.0" x2="630.0" y2="233.0" stroke="var(--b)" stroke-width="14"/>
+<text class="m" x="636.0" y="237.0" font-size="11">82,338 行/秒</text>
+</svg>

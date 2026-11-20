@@ -430,6 +430,8 @@ ALTER TABLE t_outbox ADD COLUMN trace_parent VARCHAR(55) NULL COMMENT 'W3C trace
 
 同一次提交还改了一处启动问题：启动瞬间连不上 Redis 时应用启动失败，但进程挂着不退出，K8s 不会重启它。四个服务的 `main` 现在捕获启动异常后直接退出。
 
+还有一处是采样采出来的。高性能模块的 [耗时定位实验](/high-perf/12_exp_locate) 给网关录了 JFR，各轮有 3%–9% 的 CPU 采样落在同一个方法上：管理端口那条过滤链的匹配条件。它要判断「这个请求是不是打在管理端口上」，每个请求都走一次，每次都调两遍 `Environment.getProperty` 去查端口号，而一次查询要把所有配置源翻一遍。端口在服务器起来之后不会再变，现在查到一次就记住（[`ManagementPort`](https://github.com/Clarence404/mall-evolution/blob/main/mall-gateway/src/main/java/io/github/clarence404/mall/gateway/ManagementPort.java)，mall-common 里有同样的一份），修复后这部分采样是 0。接口耗时上量不出差别，改它是因为代价只有十几行。提交：[`9c320eb`](https://github.com/Clarence404/mall-evolution/commit/9c320eb)。
+
 ---
 
 ## 小结

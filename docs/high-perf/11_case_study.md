@@ -220,6 +220,7 @@ description: 把前面各篇串起来：基线 → 火焰图 → 逐层优化 �
 - 连接池排队先用 Little 定律算，缩短持有时间比加大池子有效
 - 本例收益最大的是 N+1 批量化和把 RPC 移出事务，都属于"减少等待"
 - 不做没有数据支撑的优化，GC 调参就是反例；全模块内容回顾见 [模块总览](./0_overview)
+- 本篇是示例数据；在真实服务上量出来的四组结果见 [耗时定位实验](./12_exp_locate) 起的四篇实验
 
 ## 参考资料
 
@@ -230,4 +231,4 @@ description: 把前面各篇串起来：基线 → 火焰图 → 逐层优化 �
 - JDBC 批量重写参数：[MySQL Connector/J: Performance Extensions](https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-performance-extensions.html)
 - 本地缓存：[ben-manes/caffeine](https://github.com/ben-manes/caffeine)
 
-> 下一篇：[高并发总览](/high-con/0_overview) —— 单个请求够快之后，接下来解决流量大时系统如何扛得住。
+> 下一篇：[耗时定位实验](./12_exp_locate) —— 方法讲完了，接下来四篇在真实服务上把定位、数据访问、JVM 和微基准各量一遍。

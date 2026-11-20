@@ -163,6 +163,7 @@ orders.forEach(o -> o.setItems(itemMap.getOrDefault(o.getId(), List.of())));
 - 批量写入要同时满足批量 API、`rewriteBatchedStatements=true`、分批提交事务
 - N+1 用 `IN` 批量查询 + 内存组装解决，靠 SQL 条数统计发现
 - 大 IN 列表分批，避免超过 `eq_range_index_dive_limit` 后执行计划变差
+- 实测数据：三种翻页翻到 19 万行、逐单查明细与 `IN` 和 `JOIN`、四种批量写法见 [数据访问实验](./13_exp_data_access)
 
 ## 参考资料
 

@@ -142,6 +142,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr
 - 读火焰图看宽度不看顺序：找平顶（自身热点）和宽塔（热点子树），wall 模式下的等待帧不是热点
 - 按问题选事件：CPU 高用 `cpu`，CPU 低但慢用 `wall`，GC 频繁用 `alloc`，锁竞争用 `lock`
 - JFR 适合常驻录制、事后回溯；JProfiler 适合测试环境深度分析
+- 实测数据：用 JFR 采样把 CPU 归到各层、找出网关上每个请求都去查配置的那一处，见 [耗时定位实验](./12_exp_locate)
 
 ## 参考资料
 
