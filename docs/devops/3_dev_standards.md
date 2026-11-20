@@ -383,7 +383,7 @@ total.divide(count, 2, RoundingMode.HALF_UP);
 
 ## 八、数据访问
 
-SQL 优化与索引原理见 [MySQL 索引](/database/1_mysql/4_topic_index) 与 [执行过程](/database/1_mysql/6_topic_execution)，编码时的硬性规定：
+SQL 优化与索引原理见 [MySQL 索引](/database/1_mysql/2_topic_index) 与 [执行过程](/database/1_mysql/4_topic_execution)，编码时的硬性规定：
 
 | 规约 | 原因 |
 |------|------|

@@ -4,7 +4,7 @@ description: Mapping 设计、bool 查询与聚合、深分页、别名与 ILM�
 
 # Elasticsearch 实战
 
-> 前置阅读：[Elasticsearch 原理](./5_search_es)、[CDC 工具](/database/5_practice/0_cdc_tools)
+> 前置阅读：[Elasticsearch 原理](./5_search_es)、[CDC 工具](/database/6_sync_backup/0_cdc_tools)
 
 ES 用得好不好，主要看 Mapping 设计、查询写法和索引怎么滚动重建。本篇讲 Mapping 设计、查询与深分页、索引生命周期、与 MySQL 同步、性能调优、Java 客户端和常见故障，基线为 Elasticsearch 9。
 
@@ -274,7 +274,7 @@ POST /logs-old/_split/logs-new
 - **乱序与重复**：写 ES 时用行上的版本号作为外部版本号（`version_type: external`），旧版本写入会被拒绝（409），直接忽略
 - **可观测**：监控同步延迟、失败重试、死信，并定期与主库对账
 
-CDC 工具的部署与选型见 [CDC 工具](/database/5_practice/0_cdc_tools)，多表关联成宽文档见 [Flink CDC](/flink/6_cdc)，商品搜索里完整的同步消费者代码见 [搜索](/scenario/22_search_system#五、数据同步-mysql-→-es)。
+CDC 工具的部署与选型见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)，多表关联成宽文档见 [Flink CDC](/flink/6_cdc)，商品搜索里完整的同步消费者代码见 [搜索](/scenario/22_search_system#五、数据同步-mysql-→-es)。
 
 ---
 

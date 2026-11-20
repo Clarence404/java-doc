@@ -4,7 +4,7 @@ description: RTO / RPO、mysqldump、XtraBackup 增量、binlog PITR、PG 增量
 
 # 数据备份与恢复
 
-> 前置阅读：[MySQL 主从与高可用](../1_mysql/9_topic_replication)
+> 前置阅读：[MySQL 主从与高可用](../1_mysql/7_topic_replication)
 
 复制解决「机器坏了还能服务」，备份解决「误删、被勒索后还能找回」：`DELETE` 会同步到所有副本。本篇讲备份策略、备份恢复命令与恢复演练，基线为 MySQL 8.4 / PostgreSQL 18。
 
@@ -325,4 +325,4 @@ recovery_target_action = 'promote'
 - PostgreSQL 连续归档与 PITR：[https://www.postgresql.org/docs/current/continuous-archiving.html](https://www.postgresql.org/docs/current/continuous-archiving.html)
 - pg_combinebackup：[https://www.postgresql.org/docs/current/app-pgcombinebackup.html](https://www.postgresql.org/docs/current/app-pgcombinebackup.html)
 
-> 下一篇：[分库分表与中间件](./3_sharding) —— 用 ShardingSphere 5.5 的 JDBC 驱动与 YAML 规则落地分库分表、读写分离与数据迁移。
+> 返回：[数据库总览](../0_overview)

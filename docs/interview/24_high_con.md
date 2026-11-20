@@ -308,7 +308,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 关联表用同一个分片键：如订单和订单明细都按 `user_id` 分，才能在同一分片内 JOIN
 - 优先选 `user_id`、`tenant_id` 这类业务核心维度
 
-→ 详见 [数据层扩展](/high-con/5_data_scaling#_2、分片键选择)、[分库分表与中间件](/database/5_practice/3_sharding#三、shardingsphere-jdbc-分库分表配置)
+→ 详见 [数据层扩展](/high-con/5_data_scaling#_2、分片键选择)、[分库分表与中间件](/database/4_scale_out/0_sharding#三、shardingsphere-jdbc-分库分表配置)
 
 ### Q24：哈希、范围、一致性哈希几种分片算法各有什么优缺点？
 
@@ -343,7 +343,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 
 - 系统层面的取舍：数据量还没到瓶颈时，先走读写分离、冷热分离，分库分表留到最后；也可以直接换 TiDB 这类分布式数据库，把扩容交给存储层
 
-→ 完整答案见 [数据库面试题解答](/interview/12_db) Q50；正文详见 [分库分表与中间件](/database/5_practice/3_sharding#八、平滑迁移与扩容)、[数据层扩展](/high-con/5_data_scaling#_6、扩容迁移)
+→ 完整答案见 [数据库面试题解答](/interview/12_db) Q50；正文详见 [分库分表与中间件](/database/4_scale_out/0_sharding#八、平滑迁移与扩容)、[数据层扩展](/high-con/5_data_scaling#_6、扩容迁移)
 
 ---
 
@@ -476,7 +476,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 多个服务共用一个库时，这个上限要在服务之间分
 - 单个池该多大、为什么不是越大越好见 [高性能面试题解答 Q15](/interview/23_high_perf#q15-数据库连接池的大小如何确定-连接池是不是越大越好)
 
-→ 详见 [并发参数调优](/high-con/7_concurrency_tuning#三、数据库连接池)、[数据库连接池 · 池大小估算](/database/4_access/2_connection_pool#_4、池大小估算)
+→ 详见 [并发参数调优](/high-con/7_concurrency_tuning#三、数据库连接池)、[数据库连接池 · 池大小估算](/database/5_access/2_connection_pool#_4、池大小估算)
 
 ### Q37：Lettuce 需要配置连接池吗？什么时候池才会被使用？
 

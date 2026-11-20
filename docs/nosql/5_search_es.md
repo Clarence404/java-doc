@@ -4,7 +4,7 @@ description: 倒排索引与分词、Mapping 基础、分片副本、写入与�
 
 # Elasticsearch 原理
 
-> 前置阅读：[搜索数据库](./5_search_db)、[MySQL 索引](/database/1_mysql/4_topic_index)
+> 前置阅读：[搜索数据库](./5_search_db)、[MySQL 索引](/database/1_mysql/2_topic_index)
 
 Elasticsearch 是基于 Lucene 的分布式搜索引擎，靠倒排索引换取全文检索速度，靠分片副本做水平扩展。本篇讲倒排索引与分词、Mapping、写入与近实时、查询两阶段和集群机制，基线为 Elasticsearch 9。
 

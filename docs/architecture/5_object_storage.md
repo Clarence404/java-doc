@@ -51,7 +51,7 @@ Amazon S3 从 2020 年 12 月起对所有对象的 PUT / DELETE 提供**强读�
 | 扩展性 | 单卷容量有上限 | 中等，目录层级与元数据易成瓶颈 | 近乎无限，按量付费 |
 | 典型用途 | 数据库数据盘、系统盘 | 共享目录、传统应用迁移 | 图片视频、附件、备份、数据湖 |
 
-数据库这类需要随机写和 fsync 的负载放块存储；需要多台主机按文件路径共享读写的放文件存储；一次写入、多次读取、按 URL 分发的内容放对象存储。文件存储在规模变大后就是分布式文件系统，HDFS、CephFS、JuiceFS 的架构与选型见 [分布式文件系统](/database/0_fundamentals/1_storage_fs)。
+数据库这类需要随机写和 fsync 的负载放块存储；需要多台主机按文件路径共享读写的放文件存储；一次写入、多次读取、按 URL 分发的内容放对象存储。文件存储在规模变大后就是分布式文件系统，HDFS、CephFS、JuiceFS 的架构与选型见 [分布式文件系统](/architecture/5_storage_fs)。
 
 ---
 
@@ -316,4 +316,4 @@ MinIO 曾是自建 S3 兼容存储的默认选择，但社区版的状态在 202
 - Garage：[https://garagehq.deuxfleurs.fr/](https://garagehq.deuxfleurs.fr/)
 - RustFS：[https://github.com/rustfs/rustfs](https://github.com/rustfs/rustfs)
 
-> 下一篇：[权限系统架构设计](./6_access_control) —— 权限系统的 PEP / PDP 部署、网关与服务的鉴权分工、权限缓存刷新与数据权限拦截。
+> 下一篇：[分布式文件系统](./5_storage_fs) —— 元数据与数据分离、HDFS、Ceph、JuiceFS、选型与 Java 接入

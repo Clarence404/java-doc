@@ -4,7 +4,7 @@ description: TiDB 架构与事务、OceanBase 多副本与多租户、选型对�
 
 # 分布式数据库
 
-> 前置阅读：[MySQL 基础](../1_mysql/0_basics)、[商业与国产库](./0_other_rdbms)
+> 前置阅读：[MySQL 基础](../1_mysql/0_basics)、[商业与国产库](../3_relational/1_other_rdbms)
 
 TiDB、OceanBase 对外提供 SQL 与事务，加节点即可扩容。本篇讲实现、MySQL 兼容差异及与 Aurora、PolarDB 的选型，基线为 TiDB 8.5 LTS、OceanBase 4.x。
 
@@ -236,4 +236,4 @@ CREATE TENANT biz_tenant
 - Amazon Aurora DSQL：[https://docs.aws.amazon.com/aurora-dsql/latest/userguide/what-is-aurora-dsql.html](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/what-is-aurora-dsql.html)
 - PolarDB 文档：[https://help.aliyun.com/zh/polardb/](https://help.aliyun.com/zh/polardb/)
 
-> 下一篇：[ORM 框架](../4_access/1_orm_framework) —— MyBatis 的缓存、分页、Mapper 代理、执行器、TypeHandler 与插件原理，以及 Hibernate 的持久化上下文。
+> 下一篇：[MySQL JDBC 驱动](../5_access/1_jdbc_driver) —— Connector/J 版本、URL 参数与时区、真假批量、大结果集读取、超时体系、服务端预编译

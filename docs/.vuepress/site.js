@@ -105,14 +105,15 @@ export const GROUPS = [
         name: '数据存储', tagline: '关系型、NoSQL、缓存与消息中间件', modules: [
             {
                 name: '数据库', dir: 'database', interview: ['12_db'],
-                desc: '存储引擎与选型 / 分布式文件系统 / MySQL / PostgreSQL / 国产与分布式数据库 / ORM 与连接池 / CDC / 备份恢复 / 分库分表',
+                desc: '存储引擎与选型 / MySQL / PostgreSQL / MariaDB 与国产库 / 分库分表与分布式数据库 / JDBC 驱动、连接池与 ORM / CDC / 备份恢复',
                 subdirs: {
                     '0_fundamentals': '基础与选型',
-                    '1_mysql': {title: 'MySQL', sidebar: [{text: '核心专项', from: 4}]},
+                    '1_mysql': {title: 'MySQL', sidebar: [{text: '核心专项', from: 2}, {text: '避坑与版本', from: 8}]},
                     '2_postgresql': {title: 'PostgreSQL', sidebar: [{text: '核心专项', from: 2}]},
-                    '3_relational': '更多关系库',
-                    '4_access': '应用接入',
-                    '5_practice': '数据同步与运维',
+                    '3_relational': '其他关系库',
+                    '4_scale_out': '分库分表与分布式数据库',
+                    '5_access': '应用接入',
+                    '6_sync_backup': '数据同步与备份',
                 },
             },
             {name: 'NoSQL', dir: 'nosql', interview: ['13_nosql'], desc: '键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图'},
@@ -145,7 +146,7 @@ export const GROUPS = [
                     {text: '行为型', from: 13},
                 ],
             },
-            {name: '系统架构', dir: 'architecture', interview: ['20_architecture'], desc: '架构模式 / DDD / 工程结构与分包 / 幂等 / 对象存储 / 权限系统 / 冷热分离 / 主数据'},
+            {name: '系统架构', dir: 'architecture', interview: ['20_architecture'], desc: '架构模式 / DDD / 工程结构与分包 / 幂等 / 冷热分离 / 对象存储 / 分布式文件系统 / 权限系统 / 主数据'},
             {
                 name: '业务场景', dir: 'scenario', interview: ['21_scenario', '22_scenario_highlights'],
                 desc: '设计方法 / 商品详情 / 购物车 / 优惠券 / 库存与票务 / 订单 / 支付 / 售后与退款 / 账户与记账 / 秒杀 / 红包 / 抽奖 / 排行榜 / Feed 流 / 评论 / 计数 / IM / 通知中心 / LBS / 短链 / 搜索 / 大文件上传 / 扫码登录 / 延迟任务 / 海量数据',
@@ -280,6 +281,28 @@ export const BASELINE = {
 
 // 重定向：文章搬家后旧地址自动跳到新地址（@vuepress/plugin-redirect），键为旧路径、值为新路径，均不带 .html
 export const REDIRECTS = {
+    // 2026-11：数据库模块重新分组（基础与选型 / MySQL / PostgreSQL / 其他关系库 / 分库分表与分布式数据库 / 应用接入 / 数据同步与备份），
+    // MySQL 组内按阅读顺序重排，分布式文件系统搬到系统架构
+    '/database/0_fundamentals/1_storage_fs': '/architecture/5_storage_fs',
+    '/database/1_mysql/3_table_design': '/database/1_mysql/1_table_design',
+    '/database/1_mysql/4_topic_index': '/database/1_mysql/2_topic_index',
+    '/database/1_mysql/5_topic_transaction': '/database/1_mysql/3_topic_transaction',
+    '/database/1_mysql/6_topic_execution': '/database/1_mysql/4_topic_execution',
+    '/database/1_mysql/7_topic_explain': '/database/1_mysql/5_topic_explain',
+    '/database/1_mysql/8_topic_innodb': '/database/1_mysql/6_topic_innodb',
+    '/database/1_mysql/9_topic_replication': '/database/1_mysql/7_topic_replication',
+    '/database/1_mysql/3_fallible_point': '/database/1_mysql/8_fallible_point',
+    '/database/1_mysql/1_feature': '/database/1_mysql/9_feature',
+    '/database/1_mysql/2_maria_db': '/database/3_relational/0_maria_db',
+    '/database/3_relational/0_other_rdbms': '/database/3_relational/1_other_rdbms',
+    '/database/5_practice/3_sharding': '/database/4_scale_out/0_sharding',
+    '/database/3_relational/1_distributed_db': '/database/4_scale_out/1_distributed_db',
+    '/database/4_access/3_jdbc_driver': '/database/5_access/1_jdbc_driver',
+    '/database/4_access/2_connection_pool': '/database/5_access/2_connection_pool',
+    '/database/4_access/1_orm_framework': '/database/5_access/3_orm_framework',
+    '/database/5_practice/0_cdc_tools': '/database/6_sync_backup/0_cdc_tools',
+    '/database/5_practice/1_binlog_connector_source': '/database/6_sync_backup/1_binlog_connector_source',
+    '/database/5_practice/2_backup_recovery': '/database/6_sync_backup/2_backup_recovery',
     // 2026-11：业务场景按业务域重新分组（方法论 / 交易与资金 / 营销活动 / 内容与社交 / 通用能力 / 海量数据），文件按新顺序重排编号
     '/scenario/13_product_detail': '/scenario/3_product_detail',
     '/scenario/19_cart': '/scenario/4_cart',
@@ -347,12 +370,12 @@ export const REDIRECTS = {
     '/database/4_nosql/4_graph_db': '/nosql/6_graph_db',
     // 2026-10：数据库模块重新分组（基础与选型、更多关系库、应用接入、数据同步与运维）
     '/database/6_reference/1_selection_guide': '/database/0_fundamentals/2_selection_guide',
-    '/database/3_relational/2_orm_framework': '/database/4_access/1_orm_framework',
-    '/database/5_practice/3_connection_pool': '/database/4_access/2_connection_pool',
-    '/database/6_reference/2_jdbc_driver': '/database/4_access/3_jdbc_driver',
-    '/database/6_reference/0_binlog_connector_source': '/database/5_practice/1_binlog_connector_source',
-    '/database/5_practice/1_backup_recovery': '/database/5_practice/2_backup_recovery',
-    '/database/5_practice/2_sharding': '/database/5_practice/3_sharding',
+    '/database/3_relational/2_orm_framework': '/database/5_access/3_orm_framework',
+    '/database/5_practice/3_connection_pool': '/database/5_access/2_connection_pool',
+    '/database/6_reference/2_jdbc_driver': '/database/5_access/1_jdbc_driver',
+    '/database/6_reference/0_binlog_connector_source': '/database/6_sync_backup/1_binlog_connector_source',
+    '/database/5_practice/1_backup_recovery': '/database/6_sync_backup/2_backup_recovery',
+    '/database/5_practice/2_sharding': '/database/4_scale_out/0_sharding',
     // 2026-10：子目录里的「MySQL 基础」「PostgreSQL 基础」不再占用 0_overview 文件名（总览页专用）
     '/database/1_mysql/0_overview': '/database/1_mysql/0_basics',
     '/database/2_postgresql/0_overview': '/database/2_postgresql/0_basics',
@@ -444,7 +467,7 @@ export const ROUTES = [
         stages: [
             {title: '团队规范', time: '第 1–2 天', items: ['devops/1_git_workflow', 'devops/3_dev_standards', 'devops/2_code_review', 'handbook/1_cheatsheet/1_git', 'handbook/1_cheatsheet/7_build']},
             {title: '工程与框架', time: '第 3–5 天', items: ['architecture/2_package_structure', 'spring-boot/1_spring_boot', 'spring-boot/5_config', 'spring-boot/2_web_dev', 'engineering/4_api_design_rule', 'spring-boot/3_data_access', 'spring-boot/9_logging']},
-            {title: '数据与缓存', time: '第 6–8 天', items: ['database/1_mysql/3_table_design', 'database/1_mysql/4_topic_index', 'database/1_mysql/5_topic_transaction', 'database/1_mysql/3_fallible_point', 'cache/5_redis_practice', 'cache/10_cache_consistency']},
+            {title: '数据与缓存', time: '第 6–8 天', items: ['database/1_mysql/1_table_design', 'database/1_mysql/2_topic_index', 'database/1_mysql/3_topic_transaction', 'database/1_mysql/8_fallible_point', 'cache/5_redis_practice', 'cache/10_cache_consistency']},
             {title: '测试与上线', time: '第 9–10 天', items: ['testing/1_unit_test', 'spring-boot/10_testing', 'devops/4_ci_cd', 'devops/7_release_strategy', 'observability/1_logging', 'handbook/1_cheatsheet/0_linux']},
         ],
     },
@@ -463,7 +486,7 @@ export const ROUTES = [
     {
         name: '从 CRUD 到架构', for: '做了几年业务开发，想往架构方向走，按系统长大的顺序读', time: '约 1–2 个月',
         stages: [
-            {title: '把单体写扎实', items: ['database/0_fundamentals/1_storage_engine', 'database/1_mysql/3_table_design', 'database/1_mysql/7_topic_explain', 'architecture/3_idempotence', 'cache/10_cache_consistency', 'architecture/2_package_structure']},
+            {title: '把单体写扎实', items: ['database/0_fundamentals/1_storage_engine', 'database/1_mysql/1_table_design', 'database/1_mysql/5_topic_explain', 'architecture/3_idempotence', 'cache/10_cache_consistency', 'architecture/2_package_structure']},
             {title: '引入中间件', items: ['messaging/1_basics', 'high-con/4_async_peak_shaving', 'distributed/3_lock', 'distributed/4_transaction', 'distributed/8_id_generator']},
             {title: '拆分与治理', items: ['distributed/2_theorem', 'microservices/2_service_split', 'microservices/3_patterns', 'architecture/2_ddd', 'high-avail/4_timeout_retry_bulkhead', 'high-avail/5_circuit_breaking']},
             {title: '扛住流量', items: ['high-con/3_cache_architecture', 'high-con/5_data_scaling', 'high-con/6_hotspot', 'high-con/8_capacity_planning', 'high-avail/9_multi_active']},

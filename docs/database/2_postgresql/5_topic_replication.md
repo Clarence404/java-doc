@@ -4,7 +4,7 @@ description: 进程模型与连接池、流复制与同步级别、复制槽、�
 
 # PostgreSQL 复制与高可用
 
-> 前置阅读：[MySQL 主从与高可用](../1_mysql/9_topic_replication)、[MVCC 与 VACUUM](./2_topic_mvcc)
+> 前置阅读：[MySQL 主从与高可用](../1_mysql/7_topic_replication)、[MVCC 与 VACUUM](./2_topic_mvcc)
 
 本篇讲 PG 每连接一进程模型为何必须配连接池、基于 WAL 的流复制与 `synchronous_commit` 各级别含义、复制槽风险、逻辑复制边界，以及 Patroni、CloudNativePG 等故障切换方案。
 
@@ -21,7 +21,7 @@ description: 进程模型与连接池、流复制与同步级别、复制槽、�
 
 PG 18 仍没有内置连接池，生产环境通常是两层：应用内的 HikariCP 控制应用并发，外部的 PgBouncer 等代理把成百上千个客户端连接收敛成少量真实后端连接。
 
-PgBouncer 最常用 `transaction` 模式（事务结束即归还后端连接），代价是会话级状态不可用：`SET`（`SET LOCAL` 除外）、`LISTEN` / `NOTIFY`、会话级 advisory lock、`WITH HOLD` 游标。PgJDBC 默认在同一语句执行 5 次（`prepareThreshold`）后改用服务端预编译语句，需要 PgBouncer 1.21 及以上并开启 `max_prepared_statements`，旧版本则在 JDBC URL 上设 `prepareThreshold=0`。pool_mode 选择、两层池的大小计算等细节见 [数据库连接池](../4_access/2_connection_pool)。
+PgBouncer 最常用 `transaction` 模式（事务结束即归还后端连接），代价是会话级状态不可用：`SET`（`SET LOCAL` 除外）、`LISTEN` / `NOTIFY`、会话级 advisory lock、`WITH HOLD` 游标。PgJDBC 默认在同一语句执行 5 次（`prepareThreshold`）后改用服务端预编译语句，需要 PgBouncer 1.21 及以上并开启 `max_prepared_statements`，旧版本则在 JDBC URL 上设 `prepareThreshold=0`。pool_mode 选择、两层池的大小计算等细节见 [数据库连接池](../5_access/2_connection_pool)。
 
 ---
 
@@ -147,7 +147,7 @@ CREATE SUBSCRIPTION sub_orders
 
 ### 2、CDC
 
-Debezium、Flink CDC 等工具不使用 `CREATE SUBSCRIPTION`，而是作为客户端创建逻辑复制槽，用内置的 `pgoutput` 解码插件读取变更流。它们同样受复制槽 WAL 堆积和 `catalog_xmin` 的约束，下游停摆时要有告警。工具对比见 [CDC 工具](../5_practice/0_cdc_tools)，Flink 侧的用法见 [Flink CDC](/flink/6_cdc)。
+Debezium、Flink CDC 等工具不使用 `CREATE SUBSCRIPTION`，而是作为客户端创建逻辑复制槽，用内置的 `pgoutput` 解码插件读取变更流。它们同样受复制槽 WAL 堆积和 `catalog_xmin` 的约束，下游停摆时要有告警。工具对比见 [CDC 工具](../6_sync_backup/0_cdc_tools)，Flink 侧的用法见 [Flink CDC](/flink/6_cdc)。
 
 ---
 
@@ -188,7 +188,7 @@ spring.datasource.url=jdbc:postgresql://node1:5432,node2:5432,node3:5432/mydb?ta
 | 自动故障切换 | 需 Patroni、CloudNativePG 等外部组件 | InnoDB Cluster（MGR + MySQL Shell + MySQL Router）或 Orchestrator 等 |
 | 跨版本复制 | 逻辑复制可跨任意受支持版本 | 支持从低版本源复制到高一个系列的副本（如 8.0 → 8.4 LTS → 9.x） |
 
-MySQL 侧详见 [MySQL 主从与高可用](../1_mysql/9_topic_replication)。
+MySQL 侧详见 [MySQL 主从与高可用](../1_mysql/7_topic_replication)。
 
 ---
 
@@ -213,4 +213,4 @@ MySQL 侧详见 [MySQL 主从与高可用](../1_mysql/9_topic_replication)。
 - Patroni：[https://patroni.readthedocs.io/](https://patroni.readthedocs.io/)
 - CloudNativePG：[https://cloudnative-pg.io/](https://cloudnative-pg.io/)
 
-> 下一篇：[商业与国产库](../3_relational/0_other_rdbms) —— Oracle、SQL Server 与达梦、人大金仓、openGauss 等国产库的方言差异和接入要点。
+> 下一篇：[MariaDB](../3_relational/0_maria_db) —— MySQL 分支的现状：版本线、与 MySQL 的差异、特有能力和迁移注意事项。

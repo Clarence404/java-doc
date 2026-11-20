@@ -2,7 +2,7 @@
 
 本模块从 Java 后端视角讲物联网，按「协议与选型、接入与安全、平台能力、平台实战」四组展开：先选协议和平台，再把设备安全地注册、接入进来，然后是物模型、遥测数据链路、设备影子、指令下发、OTA、规则引擎与告警这些平台能力，最后用配套仓库 Conduit IoT 串讲一个多租户物联网平台是怎么做出来的。单片机固件和射频硬件不在范围内。
 
-**版本基线（2026 年 10 月）**：MQTT 5.0、EMQX 5.9+ / 6.x、TDengine 3.x、KubeEdge 1.23、EdgeX Foundry 4.0、ThingsBoard 4.x、JDK 21、Spring Boot 4
+**版本基线（2026 年 10 月）**：MQTT 5.0、EMQX 6.x、TDengine 3.x、KubeEdge 1.23、EdgeX Foundry 4.0、ThingsBoard 4.x、JDK 21、Spring Boot 4
 
 ---
 

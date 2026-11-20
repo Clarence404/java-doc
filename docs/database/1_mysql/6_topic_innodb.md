@@ -4,7 +4,7 @@ description: 表空间与页、行格式、Buffer Pool、Double Write、刷脏�
 
 # InnoDB 存储结构
 
-> 前置阅读：[MySQL 索引](./4_topic_index)、[MySQL 事务与锁](./5_topic_transaction)
+> 前置阅读：[MySQL 索引](./2_topic_index)、[MySQL 事务与锁](./3_topic_transaction)
 
 本篇讲 InnoDB 从表空间、段、区、页到行的存储层次，四种行格式与行溢出规则，以及 Buffer Pool、Double Write 与刷脏机制。以 MySQL 8.4 LTS 为基准，8.0 的差异单独标注。
 
@@ -27,7 +27,7 @@ SHOW VARIABLES LIKE 'innodb_file_per_table';  -- ON
 | **页（Page）** | 默认 **16KB** | **磁盘 IO 的最小单位**，B+ 树的一个节点就是一页；`innodb_page_size` 可在初始化实例时设为 4K～64K，之后不能修改 |
 | **行（Row）** | — | 按行格式存放在页内 |
 
-三层 B+ 树能存多少行的估算见 [MySQL 索引](./4_topic_index)。
+三层 B+ 树能存多少行的估算见 [MySQL 索引](./2_topic_index)。
 
 ### 2、系统级文件
 
@@ -40,7 +40,7 @@ SHOW VARIABLES LIKE 'innodb_file_per_table';  -- ON
 | Double Write 文件 | `#ib_16384_0.dblwr` 等 | 8.0.20 起从系统表空间独立出来，见第四节 |
 | 临时表空间 | `ibtmp1`、`#innodb_temp/` | 全局临时表空间存放用户临时表的回滚段；会话临时表空间存放用户创建的临时表和优化器内部临时表 |
 
-undo log 与 redo log 在事务中的作用见 [MySQL 事务与锁](./5_topic_transaction)，本篇只关心它们落在哪些文件。
+undo log 与 redo log 在事务中的作用见 [MySQL 事务与锁](./3_topic_transaction)，本篇只关心它们落在哪些文件。
 
 ---
 
@@ -122,7 +122,7 @@ SHOW GLOBAL STATUS LIKE 'Innodb_buffer_pool_read%';
 | 参数 | 8.4 默认 | 8.0 默认 | 说明 |
 |------|---------|---------|------|
 | `innodb_adaptive_hash_index` | OFF | ON | 自适应哈希索引在高并发下常成为争用点 |
-| `innodb_change_buffering` | none | all | Change Buffer 对 SSD 收益有限；原理见 [MySQL 索引](./4_topic_index) |
+| `innodb_change_buffering` | none | all | Change Buffer 对 SSD 收益有限；原理见 [MySQL 索引](./2_topic_index) |
 
 ---
 
@@ -247,4 +247,4 @@ InnoDB 自 5.5 起是默认引擎，8.0 起系统表也全部迁到 InnoDB。MyI
 - MySQL 8.4 Reference Manual：[Configuring Buffer Pool Flushing](https://dev.mysql.com/doc/refman/8.4/en/innodb-buffer-pool-flushing.html)
 - MySQL 8.4 Reference Manual：[Limits on InnoDB Tables](https://dev.mysql.com/doc/refman/8.4/en/innodb-limits.html)
 
-> 下一篇：[MySQL 主从与高可用](./9_topic_replication) —— 从 binlog 到 GTID、半同步、并行复制，再到 InnoDB Cluster 与 ClusterSet。
+> 下一篇：[MySQL 主从与高可用](./7_topic_replication) —— 从 binlog 到 GTID、半同步、并行复制，再到 InnoDB Cluster 与 ClusterSet。

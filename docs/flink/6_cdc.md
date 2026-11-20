@@ -12,7 +12,7 @@ Flink CDC 用无锁增量快照把数据库的「全量 + 增量」变更持续�
 
 ## 一、Flink CDC 3.x 是什么
 
-CDC 的通用概念、binlog 原理以及 Canal / Debezium / Flink CDC 的横向选型见 [CDC 工具](/database/5_practice/0_cdc_tools)。
+CDC 的通用概念、binlog 原理以及 Canal / Debezium / Flink CDC 的横向选型见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)。
 
 ### 1、从连接器到数据集成框架
 
@@ -77,7 +77,7 @@ binlog 侧需要确认（MySQL 8.0 起这三项均为默认值，主要是检查
 - binlog 保留时间（`binlog_expire_logs_seconds`）要**大于作业可能停机的最长时间**，否则从 checkpoint 恢复时位点已被清理，只能重做全量。
 - 主从切换场景开启 GTID（`gtid_mode = ON`、`enforce_gtid_consistency = ON`），连接切到新主库后能按 GTID 找到续读位置。
 
-binlog 格式与主从复制原理见 [MySQL 主从与高可用](/database/1_mysql/9_topic_replication)。
+binlog 格式与主从复制原理见 [MySQL 主从与高可用](/database/1_mysql/7_topic_replication)。
 
 ### 2、关键参数
 

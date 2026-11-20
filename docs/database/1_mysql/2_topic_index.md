@@ -56,7 +56,7 @@ SELECT * FROM t_article WHERE MATCH(title) AGAINST('数据库' IN NATURAL LANGUA
 
 ## 三、聚簇索引与二级索引
 
-Buffer Pool 与页结构见 [InnoDB 存储结构](./8_topic_innodb)。
+Buffer Pool 与页结构见 [InnoDB 存储结构](./6_topic_innodb)。
 
 ### 1、聚簇索引（Clustered Index）
 
@@ -199,7 +199,7 @@ SELECT * FROM t_user WHERE phone = '13800138000';
 SELECT * FROM t_user WHERE id = '10';
 ```
 
-两表 JOIN 时关联列的字符集或排序规则不一致，也会在列上发生转换，见 [MySQL 避坑指南](./3_fallible_point)。
+两表 JOIN 时关联列的字符集或排序规则不一致，也会在列上发生转换，见 [MySQL 避坑指南](./8_fallible_point)。
 
 ### 3、LIKE 左模糊
 
@@ -258,7 +258,7 @@ SELECT * FROM t_user WHERE id NOT IN (1, 2, 3);
 SELECT * FROM t_order WHERE status = 1;
 ```
 
-解决：与高区分度列组成联合索引，如 `idx_status_create_time(status, create_time)`，让 `status = ? AND create_time > ?` 能缩小范围；或者让查询变成覆盖查询。统计信息不准导致选错索引时，处理方法见 [SQL 执行流程](./6_topic_execution) 的优化器一节。
+解决：与高区分度列组成联合索引，如 `idx_status_create_time(status, create_time)`，让 `status = ? AND create_time > ?` 能缩小范围；或者让查询变成覆盖查询。统计信息不准导致选错索引时，处理方法见 [SQL 执行流程](./4_topic_execution) 的优化器一节。
 
 ---
 
@@ -348,7 +348,7 @@ SELECT * FROM t_order WHERE id > ? ORDER BY id LIMIT 1000;
 
 **该建索引的：**
 
-执行计划各字段的读法见 [EXPLAIN 与 SQL 优化](./7_topic_explain)。
+执行计划各字段的读法见 [EXPLAIN 与 SQL 优化](./5_topic_explain)。
 
 - WHERE / JOIN ON / ORDER BY / GROUP BY 中的高频列
 - 区分度高的列（`COUNT(DISTINCT col) / COUNT(*)` 越接近 1 越好）
@@ -401,4 +401,4 @@ ALTER TABLE t_order ALTER INDEX idx_status VISIBLE;
 - ngram Full-Text Parser：[https://dev.mysql.com/doc/refman/8.4/en/fulltext-search-ngram.html](https://dev.mysql.com/doc/refman/8.4/en/fulltext-search-ngram.html)
 - What Is New in MySQL 8.4（默认值变更）：[https://dev.mysql.com/doc/refman/8.4/en/mysql-nutshell.html](https://dev.mysql.com/doc/refman/8.4/en/mysql-nutshell.html)
 
-> 下一篇：[MySQL 事务与锁](./5_topic_transaction) —— ACID 的实现、隔离级别与 MVCC、Next-Key Lock 加锁规则、死锁排查与 redo / undo / binlog 两阶段提交。
+> 下一篇：[MySQL 事务与锁](./3_topic_transaction) —— ACID 的实现、隔离级别与 MVCC、Next-Key Lock 加锁规则、死锁排查与 redo / undo / binlog 两阶段提交。

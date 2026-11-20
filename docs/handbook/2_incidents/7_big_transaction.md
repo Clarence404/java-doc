@@ -4,7 +4,7 @@ description: 无索引批量 UPDATE 锁全表、锁等待定位、KILL 与回滚
 
 # 大事务锁表
 
-> 前置阅读：[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)、[EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain)
+> 前置阅读：[MySQL 事务与锁](/database/1_mysql/3_topic_transaction)、[EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)
 
 后台一次「批量关闭活动订单」开启了 14 分钟的大事务，下单和支付回调全部锁等待超时。本篇完整复盘，基线为 JDK 21、Spring Boot 4、MySQL 8.4（隔离级别 RR）。
 
@@ -271,11 +271,11 @@ WHERE trx_started < NOW() - INTERVAL 60 SECOND;
 
 ## 七、涉及知识点
 
-- 行锁、next-key 锁与长事务：[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
-- `EXPLAIN` 与全表扫描：[EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain)
-- 索引设计：[MySQL 索引](/database/1_mysql/4_topic_index)
+- 行锁、next-key 锁与长事务：[MySQL 事务与锁](/database/1_mysql/3_topic_transaction)
+- `EXPLAIN` 与全表扫描：[EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)
+- 索引设计：[MySQL 索引](/database/1_mysql/2_topic_index)
 - 事务提交后事件与本地消息表：[分布式事务](/distributed/4_transaction)
-- 常见 MySQL 坑：[MySQL 避坑指南](/database/1_mysql/3_fallible_point)
+- 常见 MySQL 坑：[MySQL 避坑指南](/database/1_mysql/8_fallible_point)
 - 故障止血与复盘流程：[故障应急与复盘](/high-avail/11_incident_response)
 
 ---

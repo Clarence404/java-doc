@@ -4,7 +4,7 @@ description: 起源与治理、LTS 版本线、与 MySQL 差异、SEQUENCE 与 R
 
 # MariaDB
 
-> 前置阅读：[MySQL 版本特性](./1_feature)
+> 前置阅读：[MySQL 版本特性](../1_mysql/9_feature)
 
 MariaDB 是 MySQL 的分叉，已不能与 MySQL 无缝互换。本篇讲 LTS 版本线、与 MySQL 在认证、JSON、GTID、隔离行为上的差异，以及 RETURNING、Galera 等特有能力。
 
@@ -57,7 +57,7 @@ MariaDB 现在每年发布一个 LTS 版本，LTS 之间是按季度发布的滚
 
 最后两点对 Java 应用影响最直接：
 
-- **快照隔离**：开启 `innodb_snapshot_isolation` 后，可重复读事务更新一条在自己快照之后被其他事务修改过的行，会得到 `ERROR 1020 (HY000): Record has changed since last read`，而不是像 MySQL 那样基于最新版本继续执行。应用需要捕获该错误并重试整个事务；MVCC 原理见 [MySQL 事务与锁](./5_topic_transaction)
+- **快照隔离**：开启 `innodb_snapshot_isolation` 后，可重复读事务更新一条在自己快照之后被其他事务修改过的行，会得到 `ERROR 1020 (HY000): Record has changed since last read`，而不是像 MySQL 那样基于最新版本继续执行。应用需要捕获该错误并重试整个事务；MVCC 原理见 [MySQL 事务与锁](../1_mysql/3_topic_transaction)
 - **认证**：用 MySQL Connector/J 连接 MariaDB 一般没有问题；反过来把应用从 MariaDB 迁到 MySQL 8.4 时，账号要改用 `caching_sha2_password`
 
 ---
@@ -138,7 +138,7 @@ Galera 是 MariaDB 内置的同步多主集群：事务在提交时把写集广�
 - 只支持 InnoDB，所有表必须有主键；集群至少 3 个节点以避免脑裂
 - 整体写入吞吐受最慢节点和网络延迟制约，不适合跨地域部署
 
-MySQL 侧对应的方案是 Group Replication / InnoDB Cluster，见 [MySQL 主从与高可用](./9_topic_replication)。
+MySQL 侧对应的方案是 Group Replication / InnoDB Cluster，见 [MySQL 主从与高可用](../1_mysql/7_topic_replication)。
 
 ### 6、存储引擎
 
@@ -156,8 +156,8 @@ MySQL 侧对应的方案是 Group Replication / InnoDB Cluster，见 [MySQL 主�
 Percona 是另一个 MySQL 兼容阵营，常与 MariaDB 一起比较：
 
 - **Percona Server for MySQL**：跟随 MySQL 版本的增强发行版，与 MySQL 完全兼容，额外提供线程池、审计插件等
-- **Percona XtraBackup**：按 MySQL 版本线发布（8.0 / 8.4 等），只支持 MySQL 和 Percona Server；MariaDB 10.3 起请用 `mariadb-backup`。备份方案见 [数据备份与恢复](../5_practice/2_backup_recovery)
-- **Percona Toolkit**：`pt-query-digest` 的用法见 [EXPLAIN 与 SQL 优化](./7_topic_explain)，`pt-online-schema-change` 见 [MySQL 避坑指南](./3_fallible_point)
+- **Percona XtraBackup**：按 MySQL 版本线发布（8.0 / 8.4 等），只支持 MySQL 和 Percona Server；MariaDB 10.3 起请用 `mariadb-backup`。备份方案见 [数据备份与恢复](../6_sync_backup/2_backup_recovery)
+- **Percona Toolkit**：`pt-query-digest` 的用法见 [EXPLAIN 与 SQL 优化](../1_mysql/5_topic_explain)，`pt-online-schema-change` 见 [MySQL 避坑指南](../1_mysql/8_fallible_point)
 
 ---
 
@@ -188,4 +188,4 @@ Percona 是另一个 MySQL 兼容阵营，常与 MariaDB 一起比较：
 - caching_sha2_password 插件：[https://mariadb.com/docs/server/reference/plugins/authentication-plugins/authentication-plugin-caching_sha2_password](https://mariadb.com/docs/server/reference/plugins/authentication-plugins/authentication-plugin-caching_sha2_password)
 - GitHub 仓库：[https://github.com/MariaDB/server](https://github.com/MariaDB/server)
 
-> 下一篇：[MySQL 避坑指南](./3_fallible_point) —— 锁、字符集、NULL、时区、大表 DDL 等线上高频雷区及正确做法。
+> 下一篇：[商业与国产库](./1_other_rdbms) —— Oracle、SQL Server 与达梦、人大金仓、openGauss 等国产库的方言差异和接入要点。

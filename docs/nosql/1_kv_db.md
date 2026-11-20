@@ -129,7 +129,7 @@ TiKV 是 PingCAP 开源、CNCF 毕业的分布式 KV，可以理解为「把 Roc
 
 | 用法 | 说明 |
 |------|------|
-| 作为 TiDB 底座 | 最常见；SQL 层把行和索引编码成 key，架构、Region 与事务细节见 [分布式数据库](/database/3_relational/1_distributed_db#_3、tikv-region-与-raft) |
+| 作为 TiDB 底座 | 最常见；SQL 层把行和索引编码成 key，架构、Region 与事务细节见 [分布式数据库](/database/4_scale_out/1_distributed_db#_3、tikv-region-与-raft) |
 | 独立使用 | 需要「容量大、强一致、可水平扩展」的 KV，如文件系统元数据（JuiceFS 支持 TiKV 做元数据引擎）、大规模用户画像存储；Java 用 `org.tikv:tikv-client-java` |
 
 单独用 TiKV 意味着运维 PD + TiKV 集群，规模不大时不值得；如果业务本来就要 SQL，直接用 TiDB 更省事。

@@ -4,7 +4,7 @@ description: 冷热判断标准、分批归档迁移、CDC 异步归档、分区
 
 # 数据冷热分离
 
-> 前置阅读：[数据层扩展](/high-con/5_data_scaling)、[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
+> 前置阅读：[数据层扩展](/high-con/5_data_scaling)、[MySQL 事务与锁](/database/1_mysql/3_topic_transaction)
 
 冷热分离把访问频率差异很大的数据分层存放，热数据留在主库、冷数据迁到低成本存储，让主表变小、索引与运维都更轻。本篇讲冷热划分、三种落地方式（分批归档、binlog CDC 异步归档、分区表交换分区）、冷数据存储选择与查询路由。
 
@@ -90,7 +90,7 @@ public class OrderArchiver {
 
 ![基于 binlog 的 CDC 异步归档](../assets/architecture/cold-hot-cdc-archive.svg)
 
-- 业务代码不变，CDC 工具（Canal、Debezium、Flink CDC）读取 binlog 投递到 Kafka，工具对比见 [CDC 工具](/database/5_practice/0_cdc_tools)
+- 业务代码不变，CDC 工具（Canal、Debezium、Flink CDC）读取 binlog 投递到 Kafka，工具对比见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)
 - 归档消费者按主键 upsert 写入冷库，消息重复或重放都不会产生重复数据
 - 热库仍需按策略清理过期数据；清理产生的 DELETE 也会进入 binlog，归档消费者要**忽略归档清理产生的删除**（ROW 格式 binlog 不记录执行账号，没法按账号区分；可按被删记录的 `created_at` 早于归档切割点来判断，或干脆不同步 DELETE），否则冷库数据会被一起删掉
 - 适合写入量大、冷库需要近实时数据的场景，如日志、埋点、订单明细同步到分析库
@@ -149,7 +149,7 @@ ALTER TABLE orders DROP PARTITION p202401;
 
 - **按时间路由**：查询带时间条件，近 3 个月查热库，更早的查冷库；跨越边界的查询分别查询再合并，分页会变复杂，产品上常把「历史订单」做成单独入口
 - **按 ID 路由**：ID 内含时间戳（如雪花 ID）时可直接判断冷热；否则先查热库、未命中再查冷库
-- **框架支持**：按时间分表、分库可以交给 ShardingSphere 的分片算法处理，见 [分库分表与中间件](/database/5_practice/3_sharding)
+- **框架支持**：按时间分表、分库可以交给 ShardingSphere 的分片算法处理，见 [分库分表与中间件](/database/4_scale_out/0_sharding)
 - **冷数据 SLA**：明确冷数据的查询延迟与可用性，冷库故障时历史查询可以降级，不影响主流程
 - **数据安全**：先归档、校验（行数、抽样校验和）、再删除；删除只针对已确认归档的主键
 - **监控**：监控主表行数与归档任务的进度、耗时、失败次数，归档积压时告警

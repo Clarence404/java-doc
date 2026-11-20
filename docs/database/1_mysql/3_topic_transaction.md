@@ -4,7 +4,7 @@ description: ACID、隔离级别、MVCC、加锁规则、死锁排查、redo / u
 
 # MySQL 事务与锁
 
-> 前置阅读：[MySQL 索引](./4_topic_index)
+> 前置阅读：[MySQL 索引](./2_topic_index)
 
 InnoDB 用 undo、redo、MVCC 和锁实现 ACID，本篇讲隔离级别、加锁规则与死锁排查、redo 与 binlog 两阶段提交及崩溃恢复，范围限于单个 InnoDB 实例内的事务。以 MySQL 8.4 LTS 为基线。
 
@@ -81,7 +81,7 @@ MVCC 让**普通读不加锁**，通过版本链实现读写并发。
 |------|------|------|
 | `DB_TRX_ID` | 6 字节 | 最近一次插入或更新此行的事务 ID |
 | `DB_ROLL_PTR` | 7 字节 | 回滚指针，指向 undo log 中该行的上一个版本 |
-| `DB_ROW_ID` | 6 字节 | 仅在表没有主键和非空唯一索引时生成，见 [MySQL 索引](./4_topic_index) |
+| `DB_ROW_ID` | 6 字节 | 仅在表没有主键和非空唯一索引时生成，见 [MySQL 索引](./2_topic_index) |
 
 ### 2、版本链与 Read View 可见性
 
@@ -150,7 +150,7 @@ binlog 由 `sync_binlog` 控制：1 表示每次提交 fsync（默认），N 表
 | 写入方式 | 随 DML 写入 undo 页（undo 页本身也受 redo 保护） | 循环写，checkpoint 推进后覆盖 | 追加写，写满切换新文件 |
 | 用途 | 回滚 + MVCC 版本链 | 崩溃恢复 | 主从复制、时间点恢复、CDC 订阅 |
 
-binlog 与复制见 [MySQL 主从与高可用](./9_topic_replication)。
+binlog 与复制见 [MySQL 主从与高可用](./7_topic_replication)。
 
 ### 4、两阶段提交与崩溃恢复
 
@@ -340,7 +340,7 @@ SHOW ENGINE INNODB STATUS;
 
 - **undo 无法清理**：只要有更老的 Read View 存在，purge 就不能清理它可能需要的旧版本，undo 表空间持续膨胀，版本链变长又拖慢快照读
 - **锁持有时间长**：阻塞其他事务，放大死锁概率
-- **阻塞 DDL**：事务持有表的 MDL 读锁直到结束，DDL 申请 MDL 写锁被卡住，其后所有对该表的查询都排队，见 [MySQL 避坑指南](./3_fallible_point) 的大表 DDL 一节
+- **阻塞 DDL**：事务持有表的 MDL 读锁直到结束，DDL 申请 MDL 写锁被卡住，其后所有对该表的查询都排队，见 [MySQL 避坑指南](./8_fallible_point) 的大表 DDL 一节
 - **复制延迟**：大事务的 binlog 在提交时一次性写入并传输，从库也要整体重放
 
 ### 2、排查
@@ -392,4 +392,4 @@ KILL 12345;
 - Undo Tablespaces：[https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-tablespaces.html](https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-tablespaces.html)
 - The Binary Log（含 sync_binlog 与崩溃恢复）：[https://dev.mysql.com/doc/refman/8.4/en/binary-log.html](https://dev.mysql.com/doc/refman/8.4/en/binary-log.html)
 
-> 下一篇：[SQL 执行流程](./6_topic_execution) —— 一条 SELECT / UPDATE 从连接器到存储引擎的完整路径，以及各组件的职责与常见问题。
+> 下一篇：[SQL 执行流程](./4_topic_execution) —— 一条 SELECT / UPDATE 从连接器到存储引擎的完整路径，以及各组件的职责与常见问题。

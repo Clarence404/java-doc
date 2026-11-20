@@ -4,7 +4,7 @@ description: EXPLAIN 字段与 ANALYZE、type 与 Extra、慢 SQL 定位、files
 
 # EXPLAIN 与 SQL 优化
 
-> 前置阅读：[SQL 执行流程](./6_topic_execution)、[MySQL 索引](./4_topic_index)
+> 前置阅读：[SQL 执行流程](./4_topic_execution)、[MySQL 索引](./2_topic_index)
 
 EXPLAIN 是定位慢查询的第一步。本篇讲 EXPLAIN 与 EXPLAIN ANALYZE 的读法、filesort、COUNT 与 Hash Join，基线为 MySQL 8.4。
 
@@ -304,4 +304,4 @@ SHOW VARIABLES LIKE 'join_buffer_size';
 - MySQL 8.0 Release Notes：[Changes in MySQL 8.0.20](https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-20.html)
 - Percona Toolkit：[pt-query-digest](https://docs.percona.com/percona-toolkit/pt-query-digest.html)
 
-> 下一篇：[InnoDB 存储结构](./8_topic_innodb) —— 从表空间、页、行格式到 Buffer Pool、Double Write 与刷脏，理解 SQL 背后的存储层。
+> 下一篇：[InnoDB 存储结构](./6_topic_innodb) —— 从表空间、页、行格式到 Buffer Pool、Double Write 与刷脏，理解 SQL 背后的存储层。

@@ -392,7 +392,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 - 加了索引还是不走索引，可能是什么原因？（隐式转换、函数、区分度低、统计信息不准）
 - 优化后怎么确认没影响其他 SQL？（对比执行计划、灰度观察慢日志）
 
-→ 详见 [数据访问性能](/high-perf/10_db_performance#一、慢-sql-治理闭环)、[EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain#四、慢-sql-定位)
+→ 详见 [数据访问性能](/high-perf/10_db_performance#一、慢-sql-治理闭环)、[EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain#四、慢-sql-定位)
 
 ## 五、项目演进串讲
 

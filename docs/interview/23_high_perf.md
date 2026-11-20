@@ -215,7 +215,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：连接不够就加大池子。先看等待连接的线程数（pending）持续大于 0 且数据库本身不忙，才说明池真的小了。
 
-→ 详见 [池化技术](/high-perf/7_pooling#二、连接池原理-为什么不是越大越好)、[数据库连接池](/database/4_access/2_connection_pool#_4、池大小估算)
+→ 详见 [池化技术](/high-perf/7_pooling#二、连接池原理-为什么不是越大越好)、[数据库连接池](/database/5_access/2_connection_pool#_4、池大小估算)
 
 ### Q16：如何发现和排查连接泄漏？
 
@@ -228,7 +228,7 @@ jcmd <pid> JFR.dump name=bg filename=/tmp/snapshot.jfr   # 导出常驻录制
 
 **常见坑**：手动管理连接。尽量交给框架（Spring 事务、MyBatis）统一借还。
 
-→ 详见 [数据库连接池 · 连接泄漏排查](/database/4_access/2_connection_pool#六、连接泄漏排查)
+→ 详见 [数据库连接池 · 连接泄漏排查](/database/5_access/2_connection_pool#六、连接泄漏排查)
 
 ### Q17：HTTP 客户端连接池需要关注哪些参数？为什么会出现 `NoHttpResponseException`？
 
@@ -357,7 +357,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 **一句话**：`LIMIT 100000, 10` 要先读出 100010 行再扔掉前 10 万行，页越深越慢；首选游标分页，记住上一页最后一条，下一页从它后面接着查，索引按「过滤列 + 排序列」建。
 
-→ 完整答案见 [数据库面试题解答](/interview/12_db) Q17；正文详见 [数据访问性能](/high-perf/10_db_performance#二、深分页)、[MySQL 索引](/database/1_mysql/4_topic_index#九、深度分页优化)
+→ 完整答案见 [数据库面试题解答](/interview/12_db) Q17；正文详见 [数据访问性能](/high-perf/10_db_performance#二、深分页)、[MySQL 索引](/database/1_mysql/2_topic_index#九、深度分页优化)
 
 ### Q27：JDBC 批量插入为什么没有变快？`rewriteBatchedStatements` 的作用是什么？
 
@@ -370,7 +370,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 **常见坑**：Hibernate 主键用 `IDENTITY`（数据库自增）时无法批量插入。
 
-→ 详见 [数据访问性能](/high-perf/10_db_performance#三、批量写入)、[MySQL JDBC 驱动](/database/4_access/3_jdbc_driver#三、批量写入-rewritebatchedstatements)
+→ 详见 [数据访问性能](/high-perf/10_db_performance#三、批量写入)、[MySQL JDBC 驱动](/database/5_access/1_jdbc_driver#三、批量写入-rewritebatchedstatements)
 
 ### Q28：什么是 N+1 查询问题？如何发现和解决？
 

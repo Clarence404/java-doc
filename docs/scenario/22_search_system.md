@@ -4,7 +4,7 @@ description: MySQL 全文检索边界、商品 Mapping、Java API Client、CDC �
 
 # 搜索
 
-> 前置阅读：[Elasticsearch 原理](/nosql/5_search_es)、[CDC 工具](/database/5_practice/0_cdc_tools)
+> 前置阅读：[Elasticsearch 原理](/nosql/5_search_es)、[CDC 工具](/database/6_sync_backup/0_cdc_tools)
 
 商品搜索要先判断何时需要专用搜索引擎，再解决索引、查询、同步与相关性问题。本篇讲 Mapping 与组合查询、MySQL → ES 同步、零停机重建、相关性调优，基线为 Elasticsearch 9。
 
@@ -228,7 +228,7 @@ public void onChange(ConsumerRecord<String, String> record) throws IOException {
 }
 ```
 
-抛出的其他异常交给 Spring Kafka 的错误处理器重试，多次失败进入死信 Topic 并告警。CDC 工具的部署与选型见 [CDC 工具](/database/5_practice/0_cdc_tools)，用 Flink CDC 做多表宽表见 [Flink CDC](/flink/6_cdc)。
+抛出的其他异常交给 Spring Kafka 的错误处理器重试，多次失败进入死信 Topic 并告警。CDC 工具的部署与选型见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)，用 Flink CDC 做多表宽表见 [Flink CDC](/flink/6_cdc)。
 
 ### 3、零停机重建索引
 

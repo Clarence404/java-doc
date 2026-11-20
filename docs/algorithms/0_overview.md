@@ -29,7 +29,7 @@
 ## 三、关联模块
 
 - [集合框架](/java/21_topic_collection)：`ArrayList`、`HashMap`、`TreeMap`、`PriorityQueue` 等 JDK 实现的源码细节
-- [MySQL 索引](/database/1_mysql/4_topic_index)：B+ 树在 InnoDB 中的落地、聚簇索引与回表
+- [MySQL 索引](/database/1_mysql/2_topic_index)：B+ 树在 InnoDB 中的落地、聚簇索引与回表
 - [海量数据算法题](/scenario/27_massive_data)：哈希分桶、堆求 Top K、Bitmap、Trie、外部排序在大数据量下的组合用法
 - [JVM](/jvm/0_overview)：递归深度与栈溢出、对象开销对数据结构内存占用的影响
 - [算法面试题解答](/interview/4_algorithms)：本模块高频问题的答案汇总

@@ -31,4 +31,4 @@
 - [分布式基础 · 分布式事务](/distributed/4_transaction)：TCC、Saga、本地消息表、事务消息的完整对比
 - [系统架构 · 幂等设计](/architecture/3_idempotence)：消费幂等所依赖的通用幂等方案
 - [Spring Boot · 中间件集成](/spring-boot/6_middleware)：Spring Boot 集成 Kafka / RabbitMQ
-- [CDC 工具](/database/5_practice/0_cdc_tools)：基于 binlog 的数据同步与 Outbox 投递
+- [CDC 工具](/database/6_sync_backup/0_cdc_tools)：基于 binlog 的数据同步与 Outbox 投递

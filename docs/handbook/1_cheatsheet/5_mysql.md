@@ -4,7 +4,7 @@ description: 实例概况、慢查询日志、Top SQL、EXPLAIN、连接与会�
 
 # MySQL 排查速查
 
-> 前置阅读：[EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain)、[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)、[MySQL 主从与高可用](/database/1_mysql/9_topic_replication)
+> 前置阅读：[EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)、[MySQL 事务与锁](/database/1_mysql/3_topic_transaction)、[MySQL 主从与高可用](/database/1_mysql/7_topic_replication)
 
 本篇按场景列出 MySQL 线上排查语句，覆盖慢 SQL、执行计划、连接、事务与锁、主从复制，基线为 MySQL 8.4。
 
@@ -133,7 +133,7 @@ description: 实例概况、慢查询日志、Top SQL、EXPLAIN、连接与会�
 4. `SELECT … FROM information_schema.innodb_trx ORDER BY trx_started;`：找长事务
 5. `SHOW REPLICA STATUS\G`：看复制线程与延迟
 
-执行计划字段含义见 [EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain)，加锁规则见 [MySQL 事务与锁](/database/1_mysql/5_topic_transaction)。
+执行计划字段含义见 [EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)，加锁规则见 [MySQL 事务与锁](/database/1_mysql/3_topic_transaction)。
 
 ---
 

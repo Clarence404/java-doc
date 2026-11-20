@@ -4,7 +4,7 @@ description: 大事务与批量删除、锁范围与间隙锁死锁、字符集�
 
 # MySQL 避坑指南
 
-> 前置阅读：[MySQL 基础](./0_basics)、[MySQL 事务与锁](./5_topic_transaction)
+> 前置阅读：[MySQL 基础](./0_basics)、[MySQL 事务与锁](./3_topic_transaction)
 
 本篇整理线上最常见的 MySQL 雷区（锁范围、死锁、字符集、NULL、时区、大表 DDL 与 MDL）及正确写法，也是 Online DDL 的主文档。基线为 MySQL 8.4 LTS，默认隔离级别为 RR。
 
@@ -12,13 +12,13 @@ description: 大事务与批量删除、锁范围与间隙锁死锁、字符集�
 
 ## 一、索引失效
 
-隐式类型转换、对索引列做函数运算、`LIKE` 左模糊、`OR` 中有无索引列、违反最左前缀、区分度过低等索引失效场景，以及深度分页的优化方案，统一在 [MySQL 索引](./4_topic_index) 中讲解。字符集或排序规则不一致导致的索引失效见本篇第三节。
+隐式类型转换、对索引列做函数运算、`LIKE` 左模糊、`OR` 中有无索引列、违反最左前缀、区分度过低等索引失效场景，以及深度分页的优化方案，统一在 [MySQL 索引](./2_topic_index) 中讲解。字符集或排序规则不一致导致的索引失效见本篇第三节。
 
 ---
 
 ## 二、事务与锁
 
-锁的原理（记录锁、间隙锁、Next-Key Lock、插入意向锁）见 [MySQL 事务与锁](./5_topic_transaction)，这里只列容易踩的坑。
+锁的原理（记录锁、间隙锁、Next-Key Lock、插入意向锁）见 [MySQL 事务与锁](./3_topic_transaction)，这里只列容易踩的坑。
 
 ### 1、大事务：一次删除海量数据
 
@@ -125,7 +125,7 @@ CREATE TABLE posts (
 ) DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 ```
 
-JDBC 连接串中用 Java 的编码名 `characterEncoding=UTF-8`，Connector/J 会映射为 `utf8mb4`；需要固定排序规则时再加 `connectionCollation=utf8mb4_0900_ai_ci`。完整参数见 [MySQL JDBC 驱动](../4_access/3_jdbc_driver)。
+JDBC 连接串中用 Java 的编码名 `characterEncoding=UTF-8`，Connector/J 会映射为 `utf8mb4`；需要固定排序规则时再加 `connectionCollation=utf8mb4_0900_ai_ci`。完整参数见 [MySQL JDBC 驱动](../5_access/1_jdbc_driver)。
 
 ### 2、字符集或排序规则不一致导致索引失效
 
@@ -199,7 +199,7 @@ SELECT * FROM orders ORDER BY status LIMIT 10 OFFSET 10;
 SELECT * FROM orders ORDER BY status, id LIMIT 10 OFFSET 10;
 ```
 
-深度分页（大 `OFFSET`）的优化方案见 [MySQL 索引](./4_topic_index)。
+深度分页（大 `OFFSET`）的优化方案见 [MySQL 索引](./2_topic_index)。
 
 ---
 
@@ -319,7 +319,7 @@ ALTER TABLE orders ADD INDEX idx_status (status), ALGORITHM = INPLACE, LOCK = NO
 ALTER TABLE orders ADD COLUMN channel VARCHAR(16), ALGORITHM = INSTANT;
 ```
 
-INSTANT 加 / 删列受表的行版本数上限约束（8.4 为 64，9.1 起为 255），达到上限后只能重建表，见 [MySQL 版本特性](./1_feature)。
+INSTANT 加 / 删列受表的行版本数上限约束（8.4 为 64，9.1 起为 255），达到上限后只能重建表，见 [MySQL 版本特性](./9_feature)。
 
 ### 3、超大表用外部工具
 
@@ -366,4 +366,4 @@ gh-ost --alter="ADD COLUMN remark VARCHAR(64)" \
 - Online DDL 操作：[https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html](https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html)
 - gh-ost：[https://github.com/github/gh-ost](https://github.com/github/gh-ost)
 
-> 下一篇：[MySQL 表设计规范](./3_table_design) —— 命名、主键选型、字段类型、NULL 与默认值、通用字段、索引规划与建表模板。
+> 下一篇：[MySQL 版本特性](./9_feature) —— 5.7 到 8.0、8.4 LTS、9.7 LTS 的关键变化与升级注意事项。

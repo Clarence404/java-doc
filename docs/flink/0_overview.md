@@ -42,7 +42,7 @@ Kafka、CDC 基础、Kubernetes、监控等通用知识在各自模块展开，�
 
 - **第一次接触 Flink**：先读 1～4 篇。前四篇讲的是 Flink 的核心机制，SQL 和 CDC 都建立在这些机制之上。
 - **主要写 Flink SQL**：读完 1、3、4 篇后直接读第 5 篇，重点看 changelog、Join 状态和 TTL。
-- **要做数据库实时同步、数据入湖**：重点读 [Flink CDC](./6_cdc)，CDC 的通用概念和工具对比见 [CDC 工具](/database/5_practice/0_cdc_tools)。
+- **要做数据库实时同步、数据入湖**：重点读 [Flink CDC](./6_cdc)，CDC 的通用概念和工具对比见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)。
 - **准备上线或排查线上问题**：直接看 [部署与运维](./7_deployment) 的排查步骤和常见问题表。
 
 [高频面试题](./99_interview) 只列题目，答案在 [Flink 面试题解答](/interview/36_flink)。
@@ -52,7 +52,7 @@ Kafka、CDC 基础、Kubernetes、监控等通用知识在各自模块展开，�
 ## 四、关联模块
 
 - [Kafka 架构与存储](/messaging/2_kafka)、[Kafka 生产与消费](/messaging/2_kafka_client)：Flink 最常见的 Source 与 Sink，分区与副本、消费组和事务机制分别在这两篇展开
-- [CDC 工具](/database/5_practice/0_cdc_tools)：binlog 原理，以及 Canal、Debezium、Flink CDC 的横向选型；[MySQL 主从与高可用](/database/1_mysql/9_topic_replication) 讲 binlog 格式与 GTID
+- [CDC 工具](/database/6_sync_backup/0_cdc_tools)：binlog 原理，以及 Canal、Debezium、Flink CDC 的横向选型；[MySQL 主从与高可用](/database/1_mysql/7_topic_replication) 讲 binlog 格式与 GTID
 - [幂等设计](/architecture/3_idempotence)：Sink 端幂等写入与消费端去重的通用做法
 - [Kubernetes](/cloud-native/6_kubernetes)：Flink on Kubernetes 用到的基础概念，更多内容见 [云原生总览](/cloud-native/0_overview)
 - [指标监控](/observability/2_metrics)：Prometheus 指标与告警体系，更多内容见 [可观测性总览](/observability/0_overview)

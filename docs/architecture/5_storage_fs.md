@@ -4,7 +4,7 @@ description: 元数据与数据分离、分块与副本、HDFS、Ceph、JuiceFS�
 
 # 分布式文件系统
 
-> 前置阅读：[文件系统与磁盘 IO](/os/7_file_io)、[存储引擎：B+ 树与 LSM-Tree](./1_storage_engine)、[对象存储](/architecture/5_object_storage)
+> 前置阅读：[文件系统与磁盘 IO](/os/7_file_io)、[存储引擎：B+ 树与 LSM-Tree](/database/0_fundamentals/1_storage_engine)、[对象存储](./5_object_storage)
 
 分布式文件系统把多台机器的磁盘拼成一个可共享、可容错的目录树。本篇讲通用架构、HDFS、Ceph、JuiceFS 与选型接入，基线为 Hadoop 3.5、Ceph 20 与 JuiceFS 1。
 
@@ -30,7 +30,7 @@ description: 元数据与数据分离、分块与副本、HDFS、Ceph、JuiceFS�
 
 ## 二、核心架构要素
 
-![分布式文件系统通用架构：元数据与数据分离](../../assets/database/dfs-meta-data-split.svg)
+![分布式文件系统通用架构：元数据与数据分离](../assets/architecture/dfs-meta-data-split.svg)
 
 ### 1、元数据与数据分离
 
@@ -138,7 +138,7 @@ Ceph 功能全面，但调优、扩容、故障恢复都需要懂存储的人长
 
 ## 五、对象存储 + 元数据引擎：JuiceFS
 
-![HDFS、Ceph、JuiceFS 架构对比](../../assets/database/dfs-arch-compare.svg)
+![HDFS、Ceph、JuiceFS 架构对比](../assets/architecture/dfs-arch-compare.svg)
 
 ### 1、架构思路
 
@@ -253,4 +253,4 @@ JuiceFS、CephFS、NAS 挂载后对 Java 就是普通目录，直接用 `java.ni
 - Rook：[Rook Documentation](https://rook.io/docs/rook/latest/)
 - JuiceFS：[Architecture](https://juicefs.com/docs/community/architecture/)、[How to Set Up Metadata Engine](https://juicefs.com/docs/community/databases_for_metadata/)
 
-> 下一篇：[数据库选型参考](./2_selection_guide) —— 全景选型矩阵、按场景选型、经典组合架构、评估维度、常见误区
+> 下一篇：[权限系统架构设计](./6_access_control) —— 权限系统的 PEP / PDP 部署、网关与服务的鉴权分工、权限缓存刷新与数据权限拦截。

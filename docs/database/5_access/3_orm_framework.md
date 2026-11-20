@@ -109,7 +109,7 @@ PageInfo<User> pageInfo = PageHelper.startPage(1, 10)
 
 `PaginationInnerInterceptor` 是 `MybatisPlusInterceptor` 中的一个内部插件：它用 jsqlparser 解析原 SQL，生成优化过的 COUNT 语句（例如去掉无用的 `ORDER BY` 和不影响行数的 `LEFT JOIN`），再按数据库类型追加分页子句。3.5.9 起 jsqlparser 拆成独立模块，必须额外引入 `mybatis-plus-jsqlparser`，否则分页插件无法使用。依赖与 `Page` 的用法见 [数据访问](/spring-boot/3_data_access) 的「分页」一节。
 
-无论哪种物理分页，`LIMIT` 偏移量很大时都会变慢，深分页的优化见 [MySQL 索引](../1_mysql/4_topic_index)。
+无论哪种物理分页，`LIMIT` 偏移量很大时都会变慢，深分页的优化见 [MySQL 索引](../1_mysql/2_topic_index)。
 
 ---
 
@@ -444,7 +444,7 @@ public class MybatisPlusConfig {
 
 ### 3、数据源路由：AbstractRoutingDataSource
 
-读写分离、库级多租户都基于 Spring 的 `AbstractRoutingDataSource`：它本身是一个 `DataSource`，每次 `getConnection()` 时调用 `determineCurrentLookupKey()` 选出目标数据源（按事务 `readOnly` 或 `ThreadLocal` 里的路由键）。关键约束是事务管理器在事务开始时就取连接，之后切换不生效，所以要么让路由在事务之前确定，要么包一层 `LazyConnectionDataSourceProxy` 把取连接推迟到第一条 SQL。完整配置与踩坑见 [数据库连接池 · 读写分离多数据源](/database/4_access/2_connection_pool#_3、读写分离多数据源)。
+读写分离、库级多租户都基于 Spring 的 `AbstractRoutingDataSource`：它本身是一个 `DataSource`，每次 `getConnection()` 时调用 `determineCurrentLookupKey()` 选出目标数据源（按事务 `readOnly` 或 `ThreadLocal` 里的路由键）。关键约束是事务管理器在事务开始时就取连接，之后切换不生效，所以要么让路由在事务之前确定，要么包一层 `LazyConnectionDataSourceProxy` 把取连接推迟到第一条 SQL。完整配置与踩坑见 [数据库连接池 · 读写分离多数据源](/database/5_access/2_connection_pool#_3、读写分离多数据源)。
 
 实际项目通常直接用 baomidou 的 dynamic-datasource（`@DS` 注解），配置与事务陷阱见 [数据访问 · 多数据源](/spring-boot/3_data_access#六、多数据源)。跨库写入的一致性需要分布式事务，见 [分布式事务](/distributed/4_transaction)。
 
@@ -597,4 +597,4 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 - Hibernate ORM 文档：[https://hibernate.org/orm/documentation/](https://hibernate.org/orm/documentation/)
 - Jakarta Persistence 3.2：[https://jakarta.ee/specifications/persistence/3.2/](https://jakarta.ee/specifications/persistence/3.2/)
 
-> 下一篇：[数据库连接池](./2_connection_pool) —— HikariCP 参数与池大小估算、Druid 配置与监控、PgBouncer、泄漏排查、读写分离多数据源
+> 下一篇：[CDC 工具](../6_sync_backup/0_cdc_tools) —— binlog 前置配置、binlog-connector、Canal、Debezium 3.x、Flink CDC 选型

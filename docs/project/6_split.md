@@ -63,7 +63,7 @@ description: 先拆库存与支付、模块 api 变远程接口、按服务拆�
 | 拆商品、用户 | 见上表，扩 `mall-app` 实例即可 | 商品组与交易组的发布冲突明显时 |
 | 每服务一个仓库 | 仍在 `mall-evolution` 一个仓库，按模块各自打镜像、各自流水线即可独立发布 | 跨组代码评审成为瓶颈时 |
 | 分布式事务框架 | 下单扣库存先用过渡做法，见第四节 | 下一篇 [跨服务一致性](./7_consistency) 也不引入，改用库存预占 + 本地消息表 |
-| 订单分库分表 | 订单表一年约 3.65 亿行，先做历史订单归档；`order_no` 改为嵌入用户 ID 低位，为以后按 `user_id` 分片留路，迁移方式见 [分库分表与中间件](/database/5_practice/3_sharding#_1、不停机迁移五步) | 归档后单表仍超过容量规划时 |
+| 订单分库分表 | 订单表一年约 3.65 亿行，先做历史订单归档；`order_no` 改为嵌入用户 ID 低位，为以后按 `user_id` 分片留路，迁移方式见 [分库分表与中间件](/database/4_scale_out/0_sharding#_1、不停机迁移五步) | 归档后单表仍超过容量规划时 |
 
 ---
 
@@ -147,7 +147,7 @@ try {
 ![库存数据从 mall 迁到 mall_inventory 的四步](../assets/project/project-db-split-steps.svg)
 
 - **① 先拆部署**：`inventory-service` 上线，但数据源仍指向 `mall`，只用一个只能访问 `t_inventory` 的账号；网关和 `mall-app` 按比例切流量过去，有问题切回单体内的实现即可，这一步就是 [绞杀者模式](/microservices/3_patterns#_2、绞杀者-strangler-fig)
-- **② 建新库并同步**：订阅 `mall` 的 binlog，把 `t_inventory` 的存量和增量同步到 `mall_inventory`，工具选型见 [CDC 工具](/database/5_practice/0_cdc_tools)
+- **② 建新库并同步**：订阅 `mall` 的 binlog，把 `t_inventory` 的存量和增量同步到 `mall_inventory`，工具选型见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)
 - **③ 对账与演练**：比对行数与分段 checksum，在预发环境完整演练一次切换与回切
 - **④ 停写切换**：凌晨低峰停写库存接口数秒，等增量追平后切数据源，同时开反向同步，保留一周再断开，最后回收旧表的写权限
 

@@ -4,7 +4,7 @@ description: "@Transactional 原理、传播行为、回滚规则、只读与超
 
 # 事务管理
 
-> 前置阅读：[AOP](./2_aop)、[MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
+> 前置阅读：[AOP](./2_aop)、[MySQL 事务与锁](/database/1_mysql/3_topic_transaction)
 
 Spring 声明式事务通过 `@Transactional` 代理把数据库连接绑定到当前线程。本篇讲它的工作机制、传播行为、回滚规则、编程式事务，以及事务失效的逐条排查。
 
@@ -177,7 +177,7 @@ public void placeOrder(Order order) {
 两点注意：
 
 - 隔离级别**只在新建事务时生效**。以 `REQUIRED` 加入已有事务时，内层声明的隔离级别会被忽略（可开启事务管理器的 `validateExistingTransaction` 让不一致时直接报错）
-- 各级别下的并发现象、MySQL 的 MVCC 与 next-key 锁（快照读靠 MVCC 避免幻读，当前读靠 next-key 锁）见 [MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
+- 各级别下的并发现象、MySQL 的 MVCC 与 next-key 锁（快照读靠 MVCC 避免幻读，当前读靠 next-key 锁）见 [MySQL 事务与锁](/database/1_mysql/3_topic_transaction)
 
 ---
 

@@ -182,7 +182,7 @@ try (HintManager hintManager = HintManager.getInstance()) {
 }
 ```
 
-强制读主之外的主从延迟处理策略（写后窗口读主、等待 GTID、业务容忍等）见 [数据层扩展 · 主从延迟处理策略](/high-con/5_data_scaling#_2、主从延迟处理策略)。只需要读写分离、不需要分片时，也可以用 Spring 的 `AbstractRoutingDataSource` 自行路由，见 [数据库连接池](../4_access/2_connection_pool) 的多数据源一节。
+强制读主之外的主从延迟处理策略（写后窗口读主、等待 GTID、业务容忍等）见 [数据层扩展 · 主从延迟处理策略](/high-con/5_data_scaling#_2、主从延迟处理策略)。只需要读写分离、不需要分片时，也可以用 Spring 的 `AbstractRoutingDataSource` 自行路由，见 [数据库连接池](../5_access/2_connection_pool) 的多数据源一节。
 
 ---
 
@@ -261,7 +261,7 @@ ShardingSphere 支持 LOCAL（默认）、XA（Atomikos / Narayana）与 BASE（
 
 几个容易出错的细节：
 
-- **双写优先用 CDC，而不是在业务代码里写两遍**：应用双写在「旧库成功、新库失败」时只能靠补偿，且两个库的写入顺序在并发下可能不同；订阅 binlog 天然按提交顺序回放，业务代码零改动。工具选型见 [CDC 工具](./0_cdc_tools)
+- **双写优先用 CDC，而不是在业务代码里写两遍**：应用双写在「旧库成功、新库失败」时只能靠补偿，且两个库的写入顺序在并发下可能不同；订阅 binlog 天然按提交顺序回放，业务代码零改动。工具选型见 [CDC 工具](../6_sync_backup/0_cdc_tools)
 - **先记位点再拷全量**：全量拷贝开始前记下 binlog 位点（GTID），增量从这个位点开始回放，拷贝期间发生的修改就不会丢；全量与增量重叠的行，按 `update_time` 或版本号「旧值不覆盖新值」处理
 - **全量要限速**：`WHERE id > ? ORDER BY id LIMIT 1000` 游标分批，批间休眠，避免把旧库主从延迟拉高
 - **停写窗口要短**：停写 → 等增量延迟归零 → 最后一轮校验 → 切开关，整个过程控制在秒级到分钟级，通常放在业务低峰并提前公告
@@ -331,7 +331,7 @@ SHOW MIGRATION CHECK STATUS 'jobId';
 COMMIT MIGRATION 'jobId';
 ```
 
-源库需要开启 binlog（ROW 格式）并授予迁移账号 `REPLICATION SLAVE`、`REPLICATION CLIENT` 权限。迁移作业不负责灰度切读和反向同步：切读开关仍要在应用侧实现，`COMMIT` 之后若要保留回滚能力，需要另配一条新 → 旧的 CDC 同步。不用 Proxy 的团队，可以用 Canal / Debezium / Flink CDC 自建同样的「全量 + 增量 + 校验」流水线，见 [CDC 工具](./0_cdc_tools)。
+源库需要开启 binlog（ROW 格式）并授予迁移账号 `REPLICATION SLAVE`、`REPLICATION CLIENT` 权限。迁移作业不负责灰度切读和反向同步：切读开关仍要在应用侧实现，`COMMIT` 之后若要保留回滚能力，需要另配一条新 → 旧的 CDC 同步。不用 Proxy 的团队，可以用 Canal / Debezium / Flink CDC 自建同样的「全量 + 增量 + 校验」流水线，见 [CDC 工具](../6_sync_backup/0_cdc_tools)。
 
 ### 3、预分配逻辑分片：32 × 32
 
@@ -445,7 +445,7 @@ rules:
 | Java 应用，分片规则稳定 | ShardingSphere-JDBC |
 | 多语言团队、DBA 统一管控、需要迁移工具 | ShardingSphere-Proxy（常与 JDBC 混合部署） |
 | 单表数据量在千万级、单库能承受 | 暂不分库分表，判断标准见 [数据层扩展](/high-con/5_data_scaling#四、分库分表) |
-| 需要强一致事务 + 透明水平扩展 | 分布式数据库，见 [分布式数据库](../3_relational/1_distributed_db) |
+| 需要强一致事务 + 透明水平扩展 | 分布式数据库，见 [分布式数据库](./1_distributed_db) |
 | 只需要读写分离 | ShardingSphere 读写分离规则，或 `AbstractRoutingDataSource` |
 
 ---
@@ -472,4 +472,4 @@ rules:
 - MySQL 复制过滤（replicate-do-db）：[https://dev.mysql.com/doc/refman/8.4/en/replication-options-replica.html](https://dev.mysql.com/doc/refman/8.4/en/replication-options-replica.html)
 - 选题参考：doocs/advanced-java：[https://github.com/doocs/advanced-java](https://github.com/doocs/advanced-java)
 
-> 返回：[数据库总览](../0_overview)
+> 下一篇：[分布式数据库](./1_distributed_db) —— TiDB 与 OceanBase 的架构、事务与兼容性，以及 Aurora、PolarDB 的存算分离路线。

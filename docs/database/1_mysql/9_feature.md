@@ -90,9 +90,9 @@ SELECT * FROM sys.schema_unused_indexes WHERE object_schema = 'shop';         --
 
 ### 4、其他
 
-- **Group Replication**（5.7.17）：基于 Paxos 的组复制，是 InnoDB Cluster 的基础，见 [MySQL 主从与高可用](./9_topic_replication)
+- **Group Replication**（5.7.17）：基于 Paxos 的组复制，是 InnoDB Cluster 的基础，见 [MySQL 主从与高可用](./7_topic_replication)
 - **多源复制**：一个副本可同时从多个源复制
-- **Online DDL 增强**：`VARCHAR` 在同一长度字节数范围内扩容、`RENAME INDEX` 可以原地完成；Online DDL 的完整规则见 [MySQL 避坑指南](./3_fallible_point)
+- **Online DDL 增强**：`VARCHAR` 在同一长度字节数范围内扩容、`RENAME INDEX` 可以原地完成；Online DDL 的完整规则见 [MySQL 避坑指南](./8_fallible_point)
 
 ---
 
@@ -188,7 +188,7 @@ SELECT NAME, TOTAL_ROW_VERSIONS FROM information_schema.INNODB_TABLES
 WHERE NAME = 'shop/orders';
 ```
 
-INSTANT 只解决重建表的耗时，DDL 仍需要拿元数据锁（MDL），长事务照样会把 DDL 和后续查询堵死。Online DDL 的算法选择、MDL 风险与 gh-ost 等工具见 [MySQL 避坑指南](./3_fallible_point)。
+INSTANT 只解决重建表的耗时，DDL 仍需要拿元数据锁（MDL），长事务照样会把 DDL 和后续查询堵死。Online DDL 的算法选择、MDL 风险与 gh-ost 等工具见 [MySQL 避坑指南](./8_fallible_point)。
 
 ### 4、优化器与诊断
 
@@ -196,7 +196,7 @@ INSTANT 只解决重建表的耗时，DDL 仍需要拿元数据锁（MDL），�
 |------|------|------|
 | 移除查询缓存 | 8.0.3 | Query Cache 在高并发写入下锁竞争严重，被整体删除；结果缓存放到应用层 |
 | Hash Join | 8.0.18 | 无索引可用的等值 JOIN 不再走 Block Nested-Loop，8.0.20 起完全取代 BNL |
-| `EXPLAIN ANALYZE` | 8.0.18 | 真正执行语句，输出每个迭代器的实际行数和耗时，用法见 [EXPLAIN 与 SQL 优化](./7_topic_explain) |
+| `EXPLAIN ANALYZE` | 8.0.18 | 真正执行语句，输出每个迭代器的实际行数和耗时，用法见 [EXPLAIN 与 SQL 优化](./5_topic_explain) |
 | `EXPLAIN FORMAT=TREE` | 8.0.16 | 以迭代器树展示执行计划 |
 | 直方图 | 8.0.3 | 为无索引列收集值分布，帮助优化器估算选择率；8.4 支持自动更新 |
 | 优化器提示 | 8.0.20 | `INDEX` / `NO_INDEX` / `JOIN_INDEX` / `GROUP_INDEX` / `ORDER_INDEX` 等索引级提示 |
@@ -230,7 +230,7 @@ LIMIT 10
 FOR UPDATE SKIP LOCKED;
 ```
 
-锁的原理见 [MySQL 事务与锁](./5_topic_transaction)。
+锁的原理见 [MySQL 事务与锁](./3_topic_transaction)。
 
 ### 6、其他高影响变化
 
@@ -299,7 +299,7 @@ mysql_native_password = ON   # 仅作为过渡；升级到 9.x 前必须迁移�
 | `innodb_numa_interleave` | `OFF` | `ON` |
 | `temptable_max_ram` | 1 GiB | 总内存的 3%，介于 1 ~ 4 GiB |
 
-自适应哈希索引和 Change Buffer 默认关闭，对等值查询密集或二级索引写入多的业务可能有影响，升级后对比压测结果，必要时显式打开。Change Buffer 的原理见 [MySQL 索引](./4_topic_index)。
+自适应哈希索引和 Change Buffer 默认关闭，对等值查询密集或二级索引写入多的业务可能有影响，升级后对比压测结果，必要时显式打开。Change Buffer 的原理见 [MySQL 索引](./2_topic_index)。
 
 ### 4、新增能力
 
@@ -341,7 +341,7 @@ SELECT id, VECTOR_DIM(vec) AS dim, VECTOR_TO_STRING(vec) AS v FROM doc_embedding
 | `DISTANCE()` 相似度计算 | 不支持 | 支持（`COSINE` / `DOT` / `EUCLIDEAN`） |
 | 向量索引（ANN） | 不支持，`VECTOR` 列不能作为索引键 | 由 HeatWave GenAI 提供 |
 
-在自建 MySQL 上做语义检索需要另选方案：PostgreSQL + pgvector、MariaDB 11.8 LTS 起的向量索引（见 [MariaDB](./2_maria_db)），或 Elasticsearch / OpenSearch 的向量检索（见 [搜索数据库](/nosql/5_search_db)）。
+在自建 MySQL 上做语义检索需要另选方案：PostgreSQL + pgvector、MariaDB 11.8 LTS 起的向量索引（见 [MariaDB](../3_relational/0_maria_db)），或 Elasticsearch / OpenSearch 的向量检索（见 [搜索数据库](/nosql/5_search_db)）。
 
 ### 2、9.7 LTS 相对 8.4 的主要变化
 
@@ -413,4 +413,4 @@ SELECT id, VECTOR_DIM(vec) AS dim, VECTOR_TO_STRING(vec) AS v FROM doc_embedding
 - Online DDL 操作：[https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html](https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html)
 - 向量函数：[https://dev.mysql.com/doc/refman/9.7/en/vector-functions.html](https://dev.mysql.com/doc/refman/9.7/en/vector-functions.html)
 
-> 下一篇：[MariaDB](./2_maria_db) —— MySQL 分支的现状：版本线、与 MySQL 的差异、特有能力和迁移注意事项。
+> 下一篇：[PostgreSQL 基础](../2_postgresql/0_basics) —— 进入 PostgreSQL：与 MySQL 的差异、安装与核心概念。

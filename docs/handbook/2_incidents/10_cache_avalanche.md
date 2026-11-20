@@ -227,7 +227,7 @@ public SkuDetail getSku(long skuId) {
 - `@Cacheable(sync = true)` 与 Spring Cache 陷阱：[Cache 抽象](/spring/5_cache)
 - 热点请求合并：[热点问题](/high-con/6_hotspot#四、热点请求-single-flight)
 - Arthas `trace` 用法：[线上诊断](/engineering/7_diagnosis#_3、trace-拆解方法内部耗时)
-- 慢 SQL 与执行情况定位：[EXPLAIN 与 SQL 优化](/database/1_mysql/7_topic_explain#四、慢-sql-定位)
+- 慢 SQL 与执行情况定位：[EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain#四、慢-sql-定位)
 - 限流与降级：[限流与过载保护](/high-avail/7_rate_limiting)、[降级](/high-avail/6_degradation)
 
 ---

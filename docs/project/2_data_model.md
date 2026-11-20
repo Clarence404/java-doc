@@ -4,7 +4,7 @@ description: 雪花 ID 与订单号、订单与明细表、状态机、按查询
 
 # 数据建模
 
-> 前置阅读：[MySQL 表设计规范](/database/1_mysql/3_table_design)、[MySQL 索引](/database/1_mysql/4_topic_index)、[分布式 ID 生成](/distributed/8_id_generator)
+> 前置阅读：[MySQL 表设计规范](/database/1_mysql/1_table_design)、[MySQL 索引](/database/1_mysql/2_topic_index)、[分布式 ID 生成](/distributed/8_id_generator)
 
 工程搭好后先定表结构：表有了线上数据，再改主键或金额类型的代价远高于改代码。本篇讲实体边界、订单与库存表、索引、事务与幂等，基线为 MySQL 8.4。
 
@@ -56,7 +56,7 @@ WHERE o.user_id = ?;
 
 订单要用商品信息时，调用 mall-product 暴露的 Java 接口（如 `ProductApi.listByIds`），在内存里拼装。好处是以后把商品拆成独立服务时，只需把接口实现从本地调用换成 RPC，订单模块的 SQL 一行不改。为了让这条规则落地，工程上每个模块只扫描自己包下的 Mapper，代码评审时检查 `JOIN` 的表是否都属于本模块。
 
-同样，**不建外键**：外键会让删除、迁移、拆库都受约束，引用关系由应用保证，图中虚线只表示逻辑引用。外键的取舍见 [MySQL 表设计规范](/database/1_mysql/3_table_design)。
+同样，**不建外键**：外键会让删除、迁移、拆库都受约束，引用关系由应用保证，图中虚线只表示逻辑引用。外键的取舍见 [MySQL 表设计规范](/database/1_mysql/1_table_design)。
 
 ---
 
@@ -201,7 +201,7 @@ CREATE TABLE t_order_item (
 
 几个取舍：
 
-- **`(status, created_at)` 而不是反过来**：等值条件在前、范围条件在后，范围列之后的列用不上索引，原理见 [MySQL 索引](/database/1_mysql/4_topic_index)
+- **`(status, created_at)` 而不是反过来**：等值条件在前、范围条件在后，范围列之后的列用不上索引，原理见 [MySQL 索引](/database/1_mysql/2_topic_index)
 - **用户列表按 `id` 而不是 `created_at` 排序**：雪花 ID 随时间递增，`ORDER BY id DESC` 近似就是最新的在前；`id` 唯一，游标只要一个值，不用处理同一毫秒多笔订单 `created_at` 相同的并列。二级索引末尾本来就带主键，写成 `(user_id, id)` 是把「靠它排序」写明
 - **用户列表不建 `(user_id, status, id)`**：单个用户的订单通常只有几十到几百条，按 `user_id` 定位后过滤状态的代价很小；少一个索引就少一份写入开销
 - **`status` 单列不建索引**：区分度低，单独使用时优化器多半不会选它
@@ -243,7 +243,7 @@ UPDATE t_inventory SET stock = stock + #{quantity} WHERE sku_id = #{skuId};
 ```
 
 - `stock >= ?` 由 InnoDB 行锁保证判断与扣减原子，不会超卖，也不需要 `version`：版本号会让库存充足时的并发请求也失败
-- 一单多件商品时，**按 `sku_id` 升序扣减**，避免两个订单以相反顺序锁同两行导致死锁，加锁与死锁的分析见 [MySQL 事务与锁](/database/1_mysql/5_topic_transaction)
+- 一单多件商品时，**按 `sku_id` 升序扣减**，避免两个订单以相反顺序锁同两行导致死锁，加锁与死锁的分析见 [MySQL 事务与锁](/database/1_mysql/3_topic_transaction)
 - **不上 Redis**：20 QPS 下单个 SKU 的行锁竞争可以忽略，引入 Redis 换来的只有一致性问题；阶段二商品详情读压力上来时先缓存商品，库存扣减仍走数据库，单 SKU 抢购的热点到大促阶段再处理
 - **不做预占**：阶段一下单即扣、取消即还，不区分「预占」和「实扣」；阶段三库存独立成服务后，才需要预占记录来保证跨服务调用的幂等，见 [跨服务一致性](./7_consistency)
 
@@ -279,7 +279,7 @@ public class PlaceOrderTxService {
 }
 ```
 
-几条约束，每条都对应一个常见的事务失效或长事务问题，详见 [事务管理](/spring/4_transaction) 与 [MySQL 避坑指南](/database/1_mysql/3_fallible_point)：
+几条约束，每条都对应一个常见的事务失效或长事务问题，详见 [事务管理](/spring/4_transaction) 与 [MySQL 避坑指南](/database/1_mysql/8_fallible_point)：
 
 - **事务方法放在单独的 Bean 里**，由外层应用服务 `PlaceOrderService` 调用；同类内部 `this.create()` 调用不经过代理，事务不生效
 - **计价、查商品放在事务外**：先查商品、算好价格（`PricedItem`）再进事务，事务里只剩写操作，持锁时间最短

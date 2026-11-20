@@ -4,7 +4,7 @@ description: binlog 前置配置、binlog-connector、Canal、Debezium 3.x、Fli
 
 # CDC 工具
 
-> 前置阅读：[MySQL 主从与高可用](../1_mysql/9_topic_replication)
+> 前置阅读：[MySQL 主从与高可用](../1_mysql/7_topic_replication)
 
 CDC（变更数据捕获）订阅 binlog、WAL 实时获取增删改，不给业务表加查询压力，还能拿到变更前的值。本篇讲 binlog 前置配置、Canal / Debezium 等工具接入与选型，基线为 MySQL 8.4。
 

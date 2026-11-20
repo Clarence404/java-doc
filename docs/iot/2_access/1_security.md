@@ -6,7 +6,7 @@ description: IoT 威胁模型、一机一密与建连签名、X.509 与 mTLS、E
 
 > 前置阅读：[HTTPS 与 TLS](/protocols/3_https_tls)、[零信任架构](/security/9_zero_trust)、[通信协议](../1_basics/1_protocol)
 
-IoT 设备安全是从设备身份到数据的整套防护。本篇讲一机一密与 X.509、EMQX 认证与 Topic 授权、越权与暴力破解发现、零信任落地、标准与合规对照，基线为 EMQX 5.9+ / 6.x（配置为 5.x 起的 HOCON 语法）。
+IoT 设备安全是从设备身份到数据的整套防护。本篇讲一机一密与 X.509、EMQX 认证与 Topic 授权、越权与暴力破解发现、零信任落地、标准与合规对照，基线为 EMQX 6.x（配置沿用 5.x 起的 HOCON 语法）。
 
 ---
 

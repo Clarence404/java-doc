@@ -4,7 +4,7 @@ description: HikariCP 参数与池大小估算、Druid 配置与监控、PgBounc
 
 # 数据库连接池
 
-> 前置阅读：[池化技术](/high-perf/7_pooling)、[MySQL JDBC 驱动](./3_jdbc_driver)
+> 前置阅读：[池化技术](/high-perf/7_pooling)、[MySQL JDBC 驱动](./1_jdbc_driver)
 
 本篇是连接池参数与配置的主文档，讲 HikariCP 核心参数与池大小估算、Druid 配置及其安全风险、PostgreSQL 为何需要 PgBouncer、连接泄漏排查，以及读写分离路由数据源。
 
@@ -60,7 +60,7 @@ spring:
 
 - `connection-timeout` 调低到 2～5 秒：池耗尽时快速失败，比让请求线程挂 30 秒更好
 - `pool-name` 会出现在日志与指标标签里，多数据源时用于区分
-- `sslMode` 取代了已废弃的 `useSSL`，其他 URL 参数见 [MySQL JDBC 驱动](./3_jdbc_driver)
+- `sslMode` 取代了已废弃的 `useSSL`，其他 URL 参数见 [MySQL JDBC 驱动](./1_jdbc_driver)
 
 ### 3、监控
 
@@ -275,7 +275,7 @@ spring:
 | 异常路径未关闭 `Connection` / `Statement` / `ResultSet` | 使用 try-with-resources |
 | 手动管理事务未提交或回滚 | 交给 Spring `@Transactional` 管理 |
 | 长事务、事务中做远程调用（池耗尽最常见的原因） | 缩短事务范围，远程调用移到事务外 |
-| 流式查询未读完就丢弃 `ResultSet` | 读完或显式关闭，见 [MySQL JDBC 驱动](./3_jdbc_driver) |
+| 流式查询未读完就丢弃 `ResultSet` | 读完或显式关闭，见 [MySQL JDBC 驱动](./1_jdbc_driver) |
 
 ---
 
@@ -300,7 +300,7 @@ spring:
 
 ### 3、读写分离多数据源
 
-只需要读写分离、不需要分片时，可以用 Spring 的 `AbstractRoutingDataSource` 按事务是否只读路由。需要分片或多个副本负载均衡时，用 ShardingSphere 的读写分离规则，见 [分库分表与中间件](../5_practice/3_sharding)。
+只需要读写分离、不需要分片时，可以用 Spring 的 `AbstractRoutingDataSource` 按事务是否只读路由。需要分片或多个副本负载均衡时，用 ShardingSphere 的读写分离规则，见 [分库分表与中间件](../4_scale_out/0_sharding)。
 
 ```yaml
 app:
@@ -410,4 +410,4 @@ try {
 - PgBouncer 配置：[https://www.pgbouncer.org/config.html](https://www.pgbouncer.org/config.html)
 - PgBouncer 功能与池模式限制：[https://www.pgbouncer.org/features.html](https://www.pgbouncer.org/features.html)
 
-> 下一篇：[MySQL JDBC 驱动](./3_jdbc_driver) —— Connector/J 版本、URL 参数与时区、真假批量、大结果集读取、超时体系、服务端预编译
+> 下一篇：[ORM 框架](./3_orm_framework) —— MyBatis 的缓存、分页、Mapper 代理、执行器、TypeHandler 与插件原理，以及 Hibernate 的持久化上下文。

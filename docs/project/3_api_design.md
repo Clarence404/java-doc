@@ -231,7 +231,7 @@ public ResponseEntity<OrderView> place(@AuthenticationPrincipal LoginUser user,
 
 「我的订单」在 App 上是无限下拉，不需要跳页，也不需要总数，所以用游标分页，不用 `page/size`：
 
-- **offset 越翻越慢**：`LIMIT 10000, 20` 要先扫过前 10000 行再丢掉，原理与优化见 [MySQL 索引 · 深度分页优化](/database/1_mysql/4_topic_index#九、深度分页优化)，线上案例见 [深分页拖垮数据库](/handbook/2_incidents/9_deep_paging)
+- **offset 越翻越慢**：`LIMIT 10000, 20` 要先扫过前 10000 行再丢掉，原理与优化见 [MySQL 索引 · 深度分页优化](/database/1_mysql/2_topic_index#九、深度分页优化)，线上案例见 [深分页拖垮数据库](/handbook/2_incidents/9_deep_paging)
 - **offset 会重复或漏数据**：用户下拉时有新订单插进来，下一页的第一条会是上一页的最后一条
 - **游标对客户端不透明**：`cursor` 是 Base64URL 编码的 `{"id":"..."}`，客户端原样回传即可；以后要改成按别的字段排序，只改编解码，接口不变
 

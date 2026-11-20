@@ -4,7 +4,7 @@ description: BinaryLogClient 连接流程、事件循环、checksum 与 TableMap
 
 # mysql-binlog-connector-java 原理
 
-> 前置阅读：[CDC 工具](./0_cdc_tools)、[MySQL 主从与高可用](../1_mysql/9_topic_replication)
+> 前置阅读：[CDC 工具](./0_cdc_tools)、[MySQL 主从与高可用](../1_mysql/7_topic_replication)
 
 mysql-binlog-connector-java 在应用里扮演 MySQL 副本，**只做协议与反序列化**。本篇按维护分支源码讲握手与事件循环、有状态的反序列化、GTID 位点推进与保活重连。
 
