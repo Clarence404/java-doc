@@ -20,12 +20,12 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 | **其他关系库** | [MariaDB](./3_relational/0_maria_db) → [商业与国产库](./3_relational/1_other_rdbms) | 用 MySQL 的分支，或做国产化迁移 |
 | **水平扩展** | [分库分表与中间件](./4_scale_out/0_sharding) → [分布式数据库](./4_scale_out/1_distributed_db) | 单库放不下时的两条路：继续用 MySQL 在应用侧拆，或换成自带分片的数据库 |
 | **应用接入** | [JDBC 驱动](./5_access/1_jdbc_driver) → [数据库连接池](./5_access/2_connection_pool) → [ORM 框架](./5_access/3_orm_framework) | Java 应用从下往上怎么连数据库、怎么用好连接 |
-| **备份与变更订阅** | [数据备份与恢复](./6_backup_cdc/0_backup_recovery) → [CDC 工具](./6_backup_cdc/1_cdc_tools) → [mysql-binlog-connector-java 原理](./6_backup_cdc/2_binlog_connector_source) | 误删能找回；变更能实时送到缓存、搜索、数仓 |
+| **备份与变更订阅** | [数据备份与恢复](./6_backup_cdc/0_backup_recovery) → [CDC 工具](./6_backup_cdc/1_cdc_tools) → [binlog 订阅原理](./6_backup_cdc/2_binlog_connector_source) | 误删能找回；变更能实时送到缓存、搜索、数仓 |
 
 几条读法：
 
 - **第一次读**：MySQL 组读到主从与高可用，再按需要跳到别的组；避坑指南和版本特性适合读完原理再看
-- **按需阅读**：其他关系库、源码级的 binlog 连接器原理，用到再读；HDFS、Ceph 这类文件级存储不是数据库，放在系统架构模块的 [分布式文件系统](/architecture/5_storage_fs)
+- **按需阅读**：其他关系库、源码级的 binlog 订阅原理，用到再读；HDFS、Ceph 这类文件级存储不是数据库，放在系统架构模块的 [分布式文件系统](/architecture/5_storage_fs)
 - **复习**：[高频面试题](./99_interview) 只列题目，答案在 [数据库面试题解答](/interview/12_db)，分组和上表一一对应
 
 ---

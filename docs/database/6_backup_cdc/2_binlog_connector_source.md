@@ -2,17 +2,17 @@
 description: BinaryLogClient 连接流程、事件循环、checksum 与 TableMap、GTID 位点、保活重连
 ---
 
-# mysql-binlog-connector-java 原理
+# binlog 订阅原理
 
 > 前置阅读：[CDC 工具](./1_cdc_tools)、[MySQL 主从与高可用](../1_mysql/7_topic_replication)
 
-mysql-binlog-connector-java 在应用里扮演 MySQL 副本，**只做协议与反序列化**。本篇按维护分支源码讲握手与事件循环、有状态的反序列化、GTID 位点推进与保活重连。
+[mysql-binlog-connector-java](https://github.com/osheroff/mysql-binlog-connector-java) 在应用里扮演 MySQL 副本，**只做协议与反序列化**。本篇按维护分支源码讲握手与事件循环、有状态的反序列化、GTID 位点推进与保活重连。
 
 ---
 
 ## 一、连接流程
 
-原作者 shyiko 的仓库已归档，本篇分析的是 osheroff 持续维护分支（坐标 `com.zendesk:mysql-binlog-connector-java`，包名仍是 `com.github.shyiko.mysql.binlog`）的当前源码；使用示例统一放在 [CDC 工具](./1_cdc_tools)。
+原作者 shyiko 的仓库（[shyiko/mysql-binlog-connector-java](https://github.com/shyiko/mysql-binlog-connector-java)）已归档，本篇分析的是 osheroff 持续维护的分支（[osheroff/mysql-binlog-connector-java](https://github.com/osheroff/mysql-binlog-connector-java)，坐标 `com.zendesk:mysql-binlog-connector-java`，包名仍是 `com.github.shyiko.mysql.binlog`）的当前源码；使用示例统一放在 [CDC 工具](./1_cdc_tools)。
 
 ![BinaryLogClient 连接、事件循环与保活重连](../../assets/database/binlog-client-flow.svg)
 
@@ -224,7 +224,8 @@ while (!keepAliveThreadExecutor.isShutdown()) {
 
 ## 参考资料
 
-- mysql-binlog-connector-java：[https://github.com/osheroff/mysql-binlog-connector-java](https://github.com/osheroff/mysql-binlog-connector-java)
+- mysql-binlog-connector-java（osheroff 维护分支，本篇分析的源码）：[https://github.com/osheroff/mysql-binlog-connector-java](https://github.com/osheroff/mysql-binlog-connector-java)
+- mysql-binlog-connector-java（shyiko 原仓库，已归档）：[https://github.com/shyiko/mysql-binlog-connector-java](https://github.com/shyiko/mysql-binlog-connector-java)
 - MySQL 源码文档：复制协议：[https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_replication.html](https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_replication.html)
 - MySQL binlog 事件格式：[https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_replication_binlog_event.html](https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_replication_binlog_event.html)
 - binlog_row_metadata：[https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html](https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html)
