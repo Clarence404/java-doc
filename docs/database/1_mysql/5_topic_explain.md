@@ -1,5 +1,5 @@
 ---
-description: EXPLAIN 字段与 ANALYZE、type 与 Extra、慢 SQL 定位、filesort、Hash Join
+description: EXPLAIN 字段、type 与 Extra、Optimizer Trace、filesort、COUNT、JOIN
 ---
 
 # MySQL EXPLAIN 与 SQL 优化
@@ -128,47 +128,9 @@ WHERE u.city = '杭州' AND o.status = 'paid';
 
 ---
 
-## 四、慢 SQL 定位
+## 四、Optimizer Trace：优化器为什么这么选
 
-### 1、慢查询日志
-
-```ini
-[mysqld]
-slow_query_log = 1
-slow_query_log_file = /var/log/mysql/slow.log
-# 超过 1 秒记录
-long_query_time = 1
-# 按需开启，噪音较大
-log_queries_not_using_indexes = 0
-```
-
-```bash
-# pt-query-digest 聚合分析慢日志（按总耗时排序输出 TOP SQL）
-pt-query-digest /var/log/mysql/slow.log > slow_report.txt
-```
-
-### 2、正在执行与历史最耗时的语句
-
-```sql
--- 正在执行的语句（Time 列为已执行秒数）
-SHOW PROCESSLIST;
-
--- sys schema：按语句模板汇总的历史耗时
--- statement_analysis 的 total_latency 是格式化后的字符串（如 '1.23 s'），不能直接按它排序；
--- 视图本身已按总耗时降序，或改用 x$ 前缀的原始数值视图排序
-SELECT query, exec_count, total_latency, rows_examined_avg
-FROM sys.statement_analysis
-LIMIT 10;
-
-SELECT query, exec_count, total_latency / 1e12 AS total_sec, rows_examined_avg
-FROM sys.`x$statement_analysis`
-ORDER BY total_latency DESC
-LIMIT 10;
-```
-
-`sys.statements_with_full_table_scans`、`sys.statements_with_sorting` 分别列出全表扫描和排序较重的语句模板，适合做定期巡检。
-
-### 3、Optimizer Trace：优化器为什么这么选
+慢 SQL 怎么找出来（慢查询日志、performance_schema 与 sys 库）见 [数据库监控与诊断](../4_practice/6_monitoring)。找到之后先看 EXPLAIN；EXPLAIN 解释不了「为什么不走我建的索引」时，打开 Optimizer Trace 看优化器的成本估算：
 
 ```sql
 SET optimizer_trace = 'enabled=on';
@@ -288,7 +250,7 @@ SHOW VARIABLES LIKE 'join_buffer_size';
 
 - 读 `EXPLAIN` 先看 `type`、`key` / `key_len`、`rows × filtered`、`Extra`；`key_len` 计算要考虑字符集和列是否可为 NULL
 - `EXPLAIN FORMAT=TREE` 看清执行顺序，`EXPLAIN ANALYZE` 会真正执行语句，对比预估与实际行数，用于判断统计信息是否失准
-- 慢 SQL 定位顺序：慢日志 + `pt-query-digest`，`sys` schema（排序用 `x$` 视图的原始数值），Optimizer Trace
+- EXPLAIN 解释不了「为什么不走这个索引」时，用 Optimizer Trace 看各候选索引的行数与成本估算；慢 SQL 怎么找见 [数据库监控与诊断](../4_practice/6_monitoring)
 - `Using filesort` 不一定落盘；8.4 中通过 `sort_mode` 和 `number_of_tmp_files` 判断，`max_length_for_sort_data` 已不起作用；最好的优化是用联合索引让结果天然有序
 - `COUNT(*)` 与 `COUNT(1)` 等价且最快，无 WHERE 时走最小二级索引并可并行；大表精确计数靠冗余计数
 - 8.0.20 起 BNL 被 Hash Join 取代；关联字段有索引时仍是 NLJ 最优

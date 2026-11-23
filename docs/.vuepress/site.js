@@ -105,13 +105,12 @@ export const GROUPS = [
         name: '数据存储', tagline: '关系型、NoSQL、缓存与消息中间件', modules: [
             {
                 name: '关系数据库', dir: 'database', interview: ['12_db'],
-                desc: '存储引擎与选型 / MySQL / PostgreSQL / MariaDB、国产库与分布式数据库 / 工程实践：JDBC 驱动、连接池、ORM、分库分表、Schema 变更、备份恢复、CDC',
+                desc: '存储引擎与选型 / MySQL / PostgreSQL / MariaDB、国产库与分布式数据库 / 工程实践：JDBC 驱动、连接池、ORM、分库分表、Schema 变更、监控诊断、备份恢复、CDC',
                 subdirs: {
                     '0_fundamentals': '原理与选型',
                     '1_mysql': {title: 'MySQL', sidebar: [{text: '核心原理', from: 1}, {text: '生产实践', from: 7}]},
                     '2_postgresql': 'PostgreSQL',
                     '3_relational': '其他关系库',
-                    // 6 号预留给「数据库监控与诊断」
                     '4_practice': {title: '工程实践', sidebar: [{text: '应用接入', from: 1}, {text: '扩展与变更', from: 4}, {text: '运维与同步', from: 6}]},
                 },
             },
