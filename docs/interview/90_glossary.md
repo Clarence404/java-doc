@@ -79,7 +79,7 @@ description: 全站高频术语的一句话解释与主文档入口、按方向�
 - **半同步复制**：主库提交前至少等一个从库确认收到 binlog，降低主库宕机丢数据风险 → [MySQL 主从与高可用](/database/1_mysql/6_topic_replication#四、半同步复制)
 - **布隆过滤器（Bloom Filter）**：用位数组判断元素「一定不存在或可能存在」，常用来拦缓存穿透 → [Redis 典型应用场景](/cache/4_redis_scenario#二、布隆过滤器)
 - **大 Key（Big Key）**：单个 value 过大或元素过多的 Key，读写和删除都会卡住 Redis → [Redis 实战](/cache/5_redis_practice#二、大-key)
-- **倒排索引（Inverted Index）**：从「词」查到「包含它的文档列表」，全文搜索的核心结构 → [Elasticsearch 原理](/nosql/5_search_es#_1、倒排索引)
+- **倒排索引（Inverted Index）**：从「词」查到「包含它的文档列表」，全文搜索的核心结构 → [Elasticsearch 原理](/nosql/7_search_es#_1、倒排索引)
 - **覆盖索引（Covering Index）**：查询要的列索引里都有，直接从索引返回，不用回表 → [MySQL 索引](/database/1_mysql/3_topic_index#_2、覆盖索引-covering-index)
 - **隔离级别**：规定并发事务之间能看到彼此多少改动，从读未提交到串行化共四档 → [MySQL 事务与锁](/database/1_mysql/4_topic_transaction#_2、四种隔离级别)
 - **哈希槽（Hash Slot）**：Redis Cluster 把 key 映射到 16384 个槽，再把槽分给各个节点 → [Redis 集群](/cache/3_redis_cluster#_1、数据分片-哈希槽)

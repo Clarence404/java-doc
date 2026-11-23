@@ -67,7 +67,8 @@ function getSidebarFromDir(dirPath, {stripSuffix} = {}) {
     });
 }
 
-// 按起始编号分组：0_overview 与 90 号以后（附录、99 题单）不分组；其余归入 from ≤ 编号的最后一组
+// 按起始编号分组：0_overview 与 90 号以后（附录、99 题单）不分组；其余归入 from ≤ 编号的最后一组；
+// 不写 text 的分组（如 {from: 3}）表示从该编号起恢复平铺，不归入任何组
 function groupItems(items, groups) {
     const result = [];
     const emitted = new Map();
@@ -75,7 +76,7 @@ function groupItems(items, groups) {
         const n = fileNum(item.link.split('/').pop());
         const isOverview = item.link.endsWith('/0_overview') && n === 0;
         const group = isOverview || n >= 90 ? null : groups.filter(g => n >= g.from).at(-1);
-        if (!group) {
+        if (!group || !group.text) {
             result.push(item);
             continue;
         }

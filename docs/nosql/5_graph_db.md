@@ -223,4 +223,4 @@ GO 2 STEPS FROM 1 OVER follows YIELD dst(edge) AS fof;
 - Apache AGE：[https://age.apache.org/](https://age.apache.org/)
 - TuGraph：[https://tugraph.tech/](https://tugraph.tech/)
 
-> 返回：[NoSQL 总览](./0_overview)
+> 下一篇：[搜索数据库](./6_search_db) —— 搜索库定位、各引擎速览、向量检索与选型

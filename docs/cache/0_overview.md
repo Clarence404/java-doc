@@ -16,9 +16,9 @@
 
 1. 先读 [Redis 基础](./1_redis_base) 与 [Redis 核心原理](./2_redis_core)，掌握数据类型、线程模型、持久化和淘汰机制。
 2. 再读 [Redis 集群](./3_redis_cluster)，理解主从、哨兵与 Cluster 的高可用取舍。
-3. 然后读 [Redis 典型应用场景](./4_redis_scenario)、[Redis 实战](./5_redis_practice) 与 [Redisson](./6_redisson)，落地到业务代码。
-4. 接着读 [Caffeine](./7_caffeine)、[两级缓存（L1 + L2）](./8_two_level_cache)、[JetCache](./9_jetcache)（可选：Boot 4 需 2.7.9 及以上，也可用 Caffeine + 自建两级缓存替代），建立本地 + 分布式的多级缓存视角。
-5. 最后读 [缓存一致性](./10_cache_consistency) 与 [缓存最佳实践](./11_cache_rule)，形成团队规范。
+3. 然后读 [Redis 典型应用场景](./4_redis_scenario) 与 [Redis 实战](./5_redis_practice)，落地到业务代码；以上五篇是侧边栏的「Redis」组。
+4. 「客户端与多级缓存」组：[Redisson](./6_redisson) 的锁与限流 API，再读 [Caffeine](./7_caffeine)、[两级缓存（L1 + L2）](./8_two_level_cache)、[JetCache](./9_jetcache)（可选：Boot 4 需 2.7.9 及以上，也可用 Caffeine + 自建两级缓存替代），建立本地 + 分布式的多级缓存视角。
+5. 最后是「一致性与规范」组：[缓存一致性](./10_cache_consistency) 与 [缓存最佳实践](./11_cache_rule)，形成团队规范。
 
 [高频面试题](./99_interview) 只列题目，答案在 [缓存面试题解答](/interview/14_cache)。
 

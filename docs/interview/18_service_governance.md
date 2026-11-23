@@ -2,9 +2,9 @@
 description: Nacos、网关、OpenFeign、Sentinel、Seata、Stream、链路追踪、Dubbo、服务网格
 ---
 
-# 微服务治理面试题解答
+# 服务治理面试题解答
 
-> 题目清单见 [微服务治理面试题](/service-governance/99_interview)，模块入口见 [微服务治理总览](/service-governance/0_overview)；拆分、通信、契约等架构题见 [微服务架构面试题解答](/interview/17_microservices)，分布式事务理论见 [分布式基础面试题解答](/interview/16_distributed)。
+> 题目清单见 [服务治理面试题](/service-governance/99_interview)，模块入口见 [服务治理总览](/service-governance/0_overview)；拆分、通信、契约等架构题见 [微服务设计面试题解答](/interview/17_microservices)，分布式事务理论见 [分布式基础面试题解答](/interview/16_distributed)。
 >
 > 版本基线：Spring Boot 4.x、Spring Cloud 2025.1.x、Spring Cloud Alibaba 2025.1.0.0（Nacos 3.x）、Dubbo 3.3、Istio 1.30 / 1.31。
 
@@ -23,7 +23,7 @@ description: Nacos、网关、OpenFeign、Sentinel、Seata、Stream、链路追�
 - 每个 Spring Cloud 版本只支持特定的 Boot 版本，SCA 再跟着 Spring Cloud 走
 - 升级 Boot 前先确认对应的 Spring Cloud 和 SCA 已经发布；Dubbo 这类非 Spring 组件要单独核对
 
-→ 详见 [微服务治理总览 · Spring Cloud 版本与选型速查](/service-governance/0_overview#三、spring-cloud-版本与选型速查)、[Spring Cloud Alibaba](/service-governance/6_alibaba#一、定位与版本对齐)
+→ 详见 [服务治理总览 · Spring Cloud 版本与选型速查](/service-governance/0_overview#三、spring-cloud-版本与选型速查)、[Spring Cloud Alibaba](/service-governance/6_alibaba#一、定位与版本对齐)
 
 ### Q2：注册中心如何选型？Nacos、Eureka、Consul、ZooKeeper、Kubernetes 有什么区别？
 
@@ -231,7 +231,7 @@ description: Nacos、网关、OpenFeign、Sentinel、Seata、Stream、链路追�
 - 不是 Netflix 的 OpenFeign 也已功能冻结，新项目用 HTTP Service Clients
 - Spring Cloud Config 不是 Netflix 组件，仍在维护
 
-→ 详见 [微服务治理总览 · Spring Cloud 版本与选型速查](/service-governance/0_overview#三、spring-cloud-版本与选型速查)
+→ 详见 [服务治理总览 · Spring Cloud 版本与选型速查](/service-governance/0_overview#三、spring-cloud-版本与选型速查)
 
 ### Q18：什么是服务雪崩？Spring Cloud 中有哪些治理手段？
 

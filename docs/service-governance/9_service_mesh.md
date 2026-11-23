@@ -290,4 +290,4 @@ istiod 作为 CA 为每个工作负载签发短期证书并自动轮转，证书
 - Envoy 文档：[https://www.envoyproxy.io/docs/](https://www.envoyproxy.io/docs/)
 - Linkerd 发布模型：[https://linkerd.io/releases/](https://linkerd.io/releases/)
 
-> 返回：[微服务治理总览](./0_overview)
+> 返回：[服务治理总览](./0_overview)

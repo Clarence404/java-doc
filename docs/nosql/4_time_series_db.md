@@ -417,4 +417,4 @@ GROUP BY ([2024-01-01T00:00:00, 2024-01-02T00:00:00), 10m);
 - TDengine 文档：[https://docs.tdengine.com/](https://docs.tdengine.com/)
 - Apache IoTDB 文档：[https://iotdb.apache.org/UserGuide/latest/QuickStart/QuickStart.html](https://iotdb.apache.org/UserGuide/latest/QuickStart/QuickStart.html)
 
-> 下一篇：[搜索数据库](./5_search_db) —— 搜索库定位、各引擎速览、向量检索与选型
+> 下一篇：[图数据库](./5_graph_db) —— 关系是一等公民：Neo4j、NebulaGraph 与图查询语言

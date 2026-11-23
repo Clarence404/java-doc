@@ -1,5 +1,5 @@
 ---
-description: 微服务治理方向题目清单
+description: 服务治理方向题目清单
 ---
 
 # 高频面试题

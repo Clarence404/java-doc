@@ -1,6 +1,6 @@
-# 微服务治理总览
+# 服务治理总览
 
-微服务治理解决服务拆开之后的注册发现、网关、调用、配置、流量与消息驱动问题。本模块讲三条落地路线：以 Spring Cloud 为主线按一次请求经过的顺序展开（含 Spring Cloud Alibaba 与 Stream），再讲框架内建治理的 Dubbo 和把治理下沉到基础设施的服务网格。
+服务治理解决服务拆开之后的注册发现、网关、调用、配置、流量与消息驱动问题。本模块讲三条落地路线：以 Spring Cloud 为主线按一次请求经过的顺序展开（含 Spring Cloud Alibaba 与 Stream），再讲框架内建治理的 Dubbo 和把治理下沉到基础设施的服务网格。
 
 **版本基线（2026 年 10 月）**：Spring Boot 4、Spring Cloud 2025.1、Spring Cloud Alibaba 2025.1、Dubbo 3.3、Istio 1.30 / 1.31
 
@@ -14,7 +14,7 @@
 
 ## 二、推荐阅读路径
 
-先读 [微服务架构总览](/microservices/0_overview)，想清楚要不要拆、怎么拆、服务之间怎么通信，再看这些能力怎么落地。
+先读 [微服务设计总览](/microservices/0_overview)，想清楚要不要拆、怎么拆、服务之间怎么通信，再看这些能力怎么落地。
 
 **Spring Cloud 主线**：按一次请求经过的顺序
 
@@ -31,7 +31,7 @@
 8. [Dubbo](./8_dubbo)：RPC 服务框架的调用流程、Triple 协议、负载均衡与集群容错、SPI 扩展机制，以及与 Spring Cloud 的选型
 9. [服务网格](./9_service_mesh)：Istio 的控制面与数据面、流量管理、mTLS、Sidecar 与 Ambient 两种数据面，以及与 Spring Cloud 的取舍
 
-[高频面试题](./99_interview) 只列题目，答案在 [微服务治理面试题解答](/interview/18_service_governance)。
+[高频面试题](./99_interview) 只列题目，答案在 [服务治理面试题解答](/interview/18_service_governance)。
 
 ---
 
@@ -85,9 +85,9 @@
 
 ## 四、关联模块
 
-本模块只写框架与基础设施落地；要不要拆、怎么拆、服务间通信与契约怎么设计在微服务架构模块，限流熔断的策略与阈值、分布式事务理论分别在高可用、分布式基础模块展开。
+本模块只写框架与基础设施落地；要不要拆、怎么拆、服务间通信与契约怎么设计在微服务设计模块，限流熔断的策略与阈值、分布式事务理论分别在高可用、分布式基础模块展开。
 
-- [微服务架构总览](/microservices/0_overview)：拆分原则、设计模式、调用顺序性、服务间通信与契约
+- [微服务设计总览](/microservices/0_overview)：拆分原则、设计模式、调用顺序性、服务间通信与契约
 - [RPC 协议](/protocols/5_rpc_protocols)：gRPC 帧格式、Protobuf 编码、Thrift、SOAP 等协议的横向对比
 - [云原生 · Kubernetes](/cloud-native/6_kubernetes)：服务网格的运行底座
 - [分布式基础 · 分布式事务](/distributed/5_transaction)：2PC、TCC、Saga、本地消息表、Seata 的完整对比

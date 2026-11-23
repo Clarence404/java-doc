@@ -302,7 +302,7 @@ description: CAP 与 PACELC、共识算法、一致性哈希、分布式 ID、�
 
 **常见坑**：其他系统绕过 Seata 数据源代理直接改同一张表，是回滚失败的主要来源。
 
-→ 详见 [分布式事务](/distributed/5_transaction#_3、at-模式)；Spring Cloud 中的依赖与配置见 [微服务治理面试题解答](/interview/18_service_governance#q23-seata-在-spring-cloud-中怎么接入-有哪些常见坑)
+→ 详见 [分布式事务](/distributed/5_transaction#_3、at-模式)；Spring Cloud 中的依赖与配置见 [服务治理面试题解答](/interview/18_service_governance#q23-seata-在-spring-cloud-中怎么接入-有哪些常见坑)
 
 ### Q23：Seata 的 AT、TCC、Saga、XA 怎么选？
 

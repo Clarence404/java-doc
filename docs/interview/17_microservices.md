@@ -2,9 +2,9 @@
 description: 拆分与演进、通信与 RPC、微服务模式、分布式场景、事件与契约
 ---
 
-# 微服务架构面试题解答
+# 微服务设计面试题解答
 
-> 题目清单见 [微服务架构面试题](/microservices/99_interview)，模块入口见 [微服务架构总览](/microservices/0_overview)；Nacos、网关、Feign、Sentinel、Seata、Dubbo、服务网格等落地题见 [微服务治理面试题解答](/interview/18_service_governance)，熔断限流策略见 [高可用面试题解答](/interview/25_high_avail)。
+> 题目清单见 [微服务设计面试题](/microservices/99_interview)，模块入口见 [微服务设计总览](/microservices/0_overview)；Nacos、网关、Feign、Sentinel、Seata、Dubbo、服务网格等落地题见 [服务治理面试题解答](/interview/18_service_governance)，熔断限流策略见 [高可用面试题解答](/interview/25_high_avail)。
 >
 > 版本基线：Spring Boot 4.x、Spring Cloud 2025.1.x。
 

@@ -115,9 +115,32 @@ export const GROUPS = [
                     '4_practice': {title: '工程实践', sidebar: [{text: '应用接入', from: 1}, {text: '扩展与变更', from: 4}, {text: '运维与同步', from: 6}]},
                 },
             },
-            {name: 'NoSQL', dir: 'nosql', interview: ['13_nosql'], desc: '键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图'},
-            {name: '缓存', dir: 'cache', interview: ['14_cache'], desc: 'Redis / Redisson / Caffeine / 两级缓存 / JetCache / 缓存一致性 / 缓存最佳实践'},
-            {name: '消息队列', dir: 'messaging', interview: ['15_mq'], desc: '可靠性与幂等 / 顺序与积压 / Kafka / RocketMQ / RabbitMQ / Pulsar / 选型'},
+            {
+                name: 'NoSQL', dir: 'nosql', interview: ['13_nosql'],
+                desc: '键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图',
+                sidebar: [
+                    {text: '数据模型', from: 1},
+                    {text: '搜索与 Elasticsearch', from: 6},
+                ],
+            },
+            {
+                name: '缓存', dir: 'cache', interview: ['14_cache'],
+                desc: 'Redis / Redisson / Caffeine / 两级缓存 / JetCache / 缓存一致性 / 缓存最佳实践',
+                sidebar: [
+                    {text: 'Redis', from: 1},
+                    {text: '客户端与多级缓存', from: 6},
+                    {text: '一致性与规范', from: 10},
+                ],
+            },
+            {
+                name: '消息队列', dir: 'messaging', interview: ['15_mq'],
+                desc: '可靠性与幂等 / 顺序与积压 / Kafka / RocketMQ / RabbitMQ / Pulsar / 选型',
+                // 基础篇不分组；Kafka 有两篇单独成组；3 号起（RocketMQ、RabbitMQ、其他 MQ、选型）各自一项、不再分组
+                sidebar: [
+                    {text: 'Kafka', from: 2},
+                    {from: 3},
+                ],
+            },
         ],
     },
     {
@@ -131,9 +154,9 @@ export const GROUPS = [
                     {text: '会话与任务', from: 6},
                 ],
             },
-            {name: '微服务架构', dir: 'microservices', interview: ['17_microservices'], desc: '从单体到微服务 / 服务拆分 / 设计模式 / 服务间通信与契约 / 调用顺序性'},
+            {name: '微服务设计', dir: 'microservices', interview: ['17_microservices'], desc: '从单体到微服务 / 服务拆分 / 设计模式 / 服务间通信与契约 / 调用顺序性'},
             {
-                name: '微服务治理', dir: 'service-governance', interview: ['18_service_governance'],
+                name: '服务治理', dir: 'service-governance', interview: ['18_service_governance'],
                 desc: '注册发现 / API 网关 / 服务调用 / 配置中心 / 流量治理 / Spring Cloud Alibaba / Stream / Dubbo / 服务网格',
                 sidebar: [
                     {text: 'Spring Cloud 主线', from: 1},
@@ -288,6 +311,11 @@ export const BASELINE = {
 
 // 重定向：文章搬家后旧地址自动跳到新地址（@vuepress/plugin-redirect），键为旧路径、值为新路径，均不带 .html
 export const REDIRECTS = {
+    // 2026-11：NoSQL 分「数据模型 / 搜索与 Elasticsearch」两组，图数据库提到 5 号，搜索三篇改为 6 / 7 / 8 号
+    '/nosql/6_graph_db': '/nosql/5_graph_db',
+    '/nosql/5_search_db': '/nosql/6_search_db',
+    '/nosql/5_search_es': '/nosql/7_search_es',
+    '/nosql/5_search_es_practice': '/nosql/8_search_es_practice',
     // 2026-11：分布式基础分「理论 / 协调与一致性 / 会话与任务」三段重排；「分布式架构」并入微服务的「从单体到微服务」；微服务通信与调用顺序性换序
     '/distributed/2_theorem': '/distributed/1_theorem',
     '/distributed/9_consistent_hashing': '/distributed/2_consistent_hashing',
@@ -408,10 +436,10 @@ export const REDIRECTS = {
     '/database/4_nosql/0_column_db': '/nosql/3_column_db',
     '/database/4_nosql/1_time_series_db': '/nosql/4_time_series_db',
     '/database/4_nosql/2_document_db': '/nosql/2_document_db',
-    '/database/4_nosql/3_search_db': '/nosql/5_search_db',
-    '/database/4_nosql/3_search_es': '/nosql/5_search_es',
-    '/database/4_nosql/3_search_es_practice': '/nosql/5_search_es_practice',
-    '/database/4_nosql/4_graph_db': '/nosql/6_graph_db',
+    '/database/4_nosql/3_search_db': '/nosql/6_search_db',
+    '/database/4_nosql/3_search_es': '/nosql/7_search_es',
+    '/database/4_nosql/3_search_es_practice': '/nosql/8_search_es_practice',
+    '/database/4_nosql/4_graph_db': '/nosql/5_graph_db',
     // 2026-10：数据库模块重新分组（基础与选型、更多关系库、应用接入、数据同步与运维）
     '/database/6_reference/1_selection_guide': '/database/0_fundamentals/2_selection_guide',
     '/database/3_relational/2_orm_framework': '/database/4_practice/3_orm_framework',

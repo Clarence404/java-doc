@@ -4,7 +4,7 @@ description: 注册发现核心概念、注册中心对比、Nacos 2.x+ gRPC 机
 
 # 注册发现
 
-> 前置阅读：[微服务架构总览](/microservices/0_overview)
+> 前置阅读：[微服务设计总览](/microservices/0_overview)
 
 注册发现解决实例地址的**动态感知**和**自动上下线**两件事。本篇讲客户端发现链路、注册中心选型、Nacos 的连接模型、临时与持久实例、保护阈值，以及在 Spring Cloud 2025.1 中接入。
 

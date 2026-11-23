@@ -4,7 +4,7 @@ description: Mapping 设计、bool 查询与聚合、深分页、别名与 ILM�
 
 # Elasticsearch 实战
 
-> 前置阅读：[Elasticsearch 原理](./5_search_es)、[CDC 工具](/database/4_practice/8_cdc_tools)
+> 前置阅读：[Elasticsearch 原理](./7_search_es)、[CDC 工具](/database/4_practice/8_cdc_tools)
 
 ES 用得好不好，主要看 Mapping 设计、查询写法和索引怎么滚动重建。本篇讲 Mapping 设计、查询与深分页、索引生命周期、与 MySQL 同步、性能调优、Java 客户端和常见故障，基线为 Elasticsearch 9。
 
@@ -160,7 +160,7 @@ GET /orders/_search
 
 ## 三、深分页
 
-`from + size` 每个分片都要返回 `from + size` 条结果（原理见 [Elasticsearch 原理](./5_search_es#_1、query-then-fetch)），默认不能超过 `index.max_result_window`（10000）。
+`from + size` 每个分片都要返回 `from + size` 条结果（原理见 [Elasticsearch 原理](./7_search_es#_1、query-then-fetch)），默认不能超过 `index.max_result_window`（10000）。
 
 | 方式 | 原理 | 适用 | 限制 |
 |------|------|------|------|
@@ -427,4 +427,4 @@ PUT /my_index/_settings
 - Elasticsearch Java API Client：[https://www.elastic.co/docs/reference/elasticsearch/clients/java](https://www.elastic.co/docs/reference/elasticsearch/clients/java)
 - OpenSearch Index State Management：[https://docs.opensearch.org/latest/im-plugin/ism/index/](https://docs.opensearch.org/latest/im-plugin/ism/index/)
 
-> 下一篇：[图数据库](./6_graph_db) —— 关系是一等公民：Neo4j、NebulaGraph 与图查询语言
+> 返回：[NoSQL 总览](./0_overview)

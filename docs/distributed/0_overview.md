@@ -1,6 +1,6 @@
 # 分布式基础总览
 
-本模块先从分布式理论建立「一致性与可用性怎么取舍」的视角，再落到一致性哈希、ID、锁、事务、会话、调度等工程方案；为什么从单体拆成分布式，见微服务架构模块的 [从单体到微服务](/microservices/1_pros_and_cons)。
+本模块先从分布式理论建立「一致性与可用性怎么取舍」的视角，再落到一致性哈希、ID、锁、事务、会话、调度等工程方案；为什么从单体拆成分布式，见微服务设计模块的 [从单体到微服务](/microservices/1_pros_and_cons)。
 
 **版本基线（2026 年 10 月）**：Redis 8、Redisson 4、Curator 5.x、jetcd 0.8.x、Apache Seata 2.5 / 2.6、RocketMQ 5、Kafka 4、XXL-JOB 3.x、Quartz 2.5、ElasticJob 3.0.x、PowerJob 5.x、Spring Boot 4
 
@@ -29,8 +29,8 @@
 本模块是锁、事务、ID、会话的主文档；缓存一致性见 [缓存一致性](/cache/10_cache_consistency)，幂等见 [幂等设计](/architecture/3_idempotence)，消息可靠投递见 [消息队列基础](/messaging/1_basics)，分库分表见 [分库分表与中间件](/database/4_practice/4_sharding)。版本说明：Redis 8.4 起有原生 `DELEX key IFEQ value` 做比较后删除（Valkey 8.x 同理）；Redisson 4.x 锁 API 与 3.x 一致；Seata 仍为 Apache 孵化项目，groupId 为 `org.apache.seata`，SCA 2025.1 BOM 自带 2.5.0，最新版为 2.6.0，客户端可沿用 BOM 的 2.5.0 或显式覆盖到 2.6.0，seata-server 与客户端保持同一版本；Kafka 4.x 仅支持 KRaft；XXL-JOB 3.x 需 JDK 17+。
 
 - [高并发总览](/high-con/0_overview) / [高可用总览](/high-avail/0_overview) / [高性能总览](/high-perf/0_overview)：系统级的扩展、容灾与性能策略
-- [微服务架构总览](/microservices/0_overview)：服务拆分与微服务设计模式
-- [微服务治理总览](/service-governance/0_overview)：Spring Cloud 治理与 Seata 的配置落地
+- [微服务设计总览](/microservices/0_overview)：服务拆分与微服务设计模式
+- [服务治理总览](/service-governance/0_overview)：Spring Cloud 治理与 Seata 的配置落地
 - [缓存总览](/cache/0_overview)：Redis、Redisson API 与缓存一致性
 - [消息队列总览](/messaging/0_overview)：消息可靠投递、消费幂等与事务消息的中间件细节
 - [幂等设计](/architecture/3_idempotence)：接口与消息消费的幂等方案（唯一约束、状态机、去重表）

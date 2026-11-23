@@ -142,4 +142,4 @@ public class OrderStatusRepository {
 - Nginx upstream hash：[https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash)
 - Istio DestinationRule（consistentHash）：[https://istio.io/latest/docs/reference/config/networking/destination-rule/](https://istio.io/latest/docs/reference/config/networking/destination-rule/)
 
-> 返回：[微服务架构总览](./0_overview)
+> 返回：[微服务设计总览](./0_overview)

@@ -131,7 +131,7 @@ db.stores.find({
 db.orders.find({ user_id: 123 }).explain("executionStats");
 ```
 
-全文检索方面，传统的 `text` 索引（`$text`）只有基础的词干与权重能力，不支持中文分词；Atlas 上用 Atlas Search（`$search`）和 Atlas Vector Search（`$vectorSearch`），自建版从 8.2 起以公开预览形式提供同样的能力。复杂搜索仍建议同步到 [搜索数据库](./5_search_db)。
+全文检索方面，传统的 `text` 索引（`$text`）只有基础的词干与权重能力，不支持中文分词；Atlas 上用 Atlas Search（`$search`）和 Atlas Vector Search（`$vectorSearch`），自建版从 8.2 起以公开预览形式提供同样的能力。复杂搜索仍建议同步到 [搜索数据库](./6_search_db)。
 
 ---
 
