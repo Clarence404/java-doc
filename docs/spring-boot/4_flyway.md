@@ -104,7 +104,7 @@ spring:
 
 | 问题 | 说明 | 做法 |
 |------|------|------|
-| 大表 DDL 锁表 | `ALTER TABLE` 大表可能长时间持有元数据锁，阻塞业务读写，也让其他实例在迁移锁上长时间等待 | 评估是否支持 Online DDL；超大表交给 gh-ost / pt-online-schema-change 在发布前单独执行 |
+| 大表 DDL 锁表 | `ALTER TABLE` 大表可能长时间持有元数据锁，阻塞业务读写，也让其他实例在迁移锁上长时间等待 | 评估是否支持 Online DDL；超大表交给 gh-ost / pt-online-schema-change 在发布前单独执行，各库的安全写法见 [Schema 变更与数据迁移](/database/4_practice/5_schema_migration) |
 | 滚动发布期间新旧代码并存 | 新版本的迁移执行后，旧版本实例仍在服务 | 变更必须向后兼容，按「先扩展后收缩」分多个版本发布，见 [优雅上下线与变更](/high-avail/8_graceful_release) |
 | 迁移拖慢启动 | 迁移耗时计入启动时间，可能超过存活探针的宽限期 | 迁移与应用启动解耦：Kubernetes 中用 Job 或 initContainer 执行迁移，应用里设置 `spring.flyway.enabled=false` |
 | 脚本被改动 | 已执行脚本的 checksum 变化，`validate` 失败 | 已执行的脚本永远不改，修正通过新版本脚本完成；`repair` 只用于清理失败记录、对齐 checksum，不是常规手段 |

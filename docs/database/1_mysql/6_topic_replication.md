@@ -183,7 +183,7 @@ START REPLICA IO_THREAD;
 
 | 原因 | 优化方案 |
 |------|---------|
-| 主库大事务（大批量 DML、大表 DDL） | 拆成小批次；大表 DDL 的做法见 [MySQL 避坑指南](./8_fallible_point) |
+| 主库大事务（大批量 DML、大表 DDL） | 拆成小批次；大表 DDL 的做法见 [Schema 变更与数据迁移](../4_practice/5_schema_migration) |
 | 回放并行度不足 | 确认多线程回放生效，按需增加 worker（见下） |
 | 从库执行了大查询（报表、备份） | 分析类查询走专用从库 |
 | 从库 IO 能力差 | 升级存储；或在从库放宽 `sync_binlog`、`innodb_flush_log_at_trx_commit`，代价是从库崩溃后可能需要重建 |

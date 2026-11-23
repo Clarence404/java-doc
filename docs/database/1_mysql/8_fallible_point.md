@@ -1,12 +1,12 @@
 ---
-description: 大事务与批量删除、锁范围与间隙锁死锁、字符集与排序规则、NULL、时区、排序稳定性、Online DDL 与 MDL
+description: 大事务与批量删除、锁范围与间隙锁死锁、字符集与排序规则、NULL、时区、排序稳定性、大表 DDL 与 MDL
 ---
 
 # MySQL 避坑指南
 
 > 前置阅读：[MySQL 基础](./0_basics)、[MySQL 事务与锁](./4_topic_transaction)
 
-本篇整理线上最常见的 MySQL 雷区（锁范围、死锁、字符集、NULL、时区、大表 DDL 与 MDL）及正确写法，也是 Online DDL 的主文档。基线为 MySQL 8.4 LTS，默认隔离级别为 RR。
+本篇整理线上最常见的 MySQL 雷区（锁范围、死锁、字符集、NULL、时区、大表 DDL 与 MDL）及正确写法。基线为 MySQL 8.4 LTS，默认隔离级别为 RR。
 
 ---
 
@@ -259,90 +259,22 @@ CREATE INDEX idx_title ON articles (title(100));   -- 前 100 个字符
 
 ---
 
-## 七、大表 DDL 与 Online DDL
+## 七、大表 DDL 卡住整张表
 
-### 1、DDL 被 MDL 阻塞，拖垮整张表
-
-DDL 执行时需要拿表的 **MDL 写锁**；而任何访问过该表、尚未提交的事务（哪怕只执行过一条 `SELECT`）都持有 MDL 读锁。MDL 请求按队列排队，于是形成下面的阻塞链：
-
-![MDL 阻塞链](../../assets/database/mysql-mdl-blocking.svg)
-
-8.0.12 起 `ADD COLUMN` 默认就是 INSTANT，重建表的耗时已经不是问题，真正的风险在于等 MDL。
+DDL 要拿表的 MDL 写锁，而任何碰过这张表、还没提交的事务（哪怕只执行过一条 `SELECT`）都持有 MDL 读锁。DDL 排在长事务后面等锁，它后面的所有读写又排在 DDL 后面，整张表看起来像被锁死，连接池很快被占满。
 
 ```sql
--- 1、DDL 前先找长事务
-SELECT trx_id, trx_mysql_thread_id, trx_started, trx_query
+-- DDL 前先找长事务
+SELECT trx_mysql_thread_id, trx_started, trx_query
 FROM information_schema.innodb_trx
 WHERE trx_started < NOW() - INTERVAL 60 SECOND;
 
--- 2、给 DDL 设置较短的 MDL 等待超时，拿不到锁就失败，而不是排队堵死业务
+-- 拿不到锁就失败，而不是排队堵死业务；显式写算法，做不到就报错，不会悄悄退化成锁表的 COPY
 SET SESSION lock_wait_timeout = 5;
 ALTER TABLE orders ADD COLUMN remark VARCHAR(64), ALGORITHM = INSTANT;
-
--- 3、DDL 卡住时查看谁在等、谁持有 MDL（8.x 默认已开启 MDL 采集）
-SELECT * FROM sys.schema_table_lock_waits;
-SELECT OBJECT_SCHEMA, OBJECT_NAME, LOCK_TYPE, LOCK_STATUS, OWNER_THREAD_ID
-FROM performance_schema.metadata_locks
-WHERE OBJECT_NAME = 'orders';
 ```
 
-`information_schema.innodb_trx` 只能看到 InnoDB 事务，MDL 的持有和等待要看 `performance_schema.metadata_locks` 或 `sys.schema_table_lock_waits`。
-
-### 2、Online DDL 的算法与锁
-
-`ALTER TABLE` 有三种算法，代价依次升高：
-
-| 算法 | 做法 | 并发 DML |
-|------|------|---------|
-| `INSTANT` | 只修改数据字典 | 允许 |
-| `INPLACE` | 在引擎内部完成，可能需要重建表（rebuild），执行期间记录并回放增量 | 大多允许 |
-| `COPY` | 建新表、逐行拷贝、再替换 | 不允许 |
-
-常见操作在 8.4 上的表现：
-
-| 操作 | 算法 | 重建表 | 并发 DML |
-|------|------|-------|---------|
-| 加列（任意位置）、删列 | `INSTANT`（8.0.29+） | 否 | 允许 |
-| 重命名列（类型与 NULL 属性不变） | `INSTANT` | 否 | 允许 |
-| 修改 / 删除列默认值 | `INSTANT` | 否 | 允许 |
-| 加二级索引 | `INPLACE` | 否 | 允许 |
-| 删除索引、重命名索引 | `INPLACE`（只改元数据） | 否 | 允许 |
-| 扩展 `VARCHAR` 长度（长度前缀字节数不变：都在 255 字节以内或都超过 255 字节） | `INPLACE` | 否 | 允许 |
-| 加主键 | `INPLACE` | 是 | 允许 |
-| 修改列类型、修改字符集 | `COPY` | 是 | 不允许 |
-| `OPTIMIZE TABLE` / `ENGINE=InnoDB` 重建 | `INPLACE` | 是 | 允许 |
-
-显式写出 `ALGORITHM` 和 `LOCK`，MySQL 做不到时会直接报错，而不是悄悄退化成锁表的 COPY：
-
-```sql
-ALTER TABLE orders ADD INDEX idx_status (status), ALGORITHM = INPLACE, LOCK = NONE;
-ALTER TABLE orders ADD COLUMN channel VARCHAR(16), ALGORITHM = INSTANT;
-```
-
-INSTANT 加 / 删列受表的行版本数上限约束（8.4 为 64，9.1 起为 255），达到上限后只能重建表，见 [MySQL 版本特性](./9_feature)。
-
-### 3、超大表用外部工具
-
-INPLACE 不阻塞 DML，但重建表期间的 IO 压力和副本延迟仍然很大：DDL 在源库执行完之后才写入 binlog，副本要再完整执行一遍，期间复制延迟持续累积。千万行以上的表建议用外部工具：
-
-| 工具 | 原理 | 特点与限制 |
-|------|------|-----------|
-| **gh-ost**（GitHub） | 建影子表，拷贝存量数据，同时消费 binlog 回放增量，最后原子切换表名 | 无触发器，可暂停、限速；要求 `binlog_format=ROW` 且 `binlog_row_image=FULL`，不支持外键 |
-| **pt-online-schema-change**（Percona） | 建影子表，用触发器同步增量 | 成熟稳定；触发器带来额外写开销，外键需要特殊处理 |
-
-```bash
-gh-ost --alter="ADD COLUMN remark VARCHAR(64)" \
-  --database=shop --table=orders \
-  --max-load=Threads_running=50 --chunk-size=1000 \
-  --execute
-```
-
-上线守则：
-
-1. 先在副本或预发环境验证耗时和锁行为
-2. 放在业务低峰期执行，DDL 会话设置较短的 `lock_wait_timeout`
-3. 执行前确认没有长事务，执行中盯住副本延迟和 `Threads_running`
-4. 准备好回滚方案（反向 DDL 或影子表保留）
+三条做法：DDL 前查长事务、DDL 会话设较短的 `lock_wait_timeout`、显式写 `ALGORITHM` / `LOCK`。阻塞链的排查、各操作的算法与锁、超大表用 gh-ost，以及 PostgreSQL 的写法见 [Schema 变更与数据迁移](../4_practice/5_schema_migration)。
 
 ---
 
@@ -363,7 +295,5 @@ gh-ost --alter="ADD COLUMN remark VARCHAR(64)" \
 - utf8mb4 字符集：[https://dev.mysql.com/doc/refman/8.4/en/charset-unicode-utf8mb4.html](https://dev.mysql.com/doc/refman/8.4/en/charset-unicode-utf8mb4.html)
 - Connector/J 配置属性：[https://dev.mysql.com/doc/connector-j/en/connector-j-reference-configuration-properties.html](https://dev.mysql.com/doc/connector-j/en/connector-j-reference-configuration-properties.html)
 - 元数据锁：[https://dev.mysql.com/doc/refman/8.4/en/metadata-locking.html](https://dev.mysql.com/doc/refman/8.4/en/metadata-locking.html)
-- Online DDL 操作：[https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html](https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html)
-- gh-ost：[https://github.com/github/gh-ost](https://github.com/github/gh-ost)
 
 > 下一篇：[MySQL 版本特性](./9_feature) —— 5.7 到 8.0、8.4 LTS、9.7 LTS 的关键变化与升级注意事项。

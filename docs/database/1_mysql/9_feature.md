@@ -92,7 +92,7 @@ SELECT * FROM sys.schema_unused_indexes WHERE object_schema = 'shop';         --
 
 - **Group Replication**（5.7.17）：基于 Paxos 的组复制，是 InnoDB Cluster 的基础，见 [MySQL 主从与高可用](./6_topic_replication)
 - **多源复制**：一个副本可同时从多个源复制
-- **Online DDL 增强**：`VARCHAR` 在同一长度字节数范围内扩容、`RENAME INDEX` 可以原地完成；Online DDL 的完整规则见 [MySQL 避坑指南](./8_fallible_point)
+- **Online DDL 增强**：`VARCHAR` 在同一长度字节数范围内扩容、`RENAME INDEX` 可以原地完成；Online DDL 的完整规则见 [Schema 变更与数据迁移](../4_practice/5_schema_migration)
 
 ---
 
@@ -188,7 +188,7 @@ SELECT NAME, TOTAL_ROW_VERSIONS FROM information_schema.INNODB_TABLES
 WHERE NAME = 'shop/orders';
 ```
 
-INSTANT 只解决重建表的耗时，DDL 仍需要拿元数据锁（MDL），长事务照样会把 DDL 和后续查询堵死。Online DDL 的算法选择、MDL 风险与 gh-ost 等工具见 [MySQL 避坑指南](./8_fallible_point)。
+INSTANT 只解决重建表的耗时，DDL 仍需要拿元数据锁（MDL），长事务照样会把 DDL 和后续查询堵死。Online DDL 的算法选择、MDL 风险与 gh-ost 等工具见 [Schema 变更与数据迁移](../4_practice/5_schema_migration)。
 
 ### 4、优化器与诊断
 

@@ -340,7 +340,7 @@ SHOW ENGINE INNODB STATUS;
 
 - **undo 无法清理**：只要有更老的 Read View 存在，purge 就不能清理它可能需要的旧版本，undo 表空间持续膨胀，版本链变长又拖慢快照读
 - **锁持有时间长**：阻塞其他事务，放大死锁概率
-- **阻塞 DDL**：事务持有表的 MDL 读锁直到结束，DDL 申请 MDL 写锁被卡住，其后所有对该表的查询都排队，见 [MySQL 避坑指南](./8_fallible_point) 的大表 DDL 一节
+- **阻塞 DDL**：事务持有表的 MDL 读锁直到结束，DDL 申请 MDL 写锁被卡住，其后所有对该表的查询都排队，见 [Schema 变更与数据迁移](../4_practice/5_schema_migration)
 - **复制延迟**：大事务的 binlog 在提交时一次性写入并传输，从库也要整体重放
 
 ### 2、排查

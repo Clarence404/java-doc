@@ -304,7 +304,7 @@ db.sensor_readings.insertOne({
 | 维度 | MongoDB | MySQL |
 |------|---------|-------|
 | 数据模型 | 文档（嵌套、数组、Schema 灵活） | 行（强 Schema） |
-| Schema 变更 | 不需要 DDL，应用兼容新旧结构即可 | 加列多为 INSTANT，大表其他 DDL 需 Online DDL / gh-ost 规划，见 [MySQL 避坑指南](/database/1_mysql/8_fallible_point) |
+| Schema 变更 | 不需要 DDL，应用兼容新旧结构即可 | 加列多为 INSTANT，大表其他 DDL 需 Online DDL / gh-ost 规划，见 [Schema 变更与数据迁移](/database/4_practice/5_schema_migration) |
 | 关联查询 | `$lookup`（能力弱，建议建模时内嵌或应用层组装） | JOIN（成熟） |
 | 事务 | 单文档原子；多文档事务 4.0（副本集）/ 4.2（分片），有 60 秒与规模限制 | 完整 ACID |
 | 一致性 | 依赖写关注 / 读关注配置，默认 `w: "majority"` | 主库强一致，从库异步复制有延迟 |

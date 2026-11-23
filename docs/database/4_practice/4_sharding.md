@@ -472,4 +472,4 @@ rules:
 - MySQL 复制过滤（replicate-do-db）：[https://dev.mysql.com/doc/refman/8.4/en/replication-options-replica.html](https://dev.mysql.com/doc/refman/8.4/en/replication-options-replica.html)
 - 选题参考：doocs/advanced-java：[https://github.com/doocs/advanced-java](https://github.com/doocs/advanced-java)
 
-> 下一篇：[数据备份与恢复](./7_backup_recovery) —— RTO / RPO、mysqldump、XtraBackup 增量、binlog PITR、PG 增量备份、恢复演练
+> 下一篇：[Schema 变更与数据迁移](./5_schema_migration) —— 改表前的风险判断、MySQL 与 PostgreSQL 在线改表、扩展 - 迁移 - 收缩、分批回填与换库迁移
