@@ -115,7 +115,7 @@ export const GROUPS = [
                 },
             },
             {
-                name: 'NoSQL 数据库', dir: 'nosql', interview: ['13_nosql'],
+                name: 'NoSQL', dir: 'nosql', interview: ['13_nosql'],
                 desc: '键值与嵌入式 / MongoDB / HBase、ClickHouse、Doris / 时序 / 图 / 搜索与 Elasticsearch',
                 sidebar: [
                     {text: '键值与嵌入式', from: 1},

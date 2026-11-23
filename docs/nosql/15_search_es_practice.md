@@ -427,4 +427,4 @@ PUT /my_index/_settings
 - Elasticsearch Java API Client：[https://www.elastic.co/docs/reference/elasticsearch/clients/java](https://www.elastic.co/docs/reference/elasticsearch/clients/java)
 - OpenSearch Index State Management：[https://docs.opensearch.org/latest/im-plugin/ism/index/](https://docs.opensearch.org/latest/im-plugin/ism/index/)
 
-> 返回：[NoSQL 数据库总览](./0_overview)
+> 返回：[NoSQL 总览](./0_overview)

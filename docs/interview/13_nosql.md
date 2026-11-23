@@ -2,9 +2,9 @@
 description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序库、图库、嵌入式库与选型
 ---
 
-# NoSQL 数据库面试题解答
+# NoSQL 面试题解答
 
-> 题目清单见 [NoSQL 数据库面试题](/nosql/99_interview)，细节见 [NoSQL 数据库总览](/nosql/0_overview)；关系库与分库分表见 [关系数据库面试题解答](/interview/12_db)。
+> 题目清单见 [NoSQL 面试题](/nosql/99_interview)，细节见 [NoSQL 总览](/nosql/0_overview)；关系库与分库分表见 [关系数据库面试题解答](/interview/12_db)。
 
 ## 一、NoSQL 与选型
 

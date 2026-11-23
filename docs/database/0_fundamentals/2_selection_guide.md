@@ -12,7 +12,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 
 ## 一、全景选型矩阵
 
-每类数据库这里只给定位与取舍，原理与深入对比在各自的主文档里；国产数据库、TiDB / OceanBase 的详细对比分别见 [商业与国产库](../3_relational/1_other_rdbms) 与 [分布式数据库](../3_relational/2_distributed_db)，NoSQL 各类见 [NoSQL 数据库总览](/nosql/0_overview)，向量库与对象存储分别见 [向量数据库](/ai/4_core_tech/1_vector_db) 与 [对象存储](/architecture/5_object_storage)。
+每类数据库这里只给定位与取舍，原理与深入对比在各自的主文档里；国产数据库、TiDB / OceanBase 的详细对比分别见 [商业与国产库](../3_relational/1_other_rdbms) 与 [分布式数据库](../3_relational/2_distributed_db)，NoSQL 各类见 [NoSQL 总览](/nosql/0_overview)，向量库与对象存储分别见 [向量数据库](/ai/4_core_tech/1_vector_db) 与 [对象存储](/architecture/5_object_storage)。
 
 | 数据库 | 类型 | 核心优势 | 典型场景 | 不适合 |
 |-------|------|---------|---------|-----------|

@@ -33,7 +33,7 @@ docs/
 ├── messaging/      消息队列：基础 / Kafka / RocketMQ / RabbitMQ / Pulsar 与其他 MQ / 选型（每种 MQ 分架构、生产与消费两篇）
 ├── microservices/  微服务设计：从单体到微服务 / 服务拆分 / 设计模式 / 服务间通信与契约 / 调用顺序性
 ├── netty/          IO 模型 / Reactor / 核心组件 / ByteBuf / 编解码与私有协议 / 心跳 / WebSocket / SSE / 生产调优
-├── nosql/          NoSQL 数据库：键值与嵌入式 / 文档（MongoDB）/ 列式与 OLAP（HBase、ClickHouse、Doris）/ 时序 / 图 / 搜索与 Elasticsearch，按产品分篇
+├── nosql/          NoSQL：键值与嵌入式 / 文档（MongoDB）/ 列式与 OLAP（HBase、ClickHouse、Doris）/ 时序 / 图 / 搜索与 Elasticsearch，按产品分篇
 ├── observability/  可观测性：日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry
 ├── os/             操作系统：进程线程 / 内核态与系统调用 / 内存与 Page Cache / CPU 缓存 / Load / IPC
 ├── patterns/       设计模式（23 种 GoF）
@@ -72,7 +72,7 @@ docs/
 | 微服务设计 | `docs/microservices/` | 从单体到微服务 / 拆分 / 设计模式 / 服务间通信与契约 / 调用顺序性 |
 | 服务治理 | `docs/service-governance/` | Spring Cloud 主线（注册发现 / API 网关 / 服务调用 / 配置中心 / 流量治理 / Spring Cloud Alibaba / Spring Cloud Stream）/ Dubbo 与服务网格 |
 | 关系数据库 | `docs/database/` | 原理与选型 / MySQL / PostgreSQL / 其他关系库（含分布式数据库）/ 工程实践：JDBC 驱动、连接池与 ORM、分库分表、Schema 变更与数据迁移、监控与诊断、备份恢复与 CDC |
-| NoSQL 数据库 | `docs/nosql/` | 键值与嵌入式 / MongoDB / HBase、ClickHouse、Doris / 时序（InfluxDB、TimescaleDB）/ 图 / 搜索与 Elasticsearch |
+| NoSQL | `docs/nosql/` | 键值与嵌入式 / MongoDB / HBase、ClickHouse、Doris / 时序（InfluxDB、TimescaleDB）/ 图 / 搜索与 Elasticsearch |
 | Redis 与缓存 | `docs/cache/` | Redis / Caffeine / 两级缓存 |
 | 系统架构 | `docs/architecture/` | 架构设计 / DDD / 幂等 / 对象存储 / 分布式文件系统 |
 | 项目演进 | `docs/project/` | 工程搭建 / 数据建模 / 接口设计 / 缓存 / 异步 / 服务拆分 / 一致性 / 稳定性 / 可观测与发布 |
@@ -97,7 +97,7 @@ docs/
 ```
 基础层：  Java 特性 → JVM → 数据结构与算法 → 操作系统 → 网络协议
 框架层：  Spring → Spring Boot → Netty →（选读）Vert.x 与 Quarkus
-数据层：  关系数据库 → NoSQL 数据库 → Redis 与缓存 → 消息队列
+数据层：  关系数据库 → NoSQL → Redis 与缓存 → 消息队列
 分布式架构：分布式基础 → 微服务设计 → 服务治理
 架构层：  设计模式 → 系统架构 → 业务场景 → 项目演进
 三高架构：高性能 → 高并发 → 高可用

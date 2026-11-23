@@ -8,7 +8,7 @@
 
 ## 一、分组与阅读顺序
 
-NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL 数据库](/nosql/0_overview) 模块；缓存、系统级的分库分表策略、分布式事务和 Spring 数据访问也在各自模块展开，这里只讲关系数据库与通用的存储原理。版本说明：文中单独标出与 MySQL 9.7 LTS（之后改用 `YY.M` 日历版本号）及 8.0（2026 年 4 月停止维护）的差异，PostgreSQL 兼顾 17；Connector/J 同样在 9.7 之后改用日历版本号，当前为 26.x。
+NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](/nosql/0_overview) 模块；缓存、系统级的分库分表策略、分布式事务和 Spring 数据访问也在各自模块展开，这里只讲关系数据库与通用的存储原理。版本说明：文中单独标出与 MySQL 9.7 LTS（之后改用 `YY.M` 日历版本号）及 8.0（2026 年 4 月停止维护）的差异，PostgreSQL 兼顾 17；Connector/J 同样在 9.7 之后改用日历版本号，当前为 26.x。
 
 按分组从上往下读，组内的顺序就是侧边栏的顺序，每篇的入口与简介见下一节的模块导航：
 
@@ -43,7 +43,7 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL �
 
 ## 四、关联模块
 
-- [NoSQL 数据库总览](/nosql/0_overview)：键值、文档、列式与 OLAP、时序、搜索与图数据库
+- [NoSQL 总览](/nosql/0_overview)：键值、文档、列式与 OLAP、时序、搜索与图数据库
 - [对象存储](/architecture/5_object_storage)：图片、视频、备份等大文件的存储与直传
 - [向量数据库](/ai/4_core_tech/1_vector_db)：Embedding 检索与 RAG 的专用存储
 - [Redis 与缓存总览](/cache/0_overview)：Redis / Caffeine 与数据库组合使用，缓存一致性在 [缓存一致性](/cache/10_cache_consistency) 展开

@@ -1,4 +1,4 @@
-# NoSQL 数据库总览
+# NoSQL 总览
 
 NoSQL 模块按数据模型讲关系库之外的存储：键值、文档、宽列与列式、时序、搜索和图，每类讲清原理、主流产品与选型边界。
 
@@ -39,7 +39,7 @@ Redis 也是键值存储，但定位是缓存与内存数据结构，主文档�
    - **搜索与 Elasticsearch**：[搜索数据库](./13_search_db) → [Elasticsearch 原理](./14_search_es) → [Elasticsearch 实战](./15_search_es_practice)
 3. 做技术决策时看 [数据库选型参考](/database/0_fundamentals/2_selection_guide)，它同时覆盖关系库与 NoSQL
 
-[高频面试题](./99_interview) 只列题目，答案在 [NoSQL 数据库面试题解答](/interview/13_nosql)。
+[高频面试题](./99_interview) 只列题目，答案在 [NoSQL 面试题解答](/interview/13_nosql)。
 
 ---
 
