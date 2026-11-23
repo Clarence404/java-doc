@@ -111,7 +111,7 @@ export const GROUPS = [
                     '1_mysql': {title: 'MySQL', sidebar: [{text: '核心专项', from: 2}, {text: '避坑与版本', from: 8}]},
                     '2_postgresql': {title: 'PostgreSQL', sidebar: [{text: '核心专项', from: 2}]},
                     '3_relational': '其他关系库',
-                    '4_scale_out': '分库分表与分布式数据库',
+                    '4_scale_out': '水平扩展',
                     '5_access': '应用接入',
                     '6_sync_backup': '数据同步与备份',
                 },

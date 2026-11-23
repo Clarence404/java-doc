@@ -15,7 +15,7 @@ docs/
 ├── big-data/       大数据：数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 治理 / 实时数仓
 ├── cache/          缓存：Redis / Caffeine
 ├── cloud-native/   云原生：Linux / Docker / Kubernetes / VPS
-├── database/       数据库：存储引擎与选型 / MySQL / PostgreSQL / 其他关系库 / 分库分表与分布式数据库 / 应用接入 / 数据同步与备份
+├── database/       数据库：存储引擎与选型 / MySQL / PostgreSQL / 其他关系库 / 水平扩展（分库分表与分布式数据库）/ 应用接入 / 数据同步与备份
 ├── devops/         DevOps：Git 工作流 / CI/CD / Code Review / 团队规范
 ├── distributed/    分布式基础：分布式理论 / 锁 / 事务 / 会话
 ├── engineering/    工程效率：构建 / 工具链 / 代码质量 / 线上诊断 / API 规范

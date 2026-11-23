@@ -1,6 +1,6 @@
 # 数据库总览
 
-数据库模块从存储引擎与选型讲起，以 MySQL 为主线讲表设计、索引、事务与锁、InnoDB 与复制，再对比 PostgreSQL 与其他关系库，然后是分库分表与分布式数据库、Java 应用接入，最后落到 CDC 与备份恢复。
+数据库模块从存储引擎与选型讲起，以 MySQL 为主线讲表设计、索引、事务与锁、InnoDB 与复制，再对比 PostgreSQL 与其他关系库，然后是水平扩展（分库分表与分布式数据库）、Java 应用接入，最后落到 CDC 与备份恢复。
 
 **版本基线（2026 年 10 月）**：MySQL 8.4、PostgreSQL 18、MariaDB 12.3、Connector/J 26.x、HikariCP 7.x、ShardingSphere 5.5、Debezium 3.x
 
@@ -16,7 +16,7 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 | **MySQL** | 基础、表设计规范、索引、事务与锁、执行流程、EXPLAIN、InnoDB、主从与高可用、避坑指南、版本特性 | Java 后端主力 OLTP 场景 |
 | **PostgreSQL** | 基础、版本特性、MVCC、索引、高级 SQL、复制与高可用 | 复杂 SQL、JSONB、GIS、分析型查询 |
 | **其他关系库** | MariaDB、商业与国产库（Oracle、SQL Server、达梦、人大金仓、openGauss） | 用 MySQL 的分支，或做国产化迁移 |
-| **分库分表与分布式数据库** | 分库分表与中间件（ShardingSphere）、分布式数据库（TiDB / OceanBase） | 单库放不下时的两条路 |
+| **水平扩展** | 分库分表与中间件（ShardingSphere）、分布式数据库（TiDB / OceanBase） | 单库放不下时的两条路 |
 | **应用接入** | MySQL JDBC 驱动、数据库连接池、ORM 框架 | Java 应用怎么连数据库、怎么用好连接 |
 | **数据同步与备份** | CDC 工具、binlog 连接器原理、数据备份与恢复 | 数据同步与可靠性 |
 
