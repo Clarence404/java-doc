@@ -201,7 +201,7 @@ ORDER BY o.create_time DESC;
 - 深度分页的原理与优化：[MySQL 索引](/database/1_mysql/2_topic_index#九、深度分页优化)
 - 深分页方案对比与慢 SQL 治理：[数据访问性能](/high-perf/10_db_performance#二、深分页)
 - 回表、覆盖索引与 Buffer Pool：[MySQL 索引](/database/1_mysql/2_topic_index)、[InnoDB 存储结构](/database/1_mysql/6_topic_innodb)
-- 执行计划解读：[EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)
+- 执行计划解读：[MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)
 - 开放接口的分页与限流设计：[API 设计规范](/engineering/4_api_design_rule)、[限流与过载保护](/high-avail/7_rate_limiting)
 - 全量与增量同步：[CDC 工具](/database/6_backup_cdc/1_cdc_tools)
 

@@ -40,7 +40,7 @@
 - 镜像构建与容器原理 → [Docker](/cloud-native/5_docker)；探针、滚动发布与常见 Pod 故障 → [Kubernetes](/cloud-native/6_kubernetes)
 - JDK 自带诊断工具 → [诊断工具](/jvm/8_monitoring_tools)；OOM、CPU 飙高、死锁的排查流程 → [故障排查](/jvm/9_troubleshooting)
 - Arthas 原理、容器附着与安全守则 → [线上诊断](/engineering/7_diagnosis)
-- 慢 SQL 与执行计划 → [EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)；Redis 生产问题 → [Redis 实战](/cache/5_redis_practice)；消息堆积与重复消费 → [消息队列基础](/messaging/1_basics)
+- 慢 SQL 与执行计划 → [MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)；Redis 生产问题 → [Redis 实战](/cache/5_redis_practice)；消息堆积与重复消费 → [消息队列基础](/messaging/1_basics)
 - 优雅停机与发布 → [优雅上下线与变更](/high-avail/8_graceful_release)；故障分级、止血与复盘 → [故障应急与复盘](/high-avail/11_incident_response)
 
 ---

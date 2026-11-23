@@ -14,7 +14,7 @@ description: B+ 树、聚簇与二级索引、Change Buffer、覆盖索引、最
 
 ### 1、为什么选 B+ 树
 
-InnoDB 的索引底层是 **B+ 树**：非叶节点只存 key 和页指针、扇出大、树矮，叶节点用双向链表串起来，等值、范围、排序和 `LIKE 'x%'` 前缀匹配都能走索引。B+ 树与 B 树的结构差异见 [树 · B+ 树](/algorithms/1_data_structures/3_tree#六、b-树-b-tree)，数据库为什么偏爱它见 [存储引擎：B+ 树与 LSM-Tree · B+ 树](/database/0_fundamentals/1_storage_engine#二、b-树)。
+InnoDB 的索引底层是 **B+ 树**：非叶节点只存 key 和页指针、扇出大、树矮，叶节点用双向链表串起来，等值、范围、排序和 `LIKE 'x%'` 前缀匹配都能走索引。B+ 树与 B 树的结构差异见 [树 · B+ 树](/algorithms/1_data_structures/3_tree#六、b-树-b-tree)，数据库为什么偏爱它见 [存储引擎：B+ 树与 LSM-Tree · B+ 树](/database/0_fundamentals/1_storage_engine#二、b-树)；页分裂、缓冲池，以及 B+ 树和 LSM-Tree 的取舍见 [存储引擎：B+ 树与 LSM-Tree](../0_fundamentals/1_storage_engine)。
 
 落到 InnoDB 上有几点要记住：
 
@@ -258,7 +258,7 @@ SELECT * FROM t_user WHERE id NOT IN (1, 2, 3);
 SELECT * FROM t_order WHERE status = 1;
 ```
 
-解决：与高区分度列组成联合索引，如 `idx_status_create_time(status, create_time)`，让 `status = ? AND create_time > ?` 能缩小范围；或者让查询变成覆盖查询。统计信息不准导致选错索引时，处理方法见 [SQL 执行流程](./4_topic_execution) 的优化器一节。
+解决：与高区分度列组成联合索引，如 `idx_status_create_time(status, create_time)`，让 `status = ? AND create_time > ?` 能缩小范围；或者让查询变成覆盖查询。统计信息不准导致选错索引时，处理方法见 [MySQL 执行流程](./4_topic_execution) 的优化器一节。
 
 ---
 
@@ -348,7 +348,7 @@ SELECT * FROM t_order WHERE id > ? ORDER BY id LIMIT 1000;
 
 **该建索引的：**
 
-执行计划各字段的读法见 [EXPLAIN 与 SQL 优化](./5_topic_explain)。
+执行计划各字段的读法见 [MySQL EXPLAIN 与 SQL 优化](./5_topic_explain)。
 
 - WHERE / JOIN ON / ORDER BY / GROUP BY 中的高频列
 - 区分度高的列（`COUNT(DISTINCT col) / COUNT(*)` 越接近 1 越好）

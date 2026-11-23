@@ -205,7 +205,7 @@ description: 自动配置与 Starter、启动流程、配置管理、Web 与数�
 - `@DSTransactional` 只是本地多数据源事务，不是分布式事务
 - `@DS` 基于 AOP，类内部调用也会失效
 
-→ 详见 [数据访问](/spring-boot/3_data_access#_2、路由原理与事务陷阱)
+→ 详见 [数据访问](/spring-boot/3_data_access#_3、路由原理与事务陷阱)
 
 ### Q17：多实例同时启动时 Flyway 迁移会冲突吗？MySQL 上脚本执行失败后如何修复？
 

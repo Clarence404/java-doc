@@ -221,4 +221,4 @@ MySQL 9.x 社区版只有 `VECTOR` 类型与 `STRING_TO_VECTOR`、`VECTOR_DIM` �
 - InfluxDB 3 Core 查询数据：[https://docs.influxdata.com/influxdb3/core/query-data/](https://docs.influxdata.com/influxdb3/core/query-data/)
 - MongoDB 事务：[https://www.mongodb.com/docs/manual/core/transactions/](https://www.mongodb.com/docs/manual/core/transactions/)
 
-> 下一篇：[MySQL 基础](../1_mysql/0_basics) —— 数据库范式、视图、存储过程、账号与传输安全、基础配置、核心专项导读
+> 下一篇：[MySQL 基础](../1_mysql/0_basics) —— 视图、存储过程、账号与传输安全、基础配置、核心原理导读

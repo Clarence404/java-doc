@@ -4,7 +4,7 @@ description: 大商户慢查询占满 HikariCP、存活探针连带重启、补�
 
 # 慢 SQL 拖垮连接池
 
-> 前置阅读：[数据库连接池](/database/5_access/2_connection_pool)、[EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)
+> 前置阅读：[数据库连接池](/database/5_access/2_connection_pool)、[MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)
 
 一个只在大商户数据量下才慢的新查询，把订单服务的连接池占满，连带下单、支付回调全部超时，存活探针又把 Pod 接连重启。本篇按现象、排查、根因、修复、预防完整复盘，基线为 JDK 21、Spring Boot 4、MySQL 8.4。
 
@@ -241,7 +241,7 @@ management:
 
 - HikariCP 参数、池大小估算与泄漏排查：[数据库连接池](/database/5_access/2_connection_pool)
 - 连接池为什么不是越大越好：[池化技术](/high-perf/7_pooling)
-- 执行计划与 `EXPLAIN ANALYZE`：[EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)
+- 执行计划与 `EXPLAIN ANALYZE`：[MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)
 - 联合索引与回表：[MySQL 索引](/database/1_mysql/2_topic_index)
 - 慢 SQL 治理闭环：[数据访问性能](/high-perf/10_db_performance)
 - 舱壁隔离与超时：[超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)

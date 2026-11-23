@@ -2,8 +2,7 @@
 description: 元组可见性、HOT 更新、RR 快照隔离与 SSI、表膨胀、VACUUM 与 autovacuum、XID 回卷、长事务
 ---
 
-# MVCC 与 VACUUM
-
+# PostgreSQL MVCC 与 VACUUM
 > 前置阅读：[MySQL 事务与锁](../1_mysql/3_topic_transaction)、[PostgreSQL 基础](./0_basics)
 
 PostgreSQL 把旧版本元组留在堆表里实现 MVCC，本篇讲快照可见性判断、RR / SERIALIZABLE 与 InnoDB 的语义差别，以及 autovacuum 配置、表膨胀与 XID 回卷监控、阻止清理的长事务定位。
@@ -130,7 +129,7 @@ PG 支持标准的四个隔离级别名，但 READ UNCOMMITTED 实际按 READ CO
 
 Java 侧的处理：RR 或 SERIALIZABLE 下要捕获 SQLSTATE `40001`（死锁是 `40P01`）并重试整个事务。Spring 会把它翻译为 `ConcurrencyFailureException` 的子类，可以在事务方法外层用重试机制包裹，事务传播与回滚规则见 [事务管理](/spring/4_transaction)。
 
-PG 没有聚簇索引，表数据存在无序的堆里，所有索引都直接指向 `ctid`，这一点对索引设计的影响见 [PostgreSQL 索引类型](./3_topic_index)。
+PG 没有聚簇索引，表数据存在无序的堆里，所有索引都直接指向 `ctid`，这一点对索引设计的影响见 [PostgreSQL 索引类型](./2_topic_index)。
 
 ---
 
@@ -309,7 +308,7 @@ ALTER ROLE app SET idle_in_transaction_session_timeout = '10min';
 ALTER ROLE app SET transaction_timeout = '30min';   -- 17+
 ```
 
-复制槽导致的 WAL 堆积与 `max_slot_wal_keep_size`、`idle_replication_slot_timeout` 见 [PostgreSQL 复制与高可用](./5_topic_replication)。
+复制槽导致的 WAL 堆积与 `max_slot_wal_keep_size`、`idle_replication_slot_timeout` 见 [PostgreSQL 复制与高可用](./4_topic_replication)。
 
 ---
 
@@ -334,4 +333,4 @@ ALTER ROLE app SET transaction_timeout = '30min';   -- 17+
 - 系统列：[https://www.postgresql.org/docs/18/ddl-system-columns.html](https://www.postgresql.org/docs/18/ddl-system-columns.html)
 - 论文 Serializable Snapshot Isolation in PostgreSQL：[https://arxiv.org/abs/1208.4179](https://arxiv.org/abs/1208.4179)
 
-> 下一篇：[PostgreSQL 索引类型](./3_topic_index) —— 六种索引访问方法、部分 / 表达式 / 覆盖索引、Index Only Scan 与在线建索引。
+> 下一篇：[PostgreSQL 索引类型](./2_topic_index) —— 六种索引访问方法、部分 / 表达式 / 覆盖索引、Index Only Scan 与在线建索引。

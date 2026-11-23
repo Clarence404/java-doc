@@ -185,7 +185,7 @@ List<Object> results = redisTemplate.executePipelined((RedisCallback<Object>) co
 });
 ```
 
-MySQL 批量写入的事务与注意事项见 [数据访问性能](./10_db_performance)，驱动层细节见 [MySQL JDBC 驱动](/database/5_access/1_jdbc_driver)；Kafka 批量参数见 [Kafka 架构与存储](/messaging/2_kafka)。
+MySQL 批量写入的事务与注意事项见 [数据访问性能](./10_db_performance)，驱动层细节见 [JDBC 驱动](/database/5_access/1_jdbc_driver)；Kafka 批量参数见 [Kafka 架构与存储](/messaging/2_kafka)。
 
 ### 3、批大小如何选
 

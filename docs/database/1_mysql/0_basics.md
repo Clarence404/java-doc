@@ -1,40 +1,16 @@
 ---
-description: 数据库范式、视图、存储过程、账号与传输安全、基础配置、核心专项导读
+description: 视图、存储过程、账号与传输安全、基础配置、核心原理导读
 ---
 
 # MySQL 基础
 
 > 前置阅读：[数据库总览](../0_overview)
 
-MySQL 是最常用的开源关系型数据库，本篇讲建表前的范式取舍、视图与存储过程的边界、账号权限与 TLS 配置，并给出索引、事务等专项的导读。以 MySQL 8.4 LTS 为基线，9.7 LTS 的行为相同时不再单独说明。
+MySQL 是最常用的开源关系型数据库，本篇讲视图与存储过程的边界、账号权限与 TLS 配置，并给出索引、事务等核心原理文章的导读；建表时的范式取舍在 [MySQL 表设计规范](./1_table_design)。以 MySQL 8.4 LTS 为基线，9.7 LTS 的行为相同时不再单独说明。
 
 ---
 
-## 一、数据库范式
-
-### 1、三大范式
-
-| 范式 | 核心要求 | 违反示例 | 解决方案 |
-|------|---------|---------|---------|
-| **1NF** | 字段值不可再拆分（原子性） | `address` 字段存「北京市朝阳区某路 XX 号」，又要按区统计 | 拆为 `city`、`district`、`street` |
-| **2NF** | 非主键字段完全依赖整个主键（消除部分依赖） | 选课表主键 `(student_id, course_id)`，`course_name` 只依赖 `course_id` | 拆出课程表，选课表只存两个 ID 和成绩 |
-| **3NF** | 非主键字段直接依赖主键（消除传递依赖） | 学生表存 `class_id` 和 `class_name`，`class_name` 经 `class_id` 间接依赖学生 | 拆出班级表，学生表只存 `class_id` |
-
-3NF 之上还有 **BCNF**：每个决定因素都必须是候选键。业务表做到 3NF 基本够用，BCNF 多见于理论题。
-
-### 2、反范式
-
-范式减少冗余和更新异常，代价是查询时要多表 JOIN。工程上常见的反范式手段：
-
-- 订单表冗余商品名称和下单时价格：既是快照（商品改名不影响历史订单），也省去 JOIN
-- 列表页需要的统计值（评论数、点赞数）冗余到主表，异步或在同一事务内更新
-- 分库分表后跨库 JOIN 不可用，冗余字段几乎是必选项
-
-反范式的前提是写清楚冗余字段由谁维护、什么时候允许短暂不一致。
-
----
-
-## 二、视图
+## 一、视图
 
 视图是保存下来的一条查询，**不存储数据**，每次访问时执行底层 SQL。MySQL 没有物化视图，需要预计算结果时用汇总表加定时任务或 CDC 维护。
 
@@ -67,7 +43,7 @@ DROP VIEW IF EXISTS v_active_orders;
 
 ---
 
-## 三、存储过程
+## 二、存储过程
 
 存储过程是保存在服务端、按名称调用的一段 SQL 程序。常说的「存储过程是预编译的、所以更快」并不成立：MySQL 在会话第一次调用时解析存储过程，结果只缓存在**当前会话**里，不跨会话复用，里面的语句每次执行仍要经过优化器。它真正的性能收益只有一点：多条语句在服务端一次执行完，**省掉网络往返**。
 
@@ -116,7 +92,7 @@ DROP PROCEDURE IF EXISTS batch_expire_orders;
 
 ---
 
-## 四、账号与安全
+## 三、账号与安全
 
 SQL 注入的防护靠应用层参数绑定（`PreparedStatement`、MyBatis 的 `#{}`），见 [常见漏洞与防护](/security/8_vulnerabilities)；敏感字段加密与脱敏见 [数据安全](/security/7_data_security)。本节只讲 MySQL 服务端自己的配置。
 
@@ -162,7 +138,7 @@ tls_version = TLSv1.2,TLSv1.3
 
 ---
 
-## 五、基础配置速记
+## 四、基础配置速记
 
 | 参数 | 建议 | 详见 |
 |------|------|------|
@@ -174,16 +150,18 @@ tls_version = TLSv1.2,TLSv1.3
 
 ---
 
-## 六、核心专项导读
+## 五、核心原理导读
 
-| 专项 | 解决的问题 |
+| 文章 | 解决的问题 |
 |------|-----------|
 | [MySQL 索引](./2_topic_index) | B+ 树、聚簇与二级索引、回表与覆盖索引、最左前缀、索引失效、索引下推、深度分页 |
 | [MySQL 事务与锁](./3_topic_transaction) | ACID、隔离级别、undo / redo log、两阶段提交、MVCC、行锁与死锁、长事务 |
-| [SQL 执行流程](./4_topic_execution) | 连接器、解析器、优化器、执行器的链路，UPDATE 的写入路径与崩溃恢复 |
-| [EXPLAIN 与 SQL 优化](./5_topic_explain) | EXPLAIN 字段、慢查询日志、filesort、COUNT、JOIN 优化 |
+| [MySQL 执行流程](./4_topic_execution) | 连接器、解析器、优化器、执行器的链路，UPDATE 的写入路径与崩溃恢复 |
+| [MySQL EXPLAIN 与 SQL 优化](./5_topic_explain) | EXPLAIN 字段、慢查询日志、filesort、COUNT、JOIN 优化 |
 | [InnoDB 存储结构](./6_topic_innodb) | 段 / 区 / 页、行格式、Buffer Pool、Double Write、刷脏 |
 | [MySQL 主从与高可用](./7_topic_replication) | Binlog、GTID、半同步、并行复制、Group Replication / InnoDB Cluster、读写分离 |
+| [MySQL 避坑指南](./8_fallible_point) | 锁范围与死锁案例、字符集、NULL、时区、大表 DDL 与 MDL |
+| [MySQL 版本特性](./9_feature) | 版本生命周期、8.0 与 8.4 的变化、升级检查 |
 
 分库分表的中间件实现见 [分库分表与中间件](../4_scale_out/0_sharding)，系统层面的拆分策略见 [数据层扩展](/high-con/5_data_scaling)。
 
@@ -191,12 +169,11 @@ tls_version = TLSv1.2,TLSv1.3
 
 ## 小结
 
-- 业务表一般做到 3NF；为快照、统计和分库后的查询做反范式，并写清冗余字段的维护方
 - 视图不存数据；含聚合的视图走 `TEMPTABLE` 先物化再查，MySQL 没有物化视图
 - 存储过程没有跨会话的预编译收益，只省网络往返；用 `EXIT HANDLER` + `RESIGNAL` 处理错误，`ROW_COUNT()` 紧跟 DML 读取
 - 8.4 默认 `caching_sha2_password`，`mysql_native_password` 默认不加载；账号按角色授权，`SET DEFAULT ROLE` 后角色才生效
 - 传输加密用 `require_secure_transport=ON` 或账号级 `REQUIRE SSL`，MySQL 没有 `require_ssl` 这个参数
-- 配置参数只记关键几个，细节以各专项为准
+- 配置参数只记关键几个，细节以各篇原理文章为准
 
 ## 参考资料
 

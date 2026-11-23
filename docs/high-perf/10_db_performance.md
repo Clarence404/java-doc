@@ -14,7 +14,7 @@ description: 慢 SQL 治理闭环、N+1、深分页方案对比、批量写
 
 **慢 SQL 治理不是一次性"优化几条 SQL"，而是发现 → 排序 → 分析 → 优化 → 验证 → 预防的持续闭环。**
 
-MySQL 内部原理见 [MySQL 索引](/database/1_mysql/2_topic_index)、[SQL 执行流程](/database/1_mysql/4_topic_execution)、[EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)。
+MySQL 内部原理见 [MySQL 索引](/database/1_mysql/2_topic_index)、[MySQL 执行流程](/database/1_mysql/4_topic_execution)、[MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)。
 
 | 阶段 | 做什么 | 工具 / 手段 |
 |------|--------|-------------|
@@ -29,7 +29,7 @@ MySQL 内部原理见 [MySQL 索引](/database/1_mysql/2_topic_index)、[SQL 执
 单次 2 秒、每天 10 次的报表 SQL，对数据库的压力远小于单次 20ms、每秒 500 次的列表查询。优先治理总耗时 Top N，收益最大。
 :::
 
-执行计划各字段的含义与优化方向速查见 [EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)，索引失效场景见 [MySQL 索引](/database/1_mysql/2_topic_index)。
+执行计划各字段的含义与优化方向速查见 [MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)，索引失效场景见 [MySQL 索引](/database/1_mysql/2_topic_index)。
 
 ---
 
@@ -41,7 +41,7 @@ MySQL 内部原理见 [MySQL 索引](/database/1_mysql/2_topic_index)、[SQL 执
 
 ## 三、批量写入
 
-驱动参数详解见 [MySQL JDBC 驱动](/database/5_access/1_jdbc_driver)。
+驱动参数详解见 [JDBC 驱动](/database/5_access/1_jdbc_driver)。
 
 ### 1、三个条件缺一不可
 
@@ -50,7 +50,7 @@ MySQL 内部原理见 [MySQL 索引](/database/1_mysql/2_topic_index)、[SQL 执
 | 条件 | 说明 |
 |------|------|
 | 批量 API | `addBatch()` / `executeBatch()`，或 MyBatis `ExecutorType.BATCH`、JPA `hibernate.jdbc.batch_size` |
-| 驱动改写 | MySQL URL 添加 `rewriteBatchedStatements=true`，否则驱动仍逐条发送，原理见 [MySQL JDBC 驱动](/database/5_access/1_jdbc_driver) |
+| 驱动改写 | MySQL URL 添加 `rewriteBatchedStatements=true`，否则驱动仍逐条发送，原理见 [JDBC 驱动](/database/5_access/1_jdbc_driver) |
 | 事务分批 | 一批在一个事务中提交，而不是每条自动提交 |
 
 ```java
@@ -133,7 +133,7 @@ orders.forEach(o -> o.setItems(itemMap.getOrDefault(o.getId(), List.of())));
 | 问题 | 表现 | 处理 |
 |------|------|------|
 | `SELECT *` | 多传输无用列、无法使用覆盖索引 | 只查询需要的列 |
-| 大结果集一次性加载 | 内存暴涨甚至 OOM | 分页或流式读取（JDBC `fetchSize`、MyBatis `Cursor`），驱动的读取模式见 [MySQL JDBC 驱动](/database/5_access/1_jdbc_driver) |
+| 大结果集一次性加载 | 内存暴涨甚至 OOM | 分页或流式读取（JDBC `fetchSize`、MyBatis `Cursor`），驱动的读取模式见 [JDBC 驱动](/database/5_access/1_jdbc_driver) |
 | 长事务 | 连接长期占用、锁等待、主从延迟 | 事务内不做 RPC 和耗时计算，缩小事务范围 |
 | 大 `IN` 列表 | SQL 过长、执行计划变差 | 分批，每批几百个；原因见下方说明 |
 | `COUNT(*)` 大表 | 分页总数查询很慢 | 缓存总数、估算值，或不展示总页数 |

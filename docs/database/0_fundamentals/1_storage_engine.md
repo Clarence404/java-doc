@@ -206,7 +206,7 @@ Compaction 和前台请求抢同一块磁盘和 CPU，是 LSM 线上问题的主
 | 结构 | 产品 | 说明 |
 |------|------|------|
 | B+ 树 | MySQL InnoDB | 聚簇索引组织表，数据就挂在主键 B+ 树的叶子上，见 [InnoDB 存储结构](../1_mysql/6_topic_innodb) |
-| B+ 树 | PostgreSQL | 数据存在无序的堆表（heap），索引默认是 B-tree；更新写新元组而非原地改，见 [MVCC 与 VACUUM](../2_postgresql/2_topic_mvcc) |
+| B+ 树 | PostgreSQL | 数据存在无序的堆表（heap），索引默认是 B-tree；更新写新元组而非原地改，见 [PostgreSQL MVCC 与 VACUUM](../2_postgresql/1_topic_mvcc) |
 | B+ 树 | SQLite | 单文件嵌入式库，表和索引都是 B 树页 |
 | LSM | LevelDB / RocksDB | LevelDB 是经典实现，RocksDB 是其工业级分支，见第七节 |
 | LSM | HBase | WAL + MemStore + HFile，按 Region 拆分，见 [列式与 OLAP 数据库](/nosql/3_column_db#_4、读写流程-lsm-树) |

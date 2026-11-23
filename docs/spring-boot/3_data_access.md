@@ -438,9 +438,102 @@ public class OrderAppService {
 
 ## 六、多数据源
 
-只需按事务 `readOnly` 做一主一从路由时，手写 `AbstractRoutingDataSource` + `LazyConnectionDataSourceProxy` 就够了，见 [数据库连接池 · 读写分离多数据源](/database/5_access/2_connection_pool#_3、读写分离多数据源)；多个库、多个分组时用 baomidou 的 dynamic-datasource。
+只需按事务 `readOnly` 做一主一从路由时，手写 `AbstractRoutingDataSource` + `LazyConnectionDataSourceProxy` 就够了（第 1 小节）；多个库、多个分组时用 baomidou 的 dynamic-datasource（第 2 小节）。两种写法的事务陷阱是同一类，见第 3 小节。
 
-### 1、dynamic-datasource
+### 1、手写路由：按事务只读切换
+
+只需要读写分离、不需要分片时，可以用 Spring 的 `AbstractRoutingDataSource` 按事务是否只读路由。需要分片或多个副本负载均衡时，用 ShardingSphere 的读写分离规则，见 [分库分表与中间件](/database/4_scale_out/0_sharding)。
+
+```yaml
+app:
+  datasource:
+    primary:
+      jdbc-url: jdbc:mysql://primary:3306/mydb?sslMode=REQUIRED
+      username: app
+      password: ${DB_PASSWORD}
+      pool-name: primary-pool
+      maximum-pool-size: 10
+    replica:
+      jdbc-url: jdbc:mysql://replica:3306/mydb?sslMode=REQUIRED
+      username: app_ro
+      password: ${DB_RO_PASSWORD}
+      pool-name: replica-pool
+      maximum-pool-size: 10
+```
+
+```java
+public class ReadWriteRoutingDataSource extends AbstractRoutingDataSource {
+
+    @Override
+    protected Object determineCurrentLookupKey() {
+        return TransactionSynchronizationManager.isCurrentTransactionReadOnly() ? "replica" : "primary";
+    }
+}
+```
+
+```java
+@Configuration
+public class DataSourceConfig {
+
+    @Bean
+    @ConfigurationProperties("app.datasource.primary")
+    public HikariDataSource primaryDataSource() {
+        return DataSourceBuilder.create().type(HikariDataSource.class).build();
+    }
+
+    @Bean
+    @ConfigurationProperties("app.datasource.replica")
+    public HikariDataSource replicaDataSource() {
+        return DataSourceBuilder.create().type(HikariDataSource.class).build();
+    }
+
+    @Bean
+    public ReadWriteRoutingDataSource routingDataSource(HikariDataSource primaryDataSource,
+                                                        HikariDataSource replicaDataSource) {
+        ReadWriteRoutingDataSource routing = new ReadWriteRoutingDataSource();
+        routing.setTargetDataSources(Map.of("primary", primaryDataSource, "replica", replicaDataSource));
+        routing.setDefaultTargetDataSource(primaryDataSource);
+        return routing;
+    }
+
+    @Bean
+    @Primary
+    public DataSource dataSource(ReadWriteRoutingDataSource routingDataSource) {
+        return new LazyConnectionDataSourceProxy(routingDataSource);
+    }
+}
+```
+
+三个容易踩的点：
+
+- **属性名用 `jdbc-url`**：`DataSourceBuilder` 构建 `HikariDataSource` 后由 `@ConfigurationProperties` 直接绑定 Hikari 的属性，Hikari 的属性叫 `jdbcUrl`，写 `url` 会启动失败
+- **必须包一层 `LazyConnectionDataSourceProxy`**：事务管理器在开启事务时就会获取连接，此时 `readOnly` 标志还没设置到线程上，路由总是落到主库；代理把真正取连接推迟到第一条 SQL 执行时
+- **参数名注入**：两个 `HikariDataSource` Bean 按参数名匹配 Bean 名；自定义 `DataSource` 后 Boot 的自动配置会退出，事务管理器与 ORM 使用标了 `@Primary` 的代理
+
+业务代码在只读方法上标注 `@Transactional(readOnly = true)` 即走副本。Spring Framework 6.1.2 起 `LazyConnectionDataSourceProxy` 自身也支持 `setReadOnlyDataSource(...)`，只有一主一从时可以省掉自定义的路由类。
+
+需要按注解、租户等显式切换（而不是按 `readOnly`）时，路由键放在 `ThreadLocal` 里，`determineCurrentLookupKey()` 返回它，为 `null` 时落到默认数据源：
+
+```java
+public final class DataSourceContextHolder {
+    private static final ThreadLocal<String> CONTEXT = new ThreadLocal<>();
+    public static void set(String key) { CONTEXT.set(key); }
+    public static String get() { return CONTEXT.get(); }
+    public static void clear() { CONTEXT.remove(); }
+}
+
+DataSourceContextHolder.set("replica");
+try {
+    return userMapper.selectList(null);
+} finally {
+    DataSourceContextHolder.clear();   // 不清理会残留在线程池线程上，影响后续请求
+}
+```
+
+- **切面顺序**：没有 `LazyConnectionDataSourceProxy` 时，设置路由键的切面必须比事务切面先执行（`@Order` 值更小），已进入事务后再切换不会生效
+- 不想自己维护这套代码时用 baomidou 的 dynamic-datasource（`@DS` 注解），见下一小节
+
+### 2、dynamic-datasource
 
 ```xml
 <dependency>
@@ -482,7 +575,7 @@ public class UserQueryService {
 }
 ```
 
-### 2、路由原理与事务陷阱
+### 3、路由原理与事务陷阱
 
 ![dynamic-datasource 的路由过程](../assets/spring-boot/dynamic-datasource.svg)
 

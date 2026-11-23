@@ -236,4 +236,4 @@ CREATE TENANT biz_tenant
 - Amazon Aurora DSQL：[https://docs.aws.amazon.com/aurora-dsql/latest/userguide/what-is-aurora-dsql.html](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/what-is-aurora-dsql.html)
 - PolarDB 文档：[https://help.aliyun.com/zh/polardb/](https://help.aliyun.com/zh/polardb/)
 
-> 下一篇：[MySQL JDBC 驱动](../5_access/1_jdbc_driver) —— Connector/J 版本、URL 参数与时区、真假批量、大结果集读取、超时体系、服务端预编译
+> 下一篇：[JDBC 驱动](../5_access/1_jdbc_driver) —— Connector/J 与 pgjdbc、URL 参数与时区、真假批量、大结果集读取、超时体系、服务端预编译

@@ -196,7 +196,7 @@ INSTANT 只解决重建表的耗时，DDL 仍需要拿元数据锁（MDL），�
 |------|------|------|
 | 移除查询缓存 | 8.0.3 | Query Cache 在高并发写入下锁竞争严重，被整体删除；结果缓存放到应用层 |
 | Hash Join | 8.0.18 | 无索引可用的等值 JOIN 不再走 Block Nested-Loop，8.0.20 起完全取代 BNL |
-| `EXPLAIN ANALYZE` | 8.0.18 | 真正执行语句，输出每个迭代器的实际行数和耗时，用法见 [EXPLAIN 与 SQL 优化](./5_topic_explain) |
+| `EXPLAIN ANALYZE` | 8.0.18 | 真正执行语句，输出每个迭代器的实际行数和耗时，用法见 [MySQL EXPLAIN 与 SQL 优化](./5_topic_explain) |
 | `EXPLAIN FORMAT=TREE` | 8.0.16 | 以迭代器树展示执行计划 |
 | 直方图 | 8.0.3 | 为无索引列收集值分布，帮助优化器估算选择率；8.4 支持自动更新 |
 | 优化器提示 | 8.0.20 | `INDEX` / `NO_INDEX` / `JOIN_INDEX` / `GROUP_INDEX` / `ORDER_INDEX` 等索引级提示 |

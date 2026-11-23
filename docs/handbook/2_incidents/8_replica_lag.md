@@ -152,7 +152,7 @@ ts=2026-10-08 21:12:41.207; [cost=0.012ms] result=@ArrayList[
 ]
 ```
 
-订单服务用 `AbstractRoutingDataSource` 做读写分离（外面包了一层 `LazyConnectionDataSourceProxy`，第一条 SQL 执行时才取连接，路由才能读到事务的 `readOnly` 标志，见 [数据库连接池 · 读写分离多数据源](/database/5_access/2_connection_pool#_3、读写分离多数据源)），`@Transactional(readOnly = true)` 的方法一律路由到从库。订单详情接口就是只读方法，支付回调写主库后，用户紧接着刷新详情，读到的是延迟中的从库。
+订单服务用 `AbstractRoutingDataSource` 做读写分离（外面包了一层 `LazyConnectionDataSourceProxy`，第一条 SQL 执行时才取连接，路由才能读到事务的 `readOnly` 标志，见 [数据访问 · 多数据源](/spring-boot/3_data_access#六、多数据源)），`@Transactional(readOnly = true)` 的方法一律路由到从库。订单详情接口就是只读方法，支付回调写主库后，用户紧接着刷新详情，读到的是延迟中的从库。
 
 ---
 

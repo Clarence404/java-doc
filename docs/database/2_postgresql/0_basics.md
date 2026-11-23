@@ -1,5 +1,5 @@
 ---
-description: 与 MySQL 的差异、版本支持、Docker 与 JDBC 接入、Schema 与类型映射、psql 与运维、权限
+description: 与 MySQL 的差异、版本支持、Docker 与 JDBC 接入、类型映射、进程模型与连接池、psql 与权限
 ---
 
 # PostgreSQL 基础
@@ -23,7 +23,7 @@ PG 每年 9～10 月发布一个大版本，每个大版本维护 5 年，季度
 | 14 | 2021-09 | 2026-11 | 即将停止支持 |
 | 13 及更早 | — | 已停止 | 13 已于 2025-11 停止支持 |
 
-各版本新特性见 [PostgreSQL 版本特性](./1_feature)。
+各版本新特性见 [PostgreSQL 版本特性](./5_feature)。
 
 ---
 
@@ -49,7 +49,7 @@ PG 每年 9～10 月发布一个大版本，每个大版本维护 5 年，季度
 | GIS | 内置空间类型，功能较少 | PostGIS 扩展（事实标准） |
 | 全文检索 | `FULLTEXT` 索引 | 内置 `tsvector` / `tsquery` + GIN 索引 |
 
-存储结构、MVCC 与隔离级别的差异是 MySQL 用户最容易踩坑的地方，详见 [MVCC 与 VACUUM](./2_topic_mvcc) 和 [PostgreSQL 索引类型](./3_topic_index)。
+存储结构、MVCC 与隔离级别的差异是 MySQL 用户最容易踩坑的地方，详见 [PostgreSQL MVCC 与 VACUUM](./1_topic_mvcc) 和 [PostgreSQL 索引类型](./2_topic_index)。
 
 ---
 
@@ -96,7 +96,7 @@ spring:
     password: change-me
 ```
 
-依赖版本由 Spring Boot 管理，驱动类名可省略。表不在 `public` 下时用 `currentSchema` 指定，或在用户级别设置默认搜索路径：`ALTER ROLE app SET search_path = finance, public;`。数据源与连接池配置见 [数据访问](/spring-boot/3_data_access)、[数据库连接池](../5_access/2_connection_pool)。
+依赖版本由 Spring Boot 管理，驱动类名可省略。表不在 `public` 下时用 `currentSchema` 指定，或在用户级别设置默认搜索路径：`ALTER ROLE app SET search_path = finance, public;`。驱动参数（批量改写、分批读取、预编译阈值）见 [JDBC 驱动 · PostgreSQL 驱动](../5_access/1_jdbc_driver#七、postgresql-驱动-pgjdbc)；数据源与连接池配置见 [数据访问](/spring-boot/3_data_access)、[数据库连接池](../5_access/2_connection_pool)。
 
 ### 3、常用客户端
 
@@ -156,7 +156,18 @@ PG 15 起，`public` Schema 上的 `CREATE` 权限不再默认授予所有用户
 
 ### 3、数组与 JSONB
 
-数组、JSONB 是 PG 区别于 MySQL 的常用类型，操作符、索引与反范式的取舍统一在 [PostgreSQL 高级 SQL](./4_topic_advanced_sql) 讲解；JSONB 该建哪种索引见 [PostgreSQL 索引类型](./3_topic_index)。
+数组、JSONB 是 PG 区别于 MySQL 的常用类型，操作符、索引与反范式的取舍统一在 [PostgreSQL 高级 SQL](./3_topic_advanced_sql) 讲解；JSONB 该建哪种索引见 [PostgreSQL 索引类型](./2_topic_index)。
+
+### 4、进程模型：为什么一定要配连接池
+
+| | PostgreSQL | MySQL |
+|---|---|---|
+| 连接模型 | 每个连接 fork 一个后端进程 | 每个连接一个线程 |
+| 单连接开销 | 进程创建成本高；空闲进程私有内存通常为几 MB，随 `work_mem` 使用和缓存的元数据增长 | 较小 |
+| 默认 `max_connections` | 100 | 151 |
+| 大量短连接 | 不适合，必须使用连接池 | 相对能承受 |
+
+PG 18 仍没有内置连接池，生产环境通常是两层：应用内的 HikariCP 控制应用并发，外部的 PgBouncer 等代理把成百上千个客户端连接收敛成少量真实后端连接。PgBouncer 的池模式、`transaction` 模式下不能用的会话级功能，以及预编译语句怎么配，见 [数据库连接池 · PgBouncer](../5_access/2_connection_pool#五、pgbouncer)。
 
 ---
 
@@ -215,7 +226,7 @@ ANALYZE orders;
 VACUUM (ANALYZE) orders;
 ```
 
-`wait_event IS NOT NULL` 不能用来找锁等待：空闲连接（`Client` / `ClientRead`）、IO 和轻量锁等待都会被筛进来。索引使用情况的查询见 [PostgreSQL 索引类型](./3_topic_index)，VACUUM 相关监控见 [MVCC 与 VACUUM](./2_topic_mvcc)。
+`wait_event IS NOT NULL` 不能用来找锁等待：空闲连接（`Client` / `ClientRead`）、IO 和轻量锁等待都会被筛进来。索引使用情况的查询见 [PostgreSQL 索引类型](./2_topic_index)，VACUUM 相关监控见 [PostgreSQL MVCC 与 VACUUM](./1_topic_mvcc)。
 
 ### 3、用户与权限
 
@@ -256,16 +267,17 @@ PG 的很多能力来自扩展（extension），`CREATE EXTENSION` 即可在当�
 | `pg_trgm` | 三元组模糊匹配，加速 `LIKE '%xx%'` |
 | `postgres_fdw` | 访问远端 PG 的外部表 |
 
-地理空间索引的写法见 [PostgreSQL 索引类型](./3_topic_index)。
+地理空间索引的写法见 [PostgreSQL 索引类型](./2_topic_index)。
 
 ---
 
 ## 小结
 
-MVCC、索引、高级 SQL、复制分别在本组后续文章展开。
+MVCC、索引、高级 SQL、复制与版本特性分别在本组后续文章展开。
 
 - 18 是当前主线，14～18 受支持，13 及更早已停止支持；14 将在 2026-11 停止支持
 - 与 MySQL 最大的差异：堆表无聚簇索引、旧版本留在表内靠 VACUUM 回收、RR 是快照隔离、DDL 可回滚、每连接一个进程
+- 每连接一个进程，生产要两层池：HikariCP + PgBouncer
 - 未加引号的标识符折叠为小写；字符串比较默认区分大小写
 - PG 18 Docker 镜像的数据卷挂载点改为 `/var/lib/postgresql`，旧写法会导致数据丢失
 - PG 15 起 `public` Schema 默认不允许普通用户建表，升级后注意给迁移账号授权
@@ -282,4 +294,4 @@ MVCC、索引、高级 SQL、复制分别在本组后续文章展开。
 - Docker 官方镜像说明：[https://hub.docker.com/_/postgres](https://hub.docker.com/_/postgres)
 - PgJDBC 文档：[https://jdbc.postgresql.org/documentation/](https://jdbc.postgresql.org/documentation/)
 
-> 下一篇：[PostgreSQL 版本特性](./1_feature) —— 9.6 到 18 的关键变化，重点是 15、17、18 对应用开发的影响。
+> 下一篇：[PostgreSQL MVCC 与 VACUUM](./1_topic_mvcc) —— 元组可见性、HOT 更新、VACUUM 与 XID 回卷，以及 PG 的隔离级别和 MySQL 有什么不同。

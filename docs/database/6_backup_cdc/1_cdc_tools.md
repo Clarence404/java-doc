@@ -79,7 +79,7 @@ PostgreSQL 的 CDC 读的是 WAL：Debezium、Flink CDC 作为客户端在主库
 | 表的行标识 | UPDATE、DELETE 要能定位到行：表要有主键，或设置 `REPLICA IDENTITY`；要拿到完整的旧值时设 `FULL`，代价是整行旧值都写进 WAL |
 | 复制槽的兜底 | 槽会替消费者保留没读的 WAL，CDC 停了 WAL 就一直堆到磁盘写满；用 `max_slot_wal_keep_size` 限住单个槽能保留多少，监控 `pg_replication_slots.wal_status`，废弃的槽要及时删掉 |
 
-和 MySQL 的差别是位点保存在数据库这一侧（复制槽），而 binlog 只按保留时间清理、不管有没有人读完。复制槽的风险、监控与逻辑复制的限制（不复制 DDL、序列）见 [PostgreSQL 复制与高可用 · 逻辑复制](../2_postgresql/5_topic_replication#三、逻辑复制)。
+和 MySQL 的差别是位点保存在数据库这一侧（复制槽），而 binlog 只按保留时间清理、不管有没有人读完。复制槽的风险、监控与逻辑复制的限制（不复制 DDL、序列）见 [PostgreSQL 复制与高可用 · 逻辑复制](../2_postgresql/4_topic_replication#二、逻辑复制)。
 
 ---
 

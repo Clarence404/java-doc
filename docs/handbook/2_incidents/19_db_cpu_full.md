@@ -225,7 +225,7 @@ WHERE user = 'pay_rw' AND info LIKE 'SELECT id, order_id, status, amount FROM pa
 ## 七、涉及知识点
 
 - 隐式类型转换导致索引失效：[MySQL 索引](/database/1_mysql/2_topic_index#_2、隐式类型转换)
-- 慢 SQL 定位与 `EXPLAIN` 字段：[EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain#四、慢-sql-定位)
+- 慢 SQL 定位与 `EXPLAIN` 字段：[MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain#四、慢-sql-定位)
 - Top SQL 与会话命令：[MySQL 排查速查](/handbook/1_cheatsheet/5_mysql#三、top-sql)
 - 慢 SQL 治理闭环：[数据访问性能](/high-perf/10_db_performance#一、慢-sql-治理闭环)
 - 连接池被慢 SQL 占满时的表现：[慢 SQL 拖垮连接池](./6_slow_sql_pool)

@@ -64,7 +64,7 @@ MySQL 客户端与服务端之间交换的每个包（Packet）都有 4 字节�
 - **快速认证**：服务端缓存里已有该账号（之前成功认证过），客户端发的 SHA-256 scramble 校验通过即可，口令不出现在网络上
 - **完整认证**：缓存未命中（服务重启后第一次、刚改过密码等）时服务端要拿到口令本身：连接已是 TLS（或 Unix socket 等本机安全通道）时客户端直接发口令明文；没有 TLS 时客户端用服务端的 RSA 公钥加密口令再发
 
-**常见坑**：不开 TLS 时，完整认证需要驱动先拿到 RSA 公钥，Connector/J 报 `Public Key Retrieval is not allowed`。正确做法是开启 TLS（`sslMode=REQUIRED` 或更严格），或用 `serverRSAPublicKeyFile` 指定本地公钥；`allowPublicKeyRetrieval=true` 会让中间人有机会伪造公钥。`sslMode` 自 Connector/J 8.0.13 起取代了已废弃的 `useSSL`，参数细节见 [MySQL JDBC 驱动](/database/5_access/1_jdbc_driver)。
+**常见坑**：不开 TLS 时，完整认证需要驱动先拿到 RSA 公钥，Connector/J 报 `Public Key Retrieval is not allowed`。正确做法是开启 TLS（`sslMode=REQUIRED` 或更严格），或用 `serverRSAPublicKeyFile` 指定本地公钥；`allowPublicKeyRetrieval=true` 会让中间人有机会伪造公钥。`sslMode` 自 Connector/J 8.0.13 起取代了已废弃的 `useSSL`，参数细节见 [JDBC 驱动](/database/5_access/1_jdbc_driver)。
 
 ### 4、预编译语句
 
@@ -183,7 +183,7 @@ Redis 6.0 引入 RESP3，连接默认仍是 RESP2，客户端发 `HELLO 3` 后�
 - PostgreSQL 消息是 1 字节类型 + 4 字节长度；认证默认 SCRAM-SHA-256，pgjdbc 默认用 Parse / Bind / Execute 的扩展查询协议
 - RESP2 只有五种类型，RESP3 通过 `HELLO 3` 开启，增加了 Map、Set、Double、Push 等类型，客户端缓存的失效通知依赖 Push
 - 连接池参数、池大小估算、`Communications link failure` 排查见 [数据库连接池](/database/5_access/2_connection_pool)
-- Connector/J 的 URL 参数、批量写入、超时体系见 [MySQL JDBC 驱动](/database/5_access/1_jdbc_driver)
+- Connector/J 的 URL 参数、批量写入、超时体系见 [JDBC 驱动](/database/5_access/1_jdbc_driver)
 - Redis Pipeline、事务、Lua 的用法见 [Redis 核心原理](/cache/2_redis_core)
 
 ## 参考资料

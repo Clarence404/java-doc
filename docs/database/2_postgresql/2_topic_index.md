@@ -4,7 +4,7 @@ description: 堆表与 ctid、六种索引访问方法、覆盖索引与 Index O
 
 # PostgreSQL 索引类型
 
-> 前置阅读：[MySQL 索引](../1_mysql/2_topic_index)、[MVCC 与 VACUUM](./2_topic_mvcc)
+> 前置阅读：[MySQL 索引](../1_mysql/2_topic_index)、[PostgreSQL MVCC 与 VACUUM](./1_topic_mvcc)
 
 PG 采用堆表 + 独立索引的结构，与 InnoDB 聚簇索引不同，本篇讲 B-tree、Hash、GIN、GiST、SP-GiST、BRIN 的适用场景，部分 / 表达式 / 覆盖索引，以及在线建索引、无用索引发现与索引膨胀处理。
 
@@ -17,7 +17,7 @@ PG 采用堆表 + 独立索引的结构，与 InnoDB 聚簇索引不同，本篇
 - InnoDB 的表就是主键 B+ 树，二级索引叶子存主键值，查询非覆盖列要再查一次主键索引（回表）
 - PG 的表是无序的堆，主键索引和其他索引没有区别，叶子里存的都是元组的物理位置 `ctid`，取整行是按 `ctid` 直接读堆页
 - 因此 PG 选主键不必像 InnoDB 那样顾虑“主键越短二级索引越小”，但随机主键（UUID v4）仍会让主键索引本身插入分散、页分裂多，PG 18 可用 `uuidv7()`
-- 代价在更新：非 HOT 更新会让新版本换位置，表上**所有**索引都要插入新条目，见 [MVCC 与 VACUUM](./2_topic_mvcc)
+- 代价在更新：非 HOT 更新会让新版本换位置，表上**所有**索引都要插入新条目，见 [PostgreSQL MVCC 与 VACUUM](./1_topic_mvcc)
 - `CLUSTER` 命令可以按某个索引把表物理重排一次，但之后的写入不会保持这个顺序，不等于聚簇索引
 
 ### 1、Index Only Scan 与可见性映射
@@ -106,7 +106,7 @@ SELECT * FROM products WHERE attrs #>> '{spec,weight}' = '1kg';
 | `jsonb_ops`（默认） | `@>` `?` `?|` `?&` `@?` `@@` | 索引 key 与 value，功能全 |
 | `jsonb_path_ops` | `@>` `@?` `@@` | 只索引路径哈希，更小更快，但不支持 `?` 系列 key 存在判断 |
 
-固定查询某个字段时，表达式 B-tree 索引比整列 GIN 更小、更精确；查询条件不固定、需要按任意属性过滤时才用 GIN。JSONB 的操作符与函数见 [PostgreSQL 高级 SQL](./4_topic_advanced_sql)。
+固定查询某个字段时，表达式 B-tree 索引比整列 GIN 更小、更精确；查询条件不固定、需要按任意属性过滤时才用 GIN。JSONB 的操作符与函数见 [PostgreSQL 高级 SQL](./3_topic_advanced_sql)。
 
 ### 2、数组、全文检索与模糊匹配
 
@@ -175,7 +175,7 @@ ALTER TABLE reservations
   ADD CONSTRAINT no_overlap EXCLUDE USING GIST (room_id WITH =, period WITH &&);
 ```
 
-PG 18 起也可以用 `PRIMARY KEY (room_id, period WITHOUT OVERLAPS)` 表达同样的约束，见 [PostgreSQL 版本特性](./1_feature)。
+PG 18 起也可以用 `PRIMARY KEY (room_id, period WITHOUT OVERLAPS)` 表达同样的约束，见 [PostgreSQL 版本特性](./5_feature)。
 
 ### 3、SP-GiST
 
@@ -335,4 +335,4 @@ REINDEX INDEX CONCURRENTLY idx_orders_user_created;   -- 12+
 - B-tree 实现说明：[https://www.postgresql.org/docs/18/btree.html](https://www.postgresql.org/docs/18/btree.html)
 - PostGIS ST_DWithin：[https://postgis.net/docs/ST_DWithin.html](https://postgis.net/docs/ST_DWithin.html)
 
-> 下一篇：[PostgreSQL 高级 SQL](./4_topic_advanced_sql) —— UPSERT 与 RETURNING、JSONB、CTE 与递归、窗口函数、全文检索、数组与 DISTINCT ON。
+> 下一篇：[PostgreSQL 高级 SQL](./3_topic_advanced_sql) —— UPSERT 与 RETURNING、JSONB、CTE 与递归、窗口函数、全文检索、数组与 DISTINCT ON。

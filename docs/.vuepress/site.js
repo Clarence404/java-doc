@@ -108,8 +108,8 @@ export const GROUPS = [
                 desc: '存储引擎与选型 / MySQL / PostgreSQL / MariaDB 与国产库 / 分库分表与分布式数据库 / JDBC 驱动、连接池与 ORM / 备份恢复 / CDC 变更订阅',
                 subdirs: {
                     '0_fundamentals': '基础与选型',
-                    '1_mysql': {title: 'MySQL', sidebar: [{text: '核心专项', from: 2}, {text: '避坑与版本', from: 8}]},
-                    '2_postgresql': {title: 'PostgreSQL', sidebar: [{text: '核心专项', from: 2}]},
+                    '1_mysql': {title: 'MySQL', sidebar: [{text: '核心原理', from: 2}, {text: '避坑与版本', from: 8}]},
+                    '2_postgresql': 'PostgreSQL',
                     '3_relational': '其他关系库',
                     '4_scale_out': '水平扩展',
                     '5_access': '应用接入',
@@ -281,6 +281,12 @@ export const BASELINE = {
 
 // 重定向：文章搬家后旧地址自动跳到新地址（@vuepress/plugin-redirect），键为旧路径、值为新路径，均不带 .html
 export const REDIRECTS = {
+    // 2026-11：PostgreSQL 组的版本特性挪到最后，其余四篇编号各提前一位
+    '/database/2_postgresql/1_feature': '/database/2_postgresql/5_feature',
+    '/database/2_postgresql/2_topic_mvcc': '/database/2_postgresql/1_topic_mvcc',
+    '/database/2_postgresql/3_topic_index': '/database/2_postgresql/2_topic_index',
+    '/database/2_postgresql/4_topic_advanced_sql': '/database/2_postgresql/3_topic_advanced_sql',
+    '/database/2_postgresql/5_topic_replication': '/database/2_postgresql/4_topic_replication',
     // 2026-11：数据库最后一组改名「备份与变更订阅」，目录改为 6_backup_cdc，组内顺序改为 备份恢复 → CDC 工具 → binlog 连接器原理
     '/database/6_sync_backup/2_backup_recovery': '/database/6_backup_cdc/0_backup_recovery',
     '/database/6_sync_backup/0_cdc_tools': '/database/6_backup_cdc/1_cdc_tools',

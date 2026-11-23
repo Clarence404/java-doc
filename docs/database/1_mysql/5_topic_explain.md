@@ -2,9 +2,8 @@
 description: EXPLAIN 字段与 ANALYZE、type 与 Extra、慢 SQL 定位、filesort、Hash Join
 ---
 
-# EXPLAIN 与 SQL 优化
-
-> 前置阅读：[SQL 执行流程](./4_topic_execution)、[MySQL 索引](./2_topic_index)
+# MySQL EXPLAIN 与 SQL 优化
+> 前置阅读：[MySQL 执行流程](./4_topic_execution)、[MySQL 索引](./2_topic_index)
 
 EXPLAIN 是定位慢查询的第一步。本篇讲 EXPLAIN 与 EXPLAIN ANALYZE 的读法、filesort、COUNT 与 Hash Join，基线为 MySQL 8.4。
 

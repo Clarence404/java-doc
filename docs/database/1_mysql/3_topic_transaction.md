@@ -392,4 +392,4 @@ KILL 12345;
 - Undo Tablespaces：[https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-tablespaces.html](https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-tablespaces.html)
 - The Binary Log（含 sync_binlog 与崩溃恢复）：[https://dev.mysql.com/doc/refman/8.4/en/binary-log.html](https://dev.mysql.com/doc/refman/8.4/en/binary-log.html)
 
-> 下一篇：[SQL 执行流程](./4_topic_execution) —— 一条 SELECT / UPDATE 从连接器到存储引擎的完整路径，以及各组件的职责与常见问题。
+> 下一篇：[MySQL 执行流程](./4_topic_execution) —— 一条 SELECT / UPDATE 从连接器到存储引擎的完整路径，以及各组件的职责与常见问题。

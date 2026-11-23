@@ -343,7 +343,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 
 - 系统层面的取舍：数据量还没到瓶颈时，先走读写分离、冷热分离，分库分表留到最后；也可以直接换 TiDB 这类分布式数据库，把扩容交给存储层
 
-→ 完整答案见 [数据库面试题解答](/interview/12_db) Q50；正文详见 [分库分表与中间件](/database/4_scale_out/0_sharding#八、平滑迁移与扩容)、[数据层扩展](/high-con/5_data_scaling#_6、扩容迁移)
+→ 完整答案见 [数据库面试题解答](/interview/12_db) Q47；正文详见 [分库分表与中间件](/database/4_scale_out/0_sharding#八、平滑迁移与扩容)、[数据层扩展](/high-con/5_data_scaling#_6、扩容迁移)
 
 ---
 

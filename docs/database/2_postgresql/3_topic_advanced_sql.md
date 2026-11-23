@@ -4,7 +4,7 @@ description: UPSERT 与 RETURNING、JSONB、递归 CTE、窗口函数与 FILTER�
 
 # PostgreSQL 高级 SQL
 
-> 前置阅读：[PostgreSQL 基础](./0_basics)、[PostgreSQL 索引类型](./3_topic_index)
+> 前置阅读：[PostgreSQL 基础](./0_basics)、[PostgreSQL 索引类型](./2_topic_index)
 
 本篇讲 Java 开发中最常用的 PostgreSQL SQL 能力：`ON CONFLICT` UPSERT 与 `RETURNING`、JSONB 与数组、递归 CTE、窗口函数、内置全文检索，以及“每组取一行”和任务队列的标准写法。
 
@@ -85,7 +85,7 @@ MyBatis 的 `useGeneratedKeys` 在 PgJDBC 上就是通过追加 `RETURNING` 实�
 | 并发安全 | 基于唯一索引的推测插入，并发下不会因重复键报错 | 并发插入同一键仍可能报唯一键冲突，需要重试 |
 | 适用 | 高并发的单行 UPSERT | 批量同步、数据合并 |
 
-`MERGE` 示例见 [PostgreSQL 版本特性](./1_feature)。
+`MERGE` 示例见 [PostgreSQL 版本特性](./5_feature)。
 
 ---
 
@@ -112,7 +112,7 @@ SELECT * FROM order_ext WHERE info ?& ARRAY['city','user'];      -- 存在全部
 SELECT * FROM order_ext WHERE info @? '$.tags[*] ? (@ == "vip")'; -- jsonpath（12+）
 ```
 
-哪些运算符能走 GIN、什么时候改用表达式索引，见 [PostgreSQL 索引类型](./3_topic_index)。
+哪些运算符能走 GIN、什么时候改用表达式索引，见 [PostgreSQL 索引类型](./2_topic_index)。
 
 ### 2、修改
 
@@ -139,7 +139,7 @@ SELECT * FROM jsonb_to_record('{"user":"alice","price":199.9}'::jsonb)
          AS t("user" TEXT, price NUMERIC);
 ```
 
-17 起还可以用 SQL 标准的 `JSON_TABLE`、`JSON_VALUE`、`JSON_EXISTS`，示例见 [PostgreSQL 版本特性](./1_feature)。
+17 起还可以用 SQL 标准的 `JSON_TABLE`、`JSON_VALUE`、`JSON_EXISTS`，示例见 [PostgreSQL 版本特性](./5_feature)。
 
 ---
 
@@ -316,7 +316,7 @@ FROM articles WHERE id = 1;
 
 ### 2、中文
 
-内置配置只按空格和标点切词，中文需要分词扩展，如 `zhparser`（基于 SCWS）或 `pg_jieba`，安装后创建对应的文本检索配置，用法与 `'english'` 相同；只做简单的包含匹配时，`pg_trgm` 也是一个选择（见 [PostgreSQL 索引类型](./3_topic_index)）。
+内置配置只按空格和标点切词，中文需要分词扩展，如 `zhparser`（基于 SCWS）或 `pg_jieba`，安装后创建对应的文本检索配置，用法与 `'english'` 相同；只做简单的包含匹配时，`pg_trgm` 也是一个选择（见 [PostgreSQL 索引类型](./2_topic_index)）。
 
 ---
 
@@ -426,4 +426,4 @@ RETURNING jobs.id;
 - 数组：[https://www.postgresql.org/docs/18/arrays.html](https://www.postgresql.org/docs/18/arrays.html)
 - SELECT（DISTINCT ON、LATERAL、SKIP LOCKED）：[https://www.postgresql.org/docs/18/sql-select.html](https://www.postgresql.org/docs/18/sql-select.html)
 
-> 下一篇：[PostgreSQL 复制与高可用](./5_topic_replication) —— 进程模型、WAL 流复制与同步级别、复制槽、逻辑复制，以及 Patroni 等故障切换方案。
+> 下一篇：[PostgreSQL 复制与高可用](./4_topic_replication) —— 进程模型、WAL 流复制与同步级别、复制槽、逻辑复制，以及 Patroni 等故障切换方案。

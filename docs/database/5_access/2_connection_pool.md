@@ -1,12 +1,12 @@
 ---
-description: HikariCP 参数与池大小估算、Druid 配置与监控、PgBouncer、泄漏排查、读写分离多数据源
+description: HikariCP 参数与池大小估算、Druid 配置与监控、PgBouncer、泄漏排查、连接断开等常见问题
 ---
 
 # 数据库连接池
 
-> 前置阅读：[池化技术](/high-perf/7_pooling)、[MySQL JDBC 驱动](./1_jdbc_driver)
+> 前置阅读：[池化技术](/high-perf/7_pooling)、[JDBC 驱动](./1_jdbc_driver)
 
-本篇是连接池参数与配置的主文档，讲 HikariCP 核心参数与池大小估算、Druid 配置及其安全风险、PostgreSQL 为何需要 PgBouncer、连接泄漏排查，以及读写分离路由数据源。
+本篇是连接池参数与配置的主文档，讲 HikariCP 核心参数与池大小估算、Druid 配置及其安全风险、PostgreSQL 为何需要 PgBouncer、连接泄漏排查与常见问题。
 
 ---
 
@@ -60,7 +60,7 @@ spring:
 
 - `connection-timeout` 调低到 2～5 秒：池耗尽时快速失败，比让请求线程挂 30 秒更好
 - `pool-name` 会出现在日志与指标标签里，多数据源时用于区分
-- `sslMode` 取代了已废弃的 `useSSL`，其他 URL 参数见 [MySQL JDBC 驱动](./1_jdbc_driver)
+- `sslMode` 取代了已废弃的 `useSSL`，其他 URL 参数见 [JDBC 驱动](./1_jdbc_driver)
 
 ### 3、监控
 
@@ -275,7 +275,7 @@ spring:
 | 异常路径未关闭 `Connection` / `Statement` / `ResultSet` | 使用 try-with-resources |
 | 手动管理事务未提交或回滚 | 交给 Spring `@Transactional` 管理 |
 | 长事务、事务中做远程调用（池耗尽最常见的原因） | 缩短事务范围，远程调用移到事务外 |
-| 流式查询未读完就丢弃 `ResultSet` | 读完或显式关闭，见 [MySQL JDBC 驱动](./1_jdbc_driver) |
+| 流式查询未读完就丢弃 `ResultSet` | 读完或显式关闭，见 [JDBC 驱动](./1_jdbc_driver) |
 
 ---
 
@@ -300,96 +300,7 @@ spring:
 
 ### 3、读写分离多数据源
 
-只需要读写分离、不需要分片时，可以用 Spring 的 `AbstractRoutingDataSource` 按事务是否只读路由。需要分片或多个副本负载均衡时，用 ShardingSphere 的读写分离规则，见 [分库分表与中间件](../4_scale_out/0_sharding)。
-
-```yaml
-app:
-  datasource:
-    primary:
-      jdbc-url: jdbc:mysql://primary:3306/mydb?sslMode=REQUIRED
-      username: app
-      password: ${DB_PASSWORD}
-      pool-name: primary-pool
-      maximum-pool-size: 10
-    replica:
-      jdbc-url: jdbc:mysql://replica:3306/mydb?sslMode=REQUIRED
-      username: app_ro
-      password: ${DB_RO_PASSWORD}
-      pool-name: replica-pool
-      maximum-pool-size: 10
-```
-
-```java
-public class ReadWriteRoutingDataSource extends AbstractRoutingDataSource {
-
-    @Override
-    protected Object determineCurrentLookupKey() {
-        return TransactionSynchronizationManager.isCurrentTransactionReadOnly() ? "replica" : "primary";
-    }
-}
-```
-
-```java
-@Configuration
-public class DataSourceConfig {
-
-    @Bean
-    @ConfigurationProperties("app.datasource.primary")
-    public HikariDataSource primaryDataSource() {
-        return DataSourceBuilder.create().type(HikariDataSource.class).build();
-    }
-
-    @Bean
-    @ConfigurationProperties("app.datasource.replica")
-    public HikariDataSource replicaDataSource() {
-        return DataSourceBuilder.create().type(HikariDataSource.class).build();
-    }
-
-    @Bean
-    public ReadWriteRoutingDataSource routingDataSource(HikariDataSource primaryDataSource,
-                                                        HikariDataSource replicaDataSource) {
-        ReadWriteRoutingDataSource routing = new ReadWriteRoutingDataSource();
-        routing.setTargetDataSources(Map.of("primary", primaryDataSource, "replica", replicaDataSource));
-        routing.setDefaultTargetDataSource(primaryDataSource);
-        return routing;
-    }
-
-    @Bean
-    @Primary
-    public DataSource dataSource(ReadWriteRoutingDataSource routingDataSource) {
-        return new LazyConnectionDataSourceProxy(routingDataSource);
-    }
-}
-```
-
-三个容易踩的点：
-
-- **属性名用 `jdbc-url`**：`DataSourceBuilder` 构建 `HikariDataSource` 后由 `@ConfigurationProperties` 直接绑定 Hikari 的属性，Hikari 的属性叫 `jdbcUrl`，写 `url` 会启动失败
-- **必须包一层 `LazyConnectionDataSourceProxy`**：事务管理器在开启事务时就会获取连接，此时 `readOnly` 标志还没设置到线程上，路由总是落到主库；代理把真正取连接推迟到第一条 SQL 执行时
-- **参数名注入**：两个 `HikariDataSource` Bean 按参数名匹配 Bean 名；自定义 `DataSource` 后 Boot 的自动配置会退出，事务管理器与 ORM 使用标了 `@Primary` 的代理
-
-业务代码在只读方法上标注 `@Transactional(readOnly = true)` 即走副本。Spring Framework 6.1.2 起 `LazyConnectionDataSourceProxy` 自身也支持 `setReadOnlyDataSource(...)`，只有一主一从时可以省掉自定义的路由类。
-
-需要按注解、租户等显式切换（而不是按 `readOnly`）时，路由键放在 `ThreadLocal` 里，`determineCurrentLookupKey()` 返回它，为 `null` 时落到默认数据源：
-
-```java
-public final class DataSourceContextHolder {
-    private static final ThreadLocal<String> CONTEXT = new ThreadLocal<>();
-    public static void set(String key) { CONTEXT.set(key); }
-    public static String get() { return CONTEXT.get(); }
-    public static void clear() { CONTEXT.remove(); }
-}
-
-DataSourceContextHolder.set("replica");
-try {
-    return userMapper.selectList(null);
-} finally {
-    DataSourceContextHolder.clear();   // 不清理会残留在线程池线程上，影响后续请求
-}
-```
-
-- **切面顺序**：没有 `LazyConnectionDataSourceProxy` 时，设置路由键的切面必须比事务切面先执行（`@Order` 值更小），已进入事务后再切换不会生效
-- 不想自己维护这套代码时用 baomidou 的 dynamic-datasource（`@DS` 注解），见 [数据访问 · 多数据源](/spring-boot/3_data_access#六、多数据源)
+读写分离、按租户切换数据源是在 Spring 层做路由（`AbstractRoutingDataSource` 加 `LazyConnectionDataSourceProxy`），写法与事务陷阱见 [数据访问 · 多数据源](/spring-boot/3_data_access#六、多数据源)。连接池这一侧只要记住：每个数据源各有一个池，池大小按各自的库分别估算，主库和副本的连接数加起来不能超过各自的上限。
 
 ---
 
@@ -399,7 +310,7 @@ try {
 - 池大小公式中的核数是数据库服务器的核数，结果是所有应用实例共享的总活跃连接数；先缩短连接持有时间，再考虑加大池
 - Druid 在 Spring Boot 3 上要用 `druid-spring-boot-3-starter`；监控页生产环境关闭或用强口令 + IP 白名单保护，`remove-abandoned` 只在排查时开启
 - PostgreSQL 每连接一个进程，实例多时前置 PgBouncer `transaction` 模式；1.21 起配置 `max_prepared_statements` 支持协议级预编译语句
-- 泄漏用 `leakDetectionThreshold` 定位借出堆栈；读写分离路由要配合 `LazyConnectionDataSourceProxy`，属性名用 `jdbc-url`
+- 泄漏用 `leakDetectionThreshold` 定位借出堆栈；读写分离的数据源路由在 Spring 层做，见 [数据访问 · 多数据源](/spring-boot/3_data_access#六、多数据源)
 
 ## 参考资料
 

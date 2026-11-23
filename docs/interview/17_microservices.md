@@ -233,7 +233,7 @@ description: 拆分与演进、通信与 RPC、微服务模式、分布式场景
 
 **一句话**：超时重试、MQ 重复投递、Dubbo 自动重试都会让同一个请求来好几次，所以写接口必须幂等；核心是给每次操作一个唯一标识，服务端按它去重。
 
-→ 完整答案见 [系统架构面试题解答](/interview/20_architecture) Q18；正文详见 [幂等设计](/architecture/3_idempotence)
+→ 完整答案见 [系统架构面试题解答](/interview/20_architecture) Q21；正文详见 [幂等设计](/architecture/3_idempotence)
 
 ### Q21：分布式接口请求的顺序性如何保证？
 

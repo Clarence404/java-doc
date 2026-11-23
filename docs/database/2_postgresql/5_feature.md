@@ -101,7 +101,7 @@ ANALYZE orders;
 | 特性 | 说明 |
 |------|------|
 | 多范围类型 | `datemultirange` 等，一个值表示多段不连续区间 |
-| JSONB 下标 | `data['address']['city']` 读写，用法见 [PostgreSQL 高级 SQL](./4_topic_advanced_sql) |
+| JSONB 下标 | `data['address']['city']` 读写，用法见 [PostgreSQL 高级 SQL](./3_topic_advanced_sql) |
 | 存储过程 OUT 参数 | `CREATE PROCEDURE ... OUT` |
 | B-tree 自底向上删除 | 频繁 UPDATE 时主动清理索引中的过期条目，减缓索引膨胀 |
 | `pg_read_all_data` / `pg_write_all_data` | 预定义角色，一次授权读 / 写所有表 |
@@ -144,7 +144,7 @@ WHEN NOT MATCHED THEN
   INSERT (sku, qty) VALUES (s.sku, s.qty);
 ```
 
-`MERGE` 和 `INSERT ... ON CONFLICT` 的区别见 [PostgreSQL 高级 SQL](./4_topic_advanced_sql)。
+`MERGE` 和 `INSERT ... ON CONFLICT` 的区别见 [PostgreSQL 高级 SQL](./3_topic_advanced_sql)。
 
 ### 2、逻辑复制行 / 列过滤
 
@@ -288,13 +288,13 @@ SELECT * FROM orders WHERE created_at > '2025-01-01';
 SELECT * FROM users WHERE status = 'active' OR status = 'pending';
 ```
 
-skip scan 对联合索引最左前缀规则的影响见 [PostgreSQL 索引类型](./3_topic_index)。
+skip scan 对联合索引最左前缀规则的影响见 [PostgreSQL 索引类型](./2_topic_index)。
 
 ### 5、SQL 与约束
 
 | 特性 | 说明 |
 |------|------|
-| `RETURNING OLD / NEW` | DML 可同时返回修改前后的值，示例见 [PostgreSQL 高级 SQL](./4_topic_advanced_sql) |
+| `RETURNING OLD / NEW` | DML 可同时返回修改前后的值，示例见 [PostgreSQL 高级 SQL](./3_topic_advanced_sql) |
 | 时态约束 | 主键 / 唯一约束 `WITHOUT OVERLAPS`、外键 `PERIOD`，约束“同一资源的时间段不重叠” |
 | `NOT NULL ... NOT VALID` | 先加约束不校验存量数据，后续 `VALIDATE CONSTRAINT`，避免大表长时间锁 |
 
@@ -371,4 +371,4 @@ host  mydb  all  0.0.0.0/0  oauth  issuer="https://auth.example.com" scope="open
 - 特性矩阵：[https://www.postgresql.org/about/featurematrix/](https://www.postgresql.org/about/featurematrix/)
 - 版本支持策略：[https://www.postgresql.org/support/versioning/](https://www.postgresql.org/support/versioning/)
 
-> 下一篇：[MVCC 与 VACUUM](./2_topic_mvcc) —— 元组可见性、HOT 更新、VACUUM 与 XID 回卷，以及 PG 的隔离级别和 MySQL 有什么不同。
+> 下一篇：[MariaDB](../3_relational/0_maria_db) —— MySQL 分支的现状：版本线、与 MySQL 的差异、特有能力和迁移注意事项。

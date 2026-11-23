@@ -1,31 +1,16 @@
 ---
-description: 进程模型与连接池、流复制与同步级别、复制槽、逻辑复制与 CDC、Patroni 等高可用、与 MySQL 对照
+description: WAL 与流复制、同步级别、复制槽、逻辑复制与 CDC、Patroni 等高可用、与 MySQL 对照
 ---
 
 # PostgreSQL 复制与高可用
 
-> 前置阅读：[MySQL 主从与高可用](../1_mysql/7_topic_replication)、[MVCC 与 VACUUM](./2_topic_mvcc)
+> 前置阅读：[MySQL 主从与高可用](../1_mysql/7_topic_replication)、[PostgreSQL MVCC 与 VACUUM](./1_topic_mvcc)
 
-本篇讲 PG 每连接一进程模型为何必须配连接池、基于 WAL 的流复制与 `synchronous_commit` 各级别含义、复制槽风险、逻辑复制边界，以及 Patroni、CloudNativePG 等故障切换方案。
-
----
-
-## 一、进程模型与连接池
-
-| | PostgreSQL | MySQL |
-|---|---|---|
-| 连接模型 | 每个连接 fork 一个后端进程 | 每个连接一个线程 |
-| 单连接开销 | 进程创建成本高；空闲进程私有内存通常为几 MB，随 `work_mem` 使用和缓存的元数据增长 | 较小 |
-| 默认 `max_connections` | 100 | 151 |
-| 大量短连接 | 不适合，必须使用连接池 | 相对能承受 |
-
-PG 18 仍没有内置连接池，生产环境通常是两层：应用内的 HikariCP 控制应用并发，外部的 PgBouncer 等代理把成百上千个客户端连接收敛成少量真实后端连接。
-
-PgBouncer 最常用 `transaction` 模式（事务结束即归还后端连接），代价是会话级状态不可用：`SET`（`SET LOCAL` 除外）、`LISTEN` / `NOTIFY`、会话级 advisory lock、`WITH HOLD` 游标。PgJDBC 默认在同一语句执行 5 次（`prepareThreshold`）后改用服务端预编译语句，需要 PgBouncer 1.21 及以上并开启 `max_prepared_statements`，旧版本则在 JDBC URL 上设 `prepareThreshold=0`。pool_mode 选择、两层池的大小计算等细节见 [数据库连接池](../5_access/2_connection_pool)。
+本篇讲基于 WAL 的流复制与 `synchronous_commit` 各级别含义、复制槽风险、逻辑复制边界，以及 Patroni、CloudNativePG 等故障切换方案。
 
 ---
 
-## 二、WAL 与流复制
+## 一、WAL 与流复制
 
 PG 只有一种日志：**WAL**（Write-Ahead Log）。它同时承担 InnoDB redo log 的崩溃恢复职责和 MySQL binlog 的复制职责，没有独立的 binlog，也就不需要两阶段提交来协调两种日志。
 
@@ -58,7 +43,7 @@ pg_basebackup -h 10.0.0.11 -U repl -D /var/lib/postgresql/18/main \
 | 备库参数 | 作用 | 代价 |
 |---------|------|------|
 | `max_standby_streaming_delay` | 冲突时重放最多等多久，超时取消备库查询（默认 30s） | 调大则复制延迟可能变大 |
-| `hot_standby_feedback` | 把备库查询的 xmin 反馈给主库，主库暂缓清理这些旧版本 | 备库长查询会让主库膨胀，见 [MVCC 与 VACUUM](./2_topic_mvcc) |
+| `hot_standby_feedback` | 把备库查询的 xmin 反馈给主库，主库暂缓清理这些旧版本 | 备库长查询会让主库膨胀，见 [PostgreSQL MVCC 与 VACUUM](./1_topic_mvcc) |
 
 ```sql
 -- 主库查看各备库的延迟
@@ -113,7 +98,7 @@ FROM pg_replication_slots;
 
 ---
 
-## 三、逻辑复制
+## 二、逻辑复制
 
 逻辑复制把 WAL 解码成行级变更，按表发布 / 订阅，作用类似 MySQL ROW 格式 binlog 的订阅。
 
@@ -151,7 +136,7 @@ Debezium、Flink CDC 等工具不使用 `CREATE SUBSCRIPTION`，而是作为客�
 
 ---
 
-## 四、高可用方案
+## 三、高可用方案
 
 PG 内核只提供复制，不负责故障检测和自动切换，需要外部组件：
 
@@ -177,7 +162,7 @@ spring.datasource.url=jdbc:postgresql://node1:5432,node2:5432,node3:5432/mydb?ta
 
 ---
 
-## 五、与 MySQL 复制体系对照
+## 四、与 MySQL 复制体系对照
 
 | | PostgreSQL | MySQL |
 |---|---|---|
@@ -194,7 +179,6 @@ MySQL 侧详见 [MySQL 主从与高可用](../1_mysql/7_topic_replication)。
 
 ## 小结
 
-- PG 每连接一进程，生产必须两层池：HikariCP + PgBouncer；transaction 模式下的预编译语句需要 PgBouncer 1.21+ 或 `prepareThreshold=0`
 - WAL 同时承担崩溃恢复与复制，没有独立 binlog；物理复制让备库与主库逐字节一致
 - 搭建备库要准备 `REPLICATION` 角色和 `pg_hba.conf` 的 replication 条目，`hot_standby_feedback` 以主库膨胀为代价换备库查询不被取消
 - `synchronous_commit` 的远程级别只在配置了 `synchronous_standby_names` 时生效；默认 `on` 等待备库刷盘，与 MySQL 半同步对等；`remote_write` 只等备库写到 OS 缓存，比半同步弱
@@ -213,4 +197,4 @@ MySQL 侧详见 [MySQL 主从与高可用](../1_mysql/7_topic_replication)。
 - Patroni：[https://patroni.readthedocs.io/](https://patroni.readthedocs.io/)
 - CloudNativePG：[https://cloudnative-pg.io/](https://cloudnative-pg.io/)
 
-> 下一篇：[MariaDB](../3_relational/0_maria_db) —— MySQL 分支的现状：版本线、与 MySQL 的差异、特有能力和迁移注意事项。
+> 下一篇：[PostgreSQL 版本特性](./5_feature) —— 9.6 到 18 的关键变化，重点是 15、17、18 对应用开发的影响。

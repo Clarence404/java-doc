@@ -1,12 +1,12 @@
 ---
-description: Connector/J 版本、URL 参数与时区、真假批量、大结果集读取、超时体系、服务端预编译
+description: Connector/J 与 pgjdbc、URL 参数与时区、真假批量、大结果集读取、超时体系、服务端预编译
 ---
 
-# MySQL JDBC 驱动
+# JDBC 驱动
 
 > 前置阅读：[MySQL 基础](../1_mysql/0_basics)
 
-很多「数据库问题」其实出在 Connector/J 驱动参数上。本篇讲版本选择、JDBC URL 关键参数、真假批量、大结果集读取模式、四层超时与服务端预编译。
+很多「数据库问题」其实出在驱动参数上。本篇以 MySQL 的 Connector/J 为主讲版本、URL 参数、真假批量、大结果集读取、四层超时与服务端预编译，最后一节对照 PostgreSQL 的驱动 pgjdbc。
 
 ---
 
@@ -157,6 +157,41 @@ try (PreparedStatement ps = conn.prepareStatement(sql,
 
 ---
 
+## 七、PostgreSQL 驱动：pgjdbc
+
+PostgreSQL 的 JDBC 驱动是 `org.postgresql:postgresql`（pgjdbc），当前版本线是 42.7.x，Spring Boot 管理它的版本，接入写法见 [PostgreSQL 基础](../2_postgresql/0_basics)。前面几节的问题它都有，只是参数名和默认行为不同：
+
+| 问题 | Connector/J（MySQL） | pgjdbc（PostgreSQL） |
+|------|---------------------|---------------------|
+| 批量写入改写成多行语句 | `rewriteBatchedStatements=true` | `reWriteBatchedInserts=true`（默认 `false`），只改写 INSERT，官方文档给的提升是 2～3 倍 |
+| 大结果集分批读 | 流式读取 `setFetchSize(Integer.MIN_VALUE)`，或 `useCursorFetch=true` | `setFetchSize(n)`，n > 0；也可以用连接参数 `defaultRowFetchSize` 给所有语句设默认值 |
+| 服务端预编译 | `useServerPrepStmts`，默认关闭 | `prepareThreshold`，默认 5：同一个 `PreparedStatement` 执行到第 5 次起改用服务端预编译；设为 0 关闭 |
+| 时间类型 | `connectionTimeZone` 与服务器会话时区对齐 | `TIMESTAMPTZ` 对应 `OffsetDateTime`（读出来的偏移总是 UTC），`TIMESTAMP` 对应 `LocalDateTime`；`getObject` 不支持 `ZonedDateTime`、`Instant` |
+| 多主机与主备 | 多主机 URL 加负载均衡、故障转移相关参数 | `jdbc:postgresql://node1,node2/db?targetServerType=primary`，取值还有 `secondary`、`preferSecondary`、`preferPrimary` |
+
+分批读最容易踩空：下面三个条件缺一个，pgjdbc 都会**不报错地退回到一次读完**，大结果集照样 OOM。
+
+- 连接不能是自动提交：游标在事务结束时关闭，所以要先 `setAutoCommit(false)`
+- 结果集是 `TYPE_FORWARD_ONLY`（默认就是）
+- SQL 是单条语句，不能用分号拼多条
+
+```java
+conn.setAutoCommit(false);                       // 不关自动提交，fetchSize 不生效
+try (PreparedStatement ps = conn.prepareStatement(sql)) {
+    ps.setFetchSize(1000);                       // 每次从服务器取 1000 行
+    try (ResultSet rs = ps.executeQuery()) {
+        while (rs.next()) {
+            export(rs);
+        }
+    }
+}
+conn.commit();
+```
+
+经 PgBouncer 的 `transaction` 模式连接时，服务端预编译要么用 PgBouncer 1.21 起的 `max_prepared_statements`，要么在 URL 里设 `prepareThreshold=0` 关掉，见 [数据库连接池 · PgBouncer](./2_connection_pool#五、pgbouncer)。
+
+---
+
 ## 小结
 
 连接池层面的配置（池大小、泄漏排查）见 [数据库连接池](./2_connection_pool)；驱动与服务器之间的握手、`COM_STMT_PREPARE` 等协议细节见 [数据库协议](/protocols/6_database_protocols)。
@@ -168,6 +203,7 @@ try (PreparedStatement ps = conn.prepareStatement(sql,
 - 大结果集用流式读取或游标读取，流式读取期间连接被独占
 - 超时分四层：池、建连、语句、socket；`socketTimeout` 兜底网络，`queryTimeout` 才会终止服务器上的 SQL
 - 服务端预编译只省解析、不复用执行计划，必须配合 `cachePrepStmts`
+- pgjdbc 的批量改写是 `reWriteBatchedInserts`；分批读要关自动提交、单条语句、只进结果集，否则不报错地一次读完；`prepareThreshold` 默认 5，经 PgBouncer 时设为 0 或用 1.21+ 的协议级预编译
 
 ## 参考资料
 
@@ -177,5 +213,8 @@ try (PreparedStatement ps = conn.prepareStatement(sql,
 - 时间点与时区处理：[https://dev.mysql.com/doc/connector-j/en/connector-j-time-instants.html](https://dev.mysql.com/doc/connector-j/en/connector-j-time-instants.html)
 - 预编译语句：[https://dev.mysql.com/doc/refman/8.4/en/sql-prepared-statements.html](https://dev.mysql.com/doc/refman/8.4/en/sql-prepared-statements.html)
 - HikariCP MySQL 配置建议：[https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration](https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration)
+- pgjdbc 连接参数：[https://jdbc.postgresql.org/documentation/use/](https://jdbc.postgresql.org/documentation/use/)
+- pgjdbc 基于游标的分批读取：[https://jdbc.postgresql.org/documentation/query/](https://jdbc.postgresql.org/documentation/query/)
+- pgjdbc 服务端预编译：[https://jdbc.postgresql.org/documentation/server-prepare/](https://jdbc.postgresql.org/documentation/server-prepare/)
 
-> 下一篇：[数据库连接池](./2_connection_pool) —— HikariCP 参数与池大小估算、Druid 配置与监控、PgBouncer、泄漏排查、读写分离多数据源
+> 下一篇：[数据库连接池](./2_connection_pool) —— HikariCP 参数与池大小估算、Druid 配置与监控、PgBouncer、泄漏排查、连接断开等常见问题
