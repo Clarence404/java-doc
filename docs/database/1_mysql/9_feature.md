@@ -90,7 +90,7 @@ SELECT * FROM sys.schema_unused_indexes WHERE object_schema = 'shop';         --
 
 ### 4、其他
 
-- **Group Replication**（5.7.17）：基于 Paxos 的组复制，是 InnoDB Cluster 的基础，见 [MySQL 主从与高可用](./7_topic_replication)
+- **Group Replication**（5.7.17）：基于 Paxos 的组复制，是 InnoDB Cluster 的基础，见 [MySQL 主从与高可用](./6_topic_replication)
 - **多源复制**：一个副本可同时从多个源复制
 - **Online DDL 增强**：`VARCHAR` 在同一长度字节数范围内扩容、`RENAME INDEX` 可以原地完成；Online DDL 的完整规则见 [MySQL 避坑指南](./8_fallible_point)
 
@@ -230,7 +230,7 @@ LIMIT 10
 FOR UPDATE SKIP LOCKED;
 ```
 
-锁的原理见 [MySQL 事务与锁](./3_topic_transaction)。
+锁的原理见 [MySQL 事务与锁](./4_topic_transaction)。
 
 ### 6、其他高影响变化
 
@@ -299,7 +299,7 @@ mysql_native_password = ON   # 仅作为过渡；升级到 9.x 前必须迁移�
 | `innodb_numa_interleave` | `OFF` | `ON` |
 | `temptable_max_ram` | 1 GiB | 总内存的 3%，介于 1 ~ 4 GiB |
 
-自适应哈希索引和 Change Buffer 默认关闭，对等值查询密集或二级索引写入多的业务可能有影响，升级后对比压测结果，必要时显式打开。Change Buffer 的原理见 [MySQL 索引](./2_topic_index)。
+自适应哈希索引和 Change Buffer 默认关闭，对等值查询密集或二级索引写入多的业务可能有影响，升级后对比压测结果，必要时显式打开。Change Buffer 的原理见 [MySQL 索引](./3_topic_index)。
 
 ### 4、新增能力
 

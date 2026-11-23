@@ -4,7 +4,7 @@ description: 2PC 与 XA、TCC、Saga、本地消息表、RocketMQ 事务消息�
 
 # 分布式事务
 
-> 前置阅读：[分布式理论](./2_theorem)、[MySQL 事务与锁](/database/1_mysql/3_topic_transaction)
+> 前置阅读：[分布式理论](./2_theorem)、[MySQL 事务与锁](/database/1_mysql/4_topic_transaction)
 
 本篇是分布式事务原理与 Seata 机制的主文档，对比 2PC / XA、TCC、Saga、本地消息表、事务消息与最大努力通知的一致性保证与代价，并讲 Seata AT 全局锁、TCC 空回滚 / 幂等 / 悬挂处理与方案选型。
 

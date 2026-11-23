@@ -1,12 +1,12 @@
 ---
-description: 视图、存储过程、账号与传输安全、基础配置、核心原理导读
+description: 视图、存储过程、账号与传输安全、基础配置、本组文章导读
 ---
 
 # MySQL 基础
 
 > 前置阅读：[数据库总览](../0_overview)
 
-MySQL 是最常用的开源关系型数据库，本篇讲视图与存储过程的边界、账号权限与 TLS 配置，并给出索引、事务等核心原理文章的导读；建表时的范式取舍在 [MySQL 表设计规范](./1_table_design)。以 MySQL 8.4 LTS 为基线，9.7 LTS 的行为相同时不再单独说明。
+MySQL 是最常用的开源关系型数据库，本篇讲视图与存储过程的边界、账号权限与 TLS 配置，并给出本组其余文章的导读；建表时的范式取舍在 [MySQL 表设计规范](./7_table_design)。以 MySQL 8.4 LTS 为基线，9.7 LTS 的行为相同时不再单独说明。
 
 ---
 
@@ -142,28 +142,31 @@ tls_version = TLSv1.2,TLSv1.3
 
 | 参数 | 建议 | 详见 |
 |------|------|------|
-| `innodb_buffer_pool_size` | 专用数据库服务器通常设为物理内存的 50%～75%；或开启 `innodb_dedicated_server` 自动计算 | [InnoDB 存储结构](./6_topic_innodb) |
-| `innodb_flush_log_at_trx_commit` + `sync_binlog` | 核心库保持「双 1」，保证提交后不丢 | [MySQL 事务与锁](./3_topic_transaction) |
-| `max_connections` | 不小于所有应用实例连接池上限之和再留余量 | [数据库连接池](../5_access/2_connection_pool) |
-| `binlog_expire_logs_seconds` | 按备份周期设置保留时间（8.4 已移除 `expire_logs_days`） | [MySQL 主从与高可用](./7_topic_replication) |
+| `innodb_buffer_pool_size` | 专用数据库服务器通常设为物理内存的 50%～75%；或开启 `innodb_dedicated_server` 自动计算 | [InnoDB 存储结构](./2_topic_innodb) |
+| `innodb_flush_log_at_trx_commit` + `sync_binlog` | 核心库保持「双 1」，保证提交后不丢 | [MySQL 事务与锁](./4_topic_transaction) |
+| `max_connections` | 不小于所有应用实例连接池上限之和再留余量 | [数据库连接池](../4_practice/2_connection_pool) |
+| `binlog_expire_logs_seconds` | 按备份周期设置保留时间（8.4 已移除 `expire_logs_days`） | [MySQL 主从与高可用](./6_topic_replication) |
 | `character_set_server` / `collation_server` | 保持 8.x 默认的 `utf8mb4` / `utf8mb4_0900_ai_ci`，库表不要混用排序规则 | [MySQL 避坑指南](./8_fallible_point) |
 
 ---
 
-## 五、核心原理导读
+## 五、本组导读
+
+核心原理按「整体架构 → 存储 → 索引 → 事务与锁 → 优化 → 复制」的顺序读，生产实践放在读完原理之后：
 
 | 文章 | 解决的问题 |
 |------|-----------|
-| [MySQL 索引](./2_topic_index) | B+ 树、聚簇与二级索引、回表与覆盖索引、最左前缀、索引失效、索引下推、深度分页 |
-| [MySQL 事务与锁](./3_topic_transaction) | ACID、隔离级别、undo / redo log、两阶段提交、MVCC、行锁与死锁、长事务 |
-| [MySQL 执行流程](./4_topic_execution) | 连接器、解析器、优化器、执行器的链路，UPDATE 的写入路径与崩溃恢复 |
+| [MySQL 执行流程](./1_topic_execution) | Server 层与存储引擎层的分工；连接器、分析器、优化器、执行器的链路，UPDATE 的写入路径 |
+| [InnoDB 存储结构](./2_topic_innodb) | 段 / 区 / 页、行格式、Buffer Pool、Double Write、刷脏 |
+| [MySQL 索引](./3_topic_index) | B+ 树、聚簇与二级索引、回表与覆盖索引、最左前缀、索引失效、索引下推、深度分页 |
+| [MySQL 事务与锁](./4_topic_transaction) | ACID、隔离级别、undo / redo log、两阶段提交、MVCC、行锁与死锁、长事务 |
 | [MySQL EXPLAIN 与 SQL 优化](./5_topic_explain) | EXPLAIN 字段、慢查询日志、filesort、COUNT、JOIN 优化 |
-| [InnoDB 存储结构](./6_topic_innodb) | 段 / 区 / 页、行格式、Buffer Pool、Double Write、刷脏 |
-| [MySQL 主从与高可用](./7_topic_replication) | Binlog、GTID、半同步、并行复制、Group Replication / InnoDB Cluster、读写分离 |
+| [MySQL 主从与高可用](./6_topic_replication) | Binlog、GTID、半同步、并行复制、Group Replication / InnoDB Cluster、读写分离 |
+| [MySQL 表设计规范](./7_table_design) | 命名、主键、字段类型、NULL 与默认值、范式与反范式、索引规划、建表评审 |
 | [MySQL 避坑指南](./8_fallible_point) | 锁范围与死锁案例、字符集、NULL、时区、大表 DDL 与 MDL |
 | [MySQL 版本特性](./9_feature) | 版本生命周期、8.0 与 8.4 的变化、升级检查 |
 
-分库分表的中间件实现见 [分库分表与中间件](../4_scale_out/0_sharding)，系统层面的拆分策略见 [数据层扩展](/high-con/5_data_scaling)。
+分库分表的中间件实现见 [分库分表与中间件](../4_practice/4_sharding)，系统层面的拆分策略见 [数据层扩展](/high-con/5_data_scaling)。
 
 ---
 
@@ -185,4 +188,4 @@ tls_version = TLSv1.2,TLSv1.3
 - caching_sha2_password：[https://dev.mysql.com/doc/refman/8.4/en/caching-sha2-pluggable-authentication.html](https://dev.mysql.com/doc/refman/8.4/en/caching-sha2-pluggable-authentication.html)
 - 密码校验组件：[https://dev.mysql.com/doc/refman/8.4/en/validate-password.html](https://dev.mysql.com/doc/refman/8.4/en/validate-password.html)
 
-> 下一篇：[MySQL 表设计规范](./1_table_design) —— 命名、主键选型、字段类型、NULL 与默认值、通用字段、索引规划与建表模板。
+> 下一篇：[MySQL 执行流程](./1_topic_execution) —— 一条 SELECT / UPDATE 从连接器到存储引擎的完整路径，以及各组件的职责与常见问题。

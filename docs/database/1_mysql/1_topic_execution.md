@@ -3,7 +3,7 @@ description: Server 层与存储引擎层、连接器与权限生效、优化器
 ---
 
 # MySQL 执行流程
-> 前置阅读：[MySQL 事务与锁](./3_topic_transaction)
+> 前置阅读：[MySQL 基础](./0_basics)
 
 一条 SQL 从客户端到 InnoDB 要经过多个组件，本篇讲各组件职责、权限变更生效时机、长连接与选错索引的处理，以及 UPDATE 执行阶段与提交阶段的区分。以 MySQL 8.4 LTS 为基线。
 
@@ -39,7 +39,7 @@ MySQL 分为 **Server 层** 和 **存储引擎层** 两部分：
 
 直接用 DML 修改 `mysql.user` 等权限表不会立即生效，需要 `FLUSH PRIVILEGES`；生产中应始终用账户管理语句。要让被回收全局权限或改了密码的账号立刻失效，需要 `KILL` 它现有的连接。
 
-**空闲连接超时**：`wait_timeout` 默认 8 小时，超时后服务器断开连接，客户端再发语句时报 `2013 Lost connection to MySQL server during query` 或 `2006 MySQL server has gone away`。连接池的 `maxLifetime` 应小于 `wait_timeout`，详见 [数据库连接池](../5_access/2_connection_pool)。
+**空闲连接超时**：`wait_timeout` 默认 8 小时，超时后服务器断开连接，客户端再发语句时报 `2013 Lost connection to MySQL server during query` 或 `2006 MySQL server has gone away`。连接池的 `maxLifetime` 应小于 `wait_timeout`，详见 [数据库连接池](../4_practice/2_connection_pool)。
 
 **长连接内存**：执行过程中分配的部分内存挂在会话上，直到连接断开才释放，长连接累积可能占用大量内存。两种解法：
 
@@ -87,7 +87,7 @@ SELECT * FROM orders FORCE INDEX (idx_create_time)
 WHERE create_time > '2024-01-01' LIMIT 100;
 ```
 
-想验证「去掉某个索引后优化器会怎么选」，先把它设为不可见（`ALTER TABLE ... ALTER INDEX ... INVISIBLE`），比直接删除安全，见 [MySQL 索引](./2_topic_index)。
+想验证「去掉某个索引后优化器会怎么选」，先把它设为不可见（`ALTER TABLE ... ALTER INDEX ... INVISIBLE`），比直接删除安全，见 [MySQL 索引](./3_topic_index)。
 
 ### 5、执行器
 
@@ -132,15 +132,15 @@ autocommit 模式下语句执行完立即进入提交阶段；显式事务则等
 
 ### 2、提交阶段（COMMIT 时）
 
-开启 binlog 时，提交走两阶段提交与组提交：InnoDB prepare，然后 flush 阶段把 redo 刷盘并把 binlog cache 写入 binlog 文件，sync 阶段对 binlog fsync，最后 commit 阶段在 InnoDB 中提交并释放锁。事务是否算提交以 binlog 中是否有它的 XID 为准，崩溃恢复规则与流程图见 [MySQL 事务与锁](./3_topic_transaction) 的两阶段提交一节。
+开启 binlog 时，提交走两阶段提交与组提交：InnoDB prepare，然后 flush 阶段把 redo 刷盘并把 binlog cache 写入 binlog 文件，sync 阶段对 binlog fsync，最后 commit 阶段在 InnoDB 中提交并释放锁。事务是否算提交以 binlog 中是否有它的 XID 为准，崩溃恢复规则与流程图见 [MySQL 事务与锁](./4_topic_transaction) 的两阶段提交一节。
 
-**为什么更新不直接写数据页？** 修改数据页是随机 I/O，redo 是顺序 I/O。WAL 先顺序写日志、脏页由后台线程异步刷盘，把随机写转换为顺序写，这是 InnoDB 写性能的核心。脏页何时刷盘见 [InnoDB 存储结构](./6_topic_innodb)。
+**为什么更新不直接写数据页？** 修改数据页是随机 I/O，redo 是顺序 I/O。WAL 先顺序写日志、脏页由后台线程异步刷盘，把随机写转换为顺序写，这是 InnoDB 写性能的核心。脏页何时刷盘见 [InnoDB 存储结构](./2_topic_innodb)。
 
 ---
 
 ## 小结
 
-执行计划的读法见 [MySQL EXPLAIN 与 SQL 优化](./5_topic_explain)，Buffer Pool 与刷脏见 [InnoDB 存储结构](./6_topic_innodb)。
+执行计划的读法见 [MySQL EXPLAIN 与 SQL 优化](./5_topic_explain)，Buffer Pool 与刷脏见 [InnoDB 存储结构](./2_topic_innodb)。
 
 - Server 层负责连接、解析、优化、执行和 binlog，引擎层通过 handler API 负责存取
 - 权限变更会影响已连接会话：表、列级下一条语句生效，库级下一次 `USE` 生效，只有静态全局权限和密码要等新连接
@@ -159,4 +159,4 @@ autocommit 模式下语句执行完立即进入提交阶段；显式事务则等
 - Hash Join Optimization：[https://dev.mysql.com/doc/refman/8.4/en/hash-joins.html](https://dev.mysql.com/doc/refman/8.4/en/hash-joins.html)
 - The Binary Log：[https://dev.mysql.com/doc/refman/8.4/en/binary-log.html](https://dev.mysql.com/doc/refman/8.4/en/binary-log.html)
 
-> 下一篇：[MySQL EXPLAIN 与 SQL 优化](./5_topic_explain) —— 读懂执行计划的 type 与 Extra，定位慢 SQL，优化排序、COUNT 与 JOIN。
+> 下一篇：[InnoDB 存储结构](./2_topic_innodb) —— 从表空间、页、行格式到 Buffer Pool、Double Write 与刷脏，理解 SQL 背后的存储层。

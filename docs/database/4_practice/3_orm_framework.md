@@ -109,7 +109,7 @@ PageInfo<User> pageInfo = PageHelper.startPage(1, 10)
 
 `PaginationInnerInterceptor` 是 `MybatisPlusInterceptor` 中的一个内部插件：它用 jsqlparser 解析原 SQL，生成优化过的 COUNT 语句（例如去掉无用的 `ORDER BY` 和不影响行数的 `LEFT JOIN`），再按数据库类型追加分页子句。3.5.9 起 jsqlparser 拆成独立模块，必须额外引入 `mybatis-plus-jsqlparser`，否则分页插件无法使用。依赖与 `Page` 的用法见 [数据访问](/spring-boot/3_data_access) 的「分页」一节。
 
-无论哪种物理分页，`LIMIT` 偏移量很大时都会变慢，深分页的优化见 [MySQL 索引](../1_mysql/2_topic_index)。
+无论哪种物理分页，`LIMIT` 偏移量很大时都会变慢，深分页的优化见 [MySQL 索引](../1_mysql/3_topic_index)。
 
 ---
 
@@ -597,4 +597,4 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 - Hibernate ORM 文档：[https://hibernate.org/orm/documentation/](https://hibernate.org/orm/documentation/)
 - Jakarta Persistence 3.2：[https://jakarta.ee/specifications/persistence/3.2/](https://jakarta.ee/specifications/persistence/3.2/)
 
-> 下一篇：[数据备份与恢复](../6_backup_cdc/0_backup_recovery) —— RTO / RPO、mysqldump、XtraBackup 增量、binlog PITR、PG 增量备份、恢复演练
+> 下一篇：[分库分表与中间件](./4_sharding) —— 用 ShardingSphere 5.5 的 JDBC 驱动与 YAML 规则落地分库分表、读写分离与数据迁移。

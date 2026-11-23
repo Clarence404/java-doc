@@ -698,7 +698,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 **常见坑**：只罗列技术名词不讲取舍；数字前后矛盾或明显夸大（如单机 Redis 扛百万 QPS）；把通用八股当项目难点。
 
-→ 详见 [项目难点与亮点面试题解答](/interview/22_scenario_highlights)（21 个亮点的逐题讲法）、[分库分表与中间件](/database/4_scale_out/0_sharding#八、平滑迁移与扩容)
+→ 详见 [项目难点与亮点面试题解答](/interview/22_scenario_highlights)（21 个亮点的逐题讲法）、[分库分表与中间件](/database/4_practice/4_sharding#八、平滑迁移与扩容)
 
 ### Q51：拿到一道系统设计题，你会怎么推进？
 
@@ -974,7 +974,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 - 游标翻页还顺带解决了深分页越翻越慢的问题
 - 处理逻辑要幂等，任务中断后从上次的 lastId 继续
 
-→ 详见 [游标翻页](/database/1_mysql/2_topic_index#_3、方案三-游标翻页-适合「下一页」场景)、[深分页拖垮数据库](/handbook/2_incidents/9_deep_paging)
+→ 详见 [游标翻页](/database/1_mysql/3_topic_index#_3、方案三-游标翻页-适合「下一页」场景)、[深分页拖垮数据库](/handbook/2_incidents/9_deep_paging)
 
 ### Q73：IP 地址在数据库里怎么存？
 
@@ -985,4 +985,4 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 - 范围查询：IP 归属地库按 `(start_ip, end_ip)` 整数区间存，查询时直接做数值比较
 - 只用来记日志、不做范围查询时，存字符串也可以，可读性更好
 
-→ 详见 [MySQL 表设计规范 · 字符串](/database/1_mysql/1_table_design#_3、字符串)
+→ 详见 [MySQL 表设计规范 · 字符串](/database/1_mysql/7_table_design#_3、字符串)

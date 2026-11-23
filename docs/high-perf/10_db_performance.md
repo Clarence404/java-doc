@@ -14,7 +14,7 @@ description: 慢 SQL 治理闭环、N+1、深分页方案对比、批量写
 
 **慢 SQL 治理不是一次性"优化几条 SQL"，而是发现 → 排序 → 分析 → 优化 → 验证 → 预防的持续闭环。**
 
-MySQL 内部原理见 [MySQL 索引](/database/1_mysql/2_topic_index)、[MySQL 执行流程](/database/1_mysql/4_topic_execution)、[MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)。
+MySQL 内部原理见 [MySQL 索引](/database/1_mysql/3_topic_index)、[MySQL 执行流程](/database/1_mysql/1_topic_execution)、[MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)。
 
 | 阶段 | 做什么 | 工具 / 手段 |
 |------|--------|-------------|
@@ -29,19 +29,19 @@ MySQL 内部原理见 [MySQL 索引](/database/1_mysql/2_topic_index)、[MySQL �
 单次 2 秒、每天 10 次的报表 SQL，对数据库的压力远小于单次 20ms、每秒 500 次的列表查询。优先治理总耗时 Top N，收益最大。
 :::
 
-执行计划各字段的含义与优化方向速查见 [MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)，索引失效场景见 [MySQL 索引](/database/1_mysql/2_topic_index)。
+执行计划各字段的含义与优化方向速查见 [MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)，索引失效场景见 [MySQL 索引](/database/1_mysql/3_topic_index)。
 
 ---
 
 ## 二、深分页
 
-`LIMIT offset, n` 要先读出 offset + n 行再丢弃前 offset 行，offset 越大越慢，后台导出、爬虫翻页时经常拖垮数据库。治理上先限制最大页数，列表和导出改成游标翻页（`WHERE id > ? ORDER BY id LIMIT 1000`），必须跳页的后台列表用延迟关联，多条件检索交给 ES。各方案的 SQL 写法与取舍见 [MySQL 索引 · 深度分页优化](/database/1_mysql/2_topic_index#九、深度分页优化)，线上案例见 [深分页拖垮数据库](/handbook/2_incidents/9_deep_paging)。
+`LIMIT offset, n` 要先读出 offset + n 行再丢弃前 offset 行，offset 越大越慢，后台导出、爬虫翻页时经常拖垮数据库。治理上先限制最大页数，列表和导出改成游标翻页（`WHERE id > ? ORDER BY id LIMIT 1000`），必须跳页的后台列表用延迟关联，多条件检索交给 ES。各方案的 SQL 写法与取舍见 [MySQL 索引 · 深度分页优化](/database/1_mysql/3_topic_index#九、深度分页优化)，线上案例见 [深分页拖垮数据库](/handbook/2_incidents/9_deep_paging)。
 
 ---
 
 ## 三、批量写入
 
-驱动参数详解见 [JDBC 驱动](/database/5_access/1_jdbc_driver)。
+驱动参数详解见 [JDBC 驱动](/database/4_practice/1_jdbc_driver)。
 
 ### 1、三个条件缺一不可
 
@@ -50,7 +50,7 @@ MySQL 内部原理见 [MySQL 索引](/database/1_mysql/2_topic_index)、[MySQL �
 | 条件 | 说明 |
 |------|------|
 | 批量 API | `addBatch()` / `executeBatch()`，或 MyBatis `ExecutorType.BATCH`、JPA `hibernate.jdbc.batch_size` |
-| 驱动改写 | MySQL URL 添加 `rewriteBatchedStatements=true`，否则驱动仍逐条发送，原理见 [JDBC 驱动](/database/5_access/1_jdbc_driver) |
+| 驱动改写 | MySQL URL 添加 `rewriteBatchedStatements=true`，否则驱动仍逐条发送，原理见 [JDBC 驱动](/database/4_practice/1_jdbc_driver) |
 | 事务分批 | 一批在一个事务中提交，而不是每条自动提交 |
 
 ```java
@@ -133,7 +133,7 @@ orders.forEach(o -> o.setItems(itemMap.getOrDefault(o.getId(), List.of())));
 | 问题 | 表现 | 处理 |
 |------|------|------|
 | `SELECT *` | 多传输无用列、无法使用覆盖索引 | 只查询需要的列 |
-| 大结果集一次性加载 | 内存暴涨甚至 OOM | 分页或流式读取（JDBC `fetchSize`、MyBatis `Cursor`），驱动的读取模式见 [JDBC 驱动](/database/5_access/1_jdbc_driver) |
+| 大结果集一次性加载 | 内存暴涨甚至 OOM | 分页或流式读取（JDBC `fetchSize`、MyBatis `Cursor`），驱动的读取模式见 [JDBC 驱动](/database/4_practice/1_jdbc_driver) |
 | 长事务 | 连接长期占用、锁等待、主从延迟 | 事务内不做 RPC 和耗时计算，缩小事务范围 |
 | 大 `IN` 列表 | SQL 过长、执行计划变差 | 分批，每批几百个；原因见下方说明 |
 | `COUNT(*)` 大表 | 分页总数查询很慢 | 缓存总数、估算值，或不展示总页数 |
@@ -148,10 +148,10 @@ orders.forEach(o -> o.setItems(itemMap.getOrDefault(o.getId(), List.of())));
 
 ## 六、连接池与更大规模的扩展
 
-连接池原理与配置见 [数据库连接池](/database/5_access/2_connection_pool)。
+连接池原理与配置见 [数据库连接池](/database/4_practice/2_connection_pool)。
 
-- 连接池参数与容量估算见 [数据库连接池](/database/5_access/2_connection_pool#_4、池大小估算)：**连接池过大不会让数据库更快**。
-- SQL 已充分优化后单库仍无法支撑，就需要缓存、读写分离、分库分表等**扩展性方案**，属于高并发范畴，见 [数据层扩展](/high-con/5_data_scaling) 与 [分库分表与中间件](/database/4_scale_out/0_sharding)。
+- 连接池参数与容量估算见 [数据库连接池](/database/4_practice/2_connection_pool#_4、池大小估算)：**连接池过大不会让数据库更快**。
+- SQL 已充分优化后单库仍无法支撑，就需要缓存、读写分离、分库分表等**扩展性方案**，属于高并发范畴，见 [数据层扩展](/high-con/5_data_scaling) 与 [分库分表与中间件](/database/4_practice/4_sharding)。
 - 读多写少的数据优先考虑缓存，见 [缓存架构设计](/high-con/3_cache_architecture)、[两级缓存（L1 + L2）](/cache/8_two_level_cache) 与 [缓存一致性](/cache/10_cache_consistency)。
 
 ---

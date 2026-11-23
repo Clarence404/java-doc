@@ -4,7 +4,7 @@ description: 差错类型、摘要比对与排序归并比对、游标分批拉�
 
 # 海量数据对账
 
-> 前置阅读：[海量数据算法题](./27_massive_data)、[幂等设计](/architecture/3_idempotence)、[MySQL 索引](/database/1_mysql/2_topic_index)
+> 前置阅读：[海量数据算法题](./27_massive_data)、[幂等设计](/architecture/3_idempotence)、[MySQL 索引](/database/1_mysql/3_topic_index)
 
 对账就是拿两份「本应一致」的数据逐条核对，找出不一致的记录并处理掉。本篇讲每天几千万笔时的通用做法：拉取、分片、比对、差错处理，以及断点续跑、跨日在途、差错修复幂等这几个容易出事故的环节。
 
@@ -207,7 +207,7 @@ WHERE c.bill_date = '2026-10-08' AND o.trade_no IS NULL;
 
 ### 1、按主键范围分批，不用深分页
 
-`LIMIT offset, size` 在 offset 很大时要先扫过前面所有行，越往后越慢，原因与改法见 [MySQL 索引](/database/1_mysql/2_topic_index#九、深度分页优化) 和 [数据访问性能](/high-perf/10_db_performance#二、深分页)。对账拉数据按主键游标走：
+`LIMIT offset, size` 在 offset 很大时要先扫过前面所有行，越往后越慢，原因与改法见 [MySQL 索引](/database/1_mysql/3_topic_index#九、深度分页优化) 和 [数据访问性能](/high-perf/10_db_performance#二、深分页)。对账拉数据按主键游标走：
 
 1. 先用 `pay_time` 索引查出当天的 `MIN(id)`、`MAX(id)`
 2. 把 `[minId, maxId]` 按区间切成若干段，每段一个子任务，可以并行

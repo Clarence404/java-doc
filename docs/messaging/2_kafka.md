@@ -224,7 +224,7 @@ Kafka Connect 是 Kafka 自带的**数据管道框架**，通过配置而不是�
 
 ### 2、Debezium：MySQL CDC → Kafka
 
-Debezium 是最常用的 CDC Source Connector，读取 MySQL binlog（需 `binlog_format=ROW`）把行变更写入 `<topic.prefix>.<库名>.<表名>`，每条消息带 `op` / `before` / `after` / `source` 信封。连接器注册 JSON、`database.server.id` 唯一性、事件结构与 CDC 工具对比统一见 [CDC 工具 · Debezium](/database/6_backup_cdc/1_cdc_tools#五、debezium)；下面的 Sink 示例以 topic `dbserver1.inventory.orders` 为例。
+Debezium 是最常用的 CDC Source Connector，读取 MySQL binlog（需 `binlog_format=ROW`）把行变更写入 `<topic.prefix>.<库名>.<表名>`，每条消息带 `op` / `before` / `after` / `source` 信封。连接器注册 JSON、`database.server.id` 唯一性、事件结构与 CDC 工具对比统一见 [CDC 工具 · Debezium](/database/4_practice/8_cdc_tools#五、debezium)；下面的 Sink 示例以 topic `dbserver1.inventory.orders` 为例。
 
 ### 3、Sink：Kafka → Elasticsearch
 

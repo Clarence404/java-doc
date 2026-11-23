@@ -4,7 +4,7 @@ description: WAL 与流复制、同步级别、复制槽、逻辑复制与 CDC�
 
 # PostgreSQL 复制与高可用
 
-> 前置阅读：[MySQL 主从与高可用](../1_mysql/7_topic_replication)、[PostgreSQL MVCC 与 VACUUM](./1_topic_mvcc)
+> 前置阅读：[MySQL 主从与高可用](../1_mysql/6_topic_replication)、[PostgreSQL MVCC 与 VACUUM](./1_topic_mvcc)
 
 本篇讲基于 WAL 的流复制与 `synchronous_commit` 各级别含义、复制槽风险、逻辑复制边界，以及 Patroni、CloudNativePG 等故障切换方案。
 
@@ -132,7 +132,7 @@ CREATE SUBSCRIPTION sub_orders
 
 ### 2、CDC
 
-Debezium、Flink CDC 等工具不使用 `CREATE SUBSCRIPTION`，而是作为客户端创建逻辑复制槽，用内置的 `pgoutput` 解码插件读取变更流。它们同样受复制槽 WAL 堆积和 `catalog_xmin` 的约束，下游停摆时要有告警。工具对比见 [CDC 工具](../6_backup_cdc/1_cdc_tools)，Flink 侧的用法见 [Flink CDC](/flink/6_cdc)。
+Debezium、Flink CDC 等工具不使用 `CREATE SUBSCRIPTION`，而是作为客户端创建逻辑复制槽，用内置的 `pgoutput` 解码插件读取变更流。它们同样受复制槽 WAL 堆积和 `catalog_xmin` 的约束，下游停摆时要有告警。工具对比见 [CDC 工具](../4_practice/8_cdc_tools)，Flink 侧的用法见 [Flink CDC](/flink/6_cdc)。
 
 ---
 
@@ -173,7 +173,7 @@ spring.datasource.url=jdbc:postgresql://node1:5432,node2:5432,node3:5432/mydb?ta
 | 自动故障切换 | 需 Patroni、CloudNativePG 等外部组件 | InnoDB Cluster（MGR + MySQL Shell + MySQL Router）或 Orchestrator 等 |
 | 跨版本复制 | 逻辑复制可跨任意受支持版本 | 支持从低版本源复制到高一个系列的副本（如 8.0 → 8.4 LTS → 9.x） |
 
-MySQL 侧详见 [MySQL 主从与高可用](../1_mysql/7_topic_replication)。
+MySQL 侧详见 [MySQL 主从与高可用](../1_mysql/6_topic_replication)。
 
 ---
 

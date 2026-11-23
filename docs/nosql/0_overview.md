@@ -46,4 +46,4 @@ Redis 也是键值存储，但定位是缓存与内存数据结构，主文档�
 - [向量数据库](/ai/4_core_tech/1_vector_db)：Embedding 检索与 RAG 场景的专用存储
 - [对象存储](/architecture/5_object_storage)：图片、视频、备份等大文件的存储与直传
 - [数据湖与湖仓](/big-data/4_lakehouse)：Iceberg、Paimon 等面向分析的开放表格式
-- [CDC 工具](/database/6_backup_cdc/1_cdc_tools)：把关系库变更同步到搜索、分析与缓存
+- [CDC 工具](/database/4_practice/8_cdc_tools)：把关系库变更同步到搜索、分析与缓存

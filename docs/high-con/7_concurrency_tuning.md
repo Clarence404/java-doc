@@ -123,7 +123,7 @@ Spring Boot 3.2+ 配置 `spring.threads.virtual.enabled=true` 后，Tomcat 为�
 
 ## 三、数据库连接池
 
-**扩容时必须核算的是全局上限：`所有应用实例 maximumPoolSize 之和 ≤ 数据库 max_connections × 80%`。** 这是上限而不是目标值，单实例池的实际大小按 Little 定律与压测确定；实例数翻倍（或 HPA 扩到 `maxReplicas`）前单实例池不调小，新实例启动即报 `Too many connections`，多个服务共用一个库时上限还要在服务之间分配。经验公式、核算示例与 HikariCP 参数见 [数据库连接池 · 池大小估算](/database/5_access/2_connection_pool#_4、池大小估算)。
+**扩容时必须核算的是全局上限：`所有应用实例 maximumPoolSize 之和 ≤ 数据库 max_connections × 80%`。** 这是上限而不是目标值，单实例池的实际大小按 Little 定律与压测确定；实例数翻倍（或 HPA 扩到 `maxReplicas`）前单实例池不调小，新实例启动即报 `Too many connections`，多个服务共用一个库时上限还要在服务之间分配。经验公式、核算示例与 HikariCP 参数见 [数据库连接池 · 池大小估算](/database/4_practice/2_connection_pool#_4、池大小估算)。
 
 「实际大小按压测确定」可以参考 [连接池与实例数实验](./12_exp_pool_sizing)：一台 4 核的数据库，mall-app 的连接池从 5 加到 20 查询吞吐只多 30%，从 20 加到 40 再多 15%，同库的下单却因为行锁排队掉到一半以下成功；实例从 1 个加到 3 个相当于连接数乘 3，吞吐只多一成。连接池的大小先看数据库能同时处理多少查询，再看应用有多少线程。
 

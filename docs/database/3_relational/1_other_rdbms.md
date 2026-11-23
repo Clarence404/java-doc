@@ -163,7 +163,7 @@ CREATE TABLE orders (
 | 人大金仓 KingbaseES V9 | PostgreSQL | 支持（Oracle 模式） | 高 | 支持（MySQL 模式） | 政务、国产替代 |
 | openGauss / GaussDB | PostgreSQL 9.2 | 部分 | 较高 | 部分 | 运营商、华为生态 |
 
-分布式路线的 OceanBase、TiDB 以及云原生的 PolarDB 见 [分布式数据库](../4_scale_out/1_distributed_db)；在关系库、NoSQL 之间如何选型见 [数据库选型参考](../0_fundamentals/2_selection_guide)。
+分布式路线的 OceanBase、TiDB 以及云原生的 PolarDB 见 [分布式数据库](./2_distributed_db)；在关系库、NoSQL 之间如何选型见 [数据库选型参考](../0_fundamentals/2_selection_guide)。
 
 ---
 
@@ -186,4 +186,4 @@ CREATE TABLE orders (
 - KingbaseES 产品文档：[https://help.kingbase.com.cn/](https://help.kingbase.com.cn/)
 - openGauss 文档：[https://docs.opengauss.org/](https://docs.opengauss.org/)
 
-> 下一篇：[分库分表与中间件](../4_scale_out/0_sharding) —— 用 ShardingSphere 5.5 的 JDBC 驱动与 YAML 规则落地分库分表、读写分离与数据迁移。
+> 下一篇：[分布式数据库](./2_distributed_db) —— TiDB 与 OceanBase 的架构、事务与兼容性，以及 Aurora、PolarDB 的存算分离路线。

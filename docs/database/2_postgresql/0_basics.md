@@ -96,7 +96,7 @@ spring:
     password: change-me
 ```
 
-依赖版本由 Spring Boot 管理，驱动类名可省略。表不在 `public` 下时用 `currentSchema` 指定，或在用户级别设置默认搜索路径：`ALTER ROLE app SET search_path = finance, public;`。驱动参数（批量改写、分批读取、预编译阈值）见 [JDBC 驱动 · PostgreSQL 驱动](../5_access/1_jdbc_driver#七、postgresql-驱动-pgjdbc)；数据源与连接池配置见 [数据访问](/spring-boot/3_data_access)、[数据库连接池](../5_access/2_connection_pool)。
+依赖版本由 Spring Boot 管理，驱动类名可省略。表不在 `public` 下时用 `currentSchema` 指定，或在用户级别设置默认搜索路径：`ALTER ROLE app SET search_path = finance, public;`。驱动参数（批量改写、分批读取、预编译阈值）见 [JDBC 驱动 · PostgreSQL 驱动](../4_practice/1_jdbc_driver#七、postgresql-驱动-pgjdbc)；数据源与连接池配置见 [数据访问](/spring-boot/3_data_access)、[数据库连接池](../4_practice/2_connection_pool)。
 
 ### 3、常用客户端
 
@@ -167,7 +167,7 @@ PG 15 起，`public` Schema 上的 `CREATE` 权限不再默认授予所有用户
 | 默认 `max_connections` | 100 | 151 |
 | 大量短连接 | 不适合，必须使用连接池 | 相对能承受 |
 
-PG 18 仍没有内置连接池，生产环境通常是两层：应用内的 HikariCP 控制应用并发，外部的 PgBouncer 等代理把成百上千个客户端连接收敛成少量真实后端连接。PgBouncer 的池模式、`transaction` 模式下不能用的会话级功能，以及预编译语句怎么配，见 [数据库连接池 · PgBouncer](../5_access/2_connection_pool#五、pgbouncer)。
+PG 18 仍没有内置连接池，生产环境通常是两层：应用内的 HikariCP 控制应用并发，外部的 PgBouncer 等代理把成百上千个客户端连接收敛成少量真实后端连接。PgBouncer 的池模式、`transaction` 模式下不能用的会话级功能，以及预编译语句怎么配，见 [数据库连接池 · PgBouncer](../4_practice/2_connection_pool#五、pgbouncer)。
 
 ---
 

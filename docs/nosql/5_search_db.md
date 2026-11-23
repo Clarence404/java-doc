@@ -4,7 +4,7 @@ description: 搜索库定位、ES / OpenSearch / Solr / Meilisearch / 库内全�
 
 # 搜索数据库
 
-> 前置阅读：[MySQL 索引](/database/1_mysql/2_topic_index)、[文档数据库](./2_document_db)
+> 前置阅读：[MySQL 索引](/database/1_mysql/3_topic_index)、[文档数据库](./2_document_db)
 
 搜索数据库按关键词、相关性和过滤条件快速查找，通常是由业务库同步出来的查询侧索引，而不是主库。本篇讲搜索库的定位、各引擎速览、向量检索与选型，基线为 Elasticsearch 9 / OpenSearch 3。
 

@@ -44,7 +44,7 @@ MQ 选型起作用的往往不是谁性能最高，而是消息语义（事务�
 | 场景 | 推荐 | 原因 |
 |------|------|------|
 | 日志收集 / 埋点上报 | **Kafka** | 顺序写、高吞吐、长期保留，Flink / Spark 直接消费 |
-| 大数据 Pipeline / 事件溯源 / CDC | **Kafka** | 多个消费者组独立消费同一份数据，可按 Offset 回放；CDC 工具见 [CDC 工具](/database/6_backup_cdc/1_cdc_tools) |
+| 大数据 Pipeline / 事件溯源 / CDC | **Kafka** | 多个消费者组独立消费同一份数据，可按 Offset 回放；CDC 工具见 [CDC 工具](/database/4_practice/8_cdc_tools) |
 | 流式计算（读—处理—写） | **Kafka** | 事务 + EOS，Kafka Streams / Connect 生态完善 |
 | 电商核心链路（订单 / 支付 / 库存） | **RocketMQ** | 事务消息、定时消息（超时关单）、重试与死信开箱即用 |
 | 本地事务 + 发消息的最终一致 | **RocketMQ** 事务消息，或任意 MQ + 本地消息表 | 半消息回查保证"本地事务成功则消息必达"；方案对比见 [分布式基础 · 分布式事务](/distributed/4_transaction) |

@@ -66,7 +66,7 @@ ODS 的数据来自数据集成工具（见 [数据集成](./5_data_integration)
 | 增量同步 | 每天只同步新增和变化的行，按 `update_time` 或 binlog 获取 | 数据量大的表，如订单、订单明细、支付流水 | `_inc` |
 | 实时 CDC | 订阅 binlog，持续写入 Kafka 或湖仓主键表 | 有实时需求的表 | `_inc` |
 
-增量同步要求业务表有可靠的 `update_time`（并且更新时一定会改它）或开启 binlog，这是后端设计表结构时就要考虑的，binlog 配置见 [CDC 工具](/database/6_backup_cdc/1_cdc_tools) 第二节。
+增量同步要求业务表有可靠的 `update_time`（并且更新时一定会改它）或开启 binlog，这是后端设计表结构时就要考虑的，binlog 配置见 [CDC 工具](/database/4_practice/8_cdc_tools) 第二节。
 
 ### 4、从 ODS 到 DWD
 

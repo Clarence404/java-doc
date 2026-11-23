@@ -32,7 +32,7 @@ B+ 树和 LSM-Tree 的分歧就在第一、二行：B+ 树写时就把数据放�
 - WAL 是纯追加写，比把数据页写回原位快得多，这也是「先写日志」划算的原因
 - 日志不能无限增长，需要 **检查点（Checkpoint）**：确认某个位置之前的修改都已落到数据文件，之前的日志就可以回收
 
-InnoDB 的 WAL 叫 redo log，RocksDB / LevelDB 直接叫 WAL，HBase 叫 HLog。InnoDB 的 redo、undo 与 Double Write 细节见 [InnoDB 存储结构](../1_mysql/6_topic_innodb#四、double-write)；`fsync` 到底保证到哪一层见 [内存管理与 Page Cache](/os/3_memory#五、write、fsync-与脏页回写) 与 [文件系统与磁盘 IO](/os/7_file_io#六、持久化语义)。
+InnoDB 的 WAL 叫 redo log，RocksDB / LevelDB 直接叫 WAL，HBase 叫 HLog。InnoDB 的 redo、undo 与 Double Write 细节见 [InnoDB 存储结构](../1_mysql/2_topic_innodb#四、double-write)；`fsync` 到底保证到哪一层见 [内存管理与 Page Cache](/os/3_memory#五、write、fsync-与脏页回写) 与 [文件系统与磁盘 IO](/os/7_file_io#六、持久化语义)。
 
 ### 3、顺序 IO 与随机 IO
 
@@ -52,7 +52,7 @@ B+ 树把数据切成固定大小的 **页（Page）**，页是读写磁盘的�
 - **扇出（Fan-out）** 是一个内部节点能挂多少个子节点。16KB 页、BIGINT 主键时约 1000 多个，三层就能放两千万行级别的数据
 - 树高通常只有 3～4 层，根和上层内部节点基本常驻内存，一次点查实际只读 1～2 个页
 
-B+ 树作为数据结构与 B 树、红黑树的区别见 [树](/algorithms/1_data_structures/3_tree)；InnoDB 里三层能放多少行的推算见 [MySQL 索引](../1_mysql/2_topic_index#一、b-树数据结构)。
+B+ 树作为数据结构与 B 树、红黑树的区别见 [树](/algorithms/1_data_structures/3_tree)；InnoDB 里三层能放多少行的推算见 [MySQL 索引](../1_mysql/3_topic_index#一、b-树数据结构)。
 
 ### 2、原地更新
 
@@ -70,11 +70,11 @@ B+ 树是 **原地更新（Update-in-place）** 结构：修改一行时，先�
 - 主键随机（如 UUID v4）时，插入落在任意页，频繁分裂导致页只填一半左右、空间浪费且产生大量随机写
 - 删除使页利用率低于阈值时（InnoDB 默认 50%），会尝试与相邻页 **合并（Merge）**
 
-这就是 InnoDB 推荐自增主键的原因，设计建议见 [MySQL 索引](../1_mysql/2_topic_index#十、索引设计原则)。
+这就是 InnoDB 推荐自增主键的原因，设计建议见 [MySQL 索引](../1_mysql/3_topic_index#十、索引设计原则)。
 
 ### 4、缓冲池
 
-B+ 树引擎都有自己的页缓存，InnoDB 叫 **Buffer Pool**，PostgreSQL 叫 shared buffers。读页先查缓冲池，没有才读盘；写页只改缓冲池里的副本，由检查点和刷脏线程决定何时写回。缓冲池命中率直接决定 B+ 树的读性能，InnoDB 的 LRU 冷热分离与关键参数见 [InnoDB 存储结构](../1_mysql/6_topic_innodb#三、buffer-pool)。
+B+ 树引擎都有自己的页缓存，InnoDB 叫 **Buffer Pool**，PostgreSQL 叫 shared buffers。读页先查缓冲池，没有才读盘；写页只改缓冲池里的副本，由检查点和刷脏线程决定何时写回。缓冲池命中率直接决定 B+ 树的读性能，InnoDB 的 LRU 冷热分离与关键参数见 [InnoDB 存储结构](../1_mysql/2_topic_innodb#三、buffer-pool)。
 
 ### 5、为什么适合读多和范围查询
 
@@ -161,7 +161,7 @@ Compaction 和前台请求抢同一块磁盘和 CPU，是 LSM 线上问题的主
 - **写停顿（Write Stall）**：写入速度长期超过 Compaction 速度时，L0 文件堆积或待合并数据超限，RocksDB 会主动降速甚至暂停写入，保护读性能不被拖垮
 - **空间尖峰**：合并期间新旧文件同时存在，磁盘要预留余量
 
-常见对策：用限速器（RocksDB `rate_limiter`）给后台 IO 设上限；增加后台线程数让合并跟得上；按业务低峰安排大合并（OceanBase 的每日合并就是这个思路，见 [分布式数据库](../4_scale_out/1_distributed_db#_4、存储引擎-lsm-tree-变体)）；监控 L0 文件数和待合并字节数并提前告警。
+常见对策：用限速器（RocksDB `rate_limiter`）给后台 IO 设上限；增加后台线程数让合并跟得上；按业务低峰安排大合并（OceanBase 的每日合并就是这个思路，见 [分布式数据库](../3_relational/2_distributed_db#_4、存储引擎-lsm-tree-变体)）；监控 L0 文件数和待合并字节数并提前告警。
 
 ---
 
@@ -205,13 +205,13 @@ Compaction 和前台请求抢同一块磁盘和 CPU，是 LSM 线上问题的主
 
 | 结构 | 产品 | 说明 |
 |------|------|------|
-| B+ 树 | MySQL InnoDB | 聚簇索引组织表，数据就挂在主键 B+ 树的叶子上，见 [InnoDB 存储结构](../1_mysql/6_topic_innodb) |
+| B+ 树 | MySQL InnoDB | 聚簇索引组织表，数据就挂在主键 B+ 树的叶子上，见 [InnoDB 存储结构](../1_mysql/2_topic_innodb) |
 | B+ 树 | PostgreSQL | 数据存在无序的堆表（heap），索引默认是 B-tree；更新写新元组而非原地改，见 [PostgreSQL MVCC 与 VACUUM](../2_postgresql/1_topic_mvcc) |
 | B+ 树 | SQLite | 单文件嵌入式库，表和索引都是 B 树页 |
 | LSM | LevelDB / RocksDB | LevelDB 是经典实现，RocksDB 是其工业级分支，见第七节 |
 | LSM | HBase | WAL + MemStore + HFile，按 Region 拆分，见 [列式与 OLAP 数据库](/nosql/3_column_db#_4、读写流程-lsm-树) |
 | LSM | Cassandra | 每个节点一套 LSM，传统默认 Size-tiered，适合多写少读的大规模集群 |
-| LSM | TiKV | 每个节点的数据存进 RocksDB，上层用 Raft 复制，见 [分布式数据库](../4_scale_out/1_distributed_db#_3、tikv-region-与-raft) |
+| LSM | TiKV | 每个节点的数据存进 RocksDB，上层用 Raft 复制，见 [分布式数据库](../3_relational/2_distributed_db#_3、tikv-region-与-raft) |
 | LSM 变体 | InfluxDB 1.x / 2.x TSM | 针对时间序列优化的 LSM，按序列列式压缩，见 [时序数据库](/nosql/4_time_series_db) |
 | LSM 变体 | ClickHouse MergeTree | 每次插入生成一个不可变的有序数据片段，后台合并；没有 MemTable，所以要求批量写，见 [列式与 OLAP 数据库](/nosql/3_column_db#_3、mergetree-引擎) |
 | LSM 变体 | OceanBase | 增量 MemTable + 基线 SSTable，每日合并 |

@@ -185,7 +185,7 @@ List<Object> results = redisTemplate.executePipelined((RedisCallback<Object>) co
 });
 ```
 
-MySQL 批量写入的事务与注意事项见 [数据访问性能](./10_db_performance)，驱动层细节见 [JDBC 驱动](/database/5_access/1_jdbc_driver)；Kafka 批量参数见 [Kafka 架构与存储](/messaging/2_kafka)。
+MySQL 批量写入的事务与注意事项见 [数据访问性能](./10_db_performance)，驱动层细节见 [JDBC 驱动](/database/4_practice/1_jdbc_driver)；Kafka 批量参数见 [Kafka 架构与存储](/messaging/2_kafka)。
 
 ### 3、批大小如何选
 
@@ -305,7 +305,7 @@ Optional<Product> p = merger.submit(productId).get(200, TimeUnit.MILLISECONDS);
 | 搜索引擎宽表 | 通过 CDC 将多表数据同步为 ES 宽表 | 商品搜索、订单多条件查询 |
 
 - 预计算的代价是**写放大与一致性**：数据变更时必须同步更新预计算结果，要考虑更新失败、延迟和补偿。
-- 缓存预热与一致性策略见 [缓存一致性](/cache/10_cache_consistency)；CDC 同步见 [CDC 工具](/database/6_backup_cdc/1_cdc_tools)。
+- 缓存预热与一致性策略见 [缓存一致性](/cache/10_cache_consistency)；CDC 同步见 [CDC 工具](/database/4_practice/8_cdc_tools)。
 
 ---
 

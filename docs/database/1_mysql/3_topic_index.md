@@ -56,7 +56,7 @@ SELECT * FROM t_article WHERE MATCH(title) AGAINST('数据库' IN NATURAL LANGUA
 
 ## 三、聚簇索引与二级索引
 
-Buffer Pool 与页结构见 [InnoDB 存储结构](./6_topic_innodb)。
+Buffer Pool 与页结构见 [InnoDB 存储结构](./2_topic_innodb)。
 
 ### 1、聚簇索引（Clustered Index）
 
@@ -258,7 +258,7 @@ SELECT * FROM t_user WHERE id NOT IN (1, 2, 3);
 SELECT * FROM t_order WHERE status = 1;
 ```
 
-解决：与高区分度列组成联合索引，如 `idx_status_create_time(status, create_time)`，让 `status = ? AND create_time > ?` 能缩小范围；或者让查询变成覆盖查询。统计信息不准导致选错索引时，处理方法见 [MySQL 执行流程](./4_topic_execution) 的优化器一节。
+解决：与高区分度列组成联合索引，如 `idx_status_create_time(status, create_time)`，让 `status = ? AND create_time > ?` 能缩小范围；或者让查询变成覆盖查询。统计信息不准导致选错索引时，处理方法见 [MySQL 执行流程](./1_topic_execution) 的优化器一节。
 
 ---
 
@@ -401,4 +401,4 @@ ALTER TABLE t_order ALTER INDEX idx_status VISIBLE;
 - ngram Full-Text Parser：[https://dev.mysql.com/doc/refman/8.4/en/fulltext-search-ngram.html](https://dev.mysql.com/doc/refman/8.4/en/fulltext-search-ngram.html)
 - What Is New in MySQL 8.4（默认值变更）：[https://dev.mysql.com/doc/refman/8.4/en/mysql-nutshell.html](https://dev.mysql.com/doc/refman/8.4/en/mysql-nutshell.html)
 
-> 下一篇：[MySQL 事务与锁](./3_topic_transaction) —— ACID 的实现、隔离级别与 MVCC、Next-Key Lock 加锁规则、死锁排查与 redo / undo / binlog 两阶段提交。
+> 下一篇：[MySQL 事务与锁](./4_topic_transaction) —— ACID 的实现、隔离级别与 MVCC、Next-Key Lock 加锁规则、死锁排查与 redo / undo / binlog 两阶段提交。

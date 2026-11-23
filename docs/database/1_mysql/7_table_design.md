@@ -17,7 +17,7 @@ description: 命名、主键选型、字段类型、NULL 与默认值、反范�
 - 一律使用**小写字母、数字和下划线**（snake_case），不以数字开头，不用拼音和拼音缩写
 - 标识符上限是 64 个字符，实际建议控制在 32 个以内；表名用单数名词（`t_order` 而不是 `t_orders`）
 - 表名按业务域加前缀，同一个库里保持一种风格，例如订单域统一 `ord_order`、`ord_order_item`，或者全库统一 `t_` 前缀
-- **同一个含义在所有表里同名同类型**：`user_id` 在用户表是 `BIGINT UNSIGNED`，在订单表、日志表也必须是 `BIGINT UNSIGNED`，否则联表时会发生隐式类型转换，索引失效（见 [MySQL 索引](./2_topic_index#七、索引失效的常见场景)）
+- **同一个含义在所有表里同名同类型**：`user_id` 在用户表是 `BIGINT UNSIGNED`，在订单表、日志表也必须是 `BIGINT UNSIGNED`，否则联表时会发生隐式类型转换，索引失效（见 [MySQL 索引](./3_topic_index#七、索引失效的常见场景)）
 - 布尔含义的字段用 `is_` 前缀、`TINYINT UNSIGNED` 类型（1 是、0 否）；时间字段统一用 `_at` 或 `_time` 一种后缀，不要混用
 - 每张表、每个字段都写 `COMMENT`，状态类字段把每个取值的含义写全
 
@@ -57,7 +57,7 @@ InnoDB 的表就是一棵按主键组织的 B+ 树（聚簇索引），主键选
 
 ![主键顺序决定聚簇索引叶子页的写入方式](../../assets/database/mysql-pk-page-split.svg)
 
-聚簇索引与二级索引的结构见 [MySQL 索引](./2_topic_index#三、聚簇索引与二级索引)，页与行溢出见 [InnoDB 存储结构](./6_topic_innodb)。
+聚簇索引与二级索引的结构见 [MySQL 索引](./3_topic_index#三、聚簇索引与二级索引)，页与行溢出见 [InnoDB 存储结构](./2_topic_innodb)。
 
 ### 2、选型对比
 
@@ -76,7 +76,7 @@ InnoDB 的表就是一棵按主键组织的 B+ 树（聚簇索引），主键选
 - **不要用业务字段作主键**，用代理主键 + 业务唯一索引；纯关联表（如用户-角色）可以用联合主键 `(user_id, role_id)`
 - 雪花 ID 超过 JavaScript 的安全整数范围（2^53 - 1），返回给前端要序列化成字符串
 
-各种 ID 生成方案的原理、时钟回拨与号段模式见 [分布式 ID 生成](/distributed/8_id_generator)；分库分表中间件的主键生成策略见 [分库分表与中间件](../4_scale_out/0_sharding#六、分布式主键)。
+各种 ID 生成方案的原理、时钟回拨与号段模式见 [分布式 ID 生成](/distributed/8_id_generator)；分库分表中间件的主键生成策略见 [分库分表与中间件](../4_practice/4_sharding#六、分布式主键)。
 
 ### 3、自增主键的几个事实
 
@@ -84,7 +84,7 @@ InnoDB 的表就是一棵按主键组织的 B+ 树（聚簇索引），主键选
 - 8.0 起 `innodb_autoinc_lock_mode` 默认为 2（交错模式），批量插入时不同语句分配的 ID 可能交错，要求 binlog 为 ROW 格式
 - 自增 ID 不连续是正常的：事务回滚、`INSERT ... ON DUPLICATE KEY UPDATE`、批量插入预分配都会跳号，不能当业务序号用
 - `INT` 主键有用尽风险，统一用 `BIGINT UNSIGNED`，用尽的现象和巡检 SQL 见 [MySQL 避坑指南](./8_fallible_point#_2、自增-id-用尽)
-- 一定要显式定义主键，没有主键的表会退化成使用全局隐藏的 `DB_ROW_ID`，原因见 [MySQL 索引](./2_topic_index#三、聚簇索引与二级索引)
+- 一定要显式定义主键，没有主键的表会退化成使用全局隐藏的 `DB_ROW_ID`，原因见 [MySQL 索引](./3_topic_index#三、聚簇索引与二级索引)
 
 ---
 
@@ -157,7 +157,7 @@ InnoDB 的表就是一棵按主键组织的 B+ 树（聚簇索引），主键选
 
 ### 7、TEXT / BLOB
 
-- 大文本（商品详情、文章正文）拆到附表，与主表一对一、共用主键，列表查询只读主表；原因是行溢出要额外读溢出页、宽行让每页能放的行变少，见 [InnoDB 存储结构](./6_topic_innodb#_2、行溢出)
+- 大文本（商品详情、文章正文）拆到附表，与主表一对一、共用主键，列表查询只读主表；原因是行溢出要额外读溢出页、宽行让每页能放的行变少，见 [InnoDB 存储结构](./2_topic_innodb#_2、行溢出)
 - 文件和图片存对象存储，表里只存对象 key 或 URL，不存 BLOB
 - 查询只取需要的列，`SELECT *` 会把大字段一起读出来
 
@@ -233,7 +233,7 @@ NULL 表达的是「未知」或「尚未发生」，这种语义找不到合适
 ### 2、冗余字段的一致性
 
 - **同一事务内更新**：源表和冗余表在同一个库时最简单，代价是写放大和锁范围变大
-- **异步同步**：通过 MQ 或 CDC 订阅源表变更再更新冗余字段，允许秒级不一致，见 [CDC 工具](../6_backup_cdc/1_cdc_tools)
+- **异步同步**：通过 MQ 或 CDC 订阅源表变更再更新冗余字段，允许秒级不一致，见 [CDC 工具](../4_practice/8_cdc_tools)
 - **定期对账**：无论用哪种方式，都要有对账任务兜底修复漏掉的变更
 - 统计字段的高频更新会形成热点行，计数先在 Redis 累加、再批量回写，见 [热点问题](/high-con/6_hotspot)
 
@@ -338,7 +338,7 @@ SaaS 系统的业务表都带 `tenant_id`，并且：
 - 一个联合索引尽量覆盖多个查询场景，单表索引控制在 5～6 个以内，每多一个索引写入就多维护一棵 B+ 树
 - 区分度低的列（状态、性别）不单独建索引，放在联合索引里配合其他列使用
 
-联合索引的列顺序、覆盖索引、索引失效和删除无用索引的方法，统一见 [MySQL 索引](./2_topic_index#十、索引设计原则)。
+联合索引的列顺序、覆盖索引、索引失效和删除无用索引的方法，统一见 [MySQL 索引](./3_topic_index#十、索引设计原则)。
 
 ---
 
@@ -361,7 +361,7 @@ SaaS 系统的业务表都带 `tenant_id`，并且：
 
 ### 3、单表容量与归档
 
-单表多大需要拆分，常见的经验值是千万行级别，但真正决定性能的是**行宽和访问模式**：三层 B+ 树能存多少行取决于每行多宽（估算方法见 [MySQL 索引](./2_topic_index#一、b-树数据结构)）。在拆分之前先考虑归档：
+单表多大需要拆分，常见的经验值是千万行级别，但真正决定性能的是**行宽和访问模式**：三层 B+ 树能存多少行取决于每行多宽（估算方法见 [MySQL 索引](./3_topic_index#一、b-树数据结构)）。在拆分之前先考虑归档：
 
 - 订单、日志这类按时间增长、老数据很少访问的表，定期把历史数据迁到归档表或归档库
 - 按时间清理的日志表用 RANGE 分区，过期数据直接 `DROP PARTITION`
@@ -377,7 +377,7 @@ SaaS 系统的业务表都带 `tenant_id`，并且：
 - 唯一约束只能在单个分片内保证，跨分片唯一要靠全局唯一的 ID 或单独的路由表
 - 避免跨表 JOIN 和跨表事务，需要的字段提前冗余
 
-分片键选择、迁移与扩容见 [分库分表与中间件](../4_scale_out/0_sharding) 和 [数据层扩展](/high-con/5_data_scaling)。
+分片键选择、迁移与扩容见 [分库分表与中间件](../4_practice/4_sharding) 和 [数据层扩展](/high-con/5_data_scaling)。
 
 ---
 
@@ -462,4 +462,4 @@ CREATE TABLE t_order (
 - AUTO_INCREMENT Handling in InnoDB：[https://dev.mysql.com/doc/refman/8.4/en/innodb-auto-increment-handling.html](https://dev.mysql.com/doc/refman/8.4/en/innodb-auto-increment-handling.html)
 - Partitioning Keys, Primary Keys, and Unique Keys：[https://dev.mysql.com/doc/refman/8.4/en/partitioning-limitations-partitioning-keys-unique-keys.html](https://dev.mysql.com/doc/refman/8.4/en/partitioning-limitations-partitioning-keys-unique-keys.html)
 
-> 下一篇：[MySQL 索引](./2_topic_index) —— B+ 树、聚簇与二级索引、覆盖索引、最左前缀、索引失效与深度分页。
+> 下一篇：[MySQL 避坑指南](./8_fallible_point) —— 锁、字符集、NULL、时区、大表 DDL 等线上高频雷区及正确做法。

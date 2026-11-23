@@ -57,7 +57,7 @@ MariaDB 现在每年发布一个 LTS 版本，LTS 之间是按季度发布的滚
 
 最后两点对 Java 应用影响最直接：
 
-- **快照隔离**：开启 `innodb_snapshot_isolation` 后，可重复读事务更新一条在自己快照之后被其他事务修改过的行，会得到 `ERROR 1020 (HY000): Record has changed since last read`，而不是像 MySQL 那样基于最新版本继续执行。应用需要捕获该错误并重试整个事务；MVCC 原理见 [MySQL 事务与锁](../1_mysql/3_topic_transaction)
+- **快照隔离**：开启 `innodb_snapshot_isolation` 后，可重复读事务更新一条在自己快照之后被其他事务修改过的行，会得到 `ERROR 1020 (HY000): Record has changed since last read`，而不是像 MySQL 那样基于最新版本继续执行。应用需要捕获该错误并重试整个事务；MVCC 原理见 [MySQL 事务与锁](../1_mysql/4_topic_transaction)
 - **认证**：用 MySQL Connector/J 连接 MariaDB 一般没有问题；反过来把应用从 MariaDB 迁到 MySQL 8.4 时，账号要改用 `caching_sha2_password`
 
 ---
@@ -138,7 +138,7 @@ Galera 是 MariaDB 内置的同步多主集群：事务在提交时把写集广�
 - 只支持 InnoDB，所有表必须有主键；集群至少 3 个节点以避免脑裂
 - 整体写入吞吐受最慢节点和网络延迟制约，不适合跨地域部署
 
-MySQL 侧对应的方案是 Group Replication / InnoDB Cluster，见 [MySQL 主从与高可用](../1_mysql/7_topic_replication)。
+MySQL 侧对应的方案是 Group Replication / InnoDB Cluster，见 [MySQL 主从与高可用](../1_mysql/6_topic_replication)。
 
 ### 6、存储引擎
 
@@ -156,7 +156,7 @@ MySQL 侧对应的方案是 Group Replication / InnoDB Cluster，见 [MySQL 主�
 Percona 是另一个 MySQL 兼容阵营，常与 MariaDB 一起比较：
 
 - **Percona Server for MySQL**：跟随 MySQL 版本的增强发行版，与 MySQL 完全兼容，额外提供线程池、审计插件等
-- **Percona XtraBackup**：按 MySQL 版本线发布（8.0 / 8.4 等），只支持 MySQL 和 Percona Server；MariaDB 10.3 起请用 `mariadb-backup`。备份方案见 [数据备份与恢复](../6_backup_cdc/0_backup_recovery)
+- **Percona XtraBackup**：按 MySQL 版本线发布（8.0 / 8.4 等），只支持 MySQL 和 Percona Server；MariaDB 10.3 起请用 `mariadb-backup`。备份方案见 [数据备份与恢复](../4_practice/7_backup_recovery)
 - **Percona Toolkit**：`pt-query-digest` 的用法见 [MySQL EXPLAIN 与 SQL 优化](../1_mysql/5_topic_explain)，`pt-online-schema-change` 见 [MySQL 避坑指南](../1_mysql/8_fallible_point)
 
 ---

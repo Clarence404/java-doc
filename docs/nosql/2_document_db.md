@@ -4,7 +4,7 @@ description: MongoDB 8、文档建模、索引、聚合、副本集、分片、�
 
 # 文档数据库
 
-> 前置阅读：[MySQL 索引](/database/1_mysql/2_topic_index)
+> 前置阅读：[MySQL 索引](/database/1_mysql/3_topic_index)
 
 本篇以 MongoDB 8.x 为基线，讲文档建模（内嵌还是引用）、索引与聚合、副本集与分片集群、多文档事务的版本边界与代价，以及何时该用 MongoDB 而不是 MySQL。
 
@@ -308,7 +308,7 @@ db.sensor_readings.insertOne({
 | 关联查询 | `$lookup`（能力弱，建议建模时内嵌或应用层组装） | JOIN（成熟） |
 | 事务 | 单文档原子；多文档事务 4.0（副本集）/ 4.2（分片），有 60 秒与规模限制 | 完整 ACID |
 | 一致性 | 依赖写关注 / 读关注配置，默认 `w: "majority"` | 主库强一致，从库异步复制有延迟 |
-| 水平扩展 | 原生分片 | 需要中间件或分布式数据库，见 [分库分表与中间件](/database/4_scale_out/0_sharding) |
+| 水平扩展 | 原生分片 | 需要中间件或分布式数据库，见 [分库分表与中间件](/database/4_practice/4_sharding) |
 | 全文搜索 | 基础 `text` 索引；`$search` 需 Atlas 或 8.2 预览 | 弱，建议用 ES |
 | 适合场景 | 内容、画像、商品 SKU、配置元数据、IoT | 交易、账务等核心业务数据 |
 | 不适合场景 | 复杂报表、多表强一致事务 | 结构频繁变化、深层嵌套的数据 |

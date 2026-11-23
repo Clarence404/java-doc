@@ -4,7 +4,7 @@ description: Binlog、复制原理、GTID、半同步、并行回放与延迟、
 
 # MySQL 主从与高可用
 
-> 前置阅读：[MySQL 事务与锁](./3_topic_transaction)、[InnoDB 存储结构](./6_topic_innodb)
+> 前置阅读：[MySQL 事务与锁](./4_topic_transaction)、[InnoDB 存储结构](./2_topic_innodb)
 
 MySQL 主从复制靠 binlog 把主库变更同步到从库，是读写分离和高可用的基础。本篇讲 binlog 与 GTID 复制、半同步与并行回放、延迟监控、InnoDB Cluster 选型，基线为 MySQL 8.4。
 
@@ -19,10 +19,10 @@ MySQL 主从复制靠 binlog 把主库变更同步到从库，是读写分离和
 Binlog 是 **Server 层**的二进制日志，记录所有**修改数据的操作**（DML 与 DDL），不记录 SELECT。三个用途：
 
 1. **复制**：主库通过 binlog 把变更传给从库
-2. **时间点恢复**：全量备份加 binlog 回放到指定时间点，见 [数据备份与恢复](../6_backup_cdc/0_backup_recovery)
-3. **数据订阅**：Canal、Debezium 等 CDC 工具伪装成从库消费 binlog，见 [CDC 工具](../6_backup_cdc/1_cdc_tools) 与 [Flink CDC](/flink/6_cdc)
+2. **时间点恢复**：全量备份加 binlog 回放到指定时间点，见 [数据备份与恢复](../4_practice/7_backup_recovery)
+3. **数据订阅**：Canal、Debezium 等 CDC 工具伪装成从库消费 binlog，见 [CDC 工具](../4_practice/8_cdc_tools) 与 [Flink CDC](/flink/6_cdc)
 
-binlog 与 redo log 的区别、两阶段提交与崩溃恢复见 [MySQL 事务与锁](./3_topic_transaction)。
+binlog 与 redo log 的区别、两阶段提交与崩溃恢复见 [MySQL 事务与锁](./4_topic_transaction)。
 
 ### 2、格式
 
@@ -279,7 +279,7 @@ SELECT WAIT_FOR_EXECUTED_GTID_SET('3e11fa47-71ca-11e1-9e33-c80aa9429562:1-1000',
 
 ## 七、读写分离
 
-读写分离的实现方式（应用层 / 代理层 / 云数据库）与主从延迟处理策略见 [数据层扩展 · 读写分离](/high-con/5_data_scaling#二、读写分离)，ShardingSphere 配置见 [分库分表与中间件](../4_scale_out/0_sharding#四、读写分离配置)。MySQL 侧只补一点：用 InnoDB Cluster 时，MySQL Router 自带读写分离端口，可直接作为代理层使用；延迟的 MySQL 侧成因与调优见第五节。
+读写分离的实现方式（应用层 / 代理层 / 云数据库）与主从延迟处理策略见 [数据层扩展 · 读写分离](/high-con/5_data_scaling#二、读写分离)，ShardingSphere 配置见 [分库分表与中间件](../4_practice/4_sharding#四、读写分离配置)。MySQL 侧只补一点：用 InnoDB Cluster 时，MySQL Router 自带读写分离端口，可直接作为代理层使用；延迟的 MySQL 侧成因与调优见第五节。
 
 ---
 
@@ -304,4 +304,4 @@ SELECT WAIT_FOR_EXECUTED_GTID_SET('3e11fa47-71ca-11e1-9e33-c80aa9429562:1-1000',
 - MySQL 8.4 Release Notes：[Changes in MySQL 8.4.0](https://dev.mysql.com/doc/relnotes/mysql/8.4/en/news-8-4-0.html)
 - Percona Toolkit：[pt-heartbeat](https://docs.percona.com/percona-toolkit/pt-heartbeat.html)
 
-> 下一篇：[MySQL 避坑指南](./8_fallible_point) —— 锁、字符集、NULL、时区、大表 DDL 等线上高频雷区及正确做法。
+> 下一篇：[MySQL 表设计规范](./7_table_design) —— 命名、主键选型、字段类型、NULL 与默认值、通用字段、索引规划与建表模板。

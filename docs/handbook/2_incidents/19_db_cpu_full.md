@@ -4,7 +4,7 @@ description: 发版后 MySQL CPU 打满、线程 ID 对应 SQL、digest 找 Top 
 
 # 数据库 CPU 被打满
 
-> 前置阅读：[MySQL 排查速查](/handbook/1_cheatsheet/5_mysql)、[MySQL 索引](/database/1_mysql/2_topic_index)
+> 前置阅读：[MySQL 排查速查](/handbook/1_cheatsheet/5_mysql)、[MySQL 索引](/database/1_mysql/3_topic_index)
 
 支付服务发版后，共享 MySQL 主库 CPU 被打到 100%，同库服务一起变慢。本篇复盘从实例指标、线程到 SQL 的定位过程，基线为 JDK 21、Spring Boot 4、MySQL 8.4。
 
@@ -224,7 +224,7 @@ WHERE user = 'pay_rw' AND info LIKE 'SELECT id, order_id, status, amount FROM pa
 
 ## 七、涉及知识点
 
-- 隐式类型转换导致索引失效：[MySQL 索引](/database/1_mysql/2_topic_index#_2、隐式类型转换)
+- 隐式类型转换导致索引失效：[MySQL 索引](/database/1_mysql/3_topic_index#_2、隐式类型转换)
 - 慢 SQL 定位与 `EXPLAIN` 字段：[MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain#四、慢-sql-定位)
 - Top SQL 与会话命令：[MySQL 排查速查](/handbook/1_cheatsheet/5_mysql#三、top-sql)
 - 慢 SQL 治理闭环：[数据访问性能](/high-perf/10_db_performance#一、慢-sql-治理闭环)

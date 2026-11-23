@@ -132,7 +132,7 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 
 ### 5、Outbox（事务发件箱）
 
-解决「写数据库」和「发消息」的原子性问题：业务数据与待发消息在**同一个本地事务**里写入业务表和 outbox 表，再由独立的投递进程把 outbox 中的消息发到 MQ，投递成功后标记完成，消费端按业务键幂等。投递进程可以轮询 outbox 表，也可以用 Debezium 等 CDC 工具监听 binlog（Debezium 提供 Outbox Event Router），后者延迟更低、不给业务库加轮询压力。本地消息表方案见 [分布式事务](/distributed/4_transaction)，CDC 投递见 [CDC 工具](/database/6_backup_cdc/1_cdc_tools)，消息侧的可靠投递与幂等消费见 [消息队列基础](/messaging/1_basics)。
+解决「写数据库」和「发消息」的原子性问题：业务数据与待发消息在**同一个本地事务**里写入业务表和 outbox 表，再由独立的投递进程把 outbox 中的消息发到 MQ，投递成功后标记完成，消费端按业务键幂等。投递进程可以轮询 outbox 表，也可以用 Debezium 等 CDC 工具监听 binlog（Debezium 提供 Outbox Event Router），后者延迟更低、不给业务库加轮询压力。本地消息表方案见 [分布式事务](/distributed/4_transaction)，CDC 投递见 [CDC 工具](/database/4_practice/8_cdc_tools)，消息侧的可靠投递与幂等消费见 [消息队列基础](/messaging/1_basics)。
 
 ---
 

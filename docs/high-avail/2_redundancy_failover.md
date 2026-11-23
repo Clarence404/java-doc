@@ -36,7 +36,7 @@ description: 消除单点、冷备 / 温备 / 热备、健康检查与 K8s 探�
 | 热备 | 运行中，随时接管 | 实时 / 半同步复制 | 秒级 ~ 分钟级 | 高 | 核心数据库、网关 |
 | 多活 | 同时承接流量 | 双向同步或分片隔离 | 秒级（切流即可）| 最高 | 核心交易链路 |
 
-冷备不等于没用：**备份是防误删、防勒索的最后一道防线**，复制无法防止 `DELETE` 被同步到所有副本。备份必须定期做恢复演练，否则等于没有备份。MySQL 的备份类型、工具与恢复流程见 [数据备份与恢复](/database/6_backup_cdc/0_backup_recovery)。
+冷备不等于没用：**备份是防误删、防勒索的最后一道防线**，复制无法防止 `DELETE` 被同步到所有副本。备份必须定期做恢复演练，否则等于没有备份。MySQL 的备份类型、工具与恢复流程见 [数据备份与恢复](/database/4_practice/7_backup_recovery)。
 
 ---
 
@@ -243,7 +243,7 @@ Fencing Token 的原理与存储侧条件写的代码见 [分布式锁 · 租约
 | 分片 + 多副本 | 数据水平分片，每个分片多副本容错 | 依赖具体中间件 | 依赖具体中间件 |
 | 多活数据同步 | 双向复制，就近写入，依赖幂等与冲突解决 | 切流 | 最终一致，见 [多活与容灾](./9_multi_active) |
 
-MHA 已多年未维护、不适用于 MySQL 8.4，不建议新建；自建 MySQL 首选 InnoDB Cluster，见 [MySQL 主从与高可用 · 六、高可用方案](/database/1_mysql/7_topic_replication#六、高可用方案)。
+MHA 已多年未维护、不适用于 MySQL 8.4，不建议新建；自建 MySQL 首选 InnoDB Cluster，见 [MySQL 主从与高可用 · 六、高可用方案](/database/1_mysql/6_topic_replication#六、高可用方案)。
 
 应用侧同样要配合切换：
 
@@ -251,7 +251,7 @@ MHA 已多年未维护、不适用于 MySQL 8.4，不建议新建；自建 MySQL
 - **连接池能感知切换**：设置合理的 `maxLifetime`、连接校验，避免切换后长时间持有指向旧主的连接
 - **读写分离注意复制延迟**：写后立即读的场景强制走主库
 
-复制原理与延迟排查见 [MySQL 主从与高可用](/database/1_mysql/7_topic_replication)，Sentinel 与 Cluster 的配置见 [Redis 集群](/cache/3_redis_cluster)。
+复制原理与延迟排查见 [MySQL 主从与高可用](/database/1_mysql/6_topic_replication)，Sentinel 与 Cluster 的配置见 [Redis 集群](/cache/3_redis_cluster)。
 
 ---
 

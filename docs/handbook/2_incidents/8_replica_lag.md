@@ -4,7 +4,7 @@ description: 单条大 DELETE 致复制延迟、SHOW REPLICA STATUS、写后读�
 
 # 主从延迟读到旧数据
 
-> 前置阅读：[MySQL 主从与高可用](/database/1_mysql/7_topic_replication)、[数据层扩展](/high-con/5_data_scaling)
+> 前置阅读：[MySQL 主从与高可用](/database/1_mysql/6_topic_replication)、[数据层扩展](/high-con/5_data_scaling)
 
 用户支付后订单详情仍显示"待支付"，部分用户因此重复支付，根因是详情查询走从库，而一次大表单语句清理让从库延迟达 14 分钟。本篇完整复盘，基线为 MySQL 8.4（GTID 一主两从）、Spring Boot 4。
 
@@ -239,9 +239,9 @@ DELETE FROM t_order_log WHERE id BETWEEN ? AND ? AND create_time < '2026-07-01';
 
 ## 七、涉及知识点
 
-- 复制原理、并行回放与延迟成因：[MySQL 主从与高可用](/database/1_mysql/7_topic_replication#五、复制延迟与多线程回放)
-- 读写分离方案与一致性：[MySQL 主从与高可用](/database/1_mysql/7_topic_replication#七、读写分离)、[数据层扩展](/high-con/5_data_scaling)
-- 读写分离多数据源配置：[数据库连接池](/database/5_access/2_connection_pool)
+- 复制原理、并行回放与延迟成因：[MySQL 主从与高可用](/database/1_mysql/6_topic_replication#五、复制延迟与多线程回放)
+- 读写分离方案与一致性：[MySQL 主从与高可用](/database/1_mysql/6_topic_replication#七、读写分离)、[数据层扩展](/high-con/5_data_scaling)
+- 读写分离多数据源配置：[数据库连接池](/database/4_practice/2_connection_pool)
 - 大事务的危害与分批改造：[大事务锁表](./7_big_transaction)
 - 缓存场景下的同类问题：[缓存一致性](/cache/10_cache_consistency)
 - Arthas `watch` 的用法：[线上诊断](/engineering/7_diagnosis)
