@@ -4,7 +4,7 @@ description: Redis 锁与 Redisson、Fencing Token、Redlock 争议、ZooKeeper 
 
 # 分布式锁
 
-> 前置阅读：[分布式理论](./2_theorem)
+> 前置阅读：[分布式理论](./1_theorem)
 
 分布式锁用于让多个进程互斥地访问共享资源。本篇讲正确的 Redis 锁写法、看门狗的能力边界、效率锁与正确性锁及 Fencing Token，以及 Redis、ZooKeeper、etcd 的选型。
 
@@ -310,4 +310,4 @@ try (Client client = Client.builder().endpoints("http://etcd1:2379").build()) {
 - etcd Lock API：[https://etcd.io/docs/v3.5/dev-guide/api_concurrency_reference_v3/](https://etcd.io/docs/v3.5/dev-guide/api_concurrency_reference_v3/)
 - jetcd：[https://github.com/etcd-io/jetcd](https://github.com/etcd-io/jetcd)
 
-> 下一篇：[分布式事务](./4_transaction) —— 2PC / XA、TCC、Saga、本地消息表与事务消息、Seata 四种模式的原理与选型。
+> 下一篇：[分布式事务](./5_transaction) —— 2PC / XA、TCC、Saga、本地消息表与事务消息、Seata 四种模式的原理与选型。

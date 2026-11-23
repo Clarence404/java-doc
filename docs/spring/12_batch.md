@@ -476,7 +476,7 @@ Spring Batch 只负责**一次批处理怎么执行**，不负责**什么时候�
 | XXL-Job / ElasticJob | 分布式调度，支持分片、失败告警、控制台 |
 | Kubernetes CronJob | 作业打成独立镜像，每次运行一个 Pod，跑完即退出 |
 
-JobInstance 机制本身就能防止同一业务参数被重复执行成功，可作为调度层防重之外的第二道保护。调度方案对比见 [分布式调度](/distributed/6_job_scheduler)。
+JobInstance 机制本身就能防止同一业务参数被重复执行成功，可作为调度层防重之外的第二道保护。调度方案对比见 [分布式调度](/distributed/7_job_scheduler)。
 
 ---
 

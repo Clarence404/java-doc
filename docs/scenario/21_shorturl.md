@@ -4,7 +4,7 @@ description: 短码生成与 Base62、哈希冲突、ID 混淆、存储与缓存
 
 # 短链接
 
-> 前置阅读：[分布式 ID 生成](/distributed/8_id_generator)、[缓存一致性](/cache/10_cache_consistency)
+> 前置阅读：[分布式 ID 生成](/distributed/3_id_generator)、[缓存一致性](/cache/10_cache_consistency)
 
 短链服务是典型的读远多于写的系统。本篇讲短码生成方式与冲突、可遍历问题，靠缓存扛住跳转流量，并把统计异步化以免拖慢跳转。
 
@@ -88,7 +88,7 @@ public final class Base62 {
 
 ### 2、发号器 + Base62（推荐）
 
-每条短链取一个全局唯一的递增 ID，再转成 Base62。号段模式（批量从 DB 申请一段 ID 在内存中发放，双 Buffer 预取）是常用做法，实现与 Leaf 方案见 [分布式 ID 生成](/distributed/8_id_generator)，这里不再重复代码。
+每条短链取一个全局唯一的递增 ID，再转成 Base62。号段模式（批量从 DB 申请一段 ID 在内存中发放，双 Buffer 预取）是常用做法，实现与 Leaf 方案见 [分布式 ID 生成](/distributed/3_id_generator)，这里不再重复代码。
 
 **递增 ID 直接编码的问题：短码可预测、可遍历。** 别人从自己的短码 `q0U` 往前后枚举，就能访问到他人的链接。做法是先对 ID 做一次可逆的混淆再编码：
 

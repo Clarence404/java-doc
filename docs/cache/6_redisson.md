@@ -4,7 +4,7 @@ description: 客户端对比、锁 API 与看门狗、限流器、延迟队列�
 
 # Redisson
 
-> 前置阅读：[Redis 基础](./1_redis_base)、[Redis 实战](./5_redis_practice)、[分布式锁](/distributed/3_lock)
+> 前置阅读：[Redis 基础](./1_redis_base)、[Redis 实战](./5_redis_practice)、[分布式锁](/distributed/4_lock)
 
 Redisson 是基于 Redis 的 Java 分布式对象库，把锁、限流器、队列等封装成 Java 对象。本篇讲锁与看门狗、限流器、延迟队列、本地缓存 Map 和 Spring Boot 集成，基线为 Redisson 4。
 
@@ -29,7 +29,7 @@ Redisson 底层用 Lua 脚本和 Pub/Sub 保证原子性与通知。版本基线
 
 ## 二、分布式锁 API
 
-分布式锁的原理、Redlock 争议、fencing token 的必要性见 [分布式锁](/distributed/3_lock)，这里只讲 Redisson 的 API 用法与语义。
+分布式锁的原理、Redlock 争议、fencing token 的必要性见 [分布式锁](/distributed/4_lock)，这里只讲 Redisson 的 API 用法与语义。
 
 ### 1、RLock：看门狗与 leaseTime
 
@@ -120,7 +120,7 @@ try {
 
 - 公平锁的等待线程如果宕机，Redisson 会等它 5 秒再交给下一个，等待队列里死线程越多延迟越大
 - 联锁（MultiLock）用于**同时锁住多个资源**，要求每一把都成功，它不是 Redlock；Redlock 需要在多个独立主节点上拿到多数派
-- `RedissonRedLock` 已被官方标记为废弃，推荐改用 `RLock` 或 `RFencedLock`；Redlock 的争议见 [分布式锁](/distributed/3_lock)
+- `RedissonRedLock` 已被官方标记为废弃，推荐改用 `RLock` 或 `RFencedLock`；Redlock 的争议见 [分布式锁](/distributed/4_lock)
 
 > 秒杀扣库存不要把分布式锁当作防超卖的主手段，应使用 Lua 原子扣减或数据库条件更新（`WHERE stock >= ?`），锁只用来降低冲突。
 

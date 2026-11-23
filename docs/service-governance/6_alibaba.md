@@ -17,7 +17,7 @@ Nacos + Sentinel + Seata 是国内最常用的 Spring Cloud 组合。本篇讲�
 | 注册发现 | [注册发现](./1_service_registry) | Nacos Discovery |
 | 配置中心 | [配置中心](./4_config_center) | Nacos Config |
 | 限流熔断 | [流量治理](./5_traffic_governance) | Sentinel |
-| 分布式事务 | [分布式事务](/distributed/4_transaction) | Seata |
+| 分布式事务 | [分布式事务](/distributed/5_transaction) | Seata |
 | 消息驱动 | [Spring Cloud Stream](./7_stream) | RocketMQ Binder |
 
 **版本对齐是第一大坑**：Spring Boot、Spring Cloud、Spring Cloud Alibaba 三者强绑定，必须按官方版本说明对表选择。
@@ -237,7 +237,7 @@ public class OrderClientFallbackFactory implements FallbackFactory<OrderClient> 
 }
 ```
 
-OpenFeign 已功能冻结，新项目的调用方式与 Resilience4j 方案见 [服务通信](./3_communication) 与 [流量治理](./5_traffic_governance)。网关层流控使用 `spring-cloud-alibaba-sentinel-gateway` 适配模块，与 Gateway Server WebFlux 在 Boot 4 上的兼容性以 SCA 发布说明为准。
+OpenFeign 已功能冻结，新项目的调用方式与 Resilience4j 方案见 [服务调用](./3_communication) 与 [流量治理](./5_traffic_governance)。网关层流控使用 `spring-cloud-alibaba-sentinel-gateway` 适配模块，与 Gateway Server WebFlux 在 Boot 4 上的兼容性以 SCA 发布说明为准。
 
 ### 5、规则持久化（Nacos 数据源）
 
@@ -318,7 +318,7 @@ Slot 链本身可以扩展：1.7.2 起 `ProcessorSlot` 就是 SPI 接口（之�
 
 ## 四、Seata：分布式事务
 
-**能不用分布式事务就不用**：优先考虑事务消息、本地消息表、对账补偿，Seata 是「必须同步得到一致结果」时的选项。各方案的原理与选型见 [分布式事务](/distributed/4_transaction)，本节只讲 Seata 在 Spring Cloud 中的落地。
+**能不用分布式事务就不用**：优先考虑事务消息、本地消息表、对账补偿，Seata 是「必须同步得到一致结果」时的选项。各方案的原理与选型见 [分布式事务](/distributed/5_transaction)，本节只讲 Seata 在 Spring Cloud 中的落地。
 
 ### 1、依赖与版本
 
@@ -333,11 +333,11 @@ Seata 已进入 Apache 基金会，2.1 起 Maven groupId 为 `org.apache.seata`�
 
 ### 2、AT 模式两阶段
 
-AT 模式由 TC（独立部署的 seata-server）、TM（`@GlobalTransactional` 发起方）、RM（参与方的数据源代理）协作：一阶段业务 SQL 与 `undo_log` 同一本地事务提交并持有全局锁，二阶段提交时异步删日志、回滚时按前镜像补偿。两阶段流程、读写隔离与回滚失败的原因见 [分布式事务 · AT 模式](/distributed/4_transaction#_3、at-模式)，本篇只讲接入。
+AT 模式由 TC（独立部署的 seata-server）、TM（`@GlobalTransactional` 发起方）、RM（参与方的数据源代理）协作：一阶段业务 SQL 与 `undo_log` 同一本地事务提交并持有全局锁，二阶段提交时异步删日志、回滚时按前镜像补偿。两阶段流程、读写隔离与回滚失败的原因见 [分布式事务 · AT 模式](/distributed/5_transaction#_3、at-模式)，本篇只讲接入。
 
 ### 3、代码与配置
 
-`@GlobalTransactional` 只加在事务发起方（完整示例见 [分布式事务 · AT 模式](/distributed/4_transaction#_3、at-模式)），参与方只需接入 Seata 数据源代理。客户端配置：
+`@GlobalTransactional` 只加在事务发起方（完整示例见 [分布式事务 · AT 模式](/distributed/5_transaction#_3、at-模式)），参与方只需接入 Seata 数据源代理。客户端配置：
 
 ```yaml
 seata:
@@ -361,7 +361,7 @@ seata:
 
 ### 4、模式选择
 
-Spring Cloud 链路里默认用 AT（关系库常规 CRUD，零侵入）；资金类、需要资源预留或涉及非数据库资源用 TCC，长流程用 Saga，强一致低并发用 XA。四种模式的一致性、隔离与性能对比见 [分布式事务 · 四种模式](/distributed/4_transaction#_2、四种模式)，TCC 的空回滚、悬挂、幂等见 [TCC](/distributed/4_transaction#三、tcc)。
+Spring Cloud 链路里默认用 AT（关系库常规 CRUD，零侵入）；资金类、需要资源预留或涉及非数据库资源用 TCC，长流程用 Saga，强一致低并发用 XA。四种模式的一致性、隔离与性能对比见 [分布式事务 · 四种模式](/distributed/5_transaction#_2、四种模式)，TCC 的空回滚、悬挂、幂等见 [TCC](/distributed/5_transaction#三、tcc)。
 
 ---
 

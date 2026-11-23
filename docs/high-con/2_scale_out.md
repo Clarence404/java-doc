@@ -42,11 +42,11 @@ description: 垂直 vs 水平扩展、Session 外置、服务拆分、HPA 与指
 | 本地缓存 | 实例间数据不一致 | 允许短暂不一致 + 广播失效（见[两级缓存（L1 + L2）](/cache/8_two_level_cache)） |
 | WebSocket 长连接 | 消息需要推到持有连接的实例 | 连接注册表 + MQ 广播 / 路由（见[接入层架构](./1_access_layer)） |
 
-Session 外置的完整方案对比（粘性会话、Session 复制、集中存储、Token）见 [分布式会话](/distributed/5_session)。
+Session 外置的完整方案对比（粘性会话、Session 复制、集中存储、Token）见 [分布式会话](/distributed/6_session)。
 
 ### 2、Spring Session 外置到 Redis
 
-会话外置的依赖（Boot 4 为 `spring-boot-starter-session-data-redis`）、配置（`spring.session.data.redis.*`）与 Redis 键结构见 [分布式会话 · Spring Session + Redis](/distributed/5_session#二、spring-session-redis)。
+会话外置的依赖（Boot 4 为 `spring-boot-starter-session-data-redis`）、配置（`spring.session.data.redis.*`）与 Redis 键结构见 [分布式会话 · Spring Session + Redis](/distributed/6_session#二、spring-session-redis)。
 
 ### 3、无状态化检查点
 
@@ -142,7 +142,7 @@ Session 外置的完整方案对比（粘性会话、Session 复制、集中存�
 |----------|------|------|
 | 取模 | `hash(key) % N` | 简单均匀，但 N 变化时几乎所有数据要迁移 |
 | 范围 | 按 ID 或时间区间 | 扩容只需新增区间，但易产生写热点 |
-| 一致性哈希 / 虚拟槽 | 哈希环或固定槽位映射 | 扩容只迁移部分数据，见 [一致性哈希](/distributed/9_consistent_hashing) |
+| 一致性哈希 / 虚拟槽 | 哈希环或固定槽位映射 | 扩容只迁移部分数据，见 [一致性哈希](/distributed/2_consistent_hashing) |
 
 数据库分片的具体方案见 [数据层扩展](./5_data_scaling)。
 

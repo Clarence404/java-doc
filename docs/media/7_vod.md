@@ -125,7 +125,7 @@ public class UploadedEventListener {
 }
 ```
 
-投递任务至少发送一次，消费端要按 `video_id + task_type` 幂等；Outbox 的表结构与投递任务见 [分布式事务](/distributed/4_transaction#五、本地消息表-transactional-outbox)。`TRANSCODE` 子任务的消费者就是 [FFmpeg 与转码](./3_ffmpeg#_2、worker-抢占、执行、回写) 里的转码 Worker，转码完成后回调下面的汇合逻辑。
+投递任务至少发送一次，消费端要按 `video_id + task_type` 幂等；Outbox 的表结构与投递任务见 [分布式事务](/distributed/5_transaction#五、本地消息表-transactional-outbox)。`TRANSCODE` 子任务的消费者就是 [FFmpeg 与转码](./3_ffmpeg#_2、worker-抢占、执行、回写) 里的转码 Worker，转码完成后回调下面的汇合逻辑。
 
 子任务完成后汇合：
 

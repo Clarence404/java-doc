@@ -52,7 +52,7 @@ scheduler.scheduleAtFixedRate(() -> {
 | 异常影响 | 任一任务抛异常，**整个 Timer 终止** | 只影响该任务自身 |
 | 时间基准 | `System.currentTimeMillis`，改系统时钟会受影响 | `System.nanoTime` 相对时间 |
 
-集群环境下的分布式定时任务见 [分布式调度](/distributed/6_job_scheduler)。
+集群环境下的分布式定时任务见 [分布式调度](/distributed/7_job_scheduler)。
 
 ---
 
@@ -123,7 +123,7 @@ JDK 21 的虚拟线程调度器也是一个 `ForkJoinPool`，但它是**独立�
 - 周期任务抛出未捕获异常会静默停止后续调度，任务体必须整体 try-catch；用它替代单线程、一抛异常就整体终止的 `Timer`
 - Fork/Join 每线程一个双端队列：自己 LIFO 取任务，空闲线程从别人队列 FIFO 窃取；适合可递归拆分的 CPU 密集计算
 - `commonPool` 全 JVM 共享，`parallelStream` 与不传执行器的 `CompletableFuture.xxxAsync` 都在用，并行度受容器 CPU 限额影响，阻塞 IO 不要放进去
-- 集群级定时任务见 [分布式调度](/distributed/6_job_scheduler)，Spring 的 `@Scheduled` 见 [异步任务与定时任务](/spring-boot/7_async_schedule)
+- 集群级定时任务见 [分布式调度](/distributed/7_job_scheduler)，Spring 的 `@Scheduled` 见 [异步任务与定时任务](/spring-boot/7_async_schedule)
 
 ## 参考资料
 

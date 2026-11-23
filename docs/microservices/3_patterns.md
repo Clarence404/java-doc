@@ -4,7 +4,7 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 
 # 微服务设计模式
 
-> 前置阅读：[微服务优势与挑战](./1_pros_and_cons)
+> 前置阅读：[从单体到微服务](./1_pros_and_cons)
 
 微服务设计模式解决的是**分布式系统架构层面**的问题：服务怎么拆、怎么通信、数据怎么管、失败怎么兜底。本篇是一份模式目录，每个模式说清解决什么问题、何时使用，已有主文档的模式只给一句话和链接。
 
@@ -64,7 +64,7 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 
 ### 4、同步与异步通信
 
-需要立即得到结果用同步请求响应（HTTP / gRPC / Dubbo），可以稍后处理、需要削峰或解耦用消息与事件。判断依据、事件驱动的三种用法与边界见 [服务间通信与契约](./5_communication)，同步客户端的选型与写法见 [服务通信](/service-governance/3_communication)。
+需要立即得到结果用同步请求响应（HTTP / gRPC / Dubbo），可以稍后处理、需要削峰或解耦用消息与事件。判断依据、事件驱动的三种用法与边界见 [服务间通信与契约](./4_communication)，同步客户端的选型与写法见 [服务调用](/service-governance/3_communication)。
 
 ### 5、接口调用的顺序性
 
@@ -75,7 +75,7 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 - **实例内按 key 串行**：按业务键哈希到固定数量的单线程通道排队执行
 - **版本号兜底**：数据层只接受序列号更新的请求，这一层才真正保证正确性；分布式锁不保证顺序
 
-三道防线的配置、代码与乱序处理表见 [接口调用顺序性](./4_call_ordering)，MQ 侧的顺序消息见 [消息队列基础 · 顺序消息](/messaging/1_basics#五、顺序消息)。
+三道防线的配置、代码与乱序处理表见 [接口调用顺序性](./5_call_ordering)，MQ 侧的顺序消息见 [消息队列基础 · 顺序消息](/messaging/1_basics#五、顺序消息)。
 
 ---
 
@@ -100,7 +100,7 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 
 跨服务查询时，由一个组合者（API 网关、BFF 或专门的查询服务）依次或并行调用各服务，再在内存中拼接结果。例如订单详情页并行查询订单、商品、物流三个服务后组装返回。
 
-**适用**：数据量小、实时性要求高的简单查询。若需要跨服务做分页、排序、复杂过滤或大批量关联，内存拼接代价过高，应改用 CQRS 物化一个专门的读模型。API 组合、CQRS 读模型与数据冗余三种做法的代价对比见 [服务间通信与契约 · 跨服务查询](./5_communication#五、跨服务查询)。
+**适用**：数据量小、实时性要求高的简单查询。若需要跨服务做分页、排序、复杂过滤或大批量关联，内存拼接代价过高，应改用 CQRS 物化一个专门的读模型。API 组合、CQRS 读模型与数据冗余三种做法的代价对比见 [服务间通信与契约 · 跨服务查询](./4_communication#五、跨服务查询)。
 
 ### 3、CQRS（命令查询职责分离）
 
@@ -128,11 +128,11 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 
 ### 4、Saga
 
-把跨服务的长事务拆成一串本地事务，每一步失败时按逆序执行补偿操作，实现最终一致。分编排式（Orchestration，由协调者集中驱动）与协同式（Choreography，各服务监听事件自主推进）两种：步骤多、补偿逻辑复杂时选编排式，步骤少、追求解耦时选协同式。两种协调模式、与 TCC 的区别及 Seata Saga 见 [分布式事务](/distributed/4_transaction)。
+把跨服务的长事务拆成一串本地事务，每一步失败时按逆序执行补偿操作，实现最终一致。分编排式（Orchestration，由协调者集中驱动）与协同式（Choreography，各服务监听事件自主推进）两种：步骤多、补偿逻辑复杂时选编排式，步骤少、追求解耦时选协同式。两种协调模式、与 TCC 的区别及 Seata Saga 见 [分布式事务](/distributed/5_transaction)。
 
 ### 5、Outbox（事务发件箱）
 
-解决「写数据库」和「发消息」的原子性问题：业务数据与待发消息在**同一个本地事务**里写入业务表和 outbox 表，再由独立的投递进程把 outbox 中的消息发到 MQ，投递成功后标记完成，消费端按业务键幂等。投递进程可以轮询 outbox 表，也可以用 Debezium 等 CDC 工具监听 binlog（Debezium 提供 Outbox Event Router），后者延迟更低、不给业务库加轮询压力。本地消息表方案见 [分布式事务](/distributed/4_transaction)，CDC 投递见 [CDC 工具](/database/4_practice/8_cdc_tools)，消息侧的可靠投递与幂等消费见 [消息队列基础](/messaging/1_basics)。
+解决「写数据库」和「发消息」的原子性问题：业务数据与待发消息在**同一个本地事务**里写入业务表和 outbox 表，再由独立的投递进程把 outbox 中的消息发到 MQ，投递成功后标记完成，消费端按业务键幂等。投递进程可以轮询 outbox 表，也可以用 Debezium 等 CDC 工具监听 binlog（Debezium 提供 Outbox Event Router），后者延迟更低、不给业务库加轮询压力。本地消息表方案见 [分布式事务](/distributed/5_transaction)，CDC 投递见 [CDC 工具](/database/4_practice/8_cdc_tools)，消息侧的可靠投递与幂等消费见 [消息队列基础](/messaging/1_basics)。
 
 ---
 
@@ -188,4 +188,4 @@ description: 服务拆分、网关 / BFF / 服务发现、调用顺序性、数�
 - Spring Framework REST Clients（HTTP Service Clients）：[https://docs.spring.io/spring-framework/reference/integration/rest-clients.html](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html)
 - 选题参考：doocs/advanced-java：[https://github.com/doocs/advanced-java](https://github.com/doocs/advanced-java)
 
-> 下一篇：[接口调用顺序性](./4_call_ordering) —— 同步调用为什么会乱序，怎样消除顺序依赖或按业务键串行
+> 下一篇：[服务间通信与契约](./4_communication) —— 同步还是异步、事件驱动的用法、接口契约与版本兼容、跨服务查询

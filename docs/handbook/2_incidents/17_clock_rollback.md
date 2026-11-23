@@ -4,7 +4,7 @@ description: 下单主键冲突与支付单号重复、解码雪花 ID 定位节
 
 # 时钟回拨导致 ID 重复
 
-> 前置阅读：[分布式 ID 生成](/distributed/8_id_generator)
+> 前置阅读：[分布式 ID 生成](/distributed/3_id_generator)
 
 订单服务两秒内集中报主键冲突，元凶是一台节点的时钟被 NTP 往回拨了 1.8 秒。本篇复盘一次雪花算法时钟回拨事故，基线为 JDK 21、Spring Boot 4、MySQL 8.4、chrony 4。
 
@@ -69,7 +69,7 @@ jshell> id & 4095
 $4 ==> 0
 ```
 
-时间戳 10:15:03.412、workerId 17、序列号 0。按雪花的结构，同一 workerId 生成完全相同的 ID，**只能是同一毫秒被用了两次**，结构说明见 [分布式 ID 生成 · 雪花算法](/distributed/8_id_generator#四、雪花算法-snowflake)。
+时间戳 10:15:03.412、workerId 17、序列号 0。按雪花的结构，同一 workerId 生成完全相同的 ID，**只能是同一毫秒被用了两次**，结构说明见 [分布式 ID 生成 · 雪花算法](/distributed/3_id_generator#四、雪花算法-snowflake)。
 
 ### 3、对比应用时间与数据库时间
 
@@ -216,7 +216,7 @@ maxslewrate 500                  # 平滑调整速率上限（ppm），1.8 秒�
 
 ### 3、发号器
 
-自研发号器下线，改用平台统一的雪花组件，回拨处理采用「借用后续毫秒」，结构与代码见 [分布式 ID 生成 · 时钟回拨](/distributed/8_id_generator#_3、时钟回拨)。与主文档默认的「≤5ms 等时钟追上」相比，这次的差异是：
+自研发号器下线，改用平台统一的雪花组件，回拨处理采用「借用后续毫秒」，结构与代码见 [分布式 ID 生成 · 时钟回拨](/distributed/3_id_generator#_3、时钟回拨)。与主文档默认的「≤5ms 等时钟追上」相比，这次的差异是：
 
 - **为什么借用而不是等待**：这次回拨 1.83 秒，等待意味着发号线程整整卡 1.8 秒，下单、支付接口会成片超时；借用只让 ID 时间戳暂时超前，不阻塞发号
 - **阈值取 3 秒**：覆盖本次 1.83 秒并留余量；chrony 改为运行期只平滑调整后，秒级回拨只可能来自节点启动或虚拟机迁移，超过 3 秒仍拒绝发号（抛出 `ClockBackwardException`），由调用方重试到其他实例
@@ -295,9 +295,9 @@ class SnowflakeIdGeneratorTest {
 
 | 知识点 | 文章 |
 |--------|------|
-| 雪花算法结构与实现 | [分布式 ID 生成 · 雪花算法](/distributed/8_id_generator#四、雪花算法-snowflake) |
-| 时钟回拨的应对思路、workerId 分配 | [分布式 ID 生成 · 时钟回拨](/distributed/8_id_generator#_3、时钟回拨) |
-| 号段模式、Leaf、UidGenerator 选型 | [分布式 ID 生成 · 方案对比与选型](/distributed/8_id_generator#八、方案对比与选型) |
+| 雪花算法结构与实现 | [分布式 ID 生成 · 雪花算法](/distributed/3_id_generator#四、雪花算法-snowflake) |
+| 时钟回拨的应对思路、workerId 分配 | [分布式 ID 生成 · 时钟回拨](/distributed/3_id_generator#_3、时钟回拨) |
+| 号段模式、Leaf、UidGenerator 选型 | [分布式 ID 生成 · 方案对比与选型](/distributed/3_id_generator#八、方案对比与选型) |
 | 幂等与唯一约束 | [幂等设计](/architecture/3_idempotence) |
 | 支付单与对账 | [支付系统](/scenario/8_payment)、[海量数据对账](/scenario/28_reconcile) |
 | systemd 与 journalctl | [Linux 概览 · systemd 与 journalctl](/cloud-native/1_linux#三、systemd-与-journalctl) |

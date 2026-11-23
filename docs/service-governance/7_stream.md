@@ -116,7 +116,7 @@ public class OrderService {
 }
 ```
 
-在本地事务里直接发消息存在「事务回滚但消息已发出」或「事务提交但消息发送失败」的不一致，可靠做法是事务消息或 Outbox，见 [分布式事务](/distributed/4_transaction)。
+在本地事务里直接发消息存在「事务回滚但消息已发出」或「事务提交但消息发送失败」的不一致，可靠做法是事务消息或 Outbox，见 [分布式事务](/distributed/5_transaction)。
 
 ---
 

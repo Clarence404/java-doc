@@ -4,7 +4,7 @@ description: 乱序成因、消除顺序依赖、按业务键路由、实例内�
 
 # 接口调用顺序性
 
-> 前置阅读：[微服务设计模式](./3_patterns)、[一致性哈希](/distributed/9_consistent_hashing)
+> 前置阅读：[微服务设计模式](./3_patterns)、[一致性哈希](/distributed/2_consistent_hashing)
 
 同步调用的执行顺序不等于发送顺序，「先创建后更新」到了服务端可能反过来。本篇讲乱序成因、消除顺序依赖，以及「同 key 路由 → 实例内串行 → 版本号兜底」三道防线。
 
@@ -45,7 +45,7 @@ description: 乱序成因、消除顺序依赖、按业务键路由、实例内�
 | HTTP | Nginx `hash $http_x_order_id consistent;`，或 Istio `DestinationRule` 的 `consistentHash` 按请求头选实例 |
 | 异步 | 改走 MQ，以业务键作为分区键（Kafka 消息 key、RocketMQ 5.x MessageGroup），单分区单线程消费，见 [消息队列基础 · 顺序消息](/messaging/1_basics#五、顺序消息) |
 
-一致性哈希只解决「去同一个实例」，原理见 [一致性哈希](/distributed/9_consistent_hashing)。它有两个缺口：实例扩缩容的瞬间，一部分业务键会换到新实例，新旧实例上可能同时有同一个键的请求在执行；单个热点键的流量全部压在一个实例上，无法水平分摊。
+一致性哈希只解决「去同一个实例」，原理见 [一致性哈希](/distributed/2_consistent_hashing)。它有两个缺口：实例扩缩容的瞬间，一部分业务键会换到新实例，新旧实例上可能同时有同一个键的请求在执行；单个热点键的流量全部压在一个实例上，无法水平分摊。
 
 ### 2、实例内按业务键串行
 
@@ -125,7 +125,7 @@ public class OrderStatusRepository {
 
 ## 四、分布式锁不能保证顺序
 
-锁只保证同一时刻只有一个请求在执行，不保证谁先拿到锁：后发出的请求完全可能先抢到锁。它还会让每次调用多一次 Redis 往返，锁过期后两个请求仍可能并发执行。真要用锁，也得配合上面的版本号检查（相当于 Fencing Token），见 [分布式锁](/distributed/3_lock)。
+锁只保证同一时刻只有一个请求在执行，不保证谁先拿到锁：后发出的请求完全可能先抢到锁。它还会让每次调用多一次 Redis 往返，锁过期后两个请求仍可能并发执行。真要用锁，也得配合上面的版本号检查（相当于 Fencing Token），见 [分布式锁](/distributed/4_lock)。
 
 ---
 
@@ -142,4 +142,4 @@ public class OrderStatusRepository {
 - Nginx upstream hash：[https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash)
 - Istio DestinationRule（consistentHash）：[https://istio.io/latest/docs/reference/config/networking/destination-rule/](https://istio.io/latest/docs/reference/config/networking/destination-rule/)
 
-> 下一篇：[服务间通信与契约](./5_communication) —— 同步还是异步、事件驱动的用法、接口契约与版本兼容、跨服务查询
+> 返回：[微服务架构总览](./0_overview)

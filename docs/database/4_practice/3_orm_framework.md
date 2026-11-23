@@ -446,7 +446,7 @@ public class MybatisPlusConfig {
 
 读写分离、库级多租户都基于 Spring 的 `AbstractRoutingDataSource`：它本身是一个 `DataSource`，每次 `getConnection()` 时调用 `determineCurrentLookupKey()` 选出目标数据源（按事务 `readOnly` 或 `ThreadLocal` 里的路由键）。关键约束是事务管理器在事务开始时就取连接，之后切换不生效，所以要么让路由在事务之前确定，要么包一层 `LazyConnectionDataSourceProxy` 把取连接推迟到第一条 SQL。完整配置与踩坑见 [数据访问 · 多数据源](/spring-boot/3_data_access#六、多数据源)。
 
-实际项目通常直接用 baomidou 的 dynamic-datasource（`@DS` 注解），配置与事务陷阱见 [数据访问 · 多数据源](/spring-boot/3_data_access#六、多数据源)。跨库写入的一致性需要分布式事务，见 [分布式事务](/distributed/4_transaction)。
+实际项目通常直接用 baomidou 的 dynamic-datasource（`@DS` 注解），配置与事务陷阱见 [数据访问 · 多数据源](/spring-boot/3_data_access#六、多数据源)。跨库写入的一致性需要分布式事务，见 [分布式事务](/distributed/5_transaction)。
 
 ---
 

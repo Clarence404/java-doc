@@ -184,7 +184,7 @@ MySQL 9.x 社区版只有 `VECTOR` 类型与 `STRING_TO_VECTOR`、`VECTOR_DIM` �
 
 - 业务早期保持模型简单，不要过早引入分库分表和多种异构数据库；单库到瓶颈时先读写分离与分库分表，再评估 TiDB、OceanBase，系统级扩展策略见 [数据层扩展](/high-con/5_data_scaling)
 - 上生产前明确 RPO / RTO、备份与恢复演练、慢 SQL 治理、连接池上限和索引变更流程
-- 跨库一致性优先用本地事务 + Outbox、Saga、幂等来解决，详见 [分布式事务](/distributed/4_transaction)
+- 跨库一致性优先用本地事务 + Outbox、Saga、幂等来解决，详见 [分布式事务](/distributed/5_transaction)
 
 ---
 

@@ -164,7 +164,7 @@ public void archiveDaily(LocalDate day) {
 }
 ```
 
-归档发生在日榜过期之前（上面日榜保留 3 天），任务失败可以重跑。调度框架的对比见 [分布式调度](/distributed/6_job_scheduler)。
+归档发生在日榜过期之前（上面日榜保留 3 天），任务失败可以重跑。调度框架的对比见 [分布式调度](/distributed/7_job_scheduler)。
 
 ---
 

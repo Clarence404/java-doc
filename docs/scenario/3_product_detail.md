@@ -267,7 +267,7 @@ public class ItemBaseCache {
 | 提交后发送 | `@TransactionalEventListener(phase = AFTER_COMMIT)` 里发 MQ | 提交后、发送前进程崩溃，这次变更丢失，缓存要等 TTL 才更新 |
 | Outbox / CDC | 同一事务写业务表与 outbox 表，由中继投递；或订阅 binlog | 至少投递一次，不丢；需要额外的中继或 CDC 组件 |
 
-缓存有 TTL 兜底时，「提交后发送」能满足大部分商品；改价这类必须及时生效的变更用 Outbox 或 CDC。Outbox 的实现见 [分布式事务](/distributed/4_transaction)（本地消息表一节），MQ 的可靠投递与消费见 [消息队列基础](/messaging/1_basics)，基于 binlog 的缓存失效见 [缓存一致性](/cache/10_cache_consistency)。
+缓存有 TTL 兜底时，「提交后发送」能满足大部分商品；改价这类必须及时生效的变更用 Outbox 或 CDC。Outbox 的实现见 [分布式事务](/distributed/5_transaction)（本地消息表一节），MQ 的可靠投递与消费见 [消息队列基础](/messaging/1_basics)，基于 binlog 的缓存失效见 [缓存一致性](/cache/10_cache_consistency)。
 
 消息体只带 `skuId` 与 `version`，**不带商品数据**：重建服务总是回查最新数据，消息丢了一条、重复了一条、乱序了，结果都一样。
 

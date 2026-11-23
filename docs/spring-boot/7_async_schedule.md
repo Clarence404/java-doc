@@ -299,7 +299,7 @@ public void reportTask() { /* ... */ }
 | 需要可视化管理、手动触发、失败重试、告警、分片 | XXL-JOB、Apache ShardingSphere-ElasticJob、PowerJob 等调度平台 |
 | 需要持久化的触发器、错过补偿 | Quartz 集群模式 |
 
-各调度平台的架构与对比见 [分布式调度](/distributed/6_job_scheduler)，下面只讲 Boot 侧接入。
+各调度平台的架构与对比见 [分布式调度](/distributed/7_job_scheduler)，下面只讲 Boot 侧接入。
 
 ### 1、ShedLock：最轻量的方案
 
@@ -456,7 +456,7 @@ public class OrderJobHandler {
 }
 ```
 
-`accessToken` 是调度中心调用执行器的唯一凭证，执行器端口还应只对调度中心开放。调度中心的部署、路由与阻塞策略见 [分布式调度](/distributed/6_job_scheduler)。
+`accessToken` 是调度中心调用执行器的唯一凭证，执行器端口还应只对调度中心开放。调度中心的部署、路由与阻塞策略见 [分布式调度](/distributed/7_job_scheduler)。
 
 ---
 

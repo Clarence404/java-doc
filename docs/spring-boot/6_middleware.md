@@ -65,7 +65,7 @@ Boot 自动配置的 `RedisTemplate<Object, Object>` 使用 JDK 序列化，Redi
 | `pool` 配置不生效 | 缺少 `commons-pool2` | 引入依赖；普通命令场景其实不需要连接池 |
 | 命令超时、连接卡住 | `KEYS`、大 key、`HGETALL` 大哈希等慢命令阻塞单线程的 Redis | 用 `SCAN` 替代 `KEYS`，拆分大 key，见 [Redis 实战 · 性能优化与监控](/cache/5_redis_practice#四、性能优化与监控) |
 
-缓存注解（`@Cacheable`）的 Redis 配置见 [Redis 实战 · Spring Cache 配置](/cache/5_redis_practice#_4、spring-cache-配置)，分布式锁用 [Redisson](/cache/6_redisson)，不要用 `setIfAbsent` 手写，原因见 [分布式锁](/distributed/3_lock)。
+缓存注解（`@Cacheable`）的 Redis 配置见 [Redis 实战 · Spring Cache 配置](/cache/5_redis_practice#_4、spring-cache-配置)，分布式锁用 [Redisson](/cache/6_redisson)，不要用 `setIfAbsent` 手写，原因见 [分布式锁](/distributed/4_lock)。
 
 ---
 

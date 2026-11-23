@@ -580,7 +580,7 @@ public class UserQueryService {
 ![dynamic-datasource 的路由过程](../assets/spring-boot/dynamic-datasource.svg)
 
 - **外层已开启 `@Transactional` 时，内层 `@DS` 切换无效**：事务开始时连接已经从 primary 取出并绑定到当前线程，后续操作都复用这个连接。读写分离时，「在写事务里调一个 `@DS("slave")` 的查询」实际上查的是主库
-- 一个方法里需要操作多个数据源时，`@DSTransactional` 提供本地多数据源事务，但它不是真正的分布式事务，提交阶段部分失败仍会不一致；跨库强一致写入见 [分布式事务](/distributed/4_transaction)
+- 一个方法里需要操作多个数据源时，`@DSTransactional` 提供本地多数据源事务，但它不是真正的分布式事务，提交阶段部分失败仍会不一致；跨库强一致写入见 [分布式事务](/distributed/5_transaction)
 - `@DS` 依赖 Spring AOP 代理，同类方法自调用时注解不生效
 - 从库存在复制延迟，「写完立即读」的场景要强制读主库；读写分离与分库分表的整体方案见 [分库分表与中间件](/database/4_practice/4_sharding)
 

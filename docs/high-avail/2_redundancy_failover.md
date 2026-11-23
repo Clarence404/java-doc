@@ -199,7 +199,7 @@ vrrp_instance VI_1 {
 
 ### 3、选主
 
-自动选主的关键是**多数派（Quorum）**：N 个节点至少 ⌊N/2⌋ + 1 个同意才能产生新主，所以集群取奇数节点（3 节点容忍 1 个故障，5 节点容忍 2 个）。Raft 的选举与任期机制见 [分布式理论](/distributed/2_theorem)。
+自动选主的关键是**多数派（Quorum）**：N 个节点至少 ⌊N/2⌋ + 1 个同意才能产生新主，所以集群取奇数节点（3 节点容忍 1 个故障，5 节点容忍 2 个）。Raft 的选举与任期机制见 [分布式理论](/distributed/1_theorem)。
 
 ---
 
@@ -227,7 +227,7 @@ min-replicas-to-write 1
 min-replicas-max-lag 10
 ```
 
-Fencing Token 的原理与存储侧条件写的代码见 [分布式锁 · 租约过期与 Fencing Token](/distributed/3_lock#三、租约过期与-fencing-token)：选主的任期号和锁的递增编号是同一个思路，正确性最终靠存储层拒绝旧编号的写入。
+Fencing Token 的原理与存储侧条件写的代码见 [分布式锁 · 租约过期与 Fencing Token](/distributed/4_lock#三、租约过期与-fencing-token)：选主的任期号和锁的递增编号是同一个思路，正确性最终靠存储层拒绝旧编号的写入。
 
 ---
 

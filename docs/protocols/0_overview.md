@@ -31,7 +31,7 @@
 | 场景 | 推荐 | 原因 |
 |------|------|------|
 | 对外开放 API | HTTP + JSON | 生态最广、易调试，规范见 [API 设计规范](/engineering/4_api_design_rule) |
-| 服务间高性能调用 | gRPC 或 Dubbo 3 Triple | HTTP/2 + Protobuf，强类型契约，支持流式；选型见 [服务通信](/service-governance/3_communication) |
+| 服务间高性能调用 | gRPC 或 Dubbo 3 Triple | HTTP/2 + Protobuf，强类型契约，支持流式；选型见 [服务调用](/service-governance/3_communication) |
 | 服务端向浏览器单向推送 | SSE | 基于普通 HTTP，自动重连，见 [SSE（Server-Sent Events）](/netty/11_sse) |
 | 浏览器双向实时通信 | WebSocket | 全双工、低开销，见 [WebSocket](/netty/10_websocket) |
 | 传输加密 | TLS 1.3 | 1-RTT 握手，只保留前向安全的密钥交换 |
@@ -49,9 +49,9 @@ IO 模型、Netty 编程、WebSocket、SSE 等「怎么写网络程序」的内�
 - 网络层面的性能优化（零拷贝、连接复用、压缩、序列化选择） → [IO 与网络优化](/high-perf/9_io_network)
 - JWT、OAuth2、mTLS 在服务网格中的使用、零信任 → [应用安全总览](/security/0_overview)
 - MQTT、CoAP、Modbus 等物联网协议 → [通信协议](/iot/1_basics/1_protocol)
-- Raft、Paxos、ZAB、Gossip 等一致性与集群协议 → [分布式理论](/distributed/2_theorem)
+- Raft、Paxos、ZAB、Gossip 等一致性与集群协议 → [分布式理论](/distributed/1_theorem)
 - AMQP 与消息队列协议 → [RabbitMQ](/messaging/4_rabbitmq)
-- 服务间调用方式选型、Dubbo → [服务通信](/service-governance/3_communication) / [Dubbo](/service-governance/8_dubbo)
+- 服务间调用方式选型、Dubbo → [服务调用](/service-governance/3_communication) / [Dubbo](/service-governance/8_dubbo)
 
 ---
 

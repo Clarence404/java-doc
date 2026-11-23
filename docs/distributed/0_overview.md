@@ -1,6 +1,6 @@
 # 分布式基础总览
 
-本模块先从架构演进和分布式理论建立「一致性与可用性怎么取舍」的视角，再落到锁、事务、会话、调度、ID 生成等工程方案。
+本模块先从分布式理论建立「一致性与可用性怎么取舍」的视角，再落到一致性哈希、ID、锁、事务、会话、调度等工程方案；为什么从单体拆成分布式，见微服务架构模块的 [从单体到微服务](/microservices/1_pros_and_cons)。
 
 **版本基线（2026 年 10 月）**：Redis 8、Redisson 4、Curator 5.x、jetcd 0.8.x、Apache Seata 2.5 / 2.6、RocketMQ 5、Kafka 4、XXL-JOB 3.x、Quartz 2.5、ElasticJob 3.0.x、PowerJob 5.x、Spring Boot 4
 
@@ -14,10 +14,11 @@
 
 ## 二、推荐阅读路径
 
-1. 先读 [分布式架构](./1_distributed) 与 [分布式理论](./2_theorem)，弄清为什么拆、拆了以后一致性与可用性怎么取舍
-2. 再读 [分布式锁](./3_lock) 与 [分布式事务](./4_transaction)，这是业务里最常碰到的两类协调问题，重点看租约过期、Fencing Token、Outbox 与 Seata 的适用边界
-3. 然后读 [分布式 ID 生成](./8_id_generator) 与 [一致性哈希](./9_consistent_hashing)，它们是分库分表与缓存分片的基础工具
-4. 最后按需读 [分布式会话](./5_session)、[分布式调度](./6_job_scheduler)、[工作流引擎](./7_work_flow)
+侧边栏分三段，按顺序读：
+
+1. **理论**：[分布式理论](./1_theorem) 讲 CAP、共识算法与一致性模型，弄清一致性与可用性怎么取舍；[一致性哈希](./2_consistent_hashing) 是缓存分片、分库分表与 MQ 分区路由的基础
+2. **协调与一致性**：[分布式 ID 生成](./3_id_generator)、[分布式锁](./4_lock)、[分布式事务](./5_transaction)，业务里最常碰到的协调问题，重点看时钟回拨、租约过期与 Fencing Token、Outbox 与 Seata 的适用边界
+3. **会话与任务**：[分布式会话](./6_session)、[分布式调度](./7_job_scheduler)、[工作流引擎](./8_work_flow)，应用多实例部署后要外置的状态与任务，按需阅读
 
 [高频面试题](./99_interview) 只列题目，答案在 [分布式基础面试题解答](/interview/16_distributed)。
 

@@ -138,7 +138,7 @@ MySQL 侧的延迟原因、多线程回放与延迟监控见 [MySQL 主从与高
 | 一致性哈希 | 哈希环 + 虚拟节点 | 扩容只迁移部分数据 | 实现复杂，分布需虚拟节点调匀 |
 | 映射表 | 路由表记录 key → 分片 | 最灵活，可单独迁移大租户 | 多一次查询，路由表本身要高可用 |
 
-一致性哈希原理见 [一致性哈希](/distributed/9_consistent_hashing)，ShardingSphere 内置算法类型与配置见 [分库分表与中间件](/database/4_practice/4_sharding)。
+一致性哈希原理见 [一致性哈希](/distributed/2_consistent_hashing)，ShardingSphere 内置算法类型与配置见 [分库分表与中间件](/database/4_practice/4_sharding)。
 
 ### 4、分布式 ID
 
@@ -150,7 +150,7 @@ MySQL 侧的延迟原因、多线程回放与延迟监控见 [MySQL 主从与高
 | 号段模式（Leaf-Segment） | DB 批量取号段，性能高，需双 Buffer 防抖动 |
 | UUID | 无序，作为 InnoDB 主键会导致页分裂，不推荐 |
 
-详见 [分布式 ID 生成](/distributed/8_id_generator)。
+详见 [分布式 ID 生成](/distributed/3_id_generator)。
 
 ### 5、跨分片查询与事务
 
@@ -160,7 +160,7 @@ MySQL 侧的延迟原因、多线程回放与延迟监控见 [MySQL 主从与高
 | 跨分片分页 `LIMIT 10000, 10` | 每个分片都要取前 10010 行再归并 | 禁止深分页，改为游标分页（`WHERE id > ? ORDER BY id LIMIT 10`） |
 | 跨分片聚合 / 排序 | 中间件内存归并 | 预计算汇总表；交给 OLAP（ClickHouse / Doris） |
 | 跨分片 JOIN | 不支持或性能极差 | 绑定表同键分片；小表广播；应用层组装 |
-| 跨分片事务 | 本地事务失效 | 尽量同分片；否则最终一致（本地消息表、Seata 等，见[分布式事务](/distributed/4_transaction)） |
+| 跨分片事务 | 本地事务失效 | 尽量同分片；否则最终一致（本地消息表、Seata 等，见[分布式事务](/distributed/5_transaction)） |
 
 ### 6、扩容迁移
 

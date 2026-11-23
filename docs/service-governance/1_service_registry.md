@@ -50,7 +50,7 @@ Spring Cloud 用 `ServiceRegistry`（注册）、`DiscoveryClient` / `ReactiveDi
 | **Eureka** | AP | 客户端心跳 + 自我保护 | 无 | Eureka 2.x 已停止，1.x 只维护；Spring Cloud Netflix 仍发布 Eureka 模块，新项目不推荐 |
 | **ZooKeeper** | CP（ZAB） | 临时节点 + 会话 | 无 | Dubbo 老项目常见 |
 
-**为什么注册中心更适合 AP**：注册中心的核心诉求是可用性，宁可返回稍旧的实例列表，也不能因选主或网络分区导致整个集群无法注册和查询；调用方还有本地缓存与重试兜底。CAP 的理论细节见 [分布式理论](/distributed/2_theorem)。
+**为什么注册中心更适合 AP**：注册中心的核心诉求是可用性，宁可返回稍旧的实例列表，也不能因选主或网络分区导致整个集群无法注册和查询；调用方还有本地缓存与重试兜底。CAP 的理论细节见 [分布式理论](/distributed/1_theorem)。
 
 **选型**：Spring Cloud Alibaba 技术栈选 Nacos；部署在 Kubernetes 且服务都在集群内时，优先用平台自带的 Service 发现，减少一个中间件；多语言、跨数据中心选 Consul。
 
@@ -135,7 +135,7 @@ spring:
           zone: zone-a
 ```
 
-不需要 `@EnableDiscoveryClient`，引入 starter 后自动注册。调用方用服务名访问实例的写法（`@LoadBalanced RestClient`、HTTP Service Clients、OpenFeign）见 [服务通信](./3_communication)。
+不需要 `@EnableDiscoveryClient`，引入 starter 后自动注册。调用方用服务名访问实例的写法（`@LoadBalanced RestClient`、HTTP Service Clients、OpenFeign）见 [服务调用](./3_communication)。
 
 ### 2、注册时机与下线
 

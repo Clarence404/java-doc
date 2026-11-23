@@ -38,7 +38,7 @@ description: 拆分与演进、通信与 RPC、微服务模式、分布式场景
 
 **常见坑**：把「拆得更细」当成微服务的定义。粒度只是次要差异，拆过头就成了纳米服务。
 
-→ 详见 [微服务优势与挑战](/microservices/1_pros_and_cons#_3、微服务-vs-soa)
+→ 详见 [从单体到微服务](/microservices/1_pros_and_cons#_3、微服务-vs-soa)
 
 ### Q3：微服务拆分的原则是什么？如何避免过度拆分和「分布式单体」？
 
@@ -151,7 +151,7 @@ description: 拆分与演进、通信与 RPC、微服务模式、分布式场景
 - 同步要注意：每次调用都设超时，调用链别太深
 - 异步要注意：消息可靠投递、重复消费要幂等（同一消息处理多次结果一样）、最终一致
 
-→ 详见 [服务间通信与契约 · 同步还是异步](/microservices/5_communication#一、同步还是异步)、[消息队列基础](/messaging/1_basics)
+→ 详见 [服务间通信与契约 · 同步还是异步](/microservices/4_communication#一、同步还是异步)、[消息队列基础](/messaging/1_basics)
 
 ### Q12：gRPC、Dubbo 与 HTTP（REST）分别适合什么场景？
 
@@ -165,7 +165,7 @@ description: 拆分与演进、通信与 RPC、微服务模式、分布式场景
 
 **常见坑**：gRPC 用长连接，四层负载均衡只在建连时分配一次，请求会全落在一台上，要按请求做均衡。
 
-→ 详见 [服务通信](/service-governance/3_communication#六、选型)、[RPC 协议](/protocols/5_rpc_protocols)
+→ 详见 [服务调用](/service-governance/3_communication#六、选型)、[RPC 协议](/protocols/5_rpc_protocols)
 
 ### Q13：如何设计一个 RPC 框架？
 
@@ -201,19 +201,19 @@ description: 拆分与演进、通信与 RPC、微服务模式、分布式场景
 - CQRS：查询灵活，代价是读到的数据会有短暂延迟
 - 「独占数据」指的是归属权：同一个 MySQL 实例上分不同库、只授权给对应服务也可以；但禁止多个服务直接读写同一张表
 
-→ 详见 [服务间通信与契约 · 跨服务查询](/microservices/5_communication#五、跨服务查询)、[微服务设计模式](/microservices/3_patterns#三、数据管理模式)、[架构模式与风格](/architecture/1_arch_patterns)
+→ 详见 [服务间通信与契约 · 跨服务查询](/microservices/4_communication#五、跨服务查询)、[微服务设计模式](/microservices/3_patterns#三、数据管理模式)、[架构模式与风格](/architecture/1_arch_patterns)
 
 ### Q16：Outbox 模式如何保证「写库 + 发消息」的原子性？
 
 **一句话**：在同一个本地事务里同时写业务表和一张「待发消息表」（outbox），事务提交两者就一起生效；再由单独的进程把待发消息发到 MQ，发成功就标记完成，失败就重试。
 
-→ 完整答案见 [消息队列面试题解答](/interview/15_mq) Q20；正文详见 [微服务设计模式](/microservices/3_patterns#_5、outbox-事务发件箱)、[分布式事务](/distributed/4_transaction)
+→ 完整答案见 [消息队列面试题解答](/interview/15_mq) Q20；正文详见 [微服务设计模式](/microservices/3_patterns#_5、outbox-事务发件箱)、[分布式事务](/distributed/5_transaction)
 
 ### Q17：Saga 的编排式与协同式有什么区别？
 
 **一句话**：编排式有一个「总指挥」统一调度，流程清楚好监控，适合步骤多、补偿复杂；协同式没有总指挥，各服务听事件自己往下走，适合步骤少。
 
-→ 完整答案见 [分布式基础面试题解答](/interview/16_distributed) Q16；正文详见 [分布式事务](/distributed/4_transaction#四、saga)
+→ 完整答案见 [分布式基础面试题解答](/interview/16_distributed) Q21；正文详见 [分布式事务](/distributed/5_transaction#四、saga)
 
 ### Q18：消费者驱动契约测试解决什么问题？
 
@@ -227,7 +227,7 @@ description: 拆分与演进、通信与 RPC、微服务模式、分布式场景
 
 **一句话**：能不用分布式事务就不用；优先用最终一致方案（Outbox、事务消息、Saga、对账补偿），只有必须同步拿到一致结果的链路才用 TCC、Seata 这类方案。
 
-→ 完整答案见 [分布式基础面试题解答](/interview/16_distributed) Q13；正文详见 [分布式事务](/distributed/4_transaction#九、方案选型)
+→ 完整答案见 [分布式基础面试题解答](/interview/16_distributed) Q18；正文详见 [分布式事务](/distributed/5_transaction#九、方案选型)
 
 ### Q20：微服务接口如何实现幂等？
 
@@ -246,7 +246,7 @@ description: 拆分与演进、通信与 RPC、微服务模式、分布式场景
 
 **常见坑**：用分布式锁保证顺序。锁只保证同一时刻一个请求在执行，不保证谁先拿到，后发的请求照样可能先执行。
 
-→ 详见 [接口调用顺序性](/microservices/4_call_ordering)、[消息队列基础](/messaging/1_basics#五、顺序消息)
+→ 详见 [接口调用顺序性](/microservices/5_call_ordering)、[消息队列基础](/messaging/1_basics#五、顺序消息)
 
 ### Q22：服务间如何传递认证信息与上下文（用户身份、灰度标记、traceId）？
 
@@ -275,7 +275,7 @@ description: 拆分与演进、通信与 RPC、微服务模式、分布式场景
 - 前两种是服务之间怎么集成，事件溯源是服务内部怎么存数据
 - 事件说的是已经发生的事（`OrderPaid`），不是命令；要对方必须做且要结果，就用同步调用或 Saga 编排
 
-→ 详见 [服务间通信与契约 · 事件驱动的用法与边界](/microservices/5_communication#二、事件驱动的用法与边界)
+→ 详见 [服务间通信与契约 · 事件驱动的用法与边界](/microservices/4_communication#二、事件驱动的用法与边界)
 
 ### Q24：服务接口怎么演进才能不影响老调用方？
 
@@ -288,7 +288,7 @@ description: 拆分与演进、通信与 RPC、微服务模式、分布式场景
 
 **常见坑**：改了字段的含义或单位（分改成元）却没换字段名，老调用方不报错但算错数，最难发现。
 
-→ 详见 [服务间通信与契约 · 版本与兼容](/microservices/5_communication#四、版本与兼容)、[API 设计规范 · 版本管理](/engineering/4_api_design_rule#八、版本管理)
+→ 详见 [服务间通信与契约 · 版本与兼容](/microservices/4_communication#四、版本与兼容)、[API 设计规范 · 版本管理](/engineering/4_api_design_rule#八、版本管理)
 
 ### Q25：契约优先和代码优先有什么区别？怎么选？
 
@@ -299,4 +299,4 @@ description: 拆分与演进、通信与 RPC、微服务模式、分布式场景
 - 折中：代码优先，但把生成的规范提交入库，CI 里比对差异、拦截破坏性改动
 - 契约不只是字段，还要写清单位、错误码、是否幂等这些约定
 
-→ 详见 [服务间通信与契约 · 接口契约](/microservices/5_communication#三、接口契约)、[API 文档](/engineering/5_api_doc)
+→ 详见 [服务间通信与契约 · 接口契约](/microservices/4_communication#三、接口契约)、[API 文档](/engineering/5_api_doc)

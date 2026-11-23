@@ -4,7 +4,7 @@ description: 雪花 ID 与订单号、订单与明细表、状态机、按查询
 
 # 数据建模
 
-> 前置阅读：[MySQL 表设计规范](/database/1_mysql/7_table_design)、[MySQL 索引](/database/1_mysql/3_topic_index)、[分布式 ID 生成](/distributed/8_id_generator)
+> 前置阅读：[MySQL 表设计规范](/database/1_mysql/7_table_design)、[MySQL 索引](/database/1_mysql/3_topic_index)、[分布式 ID 生成](/distributed/3_id_generator)
 
 工程搭好后先定表结构：表有了线上数据，再改主键或金额类型的代价远高于改代码。本篇讲实体边界、订单与库存表、索引、事务与幂等，基线为 MySQL 8.4。
 
@@ -73,7 +73,7 @@ WHERE o.user_id = ?;
 
 ### 2、决策
 
-- **主键 `id` 用雪花 ID**（`BIGINT`），由应用生成，不用数据库自增。阶段一只有两台应用机，机器号由环境变量 `WORKER_ID` 注入（1 和 2），时钟回拨策略照搬 [分布式 ID 生成](/distributed/8_id_generator) 中的做法
+- **主键 `id` 用雪花 ID**（`BIGINT`），由应用生成，不用数据库自增。阶段一只有两台应用机，机器号由环境变量 `WORKER_ID` 注入（1 和 2），时钟回拨策略照搬 [分布式 ID 生成](/distributed/3_id_generator) 中的做法
 - **机器号不给默认值，没配就启动失败**：`mall.id.worker-id: ${WORKER_ID:}`，为空或超出 0–1023 时 `IdConfig` 直接抛异常；如果给个默认值 1，两台机器漏配后都用 1，同一毫秒会生成相同的 ID，主键冲突要到上线后才暴露。本地、测试环境和集成测试在各自的配置文件里显式写机器号；拆分上 Kubernetes 后机器号改为每个 Pod 向 Redis 租用，见 [拆分服务 · Kubernetes 部署](./6_split#七、kubernetes-部署)
 - **对外订单号 `order_no` 单独一列**，阶段一取值就是雪花 ID 的十进制字符串（19 位）；之所以不直接用 `id`，是为阶段三留口子：分库分表时要把用户 ID 的低位「基因」嵌进订单号，让按订单号查询也能定位到分片，届时只改 `order_no` 的生成规则，主键不动
 - **对前端一律按字符串返回**：19 位整数超过 JavaScript 的安全整数范围，按数字返回会丢精度

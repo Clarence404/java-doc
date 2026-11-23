@@ -4,7 +4,7 @@ description: 二维码状态机、Lua 原子迁移、长轮询 / WebSocket 推�
 
 # 扫码登录
 
-> 前置阅读：[分布式会话](/distributed/5_session)、[JWT 令牌机制](/security/1_jwt)、[WebSocket](/netty/10_websocket)
+> 前置阅读：[分布式会话](/distributed/6_session)、[JWT 令牌机制](/security/1_jwt)、[WebSocket](/netty/10_websocket)
 
 扫码登录是一个**跨设备的授权流程**：PC 展示一次性二维码，已登录的手机扫码确认后，服务端给 PC 签发新会话。本篇讲二维码状态的原子流转、PC 及时获知结果、PC 最终拿到的凭证，以及钓鱼扫码、二维码泄露等攻击的防御。
 
@@ -357,7 +357,7 @@ WebSocket 的集群推送、连接管理见 [WebSocket](/netty/10_websocket)，�
 - 会话写入 `HttpOnly`、`Secure`、`SameSite=Lax` 的 Cookie；采用 JWT 时同样放在 HttpOnly Cookie 里，不放 `localStorage`
 - 扫码登录的会话属于「低强度认证」：改密码、修改收货地址、大额支付等敏感操作在 PC 上仍要求二次验证
 
-会话存储与共享见 [分布式会话](/distributed/5_session)，JWT 的签名、刷新与吊销见 [JWT 令牌机制](/security/1_jwt)，Cookie 与 Token 的传输安全见 [API 安全](/security/6_api_security)。这个流程与 OAuth 2.0 的设备授权模式（RFC 8628）思路一致：在受限设备上展示一次性码，在另一台已认证设备上授权，再由受限设备领取自己的令牌，跨站点授权时可以直接采用 [OAuth2](/security/2_oauth2) 体系。
+会话存储与共享见 [分布式会话](/distributed/6_session)，JWT 的签名、刷新与吊销见 [JWT 令牌机制](/security/1_jwt)，Cookie 与 Token 的传输安全见 [API 安全](/security/6_api_security)。这个流程与 OAuth 2.0 的设备授权模式（RFC 8628）思路一致：在受限设备上展示一次性码，在另一台已认证设备上授权，再由受限设备领取自己的令牌，跨站点授权时可以直接采用 [OAuth2](/security/2_oauth2) 体系。
 
 **换发失败**：`exchange` 先删 key 再返回，响应丢失时 PC 重试已拿不到结果，只能重新扫码。这里刻意不做「重试返回同一个会话」，那需要把会话令牌在 Redis 里多存一段时间，扩大泄露窗口，而重新扫码的代价很小。
 

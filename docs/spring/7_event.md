@@ -289,9 +289,9 @@ public class PointListener {
 
 | 方案 | 做法 | 适用 |
 |------|------|------|
-| 事务性 Outbox（本地消息表） | 在业务事务内把事件写入消息表，提交后由定时任务或 CDC 投递到 MQ，失败重试 | 跨服务，需要 MQ，通用方案。见 [分布式事务 · 本地消息表](/distributed/4_transaction) |
+| 事务性 Outbox（本地消息表） | 在业务事务内把事件写入消息表，提交后由定时任务或 CDC 投递到 MQ，失败重试 | 跨服务，需要 MQ，通用方案。见 [分布式事务 · 本地消息表](/distributed/5_transaction) |
 | Spring Modulith 事件发布注册表 | 引入 `spring-modulith-starter-jdbc`（或 `-jpa`），发布事件时在原事务内为每个事务监听器记录一条发布记录，监听器成功后标记完成；失败的记录保留，可配置 `spring.modulith.events.republish-outstanding-events-on-restart=true` 在重启时重新投递 | 单体或模块化单体内部，模块间可靠的异步事件 |
-| 事务消息 | RocketMQ 半消息 + 回查 | 已使用 RocketMQ 的场景，见 [分布式事务 · 可靠消息最终一致性](/distributed/4_transaction) |
+| 事务消息 | RocketMQ 半消息 + 回查 | 已使用 RocketMQ 的场景，见 [分布式事务 · 可靠消息最终一致性](/distributed/5_transaction) |
 
 Spring Modulith 提供的 `@ApplicationModuleListener` 等价于 `@Async` + `@Transactional(propagation = REQUIRES_NEW)` + `@TransactionalEventListener` 三者组合，正好是上一节推荐的写法：
 

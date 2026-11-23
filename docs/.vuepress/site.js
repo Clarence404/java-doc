@@ -122,14 +122,22 @@ export const GROUPS = [
     },
     {
         name: '分布式架构', tagline: '分布式理论与机制、微服务拆分与 Spring Cloud 落地', modules: [
-            {name: '分布式基础', dir: 'distributed', interview: ['16_distributed'], desc: 'CAP / Raft / 分布式锁 / 分布式事务 / 分布式 ID / 会话 / 调度与工作流 / 一致性哈希'},
-            {name: '微服务架构', dir: 'microservices', interview: ['17_microservices'], desc: '优势与挑战 / 服务拆分 / 设计模式 / 调用顺序性 / 服务间通信与契约'},
+            {
+                name: '分布式基础', dir: 'distributed', interview: ['16_distributed'],
+                desc: 'CAP / Raft / 一致性哈希 / 分布式 ID / 分布式锁 / 分布式事务 / 会话 / 调度与工作流',
+                sidebar: [
+                    {text: '理论', from: 1},
+                    {text: '协调与一致性', from: 3},
+                    {text: '会话与任务', from: 6},
+                ],
+            },
+            {name: '微服务架构', dir: 'microservices', interview: ['17_microservices'], desc: '从单体到微服务 / 服务拆分 / 设计模式 / 服务间通信与契约 / 调用顺序性'},
             {
                 name: '微服务治理', dir: 'service-governance', interview: ['18_service_governance'],
-                desc: '注册发现 / API 网关 / 服务通信 / 配置中心 / 流量治理 / Spring Cloud Alibaba / Stream / Dubbo / 服务网格',
+                desc: '注册发现 / API 网关 / 服务调用 / 配置中心 / 流量治理 / Spring Cloud Alibaba / Stream / Dubbo / 服务网格',
                 sidebar: [
                     {text: 'Spring Cloud 主线', from: 1},
-                    {text: '其他路线', from: 8},
+                    {text: 'Dubbo 与服务网格', from: 8},
                 ],
             },
         ],
@@ -280,6 +288,18 @@ export const BASELINE = {
 
 // 重定向：文章搬家后旧地址自动跳到新地址（@vuepress/plugin-redirect），键为旧路径、值为新路径，均不带 .html
 export const REDIRECTS = {
+    // 2026-11：分布式基础分「理论 / 协调与一致性 / 会话与任务」三段重排；「分布式架构」并入微服务的「从单体到微服务」；微服务通信与调用顺序性换序
+    '/distributed/2_theorem': '/distributed/1_theorem',
+    '/distributed/9_consistent_hashing': '/distributed/2_consistent_hashing',
+    '/distributed/8_id_generator': '/distributed/3_id_generator',
+    '/distributed/3_lock': '/distributed/4_lock',
+    '/distributed/4_transaction': '/distributed/5_transaction',
+    '/distributed/5_session': '/distributed/6_session',
+    '/distributed/6_job_scheduler': '/distributed/7_job_scheduler',
+    '/distributed/7_work_flow': '/distributed/8_work_flow',
+    '/microservices/4_call_ordering': '/microservices/5_call_ordering',
+    '/microservices/5_communication': '/microservices/4_communication',
+    '/distributed/1_distributed': '/microservices/1_pros_and_cons',
     // 2026-11：数据库并成五组（原理与选型 / MySQL / PostgreSQL / 其他关系库 / 工程实践），MySQL 组内按「基础 → 核心原理 → 生产实践」重排
     '/database/1_mysql/4_topic_execution': '/database/1_mysql/1_topic_execution',
     '/database/1_mysql/6_topic_innodb': '/database/1_mysql/2_topic_innodb',
@@ -417,7 +437,6 @@ export const REDIRECTS = {
     '/microservices/2_patterns': '/microservices/3_patterns',
     '/microservices/3_service_mesh': '/service-governance/9_service_mesh',
     '/microservices/4_dubbo': '/service-governance/8_dubbo',
-    '/microservices/5_call_ordering': '/microservices/4_call_ordering',
     // 2026-11：面试题解答案页与模块一一对应，按导航分组顺序重新编号（NoSQL、工程效率拆出独立答案页）
     '/interview/4_computer_os': '/interview/5_computer_os',
     '/interview/4_network': '/interview/6_network',
@@ -511,8 +530,8 @@ export const ROUTES = [
         name: '从 CRUD 到架构', for: '做了几年业务开发，想往架构方向走，按系统长大的顺序读', time: '约 1–2 个月',
         stages: [
             {title: '把单体写扎实', items: ['database/0_fundamentals/1_storage_engine', 'database/1_mysql/7_table_design', 'database/1_mysql/5_topic_explain', 'architecture/3_idempotence', 'cache/10_cache_consistency', 'architecture/2_package_structure']},
-            {title: '引入中间件', items: ['messaging/1_basics', 'high-con/4_async_peak_shaving', 'distributed/3_lock', 'distributed/4_transaction', 'distributed/8_id_generator']},
-            {title: '拆分与治理', items: ['distributed/2_theorem', 'microservices/2_service_split', 'microservices/3_patterns', 'architecture/2_ddd', 'high-avail/4_timeout_retry_bulkhead', 'high-avail/5_circuit_breaking']},
+            {title: '引入中间件', items: ['messaging/1_basics', 'high-con/4_async_peak_shaving', 'distributed/4_lock', 'distributed/5_transaction', 'distributed/3_id_generator']},
+            {title: '拆分与治理', items: ['distributed/1_theorem', 'microservices/2_service_split', 'microservices/3_patterns', 'architecture/2_ddd', 'high-avail/4_timeout_retry_bulkhead', 'high-avail/5_circuit_breaking']},
             {title: '扛住流量', items: ['high-con/3_cache_architecture', 'high-con/5_data_scaling', 'high-con/6_hotspot', 'high-con/8_capacity_planning', 'high-avail/9_multi_active']},
             {title: '系统设计', items: ['scenario/1_design_method', 'scenario/11_seckill', 'scenario/7_order_system', 'scenario/17_counter']},
             {title: '串成一个项目', items: ['project/0_overview', 'project/7_consistency', 'project/8_stability', 'project/10_retrospective']},

@@ -326,7 +326,7 @@ void publishFailureAfterCharge() {
 }
 ```
 
-第二个测试把一个真实问题暴露了出来：钱已经扣了，事件却没发出去，订单状态也没保存。Mock 让这种「中途失败」的场景很容易构造，至于怎么修（本地事务 + Outbox、补偿）是设计问题，见 [分布式事务](/distributed/4_transaction)。
+第二个测试把一个真实问题暴露了出来：钱已经扣了，事件却没发出去，订单状态也没保存。Mock 让这种「中途失败」的场景很容易构造，至于怎么修（本地事务 + Outbox、补偿）是设计问题，见 [分布式事务](/distributed/5_transaction)。
 
 ### 2、BDDMockito
 

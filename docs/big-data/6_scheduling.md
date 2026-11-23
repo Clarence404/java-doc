@@ -446,7 +446,7 @@ Airflow 中可以用 3.1 起的 Deadline Alerts 为 DAG Run 配置"相对排队�
 
 ## 小结
 
-- 数据任务调度关注依赖、数据时间、补数和重跑，与业务定时任务是两类系统；业务定时任务见 [分布式调度](/distributed/6_job_scheduler)
+- 数据任务调度关注依赖、数据时间、补数和重跑，与业务定时任务是两类系统；业务定时任务见 [分布式调度](/distributed/7_job_scheduler)
 - 工作流按主题切分，一个节点产出一张表；跨工作流用依赖节点、Sensor 或就绪事件，依赖产出而不是依赖时间
 - 所有日期来自业务日期参数：DolphinScheduler 的 `${system.biz.date}` / `$[yyyy-MM-dd-1]` 基于调度时间计算；Airflow 3 的 cron 字符串默认使用 `CronTriggerTimetable`，需要 `interval` 或显式计算才能得到"前一天"，并注意 UTC 时区
 - DolphinScheduler 补数支持串行 / 并行与连带下游，所选日期是调度时间；恢复失败从失败节点继续；Airflow 3 的 backfill 由调度器托管，`catchup` 默认关闭

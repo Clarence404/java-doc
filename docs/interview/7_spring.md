@@ -457,7 +457,7 @@ txTemplate.execute(status -> { recordRepo.save(record); return accountRepo.deduc
 - 用 RocketMQ 的话可以用事务消息
 - 会重投就必须保证监听器幂等
 
-→ 详见 [事件机制](/spring/7_event#_3、可靠性边界-至多一次)、[分布式事务](/distributed/4_transaction)
+→ 详见 [事件机制](/spring/7_event#_3、可靠性边界-至多一次)、[分布式事务](/distributed/5_transaction)
 
 ## 七、WebFlux 与响应式
 
@@ -717,7 +717,7 @@ Mono.fromCallable(() -> legacyClient.fetch(id)).subscribeOn(Schedulers.boundedEl
 
 **常见坑**：不设超时，默认可能无限等待，所有客户端都要设超时。
 
-→ 详见 [Web 开发](/spring-boot/2_web_dev#七、http-客户端)、[服务通信](/service-governance/3_communication)
+→ 详见 [Web 开发](/spring-boot/2_web_dev#七、http-客户端)、[服务调用](/service-governance/3_communication)
 
 ### Q53：Framework 7 内置的 `@Retryable` 与 Spring Retry 有什么区别？`@ConcurrencyLimit` 为什么和虚拟线程有关？
 

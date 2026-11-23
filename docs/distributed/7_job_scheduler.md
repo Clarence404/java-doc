@@ -4,7 +4,7 @@ description: 重复执行、ShedLock、分片与错过触发、幂等、XXL-JOB�
 
 # 分布式调度
 
-> 前置阅读：[分布式锁](./3_lock)
+> 前置阅读：[分布式锁](./4_lock)
 
 多实例部署后，定时任务会遇到重复执行、单点和任务量过大的问题。本篇讲只执行一次、分片、错过触发与幂等等概念，以及 ShedLock、Quartz、XXL-JOB、PowerJob 等方案的选型。
 
@@ -60,7 +60,7 @@ public class ReportJob {
 }
 ```
 
-`lockAtMostFor` 是锁的最长持有时间，必须大于任务的正常耗时，否则任务没跑完锁就过期、别的实例又开始执行；`lockAtLeastFor` 防止各实例时钟略有偏差时，任务很快跑完后另一个实例在同一周期内再次触发。ShedLock 属于效率锁，任务本身仍应幂等（见 [分布式锁](./3_lock)）。
+`lockAtMostFor` 是锁的最长持有时间，必须大于任务的正常耗时，否则任务没跑完锁就过期、别的实例又开始执行；`lockAtLeastFor` 防止各实例时钟略有偏差时，任务很快跑完后另一个实例在同一周期内再次触发。ShedLock 属于效率锁，任务本身仍应幂等（见 [分布式锁](./4_lock)）。
 
 ---
 
@@ -206,4 +206,4 @@ Java 老牌调度库（当前 2.5.x），提供 Trigger / Job / Scheduler 模型
 - Apache DolphinScheduler：[https://dolphinscheduler.apache.org/](https://dolphinscheduler.apache.org/)
 - Apache Airflow：[https://airflow.apache.org/](https://airflow.apache.org/)
 
-> 下一篇：[工作流引擎](./7_work_flow) —— BPMN 审批流引擎与持久化执行引擎，Flowable、Camunda、Apache KIE 与 Temporal 的现状与选型。
+> 下一篇：[工作流引擎](./8_work_flow) —— BPMN 审批流引擎与持久化执行引擎，Flowable、Camunda、Apache KIE 与 Temporal 的现状与选型。

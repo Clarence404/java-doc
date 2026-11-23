@@ -115,7 +115,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 **常见坑**：一个流程同时套 Seata 全局事务和事务消息，边界不清，出了问题不知道该谁回滚。
 
-→ 详见 [订单](/scenario/7_order_system#八、分布式事务-按流程选一种)、[分布式基础面试题解答](/interview/16_distributed#三、分布式事务)
+→ 详见 [订单](/scenario/7_order_system#八、分布式事务-按流程选一种)、[分布式基础面试题解答](/interview/16_distributed#五、分布式事务)
 
 ### Q9：订单超时关单有哪些方案？关单与释放库存如何原子化？
 
@@ -518,7 +518,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 
 **常见坑**：以为绑定 Cookie 能防钓鱼扫码。攻击者在自己的浏览器打开真实登录页、把二维码转贴出去，要靠确认页展示设备和位置、异地加强校验、登录后通知来防。
 
-→ 详见 [扫码登录](/scenario/24_qr_login#三、二维码与状态机)、[分布式会话](/distributed/5_session)
+→ 详见 [扫码登录](/scenario/24_qr_login#三、二维码与状态机)、[分布式会话](/distributed/6_session)
 
 ### Q39：延迟任务有哪些实现方案？怎么选？
 
@@ -667,8 +667,8 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 - 高并发系统：[高并发面试题解答 Q1](/interview/24_high_con#q1-如何设计一个高并发系统-从哪些维度入手)、[高并发总览](/high-con/0_overview)
 - 高可用系统：[高可用面试题解答 Q1](/interview/25_high_avail#q1-如何设计一个高可用系统)、[高可用总览](/high-avail/0_overview)
 - RPC 框架：[微服务架构面试题解答 Q13](/interview/17_microservices#q13-如何设计一个-rpc-框架)、[Dubbo](/service-governance/8_dubbo#二、架构与调用流程)、[自定义私有协议](/netty/8_custom_protocol#七、请求-响应匹配-rpc-的核心)、[RPC 协议](/protocols/5_rpc_protocols)
-- 分布式主键：[分布式基础面试题解答 Q20](/interview/16_distributed#q20-分布式-id-有哪些方案-uuidv7-为什么适合做主键)、[分布式 ID 生成](/distributed/8_id_generator#八、方案对比与选型)
-- `synchronized` 与分布式锁：[分布式基础面试题解答 Q7](/interview/16_distributed#q7-分布式锁有哪些实现-怎么选)、[分布式锁](/distributed/3_lock#一、为什么需要分布式锁)
+- 分布式主键：[分布式基础面试题解答 Q9](/interview/16_distributed#q9-分布式-id-有哪些方案-uuidv7-为什么适合做主键)、[分布式 ID 生成](/distributed/3_id_generator#八、方案对比与选型)
+- `synchronized` 与分布式锁：[分布式基础面试题解答 Q12](/interview/16_distributed#q12-分布式锁有哪些实现-怎么选)、[分布式锁](/distributed/4_lock#一、为什么需要分布式锁)
 
 ### Q49：数据更新后通知下游，服务端推送还是客户端拉取？
 
@@ -832,7 +832,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 - 锁的 key 粒度不对：两个请求用了不同的 key，根本没互斥
 - 根治：加锁包在事务外面，最终用唯一约束或条件更新兜底，锁只负责串行化，不负责正确性
 
-→ 详见 [分布式锁只做串行化](/architecture/3_idempotence#八、分布式锁-只做串行化)、[分布式锁常见坑](/distributed/3_lock#七、常见坑)
+→ 详见 [分布式锁只做串行化](/architecture/3_idempotence#八、分布式锁-只做串行化)、[分布式锁常见坑](/distributed/4_lock#七、常见坑)
 
 ### Q61：表用逻辑删除，唯一约束怎么建？
 
@@ -856,7 +856,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 - 超时最难办：调用超时不知道对方成没成，事务提交还是回滚都不对
 - 正确拆法：事务一写「处理中」并提交 → 事务外调用外部服务 → 事务二按结果条件更新；要求可靠送达时用本地消息表，结果不明由查单任务补偿
 
-→ 详见 [大事务故障](/handbook/2_incidents/7_big_transaction#_5、事务为什么迟迟不提交)、[本地消息表](/distributed/4_transaction#五、本地消息表-transactional-outbox)
+→ 详见 [大事务故障](/handbook/2_incidents/7_big_transaction#_5、事务为什么迟迟不提交)、[本地消息表](/distributed/5_transaction#五、本地消息表-transactional-outbox)
 
 ### Q63：依赖的第三方接口不稳定，怎么保护自己？
 
@@ -907,7 +907,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 - 扫描：按 `expire_date` 建索引，调度框架分片，每片按主键游标批量取，投到 MQ 由消费者限速发送
 - 幂等：发送记录以 `(member_id, 到期周期)` 唯一，任务重跑不会重复提醒；续费后到期日变了自然不再命中
 
-→ 详见 [延迟任务方案对比](/scenario/25_delay_task#二、方案全景与选型)、[调度分片](/distributed/6_job_scheduler#_3、分片)
+→ 详见 [延迟任务方案对比](/scenario/25_delay_task#二、方案全景与选型)、[调度分片](/distributed/7_job_scheduler#_3、分片)
 
 ### Q67：一个账户被多个订单同时扣款，怎么防止扣成负数？
 
@@ -951,7 +951,7 @@ description: 秒杀、订单支付、优惠券、红包、短链、排行榜、F
 - 会话方案踢人：删除 Redis 里的会话；Spring Security 用 `maximumSessions(1)` 限制同时在线数
 - JWT 踢人：用户表存 token 版本号，踢人时加 1、校验时比对；或把 `jti` 放进黑名单直到令牌过期
 
-→ 详见 [限流、锁定与撞库](/security/1_authentication#_4、限流、锁定与撞库)、[分布式会话](/distributed/5_session)
+→ 详见 [限流、锁定与撞库](/security/1_authentication#_4、限流、锁定与撞库)、[分布式会话](/distributed/6_session)
 
 ### Q71：压测能扛 600 QPS，上线 300 QPS 就出问题了，为什么？
 

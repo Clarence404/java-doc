@@ -4,7 +4,7 @@ description: 2PC 与 XA、TCC、Saga、本地消息表、RocketMQ 事务消息�
 
 # 分布式事务
 
-> 前置阅读：[分布式理论](./2_theorem)、[MySQL 事务与锁](/database/1_mysql/4_topic_transaction)
+> 前置阅读：[分布式理论](./1_theorem)、[MySQL 事务与锁](/database/1_mysql/4_topic_transaction)
 
 本篇是分布式事务原理与 Seata 机制的主文档，对比 2PC / XA、TCC、Saga、本地消息表、事务消息与最大努力通知的一致性保证与代价，并讲 Seata AT 全局锁、TCC 空回滚 / 幂等 / 悬挂处理与方案选型。
 
@@ -18,7 +18,7 @@ description: 2PC 与 XA、TCC、Saga、本地消息表、RocketMQ 事务消息�
 - **跨服务**：订单服务调用库存服务、支付服务
 - **数据库 + 消息队列**：写库成功后要发一条消息通知下游
 
-难点在于网络不可靠：调用超时时，不知道对方到底成功还是失败。没有任何方案能在网络分区下同时做到强一致、高可用、高性能（见 [分布式理论](./2_theorem)）。
+难点在于网络不可靠：调用超时时，不知道对方到底成功还是失败。没有任何方案能在网络分区下同时做到强一致、高可用、高性能（见 [分布式理论](./1_theorem)）。
 
 所以第一步是**尽量不产生分布式事务**：
 
@@ -125,7 +125,7 @@ Saga（Garcia-Molina 与 Salem，1987）把长事务拆成一串本地事务 T1�
 | 缺点 | 编排器要高可用、持久化每一步状态 | 流程分散在各服务，难追踪；容易形成事件环 |
 | 适合 | 步骤多、需要可视化和人工介入的流程 | 步骤少、链路简单的流程 |
 
-编排器的实现可以是 Seata Saga 状态机（JSON 定义流程），也可以是 Temporal 这类持久化执行引擎（流程代码化，引擎记录每一步结果，崩溃后从断点继续），见 [工作流引擎](./7_work_flow)。
+编排器的实现可以是 Seata Saga 状态机（JSON 定义流程），也可以是 Temporal 这类持久化执行引擎（流程代码化，引擎记录每一步结果，崩溃后从断点继续），见 [工作流引擎](./8_work_flow)。
 
 ### 3、隔离性问题
 
@@ -464,4 +464,4 @@ public interface AccountTccAction {
 - Debezium Outbox Event Router：[https://debezium.io/documentation/reference/stable/transformations/outbox-event-router.html](https://debezium.io/documentation/reference/stable/transformations/outbox-event-router.html)
 - Antom（支付宝国际）异步通知：[https://docs.antom.com/ac/website_hk/asyncnotif](https://docs.antom.com/ac/website_hk/asyncnotif)
 
-> 下一篇：[分布式会话](./5_session) —— 多实例下的会话共享：粘性会话、Spring Session + Redis 与 JWT 的取舍。
+> 下一篇：[分布式会话](./6_session) —— 多实例下的会话共享：粘性会话、Spring Session + Redis 与 JWT 的取舍。

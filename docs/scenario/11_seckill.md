@@ -180,7 +180,7 @@ MQ 本身的可靠投递机制见 [RocketMQ](/messaging/3_rocketmq)。
 
 ### 1、发送：同步发送，失败回补
 
-`orderId` 在秒杀服务用雪花算法预先生成（见 [分布式 ID 生成](/distributed/8_id_generator)），它既是返回给用户的查询凭证，也是下游的幂等键。
+`orderId` 在秒杀服务用雪花算法预先生成（见 [分布式 ID 生成](/distributed/3_id_generator)），它既是返回给用户的查询凭证，也是下游的幂等键。
 
 ```java
 SeckillMessage msg = new SeckillMessage(orderId, userId, activityId);
@@ -207,7 +207,7 @@ Redis 和 MQ 无法放进同一个事务，发送失败回补之后仍有两个�
 
 ### 2、对账：兜住少卖
 
-定时任务（活动进行中每分钟一次，活动结束后再全量一次）比对 Redis 已购集合与 DB 订单表，找出「已购但超过 N 分钟仍无订单、也没有失败记录」的用户，执行回补脚本并广播。对账以 DB 为准，同时校验 `Redis 剩余 + 已成交 = 初始库存`，不一致时告警。多实例下用分布式调度避免重复执行，见 [分布式调度](/distributed/6_job_scheduler)。
+定时任务（活动进行中每分钟一次，活动结束后再全量一次）比对 Redis 已购集合与 DB 订单表，找出「已购但超过 N 分钟仍无订单、也没有失败记录」的用户，执行回补脚本并广播。对账以 DB 为准，同时校验 `Redis 剩余 + 已成交 = 初始库存`，不一致时告警。多实例下用分布式调度避免重复执行，见 [分布式调度](/distributed/7_job_scheduler)。
 
 > 如果要求一条请求都不能丢，可以先把请求写进本地消息表（与秒杀记录同库同事务），再由投递任务发 MQ，即 Transactional Outbox，见 [消息队列基础](/messaging/1_basics) 的分布式事务一节。代价是秒杀服务也要写库，吞吐下降。
 

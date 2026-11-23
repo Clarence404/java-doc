@@ -4,7 +4,7 @@ description: 评估维度、答题流程、需求澄清清单、容量速算、�
 
 # 系统设计方法论
 
-> 前置阅读：[容量评估与规划](/high-con/8_capacity_planning)、[分布式理论](/distributed/2_theorem)
+> 前置阅读：[容量评估与规划](/high-con/8_capacity_planning)、[分布式理论](/distributed/1_theorem)
 
 系统设计题没有标准答案，但有一套稳定的推进顺序，本模块后面的每个场景都是它的一次实例。本篇讲评估维度、七步答题流程与每一步的产出，并以短链接为例完整走一遍，基线为通用后端技术栈。
 
@@ -152,7 +152,7 @@ SLA 与几个 9 对应的停机时间见 [可用性度量](/high-avail/1_sla_slo
 
 | 常见问题 | 后果 | 做法 |
 |----------|------|------|
-| 主键用随机 UUID | B+ 树页分裂，写入放大 | 用发号器或雪花 ID，见 [分布式 ID 生成](/distributed/8_id_generator) |
+| 主键用随机 UUID | B+ 树页分裂，写入放大 | 用发号器或雪花 ID，见 [分布式 ID 生成](/distributed/3_id_generator) |
 | 计数字段放在主表 | 热门行写冲突 | 计数单独存，见 [计数服务](./17_counter) |
 | 分片键与查询不匹配 | 每次查询都要广播所有分片 | 建异构索引表或同步到 ES |
 | 大字段与热字段同表 | 缓存与 IO 效率低 | 冷热字段拆表，大对象放对象存储 |
@@ -174,8 +174,8 @@ SLA 与几个 9 对应的停机时间见 [可用性度量](/high-avail/1_sla_slo
 | 分库分表 | 单库写入与容量上限 | 写 TPS 或单表行数超出单机能力 | [数据层扩展](/high-con/5_data_scaling)、[分库分表与中间件](/database/4_practice/4_sharding) |
 | 搜索引擎 | 全文检索、多条件组合筛选 | 模糊查询、按非分片键的复杂查询 | [搜索数据库](/nosql/5_search_db)、[搜索](./22_search_system) |
 | 对象存储 + CDN | 图片、视频、文件 | 大对象、带宽占用高 | [对象存储](/architecture/5_object_storage)、[大文件上传](./23_file_upload) |
-| 分布式 ID | 全局唯一、趋势递增的主键 | 分库后自增主键不可用 | [分布式 ID 生成](/distributed/8_id_generator) |
-| 定时 / 延迟任务 | 超时关单、到期处理 | 有时间驱动的状态迁移 | [分布式调度](/distributed/6_job_scheduler) |
+| 分布式 ID | 全局唯一、趋势递增的主键 | 分库后自增主键不可用 | [分布式 ID 生成](/distributed/3_id_generator) |
+| 定时 / 延迟任务 | 超时关单、到期处理 | 有时间驱动的状态迁移 | [分布式调度](/distributed/7_job_scheduler) |
 | 限流与降级 | 保护系统不被打垮 | 流量可能超出容量 | [限流与过载保护](/high-avail/7_rate_limiting)、[降级](/high-avail/6_degradation) |
 
 ### 3、选型的说法

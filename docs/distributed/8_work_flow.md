@@ -4,7 +4,7 @@ description: BPMN 引擎与持久化执行、Flowable、Camunda 现状、Apache 
 
 # 工作流引擎
 
-> 前置阅读：[分布式事务](./4_transaction)
+> 前置阅读：[分布式事务](./5_transaction)
 
 工作流分为面向人工审批的 BPMN 流程引擎与面向服务编排的持久化执行引擎两类。本篇介绍 Flowable、Camunda、jBPM、Temporal 的现状与许可证，并按场景给出选型建议。
 
@@ -19,7 +19,7 @@ description: BPMN 引擎与持久化执行、Flowable、Camunda 现状、Apache 
 | 核心能力 | 用户任务、候选人与委派、会签、表单、流程版本、历史审计 | 断点续跑、自动重试、超时、定时器、Saga 补偿 |
 | 代表 | Flowable、Camunda、Activiti、jBPM | Temporal、Seata Saga 状态机、Camunda 8（Zeebe） |
 
-分布式系统里常说的「流程编排」多指第二类，它是 [分布式事务](./4_transaction) 中 Saga 编排器的一种实现方式。OA 审批、工单这类需求用第一类。
+分布式系统里常说的「流程编排」多指第二类，它是 [分布式事务](./5_transaction) 中 Saga 编排器的一种实现方式。OA 审批、工单这类需求用第一类。
 
 ---
 
@@ -92,7 +92,7 @@ public class OrderWorkflowImpl implements OrderWorkflow {
 
 要点：Workflow 代码必须是确定性的（不能直接读系统时间、随机数、发网络请求，这些都要放进 Activity 或用 `Workflow` 提供的 API）；Activity 要幂等，因为会被重试。
 
-同类方案还有 Seata Saga 状态机（JSON 定义流程，见 [分布式事务](./4_transaction)），以及 Camunda 8（BPMN 建模，同样可以编排服务调用）。
+同类方案还有 Seata Saga 状态机（JSON 定义流程，见 [分布式事务](./5_transaction)），以及 Camunda 8（BPMN 建模，同样可以编排服务调用）。
 
 ---
 
@@ -140,4 +140,4 @@ public class OrderWorkflowImpl implements OrderWorkflow {
 - Temporal 文档：[https://docs.temporal.io/](https://docs.temporal.io/)
 - Temporal Java SDK：[https://github.com/temporalio/sdk-java](https://github.com/temporalio/sdk-java)
 
-> 下一篇：[分布式 ID 生成](./8_id_generator) —— UUID（含 v7）、数据库自增、雪花算法、号段模式、Leaf 与 UidGenerator 的原理与坑。
+> 返回：[分布式基础总览](./0_overview)

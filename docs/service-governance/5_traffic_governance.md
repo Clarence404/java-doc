@@ -4,7 +4,7 @@ description: 负载均衡与灰度路由、熔断限流、Framework 7 容错注�
 
 # 流量治理
 
-> 前置阅读：[服务通信](./3_communication)
+> 前置阅读：[服务调用](./3_communication)
 
 流量治理让服务调用在故障与变更下仍然可控。本篇讲负载均衡与灰度路由、熔断限流、超时重试与优雅上下线，基线为 Spring Cloud 2025.1。
 
@@ -246,7 +246,7 @@ public class GrayHeaderInterceptor implements RequestInterceptor {
 }
 ```
 
-- HTTP Service Clients / `RestClient` 用 `ClientHttpRequestInterceptor` 做同样的事，写法见 [服务通信](./3_communication)
+- HTTP Service Clients / `RestClient` 用 `ClientHttpRequestInterceptor` 做同样的事，写法见 [服务调用](./3_communication)
 - `RequestContextHolder` 绑定在请求线程上，切换到线程池执行时会丢失，异步场景需要用 TransmittableThreadLocal、Micrometer Context Propagation 或链路追踪的 Baggage 传递，见 [虚拟线程](/java/30_topic_virtual_thread) 与 [链路追踪](/observability/3_tracing)
 - MQ 消息同样要把标记写进消息头，消费端按标记选择灰度或稳定的消费组
 
@@ -377,7 +377,7 @@ Framework 7 的 `RetryTemplate` 也移入了 spring-core，编程式重试不再
 
 ## 四、超时与重试
 
-OpenFeign 默认超时（连接 10s、读取 60s）远大于合理值，必须按服务显式配置；Spring Cloud OpenFeign 默认使用 `Retryer.NEVER_RETRY` 不重试，需要重试时只对幂等接口开启，并控制重试放大。超时取值、分层超时推导、退避与重试预算见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)，Feign 的超时配置项见 [服务通信](./3_communication)。
+OpenFeign 默认超时（连接 10s、读取 60s）远大于合理值，必须按服务显式配置；Spring Cloud OpenFeign 默认使用 `Retryer.NEVER_RETRY` 不重试，需要重试时只对幂等接口开启，并控制重试放大。超时取值、分层超时推导、退避与重试预算见 [超时、重试与隔离](/high-avail/4_timeout_retry_bulkhead)，Feign 的超时配置项见 [服务调用](./3_communication)。
 
 ---
 

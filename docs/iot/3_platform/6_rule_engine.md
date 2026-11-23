@@ -414,7 +414,7 @@ public RestClient webhookClient(RestClient.Builder builder) {
 
 告警要落库，还要发通知。常见的错误写法是在 `@Transactional` 方法里先插入记录、再发 MQTT 或调用 Webhook：事务最终回滚时，消息已经发出、无法撤回；外部调用变慢时，数据库连接和行锁被一直占住。
 
-正确做法是事务只负责写库并发布进程内事件，提交成功后再通知，五.4 的 `AlarmService` 就是这样写的。`AFTER_COMMIT` 监听器在进程崩溃时可能来不及执行；要求"写库成功就一定发出"时，改用本地消息表，由独立任务扫描投递，见 [分布式事务](/distributed/4_transaction)。
+正确做法是事务只负责写库并发布进程内事件，提交成功后再通知，五.4 的 `AlarmService` 就是这样写的。`AFTER_COMMIT` 监听器在进程崩溃时可能来不及执行；要求"写库成功就一定发出"时，改用本地消息表，由独立任务扫描投递，见 [分布式事务](/distributed/5_transaction)。
 
 ---
 

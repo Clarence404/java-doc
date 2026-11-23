@@ -252,8 +252,8 @@ if (records != null) {
 以下场景常用 Redis 实现，但主文档在其他模块，这里只给结论：
 
 - **限流**：固定窗口用 `INCR` + `EXPIRE`，滑动窗口用 ZSet + Lua（成员要唯一，如「时间戳-请求 ID」，否则同一毫秒的请求互相覆盖）。算法对比与完整脚本见 [限流与过载保护](/high-avail/7_rate_limiting)，Redisson `RRateLimiter` 的用法见 [Redisson](./6_redisson)
-- **分布式会话**：Spring Session 把 Session 存进 Redis，或用 Redis 存 Token 实现主动失效、踢人下线，见 [分布式会话](/distributed/5_session)
-- **分布式锁**：`SET key uuid NX PX` 加锁、Lua 比对后删除解锁，长任务要续期或用 fencing token，见 [分布式锁](/distributed/3_lock)
+- **分布式会话**：Spring Session 把 Session 存进 Redis，或用 Redis 存 Token 实现主动失效、踢人下线，见 [分布式会话](/distributed/6_session)
+- **分布式锁**：`SET key uuid NX PX` 加锁、Lua 比对后删除解锁，长任务要续期或用 fencing token，见 [分布式锁](/distributed/4_lock)
 - **计数器 / UV**：精确计数用 `INCR` / `HINCRBY`，海量去重计数用 HyperLogLog，见 [Redis 基础](./1_redis_base)
 - **附近的人**：GEO 命令，完整设计见 [附近的人](/scenario/20_geo_nearby)
 

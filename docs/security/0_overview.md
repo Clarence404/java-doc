@@ -50,7 +50,7 @@
 - 认证框架选型（Spring Security / Sa-Token / Shiro）→ [安全框架对比](/spring/10_auth_framework)
 - Spring 生态 SSO 接入（LDAP / CAS / SAML2 / OIDC / Keycloak / Spring Authorization Server）→ [Spring SSO 接入](/spring/11_single_sign_on)
 - 权限系统架构（PEP / PDP、权限缓存、数据权限拦截）→ [权限系统架构设计](/architecture/6_access_control)
-- 服务端会话与 Spring Session → [分布式会话](/distributed/5_session)
+- 服务端会话与 Spring Session → [分布式会话](/distributed/6_session)
 - 网关统一鉴权（网关作为 OAuth2 资源服务器）→ [API 网关](/service-governance/2_api_gateway)
 - 服务间 mTLS 与网格安全策略 → [服务网格](/service-governance/9_service_mesh)
 - 证书与 TLS / mTLS 协议 → [HTTPS 与 TLS](/protocols/3_https_tls)

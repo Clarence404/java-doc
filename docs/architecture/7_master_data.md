@@ -243,7 +243,7 @@ public void syncFromErp() {
 ```
 
 - 导入的数据同样走校验与变更单，可以对可信来源配置自动审批
-- 多实例部署时用分布式调度（XXL-JOB 3.x 等）或 ShedLock 保证同一时刻只有一个实例执行，见 [分布式调度](/distributed/6_job_scheduler)
+- 多实例部署时用分布式调度（XXL-JOB 3.x 等）或 ShedLock 保证同一时刻只有一个实例执行，见 [分布式调度](/distributed/7_job_scheduler)
 
 ---
 

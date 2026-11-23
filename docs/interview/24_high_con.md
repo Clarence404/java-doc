@@ -169,7 +169,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 定时任务：用分布式调度（XXL-JOB）或分布式锁，避免多台机器重复执行
 - 自查：有没有用 `static` 集合存业务数据、有没有假设「下次请求还能读到本地文件」
 
-→ 详见 [水平扩展与无状态化](/high-con/2_scale_out#_1、常见的-状态-及外置方案)；Session 共享方案与 Spring Session / JWT 取舍见 [分布式基础面试题解答](/interview/16_distributed) Q26
+→ 详见 [水平扩展与无状态化](/high-con/2_scale_out#_1、常见的-状态-及外置方案)；Session 共享方案与 Spring Session / JWT 取舍见 [分布式基础面试题解答](/interview/16_distributed) Q25
 
 ### Q13：K8s HPA 自动扩容有哪些局限？应用扩容后下游会出现什么问题？
 
@@ -266,7 +266,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 - 可重复：消费端按唯一键、状态机或去重表做幂等，失败有限次重试后进死信队列
 - 对账：定时比对上下游状态，补偿或人工处理长时间不一致的数据
 
-→ 完整答案见 [消息队列面试题解答](/interview/15_mq) Q20；正文详见 [异步与削峰](/high-con/4_async_peak_shaving#五、最终一致性与补偿)、[分布式事务](/distributed/4_transaction#五、本地消息表-transactional-outbox)
+→ 完整答案见 [消息队列面试题解答](/interview/15_mq) Q20；正文详见 [异步与削峰](/high-con/4_async_peak_shaving#五、最终一致性与补偿)、[分布式事务](/distributed/5_transaction#五、本地消息表-transactional-outbox)
 
 ---
 
@@ -323,7 +323,7 @@ description: 接入层、水平扩展、缓存架构、削峰、数据层扩展�
 
 - 分表后需要全局唯一、大致递增的 ID（雪花算法、号段）；用 UUID 做主键会让索引频繁分裂、写入变慢
 
-→ 详见 [数据层扩展](/high-con/5_data_scaling#_3、分片算法)、[一致性哈希](/distributed/9_consistent_hashing#二、哈希环)
+→ 详见 [数据层扩展](/high-con/5_data_scaling#_3、分片算法)、[一致性哈希](/distributed/2_consistent_hashing#二、哈希环)
 
 ### Q25：分库分表后如何按非分片键查询？跨分片分页怎么做？
 

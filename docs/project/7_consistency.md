@@ -4,7 +4,7 @@ description: 方案对比与不用 Seata 的理由、库存预占三个接口、
 
 # 跨服务一致性
 
-> 前置阅读：[数据建模](./2_data_model)、[分布式事务](/distributed/4_transaction)、[库存与票务](/scenario/6_inventory)
+> 前置阅读：[数据建模](./2_data_model)、[分布式事务](/distributed/5_transaction)、[库存与票务](/scenario/6_inventory)
 
 库存与支付拆成独立服务后，阶段一「扣库存 + 写订单」的本地事务不再成立。本篇讲方案取舍、库存预占与支付消息、失败补偿与对账，基线为 Spring Boot 4、RocketMQ 5、MySQL 8.4。
 
@@ -29,7 +29,7 @@ description: 方案对比与不用 Seata 的理由、库存预占三个接口、
 
 ## 二、选项
 
-几种主流方案的原理见 [分布式事务](/distributed/4_transaction)，这里只看它们放到示例商城的代价：
+几种主流方案的原理见 [分布式事务](/distributed/5_transaction)，这里只看它们放到示例商城的代价：
 
 | 方案 | 一致性 | 对业务的侵入 | 示例商城的代价 |
 |------|-------|------------|-----------|
@@ -37,10 +37,10 @@ description: 方案对比与不用 Seata 的理由、库存预占三个接口、
 | Seata AT | 最终一致（全局锁隔离写） | 低，自动生成回滚 SQL | 要单独部署并运维 TC 集群和它的存储；全局锁让同一 SKU 的下单串行；依赖 SQL 解析与 `undo_log` |
 | TCC | 最终一致 | 高，每个参与方写三个接口 | 要处理空回滚、幂等、悬挂；但库存「预占」天然就是 Try |
 | Saga | 最终一致，无隔离 | 中，每步写补偿 | 补偿前中间状态对外可见，库存先扣后还会造成「明明有货却下不了单」 |
-| [本地消息表](/distributed/4_transaction#五、本地消息表-transactional-outbox) | 最终一致 | 中，业务表旁加一张 `t_outbox` | 有投递延迟；消费方必须幂等。[异步化](./5_async) 一篇已经在用，连同 `t_consume_record` 去重表 |
+| [本地消息表](/distributed/5_transaction#五、本地消息表-transactional-outbox) | 最终一致 | 中，业务表旁加一张 `t_outbox` | 有投递延迟；消费方必须幂等。[异步化](./5_async) 一篇已经在用，连同 `t_consume_record` 去重表 |
 | RocketMQ 事务消息 | 最终一致 | 中，要实现回查接口 | 和本地消息表解决同一个问题，多一套机制要维护 |
 
-CAP 与 BASE 的取舍见 [分布式理论](/distributed/2_theorem#二、base-与一致性模型)：电商下单接受「几秒到几分钟内最终一致」，不接受「为了强一致让下单排队」。
+CAP 与 BASE 的取舍见 [分布式理论](/distributed/1_theorem#二、base-与一致性模型)：电商下单接受「几秒到几分钟内最终一致」，不接受「为了强一致让下单排队」。
 
 ---
 
@@ -61,7 +61,7 @@ CAP 与 BASE 的取舍见 [分布式理论](/distributed/2_theorem#二、base-�
 
 - **参与方少、流程固定**：跨服务的写只有订单、库存、支付三方，状态流转在 [数据建模](./2_data_model) 里已经定死，手写协调的代码量可控
 - **多一套要高可用的基础设施**：TC 集群挂了，所有下单都失败；20 人的团队里没有人专职维护它
-- **热点 SKU 会被全局锁串行化**：AT 模式在全局事务提交前持有全局锁，大促时同一个爆款的下单全部排队，见 [分布式事务 · Seata](/distributed/4_transaction#八、seata)
+- **热点 SKU 会被全局锁串行化**：AT 模式在全局事务提交前持有全局锁，大促时同一个爆款的下单全部排队，见 [分布式事务 · Seata](/distributed/5_transaction#八、seata)
 - **团队已经有 Outbox**：[异步化](./5_async) 一篇的 `t_outbox`、`OutboxRelayJob` 和 `t_consume_record` 直接复用：`OutboxWriter`、`OutboxRelay`、`OutboxRelayJob` 从 `io.github.clarence404.mall.order.outbox` 抽到 `mall-common` 的 `io.github.clarence404.mall.common.outbox`，三个服务共用一份代码，表在 `payment-service`、`inventory-service` 的库里各建一份；新增的只是库存的三个接口
 
 ### 2、明确不做
@@ -159,7 +159,7 @@ public void release(String orderNo, List<ReserveLine> lines) {
 - **空回滚**：`release` 先到，库里没有预占记录。如果直接返回成功，什么都不留下，那么迟到的 `reserve` 会照常扣掉库存，而订单根本不存在。所以 `release` 要写一行 RELEASED 占位
 - **悬挂**：迟到的 `reserve` 查到 RELEASED 占位，返回 REJECTED，不扣库存。占位和预占共用 `uk_order_sku`，两者并发时由唯一键决定先后
 
-这两个问题的一般性分析见 [分布式事务 · 空回滚、幂等与悬挂](/distributed/4_transaction#_2、空回滚、幂等与悬挂)。
+这两个问题的一般性分析见 [分布式事务 · 空回滚、幂等与悬挂](/distributed/5_transaction#_2、空回滚、幂等与悬挂)。
 
 ---
 

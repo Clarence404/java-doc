@@ -82,7 +82,7 @@ public class OrderArchiver {
 - 归档表与主表**在同一个实例**时，复制和删除可以放在一个本地事务里，任意一步失败整体回滚
 - 冷库在另一个系统（独立实例、ClickHouse、OSS）时无法共用事务：先写冷库（按主键幂等写入），校验行数或校验和后再删热库；中途失败重跑也不会丢数据或重复
 - 批次要小，批间可短暂休眠：大批量 DELETE 会产生长事务、大量 undo 与 binlog，拖慢主从同步；MySQL 生态也可以直接用 Percona 的 `pt-archiver`
-- 多实例部署时同一时刻只能有一个实例执行，见 [分布式调度](/distributed/6_job_scheduler)
+- 多实例部署时同一时刻只能有一个实例执行，见 [分布式调度](/distributed/7_job_scheduler)
 
 ### 2、基于 binlog 的 CDC 异步归档
 

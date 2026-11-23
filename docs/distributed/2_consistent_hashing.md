@@ -4,7 +4,7 @@ description: 哈希环、虚拟节点、Java 实现、Jump Hash 等变体、Redi
 
 # 一致性哈希
 
-> 前置阅读：[分布式理论](./2_theorem)
+> 前置阅读：[分布式理论](./1_theorem)
 
 一致性哈希让扩缩容时只迁移约 1/N 的数据。本篇讲哈希环、虚拟节点与 Java 实现、Jump Hash 等变体，并分清它与 Redis Cluster 槽位、Kafka 分区路由的区别。
 
@@ -217,4 +217,4 @@ Redis Cluster 把 key 空间固定分为 16384 个槽：`slot = CRC16(key) % 163
 - Nginx upstream hash 指令：[https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash](https://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash)
 - Cassandra 数据分布（vnodes）：[https://cassandra.apache.org/doc/latest/cassandra/architecture/dynamo.html](https://cassandra.apache.org/doc/latest/cassandra/architecture/dynamo.html)
 
-> 返回：[分布式基础总览](./0_overview)
+> 下一篇：[分布式 ID 生成](./3_id_generator) —— UUID（含 v7）、数据库自增、雪花算法、号段模式、Leaf 与 UidGenerator 的原理与坑。

@@ -20,13 +20,13 @@
 
 1. [注册发现](./1_service_registry)：注册中心选型、Nacos 2.x+ 的 gRPC 连接与临时 / 持久实例、Spring Cloud 接入
 2. [API 网关](./2_api_gateway)：Gateway Server WebFlux 与 Server MVC、路由与过滤链、网关统一鉴权、限流与灰度
-3. [服务通信](./3_communication)：HTTP Service Clients 与 OpenFeign、gRPC、Dubbo 3 的选型与接入
+3. [服务调用](./3_communication)：HTTP Service Clients 与 OpenFeign、gRPC、Dubbo 3 的选型与接入
 4. [配置中心](./4_config_center)：`spring.config.import` 接入 Nacos Config、gRPC 推送刷新链路、`@RefreshScope` 与属性重绑定
 5. [流量治理](./5_traffic_governance)：Spring Cloud LoadBalancer、灰度路由与标记透传、Resilience4j 与 Framework 7 内置容错
 6. [Spring Cloud Alibaba](./6_alibaba)：版本对齐、Sentinel 规则与持久化、Seata AT 模式
 7. [Spring Cloud Stream](./7_stream)：Binder 抽象、函数式模型、消费组与分区、重试与死信
 
-**其他路线**：不用 Spring Cloud，或与它组合使用
+**Dubbo 与服务网格**：不用 Spring Cloud，或与它组合使用
 
 8. [Dubbo](./8_dubbo)：RPC 服务框架的调用流程、Triple 协议、负载均衡与集群容错、SPI 扩展机制，以及与 Spring Cloud 的选型
 9. [服务网格](./9_service_mesh)：Istio 的控制面与数据面、流量管理、mTLS、Sidecar 与 Ambient 两种数据面，以及与 Spring Cloud 的取舍
@@ -90,7 +90,7 @@
 - [微服务架构总览](/microservices/0_overview)：拆分原则、设计模式、调用顺序性、服务间通信与契约
 - [RPC 协议](/protocols/5_rpc_protocols)：gRPC 帧格式、Protobuf 编码、Thrift、SOAP 等协议的横向对比
 - [云原生 · Kubernetes](/cloud-native/6_kubernetes)：服务网格的运行底座
-- [分布式基础 · 分布式事务](/distributed/4_transaction)：2PC、TCC、Saga、本地消息表、Seata 的完整对比
+- [分布式基础 · 分布式事务](/distributed/5_transaction)：2PC、TCC、Saga、本地消息表、Seata 的完整对比
 - [高可用总览](/high-avail/0_overview)：负载均衡、熔断降级、限流、优雅上下线的原理与阈值
 - [消息队列总览](/messaging/0_overview)：Kafka / RocketMQ / RabbitMQ 本体
 - [可观测性 · 链路追踪](/observability/3_tracing)：Micrometer Tracing 与 OpenTelemetry

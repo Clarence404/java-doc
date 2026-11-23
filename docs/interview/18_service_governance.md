@@ -47,7 +47,7 @@ description: Nacos、网关、OpenFeign、Sentinel、Seata、Stream、链路追�
 - 大量服务的临时节点和变更通知，也会给 ZooKeeper 带来很大压力
 - 注册中心不在调用路径上，短暂故障时调用方用缓存的列表继续调
 
-→ 详见 [注册发现](/service-governance/1_service_registry#二、注册中心对比)、[分布式理论](/distributed/2_theorem)
+→ 详见 [注册发现](/service-governance/1_service_registry#二、注册中心对比)、[分布式理论](/distributed/1_theorem)
 
 ### Q4：Nacos 的临时实例和持久实例有什么区别？AP / CP 是由什么决定的？
 
@@ -136,7 +136,7 @@ description: Nacos、网关、OpenFeign、Sentinel、Seata、Stream、链路追�
 - `base-url` 写成普通地址时不走负载均衡，适合调外部 API
 - 迁移主要是换注解：`@FeignClient` + `@GetMapping` 改成 `@HttpExchange` + `@GetExchange`
 
-→ 详见 [服务通信](/service-governance/3_communication#二、http-service-clients-推荐)
+→ 详见 [服务调用](/service-governance/3_communication#二、http-service-clients-推荐)
 
 ### Q11：OpenFeign 的工作原理是什么？为什么配置了 fallback 却不生效？
 
@@ -149,7 +149,7 @@ description: Nacos、网关、OpenFeign、Sentinel、Seata、Stream、链路追�
 
 **常见坑**：默认读超时 60 秒，远大于合理值，必须按服务显式配置；写接口的降级不能假装返回成功。
 
-→ 详见 [服务通信](/service-governance/3_communication#_2、降级生效的前提)
+→ 详见 [服务调用](/service-governance/3_communication#_2、降级生效的前提)
 
 ### Q12：Spring Cloud LoadBalancer 有哪些内置能力？如何基于它实现灰度路由？
 
@@ -304,7 +304,7 @@ description: Nacos、网关、OpenFeign、Sentinel、Seata、Stream、链路追�
 - 配置：`tx-service-group` 经 `vgroup-mapping` 映射到 TC 集群名，`registry.type: nacos` 从 Nacos 发现 seata-server
 - XID 透传：OpenFeign 等常用客户端由 starter 自动处理；自定义客户端要把 `RootContext.getXID()` 放进请求头 `TX_XID`，下游再绑定
 - seata-server 生产用 db 或 raft 存储，多节点部署
-- AT 原理、读写隔离和四种模式怎么选见 [分布式基础面试题解答 Q17](/interview/16_distributed#q17-seata-at-的原理是什么-全局锁和读隔离是怎样的-回滚什么时候会失败)、[Q18](/interview/16_distributed#q18-seata-的-at、tcc、saga、xa-怎么选)
+- AT 原理、读写隔离和四种模式怎么选见 [分布式基础面试题解答 Q22](/interview/16_distributed#q22-seata-at-的原理是什么-全局锁和读隔离是怎样的-回滚什么时候会失败)、[Q23](/interview/16_distributed#q23-seata-的-at、tcc、saga、xa-怎么选)
 
 **常见坑**：下游返回错误码而不抛异常时，发起方要自己判断并抛异常，否则全局事务会被提交。
 

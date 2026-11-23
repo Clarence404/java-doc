@@ -81,7 +81,7 @@
 - [Kubernetes](/cloud-native/6_kubernetes)：KubeEdge 所依赖的云端集群
 - [AI 总览](/ai/0_overview)：边缘推理所用模型的来源与接入方式
 - [幂等设计](/architecture/3_idempotence)：指令重复投递只执行一次、规则动作去重的通用做法
-- [分布式锁](/distributed/3_lock)：平台实战里接入层用 Redis 锁做单活多备的原理
+- [分布式锁](/distributed/4_lock)：平台实战里接入层用 Redis 锁做单活多备的原理
 - [Redis 典型应用场景](/cache/4_redis_scenario)：平台实战用作消息总线的 Redis Streams 消费组、确认与认领
 - [权限系统架构设计](/architecture/6_access_control)：多租户平台里角色、权限与数据范围的通用设计
 - [性能分析方法论](/high-perf/2_methodology)：平台实战压测篇所用的定位思路

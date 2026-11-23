@@ -12,7 +12,7 @@ InnoDB 用 undo、redo、MVCC 和锁实现 ACID，本篇讲隔离级别、加锁
 
 ## 一、事务 ACID
 
-Spring 声明式事务与传播行为见 [事务管理](/spring/4_transaction)，跨库、跨服务的事务见 [分布式事务](/distributed/4_transaction)。
+Spring 声明式事务与传播行为见 [事务管理](/spring/4_transaction)，跨库、跨服务的事务见 [分布式事务](/distributed/5_transaction)。
 
 | 特性 | 含义 | InnoDB 实现手段 |
 |------|------|----------------|

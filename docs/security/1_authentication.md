@@ -207,7 +207,7 @@ public class LoginAttemptService {
 
 选型原则：
 
-- **浏览器应用优先用会话**：自建前后端同站点时，会话 Cookie 比把 JWT 放进浏览器更简单也更安全；集群部署用 Spring Session，见 [分布式会话](/distributed/5_session)
+- **浏览器应用优先用会话**：自建前后端同站点时，会话 Cookie 比把 JWT 放进浏览器更简单也更安全；集群部署用 Spring Session，见 [分布式会话](/distributed/6_session)
 - **令牌交给 OAuth2 体系**：移动端、第三方接入或多服务架构，用 OAuth2 授权服务器签发短期访问令牌，格式与吊销见 [JWT 令牌机制](./1_jwt)，授权流程见 [OAuth2](./2_oauth2)
 - **SPA 走 BFF**：前端只持有会话 Cookie，令牌留在服务端的 BFF 里，见 [JWT 令牌机制](./1_jwt#九、token-存在哪里)
 

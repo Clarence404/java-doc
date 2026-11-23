@@ -4,8 +4,6 @@ description: CAP 与 PACELC、BASE、一致性模型、Quorum、FLP、Paxos、Ra
 
 # 分布式理论
 
-> 前置阅读：[分布式架构](./1_distributed)
-
 分布式理论描述多节点系统在一致性、可用性与延迟之间的取舍。本篇讲 CAP 与 PACELC、各种一致性模型、Paxos / Raft / ZAB 的核心流程与 Gossip，并用它们判断常见中间件的一致性行为。
 
 ---
@@ -65,7 +63,7 @@ BASE 由 eBay 的 Dan Pritchett 在 2008 年系统阐述，是 AP 路线的工�
 | **S**（Soft State） | 允许存在中间状态，副本之间短暂不一致 |
 | **E**（Eventually Consistent） | 没有新写入时，所有副本最终收敛到相同值 |
 
-ACID 与 BASE 不是二选一：一个系统里，单个服务内部用数据库 ACID 事务，跨服务用 BASE 的最终一致（见 [分布式事务](./4_transaction)）。
+ACID 与 BASE 不是二选一：一个系统里，单个服务内部用数据库 ACID 事务，跨服务用 BASE 的最终一致（见 [分布式事务](./5_transaction)）。
 
 ### 2、一致性模型（从强到弱）
 
@@ -295,4 +293,4 @@ ZXID 是 64 位事务 ID：高 32 位是 epoch（每选出一个新 Leader 加�
 - Kafka KRaft 文档：[https://kafka.apache.org/documentation/#kraft](https://kafka.apache.org/documentation/#kraft)
 - Nacos 临时实例与持久化实例：[https://nacos.io/docs/latest/manual/user/java-sdk/usage/](https://nacos.io/docs/latest/manual/user/java-sdk/usage/)
 
-> 下一篇：[分布式锁](./3_lock) —— Redis、ZooKeeper、etcd 三种实现，租约过期与 Fencing Token，以及 Redlock 争议。
+> 下一篇：[一致性哈希](./2_consistent_hashing) —— 哈希环、虚拟节点、Jump Hash 等变体，以及 Redis Cluster 槽位与 Kafka 分区路由的区别。

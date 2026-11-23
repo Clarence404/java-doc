@@ -202,7 +202,7 @@ description: SLA、冗余切换、超时重试、熔断降级限流、多活、�
 - P2C：随机挑两台、选负载低的那台，简单又有效
 - 普通取模（`hash % N`）在机器数变化时几乎所有 key 都要重新分配；一致性哈希只影响相邻一小段，用虚拟节点让分布更均匀
 
-→ 详见 [负载均衡](/high-avail/3_load_balancing#一、负载均衡算法)、[一致性哈希](/distributed/9_consistent_hashing#二、哈希环)
+→ 详见 [负载均衡](/high-avail/3_load_balancing#一、负载均衡算法)、[一致性哈希](/distributed/2_consistent_hashing#二、哈希环)
 
 ### Q16：负载均衡的失败转移为什么只对幂等请求开？转移次数为什么要限制？
 

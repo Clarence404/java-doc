@@ -4,8 +4,6 @@ description: UUIDv7、步长自增、雪花算法与时钟回拨、号段与双 
 
 # 分布式 ID 生成
 
-> 前置阅读：[分布式架构](./1_distributed)
-
 分布式 ID 要在多节点下产出全局唯一、趋势递增的标识。本篇讲 UUID v7、数据库自增、雪花算法、号段模式的原理与边界，以及时钟回拨、workerId 分配、精度丢失等生产问题。
 
 ---
@@ -302,4 +300,4 @@ Leaf 的开源仓库自 2020 年前后基本不再更新，可以作为设计参
 - MySQL auto_increment_increment：[https://dev.mysql.com/doc/refman/8.4/en/replication-options-source.html#sysvar_auto_increment_increment](https://dev.mysql.com/doc/refman/8.4/en/replication-options-source.html#sysvar_auto_increment_increment)
 - PostgreSQL UUID Functions：[https://www.postgresql.org/docs/current/functions-uuid.html](https://www.postgresql.org/docs/current/functions-uuid.html)
 
-> 下一篇：[一致性哈希](./9_consistent_hashing) —— 哈希环、虚拟节点、Jump Hash 等变体，以及 Redis Cluster 槽位与 Kafka 分区路由的区别。
+> 下一篇：[分布式锁](./4_lock) —— Redis、ZooKeeper、etcd 三种实现，租约过期与 Fencing Token，以及 Redlock 争议。

@@ -378,4 +378,4 @@ spring:
 - Spring Security OAuth2 Resource Server（Reactive）：[https://docs.spring.io/spring-security/reference/reactive/oauth2/resource-server/jwt.html](https://docs.spring.io/spring-security/reference/reactive/oauth2/resource-server/jwt.html)
 - Kubernetes Gateway API：[https://gateway-api.sigs.k8s.io/](https://gateway-api.sigs.k8s.io/)
 
-> 下一篇：[服务通信](./3_communication) —— 网关之后的服务间调用：HTTP Service Clients、OpenFeign、gRPC 与 Dubbo 如何选。
+> 下一篇：[服务调用](./3_communication) —— 网关之后的服务间调用：HTTP Service Clients、OpenFeign、gRPC 与 Dubbo 如何选。

@@ -4,7 +4,7 @@ description: 分层架构、Clean Architecture、六边形架构、CQRS、Event 
 
 # 架构模式与风格
 
-> 前置阅读：[微服务优势与挑战](/microservices/1_pros_and_cons)
+> 前置阅读：[从单体到微服务](/microservices/1_pros_and_cons)
 
 架构模式回答「代码怎么组织、依赖朝哪个方向」，架构风格回答「系统怎么部署、服务之间怎么通信」。本篇讲分层、整洁架构、六边形架构与 CQRS、事件溯源，并对比常见架构风格、给出组合建议。
 
@@ -258,7 +258,7 @@ public class Order {
 | **事件驱动（EDA）** | 服务 + 消息中间件 | 异步事件 | 解耦、异步、削峰 | 最终一致、事件演进、调试困难 |
 | **Serverless** | 函数 | 事件触发 | 低频任务、突发流量 | 冷启动、状态管理、厂商绑定 |
 
-单体与微服务的取舍见 [微服务优势与挑战](/microservices/1_pros_and_cons)，服务拆分与常用模式见 [微服务设计模式](/microservices/3_patterns)。
+单体与微服务的取舍见 [从单体到微服务](/microservices/1_pros_and_cons)，服务拆分与常用模式见 [微服务设计模式](/microservices/3_patterns)。
 
 ---
 

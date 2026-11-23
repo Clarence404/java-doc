@@ -4,7 +4,7 @@ description: 状态机与条件更新、下单幂等与库存预占、消费支�
 
 # 订单
 
-> 前置阅读：[幂等设计](/architecture/3_idempotence)、[分布式事务](/distributed/4_transaction)、[消息队列基础](/messaging/1_basics)
+> 前置阅读：[幂等设计](/architecture/3_idempotence)、[分布式事务](/distributed/5_transaction)、[消息队列基础](/messaging/1_basics)
 
 订单的难点不在建表，而在**每个环节都会被重复调用**：用户重复提交、支付成功事件重复到达、MQ 重复投递、定时任务和消息同时关单。本篇的统一做法是唯一约束挡重复、状态条件更新挡并发、消息在事务提交之后发出，跨服务的一致性按流程选定一种方案。
 
@@ -99,7 +99,7 @@ public void transit(long orderId, OrderStatus from, OrderStatus to) {
 1. 校验参数（商品、地址、优惠券），**服务端计算价格**，不信任前端金额
 2. 用客户端提交的幂等号 `biz_no` 查订单，已存在直接返回
 3. 调库存服务**预占**库存、调优惠券服务锁定优惠券，两者都以 `biz_no` 作为幂等键
-4. 生成订单号（雪花算法，见 [分布式 ID 生成](/distributed/8_id_generator)），插入订单，状态为待支付
+4. 生成订单号（雪花算法，见 [分布式 ID 生成](/distributed/3_id_generator)），插入订单，状态为待支付
 5. 事务提交后发送 15 分钟关单定时消息
 6. 调支付中心创建支付单（以订单号幂等），返回支付参数；支付单与交易单模型见 [支付](./8_payment#三、支付单、交易单与状态机)
 
@@ -189,7 +189,7 @@ public void onPaySuccess(PaySuccessEvent e) {             // 事件至少投递�
 订单关单的特点是延迟固定（15 分钟）、量大、不需要取消（支付后到期的关单消息会被状态条件更新拦下），所以选**RocketMQ 5.x 定时消息 + 定时扫表兜底**：
 
 - **定时消息负责准时**：下单事务提交后发一条 15 分钟后投递的消息；RocketMQ 4.x 只有 18 个固定级别，没有 15 分钟，需要 5.x
-- **扫表负责不漏**：每分钟扫 `status = 待支付 AND created_at < now - 16m`，兜住消息发送失败、Broker 故障的订单；多实例部署用 XXL-JOB 或 ShedLock 保证单实例执行，见 [分布式调度](/distributed/6_job_scheduler)
+- **扫表负责不漏**：每分钟扫 `status = 待支付 AND created_at < now - 16m`，兜住消息发送失败、Broker 故障的订单；多实例部署用 XXL-JOB 或 ShedLock 保证单实例执行，见 [分布式调度](/distributed/7_job_scheduler)
 - **不用的方案**：Redis key 过期通知不持久化、订阅方断线即丢；Redisson `RDelayedQueue` 已标记废弃；内存时间轮重启即丢
 
 六类延迟方案的精度、规模、可靠性对比与选型见 [延迟任务 · 方案全景与选型](./25_delay_task#二、方案全景与选型)。
@@ -297,7 +297,7 @@ WHERE sku_id = #{skuId};
 | 关单 → 释放库存、解锁优惠券 | 最终一致 | 同上，`ORDER_CANCELLED` 事件 |
 | 内部后台、低并发、要同步整体回滚 | 同步出结果、失败整体回滚 | 可以用 Seata AT（仍是最终一致，注意全局锁带来的写阻塞与默认读未提交）；确需强一致用 Seata XA |
 
-**Outbox 与事务消息怎么选**：Outbox 只依赖本地数据库，任何 MQ 都能用，代价是多一张表和一个投递任务（或用 CDC 读 binlog 投递）；RocketMQ 事务消息不需要额外的表，但本地事务必须写在 `executeLocalTransaction` 里，并实现回查 `checkLocalTransaction`：查到事务记录返回 COMMIT，查不到且仍在不确定窗口内返回 UNKNOWN，不能直接回滚。完整实现见 [RocketMQ](/messaging/3_rocketmq#七、事务消息) 的事务消息一节和 [消息队列基础](/messaging/1_basics) 的分布式事务一节，Seata 各模式对比见 [分布式事务](/distributed/4_transaction)。
+**Outbox 与事务消息怎么选**：Outbox 只依赖本地数据库，任何 MQ 都能用，代价是多一张表和一个投递任务（或用 CDC 读 binlog 投递）；RocketMQ 事务消息不需要额外的表，但本地事务必须写在 `executeLocalTransaction` 里，并实现回查 `checkLocalTransaction`：查到事务记录返回 COMMIT，查不到且仍在不确定窗口内返回 UNKNOWN，不能直接回滚。完整实现见 [RocketMQ](/messaging/3_rocketmq#七、事务消息) 的事务消息一节和 [消息队列基础](/messaging/1_basics) 的分布式事务一节，Seata 各模式对比见 [分布式事务](/distributed/5_transaction)。
 
 无论哪种方案，**下游消费者都要幂等**：积分服务以 `orderId` 建唯一约束，库存服务以预占记录的状态条件更新。
 

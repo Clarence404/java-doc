@@ -4,7 +4,7 @@ description: 同步与异步的划分、RocketMQ 选型、本地消息表 t_outb
 
 # 异步化
 
-> 前置阅读：[接口设计](./3_api_design)、[消息队列基础](/messaging/1_basics)、[分布式事务](/distributed/4_transaction)
+> 前置阅读：[接口设计](./3_api_design)、[消息队列基础](/messaging/1_basics)、[分布式事务](/distributed/5_transaction)
 
 阶段二支付成功后的积分、通知、发货单都在回调里同步执行，拖慢响应还牵连主链路。本篇讲异步边界、本地消息表与 RocketMQ、消费幂等与超时关单，基线为 RocketMQ 5、Spring Boot 4。
 
@@ -74,7 +74,7 @@ description: 同步与异步的划分、RocketMQ 选型、本地消息表 t_outb
 | RocketMQ 事务消息 | 半消息 + 本地事务 + 回查 | 要写回查接口，业务代码绑死 RocketMQ API |
 | **本地消息表** | 同一事务写业务表和 `t_outbox`，中继投递 | 多一张表和一个投递任务，消息至少一次 |
 
-三种方案的原理对比见 [分布式事务 · 方案选型](/distributed/4_transaction#九、方案选型)。
+三种方案的原理对比见 [分布式事务 · 方案选型](/distributed/5_transaction#九、方案选型)。
 
 ---
 
@@ -161,7 +161,7 @@ public void onPaid(PayNotify n) {
 2. **事务外发送**：同步发送，Broker 故障时每条最多卡 `requestTimeout`（配置为 1 秒），卡住的只是中继线程
 3. **单条回写**：成功 `markSent`；失败 `markRetry` 按退避推迟，本批剩下的记录立即放回（释放租约）等下一轮，不再逐条撞超时
 
-认领事务显式用**读已提交**：可重复读下按 `idx_status_retry` 扫描会加间隙锁，租约更新又要改这条索引，两台机器并发认领时会互相死锁，集成测试里能稳定复现；读已提交只锁命中的行。偶发的锁冲突（`TransientDataAccessException`）当成「本轮没认领到」，下一轮再来。加锁查询与调度 Bean 的拆分见 [分布式事务 · 中继投递代码](/distributed/4_transaction#_3、中继投递代码)。
+认领事务显式用**读已提交**：可重复读下按 `idx_status_retry` 扫描会加间隙锁，租约更新又要改这条索引，两台机器并发认领时会互相死锁，集成测试里能稳定复现；读已提交只锁命中的行。偶发的锁冲突（`TransientDataAccessException`）当成「本轮没认领到」，下一轮再来。加锁查询与调度 Bean 的拆分见 [分布式事务 · 中继投递代码](/distributed/5_transaction#_3、中继投递代码)。
 
 ```java
 // io.github.clarence404.mall.order.outbox.OutboxRelay（节选）

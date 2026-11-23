@@ -229,7 +229,7 @@ public class RetryLaterException extends RuntimeException {
 ```
 
 - 看到 `PROCESSING` 只能返回「处理中」（HTTP 409 / MQ 不确认等待重投），**不能当作成功**，否则前一次处理失败时这次请求就丢了
-- 处理时间超过短 TTL 时占位会过期，另一个请求可能并发执行；更严格的做法是占位值带 UUID，完成和释放时用 Lua 比较后再改写或删除（同分布式锁的释放方式，见 [分布式锁](/distributed/3_lock)）
+- 处理时间超过短 TTL 时占位会过期，另一个请求可能并发执行；更严格的做法是占位值带 UUID，完成和释放时用 Lua 比较后再改写或删除（同分布式锁的释放方式，见 [分布式锁](/distributed/4_lock)）
 - Redis 与业务库不是原子的：业务已提交但 `DONE` 没写成功、或 Redis 主从切换丢了 key，都会让请求再执行一次，所以业务层仍要有唯一约束或条件更新兜底
 
 ---
@@ -300,7 +300,7 @@ public RefundResult refund(String refundNo) {
 - `tryLock(wait, lease, unit)` 显式传入租约会关闭看门狗，业务超过租约时锁提前释放，第二个请求进入；`unlock` 前判断 `isHeldByCurrentThread()`，避免释放别人的锁时抛 `IllegalMonitorStateException`
 - 即使用了看门狗，GC 停顿、网络分区仍可能让两个节点同时以为自己持锁，所以锁内的条件更新不能省（这也是 fencing token 的思路）
 - 调用外部渠道失败或超时，退款单停在 `PROCESSING`，由补偿任务按退款单号向渠道**查询**结果后推进，而不是直接重新发起退款
-- 有了条件更新，这里的锁其实可以去掉；保留它只是为了减少并发请求打到数据库和外部渠道。锁的实现与 Redlock 争议见 [分布式锁](/distributed/3_lock)
+- 有了条件更新，这里的锁其实可以去掉；保留它只是为了减少并发请求打到数据库和外部渠道。锁的实现与 Redlock 争议见 [分布式锁](/distributed/4_lock)
 
 ---
 

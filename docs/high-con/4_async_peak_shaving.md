@@ -150,9 +150,9 @@ public class OrderCreateConsumer implements RocketMQListener<OrderMsg> {
 - **`SELECT … FOR UPDATE SKIP LOCKED`**：各实例锁定不同的行并行投递，吞吐随实例数提升（MySQL 8.0+ / PostgreSQL 9.5+，需 `(status, …)` 索引）
 - **分布式锁 / 单实例调度**（ShedLock、XXL-JOB 单机路由）：实现简单，但投递吞吐受单实例限制
 
-两种做法都是「至少一次」，消费端必须幂等。表结构、中继代码与 CDC 替代方案见 [分布式事务 · 本地消息表](/distributed/4_transaction#五、本地消息表-transactional-outbox)。
+两种做法都是「至少一次」，消费端必须幂等。表结构、中继代码与 CDC 替代方案见 [分布式事务 · 本地消息表](/distributed/5_transaction#五、本地消息表-transactional-outbox)。
 
-分布式事务的完整方案（2PC、TCC、Saga、事务消息）见 [分布式事务](/distributed/4_transaction)；消息不丢失、不重复、顺序性等可靠性保障见 [消息队列](/messaging/0_overview)。
+分布式事务的完整方案（2PC、TCC、Saga、事务消息）见 [分布式事务](/distributed/5_transaction)；消息不丢失、不重复、顺序性等可靠性保障见 [消息队列](/messaging/0_overview)。
 
 ---
 

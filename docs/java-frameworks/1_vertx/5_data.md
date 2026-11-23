@@ -220,7 +220,7 @@ public Future<Long> placeOrder(PlaceOrderCmd cmd) {
 | 在事务中调用外部 HTTP | 下游变慢时长时间占用连接和行锁 | 外部调用放到事务外，或改为本地消息表 |
 | 手动 `begin` 后漏掉 `conn.close()` | 连接泄漏，池被耗尽 | 用 `withTransaction` / `withConnection`，或 `eventually(conn::close)` |
 
-响应式客户端没有 Spring 那样的声明式事务和传播行为，事务边界完全由代码结构决定；跨服务的一致性方案见 [分布式事务](/distributed/4_transaction)。
+响应式客户端没有 Spring 那样的声明式事务和传播行为，事务边界完全由代码结构决定；跨服务的一致性方案见 [分布式事务](/distributed/5_transaction)。
 
 ---
 

@@ -332,7 +332,7 @@ vertx.timer(3, TimeUnit.SECONDS).onSuccess(v -> log.info("timeout"));
 - 定时器回调在**创建它的 Context** 上执行，所以同样不能阻塞；
 - `setPeriodic` 不会等上一次执行结束：如果回调里发起了耗时 15s 的异步刷新而周期是 10s，就会出现重叠。需要「上次结束后再等 N 秒」的语义时，用 `setTimer` 在回调完成后递归再设；
 - 在 Verticle 中创建的定时器会在卸载时自动取消；在 Verticle 之外创建的要自己管理；
-- 定时器只在当前进程内有效，集群中需要「只有一个节点执行」的定时任务，要配合分布式锁或外部调度系统，参考 [分布式调度](/distributed/6_job_scheduler)。
+- 定时器只在当前进程内有效，集群中需要「只有一个节点执行」的定时任务，要配合分布式锁或外部调度系统，参考 [分布式调度](/distributed/7_job_scheduler)。
 
 ---
 

@@ -173,7 +173,7 @@ CREATE TENANT biz_tenant
 
 ## 三、TiDB 与 OceanBase 选型对比
 
-应用层分库分表与分布式数据库的系统级取舍见 [数据层扩展](/high-con/5_data_scaling)，分布式事务的通用理论见 [分布式事务](/distributed/4_transaction)。
+应用层分库分表与分布式数据库的系统级取舍见 [数据层扩展](/high-con/5_data_scaling)，分布式事务的通用理论见 [分布式事务](/distributed/5_transaction)。
 
 | 维度 | TiDB | OceanBase |
 |------|------|-----------|

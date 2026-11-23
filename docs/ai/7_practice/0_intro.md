@@ -67,7 +67,7 @@ git diff ch01-done -- src/main       # 卡住了再对照参考答案
 | 7 [售后 Agent 与人工确认](./7_agent) | 多步售后循环与刹车、只读工具直接执行、写操作页面确认、结果写回记忆 | [AI Agent 智能体](../5_advanced/0_agent) |
 | 8 [把商城能力做成 MCP Server](./8_mcp) | 同进程 Streamable HTTP、只读工具与知识检索、写操作只提议回页面确认、令牌与次数、外部工具白名单 | [MCP 协议](../5_advanced/1_mcp) |
 | 9 [评估与上线](./9_eval_launch) | 回归评测集与 CI 门禁、Token 用量与预算、限流熔断降级、监控与 traceId、提示注入过滤、上线检查清单 | [LLM 应用评估与上线](../5_advanced/3_llm_eval) |
-| 10 [生产化：共享状态与监控落地](./10_production) | 限流、并发名额、Token 账、待确认操作、会话锁放进 Redis（Lua 原子脚本、`SET NX PX` 抢占、比较再删除），Redis 出错时放行或拒绝，契约与多实例测试，Prometheus + Grafana 跑起来、告警单元测试 | [分布式锁](/distributed/3_lock)、[告警体系](/observability/4_alerting) |
+| 10 [生产化：共享状态与监控落地](./10_production) | 限流、并发名额、Token 账、待确认操作、会话锁放进 Redis（Lua 原子脚本、`SET NX PX` 抢占、比较再删除），Redis 出错时放行或拒绝，契约与多实例测试，Prometheus + Grafana 跑起来、告警单元测试 | [分布式锁](/distributed/4_lock)、[告警体系](/observability/4_alerting) |
 
 全部 10 章均已完成；原理文章讲「是什么、为什么」，本系列只讲在这个项目里怎么落地、踩了哪些坑。
 

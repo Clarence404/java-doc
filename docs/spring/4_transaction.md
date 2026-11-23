@@ -214,7 +214,7 @@ Spring 参考文档建议：除非依赖「受检异常提交」的 EJB 式语�
 ### 3、超时与多数据源
 
 - `timeout`（秒）从事务开始计时：经 `JdbcTemplate`、MyBatis-Spring、JPA 执行 SQL 时，剩余时间会通过 `Statement#setQueryTimeout` 下发，慢 SQL 到点由驱动中断；执行前已超时则直接抛 `TransactionTimedOutException`。它管不到方法中的非数据库耗时，也管不到绕开 Spring 直接拿连接执行的 SQL
-- 多数据源时每个数据源一个事务管理器，`@Transactional` 默认使用 `@Primary` 的那个，访问其他数据源要显式指定：`@Transactional(transactionManager = "orderTxManager")`。一个 `@Transactional` 只能管理一个数据源，跨库一致性见 [分布式事务](/distributed/4_transaction)
+- 多数据源时每个数据源一个事务管理器，`@Transactional` 默认使用 `@Primary` 的那个，访问其他数据源要显式指定：`@Transactional(transactionManager = "orderTxManager")`。一个 `@Transactional` 只能管理一个数据源，跨库一致性见 [分布式事务](/distributed/5_transaction)
 
 ---
 
@@ -305,7 +305,7 @@ public void process(Long taskId) {
 - **长事务**：事务越长，持有行锁和连接的时间越长，undo log 无法清理，主从延迟增大。事务中不要做远程调用、文件处理、大循环；批量操作分批提交。排查用 `information_schema.innodb_trx` 找运行时间长的事务
 - **事务事件**：在事务提交后执行副作用，见 [事件机制](./7_event)
 - **响应式事务**：WebFlux / R2DBC 使用 `ReactiveTransactionManager` 或 `TransactionalOperator`，见 [WebFlux](./8_webflux)
-- **分布式事务**：一个 `@Transactional` 只覆盖一个数据源，跨服务、跨库一致性用 TCC、Saga、本地消息表、事务消息，见 [分布式事务](/distributed/4_transaction)
+- **分布式事务**：一个 `@Transactional` 只覆盖一个数据源，跨服务、跨库一致性用 TCC、Saga、本地消息表、事务消息，见 [分布式事务](/distributed/5_transaction)
 
 ---
 

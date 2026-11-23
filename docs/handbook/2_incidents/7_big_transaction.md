@@ -274,7 +274,7 @@ WHERE trx_started < NOW() - INTERVAL 60 SECOND;
 - 行锁、next-key 锁与长事务：[MySQL 事务与锁](/database/1_mysql/4_topic_transaction)
 - `EXPLAIN` 与全表扫描：[MySQL EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)
 - 索引设计：[MySQL 索引](/database/1_mysql/3_topic_index)
-- 事务提交后事件与本地消息表：[分布式事务](/distributed/4_transaction)
+- 事务提交后事件与本地消息表：[分布式事务](/distributed/5_transaction)
 - 常见 MySQL 坑：[MySQL 避坑指南](/database/1_mysql/8_fallible_point)
 - 故障止血与复盘流程：[故障应急与复盘](/high-avail/11_incident_response)
 

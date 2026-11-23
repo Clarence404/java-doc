@@ -209,7 +209,7 @@ mp.messaging.outgoing.order-events.acks=all
 
 - `send` 返回的 `CompletionStage` 在 Broker 确认后完成，**需要可靠投递时要等待或处理它的失败**，不能发完就忘
 - Emitter 内部有缓冲区，下游跟不上时会溢出报错，可用 `@OnOverflow` 配置策略
-- 「数据库写入 + 发消息」的一致性问题不能靠 Emitter 解决，仍需事务消息或 Outbox 模式，见 [分布式事务 · 本地消息表](/distributed/4_transaction#五、本地消息表-transactional-outbox)
+- 「数据库写入 + 发消息」的一致性问题不能靠 Emitter 解决，仍需事务消息或 Outbox 模式，见 [分布式事务 · 本地消息表](/distributed/5_transaction#五、本地消息表-transactional-outbox)
 
 ---
 

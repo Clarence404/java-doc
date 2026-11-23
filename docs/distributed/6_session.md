@@ -4,8 +4,6 @@ description: 多实例会话问题、粘性会话、Spring Session + Redis、Red
 
 # 分布式会话
 
-> 前置阅读：[分布式架构](./1_distributed)
-
 多实例部署下，存在单机内存里的会话会随请求落到不同实例而丢失。本篇讲用 Spring Boot 4 + Spring Session 把会话放进 Redis、默认与索引两种存储结构的区别，以及服务端会话与 JWT 的选择。
 
 ---
@@ -154,4 +152,4 @@ JWT 把用户标识和过期时间等声明放进令牌，用签名防篡改，�
 - Spring Security Session Management：[https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html](https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html)
 - RFC 7519 JSON Web Token：[https://datatracker.ietf.org/doc/html/rfc7519](https://datatracker.ietf.org/doc/html/rfc7519)
 
-> 下一篇：[分布式调度](./6_job_scheduler) —— 多实例下定时任务如何只执行一次，分片、错过触发与幂等，以及 XXL-JOB、ElasticJob、PowerJob 的选型。
+> 下一篇：[分布式调度](./7_job_scheduler) —— 多实例下定时任务如何只执行一次，分片、错过触发与幂等，以及 XXL-JOB、ElasticJob、PowerJob 的选型。

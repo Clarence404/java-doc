@@ -48,7 +48,7 @@ description: 同步与异步选型、事件驱动三种用法、契约优先、�
 - **同步受理、异步处理**：耗时操作（导出、批量处理）先同步返回 `202 Accepted` 和任务号，后台异步执行，调用方轮询状态或等待回调
 - **少用基于消息的请求 - 回复**：用 MQ 模拟同步调用（发请求消息、等回复消息）同时拿到了两边的缺点，只在确实需要缓冲且调用方能等待时使用
 
-同步客户端的选型与写法见 [服务通信](/service-governance/3_communication)，削峰场景的系统设计见 [异步与削峰](/high-con/4_async_peak_shaving)，一个订单服务把哪些环节异步化、哪些保持同步的完整决策见 [项目演进 · 异步化](/project/5_async)。
+同步客户端的选型与写法见 [服务调用](/service-governance/3_communication)，削峰场景的系统设计见 [异步与削峰](/high-con/4_async_peak_shaving)，一个订单服务把哪些环节异步化、哪些保持同步的完整决策见 [项目演进 · 异步化](/project/5_async)。
 
 ---
 
@@ -70,13 +70,13 @@ description: 同步与异步选型、事件驱动三种用法、契约优先、�
 
 - **事件表达已发生的事实，不是命令**：用过去式命名（`OrderPaid`、`StockReserved`），发布方不关心谁处理、怎么处理；「请扣减库存」这类必须有人执行且要知道结果的诉求，用同步调用或由 Saga 编排的命令消息
 - **事件是公开契约**：发布之后订阅方不可控，字段只能按兼容规则演进，删改字段的成本比同步接口更高
-- **协同链不宜过长**：A 发事件触发 B、B 再发事件触发 C……链条一长就没人能看清完整流程，失败补偿也难以定义；步骤多、需要补偿时改用编排式 Saga，见 [分布式事务 · Saga](/distributed/4_transaction#四、saga)
-- **消费方按至少一次设计**：消息会重复、会乱序，消费者必须幂等（见 [消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)），对状态有顺序要求时用版本号兜底（见 [接口调用顺序性](./4_call_ordering)）
+- **协同链不宜过长**：A 发事件触发 B、B 再发事件触发 C……链条一长就没人能看清完整流程，失败补偿也难以定义；步骤多、需要补偿时改用编排式 Saga，见 [分布式事务 · Saga](/distributed/5_transaction#四、saga)
+- **消费方按至少一次设计**：消息会重复、会乱序，消费者必须幂等（见 [消息队列基础 · 幂等消费](/messaging/1_basics#四、幂等消费)），对状态有顺序要求时用版本号兜底（见 [接口调用顺序性](./5_call_ordering)）
 - **不是所有解耦都需要事件**：只有一个下游、且调用方需要结果时，同步调用更简单、更好排障
 
 ### 3、可靠投递
 
-「写数据库」和「发事件」是两个系统，不能靠在事务里发 MQ 保证原子性；可靠做法是本地消息表（Outbox）或 RocketMQ 事务消息，见 [消息队列基础 · 分布式事务中的消息](/messaging/1_basics#八、分布式事务中的消息) 与 [分布式事务 · 本地消息表（Transactional Outbox）](/distributed/4_transaction#五、本地消息表-transactional-outbox)。
+「写数据库」和「发事件」是两个系统，不能靠在事务里发 MQ 保证原子性；可靠做法是本地消息表（Outbox）或 RocketMQ 事务消息，见 [消息队列基础 · 分布式事务中的消息](/messaging/1_basics#八、分布式事务中的消息) 与 [分布式事务 · 本地消息表（Transactional Outbox）](/distributed/5_transaction#五、本地消息表-transactional-outbox)。
 
 ---
 
@@ -201,4 +201,4 @@ HTTP 接口逐项的兼容 / 破坏对照见 [API 设计规范 · 版本管理](
 - ParallelChange（Danilo Sato）：[https://martinfowler.com/bliki/ParallelChange.html](https://martinfowler.com/bliki/ParallelChange.html)
 - TolerantReader（Martin Fowler）：[https://martinfowler.com/bliki/TolerantReader.html](https://martinfowler.com/bliki/TolerantReader.html)
 
-> 返回：[微服务架构总览](./0_overview)
+> 下一篇：[接口调用顺序性](./5_call_ordering) —— 同步调用为什么会乱序，怎样消除顺序依赖或按业务键串行

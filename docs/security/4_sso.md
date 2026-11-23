@@ -55,7 +55,7 @@ SSO 之后浏览器里同时存在两类会话，很多「登出不干净」「�
 - **ID Token 只给客户端用**：它证明「用户在某时刻登录过」，不能当作调用 API 的凭证，也不应该被拿来续期本地会话
 
 ::: tip 同域会话共享不等于 SSO
-同一主域下的多个应用（`a.example.com`、`b.example.com`）把 Cookie 写在父域、会话放进 Redis，就能共享登录态，这只是「共享同一个本地会话」，配置方法见 [分布式会话](/distributed/5_session)。SSO 解决的是**跨域名、跨系统、跨组织**的登录问题，每个系统有自己的会话，只是共用同一个认证中心。
+同一主域下的多个应用（`a.example.com`、`b.example.com`）把 Cookie 写在父域、会话放进 Redis，就能共享登录态，这只是「共享同一个本地会话」，配置方法见 [分布式会话](/distributed/6_session)。SSO 解决的是**跨域名、跨系统、跨组织**的登录问题，每个系统有自己的会话，只是共用同一个认证中心。
 :::
 
 ---
@@ -259,7 +259,7 @@ spring:
 - 单点登出优先后端通道，记录 `sid` / ST 与本地会话的映射并放进共享存储，再用短会话兜底
 - 网关作为 OAuth2 客户端登录，用 `TokenRelay` 把 Access Token 转给下游，下游作为资源服务器校验
 
-Spring Security 对接 LDAP / CAS / SAML2 / OIDC、Keycloak 实战、Spring Authorization Server 和 Sa-Token SSO 的配置代码见 [Spring SSO 接入](/spring/11_single_sign_on)；同一主域下的多实例会话共享见 [分布式会话](/distributed/5_session)。
+Spring Security 对接 LDAP / CAS / SAML2 / OIDC、Keycloak 实战、Spring Authorization Server 和 Sa-Token SSO 的配置代码见 [Spring SSO 接入](/spring/11_single_sign_on)；同一主域下的多实例会话共享见 [分布式会话](/distributed/6_session)。
 
 ---
 

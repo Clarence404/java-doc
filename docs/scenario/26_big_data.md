@@ -25,7 +25,7 @@ description: 存储扩展、深分页与预计算、日志链路与 ES 写入、
 
 ### 1、分库分表
 
-垂直拆分按业务拆库，水平拆分按分片键（如 `user_id`）把一张大表拆成多张同构表。分片键选择、跨分片聚合与分页、扩容迁移见 [分库分表与中间件](/database/4_practice/4_sharding)；全局唯一 ID 可以用雪花算法、号段模式，或多主步长自增，见 [分布式 ID 生成](/distributed/8_id_generator)；跨分片事务尽量通过业务设计避免，必须时见 [分布式事务](/distributed/4_transaction)。
+垂直拆分按业务拆库，水平拆分按分片键（如 `user_id`）把一张大表拆成多张同构表。分片键选择、跨分片聚合与分页、扩容迁移见 [分库分表与中间件](/database/4_practice/4_sharding)；全局唯一 ID 可以用雪花算法、号段模式，或多主步长自增，见 [分布式 ID 生成](/distributed/3_id_generator)；跨分片事务尽量通过业务设计避免，必须时见 [分布式事务](/distributed/5_transaction)。
 
 ### 2、冷热分离
 

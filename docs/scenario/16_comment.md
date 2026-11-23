@@ -109,7 +109,7 @@ CREATE TABLE comment (
 );
 ```
 
-- **`idx_list` 覆盖两类主查询**：一级评论按时间（`root_id = 0 ORDER BY id DESC`）和楼中楼展开（`root_id = ? ORDER BY id`）；`id` 由 [分布式 ID 生成](/distributed/8_id_generator) 生成、趋势递增，直接代替 `create_time` 排序，还能当游标
+- **`idx_list` 覆盖两类主查询**：一级评论按时间（`root_id = 0 ORDER BY id DESC`）和楼中楼展开（`root_id = ? ORDER BY id`）；`id` 由 [分布式 ID 生成](/distributed/3_id_generator) 生成、趋势递增，直接代替 `create_time` 排序，还能当游标
 - **点赞数、回复数不放在评论表**：它们由计数服务维护，评论表只在被编辑、删除、审核时更新，行不会被点赞写热
 - **`uk_req` 防重复提交**：客户端每次发评论生成一个请求 ID，网络重试撞唯一键就返回已有评论；唯一键必须带分片键 `obj_id`，分表后唯一约束只在单表内有效
 - **正文很长或带富文本时**可以把 `content` 拆到单独的内容表，列表扫描只读窄的索引表，按 ID 批量取正文；表设计规范见 [MySQL 表设计](/database/1_mysql/7_table_design)
@@ -187,7 +187,7 @@ public long publish(CommentCmd cmd) {
 }
 ```
 
-- 本地消息表和评论在同一个分库，事务提交后由投递任务发到 MQ，失败重试；也可以直接用 CDC 订阅评论表 binlog，效果相同，见 [本地消息表](/distributed/4_transaction#五、本地消息表-transactional-outbox)
+- 本地消息表和评论在同一个分库，事务提交后由投递任务发到 MQ，失败重试；也可以直接用 CDC 订阅评论表 binlog，效果相同，见 [本地消息表](/distributed/5_transaction#五、本地消息表-transactional-outbox)
 - 下游（计数、缓存、热评、通知、审核）都按「状态从 A 变到 B」处理事件：只有「变为已发布」才加评论数、进列表缓存、发通知，「从已发布变为删除 / 拒绝」才减，其他变化不动计数
 - 事件里带评论 ID 和状态变化，消费方按评论 ID 幂等，重复投递不会重复计数
 

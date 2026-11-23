@@ -29,7 +29,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 - Redis 主从切换锁丢了怎么办？（锁只是减少并发，正确性由数据库条件更新保证）
 - 为什么不用锁做秒杀防超卖？（串行化吞吐太低，库存应原子扣减）
 
-→ 详见 [幂等设计](/architecture/3_idempotence#八、分布式锁-只做串行化)、[分布式锁](/distributed/3_lock#七、常见坑)
+→ 详见 [幂等设计](/architecture/3_idempotence#八、分布式锁-只做串行化)、[分布式锁](/distributed/4_lock#七、常见坑)
 
 ### Q2：怎么讲「Redis Lua 预扣库存防超卖」这个亮点？
 
@@ -113,7 +113,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 - 消息表越来越大怎么办？（已发送记录定期归档）
 - 能不能不轮询？（用 Debezium 读 binlog 投递）
 
-→ 详见 [分布式事务](/distributed/4_transaction#五、本地消息表-transactional-outbox)、[订单](/scenario/7_order_system#八、分布式事务-按流程选一种)
+→ 详见 [分布式事务](/distributed/5_transaction#五、本地消息表-transactional-outbox)、[订单](/scenario/7_order_system#八、分布式事务-按流程选一种)
 
 ## 二、性能与异步
 
@@ -285,7 +285,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 - 调度中心多实例怎么避免重复触发？（数据库行锁抢占扫描权）
 - 为什么不按 `id % shardTotal` 在一张大表里分？（分表场景按物理表划分更自然，没有跨表扫描）
 
-→ 详见 [分布式调度](/distributed/6_job_scheduler#三、xxl-job)、[分布式调度](/distributed/6_job_scheduler#_3、分片)
+→ 详见 [分布式调度](/distributed/7_job_scheduler#三、xxl-job)、[分布式调度](/distributed/7_job_scheduler#_3、分片)
 
 ### Q14：怎么讲「雪花算法 / 号段模式生成分布式 ID」这个亮点？
 
@@ -306,7 +306,7 @@ description: 把站内技术方案与项目演进各阶段讲成难点与亮点�
 - 低 QPS 时按 ID 取模分片为什么会倾斜？（序列号几乎总是 0）
 - 号段模式重启会怎样？（丢掉未用完的号段，只是不连续）
 
-→ 详见 [分布式 ID 生成](/distributed/8_id_generator#_3、时钟回拨)、[分布式 ID 生成](/distributed/8_id_generator#八、方案对比与选型)
+→ 详见 [分布式 ID 生成](/distributed/3_id_generator#_3、时钟回拨)、[分布式 ID 生成](/distributed/3_id_generator#八、方案对比与选型)
 
 ### Q15：怎么讲「用 Bitmap 记录预约时段」这个亮点？
 
