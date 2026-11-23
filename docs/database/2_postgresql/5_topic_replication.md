@@ -147,7 +147,7 @@ CREATE SUBSCRIPTION sub_orders
 
 ### 2、CDC
 
-Debezium、Flink CDC 等工具不使用 `CREATE SUBSCRIPTION`，而是作为客户端创建逻辑复制槽，用内置的 `pgoutput` 解码插件读取变更流。它们同样受复制槽 WAL 堆积和 `catalog_xmin` 的约束，下游停摆时要有告警。工具对比见 [CDC 工具](../6_sync_backup/0_cdc_tools)，Flink 侧的用法见 [Flink CDC](/flink/6_cdc)。
+Debezium、Flink CDC 等工具不使用 `CREATE SUBSCRIPTION`，而是作为客户端创建逻辑复制槽，用内置的 `pgoutput` 解码插件读取变更流。它们同样受复制槽 WAL 堆积和 `catalog_xmin` 的约束，下游停摆时要有告警。工具对比见 [CDC 工具](../6_backup_cdc/1_cdc_tools)，Flink 侧的用法见 [Flink CDC](/flink/6_cdc)。
 
 ---
 

@@ -597,4 +597,4 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 - Hibernate ORM 文档：[https://hibernate.org/orm/documentation/](https://hibernate.org/orm/documentation/)
 - Jakarta Persistence 3.2：[https://jakarta.ee/specifications/persistence/3.2/](https://jakarta.ee/specifications/persistence/3.2/)
 
-> 下一篇：[CDC 工具](../6_sync_backup/0_cdc_tools) —— binlog 前置配置、binlog-connector、Canal、Debezium 3.x、Flink CDC 选型
+> 下一篇：[数据备份与恢复](../6_backup_cdc/0_backup_recovery) —— RTO / RPO、mysqldump、XtraBackup 增量、binlog PITR、PG 增量备份、恢复演练

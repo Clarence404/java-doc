@@ -203,7 +203,7 @@ ORDER BY o.create_time DESC;
 - 回表、覆盖索引与 Buffer Pool：[MySQL 索引](/database/1_mysql/2_topic_index)、[InnoDB 存储结构](/database/1_mysql/6_topic_innodb)
 - 执行计划解读：[EXPLAIN 与 SQL 优化](/database/1_mysql/5_topic_explain)
 - 开放接口的分页与限流设计：[API 设计规范](/engineering/4_api_design_rule)、[限流与过载保护](/high-avail/7_rate_limiting)
-- 全量与增量同步：[CDC 工具](/database/6_sync_backup/0_cdc_tools)
+- 全量与增量同步：[CDC 工具](/database/6_backup_cdc/1_cdc_tools)
 
 ---
 

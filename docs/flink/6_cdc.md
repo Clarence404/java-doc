@@ -12,7 +12,7 @@ Flink CDC 用无锁增量快照把数据库的「全量 + 增量」变更持续�
 
 ## 一、Flink CDC 3.x 是什么
 
-CDC 的通用概念、binlog 原理以及 Canal / Debezium / Flink CDC 的横向选型见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)。
+CDC 的通用概念、binlog 原理以及 Canal / Debezium / Flink CDC 的横向选型见 [CDC 工具](/database/6_backup_cdc/1_cdc_tools)。
 
 ### 1、从连接器到数据集成框架
 

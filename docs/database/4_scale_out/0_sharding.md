@@ -261,7 +261,7 @@ ShardingSphere 支持 LOCAL（默认）、XA（Atomikos / Narayana）与 BASE（
 
 几个容易出错的细节：
 
-- **双写优先用 CDC，而不是在业务代码里写两遍**：应用双写在「旧库成功、新库失败」时只能靠补偿，且两个库的写入顺序在并发下可能不同；订阅 binlog 天然按提交顺序回放，业务代码零改动。工具选型见 [CDC 工具](../6_sync_backup/0_cdc_tools)
+- **双写优先用 CDC，而不是在业务代码里写两遍**：应用双写在「旧库成功、新库失败」时只能靠补偿，且两个库的写入顺序在并发下可能不同；订阅 binlog 天然按提交顺序回放，业务代码零改动。工具选型见 [CDC 工具](../6_backup_cdc/1_cdc_tools)
 - **先记位点再拷全量**：全量拷贝开始前记下 binlog 位点（GTID），增量从这个位点开始回放，拷贝期间发生的修改就不会丢；全量与增量重叠的行，按 `update_time` 或版本号「旧值不覆盖新值」处理
 - **全量要限速**：`WHERE id > ? ORDER BY id LIMIT 1000` 游标分批，批间休眠，避免把旧库主从延迟拉高
 - **停写窗口要短**：停写 → 等增量延迟归零 → 最后一轮校验 → 切开关，整个过程控制在秒级到分钟级，通常放在业务低峰并提前公告
@@ -331,7 +331,7 @@ SHOW MIGRATION CHECK STATUS 'jobId';
 COMMIT MIGRATION 'jobId';
 ```
 
-源库需要开启 binlog（ROW 格式）并授予迁移账号 `REPLICATION SLAVE`、`REPLICATION CLIENT` 权限。迁移作业不负责灰度切读和反向同步：切读开关仍要在应用侧实现，`COMMIT` 之后若要保留回滚能力，需要另配一条新 → 旧的 CDC 同步。不用 Proxy 的团队，可以用 Canal / Debezium / Flink CDC 自建同样的「全量 + 增量 + 校验」流水线，见 [CDC 工具](../6_sync_backup/0_cdc_tools)。
+源库需要开启 binlog（ROW 格式）并授予迁移账号 `REPLICATION SLAVE`、`REPLICATION CLIENT` 权限。迁移作业不负责灰度切读和反向同步：切读开关仍要在应用侧实现，`COMMIT` 之后若要保留回滚能力，需要另配一条新 → 旧的 CDC 同步。不用 Proxy 的团队，可以用 Canal / Debezium / Flink CDC 自建同样的「全量 + 增量 + 校验」流水线，见 [CDC 工具](../6_backup_cdc/1_cdc_tools)。
 
 ### 3、预分配逻辑分片：32 × 32
 

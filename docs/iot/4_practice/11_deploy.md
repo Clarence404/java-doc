@@ -418,7 +418,7 @@ server 为什么不直接抓 `/actuator/prometheus`：这个路径只有平台�
 | Redis | AOF 每次写入刷盘；单实例，没有副本 |
 | EMQX | 内存会话，重启即丢未投递的消息；带 `id` 的设备靠重发覆盖 |
 
-备份策略、恢复点与恢复时间目标的通用讨论见 [数据备份与恢复](/database/6_sync_backup/2_backup_recovery)。
+备份策略、恢复点与恢复时间目标的通用讨论见 [数据备份与恢复](/database/6_backup_cdc/0_backup_recovery)。
 
 ---
 

@@ -112,7 +112,7 @@ pgjdbc 默认用扩展查询协议，同一条 `PreparedStatement` 执行达到 
 | 子协议 | 用途 |
 |--------|------|
 | COPY | 批量导入导出，比逐条 `INSERT` 快得多；pgjdbc 通过 `CopyManager` 使用 |
-| 逻辑复制 | 基于 WAL 解码的变更流，Debezium 等 CDC 工具依赖它，见 [CDC 工具](/database/6_sync_backup/0_cdc_tools) |
+| 逻辑复制 | 基于 WAL 解码的变更流，Debezium 等 CDC 工具依赖它，见 [CDC 工具](/database/6_backup_cdc/1_cdc_tools) |
 | LISTEN / NOTIFY | 服务端主动推送 `A` 消息（NotificationResponse），可用于轻量的变更通知 |
 | CancelRequest | 新开一条连接，带上 BackendKeyData 里的进程号和密钥，取消正在执行的查询；`Statement.cancel()` 就是这么实现的 |
 

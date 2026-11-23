@@ -19,8 +19,8 @@ MySQL 主从复制靠 binlog 把主库变更同步到从库，是读写分离和
 Binlog 是 **Server 层**的二进制日志，记录所有**修改数据的操作**（DML 与 DDL），不记录 SELECT。三个用途：
 
 1. **复制**：主库通过 binlog 把变更传给从库
-2. **时间点恢复**：全量备份加 binlog 回放到指定时间点，见 [数据备份与恢复](../6_sync_backup/2_backup_recovery)
-3. **数据订阅**：Canal、Debezium 等 CDC 工具伪装成从库消费 binlog，见 [CDC 工具](../6_sync_backup/0_cdc_tools) 与 [Flink CDC](/flink/6_cdc)
+2. **时间点恢复**：全量备份加 binlog 回放到指定时间点，见 [数据备份与恢复](../6_backup_cdc/0_backup_recovery)
+3. **数据订阅**：Canal、Debezium 等 CDC 工具伪装成从库消费 binlog，见 [CDC 工具](../6_backup_cdc/1_cdc_tools) 与 [Flink CDC](/flink/6_cdc)
 
 binlog 与 redo log 的区别、两阶段提交与崩溃恢复见 [MySQL 事务与锁](./3_topic_transaction)。
 

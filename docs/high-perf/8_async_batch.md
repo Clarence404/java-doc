@@ -305,7 +305,7 @@ Optional<Product> p = merger.submit(productId).get(200, TimeUnit.MILLISECONDS);
 | 搜索引擎宽表 | 通过 CDC 将多表数据同步为 ES 宽表 | 商品搜索、订单多条件查询 |
 
 - 预计算的代价是**写放大与一致性**：数据变更时必须同步更新预计算结果，要考虑更新失败、延迟和补偿。
-- 缓存预热与一致性策略见 [缓存一致性](/cache/10_cache_consistency)；CDC 同步见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)。
+- 缓存预热与一致性策略见 [缓存一致性](/cache/10_cache_consistency)；CDC 同步见 [CDC 工具](/database/6_backup_cdc/1_cdc_tools)。
 
 ---
 

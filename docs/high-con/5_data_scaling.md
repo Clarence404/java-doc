@@ -166,7 +166,7 @@ MySQL 侧的延迟原因、多线程回放与延迟监控见 [MySQL 主从与高
 
 **分片数从 N 扩到 2N 是分库分表中最复杂的操作**，策略上要做到两点：迁移按「双写 → 历史数据迁移 → 校验对账 → 灰度切读 → 停旧写」平滑推进，每一步都有开关可回退；第一次拆分时就规划足够的逻辑分片（如 1024 张表），让扩容只搬整张表而不是重新哈希每一行。各步做法、ShardingSphere 迁移作业、预分配逻辑分片与倍数扩容的细节见 [分库分表与中间件 · 平滑迁移与扩容](/database/4_scale_out/0_sharding#八、平滑迁移与扩容)。
 
-Binlog 同步工具见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)。分布式数据库（TiDB、OceanBase）可以免去应用层分片，代价是运维体系与成本，见 [分布式数据库](/database/4_scale_out/1_distributed_db)。
+Binlog 同步工具见 [CDC 工具](/database/6_backup_cdc/1_cdc_tools)。分布式数据库（TiDB、OceanBase）可以免去应用层分片，代价是运维体系与成本，见 [分布式数据库](/database/4_scale_out/1_distributed_db)。
 
 ---
 
@@ -182,7 +182,7 @@ Binlog 同步工具见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)。分�
 | 监控、IoT 指标 | 海量时序写入 | InfluxDB / TDengine | 直接写入 |
 | 计数、排行、会话 | 高频读写小数据 | Redis | 应用双写 / 异步回写 |
 
-异构存储是**最终一致**的，同步延迟通常在秒级，业务要能容忍"刚下的单搜不到"。各类存储的特点见 [搜索数据库](/nosql/5_search_db)、[列式与 OLAP 数据库](/nosql/3_column_db)，CDC 工具选型见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)。
+异构存储是**最终一致**的，同步延迟通常在秒级，业务要能容忍"刚下的单搜不到"。各类存储的特点见 [搜索数据库](/nosql/5_search_db)、[列式与 OLAP 数据库](/nosql/3_column_db)，CDC 工具选型见 [CDC 工具](/database/6_backup_cdc/1_cdc_tools)。
 
 ---
 

@@ -1,12 +1,12 @@
 ---
-description: binlog 前置配置、binlog-connector、Canal、Debezium 3.x、Flink CDC 选型
+description: binlog 与 PG 复制槽的前置条件、Canal、Debezium、Flink CDC、选型
 ---
 
 # CDC 工具
 
 > 前置阅读：[MySQL 主从与高可用](../1_mysql/7_topic_replication)
 
-CDC（变更数据捕获）订阅 binlog、WAL 实时获取增删改，不给业务表加查询压力，还能拿到变更前的值。本篇讲 binlog 前置配置、Canal / Debezium 等工具接入与选型，基线为 MySQL 8.4。
+CDC（变更数据捕获）订阅 binlog、WAL 实时获取增删改，不给业务表加查询压力，还能拿到变更前的值。本篇讲 MySQL 与 PostgreSQL 的前置条件、Canal / Debezium 等工具接入与选型，基线为 MySQL 8.4 / PostgreSQL 18。
 
 ---
 
@@ -27,7 +27,9 @@ CDC（变更数据捕获）订阅 binlog、WAL 实时获取增删改，不给业
 
 ---
 
-## 二、MySQL 前置配置
+## 二、前置配置
+
+下面 1–3 是 MySQL，第 4 小节是 PostgreSQL。
 
 ### 1、binlog 参数
 
@@ -65,6 +67,19 @@ GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT ON *
 ### 3、server_id 唯一
 
 每个 CDC 客户端都以「副本」身份连接，`server_id` 必须在整个复制拓扑里唯一。两个客户端使用同一个 `server_id` 时，后连上的会把先连上的踢掉，表现为两边交替断线重连。mysql-binlog-connector-java 默认 `serverId` 是 65535，部署多个实例时一定要显式设置。
+
+### 4、PostgreSQL：逻辑复制槽
+
+PostgreSQL 的 CDC 读的是 WAL：Debezium、Flink CDC 作为客户端在主库上建一个逻辑复制槽，用内置的 `pgoutput` 插件把 WAL 解码成行级变更，不需要 `CREATE SUBSCRIPTION`。上线前要准备四件事：
+
+| 项 | 做法 |
+|----|------|
+| `wal_level` | 改成 `logical`（默认 `replica`），改完要重启 |
+| 账号 | 带 `REPLICATION` 属性，并对要订阅的表有 `SELECT`；用 `pgoutput` 时工具还会用到发布（publication），可以预先建好，也可以给账号建发布的权限 |
+| 表的行标识 | UPDATE、DELETE 要能定位到行：表要有主键，或设置 `REPLICA IDENTITY`；要拿到完整的旧值时设 `FULL`，代价是整行旧值都写进 WAL |
+| 复制槽的兜底 | 槽会替消费者保留没读的 WAL，CDC 停了 WAL 就一直堆到磁盘写满；用 `max_slot_wal_keep_size` 限住单个槽能保留多少，监控 `pg_replication_slots.wal_status`，废弃的槽要及时删掉 |
+
+和 MySQL 的差别是位点保存在数据库这一侧（复制槽），而 binlog 只按保留时间清理、不管有没有人读完。复制槽的风险、监控与逻辑复制的限制（不复制 DDL、序列）见 [PostgreSQL 复制与高可用 · 逻辑复制](../2_postgresql/5_topic_replication#三、逻辑复制)。
 
 ---
 
@@ -129,7 +144,7 @@ client.connect(); // 阻塞当前线程；需要后台运行时用 connect(timeo
 - `DATE_AND_TIME_AS_LONG` 下 DATETIME 被当作 UTC 解析成毫秒数，需要按业务时区换算
 - 位点保存与业务处理不是原子的，重启后可能重复投递最后一个事务，下游必须幂等
 
-库的内部机制（协议握手、事件反序列化、GTID 推进、保活重连）见 [mysql-binlog-connector-java 原理](./1_binlog_connector_source)。
+库的内部机制（协议握手、事件反序列化、GTID 推进、保活重连）见 [mysql-binlog-connector-java 原理](./2_binlog_connector_source)。
 
 ---
 
@@ -355,7 +370,7 @@ Flink CDC 不需要额外部署 Canal Server 或 Kafka Connect，直接在 Flink
 
 ## 小结
 
-- CDC 前置条件：ROW 格式 binlog（8.0 起默认）、`binlog_row_image=FULL`、`binlog_row_metadata=FULL`、GTID、足够长的 binlog 保留期
+- MySQL 的前置条件：ROW 格式 binlog（8.0 起默认）、`binlog_row_image=FULL`、`binlog_row_metadata=FULL`、GTID、足够长的 binlog 保留期；PostgreSQL 的是 `wal_level=logical`、主键或 `REPLICA IDENTITY`，并给复制槽设好 `max_slot_wal_keep_size` 与监控
 - MySQL 8.0 起用 `CREATE USER` + `GRANT` 建订阅账号，权限是 `SELECT, REPLICATION SLAVE, REPLICATION CLIENT`（Debezium 快照再加 `RELOAD, SHOW DATABASES`）；每个客户端的 `server_id` 必须唯一
 - mysql-binlog-connector-java 只给原始事件，表结构、事务组装、位点持久化都要自己做，下游必须幂等
 - Canal 客户端要处理空批次与失败 `rollback`；`.properties` 的注释必须单独成行；新项目注意其维护放缓
@@ -372,4 +387,4 @@ Flink CDC 不需要额外部署 Canal Server 或 Kafka Connect，直接在 Flink
 - MySQL binlog_row_metadata：[https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html](https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html)
 - Flink CDC：[https://nightlies.apache.org/flink/flink-cdc-docs-stable/](https://nightlies.apache.org/flink/flink-cdc-docs-stable/)
 
-> 下一篇：[mysql-binlog-connector-java 原理](./1_binlog_connector_source) —— BinaryLogClient 连接流程、事件循环、checksum 与 TableMap、GTID 位点、保活重连
+> 下一篇：[mysql-binlog-connector-java 原理](./2_binlog_connector_source) —— BinaryLogClient 连接流程、事件循环、checksum 与 TableMap、GTID 位点、保活重连

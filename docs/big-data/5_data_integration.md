@@ -4,7 +4,7 @@ description: DataX / SeaTunnel 离线同步、CDC 实时入湖、全量 + 增量
 
 # 数据集成
 
-> 前置阅读：[数仓分层与建模](./2_data_warehouse)、[数据湖与湖仓](./4_lakehouse)、[CDC 工具](/database/6_sync_backup/0_cdc_tools)
+> 前置阅读：[数仓分层与建模](./2_data_warehouse)、[数据湖与湖仓](./4_lakehouse)、[CDC 工具](/database/6_backup_cdc/1_cdc_tools)
 
 数据集成负责把业务库、日志和外部系统的数据按时效同步进数据平台，并与源头对得上。本篇讲离线同步、CDC 实时入湖、全量与增量衔接、对账和表结构变更，基线为 Flink CDC 3.6。
 
@@ -268,7 +268,7 @@ sink {
 
 ## 四、实时同步：Kafka Connect 与 Flink CDC
 
-MySQL 的 binlog 与账号前置配置、Canal / Debezium 的事件结构见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)。
+MySQL 的 binlog 与账号前置配置、Canal / Debezium 的事件结构见 [CDC 工具](/database/6_backup_cdc/1_cdc_tools)。
 
 ### 1、Debezium + Kafka Connect
 

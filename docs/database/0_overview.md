@@ -1,6 +1,6 @@
 # 数据库总览
 
-数据库模块从存储引擎与选型讲起，以 MySQL 为主线讲表设计、索引、事务与锁、InnoDB 与复制，再对比 PostgreSQL 与其他关系库，然后是水平扩展（分库分表与分布式数据库）、Java 应用接入，最后落到 CDC 与备份恢复。
+数据库模块从存储引擎与选型讲起，以 MySQL 为主线讲表设计、索引、事务与锁、InnoDB 与复制，再对比 PostgreSQL 与其他关系库，然后是水平扩展（分库分表与分布式数据库）、Java 应用接入，最后落到备份恢复与变更订阅（CDC）。
 
 **版本基线（2026 年 10 月）**：MySQL 8.4、PostgreSQL 18、MariaDB 12.3、Connector/J 26.x、HikariCP 7.x、ShardingSphere 5.5、Debezium 3.x
 
@@ -18,7 +18,7 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 | **其他关系库** | MariaDB、商业与国产库（Oracle、SQL Server、达梦、人大金仓、openGauss） | 用 MySQL 的分支，或做国产化迁移 |
 | **水平扩展** | 分库分表与中间件（ShardingSphere）、分布式数据库（TiDB / OceanBase） | 单库放不下时的两条路 |
 | **应用接入** | MySQL JDBC 驱动、数据库连接池、ORM 框架 | Java 应用怎么连数据库、怎么用好连接 |
-| **数据同步与备份** | CDC 工具、binlog 连接器原理、数据备份与恢复 | 数据同步与可靠性 |
+| **备份与变更订阅** | 数据备份与恢复、CDC 工具、binlog 连接器原理 | 误删能找回，变更能实时送到缓存、搜索、数仓 |
 
 ---
 
@@ -40,7 +40,7 @@ NoSQL（文档、列式、时序、搜索、图、键值）是独立的 [NoSQL](
 6. 用 MySQL 的分支时读 [MariaDB](./3_relational/0_maria_db)，国产化迁移按需阅读 [商业与国产库](./3_relational/1_other_rdbms)；分析、时序、文档、搜索等场景转到 [NoSQL 总览](/nosql/0_overview) 按需选读
 7. 单库放不下时有两条路：继续用 MySQL、在应用侧拆，读 [分库分表与中间件](./4_scale_out/0_sharding)；换成自带分片的数据库，读 [分布式数据库](./4_scale_out/1_distributed_db)（TiDB / OceanBase）
 8. 写 Java 代码前读应用接入，从下往上：[MySQL JDBC 驱动](./5_access/1_jdbc_driver)、[数据库连接池](./5_access/2_connection_pool)、[ORM 框架](./5_access/3_orm_framework)
-9. 工程落地读 [CDC 工具](./6_sync_backup/0_cdc_tools) 与 [数据备份与恢复](./6_sync_backup/2_backup_recovery)；想了解 binlog 订阅原理时按需阅读 [mysql-binlog-connector-java 原理](./6_sync_backup/1_binlog_connector_source)
+9. 工程落地先读 [数据备份与恢复](./6_backup_cdc/0_backup_recovery)，每个库都要做；要把变更实时送到缓存、搜索或数仓时读 [CDC 工具](./6_backup_cdc/1_cdc_tools)；想了解 binlog 订阅原理时按需阅读 [mysql-binlog-connector-java 原理](./6_backup_cdc/2_binlog_connector_source)
 
 [高频面试题](./99_interview) 只列题目，答案在 [数据库面试题解答](/interview/12_db)。
 

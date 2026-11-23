@@ -325,4 +325,4 @@ recovery_target_action = 'promote'
 - PostgreSQL 连续归档与 PITR：[https://www.postgresql.org/docs/current/continuous-archiving.html](https://www.postgresql.org/docs/current/continuous-archiving.html)
 - pg_combinebackup：[https://www.postgresql.org/docs/current/app-pgcombinebackup.html](https://www.postgresql.org/docs/current/app-pgcombinebackup.html)
 
-> 返回：[数据库总览](../0_overview)
+> 下一篇：[CDC 工具](./1_cdc_tools) —— binlog 与 PG 复制槽的前置条件、Canal、Debezium、Flink CDC、选型

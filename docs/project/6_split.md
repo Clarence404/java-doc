@@ -147,7 +147,7 @@ try {
 ![库存数据从 mall 迁到 mall_inventory 的四步](../assets/project/project-db-split-steps.svg)
 
 - **① 先拆部署**：`inventory-service` 上线，但数据源仍指向 `mall`，只用一个只能访问 `t_inventory` 的账号；网关和 `mall-app` 按比例切流量过去，有问题切回单体内的实现即可，这一步就是 [绞杀者模式](/microservices/3_patterns#_2、绞杀者-strangler-fig)
-- **② 建新库并同步**：订阅 `mall` 的 binlog，把 `t_inventory` 的存量和增量同步到 `mall_inventory`，工具选型见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)
+- **② 建新库并同步**：订阅 `mall` 的 binlog，把 `t_inventory` 的存量和增量同步到 `mall_inventory`，工具选型见 [CDC 工具](/database/6_backup_cdc/1_cdc_tools)
 - **③ 对账与演练**：比对行数与分段 checksum，在预发环境完整演练一次切换与回切
 - **④ 停写切换**：凌晨低峰停写库存接口数秒，等增量追平后切数据源，同时开反向同步，保留一周再断开，最后回收旧表的写权限
 

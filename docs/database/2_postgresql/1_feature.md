@@ -199,7 +199,7 @@ ORDER BY reads DESC NULLS LAST;
 
 ### 1、增量备份
 
-`pg_basebackup --incremental` 基于上次备份的 manifest 只拷贝变化的块，恢复前用 `pg_combinebackup` 合成完整备份。前提是服务端开启 `summarize_wal = on`，且 `pg_combinebackup` 只接受 plain 格式（目录）备份。完整流程与 PITR 见 [数据备份与恢复](../6_sync_backup/2_backup_recovery)。
+`pg_basebackup --incremental` 基于上次备份的 manifest 只拷贝变化的块，恢复前用 `pg_combinebackup` 合成完整备份。前提是服务端开启 `summarize_wal = on`，且 `pg_combinebackup` 只接受 plain 格式（目录）备份。完整流程与 PITR 见 [数据备份与恢复](../6_backup_cdc/0_backup_recovery)。
 
 ### 2、SQL/JSON 查询函数与 JSON_TABLE
 

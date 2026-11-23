@@ -15,7 +15,7 @@ docs/
 ├── big-data/       大数据：数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 治理 / 实时数仓
 ├── cache/          缓存：Redis / Caffeine
 ├── cloud-native/   云原生：Linux / Docker / Kubernetes / VPS
-├── database/       数据库：存储引擎与选型 / MySQL / PostgreSQL / 其他关系库 / 水平扩展（分库分表与分布式数据库）/ 应用接入 / 数据同步与备份
+├── database/       数据库：存储引擎与选型 / MySQL / PostgreSQL / 其他关系库 / 水平扩展（分库分表与分布式数据库）/ 应用接入 / 备份与变更订阅
 ├── devops/         DevOps：Git 工作流 / CI/CD / Code Review / 团队规范
 ├── distributed/    分布式基础：分布式理论 / 锁 / 事务 / 会话
 ├── engineering/    工程效率：构建 / 工具链 / 代码质量 / 线上诊断 / API 规范
@@ -71,7 +71,7 @@ docs/
 | 消息队列 | `docs/messaging/` | Kafka / RocketMQ / RabbitMQ |
 | 微服务架构 | `docs/microservices/` | 优势与挑战 / 拆分 / 设计模式 / 调用顺序性 / 服务间通信与契约 |
 | 微服务治理 | `docs/service-governance/` | Spring Cloud 主线（注册发现 / API 网关 / 服务通信 / 配置中心 / 流量治理 / Spring Cloud Alibaba / Spring Cloud Stream）/ 其他路线（Dubbo / 服务网格） |
-| 数据库 | `docs/database/` | 存储引擎与选型 / MySQL / PostgreSQL / 其他关系库 / 分库分表与分布式数据库 / JDBC 驱动、连接池与 ORM / CDC 与备份恢复 |
+| 数据库 | `docs/database/` | 存储引擎与选型 / MySQL / PostgreSQL / 其他关系库 / 分库分表与分布式数据库 / JDBC 驱动、连接池与 ORM / 备份恢复与 CDC |
 | NoSQL | `docs/nosql/` | 键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索 / 图 |
 | 缓存 | `docs/cache/` | Redis / Caffeine / 两级缓存 |
 | 系统架构 | `docs/architecture/` | 架构设计 / DDD / 幂等 / 对象存储 / 分布式文件系统 |

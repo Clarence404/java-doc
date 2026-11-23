@@ -178,7 +178,7 @@ RocketMQ 4.x 只支持固定延迟级别，5.x 支持任意延迟，见 [RocketM
 
 **推荐组合**：应用在 `afterCommit` 中先删一次（快），binlog 订阅再删一次（可靠）。binlog 那次删除天然晚于提交，相当于一个由基础设施保证的延迟双删。
 
-binlog 参数、Canal 与 Debezium 的选型与部署见 [CDC 工具](/database/6_sync_backup/0_cdc_tools)，基于 Flink 的 CDC 管道见 [Flink CDC](/flink/6_cdc)。
+binlog 参数、Canal 与 Debezium 的选型与部署见 [CDC 工具](/database/6_backup_cdc/1_cdc_tools)，基于 Flink 的 CDC 管道见 [Flink CDC](/flink/6_cdc)。
 
 ---
 

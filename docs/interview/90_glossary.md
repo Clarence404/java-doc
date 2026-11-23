@@ -63,7 +63,7 @@ description: 全站高频术语的一句话解释与主文档入口、按方向�
 - **binlog（二进制日志）**：MySQL Server 层记录数据变更的日志，用于主从复制和按时间点恢复 → [MySQL 主从与高可用](/database/1_mysql/7_topic_replication#一、binlog)
 - **Buffer Pool（缓冲池）**：InnoDB 在内存里缓存数据页和索引页，读写先走它，减少磁盘 IO → [InnoDB 存储结构](/database/1_mysql/6_topic_innodb#三、buffer-pool)
 - **Cache Aside（旁路缓存）**：读时缓存没有就查库回填，写时先更新库再删缓存 → [缓存一致性](/cache/10_cache_consistency#_1、cache-aside-旁路缓存)
-- **CDC（变更数据捕获）**：订阅数据库变更日志（如 binlog），把增删改实时同步给下游 → [CDC 工具](/database/6_sync_backup/0_cdc_tools)
+- **CDC（变更数据捕获）**：订阅数据库变更日志（如 binlog），把增删改实时同步给下游 → [CDC 工具](/database/6_backup_cdc/1_cdc_tools)
 - **Change Buffer**：普通二级索引页不在内存时先把改动记下来，之后再合并，省随机读 → [MySQL 索引](/database/1_mysql/2_topic_index#四、change-buffer-普通索引与唯一索引的写入差异)
 - **GTID（全局事务 ID）**：给每个事务一个全局唯一编号，主从切换时按编号续传，不用找位点 → [MySQL 主从与高可用](/database/1_mysql/7_topic_replication#_1、gtid-是什么)
 - **ICP（索引下推）**：把能用索引列判断的条件下推到存储引擎先过滤，减少回表 → [MySQL 索引](/database/1_mysql/2_topic_index#八、索引下推-icp)

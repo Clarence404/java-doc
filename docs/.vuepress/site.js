@@ -105,7 +105,7 @@ export const GROUPS = [
         name: '数据存储', tagline: '关系型、NoSQL、缓存与消息中间件', modules: [
             {
                 name: '数据库', dir: 'database', interview: ['12_db'],
-                desc: '存储引擎与选型 / MySQL / PostgreSQL / MariaDB 与国产库 / 分库分表与分布式数据库 / JDBC 驱动、连接池与 ORM / CDC / 备份恢复',
+                desc: '存储引擎与选型 / MySQL / PostgreSQL / MariaDB 与国产库 / 分库分表与分布式数据库 / JDBC 驱动、连接池与 ORM / 备份恢复 / CDC 变更订阅',
                 subdirs: {
                     '0_fundamentals': '基础与选型',
                     '1_mysql': {title: 'MySQL', sidebar: [{text: '核心专项', from: 2}, {text: '避坑与版本', from: 8}]},
@@ -113,7 +113,7 @@ export const GROUPS = [
                     '3_relational': '其他关系库',
                     '4_scale_out': '水平扩展',
                     '5_access': '应用接入',
-                    '6_sync_backup': '数据同步与备份',
+                    '6_backup_cdc': '备份与变更订阅',
                 },
             },
             {name: 'NoSQL', dir: 'nosql', interview: ['13_nosql'], desc: '键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图'},
@@ -281,6 +281,10 @@ export const BASELINE = {
 
 // 重定向：文章搬家后旧地址自动跳到新地址（@vuepress/plugin-redirect），键为旧路径、值为新路径，均不带 .html
 export const REDIRECTS = {
+    // 2026-11：数据库最后一组改名「备份与变更订阅」，目录改为 6_backup_cdc，组内顺序改为 备份恢复 → CDC 工具 → binlog 连接器原理
+    '/database/6_sync_backup/2_backup_recovery': '/database/6_backup_cdc/0_backup_recovery',
+    '/database/6_sync_backup/0_cdc_tools': '/database/6_backup_cdc/1_cdc_tools',
+    '/database/6_sync_backup/1_binlog_connector_source': '/database/6_backup_cdc/2_binlog_connector_source',
     // 2026-11：数据库模块重新分组（基础与选型 / MySQL / PostgreSQL / 其他关系库 / 分库分表与分布式数据库 / 应用接入 / 数据同步与备份），
     // MySQL 组内按阅读顺序重排，分布式文件系统搬到系统架构
     '/database/0_fundamentals/1_storage_fs': '/architecture/5_storage_fs',
@@ -300,9 +304,9 @@ export const REDIRECTS = {
     '/database/4_access/3_jdbc_driver': '/database/5_access/1_jdbc_driver',
     '/database/4_access/2_connection_pool': '/database/5_access/2_connection_pool',
     '/database/4_access/1_orm_framework': '/database/5_access/3_orm_framework',
-    '/database/5_practice/0_cdc_tools': '/database/6_sync_backup/0_cdc_tools',
-    '/database/5_practice/1_binlog_connector_source': '/database/6_sync_backup/1_binlog_connector_source',
-    '/database/5_practice/2_backup_recovery': '/database/6_sync_backup/2_backup_recovery',
+    '/database/5_practice/0_cdc_tools': '/database/6_backup_cdc/1_cdc_tools',
+    '/database/5_practice/1_binlog_connector_source': '/database/6_backup_cdc/2_binlog_connector_source',
+    '/database/5_practice/2_backup_recovery': '/database/6_backup_cdc/0_backup_recovery',
     // 2026-11：业务场景按业务域重新分组（方法论 / 交易与资金 / 营销活动 / 内容与社交 / 通用能力 / 海量数据），文件按新顺序重排编号
     '/scenario/13_product_detail': '/scenario/3_product_detail',
     '/scenario/19_cart': '/scenario/4_cart',
@@ -373,8 +377,8 @@ export const REDIRECTS = {
     '/database/3_relational/2_orm_framework': '/database/5_access/3_orm_framework',
     '/database/5_practice/3_connection_pool': '/database/5_access/2_connection_pool',
     '/database/6_reference/2_jdbc_driver': '/database/5_access/1_jdbc_driver',
-    '/database/6_reference/0_binlog_connector_source': '/database/6_sync_backup/1_binlog_connector_source',
-    '/database/5_practice/1_backup_recovery': '/database/6_sync_backup/2_backup_recovery',
+    '/database/6_reference/0_binlog_connector_source': '/database/6_backup_cdc/2_binlog_connector_source',
+    '/database/5_practice/1_backup_recovery': '/database/6_backup_cdc/0_backup_recovery',
     '/database/5_practice/2_sharding': '/database/4_scale_out/0_sharding',
     // 2026-10：子目录里的「MySQL 基础」「PostgreSQL 基础」不再占用 0_overview 文件名（总览页专用）
     '/database/1_mysql/0_overview': '/database/1_mysql/0_basics',
