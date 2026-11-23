@@ -1,9 +1,9 @@
-// 内页「期刊风」：与首页一致的排版语言（衬线西文 + 黑体中文、等宽编号、细线分隔）
+// 内页「期刊风」：与首页一致的排版语言（无衬线标题、等宽编号、细线分隔）
 // 只调整字体、字号、间距与线条，颜色沿用主题原有配色（强调色 --vp-c-accent 等不改）
 // 作用于文档页的导航栏、侧边栏、页面标题、正文与目录；首页组件不含侧边栏 / 正文结构，不受影响
 
-// 标题字体栈：西文走衬线、中文走黑体，浏览器按字符逐个回退，避免中文落到不协调的宋体
-$display: "Palatino Linotype", Palatino, "Book Antiqua", Georgia, -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+// 标题字体栈：中西文都走无衬线，和首页 --display 一致，避免标题里英文是衬线、中文是黑体的割裂感
+$display: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", sans-serif;
 $mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace;
 
 // ---------- 顶部导航栏 ----------
