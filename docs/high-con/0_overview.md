@@ -95,9 +95,9 @@
 
 ## 七、关联模块
 
-- 缓存技术细节（Redis、Caffeine、两级缓存、一致性） → [缓存](/cache/0_overview)
+- 缓存技术细节（Redis、Caffeine、两级缓存、一致性） → [Redis 与缓存](/cache/0_overview)
 - MQ 可靠性、顺序与堆积处理 → [消息队列](/messaging/0_overview)
-- 分库分表中间件配置 → [数据库](/database/0_overview)
+- 分库分表中间件配置 → [关系数据库](/database/0_overview)
 - 长连接网关实现 → [Netty](/netty/0_overview)
 - 秒杀、订单、Feed 等完整案例 → [业务场景](/scenario/0_overview)
 

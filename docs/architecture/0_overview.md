@@ -41,7 +41,7 @@
 - 服务拆分、通信与治理 → [微服务](/microservices/0_overview)
 - 分布式锁、分布式事务、分布式 ID → [分布式](/distributed/0_overview)
 - MQ 可靠投递、事务消息与消费幂等 → [消息队列](/messaging/0_overview)
-- 缓存一致性与两级缓存 → [缓存](/cache/0_overview)
+- 缓存一致性与两级缓存 → [Redis 与缓存](/cache/0_overview)
 - 系统级扩展、热点与容量规划 → [高并发](/high-con/0_overview)
 - 认证授权模型与零信任 → [应用安全](/security/0_overview)
 - 秒杀、订单、文件上传等完整案例 → [业务场景](/scenario/0_overview)

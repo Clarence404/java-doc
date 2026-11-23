@@ -4,7 +4,7 @@ description: InfluxDB 3 宽表建模与写入、Redis 最新值、历史查询�
 
 # 时序存储与历史查询
 
-> 前置阅读：[数据流水线](./4_pipeline)、[时序数据库](/nosql/4_time_series_db)、[物模型与解码](./2_thing_model)
+> 前置阅读：[数据流水线](./4_pipeline)、[时序数据库概览](/nosql/8_tsdb)、[物模型与解码](./2_thing_model)
 
 流水线把校验过的测点写进两个地方：InfluxDB 3 存全部历史，Redis 存每个测点的最新值。本篇讲宽表建模与写入、最新值的存法、历史查询的原始与自动聚合、缺测与零值约定、扫描文件上限和数据新鲜度，基线为 JDK 21、Spring Boot 3.5。
 
@@ -35,7 +35,7 @@ description: InfluxDB 3 宽表建模与写入、Redis 最新值、历史查询�
 | `BucketPolicy` / `HistoryQueryBuilder` | 选时间桶；生成计数、原始、聚合三种 SQL |
 | `InfluxSchema` | `property` 表的列名与类型缓存 |
 
-时序数据库的通用概念（measurement、tag、field、时间线）与几种产品的对比见 [时序数据库](/nosql/4_time_series_db)，这里只讲 Conduit 的用法。
+时序数据库的通用概念（measurement、tag、field、时间线）与几种产品的对比见 [时序数据库概览](/nosql/8_tsdb)，这里只讲 Conduit 的用法。
 
 ---
 
@@ -419,7 +419,7 @@ for (long ts = first; ts < scope.to(); ts += width) {
 - **Core 版的两个硬约束**：不做文件合并（第七节的扫描上限由此而来）、单节点。长跨度查询在路线里的解法是分段查询，还没有做
 - **什么时候该换**：规则引擎、数据转发、仪表盘都要读同一份数据流时，总线先换；跨设备聚合和长期保留成为刚需时，再考虑时序库。总线在 `MessageBus` 接口后面，时序库的读写集中在 `telemetry` 包的几个类里，换的时候动的范围是清楚的
 
-时序库选型的通用考量（写入模型、压缩、SQL 能力、许可）见 [时序数据库](/nosql/4_time_series_db)。
+时序库选型的通用考量（写入模型、压缩、SQL 能力、许可）见 [时序数据库概览](/nosql/8_tsdb)。
 
 ---
 

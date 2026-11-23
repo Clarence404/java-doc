@@ -384,7 +384,7 @@ public class PromoSimulation extends Simulation {
 
 ### 2、RocketMQ 容量评估
 
-年中大促的消息积压，是因为托管实例的规格从没按大促算过。按每笔订单产生的消息估算：峰值时 `order-timeout` 每单一条约 5000 条/秒，`payment-succeeded` 与 `order-paid` 按 70% 支付率共约 7000 条/秒，`order-cancelled` 约 1500 条/秒，发送合计约 1.35 万条/秒。积压的原因与处理见 [RocketMQ · 消息积压](/messaging/3_rocketmq#_3、消息积压)。
+年中大促的消息积压，是因为托管实例的规格从没按大促算过。按每笔订单产生的消息估算：峰值时 `order-timeout` 每单一条约 5000 条/秒，`payment-succeeded` 与 `order-paid` 按 70% 支付率共约 7000 条/秒，`order-cancelled` 约 1500 条/秒，发送合计约 1.35 万条/秒。积压的原因与处理见 [RocketMQ 生产与消费 · 消息积压](/messaging/6_rocketmq_client#_3、消息积压)。
 
 - **规格**：按 1.5 倍余量选 2 万 TPS 档；`order-paid` 有 `points-consumer`、`notify-consumer`、`shipment-consumer`、`inventory-confirm-consumer` 4 个消费组，规格按「发送 + 消费」确认
 - **定时消息存量**：活动订单 5 分钟后投递，峰值时约 5000 × 300 = 150 万条在等待，要在实例的定时消息上限以内

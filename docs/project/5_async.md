@@ -63,7 +63,7 @@ description: 同步与异步的划分、RocketMQ 选型、本地消息表 t_outb
 | 积压能力 | 强，消息落盘保留数天 | 最强 | 经典 / 仲裁队列大量堆积时性能下降 |
 | 托管与团队经验 | 云厂商托管成熟，团队有人用过 | 托管成熟，但团队只用它做过日志 | 团队无经验 |
 
-逐项对比和场景决策表见 [MQ 选型](/messaging/6_selection)。
+逐项对比和场景决策表见 [MQ 选型](/messaging/10_selection)。
 
 ### 3、写库和发消息怎么保证一致
 
@@ -84,7 +84,7 @@ description: 同步与异步的划分、RocketMQ 选型、本地消息表 t_outb
 - **一致性用本地消息表 `t_outbox`**：放在 mall-order、与订单同库同事务。不用事务消息，是因为 `t_outbox` 同时承载普通消息和定时消息，中继逻辑只写一份；表里能直接查到「哪笔订单的消息发没发」；阶段三其他服务照搬同一套
 - **Topic 与消费组**：支付成功发 `order-paid`，三个消费组 `points-consumer`、`notify-consumer`、`shipment-consumer` 各收一份；超时关单发 `order-timeout`，消费组 `order-timeout-consumer`
 - **消费幂等统一用 `t_consume_record`**：三个下游里只有积分有天然的业务表，通知和 WMS 都是外部调用，统一一张去重表，写法一致、排查时也能查到「这笔订单被哪个组处理过」
-- **客户端用 `rocketmq-client-java` 5.x**：走 Proxy + gRPC，几个 Bean 就能包装好；没有用 [RocketMQ](/messaging/3_rocketmq) 主文档里的 starter，它底层是 Remoting 经典客户端
+- **客户端用 `rocketmq-client-java` 5.x**：走 Proxy + gRPC，几个 Bean 就能包装好；没有用 [RocketMQ 生产与消费](/messaging/6_rocketmq_client) 主文档里的 starter，它底层是 Remoting 经典客户端
 
 明确暂不做：
 
@@ -281,7 +281,7 @@ provider.newPushConsumerBuilder()
 | `shipment-consumer` | 16 | 进死信，告警，仓储同事确认后重发或手工建单 |
 | `order-timeout-consumer` | 16 | 进死信，由兜底扫描关单 |
 
-瞬时失败（如 WMS 偶发超时）先在消费方法内短间隔重试 2 次，仍失败再返回 `FAILURE`，避免一次抖动就等上 10 秒。重试队列与死信的机制见 [RocketMQ · 消费模式、重试与死信](/messaging/3_rocketmq#八、消费模式、重试与死信)。
+瞬时失败（如 WMS 偶发超时）先在消费方法内短间隔重试 2 次，仍失败再返回 `FAILURE`，避免一次抖动就等上 10 秒。重试队列与死信的机制见 [RocketMQ 生产与消费 · 消费模式、重试与死信](/messaging/6_rocketmq_client#四、消费模式、重试与死信)。
 
 ### 5、超时关单
 
@@ -293,7 +293,7 @@ provider.newPushConsumerBuilder()
 
 ![订单超时关单：定时消息 + 扫描兜底](../assets/project/order-timeout-close-flow.svg)
 
-`order-timeout` 创建时声明为 DELAY 类型，5.x 定时消息与 4.x 固定级别的区别见 [RocketMQ · 延迟消息](/messaging/3_rocketmq#_1、延迟消息-4-x-固定级别-vs-5-x-任意时间)；各类延迟方案的对比见 [延迟任务](/scenario/25_delay_task#五、以订单超时关单为例)。
+`order-timeout` 创建时声明为 DELAY 类型，5.x 定时消息与 4.x 固定级别的区别见 [RocketMQ 生产与消费 · 延迟消息](/messaging/6_rocketmq_client#_1、延迟消息-4-x-固定级别-vs-5-x-任意时间)；各类延迟方案的对比见 [延迟任务](/scenario/25_delay_task#五、以订单超时关单为例)。
 
 ---
 

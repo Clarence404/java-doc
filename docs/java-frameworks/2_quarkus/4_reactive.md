@@ -301,7 +301,7 @@ public class InvoiceFacade {
 - `@Blocking` 默认保持顺序，提高吞吐优先加 `concurrency`；生产端要处理 `send` 的结果
 - 事件总线是进程内、非持久的，只用于应用内解耦与卸载阻塞工作
 - 请求-响应式业务优先同步写法 + 虚拟线程，流式与消息管道用 Mutiny
-- Reactor 的执行模型、背压、调度器等通用概念已在 [WebFlux](/spring/8_webflux) 中展开，Kafka 本身的可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，幂等消费与 Exactly-Once 见 [Kafka 生产与消费](/messaging/2_kafka_client)。
+- Reactor 的执行模型、背压、调度器等通用概念已在 [WebFlux](/spring/8_webflux) 中展开，Kafka 本身的可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，幂等消费与 Exactly-Once 见 [Kafka 生产与消费](/messaging/3_kafka_client)。
 
 ## 参考资料
 

@@ -196,7 +196,7 @@ public class PayTxService {
 
 - **去重记录与业务写入在同一个事务**：重复通知在第一步撞唯一键，异常抛出事务边界，整个事务回滚后由外层吞掉。不能「先 `SETNX` 再处理」，处理失败时 key 已经占住，渠道重发会被误判为已处理
 - **条件更新是第二道防线**：即使去重表被误清理，`status IN ('WAITING','PAYING')` 也保证只成功一次
-- **事件走 Outbox**：支付成功事件与状态变更同事务写入，提交后由中继投递，不在事务里直接发 MQ。投递与消费的可靠性见 [消息队列基础](/messaging/1_basics)，用 RocketMQ 事务消息替代 Outbox 的写法见 [RocketMQ](/messaging/3_rocketmq)
+- **事件走 Outbox**：支付成功事件与状态变更同事务写入，提交后由中继投递，不在事务里直接发 MQ。投递与消费的可靠性见 [消息队列基础](/messaging/1_basics)，用 RocketMQ 事务消息替代 Outbox 的写法见 [RocketMQ 生产与消费](/messaging/6_rocketmq_client)
 - 回调接口只做校验和落库，耗时的后续动作全部由事件驱动，保证几百毫秒内应答。订单侧如何消费 `PAY_SUCCESS`、订单已关闭时如何自动退款，见 [订单](./7_order_system#五、支付回调)
 
 ---

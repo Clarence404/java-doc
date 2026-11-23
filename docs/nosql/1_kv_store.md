@@ -1,12 +1,12 @@
 ---
-description: 键值存储定位、RocksDB、TiKV 事务 KV、etcd 强一致存储、SQLite / H2 / DuckDB、选型
+description: 键值存储定位、RocksDB 嵌入式引擎、TiKV 事务 KV、etcd 强一致存储、选型与常见坑
 ---
 
-# 键值与嵌入式数据库
+# 键值存储：RocksDB、TiKV 与 etcd
 
 > 前置阅读：[存储引擎：B+ 树与 LSM-Tree](/database/0_fundamentals/1_storage_engine)、[Redis 基础](/cache/1_redis_base)
 
-键值存储只提供按键读写，却是 TiDB、Flink、Kubernetes 的底座。本篇讲 RocksDB、TiKV、etcd 与 SQLite、H2、DuckDB 的定位和选型，基线为 RocksDB 10、etcd 3、SQLite 3。
+键值存储只提供按键读写，却是 TiDB、Flink、Kubernetes 的底座。本篇讲 RocksDB、TiKV、etcd 的定位、用法和选型，基线为 RocksDB 10、etcd 3。
 
 ---
 
@@ -30,7 +30,7 @@ description: 键值存储定位、RocksDB、TiKV 事务 KV、etcd 强一致存�
 | 维度 | Redis | 磁盘型 KV（RocksDB / TiKV / etcd） | 关系库（MySQL / PostgreSQL） |
 |------|------|------|------|
 | 数据位置 | 内存为主 | 磁盘为主，内存做缓存 | 磁盘为主 |
-| 容量 | 受内存限制 | 受磁盘限制，TB 级（etcd 例外，见第四节） | TB 级 |
+| 容量 | 受内存限制 | 受磁盘限制，TB 级（etcd 例外，见[第四节](#四、强一致小数据-kv-etcd)） | TB 级 |
 | 数据结构 | String / Hash / ZSet 等丰富类型 | 字节数组，结构由应用编码 | 表、行、列 |
 | 查询能力 | 按键 + 类型命令 | 按键 + 范围扫描 | SQL、二级索引、JOIN |
 | 持久化语义 | RDB / AOF，可能丢最后一段 | 写 WAL 后才确认 | 写 redo / WAL 后才确认 |
@@ -40,7 +40,7 @@ Redis 的数据类型与持久化见 [Redis 基础](/cache/1_redis_base)，这�
 
 ![键值与嵌入式存储全景](../assets/nosql/kv-landscape.svg)
 
-按「部署形态 × 数据位置」看：嵌入式库没有网络开销，但也没有高可用，进程挂了数据就只在本机磁盘上；分布式 KV 多副本容错，代价是每次访问都要走网络。
+按「部署形态 × 数据位置」看：嵌入式库没有网络开销，但也没有高可用，进程挂了数据就只在本机磁盘上；分布式 KV 多副本容错，代价是每次访问都要走网络。图中的嵌入式关系库 SQLite、H2、DuckDB 见 [嵌入式数据库：SQLite、H2 与 DuckDB](./2_embedded_db)。
 
 ---
 
@@ -172,47 +172,7 @@ etcd 是用 Go 写的强一致 KV，Raft 复制、所有写入走 Leader，**底
 
 ---
 
-## 五、嵌入式关系数据库
-
-### 1、SQLite
-
-SQLite 是一个 C 库实现的完整 SQL 数据库，**整个库就是一个文件**，无需服务进程，是世界上部署量最大的数据库（每部手机、每个浏览器里都有）。
-
-- **WAL 模式**：`PRAGMA journal_mode=WAL;` 后写入追加到 `-wal` 文件，读不阻塞写、写不阻塞读；但**同一时刻只能有一个写事务**，并发写会拿到 `SQLITE_BUSY`，需要设 `PRAGMA busy_timeout`
-- **适用**：桌面 / 移动客户端本地存储、边缘网关与 IoT 设备上的缓冲库（断网时先写本地、恢复后上报）、单机小工具、只读数据分发（一个文件就是一份数据集）
-- **不适用**：多台机器共享（不要把库文件放在 NFS 上）、高并发写入的 Web 后端
-- **Java**：`org.xerial:sqlite-jdbc`，连接串 `jdbc:sqlite:/data/app.db`
-
-### 2、H2：Java 测试替身的利弊
-
-H2 是纯 Java 的嵌入式数据库，支持内存模式（`jdbc:h2:mem:testdb`）和文件模式，常被拿来在单元测试里代替 MySQL / PostgreSQL。
-
-| 利 | 弊 |
-|------|------|
-| 不需要 Docker，毫秒级启动 | 方言、函数、锁和索引行为与生产库不同 |
-| Spring Boot 自动配置，零成本接入 | 用了 `jsonb`、部分索引、`SKIP LOCKED` 等特性就测不了 |
-| 适合纯 JPA 映射、简单 CRUD 的快速反馈 | 测试通过不代表生产能跑，容易「测试绿、上线红」 |
-
-兼容模式的坑：
-
-- `MODE=MySQL` / `MODE=PostgreSQL` 只是**部分兼容**语法，不会模拟目标库的执行计划、隔离级别、锁和错误码；PostgreSQL 模式通常还要加 `DATABASE_TO_LOWER=TRUE`，否则大小写不一致
-- 从 1.4 升到 2.x 时关键字变多，`VALUE`、`USER` 等列名会直接报错，要加 `NON_KEYWORDS=VALUE,USER`；2.x 的文件格式与 1.4 不兼容，文件库需要导出再导入
-- 为了让 H2 通过而在 Flyway 里维护两套 SQL，等于在测一个生产不存在的数据库
-
-**何时改用 Testcontainers**：一旦 SQL 用到目标库的特有语法、要测锁和事务行为，或者团队开始为 H2 改写 SQL，就该换成真实数据库容器。理由与做法见 [集成测试](/testing/3_integration_test#二、依赖怎么替代-三种方式) 和 [Testcontainers](/testing/5_testcontainers#一、为什么用真实容器)。
-
-### 3、DuckDB：进程内 OLAP
-
-DuckDB 常被称为「分析版的 SQLite」：同样是嵌入式、单文件，但采用列式存储和向量化执行，面向聚合分析而非事务。
-
-- 不用导入就能**直接查文件**：`SELECT city, count(*) FROM read_parquet('logs/*.parquet') GROUP BY city`，CSV、JSON 同理，装上 `httpfs` 扩展后还能直接读 S3
-- 适用：单机数据分析、ETL 中间处理、在服务里对导出的 Parquet / CSV 做临时统计、替代「为了跑几条报表 SQL 而搭一个 ClickHouse」
-- 限制：同一库文件只允许一个进程写；不是高并发 OLTP，也不替代分布式 OLAP（ClickHouse、Doris 见 [列式与 OLAP 数据库](./3_column_db)）
-- **Java**：依赖 `org.duckdb:duckdb_jdbc`，`DriverManager.getConnection("jdbc:duckdb:")` 打开内存库（带文件路径即为持久化库），之后就是普通 JDBC
-
----
-
-## 六、选型
+## 五、选型
 
 | 场景 | 推荐 | 理由 |
 |------|------|------|
@@ -220,15 +180,14 @@ DuckDB 常被称为「分析版的 SQLite」：同样是嵌入式、单文件，
 | 进程内持久化大量 KV（状态存储、本地索引） | RocksDB | 嵌入式、写入快、TB 级 |
 | 需要水平扩展、强一致的大容量 KV | TiKV | Raft 多副本 + 分布式事务 |
 | 配置、选主、服务元数据、K8s 状态 | etcd | 强一致、Watch、Lease，数据量小 |
-| 客户端、边缘设备、IoT 网关的本地库 | SQLite | 单文件、零运维、SQL 能力完整 |
-| 单机分析 Parquet / CSV | DuckDB | 进程内列式引擎，直接查文件 |
-| 数据库相关的自动化测试 | Testcontainers 真实库 | 行为与生产一致；H2 只留给不涉及方言的极简场景 |
+
+客户端本地库、单机分析和数据库测试的选型见 [嵌入式数据库：SQLite、H2 与 DuckDB](./2_embedded_db#四、选型)。
 
 Redis 何时就够用：数据能放进内存、能容忍故障时丢失最后一小段写入（或者开了 AOF `everysec` 能接受最多约 1 秒）、访问模式就是按键读写和简单结构操作，这时不必引入磁盘型 KV。反过来，数据量远超内存、必须写入即持久、需要强一致选主，或者要在本进程里存状态避免网络开销，才考虑 RocksDB、TiKV 或 etcd。
 
 ---
 
-## 七、常见坑
+## 六、常见坑
 
 | 坑 | 现象 | 对策 |
 |------|------|------|
@@ -238,8 +197,6 @@ Redis 何时就够用：数据能放进内存、能容忍故障时丢失最后�
 | RocksDB 对象不关闭 | 堆内存正常但容器 RSS 持续上涨被 OOM Kill | 所有原生对象 try-with-resources；限制 Block Cache 与 MemTable 总量 |
 | RocksDB 写停顿 | 写入延迟周期性飙高，日志出现 `Stalling writes` | 调大后台线程与 MemTable，检查 L0 文件堆积 |
 | 两个进程打开同一 RocksDB 目录 | 第二个进程报 `LOCK` 文件被占用 | 一个目录只给一个进程；多实例各用各的目录 |
-| SQLite 多线程并发写 | 频繁 `SQLITE_BUSY` / `database is locked` | 开 WAL、设 `busy_timeout`，写入收敛到单线程或队列 |
-| H2 测试全绿、上线报错 | 方言、函数、锁行为不同 | 关键路径改用 Testcontainers 跑真实库 |
 | key 设计成单调递增 | TiKV 写入集中在最后一个 Region | key 前加哈希前缀打散，或用随机 ID |
 
 ---
@@ -250,7 +207,6 @@ Redis 何时就够用：数据能放进内存、能容忍故障时丢失最后�
 - RocksDB 是进程内的 LSM 引擎，支持列族、WriteBatch、快照与事务，TiKV、Flink、Kafka Streams 都用它做本地存储；Java 用 rocksdbjni，原生对象必须关闭
 - TiKV = Raft 多副本 + Region 自动分裂 + Percolator 事务，主要作为 TiDB 底座，也能独立当大容量强一致 KV
 - etcd 用 Raft + bbolt，靠 revision 实现 MVCC、历史读和不漏事件的 Watch，用 Lease 实现临时 key；只适合 GB 级以内的元数据，Kubernetes 的状态全在里面
-- SQLite 适合客户端、边缘和 IoT 的本地库，WAL 模式下仍只有一个写者；H2 只适合不涉及方言的极简测试，其余用 Testcontainers；DuckDB 是进程内 OLAP，能直接查 Parquet / CSV
 - 数据进得了内存、能容忍丢少量写入时，Redis 就够用
 
 ## 参考资料
@@ -262,8 +218,5 @@ Redis 何时就够用：数据能放进内存、能容忍故障时丢失最后�
 - etcd 数据模型：[https://etcd.io/docs/v3.6/learning/data_model/](https://etcd.io/docs/v3.6/learning/data_model/)
 - etcd 系统限制：[https://etcd.io/docs/v3.6/dev-guide/limit/](https://etcd.io/docs/v3.6/dev-guide/limit/)
 - etcd 维护（压缩、碎片整理、配额）：[https://etcd.io/docs/v3.6/op-guide/maintenance/](https://etcd.io/docs/v3.6/op-guide/maintenance/)
-- SQLite WAL 模式：[https://www.sqlite.org/wal.html](https://www.sqlite.org/wal.html)
-- H2 兼容模式：[https://www.h2database.com/html/features.html#compatibility](https://www.h2database.com/html/features.html#compatibility)
-- DuckDB Java JDBC：[https://duckdb.org/docs/stable/clients/java](https://duckdb.org/docs/stable/clients/java)
 
-> 下一篇：[文档数据库](./2_document_db) —— Schema 灵活的 MongoDB：建模、索引、副本集、分片与事务
+> 下一篇：[嵌入式数据库：SQLite、H2 与 DuckDB](./2_embedded_db) —— SQLite 单文件库与 WAL 模式、H2 测试替身的利弊、DuckDB 进程内 OLAP、选型与常见坑

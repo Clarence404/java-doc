@@ -66,7 +66,7 @@ CAP 与 BASE 的取舍见 [分布式理论](/distributed/1_theorem#二、base-�
 
 ### 2、明确不做
 
-- 不用 XA，也不用 [RocketMQ · 事务消息](/messaging/3_rocketmq#七、事务消息)：消息可靠投递统一走本地消息表，只保留一套机制，不必为每个生产者再写回查接口
+- 不用 XA，也不用 [RocketMQ 生产与消费 · 事务消息](/messaging/6_rocketmq_client#三、事务消息)：消息可靠投递统一走本地消息表，只保留一套机制，不必为每个生产者再写回查接口
 - `reserve` 调用不自动重试：结果未知时直接释放并让用户重试，重试风暴由「稳定性」一篇统一治理
 - 不做实时对账：每日一次，差错先人工确认，自动修复只覆盖几类明确的情况
 - 不建 Saga 编排引擎：只有三方参与，用订单状态机表达流程就够了
@@ -239,7 +239,7 @@ private void requireRefund(PaymentSucceeded msg) {               // 消息键是
 }
 ```
 
-去重记录与状态变更在同一个事务里，沿用 [异步化](./5_async) 的 `t_consume_record` 和 `OutboxWriter`；订单状态 `WHERE status = 10` 的条件更新再兜一层，即使去重记录被清理，重复消息也只影响 0 行，不会重复写 `order-paid`。去重键用**支付单号**而不是订单号：一笔订单可能有两张支付单都成功（用户在 App 和小程序各发起一次、两边都付了钱），按订单号去重，第二张支付单的消息会被当成重复吞掉，多收的钱没人退。所以 `payment-succeeded` 和 `order-refund-required` 的消息键都是支付单号，`t_order` 新增 `payment_no` 列记下付成功的那一张；后到的另一张支付单发现订单已被别人付过，就发 `order-refund-required` 退掉它，先到的那笔照常发货；支付服务的退款也按支付单号去重，只退指定的那一张。库存侧的 `confirm` / `release` 同样是条件更新。消费幂等的几种做法见 [幂等设计 · 消费幂等](/architecture/3_idempotence#五、消费幂等-同事务去重记录)，RocketMQ 的重试与死信见 [RocketMQ](/messaging/3_rocketmq#八、消费模式、重试与死信)。
+去重记录与状态变更在同一个事务里，沿用 [异步化](./5_async) 的 `t_consume_record` 和 `OutboxWriter`；订单状态 `WHERE status = 10` 的条件更新再兜一层，即使去重记录被清理，重复消息也只影响 0 行，不会重复写 `order-paid`。去重键用**支付单号**而不是订单号：一笔订单可能有两张支付单都成功（用户在 App 和小程序各发起一次、两边都付了钱），按订单号去重，第二张支付单的消息会被当成重复吞掉，多收的钱没人退。所以 `payment-succeeded` 和 `order-refund-required` 的消息键都是支付单号，`t_order` 新增 `payment_no` 列记下付成功的那一张；后到的另一张支付单发现订单已被别人付过，就发 `order-refund-required` 退掉它，先到的那笔照常发货；支付服务的退款也按支付单号去重，只退指定的那一张。库存侧的 `confirm` / `release` 同样是条件更新。消费幂等的几种做法见 [幂等设计 · 消费幂等](/architecture/3_idempotence#五、消费幂等-同事务去重记录)，RocketMQ 的重试与死信见 [RocketMQ 生产与消费](/messaging/6_rocketmq_client#四、消费模式、重试与死信)。
 
 「关单后才到的支付」来自关闭支付单与用户付款的竞态：渠道关单请求发出时，用户恰好完成付款。钱已经到账就要如实记账，所以支付服务的 `markSuccess` 条件是 `status IN (0, 2)`，待支付和已关闭都置为成功并发出 `payment-succeeded`；只认 `status = 0` 的话，已关闭支付单的回调影响 0 行，被当成重复回调吞掉，`order-refund-required` 永远不会产生。这类订单每天个位数，`payment-service` 收到 `order-refund-required` 后原路退款，并通知用户。
 

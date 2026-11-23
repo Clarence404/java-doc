@@ -50,7 +50,7 @@ IO 模型、Netty 编程、WebSocket、SSE 等「怎么写网络程序」的内�
 - JWT、OAuth2、mTLS 在服务网格中的使用、零信任 → [应用安全总览](/security/0_overview)
 - MQTT、CoAP、Modbus 等物联网协议 → [通信协议](/iot/1_basics/1_protocol)
 - Raft、Paxos、ZAB、Gossip 等一致性与集群协议 → [分布式理论](/distributed/1_theorem)
-- AMQP 与消息队列协议 → [RabbitMQ](/messaging/4_rabbitmq)
+- AMQP 与消息队列协议 → [RabbitMQ 核心模型与高可用](/messaging/7_rabbitmq)
 - 服务间调用方式选型、Dubbo → [服务调用](/service-governance/3_communication) / [Dubbo](/service-governance/8_dubbo)
 
 ---

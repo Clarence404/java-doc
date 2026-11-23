@@ -164,7 +164,7 @@ String due = destQueue.take();
 - `RDelayedQueue` 的元素先放在内部有序集合里，由客户端的定时任务转移到目标队列：**至少要有一个打开了该延迟队列的 Redisson 实例存活**，元素才会按时转移
 - 元素被 `take()` 取出后就从队列删除，消费失败没有重投机制，需要业务自己补偿
 
-订单超时取消这类需要可靠投递的业务，优先使用 MQ 的延迟消息（RocketMQ 5.x 支持任意延迟时间，见 [RocketMQ](/messaging/3_rocketmq)）；基于 ZSet 的手写延迟队列见 [Redis 典型应用场景](./4_redis_scenario)。
+订单超时取消这类需要可靠投递的业务，优先使用 MQ 的延迟消息（RocketMQ 5.x 支持任意延迟时间，见 [RocketMQ 生产与消费](/messaging/6_rocketmq_client)）；基于 ZSet 的手写延迟队列见 [Redis 典型应用场景](./4_redis_scenario)。
 
 ---
 

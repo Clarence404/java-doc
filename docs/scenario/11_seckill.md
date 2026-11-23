@@ -176,7 +176,7 @@ if (r == -1) {
 
 ## 五、异步下单：MQ 可靠投递
 
-MQ 本身的可靠投递机制见 [RocketMQ](/messaging/3_rocketmq)。
+MQ 本身的可靠投递机制见 [RocketMQ 生产与消费](/messaging/6_rocketmq_client)。
 
 ### 1、发送：同步发送，失败回补
 

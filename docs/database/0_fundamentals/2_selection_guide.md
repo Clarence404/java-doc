@@ -12,7 +12,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 
 ## 一、全景选型矩阵
 
-每类数据库这里只给定位与取舍，原理与深入对比在各自的主文档里；国产数据库、TiDB / OceanBase 的详细对比分别见 [商业与国产库](../3_relational/1_other_rdbms) 与 [分布式数据库](../3_relational/2_distributed_db)，NoSQL 各类见 [NoSQL 总览](/nosql/0_overview)，向量库与对象存储分别见 [向量数据库](/ai/4_core_tech/1_vector_db) 与 [对象存储](/architecture/5_object_storage)。
+每类数据库这里只给定位与取舍，原理与深入对比在各自的主文档里；国产数据库、TiDB / OceanBase 的详细对比分别见 [商业与国产库](../3_relational/1_other_rdbms) 与 [分布式数据库](../3_relational/2_distributed_db)，NoSQL 各类见 [NoSQL 数据库总览](/nosql/0_overview)，向量库与对象存储分别见 [向量数据库](/ai/4_core_tech/1_vector_db) 与 [对象存储](/architecture/5_object_storage)。
 
 | 数据库 | 类型 | 核心优势 | 典型场景 | 不适合 |
 |-------|------|---------|---------|-----------|
@@ -59,7 +59,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | 与 OLTP 同一份数据做实时分析 | TiDB + TiFlash | 免去同步链路 |
 | 离线数仓、湖仓 | Spark / Flink + Iceberg / Paimon，查询层用 Trino、Doris、StarRocks | 存储在对象存储 |
 
-列式与 OLAP 引擎的原理对比见 [列式与 OLAP 数据库](/nosql/3_column_db)。
+列式与 OLAP 引擎的原理对比见 [Doris 与 StarRocks](/nosql/7_doris_starrocks)。
 
 ### 3、全文搜索
 
@@ -69,7 +69,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | 已用 PostgreSQL、搜索需求简单 | PostgreSQL 内置全文检索（`tsvector` + GIN），中文需分词扩展 |
 | 只需要关键词模糊匹配、数据量小 | 数据库前缀索引或 N-gram 全文索引 |
 
-数据库到搜索引擎的同步方式见 [Elasticsearch 实战](/nosql/8_search_es_practice#五、与-mysql-同步) 与 [CDC 工具](../4_practice/8_cdc_tools)。
+数据库到搜索引擎的同步方式见 [Elasticsearch 实战](/nosql/15_search_es_practice#五、与-mysql-同步) 与 [CDC 工具](../4_practice/8_cdc_tools)。
 
 ### 4、缓存与 KV
 
@@ -79,7 +79,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | 进程内本地缓存 | Caffeine |
 | 嵌入式持久化 KV | RocksDB |
 
-缓存模式、一致性与两级缓存见 [缓存总览](/cache/0_overview)。
+缓存模式、一致性与两级缓存见 [Redis 与缓存总览](/cache/0_overview)。
 
 ### 5、时序数据
 
@@ -91,7 +91,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | 通用时序库 | InfluxDB 3 | 查询语言为 SQL 与 InfluxQL，不再支持 Flux |
 | 历史明细的大规模分析 | ClickHouse | 稀疏主键索引 + 跳数索引，`PARTITION BY toYYYYMM(ts)` 按月分区 |
 
-时序数据库的数据模型与存储原理见 [时序数据库](/nosql/4_time_series_db)。
+时序数据库的数据模型与存储原理见 [时序数据库概览](/nosql/8_tsdb)。
 
 ### 6、文档与半结构化
 
@@ -100,7 +100,7 @@ description: 全景选型矩阵、按场景选型、经典组合架构、评估�
 | Schema 多变、嵌套文档、需要原生分片 | MongoDB |
 | 以关系模型为主、部分字段半结构化 | PostgreSQL JSONB + GIN 索引，或 MySQL JSON + 多值索引 |
 
-MongoDB 自 4.0 起支持副本集多文档 ACID 事务、4.2 起支持分片集群事务，但多文档事务有时长与大小限制、开销明显，模型设计应尽量让一次业务操作落在单个文档内。详见 [文档数据库](/nosql/2_document_db)。
+MongoDB 自 4.0 起支持副本集多文档 ACID 事务、4.2 起支持分片集群事务，但多文档事务有时长与大小限制、开销明显，模型设计应尽量让一次业务操作落在单个文档内。详见 [MongoDB 集群与事务](/nosql/4_mongodb_cluster)。
 
 ### 7、向量检索与 RAG
 

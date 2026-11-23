@@ -90,7 +90,7 @@ Spring Boot 的自动配置与工程化放在 [Spring Boot](/spring-boot/0_overv
 - [服务治理总览](/service-governance/0_overview)：Spring Cloud 的注册发现、网关、服务调用、配置中心与治理
 - [Java · 动态代理](/java/16_topic_proxy)：JDK 代理与 CGLIB 的实现细节，AOP 与事务的底层
 - [Java · 虚拟线程](/java/30_topic_virtual_thread)：Framework 6.1 / Boot 3.2 起的虚拟线程支持
-- [数据库 · MySQL 事务与锁](/database/1_mysql/4_topic_transaction)：隔离级别、MVCC 与锁，事务管理的数据库侧
+- [关系数据库 · MySQL 事务与锁](/database/1_mysql/4_topic_transaction)：隔离级别、MVCC 与锁，事务管理的数据库侧
 - [应用安全](/security/0_overview)：JWT、OAuth2、OIDC、SSO 的协议原理
 - [Spring 面试题解答](/interview/7_spring)：本模块高频问题的答案汇总
 

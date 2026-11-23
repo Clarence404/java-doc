@@ -297,7 +297,7 @@ WHERE sku_id = #{skuId};
 | 关单 → 释放库存、解锁优惠券 | 最终一致 | 同上，`ORDER_CANCELLED` 事件 |
 | 内部后台、低并发、要同步整体回滚 | 同步出结果、失败整体回滚 | 可以用 Seata AT（仍是最终一致，注意全局锁带来的写阻塞与默认读未提交）；确需强一致用 Seata XA |
 
-**Outbox 与事务消息怎么选**：Outbox 只依赖本地数据库，任何 MQ 都能用，代价是多一张表和一个投递任务（或用 CDC 读 binlog 投递）；RocketMQ 事务消息不需要额外的表，但本地事务必须写在 `executeLocalTransaction` 里，并实现回查 `checkLocalTransaction`：查到事务记录返回 COMMIT，查不到且仍在不确定窗口内返回 UNKNOWN，不能直接回滚。完整实现见 [RocketMQ](/messaging/3_rocketmq#七、事务消息) 的事务消息一节和 [消息队列基础](/messaging/1_basics) 的分布式事务一节，Seata 各模式对比见 [分布式事务](/distributed/5_transaction)。
+**Outbox 与事务消息怎么选**：Outbox 只依赖本地数据库，任何 MQ 都能用，代价是多一张表和一个投递任务（或用 CDC 读 binlog 投递）；RocketMQ 事务消息不需要额外的表，但本地事务必须写在 `executeLocalTransaction` 里，并实现回查 `checkLocalTransaction`：查到事务记录返回 COMMIT，查不到且仍在不确定窗口内返回 UNKNOWN，不能直接回滚。完整实现见 [RocketMQ 生产与消费](/messaging/6_rocketmq_client#三、事务消息) 的事务消息一节和 [消息队列基础](/messaging/1_basics) 的分布式事务一节，Seata 各模式对比见 [分布式事务](/distributed/5_transaction)。
 
 无论哪种方案，**下游消费者都要幂等**：积分服务以 `orderId` 建唯一约束，库存服务以预占记录的状态条件更新。
 

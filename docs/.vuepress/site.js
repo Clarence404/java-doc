@@ -104,7 +104,7 @@ export const GROUPS = [
     {
         name: '数据存储', tagline: '关系型、NoSQL、缓存与消息中间件', modules: [
             {
-                name: '数据库', dir: 'database', interview: ['12_db'],
+                name: '关系数据库', dir: 'database', interview: ['12_db'],
                 desc: '存储引擎与选型 / MySQL / PostgreSQL / MariaDB、国产库与分布式数据库 / 工程实践：JDBC 驱动、连接池、ORM、分库分表、Schema 变更、备份恢复、CDC',
                 subdirs: {
                     '0_fundamentals': '原理与选型',
@@ -116,29 +116,36 @@ export const GROUPS = [
                 },
             },
             {
-                name: 'NoSQL', dir: 'nosql', interview: ['13_nosql'],
-                desc: '键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图',
+                name: 'NoSQL 数据库', dir: 'nosql', interview: ['13_nosql'],
+                desc: '键值与嵌入式 / MongoDB / HBase、ClickHouse、Doris / 时序 / 图 / 搜索与 Elasticsearch',
                 sidebar: [
-                    {text: '数据模型', from: 1},
-                    {text: '搜索与 Elasticsearch', from: 6},
+                    {text: '键值与嵌入式', from: 1},
+                    {text: '文档数据库', from: 3},
+                    {text: '列式与 OLAP', from: 5},
+                    {text: '时序数据库', from: 8},
+                    {text: '图数据库', from: 11},
+                    {text: '搜索与 Elasticsearch', from: 13},
                 ],
             },
             {
-                name: '缓存', dir: 'cache', interview: ['14_cache'],
+                name: 'Redis 与缓存', dir: 'cache', interview: ['14_cache'],
                 desc: 'Redis / Redisson / Caffeine / 两级缓存 / JetCache / 缓存一致性 / 缓存最佳实践',
                 sidebar: [
-                    {text: 'Redis', from: 1},
-                    {text: '客户端与多级缓存', from: 6},
+                    {text: 'Redis 原理', from: 1},
+                    {text: 'Redis 应用', from: 4},
+                    {text: '本地与多级缓存', from: 7},
                     {text: '一致性与规范', from: 10},
                 ],
             },
             {
                 name: '消息队列', dir: 'messaging', interview: ['15_mq'],
                 desc: '可靠性与幂等 / 顺序与积压 / Kafka / RocketMQ / RabbitMQ / Pulsar / 选型',
-                // 基础篇不分组；Kafka 有两篇单独成组；3 号起（RocketMQ、RabbitMQ、其他 MQ、选型）各自一项、不再分组
+                // 基础篇在前不分组；每种 MQ 一组（架构 + 生产与消费）；9 号起（Pulsar 与其他 MQ、选型）恢复平铺
                 sidebar: [
                     {text: 'Kafka', from: 2},
-                    {from: 3},
+                    {text: 'RocketMQ', from: 5},
+                    {text: 'RabbitMQ', from: 7},
+                    {from: 9},
                 ],
             },
         ],
@@ -311,11 +318,25 @@ export const BASELINE = {
 
 // 重定向：文章搬家后旧地址自动跳到新地址（@vuepress/plugin-redirect），键为旧路径、值为新路径，均不带 .html
 export const REDIRECTS = {
+    // 2026-11：NoSQL 与消息队列按产品拆分文章，每类 / 每种 MQ 一组；旧地址跳到拆分后的第一篇
+    '/nosql/1_kv_db': '/nosql/1_kv_store',
+    '/nosql/2_document_db': '/nosql/3_mongodb_basics',
+    '/nosql/3_column_db': '/nosql/6_clickhouse',
+    '/nosql/4_time_series_db': '/nosql/8_tsdb',
+    '/nosql/5_graph_db': '/nosql/11_graph_db',
+    '/nosql/6_search_db': '/nosql/13_search_db',
+    '/nosql/7_search_es': '/nosql/14_search_es',
+    '/nosql/8_search_es_practice': '/nosql/15_search_es_practice',
+    '/messaging/2_kafka_client': '/messaging/3_kafka_client',
+    '/messaging/3_rocketmq': '/messaging/5_rocketmq',
+    '/messaging/4_rabbitmq': '/messaging/7_rabbitmq',
+    '/messaging/5_other_mq': '/messaging/9_other_mq',
+    '/messaging/6_selection': '/messaging/10_selection',
     // 2026-11：NoSQL 分「数据模型 / 搜索与 Elasticsearch」两组，图数据库提到 5 号，搜索三篇改为 6 / 7 / 8 号
-    '/nosql/6_graph_db': '/nosql/5_graph_db',
-    '/nosql/5_search_db': '/nosql/6_search_db',
-    '/nosql/5_search_es': '/nosql/7_search_es',
-    '/nosql/5_search_es_practice': '/nosql/8_search_es_practice',
+    '/nosql/6_graph_db': '/nosql/11_graph_db',
+    '/nosql/5_search_db': '/nosql/13_search_db',
+    '/nosql/5_search_es': '/nosql/14_search_es',
+    '/nosql/5_search_es_practice': '/nosql/15_search_es_practice',
     // 2026-11：分布式基础分「理论 / 协调与一致性 / 会话与任务」三段重排；「分布式架构」并入微服务的「从单体到微服务」；微服务通信与调用顺序性换序
     '/distributed/2_theorem': '/distributed/1_theorem',
     '/distributed/9_consistent_hashing': '/distributed/2_consistent_hashing',
@@ -433,13 +454,13 @@ export const REDIRECTS = {
     '/iot/8_device_shadow': '/iot/3_platform/3_device_shadow',
     '/iot/9_netty_gateway': '/iot/2_access/6_netty_gateway',
     // 2026-10：database/4_nosql 拆为独立的 NoSQL 模块
-    '/database/4_nosql/0_column_db': '/nosql/3_column_db',
-    '/database/4_nosql/1_time_series_db': '/nosql/4_time_series_db',
-    '/database/4_nosql/2_document_db': '/nosql/2_document_db',
-    '/database/4_nosql/3_search_db': '/nosql/6_search_db',
-    '/database/4_nosql/3_search_es': '/nosql/7_search_es',
-    '/database/4_nosql/3_search_es_practice': '/nosql/8_search_es_practice',
-    '/database/4_nosql/4_graph_db': '/nosql/5_graph_db',
+    '/database/4_nosql/0_column_db': '/nosql/6_clickhouse',
+    '/database/4_nosql/1_time_series_db': '/nosql/8_tsdb',
+    '/database/4_nosql/2_document_db': '/nosql/3_mongodb_basics',
+    '/database/4_nosql/3_search_db': '/nosql/13_search_db',
+    '/database/4_nosql/3_search_es': '/nosql/14_search_es',
+    '/database/4_nosql/3_search_es_practice': '/nosql/15_search_es_practice',
+    '/database/4_nosql/4_graph_db': '/nosql/11_graph_db',
     // 2026-10：数据库模块重新分组（基础与选型、更多关系库、应用接入、数据同步与运维）
     '/database/6_reference/1_selection_guide': '/database/0_fundamentals/2_selection_guide',
     '/database/3_relational/2_orm_framework': '/database/4_practice/3_orm_framework',

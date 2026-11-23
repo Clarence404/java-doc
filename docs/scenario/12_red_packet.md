@@ -4,7 +4,7 @@ description: 二倍均值分配、发红包本地事务扣款、Lua 原子抢、
 
 # 抢红包
 
-> 前置阅读：[秒杀](./11_seckill)、[消息队列基础](/messaging/1_basics)、[RocketMQ](/messaging/3_rocketmq)
+> 前置阅读：[秒杀](./11_seckill)、[消息队列基础](/messaging/1_basics)、[RocketMQ 架构与存储](/messaging/5_rocketmq)
 
 红包和秒杀一样是「固定份数、瞬时高并发」，但涉及**资金**，设计目标是守住 **发出总额 = 已领取总额 + 已退款总额** 且每项可对账（金额单位统一为「分」，用 `long`）。本篇讲金额拆分、发红包扣款、高并发原子抢、可靠入账和过期退款。
 
@@ -293,7 +293,7 @@ public class GrabTxListener implements RocketMQLocalTransactionListener {
 }
 ```
 
-- 回查只在确定时返回 `COMMIT` / `ROLLBACK`，查不到且仍在窗口内必须返回 `UNKNOWN`，原理见 [RocketMQ](/messaging/3_rocketmq#七、事务消息) 的事务消息一节
+- 回查只在确定时返回 `COMMIT` / `ROLLBACK`，查不到且仍在窗口内必须返回 `UNKNOWN`，原理见 [RocketMQ 生产与消费](/messaging/6_rocketmq_client#三、事务消息) 的事务消息一节
 - 抢失败的请求也会产生一条半消息再回滚。高峰时可以先做一次廉价的预检（`LLEN` 份额为 0、`HEXISTS` 已领过直接返回），只是过滤，真正的判断仍在 Lua 里
 - 不使用 RocketMQ 时，可以在 Lua 成功后同步写本地消息表（Outbox），两步之间的崩溃由第六节退款前的对账补齐
 

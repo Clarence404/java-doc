@@ -1,12 +1,12 @@
 ---
-description: Pulsar 存算分离与订阅模式、与 Kafka 的差异、Kafka Share Group、其他消息系统速览
+description: Pulsar 存算分离与订阅模式、与 Kafka 的差异、什么时候选 Pulsar、其他消息系统速览
 ---
 
-# 其他 MQ
+# Pulsar 与其他 MQ
 
-> 前置阅读：[Kafka 架构与存储](./2_kafka)、[RocketMQ](./3_rocketmq)、[RabbitMQ](./4_rabbitmq)
+> 前置阅读：[Kafka 架构与存储](./2_kafka)、[RocketMQ 架构与存储](./5_rocketmq)、[RabbitMQ 核心模型与高可用](./7_rabbitmq)
 
-在平台化、多租户、跨地域复制等需求下，Pulsar 常被放进三大 MQ 之外的候选名单。本篇先讲 Pulsar 解决什么问题、代价是什么，再速览其他常见消息系统的定位，下一篇统一做选型。
+在平台化、多租户、跨地域复制等需求下，Pulsar 常被放进三大 MQ 之外的候选名单。本篇讲 Pulsar 的架构、订阅模式、与 Kafka 的差异和适用场景，再速览其他常见消息系统的定位。
 
 ---
 
@@ -39,7 +39,7 @@ Pulsar 把「怎么分发给消费者」交给**订阅（Subscription）**决定
 | **Shared** | 多个消费者轮询分发，逐条确认 | 不保证顺序 | 传统工作队列（RabbitMQ 竞争消费） |
 | **Key_Shared** | 多个消费者，同一 Key 固定发给同一消费者 | 同 Key 有序 | 按业务键并行 + 局部有序 |
 
-逐条确认（而不是只提交位点）也让 Pulsar 天然支持**单条重投、否认确认（negative ack）与死信**，这正是 Kafka 需要靠 Share Group 补齐的能力（见第二节）。
+逐条确认（而不是只提交位点）也让 Pulsar 天然支持**单条重投、否认确认（negative ack）与死信**，这正是 Kafka 需要靠 Share Group 补齐的能力（见 [Kafka 架构与存储 · Kafka 的队列语义](./2_kafka#五、kafka-的队列语义-share-group)）。
 
 ### 3、和 Kafka 的关键差异
 
@@ -66,13 +66,7 @@ Pulsar 把「怎么分发给消费者」交给**订阅（Subscription）**决定
 
 ---
 
-## 二、Kafka 的队列语义：Share Group
-
-KIP-932（Share Group，即 Queues for Kafka）让多个消费者共享消费同一分区并逐条确认，Kafka 4.2（2026-02）起 GA，相当于 Pulsar 的 Shared 订阅（不保证顺序）。已有 Kafka 集群、需要竞争消费的场景可以不再额外引入 RabbitMQ；确认类型、重投上限与限制见 [Kafka 架构与存储 · 共享组](/messaging/2_kafka#_2、共享组-queues-for-kafka)。
-
----
-
-## 三、其他常见消息系统速览
+## 二、其他常见消息系统速览
 
 下面这些系统在特定场景里很常见，通常不作为通用业务 MQ 的首选，但选型时应当知道它们的定位：
 
@@ -89,16 +83,15 @@ KIP-932（Share Group，即 Queues for Kafka）让多个消费者共享消费同
 ## 小结
 
 - Pulsar 以存算分离、多租户、Geo 复制见长，四种订阅模式让一套系统同时覆盖队列与流；但组件多、门槛高，平台型场景再引入
-- Kafka 用 Share Group 补齐逐条确认的队列语义，4.2 起 GA
+- 和 Kafka 相比，Pulsar 的 Broker 无状态、数据分段存到 BookKeeper，扩容不搬数据，但要运维 Broker + Bookie + 元数据存储三类组件
 - Redis Stream、NATS、Artemis、MQTT Broker、云托管服务各有细分场景，通用业务 MQ 仍以三大 MQ 为主
 
 ## 参考资料
 
 - Pulsar 架构（存算分离）：[Pulsar: Architecture Overview](https://pulsar.apache.org/docs/next/concepts-architecture-overview/)
 - Pulsar 订阅模式与确认：[Pulsar: Messaging Concepts](https://pulsar.apache.org/docs/next/concepts-messaging/)
-- Kafka Share Group：[KIP-932: Queues for Kafka](https://cwiki.apache.org/confluence/display/KAFKA/KIP-932%3A+Queues+for+Kafka)
 - Redis Stream：[Redis Streams — Redis Docs](https://redis.io/docs/latest/develop/data-types/streams/)
 - NATS 官方文档：[NATS Docs](https://docs.nats.io/)
 - ActiveMQ Artemis：[Apache ActiveMQ Artemis](https://activemq.apache.org/components/artemis/)
 
-> 下一篇：[MQ 选型](./6_selection) —— 把三大 MQ 的差异收拢到一张表里，按场景给出选型建议与常见误区。
+> 下一篇：[MQ 选型](./10_selection) —— 三大 MQ 对比、场景决策表、选型步骤、常见误区

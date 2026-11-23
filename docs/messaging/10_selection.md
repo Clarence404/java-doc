@@ -4,9 +4,9 @@ description: 三大 MQ 对比、场景决策表、选型步骤、常见误区
 
 # MQ 选型
 
-> 前置阅读：[Kafka 架构与存储](./2_kafka)、[RocketMQ](./3_rocketmq)、[RabbitMQ](./4_rabbitmq)
+> 前置阅读：[Kafka 架构与存储](./2_kafka)、[RocketMQ 架构与存储](./5_rocketmq)、[RabbitMQ 核心模型与高可用](./7_rabbitmq)
 
-MQ 选型起作用的往往不是谁性能最高，而是消息语义（事务、延迟、回放、路由）和团队能否运维得住。本篇讲 Kafka / RocketMQ / RabbitMQ 与 Pulsar 等[其他 MQ](./5_other_mq) 的差异、场景化建议和常见误判。
+MQ 选型起作用的往往不是谁性能最高，而是消息语义（事务、延迟、回放、路由）和团队能否运维得住。本篇讲 Kafka / RocketMQ / RabbitMQ 与 Pulsar 等[Pulsar 与其他 MQ](./9_other_mq) 的差异、场景化建议和常见误判。
 
 ---
 
@@ -52,7 +52,7 @@ MQ 选型起作用的往往不是谁性能最高，而是消息语义（事务�
 | 复杂路由（按规则分发、广播、优先级） | **RabbitMQ** | Direct / Topic / Fanout / Headers 交换机，支持优先级队列 |
 | 对接外部系统 / 标准协议 | **RabbitMQ** | AMQP 标准协议，插件支持 MQTT / STOMP |
 | IoT 设备上报 | 设备侧 **MQTT Broker**，后端汇入 **Kafka** | 海量长连接交给 EMQX 等专用 Broker，汇聚后的数据流进 Kafka；小规模可直接用 RabbitMQ MQTT 插件 |
-| 多租户、跨地域复制、存储独立扩容 | **Pulsar** | 存算分离，原生多租户与 Geo 复制，详见 [其他 MQ](./5_other_mq) |
+| 多租户、跨地域复制、存储独立扩容 | **Pulsar** | 存算分离，原生多租户与 Geo 复制，详见 [Pulsar 与其他 MQ](./9_other_mq) |
 | 已在公有云上 | 优先云厂商托管版 | 运维成本往往比引擎差异更重要 |
 
 选型时可以按下面的顺序过一遍：
@@ -84,7 +84,7 @@ MQ 选型起作用的往往不是谁性能最高，而是消息语义（事务�
 - Kafka 的事务是跨分区原子写与 EOS，RocketMQ 的事务消息是半消息回查，RabbitMQ 没有对应的事务消息
 - 延迟消息：Kafka 不原生支持，RocketMQ 5.x 支持任意时间，RabbitMQ 用 TTL + DLX 或插件
 - 版本基线：Kafka 4.0 去掉 ZooKeeper，RabbitMQ 4.0 去掉镜像队列，RocketMQ 5.x 引入 Proxy 与 Controller
-- Pulsar 适合多租户、跨地域复制的平台型场景，普通业务项目仍以三大 MQ 为主（见 [其他 MQ](./5_other_mq)）
+- Pulsar 适合多租户、跨地域复制的平台型场景，普通业务项目仍以三大 MQ 为主（见 [Pulsar 与其他 MQ](./9_other_mq)）
 - 选型先看语义硬需求，再看量级，最后看团队与生态；无论选哪种，消费幂等与可靠投递都要业务自己兜底
 
 ## 参考资料

@@ -61,7 +61,7 @@ description: 阿里云核心服务、腾讯云 / 华为云差异点、Java 微�
 | **Lindorm** | 多模数据库，兼容 HBase / Cassandra 等宽表接口，适合时序与海量明细 |
 | **表格存储 Tablestore** | Serverless 宽表 NoSQL |
 
-数据库选型思路见 [数据库总览](/database/0_overview)。
+数据库选型思路见 [关系数据库总览](/database/0_overview)。
 
 ### 4、网络
 
@@ -84,7 +84,7 @@ description: 阿里云核心服务、腾讯云 / 华为云差异点、Java 微�
 | **轻量消息队列（原 MNS）** | 简单的队列 / 主题模型，适合云产品事件通知、轻量异步任务 |
 | **微服务引擎 MSE** | 托管 Nacos / ZooKeeper 注册配置中心、云原生网关，以及基于 Sentinel 的服务治理 |
 
-RocketMQ、Kafka 等各自适合什么场景，见 [消息队列总览](/messaging/0_overview) 与 [MQ 选型](/messaging/6_selection)；注册配置中心的原理见 [注册发现](/service-governance/1_service_registry) 与 [配置中心](/service-governance/4_config_center)。
+RocketMQ、Kafka 等各自适合什么场景，见 [消息队列总览](/messaging/0_overview) 与 [MQ 选型](/messaging/10_selection)；注册配置中心的原理见 [注册发现](/service-governance/1_service_registry) 与 [配置中心](/service-governance/4_config_center)。
 
 ### 6、监控与运维
 

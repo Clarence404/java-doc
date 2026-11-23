@@ -30,7 +30,7 @@
 |------|----------|----------|----------|------|
 | 代码 | 更优算法、集合预分配、减少对象创建和装箱、缩小锁粒度 | 局部数倍，热点路径上效果明显 | 低，但需要 Profiler 指明热点 | [代码级优化](./6_code_optimization) |
 | JVM | 收集器选型、堆与容器内存、降低分配速率、JIT 预热 | 主要改善长尾与吞吐稳定性 | 参数改动需压测验证 | [JVM 层性能策略](./5_jvm_tuning) |
-| 缓存 | 本地缓存、分布式缓存、多级缓存 | 读路径常见十倍级 | 一致性、内存成本 | [缓存架构设计](/high-con/3_cache_architecture)、[缓存模块](/cache/0_overview) |
+| 缓存 | 本地缓存、分布式缓存、多级缓存 | 读路径常见十倍级 | 一致性、内存成本 | [缓存架构设计](/high-con/3_cache_architecture)、[Redis 与缓存](/cache/0_overview) |
 | 资源复用 | 连接池、HTTP 连接池、对象池 | 消除建连与创建开销 | 池参数配置不当反成瓶颈 | [池化技术](./7_pooling) |
 | 数据库 | 索引、SQL 改写、深分页治理、批量写、消除 N+1 | 慢 SQL 优化常见十到千倍 | 低～中，需关注索引写放大 | [数据访问性能](./10_db_performance) |
 | 架构 | 同步转异步、预计算、请求合并、读写分离、拆分 | 量级提升 | 高：一致性、链路变长、团队协作 | [异步与批量](./8_async_batch)、[数据层扩展](/high-con/5_data_scaling) |
@@ -117,8 +117,8 @@
 GC、JIT、索引、Redis、Kafka、Netty 等具体技术的原理与调优在各自模块中已有专题，本模块只做方法串联并给出链接。
 
 - JVM 原理与 GC 调优 → [JVM](/jvm/0_overview)
-- 缓存原理与实践 → [缓存](/cache/0_overview)
-- 数据库索引与 SQL → [数据库](/database/0_overview)
+- 缓存原理与实践 → [Redis 与缓存](/cache/0_overview)
+- 数据库索引与 SQL → [关系数据库](/database/0_overview)
 - 消息队列 → [消息队列](/messaging/0_overview)
 - 网络 IO 模型 → [IO 模型](/netty/1_io_model)
 - 线上诊断（Arthas 等）→ [线上诊断](/engineering/7_diagnosis)

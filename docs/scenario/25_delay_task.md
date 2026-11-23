@@ -4,7 +4,7 @@ description: 延迟任务场景与指标、六类方案选型、时间轮原理�
 
 # 延迟任务
 
-> 前置阅读：[分布式调度](/distributed/7_job_scheduler)、[RocketMQ](/messaging/3_rocketmq)、[幂等设计](/architecture/3_idempotence)
+> 前置阅读：[分布式调度](/distributed/7_job_scheduler)、[RocketMQ 架构与存储](/messaging/5_rocketmq)、[幂等设计](/architecture/3_idempotence)
 
 延迟任务就是「在未来某个时刻执行一次」，订单超时关单、到期提醒、失败退避重试都属于这一类。本篇讲各类方案的选型、自研延迟任务服务的近远分层架构，以及不丢、不重、准时的做法，基线为 RocketMQ 5、Redis 8、JDK 21。
 
@@ -52,12 +52,12 @@ description: 延迟任务场景与指标、六类方案选型、时间轮原理�
 
 - JDK 单机方案：`DelayQueue` 内部是按到期时间排序的优先队列，见 [集合框架](/java/21_topic_collection#四、queue-deque)；定时线程池见 [Fork/Join 与定时任务](/java/28_topic_thread_scheduled#一、scheduledthreadpoolexecutor)
 - Redis：带确认的 ZSet 延迟队列见 [Redis 典型应用场景](/cache/4_redis_scenario#四、可靠延迟队列-zset)；Redisson `RDelayedQueue` 已被标记废弃，限制见 [Redisson](/cache/6_redisson#四、延迟队列)
-- MQ：RocketMQ 4.x 只有 18 个固定延迟级别，5.x 支持任意时间的定时消息，见 [RocketMQ](/messaging/3_rocketmq#_1、延迟消息-4-x-固定级别-vs-5-x-任意时间)；RabbitMQ 的 TTL + 死信与延迟插件见 [RabbitMQ](/messaging/4_rabbitmq#六、死信队列-dlx-与延迟消息)
+- MQ：RocketMQ 4.x 只有 18 个固定延迟级别，5.x 支持任意时间的定时消息，见 [RocketMQ 生产与消费](/messaging/6_rocketmq_client#_1、延迟消息-4-x-固定级别-vs-5-x-任意时间)；RabbitMQ 的 TTL + 死信与延迟插件见 [RabbitMQ 生产与消费](/messaging/8_rabbitmq_client#三、死信队列-dlx-与延迟消息)
 - 调度框架：分片广播、错过触发、只执行一次见 [分布式调度](/distributed/7_job_scheduler#_3、分片)
 
 ### 2、几个容易踩的坑
 
-- **Kafka 没有原生延迟消息**：常见变通是按延迟等级建多个 Topic，消费者发现消息未到期就 `pause` 分区、到期再 `resume`，本质上和 RabbitMQ「一个时长一个队列」一样（RabbitMQ 的 TTL + 死信是队头阻塞的：队首消息未到期，后面已到期的也出不来，所以不同时长必须分队列），只适合少数几个固定档位，见 [MQ 选型](/messaging/6_selection#一、三大-mq-对比)
+- **Kafka 没有原生延迟消息**：常见变通是按延迟等级建多个 Topic，消费者发现消息未到期就 `pause` 分区、到期再 `resume`，本质上和 RabbitMQ「一个时长一个队列」一样（RabbitMQ 的 TTL + 死信是队头阻塞的：队首消息未到期，后面已到期的也出不来，所以不同时长必须分队列），只适合少数几个固定档位，见 [MQ 选型](/messaging/10_selection#一、三大-mq-对比)
 - **Redis key 过期通知不能当延迟任务**：过期事件不持久化，订阅方断线期间的事件直接丢失，而且 key 是在被访问或后台抽样时才过期，触发时间不准
 - **MQ 定时消息不能取消**：已经发出的定时消息到期一定会投递，取消只能靠消费时检查业务状态；RocketMQ 5 的最长延迟受 Broker 配置 `timerMaxDelaySec` 限制，超出上限的远期任务要先落库
 - **单机方案不能单独使用**：`DelayQueue`、时间轮只能作为「持久化 + 扫描」之上的加速层，进程重启后要能从持久化存储里恢复

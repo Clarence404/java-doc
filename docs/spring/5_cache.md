@@ -78,7 +78,7 @@ spring:
 
 Spring Cache 本身没有两级缓存实现。需要 Caffeine + Redis 组合时，直接用 JetCache、Redisson 等现成方案，或自定义 `Cache` / `CacheManager` 包装两层并处理 L1 失效广播。读写流程、多实例 L1 一致性与完整实现见 [两级缓存（L1 + L2）](/cache/8_two_level_cache)。
 
-Redis 本身、本地缓存原理、一致性策略见 [缓存总览](/cache/0_overview)。
+Redis 本身、本地缓存原理、一致性策略见 [Redis 与缓存总览](/cache/0_overview)。
 
 ---
 
@@ -234,7 +234,7 @@ Caffeine 存的是对象引用，调用方修改返回对象会直接改掉缓�
 - 缓存 null（短 TTL）是防穿透手段；关闭 null 缓存时必须配 `unless = "#result == null"`
 - cacheName 已是 Key 前缀，key 里不要重复写前缀；按参数名写 SpEL 依赖 `-parameters`
 - 常见坑：自调用失效、热点击穿用 `sync = true`（仅进程内）、TTL 加抖动防雪崩、事务内删缓存的时机
-- 两级缓存不在 Spring Cache 内实现，见缓存模块
+- 两级缓存不在 Spring Cache 内实现，见 Redis 与缓存模块
 
 ## 参考资料
 

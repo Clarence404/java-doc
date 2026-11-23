@@ -1,6 +1,6 @@
-# 缓存总览
+# Redis 与缓存总览
 
-缓存模块覆盖分布式缓存 Redis、本地缓存 Caffeine、两级缓存与 JetCache，以及缓存一致性和使用规范，负责 Redis 本身与缓存一致性的技术细节。
+Redis 与缓存模块覆盖分布式缓存 Redis、本地缓存 Caffeine、两级缓存与 JetCache，以及缓存一致性和使用规范，负责 Redis 本身与缓存一致性的技术细节。
 
 **版本基线（2026 年 10 月）**：Redis 8、Valkey 9、Spring Data Redis 4、Redisson 4、Caffeine 3、JetCache 2.7
 
@@ -16,11 +16,11 @@
 
 1. 先读 [Redis 基础](./1_redis_base) 与 [Redis 核心原理](./2_redis_core)，掌握数据类型、线程模型、持久化和淘汰机制。
 2. 再读 [Redis 集群](./3_redis_cluster)，理解主从、哨兵与 Cluster 的高可用取舍。
-3. 然后读 [Redis 典型应用场景](./4_redis_scenario) 与 [Redis 实战](./5_redis_practice)，落地到业务代码；以上五篇是侧边栏的「Redis」组。
-4. 「客户端与多级缓存」组：[Redisson](./6_redisson) 的锁与限流 API，再读 [Caffeine](./7_caffeine)、[两级缓存（L1 + L2）](./8_two_level_cache)、[JetCache](./9_jetcache)（可选：Boot 4 需 2.7.9 及以上，也可用 Caffeine + 自建两级缓存替代），建立本地 + 分布式的多级缓存视角。
+3. 然后读 [Redis 典型应用场景](./4_redis_scenario) 与 [Redis 实战](./5_redis_practice)，落地到业务代码；前三篇是侧边栏的「Redis 原理」组，后两篇连同 Redisson 是「Redis 应用」组。
+4. 「Redis 应用」组的 [Redisson](./6_redisson) 讲锁与限流 API；之后是「本地与多级缓存」组：[Caffeine](./7_caffeine)、[两级缓存（L1 + L2）](./8_two_level_cache)、[JetCache](./9_jetcache)（可选：Boot 4 需 2.7.9 及以上，也可用 Caffeine + 自建两级缓存替代），建立本地 + 分布式的多级缓存视角。
 5. 最后是「一致性与规范」组：[缓存一致性](./10_cache_consistency) 与 [缓存最佳实践](./11_cache_rule)，形成团队规范。
 
-[高频面试题](./99_interview) 只列题目，答案在 [缓存面试题解答](/interview/14_cache)。
+[高频面试题](./99_interview) 只列题目，答案在 [Redis 与缓存面试题解答](/interview/14_cache)。
 
 ---
 
@@ -37,4 +37,4 @@
 - Redis Stream / List 做队列时的可靠性对比 → [消息队列总览](/messaging/0_overview)
 - 幂等方案 → [幂等设计](/architecture/3_idempotence)
 - Spring Cache 抽象 → [Cache 抽象](/spring/5_cache)
-- 本模块高频问题的答案汇总 → [缓存面试题解答](/interview/14_cache)
+- 本模块高频问题的答案汇总 → [Redis 与缓存面试题解答](/interview/14_cache)

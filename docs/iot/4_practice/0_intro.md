@@ -221,7 +221,7 @@ mvn -B verify -Pe2e -pl conduit-e2e          # 端到端故障场景，约 6～1
 | [物模型与解码](./2_thing_model) | 物模型数据结构、逐测点校验、可插拔解码器、按产品缓存、缺测与零值 | [物模型](../3_platform/1_thing_model) |
 | [可靠上报与接入层主备](./3_reliable_uplink) | 写入总线后才 PUBACK、消息 id 与业务回执、transport 选主、共享订阅 | [MQTT 客户端](../2_access/3_mqtt_client)、[分布式锁](/distributed/4_lock) |
 | [数据流水线](./4_pipeline) | 消费组、批处理、退避重试、认领、死信、积压 | [遥测数据链路](../3_platform/2_data)、[Redis 典型应用场景](/cache/4_redis_scenario) |
-| [时序存储与历史查询](./5_telemetry) | InfluxDB 3 建模与写入、最新值、自动聚合、缺桶、遥测重放 | [时序数据库](/nosql/4_time_series_db) |
+| [时序存储与历史查询](./5_telemetry) | InfluxDB 3 建模与写入、最新值、自动聚合、缺桶、遥测重放 | [时序数据库概览](/nosql/8_tsdb) |
 | [多租户与授权](./6_tenant) | 租户过滤、跨租户通道、组织模型、范围授权、会话 | [权限系统架构设计](/architecture/6_access_control) |
 | 规划中：设备影子 | Conduit 尚未实现，计划中（见 roadmap） | [设备影子](../3_platform/3_device_shadow) |
 | 规划中：OTA 升级 | Conduit 尚未实现，计划中（见 roadmap） | [OTA 升级](../3_platform/5_ota) |

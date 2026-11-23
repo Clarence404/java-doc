@@ -395,7 +395,7 @@ SOAP 是 W3C 标准的 XML 消息协议，配套用 WSDL 描述接口，通常�
 - REST 风格的 URL、状态码、版本约定见 [API 设计规范](/engineering/4_api_design_rule)
 - 服务间调用怎么选（HTTP Service Clients / OpenFeign / gRPC / Dubbo / 异步消息）见 [服务调用](/service-governance/3_communication)
 - Dubbo 与 Triple 协议见 [Dubbo](/service-governance/8_dubbo)
-- AMQP 是消息协议而不是 RPC：RabbitMQ 经典用法是 AMQP 0-9-1，AMQP 1.0 是另一套协议，见 [RabbitMQ](/messaging/4_rabbitmq)
+- AMQP 是消息协议而不是 RPC：RabbitMQ 经典用法是 AMQP 0-9-1，AMQP 1.0 是另一套协议，见 [RabbitMQ 核心模型与高可用](/messaging/7_rabbitmq)
 
 ## 参考资料
 

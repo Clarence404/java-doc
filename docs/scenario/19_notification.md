@@ -219,7 +219,7 @@ public Optional<Instant> deferUntil(Priority priority, UserPref pref, Instant no
 }
 ```
 
-- 推迟的任务用 RocketMQ 5 的定时消息投递，或写入任务表的 `next_retry_at` 由调度扫描，后者不受 Broker 最大延迟配置的限制，两者对比见 [RocketMQ](/messaging/3_rocketmq)
+- 推迟的任务用 RocketMQ 5 的定时消息投递，或写入任务表的 `next_retry_at` 由调度扫描，后者不受 Broker 最大延迟配置的限制，两者对比见 [RocketMQ 生产与消费](/messaging/6_rocketmq_client)
 - 有时效的消息（「直播 10 分钟后开始」）设置过期时间，推迟后已过期的直接丢弃，而不是第二天早上再发
 - 系统级也可以有静默时段，比如夜间整体暂停营销推送，与用户设置取并集
 

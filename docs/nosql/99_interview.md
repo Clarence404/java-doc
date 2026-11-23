@@ -1,5 +1,5 @@
 ---
-description: NoSQL 方向题目清单
+description: NoSQL 数据库方向题目清单
 ---
 
 # 高频面试题

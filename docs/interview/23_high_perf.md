@@ -357,7 +357,7 @@ var reviewF = CompletableFuture.supplyAsync(() -> reviewClient.top(id), ioPool).
 
 **一句话**：`LIMIT 100000, 10` 要先读出 100010 行再扔掉前 10 万行，页越深越慢；首选游标分页，记住上一页最后一条，下一页从它后面接着查，索引按「过滤列 + 排序列」建。
 
-→ 完整答案见 [数据库面试题解答](/interview/12_db) Q13；正文详见 [数据访问性能](/high-perf/10_db_performance#二、深分页)、[MySQL 索引](/database/1_mysql/3_topic_index#九、深度分页优化)
+→ 完整答案见 [关系数据库面试题解答](/interview/12_db) Q13；正文详见 [数据访问性能](/high-perf/10_db_performance#二、深分页)、[MySQL 索引](/database/1_mysql/3_topic_index#九、深度分页优化)
 
 ### Q27：JDBC 批量插入为什么没有变快？`rewriteBatchedStatements` 的作用是什么？
 

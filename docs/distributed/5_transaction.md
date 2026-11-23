@@ -283,11 +283,11 @@ public void onPaid(OrderPaidEvent evt) {
 
 ### 1、流程
 
-RocketMQ 把「本地事务 + 发消息」做成半消息 + 本地事务 + 回查的两阶段，效果与本地消息表相同，但省掉了消息表和投递程序；关键约束是**回查查不到记录时本地事务可能还在执行，必须返回 `UNKNOW` 让 Broker 稍后再查**。回查规则、实现与注意事项见 [RocketMQ · 事务消息](/messaging/3_rocketmq#七、事务消息)。
+RocketMQ 把「本地事务 + 发消息」做成半消息 + 本地事务 + 回查的两阶段，效果与本地消息表相同，但省掉了消息表和投递程序；关键约束是**回查查不到记录时本地事务可能还在执行，必须返回 `UNKNOW` 让 Broker 稍后再查**。回查规则、实现与注意事项见 [RocketMQ 生产与消费 · 事务消息](/messaging/6_rocketmq_client#三、事务消息)。
 
 ### 2、代码
 
-Spring Boot starter 写法（`txId` 与业务同事务落库、回查只查事务记录）见 [RocketMQ · 实现](/messaging/3_rocketmq#_1、实现)，原生 Remoting 客户端与 5.x gRPC 客户端的对应 API 也在那一节。选型上：
+Spring Boot starter 写法（`txId` 与业务同事务落库、回查只查事务记录）见 [RocketMQ 生产与消费 · 实现](/messaging/6_rocketmq_client#_1、实现)，原生 Remoting 客户端与 5.x gRPC 客户端的对应 API 也在那一节。选型上：
 
 - **已在用 RocketMQ 的核心链路**选事务消息，省一张表和一个投递任务，代价是绑定 RocketMQ、要实现回查接口
 - **不想绑定 MQ、或用的是 Kafka / RabbitMQ** 选 [本地消息表](#五、本地消息表-transactional-outbox)

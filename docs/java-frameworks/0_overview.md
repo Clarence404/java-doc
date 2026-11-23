@@ -67,7 +67,7 @@
 - [WebFlux](/spring/8_webflux)：同层的响应式框架，Reactor、背压等通用概念在那里展开，可与 Mutiny 对照
 - [JIT 编译](/jvm/7_jit)：GraalVM Native Image 的静态分析、闭世界假设与 AOT 编译原理
 - [虚拟线程](/java/30_topic_virtual_thread)：虚拟线程 Verticle 与 `@RunOnVirtualThread` 的基础，阻塞写法与响应式写法的取舍
-- [Kafka 架构与存储](/messaging/2_kafka)：Event Bus 不持久化，关键业务事件应交给消息队列；客户端见 [Kafka 生产与消费](/messaging/2_kafka_client)
+- [Kafka 架构与存储](/messaging/2_kafka)：Event Bus 不持久化，关键业务事件应交给消息队列；客户端见 [Kafka 生产与消费](/messaging/3_kafka_client)
 - [Kubernetes](/cloud-native/6_kubernetes)：集群 Event Bus 的成员发现、Quarkus 生成的部署清单与健康探针，更多内容见 [云原生总览](/cloud-native/0_overview)
 - [IoT 总览](/iot/0_overview)：设备接入层常用 Vert.x / Netty 承载长连接
 - [指标监控](/observability/2_metrics) / [OpenTelemetry](/observability/5_opentelemetry)：Micrometer 指标与链路追踪的接入，更多内容见 [可观测性总览](/observability/0_overview)

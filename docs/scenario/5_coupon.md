@@ -284,7 +284,7 @@ WHERE id = #{couponId} AND status = 'USED' AND order_id = #{orderId};
 
 - **条件里带上 `lock_biz_no` / `order_id`，防止 ABA**：券被订单 A 锁定、关单解锁后又被订单 B 锁定，此时订单 A 的关单消息重复到达，如果条件只有 `status = 'LOCKED'` 就会把订单 B 的券解锁
 - 支付成功事件到达时核销影响 0 行，要再查一次：已经是 `USED` 且 `order_id` 相同说明是重复消息；否则记录异常并告警，不能静默丢弃
-- 这些事件由订单服务在本地事务中写 Outbox 后投递，**不在事务提交前发送**；也可以用 RocketMQ 事务消息，回查时本地事务仍在进行中要返回 `UNKNOWN` 而不是回滚，见 [RocketMQ](/messaging/3_rocketmq) 的事务消息一节与 [消息队列基础](/messaging/1_basics) 的分布式事务一节
+- 这些事件由订单服务在本地事务中写 Outbox 后投递，**不在事务提交前发送**；也可以用 RocketMQ 事务消息，回查时本地事务仍在进行中要返回 `UNKNOWN` 而不是回滚，见 [RocketMQ 生产与消费](/messaging/6_rocketmq_client) 的事务消息一节与 [消息队列基础](/messaging/1_basics) 的分布式事务一节
 - **部分退款不返还券**：退款金额按该商品行分摊后的实付计算（见第七节），只有整单全部退完才返还。这是本文采用的业务规则，不同平台规则可能不同，但必须事先定死，否则退款金额算不清
 
 ### 4、悬挂锁券

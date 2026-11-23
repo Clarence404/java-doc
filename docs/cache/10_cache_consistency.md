@@ -153,7 +153,7 @@ public class CacheEvictConsumer implements RocketMQListener<String> {
 }
 ```
 
-RocketMQ 4.x 只支持固定延迟级别，5.x 支持任意延迟，见 [RocketMQ](/messaging/3_rocketmq)。
+RocketMQ 4.x 只支持固定延迟级别，5.x 支持任意延迟，见 [RocketMQ 生产与消费](/messaging/6_rocketmq_client)。
 
 ---
 

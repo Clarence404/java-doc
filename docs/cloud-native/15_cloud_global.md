@@ -66,7 +66,7 @@ AWS 中国区（`aws-cn` 分区）和 Azure 中国区与各自的全球区账号
 | **ElastiCache** | 托管缓存，支持 Valkey / Redis OSS / Memcached 三种引擎，Valkey 引擎的定价低于 Redis OSS，是 AWS 推荐的新集群选择 |
 | **Redshift** | 列式数据仓库，适合 OLAP 分析 |
 
-ElastiCache 的 Valkey 是 Redis 改为非开源许可后由 Linux 基金会维护的开源分支，协议兼容 Redis，Spring Data Redis（Lettuce / Jedis）客户端无需改动。缓存的使用方式见 [缓存总览](/cache/0_overview)。
+ElastiCache 的 Valkey 是 Redis 改为非开源许可后由 Linux 基金会维护的开源分支，协议兼容 Redis，Spring Data Redis（Lettuce / Jedis）客户端无需改动。缓存的使用方式见 [Redis 与缓存总览](/cache/0_overview)。
 
 ### 4、网络
 

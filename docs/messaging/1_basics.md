@@ -142,7 +142,7 @@ Kafka 幂等生产者只能消除「生产者重试」这一种重复，其余�
 6. **跳过（最后手段）**：业务允许丢弃时把消费位点重置到最新，被跳过的数据事后补偿；死信积压则排查原因后按业务键重放，不要直接清空
 7. **事后复盘**：按峰值评估消费能力与分区数，配置 Lag 告警
 
-系统层面的削峰与限速设计见 [异步与削峰](/high-con/4_async_peak_shaving)，各 MQ 的命令与参数见 [Kafka 生产与消费 · 消息积压](/messaging/2_kafka_client#_1、消息积压)、[RocketMQ · 消息积压](/messaging/3_rocketmq#_3、消息积压)、[RabbitMQ · 消息积压](/messaging/4_rabbitmq#_3、消息积压)。
+系统层面的削峰与限速设计见 [异步与削峰](/high-con/4_async_peak_shaving)，各 MQ 的命令与参数见 [Kafka 生产与消费 · 消息积压](/messaging/3_kafka_client#_1、消息积压)、[RocketMQ 生产与消费 · 消息积压](/messaging/6_rocketmq_client#_3、消息积压)、[RabbitMQ 生产与消费 · 消息积压](/messaging/8_rabbitmq_client#_3、消息积压)。
 
 ---
 
@@ -178,7 +178,7 @@ Kafka 幂等生产者只能消除「生产者重试」这一种重复，其余�
 所以**不要把「在 DB 事务里发 MQ」当作一致性方案**。从 MQ 的角度，可靠的做法只有两类：
 
 - **本地消息表（Outbox）**：业务表与消息表同一本地事务写入，再由投递任务（或 CDC）发到 MQ；不依赖 MQ 的特殊能力，任何 MQ 都能用，见 [分布式事务 · 本地消息表](/distributed/5_transaction#五、本地消息表-transactional-outbox)
-- **RocketMQ 事务消息**：半消息 + 本地事务 + 回查，省掉消息表，代价是绑定 RocketMQ、要实现回查接口，见 [RocketMQ · 事务消息](/messaging/3_rocketmq#七、事务消息)
+- **RocketMQ 事务消息**：半消息 + 本地事务 + 回查，省掉消息表，代价是绑定 RocketMQ、要实现回查接口，见 [RocketMQ 生产与消费 · 事务消息](/messaging/6_rocketmq_client#三、事务消息)
 
 Kafka 的事务只保证多分区写入的原子性，无法与数据库事务绑定，不能替代本地消息表。两类做法都是至少一次投递，下游仍要按第四节幂等消费；「提交后直接发送」的弱保证写法、最大努力通知与各方案对比见 [分布式事务 · 方案选型](/distributed/5_transaction#九、方案选型)。
 
@@ -203,4 +203,4 @@ Kafka 的事务只保证多分区写入的原子性，无法与数据库事务�
 - RocketMQ 事务消息：[RocketMQ: Transaction Message](https://rocketmq.apache.org/docs/featureBehavior/04transactionmessage/)
 - 本地消息表（事务发件箱）：[Pattern: Transactional Outbox](https://microservices.io/patterns/data/transactional-outbox.html)
 
-> 下一篇：[Kafka 架构与存储](./2_kafka) —— 以分区日志为核心的事件流平台，看它如何把吞吐、持久化与回放做到极致。
+> 下一篇：[Kafka 架构与存储](./2_kafka) —— KRaft 架构、副本与可靠性配置、高性能原理、扩分区、Share Group 队列语义

@@ -4,7 +4,7 @@ description: 设备载荷、EMQX 转发 Kafka、Flink 2.x 离线检测与告警�
 
 # 遥测数据链路
 
-> 前置阅读：[时序数据库](/nosql/4_time_series_db)、[Flink 总览](/flink/0_overview)、[通信协议](../1_basics/1_protocol)
+> 前置阅读：[时序数据库概览](/nosql/8_tsdb)、[Flink 总览](/flink/0_overview)、[通信协议](../1_basics/1_protocol)
 
 IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可视化。本篇讲 EMQX 转发 Kafka、Flink 清洗与告警、TDengine 超表、降采样与 Grafana 看板，基线为 Flink 2.2。
 
@@ -57,7 +57,7 @@ IoT 数据链路把设备经 MQTT 上报的数据转发、处理、存储并可�
 
 ### 3、存储选型结论
 
-选型细节见 [时序数据库](/nosql/4_time_series_db) 的「选型对比」，IoT 场景的结论是：
+选型细节见 [时序数据库概览](/nosql/8_tsdb) 的「选型对比」，IoT 场景的结论是：
 
 - 设备量大、schema 一致的工业 / 能源采集：TDengine 或 Apache IoTDB（树模型天然对应「工厂 → 设备 → 测点」）
 - 团队已经重度使用 PostgreSQL、需要和业务表 JOIN：TimescaleDB
@@ -144,7 +144,7 @@ WHERE is_map(payload.values)
 | 分区数 | 按峰值吞吐与 Flink 并行度规划 | Flink Source 并行度不应超过分区数 |
 | 缓冲 | 开启内存 + 磁盘缓冲 | Kafka 短暂不可用时，EMQX 侧先缓冲，恢复后续传 |
 
-Kafka 等数据集成在 5.9 之前属于 EMQX 企业版功能，5.9 起开源版与企业版合并、统一为 BSL 1.1，单节点也能用，许可细则见 [EMQX 许可与部署 · 许可变化](../1_basics/3_emqx_deploy#二、许可变化)。Kafka 本身的分区与可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，消费组见 [Kafka 生产与消费](/messaging/2_kafka_client)。
+Kafka 等数据集成在 5.9 之前属于 EMQX 企业版功能，5.9 起开源版与企业版合并、统一为 BSL 1.1，单节点也能用，许可细则见 [EMQX 许可与部署 · 许可变化](../1_basics/3_emqx_deploy#二、许可变化)。Kafka 本身的分区与可靠性配置见 [Kafka 架构与存储](/messaging/2_kafka)，消费组见 [Kafka 生产与消费](/messaging/3_kafka_client)。
 
 ### 4、小规模：规则引擎直写 TDengine
 
@@ -163,7 +163,7 @@ EMQX 内置 TDengine Sink，规则输出可以直接拼成 `INSERT` 语句写入
 | TimescaleDB | hypertable：按时间自动分块（chunk）的 PostgreSQL 表 | 普通表 `sensors(time, device_id, temperature, humidity)` 转成 hypertable |
 | Apache IoTDB | 树模型，路径 `root.数据库.设备.测点` 就是一条时间序列（2.x 另有表模型） | `root.iot.dev001.temperature`、`root.iot.dev001.humidity` 两条序列 |
 
-以下以 TDengine 为例。时序数据库本身的存储模型与选型对比见 [时序数据库](/nosql/4_time_series_db)，多租户平台用 InfluxDB 3 一张宽表的做法见 [时序存储与历史查询](../4_practice/5_telemetry)，本篇只讲 IoT 场景特有的建模。
+以下以 TDengine 为例。时序数据库本身的存储模型与选型对比见 [时序数据库概览](/nosql/8_tsdb)，多租户平台用 InfluxDB 3 一张宽表的做法见 [时序存储与历史查询](../4_practice/5_telemetry)，本篇只讲 IoT 场景特有的建模。
 
 ### 1、超表与子表
 

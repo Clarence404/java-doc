@@ -230,4 +230,4 @@ while (!keepAliveThreadExecutor.isShutdown()) {
 - MySQL binlog 事件格式：[https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_replication_binlog_event.html](https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_replication_binlog_event.html)
 - binlog_row_metadata：[https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html](https://dev.mysql.com/doc/refman/8.4/en/replication-options-binary-log.html)
 
-> 返回：[数据库总览](../0_overview)
+> 返回：[关系数据库总览](../0_overview)

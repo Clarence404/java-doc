@@ -863,7 +863,7 @@ public class GrafanaAlertController {
 - critical 告警以 SLO 燃烧速率为准，用告警质量数据持续清理噪声；Watchdog 心跳保证告警链路本身可被监控
 - 核心告警用 Prometheus + Alertmanager 管成代码，Grafana Alerting 补充其他数据源：规则按查询 → Reduce → Threshold 配置，「数据不来就是故障」的规则把 No data 设为 Alerting，Webhook 回调要鉴权并按 fingerprint 幂等
 
-相关内容：SLO、错误预算和燃烧速率的计算见 [可用性度量](/high-avail/1_sla_slo)；故障分级（P0–P3）、On-call 排班、升级路径和复盘见 [故障应急与复盘](/high-avail/11_incident_response)；应用侧如何暴露 `/actuator/prometheus` 指标见 [Actuator 监控](/spring-boot/11_actuator) 第六节；Prometheus 长期存储与高可用见 [时序数据库](/nosql/4_time_series_db)。
+相关内容：SLO、错误预算和燃烧速率的计算见 [可用性度量](/high-avail/1_sla_slo)；故障分级（P0–P3）、On-call 排班、升级路径和复盘见 [故障应急与复盘](/high-avail/11_incident_response)；应用侧如何暴露 `/actuator/prometheus` 指标见 [Actuator 监控](/spring-boot/11_actuator) 第六节；Prometheus 长期存储与高可用见 [时序数据库概览](/nosql/8_tsdb)。
 
 ## 参考资料
 

@@ -13,9 +13,9 @@ docs/
 ├── algorithms/     数据结构与算法
 ├── architecture/   系统架构 / DDD / 幂等 / 对象存储与分布式文件系统 / 访问控制
 ├── big-data/       大数据：数仓建模 / Spark / 数据湖 / 数据集成 / 调度 / OLAP / 治理 / 实时数仓
-├── cache/          缓存：Redis / Caffeine
+├── cache/          Redis 与缓存：Redis / Caffeine / 两级缓存 / 缓存一致性
 ├── cloud-native/   云原生：Linux / Docker / Kubernetes / VPS
-├── database/       数据库：原理与选型 / MySQL / PostgreSQL / 其他关系库（含分布式数据库）/ 工程实践（应用接入、分库分表、Schema 变更、备份恢复与 CDC）
+├── database/       关系数据库：原理与选型 / MySQL / PostgreSQL / 其他关系库（含分布式数据库）/ 工程实践（应用接入、分库分表、Schema 变更、备份恢复与 CDC）
 ├── devops/         DevOps：Git 工作流 / CI/CD / Code Review / 团队规范
 ├── distributed/    分布式基础：理论（分布式理论、一致性哈希）/ 协调与一致性（ID、锁、事务）/ 会话与任务（会话、调度、工作流）
 ├── engineering/    工程效率：构建 / 工具链 / 代码质量 / 线上诊断 / API 规范
@@ -30,10 +30,10 @@ docs/
 ├── java-frameworks/ Vert.x 与 Quarkus（选读）：1_vertx/（Event Loop / Verticle / Event Bus / Web / 响应式数据访问）、2_quarkus/（构建期增强 / REST 与 Panache / 原生镜像 / 响应式 / 其他 Java 框架）
 ├── jvm/            JVM 原理与调优
 ├── media/          音视频：编码与封装 / 流媒体协议 / FFmpeg / 流媒体服务器 / WebRTC / 直播 / 点播 / 监控接入
-├── messaging/      消息队列：Kafka / RocketMQ / RabbitMQ
+├── messaging/      消息队列：基础 / Kafka / RocketMQ / RabbitMQ / Pulsar 与其他 MQ / 选型（每种 MQ 分架构、生产与消费两篇）
 ├── microservices/  微服务设计：从单体到微服务 / 服务拆分 / 设计模式 / 服务间通信与契约 / 调用顺序性
 ├── netty/          IO 模型 / Reactor / 核心组件 / ByteBuf / 编解码与私有协议 / 心跳 / WebSocket / SSE / 生产调优
-├── nosql/          NoSQL：键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索与 Elasticsearch / 图
+├── nosql/          NoSQL 数据库：键值与嵌入式 / 文档（MongoDB）/ 列式与 OLAP（HBase、ClickHouse、Doris）/ 时序 / 图 / 搜索与 Elasticsearch，按产品分篇
 ├── observability/  可观测性：日志 / 指标 / 链路追踪 / 告警 / OpenTelemetry
 ├── os/             操作系统：进程线程 / 内核态与系统调用 / 内存与 Page Cache / CPU 缓存 / Load / IPC
 ├── patterns/       设计模式（23 种 GoF）
@@ -68,12 +68,12 @@ docs/
 | 高并发 | `docs/high-con/` | 水平扩展 / 缓存架构 / 削峰 / 数据层扩展 / 热点 / 容量规划 / 四篇实测实验 |
 | 高可用 | `docs/high-avail/` | SLA / 冗余切换 / 限流熔断降级 / 多活容灾 / 优雅上下线 / 四篇实测实验 |
 | 高性能 | `docs/high-perf/` | 指标 / 方法论 / JMH / 池化与异步 / IO 与数据库优化 / Profiler / 四篇实测实验 |
-| 消息队列 | `docs/messaging/` | Kafka / RocketMQ / RabbitMQ |
+| 消息队列 | `docs/messaging/` | 基础 / Kafka / RocketMQ / RabbitMQ / Pulsar / 选型 |
 | 微服务设计 | `docs/microservices/` | 从单体到微服务 / 拆分 / 设计模式 / 服务间通信与契约 / 调用顺序性 |
 | 服务治理 | `docs/service-governance/` | Spring Cloud 主线（注册发现 / API 网关 / 服务调用 / 配置中心 / 流量治理 / Spring Cloud Alibaba / Spring Cloud Stream）/ Dubbo 与服务网格 |
-| 数据库 | `docs/database/` | 原理与选型 / MySQL / PostgreSQL / 其他关系库（含分布式数据库）/ 工程实践：JDBC 驱动、连接池与 ORM、分库分表、Schema 变更与数据迁移、备份恢复与 CDC |
-| NoSQL | `docs/nosql/` | 键值与嵌入式 / 文档 / 列式与 OLAP / 时序 / 搜索 / 图 |
-| 缓存 | `docs/cache/` | Redis / Caffeine / 两级缓存 |
+| 关系数据库 | `docs/database/` | 原理与选型 / MySQL / PostgreSQL / 其他关系库（含分布式数据库）/ 工程实践：JDBC 驱动、连接池与 ORM、分库分表、Schema 变更与数据迁移、备份恢复与 CDC |
+| NoSQL 数据库 | `docs/nosql/` | 键值与嵌入式 / MongoDB / HBase、ClickHouse、Doris / 时序（InfluxDB、TimescaleDB）/ 图 / 搜索与 Elasticsearch |
+| Redis 与缓存 | `docs/cache/` | Redis / Caffeine / 两级缓存 |
 | 系统架构 | `docs/architecture/` | 架构设计 / DDD / 幂等 / 对象存储 / 分布式文件系统 |
 | 项目演进 | `docs/project/` | 工程搭建 / 数据建模 / 接口设计 / 缓存 / 异步 / 服务拆分 / 一致性 / 稳定性 / 可观测与发布 |
 | 业务场景 | `docs/scenario/` | 方法论 / 交易与资金（商品详情、购物车、优惠券、库存与票务、订单、支付、售后与退款、账户与记账）/ 营销活动（秒杀、红包、抽奖、排行榜）/ 内容与社交（Feed、评论、计数、IM、通知中心、LBS）/ 通用能力（短链、搜索、大文件上传、扫码登录、延迟任务）/ 海量数据 |
@@ -97,7 +97,7 @@ docs/
 ```
 基础层：  Java 特性 → JVM → 数据结构与算法 → 操作系统 → 网络协议
 框架层：  Spring → Spring Boot → Netty →（选读）Vert.x 与 Quarkus
-数据层：  数据库 → NoSQL → 缓存 → 消息队列
+数据层：  关系数据库 → NoSQL 数据库 → Redis 与缓存 → 消息队列
 分布式架构：分布式基础 → 微服务设计 → 服务治理
 架构层：  设计模式 → 系统架构 → 业务场景 → 项目演进
 三高架构：高性能 → 高并发 → 高可用
@@ -112,12 +112,12 @@ docs/
 ## 文档约定
 
 - 文件命名：`数字_主题.md`，数字前缀决定侧边栏顺序，全部使用下划线分隔
-- 模块入口：每个模块的 `0_overview.md` 为总览页，标题统一为「X 总览」（X 为 `site.js` 中的模块名，西文名后加空格，如「JVM 总览」「数据库总览」）（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；导航表统一写 `<ModuleNav />`，由各文章的 frontmatter `description` 自动生成，不再手写
+- 模块入口：每个模块的 `0_overview.md` 为总览页，标题统一为「X 总览」（X 为 `site.js` 中的模块名，西文名后加空格，如「JVM 总览」「关系数据库总览」）（模块简介 + 导航表 + 推荐阅读路径 + 关联模块），正文从 1 号开始；导航表统一写 `<ModuleNav />`，由各文章的 frontmatter `description` 自动生成，不再手写
 - 文章 frontmatter：每篇文章开头写一行 `description`（覆盖内容，「、」或「 / 」分隔的要点，15–60 字，不加逗号与句号；总览页不写，题单页 `99_interview` 统一写「X 方向题目清单」，不受 15 字下限约束），供总览页导航表与网页 meta 使用，`docs:check` 会检查字数与标点；侧边栏、导航表中的显示名取 `# 标题`；若标题以所在分组名开头，侧边栏自动去掉该前缀（如 MySQL 组内「MySQL 索引」显示为「索引」），H1 本身保持完整（用于页面标题与搜索）；标题不加「专项 - 」之类的修饰前缀，概述类页面统一叫「概览」
 - 面试题：题目和答案只写在 `docs/interview/` 的答案页（H1「X 面试题解答」，分组 `##` + 题目 `### Q<n>：`）；模块内 `99_interview.md`（H1「高频面试题」）不手写题目，只放 `<InterviewList page="15_mq" />`，构建时从答案页自动生成可点击的题单（一页对应多个模块时加 `groups="1-10"` 取部分分组）；答案页与模块一一对应（Java、Vert.x 与 Quarkus、业务场景各两页，项目演进共用项目难点与亮点页的「项目演进串讲」分组），文件编号按导航分组与模块顺序排列，首页面试题解卡片与侧边栏都按这个顺序显示
 - 答案页写法（简洁口语化，每题 8–12 行）：`**一句话**：` 大白话结论 → 3–5 条一行要点（术语后跟一句通俗解释）→ 至多一张小对比表 → 可选 `**常见坑**：` 1–2 条 → `→ 详见` 链接正文；对比类题目（「A 和 B 的区别」）表格是答案主体时，可写成「一句话 → 对比表 → 要点」，要点接着表格补充；JEP 编号、版本沿革、边界细节留在正文，不写进答案页；例外：项目难点与亮点页（`22_scenario_highlights`）用「一句话 / 背景问题 / 方案要点 / 可量化的效果 / 追问」五段式，每题约 20 行
 - 站点目录：除文章本身外，所有配置只在 `docs/.vuepress/site.js` 维护（模块、分组、名称、侧边栏分组、子目录、答案页对应关系、首页推荐博客 / 页脚）；导航栏、侧边栏、面包屑、总览页导航表和首页都由它与文章自动生成，不在其他文件重复维护
-- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / spring-boot / scenario / patterns / nosql / cache / distributed / service-governance / cloud-native），以及带实验篇的 high-perf（1–11 号原理篇不分组，12 号起归入「实战实验」）、high-con（1–8 号原理篇不分组，9 号起归入「实战实验」）与 high-avail（1–11 号原理篇不分组，12 号起归入「实战实验」）在 `site.js` 对应模块的 `sidebar` 字段里写每组的起始编号 `from`，编号 ≥ `from` 的文章自动归入该组，组内编号可以不连续，不写 `text` 的分组（如 messaging 的 `{from: 3}`）表示从该编号起恢复平铺（`0_overview`、90 号以后的附录与 `99_interview` 不分组；interview 另用 `stripSuffix` 去掉标题末尾的「面试题解答」）；ai / algorithms / database / handbook / iot / java-frameworks 按子目录自动分组（iot 的 `4_practice` 里 7–9 号预留给设备影子、OTA、规则引擎在 Conduit 的实现篇），子目录在 `subdirs` 登记
+- 分组侧边栏：篇数较多的模块（interview / java / jvm / spring / spring-boot / scenario / patterns / nosql / cache / distributed / service-governance / cloud-native），以及带实验篇的 high-perf（1–11 号原理篇不分组，12 号起归入「实战实验」）、high-con（1–8 号原理篇不分组，9 号起归入「实战实验」）与 high-avail（1–11 号原理篇不分组，12 号起归入「实战实验」）在 `site.js` 对应模块的 `sidebar` 字段里写每组的起始编号 `from`，编号 ≥ `from` 的文章自动归入该组，组内编号可以不连续，不写 `text` 的分组（如 messaging 的 `{from: 9}`）表示从该编号起恢复平铺（`0_overview`、90 号以后的附录与 `99_interview` 不分组；interview 另用 `stripSuffix` 去掉标题末尾的「面试题解答」）；ai / algorithms / database / handbook / iot / java-frameworks 按子目录自动分组（iot 的 `4_practice` 里 7–9 号预留给设备影子、OTA、规则引擎在 Conduit 的实现篇），子目录在 `subdirs` 登记
 - 面包屑名称：目录没有 README 时主题会自动生成目录页，模块目录用 `site.js` 的 `name`，子目录的中文名登记在模块的 `subdirs` 字段；新增子目录时同步添加，否则面包屑会显示首字母大写的目录名
 - 首页：`docs/README.md` 使用 `layout: HomeLayout`（杂志式 Bento 首页），实现在 `.vuepress/components/home/HomeEditorial.vue`；内容全部来自 `site.js`（模块、分组、推荐博客、页脚）与文章（开发总结速查取答案页的标题与 description）；文章数 / 题数 / 答案页数 / SVG 数由 `.vuepress/plugins/homeStats.js` 在构建时自动统计；分组配色按分组数量从品牌渐变自动取色
 - 模块边界：同一主题只保留一个主文档，其他模块用一句话概括 + 链接，不重复展开；三高模块写系统级策略，具体技术细节链接到 cache / database / messaging / jvm 等模块

@@ -6,7 +6,7 @@ description: Key / Value / TTL 规范、穿透与击穿防护、逻辑过期、�
 
 > 前置阅读：[Redis 实战](./5_redis_practice)、[缓存一致性](./10_cache_consistency)
 
-本篇是缓存模块的规范清单，也是穿透、击穿防护代码的主文档。内容覆盖 Key / Value / TTL 规范、穿透击穿雪崩的防护写法、禁止事项与监控告警。
+本篇是 Redis 与缓存模块的规范清单，也是穿透、击穿防护代码的主文档。内容覆盖 Key / Value / TTL 规范、穿透击穿雪崩的防护写法、禁止事项与监控告警。
 
 ---
 
@@ -250,4 +250,4 @@ public Optional<User> getUser(long id) {
 - Redis 官方文档 · UNLINK：[https://redis.io/docs/latest/commands/unlink/](https://redis.io/docs/latest/commands/unlink/)
 - Redis 官方文档 · INFO：[https://redis.io/docs/latest/commands/info/](https://redis.io/docs/latest/commands/info/)
 
-> 返回：[缓存总览](./0_overview)
+> 返回：[Redis 与缓存总览](./0_overview)

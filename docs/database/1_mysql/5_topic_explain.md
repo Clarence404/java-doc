@@ -245,7 +245,7 @@ InnoDB 没有像 MyISAM 那样维护总行数：在 MVCC 下，不同事务看�
 ### 3、大表取总数
 
 - 接受近似值：`information_schema.TABLES.TABLE_ROWS`、`SHOW TABLE STATUS` 或 `EXPLAIN` 的 `rows`，都是基于统计信息的估算
-- 需要精确且高频：维护冗余计数表（与业务写入在同一事务内更新），或放到缓存中计数，缓存方案见 [缓存总览](/cache/0_overview)
+- 需要精确且高频：维护冗余计数表（与业务写入在同一事务内更新），或放到缓存中计数，缓存方案见 [Redis 与缓存总览](/cache/0_overview)
 
 ---
 

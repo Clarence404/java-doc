@@ -31,7 +31,7 @@
 - [高并发总览](/high-con/0_overview) / [高可用总览](/high-avail/0_overview) / [高性能总览](/high-perf/0_overview)：系统级的扩展、容灾与性能策略
 - [微服务设计总览](/microservices/0_overview)：服务拆分与微服务设计模式
 - [服务治理总览](/service-governance/0_overview)：Spring Cloud 治理与 Seata 的配置落地
-- [缓存总览](/cache/0_overview)：Redis、Redisson API 与缓存一致性
+- [Redis 与缓存总览](/cache/0_overview)：Redis、Redisson API 与缓存一致性
 - [消息队列总览](/messaging/0_overview)：消息可靠投递、消费幂等与事务消息的中间件细节
 - [幂等设计](/architecture/3_idempotence)：接口与消息消费的幂等方案（唯一约束、状态机、去重表）
 - [分库分表与中间件](/database/4_practice/4_sharding)：分片键、ShardingSphere 与分布式主键的落地

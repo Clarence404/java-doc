@@ -310,7 +310,7 @@ description: MQTT 与协议选型、接入网关与连接风暴、物模型与�
 - 分层保留：原始 7–30 天、5 分钟聚合 1 年、1 小时聚合 3–5 年；聚合层一定要存 `count`
 - 降采样在 TDengine 流计算或 Flink 里二选一，两边同时算会口径不一致
 
-→ 详见 [遥测数据链路](/iot/3_platform/2_data#三、tdengine-超表建模)、[时序数据库](/nosql/4_time_series_db)
+→ 详见 [遥测数据链路](/iot/3_platform/2_data#三、tdengine-超表建模)、[时序数据库概览](/nosql/8_tsdb)
 
 ### Q24：设备离线检测为什么用 KeyedProcessFunction 而不用 CEP？告警放在哪一层？
 

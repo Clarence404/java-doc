@@ -2,9 +2,9 @@
 description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序库、图库、嵌入式库与选型
 ---
 
-# NoSQL 面试题解答
+# NoSQL 数据库面试题解答
 
-> 题目清单见 [NoSQL 面试题](/nosql/99_interview)，细节见 [NoSQL 总览](/nosql/0_overview)；关系库与分库分表见 [数据库面试题解答](/interview/12_db)。
+> 题目清单见 [NoSQL 数据库面试题](/nosql/99_interview)，细节见 [NoSQL 数据库总览](/nosql/0_overview)；关系库与分库分表见 [关系数据库面试题解答](/interview/12_db)。
 
 ## 一、NoSQL 与选型
 
@@ -17,7 +17,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 - 写入默认要多数节点确认（`w: "majority"`）；从从节点读可能读到旧数据
 - 分片键要覆盖主要查询条件；单调递增的键做范围分片会形成写热点
 
-→ 详见 [文档数据库](/nosql/2_document_db#二、文档建模)、[文档数据库 · 多文档事务](/nosql/2_document_db#八、多文档事务)
+→ 详见 [MongoDB 基础](/nosql/3_mongodb_basics#二、文档建模)、[MongoDB 集群与事务 · 多文档事务](/nosql/4_mongodb_cluster#三、多文档事务)
 
 ### Q2：Elasticsearch 为什么能快速全文检索？写入后为什么不能立刻搜到？
 
@@ -30,7 +30,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 
 **常见坑**：主分片数建好后不能直接改，规划时要留余量。
 
-→ 详见 [Elasticsearch 原理](/nosql/7_search_es#_1、倒排索引)、[Elasticsearch 原理](/nosql/7_search_es#_2、refresh、translog-与-flush)
+→ 详见 [Elasticsearch 原理](/nosql/14_search_es#_1、倒排索引)、[Elasticsearch 原理](/nosql/14_search_es#_2、refresh、translog-与-flush)
 
 ### Q3：ES 深分页怎么做？数据如何从数据库同步到 ES？
 
@@ -43,7 +43,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 
 **常见坑**：在业务代码里同时写数据库和 ES（双写），一边失败就不一致，优先用 CDC 或可靠消息。
 
-→ 详见 [Elasticsearch 实战](/nosql/8_search_es_practice#三、深分页)、[Elasticsearch 实战](/nosql/8_search_es_practice#五、与-mysql-同步)
+→ 详见 [Elasticsearch 实战](/nosql/15_search_es_practice#三、深分页)、[Elasticsearch 实战](/nosql/15_search_es_practice#五、与-mysql-同步)
 
 ### Q4：ES 一次搜索请求是怎么执行的？相关性分数怎么算？
 
@@ -56,7 +56,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 
 **常见坑**：想调业务排序（销量、新品）去改 BM25 参数，应该用 `function_score` 或重排。
 
-→ 详见 [Elasticsearch 原理](/nosql/7_search_es#六、读流程)
+→ 详见 [Elasticsearch 原理](/nosql/14_search_es#六、读流程)
 
 ### Q5：ES 集群怎么选主？怎么防止脑裂？
 
@@ -69,7 +69,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 
 **常见坑**：数据节点、主节点混用，大查询把节点打满后主节点失联，集群反复选主。
 
-→ 详见 [Elasticsearch 原理](/nosql/7_search_es#_2、选主、脑裂与-quorum)
+→ 详见 [Elasticsearch 原理](/nosql/14_search_es#_2、选主、脑裂与-quorum)
 
 ### Q6：text 和 keyword 有什么区别？对象数组为什么会查出错误结果？
 
@@ -82,7 +82,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 
 **常见坑**：对 `text` 字段聚合报错就去开 `fielddata`，会把数据全塞进堆内存，应改为聚合 `.keyword` 子字段。
 
-→ 详见 [Elasticsearch 实战](/nosql/8_search_es_practice#一、mapping-设计)
+→ 详见 [Elasticsearch 实战](/nosql/15_search_es_practice#一、mapping-设计)
 
 ### Q7：bool 查询里 must 和 filter 有什么区别？聚合靠什么实现？
 
@@ -97,7 +97,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 - `terms` 聚合在多分片下是近似值，要更准就调大 `shard_size`
 - 只要统计结果时写 `size: 0`，结果能进缓存
 
-→ 详见 [Elasticsearch 实战](/nosql/8_search_es_practice#二、查询与聚合)
+→ 详见 [Elasticsearch 实战](/nosql/15_search_es_practice#二、查询与聚合)
 
 ### Q8：ES 字段类型建错了怎么改？日志这类数据的索引怎么管理？
 
@@ -110,7 +110,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 
 **常见坑**：日志按条 `delete_by_query` 删过期数据，又慢又占资源，应该按索引整个删。
 
-→ 详见 [Elasticsearch 实战](/nosql/8_search_es_practice#四、索引生命周期)
+→ 详见 [Elasticsearch 实战](/nosql/15_search_es_practice#四、索引生命周期)
 
 ### Q9：ES 写入慢、集群变 yellow 或 red 怎么排查？
 
@@ -123,7 +123,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 
 **常见坑**：每次写入都带 `refresh=true` 强制刷新，生成大量小段，写入和查询一起变慢。
 
-→ 详见 [Elasticsearch 实战](/nosql/8_search_es_practice#六、性能调优)、[Elasticsearch 实战](/nosql/8_search_es_practice#_1、集群-red-与-yellow)
+→ 详见 [Elasticsearch 实战](/nosql/15_search_es_practice#六、性能调优)、[Elasticsearch 实战](/nosql/15_search_es_practice#_1、集群-red-与-yellow)
 
 ### Q10：HBase、ClickHouse、Doris / StarRocks 有什么区别？ClickHouse 为什么不适合频繁更新？
 
@@ -138,7 +138,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 - ClickHouse 写入要攒批：每次至少 1000 行，最好 1 万～10 万行
 - HBase 的行键单调递增会形成写热点，用哈希前缀或加盐打散
 
-→ 详见 [列式与 OLAP 数据库](/nosql/3_column_db#四、选型对比)
+→ 详见 [Doris 与 StarRocks](/nosql/7_doris_starrocks#四、选型对比)
 
 ### Q11：时序数据为什么不用 MySQL 存？什么时候需要图数据库？
 
@@ -155,7 +155,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 
 **常见坑**：时序数据库里把 user_id、订单号这种取值很多的字段当标签，序列数会爆炸。
 
-→ 详见 [时序数据库](/nosql/4_time_series_db#六、选型对比)、[图数据库](/nosql/5_graph_db#五、选型对比)
+→ 详见 [时序数据库概览](/nosql/8_tsdb#四、选型对比)、[图数据库概览](/nosql/11_graph_db#三、选型对比)
 
 ### Q12：RocksDB 是什么？为什么 TiKV、Flink、Kafka Streams 都用它？
 
@@ -168,7 +168,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 
 **常见坑**：Java 里的 RocksDB 对象占的是堆外内存，不关闭就泄漏，表现为堆正常但容器被 OOM Kill。
 
-→ 详见 [键值与嵌入式数据库](/nosql/1_kv_db#二、嵌入式-kv-引擎-rocksdb)
+→ 详见 [键值存储：RocksDB、TiKV 与 etcd](/nosql/1_kv_store#二、嵌入式-kv-引擎-rocksdb)
 
 ### Q13：etcd 适合存什么？它的 revision 和 Watch 是怎么回事？
 
@@ -181,7 +181,7 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 
 **常见坑**：把业务数据或大 value 塞进 etcd，或部署在慢盘上，结果配额打满、频繁选主。
 
-→ 详见 [键值与嵌入式数据库](/nosql/1_kv_db#四、强一致小数据-kv-etcd)
+→ 详见 [键值存储：RocksDB、TiKV 与 etcd](/nosql/1_kv_store#四、强一致小数据-kv-etcd)
 
 ### Q14：单元测试用 H2 代替 MySQL 有什么问题？SQLite、DuckDB 又适合什么场景？
 
@@ -196,4 +196,4 @@ description: MongoDB 建模、Elasticsearch 检索与深分页、HBase、时序�
 - H2 兼容模式不覆盖 `jsonb`、`SKIP LOCKED` 等特性，升级 2.x 还会遇到关键字冲突
 - SQLite 开 WAL 后读写互不阻塞，但同一时刻只能有一个写者
 
-→ 详见 [键值与嵌入式数据库](/nosql/1_kv_db#五、嵌入式关系数据库)
+→ 详见 [嵌入式数据库：SQLite、H2 与 DuckDB](/nosql/2_embedded_db)

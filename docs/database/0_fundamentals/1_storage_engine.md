@@ -209,11 +209,11 @@ Compaction 和前台请求抢同一块磁盘和 CPU，是 LSM 线上问题的主
 | B+ 树 | PostgreSQL | 数据存在无序的堆表（heap），索引默认是 B-tree；更新写新元组而非原地改，见 [PostgreSQL MVCC 与 VACUUM](../2_postgresql/1_topic_mvcc) |
 | B+ 树 | SQLite | 单文件嵌入式库，表和索引都是 B 树页 |
 | LSM | LevelDB / RocksDB | LevelDB 是经典实现，RocksDB 是其工业级分支，见第七节 |
-| LSM | HBase | WAL + MemStore + HFile，按 Region 拆分，见 [列式与 OLAP 数据库](/nosql/3_column_db#_4、读写流程-lsm-树) |
+| LSM | HBase | WAL + MemStore + HFile，按 Region 拆分，见 [HBase](/nosql/5_hbase#五、读写流程-lsm-树) |
 | LSM | Cassandra | 每个节点一套 LSM，传统默认 Size-tiered，适合多写少读的大规模集群 |
 | LSM | TiKV | 每个节点的数据存进 RocksDB，上层用 Raft 复制，见 [分布式数据库](../3_relational/2_distributed_db#_3、tikv-region-与-raft) |
-| LSM 变体 | InfluxDB 1.x / 2.x TSM | 针对时间序列优化的 LSM，按序列列式压缩，见 [时序数据库](/nosql/4_time_series_db) |
-| LSM 变体 | ClickHouse MergeTree | 每次插入生成一个不可变的有序数据片段，后台合并；没有 MemTable，所以要求批量写，见 [列式与 OLAP 数据库](/nosql/3_column_db#_3、mergetree-引擎) |
+| LSM 变体 | InfluxDB 1.x / 2.x TSM | 针对时间序列优化的 LSM，按序列列式压缩，见 [时序数据库概览](/nosql/8_tsdb) |
+| LSM 变体 | ClickHouse MergeTree | 每次插入生成一个不可变的有序数据片段，后台合并；没有 MemTable，所以要求批量写，见 [ClickHouse](/nosql/6_clickhouse#三、mergetree-引擎) |
 | LSM 变体 | OceanBase | 增量 MemTable + 基线 SSTable，每日合并 |
 | 两者 | WiredTiger | 引擎层面实现过 B 树和 LSM 两种表，MongoDB 实际使用其 B 树 |
 
@@ -233,7 +233,7 @@ RocksDB 由 Facebook 在 2012 年基于 LevelDB 分支开发，提供列族、�
 - **Kafka Streams**：持久化状态存储默认就是 RocksDB
 - 其他：MyRocks（MySQL 的 RocksDB 引擎）、Ceph BlueStore 的元数据、各类自研 KV 与消息存储
 
-RocksDB、TiKV、etcd 与嵌入式数据库的用法和选型见 [键值与嵌入式数据库](/nosql/1_kv_db)。
+RocksDB、TiKV、etcd 与嵌入式数据库的用法和选型见 [嵌入式数据库：SQLite、H2 与 DuckDB](/nosql/2_embedded_db)。
 
 ### 2、关键调优参数
 

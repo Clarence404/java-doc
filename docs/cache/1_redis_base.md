@@ -4,7 +4,7 @@ description: 五种基础类型、Bitmap / HLL / GEO / Stream、Redis 8 内置�
 
 # Redis 基础
 
-> 前置阅读：[缓存总览](./0_overview)
+> 前置阅读：[Redis 与缓存总览](./0_overview)
 
 Redis 是基于内存的键值数据库，每种数据类型按数据量自动在紧凑编码和通用编码之间切换。本篇讲各类型的命令、用途、底层编码与许可演变，基线为 Redis 8。
 

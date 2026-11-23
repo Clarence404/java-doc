@@ -1,5 +1,5 @@
 ---
-description: 数据库方向题目清单
+description: 关系数据库方向题目清单
 ---
 
 # 高频面试题

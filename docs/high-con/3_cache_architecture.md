@@ -12,7 +12,7 @@ description: 多级缓存分层、命中率叠加与一致性取舍、缓存预�
 
 ## 一、多级缓存架构
 
-本篇只讲系统级的分层与策略，Redis、Caffeine 等技术细节见 [缓存模块](/cache/0_overview)。
+本篇只讲系统级的分层与策略，Redis、Caffeine 等技术细节见 [Redis 与缓存](/cache/0_overview) 模块。
 
 ![缓存加速](../assets/high-con/cache.svg)
 
@@ -145,6 +145,6 @@ public class HotItemWarmer implements ApplicationRunner {
 ## 参考资料
 
 - [有赞透明多级缓存解决方案 TMC](https://tech.youzan.com/tmc/)
-- [缓存模块总览](/cache/0_overview)
+- [Redis 与缓存总览](/cache/0_overview)
 
 > 下一篇：[异步与削峰](./4_async_peak_shaving) —— 缓存扛住了读，接下来处理写流量和瞬时洪峰。
